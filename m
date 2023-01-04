@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCDE665D56D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:19:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EC265D56E
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:19:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235041AbjADOTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:19:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44328 "EHLO
+        id S235134AbjADOTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:19:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236367AbjADOTM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:19:12 -0500
+        with ESMTP id S239213AbjADOTP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:19:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 043FF1E3C6
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:19:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA331EADE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:19:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80181B81674
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:19:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E129EC433D2;
-        Wed,  4 Jan 2023 14:19:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75A04B81677
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCBE9C433EF;
+        Wed,  4 Jan 2023 14:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672841947;
-        bh=sDkZq3WnHT/4OVAy3BM7lv1AxV45AQkZgfiVeFfP7Jc=;
+        s=korg; t=1672841951;
+        bh=u32SNT0nbgo6OrnQ2ah4BjK5iMrBEk3i+hgauHrVgCE=;
         h=Subject:To:Cc:From:Date:From;
-        b=TEWraBeivXXmMLsQ2RZ+0CTo1OX+lH9RyHcwIlcUcSgQ/oFGez/ZU6x7oju2SxCXk
-         ZnrGGn4IYD4DjHynSFpiNOWne3NFZxckwDJ8WIEanRYtpBqSRJpTZI2SDKxtxuBGvk
-         Q00O7/U2TVuTES2WtiSQFfa1C9VCF78WfWdppj2Q=
-Subject: FAILED: patch "[PATCH] drm/amdgpu/mst: Stop ignoring error codes and deadlocking" failed to apply to 6.1-stable tree
+        b=zWoLEQUKP5b0VIN81FU3zPvPz4bw+wfNcEB+p+MFyIlCQ4WSmAFaJmRYcNNPrWegU
+         LXc0AbHInkH5OQlFS1fRqmpGQhl89wsowVxzg+Up1A4GeixT7jcXDa/j8KjEG/u69Z
+         nYNarILWKsFAcD5Fwqu3NaWSTbDG+xaUpVZf4XNI=
+Subject: FAILED: patch "[PATCH] drm/amdgpu/mst: Stop ignoring error codes and deadlocking" failed to apply to 6.0-stable tree
 To:     lyude@redhat.com, Wayne.Lin@amd.com, alexander.deucher@amd.com,
         harry.wentland@amd.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:19:04 +0100
-Message-ID: <1672841944173237@kroah.com>
+Date:   Wed, 04 Jan 2023 15:19:05 +0100
+Message-ID: <167284194511714@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,16 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 7cce4cd628be ("drm/amdgpu/mst: Stop ignoring error codes and deadlocking")
+876fcc4222e1 ("drm/amd/display: Validate DSC After Enable All New CRTCs")
+4d07b0bc4034 ("drm/display/dp_mst: Move all payload info into the atomic state")
+6366fc70deb9 ("drm/display/dp_mst: Maintain time slot allocations when deleting payloads")
+a5c2c0d164e9 ("drm/display/dp_mst: Add nonblocking helpers for DP MST")
+0b4e477e08a1 ("drm/display/dp_mst: Add helper for finding payloads in atomic MST state")
+0bee2ae29eb4 ("drm/display/dp_mst: Add some missing kdocs for atomic MST structs")
+df78f7f660cd ("drm/display/dp_mst: Call them time slots, not VCPI slots")
+48b6b3726fb7 ("drm/display/dp_mst: Rename drm_dp_mst_vcpi_allocation")
+dbaadb3cebaa ("drm/amdgpu/dm/mst: Rename get_payload_table()")
+8c5e9bbb3662 ("drm/amdgpu/dc/mst: Rename dp_mst_stream_allocation(_table)")
 
 thanks,
 
