@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D25565D6C6
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:03:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCFAA65D6C8
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbjADPDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233421AbjADPDF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 4 Jan 2023 10:03:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49864 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234874AbjADPCp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:02:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE1FB1DF
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:02:44 -0800 (PST)
+        with ESMTP id S229600AbjADPC6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:02:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C79A6126
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:02:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 046B1B81698
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:02:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34100C433A0;
-        Wed,  4 Jan 2023 15:02:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6487061738
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:02:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B37C4339C;
+        Wed,  4 Jan 2023 15:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844561;
-        bh=wj5XoeidPud/QLly8SwDG6K+9N4sQAjpVVI3q0xNY9Q=;
+        s=korg; t=1672844576;
+        bh=1NmPLQAH521+I46X+ypPTTnDqbDFmPW5yvyNoqk1nnA=;
         h=Subject:To:Cc:From:Date:From;
-        b=ejaQAD60sAs1wU7/HsCPLUWhCzd4b4AUjfU+tL1RTk5TXqXpS8qo1ahjnWzO58EhN
-         fEVnG0EHchl9G6o/CA9HRuvDIRuxXVnqz3fvPzvv55EHJqzVkjPI7PEgiSmTiOx2+Q
-         rHJJZL+b5ysbBvncQ4XlZjricp2NQdDKMiwcg7EE=
-Subject: FAILED: patch "[PATCH] ext4: don't set up encryption key during jbd2 transaction" failed to apply to 5.10-stable tree
+        b=fqzvyzIaHAPq6KbA0RHop+WWLsnklDKlgIIsB5NoysCeNAXkHQXYRmrW7OS5AlpYw
+         Undr/YE6yVD6fpNvAjfdcxFrZvZC5Vo+byH+JrXTOuv1UjevINxNe2rA4ARW/tCKqd
+         X0Jixk6OF7/MFn0FtJl2+eJm+Cm/QaVZYoDpLt9Y=
+Subject: FAILED: patch "[PATCH] ext4: add missing validation of fast-commit record lengths" failed to apply to 5.15-stable tree
 To:     ebiggers@google.com, stable@vger.kernel.org, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:02:36 +0100
-Message-ID: <167284455613548@kroah.com>
+Date:   Wed, 04 Jan 2023 16:02:53 +0100
+Message-ID: <1672844573117226@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,24 +47,22 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-4c0d5778385c ("ext4: don't set up encryption key during jbd2 transaction")
-5298d4bfe80f ("unicode: clean up the Kconfig symbol confusion")
-2b3d04787012 ("unicode: Add utf8-data module")
-6ca99ce756c2 ("unicode: cache the normalization tables in struct unicode_map")
-fbc59d65059e ("unicode: move utf8cursor to utf8-selftest.c")
-9012d79cf0c7 ("unicode: simplify utf8len")
-379210db489c ("unicode: remove the unused utf8{,n}age{min,max} functions")
-49bd03cc7e95 ("unicode: pass a UNICODE_AGE() tripple to utf8_load")
-f3a9c8239600 ("unicode: mark the version field in struct unicode_map unsigned")
-a440943e68cd ("unicode: remove the charset field from struct unicode_map")
-227c4d507c71 ("Merge tag 'f2fs-for-5.14-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/jaegeuk/f2fs")
+64b4a25c3de8 ("ext4: add missing validation of fast-commit record lengths")
+1b45cc5c7b92 ("ext4: fix potential out of bound read in ext4_fc_replay_scan()")
+dcc5827484d6 ("ext4: factor out ext4_fc_get_tl()")
+fdc2a3c75dd8 ("ext4: introduce EXT4_FC_TAG_BASE_LEN helper")
+ccbf8eeb39f2 ("ext4: fix miss release buffer head in ext4_fc_write_inode")
+4978c659e7b5 ("ext4: use ext4_debug() instead of jbd_debug()")
+d9bf099cb980 ("ext4: add commit_tid info in jbd debug log")
+0915e464cb27 ("ext4: simplify updating of fast commit stats")
+7bbbe241ec7c ("ext4: drop ineligible txn start stop APIs")
 
 thanks,
 
@@ -72,158 +70,96 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4c0d5778385cb3618ff26a561ce41de2b7d9de70 Mon Sep 17 00:00:00 2001
+From 64b4a25c3de81a69724e888ec2db3533b43816e2 Mon Sep 17 00:00:00 2001
 From: Eric Biggers <ebiggers@google.com>
-Date: Sun, 6 Nov 2022 14:48:36 -0800
-Subject: [PATCH] ext4: don't set up encryption key during jbd2 transaction
+Date: Sun, 6 Nov 2022 14:48:38 -0800
+Subject: [PATCH] ext4: add missing validation of fast-commit record lengths
 
-Commit a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
-extended the scope of the transaction in ext4_unlink() too far, making
-it include the call to ext4_find_entry().  However, ext4_find_entry()
-can deadlock when called from within a transaction because it may need
-to set up the directory's encryption key.
+Validate the inode and filename lengths in fast-commit journal records
+so that a malicious fast-commit journal cannot cause a crash by having
+invalid values for these.  Also validate EXT4_FC_TAG_DEL_RANGE.
 
-Fix this by restoring the transaction to its original scope.
-
-Reported-by: syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com
-Fixes: a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
+Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
 Cc: <stable@vger.kernel.org> # v5.10+
 Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221106224841.279231-3-ebiggers@kernel.org
+Link: https://lore.kernel.org/r/20221106224841.279231-5-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 3afdd99bb214..4e739902dc03 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -3620,8 +3620,8 @@ extern void ext4_initialize_dirent_tail(struct buffer_head *bh,
- 					unsigned int blocksize);
- extern int ext4_handle_dirty_dirblock(handle_t *handle, struct inode *inode,
- 				      struct buffer_head *bh);
--extern int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
--			 struct inode *inode);
-+extern int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
-+			 struct inode *inode, struct dentry *dentry);
- extern int __ext4_link(struct inode *dir, struct inode *inode,
- 		       struct dentry *dentry);
- 
 diff --git a/fs/ext4/fast_commit.c b/fs/ext4/fast_commit.c
-index 6d98f2b39b77..da0c8228cf9c 100644
+index 1e8be0554239..d5ad4b2b235d 100644
 --- a/fs/ext4/fast_commit.c
 +++ b/fs/ext4/fast_commit.c
-@@ -1397,7 +1397,7 @@ static int ext4_fc_replay_unlink(struct super_block *sb, struct ext4_fc_tl *tl,
- 		return 0;
- 	}
- 
--	ret = __ext4_unlink(NULL, old_parent, &entry, inode);
-+	ret = __ext4_unlink(old_parent, &entry, inode, NULL);
- 	/* -ENOENT ok coz it might not exist anymore. */
- 	if (ret == -ENOENT)
- 		ret = 0;
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index c08c0aba1883..a789ea9b61a0 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3204,14 +3204,20 @@ static int ext4_rmdir(struct inode *dir, struct dentry *dentry)
- 	return retval;
+@@ -1991,32 +1991,31 @@ void ext4_fc_replay_cleanup(struct super_block *sb)
+ 	kfree(sbi->s_fc_replay_state.fc_modified_inodes);
  }
  
--int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
--		  struct inode *inode)
-+int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
-+		  struct inode *inode,
-+		  struct dentry *dentry /* NULL during fast_commit recovery */)
+-static inline bool ext4_fc_tag_len_isvalid(struct ext4_fc_tl *tl,
+-					   u8 *val, u8 *end)
++static bool ext4_fc_value_len_isvalid(struct ext4_sb_info *sbi,
++				      int tag, int len)
  {
- 	int retval = -ENOENT;
- 	struct buffer_head *bh;
- 	struct ext4_dir_entry_2 *de;
-+	handle_t *handle;
- 	int skip_remove_dentry = 0;
- 
-+	/*
-+	 * Keep this outside the transaction; it may have to set up the
-+	 * directory's encryption key, which isn't GFP_NOFS-safe.
-+	 */
- 	bh = ext4_find_entry(dir, d_name, &de, NULL);
- 	if (IS_ERR(bh))
- 		return PTR_ERR(bh);
-@@ -3228,7 +3234,14 @@ int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name
- 		if (EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY)
- 			skip_remove_dentry = 1;
- 		else
--			goto out;
-+			goto out_bh;
-+	}
-+
-+	handle = ext4_journal_start(dir, EXT4_HT_DIR,
-+				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
-+	if (IS_ERR(handle)) {
-+		retval = PTR_ERR(handle);
-+		goto out_bh;
- 	}
- 
- 	if (IS_DIRSYNC(dir))
-@@ -3237,12 +3250,12 @@ int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name
- 	if (!skip_remove_dentry) {
- 		retval = ext4_delete_entry(handle, dir, de, bh);
- 		if (retval)
--			goto out;
-+			goto out_handle;
- 		dir->i_ctime = dir->i_mtime = current_time(dir);
- 		ext4_update_dx_flag(dir);
- 		retval = ext4_mark_inode_dirty(handle, dir);
- 		if (retval)
--			goto out;
-+			goto out_handle;
- 	} else {
- 		retval = 0;
- 	}
-@@ -3255,15 +3268,17 @@ int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name
- 		ext4_orphan_add(handle, inode);
- 	inode->i_ctime = current_time(inode);
- 	retval = ext4_mark_inode_dirty(handle, inode);
+-	if (val + tl->fc_len > end)
+-		return false;
 -
--out:
-+	if (dentry && !retval)
-+		ext4_fc_track_unlink(handle, dentry);
-+out_handle:
-+	ext4_journal_stop(handle);
-+out_bh:
- 	brelse(bh);
- 	return retval;
+-	/* Here only check ADD_RANGE/TAIL/HEAD which will read data when do
+-	 * journal rescan before do CRC check. Other tags length check will
+-	 * rely on CRC check.
+-	 */
+-	switch (tl->fc_tag) {
++	switch (tag) {
+ 	case EXT4_FC_TAG_ADD_RANGE:
+-		return (sizeof(struct ext4_fc_add_range) == tl->fc_len);
+-	case EXT4_FC_TAG_TAIL:
+-		return (sizeof(struct ext4_fc_tail) <= tl->fc_len);
+-	case EXT4_FC_TAG_HEAD:
+-		return (sizeof(struct ext4_fc_head) == tl->fc_len);
++		return len == sizeof(struct ext4_fc_add_range);
+ 	case EXT4_FC_TAG_DEL_RANGE:
++		return len == sizeof(struct ext4_fc_del_range);
++	case EXT4_FC_TAG_CREAT:
+ 	case EXT4_FC_TAG_LINK:
+ 	case EXT4_FC_TAG_UNLINK:
+-	case EXT4_FC_TAG_CREAT:
++		len -= sizeof(struct ext4_fc_dentry_info);
++		return len >= 1 && len <= EXT4_NAME_LEN;
+ 	case EXT4_FC_TAG_INODE:
++		len -= sizeof(struct ext4_fc_inode);
++		return len >= EXT4_GOOD_OLD_INODE_SIZE &&
++			len <= sbi->s_inode_size;
+ 	case EXT4_FC_TAG_PAD:
+-	default:
+-		return true;
++		return true; /* padding can have any length */
++	case EXT4_FC_TAG_TAIL:
++		return len >= sizeof(struct ext4_fc_tail);
++	case EXT4_FC_TAG_HEAD:
++		return len == sizeof(struct ext4_fc_head);
+ 	}
++	return false;
  }
  
- static int ext4_unlink(struct inode *dir, struct dentry *dentry)
- {
--	handle_t *handle;
- 	int retval;
+ /*
+@@ -2079,7 +2078,8 @@ static int ext4_fc_replay_scan(journal_t *journal,
+ 	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
+ 		ext4_fc_get_tl(&tl, cur);
+ 		val = cur + EXT4_FC_TAG_BASE_LEN;
+-		if (!ext4_fc_tag_len_isvalid(&tl, val, end)) {
++		if (tl.fc_len > end - val ||
++		    !ext4_fc_value_len_isvalid(sbi, tl.fc_tag, tl.fc_len)) {
+ 			ret = state->fc_replay_num_tags ?
+ 				JBD2_FC_REPLAY_STOP : -ECANCELED;
+ 			goto out_err;
+diff --git a/fs/ext4/fast_commit.h b/fs/ext4/fast_commit.h
+index 256f2ad27204..2fadb2c4780c 100644
+--- a/fs/ext4/fast_commit.h
++++ b/fs/ext4/fast_commit.h
+@@ -58,7 +58,7 @@ struct ext4_fc_dentry_info {
+ 	__u8 fc_dname[];
+ };
  
- 	if (unlikely(ext4_forced_shutdown(EXT4_SB(dir->i_sb))))
-@@ -3281,16 +3296,7 @@ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
- 	if (retval)
- 		goto out_trace;
- 
--	handle = ext4_journal_start(dir, EXT4_HT_DIR,
--				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
--	if (IS_ERR(handle)) {
--		retval = PTR_ERR(handle);
--		goto out_trace;
--	}
--
--	retval = __ext4_unlink(handle, dir, &dentry->d_name, d_inode(dentry));
--	if (!retval)
--		ext4_fc_track_unlink(handle, dentry);
-+	retval = __ext4_unlink(dir, &dentry->d_name, d_inode(dentry), dentry);
- #if IS_ENABLED(CONFIG_UNICODE)
- 	/* VFS negative dentries are incompatible with Encoding and
- 	 * Case-insensitiveness. Eventually we'll want avoid
-@@ -3301,8 +3307,6 @@ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
- 	if (IS_CASEFOLDED(dir))
- 		d_invalidate(dentry);
- #endif
--	if (handle)
--		ext4_journal_stop(handle);
- 
- out_trace:
- 	trace_ext4_unlink_exit(dentry, retval);
+-/* Value structure for EXT4_FC_TAG_INODE and EXT4_FC_TAG_INODE_PARTIAL. */
++/* Value structure for EXT4_FC_TAG_INODE. */
+ struct ext4_fc_inode {
+ 	__le32 fc_ino;
+ 	__u8 fc_raw_inode[];
 
