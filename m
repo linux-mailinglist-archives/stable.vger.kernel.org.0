@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E81465D8E8
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:19:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7773765D8A0
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239974AbjADQTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:19:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43166 "EHLO
+        id S239939AbjADQQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:16:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239963AbjADQTf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:35 -0500
+        with ESMTP id S239948AbjADQQQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8BEA3E0C9
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4103C383
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:16:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7B8DB81731
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2AFAC433EF;
-        Wed,  4 Jan 2023 16:19:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8085CB8172B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:16:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC793C433EF;
+        Wed,  4 Jan 2023 16:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849171;
-        bh=sDwQr0Wn1l01rcLgMrwtjowdjVfEvBNikKRTBJ+29/4=;
+        s=korg; t=1672848970;
+        bh=zrfU231GJK/axSv6kEzBi+LS+JM7t34THONAJX0/JrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jUbcQXaGHmFvmQM2fnIf9zBXHSN1iA5AACWToKyrqe5r2Evk4MHdka6IuuP2JsK3G
-         rj/GRBd+QZoSZUueVAKSljauYGa2mZLpgSYxM5iWFomDE/7HBaCaVXO8vKyCqs44JA
-         sw6fw88d5Y4tJcHhGkEGeSlqlA3f0Uc9scYi8tVs=
+        b=L1M/Sj3YL1Vui2pxLl2C6v77rMiaXoU6ZzcSvlrrUtUSDA4BKmzi2TMW0fO5ZVXRq
+         bBu1y2QcBdXWJGze5qte3Hg+aVzeiKz0NOvPOdBQlrLWYRgYe8lCUuGIdm9Ld+aPVH
+         HI7EJjPCFfTT365qVhwDRnfSONB6aKFtax+Kj3ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 6.0 077/177] ARM: 9256/1: NWFPE: avoid compiler-generated __aeabi_uldivmod
+        patches@lists.linux.dev, Yang Wang <KevinYang.Wang@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 110/207] drm/amdgpu: fix mmhub register base coding error
 Date:   Wed,  4 Jan 2023 17:06:08 +0100
-Message-Id: <20230104160509.986865338@linuxfoundation.org>
+Message-Id: <20230104160515.388707543@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Yang Wang <KevinYang.Wang@amd.com>
 
-commit 3220022038b9a3845eea762af85f1c5694b9f861 upstream.
+commit 347fafe0eb46df941965c355c77ce480e4d49f1f upstream.
 
-clang-15's ability to elide loops completely became more aggressive when
-it can deduce how a variable is being updated in a loop. Counting down
-one variable by an increment of another can be replaced by a modulo
-operation.
+fix MMHUB register base coding error.
 
-For 64b variables on 32b ARM EABI targets, this can result in the
-compiler generating calls to __aeabi_uldivmod, which it does for a do
-while loop in float64_rem().
+Fixes: ec6837591f992 ("drm/amdgpu/gmc10: program the smallK fragment size")
 
-For the kernel, we'd generally prefer that developers not open code 64b
-division via binary / operators and instead use the more explicit
-helpers from div64.h. On arm-linux-gnuabi targets, failure to do so can
-result in linkage failures due to undefined references to
-__aeabi_uldivmod().
-
-While developers can avoid open coding divisions on 64b variables, the
-compiler doesn't know that the Linux kernel has a partial implementation
-of a compiler runtime (--rtlib) to enforce this convention.
-
-It's also undecidable for the compiler whether the code in question
-would be faster to execute the loop vs elide it and do the 64b division.
-
-While I actively avoid using the internal -mllvm command line flags, I
-think we get better code than using barrier() here, which will force
-reloads+spills in the loop for all toolchains.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1666
-
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Yang Wang <KevinYang.Wang@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/nwfpe/Makefile |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c   |    2 +-
+ drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c   |    2 +-
+ drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c   |    2 +-
+ drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c |    2 +-
+ drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/arm/nwfpe/Makefile
-+++ b/arch/arm/nwfpe/Makefile
-@@ -11,3 +11,9 @@ nwfpe-y				+= fpa11.o fpa11_cpdo.o fpa11
- 				   entry.o
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
+@@ -319,7 +319,7 @@ static void mmhub_v2_0_init_cache_regs(s
  
- nwfpe-$(CONFIG_FPE_NWFPE_XP)	+= extended_cpdo.o
-+
-+# Try really hard to avoid generating calls to __aeabi_uldivmod() from
-+# float64_rem() due to loop elision.
-+ifdef CONFIG_CC_IS_CLANG
-+CFLAGS_softfloat.o	+= -mllvm -replexitval=never
-+endif
+ 	tmp = mmMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, mmMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, mmMMVM_L2_CNTL5, tmp);
+ }
+ 
+ static void mmhub_v2_0_enable_system_domain(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_3.c
+@@ -243,7 +243,7 @@ static void mmhub_v2_3_init_cache_regs(s
+ 
+ 	tmp = mmMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, mmMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, mmMMVM_L2_CNTL5, tmp);
+ }
+ 
+ static void mmhub_v2_3_enable_system_domain(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0.c
+@@ -275,7 +275,7 @@ static void mmhub_v3_0_init_cache_regs(s
+ 
+ 	tmp = regMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
+ }
+ 
+ static void mmhub_v3_0_enable_system_domain(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_1.c
+@@ -269,7 +269,7 @@ static void mmhub_v3_0_1_init_cache_regs
+ 
+ 	tmp = regMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
+ }
+ 
+ static void mmhub_v3_0_1_enable_system_domain(struct amdgpu_device *adev)
+--- a/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c
++++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v3_0_2.c
+@@ -268,7 +268,7 @@ static void mmhub_v3_0_2_init_cache_regs
+ 
+ 	tmp = regMMVM_L2_CNTL5_DEFAULT;
+ 	tmp = REG_SET_FIELD(tmp, MMVM_L2_CNTL5, L2_CACHE_SMALLK_FRAGMENT_SIZE, 0);
+-	WREG32_SOC15(GC, 0, regMMVM_L2_CNTL5, tmp);
++	WREG32_SOC15(MMHUB, 0, regMMVM_L2_CNTL5, tmp);
+ }
+ 
+ static void mmhub_v3_0_2_enable_system_domain(struct amdgpu_device *adev)
 
 
