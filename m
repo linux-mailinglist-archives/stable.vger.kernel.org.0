@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2BB265D397
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1228765D398
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:01:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233120AbjADNBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:01:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40708 "EHLO
+        id S233421AbjADNBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:01:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232753AbjADNBK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:01:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38CF17899
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:01:08 -0800 (PST)
+        with ESMTP id S232042AbjADNBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:01:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C046FADF
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:01:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FE5B6164F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:01:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63853C433EF;
-        Wed,  4 Jan 2023 13:01:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18FE9B8164F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:01:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AF7DC433EF;
+        Wed,  4 Jan 2023 13:01:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672837267;
-        bh=tIGDWdKiWVbqBG5HBxsVRW0VR/uxLp6ygGfm0wffps8=;
+        s=korg; t=1672837270;
+        bh=ARscI0dV74lxQy8LOoAzNJzVKo20SWqq6KbiZSiWQPE=;
         h=Subject:To:Cc:From:Date:From;
-        b=CtZoBSxjnxIboXnY0x6FhLgbA+mrQ/+ejBUjf+fwnQHBfRV/DyFsASstVakxlbH0G
-         YY8Y9yrJJttqc+cmXFi4CWQdGTYe/q0qJHvVS8s/0hg3QDX5vnoDoDWlF7M33/pKs8
-         1y2Ienbf1VO24LnztjwCIfkAmVB/5SR7orMyl47I=
-Subject: FAILED: patch "[PATCH] media: s5p-mfc: Fix to handle reference queue during" failed to apply to 5.15-stable tree
+        b=Ad14V8bs1iVHiZrHelbwym6XdL9lpW1cmrB4n+pLgzNiKoes5yCRHD7P+71ZN4W+/
+         tcQPbSTXO2b27pVjlreurWusfKx53MfEbLpBI1dpX7Faw93BukmvuckuExxHtML6oQ
+         OCE6qtf7BtqWd3rO1Bqfg+NHQvCHLM/SvWPsfnQY=
+Subject: FAILED: patch "[PATCH] media: s5p-mfc: Fix to handle reference queue during" failed to apply to 5.10-stable tree
 To:     smitha.t@samsung.com, hverkuil-cisco@xs4all.nl
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:01:04 +0100
-Message-ID: <167283726464154@kroah.com>
+Date:   Wed, 04 Jan 2023 14:01:05 +0100
+Message-ID: <167283726511792@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
