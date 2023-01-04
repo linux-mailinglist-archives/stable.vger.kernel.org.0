@@ -2,104 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0858065D9D0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:30:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E569065D9DB
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:31:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239798AbjADQ3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:29:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52246 "EHLO
+        id S239764AbjADQa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:30:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240024AbjADQ25 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:57 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E2D244377
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1672849661;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=28+xUt4XD6oJKtFA7tA/ZRPebQEYdm2bmnUTPRRpXMg=;
-        b=YetlfwLMTCSM1oJkIK/PdU7tWPVVW4SNXqQXnFqW/3dEtNg15H91ktHl+J3wo5aiV/aYpm
-        1k5iEDhNmrbC/hW0XcdBZklLc73PfeT8UknrycCR64BfEvKhWukvPkmIibRDCvox4lIAiz
-        WAszo0uwLdgQJrlOg7r6HjX9QZUudL4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-501-FTnnbWMqPiGjJ6f-N63GFw-1; Wed, 04 Jan 2023 11:27:37 -0500
-X-MC-Unique: FTnnbWMqPiGjJ6f-N63GFw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 80419884343;
-        Wed,  4 Jan 2023 16:27:37 +0000 (UTC)
-Received: from hydra.redhat.com (unknown [10.39.192.27])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B0A571121314;
-        Wed,  4 Jan 2023 16:27:36 +0000 (UTC)
-From:   Jocelyn Falempe <jfalempe@redhat.com>
-To:     gregkh@linuxfoundation.org
-Cc:     Jocelyn Falempe <jfalempe@redhat.com>, stable@vger.kernel.org,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH] drm/mgag200: Fix PLL setup for G200_SE_A rev >=4
-Date:   Wed,  4 Jan 2023 17:27:29 +0100
-Message-Id: <20230104162729.424575-1-jfalempe@redhat.com>
-In-Reply-To: <167284297425244@kroah.com>
-References: <167284297425244@kroah.com>
+        with ESMTP id S239526AbjADQaq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:30:46 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 504753F10D;
+        Wed,  4 Jan 2023 08:30:45 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8D3A5165C;
+        Wed,  4 Jan 2023 08:31:26 -0800 (PST)
+Received: from FVFF77S0Q05N (unknown [10.57.37.146])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6099A3F71A;
+        Wed,  4 Jan 2023 08:30:43 -0800 (PST)
+Date:   Wed, 4 Jan 2023 16:30:40 +0000
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Lee Jones <lee@kernel.org>, stable@vger.kernel.org,
+        linux-efi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        will@kernel.org, catalin.marinas@arm.com,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 1/2] arm64: efi: Execute runtime services from a
+ dedicated stack
+Message-ID: <Y7WpsPDF+7fux8l3@FVFF77S0Q05N>
+References: <20221205201210.463781-1-ardb@kernel.org>
+ <20221205201210.463781-2-ardb@kernel.org>
+ <Y7VXg5MCRyAJFmus@google.com>
+ <CAMj1kXEYDHuRmUPvdMVj1H1fLoOKcr+qG6NDpufxwJa57jsWdg@mail.gmail.com>
+ <Y7WloqaytMnC8ZIC@FVFF77S0Q05N>
+ <CAMj1kXEaX_3yFT_GFruXbQj9gfDShH4arPjTQBqokKAGusi_Fw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXEaX_3yFT_GFruXbQj9gfDShH4arPjTQBqokKAGusi_Fw@mail.gmail.com>
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b389286d0234e1edbaf62ed8bc0892a568c33662 upstream.
+On Wed, Jan 04, 2023 at 05:15:34PM +0100, Ard Biesheuvel wrote:
+> On Wed, 4 Jan 2023 at 17:13, Mark Rutland <mark.rutland@arm.com> wrote:
+> >
+> > On Wed, Jan 04, 2023 at 02:56:19PM +0100, Ard Biesheuvel wrote:
+> > > On Wed, 4 Jan 2023 at 11:40, Lee Jones <lee@kernel.org> wrote:
+> > > >
+> > > > On Mon, 05 Dec 2022, Ard Biesheuvel wrote:
+> > > >
+> > > > > With the introduction of PRMT in the ACPI subsystem, the EFI rts
+> > > > > workqueue is no longer the only caller of efi_call_virt_pointer() in the
+> > > > > kernel. This means the EFI runtime services lock is no longer sufficient
+> > > > > to manage concurrent calls into firmware, but also that firmware calls
+> > > > > may occur that are not marshalled via the workqueue mechanism, but
+> > > > > originate directly from the caller context.
+> > > > >
+> > > > > For added robustness, and to ensure that the runtime services have 8 KiB
+> > > > > of stack space available as per the EFI spec, introduce a spinlock
+> > > > > protected EFI runtime stack of 8 KiB, where the spinlock also ensures
+> > > > > serialization between the EFI rts workqueue (which itself serializes EFI
+> > > > > runtime calls) and other callers of efi_call_virt_pointer().
+> > > > >
+> > > > > While at it, use the stack pivot to avoid reloading the shadow call
+> > > > > stack pointer from the ordinary stack, as doing so could produce a
+> > > > > gadget to defeat it.
+> > > > >
+> > > > > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> > > > > ---
+> > > > >  arch/arm64/include/asm/efi.h       |  3 +++
+> > > > >  arch/arm64/kernel/efi-rt-wrapper.S | 13 +++++++++-
+> > > > >  arch/arm64/kernel/efi.c            | 25 ++++++++++++++++++++
+> > > > >  3 files changed, 40 insertions(+), 1 deletion(-)
+> > > >
+> > > > Could we have this in Stable please?
+> > > >
+> > > > Upstream commit: ff7a167961d1b ("arm64: efi: Execute runtime services from a dedicated stack")
+> > > >
+> > > > Ard, do we need Patch 2 as well, or can this be applied on its own?
+> > > >
+> > >
+> > > Thanks for the reminder.
+> > >
+> > > Only patch #1 is needed. It should be applied to v5.10 and later.
+> >
+> > Hold on, why did this go into mainline when I had an outstanding comment w.r.t.
+> > the stack unwinder?
+> >
+> > From your last reply to me there I was expecting a respin with that fixed.
+> >
+> 
+> Apologies for the confusion.
+> 
+> I have a patch for this queued up, but AIUI, that cannot be merged all
+> the way back to v5.10, so these need to remain separate changes in any
+> case.
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=c2530a04a73e6b75ed71ed14d09d7b42d6300013
 
-For G200_SE_A, PLL M setting is wrong, which leads to blank screen,
-or "signal out of range" on VGA display.
-previous code had "m |= 0x80" which was changed to
-m |= ((pixpllcn & BIT(8)) >> 1);
+Ah, ok, thanks for the pointer!
 
-Tested on G200_SE_A rev 42
+I'm a little uneasy here, still.
 
-This line of code was moved to another file with
-commit 877507bb954e ("drm/mgag200: Provide per-device callbacks for
-PIXPLLC") but can be easily backported before this commit.
+By backporting this we're also backporting the new breakage of the stack
+unwinder, and the minimal change for backports would be to add the lock and not
+the new stack (which was added for additinoal robustness, not to fix the bug
+the lock fixes).
 
-v2: * put BIT(7) First to respect MSB-to-LSB (Thomas)
-    * Add a comment to explain that this bit must be set (Thomas)
+I do appreciate that the additional stack is likely more useful than the
+occasional diagnostic output from the kernel, but it does seem like this has
+traded off one bug for another, and I'm just a little annoyed because I pointed
+that out before the first pull request was made.
 
-backported to v6.0.17, it also applies cleanly to v5.15.86
+I do know that this isn't malicious, and I'm not trying to start a fight, but
+now we have to consider whether we want/need to backport a stack unwinder fix
+to account for this, and we hadn't had that discussion before.
 
-Fixes: 2dd040946ecf ("drm/mgag200: Store values (not bits) in struct mgag200_pll_values")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221013132810.521945-1-jfalempe@redhat.com
----
- drivers/gpu/drm/mgag200/mgag200_pll.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/mgag200/mgag200_pll.c b/drivers/gpu/drm/mgag200/mgag200_pll.c
-index 8065ca5d8de9..4f55961848a8 100644
---- a/drivers/gpu/drm/mgag200/mgag200_pll.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_pll.c
-@@ -269,7 +269,8 @@ static void mgag200_pixpll_update_g200se_04(struct mgag200_pll *pixpll,
- 	pixpllcp = pixpllc->p - 1;
- 	pixpllcs = pixpllc->s;
- 
--	xpixpllcm = pixpllcm | ((pixpllcn & BIT(8)) >> 1);
-+	// For G200SE A, BIT(7) should be set unconditionally.
-+	xpixpllcm = BIT(7) | pixpllcm;
- 	xpixpllcn = pixpllcn;
- 	xpixpllcp = (pixpllcs << 3) | pixpllcp;
- 
--- 
-2.38.1
-
+Thanks,
+Mark.
