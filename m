@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 801EC65D52B
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:12:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C571C65D52D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:12:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230225AbjADOMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:12:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35258 "EHLO
+        id S235066AbjADOMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:12:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239652AbjADOLf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:11:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED8244372
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:10:30 -0800 (PST)
+        with ESMTP id S239543AbjADOLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:11:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB58E3FA0B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:10:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D0166173E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:10:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CB33C433EF;
-        Wed,  4 Jan 2023 14:10:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 769B0B81677
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:10:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE6DAC433D2;
+        Wed,  4 Jan 2023 14:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672841424;
-        bh=8wgY6GFcQpyE6NCvtzPi4x5w+Q+bHMsPVlRe0JJh99Y=;
+        s=korg; t=1672841434;
+        bh=9XGrOlaIKqpLvJbwv6KGadxa7z8TIAyukj81KdN/SjI=;
         h=Subject:To:Cc:From:Date:From;
-        b=PdhO4asYn2bJYkMjVtZ4xFv3ffo1ZfcDnj3kp4yLwrJc+r4tqb0ZJaRjp40NwIr8+
-         5UtfN+wNsU6KjrHRLRPFzMPpTDvlWyUWykR9TiTxgTdjg7/DrimNUbT0vnhnv0iZQv
-         UpUQoEIhVEjq/O12vnfy7SOMP7UIqh3mDluWplaE=
-Subject: FAILED: patch "[PATCH] tracing/probes: Handle system names with hyphens" failed to apply to 5.10-stable tree
+        b=lqwpboJ3TZYwGmeNlldw0veuDvM1umhrkBmvuNZQSjwLod1AWUoWL3QJwnNfyYZQw
+         Lbmw8smUmwG5sYwUltSpJVJCSjYpRaeUzVK0Vo/cFoYR4U+SPWz4t4/F+m1icc0Apz
+         KOMYwr8OuFowkJ4mw1XcIFfVLOaquXJfdo2TVpPg=
+Subject: FAILED: patch "[PATCH] tracing/probes: Handle system names with hyphens" failed to apply to 5.4-stable tree
 To:     rostedt@goodmis.org, mhiramat@kernel.org, rafaelmendsr@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:10:21 +0100
-Message-ID: <167284142136157@kroah.com>
+Date:   Wed, 04 Jan 2023 15:10:23 +0100
+Message-ID: <167284142318334@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,6 +59,15 @@ Possible dependencies:
 007517a01995 ("tracing/probe: Change traceprobe_set_print_fmt() to take a type")
 bc87cf0a08d4 ("trace: Add a generic function to read/write u64 values from tracefs")
 d262271d0483 ("tracing/dynevent: Delegate parsing to create function")
+d4d704637d93 ("tracing: Add synthetic event error logging")
+9bbb33291f8e ("tracing: Check that the synthetic event and field names are legal")
+42d120e2dda5 ("tracing: Move is_good_name() from trace_probe.h to trace.h")
+bd82631d7ccd ("tracing: Add support for dynamic strings to synthetic events")
+8fbeb52a598c ("tracing: Fix parse_synth_field() error handling")
+3aa8fdc37d16 ("tracing/probe: Fix memleak in fetch_op_data operations")
+726721a51838 ("tracing: Move synthetic events to a separate file")
+1b94b3aed367 ("tracing: Check state.disabled in synth event trace functions")
+91ad64a84e9e ("Merge tag 'trace-v5.6-rc2' of git://git.kernel.org/pub/scm/linux/kernel/git/rostedt/linux-trace")
 
 thanks,
 
