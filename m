@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5DB365D6BA
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:00:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B289065D6BD
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:00:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234953AbjADPAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:00:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47798 "EHLO
+        id S232026AbjADPA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:00:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234927AbjADPAO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:00:14 -0500
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2357937398
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:00:12 -0800 (PST)
-Received: by mail-yb1-xb35.google.com with SMTP id 186so36774560ybe.8
-        for <stable@vger.kernel.org>; Wed, 04 Jan 2023 07:00:12 -0800 (PST)
+        with ESMTP id S239556AbjADPAx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:00:53 -0500
+Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8C5B2F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:00:51 -0800 (PST)
+Received: by mail-yb1-xb2b.google.com with SMTP id 186so36777132ybe.8
+        for <stable@vger.kernel.org>; Wed, 04 Jan 2023 07:00:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/2d5jZY/cteIRWt4WzPFjkLtgXiH1fUpEhmjDmcQUQw=;
-        b=QOSLxEyqI9MJQntfm+5nWG9BNRyLgtQsI4zBvXa3fov/C6eYfAEuhOaW8+gSKcvYFi
-         /eV+V1Bp0khyrjezgzRtG664XF9DvLOYXJykPsXsabt7ENH3m2/qY2FTYpukO8ExJ1Dr
-         zDHT35QxqMrm3z0Q3TSchi28JMCx2XlUIVyZ/zsq8Jy4lXmg5ID9V+Z+aSPzzOnCG/ux
-         VZuQvaJ+l9Btyb/94UWls0FZ+6R/Og2nAcdiQ2VQ646UlEUY3kiCLjejVC6XPZxXOE4+
-         2av9FlzbWEGJO+gJToZIbLrg7NehYa7CqiWOOvZODkAx8U5nB5Mu8yhfjNwYEuAuxR6Z
-         +MYA==
+        bh=VnoiWjVIbV39l1Ct/C11VzTCk1KwuNX9qVQE8NV1ye8=;
+        b=SMOJf1qQA3TK9xP7G5661L2JdRGE5yhffx6g7vPb7hWgN+2FgmUUat4LYCYC/49zwW
+         H7wdih0PMnmY8BxlfRB9+VGaFOxftcttCd4RaZO+u9Z1zaz50bZS5J4hSC7Z3O2bO2xD
+         whqCouXjPaTHYWfGQZypaXN4jVup1uCiAhD5Ebf9/ABZshv21y66vFCBmOtn76QWPps4
+         jclAByfb1vveYaRDGWZP5VmWAQ1KeYR7heFWqWzQaOKRLnC1Uu/xI1QvvVwUlhbwjo/Q
+         NnST8tDIy7+iMGvbY7qWi5x9Y2pcuq4oMWmCzeSgS5hdrQujlWwkTNgb7O86JmNUMLDa
+         NLaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/2d5jZY/cteIRWt4WzPFjkLtgXiH1fUpEhmjDmcQUQw=;
-        b=iasSpCCLjdPKvvg6Zy07QhVz83CfUfTGgBMTcNj7wWRdyhnYCuqP6dOfsBtZ+SR7bd
-         5OjtPpUTD+CpmR6ZXQDt91xfVXkZDQGBU28jfP1P4sMs28WK92z1Z8TkWfkF99qjQB+d
-         b0QMcc6C9G3cl7jtIApbDc7lmKEjJu8iYX2LhoZ8+aM4L2qIrUbvwLe+dznOC1OHYk0M
-         PSH7V4QOZ17X2BWJoiJjrUpmr/XrZdEodEzfWaetPJ4OCq4+QKxOkSgDaOkwsvSDeTIC
-         blUxOxr1c9zsC2ok7o5VNH5SMh2gJVh8vuzWZYCKR2Zse9lZ2km5F5lpyjsjd8M4H/cD
-         YU7A==
-X-Gm-Message-State: AFqh2koxghMedu6xkV5YGV8TZuM5d8NwjYpMEddAQehRQItWKap7VAFD
-        eClaEDtioI21b/tqR5I3GGgrSxsVExB7mx5HY04=
-X-Google-Smtp-Source: AMrXdXsLUI6TUWg77oDGyUR1KuMBMEEft3cLU1yLEd4j1Men/Lej8odM/XZhXrpdvyXhZNLLFAv7J6o9Dn+5Bylusn0=
-X-Received: by 2002:a5b:2ce:0:b0:7af:6c4d:4c2e with SMTP id
- h14-20020a5b02ce000000b007af6c4d4c2emr492462ybp.332.1672844411355; Wed, 04
- Jan 2023 07:00:11 -0800 (PST)
+        bh=VnoiWjVIbV39l1Ct/C11VzTCk1KwuNX9qVQE8NV1ye8=;
+        b=7oDihMetM/WhhCMr3AL0Bkaob/9C8sRWVYgskqg0iJWaghJAoX/ap9wuINLGl/MbSy
+         /5ZvVxhgk6CnKZbnxytrtAI5LJM0EDKQSItUnasQokbGyQi6b805W2pwSYoeBVzwwnC8
+         vU1UQh4PTnPOOdakwmLi8AfKui2kE+nfh/E482t/WNURUXJVK65pCZf8phZazDpQVziG
+         N8flJrtz+iOoN4FdB7q9zcWYxHS3Dp8gvrnJSMjvSJ75AfjvgAm/P0wiaf8dWjIoPLdW
+         FUaQ3ktRGGF1FNwCFTcu6vO8MNsEwdzIOUIp7Gptl0mfZLltLsdramkBIUvO/NL638aJ
+         v2zw==
+X-Gm-Message-State: AFqh2kpvD1AJLDyyxa+GmNRdPk/B/eXyYXEuoDRR83nkz/ZQMz24xknG
+        rlsknZx/RRIDvOhU41ssUBjJ5JklnZh2LHW9xs2M3/Gp9WE=
+X-Google-Smtp-Source: AMrXdXvnL5x91U6Yk9hGvgio26GFtVeEeY/unAcCNW1XWGeRsKsxVQ+EEcJzFqg6cYT0GuNTGyv59IfPggD+UAsHVoA=
+X-Received: by 2002:a25:d012:0:b0:705:fc5e:4313 with SMTP id
+ h18-20020a25d012000000b00705fc5e4313mr4764955ybg.180.1672844450271; Wed, 04
+ Jan 2023 07:00:50 -0800 (PST)
 MIME-Version: 1.0
-References: <1672843062134100@kroah.com>
-In-Reply-To: <1672843062134100@kroah.com>
+References: <167284306345198@kroah.com>
+In-Reply-To: <167284306345198@kroah.com>
 From:   Joaquin Aramendia <samsagax@gmail.com>
-Date:   Wed, 4 Jan 2023 12:00:00 -0300
-Message-ID: <CABgtM3hGjH-t-Vg7XHG3KrX6kzcXh9BYyPOJnJGCrp8nnAWMpw@mail.gmail.com>
+Date:   Wed, 4 Jan 2023 12:00:39 -0300
+Message-ID: <CABgtM3j8XKQDi7yS6MJ7yZJ1HdsQ4opoD6v1NY0VXOMPhw4V_g@mail.gmail.com>
 Subject: Re: FAILED: patch "[PATCH] drm/amd/display: Revert logic for plane
- modifiers" failed to apply to 6.1-stable tree
+ modifiers" failed to apply to 6.0-stable tree
 To:     gregkh@linuxfoundation.org
 Cc:     alexander.deucher@amd.com, bas@basnieuwenhuizen.nl,
         stable@vger.kernel.org
@@ -69,9 +69,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+El mi=C3=A9, 4 ene 2023 a la(s) 11:37, <gregkh@linuxfoundation.org> escribi=
+=C3=B3:
+>
+>
+> The patch below does not apply to the 6.0-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+
+
 Not sure why I'm getting this one, but this patch is already applied
 to mainline in the 6.1 cycle. And is in stable from v6.0.12 IIRC.
 
 Cheers
---=20
+
+
+--
 Joaqu=C3=ADn I. Aramend=C3=ADa
