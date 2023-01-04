@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3091F65D322
+	by mail.lfdr.de (Postfix) with ESMTP id 7D21F65D323
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:53:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232026AbjADMxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:53:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34728 "EHLO
+        id S232042AbjADMxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:53:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234029AbjADMw6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:52:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B261AD90
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:52:57 -0800 (PST)
+        with ESMTP id S234317AbjADMxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:53:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A0D1AD90
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:53:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D50C613EF
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:52:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E36BC433D2;
-        Wed,  4 Jan 2023 12:52:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12FB1B81629
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:53:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CA9AC433EF;
+        Wed,  4 Jan 2023 12:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836776;
-        bh=59eNBI6J0iCbCdX7BE1HePKKghfG8FWJFXXaemUAfHk=;
+        s=korg; t=1672836781;
+        bh=VBstytzzSkTBltOH4GmSuS5YLmHxylLO1E0OxfEH6fI=;
         h=Subject:To:Cc:From:Date:From;
-        b=mKIJzJGPCj5GXtPSyOZ1VuSfjvRCMKlmstOcSv1dReXx6tyO+Zaa+VuY7KCsbMYb2
-         iSJ/kRQkkAtBT7dBRJbxmpTPpnh4tu4fX9NI7bgsdOFkAHFrt+LRW9jLm1DyAiIZvA
-         Zd0rp7G1hYhkmOS6t+r2irBrN4xcjrZtVy2CNEc8=
-Subject: FAILED: patch "[PATCH] btrfs: replace strncpy() with strscpy()" failed to apply to 4.9-stable tree
-To:     artem.chernyshev@red-soft.ru, dsterba@suse.com
+        b=zRCeKXn5/cNfj0lWte6JhT7kCNsqtmdi5Xa+RdeAVExKEEYRs42dqKw0LOW0fvczS
+         g++szJj71+KtP5TOjt0YgQE5lSpOGwWnYcMDeGtDHaDITTffaQ68pQmhnFY0j7nEpK
+         wMa+rMn1B3uETLfgZhkF3XBUlNAXs0VCES3unOFs=
+Subject: FAILED: patch "[PATCH] btrfs: fix extent map use-after-free when handling missing" failed to apply to 5.15-stable tree
+To:     void0red@gmail.com, 1527030098@qq.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:52:36 +0100
-Message-ID: <1672836756162210@kroah.com>
+Date:   Wed, 04 Jan 2023 13:52:44 +0100
+Message-ID: <1672836764148137@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,33 +47,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-63d5429f68a3 ("btrfs: replace strncpy() with strscpy()")
-cb3e217bdb39 ("btrfs: use btrfs_dev_name() helper to handle missing devices better")
-947a629988f1 ("btrfs: move tree block parentness check into validate_extent_buffer()")
-789d6a3a876e ("btrfs: concentrate all tree block parentness check parameters into one structure")
-ab2072b2921e ("btrfs: change how submit bio callback is passed to btrfs_wq_submit_bio")
-7920b773bd8a ("btrfs: drop parameter compression_type from btrfs_submit_dio_repair_bio")
-19af6a7d345a ("btrfs: change how repair action is passed to btrfs_repair_one_sector")
-a2c8d27e5ee8 ("btrfs: use a structure to pass arguments to backref walking functions")
-6ce6ba534418 ("btrfs: use a single argument for extent offset in backref walking functions")
-22a3c0ac8ed0 ("btrfs: send: avoid unnecessary backref lookups when finding clone source")
-2885fd632050 ("btrfs: move inode prototypes to btrfs_inode.h")
-b31bed170d52 ("btrfs: move btrfs_chunk_item_size out of ctree.h")
-911bd75aca73 ("btrfs: remove unused function prototypes")
-a56159d4080b ("btrfs: move btrfs_fs_info declarations into fs.h")
-6db75318823a ("btrfs: use struct fscrypt_str instead of struct qstr")
-ab3c5c18e8fa ("btrfs: setup qstr from dentrys using fscrypt helper")
-e43eec81c516 ("btrfs: use struct qstr instead of name and namelen pairs")
-e9c83077d2be ("btrfs: remove temporary btrfs_map_token declaration in ctree.h")
-ad1ac5012c2b ("btrfs: move btrfs_map_token to accessors")
-d83eb482b727 ("btrfs: move the compat/incompat flag masks to fs.h")
+1742e1c90c3d ("btrfs: fix extent map use-after-free when handling missing device in read_one_chunk")
+ff37c89f94be ("btrfs: move missing device handling in a dedicate function")
+562d7b1512f7 ("btrfs: handle device lookup with btrfs_dev_lookup_args")
 
 thanks,
 
@@ -81,57 +64,40 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 63d5429f68a3d4c4aa27e65a05196c17f86c41d6 Mon Sep 17 00:00:00 2001
-From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
-Date: Sat, 19 Nov 2022 11:13:29 +0300
-Subject: [PATCH] btrfs: replace strncpy() with strscpy()
+From 1742e1c90c3da344f3bb9b1f1309b3f47482756a Mon Sep 17 00:00:00 2001
+From: void0red <void0red@gmail.com>
+Date: Wed, 23 Nov 2022 22:39:45 +0800
+Subject: [PATCH] btrfs: fix extent map use-after-free when handling missing
+ device in read_one_chunk
 
-Using strncpy() on NUL-terminated strings are deprecated.  To avoid
-possible forming of non-terminated string strscpy() should be used.
+Store the error code before freeing the extent_map. Though it's
+reference counted structure, in that function it's the first and last
+allocation so this would lead to a potential use-after-free.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+The error can happen eg. when chunk is stored on a missing device and
+the degraded mount option is missing.
 
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=216721
+Reported-by: eriri <1527030098@qq.com>
+Fixes: adfb69af7d8c ("btrfs: add_missing_dev() should return the actual error")
 CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Signed-off-by: void0red <void0red@gmail.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index bed74a3ff574..4fd6b61b06a4 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -2859,13 +2859,10 @@ static long btrfs_ioctl_dev_info(struct btrfs_fs_info *fs_info,
- 	di_args->bytes_used = btrfs_device_get_bytes_used(dev);
- 	di_args->total_bytes = btrfs_device_get_total_bytes(dev);
- 	memcpy(di_args->uuid, dev->uuid, sizeof(di_args->uuid));
--	if (dev->name) {
--		strncpy(di_args->path, btrfs_dev_name(dev),
--				sizeof(di_args->path) - 1);
--		di_args->path[sizeof(di_args->path) - 1] = 0;
--	} else {
-+	if (dev->name)
-+		strscpy(di_args->path, btrfs_dev_name(dev), sizeof(di_args->path));
-+	else
- 		di_args->path[0] = '\0';
--	}
- 
- out:
- 	rcu_read_unlock();
-diff --git a/fs/btrfs/rcu-string.h b/fs/btrfs/rcu-string.h
-index 5c1a617eb25d..5c2b66d155ef 100644
---- a/fs/btrfs/rcu-string.h
-+++ b/fs/btrfs/rcu-string.h
-@@ -18,7 +18,11 @@ static inline struct rcu_string *rcu_string_strdup(const char *src, gfp_t mask)
- 					 (len * sizeof(char)), mask);
- 	if (!ret)
- 		return ret;
--	strncpy(ret->str, src, len);
-+	/* Warn if the source got unexpectedly truncated. */
-+	if (WARN_ON(strscpy(ret->str, src, len) < 0)) {
-+		kfree(ret);
-+		return NULL;
-+	}
- 	return ret;
- }
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index acab20f2863d..aa25fa335d3e 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -6976,8 +6976,9 @@ static int read_one_chunk(struct btrfs_key *key, struct extent_buffer *leaf,
+ 			map->stripes[i].dev = handle_missing_device(fs_info,
+ 								    devid, uuid);
+ 			if (IS_ERR(map->stripes[i].dev)) {
++				ret = PTR_ERR(map->stripes[i].dev);
+ 				free_extent_map(em);
+-				return PTR_ERR(map->stripes[i].dev);
++				return ret;
+ 			}
+ 		}
  
 
