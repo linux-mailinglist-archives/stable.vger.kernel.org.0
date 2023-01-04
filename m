@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE5965D5F1
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:38:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8703A65D5F2
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:38:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232026AbjADOiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:38:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58314 "EHLO
+        id S229743AbjADOi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:38:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229743AbjADOiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:38:15 -0500
+        with ESMTP id S230087AbjADOiZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:38:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 296D9E7E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:38:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 401F926E1
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:38:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0089B8166B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:38:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E091DC433F0;
-        Wed,  4 Jan 2023 14:38:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4D40B81662
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:38:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DFFCC433EF;
+        Wed,  4 Jan 2023 14:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843090;
-        bh=KM+V5H4gE306L9IDC6AxSB2Of47OsafBwaDo0ej6d3I=;
+        s=korg; t=1672843100;
+        bh=glFHH2Z6SMw9+Eu7jN+8kAwyfHK1v/GI96dgpqXYaHg=;
         h=Subject:To:Cc:From:Date:From;
-        b=eCZkAWLcfyTT5uOrEyZI8hggMIQGpTliXH3rCZcdtIq2lnHjiQtc/al85NzbcGYrA
-         fnQzBJO5xiYj92MQ+joS5MgSFRrNbUUhIblzKYXLzg6bkf3Tq4Z4gg4UrvRL+6jLSz
-         RVbhJ5aDVlp1GQOMAAMQimZWabeh363ZlFQ50sy4=
-Subject: FAILED: patch "[PATCH] drm/i915/tgl+: Add locking around DKL PHY register accesses" failed to apply to 6.1-stable tree
+        b=mqTVPG2wcCzAsW6crZrjyzEe/XO0v+I2XVjI1cLQUQT5XXQbFUHpOdBHXP7kXhReU
+         RADZMDmDLeklqSfZoKsH0Eg3WyPjBAIqO7VEkh6lCPfhRVAsrzooCorIhQbdv9zvot
+         xuNz7AnmWpxzWMm1qr0SB+aAPoDsEmewzXhw8WPY=
+Subject: FAILED: patch "[PATCH] drm/i915/tgl+: Add locking around DKL PHY register accesses" failed to apply to 6.0-stable tree
 To:     imre.deak@intel.com, jani.nikula@intel.com, stable@vger.kernel.org,
         ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:38:07 +0100
-Message-ID: <1672843087151138@kroah.com>
+Date:   Wed, 04 Jan 2023 15:38:08 +0100
+Message-ID: <1672843088116177@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,24 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 89cb0ba4ceee ("drm/i915/tgl+: Add locking around DKL PHY register accesses")
+b7d1559038b6 ("drm/i915: move dbuf under display sub-struct")
+90b87cf24304 ("drm/i915: move mipi_mmio_base to display.dsi")
+d51309b4e9aa ("drm/i915: move and group cdclk under display.cdclk")
+f0acaf9d6912 ("drm/i915: move and group max_bw and bw_obj under display.bw")
+eb11eabc5f26 ("drm/i915: move and group hdcp under display.hdcp")
+b3d81dafdc48 ("drm/i915: move and group fbdev under display.fbdev")
+36d225f365e7 ("drm/i915: move dpll under display.dpll")
+4be1c12c880e ("drm/i915: move and split audio under display.audio and display.funcs")
+6c77055aa674 ("drm/i915: move dmc to display.dmc")
+12dc50823845 ("drm/i915: move and group pps members under display.pps")
+203eb5a98edb ("drm/i915: move and group gmbus members under display.gmbus")
+34dc3cc5017f ("drm/i915: move color_funcs to display.funcs")
+06a50913d96e ("drm/i915: move fdi_funcs to display.funcs")
+103472c13f0a ("drm/i915: move wm_disp funcs to display.funcs")
+5a04eb5be8e4 ("drm/i915: move hotplug_funcs to display.funcs")
+ae611d171ec0 ("drm/i915: move dpll_funcs to display.funcs")
+986531bd0e72 ("drm/i915: move cdclk_funcs to display.funcs")
+3b10f8517648 ("drm/i915: add display sub-struct to drm_i915_private")
 
 thanks,
 
