@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B227665D8D8
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:19:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 925D065D8A3
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239933AbjADQTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:19:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42518 "EHLO
+        id S239877AbjADQQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:16:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239961AbjADQSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041C45FBB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:47 -0800 (PST)
+        with ESMTP id S239929AbjADQQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D4DC3C3B8
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:16:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 933266177C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FB1DC433F0;
-        Wed,  4 Jan 2023 16:18:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0809B81733
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA641C433EF;
+        Wed,  4 Jan 2023 16:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849126;
-        bh=3DkUk8eoE+2U/AM6ITA7Epiw5Jk91N0GFUzZv0dBMkM=;
+        s=korg; t=1672848979;
+        bh=s0kT/Y1VsWxsKgOLbCakZ/h0VaCKTkR4AhzbQxJecp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jdshHrnY5BMaFDSH/oyd+0PBFEQEN/4GGcmiSXKlDZmzAjGwJVq6gCJU0iZ6EzXD/
-         v0qLd+SY0o10H6VQ4l9PrasRiSLt3CWw1G2hLY1aAKjeBAQWoTMEVxc2f3Db1QIF2p
-         N8H2Mi1RvXjY0CAyP/JRannn1LfQxZd0uS/9jULY=
+        b=v2ECHetaYLxDrFKP8G0hI9rKQ0Gx7fE/EEpXm759PMx4/FLBYUIzKlQtOg8AtpRBz
+         jjk2FKnPj0fUF9xUEDO8HYhoRlRLy4PT34O6QZrx9N30ff4MN/7NE7XaWPKURfeVe2
+         jdrqQwk2AzLriQZugo2OtMLLefsu5jtuIcuGaL9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aditya Garg <gargaditya08@live.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 6.1 114/207] efi: Add iMac Pro 2017 to uefi skip cert quirk
-Date:   Wed,  4 Jan 2023 17:06:12 +0100
-Message-Id: <20230104160515.518997445@linuxfoundation.org>
+        patches@lists.linux.dev, Michael Walle <michael@walle.cc>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 6.1 115/207] wifi: wilc1000: sdio: fix module autoloading
+Date:   Wed,  4 Jan 2023 17:06:13 +0100
+Message-Id: <20230104160515.548794722@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -52,32 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Michael Walle <michael@walle.cc>
 
-commit 0be56a116220f9e5731a6609e66a11accfe8d8e2 upstream.
+commit 57d545b5a3d6ce3a8fb6b093f02bfcbb908973f3 upstream.
 
-The iMac Pro 2017 is also a T2 Mac. Thus add it to the list of uefi skip
-cert.
+There are no SDIO module aliases included in the driver, therefore,
+module autoloading isn't working. Add the proper MODULE_DEVICE_TABLE().
 
 Cc: stable@vger.kernel.org
-Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot for T2 Macs")
-Link: https://lore.kernel.org/linux-integrity/9D46D92F-1381-4F10-989C-1A12CD2FFDD8@live.com/
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221027171221.491937-1-michael@walle.cc
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/platform_certs/load_uefi.c |    1 +
+ drivers/net/wireless/microchip/wilc1000/sdio.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -35,6 +35,7 @@ static const struct dmi_system_id uefi_s
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
- 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
-+	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMacPro1,1") },
- 	{ }
+--- a/drivers/net/wireless/microchip/wilc1000/sdio.c
++++ b/drivers/net/wireless/microchip/wilc1000/sdio.c
+@@ -20,6 +20,7 @@ static const struct sdio_device_id wilc_
+ 	{ SDIO_DEVICE(SDIO_VENDOR_ID_MICROCHIP_WILC, SDIO_DEVICE_ID_MICROCHIP_WILC1000) },
+ 	{ },
  };
++MODULE_DEVICE_TABLE(sdio, wilc_sdio_ids);
+ 
+ #define WILC_SDIO_BLOCK_SIZE 512
  
 
 
