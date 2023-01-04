@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F9165D98E
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 426F465D9BB
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:28:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234555AbjADQ0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48206 "EHLO
+        id S239813AbjADQ2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:28:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235285AbjADQZc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2F9E1C11E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:25:30 -0800 (PST)
+        with ESMTP id S240024AbjADQ1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:27:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2F83F136
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B19AB8172B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:25:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1D88C433D2;
-        Wed,  4 Jan 2023 16:25:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22240617A8
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FE68C433EF;
+        Wed,  4 Jan 2023 16:27:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849528;
-        bh=WdZBzUqzHsSXtl/ImaD5Xx7b6UTjmMax8khZpOu+Gws=;
+        s=korg; t=1672849641;
+        bh=otsHJIKptbLaNqeWlZec4N1QzHhuNXO9Kpw73I26GBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVlgHnist0BZ3wdhhEhcyJU2BREaVedlNntMYyuuRdLnVrD0/gGBob622rUtSa+W3
-         OosUtHSKLuKXJPwCRbqrZH+0OfR8WVn+LrCldb9yRoxZ/4g62QaOZvogq3aDgQmIbX
-         k/3WLufnNb3U2ZSOcgopVMW5EYqm176KZfQlY880=
+        b=ggscFnEWtMvWVYxt1kr8yngC/g7oGqeqDp4leiOErsdnL2RDBuFXeWa2uE4cliur8
+         Kg57Kot2d7UarMx4tW7temHinykPIjZuB4YccYaA9ES9/L7IlPs1TIGvbIfXGSo5Bi
+         YPRUN0HeVKHWBdy4W29Bcl4GJ16cPeeMAdjB3zJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Wilson <chris.p.wilson@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Nirmoy Das <nirmoy.das@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 6.1 203/207] drm/i915/migrate: Account for the reserved_space
+        patches@lists.linux.dev, Luben Tuikov <luben.tuikov@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 170/177] drm/amdgpu: handle polaris10/11 overlap asics (v2)
 Date:   Wed,  4 Jan 2023 17:07:41 +0100
-Message-Id: <20230104160518.348113678@linuxfoundation.org>
+Message-Id: <20230104160512.828442508@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,79 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris.p.wilson@intel.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 31a2e6cbe8a4eb0d1650fff4b77872b744e14a62 upstream.
+commit 1d4624cd72b912b2680c08d0be48338a1629a858 upstream.
 
-If the ring is nearly full when calling into emit_pte(), we might
-incorrectly trample the reserved_space when constructing the packet to
-emit the PTEs. This then triggers the GEM_BUG_ON(rq->reserved_space >
-ring->space) when later submitting the request, since the request itself
-doesn't have enough space left in the ring to emit things like
-workarounds, breadcrumbs etc.
+Some special polaris 10 chips overlap with the polaris11
+DID range.  Handle this properly in the driver.
 
-v2: Fix the whitespace errors
+v2: use local flags for other function calls.
 
-Testcase: igt@i915_selftests@live_emit_pte_full_ring
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/7535
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6889
-Fixes: cf586021642d ("drm/i915/gt: Pipelined page migration")
-Signed-off-by: Chris Wilson <chris.p.wilson@intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Andrzej Hajda <andrzej.hajda@intel.com>
-Cc: Andi Shyti <andi.shyti@linux.intel.com>
-Cc: Nirmoy Das <nirmoy.das@intel.com>
-Cc: <stable@vger.kernel.org> # v5.15+
-Tested-by: Nirmoy Das <nirmoy.das@intel.com>
-Reviewed-by: Nirmoy Das <nirmoy.das@intel.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221202122844.428006-1-matthew.auld@intel.com
-(cherry picked from commit 35168a6c4ed53db4f786858bac23b1474fd7d0dc)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Acked-by: Luben Tuikov <luben.tuikov@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/intel_migrate.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_migrate.c
-+++ b/drivers/gpu/drm/i915/gt/intel_migrate.c
-@@ -341,6 +341,16 @@ static int emit_no_arbitration(struct i9
- 	return 0;
- }
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -2025,6 +2025,15 @@ static int amdgpu_pci_probe(struct pci_d
+ 			 "See modparam exp_hw_support\n");
+ 		return -ENODEV;
+ 	}
++	/* differentiate between P10 and P11 asics with the same DID */
++	if (pdev->device == 0x67FF &&
++	    (pdev->revision == 0xE3 ||
++	     pdev->revision == 0xE7 ||
++	     pdev->revision == 0xF3 ||
++	     pdev->revision == 0xF7)) {
++		flags &= ~AMD_ASIC_MASK;
++		flags |= CHIP_POLARIS10;
++	}
  
-+static int max_pte_pkt_size(struct i915_request *rq, int pkt)
-+{
-+	struct intel_ring *ring = rq->ring;
-+
-+	pkt = min_t(int, pkt, (ring->space - rq->reserved_space) / sizeof(u32) + 5);
-+	pkt = min_t(int, pkt, (ring->size - ring->emit) / sizeof(u32) + 5);
-+
-+	return pkt;
-+}
-+
- static int emit_pte(struct i915_request *rq,
- 		    struct sgt_dma *it,
- 		    enum i915_cache_level cache_level,
-@@ -387,8 +397,7 @@ static int emit_pte(struct i915_request
- 		return PTR_ERR(cs);
+ 	/* Due to hardware bugs, S/G Display on raven requires a 1:1 IOMMU mapping,
+ 	 * however, SME requires an indirect IOMMU mapping because the encryption
+@@ -2094,12 +2103,12 @@ static int amdgpu_pci_probe(struct pci_d
  
- 	/* Pack as many PTE updates as possible into a single MI command */
--	pkt = min_t(int, dword_length, ring->space / sizeof(u32) + 5);
--	pkt = min_t(int, pkt, (ring->size - ring->emit) / sizeof(u32) + 5);
-+	pkt = max_pte_pkt_size(rq, dword_length);
+ 	pci_set_drvdata(pdev, ddev);
  
- 	hdr = cs;
- 	*cs++ = MI_STORE_DATA_IMM | REG_BIT(21); /* as qword elements */
-@@ -421,8 +430,7 @@ static int emit_pte(struct i915_request
- 				}
- 			}
+-	ret = amdgpu_driver_load_kms(adev, ent->driver_data);
++	ret = amdgpu_driver_load_kms(adev, flags);
+ 	if (ret)
+ 		goto err_pci;
  
--			pkt = min_t(int, dword_rem, ring->space / sizeof(u32) + 5);
--			pkt = min_t(int, pkt, (ring->size - ring->emit) / sizeof(u32) + 5);
-+			pkt = max_pte_pkt_size(rq, dword_rem);
- 
- 			hdr = cs;
- 			*cs++ = MI_STORE_DATA_IMM | REG_BIT(21);
+ retry_init:
+-	ret = drm_dev_register(ddev, ent->driver_data);
++	ret = drm_dev_register(ddev, flags);
+ 	if (ret == -EAGAIN && ++retry <= 3) {
+ 		DRM_INFO("retry init %d\n", retry);
+ 		/* Don't request EX mode too frequently which is attacking */
 
 
