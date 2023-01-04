@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1D6565D94A
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:23:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22D0565D94C
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:23:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235077AbjADQXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:23:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46176 "EHLO
+        id S239748AbjADQX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:23:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235211AbjADQWs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:22:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92DAC41D4B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:22:47 -0800 (PST)
+        with ESMTP id S239772AbjADQXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:23:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F005A4435B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:22:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40846B81733
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:22:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 054A0C433D2;
-        Wed,  4 Jan 2023 16:22:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FB34617BB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:22:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82D3AC433EF;
+        Wed,  4 Jan 2023 16:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849364;
-        bh=Qz2qusZJrX6VVCjEVjf5ce6SRu0+p0xhiKnVaIC+20A=;
+        s=korg; t=1672849370;
+        bh=3BGaD82kiYMk6MEGp8L5K/lw5Pyr41ws2r/LCvbbx5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mLvPqtthKzmMu/+X+oG8mVyUWPj0OlJkgvH6boDyhvEWTkukCSms36l4qxZdX10Ge
-         BCA4FYVSBUkCHwmqvlIViEjeJU+JVg0AKeLmO3PEVsBIias/E/Tk03Zn/YZR94mRXJ
-         uN+3fFGhjz+vp3MnOciOuBDi/R3OvJCG4afNClAY=
+        b=NmxMMRAJr9wnVeC7k3Vrust70Jlvvad9qKlKcD8gDU0EyNhPlfRxtHfkzeOPh9U2n
+         Ob312GWktW6+axrUM3k8JNQSj05LA9yibFaARQZQk3TeZmwyReRNCgu2t5qKHfXbI+
+         6REgl98c1qJ8kkH98z4m8JYokN1ScM9BZLSqWrhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rolf Eike Beer <eike-kernel@sf-tec.de>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, stable@kernel.org
-Subject: [PATCH 6.0 109/177] crypto: n2 - add missing hash statesize
-Date:   Wed,  4 Jan 2023 17:06:40 +0100
-Message-Id: <20230104160510.946485735@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Rijo-john Thomas <Rijo-john.Thomas@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 6.0 110/177] crypto: ccp - Add support for TEE for PCI ID 0x14CA
+Date:   Wed,  4 Jan 2023 17:06:41 +0100
+Message-Id: <20230104160510.977145823@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -53,74 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit 76a4e874593543a2dff91d249c95bac728df2774 upstream.
+commit 10da230a4df1dfe32a58eb09246f5ffe82346f27 upstream.
 
-Add missing statesize to hash templates.
-This is mandatory otherwise no algorithms can be registered as the core
-requires statesize to be set.
+SoCs containing 0x14CA are present both in datacenter parts that
+support SEV as well as client parts that support TEE.
 
-CC: stable@kernel.org # 4.3+
-Reported-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Tested-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Fixes: 0a625fd2abaa ("crypto: n2 - Add Niagara2 crypto driver")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Cc: stable@vger.kernel.org # 5.15+
+Tested-by: Rijo-john Thomas <Rijo-john.Thomas@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/n2_core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/crypto/ccp/sp-pci.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/n2_core.c
-+++ b/drivers/crypto/n2_core.c
-@@ -1229,6 +1229,7 @@ struct n2_hash_tmpl {
- 	const u8	*hash_init;
- 	u8		hw_op_hashsz;
- 	u8		digest_size;
-+	u8		statesize;
- 	u8		block_size;
- 	u8		auth_type;
- 	u8		hmac_type;
-@@ -1260,6 +1261,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_HMAC_MD5,
- 	  .hw_op_hashsz	= MD5_DIGEST_SIZE,
- 	  .digest_size	= MD5_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct md5_state),
- 	  .block_size	= MD5_HMAC_BLOCK_SIZE },
- 	{ .name		= "sha1",
- 	  .hash_zero	= sha1_zero_message_hash,
-@@ -1268,6 +1270,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_HMAC_SHA1,
- 	  .hw_op_hashsz	= SHA1_DIGEST_SIZE,
- 	  .digest_size	= SHA1_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct sha1_state),
- 	  .block_size	= SHA1_BLOCK_SIZE },
- 	{ .name		= "sha256",
- 	  .hash_zero	= sha256_zero_message_hash,
-@@ -1276,6 +1279,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_HMAC_SHA256,
- 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
- 	  .digest_size	= SHA256_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct sha256_state),
- 	  .block_size	= SHA256_BLOCK_SIZE },
- 	{ .name		= "sha224",
- 	  .hash_zero	= sha224_zero_message_hash,
-@@ -1284,6 +1288,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_RESERVED,
- 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
- 	  .digest_size	= SHA224_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct sha256_state),
- 	  .block_size	= SHA224_BLOCK_SIZE },
+--- a/drivers/crypto/ccp/sp-pci.c
++++ b/drivers/crypto/ccp/sp-pci.c
+@@ -381,6 +381,15 @@ static const struct psp_vdata pspv3 = {
+ 	.inten_reg		= 0x10690,
+ 	.intsts_reg		= 0x10694,
  };
- #define NUM_HASH_TMPLS ARRAY_SIZE(hash_tmpls)
-@@ -1424,6 +1429,7 @@ static int __n2_register_one_ahash(const
++
++static const struct psp_vdata pspv4 = {
++	.sev			= &sevv2,
++	.tee			= &teev1,
++	.feature_reg		= 0x109fc,
++	.inten_reg		= 0x10690,
++	.intsts_reg		= 0x10694,
++};
++
+ #endif
  
- 	halg = &ahash->halg;
- 	halg->digestsize = tmpl->digest_size;
-+	halg->statesize = tmpl->statesize;
- 
- 	base = &halg->base;
- 	snprintf(base->cra_name, CRYPTO_MAX_ALG_NAME, "%s", tmpl->name);
+ static const struct sp_dev_vdata dev_vdata[] = {
+@@ -426,7 +435,7 @@ static const struct sp_dev_vdata dev_vda
+ 	{	/* 5 */
+ 		.bar = 2,
+ #ifdef CONFIG_CRYPTO_DEV_SP_PSP
+-		.psp_vdata = &pspv2,
++		.psp_vdata = &pspv4,
+ #endif
+ 	},
+ 	{	/* 6 */
 
 
