@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54A3165D9CC
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:29:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F23FD65D9CB
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:29:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239929AbjADQ3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239952AbjADQ3N (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 4 Jan 2023 11:29:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52014 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239907AbjADQ2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C4DD3F130
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:59 -0800 (PST)
+        with ESMTP id S239999AbjADQ2w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE553D1E2
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:28:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 393046177C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:27:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D41AC433EF;
-        Wed,  4 Jan 2023 16:27:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07AD8B817B0
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:28:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5099BC433D2;
+        Wed,  4 Jan 2023 16:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849678;
-        bh=XTQOtquhSYCXocnWBLItVUcUgLnIYWIzgIMsy9sh2as=;
+        s=korg; t=1672849681;
+        bh=u+Ab45UWIXugyBKjmcyzZdcg0gQPdTIsYvWqQUKwJZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfVjZdCV0ChpgRlnUNphSee20L1/mLQcPkWz2h6lXQE1qAjx7XlDF7eOiL5jR9yIk
-         3bW72NMmZ0gchIlFzubqZSnp8dZ4oS4yG+Y6a0hw6lJT4dOEQtOrUPF5WR+9fUMHyK
-         98yXRNpg5d3aZP5yUp6LiqS09ZL9oknNq0fEvxLQ=
+        b=AGeejA/jU+ChSsaqExvpLBX78YLx0WN9iS2p7dG1NRmRCtss5/lI9v3A08tbrS6oX
+         U/9NDXm5zi+mqQ9JXH0MOMP03NBK9xT0vn26aqV4XrzfKnciJ0Qhjb8gEZ64fYMaqR
+         qUdZYwT7cI3gUthr+WY5sdJl96sZNnB5ACK/u52M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+57b25da729eb0b88177d@syzkaller.appspotmail.com,
+        syzbot+98346927678ac3059c77@syzkaller.appspotmail.com,
         Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Eric Biggers <ebiggers@google.com>,
         Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.0 152/177] ext4: fix uninititialized value in ext4_evict_inode
-Date:   Wed,  4 Jan 2023 17:07:23 +0100
-Message-Id: <20230104160512.266731030@linuxfoundation.org>
+Subject: [PATCH 6.0 153/177] ext4: init quota for old.inode in ext4_rename
+Date:   Wed,  4 Jan 2023 17:07:24 +0100
+Message-Id: <20230104160512.296317948@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -57,90 +56,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ye Bin <yebin10@huawei.com>
 
-commit 7ea71af94eaaaf6d9aed24bc94a05b977a741cb9 upstream.
+commit fae381a3d79bb94aa2eb752170d47458d778b797 upstream.
 
 Syzbot found the following issue:
-=====================================================
-BUG: KMSAN: uninit-value in ext4_evict_inode+0xdd/0x26b0 fs/ext4/inode.c:180
- ext4_evict_inode+0xdd/0x26b0 fs/ext4/inode.c:180
- evict+0x365/0x9a0 fs/inode.c:664
- iput_final fs/inode.c:1747 [inline]
- iput+0x985/0xdd0 fs/inode.c:1773
- __ext4_new_inode+0xe54/0x7ec0 fs/ext4/ialloc.c:1361
- ext4_mknod+0x376/0x840 fs/ext4/namei.c:2844
- vfs_mknod+0x79d/0x830 fs/namei.c:3914
- do_mknodat+0x47d/0xaa0
- __do_sys_mknodat fs/namei.c:3992 [inline]
- __se_sys_mknodat fs/namei.c:3989 [inline]
- __ia32_sys_mknodat+0xeb/0x150 fs/namei.c:3989
- do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
- __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
- do_fast_syscall_32+0x33/0x70 arch/x86/entry/common.c:203
- do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:246
- entry_SYSENTER_compat_after_hwframe+0x70/0x82
+ext4_parse_param: s_want_extra_isize=128
+ext4_inode_info_init: s_want_extra_isize=32
+ext4_rename: old.inode=ffff88823869a2c8 old.dir=ffff888238699828 new.inode=ffff88823869d7e8 new.dir=ffff888238699828
+__ext4_mark_inode_dirty: inode=ffff888238699828 ea_isize=32 want_ea_size=128
+__ext4_mark_inode_dirty: inode=ffff88823869a2c8 ea_isize=32 want_ea_size=128
+ext4_xattr_block_set: inode=ffff88823869a2c8
+------------[ cut here ]------------
+WARNING: CPU: 13 PID: 2234 at fs/ext4/xattr.c:2070 ext4_xattr_block_set.cold+0x22/0x980
+Modules linked in:
+RIP: 0010:ext4_xattr_block_set.cold+0x22/0x980
+RSP: 0018:ffff888227d3f3b0 EFLAGS: 00010202
+RAX: 0000000000000001 RBX: ffff88823007a000 RCX: 0000000000000000
+RDX: 0000000000000a03 RSI: 0000000000000040 RDI: ffff888230078178
+RBP: 0000000000000000 R08: 000000000000002c R09: ffffed1075c7df8e
+R10: ffff8883ae3efc6b R11: ffffed1075c7df8d R12: 0000000000000000
+R13: ffff88823869a2c8 R14: ffff8881012e0460 R15: dffffc0000000000
+FS:  00007f350ac1f740(0000) GS:ffff8883ae200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f350a6ed6a0 CR3: 0000000237456000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ ? ext4_xattr_set_entry+0x3b7/0x2320
+ ? ext4_xattr_block_set+0x0/0x2020
+ ? ext4_xattr_set_entry+0x0/0x2320
+ ? ext4_xattr_check_entries+0x77/0x310
+ ? ext4_xattr_ibody_set+0x23b/0x340
+ ext4_xattr_move_to_block+0x594/0x720
+ ext4_expand_extra_isize_ea+0x59a/0x10f0
+ __ext4_expand_extra_isize+0x278/0x3f0
+ __ext4_mark_inode_dirty.cold+0x347/0x410
+ ext4_rename+0xed3/0x174f
+ vfs_rename+0x13a7/0x2510
+ do_renameat2+0x55d/0x920
+ __x64_sys_rename+0x7d/0xb0
+ do_syscall_64+0x3b/0xa0
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-Uninit was created at:
- __alloc_pages+0x9f1/0xe80 mm/page_alloc.c:5578
- alloc_pages+0xaae/0xd80 mm/mempolicy.c:2285
- alloc_slab_page mm/slub.c:1794 [inline]
- allocate_slab+0x1b5/0x1010 mm/slub.c:1939
- new_slab mm/slub.c:1992 [inline]
- ___slab_alloc+0x10c3/0x2d60 mm/slub.c:3180
- __slab_alloc mm/slub.c:3279 [inline]
- slab_alloc_node mm/slub.c:3364 [inline]
- slab_alloc mm/slub.c:3406 [inline]
- __kmem_cache_alloc_lru mm/slub.c:3413 [inline]
- kmem_cache_alloc_lru+0x6f3/0xb30 mm/slub.c:3429
- alloc_inode_sb include/linux/fs.h:3117 [inline]
- ext4_alloc_inode+0x5f/0x860 fs/ext4/super.c:1321
- alloc_inode+0x83/0x440 fs/inode.c:259
- new_inode_pseudo fs/inode.c:1018 [inline]
- new_inode+0x3b/0x430 fs/inode.c:1046
- __ext4_new_inode+0x2a7/0x7ec0 fs/ext4/ialloc.c:959
- ext4_mkdir+0x4d5/0x1560 fs/ext4/namei.c:2992
- vfs_mkdir+0x62a/0x870 fs/namei.c:4035
- do_mkdirat+0x466/0x7b0 fs/namei.c:4060
- __do_sys_mkdirat fs/namei.c:4075 [inline]
- __se_sys_mkdirat fs/namei.c:4073 [inline]
- __ia32_sys_mkdirat+0xc4/0x120 fs/namei.c:4073
- do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
- __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
- do_fast_syscall_32+0x33/0x70 arch/x86/entry/common.c:203
- do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:246
- entry_SYSENTER_compat_after_hwframe+0x70/0x82
+As 'ext4_rename' will modify 'old.inode' ctime and mark inode dirty,
+which may trigger expand 'extra_isize' and allocate block. If inode
+didn't init quota will lead to warning.  To solve above issue, init
+'old.inode' firstly in 'ext4_rename'.
 
-CPU: 1 PID: 4625 Comm: syz-executor.2 Not tainted 6.1.0-rc4-syzkaller-62821-gcb231e2f67ec #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-=====================================================
-
-Now, 'ext4_alloc_inode()' didn't init 'ei->i_flags'. If new inode failed
-before set 'ei->i_flags' in '__ext4_new_inode()', then do 'iput()'. As after
-6bc0d63dad7f commit will access 'ei->i_flags' in 'ext4_evict_inode()' which
-will lead to access uninit-value.
-To solve above issue just init 'ei->i_flags' in 'ext4_alloc_inode()'.
-
-Reported-by: syzbot+57b25da729eb0b88177d@syzkaller.appspotmail.com
+Reported-by: syzbot+98346927678ac3059c77@syzkaller.appspotmail.com
 Signed-off-by: Ye Bin <yebin10@huawei.com>
-Fixes: 6bc0d63dad7f ("ext4: remove EA inode entry from mbcache on inode eviction")
 Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221117073603.2598882-1-yebin@huaweicloud.com
+Link: https://lore.kernel.org/r/20221107015335.2524319-1-yebin@huaweicloud.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/namei.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1323,6 +1323,7 @@ static struct inode *ext4_alloc_inode(st
- 		return NULL;
- 
- 	inode_set_iversion(&ei->vfs_inode, 1);
-+	ei->i_flags = 0;
- 	spin_lock_init(&ei->i_raw_lock);
- 	INIT_LIST_HEAD(&ei->i_prealloc_list);
- 	atomic_set(&ei->i_prealloc_active, 0);
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3798,6 +3798,9 @@ static int ext4_rename(struct user_names
+ 	retval = dquot_initialize(old.dir);
+ 	if (retval)
+ 		return retval;
++	retval = dquot_initialize(old.inode);
++	if (retval)
++		return retval;
+ 	retval = dquot_initialize(new.dir);
+ 	if (retval)
+ 		return retval;
 
 
