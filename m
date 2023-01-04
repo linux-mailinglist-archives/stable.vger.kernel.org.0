@@ -2,109 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C56A265D6AA
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:57:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BC2765D69B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:55:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235184AbjADO4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:56:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45302 "EHLO
+        id S229461AbjADOzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:55:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239524AbjADO4T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:56:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A351903E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:56:19 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229845AbjADOy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:54:59 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 832321901D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:54:57 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDAAA6137A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:56:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B09D2C433F0;
-        Wed,  4 Jan 2023 14:56:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844178;
-        bh=vyV7pHfv7HW3prh3o9AMwKRNo5CqB3bJhNRQfNRY39Q=;
-        h=Subject:To:Cc:From:Date:From;
-        b=hJzl6BKibIODtMIHCifjDGjYwuqgiXZIOsSiHU+0lIND/Gk5U1mZjaQWJMLEd41eq
-         zYtUTs5nedl6aK8maf8p22XTA+xEafGMQu1v8k+eudpSkjM3wZogPMmhDfishki0tN
-         jjDU03P1WtOuVuUK+n0fEV/i/8Ao2ZgKOHR6kTks=
-Subject: FAILED: patch "[PATCH] ext4: correct inconsistent error msg in nojournal mode" failed to apply to 4.9-stable tree
-To:     libaokun1@huawei.com, jack@suse.cz, tytso@mit.edu
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:54:44 +0100
-Message-ID: <167284408441120@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by smtp-out2.suse.de (Postfix) with ESMTPS id C7FD05129;
+        Wed,  4 Jan 2023 14:54:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1672844095; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=FtPCsh0eua4GVi7+4XBE+rSYZ8YPEPxUwppdaruAJyY=;
+        b=SWxPrw1yfKvrxOtWqGbdPJmCk/lwVS645ExU0sp3sLLE7Gasl1U4wY7oCw9hgVolMr8zlP
+        q5gvPIzSj/HdBgoxsryhjAEsPKFleRs/mwoHYVpZn8qdkX8oNAuqmkCxWbKslGYuDGbggH
+        WwHXgsj2PFbYYANl+sVKXWDwhlYUBdw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1672844095;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=FtPCsh0eua4GVi7+4XBE+rSYZ8YPEPxUwppdaruAJyY=;
+        b=vpMxktVuR4/Yk132JpqemnL1Y4gwiKfgVyEaVTYpTtFxZByVTMYmm2paAS8VxkAnvJxjFi
+        kF1ebD4HkEAHiDAQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9E067133D1;
+        Wed,  4 Jan 2023 14:54:55 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id GCW0JT+TtWP4YAAAMHmgww
+        (envelope-from <tiwai@suse.de>); Wed, 04 Jan 2023 14:54:55 +0000
+Date:   Wed, 04 Jan 2023 15:54:55 +0100
+Message-ID: <87y1qimjsw.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Michael Ralston <michael@ralston.id.au>
+Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>
+Subject: Re: USB-Audio regression on behringer UMC404HD
+In-Reply-To: <CAC2975LK6xuQ_PaD9vk_5Uwi4ZmZa30TZKfstyAhx2tv0YU9xQ@mail.gmail.com>
+References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
+        <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info>
+        <87zgb0q7x4.wl-tiwai@suse.de>
+        <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com>
+        <87sfgrrb5f.wl-tiwai@suse.de>
+        <CAC2975+cUqiFC0LO-D-fi0swH+x=_FMuG+==mhg6HH4pc_YDRA@mail.gmail.com>
+        <87bknfr6rd.wl-tiwai@suse.de>
+        <CAC2975+CP0WKmXouX_8TffT1+VpU3EuOzyGHMv+VsAOBjCyhnA@mail.gmail.com>
+        <878rijr6dz.wl-tiwai@suse.de>
+        <CAC2975+Ybz2-jyJAwAUEu5S1XKfp0B-p4s-gAsMPfZdD61uNfQ@mail.gmail.com>
+        <87zgazppuc.wl-tiwai@suse.de>
+        <CAC2975+476CHDL3YM=uExHu96UB2rodAng9PVYHX+vGnSCppGA@mail.gmail.com>
+        <CAC2975Ja-o6-qCWv2bUkt3ps7BcKvb96rao_De4SGVW1v8uE=A@mail.gmail.com>
+        <CAC2975KFqvTitbJHJZ6a4Tuxsq=nPGvW3vjAAtkQxw=sBgeDqw@mail.gmail.com>
+        <CAC2975Jw63j26DhvDjiLc7dXwaRz=eK0aWNuErQ8dkEn_Gemjg@mail.gmail.com>
+        <87ilhmpvdt.wl-tiwai@suse.de>
+        <CAC2975LFWnK6f05j5my4=ebmhS0bVhigz8VH6cbaUtVT+ADxbA@mail.gmail.com>
+        <87zgaymkcx.wl-tiwai@suse.de>
+        <CAC2975LK6xuQ_PaD9vk_5Uwi4ZmZa30TZKfstyAhx2tv0YU9xQ@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 04 Jan 2023 15:47:29 +0100,
+Michael Ralston wrote:
+> 
+> On Thu, 5 Jan 2023 at 01:42, Takashi Iwai <tiwai@suse.de> wrote:
+> fb425e1121ceef2b9d1b3ffccc195d55707
+> >
+> > Oh, did you test with 6.2-rc?  I checked the reverts only on top of
+> > the 6.1.0.  From there, you can revert all mentioned commits cleanly
+> > and should build.
+> >
+> 
+> I was basing everything on 6.1.2
+> 
+> > In anyway, do I understand correctly that the bug still persists at
+> > the revert of the commit 2be79d58645465351af5320eb14c70a94724c5ef, and
+> > it's fixed by the revert of ac5e2fb425e1121ceef2b9d1b3ffccc195d55707?
+> 
+> Yes that is correct.
+> 
+> >
+> > If so, what happens if you revert only
+> > ac5e2fb425e1121ceef2b9d1b3ffccc195d55707?
+> >
+> 
+> I just tested this, and that also fixes the issue.
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+OK, thanks for confirmation.  Then we should revert this, as it was
+meant only as a minor optimization.
 
-Possible dependencies:
 
-89481b5fa8c0 ("ext4: correct inconsistent error msg in nojournal mode")
-43bd6f1b49b6 ("ext4: goto right label 'failed_mount3a'")
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 89481b5fa8c0640e62ba84c6020cee895f7ac643 Mon Sep 17 00:00:00 2001
-From: Baokun Li <libaokun1@huawei.com>
-Date: Wed, 9 Nov 2022 15:43:43 +0800
-Subject: [PATCH] ext4: correct inconsistent error msg in nojournal mode
-
-When we used the journal_async_commit mounting option in nojournal mode,
-the kernel told me that "can't mount with journal_checksum", was very
-confusing. I find that when we mount with journal_async_commit, both the
-JOURNAL_ASYNC_COMMIT and EXPLICIT_JOURNAL_CHECKSUM flags are set. However,
-in the error branch, CHECKSUM is checked before ASYNC_COMMIT. As a result,
-the above inconsistency occurs, and the ASYNC_COMMIT branch becomes dead
-code that cannot be executed. Therefore, we exchange the positions of the
-two judgments to make the error msg more accurate.
-
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221109074343.4184862-1-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index f5e6919ea650..878be47faaaf 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5288,14 +5288,15 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
- 		goto failed_mount3a;
- 	} else {
- 		/* Nojournal mode, all journal mount options are illegal */
--		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
-+		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
- 			ext4_msg(sb, KERN_ERR, "can't mount with "
--				 "journal_checksum, fs mounted w/o journal");
-+				 "journal_async_commit, fs mounted w/o journal");
- 			goto failed_mount3a;
- 		}
--		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
-+
-+		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
- 			ext4_msg(sb, KERN_ERR, "can't mount with "
--				 "journal_async_commit, fs mounted w/o journal");
-+				 "journal_checksum, fs mounted w/o journal");
- 			goto failed_mount3a;
- 		}
- 		if (sbi->s_commit_interval != JBD2_DEFAULT_MAX_COMMIT_AGE*HZ) {
-
+Takashi
