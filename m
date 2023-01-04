@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1128265D8B6
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D7B465D90F
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239761AbjADQRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:17:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40870 "EHLO
+        id S235142AbjADQVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:21:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239853AbjADQRT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BF9D112E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:18 -0800 (PST)
+        with ESMTP id S239765AbjADQU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 829A863FE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05726B8172B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B148C433D2;
-        Wed,  4 Jan 2023 16:17:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 224C46177C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2917EC433EF;
+        Wed,  4 Jan 2023 16:20:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849035;
-        bh=UhL82pXauZJasMQywOTQX3Nnrz1ddtxG5TtOTFaSnjI=;
+        s=korg; t=1672849256;
+        bh=1yD27mWLNBYI9eyGvQ2BPyVDuiK7l6bZM0wpZQs7J5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qq5QAg5ca+wmx+IVrCckjcA/rMvmTwFQeAeKKae+4p3J42dU5f481zn/M4EIdJf3D
-         mEt59N8oDcmVdr2ENPruN/F7CdEUJQDZ7JBk1fCEGpLwJ7cyhuBKa4zCMc//g7iCWe
-         +imLRVy8d6vDOiXkeG+VJOB3+n+wShwkH0p1KVAw=
+        b=cgmtckT9L2BUZSMa+wpxXIVYWnF2UaE9yexmricSlkOo7BUB+mFFiekNMmkYRoH8m
+         NQj54GMFwD8z/qkRKQ8s6FTbxRxL+GaLgKy27r4uW70tb6ztfi+oD1fe7BBNmi6MXe
+         W/bEt/l5hbT7J3wclvmCTa0Mm/fJ+ZsFQHV7h4x0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 6.1 123/207] ima: Fix memory leak in __ima_inode_hash()
+        patches@lists.linux.dev,
+        Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>, Song Liu <song@kernel.org>
+Subject: [PATCH 6.0 090/177] md/bitmap: Fix bitmap chunk size overflow issues
 Date:   Wed,  4 Jan 2023 17:06:21 +0100
-Message-Id: <20230104160515.808243157@linuxfoundation.org>
+Message-Id: <20230104160510.368909507@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,46 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
 
-commit 8c1d6a050a0f16e0a9d32eaf53b965c77279c6f8 upstream.
+commit 4555211190798b6b6fa2c37667d175bf67945c78 upstream.
 
-Commit f3cc6b25dcc5 ("ima: always measure and audit files in policy") lets
-measurement or audit happen even if the file digest cannot be calculated.
+- limit bitmap chunk size internal u64 variable to values not overflowing
+  the u32 bitmap superblock structure variable stored on persistent media
+- assign bitmap chunk size internal u64 variable from unsigned values to
+  avoid possible sign extension artifacts when assigning from a s32 value
 
-As a result, iint->ima_hash could have been allocated despite
-ima_collect_measurement() returning an error.
+The bug has been there since at least kernel 4.0.
+Steps to reproduce it:
+1: mdadm -C /dev/mdx -l 1 --bitmap=internal --bitmap-chunk=256M -e 1.2
+-n2 /dev/rnbd1 /dev/rnbd2
+2 resize member device rnbd1 and rnbd2 to 8 TB
+3 mdadm --grow /dev/mdx --size=max
 
-Since ima_hash belongs to a temporary inode metadata structure, declared
-at the beginning of __ima_inode_hash(), just add a kfree() call if
-ima_collect_measurement() returns an error different from -ENOMEM (in that
-case, ima_hash should not have been allocated).
+The bitmap_chunksize will overflow without patch.
 
 Cc: stable@vger.kernel.org
-Fixes: 280fe8367b0d ("ima: Always return a file measurement in ima_file_hash()")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+
+Signed-off-by: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/ima_main.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/md/md-bitmap.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -542,8 +542,13 @@ static int __ima_inode_hash(struct inode
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -486,7 +486,7 @@ void md_bitmap_print_sb(struct bitmap *b
+ 	sb = kmap_atomic(bitmap->storage.sb_page);
+ 	pr_debug("%s: bitmap file superblock:\n", bmname(bitmap));
+ 	pr_debug("         magic: %08x\n", le32_to_cpu(sb->magic));
+-	pr_debug("       version: %d\n", le32_to_cpu(sb->version));
++	pr_debug("       version: %u\n", le32_to_cpu(sb->version));
+ 	pr_debug("          uuid: %08x.%08x.%08x.%08x\n",
+ 		 le32_to_cpu(*(__le32 *)(sb->uuid+0)),
+ 		 le32_to_cpu(*(__le32 *)(sb->uuid+4)),
+@@ -497,11 +497,11 @@ void md_bitmap_print_sb(struct bitmap *b
+ 	pr_debug("events cleared: %llu\n",
+ 		 (unsigned long long) le64_to_cpu(sb->events_cleared));
+ 	pr_debug("         state: %08x\n", le32_to_cpu(sb->state));
+-	pr_debug("     chunksize: %d B\n", le32_to_cpu(sb->chunksize));
+-	pr_debug("  daemon sleep: %ds\n", le32_to_cpu(sb->daemon_sleep));
++	pr_debug("     chunksize: %u B\n", le32_to_cpu(sb->chunksize));
++	pr_debug("  daemon sleep: %us\n", le32_to_cpu(sb->daemon_sleep));
+ 	pr_debug("     sync size: %llu KB\n",
+ 		 (unsigned long long)le64_to_cpu(sb->sync_size)/2);
+-	pr_debug("max write behind: %d\n", le32_to_cpu(sb->write_behind));
++	pr_debug("max write behind: %u\n", le32_to_cpu(sb->write_behind));
+ 	kunmap_atomic(sb);
+ }
  
- 		rc = ima_collect_measurement(&tmp_iint, file, NULL, 0,
- 					     ima_hash_algo, NULL);
--		if (rc < 0)
-+		if (rc < 0) {
-+			/* ima_hash could be allocated in case of failure. */
-+			if (rc != -ENOMEM)
-+				kfree(tmp_iint.ima_hash);
-+
- 			return -EOPNOTSUPP;
-+		}
+@@ -2105,7 +2105,8 @@ int md_bitmap_resize(struct bitmap *bitm
+ 			bytes = DIV_ROUND_UP(chunks, 8);
+ 			if (!bitmap->mddev->bitmap_info.external)
+ 				bytes += sizeof(bitmap_super_t);
+-		} while (bytes > (space << 9));
++		} while (bytes > (space << 9) && (chunkshift + BITMAP_BLOCK_SHIFT) <
++			(BITS_PER_BYTE * sizeof(((bitmap_super_t *)0)->chunksize) - 1));
+ 	} else
+ 		chunkshift = ffz(~chunksize) - BITMAP_BLOCK_SHIFT;
  
- 		iint = &tmp_iint;
- 		mutex_lock(&iint->mutex);
+@@ -2150,7 +2151,7 @@ int md_bitmap_resize(struct bitmap *bitm
+ 	bitmap->counts.missing_pages = pages;
+ 	bitmap->counts.chunkshift = chunkshift;
+ 	bitmap->counts.chunks = chunks;
+-	bitmap->mddev->bitmap_info.chunksize = 1 << (chunkshift +
++	bitmap->mddev->bitmap_info.chunksize = 1UL << (chunkshift +
+ 						     BITMAP_BLOCK_SHIFT);
+ 
+ 	blocks = min(old_counts.chunks << old_counts.chunkshift,
+@@ -2176,8 +2177,8 @@ int md_bitmap_resize(struct bitmap *bitm
+ 				bitmap->counts.missing_pages = old_counts.pages;
+ 				bitmap->counts.chunkshift = old_counts.chunkshift;
+ 				bitmap->counts.chunks = old_counts.chunks;
+-				bitmap->mddev->bitmap_info.chunksize = 1 << (old_counts.chunkshift +
+-									     BITMAP_BLOCK_SHIFT);
++				bitmap->mddev->bitmap_info.chunksize =
++					1UL << (old_counts.chunkshift + BITMAP_BLOCK_SHIFT);
+ 				blocks = old_counts.chunks << old_counts.chunkshift;
+ 				pr_warn("Could not pre-allocate in-memory bitmap for cluster raid\n");
+ 				break;
+@@ -2537,6 +2538,9 @@ chunksize_store(struct mddev *mddev, con
+ 	if (csize < 512 ||
+ 	    !is_power_of_2(csize))
+ 		return -EINVAL;
++	if (BITS_PER_LONG > 32 && csize >= (1ULL << (BITS_PER_BYTE *
++		sizeof(((bitmap_super_t *)0)->chunksize))))
++		return -EOVERFLOW;
+ 	mddev->bitmap_info.chunksize = csize;
+ 	return len;
+ }
 
 
