@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6749765D88A
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD55065D914
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239650AbjADQPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:15:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37790 "EHLO
+        id S239432AbjADQV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:21:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239899AbjADQPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:37 -0500
+        with ESMTP id S240013AbjADQVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:21:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4676D42E16
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:15:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88585DF00
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:21:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C32D61797
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:15:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA5C5C433D2;
-        Wed,  4 Jan 2023 16:15:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F99D6179B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:21:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD23FC433D2;
+        Wed,  4 Jan 2023 16:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848911;
-        bh=bD4MAlC7kSU5pT6G81b9StRTiVp5PW64Q40gwQlyRyc=;
+        s=korg; t=1672849274;
+        bh=seVPZ3T5I644jaLESVd01A3Yw9b8ULez81zRIutoIng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hBMgdaWOwbfH30oyymZaWdhmaRcGHhVhNwkeQbFpJwa2YH0jgq9V7qUIv2y9TTfLY
-         0LC48y+UJRX3tEL3i89ZBLX8IRLLno6IwBuHFbYX1wN3sFBbVjmd3NwQRadWNneCGg
-         NZvDdKZ8VrzoA9OvgnD5IebUL1uZZRN9R9mQ0y7A=
+        b=XigTtB4JwNzUJ3oFCnbgATrWPSgHF7l8BuY91S7laYukLppXUhiPymfpaiiGLXs/W
+         9QnRKdRcwbhTH4BD23DhqjC7AGURZliUvcuCiICrSS3X48E0Qtjg/AmL26PWnhueFb
+         coZ8/Ha3L0qqLzTkdnNjOehSN28um4aFJcLRJXfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.1 103/207] cifs: fix confusing debug message
+        patches@lists.linux.dev, mhiramat@kernel.org, zanussi@kernel.org,
+        Zheng Yejian <zhengyejian1@huawei.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.0 070/177] tracing/hist: Fix wrong return value in parse_action_params()
 Date:   Wed,  4 Jan 2023 17:06:01 +0100
-Message-Id: <20230104160515.178374934@linuxfoundation.org>
+Message-Id: <20230104160509.780374010@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,54 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-commit a85ceafd41927e41a4103d228a993df7edd8823b upstream.
+commit 2cc6a528882d0e0ccbc1bca5f95b8c963cedac54 upstream.
 
-Since rc was initialised to -ENOMEM in cifs_get_smb_ses(), when an
-existing smb session was found, free_xid() would be called and then
-print
+When number of synth fields is more than SYNTH_FIELDS_MAX,
+parse_action_params() should return -EINVAL.
 
-  CIFS: fs/cifs/connect.c: Existing tcp session with server found
-  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 44 with uid: 0
-  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
-  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 44) rc = -12
+Link: https://lore.kernel.org/linux-trace-kernel/20221207034635.2253990-1-zhengyejian1@huawei.com
 
-Fix this by initialising rc to 0 and then let free_xid() print this
-instead
-
-  CIFS: fs/cifs/connect.c: Existing tcp session with server found
-  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 14 with uid: 0
-  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
-  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 14) rc = 0
-
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Cc: <mhiramat@kernel.org>
+Cc: <zanussi@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: c282a386a397 ("tracing: Add 'onmatch' hist trigger action support")
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/connect.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/trace/trace_events_hist.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2157,7 +2157,7 @@ cifs_set_cifscreds(struct smb3_fs_contex
- struct cifs_ses *
- cifs_get_smb_ses(struct TCP_Server_Info *server, struct smb3_fs_context *ctx)
- {
--	int rc = -ENOMEM;
-+	int rc = 0;
- 	unsigned int xid;
- 	struct cifs_ses *ses;
- 	struct sockaddr_in *addr = (struct sockaddr_in *)&server->dstaddr;
-@@ -2206,6 +2206,8 @@ cifs_get_smb_ses(struct TCP_Server_Info
- 		return ses;
- 	}
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -3564,6 +3564,7 @@ static int parse_action_params(struct tr
+ 	while (params) {
+ 		if (data->n_params >= SYNTH_FIELDS_MAX) {
+ 			hist_err(tr, HIST_ERR_TOO_MANY_PARAMS, 0);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
  
-+	rc = -ENOMEM;
-+
- 	cifs_dbg(FYI, "Existing smb sess not found\n");
- 	ses = sesInfoAlloc();
- 	if (ses == NULL)
 
 
