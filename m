@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5147165D9A3
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67A4465D99D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239749AbjADQ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50784 "EHLO
+        id S235006AbjADQ0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:26:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239781AbjADQ0f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:35 -0500
+        with ESMTP id S239689AbjADQ0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE9F18682
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCAC011A27
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BB4AB81722
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D335AC433EF;
-        Wed,  4 Jan 2023 16:26:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B927B81722
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C2F1C433D2;
+        Wed,  4 Jan 2023 16:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849592;
-        bh=gAa4gXXZkC7UPAeD/xJyfvwQgZ3T4V5CV4mo5KtxfNU=;
+        s=korg; t=1672849574;
+        bh=TuhTPwIYu1257aBk7QcadP3//fuKc7XG7FRq2/tMhGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y07/CtWtd0Qutbv4o7T+7567L6JeM25OACvrUrp/2SIC7RjN+AowhvTUstGKKZ1+/
-         cT26PmSKEfKCleBhc7en4VOYY2kCarRD2sRKwiBMLPlTN9wcGd/0kwq+GPjBzKBWPs
-         SmoVd/rcFDwvxIa+X0rbZj6X4n3mJA5Mzlh2j2Wo=
+        b=oxbjmVUxjp0aCaMHXC4oGLLU8Butp87Dyhh1I5yyxNSqVI+fd/NNuPkESsgKm4Eud
+         u4ytZpIdGgegxaIJ7tU8rjpTnF2CrydDDyW3rba2pY8LNJ0hjlSVjfmwrqtxIbM08W
+         qn/6Vf4lfdw7u8deB6gkn3di7CadaRYEDdlbJlTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.0 155/177] ext4: fix delayed allocation bug in ext4_clu_mapped for bigalloc + inline
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        "Darrick J. Wong" <djwong@kernel.org>, Jan Kara <jack@suse.cz>,
+        stable@kernel.org, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.1 188/207] ext4: fix bad checksum after online resize
 Date:   Wed,  4 Jan 2023 17:07:26 +0100
-Message-Id: <20230104160512.355435633@linuxfoundation.org>
+Message-Id: <20230104160517.849095222@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 131294c35ed6f777bd4e79d42af13b5c41bf2775 upstream.
+commit a408f33e895e455f16cf964cb5cd4979b658db7b upstream.
 
-When converting files with inline data to extents, delayed allocations
-made on a file system created with both the bigalloc and inline options
-can result in invalid extent status cache content, incorrect reserved
-cluster counts, kernel memory leaks, and potential kernel panics.
+When online resizing is performed twice consecutively, the error message
+"Superblock checksum does not match superblock" is displayed for the
+second time. Here's the reproducer:
 
-With bigalloc, the code that determines whether a block must be
-delayed allocated searches the extent tree to see if that block maps
-to a previously allocated cluster.  If not, the block is delayed
-allocated, and otherwise, it isn't.  However, if the inline option is
-also used, and if the file containing the block is marked as able to
-store data inline, there isn't a valid extent tree associated with
-the file.  The current code in ext4_clu_mapped() calls
-ext4_find_extent() to search the non-existent tree for a previously
-allocated cluster anyway, which typically finds nothing, as desired.
-However, a side effect of the search can be to cache invalid content
-from the non-existent tree (garbage) in the extent status tree,
-including bogus entries in the pending reservation tree.
+	mkfs.ext4 -F /dev/sdb 100M
+	mount /dev/sdb /tmp/test
+	resize2fs /dev/sdb 5G
+	resize2fs /dev/sdb 6G
 
-To fix this, avoid searching the extent tree when allocating blocks
-for bigalloc + inline files that are being converted from inline to
-extent mapped.
+To solve this issue, we moved the update of the checksum after the
+es->s_overhead_clusters is updated.
 
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Link: https://lore.kernel.org/r/20221117152207.2424-1-enwlinux@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 026d0d27c488 ("ext4: reduce computation of overhead during resize")
+Fixes: de394a86658f ("ext4: update s_overhead_clusters in the superblock during an on-line resize")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
 Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20221117040341.1380702-2-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/ext4/resize.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -5803,6 +5803,14 @@ int ext4_clu_mapped(struct inode *inode,
- 	struct ext4_extent *extent;
- 	ext4_lblk_t first_lblk, first_lclu, last_lclu;
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -1476,8 +1476,6 @@ static void ext4_update_super(struct sup
+ 	 * active. */
+ 	ext4_r_blocks_count_set(es, ext4_r_blocks_count(es) +
+ 				reserved_blocks);
+-	ext4_superblock_csum_set(sb);
+-	unlock_buffer(sbi->s_sbh);
  
-+	/*
-+	 * if data can be stored inline, the logical cluster isn't
-+	 * mapped - no physical clusters have been allocated, and the
-+	 * file has no extents
-+	 */
-+	if (ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA))
-+		return 0;
-+
- 	/* search for the extent closest to the first block in the cluster */
- 	path = ext4_find_extent(inode, EXT4_C2B(sbi, lclu), NULL, 0);
- 	if (IS_ERR(path)) {
+ 	/* Update the free space counts */
+ 	percpu_counter_add(&sbi->s_freeclusters_counter,
+@@ -1513,6 +1511,8 @@ static void ext4_update_super(struct sup
+ 		ext4_calculate_overhead(sb);
+ 	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
+ 
++	ext4_superblock_csum_set(sb);
++	unlock_buffer(sbi->s_sbh);
+ 	if (test_opt(sb, DEBUG))
+ 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
+ 		       "%llu blocks(%llu free %llu reserved)\n", flex_gd->count,
 
 
