@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1605A65D5DF
+	by mail.lfdr.de (Postfix) with ESMTP id 6085665D5E0
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:37:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239517AbjADOhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:37:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57540 "EHLO
+        id S239454AbjADOhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:37:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239653AbjADOg5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:36:57 -0500
+        with ESMTP id S239663AbjADOhA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:37:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91F28F2
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:36:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D95F2
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:36:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3BD57B81683
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:36:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6793AC433EF;
-        Wed,  4 Jan 2023 14:36:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33B1FB8166B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:36:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79CCAC433D2;
+        Wed,  4 Jan 2023 14:36:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843013;
-        bh=WlxyyOMVQHXsYc+IJiex56J0WgqckFVRVJRiqCUGRu8=;
+        s=korg; t=1672843017;
+        bh=VM8M9cdhz8BnaUrP/z0baLVH4Le/hpUkxj1ZT7hkEVQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=k4ldA5gXZF2Mtrl6Nk2miPYVrm3GviDQukfzZRRObcrnepthay0SiSn9u4TniA6Gf
-         2SXX39RkqEKNTxuLLPOkmV2IDILVh19JMtuv9YWLZBGlh0qHpJGPjK+vHL3x0za1zJ
-         HJIf93qSpJFuJRz2+3voSubDXAWhJIYtJLR4gvdg=
-Subject: FAILED: patch "[PATCH] drm/amd/pm: fulfill SMU13.0.0 cstate control interface" failed to apply to 6.0-stable tree
+        b=rMAtOffndGKA5amIpGeNiVeBNqplj9eflhmI+y9W6h5xCnMfbMXCQ/B0i5ydGNhrp
+         gFYmwB21EELrU/UUSpFJzyNaFbwkCvL5+F1i+H/qLOq6Ki8offnu5ck8h/wEC43oxk
+         52MENiAt4lRIros5HwSvaDToFUcQZN7kgFA06XqE=
+Subject: FAILED: patch "[PATCH] drm/amd/pm: fulfill SMU13.0.0 cstate control interface" failed to apply to 6.1-stable tree
 To:     evan.quan@amd.com, Hawking.Zhang@amd.com,
         alexander.deucher@amd.com, lijo.lazar@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 04 Jan 2023 15:36:50 +0100
-Message-ID: <167284301054231@kroah.com>
+Message-ID: <1672843010102203@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
