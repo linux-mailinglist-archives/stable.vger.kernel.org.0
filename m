@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F401965D8AB
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E434D65D843
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231967AbjADQRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:17:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37954 "EHLO
+        id S239416AbjADQNV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:13:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239882AbjADQQq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AACEB1F5
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:16:46 -0800 (PST)
+        with ESMTP id S239685AbjADQMW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691D0764F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA1D7B817B1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:16:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28A47C433EF;
-        Wed,  4 Jan 2023 16:16:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04FCF6179B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0062DC433EF;
+        Wed,  4 Jan 2023 16:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849003;
-        bh=gNuR4lz7qacuk26VC0zY9GUdUL5YqpTPnepTnvbtHQM=;
+        s=korg; t=1672848732;
+        bh=JJGv0wlS+fGh1ux34YOoC2Y6fy/IDkf1dboYub3X51c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fope+QGwmTvUW7HP15PV4tHVMU5aVgnvRJEiLfU8GvS/Wa6c80/ltZzlVkKJbZaW4
-         6WhY3PbXzCmHojoee5XgJyVZ57pFhyOHyiRS7BisYW6DMV/bp3lyYRaEQY5XB+vCHH
-         HYJjurRKlUMqxeZBXn3mOD+ERPfJDhRM6N6y8BYw=
+        b=VepWSWw0HSYFMRzFnMPoXIHhhgtYxtcC0aSDApGueJcXyNVKuFreiyKJVXxeKEBUA
+         U1uEGukhl92C8oWqm5hklkg0Ba8g1PXYd3HVc575+Siq7hERx/ItyquEhT114MdjvW
+         7gPSi4Gm6IwZaPZH/De+MdqNH+oLRHAB1uKdMh5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.0 040/177] mptcp: netlink: fix some error return code
-Date:   Wed,  4 Jan 2023 17:05:31 +0100
-Message-Id: <20230104160508.870026111@linuxfoundation.org>
+        patches@lists.linux.dev, Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.1 074/207] dm cache: set needs_check flag after aborting metadata
+Date:   Wed,  4 Jan 2023 17:05:32 +0100
+Message-Id: <20230104160514.286676846@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +51,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Mike Snitzer <snitzer@kernel.org>
 
-commit e0fe1123ab2b07d2cd5475660bd0b4e6993ffaa7 upstream.
+commit 6b9973861cb2e96dcd0bb0f1baddc5c034207c5c upstream.
 
-Fix to return negative error code -EINVAL from some error handling
-case instead of 0, as done elsewhere in those functions.
+Otherwise the commit that will be aborted will be associated with the
+metadata objects that will be torn down.  Must write needs_check flag
+to metadata with a reset block manager.
 
-Fixes: 9ab4807c84a4 ("mptcp: netlink: Add MPTCP_PM_CMD_ANNOUNCE")
-Fixes: 702c2f646d42 ("mptcp: netlink: allow userspace-driven subflow establishment")
+Found through code-inspection (and compared against dm-thin.c).
+
 Cc: stable@vger.kernel.org
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 028ae9f76f29 ("dm cache: add fail io mode and needs_check flag")
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/pm_userspace.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/md/dm-cache-target.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/mptcp/pm_userspace.c b/net/mptcp/pm_userspace.c
-index 9e82250cbb70..0430415357ba 100644
---- a/net/mptcp/pm_userspace.c
-+++ b/net/mptcp/pm_userspace.c
-@@ -156,6 +156,7 @@ int mptcp_nl_cmd_announce(struct sk_buff *skb, struct genl_info *info)
+--- a/drivers/md/dm-cache-target.c
++++ b/drivers/md/dm-cache-target.c
+@@ -907,16 +907,16 @@ static void abort_transaction(struct cac
+ 	if (get_cache_mode(cache) >= CM_READ_ONLY)
+ 		return;
  
- 	if (addr_val.addr.id == 0 || !(addr_val.flags & MPTCP_PM_ADDR_FLAG_SIGNAL)) {
- 		GENL_SET_ERR_MSG(info, "invalid addr id or flags");
-+		err = -EINVAL;
- 		goto announce_err;
+-	if (dm_cache_metadata_set_needs_check(cache->cmd)) {
+-		DMERR("%s: failed to set 'needs_check' flag in metadata", dev_name);
+-		set_cache_mode(cache, CM_FAIL);
+-	}
+-
+ 	DMERR_LIMIT("%s: aborting current metadata transaction", dev_name);
+ 	if (dm_cache_metadata_abort(cache->cmd)) {
+ 		DMERR("%s: failed to abort metadata transaction", dev_name);
+ 		set_cache_mode(cache, CM_FAIL);
  	}
++
++	if (dm_cache_metadata_set_needs_check(cache->cmd)) {
++		DMERR("%s: failed to set 'needs_check' flag in metadata", dev_name);
++		set_cache_mode(cache, CM_FAIL);
++	}
+ }
  
-@@ -282,6 +283,7 @@ int mptcp_nl_cmd_sf_create(struct sk_buff *skb, struct genl_info *info)
- 
- 	if (addr_l.id == 0) {
- 		NL_SET_ERR_MSG_ATTR(info->extack, laddr, "missing local addr id");
-+		err = -EINVAL;
- 		goto create_err;
- 	}
- 
-@@ -395,11 +397,13 @@ int mptcp_nl_cmd_sf_destroy(struct sk_buff *skb, struct genl_info *info)
- 
- 	if (addr_l.family != addr_r.family) {
- 		GENL_SET_ERR_MSG(info, "address families do not match");
-+		err = -EINVAL;
- 		goto destroy_err;
- 	}
- 
- 	if (!addr_l.port || !addr_r.port) {
- 		GENL_SET_ERR_MSG(info, "missing local or remote port");
-+		err = -EINVAL;
- 		goto destroy_err;
- 	}
- 
--- 
-2.39.0
-
+ static void metadata_operation_failed(struct cache *cache, const char *op, int r)
 
 
