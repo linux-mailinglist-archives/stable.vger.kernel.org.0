@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F0465D89D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 165D465D826
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:12:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235007AbjADQQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:16:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37754 "EHLO
+        id S233838AbjADQLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:11:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239757AbjADQQJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F2F7DEB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:16:03 -0800 (PST)
+        with ESMTP id S239803AbjADQLU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:11:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D9C60F1
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:10:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39BAEB81733
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:16:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A11B1C433D2;
-        Wed,  4 Jan 2023 16:16:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A9C461798
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:10:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56D54C43398;
+        Wed,  4 Jan 2023 16:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848961;
-        bh=RMlV+wJd0i/9lQeG86KmABf7eoEg28Xrh7cV4TvGs+0=;
+        s=korg; t=1672848653;
+        bh=Vg9crEMB3C5hnVRemIeO6+xhr9ONlYlCtj/QxBXpBVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZmKKVkPYSBXJqjuGPfKaow3GbI5nP/hpQ/w/hV3vcoR8/pIDOYvEOp0JmDhCg6bk
-         lC7K4JPqbyu5ex3T+SeAC5urmQxtYNE/388PKwT8i1DA7CD3yk15Z/p4MsCMRGAZUZ
-         z7pUUCAH+UioFtbOxIrX0V+OoDMi6H2ImLjjwo4E=
+        b=QtuaRFD/BVHp2Kn4yQJqskvhUMbPx10RXCbG+wnZCDCcg/uvYHKCA00CaxYYu7lvQ
+         v3CUPt5RwRDk/PSUOvXCiNfHxxqDvKxNEtt2EyptutSTLiYNYImwbHZU3oL7Z0Aa7q
+         WFNTaue6NOOqcdShtMMOYe/KWxfA1ublmP+lUBFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 018/177] drm/amd/pm: correct SMU13.0.0 pstate profiling clock settings
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Maxim Mikityanskiy <maxtram95@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 051/207] platform/x86: ideapad-laptop: Send KEY_TOUCHPAD_TOGGLE on some models
 Date:   Wed,  4 Jan 2023 17:05:09 +0100
-Message-Id: <20230104160508.210552935@linuxfoundation.org>
+Message-Id: <20230104160513.534380357@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,61 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 32a7819ff8e25375c7515aaae5cfcb8c44a461b7 upstream.
+[ Upstream commit 5829f8a897e4f030cd2d32a930eea8954ab5dcd3 ]
 
-Correct the pstate standard/peak profiling mode clock settings
-for SMU13.0.0.
+On recent Ideapad models the EC does not control the touchpad at all,
+so instead of sending KEY_TOUCHPAD_ON/ _OFF on touchpad toggle hotkey
+events, ideapad-laptop should send KEY_TOUCHPAD_TOGGLE and let userspace
+handle the toggling.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.0.x
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Check for this by checking if the value read from VPCCMD_R_TOUCHPAD
+actually changes when receiving a touchpad-toggle hotkey event; and
+if it does not change send KEY_TOUCHPAD_TOGGLE to userspace to let
+userspace enable/disable the touchpad in software.
+
+Note this also drops the priv->features.touchpad_ctrl_via_ec check from
+ideapad_sync_touchpad_state() so that KEY_TOUCHPAD_TOGGLE will be send
+on laptops where this is not set too. This can be safely dropped now
+because the i8042_command(I8042_CMD_AUX_ENABLE/_DISABLE) call is now
+guarded by its own feature flag.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Tested-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Tested-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+Link: https://lore.kernel.org/r/20221117110244.67811-5-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c |   22 ++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/platform/x86/ideapad-laptop.c | 24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-@@ -1349,9 +1349,17 @@ static int smu_v13_0_0_populate_umd_stat
- 				&dpm_context->dpm_tables.fclk_table;
- 	struct smu_umd_pstate_table *pstate_table =
- 				&smu->pstate_table;
-+	struct smu_table_context *table_context = &smu->smu_table;
-+	PPTable_t *pptable = table_context->driver_pptable;
-+	DriverReportedClocks_t driver_clocks =
-+			pptable->SkuTable.DriverReportedClocks;
+diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
+index 1d86fb988d56..9b36cfddd36f 100644
+--- a/drivers/platform/x86/ideapad-laptop.c
++++ b/drivers/platform/x86/ideapad-laptop.c
+@@ -134,6 +134,7 @@ struct ideapad_private {
+ 	struct ideapad_dytc_priv *dytc;
+ 	struct dentry *debug;
+ 	unsigned long cfg;
++	unsigned long r_touchpad_val;
+ 	struct {
+ 		bool conservation_mode    : 1;
+ 		bool dytc                 : 1;
+@@ -650,6 +651,8 @@ static ssize_t touchpad_show(struct device *dev,
+ 	if (err)
+ 		return err;
  
- 	pstate_table->gfxclk_pstate.min = gfx_table->min;
--	pstate_table->gfxclk_pstate.peak = gfx_table->max;
-+	if (driver_clocks.GameClockAc &&
-+	    (driver_clocks.GameClockAc < gfx_table->max))
-+		pstate_table->gfxclk_pstate.peak = driver_clocks.GameClockAc;
-+	else
-+		pstate_table->gfxclk_pstate.peak = gfx_table->max;
++	priv->r_touchpad_val = result;
++
+ 	return sysfs_emit(buf, "%d\n", !!result);
+ }
  
- 	pstate_table->uclk_pstate.min = mem_table->min;
- 	pstate_table->uclk_pstate.peak = mem_table->max;
-@@ -1368,12 +1376,12 @@ static int smu_v13_0_0_populate_umd_stat
- 	pstate_table->fclk_pstate.min = fclk_table->min;
- 	pstate_table->fclk_pstate.peak = fclk_table->max;
+@@ -669,6 +672,8 @@ static ssize_t touchpad_store(struct device *dev,
+ 	if (err)
+ 		return err;
  
--	/*
--	 * For now, just use the mininum clock frequency.
--	 * TODO: update them when the real pstate settings available
--	 */
--	pstate_table->gfxclk_pstate.standard = gfx_table->min;
--	pstate_table->uclk_pstate.standard = mem_table->min;
-+	if (driver_clocks.BaseClockAc &&
-+	    driver_clocks.BaseClockAc < gfx_table->max)
-+		pstate_table->gfxclk_pstate.standard = driver_clocks.BaseClockAc;
-+	else
-+		pstate_table->gfxclk_pstate.standard = gfx_table->max;
-+	pstate_table->uclk_pstate.standard = mem_table->max;
- 	pstate_table->socclk_pstate.standard = soc_table->min;
- 	pstate_table->vclk_pstate.standard = vclk_table->min;
- 	pstate_table->dclk_pstate.standard = dclk_table->min;
++	priv->r_touchpad_val = state;
++
+ 	return count;
+ }
+ 
+@@ -1159,6 +1164,7 @@ static const struct key_entry ideapad_keymap[] = {
+ 	{ KE_KEY,  65, { KEY_PROG4 } },
+ 	{ KE_KEY,  66, { KEY_TOUCHPAD_OFF } },
+ 	{ KE_KEY,  67, { KEY_TOUCHPAD_ON } },
++	{ KE_KEY,  68, { KEY_TOUCHPAD_TOGGLE } },
+ 	{ KE_KEY, 128, { KEY_ESC } },
+ 
+ 	/*
+@@ -1500,9 +1506,6 @@ static void ideapad_sync_touchpad_state(struct ideapad_private *priv, bool send_
+ 	unsigned char param;
+ 	int ret;
+ 
+-	if (!priv->features.touchpad_ctrl_via_ec)
+-		return;
+-
+ 	/* Without reading from EC touchpad LED doesn't switch state */
+ 	ret = read_ec_data(priv->adev->handle, VPCCMD_R_TOUCHPAD, &value);
+ 	if (ret)
+@@ -1518,9 +1521,20 @@ static void ideapad_sync_touchpad_state(struct ideapad_private *priv, bool send_
+ 		i8042_command(&param, value ? I8042_CMD_AUX_ENABLE : I8042_CMD_AUX_DISABLE);
+ 
+ 	if (send_events) {
+-		ideapad_input_report(priv, value ? 67 : 66);
+-		sysfs_notify(&priv->platform_device->dev.kobj, NULL, "touchpad");
++		/*
++		 * On older models the EC controls the touchpad and toggles it
++		 * on/off itself, in this case we report KEY_TOUCHPAD_ON/_OFF.
++		 * If the EC did not toggle, report KEY_TOUCHPAD_TOGGLE.
++		 */
++		if (value != priv->r_touchpad_val) {
++			ideapad_input_report(priv, value ? 67 : 66);
++			sysfs_notify(&priv->platform_device->dev.kobj, NULL, "touchpad");
++		} else {
++			ideapad_input_report(priv, 68);
++		}
+ 	}
++
++	priv->r_touchpad_val = value;
+ }
+ 
+ static void ideapad_acpi_notify(acpi_handle handle, u32 event, void *data)
+-- 
+2.35.1
+
 
 
