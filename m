@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2506565D96F
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACB2665D90D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239772AbjADQZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:25:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46254 "EHLO
+        id S235332AbjADQVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:21:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239872AbjADQZH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:07 -0500
+        with ESMTP id S239722AbjADQUz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B088643197
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8BE0D50
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB3F61798
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4621AC433EF;
-        Wed,  4 Jan 2023 16:24:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58547617AE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E0E9C433EF;
+        Wed,  4 Jan 2023 16:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849452;
-        bh=/BJohr+0JpoCBzxjBbP6eXPaX8v7lhVJQyb8hQICTyk=;
+        s=korg; t=1672849253;
+        bh=LaNO8fLXHjsm2QKl1o2INaw5paN3LDCZzOGdoLXWHZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDh71bFEUBqTgniCiSZ/3WGwpluyruWgF7vd7TEEICWvIlC072teB8lgSNiQYC2k/
-         FJrweuHOipoOM83yH+B79xVKWAreoAHe7AHmh/aKTgmnVv9WEVs56EiZ9+P0yFor5/
-         5XGTI+wlQ7tais8Wjh/BmRhayNbs2hi1Yu2vmqZo=
+        b=TesRZscweRa/rLMrY1oaOrqbwgTCixUmWb2aWoWwOVnNxqq7LJDs+O+vue8Q9TTKo
+         p55a+hMamIlI6VKQWRbWRT9ZKFDfM56NgmusO6XDHXmoxy2sIVC0tBjE5vnJxhSMks
+         QvWjIL0UnzTP/MNBjbRKL5uygZBpILRwaHbPKCU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Simon Ser <contact@emersion.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Lyude Paul <lyude@redhat.com>,
-        =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@redhat.com>
-Subject: [PATCH 6.0 125/177] drm/connector: send hotplug uevent on connector cleanup
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH 6.1 158/207] drm/ingenic: Fix missing platform_driver_unregister() call in ingenic_drm_init()
 Date:   Wed,  4 Jan 2023 17:06:56 +0100
-Message-Id: <20230104160511.434651236@linuxfoundation.org>
+Message-Id: <20230104160516.896391379@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Ser <contact@emersion.fr>
+From: Yuan Can <yuancan@huawei.com>
 
-commit 6fdc2d490ea1369d17afd7e6eb66fecc5b7209bc upstream.
+commit 47078311b8efebdefd5b3b2f87e2b02b14f49c66 upstream.
 
-A typical DP-MST unplug removes a KMS connector. However care must
-be taken to properly synchronize with user-space. The expected
-sequence of events is the following:
+A problem about modprobe ingenic-drm failed is triggered with the following
+log given:
 
-1. The kernel notices that the DP-MST port is gone.
-2. The kernel marks the connector as disconnected, then sends a
-   uevent to make user-space re-scan the connector list.
-3. User-space notices the connector goes from connected to disconnected,
-   disables it.
-4. Kernel handles the IOCTL disabling the connector. On success,
-   the very last reference to the struct drm_connector is dropped and
-   drm_connector_cleanup() is called.
-5. The connector is removed from the list, and a uevent is sent to tell
-   user-space that the connector disappeared.
+ [  303.561088] Error: Driver 'ingenic-ipu' is already registered, aborting...
+ modprobe: ERROR: could not insert 'ingenic_drm': Device or resource busy
 
-The very last step was missing. As a result, user-space thought the
-connector still existed and could try to disable it again. Since the
-kernel no longer knows about the connector, that would end up with
-EINVAL and confused user-space.
+The reason is that ingenic_drm_init() returns platform_driver_register()
+directly without checking its return value, if platform_driver_register()
+failed, it returns without unregistering ingenic_ipu_driver_ptr, resulting
+the ingenic-drm can never be installed later.
+A simple call graph is shown as below:
 
-Fix this by sending a hotplug uevent from drm_connector_cleanup().
+ ingenic_drm_init()
+   platform_driver_register() # ingenic_ipu_driver_ptr are registered
+   platform_driver_register()
+     driver_register()
+       bus_add_driver()
+         priv = kzalloc(...) # OOM happened
+   # return without unregister ingenic_ipu_driver_ptr
 
-Signed-off-by: Simon Ser <contact@emersion.fr>
+Fixing this problem by checking the return value of
+platform_driver_register() and do platform_unregister_drivers() if
+error happened.
+
+Fixes: fc1acf317b01 ("drm/ingenic: Add support for the IPU")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
 Cc: stable@vger.kernel.org
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Jonas Ådahl <jadahl@redhat.com>
-Tested-by: Jonas Ådahl <jadahl@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221017153150.60675-2-contact@emersion.fr
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221104064512.8569-1-yuancan@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_connector.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_connector.c
-+++ b/drivers/gpu/drm/drm_connector.c
-@@ -505,6 +505,9 @@ void drm_connector_cleanup(struct drm_co
- 	mutex_destroy(&connector->mutex);
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -1629,7 +1629,11 @@ static int ingenic_drm_init(void)
+ 			return err;
+ 	}
  
- 	memset(connector, 0, sizeof(*connector));
+-	return platform_driver_register(&ingenic_drm_driver);
++	err = platform_driver_register(&ingenic_drm_driver);
++	if (IS_ENABLED(CONFIG_DRM_INGENIC_IPU) && err)
++		platform_driver_unregister(ingenic_ipu_driver_ptr);
 +
-+	if (dev->registered)
-+		drm_sysfs_hotplug_event(dev);
++	return err;
  }
- EXPORT_SYMBOL(drm_connector_cleanup);
+ module_init(ingenic_drm_init);
  
 
 
