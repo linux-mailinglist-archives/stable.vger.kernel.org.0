@@ -2,119 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BC2765D69B
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79DF965D6A9
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:57:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbjADOzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:55:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44250 "EHLO
+        id S235267AbjADO4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:56:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229845AbjADOy7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:54:59 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 832321901D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:54:57 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S239526AbjADO4X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:56:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CFF2BF49
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:56:22 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id C7FD05129;
-        Wed,  4 Jan 2023 14:54:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1672844095; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=FtPCsh0eua4GVi7+4XBE+rSYZ8YPEPxUwppdaruAJyY=;
-        b=SWxPrw1yfKvrxOtWqGbdPJmCk/lwVS645ExU0sp3sLLE7Gasl1U4wY7oCw9hgVolMr8zlP
-        q5gvPIzSj/HdBgoxsryhjAEsPKFleRs/mwoHYVpZn8qdkX8oNAuqmkCxWbKslGYuDGbggH
-        WwHXgsj2PFbYYANl+sVKXWDwhlYUBdw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1672844095;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=FtPCsh0eua4GVi7+4XBE+rSYZ8YPEPxUwppdaruAJyY=;
-        b=vpMxktVuR4/Yk132JpqemnL1Y4gwiKfgVyEaVTYpTtFxZByVTMYmm2paAS8VxkAnvJxjFi
-        kF1ebD4HkEAHiDAQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9E067133D1;
-        Wed,  4 Jan 2023 14:54:55 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id GCW0JT+TtWP4YAAAMHmgww
-        (envelope-from <tiwai@suse.de>); Wed, 04 Jan 2023 14:54:55 +0000
-Date:   Wed, 04 Jan 2023 15:54:55 +0100
-Message-ID: <87y1qimjsw.wl-tiwai@suse.de>
-From:   Takashi Iwai <tiwai@suse.de>
-To:     Michael Ralston <michael@ralston.id.au>
-Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>
-Subject: Re: USB-Audio regression on behringer UMC404HD
-In-Reply-To: <CAC2975LK6xuQ_PaD9vk_5Uwi4ZmZa30TZKfstyAhx2tv0YU9xQ@mail.gmail.com>
-References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
-        <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info>
-        <87zgb0q7x4.wl-tiwai@suse.de>
-        <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com>
-        <87sfgrrb5f.wl-tiwai@suse.de>
-        <CAC2975+cUqiFC0LO-D-fi0swH+x=_FMuG+==mhg6HH4pc_YDRA@mail.gmail.com>
-        <87bknfr6rd.wl-tiwai@suse.de>
-        <CAC2975+CP0WKmXouX_8TffT1+VpU3EuOzyGHMv+VsAOBjCyhnA@mail.gmail.com>
-        <878rijr6dz.wl-tiwai@suse.de>
-        <CAC2975+Ybz2-jyJAwAUEu5S1XKfp0B-p4s-gAsMPfZdD61uNfQ@mail.gmail.com>
-        <87zgazppuc.wl-tiwai@suse.de>
-        <CAC2975+476CHDL3YM=uExHu96UB2rodAng9PVYHX+vGnSCppGA@mail.gmail.com>
-        <CAC2975Ja-o6-qCWv2bUkt3ps7BcKvb96rao_De4SGVW1v8uE=A@mail.gmail.com>
-        <CAC2975KFqvTitbJHJZ6a4Tuxsq=nPGvW3vjAAtkQxw=sBgeDqw@mail.gmail.com>
-        <CAC2975Jw63j26DhvDjiLc7dXwaRz=eK0aWNuErQ8dkEn_Gemjg@mail.gmail.com>
-        <87ilhmpvdt.wl-tiwai@suse.de>
-        <CAC2975LFWnK6f05j5my4=ebmhS0bVhigz8VH6cbaUtVT+ADxbA@mail.gmail.com>
-        <87zgaymkcx.wl-tiwai@suse.de>
-        <CAC2975LK6xuQ_PaD9vk_5Uwi4ZmZa30TZKfstyAhx2tv0YU9xQ@mail.gmail.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB3EC6137A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:56:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBE94C433F0;
+        Wed,  4 Jan 2023 14:56:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1672844181;
+        bh=qa+lC2RasvE+A8ZMEchwj5sTJrEtXHjbCgeDEk9ZeaM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=DJmjTooirUuQiQQ9aTvGVfUeFtUmx/A9EEtPP+m84hiymPMXmtbWVbC6N3k7DnzF7
+         KgNyb06Z90LQ0ABr+MkjruPg1t4a6HSE1wGcV4CCtOf7zgqe7uB6ZsT1YUPtc2KvCq
+         CZSWDwn0h0VT71XZ9CZb5oRJ2ep2IgbCfrvINLn0=
+Subject: FAILED: patch "[PATCH] fs: ext4: initialize fsdata in pagecache_write()" failed to apply to 5.10-stable tree
+To:     glider@google.com, ebiggers@google.com, ebiggers@kernel.org,
+        tytso@mit.edu
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 04 Jan 2023 15:55:02 +0100
+Message-ID: <1672844102105235@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 04 Jan 2023 15:47:29 +0100,
-Michael Ralston wrote:
-> 
-> On Thu, 5 Jan 2023 at 01:42, Takashi Iwai <tiwai@suse.de> wrote:
-> fb425e1121ceef2b9d1b3ffccc195d55707
-> >
-> > Oh, did you test with 6.2-rc?  I checked the reverts only on top of
-> > the 6.1.0.  From there, you can revert all mentioned commits cleanly
-> > and should build.
-> >
-> 
-> I was basing everything on 6.1.2
-> 
-> > In anyway, do I understand correctly that the bug still persists at
-> > the revert of the commit 2be79d58645465351af5320eb14c70a94724c5ef, and
-> > it's fixed by the revert of ac5e2fb425e1121ceef2b9d1b3ffccc195d55707?
-> 
-> Yes that is correct.
-> 
-> >
-> > If so, what happens if you revert only
-> > ac5e2fb425e1121ceef2b9d1b3ffccc195d55707?
-> >
-> 
-> I just tested this, and that also fixes the issue.
 
-OK, thanks for confirmation.  Then we should revert this, as it was
-meant only as a minor optimization.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
+Possible dependencies:
 
-Takashi
+956510c0c743 ("fs: ext4: initialize fsdata in pagecache_write()")
+bd256fda92ef ("ext4: use memcpy_to_page() in pagecache_write()")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 956510c0c7439e90b8103aaeaf4da92878c622f0 Mon Sep 17 00:00:00 2001
+From: Alexander Potapenko <glider@google.com>
+Date: Mon, 21 Nov 2022 12:21:30 +0100
+Subject: [PATCH] fs: ext4: initialize fsdata in pagecache_write()
+
+When aops->write_begin() does not initialize fsdata, KMSAN reports
+an error passing the latter to aops->write_end().
+
+Fix this by unconditionally initializing fsdata.
+
+Cc: Eric Biggers <ebiggers@kernel.org>
+Fixes: c93d8f885809 ("ext4: add basic fs-verity support")
+Reported-by: syzbot+9767be679ef5016b6082@syzkaller.appspotmail.com
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221121112134.407362-1-glider@google.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+
+diff --git a/fs/ext4/verity.c b/fs/ext4/verity.c
+index 3c640bd7ecae..30e3b65798b5 100644
+--- a/fs/ext4/verity.c
++++ b/fs/ext4/verity.c
+@@ -79,7 +79,7 @@ static int pagecache_write(struct inode *inode, const void *buf, size_t count,
+ 		size_t n = min_t(size_t, count,
+ 				 PAGE_SIZE - offset_in_page(pos));
+ 		struct page *page;
+-		void *fsdata;
++		void *fsdata = NULL;
+ 		int res;
+ 
+ 		res = aops->write_begin(NULL, mapping, pos, n, &page, &fsdata);
+
