@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CB865D395
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:00:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2BB265D397
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:01:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231876AbjADNAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:00:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40194 "EHLO
+        id S233120AbjADNBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:01:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231722AbjADNAd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:00:33 -0500
+        with ESMTP id S232753AbjADNBK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:01:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05A98FCF1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:00:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38CF17899
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:01:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95B2461259
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:00:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2A8AC433EF;
-        Wed,  4 Jan 2023 13:00:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FE5B6164F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:01:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63853C433EF;
+        Wed,  4 Jan 2023 13:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672837232;
-        bh=dShnqaytkGT6XbDFnwS0RiZH5NMyvlCJfJhPVSOWYT8=;
+        s=korg; t=1672837267;
+        bh=tIGDWdKiWVbqBG5HBxsVRW0VR/uxLp6ygGfm0wffps8=;
         h=Subject:To:Cc:From:Date:From;
-        b=JypkUiiBIWh9jPrQU32ESDXIV8l1ZtRlfFoq6upzxP6TMHQGWP4F8pb8F4C1K5Pba
-         0miBKw8tiVXGQsprntjtq3gNeUnX55mqiq39AW/b3ldI7Po+JglYQZ+x8t9aytmLuH
-         b2HF3PU8svpHB13074zTD36GjWQ787KNurdI5o9A=
-Subject: FAILED: patch "[PATCH] PM/devfreq: governor: Add a private governor_data for" failed to apply to 4.9-stable tree
-To:     kant@allwinnertech.com, cw00.choi@samsung.com, cwchoi00@gmail.com,
-        myungjoo.ham@samsung.com
+        b=CtZoBSxjnxIboXnY0x6FhLgbA+mrQ/+ejBUjf+fwnQHBfRV/DyFsASstVakxlbH0G
+         YY8Y9yrJJttqc+cmXFi4CWQdGTYe/q0qJHvVS8s/0hg3QDX5vnoDoDWlF7M33/pKs8
+         1y2Ienbf1VO24LnztjwCIfkAmVB/5SR7orMyl47I=
+Subject: FAILED: patch "[PATCH] media: s5p-mfc: Fix to handle reference queue during" failed to apply to 5.15-stable tree
+To:     smitha.t@samsung.com, hverkuil-cisco@xs4all.nl
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:00:28 +0100
-Message-ID: <167283722865252@kroah.com>
+Date:   Wed, 04 Jan 2023 14:01:04 +0100
+Message-ID: <167283726464154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,31 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-5fdded844892 ("PM/devfreq: governor: Add a private governor_data for governor")
-54cb5740526a ("PM / devfreq: Fix multiple kernel-doc warnings")
-27dbc542f651 ("PM / devfreq: Use PM QoS for sysfs min/max_freq")
-05d7ae15cfb1 ("PM / devfreq: Add PM QoS support")
-46cecc0bf095 ("PM / devfreq: Introduce get_freq_range helper")
-cf451adfa392 ("PM / devfreq: add tracing for scheduling work")
-2f061fd0c2d8 ("PM / devfreq: stopping the governor before device_unregister()")
-df5cf4a36178 ("PM / devfreq: Fix handling of min/max_freq == 0")
-d0e464205b8a ("PM / devfreq: Drop custom MIN/MAX macros")
-2c2cb1e6b05b ("PM / devfreq: Init user limits from OPP limits, not viceversa")
-2d803dc8f7a5 ("PM / devfreq: use put_device() instead of kfree()")
-f1d981eaecf8 ("PM / devfreq: Use the available min/max frequency")
-1051e2c304b5 ("Revert "PM / devfreq: Add show_one macro to delete the duplicate code"")
-ab8f58ad72c4 ("PM / devfreq: Set min/max_freq when adding the devfreq device")
-9e14de1077e9 ("PM / devfreq: Fix memory leak when fail to register device")
-4585fbcb5331 ("PM / devfreq: Modify the device name as devfreq(X) for sysfs")
-29b6968b05b6 ("PM / devfreq: Remove unnecessary separate _remove_devfreq()")
-924b9111a14f ("PM / devfreq: Don't delete sysfs group twice")
+d8a46bc4e1e0 ("media: s5p-mfc: Fix to handle reference queue during finishing")
 
 thanks,
 
@@ -80,145 +62,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5fdded8448924e3631d466eea499b11606c43640 Mon Sep 17 00:00:00 2001
-From: Kant Fan <kant@allwinnertech.com>
-Date: Tue, 25 Oct 2022 15:21:09 +0800
-Subject: [PATCH] PM/devfreq: governor: Add a private governor_data for
- governor
+From d8a46bc4e1e0446459daa77c4ce14218d32dacf9 Mon Sep 17 00:00:00 2001
+From: Smitha T Murthy <smitha.t@samsung.com>
+Date: Wed, 7 Sep 2022 16:02:27 +0530
+Subject: [PATCH] media: s5p-mfc: Fix to handle reference queue during
+ finishing
 
-The member void *data in the structure devfreq can be overwrite
-by governor_userspace. For example:
-1. The device driver assigned the devfreq governor to simple_ondemand
-by the function devfreq_add_device() and init the devfreq member
-void *data to a pointer of a static structure devfreq_simple_ondemand_data
-by the function devfreq_add_device().
-2. The user changed the devfreq governor to userspace by the command
-"echo userspace > /sys/class/devfreq/.../governor".
-3. The governor userspace alloced a dynamic memory for the struct
-userspace_data and assigend the member void *data of devfreq to
-this memory by the function userspace_init().
-4. The user changed the devfreq governor back to simple_ondemand
-by the command "echo simple_ondemand > /sys/class/devfreq/.../governor".
-5. The governor userspace exited and assigned the member void *data
-in the structure devfreq to NULL by the function userspace_exit().
-6. The governor simple_ondemand fetched the static information of
-devfreq_simple_ondemand_data in the function
-devfreq_simple_ondemand_func() but the member void *data of devfreq was
-assigned to NULL by the function userspace_exit().
-7. The information of upthreshold and downdifferential is lost
-and the governor simple_ondemand can't work correctly.
+On receiving last buffer driver puts MFC to MFCINST_FINISHING state which
+in turn skips transferring of frame from SRC to REF queue. This causes
+driver to stop MFC encoding and last frame is lost.
 
-The member void *data in the structure devfreq is designed for
-a static pointer used in a governor and inited by the function
-devfreq_add_device(). This patch add an element named governor_data
-in the devfreq structure which can be used by a governor(E.g userspace)
-who want to assign a private data to do some private things.
+This patch guarantees safe handling of frames during MFCINST_FINISHING and
+correct clearing of workbit to avoid early stopping of encoding.
 
-Fixes: ce26c5bb9569 ("PM / devfreq: Add basic governors")
-Cc: stable@vger.kernel.org # 5.10+
-Reviewed-by: Chanwoo Choi <cwchoi00@gmail.com>
-Acked-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-Signed-off-by: Kant Fan <kant@allwinnertech.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: af9357467810 ("[media] MFC: Add MFC 5.1 V4L2 driver")
 
-diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-index 63347a5ae599..8c5f6f7fca11 100644
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -776,8 +776,7 @@ static void remove_sysfs_files(struct devfreq *devfreq,
-  * @dev:	the device to add devfreq feature.
-  * @profile:	device-specific profile to run devfreq.
-  * @governor_name:	name of the policy to choose frequency.
-- * @data:	private data for the governor. The devfreq framework does not
-- *		touch this value.
-+ * @data:	devfreq driver pass to governors, governor should not change it.
-  */
- struct devfreq *devfreq_add_device(struct device *dev,
- 				   struct devfreq_dev_profile *profile,
-@@ -1011,8 +1010,7 @@ static void devm_devfreq_dev_release(struct device *dev, void *res)
-  * @dev:	the device to add devfreq feature.
-  * @profile:	device-specific profile to run devfreq.
-  * @governor_name:	name of the policy to choose frequency.
-- * @data:	private data for the governor. The devfreq framework does not
-- *		touch this value.
-+ * @data:	 devfreq driver pass to governors, governor should not change it.
-  *
-  * This function manages automatically the memory of devfreq device using device
-  * resource management and simplify the free operation for memory of devfreq
-diff --git a/drivers/devfreq/governor_userspace.c b/drivers/devfreq/governor_userspace.c
-index ab9db7adb3ad..d69672ccacc4 100644
---- a/drivers/devfreq/governor_userspace.c
-+++ b/drivers/devfreq/governor_userspace.c
-@@ -21,7 +21,7 @@ struct userspace_data {
+Cc: stable@vger.kernel.org
+Cc: linux-fsd@tesla.com
+Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+
+diff --git a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_enc.c b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_enc.c
+index b65e506665af..f62703cebb77 100644
+--- a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_enc.c
++++ b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_enc.c
+@@ -1218,6 +1218,7 @@ static int enc_post_frame_start(struct s5p_mfc_ctx *ctx)
+ 	unsigned long mb_y_addr, mb_c_addr;
+ 	int slice_type;
+ 	unsigned int strm_size;
++	bool src_ready;
  
- static int devfreq_userspace_func(struct devfreq *df, unsigned long *freq)
- {
--	struct userspace_data *data = df->data;
-+	struct userspace_data *data = df->governor_data;
- 
- 	if (data->valid)
- 		*freq = data->user_frequency;
-@@ -40,7 +40,7 @@ static ssize_t set_freq_store(struct device *dev, struct device_attribute *attr,
- 	int err = 0;
- 
- 	mutex_lock(&devfreq->lock);
--	data = devfreq->data;
-+	data = devfreq->governor_data;
- 
- 	sscanf(buf, "%lu", &wanted);
- 	data->user_frequency = wanted;
-@@ -60,7 +60,7 @@ static ssize_t set_freq_show(struct device *dev,
- 	int err = 0;
- 
- 	mutex_lock(&devfreq->lock);
--	data = devfreq->data;
-+	data = devfreq->governor_data;
- 
- 	if (data->valid)
- 		err = sprintf(buf, "%lu\n", data->user_frequency);
-@@ -91,7 +91,7 @@ static int userspace_init(struct devfreq *devfreq)
- 		goto out;
+ 	slice_type = s5p_mfc_hw_call(dev->mfc_ops, get_enc_slice_type, dev);
+ 	strm_size = s5p_mfc_hw_call(dev->mfc_ops, get_enc_strm_size, dev);
+@@ -1257,7 +1258,8 @@ static int enc_post_frame_start(struct s5p_mfc_ctx *ctx)
+ 			}
+ 		}
  	}
- 	data->valid = false;
--	devfreq->data = data;
-+	devfreq->governor_data = data;
+-	if ((ctx->src_queue_cnt > 0) && (ctx->state == MFCINST_RUNNING)) {
++	if (ctx->src_queue_cnt > 0 && (ctx->state == MFCINST_RUNNING ||
++				       ctx->state == MFCINST_FINISHING)) {
+ 		mb_entry = list_entry(ctx->src_queue.next, struct s5p_mfc_buf,
+ 									list);
+ 		if (mb_entry->flags & MFC_BUF_FLAG_USED) {
+@@ -1288,7 +1290,13 @@ static int enc_post_frame_start(struct s5p_mfc_ctx *ctx)
+ 		vb2_set_plane_payload(&mb_entry->b->vb2_buf, 0, strm_size);
+ 		vb2_buffer_done(&mb_entry->b->vb2_buf, VB2_BUF_STATE_DONE);
+ 	}
+-	if ((ctx->src_queue_cnt == 0) || (ctx->dst_queue_cnt == 0))
++
++	src_ready = true;
++	if (ctx->state == MFCINST_RUNNING && ctx->src_queue_cnt == 0)
++		src_ready = false;
++	if (ctx->state == MFCINST_FINISHING && ctx->ref_queue_cnt == 0)
++		src_ready = false;
++	if (!src_ready || ctx->dst_queue_cnt == 0)
+ 		clear_work_bit(ctx);
  
- 	err = sysfs_create_group(&devfreq->dev.kobj, &dev_attr_group);
- out:
-@@ -107,8 +107,8 @@ static void userspace_exit(struct devfreq *devfreq)
- 	if (devfreq->dev.kobj.sd)
- 		sysfs_remove_group(&devfreq->dev.kobj, &dev_attr_group);
- 
--	kfree(devfreq->data);
--	devfreq->data = NULL;
-+	kfree(devfreq->governor_data);
-+	devfreq->governor_data = NULL;
- }
- 
- static int devfreq_userspace_handler(struct devfreq *devfreq,
-diff --git a/include/linux/devfreq.h b/include/linux/devfreq.h
-index 34aab4dd336c..4dc7cda4fd46 100644
---- a/include/linux/devfreq.h
-+++ b/include/linux/devfreq.h
-@@ -152,8 +152,8 @@ struct devfreq_stats {
-  * @max_state:		count of entry present in the frequency table.
-  * @previous_freq:	previously configured frequency value.
-  * @last_status:	devfreq user device info, performance statistics
-- * @data:	Private data of the governor. The devfreq framework does not
-- *		touch this.
-+ * @data:	devfreq driver pass to governors, governor should not change it.
-+ * @governor_data:	private data for governors, devfreq core doesn't touch it.
-  * @user_min_freq_req:	PM QoS minimum frequency request from user (via sysfs)
-  * @user_max_freq_req:	PM QoS maximum frequency request from user (via sysfs)
-  * @scaling_min_freq:	Limit minimum frequency requested by OPP interface
-@@ -193,7 +193,8 @@ struct devfreq {
- 	unsigned long previous_freq;
- 	struct devfreq_dev_status last_status;
- 
--	void *data; /* private data for governors */
-+	void *data;
-+	void *governor_data;
- 
- 	struct dev_pm_qos_request user_min_freq_req;
- 	struct dev_pm_qos_request user_max_freq_req;
+ 	return 0;
 
