@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E62E65D7F0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:09:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DCF165D7F1
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239833AbjADQJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:09:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59382 "EHLO
+        id S239843AbjADQJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:09:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239780AbjADQIr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:08:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB81B3E0C9
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:08:43 -0800 (PST)
+        with ESMTP id S239844AbjADQIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:08:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A870E1BEA1
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:08:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 848EDB8172C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:08:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB083C433EF;
-        Wed,  4 Jan 2023 16:08:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 406136179A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:08:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3359FC433EF;
+        Wed,  4 Jan 2023 16:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848521;
-        bh=EIZqDPd9fNOCBCswgpx07PnRiZiEE9xZ/S9dqsC6PNo=;
+        s=korg; t=1672848525;
+        bh=YBDoitX4F0A6gQFe56jbY7V95X6BzrcqhBBjUQLDT/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ye2KXezRWkPtT9PZkpIsLjMlPZGolFEC6rxzDqOcHJ7K2xS5R4dlBhI2pcp/xK53Z
-         rokwrr4jgvOIUUq1YBaBgcjOnCQhvESnzHBzcAWJy3d93OZVE963+6cFNXKfGcyslw
-         esGhWICzWHpVj37OQXypw2/i/4Y6cl3ihSs2c3i4=
+        b=Snzmtg+wuxUxON3uoPLXgg1ycwn0vhGB1NzaCPbXQfku7uUHkmcjDkMsnDcF27V2P
+         deoSeFYepktD88ywmheTwj80l8InTjXe3pQiNeb6/Eg5FW432r7K0QdF1E2+3s5Ph7
+         71o0yA609aK2cVZQS5CFv03gdbQEMKfu8yiUYBVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Antonov <alexander.antonov@linux.intel.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Kan Liang <kan.liang@linux.intel.com>
-Subject: [PATCH 6.1 012/207] perf/x86/intel/uncore: Disable I/O stacks to PMU mapping on ICX-D
-Date:   Wed,  4 Jan 2023 17:04:30 +0100
-Message-Id: <20230104160512.306183616@linuxfoundation.org>
+Subject: [PATCH 6.1 013/207] perf/x86/intel/uncore: Clear attr_update properly
+Date:   Wed,  4 Jan 2023 17:04:31 +0100
+Message-Id: <20230104160512.336549358@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -56,45 +56,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Antonov <alexander.antonov@linux.intel.com>
 
-commit efe062705d149b20a15498cb999a9edbb8241e6f upstream.
+commit 6532783310e2b2f50dc13f46c49aa6546cb6e7a3 upstream.
 
-Current implementation of I/O stacks to PMU mapping doesn't support ICX-D.
-Detect ICX-D system to disable mapping.
+Current clear_attr_update procedure in pmu_set_mapping() sets attr_update
+field in NULL that is not correct because intel_uncore_type pmu types can
+contain several groups in attr_update field. For example, SPR platform
+already has uncore_alias_group to update and then UPI topology group will
+be added in next patches.
 
-Fixes: 10337e95e04c ("perf/x86/intel/uncore: Enable I/O stacks to IIO PMON mapping on ICX")
+Fix current behavior and clear attr_update group related to mapping only.
+
+Fixes: bb42b3d39781 ("perf/x86/intel/uncore: Expose an Uncore unit to IIO PMON mapping")
 Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221117122833.3103580-5-alexander.antonov@linux.intel.com
+Link: https://lore.kernel.org/r/20221117122833.3103580-4-alexander.antonov@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore.h       |    1 +
- arch/x86/events/intel/uncore_snbep.c |    5 +++++
- 2 files changed, 6 insertions(+)
+ arch/x86/events/intel/uncore_snbep.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
---- a/arch/x86/events/intel/uncore.h
-+++ b/arch/x86/events/intel/uncore.h
-@@ -2,6 +2,7 @@
- #include <linux/slab.h>
- #include <linux/pci.h>
- #include <asm/apicdef.h>
-+#include <asm/intel-family.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
- 
- #include <linux/perf_event.h>
 --- a/arch/x86/events/intel/uncore_snbep.c
 +++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -5144,6 +5144,11 @@ static int icx_iio_get_topology(struct i
+@@ -3804,6 +3804,21 @@ static const struct attribute_group *skx
+ 	NULL,
+ };
  
- static int icx_iio_set_mapping(struct intel_uncore_type *type)
- {
-+	/* Detect ICX-D system. This case is not supported */
-+	if (boot_cpu_data.x86_model == INTEL_FAM6_ICELAKE_D) {
-+		pmu_clear_mapping_attr(type->attr_update, &icx_iio_mapping_group);
-+		return -EPERM;
++static void pmu_clear_mapping_attr(const struct attribute_group **groups,
++				   struct attribute_group *ag)
++{
++	int i;
++
++	for (i = 0; groups[i]; i++) {
++		if (groups[i] == ag) {
++			for (i++; groups[i]; i++)
++				groups[i - 1] = groups[i];
++			groups[i - 1] = NULL;
++			break;
++		}
 +	}
- 	return pmu_iio_set_mapping(type, &icx_iio_mapping_group);
++}
++
+ static int
+ pmu_iio_set_mapping(struct intel_uncore_type *type, struct attribute_group *ag)
+ {
+@@ -3852,7 +3867,7 @@ clear_attrs:
+ clear_topology:
+ 	kfree(type->topology);
+ clear_attr_update:
+-	type->attr_update = NULL;
++	pmu_clear_mapping_attr(type->attr_update, ag);
+ 	return ret;
  }
  
 
