@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E256565D778
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50A7D65D784
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239554AbjADPqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:46:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43172 "EHLO
+        id S235317AbjADPsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:48:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239580AbjADPpb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:45:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317F9395CB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:45:30 -0800 (PST)
+        with ESMTP id S239561AbjADPs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:48:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7DAE395C5
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:48:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97ECCB816B7
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:45:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC31CC433EF;
-        Wed,  4 Jan 2023 15:45:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84EB161777
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:48:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 823BBC433EF;
+        Wed,  4 Jan 2023 15:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672847127;
-        bh=1bHeay0luKnEjUGb4qyl5rIunJDQi4ZD/+X+BE3NQlU=;
+        s=korg; t=1672847305;
+        bh=XoaXby3ub5TwDaIP8syIsqvRy+V+ys5ze0YETlenllc=;
         h=Subject:To:Cc:From:Date:From;
-        b=YLBrDtnmVu7IyDejA5rrfTS8LSDUGdsrrSltg3brsZxuzceqKeS9dhcCJ+nrgtG6J
-         b9uSz29Ys0yuhCTSKSTEAkhpWqAzW1Q0S8Z914ysPJSFMV/LoKccPk1YMCXA1wLIZX
-         6fiRf4KPH5N/LD20CUC7LqBdY9McSswhdVzRZ6e0=
-Subject: FAILED: patch "[PATCH] drm/amd/pm: enable GPO dynamic control support for SMU13.0.0" failed to apply to 6.0-stable tree
+        b=u8VTMbIh+YSKpThn69vf7OIirejJoPDs2xWBx8Ahj17yl8Rxmzl0AM4z1oQy9WYHS
+         4PHl7iJIlNdFJYSrIhl5URl+JeUBCw9IJHnO750pvFEij3Zk8I9OazVw7RdbwAMYU/
+         pTa0nHhwhXXtAoo6jwfHAN9wAYvAd/L5H+NUKdDg=
+Subject: FAILED: patch "[PATCH] drm/amd/pm: enable GPO dynamic control support for SMU13.0.7" failed to apply to 6.0-stable tree
 To:     evan.quan@amd.com, alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:45:16 +0100
-Message-ID: <167284711622417@kroah.com>
+Date:   Wed, 04 Jan 2023 16:48:21 +0100
+Message-ID: <167284730112678@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,13 +54,9 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-1794f6a9535b ("drm/amd/pm: enable GPO dynamic control support for SMU13.0.0")
-48aa62f07467 ("drm/amd/pm: Enable bad memory page/channel recording support for smu v13_0_0")
-8ae5a38c8cb3 ("drm/amd/pm: enable runpm support over BACO for SMU13.0.0")
-60cfad329ab8 ("drm/amd/pm: enable mode1 reset on smu_v13_0_10")
-c6863be23179 ("drm/amd/pm: fulfill SMU13.0.0 cstate control interface")
-1ed5a845c7c8 ("drm/amd/pm: Implement GFXOFF's entry count and residency for vangogh")
-672c0218e3e2 ("drm/amdgpu: add mode2 reset for sienna_cichlid")
+62b9f835a6c6 ("drm/amd/pm: enable GPO dynamic control support for SMU13.0.7")
+a60254d25e48 ("drm/amd/pm: enable runpm support over BACO for SMU13.0.7")
+ba2f09960e75 ("drm/amd/pm: fulfill SMU13.0.7 cstate control interface")
 
 thanks,
 
@@ -68,10 +64,10 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1794f6a9535bb5234c2b747d1bc6dad03249245a Mon Sep 17 00:00:00 2001
+From 62b9f835a6c60171845642afec4ce4b44865f10f Mon Sep 17 00:00:00 2001
 From: Evan Quan <evan.quan@amd.com>
-Date: Fri, 2 Dec 2022 13:56:35 +0800
-Subject: [PATCH] drm/amd/pm: enable GPO dynamic control support for SMU13.0.0
+Date: Fri, 2 Dec 2022 14:03:45 +0800
+Subject: [PATCH] drm/amd/pm: enable GPO dynamic control support for SMU13.0.7
 
 To better support UMD pstate profilings, the GPO feature needs
 to be switched on/off accordingly.
@@ -81,78 +77,24 @@ Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org # 6.0.x
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_types.h b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_types.h
-index a4e3425b1027..4180c71d930f 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_types.h
-+++ b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_types.h
-@@ -241,7 +241,8 @@
- 	__SMU_DUMMY_MAP(GetGfxOffEntryCount),		 \
- 	__SMU_DUMMY_MAP(LogGfxOffResidency),			\
- 	__SMU_DUMMY_MAP(SetNumBadMemoryPagesRetired),		\
--	__SMU_DUMMY_MAP(SetBadMemoryPagesRetiredFlagsPerChannel),
-+	__SMU_DUMMY_MAP(SetBadMemoryPagesRetiredFlagsPerChannel), \
-+	__SMU_DUMMY_MAP(AllowGpo),
- 
- #undef __SMU_DUMMY_MAP
- #define __SMU_DUMMY_MAP(type)	SMU_MSG_##type
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
-index 865d6358918d..ea29ac6a80e6 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
-+++ b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
-@@ -272,6 +272,9 @@ int smu_v13_0_init_pptable_microcode(struct smu_context *smu);
- 
- int smu_v13_0_run_btc(struct smu_context *smu);
- 
-+int smu_v13_0_gpo_control(struct smu_context *smu,
-+			  bool enablement);
-+
- int smu_v13_0_deep_sleep_control(struct smu_context *smu,
- 				 bool enablement);
- 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
-index f5e90e0a99df..e3a80ac987df 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
-@@ -2180,6 +2180,21 @@ int smu_v13_0_run_btc(struct smu_context *smu)
- 	return res;
- }
- 
-+int smu_v13_0_gpo_control(struct smu_context *smu,
-+			  bool enablement)
-+{
-+	int res;
-+
-+	res = smu_cmn_send_smc_msg_with_param(smu,
-+					      SMU_MSG_AllowGpo,
-+					      enablement ? 1 : 0,
-+					      NULL);
-+	if (res)
-+		dev_err(smu->adev->dev, "SetGpoAllow %d failed!\n", enablement);
-+
-+	return res;
-+}
-+
- int smu_v13_0_deep_sleep_control(struct smu_context *smu,
- 				 bool enablement)
- {
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-index 21d89c3302f1..cc66828c7a84 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-@@ -144,6 +144,7 @@ static struct cmn2asic_msg_mapping smu_v13_0_0_message_map[SMU_MSG_MAX_COUNT] =
- 	MSG_MAP(SetNumBadMemoryPagesRetired,	PPSMC_MSG_SetNumBadMemoryPagesRetired,   0),
- 	MSG_MAP(SetBadMemoryPagesRetiredFlagsPerChannel,
- 			    PPSMC_MSG_SetBadMemoryPagesRetiredFlagsPerChannel,   0),
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+index c270f94a1b86..ab1c004606be 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+@@ -123,6 +123,7 @@ static struct cmn2asic_msg_mapping smu_v13_0_7_message_map[SMU_MSG_MAX_COUNT] =
+ 	MSG_MAP(SetMGpuFanBoostLimitRpm,	PPSMC_MSG_SetMGpuFanBoostLimitRpm,     0),
+ 	MSG_MAP(DFCstateControl,		PPSMC_MSG_SetExternalClientDfCstateAllow, 0),
+ 	MSG_MAP(ArmD3,				PPSMC_MSG_ArmD3,                       0),
 +	MSG_MAP(AllowGpo,			PPSMC_MSG_SetGpoAllow,           0),
  };
  
- static struct cmn2asic_mapping smu_v13_0_0_clk_map[SMU_CLK_COUNT] = {
-@@ -1949,6 +1950,7 @@ static const struct pptable_funcs smu_v13_0_0_ppt_funcs = {
- 	.set_df_cstate = smu_v13_0_0_set_df_cstate,
- 	.send_hbm_bad_pages_num = smu_v13_0_0_smu_send_bad_mem_page_num,
- 	.send_hbm_bad_channel_flag = smu_v13_0_0_send_bad_mem_channel_flag,
+ static struct cmn2asic_mapping smu_v13_0_7_clk_map[SMU_CLK_COUNT] = {
+@@ -1690,6 +1691,7 @@ static const struct pptable_funcs smu_v13_0_7_ppt_funcs = {
+ 	.mode1_reset = smu_v13_0_mode1_reset,
+ 	.set_mp1_state = smu_v13_0_7_set_mp1_state,
+ 	.set_df_cstate = smu_v13_0_7_set_df_cstate,
 +	.gpo_control = smu_v13_0_gpo_control,
  };
  
- void smu_v13_0_0_set_ppt_funcs(struct smu_context *smu)
+ void smu_v13_0_7_set_ppt_funcs(struct smu_context *smu)
 
