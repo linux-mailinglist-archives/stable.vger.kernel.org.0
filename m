@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA3E165D8EE
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:20:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D36465D8F0
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:20:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239970AbjADQUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:20:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43480 "EHLO
+        id S239977AbjADQUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:20:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239979AbjADQTv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5883AAA2
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:50 -0800 (PST)
+        with ESMTP id S239991AbjADQT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F47E3E0E9
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CCC66177C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35DBDC433D2;
-        Wed,  4 Jan 2023 16:19:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 174A0B81731
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58544C433D2;
+        Wed,  4 Jan 2023 16:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849189;
-        bh=YfzktBIo7cJFZuRsJDMzUAaqAi2XWnwOYAwrGbu/8Lc=;
+        s=korg; t=1672849195;
+        bh=fzNwxn+5D9l4ObhjrXek79HPmvYNmES/HeGoYcrd520=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lzvbtYyZ7f3JRah6YBUb3kCKVYns/ejE1WuIm+cTPs1XdP53sKuvj9hoq7U1KP2+r
-         KECSbo1J/6uzhk7bHnQjktXvcEXNVoNpDVxr2vX8/X9Oh4SCZHD1ajDR29ohzSEUSZ
-         XJnp3sglXb+ZbJT/O3yUBXuJI1p6fsapjfF3eIGQ=
+        b=HH4SLtGtaEBmONWQc5mAgZjagUbstJTStvMcOIGBhvQmyymfpzniJZDFbtiwR4sPC
+         BYXW9g0PIFANF2xSCDAcdm72zSrNVgqs62klfBSVCRugZRPX3ZTl7s2CIq041Mbl1O
+         SJ0W3AlYkWki/X5sghXJOYw6oHhXGR6Gmo7P9JhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.0 080/177] cifs: fix confusing debug message
-Date:   Wed,  4 Jan 2023 17:06:11 +0100
-Message-Id: <20230104160510.075508621@linuxfoundation.org>
+Subject: [PATCH 6.0 081/177] cifs: fix missing display of three mount options
+Date:   Wed,  4 Jan 2023 17:06:12 +0100
+Message-Id: <20230104160510.104715262@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -52,54 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Steve French <stfrench@microsoft.com>
 
-commit a85ceafd41927e41a4103d228a993df7edd8823b upstream.
+commit 2bfd81043e944af0e52835ef6d9b41795af22341 upstream.
 
-Since rc was initialised to -ENOMEM in cifs_get_smb_ses(), when an
-existing smb session was found, free_xid() would be called and then
-print
+Three mount options: "tcpnodelay" and "noautotune" and "noblocksend"
+were not displayed when passed in on cifs/smb3 mounts (e.g. displayed
+in /proc/mounts e.g.).  No change to defaults so these are not
+displayed if not specified on mount.
 
-  CIFS: fs/cifs/connect.c: Existing tcp session with server found
-  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 44 with uid: 0
-  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
-  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 44) rc = -12
-
-Fix this by initialising rc to 0 and then let free_xid() print this
-instead
-
-  CIFS: fs/cifs/connect.c: Existing tcp session with server found
-  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 14 with uid: 0
-  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
-  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 14) rc = 0
-
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Cc: stable@vger.kernel.org
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/connect.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/cifs/cifsfs.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2155,7 +2155,7 @@ cifs_set_cifscreds(struct smb3_fs_contex
- struct cifs_ses *
- cifs_get_smb_ses(struct TCP_Server_Info *server, struct smb3_fs_context *ctx)
- {
--	int rc = -ENOMEM;
-+	int rc = 0;
- 	unsigned int xid;
- 	struct cifs_ses *ses;
- 	struct sockaddr_in *addr = (struct sockaddr_in *)&server->dstaddr;
-@@ -2204,6 +2204,8 @@ cifs_get_smb_ses(struct TCP_Server_Info
- 		return ses;
- 	}
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -678,9 +678,15 @@ cifs_show_options(struct seq_file *s, st
+ 	seq_printf(s, ",echo_interval=%lu",
+ 			tcon->ses->server->echo_interval / HZ);
  
-+	rc = -ENOMEM;
-+
- 	cifs_dbg(FYI, "Existing smb sess not found\n");
- 	ses = sesInfoAlloc();
- 	if (ses == NULL)
+-	/* Only display max_credits if it was overridden on mount */
++	/* Only display the following if overridden on mount */
+ 	if (tcon->ses->server->max_credits != SMB2_MAX_CREDITS_AVAILABLE)
+ 		seq_printf(s, ",max_credits=%u", tcon->ses->server->max_credits);
++	if (tcon->ses->server->tcp_nodelay)
++		seq_puts(s, ",tcpnodelay");
++	if (tcon->ses->server->noautotune)
++		seq_puts(s, ",noautotune");
++	if (tcon->ses->server->noblocksnd)
++		seq_puts(s, ",noblocksend");
+ 
+ 	if (tcon->snapshot_time)
+ 		seq_printf(s, ",snapshot=%llu", tcon->snapshot_time);
 
 
