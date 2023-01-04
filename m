@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB2665D90D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 030F565D90E
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235332AbjADQVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:21:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44890 "EHLO
+        id S239264AbjADQVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:21:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239722AbjADQUz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:55 -0500
+        with ESMTP id S239965AbjADQVE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:21:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8BE0D50
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B1A1DF00
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:21:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58547617AE
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E0E9C433EF;
-        Wed,  4 Jan 2023 16:20:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 337116179B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:21:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27EABC433EF;
+        Wed,  4 Jan 2023 16:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849253;
-        bh=LaNO8fLXHjsm2QKl1o2INaw5paN3LDCZzOGdoLXWHZk=;
+        s=korg; t=1672849259;
+        bh=RKeG6pAXImq9qcj+T4tzTpmu5OGLr1tJpPPZeeygvbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TesRZscweRa/rLMrY1oaOrqbwgTCixUmWb2aWoWwOVnNxqq7LJDs+O+vue8Q9TTKo
-         p55a+hMamIlI6VKQWRbWRT9ZKFDfM56NgmusO6XDHXmoxy2sIVC0tBjE5vnJxhSMks
-         QvWjIL0UnzTP/MNBjbRKL5uygZBpILRwaHbPKCU8=
+        b=HxQJDla2M+r+/eP7NkPmRBiAfO6docKpQu3EKLZMjX/rXExBjJjZiVpKaWP7yJJQY
+         oc4RiYNSHPDQd51naiPoQFCWJzIGXIrjrPCOnfhv3b+5K1XuesvhMcK284b97mz8/G
+         I5vjiBgtGsysOIGziXj0uN1B/75gKMlt6BFFMvuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 6.1 158/207] drm/ingenic: Fix missing platform_driver_unregister() call in ingenic_drm_init()
-Date:   Wed,  4 Jan 2023 17:06:56 +0100
-Message-Id: <20230104160516.896391379@linuxfoundation.org>
+        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
+        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Subject: [PATCH 6.1 159/207] drm/etnaviv: reap idle mapping if it doesnt match the softpin address
+Date:   Wed,  4 Jan 2023 17:06:57 +0100
+Message-Id: <20230104160516.925891208@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -52,58 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit 47078311b8efebdefd5b3b2f87e2b02b14f49c66 upstream.
+commit 332f847212e43d584019a8264895f25cf92aa647 upstream.
 
-A problem about modprobe ingenic-drm failed is triggered with the following
-log given:
+When a idle BO, which is held open by another process, gets freed by
+userspace and subsequently referenced again by e.g. importing it again,
+userspace may assign a different softpin VA than the last time around.
+As the kernel GEM object still exists, we likely have a idle mapping
+with the old VA still cached, if it hasn't been reaped in the meantime.
 
- [  303.561088] Error: Driver 'ingenic-ipu' is already registered, aborting...
- modprobe: ERROR: could not insert 'ingenic_drm': Device or resource busy
+As the context matches, we then simply try to resurrect this mapping by
+increasing the refcount. As the VA in this mapping does not match the
+new softpin address, we consequently fail the otherwise valid submit.
+Instead of failing, reap the idle mapping.
 
-The reason is that ingenic_drm_init() returns platform_driver_register()
-directly without checking its return value, if platform_driver_register()
-failed, it returns without unregistering ingenic_ipu_driver_ptr, resulting
-the ingenic-drm can never be installed later.
-A simple call graph is shown as below:
-
- ingenic_drm_init()
-   platform_driver_register() # ingenic_ipu_driver_ptr are registered
-   platform_driver_register()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without unregister ingenic_ipu_driver_ptr
-
-Fixing this problem by checking the return value of
-platform_driver_register() and do platform_unregister_drivers() if
-error happened.
-
-Fixes: fc1acf317b01 ("drm/ingenic: Add support for the IPU")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221104064512.8569-1-yuancan@huawei.com
+Cc: stable@vger.kernel.org # 5.19
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Guido Günther <agx@sigxcpu.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm-drv.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gem.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-@@ -1629,7 +1629,11 @@ static int ingenic_drm_init(void)
- 			return err;
- 	}
- 
--	return platform_driver_register(&ingenic_drm_driver);
-+	err = platform_driver_register(&ingenic_drm_driver);
-+	if (IS_ENABLED(CONFIG_DRM_INGENIC_IPU) && err)
-+		platform_driver_unregister(ingenic_ipu_driver_ptr);
-+
-+	return err;
- }
- module_init(ingenic_drm_init);
- 
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+@@ -258,7 +258,12 @@ struct etnaviv_vram_mapping *etnaviv_gem
+ 		if (mapping->use == 0) {
+ 			mutex_lock(&mmu_context->lock);
+ 			if (mapping->context == mmu_context)
+-				mapping->use += 1;
++				if (va && mapping->iova != va) {
++					etnaviv_iommu_reap_mapping(mapping);
++					mapping = NULL;
++				} else {
++					mapping->use += 1;
++				}
+ 			else
+ 				mapping = NULL;
+ 			mutex_unlock(&mmu_context->lock);
 
 
