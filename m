@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7731865D649
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:43:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B768165D648
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239666AbjADOnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239663AbjADOnr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 4 Jan 2023 09:43:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35036 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239667AbjADOn1 (ORCPT
+        with ESMTP id S239668AbjADOn1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:43:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB83E1A225
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:43:25 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F6501EACF
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:43:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54DC9B81677
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:43:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C94C433F1;
-        Wed,  4 Jan 2023 14:43:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0E546175D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:43:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFAA3C433F1;
+        Wed,  4 Jan 2023 14:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843403;
-        bh=QdG7fU+APwRKI61whF4AG+nMcjjX5wcI8XU8AOjAYzw=;
+        s=korg; t=1672843406;
+        bh=whfYuCxLgT5T/h752z8ipilFIPm9/TRUKC4Eh+/j2T8=;
         h=Subject:To:Cc:From:Date:From;
-        b=kSSoT7wfEgV6JjGkhE/0WKOtCb7wX7IpgATUujPvg8/xMAjT4FSnFNzgE6E/c0geP
-         DMOEry1fxUwe1MjBHg81emKI9cC26o8z9ZyKx02P1ZyVexEKo69gAWkHxJwrcIXOO8
-         ko/cnRGhSNrHO2OVZldvfB0OFAk6GgeMCKvVHgvw=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix watermark calculations for gen12+ RC CCS" failed to apply to 5.15-stable tree
+        b=pofgLs2cjljSSgoqycFO4+mbnBnyuER43UIOsj5IJqUL24f+sM/9DrospqujDV9JI
+         kCtwle0X2n62W4nL1MCpqeki4bnftRcamC/2EOOAvQURufwmDgr0Gs/x4GhihCGZqC
+         80lRje7m9k48e5S5XNrhEFweOsXxB7VGWsSz241U=
+Subject: FAILED: patch "[PATCH] drm/i915: Fix watermark calculations for gen12+ RC CCS" failed to apply to 5.10-stable tree
 To:     ville.syrjala@linux.intel.com, juhapekka.heikkila@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:43:09 +0100
-Message-ID: <1672843389240235@kroah.com>
+Date:   Wed, 04 Jan 2023 15:43:10 +0100
+Message-ID: <167284339074253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
