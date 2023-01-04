@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA7D65D6E1
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD2465D6E5
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:08:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229769AbjADPIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:08:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52194 "EHLO
+        id S236070AbjADPIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:08:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239486AbjADPH4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:07:56 -0500
+        with ESMTP id S229453AbjADPIB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:08:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E018F19291
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:07:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A22B19286
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:08:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CEF161738
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:07:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C25C433EF;
-        Wed,  4 Jan 2023 15:07:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA01561778
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:07:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCAADC433F0;
+        Wed,  4 Jan 2023 15:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844874;
-        bh=6P8vu2fk4T1lIPmzUdRBv+nEw4GSJn4lnCwjud7iQu4=;
+        s=korg; t=1672844879;
+        bh=5nKYggOt6Haeo5nNywh1agprV99iBVyxCMxmWHtWKpc=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZLMgAUUALRPV17ob6WK4tstJJ0aQMpYNTgiCMhsRTp8BneojKDr83sfftfkgb85B3
-         /B0sEHOKCykVSsq5TMvtnuyj2+B3pOzP6Z+jlty7wkiRBnz/HKZDrEeihAnrd/2wzJ
-         pDKCfnwjYM1cvPuCO5cNyWo3lS/Rz2hHsRGGEK0o=
-Subject: FAILED: patch "[PATCH] ext4: fix kernel BUG in 'ext4_write_inline_data_end()'" failed to apply to 5.10-stable tree
+        b=1X5b/0xB40NL5iuKpPolmkj68P+6w6ep29PHAwty9S3AEgvmraQ1+c/hTrG1TOqgI
+         ltjn5slvqrdX2aQrfsXg5ZPpyG7Txwt3AVREFX0nQ8XHNLzXwymt2ZWWsaNaP6zINz
+         Si9zhaB0Ue5rn04Jl4IYA+WGuob3ksPGAFnEGeng=
+Subject: FAILED: patch "[PATCH] ext4: fix kernel BUG in 'ext4_write_inline_data_end()'" failed to apply to 5.4-stable tree
 To:     yebin10@huawei.com, jun.nie@linaro.org, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:07:52 +0100
-Message-ID: <16728448721370@kroah.com>
+Date:   Wed, 04 Jan 2023 16:07:54 +0100
+Message-ID: <16728448744111@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,12 @@ Possible dependencies:
 6984aef59814 ("ext4: factor out write end code of inline file")
 55ce2f649b9e ("ext4: correct the error path of ext4_write_inline_data_end()")
 4df031ff5876 ("ext4: check and update i_disksize properly")
+4209ae12b122 ("ext4: handle ext4_mark_inode_dirty errors")
+4337ecd1fe99 ("ext4: remove EXT4_EOFBLOCKS_FL and associated code")
+43f816772ff3 ("ext4: make some functions static in extents.c")
+9b02e4987ab0 ("ext4: clean up len and offset checks in ext4_fallocate()")
+c7df4a1ecb85 ("ext4: work around deleting a file with i_nlink == 0 safely")
+8d0d47ea1640 ("Merge branch 'mb/dio' into master")
 
 thanks,
 
