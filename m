@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B056C65D9A1
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A92E665D96A
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239761AbjADQ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50746 "EHLO
+        id S235146AbjADQZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:25:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235171AbjADQ03 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1899167CF
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:28 -0800 (PST)
+        with ESMTP id S240111AbjADQYt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DE4633D74
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74F82B81733
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C814FC433EF;
-        Wed,  4 Jan 2023 16:26:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09C166177C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F337CC433EF;
+        Wed,  4 Jan 2023 16:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849586;
-        bh=KMsgZsGg5RxChiGBR+KI62XQ9EOg44dKOYLWJffZWi8=;
+        s=korg; t=1672849440;
+        bh=7orFaXyleBTcXT6eB+VPsacBMCA2FRG3jFzj99kMvPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wcgg+cdh4i5kC4QQEmwwPOwe6/7tjjpPJQ3TgQZQ2Eis2tv7WGioFHzLAwTsMQjrN
-         UeD+EJMHhZynOtg2hn9oAC5gqvKn9sghtUzor2Z2k9xh5DdcN3w4FfvnDQMooAvMJ5
-         MnLhxiTyWzKY2x+sP0wbeVaH2x+jzEYWzHldEXGI=
+        b=ps0I/iExCswRWAMg6KLfqNZZo3S36qV9rqVHifdyfQfegghX2P8I8r0ejpj8lcE5I
+         44OxfTQeG8JZ+ULV8RtW5o8e5X8KWEnC3NdrE6A+M1rghRD/IEz9egar6jczYkTblE
+         qz1HcCvzHBVMr7LxPcac/+/sMc1J//+StaFkD6qM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maria Yu <quic_aiquny@quicinc.com>,
+        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
         Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 6.0 118/177] remoteproc: core: Do pm_relax when in RPROC_OFFLINE state
-Date:   Wed,  4 Jan 2023 17:06:49 +0100
-Message-Id: <20230104160511.213946103@linuxfoundation.org>
+Subject: [PATCH 6.0 119/177] remoteproc: imx_rproc: Correct i.MX93 DRAM mapping
+Date:   Wed,  4 Jan 2023 17:06:50 +0100
+Message-Id: <20230104160511.249188755@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -52,52 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maria Yu <quic_aiquny@quicinc.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-commit 11c7f9e3131ad14b27a957496088fa488b153a48 upstream.
+commit ee18f2715e85f4ef051851a0c4831ee7ad7d83b3 upstream.
 
-Make sure that pm_relax() happens even when the remoteproc
-is stopped before the crash handler work is scheduled.
+According to updated reference mannual, the M33 DRAM view of
+0x[C,D]0000000 maps to A55 0xC0000000, so correct it.
 
-Signed-off-by: Maria Yu <quic_aiquny@quicinc.com>
+Fixes: 9222fabf0e39 ("remoteproc: imx_rproc: Support i.MX93")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
 Cc: stable <stable@vger.kernel.org>
-Fixes: a781e5aa5911 ("remoteproc: core: Prevent system suspend during remoteproc recovery")
-Link: https://lore.kernel.org/r/20221206015957.2616-2-quic_aiquny@quicinc.com
+Link: https://lore.kernel.org/r/20221102111410.38737-1-peng.fan@oss.nxp.com
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/remoteproc/remoteproc_core.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/remoteproc/imx_rproc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -1954,12 +1954,18 @@ static void rproc_crash_handler_work(str
+--- a/drivers/remoteproc/imx_rproc.c
++++ b/drivers/remoteproc/imx_rproc.c
+@@ -113,8 +113,8 @@ static const struct imx_rproc_att imx_rp
+ 	{ 0x80000000, 0x80000000, 0x10000000, 0 },
+ 	{ 0x90000000, 0x80000000, 0x10000000, 0 },
  
- 	mutex_lock(&rproc->lock);
+-	{ 0xC0000000, 0xa0000000, 0x10000000, 0 },
+-	{ 0xD0000000, 0xa0000000, 0x10000000, 0 },
++	{ 0xC0000000, 0xC0000000, 0x10000000, 0 },
++	{ 0xD0000000, 0xC0000000, 0x10000000, 0 },
+ };
  
--	if (rproc->state == RPROC_CRASHED || rproc->state == RPROC_OFFLINE) {
-+	if (rproc->state == RPROC_CRASHED) {
- 		/* handle only the first crash detected */
- 		mutex_unlock(&rproc->lock);
- 		return;
- 	}
- 
-+	if (rproc->state == RPROC_OFFLINE) {
-+		/* Don't recover if the remote processor was stopped */
-+		mutex_unlock(&rproc->lock);
-+		goto out;
-+	}
-+
- 	rproc->state = RPROC_CRASHED;
- 	dev_err(dev, "handling crash #%u in %s\n", ++rproc->crash_cnt,
- 		rproc->name);
-@@ -1969,6 +1975,7 @@ static void rproc_crash_handler_work(str
- 	if (!rproc->recovery_disabled)
- 		rproc_trigger_recovery(rproc);
- 
-+out:
- 	pm_relax(rproc->dev.parent);
- }
- 
+ static const struct imx_rproc_att imx_rproc_att_imx8mn[] = {
 
 
