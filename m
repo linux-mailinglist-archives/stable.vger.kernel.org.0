@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1929D65D88C
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:16:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEB5365D837
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239875AbjADQQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:16:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
+        id S239796AbjADQMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:12:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234927AbjADQPk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA4742E1E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:15:19 -0800 (PST)
+        with ESMTP id S240039AbjADQMG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8761E1901F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:11:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D2C9B81730
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:15:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3B08C433EF;
-        Wed,  4 Jan 2023 16:15:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15B25B81731
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:11:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64D65C433F0;
+        Wed,  4 Jan 2023 16:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848917;
-        bh=CQ2dv/B0AOmicQVYC379KnMO1h34F0xUY8aprLNoXfE=;
+        s=korg; t=1672848698;
+        bh=05C+XQcVlhtnEptzUnDXxtWOZ0G2HPKZYyKqJG56lXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hicX24br5rOB+ObhaZ5nu5OECjxB+3/kKlgr3/76o1EXTljyf/4p/9lCI+Azbn/Fr
-         +1Hd7qGIRG0SFejOp3yAES8DThBD5JCbv/iiDy54MhdullRyiQpBfRg5xN8pXStdIt
-         1rRPb1Td1IS/7Xc6ijMW65Qd2el+fGnSbwYsME7k=
+        b=OyDSlN4VLUIGi4XcV2xPBHmvMTPEglg5OU1xu+DuYcX60NaE7pr9gLtIBEk+eTnyX
+         N3EQrjvRTDVB/U0MjXhmn+cFkNU3i9ch5LxU3Br/3ZK+ycO1povCrpyDYXG9kx8xRm
+         kSu6QLstzdU1dGTBzAWkGPuDMFBbfCdOCy/4K9ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-fsd@tesla.com,
-        Smitha T Murthy <smitha.t@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Subject: [PATCH 6.0 034/177] media: s5p-mfc: Fix in register read and write for H264
-Date:   Wed,  4 Jan 2023 17:05:25 +0100
-Message-Id: <20230104160508.697386116@linuxfoundation.org>
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Joe Thornber <ejt@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.1 068/207] dm thin: Use last transactions pmd->root when commit failed
+Date:   Wed,  4 Jan 2023 17:05:26 +0100
+Message-Id: <20230104160514.090617891@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smitha T Murthy <smitha.t@samsung.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 06710cd5d2436135046898d7e4b9408c8bb99446 upstream.
+commit 7991dbff6849f67e823b7cc0c15e5a90b0549b9f upstream.
 
-Few of the H264 encoder registers written were not getting reflected
-since the read values were not stored and getting overwritten.
+Recently we found a softlock up problem in dm thin pool btree lookup
+code due to corrupted metadata:
 
-Fixes: 6a9c6f681257 ("[media] s5p-mfc: Add variants to access mfc registers")
+ Kernel panic - not syncing: softlockup: hung tasks
+ CPU: 7 PID: 2669225 Comm: kworker/u16:3
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+ Workqueue: dm-thin do_worker [dm_thin_pool]
+ Call Trace:
+   <IRQ>
+   dump_stack+0x9c/0xd3
+   panic+0x35d/0x6b9
+   watchdog_timer_fn.cold+0x16/0x25
+   __run_hrtimer+0xa2/0x2d0
+   </IRQ>
+   RIP: 0010:__relink_lru+0x102/0x220 [dm_bufio]
+   __bufio_new+0x11f/0x4f0 [dm_bufio]
+   new_read+0xa3/0x1e0 [dm_bufio]
+   dm_bm_read_lock+0x33/0xd0 [dm_persistent_data]
+   ro_step+0x63/0x100 [dm_persistent_data]
+   btree_lookup_raw.constprop.0+0x44/0x220 [dm_persistent_data]
+   dm_btree_lookup+0x16f/0x210 [dm_persistent_data]
+   dm_thin_find_block+0x12c/0x210 [dm_thin_pool]
+   __process_bio_read_only+0xc5/0x400 [dm_thin_pool]
+   process_thin_deferred_bios+0x1a4/0x4a0 [dm_thin_pool]
+   process_one_work+0x3c5/0x730
 
+Following process may generate a broken btree mixed with fresh and
+stale btree nodes, which could get dm thin trapped in an infinite loop
+while looking up data block:
+ Transaction 1: pmd->root = A, A->B->C   // One path in btree
+                pmd->root = X, X->Y->Z   // Copy-up
+ Transaction 2: X,Z is updated on disk, Y write failed.
+                // Commit failed, dm thin becomes read-only.
+                process_bio_read_only
+		 dm_thin_find_block
+		  __find_block
+		   dm_btree_lookup(pmd->root)
+The pmd->root points to a broken btree, Y may contain stale node
+pointing to any block, for example X, which gets dm thin trapped into
+a dead loop while looking up Z.
+
+Fix this by setting pmd->root in __open_metadata(), so that dm thin
+will use the last transaction's pmd->root if commit failed.
+
+Fetch a reproducer in [Link].
+
+Linke: https://bugzilla.kernel.org/show_bug.cgi?id=216790
 Cc: stable@vger.kernel.org
-Cc: linux-fsd@tesla.com
-Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 991d9fa02da0 ("dm: add thin provisioning target")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Acked-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/md/dm-thin-metadata.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c
-+++ b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c
-@@ -1060,7 +1060,7 @@ static int s5p_mfc_set_enc_params_h264(s
+--- a/drivers/md/dm-thin-metadata.c
++++ b/drivers/md/dm-thin-metadata.c
+@@ -724,6 +724,15 @@ static int __open_metadata(struct dm_poo
+ 		goto bad_cleanup_data_sm;
  	}
  
- 	/* aspect ratio VUI */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 5);
- 	reg |= ((p_h264->vui_sar & 0x1) << 5);
- 	writel(reg, mfc_regs->e_h264_options);
-@@ -1083,7 +1083,7 @@ static int s5p_mfc_set_enc_params_h264(s
++	/*
++	 * For pool metadata opening process, root setting is redundant
++	 * because it will be set again in __begin_transaction(). But dm
++	 * pool aborting process really needs to get last transaction's
++	 * root to avoid accessing broken btree.
++	 */
++	pmd->root = le64_to_cpu(disk_super->data_mapping_root);
++	pmd->details_root = le64_to_cpu(disk_super->device_details_root);
++
+ 	__setup_btree_details(pmd);
+ 	dm_bm_unlock(sblock);
  
- 	/* intra picture period for H.264 open GOP */
- 	/* control */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 4);
- 	reg |= ((p_h264->open_gop & 0x1) << 4);
- 	writel(reg, mfc_regs->e_h264_options);
-@@ -1097,23 +1097,23 @@ static int s5p_mfc_set_enc_params_h264(s
- 	}
- 
- 	/* 'WEIGHTED_BI_PREDICTION' for B is disable */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x3 << 9);
- 	writel(reg, mfc_regs->e_h264_options);
- 
- 	/* 'CONSTRAINED_INTRA_PRED_ENABLE' is disable */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 14);
- 	writel(reg, mfc_regs->e_h264_options);
- 
- 	/* ASO */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 6);
- 	reg |= ((p_h264->aso & 0x1) << 6);
- 	writel(reg, mfc_regs->e_h264_options);
- 
- 	/* hier qp enable */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 8);
- 	reg |= ((p_h264->open_gop & 0x1) << 8);
- 	writel(reg, mfc_regs->e_h264_options);
-@@ -1134,7 +1134,7 @@ static int s5p_mfc_set_enc_params_h264(s
- 	writel(reg, mfc_regs->e_h264_num_t_layer);
- 
- 	/* frame packing SEI generation */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 25);
- 	reg |= ((p_h264->sei_frame_packing & 0x1) << 25);
- 	writel(reg, mfc_regs->e_h264_options);
 
 
