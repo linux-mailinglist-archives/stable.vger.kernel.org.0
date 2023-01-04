@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D68065D84B
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 209C765D856
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:14:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239707AbjADQN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:13:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34334 "EHLO
+        id S239872AbjADQNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:13:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239688AbjADQM2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:28 -0500
+        with ESMTP id S239486AbjADQNC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:13:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49240DEB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C9FA63C3
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:13:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08A74B81732
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 464B8C433EF;
-        Wed,  4 Jan 2023 16:12:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEAB1B817AC
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 130C1C433EF;
+        Wed,  4 Jan 2023 16:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848744;
-        bh=zK54ZTDM2O8ctkUh7WXZCb5LE8tAKZh34jCi4+FZ33Y=;
+        s=korg; t=1672848778;
+        bh=xtyBHY6DJU8F7weQTFuB9OxFQ12nizJ9w4NtglMAi/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PKsznuo4C/FFLA3LfHoLogHZKD91tmVy2X1ldYkH/krdsOqB1VuS3k9GPiTSA0R4b
-         AYgbUFEBIch2+dJS1LSSRkIOB2545n7j7GvwFXLQc2gOzefdr0ByCHQmNnXtOhcKIu
-         j5VEkn/p1X5SntE3/Djam4sVBAIPPHjwYN/6q7M8=
+        b=Q0fypydGY3EkUUUmwf90XBTn2s5HGTVN0KzCR1VQYCMYLROS/w2Mq1SPkkVHM/4k6
+         bm7n/kFtkg9a3S9o4TvCLYRWI/dFlEMEXXd+qvnzPwX5vl2trPzdUHC5rb4Mk39+Is
+         Xe1kBlMEuL/m5TBbAJx8h33SHBNZsMSWV9rdUiRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 055/207] platform/x86: x86-android-tablets: Add Medion Lifetab S10346 data
-Date:   Wed,  4 Jan 2023 17:05:13 +0100
-Message-Id: <20230104160513.651524637@linuxfoundation.org>
+Subject: [PATCH 6.1 056/207] platform/x86: x86-android-tablets: Add Lenovo Yoga Tab 3 (YT3-X90F) charger + fuel-gauge data
+Date:   Wed,  4 Jan 2023 17:05:14 +0100
+Message-Id: <20230104160513.691109303@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -55,134 +54,185 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 902ce18ab1f4444ff9d49865bea35a07adcc03fd ]
+[ Upstream commit b6c14ff1deaafd30036ec36d5205acd5a578b1cd ]
 
-The Medion Lifetab S10346 is a x86 ACPI tablet which ships with Android
-x86 as factory OS. Its DSDT contains a bunch of I2C devices which are not
-actually there, causing various resource conflicts. Enumeration of these
-is skipped through the acpi_quirk_skip_i2c_client_enumeration().
+The Lenovo Yoga Tab 3 (YT3-X90F) is an Intel Cherry Trail based tablet
+which ships with Android as Factory OS. Its DSDT contains a bunch of I2C
+devices which are not actually there, causing various resource conflicts.
+Use acpi_quirk_skip_i2c_client_enumeration() to not enumerate these.
 
-Add support for manually instantiating the I2C devices which are
-actually present on this tablet by adding the necessary device info to
-the x86-android-tablets module.
+The YT3-X90F has quite a bit of exotic hardware, this adds initial
+support by manually instantiating the i2c-clients for the 2 charger +
+2 fuel-gauge chips used for the 2 batteries.
+
+Support for other parts of the hw will be added by follow-up patches.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20221208110224.107354-1-hdegoede@redhat.com
+Link: https://lore.kernel.org/r/20221127182458.104528-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/x86-android-tablets.c | 92 ++++++++++++++++++++++
- 1 file changed, 92 insertions(+)
+ drivers/platform/x86/x86-android-tablets.c | 135 ++++++++++++++++++++-
+ 1 file changed, 134 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/platform/x86/x86-android-tablets.c b/drivers/platform/x86/x86-android-tablets.c
-index 4acd6fa8d43b..f04e06eeb958 100644
+index f04e06eeb958..bbfae1395e18 100644
 --- a/drivers/platform/x86/x86-android-tablets.c
 +++ b/drivers/platform/x86/x86-android-tablets.c
-@@ -987,6 +987,88 @@ static void lenovo_yoga_tab2_830_1050_exit(void)
+@@ -5,7 +5,7 @@
+  * devices typically have a bunch of things hardcoded, rather than specified
+  * in their DSDT.
+  *
+- * Copyright (C) 2021 Hans de Goede <hdegoede@redhat.com>
++ * Copyright (C) 2021-2022 Hans de Goede <hdegoede@redhat.com>
+  */
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+@@ -987,6 +987,130 @@ static void lenovo_yoga_tab2_830_1050_exit(void)
  	}
  }
  
-+/* Medion Lifetab S10346 tablets have an Android factory img with everything hardcoded */
-+static const char * const medion_lifetab_s10346_accel_mount_matrix[] = {
-+	"0", "1", "0",
-+	"1", "0", "0",
-+	"0", "0", "1"
-+};
++/* Lenovo Yoga Tab 3 Pro YT3-X90F */
 +
-+static const struct property_entry medion_lifetab_s10346_accel_props[] = {
-+	PROPERTY_ENTRY_STRING_ARRAY("mount-matrix", medion_lifetab_s10346_accel_mount_matrix),
++/*
++ * There are 2 batteries, with 2 bq27500 fuel-gauges and 2 bq25892 chargers,
++ * "bq25890-charger-1" is instantiated from: drivers/i2c/busses/i2c-cht-wc.c.
++ */
++static const char * const lenovo_yt3_bq25892_0_suppliers[] = { "cht_wcove_pwrsrc" };
++static const char * const bq25890_1_psy[] = { "bq25890-charger-1" };
++
++static const struct property_entry fg_bq25890_1_supply_props[] = {
++	PROPERTY_ENTRY_STRING_ARRAY("supplied-from", bq25890_1_psy),
 +	{ }
 +};
 +
-+static const struct software_node medion_lifetab_s10346_accel_node = {
-+	.properties = medion_lifetab_s10346_accel_props,
++static const struct software_node fg_bq25890_1_supply_node = {
++	.properties = fg_bq25890_1_supply_props,
 +};
 +
-+/* Note the LCD panel is mounted upside down, this is correctly indicated in the VBT */
-+static const struct property_entry medion_lifetab_s10346_touchscreen_props[] = {
-+	PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++/* bq25892 charger settings for the flat lipo battery behind the screen */
++static const struct property_entry lenovo_yt3_bq25892_0_props[] = {
++	PROPERTY_ENTRY_STRING_ARRAY("supplied-from", lenovo_yt3_bq25892_0_suppliers),
++	PROPERTY_ENTRY_STRING("linux,power-supply-name", "bq25892-second-chrg"),
++	PROPERTY_ENTRY_U32("linux,iinlim-percentage", 40),
++	PROPERTY_ENTRY_BOOL("linux,skip-reset"),
++	/* Values taken from Android Factory Image */
++	PROPERTY_ENTRY_U32("ti,charge-current", 2048000),
++	PROPERTY_ENTRY_U32("ti,battery-regulation-voltage", 4352000),
++	PROPERTY_ENTRY_U32("ti,termination-current", 128000),
++	PROPERTY_ENTRY_U32("ti,precharge-current", 128000),
++	PROPERTY_ENTRY_U32("ti,minimum-sys-voltage", 3700000),
++	PROPERTY_ENTRY_U32("ti,boost-voltage", 4998000),
++	PROPERTY_ENTRY_U32("ti,boost-max-current", 500000),
++	PROPERTY_ENTRY_BOOL("ti,use-ilim-pin"),
 +	{ }
 +};
 +
-+static const struct software_node medion_lifetab_s10346_touchscreen_node = {
-+	.properties = medion_lifetab_s10346_touchscreen_props,
++static const struct software_node lenovo_yt3_bq25892_0_node = {
++	.properties = lenovo_yt3_bq25892_0_props,
 +};
 +
-+static const struct x86_i2c_client_info medion_lifetab_s10346_i2c_clients[] __initconst = {
++static const struct x86_i2c_client_info lenovo_yt3_i2c_clients[] __initconst = {
 +	{
-+		/* kxtj21009 accel */
++		/* bq27500 fuel-gauge for the flat lipo battery behind the screen */
 +		.board_info = {
-+			.type = "kxtj21009",
-+			.addr = 0x0f,
-+			.dev_name = "kxtj21009",
-+			.swnode = &medion_lifetab_s10346_accel_node,
++			.type = "bq27500",
++			.addr = 0x55,
++			.dev_name = "bq27500_0",
++			.swnode = &fg_bq25890_supply_node,
 +		},
-+		.adapter_path = "\\_SB_.I2C3",
++		.adapter_path = "\\_SB_.PCI0.I2C1",
++	}, {
++		/* bq25892 charger for the flat lipo battery behind the screen */
++		.board_info = {
++			.type = "bq25892",
++			.addr = 0x6b,
++			.dev_name = "bq25892_0",
++			.swnode = &lenovo_yt3_bq25892_0_node,
++		},
++		.adapter_path = "\\_SB_.PCI0.I2C1",
 +		.irq_data = {
 +			.type = X86_ACPI_IRQ_TYPE_GPIOINT,
-+			.chip = "INT33FC:02",
-+			.index = 23,
-+			.trigger = ACPI_EDGE_SENSITIVE,
-+			.polarity = ACPI_ACTIVE_HIGH,
-+		},
-+	}, {
-+		/* goodix touchscreen */
-+		.board_info = {
-+			.type = "GDIX1001:00",
-+			.addr = 0x14,
-+			.dev_name = "goodix_ts",
-+			.swnode = &medion_lifetab_s10346_touchscreen_node,
-+		},
-+		.adapter_path = "\\_SB_.I2C4",
-+		.irq_data = {
-+			.type = X86_ACPI_IRQ_TYPE_APIC,
-+			.index = 0x44,
++			.chip = "INT33FF:01",
++			.index = 5,
 +			.trigger = ACPI_EDGE_SENSITIVE,
 +			.polarity = ACPI_ACTIVE_LOW,
 +		},
-+	},
++	}, {
++		/* bq27500 fuel-gauge for the round li-ion cells in the hinge */
++		.board_info = {
++			.type = "bq27500",
++			.addr = 0x55,
++			.dev_name = "bq27500_1",
++			.swnode = &fg_bq25890_1_supply_node,
++		},
++		.adapter_path = "\\_SB_.PCI0.I2C2",
++	}
 +};
 +
-+static struct gpiod_lookup_table medion_lifetab_s10346_goodix_gpios = {
-+	.dev_id = "i2c-goodix_ts",
-+	.table = {
-+		GPIO_LOOKUP("INT33FC:01", 26, "reset", GPIO_ACTIVE_HIGH),
-+		GPIO_LOOKUP("INT33FC:02", 3, "irq", GPIO_ACTIVE_HIGH),
-+		{ }
-+	},
++static int __init lenovo_yt3_init(void)
++{
++	struct gpio_desc *gpiod;
++	int ret;
++
++	/*
++	 * The "bq25892_0" charger IC has its /CE (Charge-Enable) and OTG pins
++	 * connected to GPIOs, rather then having them hardwired to the correct
++	 * values as is normally done.
++	 *
++	 * The bq25890_charger driver controls these through I2C, but this only
++	 * works if not overridden by the pins. Set these pins here:
++	 * 1. Set /CE to 0 to allow charging.
++	 * 2. Set OTG to 0 disable V5 boost output since the 5V boost output of
++	 *    the main "bq25892_1" charger is used when necessary.
++	 */
++
++	/* /CE pin */
++	ret = x86_android_tablet_get_gpiod("INT33FF:02", 22, &gpiod);
++	if (ret < 0)
++		return ret;
++
++	/*
++	 * The gpio_desc returned by x86_android_tablet_get_gpiod() is a "raw"
++	 * gpio_desc, that is there is no way to pass lookup-flags like
++	 * GPIO_ACTIVE_LOW. Set the GPIO to 0 here to enable charging since
++	 * the /CE pin is active-low, but not marked as such in the gpio_desc.
++	 */
++	gpiod_set_value(gpiod, 0);
++
++	/* OTG pin */
++	ret = x86_android_tablet_get_gpiod("INT33FF:03", 19, &gpiod);
++	if (ret < 0)
++		return ret;
++
++	gpiod_set_value(gpiod, 0);
++
++	return 0;
++}
++
++static const struct x86_dev_info lenovo_yt3_info __initconst = {
++	.i2c_client_info = lenovo_yt3_i2c_clients,
++	.i2c_client_count = ARRAY_SIZE(lenovo_yt3_i2c_clients),
++	.init = lenovo_yt3_init,
 +};
 +
-+static struct gpiod_lookup_table * const medion_lifetab_s10346_gpios[] = {
-+	&medion_lifetab_s10346_goodix_gpios,
-+	NULL
-+};
-+
-+static const struct x86_dev_info medion_lifetab_s10346_info __initconst = {
-+	.i2c_client_info = medion_lifetab_s10346_i2c_clients,
-+	.i2c_client_count = ARRAY_SIZE(medion_lifetab_s10346_i2c_clients),
-+	.gpiod_lookup_tables = medion_lifetab_s10346_gpios,
-+};
-+
- /* Nextbook Ares 8 tablets have an Android factory img with everything hardcoded */
- static const char * const nextbook_ares8_accel_mount_matrix[] = {
- 	"0", "-1", "0",
-@@ -1245,6 +1327,16 @@ static const struct dmi_system_id x86_android_tablet_ids[] __initconst = {
+ /* Medion Lifetab S10346 tablets have an Android factory img with everything hardcoded */
+ static const char * const medion_lifetab_s10346_accel_mount_matrix[] = {
+ 	"0", "1", "0",
+@@ -1327,6 +1451,15 @@ static const struct dmi_system_id x86_android_tablet_ids[] __initconst = {
  		},
  		.driver_data = (void *)&lenovo_yoga_tab2_830_1050_info,
  	},
 +	{
-+		/* Medion Lifetab S10346 */
++		/* Lenovo Yoga Tab 3 Pro YT3-X90F */
 +		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
-+			/* Above strings are much too generic, also match on BIOS date */
-+			DMI_MATCH(DMI_BIOS_DATE, "10/22/2015"),
++			DMI_MATCH(DMI_SYS_VENDOR, "Intel Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "CHERRYVIEW D1 PLATFORM"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "Blade3-10A-001"),
 +		},
-+		.driver_data = (void *)&medion_lifetab_s10346_info,
++		.driver_data = (void *)&lenovo_yt3_info,
 +	},
  	{
- 		/* Nextbook Ares 8 */
+ 		/* Medion Lifetab S10346 */
  		.matches = {
 -- 
 2.35.1
