@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B4665D959
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:24:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 336EF65D8EC
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239965AbjADQYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:24:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48292 "EHLO
+        id S235047AbjADQUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:20:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239980AbjADQXy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:23:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2015A43182
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:15 -0800 (PST)
+        with ESMTP id S239978AbjADQTn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A63F3C3AE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCA92B817C0
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED8FAC433D2;
-        Wed,  4 Jan 2023 16:23:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8F30B81733
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B170C433D2;
+        Wed,  4 Jan 2023 16:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849392;
-        bh=z7uL9DTf585EcbdQXVyGyKM4hygBj4AtyPNiipQSnL4=;
+        s=korg; t=1672849180;
+        bh=RgYOqSb9VEXTOoprQI6xWOMh/t5UklMHpPQKAMrXJKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ubZWkvzfexinIPd0SmUKEsjEgjyVWfiTWtt2bvlnDSs2DrI69T+IapPcWp++rhF49
-         WFa4TBFx6B85YOqecpnnN0mYkZxiy4MwwIuEGC8sIOJYn6p1nGM/i5oR5C1/BlrmQw
-         0wFhbZYMRUl+1np8oxhqOhxFvVT744uiTUYZoyoY=
+        b=owF27ZZetYCKG04HaSkMsYlCV6ga2UOoamNCyodLelYsoy8X/8p4JredM24m99dCW
+         /Z9IVhyXV80kulUgBA9tri/e9O7Sbx2mApC5dpP6Gz2mmsYdp1FrOLvv/y8lDgYxAk
+         moCxz9/4iYi/2BFLrUC/Ro+tunqO6sHb3jWp0Tmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 6.0 113/177] phy: qcom-qmp-combo: fix sc8180x reset
-Date:   Wed,  4 Jan 2023 17:06:44 +0100
-Message-Id: <20230104160511.067587962@linuxfoundation.org>
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
+Subject: [PATCH 6.1 147/207] parisc: Drop locking in pdc console code
+Date:   Wed,  4 Jan 2023 17:06:45 +0100
+Message-Id: <20230104160516.567851199@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +51,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 910dd4883d757af5faac92590f33f0f7da963032 upstream.
+commit 7dc4dbfe750e1f18c511e73c8ed114da8de9ff85 upstream.
 
-The SC8180X has two resets but the DP configuration erroneously
-described only one.
+No need to have specific locking for console I/O since
+the PDC functions provide an own locking.
 
-In case the DP part of the PHY is initialised before the USB part (e.g.
-depending on probe order), then only the first reset would be asserted.
-
-Fixes: 1633802cd4ac ("phy: qcom: qmp: Add SC8180x USB/DP combo")
-Cc: stable@vger.kernel.org	# 5.15
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221114081346.5116-4-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # 6.1+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp-combo.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/parisc/kernel/pdc_cons.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
---- a/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
-@@ -959,8 +959,8 @@ static const struct qmp_phy_cfg sc8180x_
+diff --git a/arch/parisc/kernel/pdc_cons.c b/arch/parisc/kernel/pdc_cons.c
+index 7d0989f523d0..cf3bf8232374 100644
+--- a/arch/parisc/kernel/pdc_cons.c
++++ b/arch/parisc/kernel/pdc_cons.c
+@@ -12,37 +12,27 @@
+ #include <asm/page.h>		/* for PAGE0 */
+ #include <asm/pdc.h>		/* for iodc_call() proto and friends */
  
- 	.clk_list		= qmp_v3_phy_clk_l,
- 	.num_clks		= ARRAY_SIZE(qmp_v3_phy_clk_l),
--	.reset_list		= sc7180_usb3phy_reset_l,
--	.num_resets		= ARRAY_SIZE(sc7180_usb3phy_reset_l),
-+	.reset_list		= msm8996_usb3phy_reset_l,
-+	.num_resets		= ARRAY_SIZE(msm8996_usb3phy_reset_l),
- 	.vreg_list		= qmp_phy_vreg_l,
- 	.num_vregs		= ARRAY_SIZE(qmp_phy_vreg_l),
- 	.regs			= qmp_v3_usb3phy_regs_layout,
+-static DEFINE_SPINLOCK(pdc_console_lock);
+-
+ static void pdc_console_write(struct console *co, const char *s, unsigned count)
+ {
+ 	int i = 0;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&pdc_console_lock, flags);
+ 	do {
+ 		i += pdc_iodc_print(s + i, count - i);
+ 	} while (i < count);
+-	spin_unlock_irqrestore(&pdc_console_lock, flags);
+ }
+ 
+ #ifdef CONFIG_KGDB
+ static int kgdb_pdc_read_char(void)
+ {
+-	int c;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&pdc_console_lock, flags);
+-	c = pdc_iodc_getc();
+-	spin_unlock_irqrestore(&pdc_console_lock, flags);
++	int c = pdc_iodc_getc();
+ 
+ 	return (c <= 0) ? NO_POLL_CHAR : c;
+ }
+ 
+ static void kgdb_pdc_write_char(u8 chr)
+ {
+-	if (PAGE0->mem_cons.cl_class != CL_DUPLEX)
+-		pdc_console_write(NULL, &chr, 1);
++	/* no need to print char as it's shown on standard console */
++	/* pdc_iodc_print(&chr, 1); */
+ }
+ 
+ static struct kgdb_io kgdb_pdc_io_ops = {
+-- 
+2.39.0
+
 
 
