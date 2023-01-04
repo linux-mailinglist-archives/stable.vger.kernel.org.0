@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC6A65D889
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F354F65D834
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239909AbjADQPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:15:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37986 "EHLO
+        id S232953AbjADQMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:12:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239897AbjADQPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:37 -0500
+        with ESMTP id S240019AbjADQMD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA92442E11
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:15:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1420DE50
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:11:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EEA8B8171C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:15:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3195C433EF;
-        Wed,  4 Jan 2023 16:15:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B67D3B81722
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:11:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F4A7C433F0;
+        Wed,  4 Jan 2023 16:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848908;
-        bh=MimaLMWi5ZRbnPPy0T/5UcHq4lgxAWRPmd8ZHeCPtAY=;
+        s=korg; t=1672848692;
+        bh=HRqUGrmy+EFlY6LSB8+2U8etwplB/yeLkFlkRzBEpdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPEyEPGBy0bKJyPD3WpmkjFL1Diu+849jhS94s0RimXCQcBHhouX8k/p1JGzcGPtM
-         PVt8ALH0izH2Krqt1GP7W9cBjR4RG/ykb5q2GYWTX9AO33yI2KvY5vCr8deCaFHsgE
-         Rtk0IWIvTfsJn1Nn0uIaGUFIXhNy+xtUS/MIOsl0=
+        b=MhYeARxblCo4HzVBkA2JLFpnuynYKHJXssLmaHpcTcBO1YyvKo0guMVubCaz1X6cz
+         WbcdFkcaI7Z4kUozYT+lu14tqVjBRt9/yKYxBeTr5wbTJ5OUesayTaTrO8n9N5qLbV
+         vxAbhUnhnE2CLZMYX0opRmLdpzzYigJwVwih4csE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-fsd@tesla.com,
-        Smitha T Murthy <smitha.t@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Subject: [PATCH 6.0 033/177] media: s5p-mfc: Clear workbit to handle error condition
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.1 066/207] dm cache: Fix ABBA deadlock between shrink_slab and dm_cache_metadata_abort
 Date:   Wed,  4 Jan 2023 17:05:24 +0100
-Message-Id: <20230104160508.669049097@linuxfoundation.org>
+Message-Id: <20230104160514.011396430@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smitha T Murthy <smitha.t@samsung.com>
+From: Mike Snitzer <snitzer@kernel.org>
 
-commit d3f3c2fe54e30b0636496d842ffbb5ad3a547f9b upstream.
+commit 352b837a5541690d4f843819028cf2b8be83d424 upstream.
 
-During error on CLOSE_INSTANCE command, ctx_work_bits was not getting
-cleared. During consequent mfc execution NULL pointer dereferencing of
-this context led to kernel panic. This patch fixes this issue by making
-sure to clear ctx_work_bits always.
+Same ABBA deadlock pattern fixed in commit 4b60f452ec51 ("dm thin: Fix
+ABBA deadlock between shrink_slab and dm_pool_abort_metadata") to
+DM-cache's metadata.
 
-Fixes: 818cd91ab8c6 ("[media] s5p-mfc: Extract open/close MFC instance commands")
+Reported-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Cc: stable@vger.kernel.org
-Cc: linux-fsd@tesla.com
-Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 028ae9f76f29 ("dm cache: add fail io mode and needs_check flag")
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/samsung/s5p-mfc/s5p_mfc_ctrl.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/dm-cache-metadata.c |   54 +++++++++++++++++++++++++++++++++++------
+ 1 file changed, 47 insertions(+), 7 deletions(-)
 
---- a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_ctrl.c
-+++ b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_ctrl.c
-@@ -468,8 +468,10 @@ void s5p_mfc_close_mfc_inst(struct s5p_m
- 	s5p_mfc_hw_call(dev->mfc_ops, try_run, dev);
- 	/* Wait until instance is returned or timeout occurred */
- 	if (s5p_mfc_wait_for_done_ctx(ctx,
--				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0))
-+				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0)){
-+		clear_work_bit_irqsave(ctx);
- 		mfc_err("Err returning instance\n");
-+	}
+--- a/drivers/md/dm-cache-metadata.c
++++ b/drivers/md/dm-cache-metadata.c
+@@ -551,11 +551,13 @@ static int __create_persistent_data_obje
+ 	return r;
+ }
  
- 	/* Free resources */
- 	s5p_mfc_hw_call(dev->mfc_ops, release_codec_buffers, ctx);
+-static void __destroy_persistent_data_objects(struct dm_cache_metadata *cmd)
++static void __destroy_persistent_data_objects(struct dm_cache_metadata *cmd,
++					      bool destroy_bm)
+ {
+ 	dm_sm_destroy(cmd->metadata_sm);
+ 	dm_tm_destroy(cmd->tm);
+-	dm_block_manager_destroy(cmd->bm);
++	if (destroy_bm)
++		dm_block_manager_destroy(cmd->bm);
+ }
+ 
+ typedef unsigned long (*flags_mutator)(unsigned long);
+@@ -826,7 +828,7 @@ static struct dm_cache_metadata *lookup_
+ 		cmd2 = lookup(bdev);
+ 		if (cmd2) {
+ 			mutex_unlock(&table_lock);
+-			__destroy_persistent_data_objects(cmd);
++			__destroy_persistent_data_objects(cmd, true);
+ 			kfree(cmd);
+ 			return cmd2;
+ 		}
+@@ -874,7 +876,7 @@ void dm_cache_metadata_close(struct dm_c
+ 		mutex_unlock(&table_lock);
+ 
+ 		if (!cmd->fail_io)
+-			__destroy_persistent_data_objects(cmd);
++			__destroy_persistent_data_objects(cmd, true);
+ 		kfree(cmd);
+ 	}
+ }
+@@ -1807,14 +1809,52 @@ int dm_cache_metadata_needs_check(struct
+ 
+ int dm_cache_metadata_abort(struct dm_cache_metadata *cmd)
+ {
+-	int r;
++	int r = -EINVAL;
++	struct dm_block_manager *old_bm = NULL, *new_bm = NULL;
++
++	/* fail_io is double-checked with cmd->root_lock held below */
++	if (unlikely(cmd->fail_io))
++		return r;
++
++	/*
++	 * Replacement block manager (new_bm) is created and old_bm destroyed outside of
++	 * cmd root_lock to avoid ABBA deadlock that would result (due to life-cycle of
++	 * shrinker associated with the block manager's bufio client vs cmd root_lock).
++	 * - must take shrinker_rwsem without holding cmd->root_lock
++	 */
++	new_bm = dm_block_manager_create(cmd->bdev, DM_CACHE_METADATA_BLOCK_SIZE << SECTOR_SHIFT,
++					 CACHE_MAX_CONCURRENT_LOCKS);
+ 
+ 	WRITE_LOCK(cmd);
+-	__destroy_persistent_data_objects(cmd);
+-	r = __create_persistent_data_objects(cmd, false);
++	if (cmd->fail_io) {
++		WRITE_UNLOCK(cmd);
++		goto out;
++	}
++
++	__destroy_persistent_data_objects(cmd, false);
++	old_bm = cmd->bm;
++	if (IS_ERR(new_bm)) {
++		DMERR("could not create block manager during abort");
++		cmd->bm = NULL;
++		r = PTR_ERR(new_bm);
++		goto out_unlock;
++	}
++
++	cmd->bm = new_bm;
++	r = __open_or_format_metadata(cmd, false);
++	if (r) {
++		cmd->bm = NULL;
++		goto out_unlock;
++	}
++	new_bm = NULL;
++out_unlock:
+ 	if (r)
+ 		cmd->fail_io = true;
+ 	WRITE_UNLOCK(cmd);
++	dm_block_manager_destroy(old_bm);
++out:
++	if (new_bm && !IS_ERR(new_bm))
++		dm_block_manager_destroy(new_bm);
+ 
+ 	return r;
+ }
 
 
