@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A626565D76B
+	by mail.lfdr.de (Postfix) with ESMTP id F31EF65D76C
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235317AbjADPnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:43:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41706 "EHLO
+        id S230242AbjADPny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:43:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235146AbjADPna (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:43:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D30A339F87
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:43:29 -0800 (PST)
+        with ESMTP id S239500AbjADPni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:43:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61AE338AC5
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:43:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BBDC61780
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:43:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E780C433D2;
-        Wed,  4 Jan 2023 15:43:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09CF261780
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:43:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C5DBC433EF;
+        Wed,  4 Jan 2023 15:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672847008;
-        bh=eI+JmE+4Kh0YUhVqn2LlrEx0zPP2fBe7A3RNRG0jgEg=;
+        s=korg; t=1672847017;
+        bh=eq5hEcyPp2tZVaVVlNeJgENBjCOSqIGAkEKbNLPsD/c=;
         h=Subject:To:Cc:From:Date:From;
-        b=c9xQFRkfk030lMzQt7FoVrWEXbC/XqLvTX5oqcHDf9TI731uoA9W/lj+vXdpQ5vOT
-         IUIGQ4kC6P3r0rvrGQ6qP7YJ/G8J4emznOK9Wngy5Pi78psu99buA92R1dzvPasJPN
-         M2gAXAn8YwjAewC1Kkk+1sgqyqi3LF9QRYni31YA=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: enable VCN DPG for GC IP v11.0.4" failed to apply to 6.1-stable tree
+        b=w9Ot44zPM+CviXcodfzPcOeNNmOwNDi3qeMBhGsyvUtAY4593h8vNKckDmwhnrUUw
+         rWITXbsFx/HkFgcwWUwhYTKFvkrLtlcWCSzWDxMAivj6USM7kX/X1Mk2cj09iMCFD3
+         eoxzwFYOzGvXN0Nbfjk8dg2hQB1xHCtzqKH+0xIs=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: enable VCN DPG for GC IP v11.0.4" failed to apply to 6.0-stable tree
 To:     saleemkhan.jamadar@amd.com, alexander.deucher@amd.com,
         veerabadhran.gopalakrishnan@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:43:25 +0100
-Message-ID: <1672847005124188@kroah.com>
+Date:   Wed, 04 Jan 2023 16:43:26 +0100
+Message-ID: <1672847006230245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,7 @@ Possible dependencies:
 e1d900df63ad ("drm/amdgpu: enable VCN DPG for GC IP v11.0.4")
 2a0fe2ca6e9c ("drm/amdgpu: Enable pg/cg flags on GC11_0_4 for VCN")
 311d52367d0a ("drm/amdgpu: add soc21 common ip block support for GC 11.0.4")
+6b46251c5067 ("drm/amdgpu: initialize common sw config for v11_0_3")
 
 thanks,
 
