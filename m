@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8DC365D901
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:21:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D22C465D8AE
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239712AbjADQUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:20:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44460 "EHLO
+        id S239347AbjADQRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:17:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240002AbjADQUc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF8F42E3B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:29 -0800 (PST)
+        with ESMTP id S239956AbjADQQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7AB5D2D2
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:16:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7835461798
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B448C433F0;
-        Wed,  4 Jan 2023 16:20:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 437E56178F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:16:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DFD5C433D2;
+        Wed,  4 Jan 2023 16:16:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849228;
-        bh=66h0ahMfWUG4UiOA/SnThe4rUc9VPGxQ/L8JgSjEe74=;
+        s=korg; t=1672849009;
+        bh=b2H1e4Xf5kjwfchfQ9lboRyiDbyhZfS1rgqHrqxDT+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9dRE4FgfGfIN3LekUi37mRISdWykL0mrodybqsmYpDileBylBlmkWoR6nvGJpSEP
-         R5QUKfQrUxdkmYekP5v+eL+JvH196xkQvliuCrUCTplMvP2heo4rDTqPDL9c0ALoXc
-         CMbeW6O3LgejWq5lz8idLwRApaQlxVQKKfPLzG9U=
+        b=w5SrSNVl1DJwl6n62kJwEb9MsRnTidFlT+B/enK8QEzywlt6EBMAEQC0DBAG9yuwH
+         LXLiW7voPp+cvScxfKfBR4Tlcnio0SatTq9kLxYCklz5u0IMcP9RAWXiQF1PhUJGrB
+         P60fjsCeRX/7B8Z2hjphcM60TErX6x1oZmuek5Os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ian Abbott <abbotti@mev.co.uk>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 6.0 086/177] rtc: ds1347: fix value written to century register
+        patches@lists.linux.dev,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 6.1 119/207] mtd: spi-nor: Check for zero erase size in spi_nor_find_best_erase_type()
 Date:   Wed,  4 Jan 2023 17:06:17 +0100
-Message-Id: <20230104160510.250891544@linuxfoundation.org>
+Message-Id: <20230104160515.679587310@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-commit 4dfe05bdc1ade79b943d4979a2e2a8b5ef68fbb5 upstream.
+commit 2ebc336be08160debfe27f87660cf550d710f3e9 upstream.
 
-In `ds1347_set_time()`, the wrong value is being written to the
-`DS1347_CENTURY_REG` register.  It needs to be converted to BCD.  Fix
-it.
+Erase can be zeroed in spi_nor_parse_4bait() or
+spi_nor_init_non_uniform_erase_map(). In practice it happened with
+mt25qu256a, which supports 4K, 32K, 64K erases with 3b address commands,
+but only 4K and 64K erase with 4b address commands.
 
-Fixes: 147dae76dbb9 ("rtc: ds1347: handle century register")
-Cc: <stable@vger.kernel.org> # v5.5+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20221027163249.447416-1-abbotti@mev.co.uk
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: dc92843159a7 ("mtd: spi-nor: fix erase_type array to indicate current map conf")
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211119081412.29732-1-alexander.sverdlin@nokia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-ds1347.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/spi-nor/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/rtc/rtc-ds1347.c
-+++ b/drivers/rtc/rtc-ds1347.c
-@@ -112,7 +112,7 @@ static int ds1347_set_time(struct device
- 		return err;
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -1184,6 +1184,8 @@ spi_nor_find_best_erase_type(const struc
+ 			continue;
  
- 	century = (dt->tm_year / 100) + 19;
--	err = regmap_write(map, DS1347_CENTURY_REG, century);
-+	err = regmap_write(map, DS1347_CENTURY_REG, bin2bcd(century));
- 	if (err)
- 		return err;
+ 		erase = &map->erase_type[i];
++		if (!erase->size)
++			continue;
  
+ 		/* Alignment is not mandatory for overlaid regions */
+ 		if (region->offset & SNOR_OVERLAID_REGION &&
 
 
