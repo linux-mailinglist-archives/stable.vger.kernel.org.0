@@ -2,136 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B00E065D5CC
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:35:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD6E65D5DB
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:37:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239538AbjADOfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:35:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56066 "EHLO
+        id S234317AbjADOhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:37:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239556AbjADOfT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:35:19 -0500
-Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6BE39FBF;
-        Wed,  4 Jan 2023 06:35:15 -0800 (PST)
-Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-14fb3809eaeso34051467fac.1;
-        Wed, 04 Jan 2023 06:35:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zB+vRGMvvASIB5FujPNRSjnu/+QE/GLU5nqwmEXwDCk=;
-        b=mGKZXEGIWCYErVLo5gZNoIHd62FHkktA36fKyP2jKsCZWJZ7biZepb8vtiQ/v/B3HY
-         MM//PuBNKbeGhf8htKi4KsxYY+L+RzLyYbUSczkTaIoyhy60pqqOIo6/jjiwNKm69F8v
-         PwrP4w8oIWa5BWCqwasZMrf1Xj0ctq8Oic9T1583P5XpMWFSol5pGOPk14mhNJGxBV9G
-         rHc7aPg5glTmL3undODJcJvij81q1GHzh1bp5uIvp5NimvarjU5R9DAyaM0FCI8cvIMG
-         Yx+yBeUGSFK2IBnlODPCrz3SqF8OuVcEWoeNP6z+/uRqX+nNRbwT/C8Tj972pdyDo8Nl
-         iKhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=zB+vRGMvvASIB5FujPNRSjnu/+QE/GLU5nqwmEXwDCk=;
-        b=Z99IocEJhpYhIQiARFkuIry9zBT+Prc6/PxYmtFTG7v8TbweU2WP+BIi9Ga664/V4i
-         2ev4ER0jZ2CDhdX9KBDAZ3CoRGXE4hEo841jzJpo6g/DsxhnK1EquTDMLtXStQq6GycY
-         bF1QV3i/N0UZsgWQxSqCGVwpjGq2yiC66xA6U6TMs0CI1RW7nJGhYvYS7CUXXbOiZFGq
-         VRvi7rCyX5XwgWOnoXWb/4/hX5hB45I7f+BLwxNkhb1YsxwiIRpVJ6q0N+TzTOD13Lbm
-         XcoMkfEoOZmeAHYuHgb4Y6rqKOPdNxY6XSUUVjRO/fCPXLuk4bZhckxc/ninWv+bCCrc
-         u5KQ==
-X-Gm-Message-State: AFqh2kqRDxeCjBGFda9XYLJ/jDkKwlr4hZBD6hc64iqSNVF8NuaaHITo
-        EpVKlCSuSqgClMu9YgTt0wkz+HJcpEIgh/PaZ9o=
-X-Google-Smtp-Source: AMrXdXthZjoFH2Z/y+TKvd6b7bmn6ZTqN4X5a6sl/E9Q/d2q2OP73JbqQWqOvQAkSsrPczN5keTwc53e1FiR9xp4BWg=
-X-Received: by 2002:a05:6870:c59c:b0:150:d9aa:4011 with SMTP id
- ba28-20020a056870c59c00b00150d9aa4011mr466653oab.96.1672842914879; Wed, 04
- Jan 2023 06:35:14 -0800 (PST)
+        with ESMTP id S239560AbjADOgY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:36:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6021FF2
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:36:23 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0291261763
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:36:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CFD1C433EF;
+        Wed,  4 Jan 2023 14:36:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1672842982;
+        bh=t/pB/AMOkXyFJRjrrTcQfoR8TR4jtF0OcJW3aEqTqJ0=;
+        h=Subject:To:Cc:From:Date:From;
+        b=f0gHy83QWgccxWAKjalrAtNFuYYbUF2PGWKRgGCSW44C+/f1+1V/7Cz+B5/IVHbMz
+         9f2vD+LpMPi5fH0jIdkFVgZMVWUBJmwPIdwSPasG1tK1eNhVbQB+qHf9pBdZyEA5Pp
+         pfl4YZmcjq8wNP1lkbTPgauSWd2faIiXUeEzyP6Q=
+Subject: FAILED: patch "[PATCH] drm/mgag200: Fix PLL setup for G200_SE_A rev >=4" failed to apply to 6.0-stable tree
+To:     jfalempe@redhat.com, tzimmermann@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 04 Jan 2023 15:36:14 +0100
+Message-ID: <167284297425244@kroah.com>
 MIME-Version: 1.0
-References: <20230103184308.511448-1-dragos.panait@windriver.com>
- <20230103184308.511448-2-dragos.panait@windriver.com> <Y7Vz8mm0X+1h844b@kroah.com>
- <a8c6859f-5876-08cf-5949-ecf88e6bb528@amd.com>
-In-Reply-To: <a8c6859f-5876-08cf-5949-ecf88e6bb528@amd.com>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Wed, 4 Jan 2023 09:35:03 -0500
-Message-ID: <CADnq5_Ons+yMyGxcSaFaOb5uNXooHgH_4N=ThHOGYaW9Pb_Q8A@mail.gmail.com>
-Subject: Re: [PATCH 4.19 1/1] drm/amdkfd: Check for null pointer after calling kmemdup
-To:     =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Dragos-Marian Panait <dragos.panait@windriver.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        David Zhou <David1.Zhou@amd.com>,
-        amd-gfx@lists.freedesktop.org, David Airlie <airlied@linux.ie>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        Alex Deucher <alexander.deucher@amd.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 4, 2023 at 8:23 AM Christian K=C3=B6nig <christian.koenig@amd.c=
-om> wrote:
->
-> Am 04.01.23 um 13:41 schrieb Greg KH:
-> > On Tue, Jan 03, 2023 at 08:43:08PM +0200, Dragos-Marian Panait wrote:
-> >> From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-> >>
-> >> [ Upstream commit abfaf0eee97925905e742aa3b0b72e04a918fa9e ]
-> >>
-> >> As the possible failure of the allocation, kmemdup() may return NULL
-> >> pointer.
-> >> Therefore, it should be better to check the 'props2' in order to preve=
-nt
-> >> the dereference of NULL pointer.
-> >>
-> >> Fixes: 3a87177eb141 ("drm/amdkfd: Add topology support for dGPUs")
-> >> Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-> >> Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> >> Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> >> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> >> Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
-> >> ---
-> >>   drivers/gpu/drm/amd/amdkfd/kfd_crat.c | 3 +++
-> >>   1 file changed, 3 insertions(+)
-> > For obvious reasons, I can't take a patch for 4.19.y and not newer
-> > kernel releases, right?
-> >
-> > Please provide backports for all kernels if you really need to see this
-> > merged.  And note, it's not a real bug at all, and given that a CVE was
-> > allocated for it that makes me want to even more reject it to show the
-> > whole folly of that mess.
->
-> Well as far as I can see this is nonsense to back port.
->
-> The code in question is only used only once during driver load and then
-> never again, that exactly this allocation fails while tons of other are
-> made before and after is extremely unlikely.
->
-> It's nice to have it fixed in newer kernels, but not worth a backport
-> and certainly not stuff for a CVE.
 
-It's already fixed in Linus' tree:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?=
-id=3Dabfaf0eee97925905e742aa3b0b72e04a918fa9e
+The patch below does not apply to the 6.0-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Alex
+Possible dependencies:
 
->
-> Regards,
-> Christian.
->
->
-> >
-> > thanks,
-> >
-> > greg k-h
->
+b389286d0234 ("drm/mgag200: Fix PLL setup for G200_SE_A rev >=4")
+877507bb954e ("drm/mgag200: Provide per-device callbacks for PIXPLLC")
+8aeeb3144fe2 ("drm/mgag200: Provide per-device callbacks for BMC synchronization")
+f639f74a7895 ("drm/mgag200: Add per-device callbacks")
+1baf9127c482 ("drm/mgag200: Replace simple-KMS with regular atomic helpers")
+4f4dc37e374c ("drm/mgag200: Reorganize before dropping simple-KMS helpers")
+ed2ef21f1089 ("drm/mgag200: Store primary plane's color format in CRTC state")
+2d70b9a1482e ("drm/mgag200: Acquire I/O-register lock in atomic_commit_tail function")
+1ee181fe958a ("drm/mgag200: Move DAC-register setup into model-specific code")
+44373151ab42 ("drm/mgag200: Split mgag200_modeset_init()")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From b389286d0234e1edbaf62ed8bc0892a568c33662 Mon Sep 17 00:00:00 2001
+From: Jocelyn Falempe <jfalempe@redhat.com>
+Date: Thu, 13 Oct 2022 15:28:10 +0200
+Subject: [PATCH] drm/mgag200: Fix PLL setup for G200_SE_A rev >=4
+
+For G200_SE_A, PLL M setting is wrong, which leads to blank screen,
+or "signal out of range" on VGA display.
+previous code had "m |= 0x80" which was changed to
+m |= ((pixpllcn & BIT(8)) >> 1);
+
+Tested on G200_SE_A rev 42
+
+This line of code was moved to another file with
+commit 877507bb954e ("drm/mgag200: Provide per-device callbacks for
+PIXPLLC") but can be easily backported before this commit.
+
+v2: * put BIT(7) First to respect MSB-to-LSB (Thomas)
+    * Add a comment to explain that this bit must be set (Thomas)
+
+Fixes: 2dd040946ecf ("drm/mgag200: Store values (not bits) in struct mgag200_pll_values")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221013132810.521945-1-jfalempe@redhat.com
+
+diff --git a/drivers/gpu/drm/mgag200/mgag200_g200se.c b/drivers/gpu/drm/mgag200/mgag200_g200se.c
+index be389ed91cbd..bd6e573c9a1a 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_g200se.c
++++ b/drivers/gpu/drm/mgag200/mgag200_g200se.c
+@@ -284,7 +284,8 @@ static void mgag200_g200se_04_pixpllc_atomic_update(struct drm_crtc *crtc,
+ 	pixpllcp = pixpllc->p - 1;
+ 	pixpllcs = pixpllc->s;
+ 
+-	xpixpllcm = pixpllcm | ((pixpllcn & BIT(8)) >> 1);
++	// For G200SE A, BIT(7) should be set unconditionally.
++	xpixpllcm = BIT(7) | pixpllcm;
+ 	xpixpllcn = pixpllcn;
+ 	xpixpllcp = (pixpllcs << 3) | pixpllcp;
+ 
+
