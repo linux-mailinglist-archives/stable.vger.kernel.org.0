@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00AF065D9A6
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 301E765D96C
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239786AbjADQ0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50878 "EHLO
+        id S235343AbjADQZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:25:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239792AbjADQ0p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 758DA1ADAF
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:43 -0800 (PST)
+        with ESMTP id S239827AbjADQZF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B20533F131
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BF28B817B8
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D50C1C433EF;
-        Wed,  4 Jan 2023 16:26:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4224861798
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EAC0C433EF;
+        Wed,  4 Jan 2023 16:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849601;
-        bh=TuhTPwIYu1257aBk7QcadP3//fuKc7XG7FRq2/tMhGA=;
+        s=korg; t=1672849449;
+        bh=ncR10ObcXnmBEoNAM16monO+RokhQ7VTe0S5BKXjw68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMdR1BZ3XEmXwoF+acKfBpCSBSwKNhoXu3fDh8BixA5GYYp4/6R0nNgnAsHxeLAsT
-         MnZUGGKkAkPctm67qGlmKJMCnMxbwPh1MjwRmQpGDZCa6d/75rxzEzq8W2ExZYIJfP
-         qKAFJnBT7w2fcMPKPNWqyx8IN1MXuVPYFeJOqdvw=
+        b=H+ca7oGxS8vqaGnp5BTDS4t6GWuzdN8zopCDZCxIxtFK4VQao4WyoaLo8cHPtJctc
+         GDh6zHJiGREgw14Im+odZt2Y79BoXOZk9b/3CESffH7FGlMVheUQMN+TtE4kVEaRWc
+         j8whW7iVFCMJCzZATcoiXxwnpIEyPcjrybTf0Snc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        "Darrick J. Wong" <djwong@kernel.org>, Jan Kara <jack@suse.cz>,
-        stable@kernel.org, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 158/177] ext4: fix bad checksum after online resize
+        patches@lists.linux.dev, Eric Sandeen <sandeen@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 6.1 191/207] ext4: avoid BUG_ON when creating xattrs
 Date:   Wed,  4 Jan 2023 17:07:29 +0100
-Message-Id: <20230104160512.462148019@linuxfoundation.org>
+Message-Id: <20230104160517.947547996@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-commit a408f33e895e455f16cf964cb5cd4979b658db7b upstream.
+commit b40ebaf63851b3a401b0dc9263843538f64f5ce6 upstream.
 
-When online resizing is performed twice consecutively, the error message
-"Superblock checksum does not match superblock" is displayed for the
-second time. Here's the reproducer:
+Commit fb0a387dcdcd ("ext4: limit block allocations for indirect-block
+files to < 2^32") added code to try to allocate xattr block with 32-bit
+block number for indirect block based files on the grounds that these
+files cannot use larger block numbers. It also added BUG_ON when
+allocated block could not fit into 32 bits. This is however bogus
+reasoning because xattr block is stored in inode->i_file_acl and
+inode->i_file_acl_hi and as such even indirect block based files can
+happily use full 48 bits for xattr block number. The proper handling
+seems to be there basically since 64-bit block number support was added.
+So remove the bogus limitation and BUG_ON.
 
-	mkfs.ext4 -F /dev/sdb 100M
-	mount /dev/sdb /tmp/test
-	resize2fs /dev/sdb 5G
-	resize2fs /dev/sdb 6G
-
-To solve this issue, we moved the update of the checksum after the
-es->s_overhead_clusters is updated.
-
-Fixes: 026d0d27c488 ("ext4: reduce computation of overhead during resize")
-Fixes: de394a86658f ("ext4: update s_overhead_clusters in the superblock during an on-line resize")
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20221117040341.1380702-2-libaokun1@huawei.com
+Cc: Eric Sandeen <sandeen@redhat.com>
+Fixes: fb0a387dcdcd ("ext4: limit block allocations for indirect-block files to < 2^32")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221121130929.32031-1-jack@suse.cz
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/resize.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/xattr.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/fs/ext4/resize.c
-+++ b/fs/ext4/resize.c
-@@ -1476,8 +1476,6 @@ static void ext4_update_super(struct sup
- 	 * active. */
- 	ext4_r_blocks_count_set(es, ext4_r_blocks_count(es) +
- 				reserved_blocks);
--	ext4_superblock_csum_set(sb);
--	unlock_buffer(sbi->s_sbh);
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2070,19 +2070,11 @@ inserted:
  
- 	/* Update the free space counts */
- 	percpu_counter_add(&sbi->s_freeclusters_counter,
-@@ -1513,6 +1511,8 @@ static void ext4_update_super(struct sup
- 		ext4_calculate_overhead(sb);
- 	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
+ 			goal = ext4_group_first_block_no(sb,
+ 						EXT4_I(inode)->i_block_group);
+-
+-			/* non-extent files can't have physical blocks past 2^32 */
+-			if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
+-				goal = goal & EXT4_MAX_BLOCK_FILE_PHYS;
+-
+ 			block = ext4_new_meta_blocks(handle, inode, goal, 0,
+ 						     NULL, &error);
+ 			if (error)
+ 				goto cleanup;
  
-+	ext4_superblock_csum_set(sb);
-+	unlock_buffer(sbi->s_sbh);
- 	if (test_opt(sb, DEBUG))
- 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
- 		       "%llu blocks(%llu free %llu reserved)\n", flex_gd->count,
+-			if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
+-				BUG_ON(block > EXT4_MAX_BLOCK_FILE_PHYS);
+-
+ 			ea_idebug(inode, "creating block %llu",
+ 				  (unsigned long long)block);
+ 
 
 
