@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4A365D8C2
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A667265D8C4
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239908AbjADQRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:17:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41434 "EHLO
+        id S239902AbjADQSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:18:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239911AbjADQRt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F292239F8C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:47 -0800 (PST)
+        with ESMTP id S239934AbjADQRz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28964CD2
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A64A0B8172B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10E80C433D2;
-        Wed,  4 Jan 2023 16:17:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC298B8172B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C1C3C433EF;
+        Wed,  4 Jan 2023 16:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849065;
-        bh=/FSi+Pd4WgmdH+wM2uW0IAKt0B3d6mNtqXqVNRzNtSU=;
+        s=korg; t=1672849071;
+        bh=HNHAXmBcubcvWn3+Ys9vdX8K2VWtpMxI/K9zX0VRouE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfhdlEr+27JSF/Cb2QrBaKhUqVfTutW5JdL0cZfgO2ITWRhA8DdZEfzT0XUSdrSQh
-         9rC+5qWcDRjn1iw5lpFGTDRJKgKVKtz4Dk1DKMz8DUfd5APqWc1MD+sEKKU+r70+of
-         2GTa3IALpdXmoJv/C+xlSPqZog3pXQNkuEUZYdDE=
+        b=vehkjkLW9MqZeCsZ8Awz7N+/hmroQ+sjs4efFmevnJWEHFq3eQGczwL1p3gUQd7eh
+         N5y9feJI+hckebZhIgZuK3zkU0QPMh9Eng0iVHhTbR3IPPRW4THKZhAX5LK6KOhhVE
+         33q5XcSWkyDOQFIFZdzo/3kKMWnEpf03U/FedcdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 6.0 058/177] ima: Fix hash dependency to correct algorithm
-Date:   Wed,  4 Jan 2023 17:05:49 +0100
-Message-Id: <20230104160509.402099180@linuxfoundation.org>
+        patches@lists.linux.dev, Kai Huang <kai.huang@intel.com>,
+        Sean Christopherson <seanjc@google.com>
+Subject: [PATCH 6.0 059/177] KVM: VMX: Resume guest immediately when injecting #GP on ECREATE
+Date:   Wed,  4 Jan 2023 17:05:50 +0100
+Message-Id: <20230104160509.437094173@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -53,38 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit b6018af440a07bd0d74b58c4e18045f4a8dbfe6b upstream.
+commit eb3992e833d3a17f9b0a3e0371d0b1d3d566f740 upstream.
 
-Commit d2825fa9365d ("crypto: sm3,sm4 - move into crypto directory") moves
-the SM3 and SM4 stand-alone library and the algorithm implementation for
-the Crypto API into the same directory, and the corresponding relationship
-of Kconfig is modified, CONFIG_CRYPTO_SM3/4 corresponds to the stand-alone
-library of SM3/4, and CONFIG_CRYPTO_SM3/4_GENERIC corresponds to the
-algorithm implementation for the Crypto API. Therefore, it is necessary
-for this module to depend on the correct algorithm.
+Resume the guest immediately when injecting a #GP on ECREATE due to an
+invalid enclave size, i.e. don't attempt ECREATE in the host.  The #GP is
+a terminal fault, e.g. skipping the instruction if ECREATE is successful
+would result in KVM injecting #GP on the instruction following ECREATE.
 
-Fixes: d2825fa9365d ("crypto: sm3,sm4 - move into crypto directory")
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: stable@vger.kernel.org # v5.19+
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 70210c044b4e ("KVM: VMX: Add SGX ENCLS[ECREATE] handler to enforce CPUID restrictions")
+Cc: stable@vger.kernel.org
+Cc: Kai Huang <kai.huang@intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Kai Huang <kai.huang@intel.com>
+Link: https://lore.kernel.org/r/20220930233132.1723330-1-seanjc@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx/sgx.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/security/integrity/ima/Kconfig
-+++ b/security/integrity/ima/Kconfig
-@@ -112,7 +112,7 @@ choice
+--- a/arch/x86/kvm/vmx/sgx.c
++++ b/arch/x86/kvm/vmx/sgx.c
+@@ -182,8 +182,10 @@ static int __handle_encls_ecreate(struct
+ 	/* Enforce CPUID restriction on max enclave size. */
+ 	max_size_log2 = (attributes & SGX_ATTR_MODE64BIT) ? sgx_12_0->edx >> 8 :
+ 							    sgx_12_0->edx;
+-	if (size >= BIT_ULL(max_size_log2))
++	if (size >= BIT_ULL(max_size_log2)) {
+ 		kvm_inject_gp(vcpu, 0);
++		return 1;
++	}
  
- 	config IMA_DEFAULT_HASH_SM3
- 		bool "SM3"
--		depends on CRYPTO_SM3=y
-+		depends on CRYPTO_SM3_GENERIC=y
- endchoice
- 
- config IMA_DEFAULT_HASH
+ 	/*
+ 	 * sgx_virt_ecreate() returns:
 
 
