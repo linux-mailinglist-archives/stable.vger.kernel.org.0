@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A566D65D8BA
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E935C65D8BC
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239759AbjADQRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:17:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40898 "EHLO
+        id S239885AbjADQRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:17:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239892AbjADQR2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:28 -0500
+        with ESMTP id S239895AbjADQRf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592A2DFE0
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F1F1B1F5
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E93C9617AA
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7E7FC433EF;
-        Wed,  4 Jan 2023 16:17:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13D8561798
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 060BBC433EF;
+        Wed,  4 Jan 2023 16:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849047;
-        bh=0HU7Je5V9YnjSCDZCiVpdSEDQ3DH6els76GEx1VHdpQ=;
+        s=korg; t=1672849053;
+        bh=6p1VPtKVkQHAdB2RbZfsUJa9LvrjnczX+ak7D6mhguA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLjaM98YOdOS24z8UGWCssW0yNaHmoHEwfSQfW/t0eNywju/eJcraIXtoFL/JyC8n
-         wYfYuyIYmUlOixcjp9qi/WxGM8da6bj0S/CrUp4YquWz5EMaObOyTPUtnwpMTGGW0i
-         3DaAZUNbBMk9h81YCPyIrvu0NE0REgI2qsN6AJgE=
+        b=MCInbZ+bA/vmXbZPmPksG8x2t7yIBXdz9cmzClUekMQ8Z+rWil1wZQigNl/g8a+sy
+         DZj8mpJyWvDSxH/+24giCx/YX5ZIPJarleiA9WjS+lBSbDm0uFhF13H2MGAYVn9pEB
+         DGaBOgEpol/mv1kuTyOsPhFUFQRUxDWrQRjeBb6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Namhyung Kim <namhyung@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Subject: [PATCH 6.0 055/177] perf/core: Call LSM hook after copying perf_event_attr
-Date:   Wed,  4 Jan 2023 17:05:46 +0100
-Message-Id: <20230104160509.313222828@linuxfoundation.org>
+        patches@lists.linux.dev, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 6.0 056/177] xtensa: add __umulsidi3 helper
+Date:   Wed,  4 Jan 2023 17:05:47 +0100
+Message-Id: <20230104160509.342441728@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -53,41 +51,299 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 0a041ebca4956292cadfb14a63ace3a9c1dcb0a3 upstream.
+commit 8939c58d68f97ce530f02d46c9f2b56c3ec88399 upstream.
 
-It passes the attr struct to the security_perf_event_open() but it's
-not initialized yet.
+xtensa gcc-13 has changed multiplication handling and may now use
+__umulsidi3 helper where it used to use __muldi3. As a result building
+the kernel with the new gcc may fail with the following error:
 
-Fixes: da97e18458fb ("perf_event: Add support for LSM and SELinux checks")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20221220223140.4020470-1-namhyung@kernel.org
+    linux/init/main.c:1287: undefined reference to `__umulsidi3'
+
+Fix the build by providing __umulsidi3 implementation for xtensa.
+
+Cc: stable@vger.kernel.org # 5.18+
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/xtensa/kernel/xtensa_ksyms.c |   2 +
+ arch/xtensa/lib/Makefile          |   2 +-
+ arch/xtensa/lib/umulsidi3.S       | 230 ++++++++++++++++++++++++++++++
+ 3 files changed, 233 insertions(+), 1 deletion(-)
+ create mode 100644 arch/xtensa/lib/umulsidi3.S
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -12176,12 +12176,12 @@ SYSCALL_DEFINE5(perf_event_open,
- 	if (flags & ~PERF_FLAG_ALL)
- 		return -EINVAL;
+diff --git a/arch/xtensa/kernel/xtensa_ksyms.c b/arch/xtensa/kernel/xtensa_ksyms.c
+index b0bc8897c924..2a31b1ab0c9f 100644
+--- a/arch/xtensa/kernel/xtensa_ksyms.c
++++ b/arch/xtensa/kernel/xtensa_ksyms.c
+@@ -62,6 +62,7 @@ extern int __modsi3(int, int);
+ extern int __mulsi3(int, int);
+ extern unsigned int __udivsi3(unsigned int, unsigned int);
+ extern unsigned int __umodsi3(unsigned int, unsigned int);
++extern unsigned long long __umulsidi3(unsigned int, unsigned int);
  
--	/* Do we allow access to perf_event_open(2) ? */
--	err = security_perf_event_open(&attr, PERF_SECURITY_OPEN);
-+	err = perf_copy_attr(attr_uptr, &attr);
- 	if (err)
- 		return err;
+ EXPORT_SYMBOL(__ashldi3);
+ EXPORT_SYMBOL(__ashrdi3);
+@@ -71,6 +72,7 @@ EXPORT_SYMBOL(__modsi3);
+ EXPORT_SYMBOL(__mulsi3);
+ EXPORT_SYMBOL(__udivsi3);
+ EXPORT_SYMBOL(__umodsi3);
++EXPORT_SYMBOL(__umulsidi3);
  
--	err = perf_copy_attr(attr_uptr, &attr);
-+	/* Do we allow access to perf_event_open(2) ? */
-+	err = security_perf_event_open(&attr, PERF_SECURITY_OPEN);
- 	if (err)
- 		return err;
+ unsigned int __sync_fetch_and_and_4(volatile void *p, unsigned int v)
+ {
+diff --git a/arch/xtensa/lib/Makefile b/arch/xtensa/lib/Makefile
+index d4e9c397e3fd..7ecef0519a27 100644
+--- a/arch/xtensa/lib/Makefile
++++ b/arch/xtensa/lib/Makefile
+@@ -5,7 +5,7 @@
  
+ lib-y	+= memcopy.o memset.o checksum.o \
+ 	   ashldi3.o ashrdi3.o lshrdi3.o \
+-	   divsi3.o udivsi3.o modsi3.o umodsi3.o mulsi3.o \
++	   divsi3.o udivsi3.o modsi3.o umodsi3.o mulsi3.o umulsidi3.o \
+ 	   usercopy.o strncpy_user.o strnlen_user.o
+ lib-$(CONFIG_PCI) += pci-auto.o
+ lib-$(CONFIG_KCSAN) += kcsan-stubs.o
+diff --git a/arch/xtensa/lib/umulsidi3.S b/arch/xtensa/lib/umulsidi3.S
+new file mode 100644
+index 000000000000..136081647942
+--- /dev/null
++++ b/arch/xtensa/lib/umulsidi3.S
+@@ -0,0 +1,230 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later WITH GCC-exception-2.0 */
++#include <linux/linkage.h>
++#include <asm/asmmacro.h>
++#include <asm/core.h>
++
++#if !XCHAL_HAVE_MUL16 && !XCHAL_HAVE_MUL32 && !XCHAL_HAVE_MAC16
++#define XCHAL_NO_MUL 1
++#endif
++
++ENTRY(__umulsidi3)
++
++#ifdef __XTENSA_CALL0_ABI__
++	abi_entry(32)
++	s32i	a12, sp, 16
++	s32i	a13, sp, 20
++	s32i	a14, sp, 24
++	s32i	a15, sp, 28
++#elif XCHAL_NO_MUL
++	/* This is not really a leaf function; allocate enough stack space
++	   to allow CALL12s to a helper function.  */
++	abi_entry(32)
++#else
++	abi_entry_default
++#endif
++
++#ifdef __XTENSA_EB__
++#define wh a2
++#define wl a3
++#else
++#define wh a3
++#define wl a2
++#endif /* __XTENSA_EB__ */
++
++	/* This code is taken from the mulsf3 routine in ieee754-sf.S.
++	   See more comments there.  */
++
++#if XCHAL_HAVE_MUL32_HIGH
++	mull	a6, a2, a3
++	muluh	wh, a2, a3
++	mov	wl, a6
++
++#else /* ! MUL32_HIGH */
++
++#if defined(__XTENSA_CALL0_ABI__) && XCHAL_NO_MUL
++	/* a0 and a8 will be clobbered by calling the multiply function
++	   but a8 is not used here and need not be saved.  */
++	s32i	a0, sp, 0
++#endif
++
++#if XCHAL_HAVE_MUL16 || XCHAL_HAVE_MUL32
++
++#define a2h a4
++#define a3h a5
++
++	/* Get the high halves of the inputs into registers.  */
++	srli	a2h, a2, 16
++	srli	a3h, a3, 16
++
++#define a2l a2
++#define a3l a3
++
++#if XCHAL_HAVE_MUL32 && !XCHAL_HAVE_MUL16
++	/* Clear the high halves of the inputs.  This does not matter
++	   for MUL16 because the high bits are ignored.  */
++	extui	a2, a2, 0, 16
++	extui	a3, a3, 0, 16
++#endif
++#endif /* MUL16 || MUL32 */
++
++
++#if XCHAL_HAVE_MUL16
++
++#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
++	mul16u	dst, xreg ## xhalf, yreg ## yhalf
++
++#elif XCHAL_HAVE_MUL32
++
++#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
++	mull	dst, xreg ## xhalf, yreg ## yhalf
++
++#elif XCHAL_HAVE_MAC16
++
++/* The preprocessor insists on inserting a space when concatenating after
++   a period in the definition of do_mul below.  These macros are a workaround
++   using underscores instead of periods when doing the concatenation.  */
++#define umul_aa_ll umul.aa.ll
++#define umul_aa_lh umul.aa.lh
++#define umul_aa_hl umul.aa.hl
++#define umul_aa_hh umul.aa.hh
++
++#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
++	umul_aa_ ## xhalf ## yhalf	xreg, yreg; \
++	rsr	dst, ACCLO
++
++#else /* no multiply hardware */
++
++#define set_arg_l(dst, src) \
++	extui	dst, src, 0, 16
++#define set_arg_h(dst, src) \
++	srli	dst, src, 16
++
++#ifdef __XTENSA_CALL0_ABI__
++#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
++	set_arg_ ## xhalf (a13, xreg); \
++	set_arg_ ## yhalf (a14, yreg); \
++	call0	.Lmul_mulsi3; \
++	mov	dst, a12
++#else
++#define do_mul(dst, xreg, xhalf, yreg, yhalf) \
++	set_arg_ ## xhalf (a14, xreg); \
++	set_arg_ ## yhalf (a15, yreg); \
++	call12	.Lmul_mulsi3; \
++	mov	dst, a14
++#endif /* __XTENSA_CALL0_ABI__ */
++
++#endif /* no multiply hardware */
++
++	/* Add pp1 and pp2 into a6 with carry-out in a9.  */
++	do_mul(a6, a2, l, a3, h)	/* pp 1 */
++	do_mul(a11, a2, h, a3, l)	/* pp 2 */
++	movi	a9, 0
++	add	a6, a6, a11
++	bgeu	a6, a11, 1f
++	addi	a9, a9, 1
++1:
++	/* Shift the high half of a9/a6 into position in a9.  Note that
++	   this value can be safely incremented without any carry-outs.  */
++	ssai	16
++	src	a9, a9, a6
++
++	/* Compute the low word into a6.  */
++	do_mul(a11, a2, l, a3, l)	/* pp 0 */
++	sll	a6, a6
++	add	a6, a6, a11
++	bgeu	a6, a11, 1f
++	addi	a9, a9, 1
++1:
++	/* Compute the high word into wh.  */
++	do_mul(wh, a2, h, a3, h)	/* pp 3 */
++	add	wh, wh, a9
++	mov	wl, a6
++
++#endif /* !MUL32_HIGH */
++
++#if defined(__XTENSA_CALL0_ABI__) && XCHAL_NO_MUL
++	/* Restore the original return address.  */
++	l32i	a0, sp, 0
++#endif
++#ifdef __XTENSA_CALL0_ABI__
++	l32i	a12, sp, 16
++	l32i	a13, sp, 20
++	l32i	a14, sp, 24
++	l32i	a15, sp, 28
++	abi_ret(32)
++#else
++	abi_ret_default
++#endif
++
++#if XCHAL_NO_MUL
++
++	.macro	do_addx2 dst, as, at, tmp
++#if XCHAL_HAVE_ADDX
++	addx2	\dst, \as, \at
++#else
++	slli	\tmp, \as, 1
++	add	\dst, \tmp, \at
++#endif
++	.endm
++
++	.macro	do_addx4 dst, as, at, tmp
++#if XCHAL_HAVE_ADDX
++	addx4	\dst, \as, \at
++#else
++	slli	\tmp, \as, 2
++	add	\dst, \tmp, \at
++#endif
++	.endm
++
++	.macro	do_addx8 dst, as, at, tmp
++#if XCHAL_HAVE_ADDX
++	addx8	\dst, \as, \at
++#else
++	slli	\tmp, \as, 3
++	add	\dst, \tmp, \at
++#endif
++	.endm
++
++	/* For Xtensa processors with no multiply hardware, this simplified
++	   version of _mulsi3 is used for multiplying 16-bit chunks of
++	   the floating-point mantissas.  When using CALL0, this function
++	   uses a custom ABI: the inputs are passed in a13 and a14, the
++	   result is returned in a12, and a8 and a15 are clobbered.  */
++	.align	4
++.Lmul_mulsi3:
++	abi_entry_default
++
++	.macro mul_mulsi3_body dst, src1, src2, tmp1, tmp2
++	movi	\dst, 0
++1:	add	\tmp1, \src2, \dst
++	extui	\tmp2, \src1, 0, 1
++	movnez	\dst, \tmp1, \tmp2
++
++	do_addx2 \tmp1, \src2, \dst, \tmp1
++	extui	\tmp2, \src1, 1, 1
++	movnez	\dst, \tmp1, \tmp2
++
++	do_addx4 \tmp1, \src2, \dst, \tmp1
++	extui	\tmp2, \src1, 2, 1
++	movnez	\dst, \tmp1, \tmp2
++
++	do_addx8 \tmp1, \src2, \dst, \tmp1
++	extui	\tmp2, \src1, 3, 1
++	movnez	\dst, \tmp1, \tmp2
++
++	srli	\src1, \src1, 4
++	slli	\src2, \src2, 4
++	bnez	\src1, 1b
++	.endm
++
++#ifdef __XTENSA_CALL0_ABI__
++	mul_mulsi3_body a12, a13, a14, a15, a8
++#else
++	/* The result will be written into a2, so save that argument in a4.  */
++	mov	a4, a2
++	mul_mulsi3_body a2, a4, a3, a5, a6
++#endif
++	abi_ret_default
++#endif /* XCHAL_NO_MUL */
++
++ENDPROC(__umulsidi3)
+-- 
+2.39.0
+
 
 
