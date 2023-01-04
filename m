@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3C265D6CC
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C45CC65D6CD
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:04:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbjADPDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:03:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50098 "EHLO
+        id S236020AbjADPDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:03:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239520AbjADPDU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:03:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16FDE1AA01
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:03:17 -0800 (PST)
+        with ESMTP id S239572AbjADPD0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:03:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711F417049
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:03:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 65DACCE16F9
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:03:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40373C433F2;
-        Wed,  4 Jan 2023 15:03:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3125CB81687
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:03:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF80C4339C;
+        Wed,  4 Jan 2023 15:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844593;
-        bh=0dV86kmtMGv6b8ag1bRZFM3WsxaEgsckI3ksbtvC4K8=;
+        s=korg; t=1672844602;
+        bh=MrYIhpNAPnFCWJFn4U/LrXBHZSRt0/xG5etqB03Witw=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZavZAAtveBxehMA8PUUtSStXwVrGJFNLk7N085BXymjdb7FqRT3ZNA2qrS59SngCc
-         AFma9rkfeMw3/+kUvPOZCG82eYFQ/m2XpBEoG5+dZpi2T9UHurDVoOY8XDpvt938X+
-         kWV/r0RQQ/JVsp902xb/VZv/9N0L1tB7PfRB/DtQ=
-Subject: FAILED: patch "[PATCH] ext4: fix unaligned memory access in ext4_fc_reserve_space()" failed to apply to 5.15-stable tree
+        b=T5lpiM4+KYU2Fd1f5wvA/+Yo6XYAThWmDujg4O45W8wRbemtgG9WuGnb+LTdxUq38
+         CFW30ti/FV+tJ1UhTm84NoMZVDEcfwpSZgOpbYv12xEPZxAQ6FykkARy0WMUYomECv
+         q+c03KcsEMgixhU1aIDa6UXLZ06Ya7/Msdk3KSWs=
+Subject: FAILED: patch "[PATCH] ext4: fix unaligned memory access in ext4_fc_reserve_space()" failed to apply to 5.10-stable tree
 To:     ebiggers@google.com, stable@vger.kernel.org, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:03:10 +0100
-Message-ID: <1672844590226207@kroah.com>
+Date:   Wed, 04 Jan 2023 16:03:11 +0100
+Message-ID: <167284459125553@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -62,6 +62,18 @@ ccbf8eeb39f2 ("ext4: fix miss release buffer head in ext4_fc_write_inode")
 d9bf099cb980 ("ext4: add commit_tid info in jbd debug log")
 0915e464cb27 ("ext4: simplify updating of fast commit stats")
 7bbbe241ec7c ("ext4: drop ineligible txn start stop APIs")
+02f310fcf47f ("ext4: Speedup ext4 orphan inode handling")
+25c6d98fc4c2 ("ext4: Move orphan inode handling into a separate file")
+188c299e2a26 ("ext4: Support for checksumming from journal triggers")
+bd2c38cf1726 ("ext4: Make sure quota files are not grabbed accidentally")
+facec450a824 ("ext4: reduce arguments of ext4_fc_add_dentry_tlv")
+b9a037b7f3c4 ("ext4: cleanup in-core orphan list if ext4_truncate() failed to get a transaction handle")
+a7ba36bc94f2 ("ext4: fix fast commit alignment issues")
+fcdf3c34b7ab ("ext4: fix debug format string warning")
+3088e5a5153c ("ext4: fix various seppling typos")
+72ffb49a7b62 ("ext4: do not set SB_ACTIVE in ext4_orphan_cleanup()")
+c915fb80eaa6 ("ext4: fix bh ref count on error paths")
+efc61345274d ("ext4: shrink race window in ext4_should_retry_alloc()")
 
 thanks,
 
