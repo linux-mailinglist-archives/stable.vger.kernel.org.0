@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B8D65D47E
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:39:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2018165D47F
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:39:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239252AbjADNjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:39:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43246 "EHLO
+        id S239429AbjADNjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:39:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239515AbjADNj0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:39:26 -0500
+        with ESMTP id S239523AbjADNj1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:39:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA34F231
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:39:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E408AE32
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:39:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86A9161737
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:39:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF61C433D2;
-        Wed,  4 Jan 2023 13:39:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E41D61733
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:39:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3EFC433F0;
+        Wed,  4 Jan 2023 13:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672839546;
-        bh=lyDQWVN6JWoKo/Mn6/yBfnfkgr0SbRoud2vBELW2t5c=;
+        s=korg; t=1672839548;
+        bh=fU4+XfA8TyWJ01GNpx1G52j90Kx+8UjEWl1R+NnzRnw=;
         h=Subject:To:Cc:From:Date:From;
-        b=VOMmmWqH3kQLGNsYrmNfgay7izsQjwGiCmbSvyuL76Nv+ZKQDR0xfNvzXGaJu6Ho2
-         BYGDaDyvcpUmi+LUYmFkcIRAMc6RDVjsWu50dMQF+gAtEKubM91+f5ngcaNPbUMIZs
-         8ZmgutW8EpwC5ccd1GEIHWmU/BaHoRc6OBPPcJ5U=
-Subject: FAILED: patch "[PATCH] dm thin: resume even if in FAIL mode" failed to apply to 4.14-stable tree
+        b=FseP2RGa6X7cuOO5MiaCYN6I6XAcBRojga8Zxpo8ffjyap/xIOYsQB0qDFREHyoyG
+         ZUtEaSR3b6etVeSyrchywbwvOGFJCo3ikEPWUF43aaIwjwGImi8xs1sEPmiujCFJEs
+         3dzYp56cwwj+MVRlBB3WvqVWPa7vW/8MqeNjfTX4=
+Subject: FAILED: patch "[PATCH] dm thin: resume even if in FAIL mode" failed to apply to 4.9-stable tree
 To:     luomeng12@huawei.com, snitzer@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:38:58 +0100
-Message-ID: <1672839538107231@kroah.com>
+Date:   Wed, 04 Jan 2023 14:38:59 +0100
+Message-ID: <167283953911757@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
