@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58EDB65D5B6
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:32:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5534265D5B8
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:33:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239401AbjADOc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:32:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54254 "EHLO
+        id S235207AbjADOc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:32:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239574AbjADOcY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:32:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3911312F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:32:23 -0800 (PST)
+        with ESMTP id S239350AbjADOc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:32:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 599AD7665
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:32:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7260B81680
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:32:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5353BC433D2;
-        Wed,  4 Jan 2023 14:32:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14496B81680
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:32:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D548C433EF;
+        Wed,  4 Jan 2023 14:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672842740;
-        bh=3qc9R67u+9uJghClkxqOSiWmF69kTWhLYtfX/k1kZ7Y=;
+        s=korg; t=1672842744;
+        bh=mArzhiQNF5CiyEXVw20uyUgTfQkc4PqrXMHLijOLBzg=;
         h=Subject:To:Cc:From:Date:From;
-        b=Jou5ezy7qoUm+ZXv+MJ/wsmfGa1b1OCrwLs2oWCNT/eI02635eb0EnOW7MGtzuPCb
-         fm/HbDLUSWIaFjWwjAZe/bShMPhsCgTZi2dJ1I4Sy6/xMhAIXmsi7/V9kMtfdTFwA6
-         4m2scLRE5/tst/LMQ09HFAmV8YJuJQsbTiJinHlo=
-Subject: FAILED: patch "[PATCH] phy: qcom-qmp-combo: fix broken power on" failed to apply to 6.1-stable tree
+        b=GevzKgZzavAhpnOxBCdLx9aWn5HeUPktUqxfsKWA0hhZI8Cgnf8R0B7wArc8MJHZt
+         9VpGidNhoWQRbx566zGFNUx3b5rUbBYXA/PvOzjXA51TtU7yf/Pb3cCjfQwT51V4Xa
+         COY4XyBykkFEzNUbi4q0hlBt0gGRDDaHhwURg0lg=
+Subject: FAILED: patch "[PATCH] phy: qcom-qmp-combo: fix broken power on" failed to apply to 6.0-stable tree
 To:     johan+linaro@kernel.org, dmitry.baryshkov@linaro.org,
         vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:32:17 +0100
-Message-ID: <167284273796174@kroah.com>
+Date:   Wed, 04 Jan 2023 15:32:19 +0100
+Message-ID: <167284273925332@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,6 +61,18 @@ f7075f4905e7 ("phy: qcom-qmp-combo: clean up status polling")
 acfee73b635b ("phy: qcom-qmp-combo: drop power-down delay config")
 d71eb7083e5e ("phy: qcom-qmp-combo: drop sc8280xp power-down delay")
 2e52ddf045a0 ("phy: qcom-qmp-combo: clean up power-down handling")
+9d943961912c ("phy: qcom-qmp-combo: drop redundant DP config flag")
+099155615ac2 ("phy: qcom-qmp-combo: consolidate lane config")
+f5d6b5d613e9 ("phy: qcom-qmp-combo: fix sc8280xp PCS_USB offset")
+064bbdba4f8d ("phy: qcom-qmp-combo: drop unused legacy DT workaround")
+2de8a325b108 ("phy: qcom-qmp-combo: fix memleak on probe deferral")
+e5cedefa7203 ("phy: qcom-qmp-combo: shorten function prefixes")
+beee6ed1d63f ("phy: qcom-qmp-combo: drop unused defines")
+ac439ce88edf ("phy: qcom-qmp: drop dual-lane comments")
+a2e927b0e50d ("phy: qcom-qmp-combo: Add sc8280xp USB/DP combo phys")
+c0c7769cdae2 ("phy: qcom-qmp: Add SC8280XP USB3 UNI phy")
+712e5dffe911 ("phy: qcom-qmp-combo: Parameterize swing and pre_emphasis tables")
+d88497fb6bbd ("phy: qualcomm: phy-qcom-qmp: add support for combo USB3+DP phy on SDM845")
 
 thanks,
 
