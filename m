@@ -2,110 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B561C65CC21
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 04:22:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1A765CC23
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 04:22:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234366AbjADDWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 22:22:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35120 "EHLO
+        id S234251AbjADDWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 22:22:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234363AbjADDWC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 22:22:02 -0500
-Received: from m12.mail.163.com (m12.mail.163.com [220.181.12.199])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4E2B11789C;
-        Tue,  3 Jan 2023 19:22:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=NSE/V
-        BFSGdyolrkn2/uYBXDt5bVP5xQn71kPlTU2ij0=; b=DShXx0lqovfrrmcLp/sao
-        OBZ7+API/TJZ1FPKy8pbZaklzNwQXs1OZyLDMl7gZzVxJA6guXaFtGLgLJH9Y+3e
-        jWmlmJ6wiW4LS+Om0d0IXiNhOV04Ecemcv2fdHx7lE3vOD9OqANifahwQkl6aGjq
-        FsuFYF2wt/sdHbbDSH+R7c=
-Received: from qubt.localdomain (unknown [171.40.161.28])
-        by zwqz-smtp-mta-g2-0 (Coremail) with SMTP id _____wC3Vba28LRjndQoAA--.18469S2;
-        Wed, 04 Jan 2023 11:21:28 +0800 (CST)
-From:   coolqyj@163.com
-To:     linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
-Cc:     Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org,
-        qian@ddn.com
-Subject: [PATCH] mm/filemap: fix page end in filemap_get_read_batch
-Date:   Wed,  4 Jan 2023 11:21:24 +0800
-Message-Id: <20230104032124.72483-1-coolqyj@163.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S238100AbjADDWp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 22:22:45 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199691742B
+        for <stable@vger.kernel.org>; Tue,  3 Jan 2023 19:22:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1672802564; x=1704338564;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=hEiQu5M7KRBrCwlOTg41k2EiCqS+1FDwl6Uwzcfrw/U=;
+  b=CrBvnKr8DeQmjIaZ2dBDwXIo5MgYfYPnIpxSc9VjmR7bccYFMiCr0x4H
+   679iday56gLJT3d78Zn1BwgyXs4tv+NzJ1f90lQsl94YstP1o1jIzxtKJ
+   OoHzsVgDuA0k7zXwM7/NmCaG+jLxTG/kZ8MlKJPo7xaTLprsi5Zoh2fF4
+   nZyRRWs96UFb7nwnkBkidcW0og9GisnvHejG6coeRP/dCfMLPuNTAcTIr
+   lXKNKO5hliGFoUq+N4RMD2JfLq9Ss+fXguEB9GAz3W8uMIDxVtwhY5tMH
+   /OtvN+qC5CnO2yfq/VdKxAa95m5/CFWytM1qam0AZAs+J3hfiBgvObUb4
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10579"; a="301509290"
+X-IronPort-AV: E=Sophos;i="5.96,297,1665471600"; 
+   d="scan'208";a="301509290"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jan 2023 19:22:43 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10579"; a="687394038"
+X-IronPort-AV: E=Sophos;i="5.96,297,1665471600"; 
+   d="scan'208";a="687394038"
+Received: from lkp-server01.sh.intel.com (HELO b5d47979f3ad) ([10.239.97.150])
+  by orsmga001.jf.intel.com with ESMTP; 03 Jan 2023 19:22:42 -0800
+Received: from kbuild by b5d47979f3ad with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pCuMT-000T69-2D;
+        Wed, 04 Jan 2023 03:22:41 +0000
+Date:   Wed, 4 Jan 2023 11:22:32 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     coolqyj@163.com
+Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH] mm/filemap: fix page end in filemap_get_read_batch
+Message-ID: <Y7Tw+Ii0ehUUpNJT@143a5a8bd1f0>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: _____wC3Vba28LRjndQoAA--.18469S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7tryDGFWrGw1kJw4DtF1kXwb_yoW8tr1Upr
-        s8Gw1vyr4DGF4UCrsrJ3WDu3WYk3srtay5ZFW8Ww1SvFn8JFnIgr9rKFy5Ar98XrWfZa4x
-        tF4jy348uF4jqrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jjmhrUUUUU=
-X-Originating-IP: [171.40.161.28]
-X-CM-SenderInfo: xfrrz1l1m6il2tof0z/xtbBERvsz1aEMQJ12wAAsm
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230104032124.72483-1-coolqyj@163.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Yingjin <qian@ddn.com>
+Hi,
 
-I was running traces of the read code against an RAID storage
-system to understand why read requests were being misaligned
-against the underlying RAID strips. I found that the page end
-offset calculation in filemap_get_read_batch() was off by one.
+Thanks for your patch.
 
-When a read is submitted with end offset 1048575, then it
-calculates the end page for read of 256 when it should be 255.
-"last_index" is the index of the page beyond the end of the read
-and it should be skipped when get a batch of pages for read in
-@filemap_get_read_batch().
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
 
-The below simple patch fixes the problem. This code was introduced
-in kernel 5.12.
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [PATCH] mm/filemap: fix page end in filemap_get_read_batch
+Link: https://lore.kernel.org/stable/20230104032124.72483-1-coolqyj%40163.com
 
-Fixes: cbd59c48ae2b ("mm/filemap: use head pages in generic_file_buffered_read")
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
-Signed-off-by: Qian Yingjin <qian@ddn.com>
----
- mm/filemap.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/mm/filemap.c b/mm/filemap.c
-index c4d4ace9cc70..b7754760c09a 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2371,7 +2371,7 @@ static void shrink_readahead_size_eio(struct file_ra_state *ra)
-  * clear so that the caller can take the appropriate action.
-  */
- static void filemap_get_read_batch(struct address_space *mapping,
--		pgoff_t index, pgoff_t max, struct folio_batch *fbatch)
-+		pgoff_t index, pgoff_t last_index, struct folio_batch *fbatch)
- {
- 	XA_STATE(xas, &mapping->i_pages, index);
- 	struct folio *folio;
-@@ -2380,7 +2380,11 @@ static void filemap_get_read_batch(struct address_space *mapping,
- 	for (folio = xas_load(&xas); folio; folio = xas_next(&xas)) {
- 		if (xas_retry(&xas, folio))
- 			continue;
--		if (xas.xa_index > max || xa_is_value(folio))
-+		/*
-+		 * "last_index" is the index of the page beyond the end of
-+		 * the read.
-+		 */
-+		if (xas.xa_index >= last_index || xa_is_value(folio))
- 			break;
- 		if (xa_is_sibling(folio))
- 			break;
-@@ -2588,6 +2592,7 @@ static int filemap_get_pages(struct kiocb *iocb, struct iov_iter *iter,
- 	struct folio *folio;
- 	int err = 0;
- 
-+	/* "last_index" is the index of the page beyond the end of the read */
- 	last_index = DIV_ROUND_UP(iocb->ki_pos + iter->count, PAGE_SIZE);
- retry:
- 	if (fatal_signal_pending(current))
 -- 
-2.34.1
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
+
+
 
