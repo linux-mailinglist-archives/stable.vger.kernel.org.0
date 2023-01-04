@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD2D65D645
+	by mail.lfdr.de (Postfix) with ESMTP id 9C14465D646
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:43:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239465AbjADOnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:43:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34976 "EHLO
+        id S239638AbjADOnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:43:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239657AbjADOnQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:43:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82048188
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:43:15 -0800 (PST)
+        with ESMTP id S239658AbjADOnU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:43:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35648188
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:43:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39A1FB81677
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:43:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4F23C433F2;
-        Wed,  4 Jan 2023 14:43:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDFFEB81696
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:43:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 316F4C433F1;
+        Wed,  4 Jan 2023 14:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843393;
-        bh=2PKmxB6mOXQXC8XKyVxX63wsqIK7bD9HuK3qV15hgm0=;
+        s=korg; t=1672843396;
+        bh=AoN63rIK0sV92pMvLAGnQYA7vkFm+q9JLz18aTqiUDw=;
         h=Subject:To:Cc:From:Date:From;
-        b=c8JjMLbBNKKIO1jaXq/i7dzmvtzZazJMt+HjeaHan4ORnfLXUDfi60PkmrbSqFaSW
-         ydWqjbRHpLY9kE1YSNWuJCskNMJBYX7ZvZQ7AadkCqSSyU2HdWtsDMjz3VFt5Bvg/8
-         RZ1Qy0jkpzPXK6oiiQZLu4Qd9/mxIEerrtQlFkiI=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: Remove ATC L2 access for MMHUB 2.1.x" failed to apply to 5.10-stable tree
-To:     lijo.lazar@amd.com, alexander.deucher@amd.com, guchun.chen@amd.com
+        b=eNser2Kt5HhvVFJw4UriWqK65/CQnbvZY7YCLs9eyzea6NEP4fYLTNtD+gVnRMp0I
+         IjC5bE1UayQaIwu4LBD2+RTScEXqeGigv+MlML8vBAeofyx0NgTZ88HgnFZ/De7VhX
+         zoZ0V0kz4WVUq/qhM70uwaeLanzbTPfQBCxbDd6M=
+Subject: FAILED: patch "[PATCH] drm/i915: Fix watermark calculations for gen12+ RC CCS" failed to apply to 6.1-stable tree
+To:     ville.syrjala@linux.intel.com, juhapekka.heikkila@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:42:57 +0100
-Message-ID: <167284337723942@kroah.com>
+Date:   Wed, 04 Jan 2023 15:43:07 +0100
+Message-ID: <167284338764211@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -47,33 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-20293269d817 ("drm/amdgpu: Remove ATC L2 access for MMHUB 2.1.x")
-1d789535a036 ("drm/amdgpu: convert IP version array to include instances")
-5c3720be7d46 ("drm/amdgpu: get VCN and SDMA instances from IP discovery table")
-2cbc6f4259f6 ("drm/amd/display: fix error case handling")
-75a07bcd1d30 ("drm/amdgpu/soc15: convert to IP version checking")
-0b64a5a85229 ("drm/amdgpu/vcn2.5: convert to IP version checking")
-96b8dd4423e7 ("drm/amdgpu/amdgpu_vcn: convert to IP version checking")
-50638f7dbd0b ("drm/amdgpu/pm/amdgpu_smu: convert more IP version checking")
-61b396b91196 ("drm/amdgpu/pm/smu_v13.0: convert IP version checking")
-6b726a0a52cc ("drm/amdgpu/pm/smu_v11.0: update IP version checking")
-1fcc208cd780 ("drm/amdgpu/psp_v13.0: convert to IP version checking")
-e47868ea15cb ("drm/amdgpu/psp_v11.0: convert to IP version checking")
-82d05736c47b ("drm/amdgpu/amdgpu_psp: convert to IP version checking")
-9d0cb2c31891 ("drm/amdgpu/gfx9.0: convert to IP version checking")
-24be2d70048b ("drm/amdgpu/hdp4.0: convert to IP version checking")
-43bf00f21eaf ("drm/amdgpu/sdma4.0: convert to IP version checking")
-559f591dab57 ("drm/amdgpu/display/dm: convert RAVEN to IP version checking")
-d4c6e870bdd2 ("drm/amdgpu: add initial IP discovery support for vega based parts")
-c08182f2483f ("drm/amdgpu/display/dm: convert to IP version checking")
-3e67f4f2e22e ("drm/amdgpu/nv: convert to IP version checking")
+a89a96a58611 ("drm/i915: Fix watermark calculations for gen12+ RC CCS modifier")
 
 thanks,
 
@@ -81,98 +62,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 20293269d81779a0d0c0865f5877b240c3335c97 Mon Sep 17 00:00:00 2001
-From: Lijo Lazar <lijo.lazar@amd.com>
-Date: Fri, 30 Sep 2022 10:43:08 +0530
-Subject: [PATCH] drm/amdgpu: Remove ATC L2 access for MMHUB 2.1.x
+From a89a96a586114f67598c6391c75678b4dba5c2da Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Mon, 3 Oct 2022 14:15:39 +0300
+Subject: [PATCH] drm/i915: Fix watermark calculations for gen12+ RC CCS
+ modifier
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-MMHUB 2.1.x versions don't have ATCL2. Remove accesses to ATCL2 registers.
+Take the gen12+ RC CCS modifier into account when calculating the
+watermarks. Othwerwise we'll calculate the watermarks thinking this
+Y-tiled modifier is linear.
 
-Since they are non-existing registers, read access will cause a
-'Completer Abort' and gets reported when AER is enabled with the below patch.
-Tagging with the patch so that this is backported along with it.
+The rc_surface part is actually a nop since that is not used
+for any glk+ platform.
 
-v2: squash in uninitialized warning fix (Nathan Chancellor)
+v2: Split RC CCS vs. MC CCS to separate patches
 
-Fixes: 8795e182b02d ("PCI/portdrv: Don't disable AER reporting in get_port_device_capability()")
-
-Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
+Fixes: b3e57bccd68a ("drm/i915/tgl: Gen-12 render decompression")
+Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221003111544.8007-2-ville.syrjala@linux.intel.com
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
-index 4d304f22889e..998b5d17b271 100644
---- a/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/mmhub_v2_0.c
-@@ -32,8 +32,6 @@
- #include "gc/gc_10_1_0_offset.h"
- #include "soc15_common.h"
+diff --git a/drivers/gpu/drm/i915/display/skl_watermark.c b/drivers/gpu/drm/i915/display/skl_watermark.c
+index 59e4fc6191f1..6ce1213c18b3 100644
+--- a/drivers/gpu/drm/i915/display/skl_watermark.c
++++ b/drivers/gpu/drm/i915/display/skl_watermark.c
+@@ -1710,10 +1710,12 @@ skl_compute_wm_params(const struct intel_crtc_state *crtc_state,
+ 		      modifier == I915_FORMAT_MOD_4_TILED ||
+ 		      modifier == I915_FORMAT_MOD_Yf_TILED ||
+ 		      modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
+-		      modifier == I915_FORMAT_MOD_Yf_TILED_CCS;
++		      modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
++		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS;
+ 	wp->x_tiled = modifier == I915_FORMAT_MOD_X_TILED;
+ 	wp->rc_surface = modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
+-			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS;
++			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
++			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS;
+ 	wp->is_planar = intel_format_info_is_yuv_semiplanar(format, modifier);
  
--#define mmMM_ATC_L2_MISC_CG_Sienna_Cichlid                      0x064d
--#define mmMM_ATC_L2_MISC_CG_Sienna_Cichlid_BASE_IDX             0
- #define mmDAGB0_CNTL_MISC2_Sienna_Cichlid                       0x0070
- #define mmDAGB0_CNTL_MISC2_Sienna_Cichlid_BASE_IDX              0
- 
-@@ -574,7 +572,6 @@ static void mmhub_v2_0_update_medium_grain_clock_gating(struct amdgpu_device *ad
- 	case IP_VERSION(2, 1, 0):
- 	case IP_VERSION(2, 1, 1):
- 	case IP_VERSION(2, 1, 2):
--		def  = data  = RREG32_SOC15(MMHUB, 0, mmMM_ATC_L2_MISC_CG_Sienna_Cichlid);
- 		def1 = data1 = RREG32_SOC15(MMHUB, 0, mmDAGB0_CNTL_MISC2_Sienna_Cichlid);
- 		break;
- 	default:
-@@ -608,8 +605,6 @@ static void mmhub_v2_0_update_medium_grain_clock_gating(struct amdgpu_device *ad
- 	case IP_VERSION(2, 1, 0):
- 	case IP_VERSION(2, 1, 1):
- 	case IP_VERSION(2, 1, 2):
--		if (def != data)
--			WREG32_SOC15(MMHUB, 0, mmMM_ATC_L2_MISC_CG_Sienna_Cichlid, data);
- 		if (def1 != data1)
- 			WREG32_SOC15(MMHUB, 0, mmDAGB0_CNTL_MISC2_Sienna_Cichlid, data1);
- 		break;
-@@ -634,8 +629,8 @@ static void mmhub_v2_0_update_medium_grain_light_sleep(struct amdgpu_device *ade
- 	case IP_VERSION(2, 1, 0):
- 	case IP_VERSION(2, 1, 1):
- 	case IP_VERSION(2, 1, 2):
--		def  = data  = RREG32_SOC15(MMHUB, 0, mmMM_ATC_L2_MISC_CG_Sienna_Cichlid);
--		break;
-+		/* There is no ATCL2 in MMHUB for 2.1.x */
-+		return;
- 	default:
- 		def  = data  = RREG32_SOC15(MMHUB, 0, mmMM_ATC_L2_MISC_CG);
- 		break;
-@@ -646,18 +641,8 @@ static void mmhub_v2_0_update_medium_grain_light_sleep(struct amdgpu_device *ade
- 	else
- 		data &= ~MM_ATC_L2_MISC_CG__MEM_LS_ENABLE_MASK;
- 
--	if (def != data) {
--		switch (adev->ip_versions[MMHUB_HWIP][0]) {
--		case IP_VERSION(2, 1, 0):
--		case IP_VERSION(2, 1, 1):
--		case IP_VERSION(2, 1, 2):
--			WREG32_SOC15(MMHUB, 0, mmMM_ATC_L2_MISC_CG_Sienna_Cichlid, data);
--			break;
--		default:
--			WREG32_SOC15(MMHUB, 0, mmMM_ATC_L2_MISC_CG, data);
--			break;
--		}
--	}
-+	if (def != data)
-+		WREG32_SOC15(MMHUB, 0, mmMM_ATC_L2_MISC_CG, data);
- }
- 
- static int mmhub_v2_0_set_clockgating(struct amdgpu_device *adev,
-@@ -695,7 +680,10 @@ static void mmhub_v2_0_get_clockgating(struct amdgpu_device *adev, u64 *flags)
- 	case IP_VERSION(2, 1, 0):
- 	case IP_VERSION(2, 1, 1):
- 	case IP_VERSION(2, 1, 2):
--		data  = RREG32_SOC15(MMHUB, 0, mmMM_ATC_L2_MISC_CG_Sienna_Cichlid);
-+		/* There is no ATCL2 in MMHUB for 2.1.x. Keep the status
-+		 * based on DAGB
-+		 */
-+		data = MM_ATC_L2_MISC_CG__ENABLE_MASK;
- 		data1 = RREG32_SOC15(MMHUB, 0, mmDAGB0_CNTL_MISC2_Sienna_Cichlid);
- 		break;
- 	default:
+ 	wp->width = width;
 
