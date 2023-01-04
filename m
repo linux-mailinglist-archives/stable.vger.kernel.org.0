@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EED865D9B2
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:27:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E667365D981
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239990AbjADQ1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:27:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51508 "EHLO
+        id S239849AbjADQ0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:26:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239932AbjADQ1M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:27:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7D213F106
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:08 -0800 (PST)
+        with ESMTP id S240006AbjADQZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A53C53D1D3
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63F71B81722
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:27:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9B8DC433D2;
-        Wed,  4 Jan 2023 16:27:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54684B81731
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A56FCC433D2;
+        Wed,  4 Jan 2023 16:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849626;
-        bh=4aVomUC427AMNaaw43UgXdo47FNOPAhP+Zw1KAFJmDc=;
+        s=korg; t=1672849495;
+        bh=MvVGUDtIvMOh7+1YcCiSwII4EajhyZTlwB/AJsib72o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lxm07J5c0SzCR4zFVuYfUvpcy55hO8bl6jVnlONENu9c5P8o9Pr5E6PYwSOkz1r3O
-         PnaOe73kfrPdDNr09xn2LC+QSSM8C52B3UrBcKZ7JauALHeVcThsjvQ1vAwdga992o
-         PkkjHSAom5k7vc7yPqhBNGreMphz1XvE3ChQeqEk=
+        b=FE5odK3m72meSBrGTYUvf2SR9HEmjcLfJkD78exWOxTT8ywdauXriGhuzLHRbG5FR
+         /NGxtcZ/gUPc8RhsanlfBcfTcyIQ69dfoZ1d4ENxOEhCjJjnJupS1J6OLpjMyevyrV
+         4fAR+Eoi4FwrIow3x1zQheT9SXXtyVNyCtWkl+gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        stable@kernel.org, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 165/177] ext4: initialize quota before expanding inode in setproject ioctl
+        patches@lists.linux.dev, Matthew Auld <matthew.auld@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Nirmoy Das <nirmoy.das@intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Shuicheng Lin <shuicheng.lin@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 6.1 198/207] drm/i915/ttm: consider CCS for backup objects
 Date:   Wed,  4 Jan 2023 17:07:36 +0100
-Message-Id: <20230104160512.680160992@linuxfoundation.org>
+Message-Id: <20230104160518.187897439@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +56,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Matthew Auld <matthew.auld@intel.com>
 
-commit 1485f726c6dec1a1f85438f2962feaa3d585526f upstream.
+commit ad0fca2dceeab8fdd8e1135f4b4ef2dc46c2ead9 upstream.
 
-Make sure we initialize quotas before possibly expanding inode space
-(and thus maybe needing to allocate external xattr block) in
-ext4_ioctl_setproject(). This prevents not accounting the necessary
-block allocation.
+It seems we can have one or more framebuffers that are still pinned when
+suspending lmem, in such a case we end up creating a shmem backup
+object, instead of evicting the object directly, but this will skip
+copying the CCS aux state, since we don't allocate the extra storage for
+the CCS pages as part of the ttm_tt construction. Since we can already
+deal with pinned objects just fine, it doesn't seem too nasty to just
+extend to support dealing with the CCS aux state, if the object is a
+pinned framebuffer. This fixes display corruption (like in gnome-shell)
+seen on DG2 when returning from suspend.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20221207115937.26601-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: da0595ae91da ("drm/i915/migrate: Evict and restore the flatccs capable lmem obj")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Nirmoy Das <nirmoy.das@intel.com>
+Cc: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: Shuicheng Lin <shuicheng.lin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.19+
+Tested-by: Nirmoy Das <nirmoy.das@intel.com>
+Reviewed-by: Nirmoy Das <nirmoy.das@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221212171958.82593-2-matthew.auld@intel.com
+(cherry picked from commit 95df9cc24bee8a09d39c62bcef4319b984814e18)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ioctl.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_object.c       |    3 +++
+ drivers/gpu/drm/i915/gem/i915_gem_object_types.h |   10 ++++++----
+ drivers/gpu/drm/i915/gem/i915_gem_ttm_pm.c       |   18 +++++++++++++++++-
+ 3 files changed, 26 insertions(+), 5 deletions(-)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -732,6 +732,10 @@ static int ext4_ioctl_setproject(struct
- 	if (ext4_is_quota_file(inode))
- 		return err;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.c
+@@ -761,6 +761,9 @@ bool i915_gem_object_needs_ccs_pages(str
+ 	if (!HAS_FLAT_CCS(to_i915(obj->base.dev)))
+ 		return false;
  
-+	err = dquot_initialize(inode);
-+	if (err)
-+		return err;
++	if (obj->flags & I915_BO_ALLOC_CCS_AUX)
++		return true;
 +
- 	err = ext4_get_inode_loc(inode, &iloc);
- 	if (err)
- 		return err;
-@@ -747,10 +751,6 @@ static int ext4_ioctl_setproject(struct
- 		brelse(iloc.bh);
- 	}
+ 	for (i = 0; i < obj->mm.n_placements; i++) {
+ 		/* Compression is not allowed for the objects with smem placement */
+ 		if (obj->mm.placements[i]->type == INTEL_MEMORY_SYSTEM)
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+@@ -327,16 +327,18 @@ struct drm_i915_gem_object {
+  * dealing with userspace objects the CPU fault handler is free to ignore this.
+  */
+ #define I915_BO_ALLOC_GPU_ONLY	  BIT(6)
++#define I915_BO_ALLOC_CCS_AUX	  BIT(7)
+ #define I915_BO_ALLOC_FLAGS (I915_BO_ALLOC_CONTIGUOUS | \
+ 			     I915_BO_ALLOC_VOLATILE | \
+ 			     I915_BO_ALLOC_CPU_CLEAR | \
+ 			     I915_BO_ALLOC_USER | \
+ 			     I915_BO_ALLOC_PM_VOLATILE | \
+ 			     I915_BO_ALLOC_PM_EARLY | \
+-			     I915_BO_ALLOC_GPU_ONLY)
+-#define I915_BO_READONLY          BIT(7)
+-#define I915_TILING_QUIRK_BIT     8 /* unknown swizzling; do not release! */
+-#define I915_BO_PROTECTED         BIT(9)
++			     I915_BO_ALLOC_GPU_ONLY | \
++			     I915_BO_ALLOC_CCS_AUX)
++#define I915_BO_READONLY          BIT(8)
++#define I915_TILING_QUIRK_BIT     9 /* unknown swizzling; do not release! */
++#define I915_BO_PROTECTED         BIT(10)
+ 	/**
+ 	 * @mem_flags - Mutable placement-related flags
+ 	 *
+--- a/drivers/gpu/drm/i915/gem/i915_gem_ttm_pm.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_ttm_pm.c
+@@ -50,6 +50,7 @@ static int i915_ttm_backup(struct i915_g
+ 		container_of(bo->bdev, typeof(*i915), bdev);
+ 	struct drm_i915_gem_object *backup;
+ 	struct ttm_operation_ctx ctx = {};
++	unsigned int flags;
+ 	int err = 0;
  
--	err = dquot_initialize(inode);
--	if (err)
--		return err;
--
- 	handle = ext4_journal_start(inode, EXT4_HT_QUOTA,
- 		EXT4_QUOTA_INIT_BLOCKS(sb) +
- 		EXT4_QUOTA_DEL_BLOCKS(sb) + 3);
+ 	if (bo->resource->mem_type == I915_PL_SYSTEM || obj->ttm.backup)
+@@ -65,7 +66,22 @@ static int i915_ttm_backup(struct i915_g
+ 	if (obj->flags & I915_BO_ALLOC_PM_VOLATILE)
+ 		return 0;
+ 
+-	backup = i915_gem_object_create_shmem(i915, obj->base.size);
++	/*
++	 * It seems that we might have some framebuffers still pinned at this
++	 * stage, but for such objects we might also need to deal with the CCS
++	 * aux state. Make sure we force the save/restore of the CCS state,
++	 * otherwise we might observe display corruption, when returning from
++	 * suspend.
++	 */
++	flags = 0;
++	if (i915_gem_object_needs_ccs_pages(obj)) {
++		WARN_ON_ONCE(!i915_gem_object_is_framebuffer(obj));
++		WARN_ON_ONCE(!pm_apply->allow_gpu);
++
++		flags = I915_BO_ALLOC_CCS_AUX;
++	}
++	backup = i915_gem_object_create_region(i915->mm.regions[INTEL_REGION_SMEM],
++					       obj->base.size, 0, flags);
+ 	if (IS_ERR(backup))
+ 		return PTR_ERR(backup);
+ 
 
 
