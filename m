@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D734C65D962
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E1C65D8C3
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239743AbjADQZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:25:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48278 "EHLO
+        id S239881AbjADQR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:17:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240037AbjADQYf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD411C11E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:43 -0800 (PST)
+        with ESMTP id S239928AbjADQRv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D733C392
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9BC9B817AE
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A5E9C433D2;
-        Wed,  4 Jan 2023 16:23:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A305AB81714
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AEBFC433D2;
+        Wed,  4 Jan 2023 16:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849419;
-        bh=pMqXlG7cn457TRQyxQ5I5gqZYxbi/Th7/I94Hu1r780=;
+        s=korg; t=1672849068;
+        bh=HsmmxbNkHCgGHsI98GPa9WHHyax3G6n05cueTPaHuxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUc3TUna+Y0BXTxV8XJ9npjT6sF3g8mQ65OYnNqD5wO6OeokYZKpQYiRXN/cc3V9G
-         MqEp6CcdHvrVmKxqJ1szaqGzru1GS3F1Tpvmi0vxLYWDD4x44fZv2Xz0qm4rCkZoYp
-         5CdjSbmO6lSezeHp+6xekUHpGn97+KXRWVpHzriI=
+        b=p88lgAVT2D2WrNo/tsF+XFW3fxwoFy94r7RHWtBQZfSDhQjj8hvWIm2N6savxi7kW
+         YO1eurLrRgZjnRxY4xk7o34B1tk7KSn/RQJg/uprxhbKFIx/ssXnLJvAyh5VF+nBX6
+         jZPhP5piaXv8914sqm4/q+RMpa1Lx/HdQOfSO040=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 6.0 095/177] ipmi: fix long wait in unload when IPMI disconnect
+        patches@lists.linux.dev, Li Huafei <lihuafei1@huawei.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Liao Chang <liaochang1@huawei.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.1 128/207] RISC-V: kexec: Fix memory leak of fdt buffer
 Date:   Wed,  4 Jan 2023 17:06:26 +0100
-Message-Id: <20230104160510.516242630@linuxfoundation.org>
+Message-Id: <20230104160515.980633215@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,94 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+From: Li Huafei <lihuafei1@huawei.com>
 
-commit f6f1234d98cce69578bfac79df147a1f6660596c upstream.
+commit 96df59b1ae23f5c11698c3c2159aeb2ecd4944a4 upstream.
 
-When fixing the problem mentioned in PATCH1, we also found
-the following problem:
+This is reported by kmemleak detector:
 
-If the IPMI is disconnected and in the sending process, the
-uninstallation driver will be stuck for a long time.
+unreferenced object 0xff60000082864000 (size 9588):
+  comm "kexec", pid 146, jiffies 4294900634 (age 64.788s)
+  hex dump (first 32 bytes):
+    d0 0d fe ed 00 00 12 ed 00 00 00 48 00 00 11 40  ...........H...@
+    00 00 00 28 00 00 00 11 00 00 00 02 00 00 00 00  ...(............
+  backtrace:
+    [<00000000f95b17c4>] kmemleak_alloc+0x34/0x3e
+    [<00000000b9ec8e3e>] kmalloc_order+0x9c/0xc4
+    [<00000000a95cf02e>] kmalloc_order_trace+0x34/0xb6
+    [<00000000f01e68b4>] __kmalloc+0x5c2/0x62a
+    [<000000002bd497b2>] kvmalloc_node+0x66/0xd6
+    [<00000000906542fa>] of_kexec_alloc_and_setup_fdt+0xa6/0x6ea
+    [<00000000e1166bde>] elf_kexec_load+0x206/0x4ec
+    [<0000000036548e09>] kexec_image_load_default+0x40/0x4c
+    [<0000000079fbe1b4>] sys_kexec_file_load+0x1c4/0x322
+    [<0000000040c62c03>] ret_from_syscall+0x0/0x2
 
-The main problem is that uninstalling the driver waits for curr_msg to
-be sent or HOSED. After stopping tasklet, the only place to trigger the
-timeout mechanism is the circular poll in shutdown_smi.
+In elf_kexec_load(), a buffer is allocated via kvmalloc() to store fdt.
+While it's not freed back to system when kexec kernel is reloaded or
+unloaded.  Then memory leak is caused.  Fix it by introducing riscv
+specific function arch_kimage_file_post_load_cleanup(), and freeing the
+buffer there.
 
-The poll function delays 10us and calls smi_event_handler(smi_info,10).
-Smi_event_handler deducts 10us from kcs->ibf_timeout.
-
-But the poll func is followed by schedule_timeout_uninterruptible(1).
-The time consumed here is not counted in kcs->ibf_timeout.
-
-So when 10us is deducted from kcs->ibf_timeout, at least 1 jiffies has
-actually passed. The waiting time has increased by more than a
-hundredfold.
-
-Now instead of calling poll(). call smi_event_handler() directly and
-calculate the elapsed time.
-
-For verification, you can directly use ebpf to check the kcs->
-ibf_timeout for each call to kcs_event() when IPMI is disconnected.
-Decrement at normal rate before unloading. The decrement rate becomes
-very slow after unloading.
-
-  $ bpftrace -e 'kprobe:kcs_event {printf("kcs->ibftimeout : %d\n",
-      *(arg0+584));}'
-
-Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
-Message-Id: <20221007092617.87597-3-zhangyuchen.lcr@bytedance.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: 6261586e0c91 ("RISC-V: Add kexec_file support")
+Signed-off-by: Li Huafei <lihuafei1@huawei.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Liao Chang <liaochang1@huawei.com>
+Link: https://lore.kernel.org/r/20221104095658.141222-1-lihuafei1@huawei.com
 Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_si_intf.c |   27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ arch/riscv/include/asm/kexec.h |    5 +++++
+ arch/riscv/kernel/elf_kexec.c  |   10 ++++++++++
+ 2 files changed, 15 insertions(+)
 
---- a/drivers/char/ipmi/ipmi_si_intf.c
-+++ b/drivers/char/ipmi/ipmi_si_intf.c
-@@ -2153,6 +2153,20 @@ skip_fallback_noirq:
- }
- module_init(init_ipmi_si);
+--- a/arch/riscv/include/asm/kexec.h
++++ b/arch/riscv/include/asm/kexec.h
+@@ -39,6 +39,7 @@ crash_setup_regs(struct pt_regs *newregs
+ #define ARCH_HAS_KIMAGE_ARCH
  
-+static void wait_msg_processed(struct smi_info *smi_info)
-+{
-+	unsigned long jiffies_now;
-+	long time_diff;
+ struct kimage_arch {
++	void *fdt; /* For CONFIG_KEXEC_FILE */
+ 	unsigned long fdt_addr;
+ };
+ 
+@@ -62,6 +63,10 @@ int arch_kexec_apply_relocations_add(str
+ 				     const Elf_Shdr *relsec,
+ 				     const Elf_Shdr *symtab);
+ #define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
 +
-+	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
-+		jiffies_now = jiffies;
-+		time_diff = (((long)jiffies_now - (long)smi_info->last_timeout_jiffies)
-+		     * SI_USEC_PER_JIFFY);
-+		smi_event_handler(smi_info, time_diff);
-+		schedule_timeout_uninterruptible(1);
-+	}
++struct kimage;
++int arch_kimage_file_post_load_cleanup(struct kimage *image);
++#define arch_kimage_file_post_load_cleanup arch_kimage_file_post_load_cleanup
+ #endif
+ 
+ #endif
+--- a/arch/riscv/kernel/elf_kexec.c
++++ b/arch/riscv/kernel/elf_kexec.c
+@@ -21,6 +21,14 @@
+ #include <linux/memblock.h>
+ #include <asm/setup.h>
+ 
++int arch_kimage_file_post_load_cleanup(struct kimage *image)
++{
++	kvfree(image->arch.fdt);
++	image->arch.fdt = NULL;
++
++	return kexec_image_post_load_cleanup_default(image);
 +}
 +
- static void shutdown_smi(void *send_info)
- {
- 	struct smi_info *smi_info = send_info;
-@@ -2187,16 +2201,13 @@ static void shutdown_smi(void *send_info
- 	 * in the BMC.  Note that timers and CPU interrupts are off,
- 	 * so no need for locks.
- 	 */
--	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
--		poll(smi_info);
--		schedule_timeout_uninterruptible(1);
--	}
-+	wait_msg_processed(smi_info);
-+
- 	if (smi_info->handlers)
- 		disable_si_irq(smi_info);
--	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
--		poll(smi_info);
--		schedule_timeout_uninterruptible(1);
--	}
-+
-+	wait_msg_processed(smi_info);
-+
- 	if (smi_info->handlers)
- 		smi_info->handlers->cleanup(smi_info->si_sm);
+ static int riscv_kexec_elf_load(struct kimage *image, struct elfhdr *ehdr,
+ 				struct kexec_elf_info *elf_info, unsigned long old_pbase,
+ 				unsigned long new_pbase)
+@@ -298,6 +306,8 @@ static void *elf_kexec_load(struct kimag
+ 		pr_err("Error add DTB kbuf ret=%d\n", ret);
+ 		goto out_free_fdt;
+ 	}
++	/* Cache the fdt buffer address for memory cleanup */
++	image->arch.fdt = fdt;
+ 	pr_notice("Loaded device tree at 0x%lx\n", kbuf.mem);
+ 	goto out;
  
 
 
