@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12B0F65D3AC
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:03:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C17A865D3B1
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:03:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239302AbjADNDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:03:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42352 "EHLO
+        id S239005AbjADNDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:03:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239311AbjADNDY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:03:24 -0500
+        with ESMTP id S239189AbjADND3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:03:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A922373B2
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:03:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6438537521
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:03:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0746D6164C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:03:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B905C433EF;
-        Wed,  4 Jan 2023 13:03:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0201C61638
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DA6C43396;
+        Wed,  4 Jan 2023 13:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672837387;
-        bh=1c1CToqpmGiz2kWzRfq6IuENlVgJ2STId1eJ2bJcrz0=;
+        s=korg; t=1672837398;
+        bh=+K9ISBq+3ao0ix76Tnic+h5ApZS1nAySsiVoltJXOWM=;
         h=Subject:To:Cc:From:Date:From;
-        b=N+yCalFaLt0UBvuqndUnQx8KlmqrROKkOVxY+LgXbPr597YDz1u3a1U5V/0jlw9wl
-         0mRdYUgvkopxi44xcOYTJNBEH0106TIqkE6+QDZ76oVl28HN9HzPrtR9XuopAjlpJb
-         rEehda/o6XnRG+cY9rdRzvIcNYwA4eLRImfNAjSQ=
-Subject: FAILED: patch "[PATCH] media: s5p-mfc: Clear workbit to handle error condition" failed to apply to 4.9-stable tree
+        b=ftIVoCmvZZqm3kDiwFtwoL0KupgpdVWBiMpSI9QE4NGK4ZmHCPvgsRgsvGv/NYdtI
+         H5RAVv9T+IXD41ez6Dlz7VqfHTEuKFM5VYlR60Mv7AnNoewaN0RmMR7uTmFmnW7CFC
+         AQKxtfj/h5xl4SoqpWJV/TvzN2GfS9b/ZoD5Pl8s=
+Subject: FAILED: patch "[PATCH] media: s5p-mfc: Fix in register read and write for H264" failed to apply to 5.15-stable tree
 To:     smitha.t@samsung.com, hverkuil-cisco@xs4all.nl
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:03:04 +0100
-Message-ID: <1672837384255178@kroah.com>
+Date:   Wed, 04 Jan 2023 14:03:15 +0100
+Message-ID: <167283739519186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,14 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-d3f3c2fe54e3 ("media: s5p-mfc: Clear workbit to handle error condition")
+06710cd5d243 ("media: s5p-mfc: Fix in register read and write for H264")
 
 thanks,
 
@@ -62,36 +62,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d3f3c2fe54e30b0636496d842ffbb5ad3a547f9b Mon Sep 17 00:00:00 2001
+From 06710cd5d2436135046898d7e4b9408c8bb99446 Mon Sep 17 00:00:00 2001
 From: Smitha T Murthy <smitha.t@samsung.com>
-Date: Wed, 7 Sep 2022 16:02:26 +0530
-Subject: [PATCH] media: s5p-mfc: Clear workbit to handle error condition
+Date: Wed, 7 Sep 2022 16:02:25 +0530
+Subject: [PATCH] media: s5p-mfc: Fix in register read and write for H264
 
-During error on CLOSE_INSTANCE command, ctx_work_bits was not getting
-cleared. During consequent mfc execution NULL pointer dereferencing of
-this context led to kernel panic. This patch fixes this issue by making
-sure to clear ctx_work_bits always.
+Few of the H264 encoder registers written were not getting reflected
+since the read values were not stored and getting overwritten.
 
-Fixes: 818cd91ab8c6 ("[media] s5p-mfc: Extract open/close MFC instance commands")
+Fixes: 6a9c6f681257 ("[media] s5p-mfc: Add variants to access mfc registers")
+
 Cc: stable@vger.kernel.org
 Cc: linux-fsd@tesla.com
 Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-diff --git a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_ctrl.c b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_ctrl.c
-index 72d70984e99a..6d3c92045c05 100644
---- a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_ctrl.c
-+++ b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_ctrl.c
-@@ -468,8 +468,10 @@ void s5p_mfc_close_mfc_inst(struct s5p_mfc_dev *dev, struct s5p_mfc_ctx *ctx)
- 	s5p_mfc_hw_call(dev->mfc_ops, try_run, dev);
- 	/* Wait until instance is returned or timeout occurred */
- 	if (s5p_mfc_wait_for_done_ctx(ctx,
--				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0))
-+				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0)){
-+		clear_work_bit_irqsave(ctx);
- 		mfc_err("Err returning instance\n");
-+	}
+diff --git a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c
+index 8227004f6746..c0df5ac9fcff 100644
+--- a/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c
++++ b/drivers/media/platform/samsung/s5p-mfc/s5p_mfc_opr_v6.c
+@@ -1060,7 +1060,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 	}
  
- 	/* Free resources */
- 	s5p_mfc_hw_call(dev->mfc_ops, release_codec_buffers, ctx);
+ 	/* aspect ratio VUI */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 5);
+ 	reg |= ((p_h264->vui_sar & 0x1) << 5);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1083,7 +1083,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 
+ 	/* intra picture period for H.264 open GOP */
+ 	/* control */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 4);
+ 	reg |= ((p_h264->open_gop & 0x1) << 4);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1097,23 +1097,23 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 	}
+ 
+ 	/* 'WEIGHTED_BI_PREDICTION' for B is disable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x3 << 9);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* 'CONSTRAINED_INTRA_PRED_ENABLE' is disable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 14);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* ASO */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 6);
+ 	reg |= ((p_h264->aso & 0x1) << 6);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* hier qp enable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 8);
+ 	reg |= ((p_h264->open_gop & 0x1) << 8);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1134,7 +1134,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 	writel(reg, mfc_regs->e_h264_num_t_layer);
+ 
+ 	/* frame packing SEI generation */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 25);
+ 	reg |= ((p_h264->sei_frame_packing & 0x1) << 25);
+ 	writel(reg, mfc_regs->e_h264_options);
 
