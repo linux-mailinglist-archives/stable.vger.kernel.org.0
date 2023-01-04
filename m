@@ -2,99 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CD7A65E00B
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 23:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10A6765E02E
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 23:45:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240549AbjADWeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 17:34:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49812 "EHLO
+        id S233514AbjADWpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 17:45:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240518AbjADWeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 17:34:16 -0500
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5815642E06;
-        Wed,  4 Jan 2023 14:34:14 -0800 (PST)
-Received: by mail-pj1-f52.google.com with SMTP id v23so37797573pju.3;
-        Wed, 04 Jan 2023 14:34:14 -0800 (PST)
+        with ESMTP id S233776AbjADWo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 17:44:59 -0500
+Received: from mail-oa1-x41.google.com (mail-oa1-x41.google.com [IPv6:2001:4860:4864:20::41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC4442E0B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:44:58 -0800 (PST)
+Received: by mail-oa1-x41.google.com with SMTP id 586e51a60fabf-14455716674so41425525fac.7
+        for <stable@vger.kernel.org>; Wed, 04 Jan 2023 14:44:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:references:in-reply-to:reply-to
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=XppnWxwUDd4VKlDQMnttNa0YhBi85GdHW05upV3mZfc=;
+        b=bIvXeO4Mj2vxG1xzoD857JzcNYfyRAkxCnlrQdShaibm/rGHHiqrfelqzS1wLbc638
+         cVLQsaIhV68pENM0f69tmtijPn1Fi6J/DaadrFQd7o4xGR/gTIU89mUQt5tnsN7eOJx6
+         QRgRhoJ7fNlcNt/xRC9JDtXBo4qeglVSynZlbj0el8hRIr6oLuj6v+iGeZA3mqHq0MaF
+         PDBApaAfGgKoDMVXPen3ZjFu+YJ0pKO4zsEBuCrw6LihhDZ8okYDE2KqyJcp1K8+Rk6F
+         xXXQVI2/G4T5xSo1CQnqkXJMrsVgl1W6hK1eJgjKdy2lL9VC3q/mjC87rcUCPBpzCKfq
+         chjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=wFcGgrlnInq+98rpZdTRIXveI0p5krEuOABzJSNz1vE=;
-        b=JUVYZzP4yyyRRW3q7H7+iD+H7LOg/LZY3YrcKnZBSFf1D9lzjmy5tvu/2ykyyjWKwy
-         WM/25S81Rk4wiXB4Ktv+9ToXWLo2cHy9xZl8amx0CntM6Y3xFp0C7UNDW6EPG3ir63Su
-         Vjq7N7RhFS6++GNkxqS6+gVsRdzml8XR0TnedMCTG0RsrtbxpQH1YVKD5FBlfsbfeuD5
-         vHEh5zPjgTjFWsRy2aLoyQhL6uw/ysB81zep+Hhsdv3sTzq6giTnMPsO7S0XTDE/Rohe
-         LizkibOL1bGYsmFM2MXzKQgbha9NQ69lw3IXWmAf+aGNs1U00+/cTHFr5+u+lAnzaYeb
-         C5yA==
-X-Gm-Message-State: AFqh2krREZFfmTUxEt7S9usyXu9efNezi3MBQc746fLxe9N3OjlbpQpC
-        SWXDkDZ89ZKpGVewRWQ5hzw=
-X-Google-Smtp-Source: AMrXdXvvk5tMtlkFlL4QSprV6QfqR2bYRvQpuF4tJgaecnG8lmz0yz44H7JTvnKqjINdoXDG2s81hQ==
-X-Received: by 2002:a17:902:ab11:b0:191:33e2:452d with SMTP id ik17-20020a170902ab1100b0019133e2452dmr46100755plb.24.1672871653665;
-        Wed, 04 Jan 2023 14:34:13 -0800 (PST)
-Received: from [192.168.51.14] ([98.51.102.78])
-        by smtp.gmail.com with ESMTPSA id r10-20020a170902c60a00b001869b988d93sm24621987plr.187.2023.01.04.14.34.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Jan 2023 14:34:12 -0800 (PST)
-Message-ID: <32c122e6-d87d-307b-72c8-a0ac74c42602@acm.org>
-Date:   Wed, 4 Jan 2023 14:34:11 -0800
+        h=to:subject:message-id:date:from:references:in-reply-to:reply-to
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=XppnWxwUDd4VKlDQMnttNa0YhBi85GdHW05upV3mZfc=;
+        b=1YRteTiK2QzMPG/nNnQVcQEHclKPUAP2Lo1LvotzUq8BksO0zovdAjCkW70qSqjJSe
+         aMl+GqmPRAq788mtcc6sX16lcOlIyzE5wZS9BAsFcZ9juoPyrDNOI3eZl8UNzPUpXDMZ
+         TdzfT4hnV7oLooRZSuHEjpAhGC2UCYLntUGdvFvzhgHzKfEIfWjB1kqfDp+bsocTI96p
+         Ssf0lps+6PNiZWqtOqCgY96RrLUyvQRiUEXjiQ1+VNzRn/U4SRNluCKWAbALNIlyYE7/
+         hSBCYRJDmOML+15G9htUSOujC5uWrHkIG6CdVsk78Z8B5zZh5DTdtOrBLwG+7eOy+Uhm
+         M15g==
+X-Gm-Message-State: AFqh2kpaJRJ0haxplIb7c4Ft/K+j74kMeK0CSATOF+NkXepEBG6ciRY+
+        k9R9e9GEamT7cypgI8nJ8FR0LsJbuigGPZZTf6I=
+X-Google-Smtp-Source: AMrXdXslGLLlOkPtAHVEZM3AK6rULv95xVo/pVcWGjge6Oz09JrRRdjtHCfBTobP7caAFgKgk3dkmUWboPSAfIYXpiM=
+X-Received: by 2002:a05:6871:68c:b0:150:60e7:8d83 with SMTP id
+ l12-20020a056871068c00b0015060e78d83mr1238945oao.163.1672872296795; Wed, 04
+ Jan 2023 14:44:56 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH] scsi: ufs: core: fix devfreq deadlocks
-Content-Language: en-US
-To:     Avri Altman <Avri.Altman@wdc.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     Alim Akhtar <alim.akhtar@samsung.com>,
-        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Can Guo <quic_cang@quicinc.com>
-References: <20221222102121.18682-1-johan+linaro@kernel.org>
- <85e91255-1e6f-f428-5376-08416d2107a2@acm.org>
- <DM6PR04MB657555DBC49DF54716A98B6DFCF59@DM6PR04MB6575.namprd04.prod.outlook.com>
-From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <DM6PR04MB657555DBC49DF54716A98B6DFCF59@DM6PR04MB6575.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a05:6838:2307:b0:577:153e:6778 with HTTP; Wed, 4 Jan 2023
+ 14:44:56 -0800 (PST)
+Reply-To: lisaarobet@gmail.com
+In-Reply-To: <63b55bf8.050a0220.2b2fc.308b.GMR@mx.google.com>
+References: <CALcNZmGVi_msZ=XLrJ4opKeqNvOk5vpM_0TdvkOYG+GWregYyA@mail.gmail.com>
+ <CALcNZmGVi_msZ=XLrJ4opKeqNvOk5vpM_0TdvkOYG+GWregYyA@mail.gmail.com> <63b55bf8.050a0220.2b2fc.308b.GMR@mx.google.com>
+From:   Lisa <ws6392981@gmail.com>
+Date:   Wed, 4 Jan 2023 22:44:56 +0000
+Message-ID: <CALcNZmFWcqOm3PnYO11xP6o-qUG9kD4PMEfa=2DcKqkE4FfKjA@mail.gmail.com>
+Subject: Re: Delivery Status Notification (Delay)
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=7.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,RCVD_IN_SBL_CSS,
+        SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2001:4860:4864:20:0:0:0:41 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4910]
+        *  3.3 RCVD_IN_SBL_CSS RBL: Received via a relay in Spamhaus SBL-CSS
+        *      [2001:4860:4864:20:0:0:0:41 listed in]
+        [zen.spamhaus.org]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [ws6392981[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [ws6392981[at]gmail.com]
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  2.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/3/23 00:24, Avri Altman wrote:
->   
->> On 12/22/22 02:21, Johan Hovold wrote:
->>> +     /* Enable Write Booster if we have scaled up else disable it */
->>> +     if (ufshcd_enable_wb_if_scaling_up(hba))
->>> +             ufshcd_wb_toggle(hba, scale_up);
->>
->> Hi Asutosh,
->>
->> This patch is the second complaint about the mechanism that toggles the
->> WriteBooster during clock scaling. Can this mechanism be removed entirely?
-> commit 87bd05016a64 that introduced UFSHCD_CAP_WB_WITH_CLK_SCALING enables
-> the platform vendors and OEMs to maintain wb toggling - should they choose so.
-> Why remove it in its entirety?
+Hi,
 
-Hi Avri,
+Just wanted to check in and see if you receive my request?
 
-I'm in favor of keeping kernel code simple :-)
-
-UFSHCD_CAP_WB_WITH_CLK_SCALING controls whether or not clock scaling 
-affects the WriteBooster depending on which host controller is in use. 
-Shouldn't this depend on which UFS device is present instead of on the 
-type of host controller?
-
-Thanks,
-
-Bart.
-
+Thanks
