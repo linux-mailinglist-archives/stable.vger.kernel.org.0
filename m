@@ -2,97 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F8565CAFD
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 01:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4052C65CB66
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 02:27:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231325AbjADAlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 Jan 2023 19:41:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46944 "EHLO
+        id S233814AbjADB1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 Jan 2023 20:27:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234247AbjADAlI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 19:41:08 -0500
-Received: from mail-il1-f170.google.com (mail-il1-f170.google.com [209.85.166.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02839DEE2;
-        Tue,  3 Jan 2023 16:41:06 -0800 (PST)
-Received: by mail-il1-f170.google.com with SMTP id p15so7901647ilg.9;
-        Tue, 03 Jan 2023 16:41:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0OnDnO+Scf4Eq7m34XnPlJQdfz1ctr+/kVqfeVptYbI=;
-        b=w5i8ySdzVVsgf06XsVVyeNABn/Tir0Rm8Slbu+sB7BRWmzfvBbzDQkIPqNluiBcfZy
-         zEVC95qKyXFOd1NrAZAwDTKymca/uCQfbh/RGxQglXfXiSqyhywdCpSDtxiVUXymTQHu
-         geuoazDxRW5bQePlYDl95t3qn3RF6wugt1/EkUEzYRzZidlJz/c332LhcGWMfl4F2Ii3
-         cq9JDUXKRGBAkqTCxUbgm9sTaDiDopI8dD6F6fpfD6p/hhEstLnOut9pAzAVyuYZaScQ
-         bfiIvEWq7TwILcpTwKgo+0coXGUfry1SwM0LGPxtNufvR4uhYWxJzXyhzwETtcqWVAKW
-         KVxQ==
-X-Gm-Message-State: AFqh2kpbWc+47Z+YaW67RD2wT29O8uqDJYHHEI3aap2Df6Wz7DvXwU5U
-        OKwqs3FdKY9p5qlfa2CJ5Al9wvYrdA==
-X-Google-Smtp-Source: AMrXdXucfQ1h0mlf8D9SnrkgUMGn0Nj5EHYHbNmrDg5Q8wfDlDKtKcdBfklctbTUhVENsupZPJe3KA==
-X-Received: by 2002:a92:cf06:0:b0:30c:39e9:7962 with SMTP id c6-20020a92cf06000000b0030c39e97962mr11082284ilo.9.1672792865191;
-        Tue, 03 Jan 2023 16:41:05 -0800 (PST)
-Received: from robh_at_kernel.org ([64.188.179.248])
-        by smtp.gmail.com with ESMTPSA id e22-20020a02cab6000000b003711ce0dc15sm10628564jap.68.2023.01.03.16.41.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Jan 2023 16:41:04 -0800 (PST)
-Received: (nullmailer pid 159624 invoked by uid 1000);
-        Wed, 04 Jan 2023 00:41:03 -0000
-Date:   Tue, 3 Jan 2023 18:41:03 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     andreas@rammhold.de
-Cc:     devicetree@vger.kernel.org, stable@vger.kernel.org,
-        John Crispin <john@phrozen.org>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        Frank Rowand <frowand.list@gmail.com>,
-        linux-kernel@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: Re: [PATCH] of/fdt: run soc memory setup when
- early_init_dt_scan_memory fails
-Message-ID: <167279286226.159538.13769216021607958062.robh@kernel.org>
-References: <20221223112748.2935235-1-andreas@rammhold.de>
+        with ESMTP id S229534AbjADB1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 Jan 2023 20:27:39 -0500
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F52013F28;
+        Tue,  3 Jan 2023 17:27:37 -0800 (PST)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4NmsPS2MRmzRqZJ;
+        Wed,  4 Jan 2023 09:26:04 +0800 (CST)
+Received: from [10.67.110.173] (10.67.110.173) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.34; Wed, 4 Jan 2023 09:27:35 +0800
+Message-ID: <98dd7fd9-6060-b13a-96d4-9be91c477278@huawei.com>
+Date:   Wed, 4 Jan 2023 09:27:35 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221223112748.2935235-1-andreas@rammhold.de>
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,
-        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [PATCH v2 1/2] ima: use the lsm policy update notifier
+Content-Language: en-US
+To:     Mimi Zohar <zohar@linux.ibm.com>, <stable@vger.kernel.org>,
+        <gregkh@linuxfoundation.org>
+CC:     <paul@paul-moore.com>, <linux-integrity@vger.kernel.org>,
+        <luhuaxin1@huawei.com>
+References: <20230103022011.15741-1-guozihua@huawei.com>
+ <20230103022011.15741-2-guozihua@huawei.com>
+ <a93e895499a32160298b19636ab3157c541aee88.camel@linux.ibm.com>
+From:   "Guozihua (Scott)" <guozihua@huawei.com>
+In-Reply-To: <a93e895499a32160298b19636ab3157c541aee88.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.110.173]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm500024.china.huawei.com (7.185.36.203)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-7.3 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2023/1/4 2:50, Mimi Zohar wrote:
+> On Tue, 2023-01-03 at 10:20 +0800, GUO Zihua wrote:
+>> From: Janne Karhunen <janne.karhunen@gmail.com>
+>>
+>> [ Upstream commit b169424551930a9325f700f502802f4d515194e5 ]
+>>
+>> This patch is backported to resolve the issue of IMA ignoreing LSM part of
+>> an LSM based rule. As the LSM notifier chain was an atomic notifier
+>> chain, we'll not be able to call synchronize_rcu() within our notifier
+>> handling function. Instead, we call the call_rcu() function to resolve
+>> the freeing issue. To do that, we would needs to include a rcu_head
+>> member in our rule, as well as wrap the call to ima_lsm_free_rule() into
+>> a rcu_callback_t type callback function.
+>>
+>> Original patch message is as follows:
+>>
+>> commit b169424551930a9325f700f502802f4d515194e5
+>> Author: Janne Karhunen <janne.karhunen@gmail.com>
+>> Date:   Fri Jun 14 15:20:15 2019 +0300
+>>
+>>   Don't do lazy policy updates while running the rule matching,
+>>   run the updates as they happen.
+>>
+>>   Depends on commit f242064c5df3 ("LSM: switch to blocking policy update
+>>                                   notifiers")
+>>
+>>   Signed-off-by: Janne Karhunen <janne.karhunen@gmail.com>
+>>   Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+>>
+>> Cc: stable@vger.kernel.org #4.19.y
+>> Signed-off-by: GUO Zihua <guozihua@huawei.com>
+> 
+> There was quite a bit of discussion regarding converting the atomic
+> notifier to blocking, but this backport doesn't make that change.
+> 
+> Refer to 
+> https://lore.kernel.org/linux-integrity/CAHC9VhS=GsEVUmxtiV64o8G6i2nJpkzxzpyTADgN-vhV8pzZbg@mail.gmail.com/
+Well it seems that the bug mentioned here is still valid on 4.19.y.
+Which is worrying. I'll try backporting the blocking notifier change as
+well.
+> 
+> Mimi
+> 
 
-On Fri, 23 Dec 2022 12:27:47 +0100, andreas@rammhold.de wrote:
-> From: Andreas Rammhold <andreas@rammhold.de>
-> 
-> If memory has been found early_init_dt_scan_memory now returns 1. If
-> it hasn't found any memory it will return 0, allowing other memory
-> setup mechanisms to carry on.
-> 
-> Previously early_init_dt_scan_memory always returned 0 without
-> distinguishing between any kind of memory setup being done or not. Any
-> code path after the early_init_dt_scan memory call in the ramips
-> plat_mem_setup code wouldn't be executed anymore. Making
-> early_init_dt_scan_memory the only way to initialize the memory.
-> 
-> Some boards, including my mt7621 based Cudy X6 board, depend on memory
-> initialization being done via the soc_info.mem_detect function
-> pointer. Those wouldn't be able to obtain memory and panic the kernel
-> during early bootup with the message "early_init_dt_alloc_memory_arch:
-> Failed to allocate 12416 bytes align=0x40".
-> 
-> Fixes: 1f012283e936 ("of/fdt: Rework early_init_dt_scan_memory() to call directly")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Andreas Rammhold <andreas@rammhold.de>
-> ---
->  arch/mips/ralink/of.c | 2 +-
->  drivers/of/fdt.c      | 6 ++++--
->  2 files changed, 5 insertions(+), 3 deletions(-)
-> 
+-- 
+Best
+GUO Zihua
 
-Applied, thanks!
