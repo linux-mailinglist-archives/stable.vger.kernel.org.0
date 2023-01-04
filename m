@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7618165D8D0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA4A65D8ED
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239929AbjADQSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:18:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42120 "EHLO
+        id S239687AbjADQUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:20:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239950AbjADQS3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FECD3D9D3
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:28 -0800 (PST)
+        with ESMTP id S239967AbjADQTq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE08C74A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C93A617A7
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E1CCC433EF;
-        Wed,  4 Jan 2023 16:18:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B26C0B81731
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 138BBC433D2;
+        Wed,  4 Jan 2023 16:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849107;
-        bh=97HiME8cGgVtB8O4l7xmcpEse3tiNYZQ8uavi8nhiko=;
+        s=korg; t=1672849183;
+        bh=03yeJ01VnxS7UaP6UzPjYv65grxSfSIhNPFm3Y77nZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/091ecc0FSGIPWd4WIBMOzPBp2+PWrdzOWRSNTDUktloma0UYjJdhXRD1L+RFAE/
-         Ejv7A/DefLR+mAJ6plC++24E2e2wVSGZdu1UfRf1gWYMW/AUg7DXDwSrp2wjzjAGeC
-         pikWcEIRnA61UXrxUQ/ORglu0XufTZZN/Y/1Ip9M=
+        b=oLd2Tb3JIF70rknYrDv+mLR610/9W8mRtROuAKS4N7Z8jexFoS6EHJC5pTaQmV1mp
+         uRY8afjp+l1MBDmUSiTcXI+9b+KH5oyQ7gCK/RyOKM0kmyiQnlc6i6Rak49qypjYUY
+         uJ/UXn9+AeTPACHxWfLX1PmkPbwXaYD7nxacMW4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.1 112/207] block: mq-deadline: Do not break sequential write streams to zoned HDDs
+        patches@lists.linux.dev, Hyunwoo Kim <imv4bel@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Subject: [PATCH 6.0 079/177] media: dvb-core: Fix UAF due to refcount races at releasing
 Date:   Wed,  4 Jan 2023 17:06:10 +0100
-Message-Id: <20230104160515.446704757@linuxfoundation.org>
+Message-Id: <20230104160510.046338970@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,162 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 015d02f48537cf2d1a65eeac50717566f9db6eec upstream.
+commit fd3d91ab1c6ab0628fe642dd570b56302c30a792 upstream.
 
-mq-deadline ensures an in order dispatching of write requests to zoned
-block devices using a per zone lock (a bit). This implies that for any
-purely sequential write workload, the drive is exercised most of the
-time at a maximum queue depth of one.
+The dvb-core tries to sync the releases of opened files at
+dvb_dmxdev_release() with two refcounts: dvbdev->users and
+dvr_dvbdev->users.  A problem is present in those two syncs: when yet
+another dvb_demux_open() is called during those sync waits,
+dvb_demux_open() continues to process even if the device is being
+closed.  This includes the increment of the former refcount, resulting
+in the leftover refcount after the sync of the latter refcount at
+dvb_dmxdev_release().  It ends up with use-after-free, since the
+function believes that all usages were gone and releases the
+resources.
 
-However, when such sequential write workload crosses a zone boundary
-(when sequentially writing multiple contiguous zones), zone write
-locking may prevent the last write to one zone to be issued (as the
-previous write is still being executed) but allow the first write to the
-following zone to be issued (as that zone is not yet being writen and
-not locked). This result in an out of order delivery of the sequential
-write commands to the device every time a zone boundary is crossed.
+This patch addresses the problem by adding the check of dmxdev->exit
+flag at dvb_demux_open(), just like dvb_dvr_open() already does.  With
+the exit flag check, the second call of dvb_demux_open() fails, hence
+the further corruption can be avoided.
 
-While such behavior does not break the sequential write constraint of
-zoned block devices (and does not generate any write error), some zoned
-hard-disks react badly to seeing these out of order writes, resulting in
-lower write throughput.
+Also for avoiding the races of the dmxdev->exit flag reference, this
+patch serializes the dmxdev->exit set up and the sync waits with the
+dmxdev->mutex lock at dvb_dmxdev_release().  Without the mutex lock,
+dvb_demux_open() (or dvb_dvr_open()) may run concurrently with
+dvb_dmxdev_release(), which allows to skip the exit flag check and
+continue the open process that is being closed.
 
-This problem can be addressed by always dispatching the first request
-of a stream of sequential write requests, regardless of the zones
-targeted by these sequential writes. To do so, the function
-deadline_skip_seq_writes() is introduced and used in
-deadline_next_request() to select the next write command to issue if the
-target device is an HDD (blk_queue_nonrot() being false).
-deadline_fifo_request() is modified using the new
-deadline_earlier_request() and deadline_is_seq_write() helpers to ignore
-requests in the fifo list that have a preceding request in lba order
-that is sequential.
+CVE-2022-41218 is assigned to those bugs above.
 
-With this fix, a sequential write workload executed with the following
-fio command:
-
-fio  --name=seq-write --filename=/dev/sda --zonemode=zbd --direct=1 \
-     --size=68719476736  --ioengine=libaio --iodepth=32 --rw=write \
-     --bs=65536
-
-results in an increase from 225 MB/s to 250 MB/s of the write throughput
-of an SMR HDD (11% increase).
-
+Reported-by: Hyunwoo Kim <imv4bel@gmail.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20221124021208.242541-3-damien.lemoal@opensource.wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/20220908132754.30532-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/mq-deadline.c |   66 ++++++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 62 insertions(+), 4 deletions(-)
+ drivers/media/dvb-core/dmxdev.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -131,6 +131,20 @@ static u8 dd_rq_ioclass(struct request *
- }
+--- a/drivers/media/dvb-core/dmxdev.c
++++ b/drivers/media/dvb-core/dmxdev.c
+@@ -790,6 +790,11 @@ static int dvb_demux_open(struct inode *
+ 	if (mutex_lock_interruptible(&dmxdev->mutex))
+ 		return -ERESTARTSYS;
  
- /*
-+ * get the request before `rq' in sector-sorted order
-+ */
-+static inline struct request *
-+deadline_earlier_request(struct request *rq)
-+{
-+	struct rb_node *node = rb_prev(&rq->rb_node);
-+
-+	if (node)
-+		return rb_entry_rq(node);
-+
-+	return NULL;
-+}
-+
-+/*
-  * get the request after `rq' in sector-sorted order
-  */
- static inline struct request *
-@@ -278,6 +292,39 @@ static inline int deadline_check_fifo(st
- }
- 
- /*
-+ * Check if rq has a sequential request preceding it.
-+ */
-+static bool deadline_is_seq_writes(struct deadline_data *dd, struct request *rq)
-+{
-+	struct request *prev = deadline_earlier_request(rq);
-+
-+	if (!prev)
-+		return false;
-+
-+	return blk_rq_pos(prev) + blk_rq_sectors(prev) == blk_rq_pos(rq);
-+}
-+
-+/*
-+ * Skip all write requests that are sequential from @rq, even if we cross
-+ * a zone boundary.
-+ */
-+static struct request *deadline_skip_seq_writes(struct deadline_data *dd,
-+						struct request *rq)
-+{
-+	sector_t pos = blk_rq_pos(rq);
-+	sector_t skipped_sectors = 0;
-+
-+	while (rq) {
-+		if (blk_rq_pos(rq) != pos + skipped_sectors)
-+			break;
-+		skipped_sectors += blk_rq_sectors(rq);
-+		rq = deadline_latter_request(rq);
++	if (dmxdev->exit) {
++		mutex_unlock(&dmxdev->mutex);
++		return -ENODEV;
 +	}
 +
-+	return rq;
-+}
-+
-+/*
-  * For the specified data direction, return the next request to
-  * dispatch using arrival ordered lists.
-  */
-@@ -297,11 +344,16 @@ deadline_fifo_request(struct deadline_da
- 
- 	/*
- 	 * Look for a write request that can be dispatched, that is one with
--	 * an unlocked target zone.
-+	 * an unlocked target zone. For some HDDs, breaking a sequential
-+	 * write stream can lead to lower throughput, so make sure to preserve
-+	 * sequential write streams, even if that stream crosses into the next
-+	 * zones and these zones are unlocked.
- 	 */
- 	spin_lock_irqsave(&dd->zone_lock, flags);
- 	list_for_each_entry(rq, &per_prio->fifo_list[DD_WRITE], queuelist) {
--		if (blk_req_can_dispatch_to_zone(rq))
-+		if (blk_req_can_dispatch_to_zone(rq) &&
-+		    (blk_queue_nonrot(rq->q) ||
-+		     !deadline_is_seq_writes(dd, rq)))
- 			goto out;
- 	}
- 	rq = NULL;
-@@ -331,13 +383,19 @@ deadline_next_request(struct deadline_da
- 
- 	/*
- 	 * Look for a write request that can be dispatched, that is one with
--	 * an unlocked target zone.
-+	 * an unlocked target zone. For some HDDs, breaking a sequential
-+	 * write stream can lead to lower throughput, so make sure to preserve
-+	 * sequential write streams, even if that stream crosses into the next
-+	 * zones and these zones are unlocked.
- 	 */
- 	spin_lock_irqsave(&dd->zone_lock, flags);
- 	while (rq) {
- 		if (blk_req_can_dispatch_to_zone(rq))
+ 	for (i = 0; i < dmxdev->filternum; i++)
+ 		if (dmxdev->filter[i].state == DMXDEV_STATE_FREE)
  			break;
--		rq = deadline_latter_request(rq);
-+		if (blk_queue_nonrot(rq->q))
-+			rq = deadline_latter_request(rq);
-+		else
-+			rq = deadline_skip_seq_writes(dd, rq);
- 	}
- 	spin_unlock_irqrestore(&dd->zone_lock, flags);
+@@ -1448,7 +1453,10 @@ EXPORT_SYMBOL(dvb_dmxdev_init);
  
+ void dvb_dmxdev_release(struct dmxdev *dmxdev)
+ {
++	mutex_lock(&dmxdev->mutex);
+ 	dmxdev->exit = 1;
++	mutex_unlock(&dmxdev->mutex);
++
+ 	if (dmxdev->dvbdev->users > 1) {
+ 		wait_event(dmxdev->dvbdev->wait_queue,
+ 				dmxdev->dvbdev->users == 1);
 
 
