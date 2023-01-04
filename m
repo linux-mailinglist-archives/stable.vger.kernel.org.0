@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8DB465D3A0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:02:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1007465D3A6
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:03:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234514AbjADNCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:02:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41638 "EHLO
+        id S236983AbjADNDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:03:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239143AbjADNCr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:02:47 -0500
+        with ESMTP id S229739AbjADNCx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:02:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10BE617899
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:02:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE7B6167EF
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:02:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BDFF6B8163A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:02:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11204C433D2;
-        Wed,  4 Jan 2023 13:02:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97422B81642
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:02:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD50AC433D2;
+        Wed,  4 Jan 2023 13:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672837364;
-        bh=OUFOMMkNsKfBxBshutJKGsRIIeKR69fjiwEIJyTyk50=;
+        s=korg; t=1672837370;
+        bh=JkRhGL6aGw5Jxca5g4hLKshiejgd6wjGVPpaks5BSoc=;
         h=Subject:To:Cc:From:Date:From;
-        b=LvU1Cfj8qWr3iFBU3PutS8TfJu3dUZe64d1txmyG45GAJdGrmn6mcSj2FcUVHk93J
-         gOsCl741XxCua2epsXIknjnCmdAVFVJQdorH9xC+4rzFlaTUXZoGFTlEOu3+ToHSsG
-         ty90GKRrbflVcOifTa8sFm9kZETYUEapDyG5V3rs=
-Subject: FAILED: patch "[PATCH] media: s5p-mfc: Clear workbit to handle error condition" failed to apply to 5.10-stable tree
+        b=OxC+JQQtyiEcFTtxEtRLdPvSYnz0hfcv4Xsw6QT7Zo+FRiI0i9jF6Do2TbZqB9NyE
+         QposzYMExkdWA3tDU3Jl0hYIz3MabRaE6jX0DrJjlBiVFrSFrI3EjdvRgbRMIkXZf2
+         ORgpHzRy5YXX1PGHMLDknIn3eQG+y0+UbD44EOZo=
+Subject: FAILED: patch "[PATCH] media: s5p-mfc: Clear workbit to handle error condition" failed to apply to 5.4-stable tree
 To:     smitha.t@samsung.com, hverkuil-cisco@xs4all.nl
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:02:40 +0100
-Message-ID: <167283736054101@kroah.com>
+Date:   Wed, 04 Jan 2023 14:02:46 +0100
+Message-ID: <1672837366918@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
