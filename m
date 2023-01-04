@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2018165D47F
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:39:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BED265D487
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239429AbjADNjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:39:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44362 "EHLO
+        id S239444AbjADNl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:41:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239523AbjADNj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:39:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E408AE32
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:39:09 -0800 (PST)
+        with ESMTP id S239068AbjADNlX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:41:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D76B6192B3
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:41:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E41D61733
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3EFC433F0;
-        Wed,  4 Jan 2023 13:39:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8EA49B815EB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:41:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B397C433F2;
+        Wed,  4 Jan 2023 13:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672839548;
-        bh=fU4+XfA8TyWJ01GNpx1G52j90Kx+8UjEWl1R+NnzRnw=;
+        s=korg; t=1672839674;
+        bh=26LpKU9Oo+ZYd+Z7wZW9AGYk+tnj1jUXaeM+FqQ6C0U=;
         h=Subject:To:Cc:From:Date:From;
-        b=FseP2RGa6X7cuOO5MiaCYN6I6XAcBRojga8Zxpo8ffjyap/xIOYsQB0qDFREHyoyG
-         ZUtEaSR3b6etVeSyrchywbwvOGFJCo3ikEPWUF43aaIwjwGImi8xs1sEPmiujCFJEs
-         3dzYp56cwwj+MVRlBB3WvqVWPa7vW/8MqeNjfTX4=
-Subject: FAILED: patch "[PATCH] dm thin: resume even if in FAIL mode" failed to apply to 4.9-stable tree
-To:     luomeng12@huawei.com, snitzer@kernel.org
+        b=EKJDPp4ZQ0aoD+/KGRzQTe8XqBDiCNe9JKUCxkHhRC84+yOmm2UkJzh6Hv5a+FTei
+         ak4d8DQlgL0xDvH976swhzCb7u02KJRztV1eZkOQJnl0UihMmEe+ZdDrIJiPe97EV+
+         D8tlaHgAx7q6DSioHEKH9co8lx5LGZeC+JKpf05w=
+Subject: FAILED: patch "[PATCH] perf probe: Fix to get the DW_AT_decl_file and" failed to apply to 6.1-stable tree
+To:     mhiramat@kernel.org, acme@redhat.com,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        mark.rutland@arm.com, masami.hiramatsu.pt@hitachi.com,
+        mingo@redhat.com, namhyung@kernel.org, peterz@infradead.org,
+        rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:38:59 +0100
-Message-ID: <167283953911757@kroah.com>
+Date:   Wed, 04 Jan 2023 14:41:11 +0100
+Message-ID: <167283967154133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,14 +51,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-19eb1650afeb ("dm thin: resume even if in FAIL mode")
+a9dfc46c67b5 ("perf probe: Fix to get the DW_AT_decl_file and DW_AT_call_file as unsinged data")
+f828929ab7f0 ("perf probe: Use dwarf_attr_integrate as generic DWARF attr accessor")
 
 thanks,
 
@@ -62,70 +67,85 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 19eb1650afeb1aa86151f61900e9e5f1de5d8d02 Mon Sep 17 00:00:00 2001
-From: Luo Meng <luomeng12@huawei.com>
-Date: Wed, 30 Nov 2022 10:09:45 +0800
-Subject: [PATCH] dm thin: resume even if in FAIL mode
+From a9dfc46c67b52ad43b8e335e28f4cf8002c67793 Mon Sep 17 00:00:00 2001
+From: "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
+Date: Sat, 5 Nov 2022 12:01:14 +0900
+Subject: [PATCH] perf probe: Fix to get the DW_AT_decl_file and
+ DW_AT_call_file as unsinged data
 
-If a thinpool set fail_io while suspending, resume will fail with:
- device-mapper: resume ioctl on vg-thinpool  failed: Invalid argument
+DWARF version 5 standard Sec 2.14 says that
 
-The thin-pool also can't be removed if an in-flight bio is in the
-deferred list.
+  Any debugging information entry representing the declaration of an object,
+  module, subprogram or type may have DW_AT_decl_file, DW_AT_decl_line and
+  DW_AT_decl_column attributes, each of whose value is an unsigned integer
+  constant.
 
-This can be easily reproduced using:
+So it should be an unsigned integer data. Also, even though the standard
+doesn't clearly say the DW_AT_call_file is signed or unsigned, the
+elfutils (eu-readelf) interprets it as unsigned integer data and it is
+natural to handle it as unsigned integer data as same as DW_AT_decl_file.
+This changes the DW_AT_call_file as unsigned integer data too.
 
-  echo "offline" > /sys/block/sda/device/state
-  dd if=/dev/zero of=/dev/mapper/thin bs=4K count=1
-  dmsetup suspend /dev/mapper/pool
-  mkfs.ext4 /dev/mapper/thin
-  dmsetup resume /dev/mapper/pool
-
-The root cause is maybe_resize_data_dev() will check fail_io and return
-error before called dm_resume.
-
-Fix this by adding FAIL mode check at the end of pool_preresume().
-
+Fixes: 3f4460a28fb2f73d ("perf probe: Filter out redundant inline-instances")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Fixes: da105ed5fd7e ("dm thin metadata: introduce dm_pool_abort_metadata")
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/166761727445.480106.3738447577082071942.stgit@devnote3
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-diff --git a/drivers/md/dm-thin.c b/drivers/md/dm-thin.c
-index dc271c107fb5..196f82559ad6 100644
---- a/drivers/md/dm-thin.c
-+++ b/drivers/md/dm-thin.c
-@@ -3542,20 +3542,28 @@ static int pool_preresume(struct dm_target *ti)
- 	 */
- 	r = bind_control_target(pool, ti);
- 	if (r)
--		return r;
-+		goto out;
- 
- 	r = maybe_resize_data_dev(ti, &need_commit1);
- 	if (r)
--		return r;
-+		goto out;
- 
- 	r = maybe_resize_metadata_dev(ti, &need_commit2);
- 	if (r)
--		return r;
-+		goto out;
- 
- 	if (need_commit1 || need_commit2)
- 		(void) commit(pool);
-+out:
-+	/*
-+	 * When a thin-pool is PM_FAIL, it cannot be rebuilt if
-+	 * bio is in deferred list. Therefore need to return 0
-+	 * to allow pool_resume() to flush IO.
-+	 */
-+	if (r && get_pool_mode(pool) == PM_FAIL)
-+		r = 0;
- 
--	return 0;
-+	return r;
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index 30b36b525681..b07414409771 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -315,19 +315,6 @@ static int die_get_attr_udata(Dwarf_Die *tp_die, unsigned int attr_name,
+ 	return 0;
  }
  
- static void pool_suspend_active_thins(struct pool *pool)
+-/* Get attribute and translate it as a sdata */
+-static int die_get_attr_sdata(Dwarf_Die *tp_die, unsigned int attr_name,
+-			      Dwarf_Sword *result)
+-{
+-	Dwarf_Attribute attr;
+-
+-	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
+-	    dwarf_formsdata(&attr, result) != 0)
+-		return -ENOENT;
+-
+-	return 0;
+-}
+-
+ /**
+  * die_is_signed_type - Check whether a type DIE is signed or not
+  * @tp_die: a DIE of a type
+@@ -467,9 +454,9 @@ int die_get_data_member_location(Dwarf_Die *mb_die, Dwarf_Word *offs)
+ /* Get the call file index number in CU DIE */
+ static int die_get_call_fileno(Dwarf_Die *in_die)
+ {
+-	Dwarf_Sword idx;
++	Dwarf_Word idx;
+ 
+-	if (die_get_attr_sdata(in_die, DW_AT_call_file, &idx) == 0)
++	if (die_get_attr_udata(in_die, DW_AT_call_file, &idx) == 0)
+ 		return (int)idx;
+ 	else
+ 		return -ENOENT;
+@@ -478,9 +465,9 @@ static int die_get_call_fileno(Dwarf_Die *in_die)
+ /* Get the declared file index number in CU DIE */
+ static int die_get_decl_fileno(Dwarf_Die *pdie)
+ {
+-	Dwarf_Sword idx;
++	Dwarf_Word idx;
+ 
+-	if (die_get_attr_sdata(pdie, DW_AT_decl_file, &idx) == 0)
++	if (die_get_attr_udata(pdie, DW_AT_decl_file, &idx) == 0)
+ 		return (int)idx;
+ 	else
+ 		return -ENOENT;
 
