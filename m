@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BB5565D827
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:12:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DD7965D89B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:16:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230073AbjADQLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:11:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33350 "EHLO
+        id S232953AbjADQQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:16:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239879AbjADQKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:10:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99FD8C25
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:10:51 -0800 (PST)
+        with ESMTP id S239929AbjADQQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AC6F37535
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:15:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 369DE6178F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:10:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34AA2C433F0;
-        Wed,  4 Jan 2023 16:10:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 357E1B816BF
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:15:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 971C3C433D2;
+        Wed,  4 Jan 2023 16:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848650;
-        bh=p60OPKbFTEb4l2xA/lCBTXtOU9ZdVOKWJFyuH+oZIeY=;
+        s=korg; t=1672848955;
+        bh=HQ2DdUwRTFOmXHOTydP8GQyWnfXm9i/LD1lNXaF7Ikg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dO5FAnD1BydD3fU914DI97EKmNcFkA3XZj0kY5lrQ8lixGthP0TLVS0PrYmi+Gu+a
-         GbrZm3piMqbL7kj1ePDK63zlFtClXX2GOpJ5u9W76XkrgulC1UjJcXqT4PbyOLtmDm
-         Pms4WPls0xVn6VSbFavx9ODIocwr7XN/PfcQ+dRk=
+        b=SKEQi3K+2IECZx1ONng3Ui5UDMdQcuiFBqXoDurqMG3PfADktf6mh7J5s/JFHXo8l
+         tCh9NlpnKY8p78h/AAujcJ53IYXAEDoKtAH5Qyk/lWAirR7zWFojnwpF4zx5ZuZf0E
+         oJwM0WaIJ1/ksKsBwX3G1+5WJb1KCl8/OmSkK4qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Maxim Mikityanskiy <maxtram95@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 050/207] platform/x86: ideapad-laptop: Only toggle ps2 aux port on/off on select models
+        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.0 017/177] drm/amd/pm: update SMU13.0.0 reported maximum shader clock
 Date:   Wed,  4 Jan 2023 17:05:08 +0100
-Message-Id: <20230104160513.504273943@linuxfoundation.org>
+Message-Id: <20230104160508.178956494@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +52,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit c69e7d843d2c34b80b8731a5dc57c34ea04a3edf ]
+commit 7a18e089eff02f17eaee49fc18641f5d16a8284b upstream.
 
-Recently there have been multiple patches to disable the ideapad-laptop's
-touchpad control code, because it is causing issues on various laptops:
+Update the reported maximum shader clock to the value which can
+be guarded to be achieved on all cards. This is to align with
+Window setting.
 
-Commit d69cd7eea93e ("platform/x86: ideapad-laptop: Disable touchpad_switch for ELAN0634")
-Commit a231224a601c ("platform/x86: ideapad-laptop: Disable touchpad_switch")
-
-The turning on/off of the ps2 aux port was added specifically for
-the IdeaPad Z570, where the EC does toggle the touchpad on/off LED and
-toggles the value returned by reading VPCCMD_R_TOUCHPAD, but it does not
-actually turn on/off the touchpad.
-
-The ideapad-laptop code really should not be messing with the i8042
-controller on all devices just for this special case.
-
-Add a new ctrl_ps2_aux_port flag set based on a DMI based allow-list
-for devices which need this workaround, populating it with just
-the Ideapad Z570 for now.
-
-This also adds a module parameter so that this behavior can easily
-be enabled on other models which may need it.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Tested-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Tested-by: Maxim Mikityanskiy <maxtram95@gmail.com>
-Link: https://lore.kernel.org/r/20221117110244.67811-4-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.0.x
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/ideapad-laptop.c | 29 ++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c |   70 ++++++++++++++++++-
+ 1 file changed, 69 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
-index eb0b1ec32c13..1d86fb988d56 100644
---- a/drivers/platform/x86/ideapad-laptop.c
-+++ b/drivers/platform/x86/ideapad-laptop.c
-@@ -143,6 +143,7 @@ struct ideapad_private {
- 		bool hw_rfkill_switch     : 1;
- 		bool kbd_bl               : 1;
- 		bool touchpad_ctrl_via_ec : 1;
-+		bool ctrl_ps2_aux_port    : 1;
- 		bool usb_charging         : 1;
- 	} features;
- 	struct {
-@@ -174,6 +175,12 @@ MODULE_PARM_DESC(set_fn_lock_led,
- 	"Enable driver based updates of the fn-lock LED on fn-lock changes. "
- 	"If you need this please report this to: platform-driver-x86@vger.kernel.org");
- 
-+static bool ctrl_ps2_aux_port;
-+module_param(ctrl_ps2_aux_port, bool, 0444);
-+MODULE_PARM_DESC(ctrl_ps2_aux_port,
-+	"Enable driver based PS/2 aux port en-/dis-abling on touchpad on/off toggle. "
-+	"If you need this please report this to: platform-driver-x86@vger.kernel.org");
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
+@@ -517,6 +517,23 @@ static int smu_v13_0_0_set_default_dpm_t
+ 						     dpm_table);
+ 		if (ret)
+ 			return ret;
 +
- /*
-  * shared data
-  */
-@@ -1507,7 +1514,8 @@ static void ideapad_sync_touchpad_state(struct ideapad_private *priv, bool send_
- 	 * touchpad off and on. We send KEY_TOUCHPAD_OFF and
- 	 * KEY_TOUCHPAD_ON to not to get out of sync with LED
- 	 */
--	i8042_command(&param, value ? I8042_CMD_AUX_ENABLE : I8042_CMD_AUX_DISABLE);
-+	if (priv->features.ctrl_ps2_aux_port)
-+		i8042_command(&param, value ? I8042_CMD_AUX_ENABLE : I8042_CMD_AUX_DISABLE);
++		/*
++		 * Update the reported maximum shader clock to the value
++		 * which can be guarded to be achieved on all cards. This
++		 * is aligned with Window setting. And considering that value
++		 * might be not the peak frequency the card can achieve, it
++		 * is normal some real-time clock frequency can overtake this
++		 * labelled maximum clock frequency(for example in pp_dpm_sclk
++		 * sysfs output).
++		 */
++		if (skutable->DriverReportedClocks.GameClockAc &&
++		    (dpm_table->dpm_levels[dpm_table->count - 1].value >
++		    skutable->DriverReportedClocks.GameClockAc)) {
++			dpm_table->dpm_levels[dpm_table->count - 1].value =
++				skutable->DriverReportedClocks.GameClockAc;
++			dpm_table->max = skutable->DriverReportedClocks.GameClockAc;
++		}
+ 	} else {
+ 		dpm_table->count = 1;
+ 		dpm_table->dpm_levels[0].value = smu->smu_table.boot_values.gfxclk / 100;
+@@ -779,6 +796,57 @@ static int smu_v13_0_0_get_smu_metrics_d
+ 	return ret;
+ }
  
- 	if (send_events) {
- 		ideapad_input_report(priv, value ? 67 : 66);
-@@ -1615,6 +1623,23 @@ static const struct dmi_system_id hw_rfkill_list[] = {
- 	{}
- };
- 
-+/*
-+ * On some models the EC toggles the touchpad muted LED on touchpad toggle
-+ * hotkey presses, but the EC does not actually disable the touchpad itself.
-+ * On these models the driver needs to explicitly enable/disable the i8042
-+ * (PS/2) aux port.
-+ */
-+static const struct dmi_system_id ctrl_ps2_aux_port_list[] = {
-+	{
-+	/* Lenovo Ideapad Z570 */
-+	.matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		DMI_MATCH(DMI_PRODUCT_VERSION, "Ideapad Z570"),
-+		},
-+	},
-+	{}
-+};
++static int smu_v13_0_0_get_dpm_ultimate_freq(struct smu_context *smu,
++					     enum smu_clk_type clk_type,
++					     uint32_t *min,
++					     uint32_t *max)
++{
++	struct smu_13_0_dpm_context *dpm_context =
++		smu->smu_dpm.dpm_context;
++	struct smu_13_0_dpm_table *dpm_table;
 +
- static const struct dmi_system_id no_touchpad_switch_list[] = {
- 	{
- 	.ident = "Lenovo Yoga 3 Pro 1370",
-@@ -1642,6 +1667,8 @@ static void ideapad_check_features(struct ideapad_private *priv)
- 		set_fn_lock_led || dmi_check_system(set_fn_lock_led_list);
- 	priv->features.hw_rfkill_switch =
- 		hw_rfkill_switch || dmi_check_system(hw_rfkill_list);
-+	priv->features.ctrl_ps2_aux_port =
-+		ctrl_ps2_aux_port || dmi_check_system(ctrl_ps2_aux_port_list);
- 
- 	/* Most ideapads with ELAN0634 touchpad don't use EC touchpad switch */
- 	if (acpi_dev_present("ELAN0634", NULL, -1))
--- 
-2.35.1
-
++	switch (clk_type) {
++	case SMU_MCLK:
++	case SMU_UCLK:
++		/* uclk dpm table */
++		dpm_table = &dpm_context->dpm_tables.uclk_table;
++		break;
++	case SMU_GFXCLK:
++	case SMU_SCLK:
++		/* gfxclk dpm table */
++		dpm_table = &dpm_context->dpm_tables.gfx_table;
++		break;
++	case SMU_SOCCLK:
++		/* socclk dpm table */
++		dpm_table = &dpm_context->dpm_tables.soc_table;
++		break;
++	case SMU_FCLK:
++		/* fclk dpm table */
++		dpm_table = &dpm_context->dpm_tables.fclk_table;
++		break;
++	case SMU_VCLK:
++	case SMU_VCLK1:
++		/* vclk dpm table */
++		dpm_table = &dpm_context->dpm_tables.vclk_table;
++		break;
++	case SMU_DCLK:
++	case SMU_DCLK1:
++		/* dclk dpm table */
++		dpm_table = &dpm_context->dpm_tables.dclk_table;
++		break;
++	default:
++		dev_err(smu->adev->dev, "Unsupported clock type!\n");
++		return -EINVAL;
++	}
++
++	if (min)
++		*min = dpm_table->min;
++	if (max)
++		*max = dpm_table->max;
++
++	return 0;
++}
++
+ static int smu_v13_0_0_read_sensor(struct smu_context *smu,
+ 				   enum amd_pp_sensors sensor,
+ 				   void *data,
+@@ -1813,7 +1881,7 @@ static const struct pptable_funcs smu_v1
+ 	.get_enabled_mask = smu_cmn_get_enabled_mask,
+ 	.dpm_set_vcn_enable = smu_v13_0_set_vcn_enable,
+ 	.dpm_set_jpeg_enable = smu_v13_0_set_jpeg_enable,
+-	.get_dpm_ultimate_freq = smu_v13_0_get_dpm_ultimate_freq,
++	.get_dpm_ultimate_freq = smu_v13_0_0_get_dpm_ultimate_freq,
+ 	.get_vbios_bootup_values = smu_v13_0_get_vbios_bootup_values,
+ 	.read_sensor = smu_v13_0_0_read_sensor,
+ 	.feature_is_enabled = smu_cmn_feature_is_enabled,
 
 
