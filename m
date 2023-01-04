@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0995965D319
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:52:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 807C165D31C
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:53:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231795AbjADMw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:52:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34256 "EHLO
+        id S229453AbjADMxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:53:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229453AbjADMwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:52:23 -0500
+        with ESMTP id S232026AbjADMwg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:52:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1EDA1CFD4
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:52:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72D791AD90
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:52:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 662D3B81640
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:52:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99AE6C433F0;
-        Wed,  4 Jan 2023 12:52:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B81FB8162F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:52:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9110C433EF;
+        Wed,  4 Jan 2023 12:52:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836740;
-        bh=M+kKn9N0hToQBgD4EuqcWCPBuMma8ZZQMxSGXvUfMlU=;
+        s=korg; t=1672836752;
+        bh=GeoZ4/9K8mW1ZFn3deqT92m6KSEn0TfdwC/OpE56t9c=;
         h=Subject:To:Cc:From:Date:From;
-        b=cxIaPDseYsuXa3FHip0ExqnxoiUcY6pblW+MoJKitn7lYp+opPBh9SsrzUDWTvn8a
-         PKgdEQrZ5pmdmGjgmxfWfYQk1pKMOiKRM8QAE/rw5klWD3e/tTlA5jWuk9upq7tAwL
-         noZX7VBibVXOhhQCsbyBma2TWGStxwGYhnam6+X8=
-Subject: FAILED: patch "[PATCH] btrfs: fix uninitialized parent in insert_state" failed to apply to 6.0-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com
+        b=A0LltNTCyjAWywTMtj3/SsWkyVH8zdfKryF0BhXDI8K7mVLPcIn+3bDdy06zTZoaQ
+         jEwEa0RdYy8BY5Qh7HPBZ3g6vruxtuUGHwyDnpgVKAoCwBIGXo3nd1c7jMeIlgXoZw
+         MwJQfLpFvqg2IokFK/TQum/z17P2EBYJWkC6bQTo=
+Subject: FAILED: patch "[PATCH] btrfs: replace strncpy() with strscpy()" failed to apply to 6.0-stable tree
+To:     artem.chernyshev@red-soft.ru, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:52:12 +0100
-Message-ID: <16728367328920@kroah.com>
+Date:   Wed, 04 Jan 2023 13:52:26 +0100
+Message-ID: <1672836746147189@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,26 +54,26 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-d7c9e1be2876 ("btrfs: fix uninitialized parent in insert_state")
-04eba8932392 ("btrfs: temporarily export and then move extent state helpers")
-91af24e48474 ("btrfs: temporarily export and move core extent_io_tree tree functions")
-6962541e964f ("btrfs: move btrfs_debug_check_extent_io_range into extent-io-tree.c")
-a66318872c41 ("btrfs: move simple extent bit helpers out of extent_io.c")
-ad795329574c ("btrfs: convert BUG_ON(EXTENT_BIT_LOCKED) checks to ASSERT's")
-83cf709a89fb ("btrfs: move extent state init and alloc functions to their own file")
-c45379a20fbc ("btrfs: temporarily export alloc_extent_state helpers")
-a40246e8afc0 ("btrfs: separate out the eb and extent state leak helpers")
-a62a3bd9546b ("btrfs: separate out the extent state and extent buffer init code")
-87c11705cc94 ("btrfs: convert the io_failure_tree to a plain rb_tree")
-a2061748052c ("btrfs: unexport internal failrec functions")
-0d0a762c419a ("btrfs: rename clean_io_failure and remove extraneous args")
-917f32a23501 ("btrfs: give struct btrfs_bio a real end_io handler")
-f1c2937976be ("btrfs: properly abstract the parity raid bio handling")
-c3a62baf21ad ("btrfs: use chained bios when cloning")
-2bbc72f14f19 ("btrfs: don't take a bio_counter reference for cloned bios")
-6b42f5e3439d ("btrfs: pass the operation to btrfs_bio_alloc")
-d45cfb883b10 ("btrfs: move btrfs_bio allocation to volumes.c")
-1e408af31b4a ("btrfs: don't create integrity bioset for btrfs_bioset")
+63d5429f68a3 ("btrfs: replace strncpy() with strscpy()")
+cb3e217bdb39 ("btrfs: use btrfs_dev_name() helper to handle missing devices better")
+947a629988f1 ("btrfs: move tree block parentness check into validate_extent_buffer()")
+789d6a3a876e ("btrfs: concentrate all tree block parentness check parameters into one structure")
+ab2072b2921e ("btrfs: change how submit bio callback is passed to btrfs_wq_submit_bio")
+7920b773bd8a ("btrfs: drop parameter compression_type from btrfs_submit_dio_repair_bio")
+19af6a7d345a ("btrfs: change how repair action is passed to btrfs_repair_one_sector")
+a2c8d27e5ee8 ("btrfs: use a structure to pass arguments to backref walking functions")
+6ce6ba534418 ("btrfs: use a single argument for extent offset in backref walking functions")
+22a3c0ac8ed0 ("btrfs: send: avoid unnecessary backref lookups when finding clone source")
+2885fd632050 ("btrfs: move inode prototypes to btrfs_inode.h")
+b31bed170d52 ("btrfs: move btrfs_chunk_item_size out of ctree.h")
+911bd75aca73 ("btrfs: remove unused function prototypes")
+a56159d4080b ("btrfs: move btrfs_fs_info declarations into fs.h")
+6db75318823a ("btrfs: use struct fscrypt_str instead of struct qstr")
+ab3c5c18e8fa ("btrfs: setup qstr from dentrys using fscrypt helper")
+e43eec81c516 ("btrfs: use struct qstr instead of name and namelen pairs")
+e9c83077d2be ("btrfs: remove temporary btrfs_map_token declaration in ctree.h")
+ad1ac5012c2b ("btrfs: move btrfs_map_token to accessors")
+d83eb482b727 ("btrfs: move the compat/incompat flag masks to fs.h")
 
 thanks,
 
@@ -81,37 +81,57 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d7c9e1be2876f63fb2178a24e0c1d5733ff98d47 Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Fri, 18 Nov 2022 15:06:09 -0500
-Subject: [PATCH] btrfs: fix uninitialized parent in insert_state
+From 63d5429f68a3d4c4aa27e65a05196c17f86c41d6 Mon Sep 17 00:00:00 2001
+From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Date: Sat, 19 Nov 2022 11:13:29 +0300
+Subject: [PATCH] btrfs: replace strncpy() with strscpy()
 
-I don't know how this isn't caught when we build this in the kernel, but
-while syncing extent-io-tree.c into btrfs-progs I got an error because
-parent could potentially be uninitialized when we link in a new node,
-specifically when the extent_io_tree is empty.  This means we could have
-garbage in the parent color.  I don't know what the ramifications are of
-that, but it's probably not great, so fix this by initializing parent to
-NULL.  I spot checked all of our other usages in btrfs and we appear to
-be doing the correct thing everywhere else.
+Using strncpy() on NUL-terminated strings are deprecated.  To avoid
+possible forming of non-terminated string strscpy() should be used.
 
-Fixes: c7e118cf98c7 ("btrfs: open code rbtree search in insert_state")
-CC: stable@vger.kernel.org # 6.0+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/extent-io-tree.c b/fs/btrfs/extent-io-tree.c
-index 21fa15123af8..82ca6a11e11a 100644
---- a/fs/btrfs/extent-io-tree.c
-+++ b/fs/btrfs/extent-io-tree.c
-@@ -395,7 +395,7 @@ static int insert_state(struct extent_io_tree *tree,
- 			u32 bits, struct extent_changeset *changeset)
- {
- 	struct rb_node **node;
--	struct rb_node *parent;
-+	struct rb_node *parent = NULL;
- 	const u64 end = state->end;
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index bed74a3ff574..4fd6b61b06a4 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -2859,13 +2859,10 @@ static long btrfs_ioctl_dev_info(struct btrfs_fs_info *fs_info,
+ 	di_args->bytes_used = btrfs_device_get_bytes_used(dev);
+ 	di_args->total_bytes = btrfs_device_get_total_bytes(dev);
+ 	memcpy(di_args->uuid, dev->uuid, sizeof(di_args->uuid));
+-	if (dev->name) {
+-		strncpy(di_args->path, btrfs_dev_name(dev),
+-				sizeof(di_args->path) - 1);
+-		di_args->path[sizeof(di_args->path) - 1] = 0;
+-	} else {
++	if (dev->name)
++		strscpy(di_args->path, btrfs_dev_name(dev), sizeof(di_args->path));
++	else
+ 		di_args->path[0] = '\0';
+-	}
  
- 	set_state_bits(tree, state, bits, changeset);
+ out:
+ 	rcu_read_unlock();
+diff --git a/fs/btrfs/rcu-string.h b/fs/btrfs/rcu-string.h
+index 5c1a617eb25d..5c2b66d155ef 100644
+--- a/fs/btrfs/rcu-string.h
++++ b/fs/btrfs/rcu-string.h
+@@ -18,7 +18,11 @@ static inline struct rcu_string *rcu_string_strdup(const char *src, gfp_t mask)
+ 					 (len * sizeof(char)), mask);
+ 	if (!ret)
+ 		return ret;
+-	strncpy(ret->str, src, len);
++	/* Warn if the source got unexpectedly truncated. */
++	if (WARN_ON(strscpy(ret->str, src, len) < 0)) {
++		kfree(ret);
++		return NULL;
++	}
+ 	return ret;
+ }
+ 
 
