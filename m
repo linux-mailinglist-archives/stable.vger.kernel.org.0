@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C67865D95B
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C76F65D9C1
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:29:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232953AbjADQYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:24:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48008 "EHLO
+        id S235259AbjADQ2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:28:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239737AbjADQX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:23:59 -0500
+        with ESMTP id S239983AbjADQ2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A55A343184
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20D1A43A3D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17F17617AF
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A915C433D2;
-        Wed,  4 Jan 2023 16:23:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 612EC617AA
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:27:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B01DC433EF;
+        Wed,  4 Jan 2023 16:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849395;
-        bh=4z9QWv2MjcuHl8eSB1kslKXNZejg2LSV6Fq6XEKfJ2k=;
+        s=korg; t=1672849656;
+        bh=SAupEB1FmNWJ/isAsCRa7NcQvTlYYwmPCaNF76qzS54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5389rlLzEhBmURkCDL4vmH/6PLo9lo59tuMLZyX+6tzZbx9IhU1tJ6PCy1fN6q2v
-         vZL5vf88aPlodD6zU+rgDhNEjdfASymmhoskbJz+CTlYd+Y0/sIcMqMXwlLqGWgVBA
-         d2I9SVp+cenpYChPj+Hn+JJ0i3IYTgnkZdgDtVg0=
+        b=EcmI9da4hpLe5tYO2A8Iy5saeKARuMobespt2wOpUZjrPub6zXS6RxPh/VnpS61wi
+         0TVjlkLYChnQaHFjwAkEgZXrJCYGv29kcZjH5w10nTfzyZY6XAjEpfdUUtpOtHhHMe
+         75WEgWdOJH2dI2qGUnNfdje5fylhJzF1g5VB/Vho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev,
+        syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.1 181/207] ext4: fix off-by-one errors in fast-commit block filling
+Subject: [PATCH 6.0 148/177] ext4: dont set up encryption key during jbd2 transaction
 Date:   Wed,  4 Jan 2023 17:07:19 +0100
-Message-Id: <20230104160517.621796783@linuxfoundation.org>
+Message-Id: <20230104160512.143786027@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,164 +56,156 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 48a6a66db82b8043d298a630f22c62d43550cae5 upstream.
+commit 4c0d5778385cb3618ff26a561ce41de2b7d9de70 upstream.
 
-Due to several different off-by-one errors, or perhaps due to a late
-change in design that wasn't fully reflected in the code that was
-actually merged, there are several very strange constraints on how
-fast-commit blocks are filled with tlv entries:
+Commit a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
+extended the scope of the transaction in ext4_unlink() too far, making
+it include the call to ext4_find_entry().  However, ext4_find_entry()
+can deadlock when called from within a transaction because it may need
+to set up the directory's encryption key.
 
-- tlvs must start at least 10 bytes before the end of the block, even
-  though the minimum tlv length is 8.  Otherwise, the replay code will
-  ignore them.  (BUG: ext4_fc_reserve_space() could violate this
-  requirement if called with a len of blocksize - 9 or blocksize - 8.
-  Fortunately, this doesn't seem to happen currently.)
+Fix this by restoring the transaction to its original scope.
 
-- tlvs must end at least 1 byte before the end of the block.  Otherwise
-  the replay code will consider them to be invalid.  This quirk
-  contributed to a bug (fixed by an earlier commit) where uninitialized
-  memory was being leaked to disk in the last byte of blocks.
-
-Also, strangely these constraints don't apply to the replay code in
-e2fsprogs, which will accept any tlvs in the blocks (with no bounds
-checks at all, but that is a separate issue...).
-
-Given that this all seems to be a bug, let's fix it by just filling
-blocks with tlv entries in the natural way.
-
-Note that old kernels will be unable to replay fast-commit journals
-created by kernels that have this commit.
-
-Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Reported-by: syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com
+Fixes: a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
 Cc: <stable@vger.kernel.org> # v5.10+
 Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221106224841.279231-7-ebiggers@kernel.org
+Link: https://lore.kernel.org/r/20221106224841.279231-3-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |   66 +++++++++++++++++++++++++-------------------------
- 1 file changed, 33 insertions(+), 33 deletions(-)
+ fs/ext4/ext4.h        |    4 ++--
+ fs/ext4/fast_commit.c |    2 +-
+ fs/ext4/namei.c       |   44 ++++++++++++++++++++++++--------------------
+ 3 files changed, 27 insertions(+), 23 deletions(-)
 
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -3622,8 +3622,8 @@ extern void ext4_initialize_dirent_tail(
+ 					unsigned int blocksize);
+ extern int ext4_handle_dirty_dirblock(handle_t *handle, struct inode *inode,
+ 				      struct buffer_head *bh);
+-extern int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
+-			 struct inode *inode);
++extern int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
++			 struct inode *inode, struct dentry *dentry);
+ extern int __ext4_link(struct inode *dir, struct inode *inode,
+ 		       struct dentry *dentry);
+ 
 --- a/fs/ext4/fast_commit.c
 +++ b/fs/ext4/fast_commit.c
-@@ -714,43 +714,43 @@ static u8 *ext4_fc_reserve_space(struct
- 	struct buffer_head *bh;
- 	int bsize = sbi->s_journal->j_blocksize;
- 	int ret, off = sbi->s_fc_bytes % bsize;
--	int pad_len;
-+	int remaining;
- 	u8 *dst;
- 
- 	/*
--	 * After allocating len, we should have space at least for a 0 byte
--	 * padding.
-+	 * If 'len' is too long to fit in any block alongside a PAD tlv, then we
-+	 * cannot fulfill the request.
- 	 */
--	if (len + EXT4_FC_TAG_BASE_LEN > bsize)
-+	if (len > bsize - EXT4_FC_TAG_BASE_LEN)
- 		return NULL;
- 
--	if (bsize - off - 1 > len + EXT4_FC_TAG_BASE_LEN) {
--		/*
--		 * Only allocate from current buffer if we have enough space for
--		 * this request AND we have space to add a zero byte padding.
--		 */
--		if (!sbi->s_fc_bh) {
--			ret = jbd2_fc_get_buf(EXT4_SB(sb)->s_journal, &bh);
--			if (ret)
--				return NULL;
--			sbi->s_fc_bh = bh;
--		}
--		sbi->s_fc_bytes += len;
--		return sbi->s_fc_bh->b_data + off;
-+	if (!sbi->s_fc_bh) {
-+		ret = jbd2_fc_get_buf(EXT4_SB(sb)->s_journal, &bh);
-+		if (ret)
-+			return NULL;
-+		sbi->s_fc_bh = bh;
+@@ -1410,7 +1410,7 @@ static int ext4_fc_replay_unlink(struct
+ 		return 0;
  	}
--	/* Need to add PAD tag */
- 	dst = sbi->s_fc_bh->b_data + off;
-+
-+	/*
-+	 * Allocate the bytes in the current block if we can do so while still
-+	 * leaving enough space for a PAD tlv.
-+	 */
-+	remaining = bsize - EXT4_FC_TAG_BASE_LEN - off;
-+	if (len <= remaining) {
-+		sbi->s_fc_bytes += len;
-+		return dst;
-+	}
-+
-+	/*
-+	 * Else, terminate the current block with a PAD tlv, then allocate a new
-+	 * block and allocate the bytes at the start of that new block.
-+	 */
-+
- 	tl.fc_tag = cpu_to_le16(EXT4_FC_TAG_PAD);
--	pad_len = bsize - off - 1 - EXT4_FC_TAG_BASE_LEN;
--	tl.fc_len = cpu_to_le16(pad_len);
-+	tl.fc_len = cpu_to_le16(remaining);
- 	ext4_fc_memcpy(sb, dst, &tl, EXT4_FC_TAG_BASE_LEN, crc);
--	dst += EXT4_FC_TAG_BASE_LEN;
--	if (pad_len > 0) {
--		ext4_fc_memzero(sb, dst, pad_len, crc);
--		dst += pad_len;
--	}
--	/* Don't leak uninitialized memory in the unused last byte. */
--	*dst = 0;
-+	ext4_fc_memzero(sb, dst + EXT4_FC_TAG_BASE_LEN, remaining, crc);
  
- 	ext4_fc_submit_bh(sb, false);
- 
-@@ -758,7 +758,7 @@ static u8 *ext4_fc_reserve_space(struct
- 	if (ret)
- 		return NULL;
- 	sbi->s_fc_bh = bh;
--	sbi->s_fc_bytes = (sbi->s_fc_bytes / bsize + 1) * bsize + len;
-+	sbi->s_fc_bytes += bsize - off + len;
- 	return sbi->s_fc_bh->b_data;
+-	ret = __ext4_unlink(NULL, old_parent, &entry, inode);
++	ret = __ext4_unlink(old_parent, &entry, inode, NULL);
+ 	/* -ENOENT ok coz it might not exist anymore. */
+ 	if (ret == -ENOENT)
+ 		ret = 0;
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3204,14 +3204,20 @@ end_rmdir:
+ 	return retval;
  }
  
-@@ -789,7 +789,7 @@ static int ext4_fc_write_tail(struct sup
- 	off = sbi->s_fc_bytes % bsize;
+-int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
+-		  struct inode *inode)
++int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
++		  struct inode *inode,
++		  struct dentry *dentry /* NULL during fast_commit recovery */)
+ {
+ 	int retval = -ENOENT;
+ 	struct buffer_head *bh;
+ 	struct ext4_dir_entry_2 *de;
++	handle_t *handle;
+ 	int skip_remove_dentry = 0;
  
- 	tl.fc_tag = cpu_to_le16(EXT4_FC_TAG_TAIL);
--	tl.fc_len = cpu_to_le16(bsize - off - 1 + sizeof(struct ext4_fc_tail));
-+	tl.fc_len = cpu_to_le16(bsize - off + sizeof(struct ext4_fc_tail));
- 	sbi->s_fc_bytes = round_up(sbi->s_fc_bytes, bsize);
- 
- 	ext4_fc_memcpy(sb, dst, &tl, EXT4_FC_TAG_BASE_LEN, &crc);
-@@ -2056,7 +2056,7 @@ static int ext4_fc_replay_scan(journal_t
- 	state = &sbi->s_fc_replay_state;
- 
- 	start = (u8 *)bh->b_data;
--	end = (__u8 *)bh->b_data + journal->j_blocksize - 1;
-+	end = start + journal->j_blocksize;
- 
- 	if (state->fc_replay_expected_off == 0) {
- 		state->fc_cur_tag = 0;
-@@ -2077,7 +2077,7 @@ static int ext4_fc_replay_scan(journal_t
++	/*
++	 * Keep this outside the transaction; it may have to set up the
++	 * directory's encryption key, which isn't GFP_NOFS-safe.
++	 */
+ 	bh = ext4_find_entry(dir, d_name, &de, NULL);
+ 	if (IS_ERR(bh))
+ 		return PTR_ERR(bh);
+@@ -3228,7 +3234,14 @@ int __ext4_unlink(handle_t *handle, stru
+ 		if (EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY)
+ 			skip_remove_dentry = 1;
+ 		else
+-			goto out;
++			goto out_bh;
++	}
++
++	handle = ext4_journal_start(dir, EXT4_HT_DIR,
++				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
++	if (IS_ERR(handle)) {
++		retval = PTR_ERR(handle);
++		goto out_bh;
  	}
  
- 	state->fc_replay_expected_off++;
--	for (cur = start; cur < end - EXT4_FC_TAG_BASE_LEN;
-+	for (cur = start; cur <= end - EXT4_FC_TAG_BASE_LEN;
- 	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
- 		ext4_fc_get_tl(&tl, cur);
- 		val = cur + EXT4_FC_TAG_BASE_LEN;
-@@ -2195,9 +2195,9 @@ static int ext4_fc_replay(journal_t *jou
+ 	if (IS_DIRSYNC(dir))
+@@ -3237,12 +3250,12 @@ int __ext4_unlink(handle_t *handle, stru
+ 	if (!skip_remove_dentry) {
+ 		retval = ext4_delete_entry(handle, dir, de, bh);
+ 		if (retval)
+-			goto out;
++			goto out_handle;
+ 		dir->i_ctime = dir->i_mtime = current_time(dir);
+ 		ext4_update_dx_flag(dir);
+ 		retval = ext4_mark_inode_dirty(handle, dir);
+ 		if (retval)
+-			goto out;
++			goto out_handle;
+ 	} else {
+ 		retval = 0;
+ 	}
+@@ -3255,15 +3268,17 @@ int __ext4_unlink(handle_t *handle, stru
+ 		ext4_orphan_add(handle, inode);
+ 	inode->i_ctime = current_time(inode);
+ 	retval = ext4_mark_inode_dirty(handle, inode);
+-
+-out:
++	if (dentry && !retval)
++		ext4_fc_track_unlink(handle, dentry);
++out_handle:
++	ext4_journal_stop(handle);
++out_bh:
+ 	brelse(bh);
+ 	return retval;
+ }
+ 
+ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
+ {
+-	handle_t *handle;
+ 	int retval;
+ 
+ 	if (unlikely(ext4_forced_shutdown(EXT4_SB(dir->i_sb))))
+@@ -3281,16 +3296,7 @@ static int ext4_unlink(struct inode *dir
+ 	if (retval)
+ 		goto out_trace;
+ 
+-	handle = ext4_journal_start(dir, EXT4_HT_DIR,
+-				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
+-	if (IS_ERR(handle)) {
+-		retval = PTR_ERR(handle);
+-		goto out_trace;
+-	}
+-
+-	retval = __ext4_unlink(handle, dir, &dentry->d_name, d_inode(dentry));
+-	if (!retval)
+-		ext4_fc_track_unlink(handle, dentry);
++	retval = __ext4_unlink(dir, &dentry->d_name, d_inode(dentry), dentry);
+ #if IS_ENABLED(CONFIG_UNICODE)
+ 	/* VFS negative dentries are incompatible with Encoding and
+ 	 * Case-insensitiveness. Eventually we'll want avoid
+@@ -3301,8 +3307,6 @@ static int ext4_unlink(struct inode *dir
+ 	if (IS_CASEFOLDED(dir))
+ 		d_invalidate(dentry);
  #endif
+-	if (handle)
+-		ext4_journal_stop(handle);
  
- 	start = (u8 *)bh->b_data;
--	end = (__u8 *)bh->b_data + journal->j_blocksize - 1;
-+	end = start + journal->j_blocksize;
- 
--	for (cur = start; cur < end - EXT4_FC_TAG_BASE_LEN;
-+	for (cur = start; cur <= end - EXT4_FC_TAG_BASE_LEN;
- 	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
- 		ext4_fc_get_tl(&tl, cur);
- 		val = cur + EXT4_FC_TAG_BASE_LEN;
+ out_trace:
+ 	trace_ext4_unlink_exit(dentry, retval);
 
 
