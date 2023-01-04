@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D257A65D998
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 994EC65D942
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239593AbjADQ03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50462 "EHLO
+        id S239663AbjADQWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:22:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239815AbjADQ0C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06B68DF41
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:01 -0800 (PST)
+        with ESMTP id S235348AbjADQWi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:22:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A59E91C107
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:22:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9FB8B81722
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:25:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED927C433D2;
-        Wed,  4 Jan 2023 16:25:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5904BB81733
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:22:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16D7C433EF;
+        Wed,  4 Jan 2023 16:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849558;
-        bh=YXsvVkbz4VetYhwqccxBJRYFNckHVXQjcLQThVKAgvw=;
+        s=korg; t=1672849355;
+        bh=eQUw//YQ2mPxPP/kOf1ekHVOmhMfEWJqpHePVMxDQ3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=06KkqL7eLXbTU82BRf6CHa5Q0xUXlb6DoxqlnOoARV1L/VFnnLoTrxzZar0YnDRvD
-         cMreRXXQSzBJ7eNKFh+OYxZ3xtZ/iYK6WkVQJ6wT5OLGcPp6FOCQwqSMgpbFfEDwsg
-         KRa3KCiLLWgbt1yHdfGF+6L453CwGJAoUQYiqs7U=
+        b=pmcIHS6Jd0gCTCVLQIjEjteERv/nicePYmdUSF2JeGDWf3TScEvCJ1HmzYX6ANKsQ
+         QfJVcrdkGoPeEzoep9/nbUMImtF1rpQXCTOkih1Wp4gNvFOkYT70i0fG9yhJMT/xGH
+         U+UM45IPFH5ERDiETpN676hEUpG/4ZEdN0LdDwh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com,
-        Ye Bin <yebin10@huawei.com>, Eric Whitney <enwlinux@gmail.com>,
+        syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
         Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.0 141/177] ext4: fix reserved cluster accounting in __es_remove_extent()
-Date:   Wed,  4 Jan 2023 17:07:12 +0100
-Message-Id: <20230104160511.918074655@linuxfoundation.org>
+Subject: [PATCH 6.1 175/207] ext4: dont allow journal inode to have encrypt flag
+Date:   Wed,  4 Jan 2023 17:07:13 +0100
+Message-Id: <20230104160517.415207063@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 1da18e38cb97e9521e93d63034521a9649524f64 upstream.
+commit 105c78e12468413e426625831faa7db4284e1fec upstream.
 
-When bigalloc is enabled, reserved cluster accounting for delayed
-allocation is handled in extent_status.c.  With a corrupted file
-system, it's possible for this accounting to be incorrect,
-dsicovered by Syzbot:
+Mounting a filesystem whose journal inode has the encrypt flag causes a
+NULL dereference in fscrypt_limit_io_blocks() when the 'inlinecrypt'
+mount option is used.
 
-EXT4-fs error (device loop0): ext4_validate_block_bitmap:398: comm rep:
-	bg 0: block 5: invalid block bitmap
-EXT4-fs (loop0): Delayed block allocation failed for inode 18 at logical
-	offset 0 with max blocks 32 with error 28
-EXT4-fs (loop0): This should not happen!! Data will be lost
+The problem is that when jbd2_journal_init_inode() calls bmap(), it
+eventually finds its way into ext4_iomap_begin(), which calls
+fscrypt_limit_io_blocks().  fscrypt_limit_io_blocks() requires that if
+the inode is encrypted, then its encryption key must already be set up.
+That's not the case here, since the journal inode is never "opened" like
+a normal file would be.  Hence the crash.
 
-EXT4-fs (loop0): Total free blocks count 0
-EXT4-fs (loop0): Free/Dirty block details
-EXT4-fs (loop0): free_blocks=0
-EXT4-fs (loop0): dirty_blocks=32
-EXT4-fs (loop0): Block reservation details
-EXT4-fs (loop0): i_reserved_data_blocks=2
-EXT4-fs (loop0): Inode 18 (00000000845cd634):
-	i_reserved_data_blocks (1) not cleared!
+A reproducer is:
 
-Above issue happens as follows:
-Assume:
-sbi->s_cluster_ratio = 16
-Step1:
-Insert delay block [0, 31] -> ei->i_reserved_data_blocks=2
-Step2:
-ext4_writepages
-  mpage_map_and_submit_extent -> return failed
-  mpage_release_unused_pages -> to release [0, 30]
-    ext4_es_remove_extent -> remove lblk=0 end=30
-      __es_remove_extent -> len1=0 len2=31-30=1
- __es_remove_extent:
- ...
- if (len2 > 0) {
-  ...
-	  if (len1 > 0) {
-		  ...
-	  } else {
-		es->es_lblk = end + 1;
-		es->es_len = len2;
-		...
-	  }
-  	if (count_reserved)
-		count_rsvd(inode, lblk, ...);
-	goto out; -> will return but didn't calculate 'reserved'
- ...
-Step3:
-ext4_destroy_inode -> trigger "i_reserved_data_blocks (1) not cleared!"
+    mkfs.ext4 -F /dev/vdb
+    debugfs -w /dev/vdb -R "set_inode_field <8> flags 0x80808"
+    mount /dev/vdb /mnt -o inlinecrypt
 
-To solve above issue if 'len2>0' call 'get_rsvd()' before goto out.
+To fix this, make ext4 consider journal inodes with the encrypt flag to
+be invalid.  (Note, maybe other flags should be rejected on the journal
+inode too.  For now, this is just the minimal fix for the above issue.)
 
-Reported-by: syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com
-Fixes: 8fcc3a580651 ("ext4: rework reserved cluster accounting when invalidating pages")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Eric Whitney <enwlinux@gmail.com>
-Link: https://lore.kernel.org/r/20221208033426.1832460-2-yebin@huaweicloud.com
+I've marked this as fixing the commit that introduced the call to
+fscrypt_limit_io_blocks(), since that's what made an actual crash start
+being possible.  But this fix could be applied to any version of ext4
+that supports the encrypt feature.
+
+Reported-by: syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com
+Fixes: 38ea50daa7a4 ("ext4: support direct I/O with fscrypt using blk-crypto")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221102053312.189962-1-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents_status.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ext4/super.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/extents_status.c
-+++ b/fs/ext4/extents_status.c
-@@ -1372,7 +1372,7 @@ retry:
- 		if (count_reserved)
- 			count_rsvd(inode, lblk, orig_es.es_len - len1 - len2,
- 				   &orig_es, &rc);
--		goto out;
-+		goto out_get_reserved;
- 	}
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5724,7 +5724,7 @@ static struct inode *ext4_get_journal_in
  
- 	if (len1 > 0) {
-@@ -1414,6 +1414,7 @@ retry:
- 		}
- 	}
- 
-+out_get_reserved:
- 	if (count_reserved)
- 		*reserved = get_rsvd(inode, end, es, &rc);
- out:
+ 	ext4_debug("Journal inode found at %p: %lld bytes\n",
+ 		  journal_inode, journal_inode->i_size);
+-	if (!S_ISREG(journal_inode->i_mode)) {
++	if (!S_ISREG(journal_inode->i_mode) || IS_ENCRYPTED(journal_inode)) {
+ 		ext4_msg(sb, KERN_ERR, "invalid journal inode");
+ 		iput(journal_inode);
+ 		return NULL;
 
 
