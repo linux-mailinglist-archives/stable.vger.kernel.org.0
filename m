@@ -2,97 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 225D665D78B
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:50:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA19465D7C7
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230242AbjADPuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:50:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46392 "EHLO
+        id S229582AbjADQCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:02:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239739AbjADPuM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:50:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2799C395DC
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:50:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D360BB816A4
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28FF5C433F0;
-        Wed,  4 Jan 2023 15:50:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672847409;
-        bh=0DCHuhocC+o27kqZ8Lb3f1es38jtattsGNAnVCUV280=;
-        h=Subject:To:Cc:From:Date:From;
-        b=OsyVGMm2cj+7p10K3LpPWsgJkO1GUAq1e57RWW5O8E/wToFaFcsbxAW1QPdA8lZgc
-         2cSmaax2MoVubas7l6gblpRi24EngnH/L5zQjxsvEBsdPG0Y/NmPXXILrzL6Og8WH3
-         oQ5/WP+U2bzoc80SgwpiJi9EiQqRIFKrh4Bb8r/c=
-Subject: FAILED: patch "[PATCH] drm/amd/pm: enable GPO dynamic control support for SMU13.0.7" failed to apply to 6.1-stable tree
-To:     evan.quan@amd.com, alexander.deucher@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:49:27 +0100
-Message-ID: <1672847367163242@kroah.com>
+        with ESMTP id S234907AbjADQCf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:02:35 -0500
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8231B9
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:02:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1672848153; x=1704384153;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=JhV81kMA/G8bwiJIDO3RUAdAC3yJX6bX7Gs4inpBBVk=;
+  b=SCyI97QqG3f8joL60oshM2DuJMTSyIQ7NdP/RzLb3fW9WC2Ni2eDt7Uh
+   igNvyCiPQ65Kjk03yN5hMhNdAWpWJcVjQqEWigcDXnDKjuoscruV4/EGG
+   lYczKopzF8mk4Fry845pWy/apvzEZ/Mow6FR7k9xLUc9watYfIWhYL/G1
+   PRBHfzXnj7PtCdvXuxjExp/hVfVHSbyNIg3D/CHXYj6xqx75P9wQ3rZjZ
+   Mr6ERzxQramBX9fNCVel7loZ5nJMXylxAmAs3w4UnpJkIEfleusEgjczE
+   Qr6ADTrvKGTjr0f+DTYd92Cd4tqdoIuvANL5KxVYgDPEAVZiHS0oIvhvb
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10580"; a="384258625"
+X-IronPort-AV: E=Sophos;i="5.96,300,1665471600"; 
+   d="scan'208";a="384258625"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2023 08:02:14 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10580"; a="687570089"
+X-IronPort-AV: E=Sophos;i="5.96,300,1665471600"; 
+   d="scan'208";a="687570089"
+Received: from atroka-mobl.ger.corp.intel.com (HELO jkrzyszt-mobl1.ger.corp.intel.com) ([10.213.19.88])
+  by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jan 2023 08:02:13 -0800
+From:   Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+To:     andrzej.hajda@intel.com, rodrigo.vivi@intel.com,
+        tvrtko.ursulin@intel.com, gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org,
+        Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+Subject: Re: FAILED: patch "[PATCH] drm/i915: Never return 0 if not all requests retired" failed to apply to 5.10-stable tree
+Date:   Wed, 04 Jan 2023 17:02:10 +0100
+Message-ID: <13175047.uLZWGnKmhe@jkrzyszt-mobl1.ger.corp.intel.com>
+Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173, 80-298 Gdansk - KRS 101882 - NIP 957-07-52-316
+In-Reply-To: <16728431552714@kroah.com>
+References: <16728431552714@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-The patch below does not apply to the 6.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Wednesday, 4 January 2023 15:39:15 CET gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.10-stable tree.
 
-Possible dependencies:
+FYI, I can see it already added to v5.10.158, commit 
+648b92e5760721fbf230e242950182d7e9222143.  The same for other stable trees 
+as well as my other fixes for which I received such failure reports from you 
+today.
 
-62b9f835a6c6 ("drm/amd/pm: enable GPO dynamic control support for SMU13.0.7")
+Thanks,
+Janusz
 
-thanks,
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> Possible dependencies:
+> 
+> 35aba5f51a39 ("drm/i915: Never return 0 if not all requests retired")
+> b97060a99b01 ("drm/i915/guc: Update intel_gt_wait_for_idle to work with GuC")
+> f4eb1f3fe946 ("drm/i915/guc: Ensure G2H response has space in buffer")
+> e0717063ccb4 ("drm/i915/guc: Defer context unpin until scheduling is disabled")
+> 3a4cdf1982f0 ("drm/i915/guc: Implement GuC context operations for new inteface")
+> 925dc1cf58ed ("drm/i915/guc: Implement GuC submission tasklet")
+> 27213d79b384 ("drm/i915/guc: Add LRC descriptor context lookup array")
+> 7518d9b67cf5 ("drm/i915/guc: Remove GuC stage descriptor, add LRC descriptor")
+> 56bc88745e73 ("drm/i915/guc: Add new GuC interface defines and structures")
+> 75452167a279 ("drm/i915/guc: Optimize CTB writes and reads")
+> b43b9950486e ("drm/i915/guc: Add stall timer to non blocking CTB send function")
+> 1681924d8bde ("drm/i915/guc: Add non blocking CTB send function")
+> c26e289f1d8d ("drm/i915/guc: Increase size of CTB buffers")
+> 572f2a5cd974 ("drm/i915/guc: Update firmware to v62.0.0")
+> 22916bad07a5 ("drm/i915: Move submission tasklet to i915_sched_engine")
+> d2a31d026492 ("drm/i915: Update i915_scheduler to operate on i915_sched_engine")
+> 71ed60112d5d ("drm/i915: Add kick_backend function to i915_sched_engine")
+> 3f623e06cd56 ("drm/i915: Move engine->schedule to i915_sched_engine")
+> 349a2bc5aae4 ("drm/i915: Move active tracking to i915_sched_engine")
+> c4fd7d8cc3ca ("drm/i915: Reset sched_engine.no_priolist immediately after dequeue")
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From 35aba5f51a39fb95351844ffb14ec02b8970e19f Mon Sep 17 00:00:00 2001
+> From: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+> Date: Mon, 21 Nov 2022 15:56:55 +0100
+> Subject: [PATCH] drm/i915: Never return 0 if not all requests retired
+> 
+> Users of intel_gt_retire_requests_timeout() expect 0 return value on
+> success.  However, we have no protection from passing back 0 potentially
+> returned by a call to dma_fence_wait_timeout() when it succedes right
+> after its timeout has expired.
+> 
+> Replace 0 with -ETIME before potentially using the timeout value as return
+> code, so -ETIME is returned if there are still some requests not retired
+> after timeout, 0 otherwise.
+> 
+> v3: Use conditional expression, more compact but also better reflecting
+>     intention standing behind the change.
+> 
+> v2: Move the added lines down so flush_submission() is not affected.
+> 
+> Fixes: f33a8a51602c ("drm/i915: Merge wait_for_timelines with retire_request")
+> Signed-off-by: Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>
+> Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+> Cc: stable@vger.kernel.org # v5.5+
+> Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20221121145655.75141-3-janusz.krzysztofik@linux.intel.com
+> (cherry picked from commit f301a29f143760ce8d3d6b6a8436d45d3448cde6)
+> Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> 
+> diff --git a/drivers/gpu/drm/i915/gt/intel_gt_requests.c b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
+> index edb881d75630..1dfd01668c79 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_gt_requests.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_gt_requests.c
+> @@ -199,7 +199,7 @@ out_active:	spin_lock(&timelines->lock);
+>  	if (remaining_timeout)
+>  		*remaining_timeout = timeout;
+>  
+> -	return active_count ? timeout : 0;
+> +	return active_count ? timeout ?: -ETIME : 0;
+>  }
+>  
+>  static void retire_work_handler(struct work_struct *work)
+> 
+> 
 
-greg k-h
 
------------------- original commit in Linus's tree ------------------
 
-From 62b9f835a6c60171845642afec4ce4b44865f10f Mon Sep 17 00:00:00 2001
-From: Evan Quan <evan.quan@amd.com>
-Date: Fri, 2 Dec 2022 14:03:45 +0800
-Subject: [PATCH] drm/amd/pm: enable GPO dynamic control support for SMU13.0.7
-
-To better support UMD pstate profilings, the GPO feature needs
-to be switched on/off accordingly.
-
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.0.x
-
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-index c270f94a1b86..ab1c004606be 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-@@ -123,6 +123,7 @@ static struct cmn2asic_msg_mapping smu_v13_0_7_message_map[SMU_MSG_MAX_COUNT] =
- 	MSG_MAP(SetMGpuFanBoostLimitRpm,	PPSMC_MSG_SetMGpuFanBoostLimitRpm,     0),
- 	MSG_MAP(DFCstateControl,		PPSMC_MSG_SetExternalClientDfCstateAllow, 0),
- 	MSG_MAP(ArmD3,				PPSMC_MSG_ArmD3,                       0),
-+	MSG_MAP(AllowGpo,			PPSMC_MSG_SetGpoAllow,           0),
- };
- 
- static struct cmn2asic_mapping smu_v13_0_7_clk_map[SMU_CLK_COUNT] = {
-@@ -1690,6 +1691,7 @@ static const struct pptable_funcs smu_v13_0_7_ppt_funcs = {
- 	.mode1_reset = smu_v13_0_mode1_reset,
- 	.set_mp1_state = smu_v13_0_7_set_mp1_state,
- 	.set_df_cstate = smu_v13_0_7_set_df_cstate,
-+	.gpo_control = smu_v13_0_gpo_control,
- };
- 
- void smu_v13_0_7_set_ppt_funcs(struct smu_context *smu)
 
