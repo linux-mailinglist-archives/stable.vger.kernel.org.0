@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75CAF65D8CF
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AED2565D87E
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239927AbjADQSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:18:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42112 "EHLO
+        id S239898AbjADQPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:15:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239946AbjADQS2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:28 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B043C3BE
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:28 -0800 (PST)
+        with ESMTP id S239650AbjADQPR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 688953FA08
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7BBA5CE184A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50DF7C433EF;
-        Wed,  4 Jan 2023 16:18:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE378B817B0
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33A80C433F0;
+        Wed,  4 Jan 2023 16:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849104;
-        bh=crwRSUmU+3Quc+5mw88khZvxEgG14IXUugIzMdhQ0+g=;
+        s=korg; t=1672848877;
+        bh=AIqqYvq4AIDF5nBYlo0SKI2ihqFbvKDY7cGRkNiegtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=REswBh9YB0H3vIO6M1pGbPUoqXkpANEs/SqoA01B06K2oBWj53z+gdrbV85xV+2et
-         nGEvYO3FVBIm1R8SRfgmoDH3e4ospS+VmC1ghjpyhaNucG8/a2LgWYCP5BjP/NwRZe
-         0dwvaChqH2bGbnOnw5fpA3UaKzcDG+IWnrTDtrEU=
+        b=pG9RDZ15+vrv77ZnQ+3NMbfXD/KdIwlC+Do5kXYv4tKZm27qTeeo0YvsyPWjniayl
+         Ur0mprfOyGFHAEpypRbWKVdWJDu9b444ZW1+Xo5POU1R6iHeKzEKZLgsPK30wWJv1Q
+         z8+wx0MWbeEi8iKORLxkTfvkXr0WA4eOMjyOdA48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "x86@kernel.org" <x86@kernel.org>, Borislav Petkov <bp@alien8.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 064/177] ftrace/x86: Add back ftrace_expected for ftrace bug reports
-Date:   Wed,  4 Jan 2023 17:05:55 +0100
-Message-Id: <20230104160509.595695854@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Subject: [PATCH 6.1 098/207] staging: media: tegra-video: fix device_node use after free
+Date:   Wed,  4 Jan 2023 17:05:56 +0100
+Message-Id: <20230104160515.026153771@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,47 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Luca Ceresoli <luca.ceresoli@bootlin.com>
 
-commit fd3dc56253acbe9c641a66d312d8393cd55eb04c upstream.
+commit c4d344163c3a7f90712525f931a6c016bbb35e18 upstream.
 
-After someone reported a bug report with a failed modification due to the
-expected value not matching what was found, it came to my attention that
-the ftrace_expected is no longer set when that happens. This makes for
-debugging the issue a bit more difficult.
+At probe time this code path is followed:
 
-Set ftrace_expected to the expected code before calling ftrace_bug, so
-that it shows what was expected and why it failed.
+ * tegra_csi_init
+   * tegra_csi_channels_alloc
+     * for_each_child_of_node(node, channel) -- iterates over channels
+       * automatically gets 'channel'
+         * tegra_csi_channel_alloc()
+           * saves into chan->of_node a pointer to the channel OF node
+       * automatically gets and puts 'channel'
+       * now the node saved in chan->of_node has refcount 0, can disappear
+   * tegra_csi_channels_init
+     * iterates over channels
+       * tegra_csi_channel_init -- uses chan->of_node
 
-Link: https://lore.kernel.org/all/CA+wXwBQ-VhK+hpBtYtyZP-NiX4g8fqRRWithFOHQW-0coQ3vLg@mail.gmail.com/
-Link: https://lore.kernel.org/linux-trace-kernel/20221209105247.01d4e51d@gandalf.local.home
+After that, chan->of_node keeps storing the node until the device is
+removed.
 
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: "x86@kernel.org" <x86@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Ingo Molnar <mingo@kernel.org>
+of_node_get() the node and of_node_put() it during teardown to avoid any
+risk.
+
+Fixes: 1ebaeb09830f ("media: tegra-video: Add support for external sensor capture")
 Cc: stable@vger.kernel.org
-Fixes: 768ae4406a5c ("x86/ftrace: Use text_poke()")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Cc: Sowjanya Komatineni <skomatineni@nvidia.com>
+Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/ftrace.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/media/tegra-video/csi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -217,7 +217,9 @@ void ftrace_replace_code(int enable)
+--- a/drivers/staging/media/tegra-video/csi.c
++++ b/drivers/staging/media/tegra-video/csi.c
+@@ -433,7 +433,7 @@ static int tegra_csi_channel_alloc(struc
+ 	for (i = 0; i < chan->numgangports; i++)
+ 		chan->csi_port_nums[i] = port_num + i * CSI_PORTS_PER_BRICK;
  
- 		ret = ftrace_verify_code(rec->ip, old);
- 		if (ret) {
-+			ftrace_expected = old;
- 			ftrace_bug(ret, rec);
-+			ftrace_expected = NULL;
- 			return;
+-	chan->of_node = node;
++	chan->of_node = of_node_get(node);
+ 	chan->numpads = num_pads;
+ 	if (num_pads & 0x2) {
+ 		chan->pads[0].flags = MEDIA_PAD_FL_SINK;
+@@ -641,6 +641,7 @@ static void tegra_csi_channels_cleanup(s
+ 			media_entity_cleanup(&subdev->entity);
  		}
+ 
++		of_node_put(chan->of_node);
+ 		list_del(&chan->list);
+ 		kfree(chan);
  	}
 
 
