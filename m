@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E3765D64D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B38265D64E
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:43:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239670AbjADOnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:43:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35130 "EHLO
+        id S239503AbjADOnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:43:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239503AbjADOnn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:43:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32E381A06D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:43:42 -0800 (PST)
+        with ESMTP id S239603AbjADOnp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:43:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E996E18B1D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:43:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCD89B81677
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:43:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08068C433F2;
-        Wed,  4 Jan 2023 14:43:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8703C6176B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:43:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 947BAC433F1;
+        Wed,  4 Jan 2023 14:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843419;
-        bh=7pp1OxEIch7oB0OTGSTjQcHg/nN81r2I+gsBt/F92o4=;
+        s=korg; t=1672843423;
+        bh=hOnzb6JU9dyss7s8kkDGnL9FrEMeCDXslLfyDlskPOE=;
         h=Subject:To:Cc:From:Date:From;
-        b=KG7vIYfKQhFAHyzxWebBiXf/Ah8uCd111T+rAYLqtQNujj4ah2ejOzlQ9de2rND3I
-         QMQKMZyKnDDspe8djcGWgJOLFNDlspnCnIIKKD8earhxcabK6Q14D+MuM2zvROqHjE
-         Aw0KIAE9fUTS/YHHkaUgNXDSRgWSXof/lCaBcEoA=
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Use i915_vm_put on ppgtt_create error paths" failed to apply to 6.0-stable tree
+        b=jfZAPWO0P2b9hgsoO9hXyGhJgPmP97H34JvOkwkSe0ft10pMI1cWboA+r9UgtuVFc
+         Ls+UMvuRpj3lSZTvdA06OMGcYD5t5I0D6D6BlzS3zzQFCU+yLgBCPVLwecMtOiZ4rj
+         WLHlyxuavLUFl1drcvjWWHokN7s1zNw3BMpMU1Dw=
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Use i915_vm_put on ppgtt_create error paths" failed to apply to 5.15-stable tree
 To:     chris.p.wilson@intel.com, matthew.auld@intel.com,
         stable@vger.kernel.org, thomas.hellstrom@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:43:31 +0100
-Message-ID: <16728434117096@kroah.com>
+Date:   Wed, 04 Jan 2023 15:43:35 +0100
+Message-ID: <16728434159218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,7 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 c286558f5853 ("drm/i915/gt: Use i915_vm_put on ppgtt_create error paths")
+b0b0f2d225da ("drm/i915: Create a dummy object for gen6 ppgtt")
 
 thanks,
 
