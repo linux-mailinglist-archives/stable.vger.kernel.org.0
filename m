@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6EEC65D877
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF5BB65D85E
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:14:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239762AbjADQPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:15:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37990 "EHLO
+        id S239507AbjADQN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:13:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239902AbjADQOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:14:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B34742E14
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:18 -0800 (PST)
+        with ESMTP id S229739AbjADQNS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:13:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E9A104
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:13:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1F16B81730
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56E3FC433F1;
-        Wed,  4 Jan 2023 16:14:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C06866178F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:13:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D01EC433EF;
+        Wed,  4 Jan 2023 16:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848855;
-        bh=5tHrMX6FgdCnjydWDq4GPmhVF0KkNZY7YSxPIIyBsqA=;
+        s=korg; t=1672848797;
+        bh=KCPdqmxKiYdVqTAe82Cd0O9L/btDwZO0pEK6AtCNw18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEv329bnI/oWYDs3ls77S8ZSLsi9otD39eXwpcHStAR6eeLys+rZYbDeVV2rWo4dE
-         3e3R6uqbHgjj2EB+bW97kwMPJWmCBxlu7QIBEhRAxjeUuIrA6LZP/kxjTeO4fHUdgy
-         4MnivmSnHWECqYIERlKmjKD4S/m7dlsrBceqN9Ss=
+        b=T/7aUDJSejA/vmm76LQrXkaG1SRr06oot4NsJuP1Vjf5q/Ip/Jt0P2PEGNoddV3lp
+         ZnlnamB7GSQERKOuluUb8yZHFQxrQm1+T0PcLfKNHloTnj/HUIObwbFkv1SU4YWUo/
+         fi2R14ld4NVh7cgcORKWXcTgC6G6sRa3uTBQQKHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Davidlohr Bueso <dave@stgolabs.net>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 6.0 025/177] cxl/region: Fix missing probe failure
+        patches@lists.linux.dev, Ioannis Iliopoulos <jxftw2424@gmail.com>,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 058/207] HID: Ignore HP Envy x360 eu0009nv stylus battery
 Date:   Wed,  4 Jan 2023 17:05:16 +0100
-Message-Id: <20230104160508.430077416@linuxfoundation.org>
+Message-Id: <20230104160513.750289359@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-commit bf3e5da8cb43a671b32fc125fa81b8f6a3677192 upstream.
+[ Upstream commit cec827d658dd5c287ea8925737d45f0a60e47422 ]
 
-cxl_region_probe() allows for regions not in the 'commit' state to be
-enabled. Fail probe when the region is not committed otherwise the
-kernel may indicate that an address range is active when none of the
-decoders are active.
+Battery status is reported for the HP Envy x360 eu0009nv stylus even
+though it does not have battery.
 
-Fixes: 8d48817df6ac ("cxl/region: Add region driver boiler plate")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Davidlohr Bueso <dave@stgolabs.net>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: https://lore.kernel.org/r/166993220462.1995348.1698008475198427361.stgit@dwillia2-xfh.jf.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Prevent it from always reporting the battery as low (1%).
+
+Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/823
+Reported-by: Ioannis Iliopoulos <jxftw2424@gmail.com>
+Tested-by: Ioannis Iliopoulos <jxftw2424@gmail.com>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cxl/core/region.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
---- a/drivers/cxl/core/region.c
-+++ b/drivers/cxl/core/region.c
-@@ -1922,6 +1922,9 @@ static int cxl_region_probe(struct devic
- 	 */
- 	up_read(&cxl_region_rwsem);
- 
-+	if (rc)
-+		return rc;
-+
- 	switch (cxlr->mode) {
- 	case CXL_DECODER_PMEM:
- 		return devm_cxl_add_pmem_region(cxlr);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index e27fb27a36bf..82713ef3aaa6 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -412,6 +412,7 @@
+ #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
+ #define I2C_DEVICE_ID_HP_ENVY_X360_15	0x2d05
+ #define I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100	0x29CF
++#define I2C_DEVICE_ID_HP_ENVY_X360_EU0009NV	0x2CF9
+ #define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
+ #define USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN	0x2544
+ #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index d728a94c642e..3ee5a9fea20e 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -380,6 +380,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_EU0009NV),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
+-- 
+2.35.1
+
 
 
