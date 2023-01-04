@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E61A265D393
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03B6E65D394
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:00:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbjADNAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:00:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40062 "EHLO
+        id S231787AbjADNAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:00:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232753AbjADNAH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:00:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE40FCF1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:00:05 -0800 (PST)
+        with ESMTP id S229739AbjADNAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:00:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E45B1DDC4
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:00:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2F81B8162B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:00:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AEEEC433EF;
-        Wed,  4 Jan 2023 13:00:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBA9561425
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:00:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3E47C433D2;
+        Wed,  4 Jan 2023 13:00:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672837202;
-        bh=n4PcgaWmMdMUNyOTsEZvrwij7CpKBonsMbEBhZ2DGqc=;
+        s=korg; t=1672837217;
+        bh=C0K3Zwoe9R7ZvlFjkecWxLPTQotQ2agE6k3EnCeDkVI=;
         h=Subject:To:Cc:From:Date:From;
-        b=B7aHYnqVF6ER8V1cd8YSiv8gDcT1WbZkJUmbOSN4pR+ggIedcGYaCrMDh9zprkifN
-         UhaIJuCTAXm9+LrtUpMqngTcyW5U/ljvsCSEhtkub6Z3DgEdeDF75dpFTSyvknXgWI
-         LJKeZ2i66pyM7maoxS2Op1/TD4QAiQeIug7p0eGc=
-Subject: FAILED: patch "[PATCH] PM/devfreq: governor: Add a private governor_data for" failed to apply to 4.19-stable tree
+        b=wLjWTKsq9MasLSOfkFAyxa+b2IrpbKb7gfePNB5F5vN7DIUqjRie8Ix0792JVDRVl
+         WGuXbS+/JGMrMB0IS/jvHJwRZhsDi8ezMSJnhP2r++ld6MwXdxFILDLtqqyBUof4Lc
+         SqEaBkY9Lp0+m04cWl1uXBAlv1ud8KbfIgg8N86I=
+Subject: FAILED: patch "[PATCH] PM/devfreq: governor: Add a private governor_data for" failed to apply to 4.14-stable tree
 To:     kant@allwinnertech.com, cw00.choi@samsung.com, cwchoi00@gmail.com,
         myungjoo.ham@samsung.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:59:58 +0100
-Message-ID: <167283719817439@kroah.com>
+Date:   Wed, 04 Jan 2023 14:00:13 +0100
+Message-ID: <1672837213375@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -64,6 +64,11 @@ cf451adfa392 ("PM / devfreq: add tracing for scheduling work")
 2f061fd0c2d8 ("PM / devfreq: stopping the governor before device_unregister()")
 df5cf4a36178 ("PM / devfreq: Fix handling of min/max_freq == 0")
 d0e464205b8a ("PM / devfreq: Drop custom MIN/MAX macros")
+2c2cb1e6b05b ("PM / devfreq: Init user limits from OPP limits, not viceversa")
+2d803dc8f7a5 ("PM / devfreq: use put_device() instead of kfree()")
+f1d981eaecf8 ("PM / devfreq: Use the available min/max frequency")
+1051e2c304b5 ("Revert "PM / devfreq: Add show_one macro to delete the duplicate code"")
+ab8f58ad72c4 ("PM / devfreq: Set min/max_freq when adding the devfreq device")
 
 thanks,
 
