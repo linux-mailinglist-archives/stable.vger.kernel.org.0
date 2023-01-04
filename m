@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5812565D8E7
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D20DF65D92C
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239962AbjADQTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:19:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43044 "EHLO
+        id S239675AbjADQWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:22:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239986AbjADQT3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:29 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B9AB5FBB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:28 -0800 (PST)
+        with ESMTP id S240007AbjADQWI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:22:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D056D13CF8
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:22:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 045F6CE184A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF44AC433D2;
-        Wed,  4 Jan 2023 16:19:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91717B817BB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:22:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBC88C433EF;
+        Wed,  4 Jan 2023 16:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849165;
-        bh=O6wiKCupFA3cYumLXNEDZszkyucDIx/CQRmtWJWex/M=;
+        s=korg; t=1672849325;
+        bh=tpTT5AEq+v0/3j8CsYJZrSMV1OS7xwr1Ck0yGVZL3Y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=crrMs5I1e8E1Vk2wpV/erOGdppIOaC8s1WIytME37u3kY5uRXO2IbroHvr3TGCh27
-         pUYGzTE8If86LrFqLJ7zDKgxtcOe+PnD3zpFCYCTWmrNRJXtEYYqGska/udATvwolR
-         eAk9Y3Ubhp6gKZ1OZvzEf4UJtsRWyCvNlD3WELsQ=
+        b=k9Pf2J0D13/9nDRYJWt78ytDKCFaU+EjOCEgtnUeqv3PMOqza5iTefS3Us/1Qbjuj
+         ujXnldSs5BU2CufWuajXbDZaQhL1wb+a8cFDlsK7LgyoYsNaz2ODgncWDiT2DEGA0o
+         rEIvWVNXAD3ORz4AKwKWSSA5RhXZl/TMaEhTFdAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiang Yu <quic_qianyu@quicinc.com>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 6.1 136/207] bus: mhi: host: Fix race between channel preparation and M0 event
+        patches@lists.linux.dev, Sascha Hauer <s.hauer@pengutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 6.0 103/177] PCI/sysfs: Fix double free in error path
 Date:   Wed,  4 Jan 2023 17:06:34 +0100
-Message-Id: <20230104160516.223569967@linuxfoundation.org>
+Message-Id: <20230104160510.761340692@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <quic_qianyu@quicinc.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-commit 869a99907faea6d1835b0bd0d0422ae3519c6ea9 upstream.
+commit aa382ffa705bea9931ec92b6f3c70e1fdb372195 upstream.
 
-There is a race condition where mhi_prepare_channel() updates the
-read and write pointers as the base address and in parallel, if
-an M0 transition occurs, the tasklet goes ahead and rings
-doorbells for all channels with a delta in TRE rings assuming
-they are already enabled. This causes a null pointer access. Fix
-it by adding a channel enabled check before ringing channel
-doorbells.
+When pci_create_attr() fails, pci_remove_resource_files() is called which
+will iterate over the res_attr[_wc] arrays and frees every non NULL entry.
+To avoid a double free here set the array entry only after it's clear we
+successfully initialized it.
 
-Cc: stable@vger.kernel.org # 5.19
-Fixes: a6e2e3522f29 "bus: mhi: core: Add support for PM state transitions"
-Signed-off-by: Qiang Yu <quic_qianyu@quicinc.com>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Link: https://lore.kernel.org/r/1665889532-13634-1-git-send-email-quic_qianyu@quicinc.com
-[mani: CCed stable list]
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Fixes: b562ec8f74e4 ("PCI: Don't leak memory if sysfs_create_bin_file() fails")
+Link: https://lore.kernel.org/r/20221007070735.GX986@pengutronix.de/
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/host/pm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pci/pci-sysfs.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/bus/mhi/host/pm.c
-+++ b/drivers/bus/mhi/host/pm.c
-@@ -301,7 +301,8 @@ int mhi_pm_m0_transition(struct mhi_cont
- 		read_lock_irq(&mhi_chan->lock);
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -1174,11 +1174,9 @@ static int pci_create_attr(struct pci_de
  
- 		/* Only ring DB if ring is not empty */
--		if (tre_ring->base && tre_ring->wp  != tre_ring->rp)
-+		if (tre_ring->base && tre_ring->wp  != tre_ring->rp &&
-+		    mhi_chan->ch_state == MHI_CH_STATE_ENABLED)
- 			mhi_ring_chan_db(mhi_cntrl, mhi_chan);
- 		read_unlock_irq(&mhi_chan->lock);
- 	}
+ 	sysfs_bin_attr_init(res_attr);
+ 	if (write_combine) {
+-		pdev->res_attr_wc[num] = res_attr;
+ 		sprintf(res_attr_name, "resource%d_wc", num);
+ 		res_attr->mmap = pci_mmap_resource_wc;
+ 	} else {
+-		pdev->res_attr[num] = res_attr;
+ 		sprintf(res_attr_name, "resource%d", num);
+ 		if (pci_resource_flags(pdev, num) & IORESOURCE_IO) {
+ 			res_attr->read = pci_read_resource_io;
+@@ -1196,10 +1194,17 @@ static int pci_create_attr(struct pci_de
+ 	res_attr->size = pci_resource_len(pdev, num);
+ 	res_attr->private = (void *)(unsigned long)num;
+ 	retval = sysfs_create_bin_file(&pdev->dev.kobj, res_attr);
+-	if (retval)
++	if (retval) {
+ 		kfree(res_attr);
++		return retval;
++	}
++
++	if (write_combine)
++		pdev->res_attr_wc[num] = res_attr;
++	else
++		pdev->res_attr[num] = res_attr;
+ 
+-	return retval;
++	return 0;
+ }
+ 
+ /**
 
 
