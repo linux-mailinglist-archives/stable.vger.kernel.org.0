@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F54165CCE2
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 07:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3D1565CCDF
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 07:17:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229469AbjADGRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 01:17:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40894 "EHLO
+        id S230321AbjADGRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 01:17:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230060AbjADGRl (ORCPT
+        with ESMTP id S229469AbjADGRl (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 01:17:41 -0500
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2F317E3E;
-        Tue,  3 Jan 2023 22:17:40 -0800 (PST)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4NmzrD1f2sz16LK3;
-        Wed,  4 Jan 2023 14:16:12 +0800 (CST)
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9F8EE3E;
+        Tue,  3 Jan 2023 22:17:39 -0800 (PST)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NmzrC4LLRznTxt;
+        Wed,  4 Jan 2023 14:16:11 +0800 (CST)
 Received: from huawei.com (10.67.175.31) by dggpemm500024.china.huawei.com
  (7.185.36.203) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Wed, 4 Jan
@@ -26,10 +26,12 @@ To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
         <zohar@linux.ibm.com>
 CC:     <paul@paul-moore.com>, <linux-integrity@vger.kernel.org>,
         <luhuaxin1@huawei.com>
-Subject: [PATCH v3 0/3] ima: Fix IMA mishandling of LSM based rule during
-Date:   Wed, 4 Jan 2023 14:14:55 +0800
-Message-ID: <20230104061458.8878-1-guozihua@huawei.com>
+Subject: [PATCH v3 1/3] LSM: switch to blocking policy update notifiers
+Date:   Wed, 4 Jan 2023 14:14:56 +0800
+Message-ID: <20230104061458.8878-2-guozihua@huawei.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230104061458.8878-1-guozihua@huawei.com>
+References: <20230104061458.8878-1-guozihua@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [10.67.175.31]
@@ -44,27 +46,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Backports the following three patches to fix the issue of IMA mishandling
-LSM based rule during LSM policy update, causing a file to match an
-unexpected rule.
+From: Janne Karhunen <janne.karhunen@gmail.com>
 
-GUO Zihua (1):
-  ima: Handle -ESTALE returned by ima_filter_rule_match()
+[ Upstream commit 42df744c4166af6959eda2df1ee5cde744d4a1c3 ]
 
-Janne Karhunen (2):
-  LSM: switch to blocking policy update notifiers
-  ima: use the lsm policy update notifier
+Atomic policy updaters are not very useful as they cannot
+usually perform the policy updates on their own. Since it
+seems that there is no strict need for the atomicity,
+switch to the blocking variant. While doing so, rename
+the functions accordingly.
 
- drivers/infiniband/core/device.c    |   4 +-
- include/linux/security.h            |  12 +--
- security/integrity/ima/ima.h        |   2 +
- security/integrity/ima/ima_main.c   |   8 ++
- security/integrity/ima/ima_policy.c | 147 +++++++++++++++++++++++-----
- security/security.c                 |  23 +++--
- security/selinux/hooks.c            |   2 +-
- security/selinux/selinuxfs.c        |   2 +-
- 8 files changed, 154 insertions(+), 46 deletions(-)
+Signed-off-by: Janne Karhunen <janne.karhunen@gmail.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Acked-by: James Morris <jamorris@linux.microsoft.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+---
+ drivers/infiniband/core/device.c |  4 ++--
+ include/linux/security.h         | 12 ++++++------
+ security/security.c              | 23 +++++++++++++----------
+ security/selinux/hooks.c         |  2 +-
+ security/selinux/selinuxfs.c     |  2 +-
+ 5 files changed, 23 insertions(+), 20 deletions(-)
 
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index ffd0f43e2129..ebcebb95f61b 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -1207,7 +1207,7 @@ static int __init ib_core_init(void)
+ 		goto err_mad;
+ 	}
+ 
+-	ret = register_lsm_notifier(&ibdev_lsm_nb);
++	ret = register_blocking_lsm_notifier(&ibdev_lsm_nb);
+ 	if (ret) {
+ 		pr_warn("Couldn't register LSM notifier. ret %d\n", ret);
+ 		goto err_sa;
+@@ -1243,7 +1243,7 @@ static void __exit ib_core_cleanup(void)
+ 	roce_gid_mgmt_cleanup();
+ 	nldev_exit();
+ 	rdma_nl_unregister(RDMA_NL_LS);
+-	unregister_lsm_notifier(&ibdev_lsm_nb);
++	unregister_blocking_lsm_notifier(&ibdev_lsm_nb);
+ 	ib_sa_cleanup();
+ 	ib_mad_cleanup();
+ 	addr_cleanup();
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 273877cf47bf..81e795c9c09a 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -191,9 +191,9 @@ struct security_mnt_opts {
+ 	int num_mnt_opts;
+ };
+ 
+-int call_lsm_notifier(enum lsm_event event, void *data);
+-int register_lsm_notifier(struct notifier_block *nb);
+-int unregister_lsm_notifier(struct notifier_block *nb);
++int call_blocking_lsm_notifier(enum lsm_event event, void *data);
++int register_blocking_lsm_notifier(struct notifier_block *nb);
++int unregister_blocking_lsm_notifier(struct notifier_block *nb);
+ 
+ static inline void security_init_mnt_opts(struct security_mnt_opts *opts)
+ {
+@@ -409,17 +409,17 @@ int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+ struct security_mnt_opts {
+ };
+ 
+-static inline int call_lsm_notifier(enum lsm_event event, void *data)
++static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
+ {
+ 	return 0;
+ }
+ 
+-static inline int register_lsm_notifier(struct notifier_block *nb)
++static inline int register_blocking_lsm_notifier(struct notifier_block *nb)
+ {
+ 	return 0;
+ }
+ 
+-static inline  int unregister_lsm_notifier(struct notifier_block *nb)
++static inline  int unregister_blocking_lsm_notifier(struct notifier_block *nb)
+ {
+ 	return 0;
+ }
+diff --git a/security/security.c b/security/security.c
+index fc1410550b79..4d20a15f18b4 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -38,7 +38,7 @@
+ #define SECURITY_NAME_MAX	10
+ 
+ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
+-static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
++static BLOCKING_NOTIFIER_HEAD(blocking_lsm_notifier_chain);
+ 
+ char *lsm_names;
+ /* Boot-time LSM user choice */
+@@ -180,23 +180,26 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+ 		panic("%s - Cannot get early memory.\n", __func__);
+ }
+ 
+-int call_lsm_notifier(enum lsm_event event, void *data)
++int call_blocking_lsm_notifier(enum lsm_event event, void *data)
+ {
+-	return atomic_notifier_call_chain(&lsm_notifier_chain, event, data);
++	return blocking_notifier_call_chain(&blocking_lsm_notifier_chain,
++					    event, data);
+ }
+-EXPORT_SYMBOL(call_lsm_notifier);
++EXPORT_SYMBOL(call_blocking_lsm_notifier);
+ 
+-int register_lsm_notifier(struct notifier_block *nb)
++int register_blocking_lsm_notifier(struct notifier_block *nb)
+ {
+-	return atomic_notifier_chain_register(&lsm_notifier_chain, nb);
++	return blocking_notifier_chain_register(&blocking_lsm_notifier_chain,
++						nb);
+ }
+-EXPORT_SYMBOL(register_lsm_notifier);
++EXPORT_SYMBOL(register_blocking_lsm_notifier);
+ 
+-int unregister_lsm_notifier(struct notifier_block *nb)
++int unregister_blocking_lsm_notifier(struct notifier_block *nb)
+ {
+-	return atomic_notifier_chain_unregister(&lsm_notifier_chain, nb);
++	return blocking_notifier_chain_unregister(&blocking_lsm_notifier_chain,
++						  nb);
+ }
+-EXPORT_SYMBOL(unregister_lsm_notifier);
++EXPORT_SYMBOL(unregister_blocking_lsm_notifier);
+ 
+ /*
+  * Hook list operation macros.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 41e24df986eb..77f2147709b1 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -199,7 +199,7 @@ static int selinux_lsm_notifier_avc_callback(u32 event)
+ {
+ 	if (event == AVC_CALLBACK_RESET) {
+ 		sel_ib_pkey_flush();
+-		call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
++		call_blocking_lsm_notifier(LSM_POLICY_CHANGE, NULL);
+ 	}
+ 
+ 	return 0;
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 60b3f16bb5c7..4f72d0998580 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -180,7 +180,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 		selnl_notify_setenforce(new_value);
+ 		selinux_status_update_setenforce(state, new_value);
+ 		if (!new_value)
+-			call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
++			call_blocking_lsm_notifier(LSM_POLICY_CHANGE, NULL);
+ 	}
+ 	length = count;
+ out:
 -- 
 2.17.1
 
