@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D42F65D9C5
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:29:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DE4D65D95D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239875AbjADQ3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:29:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51834 "EHLO
+        id S235007AbjADQYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:24:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240107AbjADQ2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E756D485AC
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:51 -0800 (PST)
+        with ESMTP id S239963AbjADQYT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A898D43A23
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74404B81722
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:27:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB96BC433F1;
-        Wed,  4 Jan 2023 16:27:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 228A2617AE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 151A5C433EF;
+        Wed,  4 Jan 2023 16:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849669;
-        bh=aUREFiTu4QhMjkabcRWkj1RNh9ul3PEukNS6B9e4KVU=;
+        s=korg; t=1672849401;
+        bh=XTQOtquhSYCXocnWBLItVUcUgLnIYWIzgIMsy9sh2as=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rjbpAui74fQdirXd4dXMmILp3bZ2bM2i4FoBW6oj/5KVwM3iAyaMvkkRdGz4se1bP
-         KDexmV1owSmojZy79o7Jcu/1aLyqBz4PpY7P2pEbQBTiTKz7o1iBfQ9lj7XKY2ARiq
-         uf9iNpPdyAlNrduANTgt6ZjG6Ef4Jucle2ec/gfY=
+        b=gwHeBa3wV/Oln4LMw2geN3FyhFIOeXly1bO5l1kPalIn7fcI2ahS9oD9e4f44yjpb
+         g4DwWp3fOuLL3F6wklrN5SozO0Mg1O9jX9IDyHMT/1ugQ9Y5hoGDrZJ4lgO7YOavPK
+         UszYdpd43aRhtKxGqZ+bnS1JfOCEayCB/Iqjjl9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 149/177] ext4: add missing validation of fast-commit record lengths
+        patches@lists.linux.dev,
+        syzbot+57b25da729eb0b88177d@syzkaller.appspotmail.com,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 6.1 182/207] ext4: fix uninititialized value in ext4_evict_inode
 Date:   Wed,  4 Jan 2023 17:07:20 +0100
-Message-Id: <20230104160512.174492445@linuxfoundation.org>
+Message-Id: <20230104160517.652397892@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,97 +55,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 64b4a25c3de81a69724e888ec2db3533b43816e2 upstream.
+commit 7ea71af94eaaaf6d9aed24bc94a05b977a741cb9 upstream.
 
-Validate the inode and filename lengths in fast-commit journal records
-so that a malicious fast-commit journal cannot cause a crash by having
-invalid values for these.  Also validate EXT4_FC_TAG_DEL_RANGE.
+Syzbot found the following issue:
+=====================================================
+BUG: KMSAN: uninit-value in ext4_evict_inode+0xdd/0x26b0 fs/ext4/inode.c:180
+ ext4_evict_inode+0xdd/0x26b0 fs/ext4/inode.c:180
+ evict+0x365/0x9a0 fs/inode.c:664
+ iput_final fs/inode.c:1747 [inline]
+ iput+0x985/0xdd0 fs/inode.c:1773
+ __ext4_new_inode+0xe54/0x7ec0 fs/ext4/ialloc.c:1361
+ ext4_mknod+0x376/0x840 fs/ext4/namei.c:2844
+ vfs_mknod+0x79d/0x830 fs/namei.c:3914
+ do_mknodat+0x47d/0xaa0
+ __do_sys_mknodat fs/namei.c:3992 [inline]
+ __se_sys_mknodat fs/namei.c:3989 [inline]
+ __ia32_sys_mknodat+0xeb/0x150 fs/namei.c:3989
+ do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+ __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
+ do_fast_syscall_32+0x33/0x70 arch/x86/entry/common.c:203
+ do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:246
+ entry_SYSENTER_compat_after_hwframe+0x70/0x82
 
-Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221106224841.279231-5-ebiggers@kernel.org
+Uninit was created at:
+ __alloc_pages+0x9f1/0xe80 mm/page_alloc.c:5578
+ alloc_pages+0xaae/0xd80 mm/mempolicy.c:2285
+ alloc_slab_page mm/slub.c:1794 [inline]
+ allocate_slab+0x1b5/0x1010 mm/slub.c:1939
+ new_slab mm/slub.c:1992 [inline]
+ ___slab_alloc+0x10c3/0x2d60 mm/slub.c:3180
+ __slab_alloc mm/slub.c:3279 [inline]
+ slab_alloc_node mm/slub.c:3364 [inline]
+ slab_alloc mm/slub.c:3406 [inline]
+ __kmem_cache_alloc_lru mm/slub.c:3413 [inline]
+ kmem_cache_alloc_lru+0x6f3/0xb30 mm/slub.c:3429
+ alloc_inode_sb include/linux/fs.h:3117 [inline]
+ ext4_alloc_inode+0x5f/0x860 fs/ext4/super.c:1321
+ alloc_inode+0x83/0x440 fs/inode.c:259
+ new_inode_pseudo fs/inode.c:1018 [inline]
+ new_inode+0x3b/0x430 fs/inode.c:1046
+ __ext4_new_inode+0x2a7/0x7ec0 fs/ext4/ialloc.c:959
+ ext4_mkdir+0x4d5/0x1560 fs/ext4/namei.c:2992
+ vfs_mkdir+0x62a/0x870 fs/namei.c:4035
+ do_mkdirat+0x466/0x7b0 fs/namei.c:4060
+ __do_sys_mkdirat fs/namei.c:4075 [inline]
+ __se_sys_mkdirat fs/namei.c:4073 [inline]
+ __ia32_sys_mkdirat+0xc4/0x120 fs/namei.c:4073
+ do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+ __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
+ do_fast_syscall_32+0x33/0x70 arch/x86/entry/common.c:203
+ do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:246
+ entry_SYSENTER_compat_after_hwframe+0x70/0x82
+
+CPU: 1 PID: 4625 Comm: syz-executor.2 Not tainted 6.1.0-rc4-syzkaller-62821-gcb231e2f67ec #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+=====================================================
+
+Now, 'ext4_alloc_inode()' didn't init 'ei->i_flags'. If new inode failed
+before set 'ei->i_flags' in '__ext4_new_inode()', then do 'iput()'. As after
+6bc0d63dad7f commit will access 'ei->i_flags' in 'ext4_evict_inode()' which
+will lead to access uninit-value.
+To solve above issue just init 'ei->i_flags' in 'ext4_alloc_inode()'.
+
+Reported-by: syzbot+57b25da729eb0b88177d@syzkaller.appspotmail.com
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Fixes: 6bc0d63dad7f ("ext4: remove EA inode entry from mbcache on inode eviction")
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221117073603.2598882-1-yebin@huaweicloud.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |   38 +++++++++++++++++++-------------------
- fs/ext4/fast_commit.h |    2 +-
- 2 files changed, 20 insertions(+), 20 deletions(-)
+ fs/ext4/super.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -2000,32 +2000,31 @@ void ext4_fc_replay_cleanup(struct super
- 	kfree(sbi->s_fc_replay_state.fc_modified_inodes);
- }
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1323,6 +1323,7 @@ static struct inode *ext4_alloc_inode(st
+ 		return NULL;
  
--static inline bool ext4_fc_tag_len_isvalid(struct ext4_fc_tl *tl,
--					   u8 *val, u8 *end)
-+static bool ext4_fc_value_len_isvalid(struct ext4_sb_info *sbi,
-+				      int tag, int len)
- {
--	if (val + tl->fc_len > end)
--		return false;
--
--	/* Here only check ADD_RANGE/TAIL/HEAD which will read data when do
--	 * journal rescan before do CRC check. Other tags length check will
--	 * rely on CRC check.
--	 */
--	switch (tl->fc_tag) {
-+	switch (tag) {
- 	case EXT4_FC_TAG_ADD_RANGE:
--		return (sizeof(struct ext4_fc_add_range) == tl->fc_len);
--	case EXT4_FC_TAG_TAIL:
--		return (sizeof(struct ext4_fc_tail) <= tl->fc_len);
--	case EXT4_FC_TAG_HEAD:
--		return (sizeof(struct ext4_fc_head) == tl->fc_len);
-+		return len == sizeof(struct ext4_fc_add_range);
- 	case EXT4_FC_TAG_DEL_RANGE:
-+		return len == sizeof(struct ext4_fc_del_range);
-+	case EXT4_FC_TAG_CREAT:
- 	case EXT4_FC_TAG_LINK:
- 	case EXT4_FC_TAG_UNLINK:
--	case EXT4_FC_TAG_CREAT:
-+		len -= sizeof(struct ext4_fc_dentry_info);
-+		return len >= 1 && len <= EXT4_NAME_LEN;
- 	case EXT4_FC_TAG_INODE:
-+		len -= sizeof(struct ext4_fc_inode);
-+		return len >= EXT4_GOOD_OLD_INODE_SIZE &&
-+			len <= sbi->s_inode_size;
- 	case EXT4_FC_TAG_PAD:
--	default:
--		return true;
-+		return true; /* padding can have any length */
-+	case EXT4_FC_TAG_TAIL:
-+		return len >= sizeof(struct ext4_fc_tail);
-+	case EXT4_FC_TAG_HEAD:
-+		return len == sizeof(struct ext4_fc_head);
- 	}
-+	return false;
- }
- 
- /*
-@@ -2088,7 +2087,8 @@ static int ext4_fc_replay_scan(journal_t
- 	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
- 		ext4_fc_get_tl(&tl, cur);
- 		val = cur + EXT4_FC_TAG_BASE_LEN;
--		if (!ext4_fc_tag_len_isvalid(&tl, val, end)) {
-+		if (tl.fc_len > end - val ||
-+		    !ext4_fc_value_len_isvalid(sbi, tl.fc_tag, tl.fc_len)) {
- 			ret = state->fc_replay_num_tags ?
- 				JBD2_FC_REPLAY_STOP : -ECANCELED;
- 			goto out_err;
---- a/fs/ext4/fast_commit.h
-+++ b/fs/ext4/fast_commit.h
-@@ -58,7 +58,7 @@ struct ext4_fc_dentry_info {
- 	__u8 fc_dname[];
- };
- 
--/* Value structure for EXT4_FC_TAG_INODE and EXT4_FC_TAG_INODE_PARTIAL. */
-+/* Value structure for EXT4_FC_TAG_INODE. */
- struct ext4_fc_inode {
- 	__le32 fc_ino;
- 	__u8 fc_raw_inode[];
+ 	inode_set_iversion(&ei->vfs_inode, 1);
++	ei->i_flags = 0;
+ 	spin_lock_init(&ei->i_raw_lock);
+ 	INIT_LIST_HEAD(&ei->i_prealloc_list);
+ 	atomic_set(&ei->i_prealloc_active, 0);
 
 
