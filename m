@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA62D65D558
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5EE65D557
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:17:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230186AbjADORX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230225AbjADORX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 4 Jan 2023 09:17:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43210 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239560AbjADORD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:17:03 -0500
+        with ESMTP id S239660AbjADORL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:17:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39BF1BCAB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:17:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3028BCA0
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:17:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9C7B61746
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:17:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9615C433D2;
-        Wed,  4 Jan 2023 14:17:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E9D86174F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:17:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B452C433D2;
+        Wed,  4 Jan 2023 14:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672841821;
-        bh=Hpsy4NWDT3eWbomjUhPsRqMPynoNpcSErwWEFD71gPo=;
+        s=korg; t=1672841829;
+        bh=w27hJWYqae4W303yOtGrruzhuWlF48rtsg8mwA9JWpI=;
         h=Subject:To:Cc:From:Date:From;
-        b=NvaEeQUXid5u0JhmvT0eGq6oydN7Cwf+OaKxJczxBof1rBBEeEGiPJ6SvNvQWyQQ5
-         WVIHtRJaZgdNApcrIFApUV9QGx8DbaNwbBwYtuBm4+I6vMOjx5yte8L8V6rbFi6RDx
-         Ima0KFowuKB2L33i4kY6sFSKmO61OxZdQYaR/S8A=
-Subject: FAILED: patch "[PATCH] ravb: Fix "failed to switch device to config mode" message" failed to apply to 4.19-stable tree
+        b=DUDHji+ilG3+ijQlk/e1BW+1urOhfeXiZz8gqr+dS/UjFXGVzpQEWCC7NNEzgLnTs
+         EoAc4hweTwePq9PMBNUbTmTDcrzgvMmX0xVmWblsLXKkGr0SiK15fH5SB26RqJxqHp
+         5q86RuUZLvwX72kXbLy+aBMh55a/lzVH/spJLpBs=
+Subject: FAILED: patch "[PATCH] ravb: Fix "failed to switch device to config mode" message" failed to apply to 4.14-stable tree
 To:     biju.das.jz@bp.renesas.com, leonro@nvidia.com, pabeni@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:16:51 +0100
-Message-ID: <1672841811246154@kroah.com>
+Date:   Wed, 04 Jan 2023 15:16:52 +0100
+Message-ID: <16728418126244@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
