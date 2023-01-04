@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6B1A65D309
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:50:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AF5865D30F
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:51:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbjADMuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:50:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33464 "EHLO
+        id S231722AbjADMu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:50:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230095AbjADMuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:50:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CDCE17412
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:50:18 -0800 (PST)
+        with ESMTP id S230423AbjADMu6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:50:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 462621CB19
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:50:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DC15B8162F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:50:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F893C433D2;
-        Wed,  4 Jan 2023 12:50:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE8C7B81643
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44BBDC433D2;
+        Wed,  4 Jan 2023 12:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836615;
-        bh=klSrvD1odZYJ2ffXwmpcBWwa8d+k5f69ldG7ZhLg3Rc=;
+        s=korg; t=1672836653;
+        bh=A5z0lA/iPKfioOxZ4jxJA9OOtaEIvVt+RvOVGms8pHo=;
         h=Subject:To:Cc:From:Date:From;
-        b=RYhtGEl3wMKyGj3YppIyZ1W7Cj09PHVPZgbTUXz/rH+1utAAwK7MwGf4uLi+w6+Q4
-         Q2PJbSdi92Twym6PsnqnEiOpCPoaCiLXdIBgji7o9SzTctZzuS8h59Nr3faL8+m2hm
-         amb/B8rvqDZW3nXu7xnnwJvk6efKGOxwxWiDxX7E=
-Subject: FAILED: patch "[PATCH] perf/x86/intel/uncore: Clear attr_update properly" failed to apply to 5.10-stable tree
-To:     alexander.antonov@linux.intel.com, kan.liang@linux.intel.com,
-        peterz@infradead.org
+        b=qHK0AMW1ipRmsGAj3pd25c5dM7Q3wrMddh2zky98Sus0eztgyEkPtvm4Sxi+XmPkK
+         BgUXNTvVfaUezmVohh5KEv4zUv+W7xBk7SozhyUcmCV4zoFQhxshHgD+2LUxx5/LIS
+         uB4wMYwxZa2753HkY3BKEoXmcPKKsN2ezifuIIUw=
+Subject: FAILED: patch "[PATCH] clocksource/drivers/arm_arch_timer: Fix XGene-1 TVAL register" failed to apply to 6.1-stable tree
+To:     joe.korty@concurrent-rt.com, daniel.lezcano@kernel.org,
+        maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:50:12 +0100
-Message-ID: <1672836612100229@kroah.com>
+Date:   Wed, 04 Jan 2023 13:50:50 +0100
+Message-ID: <1672836650222222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,17 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-6532783310e2 ("perf/x86/intel/uncore: Clear attr_update properly")
-f471fac77b41 ("perf/x86/intel/uncore: Generalize I/O stacks to PMON mapping procedure")
-cface0326a6c ("perf/x86/intel/uncore: Enable IIO stacks to PMON mapping for multi-segment SKX")
-ba9506be4e40 ("perf/x86/intel/uncore: Store the logical die id instead of the physical die id.")
+45ae272a948a ("clocksource/drivers/arm_arch_timer: Fix XGene-1 TVAL register math error")
 
 thanks,
 
@@ -66,59 +63,86 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6532783310e2b2f50dc13f46c49aa6546cb6e7a3 Mon Sep 17 00:00:00 2001
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
-Date: Thu, 17 Nov 2022 12:28:25 +0000
-Subject: [PATCH] perf/x86/intel/uncore: Clear attr_update properly
+From 45ae272a948a03a7d55748bf52d2f47d3b4e1d5a Mon Sep 17 00:00:00 2001
+From: Joe Korty <joe.korty@concurrent-rt.com>
+Date: Mon, 21 Nov 2022 14:53:43 +0000
+Subject: [PATCH] clocksource/drivers/arm_arch_timer: Fix XGene-1 TVAL register
+ math error
 
-Current clear_attr_update procedure in pmu_set_mapping() sets attr_update
-field in NULL that is not correct because intel_uncore_type pmu types can
-contain several groups in attr_update field. For example, SPR platform
-already has uncore_alias_group to update and then UPI topology group will
-be added in next patches.
+The TVAL register is 32 bit signed.  Thus only the lower 31 bits are
+available to specify when an interrupt is to occur at some time in the
+near future.  Attempting to specify a larger interval with TVAL results
+in a negative time delta which means the timer fires immediately upon
+being programmed, rather than firing at that expected future time.
 
-Fix current behavior and clear attr_update group related to mapping only.
+The solution is for Linux to declare that TVAL is a 31 bit register rather
+than give its true size of 32 bits.  This prevents Linux from programming
+TVAL with a too-large value.  Note that, prior to 5.16, this little trick
+was the standard way to handle TVAL in Linux, so there is nothing new
+happening here on that front.
 
-Fixes: bb42b3d39781 ("perf/x86/intel/uncore: Expose an Uncore unit to IIO PMON mapping")
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221117122833.3103580-4-alexander.antonov@linux.intel.com
+The softlockup detector hides the issue, because it keeps generating
+short timer deadlines that are within the scope of the broken timer.
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index d3323f13c304..0d06b56b8a33 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3872,6 +3872,21 @@ static const struct attribute_group *skx_iio_attr_update[] = {
- 	NULL,
- };
+Disable it, and you start using NO_HZ with much longer timer deadlines,
+which turns into an interrupt flood:
+
+ 11: 1124855130  949168462  758009394   76417474  104782230   30210281
+         310890 1734323687     GICv2  29 Level     arch_timer
+
+And "much longer" isn't that long: it takes less than 43s to underflow
+TVAL at 50MHz (the frequency of the counter on XGene-1).
+
+Some comments on the v1 version of this patch by Marc Zyngier:
+
+  XGene implements CVAL (a 64bit comparator) in terms of TVAL (a countdown
+  register) instead of the other way around. TVAL being a 32bit register,
+  the width of the counter should equally be 32.  However, TVAL is a
+  *signed* value, and keeps counting down in the negative range once the
+  timer fires.
+
+  It means that any TVAL value with bit 31 set will fire immediately,
+  as it cannot be distinguished from an already expired timer. Reducing
+  the timer range back to a paltry 31 bits papers over the issue.
+
+  Another problem cannot be fixed though, which is that the timer interrupt
+  *must* be handled within the negative countdown period, or the interrupt
+  will be lost (TVAL will rollover to a positive value, indicative of a
+  new timer deadline).
+
+Cc: stable@vger.kernel.org # 5.16+
+Fixes: 012f18850452 ("clocksource/drivers/arm_arch_timer: Work around broken CVAL implementations")
+Signed-off-by: Joe Korty <joe.korty@concurrent-rt.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+[maz: revamped the commit message]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20221024165422.GA51107@zipoli.concurrent-rt.com
+Link: https://lore.kernel.org/r/20221121145343.896018-1-maz@kernel.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
+
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index 9c3420a0d19d..e2920da18ea1 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -806,6 +806,9 @@ static u64 __arch_timer_check_delta(void)
+ 		/*
+ 		 * XGene-1 implements CVAL in terms of TVAL, meaning
+ 		 * that the maximum timer range is 32bit. Shame on them.
++		 *
++		 * Note that TVAL is signed, thus has only 31 of its
++		 * 32 bits to express magnitude.
+ 		 */
+ 		MIDR_ALL_VERSIONS(MIDR_CPU_MODEL(ARM_CPU_IMP_APM,
+ 						 APM_CPU_PART_POTENZA)),
+@@ -813,8 +816,8 @@ static u64 __arch_timer_check_delta(void)
+ 	};
  
-+static void pmu_clear_mapping_attr(const struct attribute_group **groups,
-+				   struct attribute_group *ag)
-+{
-+	int i;
-+
-+	for (i = 0; groups[i]; i++) {
-+		if (groups[i] == ag) {
-+			for (i++; groups[i]; i++)
-+				groups[i - 1] = groups[i];
-+			groups[i - 1] = NULL;
-+			break;
-+		}
-+	}
-+}
-+
- static int
- pmu_set_mapping(struct intel_uncore_type *type, struct attribute_group *ag,
- 		ssize_t (*show)(struct device*, struct device_attribute*, char*),
-@@ -3926,7 +3941,7 @@ pmu_set_mapping(struct intel_uncore_type *type, struct attribute_group *ag,
- clear_topology:
- 	pmu_free_topology(type);
- clear_attr_update:
--	type->attr_update = NULL;
-+	pmu_clear_mapping_attr(type->attr_update, ag);
- 	return ret;
- }
- 
+ 	if (is_midr_in_range_list(read_cpuid_id(), broken_cval_midrs)) {
+-		pr_warn_once("Broken CNTx_CVAL_EL1, limiting width to 32bits");
+-		return CLOCKSOURCE_MASK(32);
++		pr_warn_once("Broken CNTx_CVAL_EL1, using 32 bit TVAL instead.\n");
++		return CLOCKSOURCE_MASK(31);
+ 	}
+ #endif
+ 	return CLOCKSOURCE_MASK(arch_counter_get_width());
 
