@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A71965D96D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2506565D96F
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239694AbjADQZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:25:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48044 "EHLO
+        id S239772AbjADQZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:25:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239786AbjADQZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA753F121
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:09 -0800 (PST)
+        with ESMTP id S239872AbjADQZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B088643197
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8808B81722
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 263C4C433EF;
-        Wed,  4 Jan 2023 16:24:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB3F61798
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4621AC433EF;
+        Wed,  4 Jan 2023 16:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849446;
-        bh=Ics49q2apegzyJk6UleG046jQ43q2/pwb4+WI0ZA+3w=;
+        s=korg; t=1672849452;
+        bh=/BJohr+0JpoCBzxjBbP6eXPaX8v7lhVJQyb8hQICTyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQlJoiVuV7aaNzcXh4POrGpMO24vb4hNmVZEV6sX38dRYufAr7PqiIkulOGAgNGgh
-         8HG9Ncrj4Fu9LEVFhQlcECeGr+d2w7M6TP6vdW8PsDMYo4wuRzMIWEVuoU6EVC/2cU
-         K48n8o/KHpFq7xwjj+Wwbml7CVgnFUBpHYgCPeIQ=
+        b=XDh71bFEUBqTgniCiSZ/3WGwpluyruWgF7vd7TEEICWvIlC072teB8lgSNiQYC2k/
+         FJrweuHOipoOM83yH+B79xVKWAreoAHe7AHmh/aKTgmnVv9WEVs56EiZ9+P0yFor5/
+         5XGTI+wlQ7tais8Wjh/BmRhayNbs2hi1Yu2vmqZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
-        Aristeu Rozanski <aris@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 6.0 124/177] device_cgroup: Roll back to original exceptions after copy failure
-Date:   Wed,  4 Jan 2023 17:06:55 +0100
-Message-Id: <20230104160511.399629422@linuxfoundation.org>
+        patches@lists.linux.dev, Simon Ser <contact@emersion.fr>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Lyude Paul <lyude@redhat.com>,
+        =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@redhat.com>
+Subject: [PATCH 6.0 125/177] drm/connector: send hotplug uevent on connector cleanup
+Date:   Wed,  4 Jan 2023 17:06:56 +0100
+Message-Id: <20230104160511.434651236@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -53,95 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Weiyang <wangweiyang2@huawei.com>
+From: Simon Ser <contact@emersion.fr>
 
-commit e68bfbd3b3c3a0ec3cf8c230996ad8cabe90322f upstream.
+commit 6fdc2d490ea1369d17afd7e6eb66fecc5b7209bc upstream.
 
-When add the 'a *:* rwm' entry to devcgroup A's whitelist, at first A's
-exceptions will be cleaned and A's behavior is changed to
-DEVCG_DEFAULT_ALLOW. Then parent's exceptions will be copyed to A's
-whitelist. If copy failure occurs, just return leaving A to grant
-permissions to all devices. And A may grant more permissions than
-parent.
+A typical DP-MST unplug removes a KMS connector. However care must
+be taken to properly synchronize with user-space. The expected
+sequence of events is the following:
 
-Backup A's whitelist and recover original exceptions after copy
-failure.
+1. The kernel notices that the DP-MST port is gone.
+2. The kernel marks the connector as disconnected, then sends a
+   uevent to make user-space re-scan the connector list.
+3. User-space notices the connector goes from connected to disconnected,
+   disables it.
+4. Kernel handles the IOCTL disabling the connector. On success,
+   the very last reference to the struct drm_connector is dropped and
+   drm_connector_cleanup() is called.
+5. The connector is removed from the list, and a uevent is sent to tell
+   user-space that the connector disappeared.
 
+The very last step was missing. As a result, user-space thought the
+connector still existed and could try to disable it again. Since the
+kernel no longer knows about the connector, that would end up with
+EINVAL and confused user-space.
+
+Fix this by sending a hotplug uevent from drm_connector_cleanup().
+
+Signed-off-by: Simon Ser <contact@emersion.fr>
 Cc: stable@vger.kernel.org
-Fixes: 4cef7299b478 ("device_cgroup: add proper checking when changing default behavior")
-Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
-Reviewed-by: Aristeu Rozanski <aris@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Jonas Ådahl <jadahl@redhat.com>
+Tested-by: Jonas Ådahl <jadahl@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221017153150.60675-2-contact@emersion.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/device_cgroup.c |   33 +++++++++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/drm_connector.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/security/device_cgroup.c
-+++ b/security/device_cgroup.c
-@@ -82,6 +82,17 @@ free_and_exit:
- 	return -ENOMEM;
+--- a/drivers/gpu/drm/drm_connector.c
++++ b/drivers/gpu/drm/drm_connector.c
+@@ -505,6 +505,9 @@ void drm_connector_cleanup(struct drm_co
+ 	mutex_destroy(&connector->mutex);
+ 
+ 	memset(connector, 0, sizeof(*connector));
++
++	if (dev->registered)
++		drm_sysfs_hotplug_event(dev);
  }
+ EXPORT_SYMBOL(drm_connector_cleanup);
  
-+static void dev_exceptions_move(struct list_head *dest, struct list_head *orig)
-+{
-+	struct dev_exception_item *ex, *tmp;
-+
-+	lockdep_assert_held(&devcgroup_mutex);
-+
-+	list_for_each_entry_safe(ex, tmp, orig, list) {
-+		list_move_tail(&ex->list, dest);
-+	}
-+}
-+
- /*
-  * called under devcgroup_mutex
-  */
-@@ -604,11 +615,13 @@ static int devcgroup_update_access(struc
- 	int count, rc = 0;
- 	struct dev_exception_item ex;
- 	struct dev_cgroup *parent = css_to_devcgroup(devcgroup->css.parent);
-+	struct dev_cgroup tmp_devcgrp;
- 
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 
- 	memset(&ex, 0, sizeof(ex));
-+	memset(&tmp_devcgrp, 0, sizeof(tmp_devcgrp));
- 	b = buffer;
- 
- 	switch (*b) {
-@@ -620,15 +633,27 @@ static int devcgroup_update_access(struc
- 
- 			if (!may_allow_all(parent))
- 				return -EPERM;
--			dev_exception_clean(devcgroup);
--			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
--			if (!parent)
-+			if (!parent) {
-+				devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
-+				dev_exception_clean(devcgroup);
- 				break;
-+			}
- 
-+			INIT_LIST_HEAD(&tmp_devcgrp.exceptions);
-+			rc = dev_exceptions_copy(&tmp_devcgrp.exceptions,
-+						 &devcgroup->exceptions);
-+			if (rc)
-+				return rc;
-+			dev_exception_clean(devcgroup);
- 			rc = dev_exceptions_copy(&devcgroup->exceptions,
- 						 &parent->exceptions);
--			if (rc)
-+			if (rc) {
-+				dev_exceptions_move(&devcgroup->exceptions,
-+						    &tmp_devcgrp.exceptions);
- 				return rc;
-+			}
-+			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
-+			dev_exception_clean(&tmp_devcgrp);
- 			break;
- 		case DEVCG_DENY:
- 			if (css_has_online_children(&devcgroup->css))
 
 
