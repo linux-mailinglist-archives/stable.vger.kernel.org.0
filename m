@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 809F365D32B
+	by mail.lfdr.de (Postfix) with ESMTP id CC35A65D32C
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:53:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233103AbjADMxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:53:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35072 "EHLO
+        id S232324AbjADMxk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:53:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233197AbjADMxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:53:30 -0500
+        with ESMTP id S232753AbjADMxd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:53:33 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C99B19C08
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:53:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6477CE0C7
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:53:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 047E9B81629
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:53:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46D0FC433EF;
-        Wed,  4 Jan 2023 12:53:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07914B81630
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:53:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26005C433F0;
+        Wed,  4 Jan 2023 12:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836806;
-        bh=GFaX7riYZNvfCzSpbaxgBZKJ1YTdwCtPr+4tqrhe7Sw=;
+        s=korg; t=1672836809;
+        bh=ef5xFR7Jz6ykIXFuv5LF1LAGZjVkss1B2l0WLqBw0Mg=;
         h=Subject:To:Cc:From:Date:From;
-        b=ApOwYyiK1xruRYdZNg/pTGpfuJEI8ixEMB8xptOFDy9vQ3d9waAoJUtJi8kFSx0lC
-         l22aPEO99NHOM44i6Tp1m47xMFGYGkJKLFZoIYBNLlNqWMcSGUNJos+hxOWzhEgGby
-         qYGqYue6dm30f2cRqacSUFLb/0l1W6bINFjEYf6M=
-Subject: FAILED: patch "[PATCH] btrfs: fix resolving backrefs for inline extent followed by" failed to apply to 4.14-stable tree
+        b=FEJy9D5a09XAwbegnehGDZmTMUNcNegYJLm883EYHlUK0+/Xb4z38eVQBos7Gbu+h
+         nIGEpVjokA+1xYPe9TwQ6cMGv9LPNpD4TjlsMtrvyna6XkGdqmyvhBcyI3qP0x17YJ
+         a/Vp8EwsH5R/n8hS29OofjO8KzqMVTVx946/ysbo=
+Subject: FAILED: patch "[PATCH] btrfs: fix resolving backrefs for inline extent followed by" failed to apply to 4.9-stable tree
 To:     boris@bur.io, dsterba@suse.com, wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:53:18 +0100
-Message-ID: <1672836798148126@kroah.com>
+Date:   Wed, 04 Jan 2023 13:53:20 +0100
+Message-ID: <167283680010799@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,7 @@ Possible dependencies:
 
 560840afc3e6 ("btrfs: fix resolving backrefs for inline extent followed by prealloc")
 7ac8b88ee668 ("btrfs: backref, only collect file extent items matching backref offset")
+de47c9d3ff87 ("btrfs: replace hardcoded value with SEQ_LAST macro")
 
 thanks,
 
