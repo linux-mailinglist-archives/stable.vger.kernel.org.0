@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0894C65D873
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:14:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F49065D823
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239914AbjADQOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:14:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37238 "EHLO
+        id S239606AbjADQLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:11:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239877AbjADQOj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:14:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED9341D77
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:07 -0800 (PST)
+        with ESMTP id S239875AbjADQKo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:10:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02E3A1573E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:10:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ADF4D6179F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A309AC433D2;
-        Wed,  4 Jan 2023 16:14:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6469B8171C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:10:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBF69C433F0;
+        Wed,  4 Jan 2023 16:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848846;
-        bh=EG94yDk3p9gBjrX3vaY88CsBNJcK0tVoHICSCY6KvSE=;
+        s=korg; t=1672848641;
+        bh=nxxioL4F4P3/WE2zNQBSlmVwJ7MeSriH6LWygpzA3hQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r5n0aHdvQedv9P9kDN5k0w25jqwPf8LGSk5zh67ZM5Cd/Z15NEpjWl4L83C29U89t
-         xyVMTzKE1JaQd9Ck/oHTg7U6xBzDr9E0nOW3o2e36NjbYGHGtH5lYCpYiDaxwxwF3/
-         j/BSfQzCgzkjbdMUQ5VsWkx88Kg85hYNSofLGJm4=
+        b=s7HBK9QhLVuGvRAuAjlq2xQVGCBuoNB4AKpd27Q1BjYcwCdt6qVlZzbHmxwQgw50m
+         QW4NDEeqMXcQWK2WmMaXm/9ZYxEx6+IJHT//TM6oXOMs4fRhiqRDo51sIYhiti64aR
+         sWtTH8Lfo3lEQWufTWJKr7zB1VUK2/E9Fe5IY/Og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenchao Chen <wenchao.chen@unisoc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.0 015/177] mmc: sdhci-sprd: Disable CLK_AUTO when the clock is less than 400K
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Maxim Mikityanskiy <maxtram95@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 048/207] platform/x86: ideapad-laptop: Refactor ideapad_sync_touchpad_state()
 Date:   Wed,  4 Jan 2023 17:05:06 +0100
-Message-Id: <20230104160508.119018476@linuxfoundation.org>
+Message-Id: <20230104160513.440679674@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenchao Chen <wenchao.chen@unisoc.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit ff874dbc4f868af128b412a9bd92637103cf11d7 upstream.
+[ Upstream commit 289a59895e7a380cdc7fe2780d3073f4b9237020 ]
 
-When the clock is less than 400K, some SD cards fail to initialize
-because CLK_AUTO is enabled.
+Add an error exit for read_ec_data() failing instead of putting the main
+body in an if (success) block.
 
-Fixes: fb8bd90f83c4 ("mmc: sdhci-sprd: Add Spreadtrum's initial host controller")
-Signed-off-by: Wenchao Chen <wenchao.chen@unisoc.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221207051909.32126-1-wenchao.chen@unisoc.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Tested-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Tested-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+Link: https://lore.kernel.org/r/20221117110244.67811-2-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-sprd.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/platform/x86/ideapad-laptop.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
---- a/drivers/mmc/host/sdhci-sprd.c
-+++ b/drivers/mmc/host/sdhci-sprd.c
-@@ -228,13 +228,15 @@ static inline void _sdhci_sprd_set_clock
- 	div = ((div & 0x300) >> 2) | ((div & 0xFF) << 8);
- 	sdhci_enable_clk(host, div);
+diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
+index 13e3ae731fd8..dcb3a82024da 100644
+--- a/drivers/platform/x86/ideapad-laptop.c
++++ b/drivers/platform/x86/ideapad-laptop.c
+@@ -1490,23 +1490,26 @@ static void ideapad_kbd_bl_exit(struct ideapad_private *priv)
+ static void ideapad_sync_touchpad_state(struct ideapad_private *priv)
+ {
+ 	unsigned long value;
++	unsigned char param;
++	int ret;
  
--	/* enable auto gate sdhc_enable_auto_gate */
--	val = sdhci_readl(host, SDHCI_SPRD_REG_32_BUSY_POSI);
--	mask = SDHCI_SPRD_BIT_OUTR_CLK_AUTO_EN |
--	       SDHCI_SPRD_BIT_INNR_CLK_AUTO_EN;
--	if (mask != (val & mask)) {
--		val |= mask;
--		sdhci_writel(host, val, SDHCI_SPRD_REG_32_BUSY_POSI);
-+	/* Enable CLK_AUTO when the clock is greater than 400K. */
-+	if (clk > 400000) {
-+		val = sdhci_readl(host, SDHCI_SPRD_REG_32_BUSY_POSI);
-+		mask = SDHCI_SPRD_BIT_OUTR_CLK_AUTO_EN |
-+			SDHCI_SPRD_BIT_INNR_CLK_AUTO_EN;
-+		if (mask != (val & mask)) {
-+			val |= mask;
-+			sdhci_writel(host, val, SDHCI_SPRD_REG_32_BUSY_POSI);
-+		}
- 	}
+ 	if (!priv->features.touchpad_ctrl_via_ec)
+ 		return;
+ 
+ 	/* Without reading from EC touchpad LED doesn't switch state */
+-	if (!read_ec_data(priv->adev->handle, VPCCMD_R_TOUCHPAD, &value)) {
+-		unsigned char param;
+-		/*
+-		 * Some IdeaPads don't really turn off touchpad - they only
+-		 * switch the LED state. We (de)activate KBC AUX port to turn
+-		 * touchpad off and on. We send KEY_TOUCHPAD_OFF and
+-		 * KEY_TOUCHPAD_ON to not to get out of sync with LED
+-		 */
+-		i8042_command(&param, value ? I8042_CMD_AUX_ENABLE : I8042_CMD_AUX_DISABLE);
+-		ideapad_input_report(priv, value ? 67 : 66);
+-		sysfs_notify(&priv->platform_device->dev.kobj, NULL, "touchpad");
+-	}
++	ret = read_ec_data(priv->adev->handle, VPCCMD_R_TOUCHPAD, &value);
++	if (ret)
++		return;
++
++	/*
++	 * Some IdeaPads don't really turn off touchpad - they only
++	 * switch the LED state. We (de)activate KBC AUX port to turn
++	 * touchpad off and on. We send KEY_TOUCHPAD_OFF and
++	 * KEY_TOUCHPAD_ON to not to get out of sync with LED
++	 */
++	i8042_command(&param, value ? I8042_CMD_AUX_ENABLE : I8042_CMD_AUX_DISABLE);
++	ideapad_input_report(priv, value ? 67 : 66);
++	sysfs_notify(&priv->platform_device->dev.kobj, NULL, "touchpad");
  }
  
+ static void ideapad_acpi_notify(acpi_handle handle, u32 event, void *data)
+-- 
+2.35.1
+
 
 
