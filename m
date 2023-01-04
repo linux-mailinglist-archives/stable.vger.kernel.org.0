@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C6865D969
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A812365D8BD
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235040AbjADQZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:25:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46254 "EHLO
+        id S239890AbjADQRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:17:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240096AbjADQYq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A7233D72
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:00 -0800 (PST)
+        with ESMTP id S239903AbjADQRj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25C373AAA2
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 00A5ACE1851
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2214C433D2;
-        Wed,  4 Jan 2023 16:23:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA960B81714
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 179DFC433EF;
+        Wed,  4 Jan 2023 16:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849437;
-        bh=s0kT/Y1VsWxsKgOLbCakZ/h0VaCKTkR4AhzbQxJecp4=;
+        s=korg; t=1672849056;
+        bh=rEQwKburwAjhvZf1nVvtLJP3EGo5KVNAlqkQxr7jGHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtQBRa2wjIZvVJfovXwlMbPCIcCdqqBIMC5t9DbRkbasjaHGJCir3YhKZCvHX9llx
-         AGHZ8/x4i6CFC+LXgbDJnBA2mKPcm5HrTdtGxXAGp9yLaaLdXF4Fp2rRAaOw38tYoS
-         POqF6iFl0HblsYCP/BBp5nCY5Bm/DwhJqooFwcBY=
+        b=1EjlCC6hrvdrkMfVWGMLCOysqSkXKC91drTJc755Hpjf3liEdQz2u8X+y7oJ+dVXc
+         kqro+fM1iuMUxd6mEWO5L+AAQ19cTsqXSdVukMxNg6YQeCfhL8Gd3N1gCcKz/66txZ
+         Ezm6VvSNwEOu89VEPdSgb+/WPtlCh8qh49tl40KI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Walle <michael@walle.cc>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 6.0 092/177] wifi: wilc1000: sdio: fix module autoloading
-Date:   Wed,  4 Jan 2023 17:06:23 +0100
-Message-Id: <20230104160510.428294490@linuxfoundation.org>
+        patches@lists.linux.dev, Wei Gong <gongwei833x@gmail.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 6.1 126/207] PCI: Fix pci_device_is_present() for VFs by checking PF
+Date:   Wed,  4 Jan 2023 17:06:24 +0100
+Message-Id: <20230104160515.913306798@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-commit 57d545b5a3d6ce3a8fb6b093f02bfcbb908973f3 upstream.
+commit 98b04dd0b4577894520493d96bc4623387767445 upstream.
 
-There are no SDIO module aliases included in the driver, therefore,
-module autoloading isn't working. Add the proper MODULE_DEVICE_TABLE().
+pci_device_is_present() previously didn't work for VFs because it reads the
+Vendor and Device ID, which are 0xffff for VFs, which looks like they
+aren't present.  Check the PF instead.
 
+Wei Gong reported that if virtio I/O is in progress when the driver is
+unbound or "0" is written to /sys/.../sriov_numvfs, the virtio I/O
+operation hangs, which may result in output like this:
+
+  task:bash state:D stack:    0 pid: 1773 ppid:  1241 flags:0x00004002
+  Call Trace:
+   schedule+0x4f/0xc0
+   blk_mq_freeze_queue_wait+0x69/0xa0
+   blk_mq_freeze_queue+0x1b/0x20
+   blk_cleanup_queue+0x3d/0xd0
+   virtblk_remove+0x3c/0xb0 [virtio_blk]
+   virtio_dev_remove+0x4b/0x80
+   ...
+   device_unregister+0x1b/0x60
+   unregister_virtio_device+0x18/0x30
+   virtio_pci_remove+0x41/0x80
+   pci_device_remove+0x3e/0xb0
+
+This happened because pci_device_is_present(VF) returned "false" in
+virtio_pci_remove(), so it called virtio_break_device().  The broken vq
+meant that vring_interrupt() skipped the vq.callback() that would have
+completed the virtio I/O operation via virtblk_done().
+
+[bhelgaas: commit log, simplify to always use pci_physfn(), add stable tag]
+Link: https://lore.kernel.org/r/20221026060912.173250-1-mst@redhat.com
+Reported-by: Wei Gong <gongwei833x@gmail.com>
+Tested-by: Wei Gong <gongwei833x@gmail.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221027171221.491937-1-michael@walle.cc
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/microchip/wilc1000/sdio.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/wireless/microchip/wilc1000/sdio.c
-+++ b/drivers/net/wireless/microchip/wilc1000/sdio.c
-@@ -20,6 +20,7 @@ static const struct sdio_device_id wilc_
- 	{ SDIO_DEVICE(SDIO_VENDOR_ID_MICROCHIP_WILC, SDIO_DEVICE_ID_MICROCHIP_WILC1000) },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(sdio, wilc_sdio_ids);
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -6447,6 +6447,8 @@ bool pci_device_is_present(struct pci_de
+ {
+ 	u32 v;
  
- #define WILC_SDIO_BLOCK_SIZE 512
- 
++	/* Check PF if pdev is a VF, since VF Vendor/Device IDs are 0xffff */
++	pdev = pci_physfn(pdev);
+ 	if (pci_dev_is_disconnected(pdev))
+ 		return false;
+ 	return pci_bus_read_dev_vendor_id(pdev->bus, pdev->devfn, &v, 0);
 
 
