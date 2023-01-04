@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1BF65D985
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D38B65D952
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:23:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239872AbjADQ0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48192 "EHLO
+        id S239976AbjADQXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:23:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239347AbjADQZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:16 -0500
+        with ESMTP id S239975AbjADQXl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:23:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D73053F137
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EEDE33D52
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 730C661798
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F915C433F0;
-        Wed,  4 Jan 2023 16:24:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D77C0617AE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DABFDC433EF;
+        Wed,  4 Jan 2023 16:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849479;
-        bh=5dC3nqAyJWDTjXZ9KBsC2wLZQkUsc5xPMLJIaUBAO0k=;
+        s=korg; t=1672849386;
+        bh=lPu347q23qT8IUIepqbkxwSfFGzUOIOcyRJYtnX5yTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BaLbyVGyIvlJ5TQZOM03jHjH9lkVlMkOwDhjjNe9fX8XigY312fo9dVkqGr7JGNqn
-         eP70hJSXw7LaAgUjXMAJOdf3tUxMyFK8A0iwimQd6qSP4Mwe8NajKnfc0ZrzmQ8ztb
-         uRpx8UK7srIncu14rBVHa+CPUUwSU1bsENyLVtK0=
+        b=E6f99Y2elFpE8horHU3qxt9EbqCJCO0avGF4yNZz/IpUfgNsCFdkw6A9QPeL5ffzM
+         3AMTKFh4MWM4ZCxSxWwpwAEJ0KwSz7kcZEa2GCfCDqfITxGAijsF0h635aomzfW+S4
+         ANPTq7KNMwIHQrpsJhItzPHsA1k525v5eYspdfPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 6.0 129/177] drm/ingenic: Fix missing platform_driver_unregister() call in ingenic_drm_init()
+        patches@lists.linux.dev, stable@kernel.org,
+        Baokun Li <libaokun1@huawei.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.1 162/207] ext4: add inode table check in __ext4_get_inode_loc to aovid possible infinite loop
 Date:   Wed,  4 Jan 2023 17:07:00 +0100
-Message-Id: <20230104160511.557026264@linuxfoundation.org>
+Message-Id: <20230104160517.019455453@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 47078311b8efebdefd5b3b2f87e2b02b14f49c66 upstream.
+commit eee22187b53611e173161e38f61de1c7ecbeb876 upstream.
 
-A problem about modprobe ingenic-drm failed is triggered with the following
-log given:
+In do_writepages, if the value returned by ext4_writepages is "-ENOMEM"
+and "wbc->sync_mode == WB_SYNC_ALL", retry until the condition is not met.
 
- [  303.561088] Error: Driver 'ingenic-ipu' is already registered, aborting...
- modprobe: ERROR: could not insert 'ingenic_drm': Device or resource busy
+In __ext4_get_inode_loc, if the bh returned by sb_getblk is NULL,
+the function returns -ENOMEM.
 
-The reason is that ingenic_drm_init() returns platform_driver_register()
-directly without checking its return value, if platform_driver_register()
-failed, it returns without unregistering ingenic_ipu_driver_ptr, resulting
-the ingenic-drm can never be installed later.
-A simple call graph is shown as below:
+In __getblk_slow, if the return value of grow_buffers is less than 0,
+the function returns NULL.
 
- ingenic_drm_init()
-   platform_driver_register() # ingenic_ipu_driver_ptr are registered
-   platform_driver_register()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without unregister ingenic_ipu_driver_ptr
+When the three processes are connected in series like the following stack,
+an infinite loop may occur:
 
-Fixing this problem by checking the return value of
-platform_driver_register() and do platform_unregister_drivers() if
-error happened.
+do_writepages					<--- keep retrying
+ ext4_writepages
+  mpage_map_and_submit_extent
+   mpage_map_one_extent
+    ext4_map_blocks
+     ext4_ext_map_blocks
+      ext4_ext_handle_unwritten_extents
+       ext4_ext_convert_to_initialized
+        ext4_split_extent
+         ext4_split_extent_at
+          __ext4_ext_dirty
+           __ext4_mark_inode_dirty
+            ext4_reserve_inode_write
+             ext4_get_inode_loc
+              __ext4_get_inode_loc		<--- return -ENOMEM
+               sb_getblk
+                __getblk_gfp
+                 __getblk_slow			<--- return NULL
+                  grow_buffers
+                   grow_dev_page		<--- return -ENXIO
+                    ret = (block < end_block) ? 1 : -ENXIO;
 
-Fixes: fc1acf317b01 ("drm/ingenic: Add support for the IPU")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221104064512.8569-1-yuancan@huawei.com
+In this issue, bg_inode_table_hi is overwritten as an incorrect value.
+As a result, `block < end_block` cannot be met in grow_dev_page.
+Therefore, __ext4_get_inode_loc always returns '-ENOMEM' and do_writepages
+keeps retrying. As a result, the writeback process is in the D state due
+to an infinite loop.
+
+Add a check on inode table block in the __ext4_get_inode_loc function by
+referring to ext4_read_inode_bitmap to avoid this infinite loop.
+
+Cc: stable@kernel.org
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220817132701.3015912-3-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm-drv.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/ext4/inode.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-@@ -1601,7 +1601,11 @@ static int ingenic_drm_init(void)
- 			return err;
- 	}
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4473,9 +4473,17 @@ static int __ext4_get_inode_loc(struct s
+ 	inodes_per_block = EXT4_SB(sb)->s_inodes_per_block;
+ 	inode_offset = ((ino - 1) %
+ 			EXT4_INODES_PER_GROUP(sb));
+-	block = ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block);
+ 	iloc->offset = (inode_offset % inodes_per_block) * EXT4_INODE_SIZE(sb);
  
--	return platform_driver_register(&ingenic_drm_driver);
-+	err = platform_driver_register(&ingenic_drm_driver);
-+	if (IS_ENABLED(CONFIG_DRM_INGENIC_IPU) && err)
-+		platform_driver_unregister(ingenic_ipu_driver_ptr);
++	block = ext4_inode_table(sb, gdp);
++	if ((block <= le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block)) ||
++	    (block >= ext4_blocks_count(EXT4_SB(sb)->s_es))) {
++		ext4_error(sb, "Invalid inode table block %llu in "
++			   "block_group %u", block, iloc->block_group);
++		return -EFSCORRUPTED;
++	}
++	block += (inode_offset / inodes_per_block);
 +
-+	return err;
- }
- module_init(ingenic_drm_init);
- 
+ 	bh = sb_getblk(sb, block);
+ 	if (unlikely(!bh))
+ 		return -ENOMEM;
 
 
