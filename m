@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C74D065D99B
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6B265D9CF
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:30:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239759AbjADQ0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50594 "EHLO
+        id S239213AbjADQ3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:29:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239889AbjADQ0L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D91911C19
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:10 -0800 (PST)
+        with ESMTP id S240026AbjADQ27 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3025431AD
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:28:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19A4BB81722
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 609EDC433D2;
-        Wed,  4 Jan 2023 16:26:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A002B817BB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:28:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5B9CC433F0;
+        Wed,  4 Jan 2023 16:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849567;
-        bh=4Wp4zqTIS/DMm/uEEpuWrevVUzNF2qEy0nVekrEUqYA=;
+        s=korg; t=1672849688;
+        bh=66TTpy8zi1Ms8RUsKRu+PHzGU87iM1FxkdGpHYvckPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYAqt/sbnrnz2AUY8I2nywOTRrhGlJy7A3pSkEYrIDjFeHZROWtTLqDangjYchBLk
-         o+tKamXcAm32Ad/649ZqnBLsIKl12Hb+1FQPR6RF8n/obBKtRm6kAQ4H8Vfm8mgSBc
-         pVX9ftsjcmvFxp32rqurre+yKQfUacscL7N84fYk=
+        b=gUq7JCJmg/NVLZoxn1+eBythlSE7WAzIQlNB/Q/9ku+cvIOCh0i6Ya4tnf6zIQEDL
+         jceKNNu+8CURM/WumtIGyu96llIwitW7xCDegpWBcmvRAkl8tlCuHjDkw5F/9YaLia
+         0oLQlmildV9NvgWIfiqxY0ypID685g5iG1FKxfSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
+        patches@lists.linux.dev,
+        syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
         Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.0 144/177] ext4: fix bug_on in __es_tree_search caused by bad boot loader inode
-Date:   Wed,  4 Jan 2023 17:07:15 +0100
-Message-Id: <20230104160512.023844159@linuxfoundation.org>
+Subject: [PATCH 6.0 145/177] ext4: dont allow journal inode to have encrypt flag
+Date:   Wed,  4 Jan 2023 17:07:16 +0100
+Message-Id: <20230104160512.054136761@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -53,96 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 991ed014de0840c5dc405b679168924afb2952ac upstream.
+commit 105c78e12468413e426625831faa7db4284e1fec upstream.
 
-We got a issue as fllows:
-==================================================================
- kernel BUG at fs/ext4/extents_status.c:203!
- invalid opcode: 0000 [#1] PREEMPT SMP
- CPU: 1 PID: 945 Comm: cat Not tainted 6.0.0-next-20221007-dirty #349
- RIP: 0010:ext4_es_end.isra.0+0x34/0x42
- RSP: 0018:ffffc9000143b768 EFLAGS: 00010203
- RAX: 0000000000000000 RBX: ffff8881769cd0b8 RCX: 0000000000000000
- RDX: 0000000000000000 RSI: ffffffff8fc27cf7 RDI: 00000000ffffffff
- RBP: ffff8881769cd0bc R08: 0000000000000000 R09: ffffc9000143b5f8
- R10: 0000000000000001 R11: 0000000000000001 R12: ffff8881769cd0a0
- R13: ffff8881768e5668 R14: 00000000768e52f0 R15: 0000000000000000
- FS: 00007f359f7f05c0(0000)GS:ffff88842fd00000(0000)knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007f359f5a2000 CR3: 000000017130c000 CR4: 00000000000006e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  <TASK>
-  __es_tree_search.isra.0+0x6d/0xf5
-  ext4_es_cache_extent+0xfa/0x230
-  ext4_cache_extents+0xd2/0x110
-  ext4_find_extent+0x5d5/0x8c0
-  ext4_ext_map_blocks+0x9c/0x1d30
-  ext4_map_blocks+0x431/0xa50
-  ext4_mpage_readpages+0x48e/0xe40
-  ext4_readahead+0x47/0x50
-  read_pages+0x82/0x530
-  page_cache_ra_unbounded+0x199/0x2a0
-  do_page_cache_ra+0x47/0x70
-  page_cache_ra_order+0x242/0x400
-  ondemand_readahead+0x1e8/0x4b0
-  page_cache_sync_ra+0xf4/0x110
-  filemap_get_pages+0x131/0xb20
-  filemap_read+0xda/0x4b0
-  generic_file_read_iter+0x13a/0x250
-  ext4_file_read_iter+0x59/0x1d0
-  vfs_read+0x28f/0x460
-  ksys_read+0x73/0x160
-  __x64_sys_read+0x1e/0x30
-  do_syscall_64+0x35/0x80
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-  </TASK>
-==================================================================
+Mounting a filesystem whose journal inode has the encrypt flag causes a
+NULL dereference in fscrypt_limit_io_blocks() when the 'inlinecrypt'
+mount option is used.
 
-In the above issue, ioctl invokes the swap_inode_boot_loader function to
-swap inode<5> and inode<12>. However, inode<5> contain incorrect imode and
-disordered extents, and i_nlink is set to 1. The extents check for inode in
-the ext4_iget function can be bypassed bacause 5 is EXT4_BOOT_LOADER_INO.
-While links_count is set to 1, the extents are not initialized in
-swap_inode_boot_loader. After the ioctl command is executed successfully,
-the extents are swapped to inode<12>, in this case, run the `cat` command
-to view inode<12>. And Bug_ON is triggered due to the incorrect extents.
+The problem is that when jbd2_journal_init_inode() calls bmap(), it
+eventually finds its way into ext4_iomap_begin(), which calls
+fscrypt_limit_io_blocks().  fscrypt_limit_io_blocks() requires that if
+the inode is encrypted, then its encryption key must already be set up.
+That's not the case here, since the journal inode is never "opened" like
+a normal file would be.  Hence the crash.
 
-When the boot loader inode is not initialized, its imode can be one of the
-following:
-1) the imode is a bad type, which is marked as bad_inode in ext4_iget and
-   set to S_IFREG.
-2) the imode is good type but not S_IFREG.
-3) the imode is S_IFREG.
+A reproducer is:
 
-The BUG_ON may be triggered by bypassing the check in cases 1 and 2.
-Therefore, when the boot loader inode is bad_inode or its imode is not
-S_IFREG, initialize the inode to avoid triggering the BUG.
+    mkfs.ext4 -F /dev/vdb
+    debugfs -w /dev/vdb -R "set_inode_field <8> flags 0x80808"
+    mount /dev/vdb /mnt -o inlinecrypt
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221026042310.3839669-5-libaokun1@huawei.com
+To fix this, make ext4 consider journal inodes with the encrypt flag to
+be invalid.  (Note, maybe other flags should be rejected on the journal
+inode too.  For now, this is just the minimal fix for the above issue.)
+
+I've marked this as fixing the commit that introduced the call to
+fscrypt_limit_io_blocks(), since that's what made an actual crash start
+being possible.  But this fix could be applied to any version of ext4
+that supports the encrypt feature.
+
+Reported-by: syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com
+Fixes: 38ea50daa7a4 ("ext4: support direct I/O with fscrypt using blk-crypto")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221102053312.189962-1-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ioctl.c |    2 +-
+ fs/ext4/super.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -425,7 +425,7 @@ static long swap_inode_boot_loader(struc
- 	/* Protect extent tree against block allocations via delalloc */
- 	ext4_double_down_write_data_sem(inode, inode_bl);
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5580,7 +5580,7 @@ static struct inode *ext4_get_journal_in
  
--	if (inode_bl->i_nlink == 0) {
-+	if (is_bad_inode(inode_bl) || !S_ISREG(inode_bl->i_mode)) {
- 		/* this inode has never been used as a BOOT_LOADER */
- 		set_nlink(inode_bl, 1);
- 		i_uid_write(inode_bl, 0);
+ 	ext4_debug("Journal inode found at %p: %lld bytes\n",
+ 		  journal_inode, journal_inode->i_size);
+-	if (!S_ISREG(journal_inode->i_mode)) {
++	if (!S_ISREG(journal_inode->i_mode) || IS_ENCRYPTED(journal_inode)) {
+ 		ext4_msg(sb, KERN_ERR, "invalid journal inode");
+ 		iput(journal_inode);
+ 		return NULL;
 
 
