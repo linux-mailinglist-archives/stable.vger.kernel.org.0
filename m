@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F22065D81D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:11:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D98A265D84C
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239660AbjADQLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:11:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59194 "EHLO
+        id S239780AbjADQN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:13:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239834AbjADQK1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:10:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7393C383
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:10:26 -0800 (PST)
+        with ESMTP id S239851AbjADQMj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AD6ADE94
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0975FB8172C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:10:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D054C433F0;
-        Wed,  4 Jan 2023 16:10:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D98F9B81722
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3187FC433EF;
+        Wed,  4 Jan 2023 16:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848623;
-        bh=4jPqXFMhNxysDSk6MMt4svZhTRk+or76IICxTIrujRM=;
+        s=korg; t=1672848756;
+        bh=hj+zY7cQJhO7F/fcOhPf9qe6r17hp6PKEhAVYrhHZcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RxfAf5LtW8cUYTdUcJPqIG8xpDXgjv/blmMxWTJfAjfLX/9s7pULNSX/mH2TgW6GJ
-         vO5OMuIor9x5VeZ3TuNsUXXN5M7tWIc7DgX1GzMzQYxp/intdUSBIHAB+eQrABiy9t
-         kTARGzzzCzpNyThFPQH8iW+8W7bqbKT3ugoQLqPI=
+        b=c6yQJVX+woOkG4jTZim3xNUI8flIobrCEu13Z57b5eXkL3sY+wFpBavTDe5ZkUTzP
+         kKFlPMmZbMQbp/G02YpUW7/n3kY1YXEmm+PUIM2lcKsKofYHJ2GfmZL2UYxwJjLqMl
+         5imhaxFRvTTQMXzZKg8PU8mP5Z8LCeucg7fa13iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Micha=C5=82=20Szczepaniak?= <m.szczepaniak.000@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 042/207] platform/x86: thinkpad_acpi: Fix max_brightness of thinklight
+        "John Warthog9 Hawley (VMware)" <warthog9@eaglescrag.net>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 6.0 009/177] ktest.pl minconfig: Unset configs instead of just removing them
 Date:   Wed,  4 Jan 2023 17:05:00 +0100
-Message-Id: <20230104160513.247718634@linuxfoundation.org>
+Message-Id: <20230104160507.940666348@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-[ Upstream commit db5e2a4ca0a7a5fe54f410590292ea2e91de6798 ]
+commit ef784eebb56425eed6e9b16e7d47e5c00dcf9c38 upstream.
 
-Thinklight has only two values, on/off so it's reasonable for
-max_brightness to be 0 and 1 as if you write anything between 0 and 255
-it will be 255 anyway so there's no point for it to be 255.
+After a full run of a make_min_config test, I noticed there were a lot of
+CONFIGs still enabled that really should not be. Looking at them, I
+noticed they were all defined as "default y". The issue is that the test
+simple removes the config and re-runs make oldconfig, which enables it
+again because it is set to default 'y'. Instead, explicitly disable the
+config with writing "# CONFIG_FOO is not set" to the file to keep it from
+being set again.
 
-This may look like it is a userspace API change, but writes with
-a value larget then the new max_brightness will still be accepted,
-these will be silently clamped to the new max_brightness by
-led_set_brightness_nosleep(). So no userspace API problems are
-expected.
+With this change, one of my box's minconfigs went from 768 configs set,
+down to 521 configs set.
 
-Reported-by: Michał Szczepaniak <m.szczepaniak.000@gmail.com>
-Link: https://lore.kernel.org/platform-driver-x86/55400326-e64f-5444-94e5-22b8214d00b6@gmail.com/
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20221202115936.016fce23@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Fixes: 0a05c769a9de5 ("ktest: Added config_bisect test type")
+Reviewed-by: John 'Warthog9' Hawley (VMware) <warthog9@eaglescrag.net>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/ktest/ktest.pl |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 8476dfef4e62..a1d91736a03b 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -5572,6 +5572,7 @@ static enum led_brightness light_sysfs_get(struct led_classdev *led_cdev)
- static struct tpacpi_led_classdev tpacpi_led_thinklight = {
- 	.led_classdev = {
- 		.name		= "tpacpi::thinklight",
-+		.max_brightness	= 1,
- 		.brightness_set_blocking = &light_sysfs_set,
- 		.brightness_get	= &light_sysfs_get,
- 	}
--- 
-2.35.1
-
+--- a/tools/testing/ktest/ktest.pl
++++ b/tools/testing/ktest/ktest.pl
+@@ -3778,9 +3778,10 @@ sub test_this_config {
+     # .config to make sure it is missing the config that
+     # we had before
+     my %configs = %min_configs;
+-    delete $configs{$config};
++    $configs{$config} = "# $config is not set";
+     make_new_config ((values %configs), (values %keep_configs));
+     make_oldconfig;
++    delete $configs{$config};
+     undef %configs;
+     assign_configs \%configs, $output_config;
+ 
 
 
