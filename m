@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3F165D84D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF81B65D819
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239688AbjADQN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:13:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34358 "EHLO
+        id S239168AbjADQLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:11:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239815AbjADQMc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA0F3C74A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:31 -0800 (PST)
+        with ESMTP id S239792AbjADQKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:10:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9850938AF5
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:10:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71D406179B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8307FC433F0;
-        Wed,  4 Jan 2023 16:12:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3879061798
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:10:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C612C433F0;
+        Wed,  4 Jan 2023 16:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848750;
-        bh=J3fX5e4y2THab1EuQpPnMsa/0H8Leg+fhzKfUtBMB5o=;
+        s=korg; t=1672848620;
+        bh=+CkOSSxpaExIoYpyLUKqpsnVpZXYlhaD5fNo6N8ORvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CLF/5zROMXUgJWUhwxqe0xJiRHW57gh86ULYrkD8ycEF6cnv1FdhaMAjYRDgafPdn
-         YOjl3dyjv4xA4g3ZVYYXTGkrPHVyvSa5gCcgyFWIBf7cU0/YABDrjl1+GPKT/fDvIn
-         ay8CyXNy7gnLJk4feu3OD0PndEd3Hhm1fXndI2W0=
+        b=2JSddyYRVPNEcX27SQK69O2iBuIy2wou6d3cVQWHvSPknEV+OPL87AoC2rvnBnose
+         QXN5zunt9DIrvr94PKmEwqzl3Mr9/T1OT51aMQ4hwybocawpQshB+Iia0w2Mf4iJcc
+         rMPPS+f4Ngoe0kTOPkH3wHbHWLEuRcl3gfwyXdm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "John Warthog9 Hawley (VMware)" <warthog9@eaglescrag.net>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 6.0 008/177] kest.pl: Fix grub2 menu handling for rebooting
+        patches@lists.linux.dev, Chris Chiu <chris.chiu@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 041/207] ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude laptops
 Date:   Wed,  4 Jan 2023 17:04:59 +0100
-Message-Id: <20230104160507.910371956@linuxfoundation.org>
+Message-Id: <20230104160513.214193048@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,123 +52,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Chris Chiu <chris.chiu@canonical.com>
 
-commit 26df05a8c1420ad3de314fdd407e7fc2058cc7aa upstream.
+[ Upstream commit a4517c4f3423c7c448f2c359218f97c1173523a1 ]
 
-grub2 has submenus where to use grub-reboot, it requires:
+The Dell Latiture 3340/3440/3540 laptops with Realtek ALC3204 have
+dual codecs and need the ALC1220_FIXUP_GB_DUAL_CODECS to fix the
+conflicts of Master controls. The existing headset mic fixup for
+Dell is also required to enable the jack sense and the headset mic.
 
-  grub-reboot X>Y
+Introduce a new fixup to fix the dual codec and headset mic issues
+for particular Dell laptops since other old Dell laptops with the
+same codec configuration are already well handled by the fixup in
+alc269_fallback_pin_fixup_tbl[].
 
-where X is the main index and Y is the submenu. Thus if you have:
-
-menuentry 'Debian GNU/Linux' --class debian --class gnu-linux ...
-	[...]
-}
-submenu 'Advanced options for Debian GNU/Linux' $menuentry_id_option ...
-        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64' --class debian --class gnu-linux ...
-                [...]
-        }
-        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64 (recovery mode)' --class debian --class gnu-linux ...
-		[...]
-        }
-        menuentry 'Debian GNU/Linux, with Linux test' --class debian --class gnu-linux ...
-                [...]
-        }
-
-And wanted to boot to the "Linux test" kernel, you need to run:
-
- # grub-reboot 1>2
-
-As 1 is the second top menu (the submenu) and 2 is the third of the sub
-menu entries.
-
-Have the grub.cfg parsing for grub2 handle such cases.
-
-Cc: stable@vger.kernel.org
-Fixes: a15ba91361d46 ("ktest: Add support for grub2")
-Reviewed-by: John 'Warthog9' Hawley (VMware) <warthog9@eaglescrag.net>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221226114303.4027500-1-chris.chiu@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/ktest/ktest.pl |   20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ sound/pci/hda/patch_realtek.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -1963,7 +1963,7 @@ sub run_scp_mod {
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index e443d88f627f..3794b522c222 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7175,6 +7175,7 @@ enum {
+ 	ALC287_FIXUP_YOGA9_14IAP7_BASS_SPK,
+ 	ALC287_FIXUP_YOGA9_14IAP7_BASS_SPK_PIN,
+ 	ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS,
++	ALC236_FIXUP_DELL_DUAL_CODECS,
+ };
  
- sub _get_grub_index {
+ /* A special fixup for Lenovo C940 and Yoga Duet 7;
+@@ -9130,6 +9131,12 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
+ 	},
++	[ALC236_FIXUP_DELL_DUAL_CODECS] = {
++		.type = HDA_FIXUP_PINS,
++		.v.func = alc1220_fixup_gb_dual_codecs,
++		.chained = true,
++		.chain_id = ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
++	},
+ };
  
--    my ($command, $target, $skip) = @_;
-+    my ($command, $target, $skip, $submenu) = @_;
- 
-     return if (defined($grub_number) && defined($last_grub_menu) &&
- 	$last_grub_menu eq $grub_menu && defined($last_machine) &&
-@@ -1980,11 +1980,16 @@ sub _get_grub_index {
- 
-     my $found = 0;
- 
-+    my $submenu_number = 0;
-+
-     while (<IN>) {
- 	if (/$target/) {
- 	    $grub_number++;
- 	    $found = 1;
- 	    last;
-+	} elsif (defined($submenu) && /$submenu/) {
-+		$submenu_number++;
-+		$grub_number = -1;
- 	} elsif (/$skip/) {
- 	    $grub_number++;
- 	}
-@@ -1993,6 +1998,9 @@ sub _get_grub_index {
- 
-     dodie "Could not find '$grub_menu' through $command on $machine"
- 	if (!$found);
-+    if ($submenu_number > 0) {
-+	$grub_number = "$submenu_number>$grub_number";
-+    }
-     doprint "$grub_number\n";
-     $last_grub_menu = $grub_menu;
-     $last_machine = $machine;
-@@ -2003,6 +2011,7 @@ sub get_grub_index {
-     my $command;
-     my $target;
-     my $skip;
-+    my $submenu;
-     my $grub_menu_qt;
- 
-     if ($reboot_type !~ /^grub/) {
-@@ -2017,8 +2026,9 @@ sub get_grub_index {
- 	$skip = '^\s*title\s';
-     } elsif ($reboot_type eq "grub2") {
- 	$command = "cat $grub_file";
--	$target = '^menuentry.*' . $grub_menu_qt;
--	$skip = '^menuentry\s|^submenu\s';
-+	$target = '^\s*menuentry.*' . $grub_menu_qt;
-+	$skip = '^\s*menuentry';
-+	$submenu = '^\s*submenu\s';
-     } elsif ($reboot_type eq "grub2bls") {
- 	$command = $grub_bls_get;
- 	$target = '^title=.*' . $grub_menu_qt;
-@@ -2027,7 +2037,7 @@ sub get_grub_index {
- 	return;
-     }
- 
--    _get_grub_index($command, $target, $skip);
-+    _get_grub_index($command, $target, $skip, $submenu);
- }
- 
- sub wait_for_input {
-@@ -2090,7 +2100,7 @@ sub reboot_to {
-     if ($reboot_type eq "grub") {
- 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
-     } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
--	run_ssh "$grub_reboot $grub_number";
-+	run_ssh "$grub_reboot \"'$grub_number'\"";
-     } elsif ($reboot_type eq "syslinux") {
- 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
-     } elsif (defined $reboot_script) {
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -9232,6 +9239,12 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1028, 0x0b1a, "Dell Precision 5570", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x0b37, "Dell Inspiron 16 Plus 7620 2-in-1", ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS),
+ 	SND_PCI_QUIRK(0x1028, 0x0b71, "Dell Inspiron 16 Plus 7620", ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS),
++	SND_PCI_QUIRK(0x1028, 0x0c19, "Dell Precision 3340", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1a, "Dell Precision 3340", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1b, "Dell Precision 3440", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1c, "Dell Precision 3540", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1d, "Dell Precision 3440", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1e, "Dell Precision 3540", ALC236_FIXUP_DELL_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+-- 
+2.35.1
+
 
 
