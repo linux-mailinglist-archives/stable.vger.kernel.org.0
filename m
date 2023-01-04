@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D38B65D952
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:23:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D3465D965
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239976AbjADQXx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:23:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46644 "EHLO
+        id S239762AbjADQZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:25:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239975AbjADQXl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:23:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EEDE33D52
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:07 -0800 (PST)
+        with ESMTP id S240055AbjADQYj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4324B1C136
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D77C0617AE
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DABFDC433EF;
-        Wed,  4 Jan 2023 16:23:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE589B817B1
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B925C433EF;
+        Wed,  4 Jan 2023 16:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849386;
-        bh=lPu347q23qT8IUIepqbkxwSfFGzUOIOcyRJYtnX5yTs=;
+        s=korg; t=1672849425;
+        bh=QBg9NMSojF+jvdRz6ve2QK1lrhDvuhHStQQ61JFZePU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E6f99Y2elFpE8horHU3qxt9EbqCJCO0avGF4yNZz/IpUfgNsCFdkw6A9QPeL5ffzM
-         3AMTKFh4MWM4ZCxSxWwpwAEJ0KwSz7kcZEa2GCfCDqfITxGAijsF0h635aomzfW+S4
-         ANPTq7KNMwIHQrpsJhItzPHsA1k525v5eYspdfPU=
+        b=tju/APXPnMRj4CXJg0ptrifwCSP2Yz2+pJ1ULd3ks20G7xuTWn1vBcJUsIOWifH7k
+         ITkF94lF10SXhWdR1QTxU9/6LGPn4RlcrPzmtETqb7tXX6xkDUi0TAit7upvX+4Pbp
+         3w1c5rH7dw4NTVtgrGTjYrWpVQtKyN+eomEVoUEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Baokun Li <libaokun1@huawei.com>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.1 162/207] ext4: add inode table check in __ext4_get_inode_loc to aovid possible infinite loop
-Date:   Wed,  4 Jan 2023 17:07:00 +0100
-Message-Id: <20230104160517.019455453@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 6.1 163/207] ext4: remove trailing newline from ext4_msg() message
+Date:   Wed,  4 Jan 2023 17:07:01 +0100
+Message-Id: <20230104160517.049698995@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -54,83 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Luís Henriques <lhenriques@suse.de>
 
-commit eee22187b53611e173161e38f61de1c7ecbeb876 upstream.
+commit 78742d4d056df7d2fad241c90185d281bf924844 upstream.
 
-In do_writepages, if the value returned by ext4_writepages is "-ENOMEM"
-and "wbc->sync_mode == WB_SYNC_ALL", retry until the condition is not met.
+The ext4_msg() function adds a new line to the message.  Remove extra '\n'
+from call to ext4_msg() in ext4_orphan_cleanup().
 
-In __ext4_get_inode_loc, if the bh returned by sb_getblk is NULL,
-the function returns -ENOMEM.
-
-In __getblk_slow, if the return value of grow_buffers is less than 0,
-the function returns NULL.
-
-When the three processes are connected in series like the following stack,
-an infinite loop may occur:
-
-do_writepages					<--- keep retrying
- ext4_writepages
-  mpage_map_and_submit_extent
-   mpage_map_one_extent
-    ext4_map_blocks
-     ext4_ext_map_blocks
-      ext4_ext_handle_unwritten_extents
-       ext4_ext_convert_to_initialized
-        ext4_split_extent
-         ext4_split_extent_at
-          __ext4_ext_dirty
-           __ext4_mark_inode_dirty
-            ext4_reserve_inode_write
-             ext4_get_inode_loc
-              __ext4_get_inode_loc		<--- return -ENOMEM
-               sb_getblk
-                __getblk_gfp
-                 __getblk_slow			<--- return NULL
-                  grow_buffers
-                   grow_dev_page		<--- return -ENXIO
-                    ret = (block < end_block) ? 1 : -ENXIO;
-
-In this issue, bg_inode_table_hi is overwritten as an incorrect value.
-As a result, `block < end_block` cannot be met in grow_dev_page.
-Therefore, __ext4_get_inode_loc always returns '-ENOMEM' and do_writepages
-keeps retrying. As a result, the writeback process is in the D state due
-to an infinite loop.
-
-Add a check on inode table block in the __ext4_get_inode_loc function by
-referring to ext4_read_inode_bitmap to avoid this infinite loop.
-
-Cc: stable@kernel.org
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220817132701.3015912-3-libaokun1@huawei.com
+Signed-off-by: Luís Henriques <lhenriques@suse.de>
+Link: https://lore.kernel.org/r/20221011155758.15287-1-lhenriques@suse.de
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ fs/ext4/orphan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4473,9 +4473,17 @@ static int __ext4_get_inode_loc(struct s
- 	inodes_per_block = EXT4_SB(sb)->s_inodes_per_block;
- 	inode_offset = ((ino - 1) %
- 			EXT4_INODES_PER_GROUP(sb));
--	block = ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block);
- 	iloc->offset = (inode_offset % inodes_per_block) * EXT4_INODE_SIZE(sb);
- 
-+	block = ext4_inode_table(sb, gdp);
-+	if ((block <= le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block)) ||
-+	    (block >= ext4_blocks_count(EXT4_SB(sb)->s_es))) {
-+		ext4_error(sb, "Invalid inode table block %llu in "
-+			   "block_group %u", block, iloc->block_group);
-+		return -EFSCORRUPTED;
-+	}
-+	block += (inode_offset / inodes_per_block);
-+
- 	bh = sb_getblk(sb, block);
- 	if (unlikely(!bh))
- 		return -ENOMEM;
+--- a/fs/ext4/orphan.c
++++ b/fs/ext4/orphan.c
+@@ -412,7 +412,7 @@ void ext4_orphan_cleanup(struct super_bl
+ 		/* don't clear list on RO mount w/ errors */
+ 		if (es->s_last_orphan && !(s_flags & SB_RDONLY)) {
+ 			ext4_msg(sb, KERN_INFO, "Errors on filesystem, "
+-				  "clearing orphan list.\n");
++				  "clearing orphan list.");
+ 			es->s_last_orphan = 0;
+ 		}
+ 		ext4_debug("Skipping orphan recovery on fs with errors.\n");
 
 
