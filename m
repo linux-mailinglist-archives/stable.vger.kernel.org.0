@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BED265D487
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:41:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AE9A65D489
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:41:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239444AbjADNl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:41:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46388 "EHLO
+        id S239068AbjADNl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:41:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239068AbjADNlX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:41:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D76B6192B3
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:41:16 -0800 (PST)
+        with ESMTP id S239508AbjADNlZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:41:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5553FE49
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:41:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EA49B815EB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:41:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B397C433F2;
-        Wed,  4 Jan 2023 13:41:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E707661733
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:41:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6347C433D2;
+        Wed,  4 Jan 2023 13:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672839674;
-        bh=26LpKU9Oo+ZYd+Z7wZW9AGYk+tnj1jUXaeM+FqQ6C0U=;
+        s=korg; t=1672839678;
+        bh=7LaSX3H2Y9mF9xK1UITqEfYgDkmFj3g9YEdb+rqvOLQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=EKJDPp4ZQ0aoD+/KGRzQTe8XqBDiCNe9JKUCxkHhRC84+yOmm2UkJzh6Hv5a+FTei
-         ak4d8DQlgL0xDvH976swhzCb7u02KJRztV1eZkOQJnl0UihMmEe+ZdDrIJiPe97EV+
-         D8tlaHgAx7q6DSioHEKH9co8lx5LGZeC+JKpf05w=
-Subject: FAILED: patch "[PATCH] perf probe: Fix to get the DW_AT_decl_file and" failed to apply to 6.1-stable tree
+        b=vRzjWTgP46UpVUSA4K45OiRA0xEhwTyoOjxBbSVPf0L6RvJvcp1bNv0bCKnotIqsL
+         MsXlKB8bq7MI86k9MvXZ95TnHnN+qooHXU4CUlBvdpiwkpJv+jKKC7L2LgjIQBfv/1
+         U6/3P2YJXGa8mRYmXZbKhRjIoxRu0LXmn7qneWK4=
+Subject: FAILED: patch "[PATCH] perf probe: Fix to get the DW_AT_decl_file and" failed to apply to 6.0-stable tree
 To:     mhiramat@kernel.org, acme@redhat.com,
         alexander.shishkin@linux.intel.com, jolsa@kernel.org,
         mark.rutland@arm.com, masami.hiramatsu.pt@hitachi.com,
@@ -36,8 +36,8 @@ To:     mhiramat@kernel.org, acme@redhat.com,
         rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:41:11 +0100
-Message-ID: <167283967154133@kroah.com>
+Date:   Wed, 04 Jan 2023 14:41:12 +0100
+Message-ID: <167283967226226@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 6.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
