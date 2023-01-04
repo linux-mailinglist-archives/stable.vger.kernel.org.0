@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 069E665D9A2
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B01565D9B1
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:27:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235171AbjADQ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50754 "EHLO
+        id S239893AbjADQ1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:27:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239749AbjADQ0b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:31 -0500
+        with ESMTP id S239805AbjADQ1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:27:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 586D018682
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 554473D1EB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5FEE617A6
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA62C4332F;
-        Wed,  4 Jan 2023 16:26:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4C6B617A6
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:27:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F17B8C433D2;
+        Wed,  4 Jan 2023 16:27:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849589;
-        bh=vFVE+DT4WmiWtUr7ryAy2P3PaNYeKuItrUe9h+x705o=;
+        s=korg; t=1672849623;
+        bh=OfMgNU9HOVTNL9A+i8r3ITOYwJJKCwChbeZVBMZJt+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BpNjrl0OTd3urZ8JLnHhavcZ/JHzyNtSocaKlclx5kyb/4M64izlYwHul0wJmArNo
-         vEX8y0L6EIGH6buFg7vBaTmfpKm6s26UNHiBhk96kpI/D94fBhabV8YfrrEW1G4NPh
-         nPJo9LnU3FsB/voauRWHVtsrk5D7GqRzweVcVjrQ=
+        b=F923qPPCQO7BhZLX5VELG+ERyhrjWzwZEEW3XisT1vQ40JGONrmmBkp6k7ru1Eosc
+         KVPJ7vxJ2MzKr9O9zYG2AvujlMFTbqIdar46swibf/o4ong5G7hKMH3z18x4oT1MdY
+         BSfyk6M3TUOJavkL0geobQ7XugVtLWNd5Zg5//0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 6.0 146/177] ext4: disable fast-commit of encrypted dir operations
-Date:   Wed,  4 Jan 2023 17:07:17 +0100
-Message-Id: <20230104160512.083595890@linuxfoundation.org>
+Subject: [PATCH 6.0 147/177] ext4: fix leaking uninitialized memory in fast-commit journal
+Date:   Wed,  4 Jan 2023 17:07:18 +0100
+Message-Id: <20230104160512.113744253@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -54,149 +54,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 0fbcb5251fc81b58969b272c4fb7374a7b922e3e upstream.
+commit 594bc43b410316d70bb42aeff168837888d96810 upstream.
 
-fast-commit of create, link, and unlink operations in encrypted
-directories is completely broken because the unencrypted filenames are
-being written to the fast-commit journal instead of the encrypted
-filenames.  These operations can't be replayed, as encryption keys
-aren't present at journal replay time.  It is also an information leak.
-
-Until if/when we can get this working properly, make encrypted directory
-operations ineligible for fast-commit.
-
-Note that fast-commit operations on encrypted regular files continue to
-be allowed, as they seem to work.
+When space at the end of fast-commit journal blocks is unused, make sure
+to zero it out so that uninitialized memory is not leaked to disk.
 
 Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
 Cc: <stable@vger.kernel.org> # v5.10+
 Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221106224841.279231-2-ebiggers@kernel.org
+Link: https://lore.kernel.org/r/20221106224841.279231-4-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c       |   41 +++++++++++++++++++++++++----------------
- fs/ext4/fast_commit.h       |    1 +
- include/trace/events/ext4.h |    7 +++++--
- 3 files changed, 31 insertions(+), 18 deletions(-)
+ fs/ext4/fast_commit.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
 --- a/fs/ext4/fast_commit.c
 +++ b/fs/ext4/fast_commit.c
-@@ -418,25 +418,34 @@ static int __track_dentry_update(struct
- 	struct __track_dentry_update_args *dentry_update =
- 		(struct __track_dentry_update_args *)arg;
- 	struct dentry *dentry = dentry_update->dentry;
--	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
-+	struct inode *dir = dentry->d_parent->d_inode;
-+	struct super_block *sb = inode->i_sb;
-+	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 
- 	mutex_unlock(&ei->i_fc_lock);
+@@ -745,6 +745,9 @@ static u8 *ext4_fc_reserve_space(struct
+ 		*crc = ext4_chksum(sbi, *crc, tl, EXT4_FC_TAG_BASE_LEN);
+ 	if (pad_len > 0)
+ 		ext4_fc_memzero(sb, tl + 1, pad_len, crc);
++	/* Don't leak uninitialized memory in the unused last byte. */
++	*((u8 *)(tl + 1) + pad_len) = 0;
 +
-+	if (IS_ENCRYPTED(dir)) {
-+		ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_ENCRYPTED_FILENAME,
-+					NULL);
-+		mutex_lock(&ei->i_fc_lock);
-+		return -EOPNOTSUPP;
-+	}
-+
- 	node = kmem_cache_alloc(ext4_fc_dentry_cachep, GFP_NOFS);
- 	if (!node) {
--		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM, NULL);
-+		ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_NOMEM, NULL);
- 		mutex_lock(&ei->i_fc_lock);
- 		return -ENOMEM;
- 	}
+ 	ext4_fc_submit_bh(sb, false);
  
- 	node->fcd_op = dentry_update->op;
--	node->fcd_parent = dentry->d_parent->d_inode->i_ino;
-+	node->fcd_parent = dir->i_ino;
- 	node->fcd_ino = inode->i_ino;
- 	if (dentry->d_name.len > DNAME_INLINE_LEN) {
- 		node->fcd_name.name = kmalloc(dentry->d_name.len, GFP_NOFS);
- 		if (!node->fcd_name.name) {
- 			kmem_cache_free(ext4_fc_dentry_cachep, node);
--			ext4_fc_mark_ineligible(inode->i_sb,
--				EXT4_FC_REASON_NOMEM, NULL);
-+			ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_NOMEM, NULL);
- 			mutex_lock(&ei->i_fc_lock);
- 			return -ENOMEM;
- 		}
-@@ -2258,17 +2267,17 @@ void ext4_fc_init(struct super_block *sb
- 	journal->j_fc_cleanup_callback = ext4_fc_cleanup;
- }
+ 	ret = jbd2_fc_get_buf(EXT4_SB(sb)->s_journal, &bh);
+@@ -801,6 +804,8 @@ static int ext4_fc_write_tail(struct sup
+ 	dst += sizeof(tail.fc_tid);
+ 	tail.fc_crc = cpu_to_le32(crc);
+ 	ext4_fc_memcpy(sb, dst, &tail.fc_crc, sizeof(tail.fc_crc), NULL);
++	dst += sizeof(tail.fc_crc);
++	memset(dst, 0, bsize - off); /* Don't leak uninitialized memory. */
  
--static const char *fc_ineligible_reasons[] = {
--	"Extended attributes changed",
--	"Cross rename",
--	"Journal flag changed",
--	"Insufficient memory",
--	"Swap boot",
--	"Resize",
--	"Dir renamed",
--	"Falloc range op",
--	"Data journalling",
--	"FC Commit Failed"
-+static const char * const fc_ineligible_reasons[] = {
-+	[EXT4_FC_REASON_XATTR] = "Extended attributes changed",
-+	[EXT4_FC_REASON_CROSS_RENAME] = "Cross rename",
-+	[EXT4_FC_REASON_JOURNAL_FLAG_CHANGE] = "Journal flag changed",
-+	[EXT4_FC_REASON_NOMEM] = "Insufficient memory",
-+	[EXT4_FC_REASON_SWAP_BOOT] = "Swap boot",
-+	[EXT4_FC_REASON_RESIZE] = "Resize",
-+	[EXT4_FC_REASON_RENAME_DIR] = "Dir renamed",
-+	[EXT4_FC_REASON_FALLOC_RANGE] = "Falloc range op",
-+	[EXT4_FC_REASON_INODE_JOURNAL_DATA] = "Data journalling",
-+	[EXT4_FC_REASON_ENCRYPTED_FILENAME] = "Encrypted filename",
- };
+ 	ext4_fc_submit_bh(sb, true);
  
- int ext4_fc_info_show(struct seq_file *seq, void *v)
---- a/fs/ext4/fast_commit.h
-+++ b/fs/ext4/fast_commit.h
-@@ -96,6 +96,7 @@ enum {
- 	EXT4_FC_REASON_RENAME_DIR,
- 	EXT4_FC_REASON_FALLOC_RANGE,
- 	EXT4_FC_REASON_INODE_JOURNAL_DATA,
-+	EXT4_FC_REASON_ENCRYPTED_FILENAME,
- 	EXT4_FC_REASON_MAX
- };
- 
---- a/include/trace/events/ext4.h
-+++ b/include/trace/events/ext4.h
-@@ -104,6 +104,7 @@ TRACE_DEFINE_ENUM(EXT4_FC_REASON_RESIZE)
- TRACE_DEFINE_ENUM(EXT4_FC_REASON_RENAME_DIR);
- TRACE_DEFINE_ENUM(EXT4_FC_REASON_FALLOC_RANGE);
- TRACE_DEFINE_ENUM(EXT4_FC_REASON_INODE_JOURNAL_DATA);
-+TRACE_DEFINE_ENUM(EXT4_FC_REASON_ENCRYPTED_FILENAME);
- TRACE_DEFINE_ENUM(EXT4_FC_REASON_MAX);
- 
- #define show_fc_reason(reason)						\
-@@ -116,7 +117,8 @@ TRACE_DEFINE_ENUM(EXT4_FC_REASON_MAX);
- 		{ EXT4_FC_REASON_RESIZE,	"RESIZE"},		\
- 		{ EXT4_FC_REASON_RENAME_DIR,	"RENAME_DIR"},		\
- 		{ EXT4_FC_REASON_FALLOC_RANGE,	"FALLOC_RANGE"},	\
--		{ EXT4_FC_REASON_INODE_JOURNAL_DATA,	"INODE_JOURNAL_DATA"})
-+		{ EXT4_FC_REASON_INODE_JOURNAL_DATA,	"INODE_JOURNAL_DATA"}, \
-+		{ EXT4_FC_REASON_ENCRYPTED_FILENAME,	"ENCRYPTED_FILENAME"})
- 
- TRACE_EVENT(ext4_other_inode_update_time,
- 	TP_PROTO(struct inode *inode, ino_t orig_ino),
-@@ -2764,7 +2766,7 @@ TRACE_EVENT(ext4_fc_stats,
- 	),
- 
- 	TP_printk("dev %d,%d fc ineligible reasons:\n"
--		  "%s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u "
-+		  "%s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u"
- 		  "num_commits:%lu, ineligible: %lu, numblks: %lu",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev),
- 		  FC_REASON_NAME_STAT(EXT4_FC_REASON_XATTR),
-@@ -2776,6 +2778,7 @@ TRACE_EVENT(ext4_fc_stats,
- 		  FC_REASON_NAME_STAT(EXT4_FC_REASON_RENAME_DIR),
- 		  FC_REASON_NAME_STAT(EXT4_FC_REASON_FALLOC_RANGE),
- 		  FC_REASON_NAME_STAT(EXT4_FC_REASON_INODE_JOURNAL_DATA),
-+		  FC_REASON_NAME_STAT(EXT4_FC_REASON_ENCRYPTED_FILENAME),
- 		  __entry->fc_commits, __entry->fc_ineligible_commits,
- 		  __entry->fc_numblks)
- );
 
 
