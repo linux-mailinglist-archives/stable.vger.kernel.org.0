@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1ACF65D63A
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:42:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7152E65D63B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:42:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235046AbjADOm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:42:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33512 "EHLO
+        id S239662AbjADOmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:42:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239674AbjADOmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:42:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364943751B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:42:06 -0800 (PST)
+        with ESMTP id S233812AbjADOmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:42:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1831FCFE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:42:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0A5C6175D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:42:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E55C433F1;
-        Wed,  4 Jan 2023 14:42:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7CB461764
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:42:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEF38C433F1;
+        Wed,  4 Jan 2023 14:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843325;
-        bh=Iq1Bi6ycgVzcaN2IJCtT41mGX23r4BWz32zif20usx8=;
+        s=korg; t=1672843330;
+        bh=bK54aO0Dy8hBDWONZrok8eRkNJKbEJyvJFKsEJZNlJ4=;
         h=Subject:To:Cc:From:Date:From;
-        b=vhOu8qloAq++3yducE63mR4nzB4kpSXtiJDRmluunSTvh13yWRIVKgv+/WaeMRqdP
-         Qx9MtHqBgfA/AbVf299xt3vFCeiP+d1+kV7S/AHJl9nicd/36UgXs8qRv4BF2lEa+w
-         QPGXRZwKrE86bVcRjRypao8qTrpQODZl6BYGPCt8=
-Subject: FAILED: patch "[PATCH] drm/amd/pm: update SMU IP v13.0.4 driver interface version" failed to apply to 6.0-stable tree
+        b=AqiHckA8O7/B1hSyS1UlWNWaRcE5NVG2RAugCcgIDY18u8Lj1jphrzLlMaTmBveHQ
+         DGpYUR68zqoSWpxSyiDWaQC1Wfo8/IVodVa2nqAJ/SIuH5EZpKMiPyGjTF7DtRJqW8
+         hCZ3lgZVY3sNNdQLt2J9LdCHuNP/tduQwm9vkBjE=
+Subject: FAILED: patch "[PATCH] drm/amd/pm: add SMU IP v13.0.4 IF version define to V7" failed to apply to 6.1-stable tree
 To:     tim.huang@amd.com, alexander.deucher@amd.com,
         mario.limonciello@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:41:53 +0100
-Message-ID: <16728433132278@kroah.com>
+Date:   Wed, 04 Jan 2023 15:42:03 +0100
+Message-ID: <1672843323111133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,14 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-d1bb3afc0527 ("drm/amd/pm: update SMU IP v13.0.4 driver interface version")
+027bf0cee89a ("drm/amd/pm: add SMU IP v13.0.4 IF version define to V7")
 
 thanks,
 
@@ -63,59 +63,30 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d1bb3afc0527ab55d118852b398fd0f1d2fe802d Mon Sep 17 00:00:00 2001
+From 027bf0cee89a27325a9a4f2240c21dd5fb81e4fa Mon Sep 17 00:00:00 2001
 From: Tim Huang <tim.huang@amd.com>
-Date: Thu, 29 Sep 2022 14:39:21 +0800
-Subject: [PATCH] drm/amd/pm: update SMU IP v13.0.4 driver interface version
+Date: Thu, 29 Sep 2022 15:06:47 +0800
+Subject: [PATCH] drm/amd/pm: add SMU IP v13.0.4 IF version define to V7
 
-Update the SMU driver interface version to V7.
+The pmfw has changed the driver interface version, so keep same with the
+fw.
 
 Signed-off-by: Tim Huang <tim.huang@amd.com>
 Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org # 6.0.x
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h b/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h
-index ae2d337158f3..f77401709d83 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h
-+++ b/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu13_driver_if_v13_0_4.h
-@@ -27,7 +27,7 @@
- // *** IMPORTANT ***
- // SMU TEAM: Always increment the interface version if
- // any structure is changed in this file
--#define PMFW_DRIVER_IF_VERSION 5
-+#define PMFW_DRIVER_IF_VERSION 7
- 
- typedef struct {
-   int32_t value;
-@@ -163,8 +163,8 @@ typedef struct {
-   uint16_t DclkFrequency;               //[MHz]
-   uint16_t MemclkFrequency;             //[MHz]
-   uint16_t spare;                       //[centi]
--  uint16_t UvdActivity;                 //[centi]
-   uint16_t GfxActivity;                 //[centi]
-+  uint16_t UvdActivity;                 //[centi]
- 
-   uint16_t Voltage[2];                  //[mV] indices: VDDCR_VDD, VDDCR_SOC
-   uint16_t Current[2];                  //[mA] indices: VDDCR_VDD, VDDCR_SOC
-@@ -199,6 +199,19 @@ typedef struct {
-   uint16_t DeviceState;
-   uint16_t CurTemp;                     //[centi-Celsius]
-   uint16_t spare2;
-+
-+  uint16_t AverageGfxclkFrequency;
-+  uint16_t AverageFclkFrequency;
-+  uint16_t AverageGfxActivity;
-+  uint16_t AverageSocclkFrequency;
-+  uint16_t AverageVclkFrequency;
-+  uint16_t AverageVcnActivity;
-+  uint16_t AverageDRAMReads;          //Filtered DF Bandwidth::DRAM Reads
-+  uint16_t AverageDRAMWrites;         //Filtered DF Bandwidth::DRAM Writes
-+  uint16_t AverageSocketPower;        //Filtered value of CurrentSocketPower
-+  uint16_t AverageCorePower;          //Filtered of [sum of CorePower[8]])
-+  uint16_t AverageCoreC0Residency[8]; //Filtered of [average C0 residency %  per core]
-+  uint32_t MetricsCounter;            //Counts the # of metrics table parameter reads per update to the metrics table, i.e. if the metrics table update happens every 1 second, this value could be up to 1000 if the smu collected metrics data every cycle, or as low as 0 if the smu was asleep the whole time. Reset to 0 after writing.
- } SmuMetrics_t;
- 
- typedef struct {
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
+index 9d62ea2af132..8f72202aea8e 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
++++ b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_v13_0.h
+@@ -28,7 +28,7 @@
+ #define SMU13_DRIVER_IF_VERSION_INV 0xFFFFFFFF
+ #define SMU13_DRIVER_IF_VERSION_YELLOW_CARP 0x04
+ #define SMU13_DRIVER_IF_VERSION_ALDE 0x08
+-#define SMU13_DRIVER_IF_VERSION_SMU_V13_0_4 0x05
++#define SMU13_DRIVER_IF_VERSION_SMU_V13_0_4 0x07
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_5 0x04
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_0 0x30
+ #define SMU13_DRIVER_IF_VERSION_SMU_V13_0_7 0x2C
 
