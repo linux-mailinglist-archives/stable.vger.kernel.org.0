@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1AF665D5F9
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:38:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C65FF65D5FA
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:38:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239168AbjADOi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:38:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
+        id S229449AbjADOi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:38:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbjADOiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:38:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1311B2DDA
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:38:54 -0800 (PST)
+        with ESMTP id S239281AbjADOi5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:38:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39A13E7E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:38:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A428661738
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:38:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 965CDC433EF;
-        Wed,  4 Jan 2023 14:38:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA0A961760
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:38:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A82D1C433EF;
+        Wed,  4 Jan 2023 14:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843133;
-        bh=AHQBbwtuIRpGDWwC4PXlhP/aaCT/pYv6ZRX0R2nsm40=;
+        s=korg; t=1672843136;
+        bh=638DCCMbabk8ycNh1Z6y2cmy4DXuogu49IuLuBdYNWo=;
         h=Subject:To:Cc:From:Date:From;
-        b=wH3YGLpqC6WtmTtcDsMaZeGGRmuRbP0n5rnYp9ef+5/Xl44hj8jNa4ObWGfgeymrs
-         38EcaIjQxBjbQRNNhwKdQUE0mRIyncAsJU4OqOwcW0OS8VgM2VRiPmuEFOZ1F/DBAF
-         la2z5LJrC2wK4IkpTC1q31eL1Q06gOFrq7kqzCyE=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix watermark calculations for gen12+ CCS+CC" failed to apply to 5.15-stable tree
-To:     ville.syrjala@linux.intel.com, juhapekka.heikkila@gmail.com
+        b=mYeApQY5gqdx6NX+jDAFdH9XSH7Bs0Ib5+ul72LZzPMudpy9tRSl8qhaKYl1D0Oda
+         qf/Bw9wimmRKKTBBmAGTHwF5LG37sY13C9+aHpvMjXjnMdKJq5q17GjIW/Fn0r3Vwc
+         /JAfUCnI9b7tS9l/mKFJUXr60Ldu9ooxdaaEXUy4=
+Subject: FAILED: patch "[PATCH] drm/i915: Remove non-existent pipes from bigjoiner pipe mask" failed to apply to 6.1-stable tree
+To:     ville.syrjala@linux.intel.com, arun.r.murthy@intel.com,
+        rodrigo.vivi@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:38:42 +0100
-Message-ID: <16728431223341@kroah.com>
+Date:   Wed, 04 Jan 2023 15:38:47 +0100
+Message-ID: <1672843127208225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,33 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-a627455bbe50 ("drm/i915: Fix watermark calculations for gen12+ CCS+CC modifier")
-91c9651425fe ("drm/i915: Fix watermark calculations for gen12+ MC CCS modifier")
-a89a96a58611 ("drm/i915: Fix watermark calculations for gen12+ RC CCS modifier")
-42a0d256496f ("drm/i915: Extract skl_watermark.c")
-55544b2811a6 ("drm/i915: Split intel_read_wm_latency() into per-platform versions")
-b7d1559038b6 ("drm/i915: move dbuf under display sub-struct")
-90b87cf24304 ("drm/i915: move mipi_mmio_base to display.dsi")
-d51309b4e9aa ("drm/i915: move and group cdclk under display.cdclk")
-f0acaf9d6912 ("drm/i915: move and group max_bw and bw_obj under display.bw")
-c3704f1938e7 ("drm/i915: move and group sagv under display.sagv")
-a30a6fe9e56c ("drm/i915: move wm to display.wm")
-b3d81dafdc48 ("drm/i915: move and group fbdev under display.fbdev")
-36d225f365e7 ("drm/i915: move dpll under display.dpll")
-4be1c12c880e ("drm/i915: move and split audio under display.audio and display.funcs")
-6c77055aa674 ("drm/i915: move dmc to display.dmc")
-12dc50823845 ("drm/i915: move and group pps members under display.pps")
-203eb5a98edb ("drm/i915: move and group gmbus members under display.gmbus")
-34dc3cc5017f ("drm/i915: move color_funcs to display.funcs")
-06a50913d96e ("drm/i915: move fdi_funcs to display.funcs")
-103472c13f0a ("drm/i915: move wm_disp funcs to display.funcs")
+ddb97ea7cdb6 ("drm/i915: Remove non-existent pipes from bigjoiner pipe mask")
 
 thanks,
 
@@ -81,47 +63,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a627455bbe50a111475d7a42beb58fa64bd96c83 Mon Sep 17 00:00:00 2001
+From ddb97ea7cdb6462d7a719c649f58858b083f7eed Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Date: Mon, 3 Oct 2022 14:15:41 +0300
-Subject: [PATCH] drm/i915: Fix watermark calculations for gen12+ CCS+CC
- modifier
+Date: Fri, 18 Nov 2022 20:52:01 +0200
+Subject: [PATCH] drm/i915: Remove non-existent pipes from bigjoiner pipe mask
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Take the gen12+ CCS+CC modifier into account when calculating the
-watermarks. Othwerwise we'll calculate the watermarks thinking this
-Y-tiled modifier is linear.
+bigjoiner_pipes() doesn't consider that:
+- RKL only has three pipes
+- some pipes may be fused off
 
-The rc_surface part is actually a nop since that is not used
-for any glk+ platform.
+This means that intel_atomic_check_bigjoiner() won't reject
+all configurations that would need a non-existent pipe.
+Instead we just keep on rolling witout actually having
+reserved the slave pipe we need.
+
+It's possible that we don't outright explode anywhere due to
+this since eg. for_each_intel_crtc_in_pipe_mask() will only
+walk the crtcs we've registered even though the passed in
+pipe_mask asks for more of them. But clearly the thing won't
+do what is expected of it when the required pipes are not
+present.
+
+Fix the problem by consulting the device info pipe_mask already
+in bigjoiner_pipes().
 
 Cc: stable@vger.kernel.org
-Fixes: d1e2775e9b96 ("drm/i915/tgl: Add Clear Color support for TGL Render Decompression")
-Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221003111544.8007-4-ville.syrjala@linux.intel.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20221118185201.10469-1-ville.syrjala@linux.intel.com
+Reviewed-by: Arun R Murthy <arun.r.murthy@intel.com>
+(cherry picked from commit f1c87a94a1087a26f41007ee83264033007421b5)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-diff --git a/drivers/gpu/drm/i915/display/skl_watermark.c b/drivers/gpu/drm/i915/display/skl_watermark.c
-index 1b8f5970cbf7..0ff3ece166fe 100644
---- a/drivers/gpu/drm/i915/display/skl_watermark.c
-+++ b/drivers/gpu/drm/i915/display/skl_watermark.c
-@@ -1712,12 +1712,14 @@ skl_compute_wm_params(const struct intel_crtc_state *crtc_state,
- 		      modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
- 		      modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
- 		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
--		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS;
-+		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS ||
-+		      modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC;
- 	wp->x_tiled = modifier == I915_FORMAT_MOD_X_TILED;
- 	wp->rc_surface = modifier == I915_FORMAT_MOD_Y_TILED_CCS ||
- 			 modifier == I915_FORMAT_MOD_Yf_TILED_CCS ||
- 			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS ||
--			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS;
-+			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_MC_CCS ||
-+			 modifier == I915_FORMAT_MOD_Y_TILED_GEN12_RC_CCS_CC;
- 	wp->is_planar = intel_format_info_is_yuv_semiplanar(format, modifier);
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index b3e23708d194..6c2686ecb62a 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -3733,12 +3733,16 @@ static bool ilk_get_pipe_config(struct intel_crtc *crtc,
  
- 	wp->width = width;
+ static u8 bigjoiner_pipes(struct drm_i915_private *i915)
+ {
++	u8 pipes;
++
+ 	if (DISPLAY_VER(i915) >= 12)
+-		return BIT(PIPE_A) | BIT(PIPE_B) | BIT(PIPE_C) | BIT(PIPE_D);
++		pipes = BIT(PIPE_A) | BIT(PIPE_B) | BIT(PIPE_C) | BIT(PIPE_D);
+ 	else if (DISPLAY_VER(i915) >= 11)
+-		return BIT(PIPE_B) | BIT(PIPE_C);
++		pipes = BIT(PIPE_B) | BIT(PIPE_C);
+ 	else
+-		return 0;
++		pipes = 0;
++
++	return pipes & RUNTIME_INFO(i915)->pipe_mask;
+ }
+ 
+ static bool transcoder_ddi_func_is_enabled(struct drm_i915_private *dev_priv,
 
