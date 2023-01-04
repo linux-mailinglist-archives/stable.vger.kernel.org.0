@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5681065D307
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:50:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B1A65D309
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:50:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230488AbjADMuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:50:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
+        id S231220AbjADMuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:50:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230095AbjADMt7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:49:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7895D1704B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:49:58 -0800 (PST)
+        with ESMTP id S230095AbjADMuT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:50:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CDCE17412
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:50:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07D3B615B1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:49:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0AB6C433EF;
-        Wed,  4 Jan 2023 12:49:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2DC15B8162F
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:50:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F893C433D2;
+        Wed,  4 Jan 2023 12:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836597;
-        bh=/ashu/HmWrHVm8HV7+qf0nqndGa4ult2txnUt/nU93U=;
+        s=korg; t=1672836615;
+        bh=klSrvD1odZYJ2ffXwmpcBWwa8d+k5f69ldG7ZhLg3Rc=;
         h=Subject:To:Cc:From:Date:From;
-        b=D+18Vnh/JNyw1mNXMQWYfXC7yI6R1laSRmhpcUkE0PIoKaSy6VMTIeASuQDRPPLss
-         WHk8EQbR3XUvTWbhugJl0CaUAl/DypuML/pHyBUMvA6ThLn56NC6B4ZZAVHLAgJqEn
-         G4C5mpI/uRdDcSQeOgrvwCDvPNeT5YcWJSEL5v38=
-Subject: FAILED: patch "[PATCH] jbd2: use the correct print format" failed to apply to 4.9-stable tree
-To:     cuibixuan@linux.alibaba.com, tytso@mit.edu, yanaijie@huawei.com
+        b=RYhtGEl3wMKyGj3YppIyZ1W7Cj09PHVPZgbTUXz/rH+1utAAwK7MwGf4uLi+w6+Q4
+         Q2PJbSdi92Twym6PsnqnEiOpCPoaCiLXdIBgji7o9SzTctZzuS8h59Nr3faL8+m2hm
+         amb/B8rvqDZW3nXu7xnnwJvk6efKGOxwxWiDxX7E=
+Subject: FAILED: patch "[PATCH] perf/x86/intel/uncore: Clear attr_update properly" failed to apply to 5.10-stable tree
+To:     alexander.antonov@linux.intel.com, kan.liang@linux.intel.com,
+        peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:49:48 +0100
-Message-ID: <16728365881379@kroah.com>
+Date:   Wed, 04 Jan 2023 13:50:12 +0100
+Message-ID: <1672836612100229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,33 +48,17 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-d87a7b4c77a9 ("jbd2: use the correct print format")
-0094f981bbac ("jbd2: Provide trace event for handle restarts")
-fdc3ef882a5d ("jbd2: Reserve space for revoke descriptor blocks")
-ec8b6f600e49 ("jbd2: Factor out common parts of stopping and restarting a handle")
-5559b2d81b51 ("jbd2: Drop pointless wakeup from jbd2_journal_stop()")
-dfaf5ffda227 ("jbd2: Reorganize jbd2_journal_stop()")
-a9a8344ee171 ("ext4, jbd2: Provide accessor function for handle credits")
-a413036791d0 ("ext4: Provide function to handle transaction restarts")
-538bcaa6261b ("jbd2: fix race when writing superblock")
-32ea275008d8 ("jbd2: update locking documentation for transaction_t")
-0b02f4c0d6d9 ("ext4: fix reserved cluster accounting at delayed write time")
-1dc0aa46e74a ("ext4: add new pending reservation mechanism")
-ad431025aecd ("ext4: generalize extents status tree search functions")
-fb7c02445c49 ("ext4: pass -ESHUTDOWN code to jbd2 layer")
-a6d9946bb925 ("ext4: eliminate sleep from shutdown ioctl")
-f69120ce6c02 ("jbd2: fix sphinx kernel-doc build warnings")
-d77147ff443b ("ext4: add support for online resizing with bigalloc")
-545052e9e35a ("ext4: Switch to iomap for SEEK_HOLE / SEEK_DATA")
-19fe5f643f89 ("iomap: Switch from blkno to disk offset")
-d34fc1adf01f ("Merge branch 'akpm' (patches from Andrew)")
+6532783310e2 ("perf/x86/intel/uncore: Clear attr_update properly")
+f471fac77b41 ("perf/x86/intel/uncore: Generalize I/O stacks to PMON mapping procedure")
+cface0326a6c ("perf/x86/intel/uncore: Enable IIO stacks to PMON mapping for multi-segment SKX")
+ba9506be4e40 ("perf/x86/intel/uncore: Store the logical die id instead of the physical die id.")
 
 thanks,
 
@@ -82,211 +66,59 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d87a7b4c77a997d5388566dd511ca8e6b8e8a0a8 Mon Sep 17 00:00:00 2001
-From: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Date: Tue, 11 Oct 2022 19:33:44 +0800
-Subject: [PATCH] jbd2: use the correct print format
+From 6532783310e2b2f50dc13f46c49aa6546cb6e7a3 Mon Sep 17 00:00:00 2001
+From: Alexander Antonov <alexander.antonov@linux.intel.com>
+Date: Thu, 17 Nov 2022 12:28:25 +0000
+Subject: [PATCH] perf/x86/intel/uncore: Clear attr_update properly
 
-The print format error was found when using ftrace event:
-    <...>-1406 [000] .... 23599442.895823: jbd2_end_commit: dev 252,8 transaction -1866216965 sync 0 head -1866217368
-    <...>-1406 [000] .... 23599442.896299: jbd2_start_commit: dev 252,8 transaction -1866216964 sync 0
+Current clear_attr_update procedure in pmu_set_mapping() sets attr_update
+field in NULL that is not correct because intel_uncore_type pmu types can
+contain several groups in attr_update field. For example, SPR platform
+already has uncore_alias_group to update and then UPI topology group will
+be added in next patches.
 
-Use the correct print format for transaction, head and tid.
+Fix current behavior and clear attr_update group related to mapping only.
 
-Fixes: 879c5e6b7cb4 ('jbd2: convert instrumentation from markers to tracepoints')
-Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Link: https://lore.kernel.org/r/1665488024-95172-1-git-send-email-cuibixuan@linux.alibaba.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Fixes: bb42b3d39781 ("perf/x86/intel/uncore: Expose an Uncore unit to IIO PMON mapping")
+Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221117122833.3103580-4-alexander.antonov@linux.intel.com
 
-diff --git a/include/trace/events/jbd2.h b/include/trace/events/jbd2.h
-index 99f783c384bb..8f5ee380d309 100644
---- a/include/trace/events/jbd2.h
-+++ b/include/trace/events/jbd2.h
-@@ -40,7 +40,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
- 	TP_STRUCT__entry(
- 		__field(	dev_t,	dev			)
- 		__field(	char,	sync_commit		  )
--		__field(	int,	transaction		  )
-+		__field(	tid_t,	transaction		  )
- 	),
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index d3323f13c304..0d06b56b8a33 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -3872,6 +3872,21 @@ static const struct attribute_group *skx_iio_attr_update[] = {
+ 	NULL,
+ };
  
- 	TP_fast_assign(
-@@ -49,7 +49,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
- 		__entry->transaction	= commit_transaction->t_tid;
- 	),
++static void pmu_clear_mapping_attr(const struct attribute_group **groups,
++				   struct attribute_group *ag)
++{
++	int i;
++
++	for (i = 0; groups[i]; i++) {
++		if (groups[i] == ag) {
++			for (i++; groups[i]; i++)
++				groups[i - 1] = groups[i];
++			groups[i - 1] = NULL;
++			break;
++		}
++	}
++}
++
+ static int
+ pmu_set_mapping(struct intel_uncore_type *type, struct attribute_group *ag,
+ 		ssize_t (*show)(struct device*, struct device_attribute*, char*),
+@@ -3926,7 +3941,7 @@ pmu_set_mapping(struct intel_uncore_type *type, struct attribute_group *ag,
+ clear_topology:
+ 	pmu_free_topology(type);
+ clear_attr_update:
+-	type->attr_update = NULL;
++	pmu_clear_mapping_attr(type->attr_update, ag);
+ 	return ret;
+ }
  
--	TP_printk("dev %d,%d transaction %d sync %d",
-+	TP_printk("dev %d,%d transaction %u sync %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev),
- 		  __entry->transaction, __entry->sync_commit)
- );
-@@ -97,8 +97,8 @@ TRACE_EVENT(jbd2_end_commit,
- 	TP_STRUCT__entry(
- 		__field(	dev_t,	dev			)
- 		__field(	char,	sync_commit		  )
--		__field(	int,	transaction		  )
--		__field(	int,	head		  	  )
-+		__field(	tid_t,	transaction		  )
-+		__field(	tid_t,	head		  	  )
- 	),
- 
- 	TP_fast_assign(
-@@ -108,7 +108,7 @@ TRACE_EVENT(jbd2_end_commit,
- 		__entry->head		= journal->j_tail_sequence;
- 	),
- 
--	TP_printk("dev %d,%d transaction %d sync %d head %d",
-+	TP_printk("dev %d,%d transaction %u sync %d head %u",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev),
- 		  __entry->transaction, __entry->sync_commit, __entry->head)
- );
-@@ -134,14 +134,14 @@ TRACE_EVENT(jbd2_submit_inode_data,
- );
- 
- DECLARE_EVENT_CLASS(jbd2_handle_start_class,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int requested_blocks),
- 
- 	TP_ARGS(dev, tid, type, line_no, requested_blocks),
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	 unsigned int,	type		)
- 		__field(	 unsigned int,	line_no		)
- 		__field(		  int,	requested_blocks)
-@@ -155,28 +155,28 @@ DECLARE_EVENT_CLASS(jbd2_handle_start_class,
- 		__entry->requested_blocks = requested_blocks;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu type %u line_no %u "
-+	TP_printk("dev %d,%d tid %u type %u line_no %u "
- 		  "requested_blocks %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  __entry->type, __entry->line_no, __entry->requested_blocks)
- );
- 
- DEFINE_EVENT(jbd2_handle_start_class, jbd2_handle_start,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int requested_blocks),
- 
- 	TP_ARGS(dev, tid, type, line_no, requested_blocks)
- );
- 
- DEFINE_EVENT(jbd2_handle_start_class, jbd2_handle_restart,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int requested_blocks),
- 
- 	TP_ARGS(dev, tid, type, line_no, requested_blocks)
- );
- 
- TRACE_EVENT(jbd2_handle_extend,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int buffer_credits,
- 		 int requested_blocks),
- 
-@@ -184,7 +184,7 @@ TRACE_EVENT(jbd2_handle_extend,
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	 unsigned int,	type		)
- 		__field(	 unsigned int,	line_no		)
- 		__field(		  int,	buffer_credits  )
-@@ -200,7 +200,7 @@ TRACE_EVENT(jbd2_handle_extend,
- 		__entry->requested_blocks = requested_blocks;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu type %u line_no %u "
-+	TP_printk("dev %d,%d tid %u type %u line_no %u "
- 		  "buffer_credits %d requested_blocks %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  __entry->type, __entry->line_no, __entry->buffer_credits,
-@@ -208,7 +208,7 @@ TRACE_EVENT(jbd2_handle_extend,
- );
- 
- TRACE_EVENT(jbd2_handle_stats,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int interval, int sync,
- 		 int requested_blocks, int dirtied_blocks),
- 
-@@ -217,7 +217,7 @@ TRACE_EVENT(jbd2_handle_stats,
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	 unsigned int,	type		)
- 		__field(	 unsigned int,	line_no		)
- 		__field(		  int,	interval	)
-@@ -237,7 +237,7 @@ TRACE_EVENT(jbd2_handle_stats,
- 		__entry->dirtied_blocks	  = dirtied_blocks;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu type %u line_no %u interval %d "
-+	TP_printk("dev %d,%d tid %u type %u line_no %u interval %d "
- 		  "sync %d requested_blocks %d dirtied_blocks %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  __entry->type, __entry->line_no, __entry->interval,
-@@ -246,14 +246,14 @@ TRACE_EVENT(jbd2_handle_stats,
- );
- 
- TRACE_EVENT(jbd2_run_stats,
--	TP_PROTO(dev_t dev, unsigned long tid,
-+	TP_PROTO(dev_t dev, tid_t tid,
- 		 struct transaction_run_stats_s *stats),
- 
- 	TP_ARGS(dev, tid, stats),
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	unsigned long,	wait		)
- 		__field(	unsigned long,	request_delay	)
- 		__field(	unsigned long,	running		)
-@@ -279,7 +279,7 @@ TRACE_EVENT(jbd2_run_stats,
- 		__entry->blocks_logged	= stats->rs_blocks_logged;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu wait %u request_delay %u running %u "
-+	TP_printk("dev %d,%d tid %u wait %u request_delay %u running %u "
- 		  "locked %u flushing %u logging %u handle_count %u "
- 		  "blocks %u blocks_logged %u",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
-@@ -294,14 +294,14 @@ TRACE_EVENT(jbd2_run_stats,
- );
- 
- TRACE_EVENT(jbd2_checkpoint_stats,
--	TP_PROTO(dev_t dev, unsigned long tid,
-+	TP_PROTO(dev_t dev, tid_t tid,
- 		 struct transaction_chp_stats_s *stats),
- 
- 	TP_ARGS(dev, tid, stats),
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	unsigned long,	chp_time	)
- 		__field(		__u32,	forced_to_close	)
- 		__field(		__u32,	written		)
-@@ -317,7 +317,7 @@ TRACE_EVENT(jbd2_checkpoint_stats,
- 		__entry->dropped	= stats->cs_dropped;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu chp_time %u forced_to_close %u "
-+	TP_printk("dev %d,%d tid %u chp_time %u forced_to_close %u "
- 		  "written %u dropped %u",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  jiffies_to_msecs(__entry->chp_time),
 
