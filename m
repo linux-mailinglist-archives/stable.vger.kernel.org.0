@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A297665D90B
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A71965D96D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbjADQVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:21:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44846 "EHLO
+        id S239694AbjADQZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:25:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239423AbjADQUw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B7AC58
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:48 -0800 (PST)
+        with ESMTP id S239786AbjADQZC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA753F121
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63E016177C
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D9DEC433D2;
-        Wed,  4 Jan 2023 16:20:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8808B81722
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 263C4C433EF;
+        Wed,  4 Jan 2023 16:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849247;
-        bh=tcN7mAwOjlY3WDnfjAgimZQwOZXIz67yvLcva9ayJaY=;
+        s=korg; t=1672849446;
+        bh=Ics49q2apegzyJk6UleG046jQ43q2/pwb4+WI0ZA+3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdUTa/Iu343PNG2r3G2gT3SDv+JRoovkof49jK5ovgDokyyvkRgb0NiWYROXzKY42
-         BqS1k0orf9CoDRvafB1NFSdSUItRxF6M7BnNQBe5PFlRRzmNAeSSYWdv5r4mSriRtb
-         E/QzOk0zl4pWnpp6tL9lWKixuFYlI+P8KD8zQwFk=
+        b=pQlJoiVuV7aaNzcXh4POrGpMO24vb4hNmVZEV6sX38dRYufAr7PqiIkulOGAgNGgh
+         8HG9Ncrj4Fu9LEVFhQlcECeGr+d2w7M6TP6vdW8PsDMYo4wuRzMIWEVuoU6EVC/2cU
+         K48n8o/KHpFq7xwjj+Wwbml7CVgnFUBpHYgCPeIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mikko Kovanen <mikko.kovanen@aavamobile.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 6.1 157/207] drm/i915/dsi: fix VBT send packet port selection for dual link DSI
+        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
+        Aristeu Rozanski <aris@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 6.0 124/177] device_cgroup: Roll back to original exceptions after copy failure
 Date:   Wed,  4 Jan 2023 17:06:55 +0100
-Message-Id: <20230104160516.867041680@linuxfoundation.org>
+Message-Id: <20230104160511.399629422@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikko Kovanen <mikko.kovanen@aavamobile.com>
+From: Wang Weiyang <wangweiyang2@huawei.com>
 
-commit f9cdf4130671d767071607d0a7568c9bd36a68d0 upstream.
+commit e68bfbd3b3c3a0ec3cf8c230996ad8cabe90322f upstream.
 
-intel_dsi->ports contains bitmask of enabled ports and correspondingly
-logic for selecting port for VBT packet sending must use port specific
-bitmask when deciding appropriate port.
+When add the 'a *:* rwm' entry to devcgroup A's whitelist, at first A's
+exceptions will be cleaned and A's behavior is changed to
+DEVCG_DEFAULT_ALLOW. Then parent's exceptions will be copyed to A's
+whitelist. If copy failure occurs, just return leaving A to grant
+permissions to all devices. And A may grant more permissions than
+parent.
 
-Fixes: 08c59dde71b7 ("drm/i915/dsi: fix VBT send packet port selection for ICL+")
+Backup A's whitelist and recover original exceptions after copy
+failure.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Mikko Kovanen <mikko.kovanen@aavamobile.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/DBBPR09MB466592B16885D99ABBF2393A91119@DBBPR09MB4665.eurprd09.prod.outlook.com
-(cherry picked from commit 8d58bb7991c45f6b60710cc04c9498c6ea96db90)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: 4cef7299b478 ("device_cgroup: add proper checking when changing default behavior")
+Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
+Reviewed-by: Aristeu Rozanski <aris@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_dsi_vbt.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/device_cgroup.c |   33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
-+++ b/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
-@@ -137,9 +137,9 @@ static enum port intel_dsi_seq_port_to_p
- 		return ffs(intel_dsi->ports) - 1;
+--- a/security/device_cgroup.c
++++ b/security/device_cgroup.c
+@@ -82,6 +82,17 @@ free_and_exit:
+ 	return -ENOMEM;
+ }
  
- 	if (seq_port) {
--		if (intel_dsi->ports & PORT_B)
-+		if (intel_dsi->ports & BIT(PORT_B))
- 			return PORT_B;
--		else if (intel_dsi->ports & PORT_C)
-+		else if (intel_dsi->ports & BIT(PORT_C))
- 			return PORT_C;
- 	}
++static void dev_exceptions_move(struct list_head *dest, struct list_head *orig)
++{
++	struct dev_exception_item *ex, *tmp;
++
++	lockdep_assert_held(&devcgroup_mutex);
++
++	list_for_each_entry_safe(ex, tmp, orig, list) {
++		list_move_tail(&ex->list, dest);
++	}
++}
++
+ /*
+  * called under devcgroup_mutex
+  */
+@@ -604,11 +615,13 @@ static int devcgroup_update_access(struc
+ 	int count, rc = 0;
+ 	struct dev_exception_item ex;
+ 	struct dev_cgroup *parent = css_to_devcgroup(devcgroup->css.parent);
++	struct dev_cgroup tmp_devcgrp;
  
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
+ 	memset(&ex, 0, sizeof(ex));
++	memset(&tmp_devcgrp, 0, sizeof(tmp_devcgrp));
+ 	b = buffer;
+ 
+ 	switch (*b) {
+@@ -620,15 +633,27 @@ static int devcgroup_update_access(struc
+ 
+ 			if (!may_allow_all(parent))
+ 				return -EPERM;
+-			dev_exception_clean(devcgroup);
+-			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
+-			if (!parent)
++			if (!parent) {
++				devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
++				dev_exception_clean(devcgroup);
+ 				break;
++			}
+ 
++			INIT_LIST_HEAD(&tmp_devcgrp.exceptions);
++			rc = dev_exceptions_copy(&tmp_devcgrp.exceptions,
++						 &devcgroup->exceptions);
++			if (rc)
++				return rc;
++			dev_exception_clean(devcgroup);
+ 			rc = dev_exceptions_copy(&devcgroup->exceptions,
+ 						 &parent->exceptions);
+-			if (rc)
++			if (rc) {
++				dev_exceptions_move(&devcgroup->exceptions,
++						    &tmp_devcgrp.exceptions);
+ 				return rc;
++			}
++			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
++			dev_exception_clean(&tmp_devcgrp);
+ 			break;
+ 		case DEVCG_DENY:
+ 			if (css_has_online_children(&devcgroup->css))
 
 
