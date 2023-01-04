@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A99565D975
+	by mail.lfdr.de (Postfix) with ESMTP id 6538B65D976
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236070AbjADQZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:25:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46186 "EHLO
+        id S239704AbjADQZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:25:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239980AbjADQZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:14 -0500
+        with ESMTP id S239990AbjADQZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6013B43185
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56FFF43198
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12617B81722
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41AF0C433D2;
-        Wed,  4 Jan 2023 16:24:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1542CB81733
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 642AAC433EF;
+        Wed,  4 Jan 2023 16:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849464;
-        bh=XNZWPYJyc+yWIJvYZAiy8/k+e7AwoHMIXYf67Uu5NvY=;
+        s=korg; t=1672849470;
+        bh=tcN7mAwOjlY3WDnfjAgimZQwOZXIz67yvLcva9ayJaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tiDdq6w2VN+PtFRN3ACNyiriUED0LI0FtRSbFRpoGWdKfuoR8XQfy7LtDv+ToNvxC
-         1z5zI5nGpWH4n/tIPXGYVOJnef6pfgQG/IY4wsD0OcCM7mhv94H3N92qQNwDgmhpJj
-         /Jkm46QpcgF0dmyJuBAVshEZ4cJAqFHtACbmdSRI=
+        b=0U5T4kIMZRvIRptszGWEjf/AnoePOH69dB0sQOfvSbQL5WPbORbjPhlkEpTa7a5x9
+         y2tDO8xT/pV001BJ5Ndiu9BuYaBk/lQtKyeVswgdYx6QB8RhRA6pBI7ipZOKXZQzhM
+         8vH/kV+KJ4OTCXJTAsUHBc1V3p7cl6iA04AwTnEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
-Subject: [PATCH 6.0 127/177] drm/etnaviv: move idle mapping reaping into separate function
-Date:   Wed,  4 Jan 2023 17:06:58 +0100
-Message-Id: <20230104160511.496129973@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mikko Kovanen <mikko.kovanen@aavamobile.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 6.0 128/177] drm/i915/dsi: fix VBT send packet port selection for dual link DSI
+Date:   Wed,  4 Jan 2023 17:06:59 +0100
+Message-Id: <20230104160511.526220776@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -52,85 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Mikko Kovanen <mikko.kovanen@aavamobile.com>
 
-commit 5a40837debaa9dcc71765d32ce1a15be068b6cc2 upstream.
+commit f9cdf4130671d767071607d0a7568c9bd36a68d0 upstream.
 
-The same logic is already used in two different places and now
-it will also be needed outside of the compilation unit, so split
-it into a separate function.
+intel_dsi->ports contains bitmask of enabled ports and correspondingly
+logic for selecting port for VBT packet sending must use port specific
+bitmask when deciding appropriate port.
 
-Cc: stable@vger.kernel.org # 5.19
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Guido Günther <agx@sigxcpu.org>
+Fixes: 08c59dde71b7 ("drm/i915/dsi: fix VBT send packet port selection for ICL+")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikko Kovanen <mikko.kovanen@aavamobile.com>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/DBBPR09MB466592B16885D99ABBF2393A91119@DBBPR09MB4665.eurprd09.prod.outlook.com
+(cherry picked from commit 8d58bb7991c45f6b60710cc04c9498c6ea96db90)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_mmu.c | 23 +++++++++++++++--------
- drivers/gpu/drm/etnaviv/etnaviv_mmu.h |  1 +
- 2 files changed, 16 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dsi_vbt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-index dc1aa738c4f1..55479cb8b1ac 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-@@ -135,6 +135,19 @@ static void etnaviv_iommu_remove_mapping(struct etnaviv_iommu_context *context,
- 	drm_mm_remove_node(&mapping->vram_node);
- }
+--- a/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
++++ b/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
+@@ -137,9 +137,9 @@ static enum port intel_dsi_seq_port_to_p
+ 		return ffs(intel_dsi->ports) - 1;
  
-+void etnaviv_iommu_reap_mapping(struct etnaviv_vram_mapping *mapping)
-+{
-+	struct etnaviv_iommu_context *context = mapping->context;
-+
-+	lockdep_assert_held(&context->lock);
-+	WARN_ON(mapping->use);
-+
-+	etnaviv_iommu_remove_mapping(context, mapping);
-+	etnaviv_iommu_context_put(mapping->context);
-+	mapping->context = NULL;
-+	list_del_init(&mapping->mmu_node);
-+}
-+
- static int etnaviv_iommu_find_iova(struct etnaviv_iommu_context *context,
- 				   struct drm_mm_node *node, size_t size)
- {
-@@ -202,10 +215,7 @@ static int etnaviv_iommu_find_iova(struct etnaviv_iommu_context *context,
- 		 * this mapping.
- 		 */
- 		list_for_each_entry_safe(m, n, &list, scan_node) {
--			etnaviv_iommu_remove_mapping(context, m);
--			etnaviv_iommu_context_put(m->context);
--			m->context = NULL;
--			list_del_init(&m->mmu_node);
-+			etnaviv_iommu_reap_mapping(m);
- 			list_del_init(&m->scan_node);
- 		}
- 
-@@ -257,10 +267,7 @@ static int etnaviv_iommu_insert_exact(struct etnaviv_iommu_context *context,
+ 	if (seq_port) {
+-		if (intel_dsi->ports & PORT_B)
++		if (intel_dsi->ports & BIT(PORT_B))
+ 			return PORT_B;
+-		else if (intel_dsi->ports & PORT_C)
++		else if (intel_dsi->ports & BIT(PORT_C))
+ 			return PORT_C;
  	}
  
- 	list_for_each_entry_safe(m, n, &scan_list, scan_node) {
--		etnaviv_iommu_remove_mapping(context, m);
--		etnaviv_iommu_context_put(m->context);
--		m->context = NULL;
--		list_del_init(&m->mmu_node);
-+		etnaviv_iommu_reap_mapping(m);
- 		list_del_init(&m->scan_node);
- 	}
- 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_mmu.h b/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
-index e4a0b7d09c2e..c01a147f0dfd 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
-@@ -91,6 +91,7 @@ int etnaviv_iommu_map_gem(struct etnaviv_iommu_context *context,
- 	struct etnaviv_vram_mapping *mapping, u64 va);
- void etnaviv_iommu_unmap_gem(struct etnaviv_iommu_context *context,
- 	struct etnaviv_vram_mapping *mapping);
-+void etnaviv_iommu_reap_mapping(struct etnaviv_vram_mapping *mapping);
- 
- int etnaviv_iommu_get_suballoc_va(struct etnaviv_iommu_context *ctx,
- 				  struct etnaviv_vram_mapping *mapping,
--- 
-2.39.0
-
 
 
