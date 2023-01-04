@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A087965D5A7
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F95F65D5A8
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:30:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbjADOai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:30:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52310 "EHLO
+        id S234813AbjADOaj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:30:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239350AbjADOaK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:30:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2201B19C0F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:30:02 -0800 (PST)
+        with ESMTP id S234818AbjADOaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:30:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13CFB1742B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:30:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCDE9B81673
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:30:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B5E5C433EF;
-        Wed,  4 Jan 2023 14:29:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C572BB81673
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:30:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22B76C433F2;
+        Wed,  4 Jan 2023 14:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672842599;
-        bh=2rPcaUAA5NLIaFt+5US/Kq2KVq68mA6kc0Xln7uIUhg=;
+        s=korg; t=1672842608;
+        bh=zS7NlKqR0YON6Sq6KDE3v2BPfIL4bjsEJ8BjOfg7lZ8=;
         h=Subject:To:Cc:From:Date:From;
-        b=CWwLE2PajiLBc1qvTMRa/EoWFxsxYR5rnGjBx7KNKYSO0XYyKMlIYntVC9hmPnopa
-         1uXi/+DFvo63bNN5NqSTR0gzcCx9wtJtOhL0vM0ScBi/+S9+VpsVAcZ4iDbR42YPVU
-         ijWDPyIQZff30WFOvidRD4ZU1IMt1SGJVPzpyxcQ=
-Subject: FAILED: patch "[PATCH] riscv: stacktrace: Fixup ftrace_graph_ret_addr retp argument" failed to apply to 5.10-stable tree
+        b=g8t7cdrRzjKrciw/X/naBEIehEffGxBVaufyDdaIERaPG8We0CvMR97FCuF2E+iJP
+         68eDWNOIuwaU4QQupILYp0A/S1vjRk+IXxyJXTURv4ljz1S9ZarGuKaGTgnSYUi+Jk
+         CV/6fPvUs+zRjOAIvOZP+/26JN61FlyiXExPiqUk=
+Subject: FAILED: patch "[PATCH] riscv: stacktrace: Fixup ftrace_graph_ret_addr retp argument" failed to apply to 5.4-stable tree
 To:     guoren@kernel.org, guoren@linux.alibaba.com, palmer@rivosinc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:29:56 +0100
-Message-ID: <16728425961126@kroah.com>
+Date:   Wed, 04 Jan 2023 15:29:57 +0100
+Message-ID: <1672842597249122@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
