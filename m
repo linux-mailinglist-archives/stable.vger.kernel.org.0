@@ -2,67 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1946565D993
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0858065D9D0
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:30:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239757AbjADQ0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49868 "EHLO
+        id S239798AbjADQ3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:29:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239754AbjADQZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:37 -0500
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CEEA33D79
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:25:37 -0800 (PST)
-Received: by mail-pg1-x52d.google.com with SMTP id 78so22560113pgb.8
-        for <stable@vger.kernel.org>; Wed, 04 Jan 2023 08:25:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=TrYbkdEvSmRLIbogKmsveztllTLzgG1UZPO0HQg4E/I=;
-        b=cbdikJzky6onJEMUj8UNpWed4F598GjKxHNqW27SzzXJ2W217Qe35oDksZPntGy1cL
-         XatMKwEx6AlzCcY6c2geB5VT+7VYAzGoTk7kkkDqpyx1DBbHetzwTInpUbn744hdeO8u
-         dYgs/aXdKlLqvixV95FTzMakE4c2wZ38UQza9ZAxW/0/LYypYdkM82DBuqefuyJvBjOD
-         cc6MW/17QFi05pkQctf3fjrerWwk+aHDXZdMlbRdKvOY1A0Q8vbW5z5kCrN9xTNaHe4z
-         ccs2odpts6uEu9bQ3ojdu8dabZpF54uBb4yCOzCF7nIVohIAQq/aU2j03JVQ7jmmjgw1
-         TNPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=TrYbkdEvSmRLIbogKmsveztllTLzgG1UZPO0HQg4E/I=;
-        b=TEL1v4Nw+rTPGCGb2R0/H4IoxMfX/tUBe4ZTWV0K0qcoDV6OC77IYdceVsqrapD71E
-         697FbZfhX49MuJdyCnIvtCubToWRszDa+bIE8m414uqcHFdK/1tkLd1dtfmDQJVffNGf
-         E6f7/cHCFt76c4R7j/mAhYwuiJQdzJnWPGx6MO2blV4Y/OU4M0kLljT565qcTOKgMnhX
-         00U8A4ntTUmecrOS4A6i/eDRKcur0q5ditXs6CoLudtgG+DcMdKYajG+Lr1Cq9LuvOcQ
-         RW+z+scp3XBKhbbWiXxhb/u0uN1DJy5yz3xxIibyCHYqDjoBnmARN0VXO3mnlmBflww7
-         RmkA==
-X-Gm-Message-State: AFqh2koQXMmd3dOxPPDYPtK3uGlguGK296PbZAg8noknoAlhEEbL/hap
-        nwJrZ7jKHC1UhT8CLSgsn6l36lg2/wTk7Q8Qu6qj4w==
-X-Google-Smtp-Source: AMrXdXt1jTiBcL2BpULHVzj4kCIaQ1c5iZKM90MAY/sXMGAZ7q92pjXO1tBRWGwHL9ZseyMvbBdBhg==
-X-Received: by 2002:a62:ae0f:0:b0:577:15e:d9eb with SMTP id q15-20020a62ae0f000000b00577015ed9ebmr68572566pff.1.1672849536285;
-        Wed, 04 Jan 2023 08:25:36 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z15-20020a63190f000000b0046ffe3fea77sm20477731pgl.76.2023.01.04.08.25.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Jan 2023 08:25:35 -0800 (PST)
-Message-ID: <63b5a87f.630a0220.b904b.0994@mx.google.com>
-Date:   Wed, 04 Jan 2023 08:25:35 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S240024AbjADQ25 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:57 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E2D244377
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1672849661;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=28+xUt4XD6oJKtFA7tA/ZRPebQEYdm2bmnUTPRRpXMg=;
+        b=YetlfwLMTCSM1oJkIK/PdU7tWPVVW4SNXqQXnFqW/3dEtNg15H91ktHl+J3wo5aiV/aYpm
+        1k5iEDhNmrbC/hW0XcdBZklLc73PfeT8UknrycCR64BfEvKhWukvPkmIibRDCvox4lIAiz
+        WAszo0uwLdgQJrlOg7r6HjX9QZUudL4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-501-FTnnbWMqPiGjJ6f-N63GFw-1; Wed, 04 Jan 2023 11:27:37 -0500
+X-MC-Unique: FTnnbWMqPiGjJ6f-N63GFw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 80419884343;
+        Wed,  4 Jan 2023 16:27:37 +0000 (UTC)
+Received: from hydra.redhat.com (unknown [10.39.192.27])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B0A571121314;
+        Wed,  4 Jan 2023 16:27:36 +0000 (UTC)
+From:   Jocelyn Falempe <jfalempe@redhat.com>
+To:     gregkh@linuxfoundation.org
+Cc:     Jocelyn Falempe <jfalempe@redhat.com>, stable@vger.kernel.org,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH] drm/mgag200: Fix PLL setup for G200_SE_A rev >=4
+Date:   Wed,  4 Jan 2023 17:27:29 +0100
+Message-Id: <20230104162729.424575-1-jfalempe@redhat.com>
+In-Reply-To: <167284297425244@kroah.com>
+References: <167284297425244@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.162
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Report-Type: test
-Subject: stable/linux-5.10.y baseline: 136 runs, 4 regressions (v5.10.162)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,224 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 136 runs, 4 regressions (v5.10.162)
+commit b389286d0234e1edbaf62ed8bc0892a568c33662 upstream.
 
-Regressions Summary
--------------------
+For G200_SE_A, PLL M setting is wrong, which leads to blank screen,
+or "signal out of range" on VGA display.
+previous code had "m |= 0x80" which was changed to
+m |= ((pixpllcn & BIT(8)) >> 1);
 
-platform               | arch  | lab        | compiler | defconfig         =
- | regressions
------------------------+-------+------------+----------+-------------------=
--+------------
-r8a7743-iwg20d-q7      | arm   | lab-cip    | gcc-10   | shmobile_defconfig=
- | 1          =
+Tested on G200_SE_A rev 42
 
-sun50i-h6-orangepi-3   | arm64 | lab-clabbe | gcc-10   | defconfig         =
- | 1          =
+This line of code was moved to another file with
+commit 877507bb954e ("drm/mgag200: Provide per-device callbacks for
+PIXPLLC") but can be easily backported before this commit.
 
-sun8i-a83t-bananapi-m3 | arm   | lab-clabbe | gcc-10   | multi_v7_defconfig=
- | 1          =
+v2: * put BIT(7) First to respect MSB-to-LSB (Thomas)
+    * Add a comment to explain that this bit must be set (Thomas)
 
-sun8i-a83t-bananapi-m3 | arm   | lab-clabbe | gcc-10   | sunxi_defconfig   =
- | 1          =
+backported to v6.0.17, it also applies cleanly to v5.15.86
 
+Fixes: 2dd040946ecf ("drm/mgag200: Store values (not bits) in struct mgag200_pll_values")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jocelyn Falempe <jfalempe@redhat.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221013132810.521945-1-jfalempe@redhat.com
+---
+ drivers/gpu/drm/mgag200/mgag200_pll.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.162/plan/baseline/
+diff --git a/drivers/gpu/drm/mgag200/mgag200_pll.c b/drivers/gpu/drm/mgag200/mgag200_pll.c
+index 8065ca5d8de9..4f55961848a8 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_pll.c
++++ b/drivers/gpu/drm/mgag200/mgag200_pll.c
+@@ -269,7 +269,8 @@ static void mgag200_pixpll_update_g200se_04(struct mgag200_pll *pixpll,
+ 	pixpllcp = pixpllc->p - 1;
+ 	pixpllcs = pixpllc->s;
+ 
+-	xpixpllcm = pixpllcm | ((pixpllcn & BIT(8)) >> 1);
++	// For G200SE A, BIT(7) should be set unconditionally.
++	xpixpllcm = BIT(7) | pixpllcm;
+ 	xpixpllcn = pixpllcn;
+ 	xpixpllcp = (pixpllcs << 3) | pixpllcp;
+ 
+-- 
+2.38.1
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.162
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      0fe4548663f7dc2c3b549ef54ce9bb6d40a235be =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform               | arch  | lab        | compiler | defconfig         =
- | regressions
------------------------+-------+------------+----------+-------------------=
--+------------
-r8a7743-iwg20d-q7      | arm   | lab-cip    | gcc-10   | shmobile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63b57397f3e144dddd4eee45
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: shmobile_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.162/=
-arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-iwg20d-q7.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.162/=
-arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-iwg20d-q7.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221230.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63b57397f3e144dddd4ee=
-e46
-        new failure (last pass: v5.10.161) =
-
- =
-
-
-
-platform               | arch  | lab        | compiler | defconfig         =
- | regressions
------------------------+-------+------------+----------+-------------------=
--+------------
-sun50i-h6-orangepi-3   | arm64 | lab-clabbe | gcc-10   | defconfig         =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63b5758d8673ee882b4eee48
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.162/=
-arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-h6-orangepi-3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.162/=
-arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-h6-orangepi-3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221230.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63b5758d8673ee882b4eee4b
-        new failure (last pass: v5.10.156)
-
-    2023-01-04T12:47:57.013886  <8>[   16.473948] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 373707_1.5.2.4.1>
-    2023-01-04T12:47:57.122138  / # #
-    2023-01-04T12:47:57.224542  export SHELL=3D/bin/sh
-    2023-01-04T12:47:57.225212  #
-    2023-01-04T12:47:57.326907  / # export SHELL=3D/bin/sh. /lava-373707/en=
-vironment
-    2023-01-04T12:47:57.327614  =
-
-    2023-01-04T12:47:57.429325  / # . /lava-373707/environment/lava-373707/=
-bin/lava-test-runner /lava-373707/1
-    2023-01-04T12:47:57.430440  =
-
-    2023-01-04T12:47:57.443847  / # /lava-373707/bin/lava-test-runner /lava=
--373707/1
-    2023-01-04T12:47:57.502920  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (11 line(s) more)  =
-
- =
-
-
-
-platform               | arch  | lab        | compiler | defconfig         =
- | regressions
------------------------+-------+------------+----------+-------------------=
--+------------
-sun8i-a83t-bananapi-m3 | arm   | lab-clabbe | gcc-10   | multi_v7_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63b573f6d5e5fe35c14eee4c
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.162/=
-arm/multi_v7_defconfig/gcc-10/lab-clabbe/baseline-sun8i-a83t-bananapi-m3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.162/=
-arm/multi_v7_defconfig/gcc-10/lab-clabbe/baseline-sun8i-a83t-bananapi-m3.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221230.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63b573f6d5e5fe35c14eee4f
-        new failure (last pass: v5.10.143)
-
-    2023-01-04T12:41:17.379750  [   15.280498] <LAVA_SIGNAL_ENDRUN 0_dmesg =
-373696_1.5.2.4.1>
-    2023-01-04T12:41:17.380077  [   15.286692] usb-storage 2-1.1:1.0: USB M=
-ass Storage device detected
-    2023-01-04T12:41:17.380668  / # [   15.295492] scsi host0: usb-storage =
-2-1.1:1.0
-    2023-01-04T12:41:17.380952  [   15.307813] usbcore: registered new inte=
-rface driver uas
-    2023-01-04T12:41:17.487108  #
-    2023-01-04T12:41:17.589328  export SHELL=3D/bin/sh
-    2023-01-04T12:41:17.589949  #
-    2023-01-04T12:41:17.691535  / # export SHELL=3D/bin/sh. /lava-373696/en=
-vironment
-    2023-01-04T12:41:17.692141  =
-
-    2023-01-04T12:41:17.793820  / # . /lava-373696/environment/lava-373696/=
-bin/lava-test-runner /lava-373696/1 =
-
-    ... (21 line(s) more)  =
-
- =
-
-
-
-platform               | arch  | lab        | compiler | defconfig         =
- | regressions
------------------------+-------+------------+----------+-------------------=
--+------------
-sun8i-a83t-bananapi-m3 | arm   | lab-clabbe | gcc-10   | sunxi_defconfig   =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63b56ef5dcf1eb98574eee95
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: sunxi_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.162/=
-arm/sunxi_defconfig/gcc-10/lab-clabbe/baseline-sun8i-a83t-bananapi-m3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.162/=
-arm/sunxi_defconfig/gcc-10/lab-clabbe/baseline-sun8i-a83t-bananapi-m3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20221230.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63b56ef5dcf1eb98574eee98
-        new failure (last pass: v5.10.143)
-
-    2023-01-04T12:19:47.832673  + set +x[   15.272361] <LAVA_SIGNAL_ENDRUN =
-0_dmesg 373687_1.5.2.4.1>
-    2023-01-04T12:19:47.832993  =
-
-    2023-01-04T12:19:47.939457  / # #
-    2023-01-04T12:19:48.041817  export SHELL=3D/bin/sh
-    2023-01-04T12:19:48.042532  #
-    2023-01-04T12:19:48.144126  / # export SHELL=3D/bin/sh. /lava-373687/en=
-vironment
-    2023-01-04T12:19:48.144778  =
-
-    2023-01-04T12:19:48.246433  / # . /lava-373687/environment/lava-373687/=
-bin/lava-test-runner /lava-373687/1
-    2023-01-04T12:19:48.247570  =
-
-    2023-01-04T12:19:48.263645  / # /lava-373687/bin/lava-test-runner /lava=
--373687/1 =
-
-    ... (12 line(s) more)  =
-
- =20
