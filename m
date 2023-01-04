@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78A0665D6DB
+	by mail.lfdr.de (Postfix) with ESMTP id E797F65D6DC
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:07:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbjADPHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:07:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51742 "EHLO
+        id S233514AbjADPHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:07:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239446AbjADPHC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:07:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E27A45E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:07:01 -0800 (PST)
+        with ESMTP id S239500AbjADPHF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:07:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB34BEE30
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:07:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CE41B81683
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:07:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96003C433EF;
-        Wed,  4 Jan 2023 15:06:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53B6DB81339
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:07:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8329BC433F0;
+        Wed,  4 Jan 2023 15:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844819;
-        bh=lppBsfqUm5A3EP0gzV0UqRWP4BAhGimTz2BNGGDKgZc=;
+        s=korg; t=1672844822;
+        bh=gW3mdZKUaRV2rcB+jC71tsaLyg3T/pwti9h8fLOyMCc=;
         h=Subject:To:Cc:From:Date:From;
-        b=YJmzumJHZezQpObWrxe4GtCpiTsjYYJBp1TshIjbN1YTzWFP+tFlM9IH8BHtfXiGT
-         qWn+P2NqjyZ1Xsi6o1f+CjwBcL6cSE/YaicU+RYavZHNmaA7K0s6GLSdTAhLGD/XKk
-         ss5XxKkuM2NsF6WpEG+48yGWHEnvvPDYltoQt/9k=
-Subject: FAILED: patch "[PATCH] ext4: dont return EINVAL from GETFSUUID when reporting UUID" failed to apply to 4.14-stable tree
+        b=QQwcW7DSn3t+g4vMDq1gL0EKBWkg2tQ55XpyyCW2PQYP3ODX6frPOvK0sDJ/xwGr5
+         PV1EacVsB2zZ+7C1QBYw5Y1HILTzEJRxtQIWA9jwPOcqeG2UjhAc2g9zZZhVbxIDNW
+         69Kn9p7N4wMqqSBiKlQ7g+TEt31D14XvyKQZLbHs=
+Subject: FAILED: patch "[PATCH] ext4: dont return EINVAL from GETFSUUID when reporting UUID" failed to apply to 4.9-stable tree
 To:     djwong@kernel.org, catherine.hoang@oracle.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:06:47 +0100
-Message-ID: <167284480754161@kroah.com>
+Date:   Wed, 04 Jan 2023 16:06:49 +0100
+Message-ID: <1672844809117130@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
