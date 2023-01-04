@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D36465D8F0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:20:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B227665D8D8
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:19:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239977AbjADQUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:20:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
+        id S239933AbjADQTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:19:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239991AbjADQT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F47E3E0E9
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:58 -0800 (PST)
+        with ESMTP id S239961AbjADQSr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 041C45FBB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 174A0B81731
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58544C433D2;
-        Wed,  4 Jan 2023 16:19:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 933266177C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FB1DC433F0;
+        Wed,  4 Jan 2023 16:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849195;
-        bh=fzNwxn+5D9l4ObhjrXek79HPmvYNmES/HeGoYcrd520=;
+        s=korg; t=1672849126;
+        bh=3DkUk8eoE+2U/AM6ITA7Epiw5Jk91N0GFUzZv0dBMkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HH4SLtGtaEBmONWQc5mAgZjagUbstJTStvMcOIGBhvQmyymfpzniJZDFbtiwR4sPC
-         BYXW9g0PIFANF2xSCDAcdm72zSrNVgqs62klfBSVCRugZRPX3ZTl7s2CIq041Mbl1O
-         SJ0W3AlYkWki/X5sghXJOYw6oHhXGR6Gmo7P9JhQ=
+        b=jdshHrnY5BMaFDSH/oyd+0PBFEQEN/4GGcmiSXKlDZmzAjGwJVq6gCJU0iZ6EzXD/
+         v0qLd+SY0o10H6VQ4l9PrasRiSLt3CWw1G2hLY1aAKjeBAQWoTMEVxc2f3Db1QIF2p
+         N8H2Mi1RvXjY0CAyP/JRannn1LfQxZd0uS/9jULY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.0 081/177] cifs: fix missing display of three mount options
+        patches@lists.linux.dev, Aditya Garg <gargaditya08@live.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 6.1 114/207] efi: Add iMac Pro 2017 to uefi skip cert quirk
 Date:   Wed,  4 Jan 2023 17:06:12 +0100
-Message-Id: <20230104160510.104715262@linuxfoundation.org>
+Message-Id: <20230104160515.518997445@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,41 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Aditya Garg <gargaditya08@live.com>
 
-commit 2bfd81043e944af0e52835ef6d9b41795af22341 upstream.
+commit 0be56a116220f9e5731a6609e66a11accfe8d8e2 upstream.
 
-Three mount options: "tcpnodelay" and "noautotune" and "noblocksend"
-were not displayed when passed in on cifs/smb3 mounts (e.g. displayed
-in /proc/mounts e.g.).  No change to defaults so these are not
-displayed if not specified on mount.
+The iMac Pro 2017 is also a T2 Mac. Thus add it to the list of uefi skip
+cert.
 
 Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot for T2 Macs")
+Link: https://lore.kernel.org/linux-integrity/9D46D92F-1381-4F10-989C-1A12CD2FFDD8@live.com/
+Signed-off-by: Aditya Garg <gargaditya08@live.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsfs.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ security/integrity/platform_certs/load_uefi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -678,9 +678,15 @@ cifs_show_options(struct seq_file *s, st
- 	seq_printf(s, ",echo_interval=%lu",
- 			tcon->ses->server->echo_interval / HZ);
+--- a/security/integrity/platform_certs/load_uefi.c
++++ b/security/integrity/platform_certs/load_uefi.c
+@@ -35,6 +35,7 @@ static const struct dmi_system_id uefi_s
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMacPro1,1") },
+ 	{ }
+ };
  
--	/* Only display max_credits if it was overridden on mount */
-+	/* Only display the following if overridden on mount */
- 	if (tcon->ses->server->max_credits != SMB2_MAX_CREDITS_AVAILABLE)
- 		seq_printf(s, ",max_credits=%u", tcon->ses->server->max_credits);
-+	if (tcon->ses->server->tcp_nodelay)
-+		seq_puts(s, ",tcpnodelay");
-+	if (tcon->ses->server->noautotune)
-+		seq_puts(s, ",noautotune");
-+	if (tcon->ses->server->noblocksnd)
-+		seq_puts(s, ",noblocksend");
- 
- 	if (tcon->snapshot_time)
- 		seq_printf(s, ",snapshot=%llu", tcon->snapshot_time);
 
 
