@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6B265D9CF
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32EC265D94D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239213AbjADQ3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:29:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51470 "EHLO
+        id S239869AbjADQX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:23:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240026AbjADQ27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3025431AD
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:28:10 -0800 (PST)
+        with ESMTP id S239812AbjADQXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:23:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3A654437A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:22:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A002B817BB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:28:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5B9CC433F0;
-        Wed,  4 Jan 2023 16:28:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91428617BB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:22:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83E5FC433D2;
+        Wed,  4 Jan 2023 16:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849688;
-        bh=66TTpy8zi1Ms8RUsKRu+PHzGU87iM1FxkdGpHYvckPA=;
+        s=korg; t=1672849374;
+        bh=aFwiXzay2vowgqO1/3O4YBKO0gnRNAgiv1+ipsIKYkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gUq7JCJmg/NVLZoxn1+eBythlSE7WAzIQlNB/Q/9ku+cvIOCh0i6Ya4tnf6zIQEDL
-         jceKNNu+8CURM/WumtIGyu96llIwitW7xCDegpWBcmvRAkl8tlCuHjDkw5F/9YaLia
-         0oLQlmildV9NvgWIfiqxY0ypID685g5iG1FKxfSo=
+        b=YewftpRKO3XLTw+FuOjDcaZwk/BQscRsI8Fj7IzKTx2wzjNxysCFI6pUggAjDd4ja
+         rVmM8lfUvau5KnneEO2KNyIUawMJDTvS5hMhMH7/JGNtGXbLtv4eogoBuf6MOI1YiZ
+         fBLEfxIfe5YbWhQPzT6JT0YFqu2dRuXknZNiw3Ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com,
+        syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com,
         Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.0 145/177] ext4: dont allow journal inode to have encrypt flag
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.1 178/207] ext4: dont set up encryption key during jbd2 transaction
 Date:   Wed,  4 Jan 2023 17:07:16 +0100
-Message-Id: <20230104160512.054136761@linuxfoundation.org>
+Message-Id: <20230104160517.506280608@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +56,156 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 105c78e12468413e426625831faa7db4284e1fec upstream.
+commit 4c0d5778385cb3618ff26a561ce41de2b7d9de70 upstream.
 
-Mounting a filesystem whose journal inode has the encrypt flag causes a
-NULL dereference in fscrypt_limit_io_blocks() when the 'inlinecrypt'
-mount option is used.
+Commit a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
+extended the scope of the transaction in ext4_unlink() too far, making
+it include the call to ext4_find_entry().  However, ext4_find_entry()
+can deadlock when called from within a transaction because it may need
+to set up the directory's encryption key.
 
-The problem is that when jbd2_journal_init_inode() calls bmap(), it
-eventually finds its way into ext4_iomap_begin(), which calls
-fscrypt_limit_io_blocks().  fscrypt_limit_io_blocks() requires that if
-the inode is encrypted, then its encryption key must already be set up.
-That's not the case here, since the journal inode is never "opened" like
-a normal file would be.  Hence the crash.
+Fix this by restoring the transaction to its original scope.
 
-A reproducer is:
-
-    mkfs.ext4 -F /dev/vdb
-    debugfs -w /dev/vdb -R "set_inode_field <8> flags 0x80808"
-    mount /dev/vdb /mnt -o inlinecrypt
-
-To fix this, make ext4 consider journal inodes with the encrypt flag to
-be invalid.  (Note, maybe other flags should be rejected on the journal
-inode too.  For now, this is just the minimal fix for the above issue.)
-
-I've marked this as fixing the commit that introduced the call to
-fscrypt_limit_io_blocks(), since that's what made an actual crash start
-being possible.  But this fix could be applied to any version of ext4
-that supports the encrypt feature.
-
-Reported-by: syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com
-Fixes: 38ea50daa7a4 ("ext4: support direct I/O with fscrypt using blk-crypto")
-Cc: stable@vger.kernel.org
+Reported-by: syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com
+Fixes: a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
+Cc: <stable@vger.kernel.org> # v5.10+
 Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221102053312.189962-1-ebiggers@kernel.org
+Link: https://lore.kernel.org/r/20221106224841.279231-3-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/ext4.h        |    4 ++--
+ fs/ext4/fast_commit.c |    2 +-
+ fs/ext4/namei.c       |   44 ++++++++++++++++++++++++--------------------
+ 3 files changed, 27 insertions(+), 23 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5580,7 +5580,7 @@ static struct inode *ext4_get_journal_in
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -3620,8 +3620,8 @@ extern void ext4_initialize_dirent_tail(
+ 					unsigned int blocksize);
+ extern int ext4_handle_dirty_dirblock(handle_t *handle, struct inode *inode,
+ 				      struct buffer_head *bh);
+-extern int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
+-			 struct inode *inode);
++extern int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
++			 struct inode *inode, struct dentry *dentry);
+ extern int __ext4_link(struct inode *dir, struct inode *inode,
+ 		       struct dentry *dentry);
  
- 	ext4_debug("Journal inode found at %p: %lld bytes\n",
- 		  journal_inode, journal_inode->i_size);
--	if (!S_ISREG(journal_inode->i_mode)) {
-+	if (!S_ISREG(journal_inode->i_mode) || IS_ENCRYPTED(journal_inode)) {
- 		ext4_msg(sb, KERN_ERR, "invalid journal inode");
- 		iput(journal_inode);
- 		return NULL;
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1402,7 +1402,7 @@ static int ext4_fc_replay_unlink(struct
+ 		return 0;
+ 	}
+ 
+-	ret = __ext4_unlink(NULL, old_parent, &entry, inode);
++	ret = __ext4_unlink(old_parent, &entry, inode, NULL);
+ 	/* -ENOENT ok coz it might not exist anymore. */
+ 	if (ret == -ENOENT)
+ 		ret = 0;
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3204,14 +3204,20 @@ end_rmdir:
+ 	return retval;
+ }
+ 
+-int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
+-		  struct inode *inode)
++int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
++		  struct inode *inode,
++		  struct dentry *dentry /* NULL during fast_commit recovery */)
+ {
+ 	int retval = -ENOENT;
+ 	struct buffer_head *bh;
+ 	struct ext4_dir_entry_2 *de;
++	handle_t *handle;
+ 	int skip_remove_dentry = 0;
+ 
++	/*
++	 * Keep this outside the transaction; it may have to set up the
++	 * directory's encryption key, which isn't GFP_NOFS-safe.
++	 */
+ 	bh = ext4_find_entry(dir, d_name, &de, NULL);
+ 	if (IS_ERR(bh))
+ 		return PTR_ERR(bh);
+@@ -3228,7 +3234,14 @@ int __ext4_unlink(handle_t *handle, stru
+ 		if (EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY)
+ 			skip_remove_dentry = 1;
+ 		else
+-			goto out;
++			goto out_bh;
++	}
++
++	handle = ext4_journal_start(dir, EXT4_HT_DIR,
++				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
++	if (IS_ERR(handle)) {
++		retval = PTR_ERR(handle);
++		goto out_bh;
+ 	}
+ 
+ 	if (IS_DIRSYNC(dir))
+@@ -3237,12 +3250,12 @@ int __ext4_unlink(handle_t *handle, stru
+ 	if (!skip_remove_dentry) {
+ 		retval = ext4_delete_entry(handle, dir, de, bh);
+ 		if (retval)
+-			goto out;
++			goto out_handle;
+ 		dir->i_ctime = dir->i_mtime = current_time(dir);
+ 		ext4_update_dx_flag(dir);
+ 		retval = ext4_mark_inode_dirty(handle, dir);
+ 		if (retval)
+-			goto out;
++			goto out_handle;
+ 	} else {
+ 		retval = 0;
+ 	}
+@@ -3255,15 +3268,17 @@ int __ext4_unlink(handle_t *handle, stru
+ 		ext4_orphan_add(handle, inode);
+ 	inode->i_ctime = current_time(inode);
+ 	retval = ext4_mark_inode_dirty(handle, inode);
+-
+-out:
++	if (dentry && !retval)
++		ext4_fc_track_unlink(handle, dentry);
++out_handle:
++	ext4_journal_stop(handle);
++out_bh:
+ 	brelse(bh);
+ 	return retval;
+ }
+ 
+ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
+ {
+-	handle_t *handle;
+ 	int retval;
+ 
+ 	if (unlikely(ext4_forced_shutdown(EXT4_SB(dir->i_sb))))
+@@ -3281,16 +3296,7 @@ static int ext4_unlink(struct inode *dir
+ 	if (retval)
+ 		goto out_trace;
+ 
+-	handle = ext4_journal_start(dir, EXT4_HT_DIR,
+-				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
+-	if (IS_ERR(handle)) {
+-		retval = PTR_ERR(handle);
+-		goto out_trace;
+-	}
+-
+-	retval = __ext4_unlink(handle, dir, &dentry->d_name, d_inode(dentry));
+-	if (!retval)
+-		ext4_fc_track_unlink(handle, dentry);
++	retval = __ext4_unlink(dir, &dentry->d_name, d_inode(dentry), dentry);
+ #if IS_ENABLED(CONFIG_UNICODE)
+ 	/* VFS negative dentries are incompatible with Encoding and
+ 	 * Case-insensitiveness. Eventually we'll want avoid
+@@ -3301,8 +3307,6 @@ static int ext4_unlink(struct inode *dir
+ 	if (IS_CASEFOLDED(dir))
+ 		d_invalidate(dentry);
+ #endif
+-	if (handle)
+-		ext4_journal_stop(handle);
+ 
+ out_trace:
+ 	trace_ext4_unlink_exit(dentry, retval);
 
 
