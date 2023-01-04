@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E001A65D967
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F080265D97E
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbjADQZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:25:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47876 "EHLO
+        id S239827AbjADQ0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:26:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240079AbjADQYn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5938633D78
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:52 -0800 (PST)
+        with ESMTP id S240001AbjADQZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60CC233D55
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:24:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4F6461798
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD917C433D2;
-        Wed,  4 Jan 2023 16:23:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D16361798
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:24:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94717C433D2;
+        Wed,  4 Jan 2023 16:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849431;
-        bh=5w8TgESVELtpAaIfah/SYNa4IwACqSFfYKEdoGp9JcI=;
+        s=korg; t=1672849492;
+        bh=Y9avWnrdo1KJJsjerhAmp289Ae/E1SbEtbzXTHDwICQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4Ugh/uJAKC5qG5lZgLdY9P0PWiVQc14jekQthrJqo6kB06wToG8eF4yu6g88mn9Q
-         CHuFO2sxAqrnRclho9MsGPxrCxmdERDO4ZFUkmWnWnbaUxmwoJCFvEVzDvjYye4zOp
-         yLms47IjZ78ucOsh8BSFsf0+y0Jv9bukW5nKzJlI=
+        b=ndRrAiwGMTShVq7ldqYsiL/j+WXOrjrqi9uakn+AEAxpX9eLnY4W/3lYKo7FD0auQ
+         zh68nRxu+1Tf4bY29xh41VqV1F5VZinljWJVBdyrLLv2w7vCmkP8xJQEszZpxuQth6
+         6ZZazYKUp2TOiKAgHc00nX/dadLuhUvbEc3bctv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 6.1 164/207] ext4: correct inconsistent error msg in nojournal mode
+        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 6.0 131/177] arm64: efi: Execute runtime services from a dedicated stack
 Date:   Wed,  4 Jan 2023 17:07:02 +0100
-Message-Id: <20230104160517.080721901@linuxfoundation.org>
+Message-Id: <20230104160511.618254851@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +51,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 89481b5fa8c0640e62ba84c6020cee895f7ac643 upstream.
+commit ff7a167961d1b97e0e205f245f806e564d3505e7 upstream.
 
-When we used the journal_async_commit mounting option in nojournal mode,
-the kernel told me that "can't mount with journal_checksum", was very
-confusing. I find that when we mount with journal_async_commit, both the
-JOURNAL_ASYNC_COMMIT and EXPLICIT_JOURNAL_CHECKSUM flags are set. However,
-in the error branch, CHECKSUM is checked before ASYNC_COMMIT. As a result,
-the above inconsistency occurs, and the ASYNC_COMMIT branch becomes dead
-code that cannot be executed. Therefore, we exchange the positions of the
-two judgments to make the error msg more accurate.
+With the introduction of PRMT in the ACPI subsystem, the EFI rts
+workqueue is no longer the only caller of efi_call_virt_pointer() in the
+kernel. This means the EFI runtime services lock is no longer sufficient
+to manage concurrent calls into firmware, but also that firmware calls
+may occur that are not marshalled via the workqueue mechanism, but
+originate directly from the caller context.
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221109074343.4184862-1-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+For added robustness, and to ensure that the runtime services have 8 KiB
+of stack space available as per the EFI spec, introduce a spinlock
+protected EFI runtime stack of 8 KiB, where the spinlock also ensures
+serialization between the EFI rts workqueue (which itself serializes EFI
+runtime calls) and other callers of efi_call_virt_pointer().
+
+While at it, use the stack pivot to avoid reloading the shadow call
+stack pointer from the ordinary stack, as doing so could produce a
+gadget to defeat it.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/efi.h       |    3 +++
+ arch/arm64/kernel/efi-rt-wrapper.S |   13 ++++++++++++-
+ arch/arm64/kernel/efi.c            |   27 +++++++++++++++++++++++++++
+ 3 files changed, 42 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5287,14 +5287,15 @@ static int __ext4_fill_super(struct fs_c
- 		goto failed_mount3a;
- 	} else {
- 		/* Nojournal mode, all journal mount options are illegal */
--		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
-+		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
- 			ext4_msg(sb, KERN_ERR, "can't mount with "
--				 "journal_checksum, fs mounted w/o journal");
-+				 "journal_async_commit, fs mounted w/o journal");
- 			goto failed_mount3a;
- 		}
--		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
+--- a/arch/arm64/include/asm/efi.h
++++ b/arch/arm64/include/asm/efi.h
+@@ -25,6 +25,7 @@ int efi_set_mapping_permissions(struct m
+ ({									\
+ 	efi_virtmap_load();						\
+ 	__efi_fpsimd_begin();						\
++	spin_lock(&efi_rt_lock);					\
+ })
+ 
+ #undef arch_efi_call_virt
+@@ -33,10 +34,12 @@ int efi_set_mapping_permissions(struct m
+ 
+ #define arch_efi_call_virt_teardown()					\
+ ({									\
++	spin_unlock(&efi_rt_lock);					\
+ 	__efi_fpsimd_end();						\
+ 	efi_virtmap_unload();						\
+ })
+ 
++extern spinlock_t efi_rt_lock;
+ efi_status_t __efi_rt_asm_wrapper(void *, const char *, ...);
+ 
+ #define ARCH_EFI_IRQ_FLAGS_MASK (PSR_D_BIT | PSR_A_BIT | PSR_I_BIT | PSR_F_BIT)
+--- a/arch/arm64/kernel/efi-rt-wrapper.S
++++ b/arch/arm64/kernel/efi-rt-wrapper.S
+@@ -16,6 +16,12 @@ SYM_FUNC_START(__efi_rt_asm_wrapper)
+ 	 */
+ 	stp	x1, x18, [sp, #16]
+ 
++	ldr_l	x16, efi_rt_stack_top
++	mov	sp, x16
++#ifdef CONFIG_SHADOW_CALL_STACK
++	str	x18, [sp, #-16]!
++#endif
 +
-+		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
- 			ext4_msg(sb, KERN_ERR, "can't mount with "
--				 "journal_async_commit, fs mounted w/o journal");
-+				 "journal_checksum, fs mounted w/o journal");
- 			goto failed_mount3a;
- 		}
- 		if (sbi->s_commit_interval != JBD2_DEFAULT_MAX_COMMIT_AGE*HZ) {
+ 	/*
+ 	 * We are lucky enough that no EFI runtime services take more than
+ 	 * 5 arguments, so all are passed in registers rather than via the
+@@ -29,6 +35,7 @@ SYM_FUNC_START(__efi_rt_asm_wrapper)
+ 	mov	x4, x6
+ 	blr	x8
+ 
++	mov	sp, x29
+ 	ldp	x1, x2, [sp, #16]
+ 	cmp	x2, x18
+ 	ldp	x29, x30, [sp], #32
+@@ -42,6 +49,10 @@ SYM_FUNC_START(__efi_rt_asm_wrapper)
+ 	 * called with preemption disabled and a separate shadow stack is used
+ 	 * for interrupts.
+ 	 */
+-	mov	x18, x2
++#ifdef CONFIG_SHADOW_CALL_STACK
++	ldr_l	x18, efi_rt_stack_top
++	ldr	x18, [x18, #-16]
++#endif
++
+ 	b	efi_handle_corrupted_x18	// tail call
+ SYM_FUNC_END(__efi_rt_asm_wrapper)
+--- a/arch/arm64/kernel/efi.c
++++ b/arch/arm64/kernel/efi.c
+@@ -144,3 +144,30 @@ asmlinkage efi_status_t efi_handle_corru
+ 	pr_err_ratelimited(FW_BUG "register x18 corrupted by EFI %s\n", f);
+ 	return s;
+ }
++
++DEFINE_SPINLOCK(efi_rt_lock);
++
++asmlinkage u64 *efi_rt_stack_top __ro_after_init;
++
++/* EFI requires 8 KiB of stack space for runtime services */
++static_assert(THREAD_SIZE >= SZ_8K);
++
++static int __init arm64_efi_rt_init(void)
++{
++	void *p;
++
++	if (!efi_enabled(EFI_RUNTIME_SERVICES))
++		return 0;
++
++	p = __vmalloc_node(THREAD_SIZE, THREAD_ALIGN, GFP_KERNEL,
++			   NUMA_NO_NODE, &&l);
++l:	if (!p) {
++		pr_warn("Failed to allocate EFI runtime stack\n");
++		clear_bit(EFI_RUNTIME_SERVICES, &efi.flags);
++		return -ENOMEM;
++	}
++
++	efi_rt_stack_top = p + THREAD_SIZE;
++	return 0;
++}
++core_initcall(arm64_efi_rt_init);
 
 
