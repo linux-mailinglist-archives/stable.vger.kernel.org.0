@@ -2,102 +2,279 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3546365D2F4
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C754F65D304
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:49:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239162AbjADMnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:43:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59274 "EHLO
+        id S230257AbjADMtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:49:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234944AbjADMnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:43:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16623186CE;
-        Wed,  4 Jan 2023 04:43:49 -0800 (PST)
+        with ESMTP id S230095AbjADMtw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:49:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C363E1704B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:49:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B64D1B8162F;
-        Wed,  4 Jan 2023 12:43:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CEAC433EF;
-        Wed,  4 Jan 2023 12:43:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F8BAB81640
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:49:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1989C433D2;
+        Wed,  4 Jan 2023 12:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836226;
-        bh=gKK35ke75uzbLNdiFo+ZUF6+OSLS2q0DB62aiLXqFus=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R/7nfHYE0649pnd56Dza8eBumthC+1bmiU/8A0efpKWDA9tLXbh+bR/ew+v+6yt7S
-         r98T4XdbtBoNszBgq6/jjGeVS955ekatwSuOgQ1l1gBR4yVM8M/H57jlug9U8wYQrd
-         rhqBIzXzaf6LhifUtNuy4PDCFiCNOYwIwU6c2XNs=
-Date:   Wed, 4 Jan 2023 13:43:43 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Tudor Ambarus <tudor.ambarus@linaro.org>
-Cc:     stable@vger.kernel.org, willemdebruijn.kernel@gmail.com,
-        mst@redhat.com, jasowang@redhat.com, edumazet@google.com,
-        virtualization@lists.linux-foundation.org, davem@davemloft.net,
-        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
-        willemb@google.com, syzkaller@googlegroups.com,
-        liuhangbin@gmail.com, linux-kernel@vger.kernel.org,
-        joneslee@google.com
-Subject: Re: [PATCH 0/2] net/af_packet: Fix kernel BUG in __skb_gso_segment
-Message-ID: <Y7V0f77yhwYplQQz@kroah.com>
-References: <20221222083545.1972489-1-tudor.ambarus@linaro.org>
+        s=korg; t=1672836588;
+        bh=VmBVUHCwH3XZSTH+mgsQVXCN2hcv2Sza7n3+Eky4gqY=;
+        h=Subject:To:Cc:From:Date:From;
+        b=az6NWQsfoVGyRpsD9oBBDeHKO5fT6YZphK4ceEjMFZNkBCgvRzF9OP7PZeKPo8Ugv
+         oan4aQ+EMJmCyE+28lP2ow6a4q7HH1qmGzZaJouLgxV5p+c4IruwSviPb1yX6TLTM0
+         cLbA0YPZeh3Mu7Cge463bG7KjabydbdLtcsrH43k=
+Subject: FAILED: patch "[PATCH] jbd2: use the correct print format" failed to apply to 5.4-stable tree
+To:     cuibixuan@linux.alibaba.com, tytso@mit.edu, yanaijie@huawei.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 04 Jan 2023 13:49:45 +0100
+Message-ID: <167283658514956@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221222083545.1972489-1-tudor.ambarus@linaro.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,HEXHASH_WORD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 22, 2022 at 10:35:43AM +0200, Tudor Ambarus wrote:
-> The series is intended for stable@vger.kernel.org # 5.4+
-> 
-> Syzkaller reported the following bug on linux-5.{4, 10, 15}.y:
-> https://syzkaller.appspot.com/bug?id=ce5575575f074c33ff80d104f5baee26f22e95f5
-> 
-> The upstream commit that introduces this bug is:
-> 1ed1d5921139 ("net: skip virtio_net_hdr_set_proto if protocol already set")
-> 
-> Upstream fixes the bug with the following commits, one of which introduces
-> new support:
-> e9d3f80935b6 ("net/af_packet: make sure to pull mac header")
-> dfed913e8b55 ("net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO") 
-> 
-> The additional logic and risk backported seems manageable.
-> 
-> The blammed commit introduces a kernel BUG in __skb_gso_segment for
-> AF_PACKET SOCK_RAW GSO VLAN tagged packets. What happens is that
-> virtio_net_hdr_set_proto() exists early as skb->protocol is already set to
-> ETH_P_ALL. Then in packet_parse_headers() skb->protocol is set to
-> ETH_P_8021AD, but neither the network header position is adjusted, nor the
-> mac header is pulled. Thus when we get to validate the xmit skb and enter
-> skb_mac_gso_segment(), skb->mac_len has value 14, but vlan_depth gets
-> updated to 18 after skb_network_protocol() is called. This causes the
-> BUG_ON from __skb_pull(skb, vlan_depth) to be hit, as the mac header has
-> not been pulled yet.
-> 
-> The fixes from upstream backported cleanly without conflicts. I updated
-> the commit message of the first patch to describe the problem encountered,
-> and added Cc, Fixes, Reported-by and Tested-by tags. For the second patch
-> I just added Cc to stable indicating the versions to be fixed, and added
-> my Tested and Signed-off-by tags.
-> 
-> I tested the patches on linux-5.{4, 10, 15}.y.
-> 
-> Eric Dumazet (1):
->   net/af_packet: make sure to pull mac header
-> 
-> Hangbin Liu (1):
->   net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO
-> 
->  net/packet/af_packet.c | 20 +++++++++++++++-----
->  1 file changed, 15 insertions(+), 5 deletions(-)
 
-Now queued up, thanks.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+Possible dependencies:
+
+d87a7b4c77a9 ("jbd2: use the correct print format")
+0094f981bbac ("jbd2: Provide trace event for handle restarts")
+fdc3ef882a5d ("jbd2: Reserve space for revoke descriptor blocks")
+ec8b6f600e49 ("jbd2: Factor out common parts of stopping and restarting a handle")
+5559b2d81b51 ("jbd2: Drop pointless wakeup from jbd2_journal_stop()")
+dfaf5ffda227 ("jbd2: Reorganize jbd2_journal_stop()")
+a9a8344ee171 ("ext4, jbd2: Provide accessor function for handle credits")
+a413036791d0 ("ext4: Provide function to handle transaction restarts")
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From d87a7b4c77a997d5388566dd511ca8e6b8e8a0a8 Mon Sep 17 00:00:00 2001
+From: Bixuan Cui <cuibixuan@linux.alibaba.com>
+Date: Tue, 11 Oct 2022 19:33:44 +0800
+Subject: [PATCH] jbd2: use the correct print format
+
+The print format error was found when using ftrace event:
+    <...>-1406 [000] .... 23599442.895823: jbd2_end_commit: dev 252,8 transaction -1866216965 sync 0 head -1866217368
+    <...>-1406 [000] .... 23599442.896299: jbd2_start_commit: dev 252,8 transaction -1866216964 sync 0
+
+Use the correct print format for transaction, head and tid.
+
+Fixes: 879c5e6b7cb4 ('jbd2: convert instrumentation from markers to tracepoints')
+Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Link: https://lore.kernel.org/r/1665488024-95172-1-git-send-email-cuibixuan@linux.alibaba.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+
+diff --git a/include/trace/events/jbd2.h b/include/trace/events/jbd2.h
+index 99f783c384bb..8f5ee380d309 100644
+--- a/include/trace/events/jbd2.h
++++ b/include/trace/events/jbd2.h
+@@ -40,7 +40,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
+ 	TP_STRUCT__entry(
+ 		__field(	dev_t,	dev			)
+ 		__field(	char,	sync_commit		  )
+-		__field(	int,	transaction		  )
++		__field(	tid_t,	transaction		  )
+ 	),
+ 
+ 	TP_fast_assign(
+@@ -49,7 +49,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
+ 		__entry->transaction	= commit_transaction->t_tid;
+ 	),
+ 
+-	TP_printk("dev %d,%d transaction %d sync %d",
++	TP_printk("dev %d,%d transaction %u sync %d",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev),
+ 		  __entry->transaction, __entry->sync_commit)
+ );
+@@ -97,8 +97,8 @@ TRACE_EVENT(jbd2_end_commit,
+ 	TP_STRUCT__entry(
+ 		__field(	dev_t,	dev			)
+ 		__field(	char,	sync_commit		  )
+-		__field(	int,	transaction		  )
+-		__field(	int,	head		  	  )
++		__field(	tid_t,	transaction		  )
++		__field(	tid_t,	head		  	  )
+ 	),
+ 
+ 	TP_fast_assign(
+@@ -108,7 +108,7 @@ TRACE_EVENT(jbd2_end_commit,
+ 		__entry->head		= journal->j_tail_sequence;
+ 	),
+ 
+-	TP_printk("dev %d,%d transaction %d sync %d head %d",
++	TP_printk("dev %d,%d transaction %u sync %d head %u",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev),
+ 		  __entry->transaction, __entry->sync_commit, __entry->head)
+ );
+@@ -134,14 +134,14 @@ TRACE_EVENT(jbd2_submit_inode_data,
+ );
+ 
+ DECLARE_EVENT_CLASS(jbd2_handle_start_class,
+-	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
++	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
+ 		 unsigned int line_no, int requested_blocks),
+ 
+ 	TP_ARGS(dev, tid, type, line_no, requested_blocks),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	 unsigned int,	type		)
+ 		__field(	 unsigned int,	line_no		)
+ 		__field(		  int,	requested_blocks)
+@@ -155,28 +155,28 @@ DECLARE_EVENT_CLASS(jbd2_handle_start_class,
+ 		__entry->requested_blocks = requested_blocks;
+ 	),
+ 
+-	TP_printk("dev %d,%d tid %lu type %u line_no %u "
++	TP_printk("dev %d,%d tid %u type %u line_no %u "
+ 		  "requested_blocks %d",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+ 		  __entry->type, __entry->line_no, __entry->requested_blocks)
+ );
+ 
+ DEFINE_EVENT(jbd2_handle_start_class, jbd2_handle_start,
+-	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
++	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
+ 		 unsigned int line_no, int requested_blocks),
+ 
+ 	TP_ARGS(dev, tid, type, line_no, requested_blocks)
+ );
+ 
+ DEFINE_EVENT(jbd2_handle_start_class, jbd2_handle_restart,
+-	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
++	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
+ 		 unsigned int line_no, int requested_blocks),
+ 
+ 	TP_ARGS(dev, tid, type, line_no, requested_blocks)
+ );
+ 
+ TRACE_EVENT(jbd2_handle_extend,
+-	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
++	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
+ 		 unsigned int line_no, int buffer_credits,
+ 		 int requested_blocks),
+ 
+@@ -184,7 +184,7 @@ TRACE_EVENT(jbd2_handle_extend,
+ 
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	 unsigned int,	type		)
+ 		__field(	 unsigned int,	line_no		)
+ 		__field(		  int,	buffer_credits  )
+@@ -200,7 +200,7 @@ TRACE_EVENT(jbd2_handle_extend,
+ 		__entry->requested_blocks = requested_blocks;
+ 	),
+ 
+-	TP_printk("dev %d,%d tid %lu type %u line_no %u "
++	TP_printk("dev %d,%d tid %u type %u line_no %u "
+ 		  "buffer_credits %d requested_blocks %d",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+ 		  __entry->type, __entry->line_no, __entry->buffer_credits,
+@@ -208,7 +208,7 @@ TRACE_EVENT(jbd2_handle_extend,
+ );
+ 
+ TRACE_EVENT(jbd2_handle_stats,
+-	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
++	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
+ 		 unsigned int line_no, int interval, int sync,
+ 		 int requested_blocks, int dirtied_blocks),
+ 
+@@ -217,7 +217,7 @@ TRACE_EVENT(jbd2_handle_stats,
+ 
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	 unsigned int,	type		)
+ 		__field(	 unsigned int,	line_no		)
+ 		__field(		  int,	interval	)
+@@ -237,7 +237,7 @@ TRACE_EVENT(jbd2_handle_stats,
+ 		__entry->dirtied_blocks	  = dirtied_blocks;
+ 	),
+ 
+-	TP_printk("dev %d,%d tid %lu type %u line_no %u interval %d "
++	TP_printk("dev %d,%d tid %u type %u line_no %u interval %d "
+ 		  "sync %d requested_blocks %d dirtied_blocks %d",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+ 		  __entry->type, __entry->line_no, __entry->interval,
+@@ -246,14 +246,14 @@ TRACE_EVENT(jbd2_handle_stats,
+ );
+ 
+ TRACE_EVENT(jbd2_run_stats,
+-	TP_PROTO(dev_t dev, unsigned long tid,
++	TP_PROTO(dev_t dev, tid_t tid,
+ 		 struct transaction_run_stats_s *stats),
+ 
+ 	TP_ARGS(dev, tid, stats),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	unsigned long,	wait		)
+ 		__field(	unsigned long,	request_delay	)
+ 		__field(	unsigned long,	running		)
+@@ -279,7 +279,7 @@ TRACE_EVENT(jbd2_run_stats,
+ 		__entry->blocks_logged	= stats->rs_blocks_logged;
+ 	),
+ 
+-	TP_printk("dev %d,%d tid %lu wait %u request_delay %u running %u "
++	TP_printk("dev %d,%d tid %u wait %u request_delay %u running %u "
+ 		  "locked %u flushing %u logging %u handle_count %u "
+ 		  "blocks %u blocks_logged %u",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+@@ -294,14 +294,14 @@ TRACE_EVENT(jbd2_run_stats,
+ );
+ 
+ TRACE_EVENT(jbd2_checkpoint_stats,
+-	TP_PROTO(dev_t dev, unsigned long tid,
++	TP_PROTO(dev_t dev, tid_t tid,
+ 		 struct transaction_chp_stats_s *stats),
+ 
+ 	TP_ARGS(dev, tid, stats),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	unsigned long,	chp_time	)
+ 		__field(		__u32,	forced_to_close	)
+ 		__field(		__u32,	written		)
+@@ -317,7 +317,7 @@ TRACE_EVENT(jbd2_checkpoint_stats,
+ 		__entry->dropped	= stats->cs_dropped;
+ 	),
+ 
+-	TP_printk("dev %d,%d tid %lu chp_time %u forced_to_close %u "
++	TP_printk("dev %d,%d tid %u chp_time %u forced_to_close %u "
+ 		  "written %u dropped %u",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+ 		  jiffies_to_msecs(__entry->chp_time),
+
