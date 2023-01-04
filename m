@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CCC165D5FE
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:39:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45FBB65D5FF
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:39:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234813AbjADOjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:39:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58608 "EHLO
+        id S234427AbjADOjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:39:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234523AbjADOjF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:39:05 -0500
+        with ESMTP id S231220AbjADOjI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:39:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2EC86167
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:39:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A362726E1
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:39:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F4CBB81662
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:39:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3AB1C433F0;
-        Wed,  4 Jan 2023 14:39:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A65CB81339
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:39:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7ACCC43392;
+        Wed,  4 Jan 2023 14:39:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843142;
-        bh=/A+o5mAL0eG+9VFtu5Jn2b8/9k/918+ZZ09CA+p5x1M=;
+        s=korg; t=1672843145;
+        bh=0pEbflMFQGLzFj+BJ5lJs8ojA7FjmiXJJZ3z9tlOYN0=;
         h=Subject:To:Cc:From:Date:From;
-        b=X4ffFowZt8W10WSKC1A0dL0jaCTnDdfBApylUoOFv2JGjMMjvONoJ0hKMd1WRkX48
-         rhCURSWVQnA5x9leHZ+bnnQJ+g44DP40kcQb/Hphji3EQHDd64DCcPLQpdZ43JXpnK
-         LocH8IeGD1zpLeagc3WbVYUAotb4DdH0HK5ZlDEI=
-Subject: FAILED: patch "[PATCH] drm/i915: Remove non-existent pipes from bigjoiner pipe mask" failed to apply to 5.15-stable tree
+        b=NFhRUpnn0JDYNSs3w2j2lLSXfPwx7a6tZqNWtV1C1IvAXZ0XvXW2YFFqytVXousmO
+         8h82tj3AzjiF2lnURI2T/JB/Ihqk1wep9639kbuprbpYsNrlKnQl7XKKcC/Xc2Tw61
+         HWfpOMHrC+FttphHwhcRFmu2ddHmylSoyz8uYSAY=
+Subject: FAILED: patch "[PATCH] drm/i915: Remove non-existent pipes from bigjoiner pipe mask" failed to apply to 5.10-stable tree
 To:     ville.syrjala@linux.intel.com, arun.r.murthy@intel.com,
         rodrigo.vivi@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:38:49 +0100
-Message-ID: <16728431298347@kroah.com>
+Date:   Wed, 04 Jan 2023 15:38:50 +0100
+Message-ID: <167284313024765@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,6 +59,11 @@ ddb97ea7cdb6 ("drm/i915: Remove non-existent pipes from bigjoiner pipe mask")
 723559f379af ("drm/i915: Perform correct cpu_transcoder readout for bigjoiner")
 a471a526bc38 ("drm/i915: Pimp HSW+ transcoder state readout")
 262d88baad8d ("drm/i915: Extract hsw_panel_transcoders()")
+005e95377249 ("drm/i915/display: Eliminate most usage of INTEL_GEN()")
+984982f3ef7b ("drm/i915/ilk-glk: Fix link training on links with LTTPRs")
+d0ab409d05fe ("drm/i915/bios: add helper functions to check output support")
+dbd440d8e088 ("drm/i915/bios: mass convert dev_priv to i915")
+35bb28ece90d ("Merge drm/drm-next into drm-intel-next")
 
 thanks,
 
