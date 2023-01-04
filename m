@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2744E65D465
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:37:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 155BA65D46B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbjADNh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:37:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41612 "EHLO
+        id S234736AbjADNh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:37:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239568AbjADNgx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:36:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718503AF1B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:35:02 -0800 (PST)
+        with ESMTP id S239593AbjADNg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:36:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C59043AAA5
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:35:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CDA5B8163A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:35:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B714C433EF;
-        Wed,  4 Jan 2023 13:34:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14B3BB81662
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:35:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DEAFC433EF;
+        Wed,  4 Jan 2023 13:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672839299;
-        bh=3PeMlppV0QzZPDusyAkehKYbxFy7Pc8O0tLSIk4cmTI=;
+        s=korg; t=1672839308;
+        bh=nDIUrv4G4lndJkzW7tbNJPRcYfT/N4l4M/qczOVgIEA=;
         h=Subject:To:Cc:From:Date:From;
-        b=gMSB9q75IdbZL8/AwyGz1YKTtJU0NBmYten1Pf9Y0bbXo2GVrpq5VGeGe5yVl3AFg
-         JKm1xWLRI4LFWgZNUu1C0fnHzIGSUrUSmWwx2g22cXyeumNs+/ZTcVziV36T6fQRV4
-         mcDXlkQEB4XqeLEHDueQt7LmeMcTBdSqIQHPQmQ4=
-Subject: FAILED: patch "[PATCH] mptcp: use proper req destructor for IPv6" failed to apply to 5.15-stable tree
+        b=KXH5zTZIAPT/dcgrFa9JmZxEXO6VmitsTVA+Aoz9dxZ0cIIJ9Drj5rcAuVj/vTkSy
+         oLU5Dv6x8HfFev5kxIidyE9uDsz0hRqWpCgLEEv9dCWQqWo6BtpIDo3AYl8vqgMhBW
+         kxUMbimXkQ2uALRwO4YwILJbK4KTJNnyLDDY+CPQ=
+Subject: FAILED: patch "[PATCH] mptcp: use proper req destructor for IPv6" failed to apply to 5.10-stable tree
 To:     matthieu.baerts@tessares.net, kuba@kernel.org,
         mathew.j.martineau@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:34:56 +0100
-Message-ID: <167283929624480@kroah.com>
+Date:   Wed, 04 Jan 2023 14:34:57 +0100
+Message-ID: <167283929798211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,6 +60,14 @@ d3295fee3c75 ("mptcp: use proper req destructor for IPv6")
 3fff88186f04 ("mptcp: remove MPTCP 'ifdef' in TCP SYN cookies")
 4cf86ae84c71 ("mptcp: strict local address ID selection")
 51fa7f8ebf0e ("mptcp: mark ops structures as ro_after_init")
+ff5a0b421cb2 ("mptcp: faster active backup recovery")
+6da14d74e2bd ("mptcp: cleanup sysctl data and helpers")
+1e1d9d6f119c ("mptcp: handle pending data on closed subflow")
+71b7dec27f34 ("mptcp: less aggressive retransmission strategy")
+33d41c9cd74c ("mptcp: more accurate timeout")
+d2f77960e5b0 ("mptcp: add sysctl allow_join_initial_addr_port")
+8ce568ed06ce ("mptcp: drop tx skb cache")
+adc2e56ebe63 ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net")
 
 thanks,
 
