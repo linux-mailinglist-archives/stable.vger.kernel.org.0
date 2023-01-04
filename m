@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A103B65D320
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:53:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4073C65D321
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:53:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231497AbjADMxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231782AbjADMxK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 4 Jan 2023 07:53:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233900AbjADMww (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:52:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC64AE0C7
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:52:51 -0800 (PST)
+        with ESMTP id S234001AbjADMw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:52:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BE0319C08
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:52:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 454266141B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:52:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55B8DC433D2;
-        Wed,  4 Jan 2023 12:52:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2824B81630
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:52:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E733C433EF;
+        Wed,  4 Jan 2023 12:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836770;
-        bh=hIdkucFTAFp6g1SXS/tfP7nW6vvJsQuNF3OjAMUPkR0=;
+        s=korg; t=1672836773;
+        bh=KuVieD2he6VO5Arz2Aj4bI43s3IeqLWWui6532hW0go=;
         h=Subject:To:Cc:From:Date:From;
-        b=Owk2b5y6he0xiBY0NvFD76NHeyDa+rkcC2vkP2/W10G66j/mossfhZHedhKCNwGGA
-         P8KcUFOW7LioEwqJM6uE2TUGCpwxCaEMwH0ezPD6k8Y522eV+4ZYCeRjWL/TASNBpY
-         eVJjz5MZ+y4+m0Rjr49+0uIShU0wQ/nowpxQ+P64=
-Subject: FAILED: patch "[PATCH] btrfs: replace strncpy() with strscpy()" failed to apply to 4.19-stable tree
+        b=oLWTXakQIC6Kn3/gbYlyJd1MRnrgNZOpSXt1KR+5Hensp+C+mVZDYayslQGDMI1BG
+         OSmGIJxXbd23jKYC6gsdv0An6djXd3QWRrHHag4bsfhiCWJkUOih8DLCklRTgXcQjP
+         6bjCLAEMjgFMcqEQZa6uipq5co79Sxag9FdV0I4Q=
+Subject: FAILED: patch "[PATCH] btrfs: replace strncpy() with strscpy()" failed to apply to 4.14-stable tree
 To:     artem.chernyshev@red-soft.ru, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:52:29 +0100
-Message-ID: <1672836749174119@kroah.com>
+Date:   Wed, 04 Jan 2023 13:52:35 +0100
+Message-ID: <167283675591219@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
