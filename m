@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CB8565D85C
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:14:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 399C865D874
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:15:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239246AbjADQNz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:13:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35786 "EHLO
+        id S239467AbjADQPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:15:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239923AbjADQNR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:13:17 -0500
+        with ESMTP id S229866AbjADQOn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:14:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78362632D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:13:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDCD4087C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:14:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29555B817AC
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:13:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA12C433EF;
-        Wed,  4 Jan 2023 16:13:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE7BEB816BF
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:14:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5BF1C433EF;
+        Wed,  4 Jan 2023 16:14:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848793;
-        bh=MLqWsvv4z/vdalGPAKjnUi15MeM7CF0nPaJgEgCIVr0=;
+        s=korg; t=1672848849;
+        bh=VOTvp+4qMnS4pIXR2TLEide2mul8kp9d7DnWzB0oKc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KuE2f/FedCIG3KIGEWn9KmCgecJBE4sbxkuj7HuztvMyJAtbA8LR2063JATSlDora
-         gqXS1N4CbiT90zYXzTWTl0ZeLCPD5NrkVx8fns1mvZ/Yl2X9sC6/tkJC6vbXK2tn2M
-         78/zsc8NXVXljbLxdV5WTra45dGmX6pHzM5tCSrA=
+        b=00/5G7H2vfR/71IEktPSBLzkHKJvgDG3okhqnt2IGWfU7KxvHtZGOOzP/CZBQ55S5
+         iTkfqEbCjjRbEUVGIM3gzbz5fG27cc6csLXDFrRzxrn8A0IF6VDNuAaaI4XWAGjcqZ
+         r+qIMF2o7eZWI1hn0nrAwd+IywMUW18NOCgqZmtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 057/207] platform/x86: x86-android-tablets: Add Advantech MICA-071 extra button
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Steev Klimaszewski <steev@kali.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 6.0 024/177] arm64: dts: qcom: sdm850-lenovo-yoga-c630: correct I2C12 pins drive strength
 Date:   Wed,  4 Jan 2023 17:05:15 +0100
-Message-Id: <20230104160513.720464353@linuxfoundation.org>
+Message-Id: <20230104160508.400668617@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,100 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit b03ae77e7e057f4b3b858f10c840557e71448a91 ]
+commit fd49776d8f458bba5499384131eddc0b8bcaf50c upstream.
 
-The Advantech MICA-071 is a standard Windows tablet, but it has an extra
-"quick launch" button which is not described in the ACPI tables in anyway.
+The pin configuration (done with generic pin controller helpers and
+as expressed by bindings) requires children nodes with either:
+1. "pins" property and the actual configuration,
+2. another set of nodes with above point.
 
-Use the x86-android-tablets infra to create a gpio-button device for this.
+The qup_i2c12_default pin configuration used second method - with a
+"pinmux" child.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221127221928.123660-1-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 44acee207844 ("arm64: dts: qcom: Add Lenovo Yoga C630")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220930192039.240486-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/x86-android-tablets.c | 58 ++++++++++++++++++++++
- 1 file changed, 58 insertions(+)
+ arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/x86-android-tablets.c b/drivers/platform/x86/x86-android-tablets.c
-index bbfae1395e18..123a4618db55 100644
---- a/drivers/platform/x86/x86-android-tablets.c
-+++ b/drivers/platform/x86/x86-android-tablets.c
-@@ -265,6 +265,56 @@ static struct gpiod_lookup_table int3496_gpo2_pin22_gpios = {
- 	},
+--- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
++++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+@@ -487,8 +487,10 @@
  };
  
-+/*
-+ * Advantech MICA-071
-+ * This is a standard Windows tablet, but it has an extra "quick launch" button
-+ * which is not described in the ACPI tables in anyway.
-+ * Use the x86-android-tablets infra to create a gpio-button device for this.
-+ */
-+static struct gpio_keys_button advantech_mica_071_button = {
-+	.code = KEY_PROG1,
-+	/* .gpio gets filled in by advantech_mica_071_init() */
-+	.active_low = true,
-+	.desc = "prog1_key",
-+	.type = EV_KEY,
-+	.wakeup = false,
-+	.debounce_interval = 50,
-+};
-+
-+static const struct gpio_keys_platform_data advantech_mica_071_button_pdata __initconst = {
-+	.buttons = &advantech_mica_071_button,
-+	.nbuttons = 1,
-+	.name = "prog1_key",
-+};
-+
-+static const struct platform_device_info advantech_mica_071_pdevs[] __initconst = {
-+	{
-+		.name = "gpio-keys",
-+		.id = PLATFORM_DEVID_AUTO,
-+		.data = &advantech_mica_071_button_pdata,
-+		.size_data = sizeof(advantech_mica_071_button_pdata),
-+	},
-+};
-+
-+static int __init advantech_mica_071_init(void)
-+{
-+	struct gpio_desc *gpiod;
-+	int ret;
-+
-+	ret = x86_android_tablet_get_gpiod("INT33FC:00", 2, &gpiod);
-+	if (ret < 0)
-+		return ret;
-+	advantech_mica_071_button.gpio = desc_to_gpio(gpiod);
-+
-+	return 0;
-+}
-+
-+static const struct x86_dev_info advantech_mica_071_info __initconst = {
-+	.pdev_info = advantech_mica_071_pdevs,
-+	.pdev_count = ARRAY_SIZE(advantech_mica_071_pdevs),
-+	.init = advantech_mica_071_init,
-+};
-+
- /* Asus ME176C and TF103C tablets shared data */
- static struct gpio_keys_button asus_me176c_tf103c_lid = {
- 	.code = SW_LID,
-@@ -1385,6 +1435,14 @@ static const struct x86_dev_info xiaomi_mipad2_info __initconst = {
+ &qup_i2c12_default {
+-	drive-strength = <2>;
+-	bias-disable;
++	pinmux {
++		drive-strength = <2>;
++		bias-disable;
++	};
  };
  
- static const struct dmi_system_id x86_android_tablet_ids[] __initconst = {
-+	{
-+		/* Advantech MICA-071 */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Advantech"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MICA-071"),
-+		},
-+		.driver_data = (void *)&advantech_mica_071_info,
-+	},
- 	{
- 		/* Asus MeMO Pad 7 ME176C */
- 		.matches = {
--- 
-2.35.1
-
+ &qup_uart6_default {
 
 
