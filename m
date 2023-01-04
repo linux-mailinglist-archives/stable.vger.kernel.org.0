@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7064F65D4D0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:59:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03AD865D50C
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229866AbjADN7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:59:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54962 "EHLO
+        id S239358AbjADOIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:08:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229461AbjADN7y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:59:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E5CF27B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:59:53 -0800 (PST)
+        with ESMTP id S239454AbjADOH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:07:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F92C1CFC7
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:07:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 365EB6173D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:59:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D00CBC433EF;
-        Wed,  4 Jan 2023 13:59:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7537B8133A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:07:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 241D9C433EF;
+        Wed,  4 Jan 2023 14:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672840792;
-        bh=L+p9K8NlFSjiYxEtZN/YcN6dlYqRKm1gqxcFsCb8WO8=;
+        s=korg; t=1672841274;
+        bh=V/FUHZ/G00g+7KAsiztLOeEORcPR0qCicUNFG9RoPX0=;
         h=Subject:To:Cc:From:Date:From;
-        b=NfIo0JxxEuE64yMHKRMD4FUWCtIQUGuBSKVFMekow9LM+S1VyDlnnlugdKQQXcBdH
-         Q7KcwgHM8voiacSLq3Bif6qxsNMaX3dDzW4SwvbSdWh64LlQ1TVCzOulC0jTIAAtij
-         mkoKB7dZZc0rwCXQe92CkFoJBlKUlnGFdl/HYlnM=
-Subject: FAILED: patch "[PATCH] dm integrity: Fix UAF in dm_integrity_dtr()" failed to apply to 4.19-stable tree
-To:     luomeng12@huawei.com, snitzer@kernel.org
+        b=gYzieRaRPskyMvSaVVq36MeHwV8lpOWcIsOKFDccbbG6cgjnT1dftG9V504iiivLX
+         x1ou2Jm09cVJYbxRc8FITZKLQgug1Li8LpbBzJdx9Toj4RANjWKgnJawdIhigJUESg
+         uuHRQEElAvJX30vtuuGHDQDxrr25QWKqqQnpOFDc=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Properly expose ENABLE_USR_WAIT_PAUSE control to" failed to apply to 5.10-stable tree
+To:     seanjc@google.com, aaronlewis@google.com, jmattson@google.com,
+        pbonzini@redhat.com, yu.c.zhang@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:59:49 +0100
-Message-ID: <1672840789119163@kroah.com>
+Date:   Wed, 04 Jan 2023 15:07:51 +0100
+Message-ID: <16728412715726@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,14 +48,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-f50cb2cbabd6 ("dm integrity: Fix UAF in dm_integrity_dtr()")
+31de69f4eea7 ("KVM: nVMX: Properly expose ENABLE_USR_WAIT_PAUSE control to L1")
+d041b5ea9335 ("KVM: nVMX: Enable nested TSC scaling")
 
 thanks,
 
@@ -62,32 +64,59 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f50cb2cbabd6c4a60add93d72451728f86e4791c Mon Sep 17 00:00:00 2001
-From: Luo Meng <luomeng12@huawei.com>
-Date: Tue, 29 Nov 2022 10:48:50 +0800
-Subject: [PATCH] dm integrity: Fix UAF in dm_integrity_dtr()
+From 31de69f4eea77b28a9724b3fa55aae104fc91fc7 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Tue, 13 Dec 2022 06:23:03 +0000
+Subject: [PATCH] KVM: nVMX: Properly expose ENABLE_USR_WAIT_PAUSE control to
+ L1
 
-Dm_integrity also has the same UAF problem when dm_resume()
-and dm_destroy() are concurrent.
+Set ENABLE_USR_WAIT_PAUSE in KVM's supported VMX MSR configuration if the
+feature is supported in hardware and enabled in KVM's base, non-nested
+configuration, i.e. expose ENABLE_USR_WAIT_PAUSE to L1 if it's supported.
+This fixes a bug where saving/restoring, i.e. migrating, a vCPU will fail
+if WAITPKG (the associated CPUID feature) is enabled for the vCPU, and
+obviously allows L1 to enable the feature for L2.
 
-Therefore, cancelling timer again in dm_integrity_dtr().
+KVM already effectively exposes ENABLE_USR_WAIT_PAUSE to L1 by stuffing
+the allowed-1 control ina vCPU's virtual MSR_IA32_VMX_PROCBASED_CTLS2 when
+updating secondary controls in response to KVM_SET_CPUID(2), but (a) that
+depends on flawed code (KVM shouldn't touch VMX MSRs in response to CPUID
+updates) and (b) runs afoul of vmx_restore_control_msr()'s restriction
+that the guest value must be a strict subset of the supported host value.
 
+Although no past commit explicitly enabled nested support for WAITPKG,
+doing so is safe and functionally correct from an architectural
+perspective as no additional KVM support is needed to virtualize TPAUSE,
+UMONITOR, and UMWAIT for L2 relative to L1, and KVM already forwards
+VM-Exits to L1 as necessary (commit bf653b78f960, "KVM: vmx: Introduce
+handle_unexpected_vmexit and handle WAITPKG vmexit").
+
+Note, KVM always keeps the hosts MSR_IA32_UMWAIT_CONTROL resident in
+hardware, i.e. always runs both L1 and L2 with the host's power management
+settings for TPAUSE and UMWAIT.  See commit bf09fb6cba4f ("KVM: VMX: Stop
+context switching MSR_IA32_UMWAIT_CONTROL") for more details.
+
+Fixes: e69e72faa3a0 ("KVM: x86: Add support for user wait instructions")
 Cc: stable@vger.kernel.org
-Fixes: 7eada909bfd7a ("dm: add integrity target")
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Reported-by: Aaron Lewis <aaronlewis@google.com>
+Reported-by: Yu Zhang <yu.c.zhang@linux.intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20221213062306.667649-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
-index e97e9f97456d..1388ee35571e 100644
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -4558,6 +4558,8 @@ static void dm_integrity_dtr(struct dm_target *ti)
- 	BUG_ON(!RB_EMPTY_ROOT(&ic->in_progress));
- 	BUG_ON(!list_empty(&ic->wait_list));
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index f18f3a9f0943..d93c715cda6a 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -6882,7 +6882,8 @@ void nested_vmx_setup_ctls_msrs(struct vmcs_config *vmcs_conf, u32 ept_caps)
+ 		SECONDARY_EXEC_ENABLE_INVPCID |
+ 		SECONDARY_EXEC_RDSEED_EXITING |
+ 		SECONDARY_EXEC_XSAVES |
+-		SECONDARY_EXEC_TSC_SCALING;
++		SECONDARY_EXEC_TSC_SCALING |
++		SECONDARY_EXEC_ENABLE_USR_WAIT_PAUSE;
  
-+	if (ic->mode == 'B')
-+		cancel_delayed_work_sync(&ic->bitmap_flush_work);
- 	if (ic->metadata_wq)
- 		destroy_workqueue(ic->metadata_wq);
- 	if (ic->wait_wq)
+ 	/*
+ 	 * We can emulate "VMCS shadowing," even if the hardware
 
