@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C2C465D46C
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:37:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A5E65D467
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:37:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbjADNh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:37:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36140 "EHLO
+        id S233721AbjADNh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:37:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239550AbjADNgw (ORCPT
+        with ESMTP id S239564AbjADNgw (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:36:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE0F2373A6
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:34:52 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52CA53AA99
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:34:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BA13B815EB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3E98C433EF;
-        Wed,  4 Jan 2023 13:34:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E3BBB81658
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:34:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54DD1C433EF;
+        Wed,  4 Jan 2023 13:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672839286;
-        bh=eeWBvhuSVRd5GJiGlOa23hxyQrK0QbSQb3wemDbl6FE=;
+        s=korg; t=1672839295;
+        bh=KKlL7Q7b+hopSJZK2coEW9lsR3QQKpA1YjWsjBJrUKs=;
         h=Subject:To:Cc:From:Date:From;
-        b=YNEA0RXsEq1j5AhEUgWCc7NzQajyhltpSxTqg+xQyxDkhZQPu8v1OICyhqLI9+l7G
-         WX+QJYVgvRf8N2EWnQAOgm8cgyHA5icqzv18q0j5WLg1Ts+3argIQruuo3mdfEl+fG
-         iXiuXKMUffpejglGSNiych1U42eZaJ3ILq6BXohk=
-Subject: FAILED: patch "[PATCH] mptcp: dedicated request sock for subflow in v6" failed to apply to 5.15-stable tree
+        b=THu/bYcePgKhrMW8EB8wEI6X4A2WMKr3ERfAXhCJyf8AIJC4L2GoykpgOCuy07O7b
+         YKoH/tHpQSHZjPgpm1YpUsO3EPQxQGEBY2EDIp5AsjYuxP7g2M3qN70/eD/GWo2WjW
+         x+nRYlLrPNbW/GTt7F7RLaVd9bYKWHYQ6wDoWzR8=
+Subject: FAILED: patch "[PATCH] mptcp: dedicated request sock for subflow in v6" failed to apply to 5.10-stable tree
 To:     matthieu.baerts@tessares.net, kuba@kernel.org,
         mathew.j.martineau@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:34:43 +0100
-Message-ID: <16728392834890@kroah.com>
+Date:   Wed, 04 Jan 2023 14:34:44 +0100
+Message-ID: <1672839284123193@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,6 +59,14 @@ Possible dependencies:
 3fff88186f04 ("mptcp: remove MPTCP 'ifdef' in TCP SYN cookies")
 4cf86ae84c71 ("mptcp: strict local address ID selection")
 51fa7f8ebf0e ("mptcp: mark ops structures as ro_after_init")
+ff5a0b421cb2 ("mptcp: faster active backup recovery")
+6da14d74e2bd ("mptcp: cleanup sysctl data and helpers")
+1e1d9d6f119c ("mptcp: handle pending data on closed subflow")
+71b7dec27f34 ("mptcp: less aggressive retransmission strategy")
+33d41c9cd74c ("mptcp: more accurate timeout")
+d2f77960e5b0 ("mptcp: add sysctl allow_join_initial_addr_port")
+8ce568ed06ce ("mptcp: drop tx skb cache")
+adc2e56ebe63 ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net")
 
 thanks,
 
