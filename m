@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E380165D311
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A4265D314
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 13:51:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbjADMvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 07:51:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33994 "EHLO
+        id S229743AbjADMvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 07:51:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229739AbjADMvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:51:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE9D3E0C7
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:51:04 -0800 (PST)
+        with ESMTP id S229453AbjADMvf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 07:51:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7191013DE0
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 04:51:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DDDC615B1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:51:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B79DC433EF;
-        Wed,  4 Jan 2023 12:51:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 042B56137C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 12:51:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDB2CC433D2;
+        Wed,  4 Jan 2023 12:51:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672836663;
-        bh=PLzVBOpfURW1Vp79tRXIdI3Gra96BuFv0wgmD3WybtQ=;
+        s=korg; t=1672836693;
+        bh=LRPTEUHGqLJTKfdjrHcAtBltmNQVwKCEcFboqJMoP4E=;
         h=Subject:To:Cc:From:Date:From;
-        b=S7NsDu+kRNWka4nwW5e358IsFYQuhw9GLfW/XYXTNeDtgj8yf76OfHF0TCvh2XSy+
-         hkCjvs2TyWrsRYfZVLO4Zd9t/zld5FmxfdI9ESVuyi14Ui0Efcbu1mJpQmbuA8cB18
-         g+gWNuXP6kJUMyMevshkHJ9ILAhjZqbMlYDA5qb4=
-Subject: FAILED: patch "[PATCH] clocksource/drivers/arm_arch_timer: Fix XGene-1 TVAL register" failed to apply to 6.0-stable tree
-To:     joe.korty@concurrent-rt.com, daniel.lezcano@kernel.org,
-        maz@kernel.org
+        b=P13X8Uzzsk4/xw/pB4scPxWW/t06jwEeCFIRs7HzyMSMmjE5mZ4z08g/h/v1k/uMJ
+         uABYhw6P+rqJ6TTcYJeEXI1YHQhoKEIkoeM43jAwuD8J3fztP/Owt3xLIhXt4O6OzS
+         8WxgWHIQW8foEeq2U4GsKqwUsVMIhVADPm142xYk=
+Subject: FAILED: patch "[PATCH] phy: qcom-qmp-combo: fix out-of-bounds clock access" failed to apply to 5.15-stable tree
+To:     johan+linaro@kernel.org, dmitry.baryshkov@linaro.org,
+        vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 13:50:52 +0100
-Message-ID: <16728366529050@kroah.com>
+Date:   Wed, 04 Jan 2023 13:51:29 +0100
+Message-ID: <1672836689136142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,14 +48,19 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-45ae272a948a ("clocksource/drivers/arm_arch_timer: Fix XGene-1 TVAL register math error")
+d8a5b59c5fc7 ("phy: qcom-qmp-combo: fix out-of-bounds clock access")
+712e5dffe911 ("phy: qcom-qmp-combo: Parameterize swing and pre_emphasis tables")
+85936d4f3815 ("phy: qcom-qmp: add regulator_set_load to dp phy")
+033f3a16fb92 ("phy: qcom-qmp-combo: change symbol prefix to qcom_qmp_phy_combo")
+ee7ffc92a950 ("phy: qcom-qmp-combo: drop all non-combo compatibles support")
+94a407cc17a4 ("phy: qcom-qmp: create copies of QMP PHY driver")
 
 thanks,
 
@@ -63,86 +68,39 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 45ae272a948a03a7d55748bf52d2f47d3b4e1d5a Mon Sep 17 00:00:00 2001
-From: Joe Korty <joe.korty@concurrent-rt.com>
-Date: Mon, 21 Nov 2022 14:53:43 +0000
-Subject: [PATCH] clocksource/drivers/arm_arch_timer: Fix XGene-1 TVAL register
- math error
+From d8a5b59c5fc75c99ba17e3eb1a8f580d8d172b28 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan+linaro@kernel.org>
+Date: Mon, 14 Nov 2022 09:13:41 +0100
+Subject: [PATCH] phy: qcom-qmp-combo: fix out-of-bounds clock access
 
-The TVAL register is 32 bit signed.  Thus only the lower 31 bits are
-available to specify when an interrupt is to occur at some time in the
-near future.  Attempting to specify a larger interval with TVAL results
-in a negative time delta which means the timer fires immediately upon
-being programmed, rather than firing at that expected future time.
+The SM8250 only uses three clocks but the DP configuration erroneously
+described four clocks.
 
-The solution is for Linux to declare that TVAL is a 31 bit register rather
-than give its true size of 32 bits.  This prevents Linux from programming
-TVAL with a too-large value.  Note that, prior to 5.16, this little trick
-was the standard way to handle TVAL in Linux, so there is nothing new
-happening here on that front.
+In case the DP part of the PHY is initialised before the USB part, this
+would lead to uninitialised memory beyond the bulk-clocks array to be
+treated as a clock pointer as the clocks are requested based on the USB
+configuration.
 
-The softlockup detector hides the issue, because it keeps generating
-short timer deadlines that are within the scope of the broken timer.
+Fixes: aff188feb5e1 ("phy: qcom-qmp: add support for sm8250-usb3-dp phy")
+Cc: stable@vger.kernel.org	# 5.13
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20221114081346.5116-2-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 
-Disable it, and you start using NO_HZ with much longer timer deadlines,
-which turns into an interrupt flood:
-
- 11: 1124855130  949168462  758009394   76417474  104782230   30210281
-         310890 1734323687     GICv2  29 Level     arch_timer
-
-And "much longer" isn't that long: it takes less than 43s to underflow
-TVAL at 50MHz (the frequency of the counter on XGene-1).
-
-Some comments on the v1 version of this patch by Marc Zyngier:
-
-  XGene implements CVAL (a 64bit comparator) in terms of TVAL (a countdown
-  register) instead of the other way around. TVAL being a 32bit register,
-  the width of the counter should equally be 32.  However, TVAL is a
-  *signed* value, and keeps counting down in the negative range once the
-  timer fires.
-
-  It means that any TVAL value with bit 31 set will fire immediately,
-  as it cannot be distinguished from an already expired timer. Reducing
-  the timer range back to a paltry 31 bits papers over the issue.
-
-  Another problem cannot be fixed though, which is that the timer interrupt
-  *must* be handled within the negative countdown period, or the interrupt
-  will be lost (TVAL will rollover to a positive value, indicative of a
-  new timer deadline).
-
-Cc: stable@vger.kernel.org # 5.16+
-Fixes: 012f18850452 ("clocksource/drivers/arm_arch_timer: Work around broken CVAL implementations")
-Signed-off-by: Joe Korty <joe.korty@concurrent-rt.com>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-[maz: revamped the commit message]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20221024165422.GA51107@zipoli.concurrent-rt.com
-Link: https://lore.kernel.org/r/20221121145343.896018-1-maz@kernel.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@kernel.org>
-
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 9c3420a0d19d..e2920da18ea1 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -806,6 +806,9 @@ static u64 __arch_timer_check_delta(void)
- 		/*
- 		 * XGene-1 implements CVAL in terms of TVAL, meaning
- 		 * that the maximum timer range is 32bit. Shame on them.
-+		 *
-+		 * Note that TVAL is signed, thus has only 31 of its
-+		 * 32 bits to express magnitude.
- 		 */
- 		MIDR_ALL_VERSIONS(MIDR_CPU_MODEL(ARM_CPU_IMP_APM,
- 						 APM_CPU_PART_POTENZA)),
-@@ -813,8 +816,8 @@ static u64 __arch_timer_check_delta(void)
- 	};
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-combo.c b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
+index 5e11b6a1d189..bb38b18258ca 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
+@@ -1270,8 +1270,8 @@ static const struct qmp_phy_cfg sm8250_dpphy_cfg = {
+ 	.swing_hbr3_hbr2	= &qmp_dp_v3_voltage_swing_hbr3_hbr2,
+ 	.pre_emphasis_hbr3_hbr2 = &qmp_dp_v3_pre_emphasis_hbr3_hbr2,
  
- 	if (is_midr_in_range_list(read_cpuid_id(), broken_cval_midrs)) {
--		pr_warn_once("Broken CNTx_CVAL_EL1, limiting width to 32bits");
--		return CLOCKSOURCE_MASK(32);
-+		pr_warn_once("Broken CNTx_CVAL_EL1, using 32 bit TVAL instead.\n");
-+		return CLOCKSOURCE_MASK(31);
- 	}
- #endif
- 	return CLOCKSOURCE_MASK(arch_counter_get_width());
+-	.clk_list		= qmp_v4_phy_clk_l,
+-	.num_clks		= ARRAY_SIZE(qmp_v4_phy_clk_l),
++	.clk_list		= qmp_v4_sm8250_usbphy_clk_l,
++	.num_clks		= ARRAY_SIZE(qmp_v4_sm8250_usbphy_clk_l),
+ 	.reset_list		= msm8996_usb3phy_reset_l,
+ 	.num_resets		= ARRAY_SIZE(msm8996_usb3phy_reset_l),
+ 	.vreg_list		= qmp_phy_vreg_l,
 
