@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4141165D595
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:27:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 834D265D596
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:27:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234896AbjADO10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:27:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50606 "EHLO
+        id S235007AbjADO1c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:27:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235070AbjADO1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:27:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BC54235
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:27:24 -0800 (PST)
+        with ESMTP id S235246AbjADO1a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:27:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D30001ADAC
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:27:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F06C16172D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:27:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6F73C433EF;
-        Wed,  4 Jan 2023 14:27:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89C0FB81681
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:27:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E029AC433EF;
+        Wed,  4 Jan 2023 14:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672842443;
-        bh=TR+x9BEHuCXTRjQfVygMjlbVp1MAP/U+xd8Y5QaY8Rs=;
+        s=korg; t=1672842446;
+        bh=T+vAKZJyPX6JG1rUD/1tztF7tms51CuZRkiByymTuKQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=fwrETN0mes9UaFdaibluY4Gx7ZiM7Q4ZWQ4lRt66sJ95V+txFL1kRCpuAqmlLTuQf
-         C99v+XkK3jWo6TaP7OrrCZI0vAsPFeTdesjMMPJPUZdL6eDFVKiZZmOhQctN0XBLzs
-         VDNtlrbtCL8z4TWWUE7tLgcJ8kzqMnypX2VbsYzY=
-Subject: FAILED: patch "[PATCH] ASoC: jz4740-i2s: Handle independent FIFO flush bits" failed to apply to 5.4-stable tree
+        b=ZW/qrSz2/Y+3o0DRzt/wtFAz6LJEME8U11wNi5gbkyz4jrF1ouOUGybGcVK/9i63Q
+         vXKXzMroqHGcKwmg8NxsH7ip6pZb+7yJb4dTmaXk1ZA1tfaijTGV+deprCJenVgK3p
+         ETgG8QWIUUsh6gQI5PqwNDrHsYlPv3eZfll8A/9Q=
+Subject: FAILED: patch "[PATCH] ASoC: jz4740-i2s: Handle independent FIFO flush bits" failed to apply to 4.19-stable tree
 To:     aidanmacdonald.0x0@gmail.com, broonie@kernel.org,
         paul@crapouillou.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:25:49 +0100
-Message-ID: <1672842349237250@kroah.com>
+Date:   Wed, 04 Jan 2023 15:25:51 +0100
+Message-ID: <167284235123910@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
