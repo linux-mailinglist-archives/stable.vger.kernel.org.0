@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4240665D8CE
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:18:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B6065D924
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239897AbjADQSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:18:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41014 "EHLO
+        id S235149AbjADQWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:22:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239905AbjADQSZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:18:25 -0500
+        with ESMTP id S239781AbjADQVr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:21:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 473EAEE1D
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:18:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6466A8FFA
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:21:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9453B8172B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:18:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57D38C433EF;
-        Wed,  4 Jan 2023 16:18:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17109B817AE
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:21:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 478E1C433F0;
+        Wed,  4 Jan 2023 16:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849101;
-        bh=Qz2qusZJrX6VVCjEVjf5ce6SRu0+p0xhiKnVaIC+20A=;
+        s=korg; t=1672849303;
+        bh=QNYitRTXsRPTQuDH1PHy+wt3r6D9wX7U8hgp8ThngsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/MJ/enGV9SPxMI0ghE58FOsXt43bZtBxtvr9BMObN6H54aLYQa8PSohZ/cJvPlJy
-         3ZoW4kLQFJAaGbajzX8hGl/2vOMuulNsybiKnZPim3DDa6ksZCXKQjSVnVDi2wZMYc
-         cfvLf5+RSBQy6d/g8lYh2IziKk9NAW/oCIac7aZA=
+        b=AdEenJYzcvI5VFz0eBJByU9Ytz2uwCcY0g8zhzgRPI5KCuQgi7Vi0WvD0C7xRtzUv
+         fdHjVZQJPFz3VI2yV3wkFEK9l+4Pnkn/hKNk+r+TRZgCHKltPTvgtfjmQE+S7Mrio8
+         efdd9qWAVYvZK1MXFRVXeuTcJSJfX9rLbV6mkQ30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rolf Eike Beer <eike-kernel@sf-tec.de>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, stable@kernel.org
-Subject: [PATCH 6.1 133/207] crypto: n2 - add missing hash statesize
+        patches@lists.linux.dev, Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 6.0 100/177] ima: Fix memory leak in __ima_inode_hash()
 Date:   Wed,  4 Jan 2023 17:06:31 +0100
-Message-Id: <20230104160516.133526395@linuxfoundation.org>
+Message-Id: <20230104160510.672945317@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,74 +52,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 76a4e874593543a2dff91d249c95bac728df2774 upstream.
+commit 8c1d6a050a0f16e0a9d32eaf53b965c77279c6f8 upstream.
 
-Add missing statesize to hash templates.
-This is mandatory otherwise no algorithms can be registered as the core
-requires statesize to be set.
+Commit f3cc6b25dcc5 ("ima: always measure and audit files in policy") lets
+measurement or audit happen even if the file digest cannot be calculated.
 
-CC: stable@kernel.org # 4.3+
-Reported-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Tested-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Fixes: 0a625fd2abaa ("crypto: n2 - Add Niagara2 crypto driver")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+As a result, iint->ima_hash could have been allocated despite
+ima_collect_measurement() returning an error.
+
+Since ima_hash belongs to a temporary inode metadata structure, declared
+at the beginning of __ima_inode_hash(), just add a kfree() call if
+ima_collect_measurement() returns an error different from -ENOMEM (in that
+case, ima_hash should not have been allocated).
+
+Cc: stable@vger.kernel.org
+Fixes: 280fe8367b0d ("ima: Always return a file measurement in ima_file_hash()")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/n2_core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ security/integrity/ima/ima_main.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/n2_core.c
-+++ b/drivers/crypto/n2_core.c
-@@ -1229,6 +1229,7 @@ struct n2_hash_tmpl {
- 	const u8	*hash_init;
- 	u8		hw_op_hashsz;
- 	u8		digest_size;
-+	u8		statesize;
- 	u8		block_size;
- 	u8		auth_type;
- 	u8		hmac_type;
-@@ -1260,6 +1261,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_HMAC_MD5,
- 	  .hw_op_hashsz	= MD5_DIGEST_SIZE,
- 	  .digest_size	= MD5_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct md5_state),
- 	  .block_size	= MD5_HMAC_BLOCK_SIZE },
- 	{ .name		= "sha1",
- 	  .hash_zero	= sha1_zero_message_hash,
-@@ -1268,6 +1270,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_HMAC_SHA1,
- 	  .hw_op_hashsz	= SHA1_DIGEST_SIZE,
- 	  .digest_size	= SHA1_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct sha1_state),
- 	  .block_size	= SHA1_BLOCK_SIZE },
- 	{ .name		= "sha256",
- 	  .hash_zero	= sha256_zero_message_hash,
-@@ -1276,6 +1279,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_HMAC_SHA256,
- 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
- 	  .digest_size	= SHA256_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct sha256_state),
- 	  .block_size	= SHA256_BLOCK_SIZE },
- 	{ .name		= "sha224",
- 	  .hash_zero	= sha224_zero_message_hash,
-@@ -1284,6 +1288,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_RESERVED,
- 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
- 	  .digest_size	= SHA224_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct sha256_state),
- 	  .block_size	= SHA224_BLOCK_SIZE },
- };
- #define NUM_HASH_TMPLS ARRAY_SIZE(hash_tmpls)
-@@ -1424,6 +1429,7 @@ static int __n2_register_one_ahash(const
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 040b03ddc1c7..4a207a3ef7ef 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -542,8 +542,13 @@ static int __ima_inode_hash(struct inode *inode, struct file *file, char *buf,
  
- 	halg = &ahash->halg;
- 	halg->digestsize = tmpl->digest_size;
-+	halg->statesize = tmpl->statesize;
+ 		rc = ima_collect_measurement(&tmp_iint, file, NULL, 0,
+ 					     ima_hash_algo, NULL);
+-		if (rc < 0)
++		if (rc < 0) {
++			/* ima_hash could be allocated in case of failure. */
++			if (rc != -ENOMEM)
++				kfree(tmp_iint.ima_hash);
++
+ 			return -EOPNOTSUPP;
++		}
  
- 	base = &halg->base;
- 	snprintf(base->cra_name, CRYPTO_MAX_ALG_NAME, "%s", tmpl->name);
+ 		iint = &tmp_iint;
+ 		mutex_lock(&iint->mutex);
+-- 
+2.39.0
+
 
 
