@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9828D65D95E
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:25:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 710FD65D9C7
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:29:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235044AbjADQYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:24:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48050 "EHLO
+        id S235203AbjADQ3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:29:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239995AbjADQY0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:24:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1DD844378
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:23:30 -0800 (PST)
+        with ESMTP id S240118AbjADQ2c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BF593FC84
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD2D6B81733
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:23:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06930C433EF;
-        Wed,  4 Jan 2023 16:23:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DAFB617A6
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:27:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1DB9C433D2;
+        Wed,  4 Jan 2023 16:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849407;
-        bh=u+Ab45UWIXugyBKjmcyzZdcg0gQPdTIsYvWqQUKwJZM=;
+        s=korg; t=1672849672;
+        bh=Ck9GJzt8+lIae6+e9ktnZ81wXPN0XdMnN+9BDRbwRK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJXFhQRjowxF1UmJ98K+QyXrz4PiGOSEYZM5DVCdJ79PFtn9DIshhZFqGF4k3XPqg
-         GPtjBqQuL/3wSwM6rIh+RNRS+Got3wZ1JHC81KwNHbYqI8kIhTRJe9hGw7oH3mN8MZ
-         KdwhK1FMrM68bHV2n5G6Rb74YxTlDp0tNq+GKtgg=
+        b=zemdPXLp19RF3OFr/JwpdXzMyhpm+eDgAaQSVpCOPgRvQD+w5QLNwgcjfxPsygCXQ
+         1XP9HZVr2tlllGew25O1sgbJGQnbC50Tq1KeJNv8kdPzNhhjo57iLzGnbxl7ms5udh
+         8HgWdeEUD8Z/s+2o3Kzcc/nkbiAAYrPO3kB8yMhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+98346927678ac3059c77@syzkaller.appspotmail.com,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 6.1 183/207] ext4: init quota for old.inode in ext4_rename
+        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.0 150/177] ext4: fix unaligned memory access in ext4_fc_reserve_space()
 Date:   Wed,  4 Jan 2023 17:07:21 +0100
-Message-Id: <20230104160517.681932440@linuxfoundation.org>
+Message-Id: <20230104160512.205915827@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +52,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit fae381a3d79bb94aa2eb752170d47458d778b797 upstream.
+commit 8415ce07ecf0cc25efdd5db264a7133716e503cf upstream.
 
-Syzbot found the following issue:
-ext4_parse_param: s_want_extra_isize=128
-ext4_inode_info_init: s_want_extra_isize=32
-ext4_rename: old.inode=ffff88823869a2c8 old.dir=ffff888238699828 new.inode=ffff88823869d7e8 new.dir=ffff888238699828
-__ext4_mark_inode_dirty: inode=ffff888238699828 ea_isize=32 want_ea_size=128
-__ext4_mark_inode_dirty: inode=ffff88823869a2c8 ea_isize=32 want_ea_size=128
-ext4_xattr_block_set: inode=ffff88823869a2c8
-------------[ cut here ]------------
-WARNING: CPU: 13 PID: 2234 at fs/ext4/xattr.c:2070 ext4_xattr_block_set.cold+0x22/0x980
-Modules linked in:
-RIP: 0010:ext4_xattr_block_set.cold+0x22/0x980
-RSP: 0018:ffff888227d3f3b0 EFLAGS: 00010202
-RAX: 0000000000000001 RBX: ffff88823007a000 RCX: 0000000000000000
-RDX: 0000000000000a03 RSI: 0000000000000040 RDI: ffff888230078178
-RBP: 0000000000000000 R08: 000000000000002c R09: ffffed1075c7df8e
-R10: ffff8883ae3efc6b R11: ffffed1075c7df8d R12: 0000000000000000
-R13: ffff88823869a2c8 R14: ffff8881012e0460 R15: dffffc0000000000
-FS:  00007f350ac1f740(0000) GS:ffff8883ae200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f350a6ed6a0 CR3: 0000000237456000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- ? ext4_xattr_set_entry+0x3b7/0x2320
- ? ext4_xattr_block_set+0x0/0x2020
- ? ext4_xattr_set_entry+0x0/0x2320
- ? ext4_xattr_check_entries+0x77/0x310
- ? ext4_xattr_ibody_set+0x23b/0x340
- ext4_xattr_move_to_block+0x594/0x720
- ext4_expand_extra_isize_ea+0x59a/0x10f0
- __ext4_expand_extra_isize+0x278/0x3f0
- __ext4_mark_inode_dirty.cold+0x347/0x410
- ext4_rename+0xed3/0x174f
- vfs_rename+0x13a7/0x2510
- do_renameat2+0x55d/0x920
- __x64_sys_rename+0x7d/0xb0
- do_syscall_64+0x3b/0xa0
- entry_SYSCALL_64_after_hwframe+0x72/0xdc
+As is done elsewhere in the file, build the struct ext4_fc_tl on the
+stack and memcpy() it into the buffer, rather than directly writing it
+to a potentially-unaligned location in the buffer.
 
-As 'ext4_rename' will modify 'old.inode' ctime and mark inode dirty,
-which may trigger expand 'extra_isize' and allocate block. If inode
-didn't init quota will lead to warning.  To solve above issue, init
-'old.inode' firstly in 'ext4_rename'.
-
-Reported-by: syzbot+98346927678ac3059c77@syzkaller.appspotmail.com
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221107015335.2524319-1-yebin@huaweicloud.com
+Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221106224841.279231-6-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/fast_commit.c |   39 +++++++++++++++++++++------------------
+ 1 file changed, 21 insertions(+), 18 deletions(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3798,6 +3798,9 @@ static int ext4_rename(struct user_names
- 	retval = dquot_initialize(old.dir);
- 	if (retval)
- 		return retval;
-+	retval = dquot_initialize(old.inode);
-+	if (retval)
-+		return retval;
- 	retval = dquot_initialize(new.dir);
- 	if (retval)
- 		return retval;
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -683,6 +683,15 @@ static void ext4_fc_submit_bh(struct sup
+ 
+ /* Ext4 commit path routines */
+ 
++/* memcpy to fc reserved space and update CRC */
++static void *ext4_fc_memcpy(struct super_block *sb, void *dst, const void *src,
++				int len, u32 *crc)
++{
++	if (crc)
++		*crc = ext4_chksum(EXT4_SB(sb), *crc, src, len);
++	return memcpy(dst, src, len);
++}
++
+ /* memzero and update CRC */
+ static void *ext4_fc_memzero(struct super_block *sb, void *dst, int len,
+ 				u32 *crc)
+@@ -708,12 +717,13 @@ static void *ext4_fc_memzero(struct supe
+  */
+ static u8 *ext4_fc_reserve_space(struct super_block *sb, int len, u32 *crc)
+ {
+-	struct ext4_fc_tl *tl;
++	struct ext4_fc_tl tl;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct buffer_head *bh;
+ 	int bsize = sbi->s_journal->j_blocksize;
+ 	int ret, off = sbi->s_fc_bytes % bsize;
+ 	int pad_len;
++	u8 *dst;
+ 
+ 	/*
+ 	 * After allocating len, we should have space at least for a 0 byte
+@@ -737,16 +747,18 @@ static u8 *ext4_fc_reserve_space(struct
+ 		return sbi->s_fc_bh->b_data + off;
+ 	}
+ 	/* Need to add PAD tag */
+-	tl = (struct ext4_fc_tl *)(sbi->s_fc_bh->b_data + off);
+-	tl->fc_tag = cpu_to_le16(EXT4_FC_TAG_PAD);
++	dst = sbi->s_fc_bh->b_data + off;
++	tl.fc_tag = cpu_to_le16(EXT4_FC_TAG_PAD);
+ 	pad_len = bsize - off - 1 - EXT4_FC_TAG_BASE_LEN;
+-	tl->fc_len = cpu_to_le16(pad_len);
+-	if (crc)
+-		*crc = ext4_chksum(sbi, *crc, tl, EXT4_FC_TAG_BASE_LEN);
+-	if (pad_len > 0)
+-		ext4_fc_memzero(sb, tl + 1, pad_len, crc);
++	tl.fc_len = cpu_to_le16(pad_len);
++	ext4_fc_memcpy(sb, dst, &tl, EXT4_FC_TAG_BASE_LEN, crc);
++	dst += EXT4_FC_TAG_BASE_LEN;
++	if (pad_len > 0) {
++		ext4_fc_memzero(sb, dst, pad_len, crc);
++		dst += pad_len;
++	}
+ 	/* Don't leak uninitialized memory in the unused last byte. */
+-	*((u8 *)(tl + 1) + pad_len) = 0;
++	*dst = 0;
+ 
+ 	ext4_fc_submit_bh(sb, false);
+ 
+@@ -758,15 +770,6 @@ static u8 *ext4_fc_reserve_space(struct
+ 	return sbi->s_fc_bh->b_data;
+ }
+ 
+-/* memcpy to fc reserved space and update CRC */
+-static void *ext4_fc_memcpy(struct super_block *sb, void *dst, const void *src,
+-				int len, u32 *crc)
+-{
+-	if (crc)
+-		*crc = ext4_chksum(EXT4_SB(sb), *crc, src, len);
+-	return memcpy(dst, src, len);
+-}
+-
+ /*
+  * Complete a fast commit by writing tail tag.
+  *
 
 
