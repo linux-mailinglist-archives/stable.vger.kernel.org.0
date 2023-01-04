@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72EFC65D99A
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4C765D947
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239725AbjADQ0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50518 "EHLO
+        id S235211AbjADQXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:23:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239866AbjADQ0G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:06 -0500
+        with ESMTP id S239725AbjADQXA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:23:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7FC011C19
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD1D042E1A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:22:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44A7D617A7
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42288C433D2;
-        Wed,  4 Jan 2023 16:26:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AE50617C4
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:22:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88CF1C433D2;
+        Wed,  4 Jan 2023 16:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849564;
-        bh=e12YwFE/LXc//Urf9Kqw6v3aUMtZNMZdauPRnVpDfu8=;
+        s=korg; t=1672849367;
+        bh=2z7DoMEGqCIdbfUET0488JU6eXbv/aFOkPPIdBMNGPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jG3NgR6f52KANnX2E0n4C1J/GG1ai18Qc/mrQwY/UnmqwR54/u2Mg6TspnjviSGQ+
-         tvRT1//k9TfNkIU0xD1I32UJuYuZougT3XbCPYzazSx9quownD7g+iLTBLXRfcfQm/
-         For/Q8/oIp69frRC6VXINlIIqhzYJUmcdEjxlD4Y=
+        b=CulmPNCsE4O8X/z4/zw9wEVPPQkb6UO+id5Ypat4k4f0ix3hl3SXBh9p8XaH2SVVQ
+         L2ekzDUQ/1K0hr27NtTv7V/mrZu/xrDVK/uzoE+K6tKCmqeNi8mvYgPQCA062Wc/zt
+         sdihu7Xq29QRUvDvPwZl+6zjAfm8DhBixvfgiqqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Zhang Yi <yi.zhang@huawei.com>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 6.0 143/177] ext4: check and assert if marking an no_delete evicting inode dirty
-Date:   Wed,  4 Jan 2023 17:07:14 +0100
-Message-Id: <20230104160511.994571109@linuxfoundation.org>
+        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 6.1 177/207] ext4: fix leaking uninitialized memory in fast-commit journal
+Date:   Wed,  4 Jan 2023 17:07:15 +0100
+Message-Id: <20230104160517.475882807@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 318cdc822c63b6e2befcfdc2088378ae6fa18def upstream.
+commit 594bc43b410316d70bb42aeff168837888d96810 upstream.
 
-In ext4_evict_inode(), if we evicting an inode in the 'no_delete' path,
-it cannot be raced by another mark_inode_dirty(). If it happens,
-someone else may accidentally dirty it without holding inode refcount
-and probably cause use-after-free issues in the writeback procedure.
-It's indiscoverable and hard to debug, so add an WARN_ON_ONCE() to
-check and detect this issue in advance.
+When space at the end of fast-commit journal blocks is unused, make sure
+to zero it out so that uninitialized memory is not leaked to disk.
 
-Suggested-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220629112647.4141034-2-yi.zhang@huawei.com
+Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221106224841.279231-4-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ext4/fast_commit.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -335,6 +335,12 @@ stop_handle:
- 	ext4_xattr_inode_array_free(ea_inode_array);
- 	return;
- no_delete:
-+	/*
-+	 * Check out some where else accidentally dirty the evicting inode,
-+	 * which may probably cause inode use-after-free issues later.
-+	 */
-+	WARN_ON_ONCE(!list_empty_careful(&inode->i_io_list));
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -737,6 +737,9 @@ static u8 *ext4_fc_reserve_space(struct
+ 		*crc = ext4_chksum(sbi, *crc, tl, EXT4_FC_TAG_BASE_LEN);
+ 	if (pad_len > 0)
+ 		ext4_fc_memzero(sb, tl + 1, pad_len, crc);
++	/* Don't leak uninitialized memory in the unused last byte. */
++	*((u8 *)(tl + 1) + pad_len) = 0;
 +
- 	if (!list_empty(&EXT4_I(inode)->i_fc_list))
- 		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM, NULL);
- 	ext4_clear_inode(inode);	/* We must guarantee clearing of inode... */
+ 	ext4_fc_submit_bh(sb, false);
+ 
+ 	ret = jbd2_fc_get_buf(EXT4_SB(sb)->s_journal, &bh);
+@@ -793,6 +796,8 @@ static int ext4_fc_write_tail(struct sup
+ 	dst += sizeof(tail.fc_tid);
+ 	tail.fc_crc = cpu_to_le32(crc);
+ 	ext4_fc_memcpy(sb, dst, &tail.fc_crc, sizeof(tail.fc_crc), NULL);
++	dst += sizeof(tail.fc_crc);
++	memset(dst, 0, bsize - off); /* Don't leak uninitialized memory. */
+ 
+ 	ext4_fc_submit_bh(sb, true);
+ 
 
 
