@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C39C65D9A0
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A297665D90B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239754AbjADQ0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50724 "EHLO
+        id S231220AbjADQVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:21:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239939AbjADQ00 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:26:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE9412AEB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:26:25 -0800 (PST)
+        with ESMTP id S239423AbjADQUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:20:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B7AC58
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:20:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83ED9B81733
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:26:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B71AEC433D2;
-        Wed,  4 Jan 2023 16:26:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63E016177C
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:20:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D9DEC433D2;
+        Wed,  4 Jan 2023 16:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849583;
-        bh=Ie+kFT30Johcs70dbWFu+DNJjw+GlYWzTYMBIcNXcfA=;
+        s=korg; t=1672849247;
+        bh=tcN7mAwOjlY3WDnfjAgimZQwOZXIz67yvLcva9ayJaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzMM/UpmRRFKbvtcS0Fy3Vb/+Thmuw39Yei0gW9O/C9Ms6yvLvsxbO9cCDGpj27we
-         R1fktoqxBW+/H8enQQgSTRK82ARVt/MSVtkJW/xr7IGc5gbNS8c0gkme0ceVDnfSy4
-         j08drs31707AX7NCUZivuSrSKUhTfAkBtH8rh0FY=
+        b=kdUTa/Iu343PNG2r3G2gT3SDv+JRoovkof49jK5ovgDokyyvkRgb0NiWYROXzKY42
+         BqS1k0orf9CoDRvafB1NFSdSUItRxF6M7BnNQBe5PFlRRzmNAeSSYWdv5r4mSriRtb
+         E/QzOk0zl4pWnpp6tL9lWKixuFYlI+P8KD8zQwFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 6.0 123/177] parisc: Drop PMD_SHIFT from calculation in pgtable.h
-Date:   Wed,  4 Jan 2023 17:06:54 +0100
-Message-Id: <20230104160511.369379900@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mikko Kovanen <mikko.kovanen@aavamobile.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 6.1 157/207] drm/i915/dsi: fix VBT send packet port selection for dual link DSI
+Date:   Wed,  4 Jan 2023 17:06:55 +0100
+Message-Id: <20230104160516.867041680@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Mikko Kovanen <mikko.kovanen@aavamobile.com>
 
-commit fe94cb1a614d2df2764d49ac959d8b7e4cb98e15 upstream.
+commit f9cdf4130671d767071607d0a7568c9bd36a68d0 upstream.
 
-PMD_SHIFT isn't defined if CONFIG_PGTABLE_LEVELS == 3, and as
-such the kernel test robot found this warning:
+intel_dsi->ports contains bitmask of enabled ports and correspondingly
+logic for selecting port for VBT packet sending must use port specific
+bitmask when deciding appropriate port.
 
- In file included from include/linux/pgtable.h:6,
-                  from arch/parisc/kernel/head.S:23:
- arch/parisc/include/asm/pgtable.h:169:32: warning: "PMD_SHIFT" is not defined, evaluates to 0 [-Wundef]
-     169 | #if (KERNEL_INITIAL_ORDER) >= (PMD_SHIFT)
-
-Avoid the warning by using PLD_SHIFT and BITS_PER_PTE.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: <stable@vger.kernel.org> # 6.0+
+Fixes: 08c59dde71b7 ("drm/i915/dsi: fix VBT send packet port selection for ICL+")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikko Kovanen <mikko.kovanen@aavamobile.com>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/DBBPR09MB466592B16885D99ABBF2393A91119@DBBPR09MB4665.eurprd09.prod.outlook.com
+(cherry picked from commit 8d58bb7991c45f6b60710cc04c9498c6ea96db90)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/pgtable.h | 4 ++--
+ drivers/gpu/drm/i915/display/intel_dsi_vbt.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/parisc/include/asm/pgtable.h b/arch/parisc/include/asm/pgtable.h
-index ecd028854469..68ae77069d23 100644
---- a/arch/parisc/include/asm/pgtable.h
-+++ b/arch/parisc/include/asm/pgtable.h
-@@ -166,8 +166,8 @@ extern void __update_cache(pte_t pte);
+--- a/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
++++ b/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
+@@ -137,9 +137,9 @@ static enum port intel_dsi_seq_port_to_p
+ 		return ffs(intel_dsi->ports) - 1;
  
- /* This calculates the number of initial pages we need for the initial
-  * page tables */
--#if (KERNEL_INITIAL_ORDER) >= (PMD_SHIFT)
--# define PT_INITIAL	(1 << (KERNEL_INITIAL_ORDER - PMD_SHIFT))
-+#if (KERNEL_INITIAL_ORDER) >= (PLD_SHIFT + BITS_PER_PTE)
-+# define PT_INITIAL	(1 << (KERNEL_INITIAL_ORDER - PLD_SHIFT - BITS_PER_PTE))
- #else
- # define PT_INITIAL	(1)  /* all initial PTEs fit into one page */
- #endif
--- 
-2.39.0
-
+ 	if (seq_port) {
+-		if (intel_dsi->ports & PORT_B)
++		if (intel_dsi->ports & BIT(PORT_B))
+ 			return PORT_B;
+-		else if (intel_dsi->ports & PORT_C)
++		else if (intel_dsi->ports & BIT(PORT_C))
+ 			return PORT_C;
+ 	}
+ 
 
 
