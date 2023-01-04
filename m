@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77C9D65D624
+	by mail.lfdr.de (Postfix) with ESMTP id C372B65D625
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:40:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239582AbjADOkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:40:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59432 "EHLO
+        id S239213AbjADOks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:40:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239744AbjADOkK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:40:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EA1E1A231
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:40:09 -0800 (PST)
+        with ESMTP id S239751AbjADOkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:40:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D0461AD93
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:40:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC59EB8166B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:40:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23E12C433D2;
-        Wed,  4 Jan 2023 14:40:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DBD65B81674
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:40:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24A55C433F1;
+        Wed,  4 Jan 2023 14:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672843206;
-        bh=ALhVLw7431oGDhmjMTkZDvs/W7yvBQZYcxKXQiYuoGI=;
+        s=korg; t=1672843209;
+        bh=y4Dql58/RK7NsIhvw1OfRWaIyo88iZ8pveMMNIwiTVA=;
         h=Subject:To:Cc:From:Date:From;
-        b=h2SAPExJFj7bXnXkEQ6foYr9hGfkJnp77BTzbW+N17z0wtEQ+nBdgZva++zDmcJ3h
-         f++uqL4xL/v0OD7XsptVkHBCHo1sDyhBMEZHr/SABvWaRCgZ9D4mHZ+hHwu6FVyZB4
-         6Kf6vbrUFOElXp2l4yhuTs8gzmnbjCxNHgVlNwWo=
-Subject: FAILED: patch "[PATCH] drm/i915/sdvo: Grab mode_config.mutex during LVDS init to" failed to apply to 5.15-stable tree
+        b=TJTxW6IAzcRd7Ef+rXPnRrqsGpg5LF7CXE8Y4ayNkyapKQJxH/NxVaHYGCOkgjwYs
+         yzztT0G7URaeFZge1RX/FR8jX5qGAm8r9trNICHOWvNV0Usq97C2kXU/VWIUESZ+n7
+         33cqlpJv/MsKZdiriG4VJ4B9mNjiF4BDdodmUP7c=
+Subject: FAILED: patch "[PATCH] drm/i915/sdvo: Grab mode_config.mutex during LVDS init to" failed to apply to 5.10-stable tree
 To:     ville.syrjala@linux.intel.com, jani.nikula@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:39:53 +0100
-Message-ID: <167284319316489@kroah.com>
+Date:   Wed, 04 Jan 2023 15:39:54 +0100
+Message-ID: <16728431943729@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
