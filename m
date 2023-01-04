@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA2165D98D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3AE365D98B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:26:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239281AbjADQ0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:26:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47754 "EHLO
+        id S239918AbjADQ0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:26:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235136AbjADQZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:29 -0500
+        with ESMTP id S239281AbjADQZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:25:35 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5D7433D5F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:25:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB4BC33D55
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:25:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F38DB81731
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:25:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E301DC43392;
-        Wed,  4 Jan 2023 16:25:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C302B81731
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:25:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA9E1C433D2;
+        Wed,  4 Jan 2023 16:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849525;
-        bh=/M814mfgd3JY4C+bjGTnTZWqUkfm651ilV6Em7l/7Uc=;
+        s=korg; t=1672849531;
+        bh=9uXhCzmlfchr0Xu79x6phagBlCsIFYwWgajXMBr+hsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0sJrTAnYnnDzTMV5betGIvfaruxscq5ToavGIeIWfty3Jdi7F1+gIMYqLAjxa/m3n
-         yBhzQPfDwLfLh+TzzoZ1YJQhdYU4VUQT/3DQTXqjOVLg6D2SjR/XEiVP79PimbEb2w
-         DrbnWt03d9zkJcRmQQh85Zld0RW7Z/bb3GjPl0fc=
+        b=RkK32U1DMJXYFGu/R3t1Pe5CAA7za/0WtGqkxz+W+1tWKfEKOfF7w37ytsz6N03aQ
+         TLHo+Ujc4lFJLW5nHob8fJbR2pQ1zKz7Gv2U1VR0d5J2xyf0ZuSo4biG1y0I3c5QDu
+         QKoOgMqQTWtcwjtjSTwnAG1Esz0jICcbZ8zOJwwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 6.0 136/177] ext4: fix use-after-free in ext4_orphan_cleanup
-Date:   Wed,  4 Jan 2023 17:07:07 +0100
-Message-Id: <20230104160511.770436044@linuxfoundation.org>
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 6.0 137/177] ext4: fix undefined behavior in bit shift for ext4_check_flag_values
+Date:   Wed,  4 Jan 2023 17:07:08 +0100
+Message-Id: <20230104160511.800411179@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -53,75 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-commit a71248b1accb2b42e4980afef4fa4a27fa0e36f5 upstream.
+commit 3bf678a0f9c017c9ba7c581541dbc8453452a7ae upstream.
 
-I caught a issue as follows:
-==================================================================
- BUG: KASAN: use-after-free in __list_add_valid+0x28/0x1a0
- Read of size 8 at addr ffff88814b13f378 by task mount/710
+Shifting signed 32-bit value by 31 bits is undefined, so changing
+significant bit to unsigned. The UBSAN warning calltrace like below:
 
- CPU: 1 PID: 710 Comm: mount Not tainted 6.1.0-rc3-next #370
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x73/0x9f
-  print_report+0x25d/0x759
-  kasan_report+0xc0/0x120
-  __asan_load8+0x99/0x140
-  __list_add_valid+0x28/0x1a0
-  ext4_orphan_cleanup+0x564/0x9d0 [ext4]
-  __ext4_fill_super+0x48e2/0x5300 [ext4]
-  ext4_fill_super+0x19f/0x3a0 [ext4]
-  get_tree_bdev+0x27b/0x450
-  ext4_get_tree+0x19/0x30 [ext4]
-  vfs_get_tree+0x49/0x150
-  path_mount+0xaae/0x1350
-  do_mount+0xe2/0x110
-  __x64_sys_mount+0xf0/0x190
-  do_syscall_64+0x35/0x80
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-  </TASK>
- [...]
-==================================================================
+UBSAN: shift-out-of-bounds in fs/ext4/ext4.h:591:2
+left shift of 1 by 31 places cannot be represented in type 'int'
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x7d/0xa5
+ dump_stack+0x15/0x1b
+ ubsan_epilogue+0xe/0x4e
+ __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
+ ext4_init_fs+0x5a/0x277
+ do_one_initcall+0x76/0x430
+ kernel_init_freeable+0x3b3/0x422
+ kernel_init+0x24/0x1e0
+ ret_from_fork+0x1f/0x30
+ </TASK>
 
-Above issue may happen as follows:
--------------------------------------
-ext4_fill_super
-  ext4_orphan_cleanup
-   --- loop1: assume last_orphan is 12 ---
-    list_add(&EXT4_I(inode)->i_orphan, &EXT4_SB(sb)->s_orphan)
-    ext4_truncate --> return 0
-      ext4_inode_attach_jinode --> return -ENOMEM
-    iput(inode) --> free inode<12>
-   --- loop2: last_orphan is still 12 ---
-    list_add(&EXT4_I(inode)->i_orphan, &EXT4_SB(sb)->s_orphan);
-    // use inode<12> and trigger UAF
-
-To solve this issue, we need to propagate the return value of
-ext4_inode_attach_jinode() appropriately.
-
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221102080633.1630225-1-libaokun1@huawei.com
+Fixes: 9a4c80194713 ("ext4: ensure Inode flags consistency are checked at build time")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lore.kernel.org/r/20221031055833.3966222-1-cuigaosheng1@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ext4/ext4.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4225,7 +4225,8 @@ int ext4_truncate(struct inode *inode)
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -558,7 +558,7 @@ enum {
+  *
+  * It's not paranoia if the Murphy's Law really *is* out to get you.  :-)
+  */
+-#define TEST_FLAG_VALUE(FLAG) (EXT4_##FLAG##_FL == (1 << EXT4_INODE_##FLAG))
++#define TEST_FLAG_VALUE(FLAG) (EXT4_##FLAG##_FL == (1U << EXT4_INODE_##FLAG))
+ #define CHECK_FLAG_VALUE(FLAG) BUILD_BUG_ON(!TEST_FLAG_VALUE(FLAG))
  
- 	/* If we zero-out tail of the page, we have to create jinode for jbd2 */
- 	if (inode->i_size & (inode->i_sb->s_blocksize - 1)) {
--		if (ext4_inode_attach_jinode(inode) < 0)
-+		err = ext4_inode_attach_jinode(inode);
-+		if (err)
- 			goto out_trace;
- 	}
- 
+ static inline void ext4_check_flag_values(void)
 
 
