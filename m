@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F38B65D471
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:38:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10A4F65D476
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 14:39:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234989AbjADNhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 08:37:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36694 "EHLO
+        id S239531AbjADNjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 08:39:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234998AbjADNh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:37:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6EB3C6
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:37:27 -0800 (PST)
+        with ESMTP id S239548AbjADNiu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 08:38:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7DC7231
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 05:38:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7363D61734
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:37:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A4ACC433D2;
-        Wed,  4 Jan 2023 13:37:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4950CB815EB
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 13:38:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2C2EC433EF;
+        Wed,  4 Jan 2023 13:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672839446;
-        bh=REvmBdptnda12nO7f3wYCVfnBzpBgeIkxMLwk+OuFYI=;
+        s=korg; t=1672839509;
+        bh=K+FNomY9U8zAu83LTXhmPEwhDEML1/+YbAcdJAV7VNA=;
         h=Subject:To:Cc:From:Date:From;
-        b=Lb/3FdhMmpJKAqyLaC/EuWTiH48p/9LoDXjj37e0HloEvjmWlnASZuaOavCKtgSy3
-         XuSgH8kJnJrcqtDCezaD7h5RlxW6a6fuA0VwdZ9ToPCzWvRxcn7batdhQkOLiCQ8M0
-         mHo4BN59+9ofUGjX12CoCBEy2CAysraesSoU7KRs=
-Subject: FAILED: patch "[PATCH] mptcp: remove MPTCP 'ifdef' in TCP SYN cookies" failed to apply to 5.10-stable tree
-To:     matthieu.baerts@tessares.net, kuba@kernel.org,
-        mathew.j.martineau@linux.intel.com, pabeni@redhat.com
+        b=N8StGCMEvxlskVPzjtjZeJOePPsF9NdGUuWXUAPtJQy+FYoSooPJCLzEUCoNYBCHU
+         mxcMVlvZzhDDuYXX5ca89tfHy5rMpfZhAZFcXwSgQOWdJS/2RN6cHOo4L2xyFhtG1t
+         5BlPQiyG5pSI7ZTYS8FNMeAtBgzKwWLWB1SbRpHw=
+Subject: FAILED: patch "[PATCH] dm thin: Fix ABBA deadlock between shrink_slab and" failed to apply to 4.19-stable tree
+To:     chengzhihao1@huawei.com, snitzer@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 14:37:23 +0100
-Message-ID: <167283944369212@kroah.com>
+Date:   Wed, 04 Jan 2023 14:38:25 +0100
+Message-ID: <167283950520096@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,WEIRD_PORT autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -48,24 +48,17 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-3fff88186f04 ("mptcp: remove MPTCP 'ifdef' in TCP SYN cookies")
-4cf86ae84c71 ("mptcp: strict local address ID selection")
-51fa7f8ebf0e ("mptcp: mark ops structures as ro_after_init")
-ff5a0b421cb2 ("mptcp: faster active backup recovery")
-6da14d74e2bd ("mptcp: cleanup sysctl data and helpers")
-1e1d9d6f119c ("mptcp: handle pending data on closed subflow")
-71b7dec27f34 ("mptcp: less aggressive retransmission strategy")
-33d41c9cd74c ("mptcp: more accurate timeout")
-d2f77960e5b0 ("mptcp: add sysctl allow_join_initial_addr_port")
-8ce568ed06ce ("mptcp: drop tx skb cache")
-adc2e56ebe63 ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net")
+8111964f1b85 ("dm thin: Fix ABBA deadlock between shrink_slab and dm_pool_abort_metadata")
+3918e0667bba ("dm thin metadata: fix lockdep complaint")
+873f258becca ("dm thin metadata: do not write metadata if no changes occurred")
+6a1b1ddc6a2c ("dm thin metadata: add wrappers for managing write locking of metadata")
 
 thanks,
 
@@ -73,113 +66,220 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3fff88186f047627bb128d65155f42517f8e448f Mon Sep 17 00:00:00 2001
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
-Date: Fri, 9 Dec 2022 16:28:08 -0800
-Subject: [PATCH] mptcp: remove MPTCP 'ifdef' in TCP SYN cookies
+From 8111964f1b8524c4bb56b02cd9c7a37725ea21fd Mon Sep 17 00:00:00 2001
+From: Zhihao Cheng <chengzhihao1@huawei.com>
+Date: Wed, 30 Nov 2022 21:31:34 +0800
+Subject: [PATCH] dm thin: Fix ABBA deadlock between shrink_slab and
+ dm_pool_abort_metadata
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-To ease the maintenance, it is often recommended to avoid having #ifdef
-preprocessor conditions.
+Following concurrent processes:
 
-Here the section related to CONFIG_MPTCP was quite short but the next
-commit needs to add more code around. It is then cleaner to move
-specific MPTCP code to functions located in net/mptcp directory.
+          P1(drop cache)                P2(kworker)
+drop_caches_sysctl_handler
+ drop_slab
+  shrink_slab
+   down_read(&shrinker_rwsem)  - LOCK A
+   do_shrink_slab
+    super_cache_scan
+     prune_icache_sb
+      dispose_list
+       evict
+        ext4_evict_inode
+	 ext4_clear_inode
+	  ext4_discard_preallocations
+	   ext4_mb_load_buddy_gfp
+	    ext4_mb_init_cache
+	     ext4_read_block_bitmap_nowait
+	      ext4_read_bh_nowait
+	       submit_bh
+	        dm_submit_bio
+		                 do_worker
+				  process_deferred_bios
+				   commit
+				    metadata_operation_failed
+				     dm_pool_abort_metadata
+				      down_write(&pmd->root_lock) - LOCK B
+		                      __destroy_persistent_data_objects
+				       dm_block_manager_destroy
+				        dm_bufio_client_destroy
+				         unregister_shrinker
+					  down_write(&shrinker_rwsem)
+		 thin_map                            |
+		  dm_thin_find_block                 ↓
+		   down_read(&pmd->root_lock) --> ABBA deadlock
 
-Now that mptcp_subflow_request_sock_ops structure can be static, it can
-also be marked as "read only after init".
+, which triggers hung task:
 
-Suggested-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[   76.974820] INFO: task kworker/u4:3:63 blocked for more than 15 seconds.
+[   76.976019]       Not tainted 6.1.0-rc4-00011-g8f17dd350364-dirty #910
+[   76.978521] task:kworker/u4:3    state:D stack:0     pid:63    ppid:2
+[   76.978534] Workqueue: dm-thin do_worker
+[   76.978552] Call Trace:
+[   76.978564]  __schedule+0x6ba/0x10f0
+[   76.978582]  schedule+0x9d/0x1e0
+[   76.978588]  rwsem_down_write_slowpath+0x587/0xdf0
+[   76.978600]  down_write+0xec/0x110
+[   76.978607]  unregister_shrinker+0x2c/0xf0
+[   76.978616]  dm_bufio_client_destroy+0x116/0x3d0
+[   76.978625]  dm_block_manager_destroy+0x19/0x40
+[   76.978629]  __destroy_persistent_data_objects+0x5e/0x70
+[   76.978636]  dm_pool_abort_metadata+0x8e/0x100
+[   76.978643]  metadata_operation_failed+0x86/0x110
+[   76.978649]  commit+0x6a/0x230
+[   76.978655]  do_worker+0xc6e/0xd90
+[   76.978702]  process_one_work+0x269/0x630
+[   76.978714]  worker_thread+0x266/0x630
+[   76.978730]  kthread+0x151/0x1b0
+[   76.978772] INFO: task test.sh:2646 blocked for more than 15 seconds.
+[   76.979756]       Not tainted 6.1.0-rc4-00011-g8f17dd350364-dirty #910
+[   76.982111] task:test.sh         state:D stack:0     pid:2646  ppid:2459
+[   76.982128] Call Trace:
+[   76.982139]  __schedule+0x6ba/0x10f0
+[   76.982155]  schedule+0x9d/0x1e0
+[   76.982159]  rwsem_down_read_slowpath+0x4f4/0x910
+[   76.982173]  down_read+0x84/0x170
+[   76.982177]  dm_thin_find_block+0x4c/0xd0
+[   76.982183]  thin_map+0x201/0x3d0
+[   76.982188]  __map_bio+0x5b/0x350
+[   76.982195]  dm_submit_bio+0x2b6/0x930
+[   76.982202]  __submit_bio+0x123/0x2d0
+[   76.982209]  submit_bio_noacct_nocheck+0x101/0x3e0
+[   76.982222]  submit_bio_noacct+0x389/0x770
+[   76.982227]  submit_bio+0x50/0xc0
+[   76.982232]  submit_bh_wbc+0x15e/0x230
+[   76.982238]  submit_bh+0x14/0x20
+[   76.982241]  ext4_read_bh_nowait+0xc5/0x130
+[   76.982247]  ext4_read_block_bitmap_nowait+0x340/0xc60
+[   76.982254]  ext4_mb_init_cache+0x1ce/0xdc0
+[   76.982259]  ext4_mb_load_buddy_gfp+0x987/0xfa0
+[   76.982263]  ext4_discard_preallocations+0x45d/0x830
+[   76.982274]  ext4_clear_inode+0x48/0xf0
+[   76.982280]  ext4_evict_inode+0xcf/0xc70
+[   76.982285]  evict+0x119/0x2b0
+[   76.982290]  dispose_list+0x43/0xa0
+[   76.982294]  prune_icache_sb+0x64/0x90
+[   76.982298]  super_cache_scan+0x155/0x210
+[   76.982303]  do_shrink_slab+0x19e/0x4e0
+[   76.982310]  shrink_slab+0x2bd/0x450
+[   76.982317]  drop_slab+0xcc/0x1a0
+[   76.982323]  drop_caches_sysctl_handler+0xb7/0xe0
+[   76.982327]  proc_sys_call_handler+0x1bc/0x300
+[   76.982331]  proc_sys_write+0x17/0x20
+[   76.982334]  vfs_write+0x3d3/0x570
+[   76.982342]  ksys_write+0x73/0x160
+[   76.982347]  __x64_sys_write+0x1e/0x30
+[   76.982352]  do_syscall_64+0x35/0x80
+[   76.982357]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-diff --git a/include/net/mptcp.h b/include/net/mptcp.h
-index 412479ebf5ad..3c5c68618fcc 100644
---- a/include/net/mptcp.h
-+++ b/include/net/mptcp.h
-@@ -97,8 +97,6 @@ struct mptcp_out_options {
- };
+Function metadata_operation_failed() is called when operations failed
+on dm pool metadata, dm pool will destroy and recreate metadata. So,
+shrinker will be unregistered and registered, which could down write
+shrinker_rwsem under pmd_write_lock.
+
+Fix it by allocating dm_block_manager before locking pmd->root_lock
+and destroying old dm_block_manager after unlocking pmd->root_lock,
+then old dm_block_manager is replaced with new dm_block_manager under
+pmd->root_lock. So, shrinker register/unregister could be done without
+holding pmd->root_lock.
+
+Fetch a reproducer in [Link].
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216676
+Cc: stable@vger.kernel.org #v5.2+
+Fixes: e49e582965b3 ("dm thin: add read only and fail io modes")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+
+diff --git a/drivers/md/dm-thin-metadata.c b/drivers/md/dm-thin-metadata.c
+index a27395c8621f..1a62226ac34e 100644
+--- a/drivers/md/dm-thin-metadata.c
++++ b/drivers/md/dm-thin-metadata.c
+@@ -776,13 +776,15 @@ static int __create_persistent_data_objects(struct dm_pool_metadata *pmd, bool f
+ 	return r;
+ }
  
- #ifdef CONFIG_MPTCP
--extern struct request_sock_ops mptcp_subflow_request_sock_ops;
+-static void __destroy_persistent_data_objects(struct dm_pool_metadata *pmd)
++static void __destroy_persistent_data_objects(struct dm_pool_metadata *pmd,
++					      bool destroy_bm)
+ {
+ 	dm_sm_destroy(pmd->data_sm);
+ 	dm_sm_destroy(pmd->metadata_sm);
+ 	dm_tm_destroy(pmd->nb_tm);
+ 	dm_tm_destroy(pmd->tm);
+-	dm_block_manager_destroy(pmd->bm);
++	if (destroy_bm)
++		dm_block_manager_destroy(pmd->bm);
+ }
+ 
+ static int __begin_transaction(struct dm_pool_metadata *pmd)
+@@ -989,7 +991,7 @@ int dm_pool_metadata_close(struct dm_pool_metadata *pmd)
+ 	}
+ 	pmd_write_unlock(pmd);
+ 	if (!pmd->fail_io)
+-		__destroy_persistent_data_objects(pmd);
++		__destroy_persistent_data_objects(pmd, true);
+ 
+ 	kfree(pmd);
+ 	return 0;
+@@ -1860,19 +1862,52 @@ static void __set_abort_with_changes_flags(struct dm_pool_metadata *pmd)
+ int dm_pool_abort_metadata(struct dm_pool_metadata *pmd)
+ {
+ 	int r = -EINVAL;
++	struct dm_block_manager *old_bm = NULL, *new_bm = NULL;
++
++	/* fail_io is double-checked with pmd->root_lock held below */
++	if (unlikely(pmd->fail_io))
++		return r;
++
++	/*
++	 * Replacement block manager (new_bm) is created and old_bm destroyed outside of
++	 * pmd root_lock to avoid ABBA deadlock that would result (due to life-cycle of
++	 * shrinker associated with the block manager's bufio client vs pmd root_lock).
++	 * - must take shrinker_rwsem without holding pmd->root_lock
++	 */
++	new_bm = dm_block_manager_create(pmd->bdev, THIN_METADATA_BLOCK_SIZE << SECTOR_SHIFT,
++					 THIN_MAX_CONCURRENT_LOCKS);
+ 
+ 	pmd_write_lock(pmd);
+-	if (pmd->fail_io)
++	if (pmd->fail_io) {
++		pmd_write_unlock(pmd);
+ 		goto out;
++	}
+ 
+ 	__set_abort_with_changes_flags(pmd);
+-	__destroy_persistent_data_objects(pmd);
+-	r = __create_persistent_data_objects(pmd, false);
++	__destroy_persistent_data_objects(pmd, false);
++	old_bm = pmd->bm;
++	if (IS_ERR(new_bm)) {
++		DMERR("could not create block manager during abort");
++		pmd->bm = NULL;
++		r = PTR_ERR(new_bm);
++		goto out_unlock;
++	}
++
++	pmd->bm = new_bm;
++	r = __open_or_format_metadata(pmd, false);
++	if (r) {
++		pmd->bm = NULL;
++		goto out_unlock;
++	}
++	new_bm = NULL;
++out_unlock:
+ 	if (r)
+ 		pmd->fail_io = true;
 -
- void mptcp_init(void);
+-out:
+ 	pmd_write_unlock(pmd);
++	dm_block_manager_destroy(old_bm);
++out:
++	if (new_bm && !IS_ERR(new_bm))
++		dm_block_manager_destroy(new_bm);
  
- static inline bool sk_is_mptcp(const struct sock *sk)
-@@ -188,6 +186,9 @@ void mptcp_seq_show(struct seq_file *seq);
- int mptcp_subflow_init_cookie_req(struct request_sock *req,
- 				  const struct sock *sk_listener,
- 				  struct sk_buff *skb);
-+struct request_sock *mptcp_subflow_reqsk_alloc(const struct request_sock_ops *ops,
-+					       struct sock *sk_listener,
-+					       bool attach_listener);
- 
- __be32 mptcp_get_reset_option(const struct sk_buff *skb);
- 
-@@ -274,6 +275,13 @@ static inline int mptcp_subflow_init_cookie_req(struct request_sock *req,
- 	return 0; /* TCP fallback */
+ 	return r;
  }
- 
-+static inline struct request_sock *mptcp_subflow_reqsk_alloc(const struct request_sock_ops *ops,
-+							     struct sock *sk_listener,
-+							     bool attach_listener)
-+{
-+	return NULL;
-+}
-+
- static inline __be32 mptcp_reset_option(const struct sk_buff *skb)  { return htonl(0u); }
- #endif /* CONFIG_MPTCP */
- 
-diff --git a/net/ipv4/syncookies.c b/net/ipv4/syncookies.c
-index 942d2dfa1115..26fb97d1d4d9 100644
---- a/net/ipv4/syncookies.c
-+++ b/net/ipv4/syncookies.c
-@@ -288,12 +288,11 @@ struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
- 	struct tcp_request_sock *treq;
- 	struct request_sock *req;
- 
--#ifdef CONFIG_MPTCP
- 	if (sk_is_mptcp(sk))
--		ops = &mptcp_subflow_request_sock_ops;
--#endif
-+		req = mptcp_subflow_reqsk_alloc(ops, sk, false);
-+	else
-+		req = inet_reqsk_alloc(ops, sk, false);
- 
--	req = inet_reqsk_alloc(ops, sk, false);
- 	if (!req)
- 		return NULL;
- 
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 2159b5f9988f..3f670f2d5c5c 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -529,7 +529,7 @@ static int subflow_v6_rebuild_header(struct sock *sk)
- }
- #endif
- 
--struct request_sock_ops mptcp_subflow_request_sock_ops;
-+static struct request_sock_ops mptcp_subflow_request_sock_ops __ro_after_init;
- static struct tcp_request_sock_ops subflow_request_sock_ipv4_ops __ro_after_init;
- 
- static int subflow_v4_conn_request(struct sock *sk, struct sk_buff *skb)
-@@ -582,6 +582,16 @@ static int subflow_v6_conn_request(struct sock *sk, struct sk_buff *skb)
- }
- #endif
- 
-+struct request_sock *mptcp_subflow_reqsk_alloc(const struct request_sock_ops *ops,
-+					       struct sock *sk_listener,
-+					       bool attach_listener)
-+{
-+	ops = &mptcp_subflow_request_sock_ops;
-+
-+	return inet_reqsk_alloc(ops, sk_listener, attach_listener);
-+}
-+EXPORT_SYMBOL(mptcp_subflow_reqsk_alloc);
-+
- /* validate hmac received in third ACK */
- static bool subflow_hmac_valid(const struct request_sock *req,
- 			       const struct mptcp_options_received *mp_opt)
 
