@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0BDE65D7FD
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:10:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32B4E65D804
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:10:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239794AbjADQKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:10:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59270 "EHLO
+        id S239748AbjADQKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:10:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239878AbjADQJi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:09:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A992F4084E
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:19 -0800 (PST)
+        with ESMTP id S239861AbjADQJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:09:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6ADD4085E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 631FEB8172B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:09:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2191C433F1;
-        Wed,  4 Jan 2023 16:09:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CED7B81731
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:09:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C34C5C433F2;
+        Wed,  4 Jan 2023 16:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848557;
-        bh=9THyeVMmn9Eb0v39jJwlsHS7eBvvslFNY0lAvEkFHM0=;
+        s=korg; t=1672848560;
+        bh=5yRS6mx8C1HfwzAVjei95PV2yRsuOL6oYpiGnuR8FwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTW7khbpeb+wR6nccB/mWfbs5oS1/cTwY6FivnVPKWLnA1IZcs5yfT9g0bAfzrcfH
-         RsckSNgh8l1gVZE6sF1yE1aUeXYkv84odezmaXUnRqZ7F52yS4DIkT3wNS1VyZg/k0
-         ezMvYloz6kgASEd5h6RmdYYtW93LFmrTWFw3nddA=
+        b=B6il965Xyk2C4VyUQQduJv9UMPSUrR8/bqaBKTb0WNHuRv6ad4o5GcaBnDeFF0S+j
+         +Ed9Gl0PuNvPPhuWA5id3YX4rCdbw/4WIDW3DbcN/xDSY0pf2fJXY4CPPXHoTj1rCg
+         Y9AYSPHcRvowo8wk9lrE+91wAY3Sgei0e95TT0HQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 6.1 006/207] arm64: Prohibit instrumentation on arch_stack_walk()
-Date:   Wed,  4 Jan 2023 17:04:24 +0100
-Message-Id: <20230104160512.118459793@linuxfoundation.org>
+        patches@lists.linux.dev, Borislav Petkov <bp@alien8.de>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 6.1 007/207] soc: qcom: Select REMAP_MMIO for LLCC driver
+Date:   Wed,  4 Jan 2023 17:04:25 +0100
+Message-Id: <20230104160512.148147290@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -54,100 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-commit 0fbcd8abf3375052cc7627cc53aba6f2eb189fbb upstream.
+commit 5d2fe2d7b616b8baa18348ead857b504fc2de336 upstream.
 
-Mark arch_stack_walk() as noinstr instead of notrace and inline functions
-called from arch_stack_walk() as __always_inline so that user does not
-put any instrumentations on it, because this function can be used from
-return_address() which is used by lockdep.
+LLCC driver uses REGMAP_MMIO for accessing the hardware registers. So
+select the dependency in Kconfig. Without this, there will be errors
+while building the driver with COMPILE_TEST only:
 
-Without this, if the kernel built with CONFIG_LOCKDEP=y, just probing
-arch_stack_walk() via <tracefs>/kprobe_events will crash the kernel on
-arm64.
+ERROR: modpost: "__devm_regmap_init_mmio_clk" [drivers/soc/qcom/llcc-qcom.ko] undefined!
+make[1]: *** [scripts/Makefile.modpost:126: Module.symvers] Error 1
+make: *** [Makefile:1944: modpost] Error 2
 
- # echo p arch_stack_walk >> ${TRACEFS}/kprobe_events
- # echo 1 > ${TRACEFS}/events/kprobes/enable
-  kprobes: Failed to recover from reentered kprobes.
-  kprobes: Dump kprobe:
-  .symbol_name = arch_stack_walk, .offset = 0, .addr = arch_stack_walk+0x0/0x1c0
-  ------------[ cut here ]------------
-  kernel BUG at arch/arm64/kernel/probes/kprobes.c:241!
-  kprobes: Failed to recover from reentered kprobes.
-  kprobes: Dump kprobe:
-  .symbol_name = arch_stack_walk, .offset = 0, .addr = arch_stack_walk+0x0/0x1c0
-  ------------[ cut here ]------------
-  kernel BUG at arch/arm64/kernel/probes/kprobes.c:241!
-  PREEMPT SMP
-  Modules linked in:
-  CPU: 0 PID: 17 Comm: migration/0 Tainted: G                 N 6.1.0-rc5+ #6
-  Hardware name: linux,dummy-virt (DT)
-  Stopper: 0x0 <- 0x0
-  pstate: 600003c5 (nZCv DAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-  pc : kprobe_breakpoint_handler+0x178/0x17c
-  lr : kprobe_breakpoint_handler+0x178/0x17c
-  sp : ffff8000080d3090
-  x29: ffff8000080d3090 x28: ffff0df5845798c0 x27: ffffc4f59057a774
-  x26: ffff0df5ffbba770 x25: ffff0df58f420f18 x24: ffff49006f641000
-  x23: ffffc4f590579768 x22: ffff0df58f420f18 x21: ffff8000080d31c0
-  x20: ffffc4f590579768 x19: ffffc4f590579770 x18: 0000000000000006
-  x17: 5f6b636174735f68 x16: 637261203d207264 x15: 64612e202c30203d
-  x14: 2074657366666f2e x13: 30633178302f3078 x12: 302b6b6c61775f6b
-  x11: 636174735f686372 x10: ffffc4f590dc5bd8 x9 : ffffc4f58eb31958
-  x8 : 00000000ffffefff x7 : ffffc4f590dc5bd8 x6 : 80000000fffff000
-  x5 : 000000000000bff4 x4 : 0000000000000000 x3 : 0000000000000000
-  x2 : 0000000000000000 x1 : ffff0df5845798c0 x0 : 0000000000000064
-  Call trace:
-  kprobes: Failed to recover from reentered kprobes.
-  kprobes: Dump kprobe:
-  .symbol_name = arch_stack_walk, .offset = 0, .addr = arch_stack_walk+0x0/0x1c0
-  ------------[ cut here ]------------
-  kernel BUG at arch/arm64/kernel/probes/kprobes.c:241!
-
-Fixes: 39ef362d2d45 ("arm64: Make return_address() use arch_stack_walk()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/166994751368.439920.3236636557520824664.stgit@devnote3
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: <stable@vger.kernel.org> # 4.19
+Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
+Reported-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221129071201.30024-2-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/stacktrace.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/soc/qcom/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/kernel/stacktrace.c
-+++ b/arch/arm64/kernel/stacktrace.c
-@@ -23,8 +23,8 @@
-  *
-  * The regs must be on a stack currently owned by the calling task.
-  */
--static inline void unwind_init_from_regs(struct unwind_state *state,
--					 struct pt_regs *regs)
-+static __always_inline void unwind_init_from_regs(struct unwind_state *state,
-+						  struct pt_regs *regs)
- {
- 	unwind_init_common(state, current);
- 
-@@ -58,8 +58,8 @@ static __always_inline void unwind_init_
-  * duration of the unwind, or the unwind will be bogus. It is never valid to
-  * call this for the current task.
-  */
--static inline void unwind_init_from_task(struct unwind_state *state,
--					 struct task_struct *task)
-+static __always_inline void unwind_init_from_task(struct unwind_state *state,
-+						  struct task_struct *task)
- {
- 	unwind_init_common(state, task);
- 
-@@ -186,7 +186,7 @@ void show_stack(struct task_struct *tsk,
- 			: stackinfo_get_unknown();		\
- 	})
- 
--noinline notrace void arch_stack_walk(stack_trace_consume_fn consume_entry,
-+noinline noinstr void arch_stack_walk(stack_trace_consume_fn consume_entry,
- 			      void *cookie, struct task_struct *task,
- 			      struct pt_regs *regs)
- {
+--- a/drivers/soc/qcom/Kconfig
++++ b/drivers/soc/qcom/Kconfig
+@@ -63,6 +63,7 @@ config QCOM_GSBI
+ config QCOM_LLCC
+ 	tristate "Qualcomm Technologies, Inc. LLCC driver"
+ 	depends on ARCH_QCOM || COMPILE_TEST
++	select REGMAP_MMIO
+ 	help
+ 	  Qualcomm Technologies, Inc. platform specific
+ 	  Last Level Cache Controller(LLCC) driver for platforms such as,
 
 
