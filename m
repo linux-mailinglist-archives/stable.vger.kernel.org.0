@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 372B165D820
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:11:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B1A65D850
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239725AbjADQLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:11:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58838 "EHLO
+        id S239846AbjADQNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:13:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239860AbjADQKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:10:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6182C3C399
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:10:30 -0800 (PST)
+        with ESMTP id S239850AbjADQMu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4551F5FE5
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0184D6179A
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:10:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFFD7C433EF;
-        Wed,  4 Jan 2023 16:10:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D71AD617A0
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3A98C433D2;
+        Wed,  4 Jan 2023 16:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848629;
-        bh=bSxn4xf8KId17UMJ89aDpG4EAI1V/Fp5KrN7yF3JUU0=;
+        s=korg; t=1672848769;
+        bh=EIZqDPd9fNOCBCswgpx07PnRiZiEE9xZ/S9dqsC6PNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8yb5jasKCFMgpJE4cF+IOEgTSoxzGWX15/DCkj7JTnDXq0FN4bbpgTPXjBgXzDeB
-         SF+bg5ufwWKmxjl+5SLzHB4K+cdILAsCmk5vymGKgcg5mXbCLwEugyEXtUpFzxPl5t
-         13zCUrY8btrf7kZnjJr6cMIJoqamV62KppaFFO2Q=
+        b=YzO0TrIhgisrhneXYyr2RBeh7k1gg25NE2aA/UmKVSfDzK8yoLM7KHvrnYpyBC5Xs
+         txnVi2FN5yiq7AeEaI6dQHavA5k3KXLeGcoaVYVqEVSNRvR3yzHKAs5ZWbfZfsXoOM
+         0oWt4F3qLeTM2t1+SEOmWJ0hKfejjrIf2sZu6j3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Eray=20Or=C3=A7unus?= <erayorcunus@gmail.com>,
-        Ike Panhc <ike.pan@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 044/207] platform/x86: ideapad-laptop: Add new _CFG bit numbers for future use
+        Alexander Antonov <alexander.antonov@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>
+Subject: [PATCH 6.0 011/177] perf/x86/intel/uncore: Disable I/O stacks to PMU mapping on ICX-D
 Date:   Wed,  4 Jan 2023 17:05:02 +0100
-Message-Id: <20230104160513.308482006@linuxfoundation.org>
+Message-Id: <20230104160507.999477946@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eray Orçunus <erayorcunus@gmail.com>
+From: Alexander Antonov <alexander.antonov@linux.intel.com>
 
-[ Upstream commit be5dd7d8359de9fb22115a63f09981cdf689db4f ]
+commit efe062705d149b20a15498cb999a9edbb8241e6f upstream.
 
-Later IdeaPads report various things in last 8 bits of _CFG, at least
-5 of them represent supported on-screen-displays. Add those bit numbers
-to the enum, and use CFG_OSD_ as prefix of their names. Also expose
-the values of these bits to debugfs, since they can be useful.
+Current implementation of I/O stacks to PMU mapping doesn't support ICX-D.
+Detect ICX-D system to disable mapping.
 
-Signed-off-by: Eray Orçunus <erayorcunus@gmail.com>
-Acked-by: Ike Panhc <ike.pan@canonical.com>
-Link: https://lore.kernel.org/r/20221029120311.11152-5-erayorcunus@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 10337e95e04c ("perf/x86/intel/uncore: Enable I/O stacks to IIO PMON mapping on ICX")
+Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221117122833.3103580-5-alexander.antonov@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/ideapad-laptop.c | 33 +++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 4 deletions(-)
+ arch/x86/events/intel/uncore.h       |    1 +
+ arch/x86/events/intel/uncore_snbep.c |    5 +++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
-index 7192e0d2a14f..125b4534424f 100644
---- a/drivers/platform/x86/ideapad-laptop.c
-+++ b/drivers/platform/x86/ideapad-laptop.c
-@@ -46,10 +46,22 @@ static const char *const ideapad_wmi_fnesc_events[] = {
- #endif
+--- a/arch/x86/events/intel/uncore.h
++++ b/arch/x86/events/intel/uncore.h
+@@ -2,6 +2,7 @@
+ #include <linux/slab.h>
+ #include <linux/pci.h>
+ #include <asm/apicdef.h>
++#include <asm/intel-family.h>
+ #include <linux/io-64-nonatomic-lo-hi.h>
  
- enum {
--	CFG_CAP_BT_BIT   = 16,
--	CFG_CAP_3G_BIT   = 17,
--	CFG_CAP_WIFI_BIT = 18,
--	CFG_CAP_CAM_BIT  = 19,
-+	CFG_CAP_BT_BIT       = 16,
-+	CFG_CAP_3G_BIT       = 17,
-+	CFG_CAP_WIFI_BIT     = 18,
-+	CFG_CAP_CAM_BIT      = 19,
-+
-+	/*
-+	 * These are OnScreenDisplay support bits that can be useful to determine
-+	 * whether a hotkey exists/should show OSD. But they aren't particularly
-+	 * meaningful since they were introduced later, i.e. 2010 IdeaPads
-+	 * don't have these, but they still have had OSD for hotkeys.
-+	 */
-+	CFG_OSD_NUMLK_BIT    = 27,
-+	CFG_OSD_CAPSLK_BIT   = 28,
-+	CFG_OSD_MICMUTE_BIT  = 29,
-+	CFG_OSD_TOUCHPAD_BIT = 30,
-+	CFG_OSD_CAM_BIT      = 31,
- };
+ #include <linux/perf_event.h>
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -5144,6 +5144,11 @@ static int icx_iio_get_topology(struct i
  
- enum {
-@@ -387,6 +399,19 @@ static int debugfs_cfg_show(struct seq_file *s, void *data)
- 		seq_puts(s, " camera");
- 	seq_puts(s, "\n");
+ static int icx_iio_set_mapping(struct intel_uncore_type *type)
+ {
++	/* Detect ICX-D system. This case is not supported */
++	if (boot_cpu_data.x86_model == INTEL_FAM6_ICELAKE_D) {
++		pmu_clear_mapping_attr(type->attr_update, &icx_iio_mapping_group);
++		return -EPERM;
++	}
+ 	return pmu_iio_set_mapping(type, &icx_iio_mapping_group);
+ }
  
-+	seq_puts(s, "OSD support:");
-+	if (test_bit(CFG_OSD_NUMLK_BIT, &priv->cfg))
-+		seq_puts(s, " num-lock");
-+	if (test_bit(CFG_OSD_CAPSLK_BIT, &priv->cfg))
-+		seq_puts(s, " caps-lock");
-+	if (test_bit(CFG_OSD_MICMUTE_BIT, &priv->cfg))
-+		seq_puts(s, " mic-mute");
-+	if (test_bit(CFG_OSD_TOUCHPAD_BIT, &priv->cfg))
-+		seq_puts(s, " touchpad");
-+	if (test_bit(CFG_OSD_CAM_BIT, &priv->cfg))
-+		seq_puts(s, " camera");
-+	seq_puts(s, "\n");
-+
- 	seq_puts(s, "Graphics: ");
- 	switch (priv->cfg & 0x700) {
- 	case 0x100:
--- 
-2.35.1
-
 
 
