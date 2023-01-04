@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F9D65D5A9
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:30:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A13865D5AA
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:30:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232026AbjADOav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:30:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52338 "EHLO
+        id S231220AbjADOa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:30:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231220AbjADOaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:30:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1081EC78
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:30:14 -0800 (PST)
+        with ESMTP id S234818AbjADOax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:30:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24BC32DC3
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 06:30:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5706B81674
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:30:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 342B9C433D2;
-        Wed,  4 Jan 2023 14:30:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA15361426
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 14:30:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDC23C433EF;
+        Wed,  4 Jan 2023 14:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672842611;
-        bh=ImloY0rOViPntbFWmF4n/893rnUmcmV4bnI/7IJ/k8A=;
+        s=korg; t=1672842651;
+        bh=YzByREywEQ1x3N/qti17oRiIYmCkiZ2P1bbd+0ElbXY=;
         h=Subject:To:Cc:From:Date:From;
-        b=IMNgiHtiP6VuwhrdHDX5DoT7IEdcvhTIO/T8ji1gwvz7wVTyYCWsiV7VCM7dK0w/w
-         kIQcMDYW8ENfLsjx3JD1svCZYH1KW0yXkYXecgxA4hpcJ28SP1iHCPUlmlIfQTQiqD
-         CW2RDNY3mGnEKKk6tfPqG67hzpHbSMRexQa+U0EQ=
-Subject: FAILED: patch "[PATCH] riscv: stacktrace: Fixup ftrace_graph_ret_addr retp argument" failed to apply to 4.19-stable tree
-To:     guoren@kernel.org, guoren@linux.alibaba.com, palmer@rivosinc.com
+        b=JTdj9ltWTHhx9BAfH98K5FAZw7Qwg4anMdCIstkgiSYL8fWpPTQVfM43/DgrbS7wc
+         A+Sz8KL6TolEZxGTqY3PelbC8cQE8rAQsVV0DcyRD1l3ZxzY1yoyAU2HvJwQi07J/y
+         /mYGZd8myy9JUigVFaa5NCimWPCVCLXlKgmYjyUM=
+Subject: FAILED: patch "[PATCH] driver core: Fix bus_type.match() error handling in" failed to apply to 5.4-stable tree
+To:     isaacmanjarres@google.com, gregkh@linuxfoundation.org,
+        saravanak@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 15:29:58 +0100
-Message-ID: <167284259814727@kroah.com>
+Date:   Wed, 04 Jan 2023 15:30:48 +0100
+Message-ID: <1672842648241104@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,16 +48,25 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-5c3022e4a616 ("riscv: stacktrace: Fixup ftrace_graph_ret_addr retp argument")
-f766f77a74f5 ("riscv/stacktrace: Fix stack output without ra on the stack top")
-877425424d6c ("riscv: remove unreachable !HAVE_FUNCTION_GRAPH_RET_ADDR_PTR code")
+27c0d217340e ("driver core: Fix bus_type.match() error handling in __driver_attach()")
+eb7fbc9fb118 ("driver core: Add missing '\n' in log messages")
+64c775fb4b21 ("driver core: Rename deferred_probe_timeout and make it global")
+0e9f8d09d280 ("driver core: Remove driver_deferred_probe_check_state_continue()")
+e2cec7d68537 ("driver core: Set deferred_probe_timeout to a longer default if CONFIG_MODULES is set")
+c8c43cee29f6 ("driver core: Fix driver_deferred_probe_check_state() logic")
+4c002c978b7f ("device.h: move 'struct driver' stuff out to device/driver.h")
+a8ae608529ab ("device.h: move 'struct class' stuff out to device/class.h")
+5aee2bf2629d ("device.h: move 'struct bus' stuff out to device/bus.h")
+fc5a251d0fd7 ("driver core: Add sync_state driver/bus callback")
+e2ae9bcc4aaa ("driver core: Add support for linking devices during device addition")
+372a67c0c5ef ("driver core: Add fwnode_to_dev() to look up device from fwnode")
 
 thanks,
 
@@ -64,34 +74,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5c3022e4a616d800cf5f4c3a981d7992179e44a1 Mon Sep 17 00:00:00 2001
-From: Guo Ren <guoren@kernel.org>
-Date: Wed, 9 Nov 2022 01:49:36 -0500
-Subject: [PATCH] riscv: stacktrace: Fixup ftrace_graph_ret_addr retp argument
+From 27c0d217340e47ec995557f61423ef415afba987 Mon Sep 17 00:00:00 2001
+From: "Isaac J. Manjarres" <isaacmanjarres@google.com>
+Date: Tue, 20 Sep 2022 17:14:13 -0700
+Subject: [PATCH] driver core: Fix bus_type.match() error handling in
+ __driver_attach()
 
-The 'retp' is a pointer to the return address on the stack, so we
-must pass the current return address pointer as the 'retp'
-argument to ftrace_push_return_trace(). Not parent function's
-return address on the stack.
+When a driver registers with a bus, it will attempt to match with every
+device on the bus through the __driver_attach() function. Currently, if
+the bus_type.match() function encounters an error that is not
+-EPROBE_DEFER, __driver_attach() will return a negative error code, which
+causes the driver registration logic to stop trying to match with the
+remaining devices on the bus.
 
-Fixes: b785ec129bd9 ("riscv/ftrace: Add HAVE_FUNCTION_GRAPH_RET_ADDR_PTR support")
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20221109064937.3643993-2-guoren@kernel.org
+This behavior is not correct; a failure while matching a driver to a
+device does not mean that the driver won't be able to match and bind
+with other devices on the bus. Update the logic in __driver_attach()
+to reflect this.
+
+Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
 Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Cc: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+Link: https://lore.kernel.org/r/20220921001414.4046492-1-isaacmanjarres@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/arch/riscv/kernel/stacktrace.c b/arch/riscv/kernel/stacktrace.c
-index 08d11a53f39e..bcfe9eb55f80 100644
---- a/arch/riscv/kernel/stacktrace.c
-+++ b/arch/riscv/kernel/stacktrace.c
-@@ -58,7 +58,7 @@ void notrace walk_stackframe(struct task_struct *task, struct pt_regs *regs,
- 		} else {
- 			fp = frame->fp;
- 			pc = ftrace_graph_ret_addr(current, NULL, frame->ra,
--						   (unsigned long *)(fp - 8));
-+						   &frame->ra);
- 		}
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 4001e22617ab..e9b2f9c25efe 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -1162,7 +1162,11 @@ static int __driver_attach(struct device *dev, void *data)
+ 		return 0;
+ 	} else if (ret < 0) {
+ 		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
+-		return ret;
++		/*
++		 * Driver could not match with device, but may match with
++		 * another device on the bus.
++		 */
++		return 0;
+ 	} /* ret > 0 means positive match */
  
- 	}
+ 	if (driver_allows_async_probing(drv)) {
 
