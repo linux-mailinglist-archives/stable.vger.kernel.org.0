@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B883865D8B7
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A4CD65D89C
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:16:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239889AbjADQR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:17:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40904 "EHLO
+        id S229866AbjADQQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:16:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239807AbjADQRW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:17:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 506FBB1F5
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:17:21 -0800 (PST)
+        with ESMTP id S239871AbjADQQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0E541D7E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:15:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E51BFB81732
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:17:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D10FC433D2;
-        Wed,  4 Jan 2023 16:17:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA91B617A9
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:15:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FFE0C433D2;
+        Wed,  4 Jan 2023 16:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849038;
-        bh=0L2LLEvBhjtUOYh67Mdfz0Q3liPEy1nFNt5UmWDOaMw=;
+        s=korg; t=1672848958;
+        bh=crwRSUmU+3Quc+5mw88khZvxEgG14IXUugIzMdhQ0+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wASaIVPUfbVh5wPjOSQJyOuY/eD4yPnEzxCePiVQckN0SC+ug3vY5vr4/sNYvKjcN
-         80J2JmHxiJKCdbjpn+Qf8iZHJzposU+yR5MMp+U8CwSTTYivuycDmfVDyKdBGQhkF2
-         okJ8B/m1Ena4gAaRbRTjtSyijwYvQqeo/J0tMjbc=
+        b=0cIDXwEA4nPJsPq0u8Pa3vA1oUFsoS6Q20N1i//lN/Cn2zY4XES71e6Ad0JCaQEPO
+         LSQB9dP1F5XMt3sybFPqX+ExTZggZtQFeVRd9VdL2Qq27+vTIXzwMmfRkoK0aFzhYH
+         0ls9hGjUM274m/r+87B3WNbdi/dWg6eayrH6/3ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, zanussi@kernel.org,
-        Zheng Yejian <zhengyejian1@huawei.com>,
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "x86@kernel.org" <x86@kernel.org>, Borislav Petkov <bp@alien8.de>,
+        Ingo Molnar <mingo@kernel.org>,
         "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.0 054/177] tracing/hist: Fix out-of-bound write on action_data.var_ref_idx
+Subject: [PATCH 6.1 087/207] ftrace/x86: Add back ftrace_expected for ftrace bug reports
 Date:   Wed,  4 Jan 2023 17:05:45 +0100
-Message-Id: <20230104160509.283326253@linuxfoundation.org>
+Message-Id: <20230104160514.697052116@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,153 +57,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-commit 82470f7d9044842618c847a7166de2b7458157a7 upstream.
+commit fd3dc56253acbe9c641a66d312d8393cd55eb04c upstream.
 
-When generate a synthetic event with many params and then create a trace
-action for it [1], kernel panic happened [2].
+After someone reported a bug report with a failed modification due to the
+expected value not matching what was found, it came to my attention that
+the ftrace_expected is no longer set when that happens. This makes for
+debugging the issue a bit more difficult.
 
-It is because that in trace_action_create() 'data->n_params' is up to
-SYNTH_FIELDS_MAX (current value is 64), and array 'data->var_ref_idx'
-keeps indices into array 'hist_data->var_refs' for each synthetic event
-param, but the length of 'data->var_ref_idx' is TRACING_MAP_VARS_MAX
-(current value is 16), so out-of-bound write happened when 'data->n_params'
-more than 16. In this case, 'data->match_data.event' is overwritten and
-eventually cause the panic.
+Set ftrace_expected to the expected code before calling ftrace_bug, so
+that it shows what was expected and why it failed.
 
-To solve the issue, adjust the length of 'data->var_ref_idx' to be
-SYNTH_FIELDS_MAX and add sanity checks to avoid out-of-bound write.
+Link: https://lore.kernel.org/all/CA+wXwBQ-VhK+hpBtYtyZP-NiX4g8fqRRWithFOHQW-0coQ3vLg@mail.gmail.com/
+Link: https://lore.kernel.org/linux-trace-kernel/20221209105247.01d4e51d@gandalf.local.home
 
-[1]
- # cd /sys/kernel/tracing/
- # echo "my_synth_event int v1; int v2; int v3; int v4; int v5; int v6;\
-int v7; int v8; int v9; int v10; int v11; int v12; int v13; int v14;\
-int v15; int v16; int v17; int v18; int v19; int v20; int v21; int v22;\
-int v23; int v24; int v25; int v26; int v27; int v28; int v29; int v30;\
-int v31; int v32; int v33; int v34; int v35; int v36; int v37; int v38;\
-int v39; int v40; int v41; int v42; int v43; int v44; int v45; int v46;\
-int v47; int v48; int v49; int v50; int v51; int v52; int v53; int v54;\
-int v55; int v56; int v57; int v58; int v59; int v60; int v61; int v62;\
-int v63" >> synthetic_events
- # echo 'hist:keys=pid:ts0=common_timestamp.usecs if comm=="bash"' >> \
-events/sched/sched_waking/trigger
- # echo "hist:keys=next_pid:onmatch(sched.sched_waking).my_synth_event(\
-pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,\
-pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,\
-pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,\
-pid,pid,pid,pid,pid,pid,pid,pid,pid)" >> events/sched/sched_switch/trigger
-
-[2]
-BUG: unable to handle page fault for address: ffff91c900000000
-PGD 61001067 P4D 61001067 PUD 0
-Oops: 0000 [#1] PREEMPT SMP NOPTI
-CPU: 2 PID: 322 Comm: bash Tainted: G        W          6.1.0-rc8+ #229
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-RIP: 0010:strcmp+0xc/0x30
-Code: 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee
-c3 cc cc cc cc 0f 1f 00 31 c0 eb 08 48 83 c0 01 84 d2 74 13 <0f> b6 14
-07 3a 14 06 74 ef 19 c0 83 c8 01 c3 cc cc cc cc 31 c3
-RSP: 0018:ffff9b3b00f53c48 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffffffffba958a68 RCX: 0000000000000000
-RDX: 0000000000000010 RSI: ffff91c943d33a90 RDI: ffff91c900000000
-RBP: ffff91c900000000 R08: 00000018d604b529 R09: 0000000000000000
-R10: ffff91c9483eddb1 R11: ffff91ca483eddab R12: ffff91c946171580
-R13: ffff91c9479f0538 R14: ffff91c9457c2848 R15: ffff91c9479f0538
-FS:  00007f1d1cfbe740(0000) GS:ffff91c9bdc80000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff91c900000000 CR3: 0000000006316000 CR4: 00000000000006e0
-Call Trace:
- <TASK>
- __find_event_file+0x55/0x90
- action_create+0x76c/0x1060
- event_hist_trigger_parse+0x146d/0x2060
- ? event_trigger_write+0x31/0xd0
- trigger_process_regex+0xbb/0x110
- event_trigger_write+0x6b/0xd0
- vfs_write+0xc8/0x3e0
- ? alloc_fd+0xc0/0x160
- ? preempt_count_add+0x4d/0xa0
- ? preempt_count_add+0x70/0xa0
- ksys_write+0x5f/0xe0
- do_syscall_64+0x3b/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f1d1d0cf077
-Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e
-fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00
-f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74
-RSP: 002b:00007ffcebb0e568 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 0000000000000143 RCX: 00007f1d1d0cf077
-RDX: 0000000000000143 RSI: 00005639265aa7e0 RDI: 0000000000000001
-RBP: 00005639265aa7e0 R08: 000000000000000a R09: 0000000000000142
-R10: 000056392639c017 R11: 0000000000000246 R12: 0000000000000143
-R13: 00007f1d1d1ae6a0 R14: 00007f1d1d1aa4a0 R15: 00007f1d1d1a98a0
- </TASK>
-Modules linked in:
-CR2: ffff91c900000000
----[ end trace 0000000000000000 ]---
-RIP: 0010:strcmp+0xc/0x30
-Code: 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee
-c3 cc cc cc cc 0f 1f 00 31 c0 eb 08 48 83 c0 01 84 d2 74 13 <0f> b6 14
-07 3a 14 06 74 ef 19 c0 83 c8 01 c3 cc cc cc cc 31 c3
-RSP: 0018:ffff9b3b00f53c48 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffffffffba958a68 RCX: 0000000000000000
-RDX: 0000000000000010 RSI: ffff91c943d33a90 RDI: ffff91c900000000
-RBP: ffff91c900000000 R08: 00000018d604b529 R09: 0000000000000000
-R10: ffff91c9483eddb1 R11: ffff91ca483eddab R12: ffff91c946171580
-R13: ffff91c9479f0538 R14: ffff91c9457c2848 R15: ffff91c9479f0538
-FS:  00007f1d1cfbe740(0000) GS:ffff91c9bdc80000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff91c900000000 CR3: 0000000006316000 CR4: 00000000000006e0
-
-Link: https://lore.kernel.org/linux-trace-kernel/20221207035143.2278781-1-zhengyejian1@huawei.com
-
-Cc: <mhiramat@kernel.org>
-Cc: <zanussi@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: "x86@kernel.org" <x86@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Ingo Molnar <mingo@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: d380dcde9a07 ("tracing: Fix now invalid var_ref_vals assumption in trace action")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Fixes: 768ae4406a5c ("x86/ftrace: Use text_poke()")
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/kernel/ftrace.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -588,7 +588,7 @@ struct action_data {
- 	 * event param, and is passed to the synthetic event
- 	 * invocation.
- 	 */
--	unsigned int		var_ref_idx[TRACING_MAP_VARS_MAX];
-+	unsigned int		var_ref_idx[SYNTH_FIELDS_MAX];
- 	struct synth_event	*synth_event;
- 	bool			use_trace_keyword;
- 	char			*synth_event_name;
-@@ -2150,7 +2150,9 @@ static struct hist_field *create_var_ref
- 			return ref_field;
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -217,7 +217,9 @@ void ftrace_replace_code(int enable)
+ 
+ 		ret = ftrace_verify_code(rec->ip, old);
+ 		if (ret) {
++			ftrace_expected = old;
+ 			ftrace_bug(ret, rec);
++			ftrace_expected = NULL;
+ 			return;
  		}
  	}
--
-+	/* Sanity check to avoid out-of-bound write on 'hist_data->var_refs' */
-+	if (hist_data->n_var_refs >= TRACING_MAP_VARS_MAX)
-+		return NULL;
- 	ref_field = create_hist_field(var_field->hist_data, NULL, flags, NULL);
- 	if (ref_field) {
- 		if (init_var_ref(ref_field, var_field, system, event_name)) {
-@@ -3898,6 +3900,10 @@ static int trace_action_create(struct hi
- 
- 	lockdep_assert_held(&event_mutex);
- 
-+	/* Sanity check to avoid out-of-bound write on 'data->var_ref_idx' */
-+	if (data->n_params > SYNTH_FIELDS_MAX)
-+		return -EINVAL;
-+
- 	if (data->use_trace_keyword)
- 		synth_event_name = data->synth_event_name;
- 	else
 
 
