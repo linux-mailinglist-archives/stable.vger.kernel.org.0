@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 041A065D852
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:14:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6226865D8AA
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:17:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239866AbjADQNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:13:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34280 "EHLO
+        id S235259AbjADQRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:17:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239876AbjADQMy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:54 -0500
+        with ESMTP id S239941AbjADQQi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:16:38 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A268E3F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A99E81C10D
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:16:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC2A8617A0
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5A67C433EF;
-        Wed,  4 Jan 2023 16:12:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49877617A8
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:16:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55B07C433D2;
+        Wed,  4 Jan 2023 16:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848772;
-        bh=dDJYnmAudk12nIt6HSKQqvvnhNuuMKTHRYY+o5qb4ME=;
+        s=korg; t=1672848994;
+        bh=e7oN45J6Bdw4SwilEHA4osAZtrTVi4GDuRXrTySbeAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ssvu4hzE10h+RPlKBb09IrkeAknf1X0m1IQ6t5MIpMrytdVzD0ebfv0VfReNwfUi9
-         OqzZFn2UCCCwtSTqJDPfiECcE2ekKK3deVegsPogiuovqjmzg2kpTTLuI6gLmzQwGp
-         lCQIN7voXJbRgABwkpnxCFWwn/Ew3YffQ0F8z8ig=
+        b=acTbcEgOVE5kEYdgNYchqwTOlJUbIsfMMlOnQV/obAcXtcGsntkXc/PtHF6stXI7e
+         A5ZV2bp7sIICiGEBw2D6Wb+wfWdyFB1srHC9tA7kBZ40Yk87/6XT0fcM16AqzW+Xcb
+         f1dh7kV5lvlcPBGUpmogleb3QI+rSEqLUKVpgBDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Maydell <peter.maydell@linaro.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 6.1 080/207] of/kexec: Fix reading 32-bit "linux,initrd-{start,end}" values
-Date:   Wed,  4 Jan 2023 17:05:38 +0100
-Message-Id: <20230104160514.478899642@linuxfoundation.org>
+        patches@lists.linux.dev, Luo Meng <luomeng12@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 6.0 048/177] dm thin: Fix UAF in run_timer_softirq()
+Date:   Wed,  4 Jan 2023 17:05:39 +0100
+Message-Id: <20230104160509.104137152@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,67 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Luo Meng <luomeng12@huawei.com>
 
-commit e553ad8d7957697385e81034bf76db3b2cb2cf27 upstream.
+commit 88430ebcbc0ec637b710b947738839848c20feff upstream.
 
-"linux,initrd-start" and "linux,initrd-end" can be 32-bit values even on
-a 64-bit platform. Ideally, the size should be based on
-'#address-cells', but that has never been enforced in the kernel's FDT
-boot parsing code (early_init_dt_check_for_initrd()). Bootloader
-behavior is known to vary. For example, kexec always writes these as
-64-bit. The result of incorrectly reading 32-bit values is most likely
-the reserved memory for the original initrd will still be reserved
-for the new kernel. The original arm64 equivalent of this code failed to
-release the initrd reserved memory in *all* cases.
+When dm_resume() and dm_destroy() are concurrent, it will
+lead to UAF, as follows:
 
-Use of_read_number() to mirror the early_init_dt_check_for_initrd()
-code.
+ BUG: KASAN: use-after-free in __run_timers+0x173/0x710
+ Write of size 8 at addr ffff88816d9490f0 by task swapper/0/0
+<snip>
+ Call Trace:
+  <IRQ>
+  dump_stack_lvl+0x73/0x9f
+  print_report.cold+0x132/0xaa2
+  _raw_spin_lock_irqsave+0xcd/0x160
+  __run_timers+0x173/0x710
+  kasan_report+0xad/0x110
+  __run_timers+0x173/0x710
+  __asan_store8+0x9c/0x140
+  __run_timers+0x173/0x710
+  call_timer_fn+0x310/0x310
+  pvclock_clocksource_read+0xfa/0x250
+  kvm_clock_read+0x2c/0x70
+  kvm_clock_get_cycles+0xd/0x20
+  ktime_get+0x5c/0x110
+  lapic_next_event+0x38/0x50
+  clockevents_program_event+0xf1/0x1e0
+  run_timer_softirq+0x49/0x90
+  __do_softirq+0x16e/0x62c
+  __irq_exit_rcu+0x1fa/0x270
+  irq_exit_rcu+0x12/0x20
+  sysvec_apic_timer_interrupt+0x8e/0xc0
 
-Fixes: b30be4dc733e ("of: Add a common kexec FDT setup function")
+One of the concurrency UAF can be shown as below:
+
+        use                                  free
+do_resume                           |
+  __find_device_hash_cell           |
+    dm_get                          |
+      atomic_inc(&md->holders)      |
+                                    | dm_destroy
+                                    |   __dm_destroy
+                                    |     if (!dm_suspended_md(md))
+                                    |     atomic_read(&md->holders)
+                                    |     msleep(1)
+  dm_resume                         |
+    __dm_resume                     |
+      dm_table_resume_targets       |
+        pool_resume                 |
+          do_waker  #add delay work |
+  dm_put                            |
+    atomic_dec(&md->holders)        |
+                                    |     dm_table_destroy
+                                    |       pool_dtr
+                                    |         __pool_dec
+                                    |           __pool_destroy
+                                    |             destroy_workqueue
+                                    |             kfree(pool) # free pool
+        time out
+__do_softirq
+  run_timer_softirq # pool has already been freed
+
+This can be easily reproduced using:
+  1. create thin-pool
+  2. dmsetup suspend pool
+  3. dmsetup resume pool
+  4. dmsetup remove_all # Concurrent with 3
+
+The root cause of this UAF bug is that dm_resume() adds timer after
+dm_destroy() skips cancelling the timer because of suspend status.
+After timeout, it will call run_timer_softirq(), however pool has
+already been freed. The concurrency UAF bug will happen.
+
+Therefore, cancelling timer again in __pool_destroy().
+
 Cc: stable@vger.kernel.org
-Reported-by: Peter Maydell <peter.maydell@linaro.org>
-Link: https://lore.kernel.org/r/20221128202440.1411895-1-robh@kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
+Fixes: 991d9fa02da0d ("dm: add thin provisioning target")
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/of/kexec.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/md/dm-thin.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/of/kexec.c
-+++ b/drivers/of/kexec.c
-@@ -281,7 +281,7 @@ void *of_kexec_alloc_and_setup_fdt(const
- 				   const char *cmdline, size_t extra_fdt_size)
- {
- 	void *fdt;
--	int ret, chosen_node;
-+	int ret, chosen_node, len;
- 	const void *prop;
- 	size_t fdt_size;
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -2889,6 +2889,8 @@ static void __pool_destroy(struct pool *
+ 	dm_bio_prison_destroy(pool->prison);
+ 	dm_kcopyd_client_destroy(pool->copier);
  
-@@ -324,19 +324,19 @@ void *of_kexec_alloc_and_setup_fdt(const
- 		goto out;
++	cancel_delayed_work_sync(&pool->waker);
++	cancel_delayed_work_sync(&pool->no_space_timeout);
+ 	if (pool->wq)
+ 		destroy_workqueue(pool->wq);
  
- 	/* Did we boot using an initrd? */
--	prop = fdt_getprop(fdt, chosen_node, "linux,initrd-start", NULL);
-+	prop = fdt_getprop(fdt, chosen_node, "linux,initrd-start", &len);
- 	if (prop) {
- 		u64 tmp_start, tmp_end, tmp_size;
- 
--		tmp_start = fdt64_to_cpu(*((const fdt64_t *) prop));
-+		tmp_start = of_read_number(prop, len / 4);
- 
--		prop = fdt_getprop(fdt, chosen_node, "linux,initrd-end", NULL);
-+		prop = fdt_getprop(fdt, chosen_node, "linux,initrd-end", &len);
- 		if (!prop) {
- 			ret = -EINVAL;
- 			goto out;
- 		}
- 
--		tmp_end = fdt64_to_cpu(*((const fdt64_t *) prop));
-+		tmp_end = of_read_number(prop, len / 4);
- 
- 		/*
- 		 * kexec reserves exact initrd size, while firmware may
 
 
