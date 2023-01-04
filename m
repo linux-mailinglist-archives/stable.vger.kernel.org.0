@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB5365D837
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41CD865D88E
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:16:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239796AbjADQMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:12:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34754 "EHLO
+        id S239917AbjADQQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:16:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240039AbjADQMG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:06 -0500
+        with ESMTP id S239924AbjADQPm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:15:42 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8761E1901F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:11:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A736542E26
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:15:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15B25B81731
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:11:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64D65C433F0;
-        Wed,  4 Jan 2023 16:11:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DB3BB81730
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:15:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E7B1C433EF;
+        Wed,  4 Jan 2023 16:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848698;
-        bh=05C+XQcVlhtnEptzUnDXxtWOZ0G2HPKZYyKqJG56lXo=;
+        s=korg; t=1672848924;
+        bh=mGSh9eD/uBxDhYwTsygjqT70qM2KkKgmt1JdTkw1AzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OyDSlN4VLUIGi4XcV2xPBHmvMTPEglg5OU1xu+DuYcX60NaE7pr9gLtIBEk+eTnyX
-         N3EQrjvRTDVB/U0MjXhmn+cFkNU3i9ch5LxU3Br/3ZK+ycO1povCrpyDYXG9kx8xRm
-         kSu6QLstzdU1dGTBzAWkGPuDMFBbfCdOCy/4K9ek=
+        b=Cdv0MH3atn3bFBYNTGTwkjAfLA8Tllx0kjolYzInmgd4j9o0WdkYgJFOMRsZzDr+p
+         yi/ujE6q0sLqTIBM3Sl93tPCMg07vyunAMM4+UkZS59v6hLsGxEt5FlAE20JbiM/tl
+         owpWwxLAMZ1vaZ+4RT0DhiY3WmorF+VxUtMw66NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 6.1 068/207] dm thin: Use last transactions pmd->root when commit failed
+        patches@lists.linux.dev, Yonghong Song <yhs@fb.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 035/177] bpf: Resolve fext program type when checking map compatibility
 Date:   Wed,  4 Jan 2023 17:05:26 +0100
-Message-Id: <20230104160514.090617891@linuxfoundation.org>
+Message-Id: <20230104160508.725899862@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-References: <20230104160511.905925875@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+References: <20230104160507.635888536@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-commit 7991dbff6849f67e823b7cc0c15e5a90b0549b9f upstream.
+[ Upstream commit 1c123c567fb138ebd187480b7fc0610fcb0851f5 ]
 
-Recently we found a softlock up problem in dm thin pool btree lookup
-code due to corrupted metadata:
+The bpf_prog_map_compatible() check makes sure that BPF program types are
+not mixed inside BPF map types that can contain programs (tail call maps,
+cpumaps and devmaps). It does this by setting the fields of the map->owner
+struct to the values of the first program being checked against, and
+rejecting any subsequent programs if the values don't match.
 
- Kernel panic - not syncing: softlockup: hung tasks
- CPU: 7 PID: 2669225 Comm: kworker/u16:3
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
- Workqueue: dm-thin do_worker [dm_thin_pool]
- Call Trace:
-   <IRQ>
-   dump_stack+0x9c/0xd3
-   panic+0x35d/0x6b9
-   watchdog_timer_fn.cold+0x16/0x25
-   __run_hrtimer+0xa2/0x2d0
-   </IRQ>
-   RIP: 0010:__relink_lru+0x102/0x220 [dm_bufio]
-   __bufio_new+0x11f/0x4f0 [dm_bufio]
-   new_read+0xa3/0x1e0 [dm_bufio]
-   dm_bm_read_lock+0x33/0xd0 [dm_persistent_data]
-   ro_step+0x63/0x100 [dm_persistent_data]
-   btree_lookup_raw.constprop.0+0x44/0x220 [dm_persistent_data]
-   dm_btree_lookup+0x16f/0x210 [dm_persistent_data]
-   dm_thin_find_block+0x12c/0x210 [dm_thin_pool]
-   __process_bio_read_only+0xc5/0x400 [dm_thin_pool]
-   process_thin_deferred_bios+0x1a4/0x4a0 [dm_thin_pool]
-   process_one_work+0x3c5/0x730
+One of the values being set in the map owner struct is the program type,
+and since the code did not resolve the prog type for fext programs, the map
+owner type would be set to PROG_TYPE_EXT and subsequent loading of programs
+of the target type into the map would fail.
 
-Following process may generate a broken btree mixed with fresh and
-stale btree nodes, which could get dm thin trapped in an infinite loop
-while looking up data block:
- Transaction 1: pmd->root = A, A->B->C   // One path in btree
-                pmd->root = X, X->Y->Z   // Copy-up
- Transaction 2: X,Z is updated on disk, Y write failed.
-                // Commit failed, dm thin becomes read-only.
-                process_bio_read_only
-		 dm_thin_find_block
-		  __find_block
-		   dm_btree_lookup(pmd->root)
-The pmd->root points to a broken btree, Y may contain stale node
-pointing to any block, for example X, which gets dm thin trapped into
-a dead loop while looking up Z.
+This bug is seen in particular for XDP programs that are loaded as
+PROG_TYPE_EXT using libxdp; these cannot insert programs into devmaps and
+cpumaps because the check fails as described above.
 
-Fix this by setting pmd->root in __open_metadata(), so that dm thin
-will use the last transaction's pmd->root if commit failed.
+Fix the bug by resolving the fext program type to its target program type
+as elsewhere in the verifier.
 
-Fetch a reproducer in [Link].
+v3:
+- Add Yonghong's ACK
 
-Linke: https://bugzilla.kernel.org/show_bug.cgi?id=216790
-Cc: stable@vger.kernel.org
-Fixes: 991d9fa02da0 ("dm: add thin provisioning target")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Acked-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f45d5b6ce2e8 ("bpf: generalise tail call map compatibility check")
+Acked-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20221214230254.790066-1-toke@redhat.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-thin-metadata.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ include/linux/bpf_verifier.h | 2 +-
+ kernel/bpf/core.c            | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -724,6 +724,15 @@ static int __open_metadata(struct dm_poo
- 		goto bad_cleanup_data_sm;
+diff --git a/include/linux/bpf_verifier.h b/include/linux/bpf_verifier.h
+index 184b957e28ad..1eac74cacc96 100644
+--- a/include/linux/bpf_verifier.h
++++ b/include/linux/bpf_verifier.h
+@@ -634,7 +634,7 @@ static inline u32 type_flag(u32 type)
+ }
+ 
+ /* only use after check_attach_btf_id() */
+-static inline enum bpf_prog_type resolve_prog_type(struct bpf_prog *prog)
++static inline enum bpf_prog_type resolve_prog_type(const struct bpf_prog *prog)
+ {
+ 	return prog->type == BPF_PROG_TYPE_EXT ?
+ 		prog->aux->dst_prog->type : prog->type;
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index c4600a5781de..7d315c94b80a 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -2088,6 +2088,7 @@ static unsigned int __bpf_prog_ret0_warn(const void *ctx,
+ bool bpf_prog_map_compatible(struct bpf_map *map,
+ 			     const struct bpf_prog *fp)
+ {
++	enum bpf_prog_type prog_type = resolve_prog_type(fp);
+ 	bool ret;
+ 
+ 	if (fp->kprobe_override)
+@@ -2098,12 +2099,12 @@ bool bpf_prog_map_compatible(struct bpf_map *map,
+ 		/* There's no owner yet where we could check for
+ 		 * compatibility.
+ 		 */
+-		map->owner.type  = fp->type;
++		map->owner.type  = prog_type;
+ 		map->owner.jited = fp->jited;
+ 		map->owner.xdp_has_frags = fp->aux->xdp_has_frags;
+ 		ret = true;
+ 	} else {
+-		ret = map->owner.type  == fp->type &&
++		ret = map->owner.type  == prog_type &&
+ 		      map->owner.jited == fp->jited &&
+ 		      map->owner.xdp_has_frags == fp->aux->xdp_has_frags;
  	}
- 
-+	/*
-+	 * For pool metadata opening process, root setting is redundant
-+	 * because it will be set again in __begin_transaction(). But dm
-+	 * pool aborting process really needs to get last transaction's
-+	 * root to avoid accessing broken btree.
-+	 */
-+	pmd->root = le64_to_cpu(disk_super->data_mapping_root);
-+	pmd->details_root = le64_to_cpu(disk_super->device_details_root);
-+
- 	__setup_btree_details(pmd);
- 	dm_bm_unlock(sblock);
- 
+-- 
+2.35.1
+
 
 
