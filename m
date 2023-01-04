@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA43D65D8E5
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:19:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E81465D8E8
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:19:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239959AbjADQTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:19:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42870 "EHLO
+        id S239974AbjADQTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:19:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239961AbjADQTX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 357445FBB
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:23 -0800 (PST)
+        with ESMTP id S239963AbjADQTf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:19:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8BEA3E0C9
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:19:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C027B6177F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE60C433EF;
-        Wed,  4 Jan 2023 16:19:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7B8DB81731
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:19:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2AFAC433EF;
+        Wed,  4 Jan 2023 16:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849162;
-        bh=4x9zNj55MCuC4oCyBfGV0ldAKg1d0aX/GpzQV7yNcsM=;
+        s=korg; t=1672849171;
+        bh=sDwQr0Wn1l01rcLgMrwtjowdjVfEvBNikKRTBJ+29/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IouhJwZJuVXO0zJREiKIumhe9WEFpgQjVRQdBHw5IweJ/yM8HSnlskoyw2c1XUvtx
-         eoxPvFoiR7u5YBPPTzdkdWNE2mxpoB8OqyWryf2GhAtOfQLSjmFI6LQoY0LbRBYwFi
-         mXtezg1QYqG2ybjfJPPo+luJIORsdst2AlDXlDnM=
+        b=jUbcQXaGHmFvmQM2fnIf9zBXHSN1iA5AACWToKyrqe5r2Evk4MHdka6IuuP2JsK3G
+         rj/GRBd+QZoSZUueVAKSljauYGa2mZLpgSYxM5iWFomDE/7HBaCaVXO8vKyCqs44JA
+         sw6fw88d5Y4tJcHhGkEGeSlqlA3f0Uc9scYi8tVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Macpaul Lin <macpaul.lin@mediatek.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Subject: [PATCH 6.0 076/177] arm64: dts: mediatek: mt8195-demo: fix the memory size of node secmon
-Date:   Wed,  4 Jan 2023 17:06:07 +0100
-Message-Id: <20230104160509.956320358@linuxfoundation.org>
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 6.0 077/177] ARM: 9256/1: NWFPE: avoid compiler-generated __aeabi_uldivmod
+Date:   Wed,  4 Jan 2023 17:06:08 +0100
+Message-Id: <20230104160509.986865338@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -55,60 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Macpaul Lin <macpaul.lin@mediatek.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit e4a4175201014c0222f6bab1895a17b3d1b92f08 upstream.
+commit 3220022038b9a3845eea762af85f1c5694b9f861 upstream.
 
-The size of device tree node secmon (bl31_secmon_reserved) was
-incorrect. It should be increased to 2MiB (0x200000).
+clang-15's ability to elide loops completely became more aggressive when
+it can deduce how a variable is being updated in a loop. Counting down
+one variable by an increment of another can be replaced by a modulo
+operation.
 
-The origin setting will cause some abnormal behavior due to
-trusted-firmware-a and related firmware didn't load correctly.
-The incorrect behavior may vary because of different software stacks.
-For example, it will cause build error in some Yocto project because
-it will check if there was enough memory to load trusted-firmware-a
-to the reserved memory.
+For 64b variables on 32b ARM EABI targets, this can result in the
+compiler generating calls to __aeabi_uldivmod, which it does for a do
+while loop in float64_rem().
 
-When mt8195-demo.dts sent to the upstream, at that time the size of
-BL31 was small. Because supported functions and modules in BL31 are
-basic sets when the board was under early development stage.
+For the kernel, we'd generally prefer that developers not open code 64b
+division via binary / operators and instead use the more explicit
+helpers from div64.h. On arm-linux-gnuabi targets, failure to do so can
+result in linkage failures due to undefined references to
+__aeabi_uldivmod().
 
-Now BL31 includes more firmwares of coprocessors and maturer functions
-so the size has grown bigger in real applications. According to the value
-reported by customers, we think reserved 2MiB for BL31 might be enough
-for maybe the following 2 or 3 years.
+While developers can avoid open coding divisions on 64b variables, the
+compiler doesn't know that the Linux kernel has a partial implementation
+of a compiler runtime (--rtlib) to enforce this convention.
 
-Cc: stable@vger.kernel.org      # v5.19
-Fixes: 6147314aeedc ("arm64: dts: mediatek: Add device-tree for MT8195 Demo board")
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Reviewed-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221111095540.28881-1-macpaul.lin@mediatek.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+It's also undecidable for the compiler whether the code in question
+would be faster to execute the loop vs elide it and do the 64b division.
+
+While I actively avoid using the internal -mllvm command line flags, I
+think we get better code than using barrier() here, which will force
+reloads+spills in the loop for all toolchains.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1666
+
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8195-demo.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/nwfpe/Makefile |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8195-demo.dts b/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
-index 4fbd99eb496a..dec85d254838 100644
---- a/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt8195-demo.dts
-@@ -56,10 +56,10 @@ reserved-memory {
- 		#size-cells = <2>;
- 		ranges;
+--- a/arch/arm/nwfpe/Makefile
++++ b/arch/arm/nwfpe/Makefile
+@@ -11,3 +11,9 @@ nwfpe-y				+= fpa11.o fpa11_cpdo.o fpa11
+ 				   entry.o
  
--		/* 192 KiB reserved for ARM Trusted Firmware (BL31) */
-+		/* 2 MiB reserved for ARM Trusted Firmware (BL31) */
- 		bl31_secmon_reserved: secmon@54600000 {
- 			no-map;
--			reg = <0 0x54600000 0x0 0x30000>;
-+			reg = <0 0x54600000 0x0 0x200000>;
- 		};
- 
- 		/* 12 MiB reserved for OP-TEE (BL32)
--- 
-2.39.0
-
+ nwfpe-$(CONFIG_FPE_NWFPE_XP)	+= extended_cpdo.o
++
++# Try really hard to avoid generating calls to __aeabi_uldivmod() from
++# float64_rem() due to loop elision.
++ifdef CONFIG_CC_IS_CLANG
++CFLAGS_softfloat.o	+= -mllvm -replexitval=never
++endif
 
 
