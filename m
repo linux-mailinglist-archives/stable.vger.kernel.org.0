@@ -2,149 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9440A65CDEC
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 08:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37E7E65CE20
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 09:16:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230411AbjADHzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 02:55:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47420 "EHLO
+        id S231128AbjADIQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 03:16:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231176AbjADHzD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 02:55:03 -0500
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36602F68;
-        Tue,  3 Jan 2023 23:55:02 -0800 (PST)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.56])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4Nn20b1fjDz16MN5;
-        Wed,  4 Jan 2023 15:53:35 +0800 (CST)
-Received: from huawei.com (10.67.175.31) by dggpemm500024.china.huawei.com
- (7.185.36.203) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Wed, 4 Jan
- 2023 15:55:00 +0800
-From:   GUO Zihua <guozihua@huawei.com>
-To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
-        <zohar@linux.ibm.com>
-CC:     <paul@paul-moore.com>, <linux-integrity@vger.kernel.org>,
-        <luhuaxin1@huawei.com>
-Subject: [PATCH v4 3/3] ima: Handle -ESTALE returned by ima_filter_rule_match()
-Date:   Wed, 4 Jan 2023 15:52:17 +0800
-Message-ID: <20230104075217.32746-4-guozihua@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230104075217.32746-1-guozihua@huawei.com>
-References: <20230104075217.32746-1-guozihua@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.175.31]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemm500024.china.huawei.com (7.185.36.203)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230251AbjADIQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 03:16:33 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 264F6167FC
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 00:16:32 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id BF18743C1;
+        Wed,  4 Jan 2023 08:16:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1672820190; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=FLF1tG4C9Ywcys+2llBqDMcyOSkGTHUxQaQHjgJI+8M=;
+        b=zapD2kckjnA6B2CTHFW3lt+IUueYZBN0+NV+9JTXXdyj6p2dTRgpWtmgFxF3lVr7BX3dBW
+        /SpPGhIquS1qotgkdUYyJtmChX4Uw72lmeYE2IPJ1kw4ed+VBq/hdCi/w1BjiozDzBvcwJ
+        fEMc+ZDuYqweUp/UiKirXYXILZIIT0g=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1672820190;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=FLF1tG4C9Ywcys+2llBqDMcyOSkGTHUxQaQHjgJI+8M=;
+        b=ALrc19eybdlI+2fuWd/SYwapi/CpiVCZcSqVhPT5VqutdZqEnxBmvW0t9gamBlWk05q3UW
+        3ovcqSe1m+X699Cg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 95C59133D1;
+        Wed,  4 Jan 2023 08:16:30 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id aF7CI941tWNQFAAAMHmgww
+        (envelope-from <tiwai@suse.de>); Wed, 04 Jan 2023 08:16:30 +0000
+Date:   Wed, 04 Jan 2023 09:16:30 +0100
+Message-ID: <87ilhmpvdt.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Michael Ralston <michael@ralston.id.au>
+Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>
+Subject: Re: USB-Audio regression on behringer UMC404HD
+In-Reply-To: <CAC2975Jw63j26DhvDjiLc7dXwaRz=eK0aWNuErQ8dkEn_Gemjg@mail.gmail.com>
+References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
+        <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info>
+        <87zgb0q7x4.wl-tiwai@suse.de>
+        <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com>
+        <87sfgrrb5f.wl-tiwai@suse.de>
+        <CAC2975+cUqiFC0LO-D-fi0swH+x=_FMuG+==mhg6HH4pc_YDRA@mail.gmail.com>
+        <87bknfr6rd.wl-tiwai@suse.de>
+        <CAC2975+CP0WKmXouX_8TffT1+VpU3EuOzyGHMv+VsAOBjCyhnA@mail.gmail.com>
+        <878rijr6dz.wl-tiwai@suse.de>
+        <CAC2975+Ybz2-jyJAwAUEu5S1XKfp0B-p4s-gAsMPfZdD61uNfQ@mail.gmail.com>
+        <87zgazppuc.wl-tiwai@suse.de>
+        <CAC2975+476CHDL3YM=uExHu96UB2rodAng9PVYHX+vGnSCppGA@mail.gmail.com>
+        <CAC2975Ja-o6-qCWv2bUkt3ps7BcKvb96rao_De4SGVW1v8uE=A@mail.gmail.com>
+        <CAC2975KFqvTitbJHJZ6a4Tuxsq=nPGvW3vjAAtkQxw=sBgeDqw@mail.gmail.com>
+        <CAC2975Jw63j26DhvDjiLc7dXwaRz=eK0aWNuErQ8dkEn_Gemjg@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c7423dbdbc9ecef7fff5239d144cad4b9887f4de ]
+On Tue, 03 Jan 2023 20:29:54 +0100,
+Michael Ralston wrote:
+> 
+> On Wed, 4 Jan 2023 at 06:27, Michael Ralston <michael@ralston.id.au> wrote:
+> >
+> > On Wed, 4 Jan 2023 at 06:24, Michael Ralston <michael@ralston.id.au> wrote:
+> > >
+> > > I did a diff between the sound/usb directory for 6.0.16 and 6.1.2 and
+> > > reverted that entire directory.
+> > >
+> > > It is working with that change, so there must be something else.
+> > >
+> >
+> > Logs below...
+> >
+> 
+> This line from the logs stands out to me as different. Could this mean anything?
+> 
+> > Jan 04 06:20:27 leatherback kernel: usb 1-4: clock source 41 is not
+> > valid, cannot use
 
-IMA relies on the blocking LSM policy notifier callback to update the
-LSM based IMA policy rules.
+This might be due to the commit
+ac5e2fb425e1121ceef2b9d1b3ffccc195d55707
+  ALSA: usb-audio: Drop superfluous interface setup at parsing
 
-When SELinux update its policies, IMA would be notified and starts
-updating all its lsm rules one-by-one. During this time, -ESTALE would
-be returned by ima_filter_rule_match() if it is called with a LSM rule
-that has not yet been updated. In ima_match_rules(), -ESTALE is not
-handled, and the LSM rule is considered a match, causing extra files
-to be measured by IMA.
+I believe it's time to check which commit broke things.
+Assume that the bug is USB audio core changes, the following 8 commits
+are relevant:
 
-Fix it by re-initializing a temporary rule if -ESTALE is returned by
-ima_filter_rule_match(). The origin rule in the rule list would be
-updated by the LSM policy notifier callback.
+1045f5f1ff0751423aeb65648e5e1abd7a7a8672
+9355b60e401d825590d37f04ea873c58efe9b7bf
+a74f8d0aa902ca494676b79226e0b5a1747b81d4
+9902b303b5ade208b58f0dd38a09831813582211
+9a737e7f8b371e97eb649904276407cee2c9cf30
+2be79d58645465351af5320eb14c70a94724c5ef
+ac5e2fb425e1121ceef2b9d1b3ffccc195d55707
 
-Fixes: b16942455193 ("ima: use the lsm policy update notifier")
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
----
- security/integrity/ima/ima_policy.c | 35 ++++++++++++++++++++++-------
- 1 file changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 9c891758f9a8..9d7eabe9c491 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -368,6 +368,9 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 			    enum ima_hooks func, int mask)
- {
- 	int i;
-+	bool result = false;
-+	struct ima_rule_entry *lsm_rule = rule;
-+	bool rule_reinitialized = false;
- 
- 	if ((rule->flags & IMA_FUNC) &&
- 	    (rule->func != func && func != POST_SETATTR))
-@@ -406,35 +409,51 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		int rc = 0;
- 		u32 osid;
- 
--		if (!rule->lsm[i].rule)
-+		if (!lsm_rule->lsm[i].rule)
- 			continue;
- 
-+retry:
- 		switch (i) {
- 		case LSM_OBJ_USER:
- 		case LSM_OBJ_ROLE:
- 		case LSM_OBJ_TYPE:
- 			security_inode_getsecid(inode, &osid);
- 			rc = security_filter_rule_match(osid,
--							rule->lsm[i].type,
-+							lsm_rule->lsm[i].type,
- 							Audit_equal,
--							rule->lsm[i].rule,
-+							lsm_rule->lsm[i].rule,
- 							NULL);
- 			break;
- 		case LSM_SUBJ_USER:
- 		case LSM_SUBJ_ROLE:
- 		case LSM_SUBJ_TYPE:
- 			rc = security_filter_rule_match(secid,
--							rule->lsm[i].type,
-+							lsm_rule->lsm[i].type,
- 							Audit_equal,
--							rule->lsm[i].rule,
-+							lsm_rule->lsm[i].rule,
- 							NULL);
- 		default:
- 			break;
- 		}
--		if (!rc)
--			return false;
-+
-+		if (rc == -ESTALE && !rule_reinitialized) {
-+			lsm_rule = ima_lsm_copy_rule(rule);
-+			if (lsm_rule) {
-+				rule_reinitialized = true;
-+				goto retry;
-+			}
-+		}
-+		if (!rc) {
-+			result = false;
-+			goto out;
-+		}
- 	}
--	return true;
-+	result = true;
-+
-+out:
-+	if (rule_reinitialized)
-+		ima_free_rule(lsm_rule);
-+	return result;
- }
- 
- /*
--- 
-2.17.1
+Could you try to revert from top to bottom one-by-one, and check which
+one makes things working again?  The most suspected one is
+2be79d586454 (one before the last, a big change), but who knows...
 
+
+thanks,
+
+Takashi
