@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C3DF65D7FC
+	by mail.lfdr.de (Postfix) with ESMTP id F0BDE65D7FD
 	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:10:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239754AbjADQKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:10:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59220 "EHLO
+        id S239794AbjADQKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:10:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239823AbjADQJf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:09:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ECDF3C388
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:15 -0800 (PST)
+        with ESMTP id S239878AbjADQJi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:09:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A992F4084E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DFD9C61758
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:09:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED3BC433F1;
-        Wed,  4 Jan 2023 16:09:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 631FEB8172B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:09:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2191C433F1;
+        Wed,  4 Jan 2023 16:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848554;
-        bh=QU6E9a04N1en8MkogseUdwddJuUBtrw3ip3ycxGEiPs=;
+        s=korg; t=1672848557;
+        bh=9THyeVMmn9Eb0v39jJwlsHS7eBvvslFNY0lAvEkFHM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w/DGanc7FOTSnKK6J8TJK4/GslNvagLQb0hx1XDwLtDoZNrjh/gYc7ind9mXyJOcr
-         2Hg+G9BK6RHIl0/wBMYY7see/1wuUyWkvOGSlbycFUWPJSGyngxc2t5kcW2Bg5YNus
-         fV3gIaRnj1iw5rarlTHLot0yw9sbVWhSKrom0kxw=
+        b=QTW7khbpeb+wR6nccB/mWfbs5oS1/cTwY6FivnVPKWLnA1IZcs5yfT9g0bAfzrcfH
+         RsckSNgh8l1gVZE6sF1yE1aUeXYkv84odezmaXUnRqZ7F52yS4DIkT3wNS1VyZg/k0
+         ezMvYloz6kgASEd5h6RmdYYtW93LFmrTWFw3nddA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Hovold <johan+linaro@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Subject: [PATCH 6.1 005/207] arm64: dts: qcom: sc8280xp: fix UFS DMA coherency
-Date:   Wed,  4 Jan 2023 17:04:23 +0100
-Message-Id: <20230104160512.088705217@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 6.1 006/207] arm64: Prohibit instrumentation on arch_stack_walk()
+Date:   Wed,  4 Jan 2023 17:04:24 +0100
+Message-Id: <20230104160512.118459793@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
 References: <20230104160511.905925875@linuxfoundation.org>
@@ -54,42 +54,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-commit 0953777640354dc459a22369eea488603d225dd9 upstream.
+commit 0fbcd8abf3375052cc7627cc53aba6f2eb189fbb upstream.
 
-The SC8280XP UFS controllers are cache coherent and must be marked as
-such in the devicetree to avoid potential data corruption.
+Mark arch_stack_walk() as noinstr instead of notrace and inline functions
+called from arch_stack_walk() as __always_inline so that user does not
+put any instrumentations on it, because this function can be used from
+return_address() which is used by lockdep.
 
-Fixes: 152d1faf1e2f ("arm64: dts: qcom: add SC8280XP platform")
-Cc: stable@vger.kernel.org      # 6.0
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221205100837.29212-3-johan+linaro@kernel.org
+Without this, if the kernel built with CONFIG_LOCKDEP=y, just probing
+arch_stack_walk() via <tracefs>/kprobe_events will crash the kernel on
+arm64.
+
+ # echo p arch_stack_walk >> ${TRACEFS}/kprobe_events
+ # echo 1 > ${TRACEFS}/events/kprobes/enable
+  kprobes: Failed to recover from reentered kprobes.
+  kprobes: Dump kprobe:
+  .symbol_name = arch_stack_walk, .offset = 0, .addr = arch_stack_walk+0x0/0x1c0
+  ------------[ cut here ]------------
+  kernel BUG at arch/arm64/kernel/probes/kprobes.c:241!
+  kprobes: Failed to recover from reentered kprobes.
+  kprobes: Dump kprobe:
+  .symbol_name = arch_stack_walk, .offset = 0, .addr = arch_stack_walk+0x0/0x1c0
+  ------------[ cut here ]------------
+  kernel BUG at arch/arm64/kernel/probes/kprobes.c:241!
+  PREEMPT SMP
+  Modules linked in:
+  CPU: 0 PID: 17 Comm: migration/0 Tainted: G                 N 6.1.0-rc5+ #6
+  Hardware name: linux,dummy-virt (DT)
+  Stopper: 0x0 <- 0x0
+  pstate: 600003c5 (nZCv DAIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+  pc : kprobe_breakpoint_handler+0x178/0x17c
+  lr : kprobe_breakpoint_handler+0x178/0x17c
+  sp : ffff8000080d3090
+  x29: ffff8000080d3090 x28: ffff0df5845798c0 x27: ffffc4f59057a774
+  x26: ffff0df5ffbba770 x25: ffff0df58f420f18 x24: ffff49006f641000
+  x23: ffffc4f590579768 x22: ffff0df58f420f18 x21: ffff8000080d31c0
+  x20: ffffc4f590579768 x19: ffffc4f590579770 x18: 0000000000000006
+  x17: 5f6b636174735f68 x16: 637261203d207264 x15: 64612e202c30203d
+  x14: 2074657366666f2e x13: 30633178302f3078 x12: 302b6b6c61775f6b
+  x11: 636174735f686372 x10: ffffc4f590dc5bd8 x9 : ffffc4f58eb31958
+  x8 : 00000000ffffefff x7 : ffffc4f590dc5bd8 x6 : 80000000fffff000
+  x5 : 000000000000bff4 x4 : 0000000000000000 x3 : 0000000000000000
+  x2 : 0000000000000000 x1 : ffff0df5845798c0 x0 : 0000000000000064
+  Call trace:
+  kprobes: Failed to recover from reentered kprobes.
+  kprobes: Dump kprobe:
+  .symbol_name = arch_stack_walk, .offset = 0, .addr = arch_stack_walk+0x0/0x1c0
+  ------------[ cut here ]------------
+  kernel BUG at arch/arm64/kernel/probes/kprobes.c:241!
+
+Fixes: 39ef362d2d45 ("arm64: Make return_address() use arch_stack_walk()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/166994751368.439920.3236636557520824664.stgit@devnote3
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/sc8280xp.dtsi |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/kernel/stacktrace.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc8280xp.dtsi
-@@ -855,6 +855,7 @@
- 			required-opps = <&rpmhpd_opp_nom>;
+--- a/arch/arm64/kernel/stacktrace.c
++++ b/arch/arm64/kernel/stacktrace.c
+@@ -23,8 +23,8 @@
+  *
+  * The regs must be on a stack currently owned by the calling task.
+  */
+-static inline void unwind_init_from_regs(struct unwind_state *state,
+-					 struct pt_regs *regs)
++static __always_inline void unwind_init_from_regs(struct unwind_state *state,
++						  struct pt_regs *regs)
+ {
+ 	unwind_init_common(state, current);
  
- 			iommus = <&apps_smmu 0xe0 0x0>;
-+			dma-coherent;
+@@ -58,8 +58,8 @@ static __always_inline void unwind_init_
+  * duration of the unwind, or the unwind will be bogus. It is never valid to
+  * call this for the current task.
+  */
+-static inline void unwind_init_from_task(struct unwind_state *state,
+-					 struct task_struct *task)
++static __always_inline void unwind_init_from_task(struct unwind_state *state,
++						  struct task_struct *task)
+ {
+ 	unwind_init_common(state, task);
  
- 			clocks = <&gcc GCC_UFS_PHY_AXI_CLK>,
- 				 <&gcc GCC_AGGRE_UFS_PHY_AXI_CLK>,
-@@ -923,6 +924,7 @@
- 			power-domains = <&gcc UFS_CARD_GDSC>;
+@@ -186,7 +186,7 @@ void show_stack(struct task_struct *tsk,
+ 			: stackinfo_get_unknown();		\
+ 	})
  
- 			iommus = <&apps_smmu 0x4a0 0x0>;
-+			dma-coherent;
- 
- 			clocks = <&gcc GCC_UFS_CARD_AXI_CLK>,
- 				 <&gcc GCC_AGGRE_UFS_CARD_AXI_CLK>,
+-noinline notrace void arch_stack_walk(stack_trace_consume_fn consume_entry,
++noinline noinstr void arch_stack_walk(stack_trace_consume_fn consume_entry,
+ 			      void *cookie, struct task_struct *task,
+ 			      struct pt_regs *regs)
+ {
 
 
