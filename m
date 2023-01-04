@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4159D65D84A
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3F165D84D
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:13:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239697AbjADQN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:13:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34282 "EHLO
+        id S239688AbjADQN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:13:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239798AbjADQMY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B34FB845
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:22 -0800 (PST)
+        with ESMTP id S239815AbjADQMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:12:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA0F3C74A
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:12:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B51F6179B
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36193C433F0;
-        Wed,  4 Jan 2023 16:12:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71D406179B
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:12:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8307FC433F0;
+        Wed,  4 Jan 2023 16:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672848741;
-        bh=4nrrJXL858AwMG/Or6LI0YK+dxhHAV2ABZYLuxgQFPE=;
+        s=korg; t=1672848750;
+        bh=J3fX5e4y2THab1EuQpPnMsa/0H8Leg+fhzKfUtBMB5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J9A+y4Hr4DKm4QPhjTCsUT4on0MxcKpgLdygpMoWqdlHV2d8jiiZGSnjmEPtD2qqd
-         Gn92lAGNrYVra6I+2EPzhcFzMdLY1I9gjcouhF3S6gXtQDa605NUsJ/BWTdisdbkMr
-         t0GRk3En9MvDvQOsI4Iedi+0yFgEyHtNZcRdl+ig=
+        b=CLF/5zROMXUgJWUhwxqe0xJiRHW57gh86ULYrkD8ycEF6cnv1FdhaMAjYRDgafPdn
+         YOjl3dyjv4xA4g3ZVYYXTGkrPHVyvSa5gCcgyFWIBf7cU0/YABDrjl1+GPKT/fDvIn
+         ay8CyXNy7gnLJk4feu3OD0PndEd3Hhm1fXndI2W0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Subject: [PATCH 6.0 007/177] soc: qcom: Select REMAP_MMIO for ICC_BWMON driver
-Date:   Wed,  4 Jan 2023 17:04:58 +0100
-Message-Id: <20230104160507.878742315@linuxfoundation.org>
+        "John Warthog9 Hawley (VMware)" <warthog9@eaglescrag.net>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 6.0 008/177] kest.pl: Fix grub2 menu handling for rebooting
+Date:   Wed,  4 Jan 2023 17:04:59 +0100
+Message-Id: <20230104160507.910371956@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
 References: <20230104160507.635888536@linuxfoundation.org>
@@ -54,44 +53,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-commit a84160fbf4f2c8c5ffa588e19ea8f92eabd7ad17 upstream.
+commit 26df05a8c1420ad3de314fdd407e7fc2058cc7aa upstream.
 
-ICC_BWMON driver uses REGMAP_MMIO for accessing the hardware registers.
-So select the dependency in Kconfig. Without this, there will be errors
-while building the driver with COMPILE_TEST only:
+grub2 has submenus where to use grub-reboot, it requires:
 
-ERROR: modpost: "__devm_regmap_init_mmio_clk" [drivers/soc/qcom/icc-bwmon.ko] undefined!
-make[1]: *** [scripts/Makefile.modpost:126: Module.symvers] Error 1
-make: *** [Makefile:1944: modpost] Error 2
+  grub-reboot X>Y
 
-Cc: <stable@vger.kernel.org> # 6.0
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Fixes: b9c2ae6cac40 ("soc: qcom: icc-bwmon: Add bandwidth monitoring driver")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221129072022.41962-1-manivannan.sadhasivam@linaro.org
+where X is the main index and Y is the submenu. Thus if you have:
+
+menuentry 'Debian GNU/Linux' --class debian --class gnu-linux ...
+	[...]
+}
+submenu 'Advanced options for Debian GNU/Linux' $menuentry_id_option ...
+        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64' --class debian --class gnu-linux ...
+                [...]
+        }
+        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64 (recovery mode)' --class debian --class gnu-linux ...
+		[...]
+        }
+        menuentry 'Debian GNU/Linux, with Linux test' --class debian --class gnu-linux ...
+                [...]
+        }
+
+And wanted to boot to the "Linux test" kernel, you need to run:
+
+ # grub-reboot 1>2
+
+As 1 is the second top menu (the submenu) and 2 is the third of the sub
+menu entries.
+
+Have the grub.cfg parsing for grub2 handle such cases.
+
+Cc: stable@vger.kernel.org
+Fixes: a15ba91361d46 ("ktest: Add support for grub2")
+Reviewed-by: John 'Warthog9' Hawley (VMware) <warthog9@eaglescrag.net>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/qcom/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/ktest/ktest.pl |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
-index a6164b2d7b25..ae504c43d9e7 100644
---- a/drivers/soc/qcom/Kconfig
-+++ b/drivers/soc/qcom/Kconfig
-@@ -237,6 +237,7 @@ config QCOM_ICC_BWMON
- 	tristate "QCOM Interconnect Bandwidth Monitor driver"
- 	depends on ARCH_QCOM || COMPILE_TEST
- 	select PM_OPP
-+	select REGMAP_MMIO
- 	help
- 	  Sets up driver monitoring bandwidth on various interconnects and
- 	  based on that voting for interconnect bandwidth, adjusting their
--- 
-2.39.0
-
+--- a/tools/testing/ktest/ktest.pl
++++ b/tools/testing/ktest/ktest.pl
+@@ -1963,7 +1963,7 @@ sub run_scp_mod {
+ 
+ sub _get_grub_index {
+ 
+-    my ($command, $target, $skip) = @_;
++    my ($command, $target, $skip, $submenu) = @_;
+ 
+     return if (defined($grub_number) && defined($last_grub_menu) &&
+ 	$last_grub_menu eq $grub_menu && defined($last_machine) &&
+@@ -1980,11 +1980,16 @@ sub _get_grub_index {
+ 
+     my $found = 0;
+ 
++    my $submenu_number = 0;
++
+     while (<IN>) {
+ 	if (/$target/) {
+ 	    $grub_number++;
+ 	    $found = 1;
+ 	    last;
++	} elsif (defined($submenu) && /$submenu/) {
++		$submenu_number++;
++		$grub_number = -1;
+ 	} elsif (/$skip/) {
+ 	    $grub_number++;
+ 	}
+@@ -1993,6 +1998,9 @@ sub _get_grub_index {
+ 
+     dodie "Could not find '$grub_menu' through $command on $machine"
+ 	if (!$found);
++    if ($submenu_number > 0) {
++	$grub_number = "$submenu_number>$grub_number";
++    }
+     doprint "$grub_number\n";
+     $last_grub_menu = $grub_menu;
+     $last_machine = $machine;
+@@ -2003,6 +2011,7 @@ sub get_grub_index {
+     my $command;
+     my $target;
+     my $skip;
++    my $submenu;
+     my $grub_menu_qt;
+ 
+     if ($reboot_type !~ /^grub/) {
+@@ -2017,8 +2026,9 @@ sub get_grub_index {
+ 	$skip = '^\s*title\s';
+     } elsif ($reboot_type eq "grub2") {
+ 	$command = "cat $grub_file";
+-	$target = '^menuentry.*' . $grub_menu_qt;
+-	$skip = '^menuentry\s|^submenu\s';
++	$target = '^\s*menuentry.*' . $grub_menu_qt;
++	$skip = '^\s*menuentry';
++	$submenu = '^\s*submenu\s';
+     } elsif ($reboot_type eq "grub2bls") {
+ 	$command = $grub_bls_get;
+ 	$target = '^title=.*' . $grub_menu_qt;
+@@ -2027,7 +2037,7 @@ sub get_grub_index {
+ 	return;
+     }
+ 
+-    _get_grub_index($command, $target, $skip);
++    _get_grub_index($command, $target, $skip, $submenu);
+ }
+ 
+ sub wait_for_input {
+@@ -2090,7 +2100,7 @@ sub reboot_to {
+     if ($reboot_type eq "grub") {
+ 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
+     } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
+-	run_ssh "$grub_reboot $grub_number";
++	run_ssh "$grub_reboot \"'$grub_number'\"";
+     } elsif ($reboot_type eq "syslinux") {
+ 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
+     } elsif (defined $reboot_script) {
 
 
