@@ -2,130 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA3E65D9C4
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:29:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBB3465D80B
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 17:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239809AbjADQ3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 11:29:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52006 "EHLO
+        id S239854AbjADQK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 11:10:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240085AbjADQ2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:28:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB80C485A1
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:27:48 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D4CBB817B0
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 16:27:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90288C433EF;
-        Wed,  4 Jan 2023 16:27:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672849666;
-        bh=A1uw5Hxj7vIDBREgQvE/zNZFncoElsjiK6WCBNxgwko=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyYxDiL0lU7pcrx8+l4ewFVjzUJlU5dZI77serJ74WqucOaTzWxNHqUFkuiVam/5E
-         eGXrBq1Fh2U3nIdXoWrbWxVsE6vvvKvhApr/e3OMzAXsUh4ZpD3fpjm+RLokwp/jBO
-         X9/K3z5pTtccFKoVd2NwOiuHNIfS9i/YaO1YvUyY=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 177/177] drm/amd/pm: correct the fan speed retrieving in PWM for some SMU13 asics
-Date:   Wed,  4 Jan 2023 17:07:48 +0100
-Message-Id: <20230104160513.051677410@linuxfoundation.org>
+        with ESMTP id S239932AbjADQJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 11:09:59 -0500
+Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8052140853
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 08:09:44 -0800 (PST)
+Received: by mail-io1-xd31.google.com with SMTP id h6so18218424iof.9
+        for <stable@vger.kernel.org>; Wed, 04 Jan 2023 08:09:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NceN64ihHFquTuLGhD5Npe0nXgiqifj2CJk94Zzl6z0=;
+        b=NociWIKXuyQ8xwB3tKzZisCoZQOrmK59v7IkBn4zBEMkLQG2X/rUm5T0yboMfW+26m
+         DOIHblpZ2TGhKukqMJKeHqtvOCQEjFnBhD6xOGlgKv7PTA02GS/JarbtVL6svrDodEUM
+         jWLhF4FLV9kT4LreSgP19QhkyOfba18OCN8p+KlQKRBUq3BQC16ojY/XObu4tFrOL+NK
+         e4K79iWSCpvNx54wP/vfqGLgIWtVARG1n52G0IK3vrAXfHKR6ebkyr0nsNhocPYI7sXQ
+         KSFlN5uNmvIS3ieEF3fcDWedMKHnYAm6kBKnFtXJfBG+hMbYtSS+Egrv4HZNYEtRi+gX
+         LKZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=NceN64ihHFquTuLGhD5Npe0nXgiqifj2CJk94Zzl6z0=;
+        b=b839nwEN+TMoTF/MF0sq6G6VW0GYtyTTDoIJkXa16RWGjvlIUapTeH6a4Jhcurroj2
+         vlhhT79ceBy7EHkDZ9u2YQ47zqM+DGl3hU80TGlu1zDaRK3jx8CaKwRMeExHyNxfzw8K
+         +RpL0BZWFmk6IgmHXyhaugRBAio5rW92GKl+K+MHeEqZLXDNcbXWfKsampXqh6RT0RM2
+         FyUkuuQZ60j4iu8UZ595rrtd1Xud+302ecyIQSvf0ckMLsO2vTDtqI7pcVynzM68g/6a
+         P59HiurBPDTbZiz2Bp7SykLUwM3/7blHiSDFkxbOEObCd5XYMOnq1MCucorKYSQYhNBW
+         sslA==
+X-Gm-Message-State: AFqh2kr8IUWa7d7Jhh1L0FsODJ5WOjT22ujgCssSKPB7ag9yG9JrEQ0C
+        pzsnkVBnIeygpZB6ijY0tkVftru1RTgAu+eR
+X-Google-Smtp-Source: AMrXdXuAbUuaXYHlaQnr1bXlr6i2H3IR4Kv8gJ4kOtCPepAxuAwlJOy6+WPgC7DcPdBWChQJ8HSBJw==
+X-Received: by 2002:a6b:e812:0:b0:6f3:fed4:aa36 with SMTP id f18-20020a6be812000000b006f3fed4aa36mr5079162ioh.1.1672848583815;
+        Wed, 04 Jan 2023 08:09:43 -0800 (PST)
+Received: from m1max.localdomain ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id t24-20020a02b198000000b0038a41eb1ba3sm10955243jah.177.2023.01.04.08.09.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Jan 2023 08:09:43 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     linux-block@vger.kernel.org
+Cc:     mikelley@microsoft.com, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org
+Subject: [PATCH 2/2] block: don't allow splitting of a REQ_NOWAIT bio
+Date:   Wed,  4 Jan 2023 09:09:38 -0700
+Message-Id: <20230104160938.62636-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
-References: <20230104160507.635888536@linuxfoundation.org>
-User-Agent: quilt/0.67
+In-Reply-To: <20230104160938.62636-1-axboe@kernel.dk>
+References: <20230104160938.62636-1-axboe@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+If we split a bio marked with REQ_NOWAIT, then we can trigger spurious
+EAGAIN if constituent parts of that split bio end up failing request
+allocations. Parts will complete just fine, but just a single failure
+in one of the chained bios will yield an EAGAIN final result for the
+parent bio.
 
-commit e73fc71e8f015d61f3adca7659cb209fd5117aa5 upstream.
+Return EAGAIN early if we end up needing to split such a bio, which
+allows for saner recovery handling.
 
-For SMU 13.0.0 and 13.0.7, the output from PMFW is in percent. Driver
-need to convert that into correct PMW(255) based.
-
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.0, 6.1
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org # 5.15+
+Link: https://github.com/axboe/liburing/issues/766
+Reported-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c |   17 ++++++++++++++---
- drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c |   17 ++++++++++++++---
- 2 files changed, 28 insertions(+), 6 deletions(-)
+ block/blk-merge.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-@@ -1417,12 +1417,23 @@ out:
- static int smu_v13_0_0_get_fan_speed_pwm(struct smu_context *smu,
- 					 uint32_t *speed)
- {
-+	int ret;
-+
- 	if (!speed)
- 		return -EINVAL;
- 
--	return smu_v13_0_0_get_smu_metrics_data(smu,
--						METRICS_CURR_FANPWM,
--						speed);
-+	ret = smu_v13_0_0_get_smu_metrics_data(smu,
-+					       METRICS_CURR_FANPWM,
-+					       speed);
-+	if (ret) {
-+		dev_err(smu->adev->dev, "Failed to get fan speed(PWM)!");
-+		return ret;
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index 071c5f8cf0cf..b7c193d67185 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -309,6 +309,16 @@ static struct bio *bio_split_rw(struct bio *bio, const struct queue_limits *lim,
+ 	*segs = nsegs;
+ 	return NULL;
+ split:
++	/*
++	 * We can't sanely support splitting for a REQ_NOWAIT bio. End it
++	 * with EAGAIN if splitting is required and return an error pointer.
++	 */
++	if (bio->bi_opf & REQ_NOWAIT) {
++		bio->bi_status = BLK_STS_AGAIN;
++		bio_endio(bio);
++		return ERR_PTR(-EAGAIN);
 +	}
 +
-+	/* Convert the PMFW output which is in percent to pwm(255) based */
-+	*speed = MIN(*speed * 255 / 100, 255);
-+
-+	return 0;
- }
+ 	*segs = nsegs;
  
- static int smu_v13_0_0_get_fan_speed_rpm(struct smu_context *smu,
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
-@@ -1361,12 +1361,23 @@ static int smu_v13_0_7_populate_umd_stat
- static int smu_v13_0_7_get_fan_speed_pwm(struct smu_context *smu,
- 					 uint32_t *speed)
- {
-+	int ret;
-+
- 	if (!speed)
- 		return -EINVAL;
- 
--	return smu_v13_0_7_get_smu_metrics_data(smu,
--						METRICS_CURR_FANPWM,
--						speed);
-+	ret = smu_v13_0_7_get_smu_metrics_data(smu,
-+					       METRICS_CURR_FANPWM,
-+					       speed);
-+	if (ret) {
-+		dev_err(smu->adev->dev, "Failed to get fan speed(PWM)!");
-+		return ret;
-+	}
-+
-+	/* Convert the PMFW output which is in percent to pwm(255) based */
-+	*speed = MIN(*speed * 255 / 100, 255);
-+
-+	return 0;
- }
- 
- static int smu_v13_0_7_get_fan_speed_rpm(struct smu_context *smu,
-
+ 	/*
+-- 
+2.39.0
 
