@@ -2,215 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F10FD65D716
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:17:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67FDF65D72A
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:19:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239661AbjADPRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:17:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56244 "EHLO
+        id S229582AbjADPSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:18:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239625AbjADPQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:16:56 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 69463F08;
-        Wed,  4 Jan 2023 07:16:54 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A06901596;
-        Wed,  4 Jan 2023 07:17:35 -0800 (PST)
-Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 9855E3F23F;
-        Wed,  4 Jan 2023 07:16:52 -0800 (PST)
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>
-Cc:     arnd@arndb.de, boqun.feng@gmail.com, linux-kernel@vger.kernel.org,
-        mark.rutland@arm.com, peterz@infradead.org, stable@vger.kernel.org,
-        steve.capper@arm.com
-Subject: [PATCH] arm64: cmpxchg_double*: hazard against entire exchange variable
-Date:   Wed,  4 Jan 2023 15:16:26 +0000
-Message-Id: <20230104151626.3262137-1-mark.rutland@arm.com>
-X-Mailer: git-send-email 2.30.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S239706AbjADPSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:18:16 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665151D0EF
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:17:35 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id CE267203A0;
+        Wed,  4 Jan 2023 15:17:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1672845453; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=hQt8Ns9hrVQtbt/3qPLQNKSUBHTrXGXtHSbVhuM8/CE=;
+        b=v37ARmvrOOQT2u4KNf7CNJylgnhLrVJe+fCa3Rx4+w46Dz2TeqddoXLbrCjR3uvtHBog68
+        +Z1hn+fVRtRepcvHeMNH/bRkwIKDtcagMw7TyCNub6dL8UxD5uIK+EkAgwiSmGvC6T7/oh
+        cWPlufPkSC/VO/x3nyWySPdiIK1BiBc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1672845453;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=hQt8Ns9hrVQtbt/3qPLQNKSUBHTrXGXtHSbVhuM8/CE=;
+        b=k031qfI1t1TiX4FhcJ6NLO9UY4NjcDTuI3NAr9yckfHak4nTaoEDvyfrESqMtGF7+31gb1
+        qU+jkuJpsPSGIUAg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A85EA1342C;
+        Wed,  4 Jan 2023 15:17:33 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id TUwjKI2YtWN0bAAAMHmgww
+        (envelope-from <tiwai@suse.de>); Wed, 04 Jan 2023 15:17:33 +0000
+Date:   Wed, 04 Jan 2023 16:17:33 +0100
+Message-ID: <87v8lmmir6.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Michael Ralston <michael@ralston.id.au>
+Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        alsa-devel@alsa-project.org, regressions@lists.linux.dev,
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>
+Subject: Re: USB-Audio regression on behringer UMC404HD
+In-Reply-To: <CAC2975+dBD9ox0qu0Km_5g=7zifH4GCACdWMh=kXSgGimmyO7A@mail.gmail.com>
+References: <CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com>
+        <bf646395-1231-92f6-7c5a-5b7765596358@leemhuis.info>
+        <87zgb0q7x4.wl-tiwai@suse.de>
+        <CAC2975K24Gt3rGieAToHjb7FEHv84aqiRSQx7EOuR2Q7KByUXw@mail.gmail.com>
+        <87sfgrrb5f.wl-tiwai@suse.de>
+        <CAC2975+cUqiFC0LO-D-fi0swH+x=_FMuG+==mhg6HH4pc_YDRA@mail.gmail.com>
+        <87bknfr6rd.wl-tiwai@suse.de>
+        <CAC2975+CP0WKmXouX_8TffT1+VpU3EuOzyGHMv+VsAOBjCyhnA@mail.gmail.com>
+        <878rijr6dz.wl-tiwai@suse.de>
+        <CAC2975+Ybz2-jyJAwAUEu5S1XKfp0B-p4s-gAsMPfZdD61uNfQ@mail.gmail.com>
+        <87zgazppuc.wl-tiwai@suse.de>
+        <CAC2975+476CHDL3YM=uExHu96UB2rodAng9PVYHX+vGnSCppGA@mail.gmail.com>
+        <CAC2975Ja-o6-qCWv2bUkt3ps7BcKvb96rao_De4SGVW1v8uE=A@mail.gmail.com>
+        <CAC2975KFqvTitbJHJZ6a4Tuxsq=nPGvW3vjAAtkQxw=sBgeDqw@mail.gmail.com>
+        <CAC2975Jw63j26DhvDjiLc7dXwaRz=eK0aWNuErQ8dkEn_Gemjg@mail.gmail.com>
+        <87ilhmpvdt.wl-tiwai@suse.de>
+        <CAC2975LFWnK6f05j5my4=ebmhS0bVhigz8VH6cbaUtVT+ADxbA@mail.gmail.com>
+        <87zgaymkcx.wl-tiwai@suse.de>
+        <CAC2975LK6xuQ_PaD9vk_5Uwi4ZmZa30TZKfstyAhx2tv0YU9xQ@mail.gmail.com>
+        <87y1qimjsw.wl-tiwai@suse.de>
+        <CAC2975+dBD9ox0qu0Km_5g=7zifH4GCACdWMh=kXSgGimmyO7A@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The inline assembly for arm64's cmpxchg_double*() implementations use a
-+Q constraint to hazard against other accesses to the memory location
-being exchanged. However, the pointer passed to the constraint is a
-pointer to unsigned long, and thus the hazard only applies to the first
-8 bytes of the location.
+On Wed, 04 Jan 2023 15:56:15 +0100,
+Michael Ralston wrote:
+> 
+> On Thu, 5 Jan 2023 at 01:54, Takashi Iwai <tiwai@suse.de> wrote:
+> >
+> > OK, thanks for confirmation.  Then we should revert this, as it was
+> > meant only as a minor optimization.
+> >
+> 
+> I'm glad I could help find the issue! Keep up the good work.
 
-GCC can take advantage of this, assuming that other portions of the
-location are unchanged, leading to a number of potential problems.
+And I thank you for your patient testing!
 
-This is similar to what we fixed back in commit:
 
-  fee960bed5e857eb ("arm64: xchg: hazard against entire exchange variable")
-
-... but we forgot to adjust cmpxchg_double*() similarly at the same
-time.
-
-The same problem applies, as demonstrated with the following test:
-
-| struct big {
-|         u64 lo, hi;
-| } __aligned(128);
-|
-| unsigned long foo(struct big *b)
-| {
-|         u64 hi_old, hi_new;
-|
-|         hi_old = b->hi;
-|         cmpxchg_double_local(&b->lo, &b->hi, 0x12, 0x34, 0x56, 0x78);
-|         hi_new = b->hi;
-|
-|         return hi_old ^ hi_new;
-| }
-
-... which GCC 12.1.0 compiles as:
-
-| 0000000000000000 <foo>:
-|    0:   d503233f        paciasp
-|    4:   aa0003e4        mov     x4, x0
-|    8:   1400000e        b       40 <foo+0x40>
-|    c:   d2800240        mov     x0, #0x12                       // #18
-|   10:   d2800681        mov     x1, #0x34                       // #52
-|   14:   aa0003e5        mov     x5, x0
-|   18:   aa0103e6        mov     x6, x1
-|   1c:   d2800ac2        mov     x2, #0x56                       // #86
-|   20:   d2800f03        mov     x3, #0x78                       // #120
-|   24:   48207c82        casp    x0, x1, x2, x3, [x4]
-|   28:   ca050000        eor     x0, x0, x5
-|   2c:   ca060021        eor     x1, x1, x6
-|   30:   aa010000        orr     x0, x0, x1
-|   34:   d2800000        mov     x0, #0x0                        // #0    <--- BANG
-|   38:   d50323bf        autiasp
-|   3c:   d65f03c0        ret
-|   40:   d2800240        mov     x0, #0x12                       // #18
-|   44:   d2800681        mov     x1, #0x34                       // #52
-|   48:   d2800ac2        mov     x2, #0x56                       // #86
-|   4c:   d2800f03        mov     x3, #0x78                       // #120
-|   50:   f9800091        prfm    pstl1strm, [x4]
-|   54:   c87f1885        ldxp    x5, x6, [x4]
-|   58:   ca0000a5        eor     x5, x5, x0
-|   5c:   ca0100c6        eor     x6, x6, x1
-|   60:   aa0600a6        orr     x6, x5, x6
-|   64:   b5000066        cbnz    x6, 70 <foo+0x70>
-|   68:   c8250c82        stxp    w5, x2, x3, [x4]
-|   6c:   35ffff45        cbnz    w5, 54 <foo+0x54>
-|   70:   d2800000        mov     x0, #0x0                        // #0     <--- BANG
-|   74:   d50323bf        autiasp
-|   78:   d65f03c0        ret
-
-Notice that at the lines with "BANG" comments, GCC has assumed that the
-higher 8 bytes are unchanged by the cmpxchg_double() call, and that
-`hi_old ^ hi_new` can be reduced to a constant zero, for both LSE and
-LL/SC versions of cmpxchg_double().
-
-This patch fixes the issue by passing a pointer to __uint128_t into the
-+Q constraint, ensuring that the compiler hazards against the entire 16
-bytes being modified.
-
-With this change, GCC 12.1.0 compiles the above test as:
-
-| 0000000000000000 <foo>:
-|    0:   f9400407        ldr     x7, [x0, #8]
-|    4:   d503233f        paciasp
-|    8:   aa0003e4        mov     x4, x0
-|    c:   1400000f        b       48 <foo+0x48>
-|   10:   d2800240        mov     x0, #0x12                       // #18
-|   14:   d2800681        mov     x1, #0x34                       // #52
-|   18:   aa0003e5        mov     x5, x0
-|   1c:   aa0103e6        mov     x6, x1
-|   20:   d2800ac2        mov     x2, #0x56                       // #86
-|   24:   d2800f03        mov     x3, #0x78                       // #120
-|   28:   48207c82        casp    x0, x1, x2, x3, [x4]
-|   2c:   ca050000        eor     x0, x0, x5
-|   30:   ca060021        eor     x1, x1, x6
-|   34:   aa010000        orr     x0, x0, x1
-|   38:   f9400480        ldr     x0, [x4, #8]
-|   3c:   d50323bf        autiasp
-|   40:   ca0000e0        eor     x0, x7, x0
-|   44:   d65f03c0        ret
-|   48:   d2800240        mov     x0, #0x12                       // #18
-|   4c:   d2800681        mov     x1, #0x34                       // #52
-|   50:   d2800ac2        mov     x2, #0x56                       // #86
-|   54:   d2800f03        mov     x3, #0x78                       // #120
-|   58:   f9800091        prfm    pstl1strm, [x4]
-|   5c:   c87f1885        ldxp    x5, x6, [x4]
-|   60:   ca0000a5        eor     x5, x5, x0
-|   64:   ca0100c6        eor     x6, x6, x1
-|   68:   aa0600a6        orr     x6, x5, x6
-|   6c:   b5000066        cbnz    x6, 78 <foo+0x78>
-|   70:   c8250c82        stxp    w5, x2, x3, [x4]
-|   74:   35ffff45        cbnz    w5, 5c <foo+0x5c>
-|   78:   f9400480        ldr     x0, [x4, #8]
-|   7c:   d50323bf        autiasp
-|   80:   ca0000e0        eor     x0, x7, x0
-|   84:   d65f03c0        ret
-
-... sampling the high 8 bytes before and after the cmpxchg, and
-performing an EOR, as we'd expect.
-
-For backporting, I've tested this atop linux-4.9.y with GCC 5.5.0. Note
-that linux-4.9.y is oldest currently supported stable release, and
-mandates GCC 5.1+. Unfortunately I couldn't get a GCC 5.1 binary to run
-on my machines due to library incompatibilities.
-
-I've also used a standalone test to check that we can use a __uint128_t
-pointer in a +Q constraint at least as far back as GCC 4.8.5 and LLVM
-3.9.1.
-
-Fixes: 5284e1b4bc8ae6fc ("arm64: xchg: Implement cmpxchg_double")
-Fixes: e9a4b795652f654a ("arm64: cmpxchg_dbl: patch in lse instructions when supported by the CPU")
-Reported-by: Boqun Feng <boqun.feng@gmail.com>
-Link: https://lore.kernel.org/lkml/Y6DEfQXymYVgL3oJ@boqun-archlinux/
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/lkml/Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net/
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Will Deacon <will@kernel.org>
----
- arch/arm64/include/asm/atomic_ll_sc.h | 2 +-
- arch/arm64/include/asm/atomic_lse.h   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
-index 0890e4f568fb7..cbb3d961123b1 100644
---- a/arch/arm64/include/asm/atomic_ll_sc.h
-+++ b/arch/arm64/include/asm/atomic_ll_sc.h
-@@ -315,7 +315,7 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
- 	"	cbnz	%w0, 1b\n"					\
- 	"	" #mb "\n"						\
- 	"2:"								\
--	: "=&r" (tmp), "=&r" (ret), "+Q" (*(unsigned long *)ptr)	\
-+	: "=&r" (tmp), "=&r" (ret), "+Q" (*(__uint128_t *)ptr)		\
- 	: "r" (old1), "r" (old2), "r" (new1), "r" (new2)		\
- 	: cl);								\
- 									\
-diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
-index 52075e93de6c0..a94d6dacc0292 100644
---- a/arch/arm64/include/asm/atomic_lse.h
-+++ b/arch/arm64/include/asm/atomic_lse.h
-@@ -311,7 +311,7 @@ __lse__cmpxchg_double##name(unsigned long old1,				\
- 	"	eor	%[old2], %[old2], %[oldval2]\n"			\
- 	"	orr	%[old1], %[old1], %[old2]"			\
- 	: [old1] "+&r" (x0), [old2] "+&r" (x1),				\
--	  [v] "+Q" (*(unsigned long *)ptr)				\
-+	  [v] "+Q" (*(__uint128_t *)ptr)				\
- 	: [new1] "r" (x2), [new2] "r" (x3), [ptr] "r" (x4),		\
- 	  [oldval1] "r" (oldval1), [oldval2] "r" (oldval2)		\
- 	: cl);								\
--- 
-2.30.2
-
+Takashi
