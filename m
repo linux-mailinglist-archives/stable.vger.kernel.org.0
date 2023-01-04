@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F1865D6D1
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF23565D6D2
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 16:05:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232026AbjADPFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 10:05:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51276 "EHLO
+        id S229845AbjADPFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 10:05:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239246AbjADPFl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:05:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 468C6126
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:05:40 -0800 (PST)
+        with ESMTP id S236983AbjADPFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 10:05:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F9F511800
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 07:05:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBC56B8169F
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F616C433EF;
-        Wed,  4 Jan 2023 15:05:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C8C9615CD
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 15:05:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 468D1C433EF;
+        Wed,  4 Jan 2023 15:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844737;
-        bh=fxUFi0dJE1Dzrr6jSfjja7gvYkQOK/r+hcdUDvx+n/0=;
+        s=korg; t=1672844743;
+        bh=mc4klGgp7pSbrKqF4OgwLp/2hAKZGFr/rLU9ZWRg9BA=;
         h=Subject:To:Cc:From:Date:From;
-        b=QmhXrZ+jjDgiGHvm+PvcDe6U+ZxwRS5nObEoRlv/ODrWJXVHrHGV5zB9qd+BZHohW
-         5gYZpVHLxBygONsMNUpzxhyQzdlD5XXyHBmQw3/vKmMs/qRnJ6lz0W4s7RTMQEWwRG
-         4T0r2Da4hN7QwRzlp31Ao0TG7tz54VtDZHOPbhj8=
-Subject: FAILED: patch "[PATCH] ext4: don't fail GETFSUUID when the caller provides a long" failed to apply to 5.15-stable tree
+        b=dlz11i0QSnXnFe6rswMqEE6AQQTssrZJSt7/j+R2g5YhINKJSNfHWON/XGsas8jC5
+         PCahQFOnxphrUe36KsnhLVrhPxWbkCxlgqIICkZn4frKzYy0KLmvw85u0u1KR1/Q3e
+         WRFjn9QYjxG/Pc7ibSbNc1P1jtoJl7COouR1Rsis=
+Subject: FAILED: patch "[PATCH] ext4: don't fail GETFSUUID when the caller provides a long" failed to apply to 5.10-stable tree
 To:     djwong@kernel.org, catherine.hoang@oracle.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 04 Jan 2023 16:05:34 +0100
-Message-ID: <167284473410228@kroah.com>
+Date:   Wed, 04 Jan 2023 16:05:35 +0100
+Message-ID: <16728447357959@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,9 @@ Possible dependencies:
 a7e9d977e031 ("ext4: don't fail GETFSUUID when the caller provides a long buffer")
 d95efb14c0b8 ("ext4: add ioctls to get/set the ext4 superblock uuid")
 bbc605cdb1e1 ("ext4: implement support for get/set fs label")
+351a0a3fbc35 ("ext4: add ioctl EXT4_IOC_CHECKPOINT")
+4db5c2e6236f ("ext4: convert to fileattr")
+7d6beb71da3c ("Merge tag 'idmapped-mounts-v5.12' of git://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux")
 
 thanks,
 
