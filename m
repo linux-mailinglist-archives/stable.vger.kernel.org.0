@@ -2,58 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFB9265D69D
-	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:55:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 082A365D6A1
+	for <lists+stable@lfdr.de>; Wed,  4 Jan 2023 15:56:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231782AbjADOzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 09:55:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44678 "EHLO
+        id S234874AbjADOz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 09:55:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236020AbjADOzi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:55:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8512A1EEC3;
-        Wed,  4 Jan 2023 06:55:37 -0800 (PST)
+        with ESMTP id S236020AbjADOzr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 09:55:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F9DB1EACF;
+        Wed,  4 Jan 2023 06:55:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3869CB8169D;
-        Wed,  4 Jan 2023 14:55:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64B76C433F0;
-        Wed,  4 Jan 2023 14:55:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A6BC6175D;
+        Wed,  4 Jan 2023 14:55:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EC0CC433F0;
+        Wed,  4 Jan 2023 14:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672844134;
-        bh=zwF9T2z5L044ggy5j+5rYTatc9avuUbCH+Aw6bOhtFs=;
+        s=korg; t=1672844145;
+        bh=4+asDLO/hYiXl7igLLqD39zSJqLFzA//VD+dBoT82RE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=szIP0Hr7BqLslgfZBQLFYOHb4HjlQ1udMsGC8m19ZnM0dkAO6sqNgCIJsYSoemi2x
-         XvPOWn93w1b7RUKQ7aqoqhOIRBNemu8X9SwbtwVRX+Ig6ju9lCf7rdCMaSNf4/Jnyu
-         n9BBVL+qOmeXJRkhKLlFLsoE/w9GKWKUGyYOr2D4=
-Date:   Wed, 4 Jan 2023 15:48:11 +0100
+        b=MEzGd3QPx4I0elS9qkY+UUdwE8Bj+DFo7YGz7kmoCOe6nq3MV5CjGkUp5TilfTICW
+         v6bXJNij4kqeJVUvbquVM32d5qvCMH0sBjO7FHMjY/NkKB0UTpkigZJZzrKU7BoPL7
+         5DPPEZ6cOHTp7ufAFHJkAt9uj1d3RJxmv8EW/FWU=
+Date:   Wed, 4 Jan 2023 15:52:03 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alex Deucher <alexdeucher@gmail.com>
-Cc:     Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-        Dragos-Marian Panait <dragos.panait@windriver.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        David Zhou <David1.Zhou@amd.com>,
-        amd-gfx@lists.freedesktop.org, David Airlie <airlied@linux.ie>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: Re: [PATCH 4.19 1/1] drm/amdkfd: Check for null pointer after
- calling kmemdup
-Message-ID: <Y7WRq7MaFaIJ2uGF@kroah.com>
-References: <20230103184308.511448-1-dragos.panait@windriver.com>
- <20230103184308.511448-2-dragos.panait@windriver.com>
- <Y7Vz8mm0X+1h844b@kroah.com>
- <a8c6859f-5876-08cf-5949-ecf88e6bb528@amd.com>
- <CADnq5_Ons+yMyGxcSaFaOb5uNXooHgH_4N=ThHOGYaW9Pb_Q8A@mail.gmail.com>
+To:     Lee Jones <lee@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org,
+        linux-efi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        will@kernel.org, catalin.marinas@arm.com, mark.rutland@arm.com,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH 1/2] arm64: efi: Execute runtime services from a
+ dedicated stack
+Message-ID: <Y7WSk1q1aTkWlsQ9@kroah.com>
+References: <20221205201210.463781-1-ardb@kernel.org>
+ <20221205201210.463781-2-ardb@kernel.org>
+ <Y7VXg5MCRyAJFmus@google.com>
+ <CAMj1kXEYDHuRmUPvdMVj1H1fLoOKcr+qG6NDpufxwJa57jsWdg@mail.gmail.com>
+ <Y7WQVreh3l9hYarK@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CADnq5_Ons+yMyGxcSaFaOb5uNXooHgH_4N=ThHOGYaW9Pb_Q8A@mail.gmail.com>
+In-Reply-To: <Y7WQVreh3l9hYarK@google.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -63,51 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 04, 2023 at 09:35:03AM -0500, Alex Deucher wrote:
-> On Wed, Jan 4, 2023 at 8:23 AM Christian König <christian.koenig@amd.com> wrote:
-> >
-> > Am 04.01.23 um 13:41 schrieb Greg KH:
-> > > On Tue, Jan 03, 2023 at 08:43:08PM +0200, Dragos-Marian Panait wrote:
-> > >> From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-> > >>
-> > >> [ Upstream commit abfaf0eee97925905e742aa3b0b72e04a918fa9e ]
-> > >>
-> > >> As the possible failure of the allocation, kmemdup() may return NULL
-> > >> pointer.
-> > >> Therefore, it should be better to check the 'props2' in order to prevent
-> > >> the dereference of NULL pointer.
-> > >>
-> > >> Fixes: 3a87177eb141 ("drm/amdkfd: Add topology support for dGPUs")
-> > >> Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-> > >> Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> > >> Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> > >> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> > >> Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
-> > >> ---
-> > >>   drivers/gpu/drm/amd/amdkfd/kfd_crat.c | 3 +++
-> > >>   1 file changed, 3 insertions(+)
-> > > For obvious reasons, I can't take a patch for 4.19.y and not newer
-> > > kernel releases, right?
-> > >
-> > > Please provide backports for all kernels if you really need to see this
-> > > merged.  And note, it's not a real bug at all, and given that a CVE was
-> > > allocated for it that makes me want to even more reject it to show the
-> > > whole folly of that mess.
-> >
-> > Well as far as I can see this is nonsense to back port.
-> >
-> > The code in question is only used only once during driver load and then
-> > never again, that exactly this allocation fails while tons of other are
-> > made before and after is extremely unlikely.
-> >
-> > It's nice to have it fixed in newer kernels, but not worth a backport
-> > and certainly not stuff for a CVE.
+On Wed, Jan 04, 2023 at 02:42:30PM +0000, Lee Jones wrote:
+> On Wed, 04 Jan 2023, Ard Biesheuvel wrote:
 > 
-> It's already fixed in Linus' tree:
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=abfaf0eee97925905e742aa3b0b72e04a918fa9e
+> > On Wed, 4 Jan 2023 at 11:40, Lee Jones <lee@kernel.org> wrote:
+> > >
+> > > On Mon, 05 Dec 2022, Ard Biesheuvel wrote:
+> > >
+> > > > With the introduction of PRMT in the ACPI subsystem, the EFI rts
+> > > > workqueue is no longer the only caller of efi_call_virt_pointer() in the
+> > > > kernel. This means the EFI runtime services lock is no longer sufficient
+> > > > to manage concurrent calls into firmware, but also that firmware calls
+> > > > may occur that are not marshalled via the workqueue mechanism, but
+> > > > originate directly from the caller context.
+> > > >
+> > > > For added robustness, and to ensure that the runtime services have 8 KiB
+> > > > of stack space available as per the EFI spec, introduce a spinlock
+> > > > protected EFI runtime stack of 8 KiB, where the spinlock also ensures
+> > > > serialization between the EFI rts workqueue (which itself serializes EFI
+> > > > runtime calls) and other callers of efi_call_virt_pointer().
+> > > >
+> > > > While at it, use the stack pivot to avoid reloading the shadow call
+> > > > stack pointer from the ordinary stack, as doing so could produce a
+> > > > gadget to defeat it.
+> > > >
+> > > > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> > > > ---
+> > > >  arch/arm64/include/asm/efi.h       |  3 +++
+> > > >  arch/arm64/kernel/efi-rt-wrapper.S | 13 +++++++++-
+> > > >  arch/arm64/kernel/efi.c            | 25 ++++++++++++++++++++
+> > > >  3 files changed, 40 insertions(+), 1 deletion(-)
+> > >
+> > > Could we have this in Stable please?
+> > >
+> > > Upstream commit: ff7a167961d1b ("arm64: efi: Execute runtime services from a dedicated stack")
+> > >
+> > > Ard, do we need Patch 2 as well, or can this be applied on its own?
+> > >
+> > 
+> > Thanks for the reminder.
+> > 
+> > Only patch #1 is needed. It should be applied to v5.10 and later.
+> 
+> Perfect, thanks Ard.
 
-Yes, that's what the above commit shows...
-
-confused,
+Now queued up, thanks.
 
 greg k-h
