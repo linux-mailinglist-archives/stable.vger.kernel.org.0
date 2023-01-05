@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67C3965EBB1
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:01:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A74C765EB8E
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:00:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231511AbjAENBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:01:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50790 "EHLO
+        id S233483AbjAENAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:00:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233845AbjAENBZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:01:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334BC58318
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:01:24 -0800 (PST)
+        with ESMTP id S233528AbjAEM77 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6990E5AC7E
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3595B81A84
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:01:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AA7AC433EF;
-        Thu,  5 Jan 2023 13:01:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15CAEB81AD6
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612A6C433EF;
+        Thu,  5 Jan 2023 12:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923681;
-        bh=JcsVpzMECzKn6bBKui5B8tcfz/rb93MxuUCOoWVTc9k=;
+        s=korg; t=1672923589;
+        bh=8G5P1bKONHYNybXA3AXzV2jmMQt9ANoBvwiZugq9a4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aoV33nCDQFu3RB+u2oLvSoVE2TArTNgYuEvGJhUTxgF9LM8+Se9qbJJT+//dITXHD
-         ya9Cu6oM4GCQTsPv4gioAphaC/+D9Dm8tzlaLuNcdKFkYlDdT0YMgGiMn0AX2tltam
-         PA33dLG0URMAVCilAHnK8SK6Jb1HMh4flmFm4Hqo=
+        b=mqFbnnaOlTql5oy2tLAAEFgoZMLJ1ZO2eIGUZi4+v1a4BnUhlGeeFRVbIMsK9++1Y
+         g1BTlR/NI2+6eJGFh6QfcOTCpsTCsHwav75iJt8hIFFvCAkX+Wg01YkZMMc2gOYeZc
+         vJSGJbDwNrOVmpAHeIkfd9iEMmVKhIPczQX+wiBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com,
-        Gautam Menghani <gautammenghani201@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 068/251] media: imon: fix a race condition in send_packet()
-Date:   Thu,  5 Jan 2023 13:53:25 +0100
-Message-Id: <20230105125337.880215364@linuxfoundation.org>
+Subject: [PATCH 4.9 069/251] pinctrl: pinconf-generic: add missing of_node_put()
+Date:   Thu,  5 Jan 2023 13:53:26 +0100
+Message-Id: <20230105125337.929831928@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -56,77 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gautam Menghani <gautammenghani201@gmail.com>
+From: ZhangPeng <zhangpeng362@huawei.com>
 
-[ Upstream commit 813ceef062b53d68f296aa3cb944b21a091fabdb ]
+[ Upstream commit 5ead93289815a075d43c415e35c8beafafb801c9 ]
 
-The function send_packet() has a race condition as follows:
+of_node_put() needs to be called when jumping out of the loop, since
+for_each_available_child_of_node() will increase the refcount of node.
 
-func send_packet()
-{
-    // do work
-    call usb_submit_urb()
-    mutex_unlock()
-    wait_for_event_interruptible()  <-- lock gone
-    mutex_lock()
-}
-
-func vfd_write()
-{
-    mutex_lock()
-    call send_packet()  <- prev call is not completed
-    mutex_unlock()
-}
-
-When the mutex is unlocked and the function send_packet() waits for the
-call to complete, vfd_write() can start another call, which leads to the
-"URB submitted while active" warning in usb_submit_urb().
-Fix this by removing the mutex_unlock() call in send_packet() and using
-mutex_lock_interruptible().
-
-Link: https://syzkaller.appspot.com/bug?id=e378e6a51fbe6c5cc43e34f131cc9a315ef0337e
-
-Fixes: 21677cfc562a ("V4L/DVB: ir-core: add imon driver")
-Reported-by: syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com
-Signed-off-by: Gautam Menghani <gautammenghani201@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: c7289500e29d ("pinctrl: pinconf-generic: scan also referenced phandle node")
+Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
+Link: https://lore.kernel.org/r/20221125070156.3535855-1-zhangpeng362@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/imon.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pinctrl/pinconf-generic.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/rc/imon.c b/drivers/media/rc/imon.c
-index 0b386fd518cc..9c644b4fb22d 100644
---- a/drivers/media/rc/imon.c
-+++ b/drivers/media/rc/imon.c
-@@ -622,15 +622,14 @@ static int send_packet(struct imon_context *ictx)
- 		pr_err_ratelimited("error submitting urb(%d)\n", retval);
- 	} else {
- 		/* Wait for transmission to complete (or abort) */
--		mutex_unlock(&ictx->lock);
- 		retval = wait_for_completion_interruptible(
- 				&ictx->tx.finished);
- 		if (retval) {
- 			usb_kill_urb(ictx->tx_urb);
- 			pr_err_ratelimited("task interrupted\n");
- 		}
--		mutex_lock(&ictx->lock);
- 
-+		ictx->tx.busy = false;
- 		retval = ictx->tx.status;
- 		if (retval)
- 			pr_err_ratelimited("packet tx failed (%d)\n", retval);
-@@ -939,7 +938,8 @@ static ssize_t vfd_write(struct file *file, const char __user *buf,
- 		return -ENODEV;
+diff --git a/drivers/pinctrl/pinconf-generic.c b/drivers/pinctrl/pinconf-generic.c
+index 074a7e044e25..b0e41fb3623d 100644
+--- a/drivers/pinctrl/pinconf-generic.c
++++ b/drivers/pinctrl/pinconf-generic.c
+@@ -384,8 +384,10 @@ int pinconf_generic_dt_node_to_map(struct pinctrl_dev *pctldev,
+ 	for_each_child_of_node(np_config, np) {
+ 		ret = pinconf_generic_dt_subnode_to_map(pctldev, np, map,
+ 					&reserved_maps, num_maps, type);
+-		if (ret < 0)
++		if (ret < 0) {
++			of_node_put(np);
+ 			goto exit;
++		}
  	}
+ 	return 0;
  
--	mutex_lock(&ictx->lock);
-+	if (mutex_lock_interruptible(&ictx->lock))
-+		return -ERESTARTSYS;
- 
- 	if (!ictx->dev_present_intf0) {
- 		pr_err_ratelimited("no iMON device present\n");
 -- 
 2.35.1
 
