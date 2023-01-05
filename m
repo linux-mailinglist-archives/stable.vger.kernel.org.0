@@ -2,84 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2C165E273
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 02:22:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAA1D65E28B
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 02:39:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230349AbjAEBWt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 20:22:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56496 "EHLO
+        id S229457AbjAEBjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 20:39:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229535AbjAEBWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 20:22:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B442F783;
-        Wed,  4 Jan 2023 17:22:46 -0800 (PST)
+        with ESMTP id S229660AbjAEBjI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 20:39:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6B12011;
+        Wed,  4 Jan 2023 17:39:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EAA38CE193C;
-        Thu,  5 Jan 2023 01:22:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 08456C433EF;
-        Thu,  5 Jan 2023 01:22:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672881763;
-        bh=ExpxEIguBmVK6mxVxd9YEswT2YfPe7zBo9G4esPP838=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=gB2WDuUS6KfnjtiNTPNPRUmG7LTic9mE03cppW5NPP7t0t9t+u0GUaulFtbsBOxF5
-         5XNUk7b41IY8FT4LCmSZ4RXd4Wb2AAJjc46tBcGlaZ9jY7CNjvyVhwo7u5SFa+Lqub
-         l0Evofho7p9aeXb89IXIyVlCwB/+hdM6az/Qdsx81px8S6ON12J+VwJSWK6RzIvQq7
-         9bNjQz5Bv8YHpEQNtJoNDD8DAzGWXvU6Q9fcrdoKd3teJuMECR/9VUCJ1IwbroM3yx
-         cLuUFfL9KBkwJawIdgpQSJpSpOObUvt+w+zuTVD5Aq/xf/6OqxDzIzGK/fLar6AZ/H
-         Qwnjxb/zz8D6g==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id E6A2FE57249;
-        Thu,  5 Jan 2023 01:22:42 +0000 (UTC)
-Subject: Re: [GIT PULL v2] virtio,vhost,vdpa: fixes, cleanups
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20230103104946-mutt-send-email-mst@kernel.org>
-References: <20230103104946-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <kvm.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20230103104946-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: a26116c1e74028914f281851488546c91cbae57d
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 41c03ba9beea760bd2d2ac9250b09a2e192da2dc
-Message-Id: <167288176293.29184.569668467593245088.pr-tracker-bot@kernel.org>
-Date:   Thu, 05 Jan 2023 01:22:42 +0000
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        angus.chen@jaguarmicro.com, colin.i.king@gmail.com,
-        dave@stgolabs.net, dengshaomin@cdjrlc.com, dmitry.fomichev@wdc.com,
-        elic@nvidia.com, eperezma@redhat.com, gautam.dawar@xilinx.com,
-        harshit.m.mogalapalli@oracle.com, jasowang@redhat.com,
-        lulu@redhat.com, mst@redhat.com, pizhenwei@bytedance.com,
-        rafaelmendsr@gmail.com, ricardo.canuelo@collabora.com,
-        ruanjinjie@huawei.com, set_pte_at@outlook.com, sgarzare@redhat.com,
-        shaoqin.huang@intel.com, si-wei.liu@oracle.com,
-        stable@vger.kernel.org, sunnanyong@huawei.com,
-        wangjianli@cdjrlc.com, wangrong68@huawei.com,
-        weiyongjun1@huawei.com, yuancan@huawei.com
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD074618BB;
+        Thu,  5 Jan 2023 01:39:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3183EC433D2;
+        Thu,  5 Jan 2023 01:39:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1672882746;
+        bh=BSTAnrWPIkm/Pe5UI9idcxx0FoqY/+2cqEy5WZiN3B4=;
+        h=Date:To:From:Subject:From;
+        b=M4R34xrTH9oUApyb9hit4JgYy8zgxKBRwAgQ30a7OCjXOGnpS3a69mpPMo6Bmj2WI
+         mcfSAqsQ4EebBfmReW+XOoLkiu+ZfWxLBZhLgpYQg+2i5GVa+6qym5MqiDVD/L5WeB
+         pJwEatD+ympBfZzjFNfdgSaNVcg0PtZ0FKDMiZQY=
+Date:   Wed, 04 Jan 2023 17:39:05 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        pasha.tatashin@soleen.com, hughd@google.com, david@redhat.com,
+        surenb@google.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-fix-vma-anon_name-memory-leak-for-anonymous-shmem-vmas.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230105013906.3183EC433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The pull request you sent on Tue, 3 Jan 2023 10:49:46 -0500:
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+The patch titled
+     Subject: mm: fix vma->anon_name memory leak for anonymous shmem VMAs
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-fix-vma-anon_name-memory-leak-for-anonymous-shmem-vmas.patch
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/41c03ba9beea760bd2d2ac9250b09a2e192da2dc
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-fix-vma-anon_name-memory-leak-for-anonymous-shmem-vmas.patch
 
-Thank you!
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Suren Baghdasaryan <surenb@google.com>
+Subject: mm: fix vma->anon_name memory leak for anonymous shmem VMAs
+Date: Wed, 4 Jan 2023 16:02:40 -0800
+
+free_anon_vma_name() is missing a check for anonymous shmem VMA which
+leads to a memory leak due to refcount not being dropped.  Fix this by
+calling anon_vma_name_put() unconditionally.  It will free vma->anon_name
+whenever it's non-NULL.
+
+Link: https://lkml.kernel.org/r/20230105000241.1450843-1-surenb@google.com
+Fixes: d09e8ca6cb93 ("mm: anonymous shared memory naming")
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Suggested-by: David Hildenbrand <david@redhat.com>
+Reported-by: syzbot+91edf9178386a07d06a7@syzkaller.appspotmail.com
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Pasha Tatashin <pasha.tatashin@soleen.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/mm_inline.h |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/include/linux/mm_inline.h~mm-fix-vma-anon_name-memory-leak-for-anonymous-shmem-vmas
++++ a/include/linux/mm_inline.h
+@@ -413,8 +413,7 @@ static inline void free_anon_vma_name(st
+ 	 * Not using anon_vma_name because it generates a warning if mmap_lock
+ 	 * is not held, which might be the case here.
+ 	 */
+-	if (!vma->vm_file)
+-		anon_vma_name_put(vma->anon_name);
++	anon_vma_name_put(vma->anon_name);
+ }
+ 
+ static inline bool anon_vma_name_eq(struct anon_vma_name *anon_name1,
+_
+
+Patches currently in -mm which might be from surenb@google.com are
+
+mm-fix-vma-anon_name-memory-leak-for-anonymous-shmem-vmas.patch
+
