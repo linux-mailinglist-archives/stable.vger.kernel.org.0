@@ -2,121 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C020A65F4CA
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 20:48:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC58665F4E6
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 21:01:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235045AbjAETsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 14:48:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41764 "EHLO
+        id S235523AbjAEUBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 15:01:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234755AbjAETrj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 14:47:39 -0500
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC16714D29;
-        Thu,  5 Jan 2023 11:47:38 -0800 (PST)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 4C6111C09F4; Thu,  5 Jan 2023 20:47:37 +0100 (CET)
-Date:   Thu, 5 Jan 2023 20:47:36 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, nathan@kernel.org,
-        marcus.folkesson@gmail.com, cuigaosheng1@huawei.com,
-        andriy.shevchenko@linux.intel.com, m.szyprowski@samsung.com,
-        jack@suse.cz
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 4.9 000/251] 4.9.337-rc1 review
-Message-ID: <Y7cpWKbQlNW5qEeO@duo.ucw.cz>
-References: <20230105125334.727282894@linuxfoundation.org>
+        with ESMTP id S235595AbjAEUBe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 15:01:34 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50FFF1AA37
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:01:24 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id v23so40988864pju.3
+        for <stable@vger.kernel.org>; Thu, 05 Jan 2023 12:01:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=pVxwqNbug9kzVKOL3oZqGnvdYf9glDYyhFwWJ28UE9c=;
+        b=GHsPtBur+p4pVrDOJtCpuXZtHd6ZyxGvlJhmjJ6qN6fHChX0vhJ2s8WI5qTqrb51LT
+         oGX+F4kCNJMT0IlQzaus2qSDSSZAH140BEMq76BpoNGFZn8LedpF6Khmidi1poaMxB7m
+         t/JU+z/2udLVgHEnc/WhZy8MsbfhX6DNst8pg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=pVxwqNbug9kzVKOL3oZqGnvdYf9glDYyhFwWJ28UE9c=;
+        b=zHEWxI73O1mxthUpMFgX78sVjGPHEU5kAAtFJaaapKuAzAhbCWX4hFPFM5tBmjywzf
+         h7MrIdRZkZs9vvuUiRNw6xCmRP2L2D4fDfd8lqtYb7+3NGDDKfPGw6+fkbHHZcbBpws9
+         LgyArHR9Yq4Jrc1ZQcli4swVXg4CmjNOwIzp7s6tCVpdR356H+SFPRLPCD3QDaL4viuK
+         wzd2zCsKuuFX06TwijODFA6Do9jKWhQTxzGrvbgboLgg4Tu1CDQCOGd5D98dUD515eTz
+         hu2s48yaIKo2UJHSQhNoHxHFOI0bicy/HF3EjJRhPeWlxyYnYx2oUeflMSDrxuS/btw/
+         q65A==
+X-Gm-Message-State: AFqh2kpXqz/5D/5JC+IP49sQZ4rKPCDR7EGZwxvuUEw2a8ka8rL0CEJy
+        6Ru2jXp9ilTYqoklsc5a4Ch4ZQ==
+X-Google-Smtp-Source: AMrXdXtiSYCndt8IrAXOQDq9FZ2AmUK0DrLHAa9LWFBHa5cn4ItMrAiA2RYWW90jFvgtGv8uMgl+YQ==
+X-Received: by 2002:a17:90a:acf:b0:226:ddf6:b7da with SMTP id r15-20020a17090a0acf00b00226ddf6b7damr370799pje.41.1672948884061;
+        Thu, 05 Jan 2023 12:01:24 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id g6-20020a17090a640600b00225ffb9c43dsm1728484pjj.5.2023.01.05.12.01.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Jan 2023 12:01:23 -0800 (PST)
+Date:   Thu, 5 Jan 2023 12:01:22 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        stable@vger.kernel.org, io-uring@vger.kernel.org,
+        Dylan Yudaken <dylany@fb.com>, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] io_uring: Replace 0-length array with flexible array
+Message-ID: <202301051159.9CBE8DE09@keescook>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="W88MDnI1irEhoaY2"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
+In-Reply-To: <Y7cnGT0dK86BA4b7@kroah.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+[resend -- I failed to CC the thread]
 
---W88MDnI1irEhoaY2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Jan 05, 2023 at 08:38:01PM +0100, Greg KH wrote:
+> On Thu, Jan 05, 2023 at 10:04:19AM -0800, Kees Cook wrote:
+> > On Thu, Jan 05, 2023 at 08:39:48AM +0100, Greg KH wrote:
+> > > On Wed, Jan 04, 2023 at 07:37:48PM -0800, Kees Cook wrote:
+> > > > Zero-length arrays are deprecated[1]. Replace struct io_uring_buf_ring's
+> > > > "bufs" with a flexible array member. (How is the size of this array
+> > > > verified?) Detected with GCC 13, using -fstrict-flex-arrays=3:
+> > > > 
+> > > > In function 'io_ring_buffer_select',
+> > > >     inlined from 'io_buffer_select' at io_uring/kbuf.c:183:10:
+> > > > io_uring/kbuf.c:141:23: warning: array subscript 255 is outside the bounds of an interior zero-length array 'struct io_uring_buf[0]' [-Wzero-length-bounds]
+> > > >   141 |                 buf = &br->bufs[head];
+> > > >       |                       ^~~~~~~~~~~~~~~
+> > > > In file included from include/linux/io_uring.h:7,
+> > > >                  from io_uring/kbuf.c:10:
+> > > > include/uapi/linux/io_uring.h: In function 'io_buffer_select':
+> > > > include/uapi/linux/io_uring.h:628:41: note: while referencing 'bufs'
+> > > >   628 |                 struct io_uring_buf     bufs[0];
+> > > >       |                                         ^~~~
+> > > > 
+> > > > [1] https://www.kernel.org/doc/html/latest/process/deprecated.html#zero-length-and-one-element-arrays
+> > > > 
+> > > > Fixes: c7fb19428d67 ("io_uring: add support for ring mapped supplied buffers")
+> > > > Cc: Jens Axboe <axboe@kernel.dk>
+> > > > Cc: Pavel Begunkov <asml.silence@gmail.com>
+> > > > Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+> > > > Cc: stable@vger.kernel.org
+> > > 
+> > > Build problem aside, why is this a stable kernel issue?
+> > 
+> > My thinking was that since this is technically a UAPI change, it'd be
+> > best to get it changed as widely as possible.
+> 
+> You can't break the uapi, so it should be the same with or without your
+> change right?
+> 
+> confused,
 
-Hi!
+Correct -- but we've had a hard time finding breakages (with extremely
+weird stuff like non-C .h file scrapers) due to the lag between making
+UAPI changes like this.
 
-> This is the start of the stable review cycle for the 4.9.337 release.
-> There are 251 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Anyway, I can drop the CC stable if it's more sensible.
 
-These are kCFI fixes, we don't really need them in 4.9:
-
-> Nathan Chancellor <nathan@kernel.org>
->     net: ethernet: ti: Fix return type of netcp_ndo_start_xmit()
-> Nathan Chancellor <nathan@kernel.org>
->     hamradio: baycom_epp: Fix return type of baycom_send_packet()
-> Nathan Chancellor <nathan@kernel.org>
->     drm/fsl-dcu: Fix return type of fsl_dcu_drm_connector_mode_valid()
-> Nathan Chancellor <nathan@kernel.org>
->     drm/sti: Fix return type of sti_{dvo,hda,hdmi}_connector_mode_valid()
-
-This is marked as not-for-stable, and does not fix anything really
-bad, just smatch warning:
-
-> Marcus Folkesson <marcus.folkesson@gmail.com>
->     HID: hid-sensor-custom: set fixed size for custom attributes
-
-This is quite wrong. Real bug is registering the interrupt before the
-device is set up -- it should be fixed by reordering the init code,
-not by checking for NULL.
-
-> Gaosheng Cui <cuigaosheng1@huawei.com>
->     ALSA: mts64: fix possible null-ptr-defer in snd_mts64_interrupt
-
-This may turn working config into non-working for someone, as people
-now need to enable PWM manually to get fully working driver. I don't
-think we want it in stable.
-
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->     fbdev: ssd1307fb: Drop optional dependency
-
-This claims to fix a deadlock, but in turn it calls
-cancel_delayed_work_sync from interrupt handler. I don't think that is
-good idea.
-
-> Marek Szyprowski <m.szyprowski@samsung.com>
->     ASoC: wm8994: Fix potential deadlock
-
-This one is okay in mainline, but contains wrong error handling in the
-4.9 backport. 4.19 seems okay. It needs to "goto out_unlock", not
-return directly.
-
-> Jan Kara <jack@suse.cz>
->     ext4: initialize quota before expanding inode in setproject ioctl
-
-Best regards,
-								Pavel
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---W88MDnI1irEhoaY2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY7cpWAAKCRAw5/Bqldv6
-8ojEAKCY75U3fxHtetJmbMdT2+rhB2HWhACgs7WB0SnN3QEXI1p9VceTklePlfU=
-=giGP
------END PGP SIGNATURE-----
-
---W88MDnI1irEhoaY2--
+-- 
+Kees Cook
