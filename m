@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23BB865EC55
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:08:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55EBC65EC58
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:08:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234107AbjAENIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:08:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
+        id S232864AbjAENIp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:08:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231869AbjAENIW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:08:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12D6A5E0BA
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:07:55 -0800 (PST)
+        with ESMTP id S234323AbjAENI1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:08:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC96A5C1DA
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:07:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3D81619FF
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:07:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7926AC433F0;
-        Thu,  5 Jan 2023 13:07:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9989FB81A84
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:07:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE27EC433F1;
+        Thu,  5 Jan 2023 13:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672924074;
-        bh=3p6PHSq3rL+zlaSnvK2euTRgdlZNbfXX+w6pBbK5IqU=;
+        s=korg; t=1672924077;
+        bh=j+XvRaeHGALL552/+G9Y1kGH0I+QWcqTXZJUhSX4eWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w+12HoZDXZtoZd4Y3czLtMOwTYx+nimwBHrGy3GAR0hw/U9Kj3m2H95tNcYboCjJj
-         ndSWbapmCdRdLO5h2ymi8jBU1L8D18NETTVEISBuCGL1qW7VJqjCsLLcgpYdTL6cdz
-         tyeNCbiRV07dL/MyAFUMbXHnmIu2Hy4J2bLj05IY=
+        b=iZ3jHWZsVyHEc0/UV/sw/7OE0Aop5gpkgojWivKOomtWLONEGCLOOSsQCyYFmOhLj
+         Lrhe+mJsZd7c9ScSr0lLOj8naldKtBLTuV6Mz2xdPNvXMmi5YKLbQQ7WZdg8avx/ZO
+         MxxS/6EFMDYaFEGQ1QUjHOZXZF82aWZHlrtZKeAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nathan Chancellor <nathan@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 195/251] s390/netiucv: Fix return type of netiucv_tx()
-Date:   Thu,  5 Jan 2023 13:55:32 +0100
-Message-Id: <20230105125343.753819006@linuxfoundation.org>
+Subject: [PATCH 4.9 196/251] s390/lcs: Fix return type of lcs_start_xmit()
+Date:   Thu,  5 Jan 2023 13:55:33 +0100
+Message-Id: <20230105125343.804024685@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -57,7 +57,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 88d86d18d7cf7e9137c95f9d212bb9fff8a1b4be ]
+[ Upstream commit bb16db8393658e0978c3f0d30ae069e878264fa3 ]
 
 With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
 indirect call targets are validated against the expected function
@@ -67,17 +67,17 @@ which manifests as either a kernel panic or thread getting killed. A
 proposed warning in clang aims to catch these at compile time, which
 reveals:
 
-  drivers/s390/net/netiucv.c:1854:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = netiucv_tx,
-                                    ^~~~~~~~~~
+  drivers/s390/net/lcs.c:2090:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = lcs_start_xmit,
+                                    ^~~~~~~~~~~~~~
+  drivers/s390/net/lcs.c:2097:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = lcs_start_xmit,
+                                    ^~~~~~~~~~~~~~
 
 ->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of netiucv_tx() to
+'netdev_tx_t', not 'int'. Adjust the return type of lcs_start_xmit() to
 match the prototype's to resolve the warning and potential CFI failure,
 should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
-
-Additionally, while in the area, remove a comment block that is no
-longer relevant.
 
 Link: https://github.com/ClangBuiltLinux/linux/issues/1750
 Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
@@ -86,29 +86,34 @@ Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/netiucv.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/s390/net/lcs.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index b0e8ffdf864b..3465ea3d667b 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -1361,15 +1361,8 @@ static int netiucv_pm_restore_thaw(struct device *dev)
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index 4d3caad7e981..3bd2241c13e8 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -1544,9 +1544,8 @@ lcs_txbuffer_cb(struct lcs_channel *channel, struct lcs_buffer *buffer)
  /**
-  * Start transmission of a packet.
-  * Called from generic network device layer.
-- *
-- * @param skb Pointer to buffer containing the packet.
-- * @param dev Pointer to interface struct.
-- *
-- * @return 0 if packet consumed, !0 if packet rejected.
-- *         Note: If we return !0, then the packet is free'd by
-- *               the generic network layer.
+  * Packet transmit function called by network stack
   */
--static int netiucv_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t netiucv_tx(struct sk_buff *skb, struct net_device *dev)
+-static int
+-__lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
+-		 struct net_device *dev)
++static netdev_tx_t __lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
++				    struct net_device *dev)
  {
- 	struct netiucv_priv *privptr = netdev_priv(dev);
+ 	struct lcs_header *header;
+ 	int rc = NETDEV_TX_OK;
+@@ -1607,8 +1606,7 @@ __lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
+ 	return rc;
+ }
+ 
+-static int
+-lcs_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t lcs_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct lcs_card *card;
  	int rc;
 -- 
 2.35.1
