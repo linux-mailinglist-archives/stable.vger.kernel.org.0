@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A74C765EB8E
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:00:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52DDD65EB90
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:00:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233483AbjAENAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:00:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47550 "EHLO
+        id S233528AbjAENAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:00:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233528AbjAEM77 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:59 -0500
+        with ESMTP id S233939AbjAENAA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:00:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6990E5AC7E
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88CAA5AC7F
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15CAEB81AD6
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612A6C433EF;
-        Thu,  5 Jan 2023 12:59:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B276B81AE1
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70183C433F2;
+        Thu,  5 Jan 2023 12:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923589;
-        bh=8G5P1bKONHYNybXA3AXzV2jmMQt9ANoBvwiZugq9a4I=;
+        s=korg; t=1672923592;
+        bh=z4OWxsMqc4jmGsGwyPEq7uJhm9+Y2Q2LbM3MLfhd574=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqFbnnaOlTql5oy2tLAAEFgoZMLJ1ZO2eIGUZi4+v1a4BnUhlGeeFRVbIMsK9++1Y
-         g1BTlR/NI2+6eJGFh6QfcOTCpsTCsHwav75iJt8hIFFvCAkX+Wg01YkZMMc2gOYeZc
-         vJSGJbDwNrOVmpAHeIkfd9iEMmVKhIPczQX+wiBo=
+        b=UmZYqUhFpr47s7iuvJw+7rlGsZgHoqPY1dXp9NKJPXH2pZhl+0cRlNOEJe/w7Jvpa
+         7Wvs+EGhFqOoQlLvzIvVG6keQ6+XKVpLjl+E5DYQVwoiHRwk3utxt+jQmAx4WQS0fG
+         GWtc1s+T8We/wttN2pbAeOwVUcs+2QdP9kbzFcfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Baisong Zhong <zhongbaisong@huawei.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 069/251] pinctrl: pinconf-generic: add missing of_node_put()
-Date:   Thu,  5 Jan 2023 13:53:26 +0100
-Message-Id: <20230105125337.929831928@linuxfoundation.org>
+Subject: [PATCH 4.9 070/251] media: dvb-usb: az6027: fix null-ptr-deref in az6027_i2c_xfer()
+Date:   Thu,  5 Jan 2023 13:53:27 +0100
+Message-Id: <20230105125337.977498458@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,38 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Baisong Zhong <zhongbaisong@huawei.com>
 
-[ Upstream commit 5ead93289815a075d43c415e35c8beafafb801c9 ]
+[ Upstream commit 0ed554fd769a19ea8464bb83e9ac201002ef74ad ]
 
-of_node_put() needs to be called when jumping out of the loop, since
-for_each_available_child_of_node() will increase the refcount of node.
+Wei Chen reports a kernel bug as blew:
 
-Fixes: c7289500e29d ("pinctrl: pinconf-generic: scan also referenced phandle node")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Link: https://lore.kernel.org/r/20221125070156.3535855-1-zhangpeng362@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+general protection fault, probably for non-canonical address
+KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
+...
+Call Trace:
+<TASK>
+__i2c_transfer+0x77e/0x1930 drivers/i2c/i2c-core-base.c:2109
+i2c_transfer+0x1d5/0x3d0 drivers/i2c/i2c-core-base.c:2170
+i2cdev_ioctl_rdwr+0x393/0x660 drivers/i2c/i2c-dev.c:297
+i2cdev_ioctl+0x75d/0x9f0 drivers/i2c/i2c-dev.c:458
+vfs_ioctl fs/ioctl.c:51 [inline]
+__do_sys_ioctl fs/ioctl.c:870 [inline]
+__se_sys_ioctl+0xfb/0x170 fs/ioctl.c:856
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7fd834a8bded
+
+In az6027_i2c_xfer(), if msg[i].addr is 0x99,
+a null-ptr-deref will caused when accessing msg[i].buf.
+For msg[i].len is 0 and msg[i].buf is null.
+
+Fix this by checking msg[i].len in az6027_i2c_xfer().
+
+Link: https://lore.kernel.org/lkml/CAO4mrfcPHB5aQJO=mpqV+p8mPLNg-Fok0gw8gZ=zemAfMGTzMg@mail.gmail.com/
+
+Link: https://lore.kernel.org/linux-media/20221120065918.2160782-1-zhongbaisong@huawei.com
+Fixes: 76f9a820c867 ("V4L/DVB: AZ6027: Initial import of the driver")
+Reported-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinconf-generic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/az6027.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/pinctrl/pinconf-generic.c b/drivers/pinctrl/pinconf-generic.c
-index 074a7e044e25..b0e41fb3623d 100644
---- a/drivers/pinctrl/pinconf-generic.c
-+++ b/drivers/pinctrl/pinconf-generic.c
-@@ -384,8 +384,10 @@ int pinconf_generic_dt_node_to_map(struct pinctrl_dev *pctldev,
- 	for_each_child_of_node(np_config, np) {
- 		ret = pinconf_generic_dt_subnode_to_map(pctldev, np, map,
- 					&reserved_maps, num_maps, type);
--		if (ret < 0)
-+		if (ret < 0) {
-+			of_node_put(np);
- 			goto exit;
-+		}
- 	}
- 	return 0;
- 
+diff --git a/drivers/media/usb/dvb-usb/az6027.c b/drivers/media/usb/dvb-usb/az6027.c
+index 382c8075ef52..f2b5ba1d2809 100644
+--- a/drivers/media/usb/dvb-usb/az6027.c
++++ b/drivers/media/usb/dvb-usb/az6027.c
+@@ -978,6 +978,10 @@ static int az6027_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int n
+ 		if (msg[i].addr == 0x99) {
+ 			req = 0xBE;
+ 			index = 0;
++			if (msg[i].len < 1) {
++				i = -EOPNOTSUPP;
++				break;
++			}
+ 			value = msg[i].buf[0] & 0x00ff;
+ 			length = 1;
+ 			az6027_usb_out_op(d, req, value, index, data, length);
 -- 
 2.35.1
 
