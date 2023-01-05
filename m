@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB4665EBD2
+	by mail.lfdr.de (Postfix) with ESMTP id 648E565EBD1
 	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:04:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233622AbjAENDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:03:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50962 "EHLO
+        id S233820AbjAENDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:03:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233992AbjAENCq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:02:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 148B55B144
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:02:39 -0800 (PST)
+        with ESMTP id S234067AbjAENCv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:02:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 946365A8B7
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:02:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8327D619FF
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:02:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85159C433D2;
-        Thu,  5 Jan 2023 13:02:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DA4BB81ABD
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:02:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 962CBC433D2;
+        Thu,  5 Jan 2023 13:02:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923758;
-        bh=EPTRzfM9qqeUb5LZ0aYXhPwEMGsWb25nb+yPn6BcVtw=;
+        s=korg; t=1672923762;
+        bh=kF+UJ2+GxPrysisT/BDB8fHKcqKuKNa+EmWQ2Nb8Tuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IwfXXubXxSqrG3WzhoVdDtX/vQxP4gkbvmMXNMxdMTn1Sfk5ZhLMwgvQVLox5UqRj
-         94lNQewpiOhxXjnMDBBdklseoSszyDjFbX/6Qbo6zH9+i39WWOV/E9aSrTKeMf7XAp
-         Yrrx6nwUpCAxPVKLm3RLap0pvVNu66XVwrZdBJq8=
+        b=mIjm2iES2anxBR4zLofy+/q9GTTcdwomdUprdKZzkQH2UOlPLq3VpBaalCdIr3yq4
+         TXnjYfoOWQqleAffMHmqWJkHDBiTH7/2LhGGRo1jCfObL4uuXlcFrWgdgBfejavcut
+         AN/5UvjVN4i5A3pR2fJguPJuTe3i3YgPp0jPXcos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 122/251] crypto: img-hash - Fix variable dereferenced before check hdev->req
-Date:   Thu,  5 Jan 2023 13:54:19 +0100
-Message-Id: <20230105125340.421120746@linuxfoundation.org>
+Subject: [PATCH 4.9 123/251] hwrng: amd - Fix PCI device refcount leak
+Date:   Thu,  5 Jan 2023 13:54:20 +0100
+Message-Id: <20230105125340.459270241@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,50 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 04ba54e5af8f8f0137b08cb51a0b3a2e1ea46c94 ]
+[ Upstream commit ecadb5b0111ea19fc7c240bb25d424a94471eb7d ]
 
-Smatch report warning as follows:
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-drivers/crypto/img-hash.c:366 img_hash_dma_task() warn: variable
-dereferenced before check 'hdev->req'
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. Add the missing
+pci_dev_put() for the normal and error path.
 
-Variable dereferenced should be done after check 'hdev->req',
-fix it.
-
-Fixes: d358f1abbf71 ("crypto: img-hash - Add Imagination Technologies hw hash accelerator")
-Fixes: 10badea259fa ("crypto: img-hash - Fix null pointer exception")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Fixes: 96d63c0297cc ("[PATCH] Add AMD HW RNG driver")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/img-hash.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/char/hw_random/amd-rng.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/crypto/img-hash.c b/drivers/crypto/img-hash.c
-index a2e77b87485b..157c8f5c879c 100644
---- a/drivers/crypto/img-hash.c
-+++ b/drivers/crypto/img-hash.c
-@@ -359,12 +359,16 @@ static int img_hash_dma_init(struct img_hash_dev *hdev)
- static void img_hash_dma_task(unsigned long d)
- {
- 	struct img_hash_dev *hdev = (struct img_hash_dev *)d;
--	struct img_hash_request_ctx *ctx = ahash_request_ctx(hdev->req);
-+	struct img_hash_request_ctx *ctx;
- 	u8 *addr;
- 	size_t nbytes, bleft, wsend, len, tbc;
- 	struct scatterlist tsg;
+diff --git a/drivers/char/hw_random/amd-rng.c b/drivers/char/hw_random/amd-rng.c
+index 9959c762da2f..db3dd467194c 100644
+--- a/drivers/char/hw_random/amd-rng.c
++++ b/drivers/char/hw_random/amd-rng.c
+@@ -143,15 +143,19 @@ static int __init mod_init(void)
+ found:
+ 	err = pci_read_config_dword(pdev, 0x58, &pmbase);
+ 	if (err)
+-		return err;
++		goto put_dev;
  
--	if (!hdev->req || !ctx->sg)
-+	if (!hdev->req)
-+		return;
+ 	pmbase &= 0x0000FF00;
+-	if (pmbase == 0)
+-		return -EIO;
++	if (pmbase == 0) {
++		err = -EIO;
++		goto put_dev;
++	}
+ 
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
++	if (!priv) {
++		err = -ENOMEM;
++		goto put_dev;
++	}
+ 
+ 	if (!request_region(pmbase + PMBASE_OFFSET, PMBASE_SIZE, DRV_NAME)) {
+ 		dev_err(&pdev->dev, DRV_NAME " region 0x%x already in use!\n",
+@@ -185,6 +189,8 @@ static int __init mod_init(void)
+ 	release_region(pmbase + PMBASE_OFFSET, PMBASE_SIZE);
+ out:
+ 	kfree(priv);
++put_dev:
++	pci_dev_put(pdev);
+ 	return err;
+ }
+ 
+@@ -200,6 +206,8 @@ static void __exit mod_exit(void)
+ 
+ 	release_region(priv->pmbase + PMBASE_OFFSET, PMBASE_SIZE);
+ 
++	pci_dev_put(priv->pcidev);
 +
-+	ctx = ahash_request_ctx(hdev->req);
-+	if (!ctx->sg)
- 		return;
+ 	kfree(priv);
+ }
  
- 	addr = sg_virt(ctx->sg);
 -- 
 2.35.1
 
