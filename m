@@ -2,64 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5BDB65F6CD
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 23:30:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E269C65F6DF
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 23:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235430AbjAEWa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 17:30:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59388 "EHLO
+        id S233371AbjAEWeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 17:34:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236046AbjAEWaD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 17:30:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D57910D6;
-        Thu,  5 Jan 2023 14:29:54 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4976B81C0A;
-        Thu,  5 Jan 2023 22:29:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B0FDC433EF;
-        Thu,  5 Jan 2023 22:29:50 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="QpBB4pwU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1672957786;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=mMldSeIA7qWoDB1sx6P/v3uvnTNOCNV9Im/Ue9FmzFU=;
-        b=QpBB4pwU2wEZ2yl5XVSF8mYLnd3NmfAVe/m2DxszOjivDyR1t+oAmAjfXb9/LnZft8M8Sm
-        tfyMpwX8w1ub8ByD/S+prDNIPhgnJLkTf3MoS+QWRKds0cASzWvEhSX/Bk+RZunpaPP8+3
-        zaDdmKSp9EPrhaXg2F5QU1PKN05ae+s=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 843725ac (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Thu, 5 Jan 2023 22:29:46 +0000 (UTC)
-Date:   Thu, 5 Jan 2023 23:29:43 +0100
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jan Dabros <jsd@semihalf.com>,
-        regressions@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Johannes Altmanninger <aclopte@gmail.com>,
+        with ESMTP id S236211AbjAEWeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 17:34:05 -0500
+Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27B0FF02E
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 14:34:04 -0800 (PST)
+Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
+        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id C725E10046FDD
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 22:34:03 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id DYoFpnZtBNX2aDYoFpI5Xw; Thu, 05 Jan 2023 22:34:03 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=NMAQR22g c=1 sm=1 tr=0 ts=63b7505b
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=RvmDmJFTN0MA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=fsQ65eT743dOOGRGVPv8xbN2Nt3KGqP9KIv3GK1g+CA=; b=0qHHhi5bUYJyKS9qjXu0VjQ/HF
+        R0Kl0kF+v1+O8k+uGUocSk8kCZsjl0RI1LYRxPMhUz4zVe77ui7zoA0+6mFE7PLIc170+lc9snwTv
+        N9i2/NrcUptOdOve0B4o6CcLA1hPZnwiiDHuU4AJ0DAWsbY5vRDdFn6WQod/IiYlKkjZUFHvJkUzd
+        oFdZo3PPVNpacZuDIMXKrkTp1VPQdTdnsbjX9LTetoDSKBFxsIpxkly0Kzpxcn04dfJ66ZPYPPaEu
+        yoYzHUx3s3Yo8orRFjl23GqGDkFH+GykAvb7m8/lql1do6xBmGIroyAiVcAeo010Z8+86ul6YnhN5
+        M2x6kcRA==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:50738 helo=[10.0.1.47])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1pDYoE-001XqO-6c;
+        Thu, 05 Jan 2023 15:34:02 -0700
+Subject: Re: [PATCH 6.0 000/177] 6.0.18-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
-Subject: Re: [PATCH] tpm: Disable hwrng for TPM 1 if PM_SLEEP is enabled
-Message-ID: <Y7dPV5BK6jk1KvX+@zx2c4.com>
-References: <370a2808-a19b-b512-4cd3-72dc69dfe8b0@suse.cz>
- <20230105144742.3219571-1-Jason@zx2c4.com>
- <CAHk-=whxaSHcHeo10JGz3EMJZBfC1LarcrerLos7uHbE1URhtQ@mail.gmail.com>
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230104160507.635888536@linuxfoundation.org>
+In-Reply-To: <20230104160507.635888536@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <de87e848-7157-e119-cdf4-3cd9b3bbc5a2@w6rz.net>
+Date:   Thu, 5 Jan 2023 14:33:57 -0800
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHk-=whxaSHcHeo10JGz3EMJZBfC1LarcrerLos7uHbE1URhtQ@mail.gmail.com>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1pDYoE-001XqO-6c
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:50738
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,36 +93,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 05, 2023 at 01:58:48PM -0800, Linus Torvalds wrote:
-> On Thu, Jan 5, 2023 at 6:48 AM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
-> >
-> > TPM 1's support for its hardware RNG is broken across system suspends,
-> > due to races or locking issues or something else that haven't been
-> > diagnosed or fixed yet. These issues prevent the system from actually
-> > suspending. So disable the driver in this case. Later, when this is
-> > fixed properly, we can remove this.
-> 
-> How about just keeping it enabled, but not making it a fatal error if
-> the TPM saving doesn't work? IOW, just print the warning, and then
-> "return 0" from the suspend function.
+On 1/4/23 8:04 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.0.18 release.
+> There are 177 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 06 Jan 2023 16:04:29 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.0.18-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-You're right that returning 0 from the pm notifier would make the
-problem that users actually care about -- laptop doesn't sleep when you
-close the lid -- go away.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-From a random.c perspective, the RNG is already initialized when the
-driver loads, which will be before suspend bricks the driver. So even if
-the behavior afterwards is a buggy driver handing all zeros to random.c,
-it won't really matter much; random.c can deal with that
-cryptographically. I have no idea if this is actually the case with the
-driver's error condition. But if it is, it's good that it doesn't
-matter.
+Tested-by: Ron Economos <re@w6rz.net>
 
-So okay, I'll roll a patch to do that when I get home. I'm writing on my
-phone now, but from memory it's just changing a 'return rc;' into
-'return 0;'.
-
-Then the TPM folks can fix the underlying issue at their leisure
-whenever.
-
-Jason
