@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F24F65EBEA
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:04:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7AF465EBE9
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:04:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233939AbjAENEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233945AbjAENEN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 5 Jan 2023 08:04:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53326 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233980AbjAENDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:03:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A53BC57932
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:03:49 -0800 (PST)
+        with ESMTP id S233982AbjAENDw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:03:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3EA5833E
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:03:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65C0DB81ABD
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:03:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6116C433F0;
-        Thu,  5 Jan 2023 13:03:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9F07619FF
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:03:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E060FC433EF;
+        Thu,  5 Jan 2023 13:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923827;
-        bh=gbUaiQ8eiOAytPUL8ZXCFHkgrf09cc/Qz3QcWKn+O3Y=;
+        s=korg; t=1672923830;
+        bh=NDHke4IRLcRGerzFBwPfQFbL21mjrkjKWhA/QzJkolk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSjFkDI8EpaMhFGPIfYDHE7vCSiKsXqHpSkyNPBsJ64tksQ6cwuNbmsatNpoOCTjr
-         GvlEwKYfoKTpOMd8UkiY3ucaUP2Lk45Le2MKBF7MylGzntru4sIvABlobWCOXo8Ww4
-         VSTdSUpzrCBYt5PW2EdqHm54ZoTWZMVw/AubJ/Yc=
+        b=jiixH659xN62UL/3zpeEqT2LylQ5MXmb1+9uGuld1k87zKuosdtNQyB3dKWHjfeYw
+         mBHkrj+18kjuOYVomsVktC9CqlrfCvCoEZi6LO4XEFt+5S28q3n5T6f6P81ERVXGVZ
+         2Il/rX9JfiRc5z97IPSUvKlpIdYtopKlxPw7YQNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 145/251] vme: Fix error not catched in fake_init()
-Date:   Thu,  5 Jan 2023 13:54:42 +0100
-Message-Id: <20230105125341.471442223@linuxfoundation.org>
+        patches@lists.linux.dev, Zheyu Ma <zheyuma97@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 146/251] i2c: ismt: Fix an out-of-bounds bug in ismt_access()
+Date:   Thu,  5 Jan 2023 13:54:43 +0100
+Message-Id: <20230105125341.519571809@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -52,47 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 7bef797d707f1744f71156b21d41e3b8c946631f ]
+[ Upstream commit 39244cc754829bf707dccd12e2ce37510f5b1f8d ]
 
-In fake_init(), __root_device_register() is possible to fail but it's
-ignored, which can cause unregistering vme_root fail when exit.
+When the driver does not check the data from the user, the variable
+'data->block[0]' may be very large to cause an out-of-bounds bug.
 
- general protection fault,
- probably for non-canonical address 0xdffffc000000008c
- KASAN: null-ptr-deref in range [0x0000000000000460-0x0000000000000467]
- RIP: 0010:root_device_unregister+0x26/0x60
- Call Trace:
-  <TASK>
-  __x64_sys_delete_module+0x34f/0x540
-  do_syscall_64+0x38/0x90
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+The following log can reveal it:
 
-Return error when __root_device_register() fails.
+[   33.995542] i2c i2c-1: ioctl, cmd=0x720, arg=0x7ffcb3dc3a20
+[   33.995978] ismt_smbus 0000:00:05.0: I2C_SMBUS_BLOCK_DATA:  WRITE
+[   33.996475] ==================================================================
+[   33.996995] BUG: KASAN: out-of-bounds in ismt_access.cold+0x374/0x214b
+[   33.997473] Read of size 18446744073709551615 at addr ffff88810efcfdb1 by task ismt_poc/485
+[   33.999450] Call Trace:
+[   34.001849]  memcpy+0x20/0x60
+[   34.002077]  ismt_access.cold+0x374/0x214b
+[   34.003382]  __i2c_smbus_xfer+0x44f/0xfb0
+[   34.004007]  i2c_smbus_xfer+0x10a/0x390
+[   34.004291]  i2cdev_ioctl_smbus+0x2c8/0x710
+[   34.005196]  i2cdev_ioctl+0x5ec/0x74c
 
-Fixes: 658bcdae9c67 ("vme: Adding Fake VME driver")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221205084805.147436-1-chenzhongjin@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this bug by checking the size of 'data->block[0]' first.
+
+Fixes: 13f35ac14cd0 ("i2c: Adding support for Intel iSMT SMBus 2.0 host controller")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vme/bridges/vme_fake.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-ismt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/vme/bridges/vme_fake.c b/drivers/vme/bridges/vme_fake.c
-index e81ec763b555..150ee8b3507f 100644
---- a/drivers/vme/bridges/vme_fake.c
-+++ b/drivers/vme/bridges/vme_fake.c
-@@ -1077,6 +1077,8 @@ static int __init fake_init(void)
- 
- 	/* We need a fake parent device */
- 	vme_root = __root_device_register("vme", THIS_MODULE);
-+	if (IS_ERR(vme_root))
-+		return PTR_ERR(vme_root);
- 
- 	/* If we want to support more than one bridge at some point, we need to
- 	 * dynamically allocate this so we get one per device.
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index b51adffa4841..e689c7acea62 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -495,6 +495,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* Block Write */
+ 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  WRITE\n");
++			if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++				return -EINVAL;
++
+ 			dma_size = data->block[0] + 1;
+ 			dma_direction = DMA_TO_DEVICE;
+ 			desc->wr_len_cmd = dma_size;
 -- 
 2.35.1
 
