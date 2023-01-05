@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52DDD65EB90
+	by mail.lfdr.de (Postfix) with ESMTP id F1A7F65EB92
 	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:00:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233528AbjAENAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:00:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47446 "EHLO
+        id S233581AbjAENAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:00:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233939AbjAENAA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:00:00 -0500
+        with ESMTP id S233953AbjAENAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:00:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88CAA5AC7F
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9923D9EC
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B276B81AE1
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70183C433F2;
-        Thu,  5 Jan 2023 12:59:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82D91B81979
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B181EC433EF;
+        Thu,  5 Jan 2023 12:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923592;
-        bh=z4OWxsMqc4jmGsGwyPEq7uJhm9+Y2Q2LbM3MLfhd574=;
+        s=korg; t=1672923596;
+        bh=BSokVUf6OaLBP2nrzZrp7QnsBaaOEmYJBuJcG0JRhgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmZYqUhFpr47s7iuvJw+7rlGsZgHoqPY1dXp9NKJPXH2pZhl+0cRlNOEJe/w7Jvpa
-         7Wvs+EGhFqOoQlLvzIvVG6keQ6+XKVpLjl+E5DYQVwoiHRwk3utxt+jQmAx4WQS0fG
-         GWtc1s+T8We/wttN2pbAeOwVUcs+2QdP9kbzFcfI=
+        b=D+JFeZ50ku4Bqr37fRHYwRaYqJy8oI+y4OUksBhV5YnGhnmmnHaxbvkEjeUS0lIJs
+         wlDgzmA/u8xCpeMV8eNHBP84tNtHn5iRHLcv/oM7EWUsvxQiYhD63CNeRio06cnJbp
+         A/m35fagmErxMWucGGM14r6yzgtYfult2tpGC9mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Baisong Zhong <zhongbaisong@huawei.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 070/251] media: dvb-usb: az6027: fix null-ptr-deref in az6027_i2c_xfer()
-Date:   Thu,  5 Jan 2023 13:53:27 +0100
-Message-Id: <20230105125337.977498458@linuxfoundation.org>
+Subject: [PATCH 4.9 071/251] NFSv4.2: Fix a memory stomp in decode_attr_security_label
+Date:   Thu,  5 Jan 2023 13:53:28 +0100
+Message-Id: <20230105125338.021599526@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -54,62 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baisong Zhong <zhongbaisong@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 0ed554fd769a19ea8464bb83e9ac201002ef74ad ]
+[ Upstream commit 43c1031f7110967c240cb6e922adcfc4b8899183 ]
 
-Wei Chen reports a kernel bug as blew:
+We must not change the value of label->len if it is zero, since that
+indicates we stored a label.
 
-general protection fault, probably for non-canonical address
-KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
-...
-Call Trace:
-<TASK>
-__i2c_transfer+0x77e/0x1930 drivers/i2c/i2c-core-base.c:2109
-i2c_transfer+0x1d5/0x3d0 drivers/i2c/i2c-core-base.c:2170
-i2cdev_ioctl_rdwr+0x393/0x660 drivers/i2c/i2c-dev.c:297
-i2cdev_ioctl+0x75d/0x9f0 drivers/i2c/i2c-dev.c:458
-vfs_ioctl fs/ioctl.c:51 [inline]
-__do_sys_ioctl fs/ioctl.c:870 [inline]
-__se_sys_ioctl+0xfb/0x170 fs/ioctl.c:856
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7fd834a8bded
-
-In az6027_i2c_xfer(), if msg[i].addr is 0x99,
-a null-ptr-deref will caused when accessing msg[i].buf.
-For msg[i].len is 0 and msg[i].buf is null.
-
-Fix this by checking msg[i].len in az6027_i2c_xfer().
-
-Link: https://lore.kernel.org/lkml/CAO4mrfcPHB5aQJO=mpqV+p8mPLNg-Fok0gw8gZ=zemAfMGTzMg@mail.gmail.com/
-
-Link: https://lore.kernel.org/linux-media/20221120065918.2160782-1-zhongbaisong@huawei.com
-Fixes: 76f9a820c867 ("V4L/DVB: AZ6027: Initial import of the driver")
-Reported-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: b4487b935452 ("nfs: Fix getxattr kernel panic and memory overflow")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/az6027.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfs/nfs4xdr.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/az6027.c b/drivers/media/usb/dvb-usb/az6027.c
-index 382c8075ef52..f2b5ba1d2809 100644
---- a/drivers/media/usb/dvb-usb/az6027.c
-+++ b/drivers/media/usb/dvb-usb/az6027.c
-@@ -978,6 +978,10 @@ static int az6027_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int n
- 		if (msg[i].addr == 0x99) {
- 			req = 0xBE;
- 			index = 0;
-+			if (msg[i].len < 1) {
-+				i = -EOPNOTSUPP;
-+				break;
-+			}
- 			value = msg[i].buf[0] & 0x00ff;
- 			length = 1;
- 			az6027_usb_out_op(d, req, value, index, data, length);
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index b50c97c6aecb..fc5583531fc0 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4160,12 +4160,10 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 		if (unlikely(!p))
+ 			goto out_overflow;
+ 		if (len < NFS4_MAXLABELLEN) {
+-			if (label) {
+-				if (label->len) {
+-					if (label->len < len)
+-						return -ERANGE;
+-					memcpy(label->label, p, len);
+-				}
++			if (label && label->len) {
++				if (label->len < len)
++					return -ERANGE;
++				memcpy(label->label, p, len);
+ 				label->len = len;
+ 				label->pi = pi;
+ 				label->lfs = lfs;
 -- 
 2.35.1
 
