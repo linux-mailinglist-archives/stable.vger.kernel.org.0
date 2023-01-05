@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C44AF65EC78
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:09:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8315C65EC79
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:09:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231659AbjAENJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:09:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56306 "EHLO
+        id S229441AbjAENJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:09:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232464AbjAENJh (ORCPT
+        with ESMTP id S232591AbjAENJh (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:09:37 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5024D5B16A
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:09:18 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D9EF5BA04
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:09:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9DD6ACE1ADB
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:09:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 686B0C433F1;
-        Thu,  5 Jan 2023 13:09:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A169561A10
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:09:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 938E7C433D2;
+        Thu,  5 Jan 2023 13:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672924154;
-        bh=WoJizg100qiYf7/FvA1kI0UcHjJZT6LY1W7AEfS6H1A=;
+        s=korg; t=1672924158;
+        bh=+mj1P2kF30qa2AXKJ9+jWzIuU+Ker3aCexsGNA1TsgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKSQOjrwZGXRXPZ64PclSFuwqIYQXKLOP75Zx/qwwcj9AEOuLF0zwfsB1U24gvPUn
-         RAsWV0HVo3nLj52A862ifvhGLcSTK1gkNiGaJSx5bdqonflPoaArgK0ux6YB4Se5nD
-         XqDHbAnM1eSyJ5BXgXLh39CuO9v0BYuFbi+3aPwg=
+        b=D2eG/avjUF/cRjcKg0K30HPwRPhRJRAFdTLXAzcxkt48eA2NyyNF64g6e7a57q+I8
+         5eJAxTPGRQMqX8F4Qbrn8/Y51gRXEc0Yz+VScHH/KYxqenbOmTegvTh7ANh/nXmXQb
+         1UPuHIP5pKphxd8MhVcvg4rcCQkvt2VGIj1jSW1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Sandeen <sandeen@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.9 250/251] ext4: avoid BUG_ON when creating xattrs
-Date:   Thu,  5 Jan 2023 13:56:27 +0100
-Message-Id: <20230105125346.319748653@linuxfoundation.org>
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        stable@kernel.org, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 251/251] ext4: initialize quota before expanding inode in setproject ioctl
+Date:   Thu,  5 Jan 2023 13:56:28 +0100
+Message-Id: <20230105125346.370780485@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -55,51 +54,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit b40ebaf63851b3a401b0dc9263843538f64f5ce6 upstream.
+commit 1485f726c6dec1a1f85438f2962feaa3d585526f upstream.
 
-Commit fb0a387dcdcd ("ext4: limit block allocations for indirect-block
-files to < 2^32") added code to try to allocate xattr block with 32-bit
-block number for indirect block based files on the grounds that these
-files cannot use larger block numbers. It also added BUG_ON when
-allocated block could not fit into 32 bits. This is however bogus
-reasoning because xattr block is stored in inode->i_file_acl and
-inode->i_file_acl_hi and as such even indirect block based files can
-happily use full 48 bits for xattr block number. The proper handling
-seems to be there basically since 64-bit block number support was added.
-So remove the bogus limitation and BUG_ON.
+Make sure we initialize quotas before possibly expanding inode space
+(and thus maybe needing to allocate external xattr block) in
+ext4_ioctl_setproject(). This prevents not accounting the necessary
+block allocation.
 
-Cc: Eric Sandeen <sandeen@redhat.com>
-Fixes: fb0a387dcdcd ("ext4: limit block allocations for indirect-block files to < 2^32")
 Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221121130929.32031-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20221207115937.26601-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.c |    8 --------
- 1 file changed, 8 deletions(-)
+ fs/ext4/ioctl.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -974,19 +974,11 @@ inserted:
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -333,6 +333,10 @@ static int ext4_ioctl_setproject(struct
+ 	if (IS_NOQUOTA(inode))
+ 		goto out_unlock;
  
- 			goal = ext4_group_first_block_no(sb,
- 						EXT4_I(inode)->i_block_group);
--
--			/* non-extent files can't have physical blocks past 2^32 */
--			if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
--				goal = goal & EXT4_MAX_BLOCK_FILE_PHYS;
--
- 			block = ext4_new_meta_blocks(handle, inode, goal, 0,
- 						     NULL, &error);
- 			if (error)
- 				goto cleanup;
++	err = dquot_initialize(inode);
++	if (err)
++		return err;
++
+ 	err = ext4_get_inode_loc(inode, &iloc);
+ 	if (err)
+ 		goto out_unlock;
+@@ -345,10 +349,6 @@ static int ext4_ioctl_setproject(struct
+ 	}
+ 	brelse(iloc.bh);
  
--			if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
--				BUG_ON(block > EXT4_MAX_BLOCK_FILE_PHYS);
+-	err = dquot_initialize(inode);
+-	if (err)
+-		return err;
 -
- 			ea_idebug(inode, "creating block %llu",
- 				  (unsigned long long)block);
- 
+ 	handle = ext4_journal_start(inode, EXT4_HT_QUOTA,
+ 		EXT4_QUOTA_INIT_BLOCKS(sb) +
+ 		EXT4_QUOTA_DEL_BLOCKS(sb) + 3);
 
 
