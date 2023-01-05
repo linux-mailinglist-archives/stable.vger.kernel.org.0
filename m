@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5344065EC40
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72E8E65EC42
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:07:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234151AbjAENHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:07:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57338 "EHLO
+        id S232823AbjAENHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:07:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234239AbjAENHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:07:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4FA45AC72
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:07:11 -0800 (PST)
+        with ESMTP id S234279AbjAENHY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:07:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 538105C1F7
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:07:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C3D661A2A
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:07:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 019EEC433D2;
-        Thu,  5 Jan 2023 13:07:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A8E1B81AD0
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:07:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F0EAC433F1;
+        Thu,  5 Jan 2023 13:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672924030;
-        bh=C7C5Ik7Hf2wbOGLRgyTRdxYtnixTmXGm6fvWKsrm3tA=;
+        s=korg; t=1672924033;
+        bh=Yzu/8fhLG4JIM2xgcz1hHlQv+5zz4YsUDqb4IiBKrIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Le+RntPSTZe0vqZ15LHOcjT/6UMk7Qt/pNVzWe27aMXPmzqNNyaONMk5Am5fl90JD
-         V2Fx5HlosTu0VtJ5Q/7DmOsznT0v3d/rzhMKGpjn8IZ1wyFjiVPAHO6irIJ9X9eJRB
-         8R9b6G50xiwpMq6CMxR1LxKR7n1NXRBG0R58waA8=
+        b=1mlhDuhySpgzbPLJn/0rsyelbLvAVNb2dAkjnr8A6av7BOImaPhlGQQfzYkNQLI6/
+         TLgDbk4x7f+HYzD3+lsNis34mFSiylOfjCnDZ1CuzRwQDAYLKkD3EQAEIbU0Dmrn4B
+         6AJMZ4fgcqfVrMMbMVuDEBBstHDOyt2wONp5Qlyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        patches@lists.linux.dev, Wang Jingjin <wangjingjin1@huawei.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 211/251] ASoC: wm8994: Fix potential deadlock
-Date:   Thu,  5 Jan 2023 13:55:48 +0100
-Message-Id: <20230105125344.520431406@linuxfoundation.org>
+Subject: [PATCH 4.9 212/251] ASoC: rockchip: spdif: Add missing clk_disable_unprepare() in rk_spdif_runtime_resume()
+Date:   Thu,  5 Jan 2023 13:55:49 +0100
+Message-Id: <20230105125344.566909925@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -55,40 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Wang Jingjin <wangjingjin1@huawei.com>
 
-[ Upstream commit 9529dc167ffcdfd201b9f0eda71015f174095f7e ]
+[ Upstream commit 6d94d0090527b1763872275a7ccd44df7219b31e ]
 
-Fix this by dropping wm8994->accdet_lock while calling
-cancel_delayed_work_sync(&wm8994->mic_work) in wm1811_jackdet_irq().
+rk_spdif_runtime_resume() may have called clk_prepare_enable() before return
+from failed branches, add missing clk_disable_unprepare() in this case.
 
-Fixes: c0cc3f166525 ("ASoC: wm8994: Allow a delay between jack insertion and microphone detect")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20221209091657.1183-1-m.szyprowski@samsung.com
+Fixes: f874b80e1571 ("ASoC: rockchip: Add rockchip SPDIF transceiver driver")
+Signed-off-by: Wang Jingjin <wangjingjin1@huawei.com>
+Link: https://lore.kernel.org/r/20221208063900.4180790-1-wangjingjin1@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8994.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/rockchip/rockchip_spdif.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/wm8994.c b/sound/soc/codecs/wm8994.c
-index f289762cd676..1feeeed4bfb2 100644
---- a/sound/soc/codecs/wm8994.c
-+++ b/sound/soc/codecs/wm8994.c
-@@ -3704,7 +3704,12 @@ static irqreturn_t wm1811_jackdet_irq(int irq, void *data)
- 	} else {
- 		dev_dbg(codec->dev, "Jack not detected\n");
+diff --git a/sound/soc/rockchip/rockchip_spdif.c b/sound/soc/rockchip/rockchip_spdif.c
+index f387d7bae3d4..e4073c48faf6 100644
+--- a/sound/soc/rockchip/rockchip_spdif.c
++++ b/sound/soc/rockchip/rockchip_spdif.c
+@@ -85,6 +85,7 @@ static int __maybe_unused rk_spdif_runtime_resume(struct device *dev)
  
-+		/* Release wm8994->accdet_lock to avoid deadlock:
-+		 * cancel_delayed_work_sync() takes wm8994->mic_work internal
-+		 * lock and wm1811_mic_work takes wm8994->accdet_lock */
-+		mutex_unlock(&wm8994->accdet_lock);
- 		cancel_delayed_work_sync(&wm8994->mic_work);
-+		mutex_lock(&wm8994->accdet_lock);
- 
- 		snd_soc_update_bits(codec, WM8958_MICBIAS2,
- 				    WM8958_MICB2_DISCH, WM8958_MICB2_DISCH);
+ 	ret = clk_prepare_enable(spdif->hclk);
+ 	if (ret) {
++		clk_disable_unprepare(spdif->mclk);
+ 		dev_err(spdif->dev, "hclk clock enable failed %d\n", ret);
+ 		return ret;
+ 	}
 -- 
 2.35.1
 
