@@ -2,101 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED1865E447
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 04:55:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F08965E46E
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 05:10:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231448AbjAEDz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 22:55:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58388 "EHLO
+        id S231147AbjAEEKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 23:10:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231453AbjAEDzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 22:55:04 -0500
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0802A46814
-        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 19:53:28 -0800 (PST)
-Received: from dggpeml100012.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NnXWg1RGQzqTtf;
-        Thu,  5 Jan 2023 11:48:47 +0800 (CST)
-Received: from localhost.localdomain (10.67.175.61) by
- dggpeml100012.china.huawei.com (7.185.36.121) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.34; Thu, 5 Jan 2023 11:53:27 +0800
-From:   Zheng Yejian <zhengyejian1@huawei.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     <mhiramat@kernel.org>, <rostedt@goodmis.org>,
-        <stable@vger.kernel.org>, <zanussi@kernel.org>,
-        <zhengyejian1@huawei.com>
-Subject: [PATCH 5.15] tracing: Fix issue of missing one synthetic field
-Date:   Thu, 5 Jan 2023 11:54:52 +0800
-Message-ID: <20230105035452.3092172-1-zhengyejian1@huawei.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <16728414332518@kroah.com>
-References: <16728414332518@kroah.com>
+        with ESMTP id S230481AbjAEEJN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 23:09:13 -0500
+Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72C772E7
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 20:07:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1672891679; x=1704427679;
+  h=from:to:subject:date:message-id:in-reply-to:references:
+   mime-version:content-transfer-encoding;
+  bh=8oXQug7m6cDdIHDMYqm56IHu4S4LsucUJ0yOU7dJwRQ=;
+  b=C0Q9xxUX/8Whx5rRIMwR1S35dw6NFBhCglolgIS1OnIDjA6UN5F6giHb
+   mfHXAQ9HtwnmQ6I0cfwwUw/H2ovBkuCyRCGW3SjCWmBj8kXlZ4LX4mGOQ
+   cWgLAb/C243rTOz8rbQOtXYwO9kSQsT1d4t1HUhBKbLuziMsaw3UAe8Mu
+   ofg32c1e9KMuHQnahRWC5DPn7TKyhSxqZP6fC6EmZRobBRCxtTvgvNbmh
+   luBb1AVXS/NwmSY/ztIw0ss87KPt8Vr/nbFZZJ/FdYiC9ZdoiCB6BHSog
+   1iu+loVN/7U4MQIu7DUU/2nZePZsZ0gL364Pvm/QHTC35+WHBzh0QR/y/
+   A==;
+X-IronPort-AV: E=Sophos;i="5.96,301,1665417600"; 
+   d="scan'208";a="219945554"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 05 Jan 2023 12:07:59 +0800
+IronPort-SDR: cwQGbjH5ADP1pNr/PbqhlSq8hO+T9S9M8HasUJkQzQ8uMjdNvPJp55YAyivsvJE78NNDuNWh7v
+ EqzZY52w72y4d+uiJFKHNSr+rpPWSR2rpvubMNiEjAjLz86ihAUIyzXQMqE/K2j+V/ZhF+pwf0
+ FI5nC1AvmNCCEZkGni2wp+BWJmc3C5PuIh2otG57IqmH6IlfvAPQ/oSQPrY/9Bqqd4m+JetR4a
+ 9MTHCQcBzO4RBsDgXI7+eS6mVxkTd7VUHQnWP0KN70QSTW6r7bBS5VJwK6fG9sQB16gU5XPArx
+ 5Cg=
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 04 Jan 2023 19:20:11 -0800
+IronPort-SDR: Q3jQMk+W+7SJZ6khAZfalegust1LKYR/YJRR+22TqjeUFOamB6Qw0c3ZBIDwdbgmQcvCECc4Hq
+ /9KlBiuVgPZ1CUDyEFUl9xe7hqlt19j4IkuoGvdXlrg1wt3jnkU6BIraWBxcSbKmdwcNttXuOW
+ 8ltUemnJJ9kdSwPonwB6RQcs0fY7CKS605efH12klGeczrdQtYbnjF9A2+GmgFTUyNbMmBCL8P
+ /b92XPHw3ibw1Ygnwabwv0whdgqTfsR/xm6BZq/l61WKB3dPyr2V22ta4izTKxUqd+gphsXHCM
+ 5T8=
+WDCIronportException: Internal
+Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
+  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 04 Jan 2023 20:08:00 -0800
+Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4NnXxp6nGtz1RvTr
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 20:07:58 -0800 (PST)
+Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)"
+        header.d=opensource.wdc.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        opensource.wdc.com; h=content-transfer-encoding:mime-version
+        :references:in-reply-to:x-mailer:message-id:date:subject:to
+        :from; s=dkim; t=1672891678; x=1675483679; bh=8oXQug7m6cDdIHDMYq
+        m56IHu4S4LsucUJ0yOU7dJwRQ=; b=aDz+zn/NmLtA/oDdOSOJ6jPMudf7mwdZI5
+        4LQcuwbsWWLSmHWwTQ3Zr945yZkJfXaq8T3q58HJIO5bjy3+wdvbLQkzwn04UZQw
+        WruYCdCo0g4rmFtzVZ2DJpIg3YIXY+xpi78ZDuQ91B7sQZ8cH3hbxiUvfqDUpBti
+        hHspPuS+75g2N2n47R8r9EPDU6WeieTxQHsmrafMaW+ckegEKtNJUz2cYCVkj8Ki
+        5siUUrNMX7ivNEsGSQvoXI00NAHEaTp6wNxYxoH4CrxSIW+KCC5W5sF+xOBG71cX
+        oGr3gB/z7dn9nf7F3SHAewG4Z0/KHd/o8EVp9bm8wLhs1GxMYj3w==
+X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
+Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
+        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id Nzh3SBW01JuA for <stable@vger.kernel.org>;
+        Wed,  4 Jan 2023 20:07:58 -0800 (PST)
+Received: from washi.fujisawa.hgst.com (washi.fujisawa.hgst.com [10.149.53.254])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4NnXxn6Lxnz1RvLy;
+        Wed,  4 Jan 2023 20:07:57 -0800 (PST)
+From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] block: mq-deadline: Fix dd_finish_request() for zoned devices
+Date:   Thu,  5 Jan 2023 13:07:56 +0900
+Message-Id: <20230105040756.579794-1-damien.lemoal@opensource.wdc.com>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <167284210313124@kroah.com>
+References: <167284210313124@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.175.61]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpeml100012.china.huawei.com (7.185.36.121)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ff4837f7fe59ff018eca4705a70eca5e0b486b97 ]
+commit 2820e5d0820ac4daedff1272616a53d9c7682fd2 upstream.
 
-The maximum number of synthetic fields supported is defined as
-SYNTH_FIELDS_MAX which value currently is 64, but it actually fails
-when try to generate a synthetic event with 64 fields by executing like:
+dd_finish_request() tests if the per prio fifo_list is not empty to
+determine if request dispatching must be restarted for handling blocked
+write requests to zoned devices with a call to
+blk_mq_sched_mark_restart_hctx(). While simple, this implementation has
+2 problems:
 
-  # echo "my_synth_event int v1; int v2; int v3; int v4; int v5; int v6;\
-   int v7; int v8; int v9; int v10; int v11; int v12; int v13; int v14;\
-   int v15; int v16; int v17; int v18; int v19; int v20; int v21; int v22;\
-   int v23; int v24; int v25; int v26; int v27; int v28; int v29; int v30;\
-   int v31; int v32; int v33; int v34; int v35; int v36; int v37; int v38;\
-   int v39; int v40; int v41; int v42; int v43; int v44; int v45; int v46;\
-   int v47; int v48; int v49; int v50; int v51; int v52; int v53; int v54;\
-   int v55; int v56; int v57; int v58; int v59; int v60; int v61; int v62;\
-   int v63; int v64" >> /sys/kernel/tracing/synthetic_events
+1) Only the priority level of the completed request is considered.
+   However, writes to a zone may be blocked due to other writes to the
+   same zone using a different priority level. While this is unlikely to
+   happen in practice, as writing a zone with different IO priorirites
+   does not make sense, nothing in the code prevents this from
+   happening.
+2) The use of list_empty() is dangerous as dd_finish_request() does not
+   take dd->lock and may run concurrently with the insert and dispatch
+   code.
 
-Correct the field counting to fix it.
+Fix these 2 problems by testing the write fifo list of all priority
+levels using the new helper dd_has_write_work(), and by testing each
+fifo list using list_empty_careful().
 
-Link: https://lore.kernel.org/linux-trace-kernel/20221207091557.3137904-1-zhengyejian1@huawei.com
-
-Cc: <mhiramat@kernel.org>
-Cc: <zanussi@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: c9e759b1e845 ("tracing: Rework synthetic event command parsing")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-[Fix conflict due to lack of c24be24aed405d64ebcf04526614c13b2adfb1d2]
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Fixes: c807ab520fc3 ("block/mq-deadline: Add I/O priority support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Link: https://lore.kernel.org/r/20221124021208.242541-2-damien.lemoal@ope=
+nsource.wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- kernel/trace/trace_events_synth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/mq-deadline.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/trace/trace_events_synth.c b/kernel/trace/trace_events_synth.c
-index 47eb92b3edd0..2fdf3fd591e1 100644
---- a/kernel/trace/trace_events_synth.c
-+++ b/kernel/trace/trace_events_synth.c
-@@ -1275,12 +1275,12 @@ static int __create_synth_event(const char *name, const char *raw_fields)
- 				goto err;
- 			}
- 
--			fields[n_fields++] = field;
- 			if (n_fields == SYNTH_FIELDS_MAX) {
- 				synth_err(SYNTH_ERR_TOO_MANY_FIELDS, 0);
- 				ret = -EINVAL;
- 				goto err;
- 			}
-+			fields[n_fields++] = field;
- 
- 			n_fields_this_loop++;
- 		}
--- 
-2.25.1
+diff --git a/block/mq-deadline.c b/block/mq-deadline.c
+index cd2342d29704..a3f966ece0b7 100644
+--- a/block/mq-deadline.c
++++ b/block/mq-deadline.c
+@@ -733,6 +733,18 @@ static void dd_prepare_request(struct request *rq)
+ 	rq->elv.priv[0] =3D NULL;
+ }
+=20
++static bool dd_has_write_work(struct blk_mq_hw_ctx *hctx)
++{
++	struct deadline_data *dd =3D hctx->queue->elevator->elevator_data;
++	enum dd_prio p;
++
++	for (p =3D 0; p <=3D DD_PRIO_MAX; p++)
++		if (!list_empty_careful(&dd->per_prio[p].fifo_list[DD_WRITE]))
++			return true;
++
++	return false;
++}
++
+ /*
+  * Callback from inside blk_mq_free_request().
+  *
+@@ -755,7 +767,6 @@ static void dd_finish_request(struct request *rq)
+ 	struct deadline_data *dd =3D q->elevator->elevator_data;
+ 	const u8 ioprio_class =3D dd_rq_ioclass(rq);
+ 	const enum dd_prio prio =3D ioprio_class_to_prio[ioprio_class];
+-	struct dd_per_prio *per_prio =3D &dd->per_prio[prio];
+=20
+ 	/*
+ 	 * The block layer core may call dd_finish_request() without having
+@@ -771,9 +782,10 @@ static void dd_finish_request(struct request *rq)
+=20
+ 		spin_lock_irqsave(&dd->zone_lock, flags);
+ 		blk_req_zone_write_unlock(rq);
+-		if (!list_empty(&per_prio->fifo_list[DD_WRITE]))
+-			blk_mq_sched_mark_restart_hctx(rq->mq_hctx);
+ 		spin_unlock_irqrestore(&dd->zone_lock, flags);
++
++		if (dd_has_write_work(rq->mq_hctx))
++			blk_mq_sched_mark_restart_hctx(rq->mq_hctx);
+ 	}
+ }
+=20
+--=20
+2.39.0
 
