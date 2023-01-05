@@ -2,222 +2,269 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D73BB65EEC0
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 15:30:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A176165EEC6
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 15:31:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbjAEO37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 09:29:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39100 "EHLO
+        id S233739AbjAEObu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 09:31:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231942AbjAEO35 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 09:29:57 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3634C50054
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 06:29:56 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 8D600171A8;
-        Thu,  5 Jan 2023 14:29:51 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 81872138DF;
-        Thu,  5 Jan 2023 14:29:51 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id ya2VH9/etmN3DQAAMHmgww
-        (envelope-from <jack@suse.cz>); Thu, 05 Jan 2023 14:29:51 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 0737BA0742; Thu,  5 Jan 2023 15:29:51 +0100 (CET)
-Date:   Thu, 5 Jan 2023 15:29:50 +0100
-From:   Jan Kara <jack@suse.cz>
-To:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Cc:     stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Thilo Fromm <t-lo@linux.microsoft.com>,
-        Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>
-Subject: Re: [PATCH 5.15] ext4: fix deadlock due to mbcache entry corruption
-Message-ID: <20230105142950.ecwzsh4c3sxib575@quack3>
-References: <1672927319-22912-1-git-send-email-jpiotrowski@linux.microsoft.com>
+        with ESMTP id S233680AbjAEObs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 09:31:48 -0500
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C632C559C3
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 06:31:46 -0800 (PST)
+Received: by mail-ed1-x52e.google.com with SMTP id c17so52965836edj.13
+        for <stable@vger.kernel.org>; Thu, 05 Jan 2023 06:31:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=uxMEPkPChqTffTimg1+lT4mVoFm2SlkoFtahp543sh0=;
+        b=Nl2kb6flwGDa/iE2cYHmUTREyxoI03PSIKAOACnDv0zDyr/r6i2HHU6mdZWOm4nrfv
+         x6XzkAQ3xmcK6lojVZPPTVhtyddOUcGOcael8rEW5NGma18D0QKsKNba1rUnRLGkpQBh
+         /UA7dBAflrPLSKJmwMhGsYUH4kHx2QoNV5n6E=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uxMEPkPChqTffTimg1+lT4mVoFm2SlkoFtahp543sh0=;
+        b=XXdXTYyUk0+pK3OFR1AOjmB09Ip9H7x8643aHnF7ZH8uvcPH7HAK0vCD6zEMRf+vuS
+         IJUoI6jEpPdly7V3/UFMkj0yrsIEC9qTEftrln7pUTGOTE4vgCUogC+3Y2JJsJhT9zrJ
+         djMjAJf8IjtTKYyOkM+UjxrMZ8YFFNtpg3djprQXpGUBrQkNeMB+1tQSQq+GTRc7xpQn
+         v5HhF14X1kW3DTiVmgPs2YuATwyQOBAUu7TfgdTTP/lnnNk1Hu3uhmmYlWGqsSNF+98b
+         wEjohPa/a+P8egRLlAGQ9RfgiE8URFsws1lXIGebA4lJF/iCMVBlPrFk+sZaA3AJOg50
+         Ndjg==
+X-Gm-Message-State: AFqh2kpVAd/SsNDH30NAeWsBM9cuBYjKXObB99C7O54PQp1/AtEXs/M6
+        OoN57RDEZJmk0FO/cTNmahivlA==
+X-Google-Smtp-Source: AMrXdXvThc/7ejFs6s8dszQ2WW4cbnwa87HriIjX74fGe9V9LDDd5Jl1o5hHNV2FTHwgYU31lzJEOQ==
+X-Received: by 2002:aa7:d04e:0:b0:45c:835b:ac4d with SMTP id n14-20020aa7d04e000000b0045c835bac4dmr44636174edo.8.1672929105339;
+        Thu, 05 Jan 2023 06:31:45 -0800 (PST)
+Received: from alco.roam.corp.google.com ([2620:0:1059:10:848f:5924:dffa:3b5c])
+        by smtp.gmail.com with ESMTPSA id c4-20020aa7c984000000b004873927780bsm10818084edt.20.2023.01.05.06.31.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Jan 2023 06:31:44 -0800 (PST)
+From:   Ricardo Ribalda <ribalda@chromium.org>
+Date:   Thu, 05 Jan 2023 15:31:29 +0100
+Subject: [PATCH v7] media: uvcvideo: Fix race condition with usb_kill_urb
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1672927319-22912-1-git-send-email-jpiotrowski@linux.microsoft.com>
-Authentication-Results: smtp-out1.suse.de;
-        none
-X-Spam-Level: 
-X-Spam-Score: 0.40
-X-Spamd-Result: default: False [0.40 / 50.00];
-         ARC_NA(0.00)[];
-         RCVD_VIA_SMTP_AUTH(0.00)[];
-         FROM_HAS_DN(0.00)[];
-         TO_DN_SOME(0.00)[];
-         TO_MATCH_ENVRCPT_ALL(0.00)[];
-         MIME_GOOD(-0.10)[text/plain];
-         FROM_EQ_ENVFROM(0.00)[];
-         MIME_TRACE(0.00)[0:+];
-         MID_RHS_NOT_FQDN(0.50)[];
-         RCVD_COUNT_TWO(0.00)[2];
-         RCPT_COUNT_FIVE(0.00)[6];
-         RCVD_TLS_ALL(0.00)[]
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20221212-uvc-race-v7-0-e2517c66a55a@chromium.org>
+To:     Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Hillf Danton <hdanton@sina.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Max Staudt <mstaudt@google.com>
+Cc:     Ricardo Ribalda <ribalda@chromium.org>,
+        Yunke Cao <yunkec@chromium.org>, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, stable@vger.kernel.org
+X-Mailer: b4 0.11.0-dev-696ae
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6479; i=ribalda@chromium.org;
+ h=from:subject:message-id; bh=cW2kwv2siZICftxj75pqCs1K4XmG0NtU3yyQXAzdBG4=;
+ b=owEBbQKS/ZANAwAKAdE30T7POsSIAcsmYgBjtt9JhJKajr03HfmLDxie/eqxiOch8paSA4cqVoct
+ S4TdcW+JAjMEAAEKAB0WIQREDzjr+/4oCDLSsx7RN9E+zzrEiAUCY7bfSQAKCRDRN9E+zzrEiFyeD/
+ 92GkSmfrDtKn8ZTQGY6JNCoQA7Yh7pbAvIn/+G0H0e2+A8d9Fcc4BrYob+WxcFsfrhapFdJgZx2Pbn
+ 3Tu8XCG2B6Pm5yWP4Lok3Dh+DrHEdS3+/Hrwwo8zkP9ZCsHF+klVHVZp+yKi9LLUEDW6yUAoPpCf+M
+ p9CNSIIV9Xf+T76bwb8k9h5E8aoy+IYvQWl6yCIboANF1Cg7pcycXerkP5qiLz5Jb9BSmtbEXeqlIC
+ nqXRPuUMDV4Er6lnzNPbyIttEHqqyrr+ml3UvWIpfmCIxRM9eI7B/gzudWW4LoqOeZ4qp7cXYPpGua
+ GjkZBXWSu5OF6RO1aUdvVJsOupJLFmWXBVZp2dvfx4V1ye1v5QFQMD8anl3cyeWgVtMWrgG4WZqYtq
+ LLbluvTvdMW5ZqSWiwWdk6iE5YYHgOWVT7SbxSzJLOHeRb9qi3HuZETQyluzjYRAHDA0vWrvvzxA6N
+ xOHW2pFwBkTphznOd7+y2Id9SIwzdgwsgGnCkCSPUGJ2M90OpnpjPwITti6Ywm5g6gwSHZ2+L9aQtW
+ M15xeaKDfzClDp2y0L8tE9/raf3H2NC9M8e510cVVwAHj2IY97JM9n6Ri40ZYO+UdImbqiFjHhHqAO
+ qdViYbLxaESv4umeSyYe5u9zsbzedumqjw9uyCzJRcl0P7paYBULLvnBxuNw==
+X-Developer-Key: i=ribalda@chromium.org; a=openpgp;
+ fpr=9EC3BB66E2FC129A6F90B39556A0D81F9F782DA9
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 05-01-23 06:01:59, Jeremi Piotrowski wrote:
-> From: Jan Kara <jack@suse.cz>
-> 
-> commit a44e84a9b7764c72896f7241a0ec9ac7e7ef38dd upstream.
-> 
-> When manipulating xattr blocks, we can deadlock infinitely looping
-> inside ext4_xattr_block_set() where we constantly keep finding xattr
-> block for reuse in mbcache but we are unable to reuse it because its
-> reference count is too big. This happens because cache entry for the
-> xattr block is marked as reusable (e_reusable set) although its
-> reference count is too big. When this inconsistency happens, this
-> inconsistent state is kept indefinitely and so ext4_xattr_block_set()
-> keeps retrying indefinitely.
-> 
-> The inconsistent state is caused by non-atomic update of e_reusable bit.
-> e_reusable is part of a bitfield and e_reusable update can race with
-> update of e_referenced bit in the same bitfield resulting in loss of one
-> of the updates. Fix the problem by using atomic bitops instead.
-> 
-> This bug has been around for many years, but it became *much* easier
-> to hit after commit 65f8b80053a1 ("ext4: fix race when reusing xattr
-> blocks").
-> 
-> A special backport to 5.15 was necessary due to changes to reference counting.
-> 
-> Cc: stable@vger.kernel.org # 5.15
-> Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
-> Fixes: 65f8b80053a1 ("ext4: fix race when reusing xattr blocks")
-> Reported-and-tested-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-> Reported-by: Thilo Fromm <t-lo@linux.microsoft.com>
-> Link: https://lore.kernel.org/r/c77bf00f-4618-7149-56f1-b8d1664b9d07@linux.microsoft.com/
-> Signed-off-by: Jan Kara <jack@suse.cz>
-> Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-> Link: https://lore.kernel.org/r/20221123193950.16758-1-jack@suse.cz
-> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> Signed-off-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+usb_kill_urb warranties that all the handlers are finished when it
+returns, but does not protect against threads that might be handling
+asynchronously the urb.
 
-The backport looks good to me. Not sure if Greg tracks acks for stable
-trees but anyway Greg, feel free to consider this:
+For UVC, the function uvc_ctrl_status_event_async() takes care of
+control changes asynchronously.
 
-Acked-by: Jan Kara <jack@suse.cz>
+ If the code is executed in the following order:
 
-								Honza
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+uvc_ctrl_status_event_work()
+					uvc_status_start() -> FAIL
 
-> ---
->  fs/ext4/xattr.c         |  4 ++--
->  fs/mbcache.c            | 14 ++++++++------
->  include/linux/mbcache.h |  9 +++++++--
->  3 files changed, 17 insertions(+), 10 deletions(-)
-> 
-> diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-> index 533216e80fa2..22700812a4d3 100644
-> --- a/fs/ext4/xattr.c
-> +++ b/fs/ext4/xattr.c
-> @@ -1281,7 +1281,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
->  				ce = mb_cache_entry_get(ea_block_cache, hash,
->  							bh->b_blocknr);
->  				if (ce) {
-> -					ce->e_reusable = 1;
-> +					set_bit(MBE_REUSABLE_B, &ce->e_flags);
->  					mb_cache_entry_put(ea_block_cache, ce);
->  				}
->  			}
-> @@ -2042,7 +2042,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
->  				}
->  				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
->  				if (ref == EXT4_XATTR_REFCOUNT_MAX)
-> -					ce->e_reusable = 0;
-> +					clear_bit(MBE_REUSABLE_B, &ce->e_flags);
->  				ea_bdebug(new_bh, "reusing; refcount now=%d",
->  					  ref);
->  				ext4_xattr_block_csum_set(inode, new_bh);
-> diff --git a/fs/mbcache.c b/fs/mbcache.c
-> index 2010bc80a3f2..ac07b50ea3df 100644
-> --- a/fs/mbcache.c
-> +++ b/fs/mbcache.c
-> @@ -94,8 +94,9 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
->  	atomic_set(&entry->e_refcnt, 1);
->  	entry->e_key = key;
->  	entry->e_value = value;
-> -	entry->e_reusable = reusable;
-> -	entry->e_referenced = 0;
-> +	entry->e_flags = 0;
-> +	if (reusable)
-> +		set_bit(MBE_REUSABLE_B, &entry->e_flags);
->  	head = mb_cache_entry_head(cache, key);
->  	hlist_bl_lock(head);
->  	hlist_bl_for_each_entry(dup, dup_node, head, e_hash_list) {
-> @@ -155,7 +156,8 @@ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
->  	while (node) {
->  		entry = hlist_bl_entry(node, struct mb_cache_entry,
->  				       e_hash_list);
-> -		if (entry->e_key == key && entry->e_reusable) {
-> +		if (entry->e_key == key &&
-> +		    test_bit(MBE_REUSABLE_B, &entry->e_flags)) {
->  			atomic_inc(&entry->e_refcnt);
->  			goto out;
->  		}
-> @@ -325,7 +327,7 @@ EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
->  void mb_cache_entry_touch(struct mb_cache *cache,
->  			  struct mb_cache_entry *entry)
->  {
-> -	entry->e_referenced = 1;
-> +	set_bit(MBE_REFERENCED_B, &entry->e_flags);
->  }
->  EXPORT_SYMBOL(mb_cache_entry_touch);
->  
-> @@ -350,8 +352,8 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
->  	while (nr_to_scan-- && !list_empty(&cache->c_list)) {
->  		entry = list_first_entry(&cache->c_list,
->  					 struct mb_cache_entry, e_list);
-> -		if (entry->e_referenced || atomic_read(&entry->e_refcnt) > 2) {
-> -			entry->e_referenced = 0;
-> +		if (test_bit(MBE_REFERENCED_B, &entry->e_flags) || atomic_read(&entry->e_refcnt) > 2) {
-> +			clear_bit(MBE_REFERENCED_B, &entry->e_flags);
->  			list_move_tail(&entry->e_list, &cache->c_list);
->  			continue;
->  		}
-> diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
-> index 8eca7f25c432..62927f7e2588 100644
-> --- a/include/linux/mbcache.h
-> +++ b/include/linux/mbcache.h
-> @@ -10,6 +10,12 @@
->  
->  struct mb_cache;
->  
-> +/* Cache entry flags */
-> +enum {
-> +	MBE_REFERENCED_B = 0,
-> +	MBE_REUSABLE_B
-> +};
-> +
->  struct mb_cache_entry {
->  	/* List of entries in cache - protected by cache->c_list_lock */
->  	struct list_head	e_list;
-> @@ -18,8 +24,7 @@ struct mb_cache_entry {
->  	atomic_t		e_refcnt;
->  	/* Key in hash - stable during lifetime of the entry */
->  	u32			e_key;
-> -	u32			e_referenced:1;
-> -	u32			e_reusable:1;
-> +	unsigned long		e_flags;
->  	/* User provided value - stable during lifetime of the entry */
->  	u64			e_value;
->  };
-> -- 
-> 2.25.1
-> 
+Then uvc_status_start will keep failing and this error will be shown:
+
+<4>[    5.540139] URB 0000000000000000 submitted while active
+drivers/usb/core/urb.c:378 usb_submit_urb+0x4c3/0x528
+
+Let's improve the current situation, by not re-submiting the urb if
+we are stopping the status event. Also process the queued work
+(if any) during stop.
+
+CPU 0					CPU 1
+===== 					=====
+uvc_status_complete()
+					uvc_status_stop()
+					uvc_status_start()
+uvc_ctrl_status_event_work() -> FAIL
+
+Hopefully, with the usb layer protection this should be enough to cover
+all the cases.
+
+Cc: stable@vger.kernel.org
+Fixes: e5225c820c05 ("media: uvcvideo: Send a control event when a Control Change interrupt arrives")
+Reviewed-by: Yunke Cao <yunkec@chromium.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+---
+uvc: Fix race condition on uvc
+
+Make sure that all the async work is finished when we stop the status urb.
+
+To: Hillf Danton <hdanton@sina.com>
+To: Yunke Cao <yunkec@chromium.org>
+To: Sergey Senozhatsky <senozhatsky@chromium.org>
+To: Max Staudt <mstaudt@google.com>
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-media@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+Changes in v7:
+- Use smp_store_release. (Thanks Hilf!)
+- Rebase on top of uvc/next.
+- Link to v6: https://lore.kernel.org/r/20221212-uvc-race-v6-0-2a662f8de011@chromium.org
+
+Changes in v6:
+- Improve comments. (Thanks Laurent).
+- Use true/false instead of 1/0 (Thanks Laurent).
+- Link to v5: https://lore.kernel.org/r/20221212-uvc-race-v5-0-3db3933d1608@chromium.org
+
+Changes in v5:
+- atomic_t do not impose barriers, use smp_mb() instead. (Thanks Laurent)
+- Add an extra cancel_work_sync().
+- Link to v4: https://lore.kernel.org/r/20221212-uvc-race-v4-0-38d7075b03f5@chromium.org
+
+Changes in v4:
+- Replace bool with atomic_t to avoid compiler reordering.
+- First complete the async work and then kill the urb to avoid race (Thanks Laurent!)
+- Link to v3: https://lore.kernel.org/r/20221212-uvc-race-v3-0-954efc752c9a@chromium.org
+
+Changes in v3:
+- Remove the patch for dev->status, makes more sense in another series, and makes
+  the zero day less nervous.
+- Update reviewed-by (thanks Yunke!).
+- Link to v2: https://lore.kernel.org/r/20221212-uvc-race-v2-0-54496cc3b8ab@chromium.org
+
+Changes in v2:
+- Add a patch for not kalloc dev->status
+- Redo the logic mechanism, so it also works with suspend (Thanks Yunke!)
+- Link to v1: https://lore.kernel.org/r/20221212-uvc-race-v1-0-c52e1783c31d@chromium.org
+---
+ drivers/media/usb/uvc/uvc_ctrl.c   |  5 +++++
+ drivers/media/usb/uvc/uvc_status.c | 33 +++++++++++++++++++++++++++++++++
+ drivers/media/usb/uvc/uvcvideo.h   |  1 +
+ 3 files changed, 39 insertions(+)
+
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index e07b56bbf853..30c417768376 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
+ 
++#include <asm/barrier.h>
+ #include <linux/bitops.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
+@@ -1509,6 +1510,10 @@ static void uvc_ctrl_status_event_work(struct work_struct *work)
+ 
+ 	uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
+ 
++	/* The barrier is needed to synchronize with uvc_status_stop(). */
++	if (smp_load_acquire(&dev->flush_status))
++		return;
++
+ 	/* Resubmit the URB. */
+ 	w->urb->interval = dev->int_ep->desc.bInterval;
+ 	ret = usb_submit_urb(w->urb, GFP_KERNEL);
+diff --git a/drivers/media/usb/uvc/uvc_status.c b/drivers/media/usb/uvc/uvc_status.c
+index 602830a8023e..21e13b8441da 100644
+--- a/drivers/media/usb/uvc/uvc_status.c
++++ b/drivers/media/usb/uvc/uvc_status.c
+@@ -6,6 +6,7 @@
+  *          Laurent Pinchart (laurent.pinchart@ideasonboard.com)
+  */
+ 
++#include <asm/barrier.h>
+ #include <linux/kernel.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
+@@ -311,5 +312,37 @@ int uvc_status_start(struct uvc_device *dev, gfp_t flags)
+ 
+ void uvc_status_stop(struct uvc_device *dev)
+ {
++	struct uvc_ctrl_work *w = &dev->async_ctrl;
++
++	/*
++	 * Prevent the asynchronous control handler from requeing the URB. The
++	 * barrier is needed so the flush_status change is visible to other
++	 * CPUs running the asynchronous handler before usb_kill_urb() is
++	 * called below.
++	 */
++	smp_store_release(&dev->flush_status, true);
++
++	/* If there is any status event on the queue, process it. */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/* Kill the urb. */
+ 	usb_kill_urb(dev->int_urb);
++
++	/*
++	 * The URB completion handler may have queued asynchronous work. This
++	 * won't resubmit the URB as flush_status is set, but it needs to be
++	 * cancelled before returning or it could then race with a future
++	 * uvc_status_start() call.
++	 */
++	if (cancel_work_sync(&w->work))
++		uvc_ctrl_status_event(w->chain, w->ctrl, w->data);
++
++	/*
++	 * From this point, there are no events on the queue and the status URB
++	 * is dead, this is, no events will be queued until uvc_status_start()
++	 * is called. The barrier is needed to make sure that it is written to
++	 * memory before uvc_status_start() is called again.
++	 */
++	smp_store_release(&dev->flush_status, false);
+ }
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index ae0066eceffd..b2b277cccbdb 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -578,6 +578,7 @@ struct uvc_device {
+ 	struct usb_host_endpoint *int_ep;
+ 	struct urb *int_urb;
+ 	struct uvc_status *status;
++	bool flush_status;
+ 
+ 	struct input_dev *input;
+ 	char input_phys[64];
+
+---
+base-commit: fb1316b0ff3fc3cd98637040ee17ab7be753aac7
+change-id: 20221212-uvc-race-09276ea68bf8
+
+Best regards,
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Ricardo Ribalda <ribalda@chromium.org>
