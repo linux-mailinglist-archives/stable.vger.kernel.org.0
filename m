@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D02765EB6B
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:59:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F46A65EB6E
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:59:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233568AbjAEM7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 07:59:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47594 "EHLO
+        id S233616AbjAEM7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 07:59:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233564AbjAEM71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588205B167
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:04 -0800 (PST)
+        with ESMTP id S233640AbjAEM7f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C2595BA1B
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E56B661A0C
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8CFEC433EF;
-        Thu,  5 Jan 2023 12:59:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30DF661A0C
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA68BC433D2;
+        Thu,  5 Jan 2023 12:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923543;
-        bh=EGmdB4g2cEOZLiw58ca6TqDCNhi2sZ8EVu6/aQ25duU=;
+        s=korg; t=1672923546;
+        bh=sca01AZ5VP0WyCpboU3ZhI5moteR0ZP/1Z86uTZAqWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqOJcviFoaeraXdCfHHdSIesBmWBqhi3SpTiaAAGc3RcssDFkeaaoVJXrxRHwaoqx
-         vjuo3yKeRmKj02O0ecbXHUOO0csQ/5CAocD6cHU4+C/TPmLko8KrMLKi+e9j6Nf21X
-         fKiQj35GKSu6qrdToIqFdlsDTKQleKzLZ7AhiGl4=
+        b=xDQcxRGWjwMGiAhju6D0zb6pnmknw0RiPXqgQWrbnUqoXd9XjvG3qVVLMVlwHtqB6
+         +2cPy2bVv5rCWAIqiC8wXIoHqAbSU9KkVRCW7epYIuxEN5XHdZWDcjuSIUWCUfGJNL
+         XPgXuOR/1SOYMuSHYuD3kzrToBcK4G04UvC5uV0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 053/251] media: i2c: ad5820: Fix error path
-Date:   Thu,  5 Jan 2023 13:53:10 +0100
-Message-Id: <20230105125337.218749403@linuxfoundation.org>
+Subject: [PATCH 4.9 054/251] media: vivid: fix compose size exceed boundary
+Date:   Thu,  5 Jan 2023 13:53:11 +0100
+Message-Id: <20230105125337.262706642@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,49 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 9fce241660f37d9e95e93c0ae6fba8cfefa5797b ]
+[ Upstream commit 94a7ad9283464b75b12516c5512541d467cefcf8 ]
 
-Error path seems to be swaped. Fix the order and provide some meaningful
-names.
+syzkaller found a bug:
 
-Fixes: bee3d5115611 ("[media] ad5820: Add driver for auto-focus coil")
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+ BUG: unable to handle page fault for address: ffffc9000a3b1000
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 100000067 P4D 100000067 PUD 10015f067 PMD 1121ca067 PTE 0
+ Oops: 0002 [#1] PREEMPT SMP
+ CPU: 0 PID: 23489 Comm: vivid-000-vid-c Not tainted 6.1.0-rc1+ #512
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+ RIP: 0010:memcpy_erms+0x6/0x10
+[...]
+ Call Trace:
+  <TASK>
+  ? tpg_fill_plane_buffer+0x856/0x15b0
+  vivid_fillbuff+0x8ac/0x1110
+  vivid_thread_vid_cap_tick+0x361/0xc90
+  vivid_thread_vid_cap+0x21a/0x3a0
+  kthread+0x143/0x180
+  ret_from_fork+0x1f/0x30
+  </TASK>
+
+This is because we forget to check boundary after adjust compose->height
+int V4L2_SEL_TGT_CROP case. Add v4l2_rect_map_inside() to fix this problem
+for this case.
+
+Fixes: ef834f7836ec ("[media] vivid: add the video capture and output parts")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ad5820.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/media/platform/vivid/vivid-vid-cap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/i2c/ad5820.c b/drivers/media/i2c/ad5820.c
-index beab2f381b81..84e378cbc726 100644
---- a/drivers/media/i2c/ad5820.c
-+++ b/drivers/media/i2c/ad5820.c
-@@ -320,18 +320,18 @@ static int ad5820_probe(struct i2c_client *client,
- 
- 	ret = media_entity_pads_init(&coil->subdev.entity, 0, NULL);
- 	if (ret < 0)
--		goto cleanup2;
-+		goto clean_mutex;
- 
- 	ret = v4l2_async_register_subdev(&coil->subdev);
- 	if (ret < 0)
--		goto cleanup;
-+		goto clean_entity;
- 
- 	return ret;
- 
--cleanup2:
--	mutex_destroy(&coil->power_lock);
--cleanup:
-+clean_entity:
- 	media_entity_cleanup(&coil->subdev.entity);
-+clean_mutex:
-+	mutex_destroy(&coil->power_lock);
- 	return ret;
- }
- 
+diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
+index 198b26687b57..b7bda691fa57 100644
+--- a/drivers/media/platform/vivid/vivid-vid-cap.c
++++ b/drivers/media/platform/vivid/vivid-vid-cap.c
+@@ -915,6 +915,7 @@ int vivid_vid_cap_s_selection(struct file *file, void *fh, struct v4l2_selection
+ 			if (dev->has_compose_cap) {
+ 				v4l2_rect_set_min_size(compose, &min_rect);
+ 				v4l2_rect_set_max_size(compose, &max_rect);
++				v4l2_rect_map_inside(compose, &fmt);
+ 			}
+ 			dev->fmt_cap_rect = fmt;
+ 			tpg_s_buf_height(&dev->tpg, fmt.height);
 -- 
 2.35.1
 
