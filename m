@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D6465EBB2
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:01:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EA1A65EBC4
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:02:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233956AbjAENBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:01:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50928 "EHLO
+        id S233770AbjAENC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:02:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233893AbjAENBa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:01:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DBA75A8AF
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:01:29 -0800 (PST)
+        with ESMTP id S233879AbjAENCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:02:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C88595BA30
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:02:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEE0B61A05
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:01:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF102C433F2;
-        Thu,  5 Jan 2023 13:01:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF320B81ADB
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:02:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FC0AC433D2;
+        Thu,  5 Jan 2023 13:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923688;
-        bh=HRUHDpZ1Gxk59cD0b+S2xcF+iemVCLoO5J3EfI9L1Pw=;
+        s=korg; t=1672923722;
+        bh=CniF0dytn3nuL0LM2EnZsK0G2oteZAlU2V1FPs1fPgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrxG5U/jJun99OUU+bKwEtuWQeJxOqwflmbrtpbbOSTTjqKqBAHKQPFaFBZk8tuex
-         mrvfn6nVRW/whrS6/S1T6cBYycTv082XGK0rPZK6P5NeipBK796i8OZS7c2Yojrts0
-         waFHR5a/zUywyzdiEv63jdbPB6n6ppQjHL70QTMw=
+        b=ROFozt5fScUS005Hg+x79jxO5hIExJNe+byQeolRcoEVRgxOnZSflT/FCnbQO/t4E
+         pDFQn9R4vpPBg62r1kdL9qTqntICekIp4W8nngXAMNwBdB9R1/d6JuQFKsTix1viNq
+         bskk17VGG1DwjJa22OOdh27tYIjiAJmoNvVxANKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
         Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 093/251] wifi: rtl8xxxu: Add __packed to struct rtl8723bu_c2h
-Date:   Thu,  5 Jan 2023 13:53:50 +0100
-Message-Id: <20230105125339.058557940@linuxfoundation.org>
+Subject: [PATCH 4.9 094/251] wifi: brcmfmac: Fix error return code in brcmf_sdio_download_firmware()
+Date:   Thu,  5 Jan 2023 13:53:51 +0100
+Message-Id: <20230105125339.107115723@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -54,38 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit dd469a754afdb782ba3033cee102147493dc39f4 ]
+[ Upstream commit c2f2924bc7f9ea75ef8d95863e710168f8196256 ]
 
-This struct is used to access a sequence of bytes received from the
-wifi chip. It must not have any padding bytes between the members.
+Fix to return a negative error code instead of 0 when
+brcmf_chip_set_active() fails. In addition, change the return
+value for brcmf_pcie_exit_download_state() to keep consistent.
 
-This doesn't change anything on my system, possibly because currently
-none of the members need more than byte alignment.
-
-Fixes: b2b43b7837ba ("rtl8xxxu: Initial functionality to handle C2H events for 8723bu")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Fixes: d380ebc9b6fb ("brcmfmac: rename chip download functions")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1a270918-da22-ff5f-29fc-7855f740c5ba@gmail.com
+Link: https://lore.kernel.org/r/1669959342-27144-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 2 +-
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-index 9143b173935d..c2c0e5635795 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-@@ -1191,7 +1191,7 @@ struct rtl8723bu_c2h {
- 			u8 dummy3_0;
- 		} __packed ra_report;
- 	};
--};
-+} __packed;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index 9e90737f4d49..45464bcd0960 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -578,7 +578,7 @@ static int brcmf_pcie_exit_download_state(struct brcmf_pciedev_info *devinfo,
+ 	}
  
- struct rtl8xxxu_fileops;
+ 	if (!brcmf_chip_set_active(devinfo->ci, resetintr))
+-		return -EINVAL;
++		return -EIO;
+ 	return 0;
+ }
+ 
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index d8f34883c096..d80aee2f5802 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -3310,6 +3310,7 @@ static int brcmf_sdio_download_firmware(struct brcmf_sdio *bus,
+ 	/* Take arm out of reset */
+ 	if (!brcmf_chip_set_active(bus->ci, rstvec)) {
+ 		brcmf_err("error getting out of ARM core reset\n");
++		bcmerror = -EIO;
+ 		goto err;
+ 	}
  
 -- 
 2.35.1
