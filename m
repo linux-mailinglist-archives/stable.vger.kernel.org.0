@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A790C65EB59
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:59:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5833B65EB5A
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:59:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233489AbjAEM7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 07:59:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47524 "EHLO
+        id S233509AbjAEM70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 07:59:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233509AbjAEM6v (ORCPT
+        with ESMTP id S233530AbjAEM6v (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:58:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A67F4D4A3
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:58:28 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E63574DF
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:58:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0EFDB81A84
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:58:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3652C433EF;
-        Thu,  5 Jan 2023 12:58:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D89B61A10
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:58:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 110BEC433EF;
+        Thu,  5 Jan 2023 12:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923505;
-        bh=FUu68mRJVZMbSP1LkpjMRuK1zLRJMC6Vr4cUb/76UjQ=;
+        s=korg; t=1672923508;
+        bh=h8pDvffm1ThMZSWyaD4PozsEeeL+yOn9IWSq5Y22olo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8e5TsvkBkAnZnnSYJt07mIQ1/nOOjeaz7WTZ5Gxr2ELFLsYa+pRFWk3wqmOlZbs4
-         bMeoTnbduBo2z2RtXJ7NFUk+UxJCf1TTjcG+NRFebXM7xv1XqxuXVeW7t5iiPCaVag
-         RcK4G1EyRjVrEsyPEo2sejSP3QBpdQuS7S0BJatQ=
+        b=RgDxR1/tzT6TJJlQiv0fwHsOSBDfWe6rNJkTrcvOqtPCpEt/z0NdwWGA+sZd4eYcY
+         wtNDDfqunEd9/yIaSKdho7mDCmbiJ7Qaf3stle/g/H4SyamCuy8ERz51b1E6lrFfq7
+         +Wfa21Jdqn3tRe6qAZoGs05sqhpLOkAR6/IgS9ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Seiji Nishikawa <snishika@redhat.com>,
+        Denys Vlasenko <dvlasenk@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 042/251] ACPICA: Fix use-after-free in acpi_ut_copy_ipackage_to_ipackage()
-Date:   Thu,  5 Jan 2023 13:52:59 +0100
-Message-Id: <20230105125336.706054725@linuxfoundation.org>
+Subject: [PATCH 4.9 043/251] uprobes/x86: Allow to probe a NOP instruction with 0x66 prefix
+Date:   Thu,  5 Jan 2023 13:53:00 +0100
+Message-Id: <20230105125336.747907510@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,68 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-[ Upstream commit 470188b09e92d83c5a997f25f0e8fb8cd2bc3469 ]
+[ Upstream commit cefa72129e45313655d53a065b8055aaeb01a0c9 ]
 
-There is an use-after-free reported by KASAN:
+Intel ICC -hotpatch inserts 2-byte "0x66 0x90" NOP at the start of each
+function to reserve extra space for hot-patching, and currently it is not
+possible to probe these functions because branch_setup_xol_ops() wrongly
+rejects NOP with REP prefix as it treats them like word-sized branch
+instructions.
 
-  BUG: KASAN: use-after-free in acpi_ut_remove_reference+0x3b/0x82
-  Read of size 1 at addr ffff888112afc460 by task modprobe/2111
-  CPU: 0 PID: 2111 Comm: modprobe Not tainted 6.1.0-rc7-dirty
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-  Call Trace:
-   <TASK>
-   kasan_report+0xae/0xe0
-   acpi_ut_remove_reference+0x3b/0x82
-   acpi_ut_copy_iobject_to_iobject+0x3be/0x3d5
-   acpi_ds_store_object_to_local+0x15d/0x3a0
-   acpi_ex_store+0x78d/0x7fd
-   acpi_ex_opcode_1A_1T_1R+0xbe4/0xf9b
-   acpi_ps_parse_aml+0x217/0x8d5
-   ...
-   </TASK>
-
-The root cause of the problem is that the acpi_operand_object
-is freed when acpi_ut_walk_package_tree() fails in
-acpi_ut_copy_ipackage_to_ipackage(), lead to repeated release in
-acpi_ut_copy_iobject_to_iobject(). The problem was introduced
-by "8aa5e56eeb61" commit, this commit is to fix memory leak in
-acpi_ut_copy_iobject_to_iobject(), repeatedly adding remove
-operation, lead to "acpi_operand_object" used after free.
-
-Fix it by removing acpi_ut_remove_reference() in
-acpi_ut_copy_ipackage_to_ipackage(). acpi_ut_copy_ipackage_to_ipackage()
-is called to copy an internal package object into another internal
-package object, when it fails, the memory of acpi_operand_object
-should be freed by the caller.
-
-Fixes: 8aa5e56eeb61 ("ACPICA: Utilities: Fix memory leak in acpi_ut_copy_iobject_to_iobject")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 250bbd12c2fe ("uprobes/x86: Refuse to attach uprobe to "word-sized" branch insns")
+Reported-by: Seiji Nishikawa <snishika@redhat.com>
+Suggested-by: Denys Vlasenko <dvlasenk@redhat.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20221204173933.GA31544@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/utcopy.c | 7 -------
- 1 file changed, 7 deletions(-)
+ arch/x86/kernel/uprobes.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/utcopy.c b/drivers/acpi/acpica/utcopy.c
-index 82f971402d85..646e296e4c13 100644
---- a/drivers/acpi/acpica/utcopy.c
-+++ b/drivers/acpi/acpica/utcopy.c
-@@ -950,13 +950,6 @@ acpi_ut_copy_ipackage_to_ipackage(union acpi_operand_object *source_obj,
- 	status = acpi_ut_walk_package_tree(source_obj, dest_obj,
- 					   acpi_ut_copy_ielement_to_ielement,
- 					   walk_state);
--	if (ACPI_FAILURE(status)) {
--
--		/* On failure, delete the destination package object */
--
--		acpi_ut_remove_reference(dest_obj);
--	}
--
- 	return_ACPI_STATUS(status);
- }
+diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
+index 52bb7413f352..953ed5b5a218 100644
+--- a/arch/x86/kernel/uprobes.c
++++ b/arch/x86/kernel/uprobes.c
+@@ -718,8 +718,9 @@ static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
+ 	switch (opc1) {
+ 	case 0xeb:	/* jmp 8 */
+ 	case 0xe9:	/* jmp 32 */
+-	case 0x90:	/* prefix* + nop; same as jmp with .offs = 0 */
+ 		break;
++	case 0x90:	/* prefix* + nop; same as jmp with .offs = 0 */
++		goto setup;
  
+ 	case 0xe8:	/* call relative */
+ 		branch_clear_offset(auprobe, insn);
+@@ -748,6 +749,7 @@ static int branch_setup_xol_ops(struct arch_uprobe *auprobe, struct insn *insn)
+ 			return -ENOTSUPP;
+ 	}
+ 
++setup:
+ 	auprobe->branch.opc1 = opc1;
+ 	auprobe->branch.ilen = insn->length;
+ 	auprobe->branch.offs = insn->immediate.value;
 -- 
 2.35.1
 
