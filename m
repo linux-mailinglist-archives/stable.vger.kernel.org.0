@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A2B65EC76
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:09:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5D765EC71
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:09:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231452AbjAENJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:09:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60096 "EHLO
+        id S229793AbjAENJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:09:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231767AbjAENJe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:09:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585314E43C
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:09:11 -0800 (PST)
+        with ESMTP id S230017AbjAENJc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:09:32 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2343A4E43E
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:09:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D82FB81ADB
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B0FFC43392;
-        Thu,  5 Jan 2023 13:09:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 908EFCE1AD0
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:09:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55BCDC433F0;
+        Thu,  5 Jan 2023 13:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672924148;
-        bh=/ZVQjJ9C9JMGclZ11XJRkJjf4XCusq7Isfu3fR+4UM0=;
+        s=korg; t=1672924151;
+        bh=FlLh6K78HjhptjI84Hyq3gLEYCbk1Uuo8gFKTviu7YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J15QLqsRxyp06Tvmo0F7/ducp55YxkheMryGQvJM2lVUO5atMtVFVEFh09bpU+C8j
-         0PXbEmlUuqz7cs09FTYlK3GNvW9BxUMoX8hVNOVC+Xc1zbdA0M082t4BtPucpUGZVP
-         qCa2Pnblt09FjJYAC8Dmet6gxDpJeKOz8ma7fKbQ=
+        b=WavC0vO1jY96ndQ6awgWDVl+bGcWrKSehApW/tQfvzND0UQm9Ln+Znxq81scRLxNd
+         Zoc2/LedHQc5VE5MBZfTx/tLACKq4RMXTrGHLlTXdKQAtUgRc3DFKG9iE0QB3FUEtZ
+         brZOYCCaWg+3GB/8Inma0l6FxB7PV0QcuDGQC7Tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+98346927678ac3059c77@syzkaller.appspotmail.com,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
         Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.9 248/251] ext4: init quota for old.inode in ext4_rename
-Date:   Thu,  5 Jan 2023 13:56:25 +0100
-Message-Id: <20230105125346.227686618@linuxfoundation.org>
+Subject: [PATCH 4.9 249/251] ext4: fix error code return to user-space in ext4_get_branch()
+Date:   Thu,  5 Jan 2023 13:56:26 +0100
+Message-Id: <20230105125346.269499174@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -54,77 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Luís Henriques <lhenriques@suse.de>
 
-commit fae381a3d79bb94aa2eb752170d47458d778b797 upstream.
+commit 26d75a16af285a70863ba6a81f85d81e7e65da50 upstream.
 
-Syzbot found the following issue:
-ext4_parse_param: s_want_extra_isize=128
-ext4_inode_info_init: s_want_extra_isize=32
-ext4_rename: old.inode=ffff88823869a2c8 old.dir=ffff888238699828 new.inode=ffff88823869d7e8 new.dir=ffff888238699828
-__ext4_mark_inode_dirty: inode=ffff888238699828 ea_isize=32 want_ea_size=128
-__ext4_mark_inode_dirty: inode=ffff88823869a2c8 ea_isize=32 want_ea_size=128
-ext4_xattr_block_set: inode=ffff88823869a2c8
-------------[ cut here ]------------
-WARNING: CPU: 13 PID: 2234 at fs/ext4/xattr.c:2070 ext4_xattr_block_set.cold+0x22/0x980
-Modules linked in:
-RIP: 0010:ext4_xattr_block_set.cold+0x22/0x980
-RSP: 0018:ffff888227d3f3b0 EFLAGS: 00010202
-RAX: 0000000000000001 RBX: ffff88823007a000 RCX: 0000000000000000
-RDX: 0000000000000a03 RSI: 0000000000000040 RDI: ffff888230078178
-RBP: 0000000000000000 R08: 000000000000002c R09: ffffed1075c7df8e
-R10: ffff8883ae3efc6b R11: ffffed1075c7df8d R12: 0000000000000000
-R13: ffff88823869a2c8 R14: ffff8881012e0460 R15: dffffc0000000000
-FS:  00007f350ac1f740(0000) GS:ffff8883ae200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f350a6ed6a0 CR3: 0000000237456000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- ? ext4_xattr_set_entry+0x3b7/0x2320
- ? ext4_xattr_block_set+0x0/0x2020
- ? ext4_xattr_set_entry+0x0/0x2320
- ? ext4_xattr_check_entries+0x77/0x310
- ? ext4_xattr_ibody_set+0x23b/0x340
- ext4_xattr_move_to_block+0x594/0x720
- ext4_expand_extra_isize_ea+0x59a/0x10f0
- __ext4_expand_extra_isize+0x278/0x3f0
- __ext4_mark_inode_dirty.cold+0x347/0x410
- ext4_rename+0xed3/0x174f
- vfs_rename+0x13a7/0x2510
- do_renameat2+0x55d/0x920
- __x64_sys_rename+0x7d/0xb0
- do_syscall_64+0x3b/0xa0
- entry_SYSCALL_64_after_hwframe+0x72/0xdc
+If a block is out of range in ext4_get_branch(), -ENOMEM will be returned
+to user-space.  Obviously, this error code isn't really useful.  This
+patch fixes it by making sure the right error code (-EFSCORRUPTED) is
+propagated to user-space.  EUCLEAN is more informative than ENOMEM.
 
-As 'ext4_rename' will modify 'old.inode' ctime and mark inode dirty,
-which may trigger expand 'extra_isize' and allocate block. If inode
-didn't init quota will lead to warning.  To solve above issue, init
-'old.inode' firstly in 'ext4_rename'.
-
-Reported-by: syzbot+98346927678ac3059c77@syzkaller.appspotmail.com
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221107015335.2524319-1-yebin@huaweicloud.com
+Signed-off-by: Luís Henriques <lhenriques@suse.de>
+Link: https://lore.kernel.org/r/20221109181445.17843-1-lhenriques@suse.de
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/indirect.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3864,6 +3864,9 @@ static int ext4_cross_rename(struct inod
- 	retval = dquot_initialize(old.dir);
- 	if (retval)
- 		return retval;
-+	retval = dquot_initialize(old.inode);
-+	if (retval)
-+		return retval;
- 	retval = dquot_initialize(new.dir);
- 	if (retval)
- 		return retval;
+--- a/fs/ext4/indirect.c
++++ b/fs/ext4/indirect.c
+@@ -147,6 +147,7 @@ static Indirect *ext4_get_branch(struct
+ 	struct super_block *sb = inode->i_sb;
+ 	Indirect *p = chain;
+ 	struct buffer_head *bh;
++	unsigned int key;
+ 	int ret = -EIO;
+ 
+ 	*err = 0;
+@@ -155,7 +156,13 @@ static Indirect *ext4_get_branch(struct
+ 	if (!p->key)
+ 		goto no_block;
+ 	while (--depth) {
+-		bh = sb_getblk(sb, le32_to_cpu(p->key));
++		key = le32_to_cpu(p->key);
++		if (key > ext4_blocks_count(EXT4_SB(sb)->s_es)) {
++			/* the block was out of range */
++			ret = -EFSCORRUPTED;
++			goto failure;
++		}
++		bh = sb_getblk(sb, key);
+ 		if (unlikely(!bh)) {
+ 			ret = -ENOMEM;
+ 			goto failure;
 
 
