@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE43665EB32
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:57:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A15965EB33
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:57:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232589AbjAEM5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 07:57:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46048 "EHLO
+        id S232691AbjAEM5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 07:57:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232958AbjAEM5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:57:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF751CB02
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:57:08 -0800 (PST)
+        with ESMTP id S233231AbjAEM5M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:57:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 551194BD68
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:57:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4286CB81AD0
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:57:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 804DDC433EF;
-        Thu,  5 Jan 2023 12:57:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13B53B81AD3
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:57:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 792CDC433D2;
+        Thu,  5 Jan 2023 12:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923425;
-        bh=L8gDhxEf9hlNgWugCWU23FZea772ZF4DUhxAM4TOLQE=;
+        s=korg; t=1672923428;
+        bh=rtPj+GPKiZJWhvbP4CVKRxRLABBg5HmAL75+OOgIEOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zobvQvW4xCqsi9QD7iEPK47TwuF9faWCjSDF+Q5wcXnNJwNefZ+ddWgrR8c6OfRa/
-         521G5+Oh6QyqeXjyETNS3LKoD9GLP6KqTMXX/IUnWXSF/bH7b9r51oni0zPyGrFuxe
-         rXFHTNrDJS2iN+fpPkNLWa2oNG/IurHJzcL/5//Q=
+        b=ob8yLF1CY1B6msJVmawRaIpCGVjsn1GFmI/Kdak50s25gja3H5Be2NvyxgMYfCwB3
+         IVG9f3kGm8B6wjVZcKA50AiRLzeC/jPsoc08FYxciOco/UCHlaeEyLguGYVQNHsm7V
+         okHCVzPgMTqewK+2v+IuWDs+0I/9yPItWVgE9Vzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Jiahao <chenjiahao16@huawei.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 016/251] drivers: soc: ti: knav_qmss_queue: Mark knav_acc_firmwares as static
-Date:   Thu,  5 Jan 2023 13:52:33 +0100
-Message-Id: <20230105125335.486234997@linuxfoundation.org>
+        patches@lists.linux.dev, Kory Maincent <kory.maincent@bootlin.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 017/251] arm: dts: spear600: Fix clcd interrupt
+Date:   Thu,  5 Jan 2023 13:52:34 +0100
+Message-Id: <20230105125335.524543381@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -52,40 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jiahao <chenjiahao16@huawei.com>
+From: Kory Maincent <kory.maincent@bootlin.com>
 
-[ Upstream commit adf85adc2a7199b41e7a4da083bd17274a3d6969 ]
+[ Upstream commit 0336e2ce34e7a89832b6c214f924eb7bc58940be ]
 
-There is a sparse warning shown below:
+Interrupt 12 of the Interrupt controller belongs to the SMI controller,
+the right one for the display controller is the interrupt 13.
 
-drivers/soc/ti/knav_qmss_queue.c:70:12: warning: symbol
-'knav_acc_firmwares' was not declared. Should it be static?
-
-Since 'knav_acc_firmwares' is only called within knav_qmss_queue.c,
-mark it as static to fix the warning.
-
-Fixes: 96ee19becc3b ("soc: ti: add firmware file name as part of the driver")
-Signed-off-by: Chen Jiahao <chenjiahao16@huawei.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20221019153212.72350-1-chenjiahao16@huawei.com
+Fixes: 8113ba917dfa ("ARM: SPEAr: DT: Update device nodes")
+Signed-off-by: Kory Maincent <kory.maincent@bootlin.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/knav_qmss_queue.c | 2 +-
+ arch/arm/boot/dts/spear600.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
-index 5248649b0b41..5faafe677341 100644
---- a/drivers/soc/ti/knav_qmss_queue.c
-+++ b/drivers/soc/ti/knav_qmss_queue.c
-@@ -72,7 +72,7 @@ static DEFINE_MUTEX(knav_dev_lock);
-  * Newest followed by older ones. Search is done from start of the array
-  * until a firmware file is found.
-  */
--const char *knav_acc_firmwares[] = {"ks2_qmss_pdsp_acc48.bin"};
-+static const char * const knav_acc_firmwares[] = {"ks2_qmss_pdsp_acc48.bin"};
+diff --git a/arch/arm/boot/dts/spear600.dtsi b/arch/arm/boot/dts/spear600.dtsi
+index bd379034993c..89318273d787 100644
+--- a/arch/arm/boot/dts/spear600.dtsi
++++ b/arch/arm/boot/dts/spear600.dtsi
+@@ -53,7 +53,7 @@ clcd@fc200000 {
+ 			compatible = "arm,pl110", "arm,primecell";
+ 			reg = <0xfc200000 0x1000>;
+ 			interrupt-parent = <&vic1>;
+-			interrupts = <12>;
++			interrupts = <13>;
+ 			status = "disabled";
+ 		};
  
- /**
-  * knav_queue_notify: qmss queue notfier call
 -- 
 2.35.1
 
