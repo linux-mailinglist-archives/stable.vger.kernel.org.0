@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1D9965EC20
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:07:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63CD865EC22
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234009AbjAENGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:06:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55872 "EHLO
+        id S234031AbjAENGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:06:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234014AbjAENGR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:06:17 -0500
+        with ESMTP id S234067AbjAENGS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:06:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB58479E6
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:06:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA27F4D483
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:06:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F83FB81AD5
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:06:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67D0CC433EF;
-        Thu,  5 Jan 2023 13:06:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7632AB81AD3
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:06:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C435EC433EF;
+        Thu,  5 Jan 2023 13:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923963;
-        bh=0PR7FVoKBYCH6KYr+BVZOi+cMuAwRUnjgrjytsFIDxg=;
+        s=korg; t=1672923966;
+        bh=IbI/rddTL4Lp14pulRMePGIgy0VKrx8t1hQOvYy9RS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGMzNn7nx36Btm/iDsksrVtOgdxjmi9VdbK94t+Hzfg93sGdPiboKligr6BJul/RV
-         V1ALYUtZOGvEq4hnfs4b3vRdeIW1X6No/lczyBRTzi/1NotI09J7LKPt82CT5qtUO6
-         f+SOFaMLH6T2pcDHD0KH5rL3jf5y3IvHNdKjfAlo=
+        b=M1fYO0yf7t4/SUlr+6+fsgNcSk3YLJxFr6gateYwIUCuilIj9Jqb5BDs7tG3gOj1R
+         C4mVxADakKU1H81g7uzRrKJx9zFoyhXZtyjwxlF0guj73/vZhuZY8IbfQoZqtqKBLK
+         ARtmsARilAK/5elJpe2bmK7SKh/foVobG4AHYvts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+95001b1fd6dfcc716c29@syzkaller.appspotmail.com,
-        Shigeru Yoshida <syoshida@redhat.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 188/251] wifi: ar5523: Fix use-after-free on ar5523_cmd() timed out
-Date:   Thu,  5 Jan 2023 13:55:25 +0100
-Message-Id: <20230105125343.412608259@linuxfoundation.org>
+Subject: [PATCH 4.9 189/251] ipmi: fix memleak when unload ipmi driver
+Date:   Thu,  5 Jan 2023 13:55:26 +0100
+Message-Id: <20230105125343.462983757@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -55,108 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shigeru Yoshida <syoshida@redhat.com>
+From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
 
-[ Upstream commit b6702a942a069c2a975478d719e98d83cdae1797 ]
+[ Upstream commit 36992eb6b9b83f7f9cdc8e74fb5799d7b52e83e9 ]
 
-syzkaller reported use-after-free with the stack trace like below [1]:
+After the IPMI disconnect problem, the memory kept rising and we tried
+to unload the driver to free the memory. However, only part of the
+free memory is recovered after the driver is uninstalled. Using
+ebpf to hook free functions, we find that neither ipmi_user nor
+ipmi_smi_msg is free, only ipmi_recv_msg is free.
 
-[   38.960489][    C3] ==================================================================
-[   38.963216][    C3] BUG: KASAN: use-after-free in ar5523_cmd_tx_cb+0x220/0x240
-[   38.964950][    C3] Read of size 8 at addr ffff888048e03450 by task swapper/3/0
-[   38.966363][    C3]
-[   38.967053][    C3] CPU: 3 PID: 0 Comm: swapper/3 Not tainted 6.0.0-09039-ga6afa4199d3d-dirty #18
-[   38.968464][    C3] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-1.fc36 04/01/2014
-[   38.969959][    C3] Call Trace:
-[   38.970841][    C3]  <IRQ>
-[   38.971663][    C3]  dump_stack_lvl+0xfc/0x174
-[   38.972620][    C3]  print_report.cold+0x2c3/0x752
-[   38.973626][    C3]  ? ar5523_cmd_tx_cb+0x220/0x240
-[   38.974644][    C3]  kasan_report+0xb1/0x1d0
-[   38.975720][    C3]  ? ar5523_cmd_tx_cb+0x220/0x240
-[   38.976831][    C3]  ar5523_cmd_tx_cb+0x220/0x240
-[   38.978412][    C3]  __usb_hcd_giveback_urb+0x353/0x5b0
-[   38.979755][    C3]  usb_hcd_giveback_urb+0x385/0x430
-[   38.981266][    C3]  dummy_timer+0x140c/0x34e0
-[   38.982925][    C3]  ? notifier_call_chain+0xb5/0x1e0
-[   38.984761][    C3]  ? rcu_read_lock_sched_held+0xb/0x60
-[   38.986242][    C3]  ? lock_release+0x51c/0x790
-[   38.987323][    C3]  ? _raw_read_unlock_irqrestore+0x37/0x70
-[   38.988483][    C3]  ? __wake_up_common_lock+0xde/0x130
-[   38.989621][    C3]  ? reacquire_held_locks+0x4a0/0x4a0
-[   38.990777][    C3]  ? lock_acquire+0x472/0x550
-[   38.991919][    C3]  ? rcu_read_lock_sched_held+0xb/0x60
-[   38.993138][    C3]  ? lock_acquire+0x472/0x550
-[   38.994890][    C3]  ? dummy_urb_enqueue+0x860/0x860
-[   38.996266][    C3]  ? do_raw_spin_unlock+0x16f/0x230
-[   38.997670][    C3]  ? dummy_urb_enqueue+0x860/0x860
-[   38.999116][    C3]  call_timer_fn+0x1a0/0x6a0
-[   39.000668][    C3]  ? add_timer_on+0x4a0/0x4a0
-[   39.002137][    C3]  ? reacquire_held_locks+0x4a0/0x4a0
-[   39.003809][    C3]  ? __next_timer_interrupt+0x226/0x2a0
-[   39.005509][    C3]  __run_timers.part.0+0x69a/0xac0
-[   39.007025][    C3]  ? dummy_urb_enqueue+0x860/0x860
-[   39.008716][    C3]  ? call_timer_fn+0x6a0/0x6a0
-[   39.010254][    C3]  ? cpuacct_percpu_seq_show+0x10/0x10
-[   39.011795][    C3]  ? kvm_sched_clock_read+0x14/0x40
-[   39.013277][    C3]  ? sched_clock_cpu+0x69/0x2b0
-[   39.014724][    C3]  run_timer_softirq+0xb6/0x1d0
-[   39.016196][    C3]  __do_softirq+0x1d2/0x9be
-[   39.017616][    C3]  __irq_exit_rcu+0xeb/0x190
-[   39.019004][    C3]  irq_exit_rcu+0x5/0x20
-[   39.020361][    C3]  sysvec_apic_timer_interrupt+0x8f/0xb0
-[   39.021965][    C3]  </IRQ>
-[   39.023237][    C3]  <TASK>
+We find that the deliver_smi_err_response call in clean_smi_msgs does
+the destroy processing on each message from the xmit_msg queue without
+checking the return value and free ipmi_smi_msg.
 
-In ar5523_probe(), ar5523_host_available() calls ar5523_cmd() as below
-(there are other functions which finally call ar5523_cmd()):
+deliver_smi_err_response is called only at this location. Adding the
+free handling has no effect.
 
-ar5523_probe()
--> ar5523_host_available()
-   -> ar5523_cmd_read()
-      -> ar5523_cmd()
+To verify, try using ebpf to trace the free function.
 
-If ar5523_cmd() timed out, then ar5523_host_available() failed and
-ar5523_probe() freed the device structure.  So, ar5523_cmd_tx_cb()
-might touch the freed structure.
+  $ bpftrace -e 'kretprobe:ipmi_alloc_recv_msg {printf("alloc rcv
+      %p\n",retval);} kprobe:free_recv_msg {printf("free recv %p\n",
+      arg0)} kretprobe:ipmi_alloc_smi_msg {printf("alloc smi %p\n",
+        retval);} kprobe:free_smi_msg {printf("free smi  %p\n",arg0)}'
 
-This patch fixes this issue by canceling in-flight tx cmd if submitted
-urb timed out.
-
-Link: https://syzkaller.appspot.com/bug?id=9e12b2d54300842b71bdd18b54971385ff0d0d3a [1]
-Reported-by: syzbot+95001b1fd6dfcc716c29@syzkaller.appspotmail.com
-Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20221009183223.420015-1-syoshida@redhat.com
+Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+Message-Id: <20221007092617.87597-4-zhangyuchen.lcr@bytedance.com>
+[Fixed the comment above handle_one_recv_msg().]
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ar5523/ar5523.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/char/ipmi/ipmi_msghandler.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ar5523/ar5523.c b/drivers/net/wireless/ath/ar5523/ar5523.c
-index 0c6b33c464cd..187061a43f7f 100644
---- a/drivers/net/wireless/ath/ar5523/ar5523.c
-+++ b/drivers/net/wireless/ath/ar5523/ar5523.c
-@@ -241,6 +241,11 @@ static void ar5523_cmd_tx_cb(struct urb *urb)
- 	}
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index 74044b52d2c6..97d3c9d4ebc7 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -2930,12 +2930,16 @@ static void deliver_smi_err_response(ipmi_smi_t intf,
+ 				     struct ipmi_smi_msg *msg,
+ 				     unsigned char err)
+ {
++	int rv;
+ 	msg->rsp[0] = msg->data[0] | 4;
+ 	msg->rsp[1] = msg->data[1];
+ 	msg->rsp[2] = err;
+ 	msg->rsp_size = 3;
+-	/* It's an error, so it will never requeue, no need to check return. */
+-	handle_one_recv_msg(intf, msg);
++
++	/* This will never requeue, but it may ask us to free the message. */
++	rv = handle_one_recv_msg(intf, msg);
++	if (rv == 0)
++		ipmi_free_smi_msg(msg);
  }
  
-+static void ar5523_cancel_tx_cmd(struct ar5523 *ar)
-+{
-+	usb_kill_urb(ar->tx_cmd.urb_tx);
-+}
-+
- static int ar5523_cmd(struct ar5523 *ar, u32 code, const void *idata,
- 		      int ilen, void *odata, int olen, int flags)
- {
-@@ -280,6 +285,7 @@ static int ar5523_cmd(struct ar5523 *ar, u32 code, const void *idata,
- 	}
- 
- 	if (!wait_for_completion_timeout(&cmd->done, 2 * HZ)) {
-+		ar5523_cancel_tx_cmd(ar);
- 		cmd->odata = NULL;
- 		ar5523_err(ar, "timeout waiting for command %02x reply\n",
- 			   code);
+ static void cleanup_smi_msgs(ipmi_smi_t intf)
 -- 
 2.35.1
 
