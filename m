@@ -2,124 +2,335 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F7E865EF32
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 15:49:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6317365EF3D
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 15:50:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231429AbjAEOsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 09:48:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47502 "EHLO
+        id S234199AbjAEOuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 09:50:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234204AbjAEOsJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 09:48:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D3B037273;
-        Thu,  5 Jan 2023 06:48:08 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 172E361ADB;
-        Thu,  5 Jan 2023 14:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D78C3C433D2;
-        Thu,  5 Jan 2023 14:48:05 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="qGFtc44q"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1672930083;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=j0ck3abVJY2ouhKZmMHaxzbj9CCExwJe2tQnda+R1m0=;
-        b=qGFtc44q5akffwi5JVAownpi+dfiyBqRDRp7CQGSrlezApoND+xq4NLG+G6s2V/rWeV/kV
-        pFTSnVhXlz93c9qkE8tZQ2HQfo4y+ZoxZ50Mr4q9wgUexGWJIWMgHtuaGHYIaJ8tUc35HI
-        WQMb5q5soEW63quDCcmwK0QcFqMhtwk=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 3ea1ba23 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Thu, 5 Jan 2023 14:48:02 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jan Dabros <jsd@semihalf.com>,
-        regressions@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Johannes Altmanninger <aclopte@gmail.com>
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] tpm: Disable hwrng for TPM 1 if PM_SLEEP is enabled
-Date:   Thu,  5 Jan 2023 15:47:42 +0100
-Message-Id: <20230105144742.3219571-1-Jason@zx2c4.com>
-In-Reply-To: <370a2808-a19b-b512-4cd3-72dc69dfe8b0@suse.cz>
-References: <370a2808-a19b-b512-4cd3-72dc69dfe8b0@suse.cz>
+        with ESMTP id S234213AbjAEOtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 09:49:55 -0500
+Received: from mail-vs1-xe31.google.com (mail-vs1-xe31.google.com [IPv6:2607:f8b0:4864:20::e31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495F55BA01
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 06:49:41 -0800 (PST)
+Received: by mail-vs1-xe31.google.com with SMTP id l184so9627154vsc.0
+        for <stable@vger.kernel.org>; Thu, 05 Jan 2023 06:49:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Fqp0IL0vPx+WyxKibSi8EubINlKC1unlnZNjm/c7cRM=;
+        b=F+siEV4aLITsQCjiU1Qs8wQrFy2AWdBhhk11oAPKnAhxB8fm43lmnsAlhC4gNM0h4I
+         7EOHIdW4NtTIc7DSJJsXFmMRPE0j14mfzk4RfBu9M65hVcPCeGGaidqEtg0BktKxMEkL
+         iLRloSDCLDK56HkE/8dxWyj2UIyfSmYp3W+O4+5oHaBfGKUPc6GwMGgeclo0j3J9gzJg
+         BzlszB9X7kf5lczUBpDWvp/S/kNgRAjZzkXLPw2q2wgRY6MN8E5MIYjIyayWLXIybKtE
+         vwHqSyEiFV0u/IJf8mCKiV64+FukZ6XsARvcfhqNJxAkHdhLruTCVPye6NvqdHglKcKk
+         qw1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Fqp0IL0vPx+WyxKibSi8EubINlKC1unlnZNjm/c7cRM=;
+        b=fGoEDLpUkvrTa0Nigf6WUuZt9ZPoSRnwUW/+0PNX+j0jOmedi6M9Us/sRj8aSWNgTu
+         N8XF2wb+LAu6vHfmPp4BQjwLSMkKGTY+ViPTbF4Lqv4fowjjseO6jAhmsI8XPmBwb+H+
+         Z86VIepCv7FPHS9Fs0TePO4fl4pt/jR5OdTLWu7j1sNFNgJPvXWflqALdyjsxAGn68B5
+         rGXUrS8DGAPhTG7vPwkZqvvtLjSZTlJxt96K+VjfNB6VKzAmgF9cGLPJj/Nk3fc1NRzc
+         FHy2FjZnBhCJsMC7L9u5gQbCBAsjFqr39rSbdf70aygefPcBPmpneisGMalKayThsJOk
+         QTew==
+X-Gm-Message-State: AFqh2krppTASp6QlIrEfwjMY4Nuub9pIDMZekPuGVq87fn3xDsZ3FySE
+        hH6RfgmCxjXoe3HC0fwfTWV94ucrPTwQPydDc7IPrQ==
+X-Google-Smtp-Source: AMrXdXtEJw3EZH9EpXnc2Ogay85hUvGleLv1XAj0mDfcwC4642b3IoOsluGjf7d3z/jsZ0SLsWNk3meUmpY5w6WKJUY=
+X-Received: by 2002:a05:6102:b0a:b0:3c7:dfdb:a6a2 with SMTP id
+ b10-20020a0561020b0a00b003c7dfdba6a2mr4136444vst.34.1672930178753; Thu, 05
+ Jan 2023 06:49:38 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 5 Jan 2023 20:19:27 +0530
+Message-ID: <CA+G9fYsTr9_r893+62u6UGD3dVaCE-kN9C-Apmb2m=hxjc1Cqg@mail.gmail.com>
+Subject: selftests: tc-testing: tdc.sh - WARNING: inconsistent lock state on
+ arm x15
+To:     "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>, Netdev <netdev@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Davide Caratti <dcaratti@redhat.com>,
+        Briana Oursler <briana.oursler@gmail.com>,
+        Lucas Bates <lucasb@mojatatu.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-TPM 1's support for its hardware RNG is broken across system suspends,
-due to races or locking issues or something else that haven't been
-diagnosed or fixed yet. These issues prevent the system from actually
-suspending. So disable the driver in this case. Later, when this is
-fixed properly, we can remove this.
+Following kernel warnings noticed on arm beagleboard X15 device while running
+selftests: tc-testing: tdc.sh with stable-rc 6.1.
 
-Current breakage amounts to something like:
+This is always reproducible with kselftest merge configs.
+The build, config, vmlinux and test details links provided [1].
 
-  tpm tpm0: A TPM error (28) occurred continue selftest
-  ...
-  tpm tpm0: A TPM error (28) occurred attempting get random
-  ...
-  tpm tpm0: Error (28) sending savestate before suspend
-  tpm_tis 00:08: PM: __pnp_bus_suspend(): tpm_pm_suspend+0x0/0x80 returns 28
-  tpm_tis 00:08: PM: dpm_run_callback(): pnp_bus_suspend+0x0/0x10 returns 28
-  tpm_tis 00:08: PM: failed to suspend: error 28
-  PM: Some devices failed to suspend, or early wake event detected
+[  228.686798] WARNING: inconsistent lock state
+[  228.193450] WARNING: CPU: 1 PID: 2386 at
+include/linux/u64_stats_sync.h:145
+__u64_stats_update_begin+0x180/0x1a4 [sch_gred]
+[  228.439208] WARNING: CPU: 1 PID: 2386 at
+include/linux/seqlock.h:269 __u64_stats_update_begin+0x1a0/0x1a4
+[sch_gred
 
-This issue was partially fixed by 23393c646142 ("char: tpm: Protect
-tpm_pm_suspend with locks"), in a last minute 6.1 commit that Linus took
-directly because the TPM maintainers weren't available. However, it
-seems like this just addresses the most common cases of the bug, rather
-than addressing it entirely. So there are more things to fix still,
-apparently.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-The hwrng driver appears already to be occasionally disabled due to
-other conditions, so this shouldn't be too large of a surprise.
+[  204.305236] kselftest: Running tests in tc-testing
+TAP version 13
+1..1
+# selftests: tc-testing: tdc.sh
+# considering category actions
+#  -- buildebpf/SubPlugin.__init__
+# Unable to import the scapy python module.
+#
+# If not already installed, you may do so with:
+# pip3 install scapy==2.4.2
+[  207.264129] IPv6: ADDRCONF(NETDEV_CHANGE): v0p1: link becomes ready
+[  207.271331] IPv6: ADDRCONF(NETDEV_CHANGE): v0p0: link becomes ready
+[  228.188781] ------------[ cut here ]------------
+[  228.193450] WARNING: CPU: 1 PID: 2386 at
+include/linux/u64_stats_sync.h:145
+__u64_stats_update_begin+0x180/0x1a4 [sch_gred]
+[  228.204803] Modules linked in: sch_gred sch_multiq sch_cake
+netdevsim psample iptable_raw ip6_tables vrf iptable_filter xt_state
+ip_tables x_tables nft_masq nft_nat nft_chain_nat nf_nat nf_conntrack
+nf_defrag_ipv6 nf_defrag_ipv4 veth nf_tables libcrc32c nfnetlink
+cfg80211 bluetooth snd_soc_simple_card snd_soc_simple_card_utils
+etnaviv gpu_sched onboard_usb_hub snd_soc_davinci_mcasp
+snd_soc_ti_udma snd_soc_ti_edma snd_soc_ti_sdma snd_soc_core ac97_bus
+snd_pcm_dmaengine snd_pcm snd_timer snd soundcore display_connector
+sch_fq_codel fuse
+[  228.252777] CPU: 1 PID: 2386 Comm: tc Not tainted 6.1.4-rc1 #1
+[  228.258666] Hardware name: Generic DRA74X (Flattened Device Tree)
+[  228.264770]  unwind_backtrace from show_stack+0x18/0x1c
+[  228.270050]  show_stack from dump_stack_lvl+0x58/0x70
+[  228.275146]  dump_stack_lvl from __warn+0xd0/0x1f0
+[  228.279968]  __warn from warn_slowpath_fmt+0x64/0xc8
+[  228.284973]  warn_slowpath_fmt from
+__u64_stats_update_begin+0x180/0x1a4 [sch_gred]
+[  228.292694]  __u64_stats_update_begin [sch_gred] from
+gred_dump+0x1c0/0x790 [sch_gred]
+[  228.300689]  gred_dump [sch_gred] from tc_fill_qdisc+0x154/0x44c
+[  228.306732]  tc_fill_qdisc from qdisc_notify+0x11c/0x130
+[  228.312072]  qdisc_notify from qdisc_graft+0x440/0x624
+[  228.317260]  qdisc_graft from tc_modify_qdisc+0x558/0x850
+[  228.322692]  tc_modify_qdisc from rtnetlink_rcv_msg+0x180/0x56c
+[  228.328674]  rtnetlink_rcv_msg from netlink_rcv_skb+0xc0/0x118
+[  228.334533]  netlink_rcv_skb from netlink_unicast+0x19c/0x268
+[  228.340301]  netlink_unicast from netlink_sendmsg+0x1f8/0x484
+[  228.346099]  netlink_sendmsg from ____sys_sendmsg+0x224/0x2bc
+[  228.351898]  ____sys_sendmsg from ___sys_sendmsg+0x70/0x9c
+[  228.357421]  ___sys_sendmsg from sys_sendmsg+0x54/0x90
+[  228.362579]  sys_sendmsg from ret_fast_syscall+0x0/0x1c
+[  228.367858] Exception stack(0xf03f9fa8 to 0xf03f9ff0)
+[  228.372955] 9fa0:                   00000000 00000001 00000003
+bee09bdc 00000000 00000000
+[  228.381164] 9fc0: 00000000 00000001 b6f78800 00000128 626ad2dc
+00000000 00000000 00076000
+[  228.389373] 9fe0: 00000128 bee09b78 b6dff253 b6d71ae6
+[  228.394561] irq event stamp: 25529
+[  228.398040] hardirqs last  enabled at (25551): [<c03da980>]
+__up_console_sem+0x58/0x68
+[  228.406005] hardirqs last disabled at (25558): [<c03da96c>]
+__up_console_sem+0x44/0x68
+[  228.414001] softirqs last  enabled at (25548): [<c0301fc8>]
+__do_softirq+0x300/0x538
+[  228.421844] softirqs last disabled at (25537): [<c035a224>]
+__irq_exit_rcu+0x14c/0x170
+[  228.429870] ---[ end trace 0000000000000000 ]---
+[  228.434509] ------------[ cut here ]------------
+[  228.439208] WARNING: CPU: 1 PID: 2386 at
+include/linux/seqlock.h:269 __u64_stats_update_begin+0x1a0/0x1a4
+[sch_gred]
+[  228.449829] Modules linked in: sch_gred sch_multiq sch_cake
+netdevsim psample iptable_raw ip6_tables vrf iptable_filter xt_state
+ip_tables x_tables nft_masq nft_nat nft_chain_nat nf_nat nf_conntrack
+nf_defrag_ipv6 nf_defrag_ipv4 veth nf_tables libcrc32c nfnetlink
+cfg80211 bluetooth snd_soc_simple_card snd_soc_simple_card_utils
+etnaviv gpu_sched onboard_usb_hub snd_soc_davinci_mcasp
+snd_soc_ti_udma snd_soc_ti_edma snd_soc_ti_sdma snd_soc_core ac97_bus
+snd_pcm_dmaengine snd_pcm snd_timer snd soundcore display_connector
+sch_fq_codel fuse
+[  228.497802] CPU: 1 PID: 2386 Comm: tc Tainted: G        W
+6.1.4-rc1 #1
+[  228.505157] Hardware name: Generic DRA74X (Flattened Device Tree)
+[  228.511291]  unwind_backtrace from show_stack+0x18/0x1c
+[  228.516571]  show_stack from dump_stack_lvl+0x58/0x70
+[  228.521636]  dump_stack_lvl from __warn+0xd0/0x1f0
+[  228.526458]  __warn from warn_slowpath_fmt+0x64/0xc8
+[  228.531494]  warn_slowpath_fmt from
+__u64_stats_update_begin+0x1a0/0x1a4 [sch_gred]
+[  228.539184]  __u64_stats_update_begin [sch_gred] from
+gred_dump+0x1c0/0x790 [sch_gred]
+[  228.547180]  gred_dump [sch_gred] from tc_fill_qdisc+0x154/0x44c
+[  228.553222]  tc_fill_qdisc from qdisc_notify+0x11c/0x130
+[  228.558593]  qdisc_notify from qdisc_graft+0x440/0x624
+[  228.563751]  qdisc_graft from tc_modify_qdisc+0x558/0x850
+[  228.569183]  tc_modify_qdisc from rtnetlink_rcv_msg+0x180/0x56c
+[  228.575164]  rtnetlink_rcv_msg from netlink_rcv_skb+0xc0/0x118
+[  228.581024]  netlink_rcv_skb from netlink_unicast+0x19c/0x268
+[  228.586822]  netlink_unicast from netlink_sendmsg+0x1f8/0x484
+[  228.592590]  netlink_sendmsg from ____sys_sendmsg+0x224/0x2bc
+[  228.598388]  ____sys_sendmsg from ___sys_sendmsg+0x70/0x9c
+[  228.603912]  ___sys_sendmsg from sys_sendmsg+0x54/0x90
+[  228.609100]  sys_sendmsg from ret_fast_syscall+0x0/0x1c
+[  228.614349] Exception stack(0xf03f9fa8 to 0xf03f9ff0)
+[  228.619415] 9fa0:                   00000000 00000001 00000003
+bee09bdc 00000000 00000000
+[  228.627655] 9fc0: 00000000 00000001 b6f78800 00000128 626ad2dc
+00000000 00000000 00076000
+[  228.635864] 9fe0: 00000128 bee09b78 b6dff253 b6d71ae6
+[  228.641052] irq event stamp: 25921
+[  228.644470] hardirqs last  enabled at (25929): [<c03da980>]
+__up_console_sem+0x58/0x68
+[  228.652465] hardirqs last disabled at (25938): [<c03da96c>]
+__up_console_sem+0x44/0x68
+[  228.660491] softirqs last  enabled at (25920): [<c0301fc8>]
+__do_softirq+0x300/0x538
+[  228.668334] softirqs last disabled at (25957): [<c035a224>]
+__irq_exit_rcu+0x14c/0x170
+[  228.676300] ---[ end trace 0000000000000000 ]---
+[  228.680999]
+[  228.682495] ================================
+[  228.686798] WARNING: inconsistent lock state
+[  228.691070] 6.1.4-rc1 #1 Tainted: G        W
+[  228.696136] --------------------------------
+[  228.700439] inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-W} usage.
+[  228.706481] tc/2386 [HC0[0]:SC0[0]:HE1:SE1] takes:
+[  228.711303] c96870b4 (&syncp->seq#14){+.?.}-{0:0}, at:
+gred_dump+0x1c0/0x790 [sch_gred]
+[  228.719360] {IN-SOFTIRQ-W} state was registered at:
+[  228.724273]   __u64_stats_update_begin+0x10c/0x1a4
+[  228.729095]   __dev_queue_xmit+0xcac/0x1288
+[  228.733306]   arp_process+0x8cc/0x95c
+[  228.736999]   __netif_receive_skb_one_core+0x58/0x74
+[  228.741973]   netif_receive_skb+0xe4/0x474
+[  228.746093]   cpsw_rx_handler+0x1a0/0x42c
+[  228.750122]   __cpdma_chan_process+0xf4/0x188
+[  228.754516]   cpdma_chan_process+0x44/0x5c
+[  228.758636]   cpsw_rx_mq_poll+0x4c/0x9c
+[  228.762512]   __napi_poll+0x3c/0x28c
+[  228.766113]   net_rx_action+0x160/0x350
+[  228.769958]   __do_softirq+0x130/0x538
+[  228.773712]   call_with_stack+0x18/0x20
+[  228.777587]   do_softirq+0xb0/0xb4
+[  228.781005]   __local_bh_enable_ip+0x180/0x1b8
+[  228.785461]   ip_finish_output2+0x21c/0xb74
+[  228.789672]   ip_send_skb+0x58/0x120
+[  228.793273]   udp_send_skb+0x13c/0x38c
+[  228.797027]   udp_sendmsg+0x920/0xe28
+[  228.800720]   ____sys_sendmsg+0x224/0x2bc
+[  228.804748]   ___sys_sendmsg+0x70/0x9c
+[  228.808502]   sys_sendmsg+0x54/0x90
+[  228.812011]   __sys_trace_return+0x0/0x10
+[  228.816040] irq event stamp: 25991
+[  228.819458] hardirqs last  enabled at (25991): [<c03da980>]
+__up_console_sem+0x58/0x68
+[  228.827423] hardirqs last disabled at (25990): [<c03da96c>]
+__up_console_sem+0x44/0x68
+[  228.835388] softirqs last  enabled at (25970): [<c0301fc8>]
+__do_softirq+0x300/0x538
+[  228.843170] softirqs last disabled at (25957): [<c035a224>]
+__irq_exit_rcu+0x14c/0x170
+[  228.851135]
+[  228.851135] other info that might help us debug this:
+[  228.857666]  Possible unsafe locking scenario:
+[  228.857666]
+[  228.863616]        CPU0
+[  228.866088]        ----
+[  228.868530]   lock(&syncp->seq#14);
+[  228.872039]   <Interrupt>
+[  228.874694]     lock(&syncp->seq#14);
+[  228.878387]
+[  228.878387]  *** DEADLOCK ***
+[  228.878387]
+[  228.884307] 1 lock held by tc/2386:
+[  228.887817]  #0: c25b0760 (rtnl_mutex){+.+.}-{3:3}, at:
+qdisc_create+0x3cc/0x5bc
+[  228.895294]
+[  228.895294] stack backtrace:
+[  228.899658] CPU: 1 PID: 2386 Comm: tc Tainted: G        W
+6.1.4-rc1 #1
+[  228.907012] Hardware name: Generic DRA74X (Flattened Device Tree)
+[  228.913146]  unwind_backtrace from show_stack+0x18/0x1c
+[  228.918395]  show_stack from dump_stack_lvl+0x58/0x70
+[  228.923492]  dump_stack_lvl from mark_lock.part.0+0xb74/0x128c
+[  228.929351]  mark_lock.part.0 from __lock_acquire+0x984/0x2a8c
+[  228.935211]  __lock_acquire from lock_acquire+0x110/0x364
+[  228.940643]  lock_acquire from __u64_stats_update_begin+0x10c/0x1a4
+[sch_gred]
+[  228.947906]  __u64_stats_update_begin [sch_gred] from
+gred_dump+0x1c0/0x790 [sch_gred]
+[  228.955871]  gred_dump [sch_gred] from tc_fill_qdisc+0x154/0x44c
+[  228.961914]  tc_fill_qdisc from qdisc_notify+0x11c/0x130
+[  228.967254]  qdisc_notify from qdisc_graft+0x440/0x624
+[  228.972442]  qdisc_graft from tc_modify_qdisc+0x558/0x850
+[  228.977874]  tc_modify_qdisc from rtnetlink_rcv_msg+0x180/0x56c
+[  228.983825]  rtnetlink_rcv_msg from netlink_rcv_skb+0xc0/0x118
+[  228.989685]  netlink_rcv_skb from netlink_unicast+0x19c/0x268
+[  228.995452]  netlink_unicast from netlink_sendmsg+0x1f8/0x484
+[  229.001220]  netlink_sendmsg from ____sys_sendmsg+0x224/0x2bc
+[  229.007019]  ____sys_sendmsg from ___sys_sendmsg+0x70/0x9c
+[  229.012542]  ___sys_sendmsg from sys_sendmsg+0x54/0x90
+[  229.017700]  sys_sendmsg from ret_fast_syscall+0x0/0x1c
+[  229.022979] Exception stack(0xf03f9fa8 to 0xf03f9ff0)
+[  229.028045] 9fa0:                   00000000 00000001 00000003
+bee09bdc 00000000 00000000
+[  229.036285] 9fc0: 00000000 00000001 b6f78800 00000128 626ad2dc
+00000000 00000000 00076000
+[  229.044494] 9fe0: 00000128 bee09b78 b6dff253 b6d71ae6
+[  232.169219] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+[  232.528900] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+[  232.913879] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+[  233.339508] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+[  233.720397] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+[  234.080047] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+[  234.460174] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+[  234.540374] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+[  234.950683] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+[  235.029327] sch_tbf: burst 1500 is lower than device dummy1 mtu (1514) !
+#
+# -----> teardown stage *** Could not execute: \"$TC qdisc del dev
+$DUMMY handle 1: root\"
+#
+# -----> teardown stage *** Error message: \"Error: Invalid handle.
+# \"
+#
+# -----> teardown stage *** Aborting test run.
+#
 
-Link: https://lore.kernel.org/lkml/7cbe96cf-e0b5-ba63-d1b4-f63d2e826efa@suse.cz/
-Cc: stable@vger.kernel.org # 6.1+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- drivers/char/tpm/tpm-chip.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+[1]
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.3-208-ga31425cbf493/testrun/13974102/suite/log-parser-test/tests/
+https://lkft.validation.linaro.org/scheduler/job/6022394#L4509
 
-diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-index 741d8f3e8fb3..eed67ea8d3a7 100644
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -524,6 +524,14 @@ static int tpm_add_hwrng(struct tpm_chip *chip)
- 	if (!IS_ENABLED(CONFIG_HW_RANDOM_TPM) || tpm_is_firmware_upgrade(chip))
- 		return 0;
- 
-+	/*
-+	 * This driver's support for using the RNG across suspend is broken on
-+	 * TPM1. Until somebody fixes this, just stop registering a HWRNG in
-+	 * that case.
-+	 */
-+	if (!(chip->flags & TPM_CHIP_FLAG_TPM2) && IS_ENABLED(CONFIG_PM_SLEEP))
-+		return 0;
-+
- 	snprintf(chip->hwrng_name, sizeof(chip->hwrng_name),
- 		 "tpm-rng-%d", chip->dev_num);
- 	chip->hwrng.name = chip->hwrng_name;
--- 
-2.39.0
 
+metadata:
+  git_ref: linux-6.1.y
+  git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+  git_sha: a31425cbf493ef8bc7f7ce775a1028b1e0612f32
+  git_describe: v6.1.3-208-ga31425cbf493
+  kernel_version: 6.1.4-rc1
+  kernel-config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2JrzrHzfFQKu8CwO4A3HTPI51of/config
+  build-url: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/pipelines/738268273
+  artifact-location:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2JrzrHzfFQKu8CwO4A3HTPI51of
+  toolchain: gcc-10
+  vmlinux.xz: https://storage.tuxsuite.com/public/linaro/lkft/builds/2JrzrHzfFQKu8CwO4A3HTPI51of/vmlinux.xz
+  System.map: https://storage.tuxsuite.com/public/linaro/lkft/builds/2JrzrHzfFQKu8CwO4A3HTPI51of/System.map
+
+--
+Linaro LKFT
+https://lkft.linaro.org
