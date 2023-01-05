@@ -2,159 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DBDC65EB2A
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:56:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2A3665EB5D
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:59:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231851AbjAEM4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 07:56:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45824 "EHLO
+        id S233584AbjAEM73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 07:59:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231174AbjAEM4e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:56:34 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 32C4811178;
-        Thu,  5 Jan 2023 04:56:33 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B566315BF;
-        Thu,  5 Jan 2023 04:57:14 -0800 (PST)
-Received: from FVFF77S0Q05N (unknown [10.57.45.56])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7BACE3F663;
-        Thu,  5 Jan 2023 04:56:31 -0800 (PST)
-Date:   Thu, 5 Jan 2023 12:56:28 +0000
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Lee Jones <lee@kernel.org>, stable@vger.kernel.org,
-        linux-efi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        will@kernel.org, catalin.marinas@arm.com,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH 1/2] arm64: efi: Execute runtime services from a
- dedicated stack
-Message-ID: <Y7bI/EN7GfTYkuT+@FVFF77S0Q05N>
-References: <20221205201210.463781-1-ardb@kernel.org>
- <20221205201210.463781-2-ardb@kernel.org>
- <Y7VXg5MCRyAJFmus@google.com>
- <CAMj1kXEYDHuRmUPvdMVj1H1fLoOKcr+qG6NDpufxwJa57jsWdg@mail.gmail.com>
- <Y7WloqaytMnC8ZIC@FVFF77S0Q05N>
- <CAMj1kXEaX_3yFT_GFruXbQj9gfDShH4arPjTQBqokKAGusi_Fw@mail.gmail.com>
- <Y7WpsPDF+7fux8l3@FVFF77S0Q05N>
- <CAMj1kXGQW5Nj81rjDu_bGM6M3tWUaFwgBSxpCWbgJ+JBUPuJJw@mail.gmail.com>
+        with ESMTP id S233586AbjAEM7L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:11 -0500
+Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [81.169.146.220])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107B750E78;
+        Thu,  5 Jan 2023 04:58:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1672923516;
+    s=strato-dkim-0002; d=hartkopp.net;
+    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
+    From:Subject:Sender;
+    bh=mblklxT3tdQtGNGyWhlxjvyTs/AQhdvYqP4MC7Rdv9A=;
+    b=E0xkbpakXWEcZb/OM4L76y5jo9ARBrDIx3LPgWhCBPap3F9QwnaqRZh0i5ur1IN+Vb
+    OhLnvNc5g0hnubHXFDsbCB37vAw6b87pcVaPlIDbCzWVXPDgmd/sb6PM+3Ubz4H19kpU
+    inObWo4RTnRi0hPRNqg3f0h1dX0UytVZbD6w8mrJfe0O2mkJGhN/37pESYT87PjKHj9W
+    YvGDJeiMPRo75O05qga4W10TXjnN46t/OU2/0B9yT2TzqEC2p/6pe0Zpz0QyONocUAHS
+    a6dzbV7I60ByHMPvuGw81yb/K+BoucfX1sHjPxmVUCCZ6gtXc+wzT3DUKxwNuk2+TM8X
+    AW1A==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1o3TMaFqTEVR5J8xpzl0="
+X-RZG-CLASS-ID: mo00
+Received: from [192.168.10.47]
+    by smtp.strato.de (RZmta 48.2.1 DYNA|AUTH)
+    with ESMTPSA id j06241z05CwZ2q3
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+    Thu, 5 Jan 2023 13:58:35 +0100 (CET)
+Message-ID: <20bef3ed-47ef-8042-6b98-1f498b81962f@hartkopp.net>
+Date:   Thu, 5 Jan 2023 13:58:30 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMj1kXGQW5Nj81rjDu_bGM6M3tWUaFwgBSxpCWbgJ+JBUPuJJw@mail.gmail.com>
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH v2] can: isotp: handle wait_event_interruptible() return
+ values
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     linux-can@vger.kernel.org, stable@vger.kernel.org
+References: <20230104164605.39666-1-socketcan@hartkopp.net>
+ <20230105093226.alchrnm34s6tmfpp@pengutronix.de>
+Content-Language: en-US
+From:   Oliver Hartkopp <socketcan@hartkopp.net>
+In-Reply-To: <20230105093226.alchrnm34s6tmfpp@pengutronix.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 04, 2023 at 05:32:18PM +0100, Ard Biesheuvel wrote:
-> On Wed, 4 Jan 2023 at 17:30, Mark Rutland <mark.rutland@arm.com> wrote:
-> >
-> > On Wed, Jan 04, 2023 at 05:15:34PM +0100, Ard Biesheuvel wrote:
-> > > On Wed, 4 Jan 2023 at 17:13, Mark Rutland <mark.rutland@arm.com> wrote:
-> > > >
-> > > > On Wed, Jan 04, 2023 at 02:56:19PM +0100, Ard Biesheuvel wrote:
-> > > > > On Wed, 4 Jan 2023 at 11:40, Lee Jones <lee@kernel.org> wrote:
-> > > > > >
-> > > > > > On Mon, 05 Dec 2022, Ard Biesheuvel wrote:
-> > > > > >
-> > > > > > > With the introduction of PRMT in the ACPI subsystem, the EFI rts
-> > > > > > > workqueue is no longer the only caller of efi_call_virt_pointer() in the
-> > > > > > > kernel. This means the EFI runtime services lock is no longer sufficient
-> > > > > > > to manage concurrent calls into firmware, but also that firmware calls
-> > > > > > > may occur that are not marshalled via the workqueue mechanism, but
-> > > > > > > originate directly from the caller context.
-> > > > > > >
-> > > > > > > For added robustness, and to ensure that the runtime services have 8 KiB
-> > > > > > > of stack space available as per the EFI spec, introduce a spinlock
-> > > > > > > protected EFI runtime stack of 8 KiB, where the spinlock also ensures
-> > > > > > > serialization between the EFI rts workqueue (which itself serializes EFI
-> > > > > > > runtime calls) and other callers of efi_call_virt_pointer().
-> > > > > > >
-> > > > > > > While at it, use the stack pivot to avoid reloading the shadow call
-> > > > > > > stack pointer from the ordinary stack, as doing so could produce a
-> > > > > > > gadget to defeat it.
-> > > > > > >
-> > > > > > > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> > > > > > > ---
-> > > > > > >  arch/arm64/include/asm/efi.h       |  3 +++
-> > > > > > >  arch/arm64/kernel/efi-rt-wrapper.S | 13 +++++++++-
-> > > > > > >  arch/arm64/kernel/efi.c            | 25 ++++++++++++++++++++
-> > > > > > >  3 files changed, 40 insertions(+), 1 deletion(-)
-> > > > > >
-> > > > > > Could we have this in Stable please?
-> > > > > >
-> > > > > > Upstream commit: ff7a167961d1b ("arm64: efi: Execute runtime services from a dedicated stack")
-> > > > > >
-> > > > > > Ard, do we need Patch 2 as well, or can this be applied on its own?
-> > > > > >
-> > > > >
-> > > > > Thanks for the reminder.
-> > > > >
-> > > > > Only patch #1 is needed. It should be applied to v5.10 and later.
-> > > >
-> > > > Hold on, why did this go into mainline when I had an outstanding comment w.r.t.
-> > > > the stack unwinder?
-> > > >
-> > > > From your last reply to me there I was expecting a respin with that fixed.
-> > > >
-> > >
-> > > Apologies for the confusion.
-> > >
-> > > I have a patch for this queued up, but AIUI, that cannot be merged all
-> > > the way back to v5.10, so these need to remain separate changes in any
-> > > case.
-> > >
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=c2530a04a73e6b75ed71ed14d09d7b42d6300013
-> >
-> > Ah, ok, thanks for the pointer!
-> >
-> > I'm a little uneasy here, still.
-> >
-> > By backporting this we're also backporting the new breakage of the stack
-> > unwinder, and the minimal change for backports would be to add the lock and not
-> > the new stack (which was added for additinoal robustness, not to fix the bug
-> > the lock fixes).
-> >
-> > I do appreciate that the additional stack is likely more useful than the
-> > occasional diagnostic output from the kernel, but it does seem like this has
-> > traded off one bug for another, and I'm just a little annoyed because I pointed
-> > that out before the first pull request was made.
-> >
-> > I do know that this isn't malicious, and I'm not trying to start a fight, but
-> > now we have to consider whether we want/need to backport a stack unwinder fix
-> > to account for this, and we hadn't had that discussion before.
+
+
+On 05.01.23 10:32, Marc Kleine-Budde wrote:
+> On 04.01.2023 17:46:05, Oliver Hartkopp wrote:
+>> When wait_event_interruptible() has been interrupted by a signal the
+>> tx.state value might not be ISOTP_IDLE. Force the state machines
+>> into idle state to inhibit the timer handlers to continue working.
+>>
+>> Cc: stable@vger.kernel.org # >= v5.15
+>> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 > 
-> In that case, let's drop these backports for the time being, and
-> collaborate on a solution that works for all of us.
+> Can you add a Fixes: tag?
 
-Thanks!
+Yes. Sent out a V3.
 
-IIUC our options here are:
+In fact I was not sure if it makes sense to apply the patch down to 
+Linux 5.10 as it might increase the possibility to trigger a WARN(1) in 
+the isotp_tx_timer_handler().
 
-1) Create a cut-down patch for stable that just adds the new lock but leaves
-   out the new stack.
+The patch is definitely helpful for the latest code including commit 
+4b7fe92c0690 ("can: isotp: add local echo tx processing for consecutive 
+frames") introduced in Linux 5.18 and its fixes.
 
-   I may be missing a reason why that's insufficient or painful.
+I did some testing with very long ISOTP PDUs and killed the waiting 
+isotp_release() with a Crtl-C.
 
-2) Backport this *but* also backport the follow-up fixes from your other series:
-   https://lore.kernel.org/r/20230104174433.1259428-1-ardb@kernel.org
+To prevent the WARN(1) we might also stick this patch to
 
-   Above you mentioned something about v5.10, was that just to say that some
-   manual backporting was required, or that there was a structural problem that
-   would require more invasive changes / prerequisites?
+Fixes: 866337865f37 ("can: isotp: fix tx state handling for echo tx 
+processing")
 
-3) Something else?
+What do you think about the WARN(1)?
 
-My preference would be (1), but if we are encountering issue with stack size on
-stable kernels, then I'd be happy to help with manual backporting effort for
-(2), as long as we backported all the relevant bits in one go.
-
-Does that make sense, and does that sound reasonable to you?
-
-Thanks,
-Mark.
+Best regards,
+Oliver
