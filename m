@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB7E865EC18
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:06:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3499365EC1B
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:06:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234102AbjAENGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:06:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55546 "EHLO
+        id S234103AbjAENGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:06:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234110AbjAENF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:05:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD2B4D48B
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:05:51 -0800 (PST)
+        with ESMTP id S234149AbjAENGC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:06:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 721D644C7A
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:05:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F52B61A11
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:05:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 926DCC433D2;
-        Thu,  5 Jan 2023 13:05:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35B1EB81AD3
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:05:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67223C433D2;
+        Thu,  5 Jan 2023 13:05:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923951;
-        bh=BhkRnQ/xsyYupifg0ZD8W6CQhwcXUzwr6agkchBghd4=;
+        s=korg; t=1672923954;
+        bh=VKwZ2zF2aVV2tEPQziZrVGlKv+NmWygqWOW8DfVQGBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4mSdr+ij08jT8Ya9avntAxVDW6bgoPr2iOq8TQmv8CphCrAUGZFEKPGwe7cGDIuY
-         U3vXR0flA5oUFMS3xMv6zERQ1QUBmT5PxtZtxDtZK1RRPpl0W7KCvys2WXiNAGRy2N
-         /3e+yC/xTDwHxf8xl/okt2UGgpShDYwEOdQCuSss=
+        b=Xxi63w5Dep1Htyw7L8WAmed21zXJzZfLMyyPYMhPDy64D5njLCkiX4a17Lg4oF5H1
+         6rfmMiT/DK8bX4ytkabkgDUbLDdKjJK2crJMxFhh+y2teNMVQ2Cz06q5oO93clddDS
+         VM/J4kCc+YcRuswKU7yxlHIpL2QkY6EbYdXAo86o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Yejian <zhengyejian1@huawei.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Zhang Jinhao <zhangjinhao2@huawei.com>,
+        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
+        syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Nanyong Sun <sunnanyong@huawei.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 185/251] acct: fix potential integer overflow in encode_comp_t()
-Date:   Thu,  5 Jan 2023 13:55:22 +0100
-Message-Id: <20230105125343.273908526@linuxfoundation.org>
+Subject: [PATCH 4.9 186/251] hfs: fix OOB Read in __hfs_brec_find
+Date:   Thu,  5 Jan 2023 13:55:23 +0100
+Message-Id: <20230105125343.311757514@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -57,49 +61,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: ZhangPeng <zhangpeng362@huawei.com>
 
-[ Upstream commit c5f31c655bcc01b6da53b836ac951c1556245305 ]
+[ Upstream commit 8d824e69d9f3fa3121b2dda25053bae71e2460d2 ]
 
-The integer overflow is descripted with following codes:
-  > 317 static comp_t encode_comp_t(u64 value)
-  > 318 {
-  > 319         int exp, rnd;
-    ......
-  > 341         exp <<= MANTSIZE;
-  > 342         exp += value;
-  > 343         return exp;
-  > 344 }
+Syzbot reported a OOB read bug:
 
-Currently comp_t is defined as type of '__u16', but the variable 'exp' is
-type of 'int', so overflow would happen when variable 'exp' in line 343 is
-greater than 65535.
+==================================================================
+BUG: KASAN: slab-out-of-bounds in hfs_strcmp+0x117/0x190
+fs/hfs/string.c:84
+Read of size 1 at addr ffff88807eb62c4e by task kworker/u4:1/11
+CPU: 1 PID: 11 Comm: kworker/u4:1 Not tainted
+6.1.0-rc6-syzkaller-00308-g644e9524388a #0
+Workqueue: writeback wb_workfn (flush-7:0)
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
+ print_address_description+0x74/0x340 mm/kasan/report.c:284
+ print_report+0x107/0x1f0 mm/kasan/report.c:395
+ kasan_report+0xcd/0x100 mm/kasan/report.c:495
+ hfs_strcmp+0x117/0x190 fs/hfs/string.c:84
+ __hfs_brec_find+0x213/0x5c0 fs/hfs/bfind.c:75
+ hfs_brec_find+0x276/0x520 fs/hfs/bfind.c:138
+ hfs_write_inode+0x34c/0xb40 fs/hfs/inode.c:462
+ write_inode fs/fs-writeback.c:1440 [inline]
 
-Link: https://lkml.kernel.org/r/20210515140631.369106-3-zhengyejian1@huawei.com
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Cc: Hanjun Guo <guohanjun@huawei.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
+If the input inode of hfs_write_inode() is incorrect:
+struct inode
+  struct hfs_inode_info
+    struct hfs_cat_key
+      struct hfs_name
+        u8 len # len is greater than HFS_NAMELEN(31) which is the
+maximum length of an HFS filename
+
+OOB read occurred:
+hfs_write_inode()
+  hfs_brec_find()
+    __hfs_brec_find()
+      hfs_cat_keycmp()
+        hfs_strcmp() # OOB read occurred due to len is too large
+
+Fix this by adding a Check on len in hfs_write_inode() before calling
+hfs_brec_find().
+
+Link: https://lkml.kernel.org/r/20221130065959.2168236-1-zhangpeng362@huawei.com
+Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
+Reported-by: <syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com>
+Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Jeff Layton <jlayton@kernel.org>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Nanyong Sun <sunnanyong@huawei.com>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/acct.c | 2 ++
+ fs/hfs/inode.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/kernel/acct.c b/kernel/acct.c
-index 37f1dc696fbd..928ed84f50df 100644
---- a/kernel/acct.c
-+++ b/kernel/acct.c
-@@ -328,6 +328,8 @@ static comp_t encode_comp_t(unsigned long value)
- 		exp++;
- 	}
+diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
+index de0d6d4c46b6..cd4eee5b8358 100644
+--- a/fs/hfs/inode.c
++++ b/fs/hfs/inode.c
+@@ -452,6 +452,8 @@ int hfs_write_inode(struct inode *inode, struct writeback_control *wbc)
+ 		/* panic? */
+ 		return -EIO;
  
-+	if (exp > (((comp_t) ~0U) >> MANTSIZE))
-+		return (comp_t) ~0U;
- 	/*
- 	 * Clean it up and polish it off.
- 	 */
++	if (HFS_I(main_inode)->cat_key.CName.len > HFS_NAMELEN)
++		return -EIO;
+ 	fd.search_key->cat = HFS_I(main_inode)->cat_key;
+ 	if (hfs_brec_find(&fd))
+ 		/* panic? */
 -- 
 2.35.1
 
