@@ -2,97 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 710C965E16A
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 01:23:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2395D65E1F6
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 01:49:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235036AbjAEAV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 Jan 2023 19:21:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59014 "EHLO
+        id S229479AbjAEAt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 Jan 2023 19:49:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235732AbjAEAVe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 19:21:34 -0500
-Received: from mail-oa1-x31.google.com (mail-oa1-x31.google.com [IPv6:2001:4860:4864:20::31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76C647331;
-        Wed,  4 Jan 2023 16:21:22 -0800 (PST)
-Received: by mail-oa1-x31.google.com with SMTP id 586e51a60fabf-14ffd3c5b15so30084113fac.3;
-        Wed, 04 Jan 2023 16:21:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=o0bzxs8vT1edO2FJXRZYVsWw5T2NkBAzXWyaCPQ3eXQ=;
-        b=GXTugK2j/bMB/msseOunjbhl8k3GHOWmo8UlmNC7F3jNGVDXFQbCcn0h1zUKXzinQn
-         O56/w2TxzzYlu1CA72oTh5U9RzY3lUhA6KU2ylGQLt5om3F9yuZ+b9M8b0sQxdi5Ub+T
-         YwSJ6dApX+l8Cy506sgewXWw4OxoFNIPzusUUOe4ShOAfhpT+tIrjwd5zsc+rb9v5tmN
-         S2koTLYKjHfYl3lCflH8riMjBygKIsh9MYs3e1X4E7tE3L1WhiheGO6w2aLzTcSE5QQK
-         GyjSPb6F4A1s4RHpaTooc2yRGnQv/sU+nKMJiQrcNRvb8Fblf2OutmGiK/hQwmM221/l
-         wiGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=o0bzxs8vT1edO2FJXRZYVsWw5T2NkBAzXWyaCPQ3eXQ=;
-        b=4iMy7yrpfMdE10t2u705LAmy8RXeY/+ffNLsllKMGkdc+3ok/OkqZoOEpUfO/9x0gf
-         qI2Y1riPNQiTE6RxlXKrhXXoghpCnqZDcYrLsOVsMR5DV0liQHHgGiKjj8qz5RuXLSNL
-         dql8OxkgvKO6R/lsneExkjvHJYFc7nBsh1lXbGTeJ8qAe8QNpKQGR/uRD8Bvn4KazX1v
-         L/KhrFwXkCCVJoxp7s0PcmVwFCqqbRcxL/ADd7UpSYkhaFLe+rjaU76FyyifLX+ebTaR
-         Z89DDWuiTkS/rLESWIP0+3DKcxioZekReSbW3AwtaM8SZtAB7XZpML/ONxm2kk/n7+tI
-         +MGg==
-X-Gm-Message-State: AFqh2kpGQ0IoH5n4cpBoXzEdAhLacK4SNU7FCNlfDuMWx1hTA4m5rnh3
-        NgfDK0DW30WLw5CVVY9AlVE=
-X-Google-Smtp-Source: AMrXdXtqb60Qxb9YJksIcDr1nnNmGMH+8VQoS0u1d2uA1M3akETZT3pTpdG0hc9YF9bV/rThNEiDxg==
-X-Received: by 2002:a05:6870:e30a:b0:150:85b9:7943 with SMTP id z10-20020a056870e30a00b0015085b97943mr7589192oad.34.1672878081852;
-        Wed, 04 Jan 2023 16:21:21 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d20-20020a056830139400b0066db09fb1b5sm16634661otq.66.2023.01.04.16.21.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Jan 2023 16:21:21 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 4 Jan 2023 16:21:20 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/207] 6.1.4-rc1 review
-Message-ID: <20230105001720.GA2458003@roeck-us.net>
-References: <20230104160511.905925875@linuxfoundation.org>
+        with ESMTP id S230235AbjAEAtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 Jan 2023 19:49:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B4E4A1B9;
+        Wed,  4 Jan 2023 16:45:42 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73C2D618A6;
+        Thu,  5 Jan 2023 00:45:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF63C433AF;
+        Thu,  5 Jan 2023 00:45:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1672879503;
+        bh=ZC44hmsWKq5LKstc1mABPFNWTm5UBg7AJtRBZoxlpu0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=PnU+YhqiP1tuA8VdokEYO92/3U9BeI9W4Dq0q5h2Y5iyZS8lJqsEQ5XDnI7IniHBM
+         +lRNnJrEkC93tVEJGwBiYxtskaDx3eoGzMHV4kJK4IBmvaztAoeZtX6B9OvC0xISIz
+         BmX+CT7rWKYDK2b/16XpgMwXXf3CIwK2M7En8autzrkgHOfOI1AXBxUkzwCY+3UrHm
+         USk+XnACWyK3SIP2l5ncBK98nB6LH8xJ6JIIZi/t04uUgtrhxhNX9xHzpEDtB39oOF
+         em/unGNy0NyN6b9rgXJ6H5jgfrKjPEdTSxbNUCayuFeR6/BwnPxf+H86SSrs1c0QXY
+         jJi03WbVTaFZA==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+        id F05205C1C89; Wed,  4 Jan 2023 16:45:02 -0800 (PST)
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     rcu@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, kernel-team@meta.com,
+        rostedt@goodmis.org,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Paul McKenney <paulmck@kernel.org>,
+        Frederic Weisbecker <fweisbec@gmail.com>,
+        Zhouyi Zhou <zhouzhouyi@gmail.com>, stable@vger.kernel.org,
+        Davidlohr Bueso <dave@stgolabs.net>
+Subject: [PATCH rcu 7/7] torture: Fix hang during kthread shutdown phase
+Date:   Wed,  4 Jan 2023 16:45:01 -0800
+Message-Id: <20230105004501.1771332-13-paulmck@kernel.org>
+X-Mailer: git-send-email 2.31.1.189.g2e36527f23
+In-Reply-To: <20230105004454.GA1771168@paulmck-ThinkPad-P17-Gen-1>
+References: <20230105004454.GA1771168@paulmck-ThinkPad-P17-Gen-1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-X-Spam-Status: No, score=2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SBL_CSS,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: **
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 04, 2023 at 05:04:18PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.4 release.
-> There are 207 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 06 Jan 2023 16:04:29 +0000.
-> Anything received after that time might be too late.
-> 
+From: "Joel Fernandes (Google)" <joel@joelfernandes.org>
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 500 pass: 500 fail: 0
+During rcutorture shutdown, the rcu_torture_cleanup() function calls
+torture_cleanup_begin(), which sets the fullstop global variable to
+FULLSTOP_RMMOD. This causes the rcutorture threads for readers and
+fakewriters to exit all of their "while" loops and start shutting down.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+They then call torture_kthread_stopping(), which in turn waits for
+kthread_stop() to be called.  However, rcu_torture_cleanup() has
+not yet called kthread_stop() on those threads, and before it gets a
+chance to do so, multiple instances of torture_kthread_stopping() invoke
+schedule_timeout_interruptible(1) in a tight loop.  Tracing confirms that
+TIMER_SOFTIRQ can then continuously execute timer callbacks.  If that
+TIMER_SOFTIRQ preempts the task executing rcu_torture_cleanup(), that
+task might never invoke kthread_stop().
 
-Guenter
+This commit improves this situation by increasing the timeout passed to
+schedule_timeout_interruptible() from one jiffy to 1/20th of a second.
+This change prevents TIMER_SOFTIRQ from monopolizing its CPU, thus
+allowing rcu_torture_cleanup() to carry out the needed kthread_stop()
+invocations.  Testing has shown 100 runs of TREE07 passing reliably,
+as oppose to the tens-of-percent failure rates seen beforehand.
+
+Cc: Paul McKenney <paulmck@kernel.org>
+Cc: Frederic Weisbecker <fweisbec@gmail.com>
+Cc: Zhouyi Zhou <zhouzhouyi@gmail.com>
+Cc: <stable@vger.kernel.org> # 6.0.x
+Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Tested-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
+Reviewed-by: Davidlohr Bueso <dave@stgolabs.net>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+---
+ kernel/torture.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernel/torture.c b/kernel/torture.c
+index 29afc62f2bfec..1a0519b836ac9 100644
+--- a/kernel/torture.c
++++ b/kernel/torture.c
+@@ -915,7 +915,7 @@ void torture_kthread_stopping(char *title)
+ 	VERBOSE_TOROUT_STRING(buf);
+ 	while (!kthread_should_stop()) {
+ 		torture_shutdown_absorb(title);
+-		schedule_timeout_uninterruptible(1);
++		schedule_timeout_uninterruptible(HZ / 20);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(torture_kthread_stopping);
+-- 
+2.31.1.189.g2e36527f23
+
