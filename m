@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3265165EB4E
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:58:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5FB65EB50
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:58:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233772AbjAEM6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 07:58:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47286 "EHLO
+        id S233456AbjAEM6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 07:58:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233524AbjAEM6M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:58:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE113574F4
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:57:57 -0800 (PST)
+        with ESMTP id S233640AbjAEM6U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:58:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90EA65A8B7
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:58:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BAD061A09
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:57:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E270C433EF;
-        Thu,  5 Jan 2023 12:57:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2C1F61A2B
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:58:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93456C433D2;
+        Thu,  5 Jan 2023 12:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923476;
-        bh=Lzaj2yY/rM/oVPkgMtmNrtKBzNONO9J6Gr0AXgq4X2E=;
+        s=korg; t=1672923480;
+        bh=hky+L9OqszPzzfyyNFRtDqP5ZOd/0ysZcJ2HNj/l+b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vzuSNfpDpe+5RUpkb7zBNcAdhFJ/L6VWJo6u8gpfPwOAJgjdhdO0Uw2dodk5vxP+I
-         usXW9HbNUAORxPELrlQzXM47cl/baS8f8EQL7McsaC+cP/Mx4FoAOEoxR8BQtguTHH
-         /oyJ2QVFDDHFwK4EoLo8k2afC1MZlDuLN3IyFIaA=
+        b=NGD2Uurv09MluT5tooYYf1aPjh+r0VDN8DCrBdtQKPsMiVgS+4ptxqBysHWt2SlHc
+         z0VRSJLbzFNaRkEneKjxgTiT3pwlbGf7+NZCXKWRY5bqXrOObZKHzZfngORV+r4bse
+         mvr5SEnTnPZsE8VbWdb5/sJZYgxxl4SI7yHmZIcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.9 008/251] udf: Drop unused arguments of udf_delete_aext()
-Date:   Thu,  5 Jan 2023 13:52:25 +0100
-Message-Id: <20230105125335.115211678@linuxfoundation.org>
+Subject: [PATCH 4.9 009/251] udf: Fix preallocation discarding at indirect extent boundary
+Date:   Thu,  5 Jan 2023 13:52:26 +0100
+Message-Id: <20230105125335.155000681@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,81 +53,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit 6c1e4d06a3808dc67dbce2d631f4c12574567dd5 upstream.
+commit cfe4c1b25dd6d2f056afc00b7c98bcb3dd0b1fc3 upstream.
 
-udf_delete_aext() uses its last two arguments only as local variables.
-Drop them.
+When preallocation extent is the first one in the extent block, the
+code would corrupt extent tree header instead. Fix the problem and use
+udf_delete_aext() for deleting extent to avoid some code duplication.
 
+CC: stable@vger.kernel.org
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/balloc.c  |    5 ++---
- fs/udf/inode.c   |    8 ++++----
- fs/udf/udfdecl.h |    3 +--
- 3 files changed, 7 insertions(+), 9 deletions(-)
+ fs/udf/truncate.c |   45 +++++++++++++--------------------------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
---- a/fs/udf/balloc.c
-+++ b/fs/udf/balloc.c
-@@ -531,8 +531,7 @@ static int udf_table_prealloc_blocks(str
- 			udf_write_aext(table, &epos, &eloc,
- 					(etype << 30) | elen, 1);
- 		} else
--			udf_delete_aext(table, epos, eloc,
--					(etype << 30) | elen);
-+			udf_delete_aext(table, epos);
- 	} else {
- 		alloc_count = 0;
+--- a/fs/udf/truncate.c
++++ b/fs/udf/truncate.c
+@@ -120,60 +120,41 @@ void udf_truncate_tail_extent(struct ino
+ 
+ void udf_discard_prealloc(struct inode *inode)
+ {
+-	struct extent_position epos = { NULL, 0, {0, 0} };
++	struct extent_position epos = {};
++	struct extent_position prev_epos = {};
+ 	struct kernel_lb_addr eloc;
+ 	uint32_t elen;
+ 	uint64_t lbcount = 0;
+ 	int8_t etype = -1, netype;
+-	int adsize;
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 
+ 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB ||
+ 	    inode->i_size == iinfo->i_lenExtents)
+ 		return;
+ 
+-	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
+-		adsize = sizeof(struct short_ad);
+-	else if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_LONG)
+-		adsize = sizeof(struct long_ad);
+-	else
+-		adsize = 0;
+-
+ 	epos.block = iinfo->i_location;
+ 
+ 	/* Find the last extent in the file */
+-	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 1)) != -1) {
+-		etype = netype;
++	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 0)) != -1) {
++		brelse(prev_epos.bh);
++		prev_epos = epos;
++		if (prev_epos.bh)
++			get_bh(prev_epos.bh);
++
++		etype = udf_next_aext(inode, &epos, &eloc, &elen, 1);
+ 		lbcount += elen;
  	}
-@@ -627,7 +626,7 @@ static int udf_table_new_block(struct su
- 	if (goal_elen)
- 		udf_write_aext(table, &goal_epos, &goal_eloc, goal_elen, 1);
- 	else
--		udf_delete_aext(table, goal_epos, goal_eloc, goal_elen);
-+		udf_delete_aext(table, goal_epos);
- 	brelse(goal_epos.bh);
- 
- 	udf_add_free_space(sb, partition, -1);
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -1190,8 +1190,7 @@ static void udf_update_extents(struct in
- 
- 	if (startnum > endnum) {
- 		for (i = 0; i < (startnum - endnum); i++)
--			udf_delete_aext(inode, *epos, laarr[i].extLocation,
--					laarr[i].extLength);
-+			udf_delete_aext(inode, *epos);
- 	} else if (startnum < endnum) {
- 		for (i = 0; i < (endnum - startnum); i++) {
- 			udf_insert_aext(inode, *epos, laarr[i].extLocation,
-@@ -2225,14 +2224,15 @@ static int8_t udf_insert_aext(struct ino
- 	return (nelen >> 30);
+ 	if (etype == (EXT_NOT_RECORDED_ALLOCATED >> 30)) {
+-		epos.offset -= adsize;
+ 		lbcount -= elen;
+-		extent_trunc(inode, &epos, &eloc, etype, elen, 0);
+-		if (!epos.bh) {
+-			iinfo->i_lenAlloc =
+-				epos.offset -
+-				udf_file_entry_alloc_offset(inode);
+-			mark_inode_dirty(inode);
+-		} else {
+-			struct allocExtDesc *aed =
+-				(struct allocExtDesc *)(epos.bh->b_data);
+-			aed->lengthAllocDescs =
+-				cpu_to_le32(epos.offset -
+-					    sizeof(struct allocExtDesc));
+-			if (!UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_STRICT) ||
+-			    UDF_SB(inode->i_sb)->s_udfrev >= 0x0201)
+-				udf_update_tag(epos.bh->b_data, epos.offset);
+-			else
+-				udf_update_tag(epos.bh->b_data,
+-					       sizeof(struct allocExtDesc));
+-			mark_buffer_dirty_inode(epos.bh, inode);
+-		}
++		udf_delete_aext(inode, prev_epos);
++		udf_free_blocks(inode->i_sb, inode, &eloc, 0,
++				DIV_ROUND_UP(elen, 1 << inode->i_blkbits));
+ 	}
+ 	/* This inode entry is in-memory only and thus we don't have to mark
+ 	 * the inode dirty */
+ 	iinfo->i_lenExtents = lbcount;
+ 	brelse(epos.bh);
++	brelse(prev_epos.bh);
  }
  
--int8_t udf_delete_aext(struct inode *inode, struct extent_position epos,
--		       struct kernel_lb_addr eloc, uint32_t elen)
-+int8_t udf_delete_aext(struct inode *inode, struct extent_position epos)
- {
- 	struct extent_position oepos;
- 	int adsize;
- 	int8_t etype;
- 	struct allocExtDesc *aed;
- 	struct udf_inode_info *iinfo;
-+	struct kernel_lb_addr eloc;
-+	uint32_t elen;
- 
- 	if (epos.bh) {
- 		get_bh(epos.bh);
---- a/fs/udf/udfdecl.h
-+++ b/fs/udf/udfdecl.h
-@@ -160,8 +160,7 @@ extern int udf_add_aext(struct inode *,
- 			struct kernel_lb_addr *, uint32_t, int);
- extern void udf_write_aext(struct inode *, struct extent_position *,
- 			   struct kernel_lb_addr *, uint32_t, int);
--extern int8_t udf_delete_aext(struct inode *, struct extent_position,
--			      struct kernel_lb_addr, uint32_t);
-+extern int8_t udf_delete_aext(struct inode *, struct extent_position);
- extern int8_t udf_next_aext(struct inode *, struct extent_position *,
- 			    struct kernel_lb_addr *, uint32_t *, int);
- extern int8_t udf_current_aext(struct inode *, struct extent_position *,
+ static void udf_update_alloc_ext_desc(struct inode *inode,
 
 
