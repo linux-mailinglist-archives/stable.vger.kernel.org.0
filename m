@@ -2,89 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4088865E9B4
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 12:23:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3A465E9FA
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 12:34:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232781AbjAELXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 06:23:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
+        id S233295AbjAELd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 06:33:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232626AbjAELXR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 06:23:17 -0500
-Received: from progateway7-pub.mail.pro1.eigbox.com (gproxy5-pub.mail.unifiedlayer.com [67.222.38.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA6C50E47
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 03:23:15 -0800 (PST)
-Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
-        by progateway7.mail.pro1.eigbox.com (Postfix) with ESMTP id 2BDE91004490F
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 11:23:15 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id DOL5pcMXnvQh4DOL5pdJaq; Thu, 05 Jan 2023 11:23:15 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=I/Kg+Psg c=1 sm=1 tr=0 ts=63b6b323
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=RvmDmJFTN0MA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=BDNUbKd+IKizGGlTxczQEdVEX8iLGJtxOU7JuRoqOfE=; b=PkZ5JTdJOeoLNXigS6DUUjdHqn
-        f9szogBBQISgSE0l/9UDRHc80jKkFDMdX3vhBayeu4h/DaWps+XpLwAGMBXHfkEaLtyXF1SbczG78
-        E2pl56hwST6vy+9NFdFiuF8e97ipA4A7NxlG/L3dEmfHL8Hq6t/i7fpJGbMvWJnTF6HOohjsdwFyB
-        Yzno/JmXz0ZgzXoysMrzg+xz9RYIz3SCGVf96tlCt39hB19KA4vBU7dusWJc41SOGcwj3xaANEuxx
-        qekAQ9c8T1iHDT1r4pfZI8Un5n/hnEXEk3t91p9jAMx2+Fjo+ENg3gbU4TUB2WmsnUXrUmqjAUSn1
-        73HrS86g==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:50546 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pDOL3-001Qe6-M2;
-        Thu, 05 Jan 2023 04:23:13 -0700
-Subject: Re: [PATCH 6.1 000/207] 6.1.4-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230104160511.905925875@linuxfoundation.org>
-In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <6c15a405-8cc4-ca93-f9b0-c442874fa59a@w6rz.net>
-Date:   Thu, 5 Jan 2023 03:23:07 -0800
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S233346AbjAELdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 06:33:42 -0500
+Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [217.70.183.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FC9711A27
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 03:33:40 -0800 (PST)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 115D520010;
+        Thu,  5 Jan 2023 11:33:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1672918418;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=czix4WDiCzpW3gGaXbhaVHkR8drxG1fsG3atEPzhoE8=;
+        b=E98RZEZil+eOZnuosJNaIyf29QcPtWzut/isscPsVXu2r8jb+ceMRofLb2GJg9QwFchFCe
+        Ri9pjxxDF568W8/pTwqkmArc4ylao8PityZ+Fo3jU0R/aOhIDWTkHqw+CZluG6+vaHftRx
+        NTkfyrFPC15rbjBWQTnIN/aK9US9TJam8c5JEM0WANz8zSqnOx4RnUptxqwmjOC6dR+b/G
+        KhtwNSsMZKa7aYoCUcGUoZc60wSBB+QPVLTU8AcXEQrkCldRFlrUoDZuDrdLdSx/xNyodI
+        w8J7rIwdP6gSmXCUITvKx2Mn4LgWuyI0dPGrCkejB10l7RrbYPvi+K/mSphrTQ==
+Date:   Thu, 5 Jan 2023 12:33:34 +0100
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Francesco Dolcini <francesco@dolcini.it>
+Cc:     Marek Vasut <marex@denx.de>, Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-mtd@lists.infradead.org,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        u-boot@lists.denx.de
+Subject: Re: [PATCH v1] mtd: parsers: ofpart: Fix parsing when size-cells is
+ 0
+Message-ID: <20230105123334.7f90c289@xps-13>
+In-Reply-To: <20230102104004.6abae6da@xps-13>
+References: <Y5wiAPvPU+YY39oX@francesco-nb.int.toradex.com>
+        <6f5f5b32-d7fe-13cc-b52d-83a27bd9f53e@denx.de>
+        <20221216120155.4b78e5cf@xps-13>
+        <Y5xmi62hR6JeYUt1@francesco-nb.int.toradex.com>
+        <20221216143720.3c8923d8@xps-13>
+        <fb55a784-eda3-8916-1413-581b9436b3f2@denx.de>
+        <20221216163501.1c2ace21@xps-13>
+        <Y5ydGhn/qYUalamm@francesco-nb.int.toradex.com>
+        <20230102104004.6abae6da@xps-13>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pDOL3-001Qe6-M2
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:50546
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -93,26 +67,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/4/23 8:04 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.4 release.
-> There are 207 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 06 Jan 2023 16:04:29 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.4-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi Francesco,
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+miquel.raynal@bootlin.com wrote on Mon, 2 Jan 2023 10:40:04 +0100:
 
-Tested-by: Ron Economos <re@w6rz.net>
+> Hi Francesco,
+>=20
+> francesco@dolcini.it wrote on Fri, 16 Dec 2022 17:30:18 +0100:
+>=20
+> > On Fri, Dec 16, 2022 at 04:35:01PM +0100, Miquel Raynal wrote: =20
+> > > marex@denx.de wrote on Fri, 16 Dec 2022 15:32:28 +0100:   =20
+> > > > The second part of the message, as far as I understand it, is
+> > > > "ignore problems this will cause to users of boards we do not know
+> > > > about, let them run into unbootable systems after some linux kernel
+> > > > update,    =20
+> > >=20
+> > > Now you know what kernel update will break them, so you can prevent it
+> > > from happening.=20
+> > >=20
+> > > For boards without even a dtsi in the kernel, should we care?   =20
+> >=20
+> > Would caring for those boards not be just exact the same as caring for
+> > some UEFI/ACPI mess for which no source code is normally available and
+> > nobody really known at which point the various vendors have forked their
+> > source code from some Intel or AMD or whatever reference code? =20
+>=20
+> I am sorry I don't know UEFI/ACPI well enough to discuss it.
+>=20
+> > IMHO we should care for the multiple reason I have already written in my
+> > previous emails.
+> >=20
+> > And honestly, just as a side comment, I would feel way more happy
+> > to know that the elevator control system in the elevator I use everyday
+> > or the chemical industrial plan HMI next to my home is running an up to
+> > date Linux system that is not affected by known security vulnerabilities
+> > and they did stop updating it just because there was some random bug
+> > preventing the updated kernel to boot and nobody had the time/skill to
+> > investigate and fix it. [1] =20
+>=20
+> The issue comes from a very specific U-Boot function that should have
+> never existed. I hope people working on chemical plants do not make
+> use of these and will not disregard the "your DT is broken there [...]"
+> warning we plan to add right before their updated board will fail. We
+> are not living people in the dark, I agreed for a warning, but I don't
+> think applying the proposed fix blindly is wise and future-proof.
 
+Let's move forward with this. Let's assume my fears are baseless. We
+might consider the situation where someone tries to hide the partitions
+by setting #size-cell to 0 even wronger and too unlikely. Hopefully we
+will not break any other existing setups by applying an always-on fix.
+
+I would still like to see U-Boot partitions handling evolve, at least:
+- fix #size-cells in fdt_fixup_mtd()
+- avoid the fdt_fixup_mtd() call from Collibri boards (ie. an example
+  that can be followed by the other users)
+
+On Linux side let's fix #size-cells like you proposed without filtering
+against a list of compatibles. We however need to improve the
+heuristics:
+- Do it only when there are partitions declared within a NAND
+  controller node.
+- Change the warning to avoid mentioning backward compatibility, just
+  mention this is utterly wrong and thus the value will be set to 1
+  instead of 0.
+- Mention in the comment above this only works on systems with <4GiB
+  chips.
+If you think about other conditions please feel free to add them.
+
+Do you concur?
+
+Thanks,
+Miqu=C3=A8l
