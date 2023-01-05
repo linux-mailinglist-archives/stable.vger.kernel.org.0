@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E603265EB84
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F69965EB85
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:00:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233313AbjAENAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233358AbjAENAY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 5 Jan 2023 08:00:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46828 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233845AbjAEM7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A1134C71E
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:20 -0800 (PST)
+        with ESMTP id S233857AbjAEM7p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D74664D4A3
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9468B61A11
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88719C433EF;
-        Thu,  5 Jan 2023 12:59:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 924F0B81AD7
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA949C433F0;
+        Thu,  5 Jan 2023 12:59:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923559;
-        bh=slcKLVd6tKEfj5LedwAbkUj81Iwptt4FvJtLpfXKiWQ=;
+        s=korg; t=1672923562;
+        bh=TAeZbPYa49P/YgANyyKj6pcY4kBzflj1rk9MaIIG4EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2FhaZcBLpSBBcPfWjm9Tk7gV4C+qeAPGIKynYOgE2RZuZDW5DergTDMBthGwlRPy
-         JoaS7B/jQKpTVB3CnWk/GFYJoPXB+B/fePUvLicknypsUNTQEuMWc4csh26DbzrVkl
-         9Nh2LkVgoe+X4gVcZpa16TscojV8HuAYj5wST7HM=
+        b=cd/cweTLhuDorXEQHcGer8ZswcakFXREog+IDYYAAHW2lSbTcmBxoxUf4E1B3gxUb
+         l37m7OC9LCgOTUInZh0qTXYArfB3buI5hTnDZH7LMZOld0OhuXxRsqmiLUAyW+cfGc
+         138xHP6jdAdGFOqaaS9k+Rip86cDG9QUygztecUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 057/251] regulator: core: fix unbalanced of node refcount in regulator_dev_lookup()
-Date:   Thu,  5 Jan 2023 13:53:14 +0100
-Message-Id: <20230105125337.387688194@linuxfoundation.org>
+Subject: [PATCH 4.9 058/251] ima: Fix misuse of dereference of pointer in template_desc_init_fields()
+Date:   Thu,  5 Jan 2023 13:53:15 +0100
+Message-Id: <20230105125337.427094070@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,40 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit f2b41b748c19962b82709d9f23c6b2b0ce9d2f91 ]
+[ Upstream commit 25369175ce84813dd99d6604e710dc2491f68523 ]
 
-I got the the following report:
+The input parameter @fields is type of struct ima_template_field ***, so
+when allocates array memory for @fields, the size of element should be
+sizeof(**field) instead of sizeof(*field).
 
-  OF: ERROR: memory leak, expected refcount 1 instead of 2,
-  of_node_get()/of_node_put() unbalanced - destroy cset entry:
-  attach overlay node /i2c/pmic@62/regulators/exten
+Actually the original code would not cause any runtime error, but it's
+better to make it logically right.
 
-In of_get_regulator(), the node is returned from of_parse_phandle()
-with refcount incremented, after using it, of_node_put() need be called.
-
-Fixes: 69511a452e6d ("regulator: map consumer regulator based on device tree")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221115091508.900752-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: adf53a778a0a ("ima: new templates management mechanism")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ security/integrity/ima/ima_template.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 23323add5b0b..e1f934fec562 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1471,6 +1471,7 @@ static struct regulator_dev *regulator_dev_lookup(struct device *dev,
- 		node = of_get_regulator(dev, supply);
- 		if (node) {
- 			r = of_find_regulator_by_node(node);
-+			of_node_put(node);
- 			if (r)
- 				return r;
- 			*ret = -EPROBE_DEFER;
+diff --git a/security/integrity/ima/ima_template.c b/security/integrity/ima/ima_template.c
+index febd12ed9b55..fdba86fa90ee 100644
+--- a/security/integrity/ima/ima_template.c
++++ b/security/integrity/ima/ima_template.c
+@@ -171,11 +171,11 @@ static int template_desc_init_fields(const char *template_fmt,
+ 	}
+ 
+ 	if (fields && num_fields) {
+-		*fields = kmalloc_array(i, sizeof(*fields), GFP_KERNEL);
++		*fields = kmalloc_array(i, sizeof(**fields), GFP_KERNEL);
+ 		if (*fields == NULL)
+ 			return -ENOMEM;
+ 
+-		memcpy(*fields, found_fields, i * sizeof(*fields));
++		memcpy(*fields, found_fields, i * sizeof(**fields));
+ 		*num_fields = i;
+ 	}
+ 
 -- 
 2.35.1
 
