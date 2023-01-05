@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D908365EB61
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:59:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 848E865EB63
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:59:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233613AbjAEM7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 07:59:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47664 "EHLO
+        id S233868AbjAEM7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 07:59:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233631AbjAEM7N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:13 -0500
+        with ESMTP id S233752AbjAEM7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE36B5A8B0
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:58:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C655A8BA
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:58:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 86674B81ADB
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:58:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8333FC433F0;
-        Thu,  5 Jan 2023 12:58:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB694B81AD7
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:58:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE7A3C433D2;
+        Thu,  5 Jan 2023 12:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923524;
-        bh=ewqMQzfscWTwZSWL2kjmdmCAD1OFegw1WQcBDCHRr5M=;
+        s=korg; t=1672923527;
+        bh=L3zbV6IPZCPnMwK2dXiEcxjEEgpEqzEwMTlxoyd7EoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kvAhYFTvFSxwuBYo6fPsg2JLaGu865dta3+NTcKiO1jnX8sItW024kh+nKmrJjWeX
-         TIN2a53tI8vvJdVBRQbnB66+I8pQ3DRsDE7SjYl1Z8bha5gLfXWZN9HkJQlDWTZFD9
-         UeNXoiHWevUIqXLATz6saAaNF+T5LUVfSFc36uuo=
+        b=s6LyheBhXyNdoGjeM6Y96T5VupKZ2YwamRNtgPqFlbf2Nwacbnm6L7dko9kb3ERu6
+         S/mRPhYpsxh9dwfT/LNpLiN08SxgmjV9fUtmaPsESldBDvkjIYxKPnFtHqg8+7q98O
+         566qw/kjS30cMcF3arYNMVVSwBmU/N4qUQF60fGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Dan Carpenter <error27@gmail.com>,
-        Jakob Koschel <jakobkoschel@gmail.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Dylan Yudaken <dylany@fb.com>, Jens Axboe <axboe@kernel.dk>,
+        Sha Zhengju <handai.szj@taobao.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 047/251] rapidio: fix possible UAF when kfifo_alloc() fails
-Date:   Thu,  5 Jan 2023 13:53:04 +0100
-Message-Id: <20230105125336.923808206@linuxfoundation.org>
+Subject: [PATCH 4.9 048/251] eventfd: change int to __u64 in eventfd_signal() ifndef CONFIG_EVENTFD
+Date:   Thu,  5 Jan 2023 13:53:05 +0100
+Message-Id: <20230105125336.973858827@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -59,56 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Weiyang <wangweiyang2@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 02d7d89f816951e0862147d751b1150d67aaebdd ]
+[ Upstream commit fd4e60bf0ef8eb9edcfa12dda39e8b6ee9060492 ]
 
-If kfifo_alloc() fails in mport_cdev_open(), goto err_fifo and just free
-priv. But priv is still in the chdev->file_list, then list traversal
-may cause UAF. This fixes the following smatch warning:
+Commit ee62c6b2dc93 ("eventfd: change int to __u64 in eventfd_signal()")
+forgot to change int to __u64 in the CONFIG_EVENTFD=n stub function.
 
-drivers/rapidio/devices/rio_mport_cdev.c:1930 mport_cdev_open() warn: '&priv->list' not removed from list
-
-Link: https://lkml.kernel.org/r/20221123095147.52408-1-wangweiyang2@huawei.com
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Dan Carpenter <error27@gmail.com>
-Cc: Jakob Koschel <jakobkoschel@gmail.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lkml.kernel.org/r/20221124140154.104680-1-zhangqilong3@huawei.com
+Fixes: ee62c6b2dc93 ("eventfd: change int to __u64 in eventfd_signal()")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Cc: Dylan Yudaken <dylany@fb.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Sha Zhengju <handai.szj@taobao.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/devices/rio_mport_cdev.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ include/linux/eventfd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
-index c0597b6d75ef..381354ef0959 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -1964,10 +1964,6 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
+diff --git a/include/linux/eventfd.h b/include/linux/eventfd.h
+index ff0b981f078e..c5a383162c0b 100644
+--- a/include/linux/eventfd.h
++++ b/include/linux/eventfd.h
+@@ -56,7 +56,7 @@ static inline struct eventfd_ctx *eventfd_ctx_fdget(int fd)
+ 	return ERR_PTR(-ENOSYS);
+ }
  
- 	priv->md = chdev;
- 
--	mutex_lock(&chdev->file_mutex);
--	list_add_tail(&priv->list, &chdev->file_list);
--	mutex_unlock(&chdev->file_mutex);
--
- 	INIT_LIST_HEAD(&priv->db_filters);
- 	INIT_LIST_HEAD(&priv->pw_filters);
- 	spin_lock_init(&priv->fifo_lock);
-@@ -1987,6 +1983,9 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
- 	spin_lock_init(&priv->req_lock);
- 	mutex_init(&priv->dma_lock);
- #endif
-+	mutex_lock(&chdev->file_mutex);
-+	list_add_tail(&priv->list, &chdev->file_list);
-+	mutex_unlock(&chdev->file_mutex);
- 
- 	filp->private_data = priv;
- 	goto out;
+-static inline int eventfd_signal(struct eventfd_ctx *ctx, int n)
++static inline int eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
+ {
+ 	return -ENOSYS;
+ }
 -- 
 2.35.1
 
