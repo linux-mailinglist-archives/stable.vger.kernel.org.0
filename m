@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3755065EB48
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C62765EB8D
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:00:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233410AbjAEM54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 07:57:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46488 "EHLO
+        id S233540AbjAENAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:00:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233557AbjAEM5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:57:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A52559CB
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:57:40 -0800 (PST)
+        with ESMTP id S233897AbjAEM7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48E9B5AC57
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1C4F61A14
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:57:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31917C433D2;
-        Thu,  5 Jan 2023 12:57:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 069E8B81AD6
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39857C43396;
+        Thu,  5 Jan 2023 12:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923459;
-        bh=PWi7STOMuV5HROAyxHVLPlzSZU24UCeaGiE+O3BSE08=;
+        s=korg; t=1672923583;
+        bh=iXwdNJVEhCJYVolA7sTL6gOoQOVBvXm5P+O4gSp19Xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wsVNlZhQ/TGqPw7h4bXXLRHV0p/U6KZuxskK/xS0Y97dVbRV0haCpuOYG0kW3d10Q
-         VM+wHuNiGXTPtjT6cecLfSoYBS9lLblpHcSAq4c0qkUH4B3Q+2ovCaysfrqvH+UJyR
-         VnSCJ3cBnHGWsYcgK8lpRQH54PjNV6fdmZf9AUpc=
+        b=zVXpcDCbXBM1dJ8EPTxdZ6ujTxI4JJ+VRCsWljagBeLBGaaKjKvxL87388Ua/870e
+         iQQOgAQVpE35DHMF8phjLPkvFl8JBzJktsuAag6muyT91oNzT+l9yNvrZhG8Ib5yvP
+         uqqkOkGcNf54VxNEJZrlDwouc4jMzJc9n7qh+M3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Geffon <bgeffon@google.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 026/251] pstore: Avoid kcore oops by vmap()ing with VM_IOREMAP
-Date:   Thu,  5 Jan 2023 13:52:43 +0100
-Message-Id: <20230105125335.966683494@linuxfoundation.org>
+Subject: [PATCH 4.9 027/251] cpuidle: dt: Return the correct numbers of parsed idle states
+Date:   Thu,  5 Jan 2023 13:52:44 +0100
+Message-Id: <20230105125336.017846436@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -56,101 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit e6b842741b4f39007215fd7e545cb55aa3d358a2 ]
+[ Upstream commit ee3c2c8ad6ba6785f14a60e4081d7c82e88162a2 ]
 
-An oops can be induced by running 'cat /proc/kcore > /dev/null' on
-devices using pstore with the ram backend because kmap_atomic() assumes
-lowmem pages are accessible with __va().
+While we correctly skips to initialize an idle state from a disabled idle
+state node in DT, the returned value from dt_init_idle_driver() don't get
+adjusted accordingly. Instead the number of found idle state nodes are
+returned, while the callers are expecting the number of successfully
+initialized idle states from DT.
 
- Unable to handle kernel paging request at virtual address ffffff807ff2b000
- Mem abort info:
- ESR = 0x96000006
- EC = 0x25: DABT (current EL), IL = 32 bits
- SET = 0, FnV = 0
- EA = 0, S1PTW = 0
- FSC = 0x06: level 2 translation fault
- Data abort info:
- ISV = 0, ISS = 0x00000006
- CM = 0, WnR = 0
- swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000081d87000
- [ffffff807ff2b000] pgd=180000017fe18003, p4d=180000017fe18003, pud=180000017fe18003, pmd=0000000000000000
- Internal error: Oops: 96000006 [#1] PREEMPT SMP
- Modules linked in: dm_integrity
- CPU: 7 PID: 21179 Comm: perf Not tainted 5.15.67-10882-ge4eb2eb988cd #1 baa443fb8e8477896a370b31a821eb2009f9bfba
- Hardware name: Google Lazor (rev3 - 8) (DT)
- pstate: a0400009 (NzCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
- pc : __memcpy+0x110/0x260
- lr : vread+0x194/0x294
- sp : ffffffc013ee39d0
- x29: ffffffc013ee39f0 x28: 0000000000001000 x27: ffffff807ff2b000
- x26: 0000000000001000 x25: ffffffc0085a2000 x24: ffffff802d4b3000
- x23: ffffff80f8a60000 x22: ffffff802d4b3000 x21: ffffffc0085a2000
- x20: ffffff8080b7bc68 x19: 0000000000001000 x18: 0000000000000000
- x17: 0000000000000000 x16: 0000000000000000 x15: ffffffd3073f2e60
- x14: ffffffffad588000 x13: 0000000000000000 x12: 0000000000000001
- x11: 00000000000001a2 x10: 00680000fff2bf0b x9 : 03fffffff807ff2b
- x8 : 0000000000000001 x7 : 0000000000000000 x6 : 0000000000000000
- x5 : ffffff802d4b4000 x4 : ffffff807ff2c000 x3 : ffffffc013ee3a78
- x2 : 0000000000001000 x1 : ffffff807ff2b000 x0 : ffffff802d4b3000
- Call trace:
- __memcpy+0x110/0x260
- read_kcore+0x584/0x778
- proc_reg_read+0xb4/0xe4
+This leads to cpuidle drivers unnecessarily continues to initialize their
+idle state specific data. Moreover, in the case when all idle states have
+been disabled in DT, we would end up registering a cpuidle driver, rather
+than relying on the default arch specific idle call.
 
-During early boot, memblock reserves the pages for the ramoops reserved
-memory node in DT that would otherwise be part of the direct lowmem
-mapping. Pstore's ram backend reuses those reserved pages to change the
-memory type (writeback or non-cached) by passing the pages to vmap()
-(see pfn_to_page() usage in persistent_ram_vmap() for more details) with
-specific flags. When read_kcore() starts iterating over the vmalloc
-region, it runs over the virtual address that vmap() returned for
-ramoops. In aligned_vread() the virtual address is passed to
-vmalloc_to_page() which returns the page struct for the reserved lowmem
-area. That lowmem page is passed to kmap_atomic(), which effectively
-calls page_to_virt() that assumes a lowmem page struct must be directly
-accessible with __va() and friends. These pages are mapped via vmap()
-though, and the lowmem mapping was never made, so accessing them via the
-lowmem virtual address oopses like above.
-
-Let's side-step this problem by passing VM_IOREMAP to vmap(). This will
-tell vread() to not include the ramoops region in the kcore. Instead the
-area will look like a bunch of zeros. The alternative is to teach kmap()
-about vmalloc areas that intersect with lowmem. Presumably such a change
-isn't a one-liner, and there isn't much interest in inspecting the
-ramoops region in kcore files anyway, so the most expedient route is
-taken for now.
-
-Cc: Brian Geffon <bgeffon@google.com>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 404a6043385d ("staging: android: persistent_ram: handle reserving and mapping memory")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221205233136.3420802-1-swboyd@chromium.org
+Fixes: 9f14da345599 ("drivers: cpuidle: implement DT based idle states infrastructure")
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/ram_core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/cpuidle/dt_idle_states.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/pstore/ram_core.c b/fs/pstore/ram_core.c
-index 11e558efd61e..b56cf56ae926 100644
---- a/fs/pstore/ram_core.c
-+++ b/fs/pstore/ram_core.c
-@@ -418,7 +418,11 @@ static void *persistent_ram_vmap(phys_addr_t start, size_t size,
- 		phys_addr_t addr = page_start + i * PAGE_SIZE;
- 		pages[i] = pfn_to_page(addr >> PAGE_SHIFT);
- 	}
--	vaddr = vmap(pages, page_count, VM_MAP, prot);
-+	/*
-+	 * VM_IOREMAP used here to bypass this region during vread()
-+	 * and kmap_atomic() (i.e. kcore) to avoid __va() failures.
-+	 */
-+	vaddr = vmap(pages, page_count, VM_MAP | VM_IOREMAP, prot);
- 	kfree(pages);
- 
- 	/*
+diff --git a/drivers/cpuidle/dt_idle_states.c b/drivers/cpuidle/dt_idle_states.c
+index ea11a33e7fff..1a79ac569770 100644
+--- a/drivers/cpuidle/dt_idle_states.c
++++ b/drivers/cpuidle/dt_idle_states.c
+@@ -218,6 +218,6 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
+ 	 * also be 0 on platforms with missing DT idle states or legacy DT
+ 	 * configuration predating the DT idle states bindings.
+ 	 */
+-	return i;
++	return state_idx - start_idx;
+ }
+ EXPORT_SYMBOL_GPL(dt_init_idle_driver);
 -- 
 2.35.1
 
