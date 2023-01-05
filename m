@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10CD165EB8C
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:00:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B070965EB8B
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:00:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233533AbjAENA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:00:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47652 "EHLO
+        id S231953AbjAENAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:00:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231953AbjAEM7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED3C5A8AC
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:38 -0800 (PST)
+        with ESMTP id S233587AbjAEM7s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D6B58F9E
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ED7061A0C
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 268B4C433EF;
-        Thu,  5 Jan 2023 12:59:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1C82B81ACE
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29001C433D2;
+        Thu,  5 Jan 2023 12:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923577;
-        bh=dJq01lreG1hWlgvQLtbQ9qGIiIdw9xBElaXv/5HCxYI=;
+        s=korg; t=1672923580;
+        bh=G7E1iqakTX/tIagmnrHh7XUZgSQyn0DR+QulAV70MPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hsgR87ZT4rrJ3GSoWYX8HNSqT/11BviUPfLW62+ppBEsHXKarwTGDIwrpWmsLTT4Z
-         cYfotGtFIms1R2ebz7r6Wg5qhoYT4UiQBfRl9mxN3wr18iYPQi7HdNYZ+VuLQWTrdl
-         OqyPWgbeCL9gkJ0a+NxkmERWuGeKcnDpzn1BvWPg=
+        b=Vkr7p6jBQ8KUC93Ad48BDvhQkudagBta+8M4I6d5RJNyHrJa6b9BBt8o8+QoaJ0+1
+         esDFYO4ovKh+yMmv4zFmiTo3S6wwu02mFqNRZJU2FS17vE8i8LP7lfZ+Ctmg+BiiVe
+         kJdns/jzj+PEvczCeK3YG9W9jMA7uFlUNmM/eQdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 035/251] MIPS: vpe-cmp: fix possible memory leak while module exiting
-Date:   Thu,  5 Jan 2023 13:52:52 +0100
-Message-Id: <20230105125336.365348663@linuxfoundation.org>
+Subject: [PATCH 4.9 036/251] PNP: fix name memory leak in pnp_alloc_dev()
+Date:   Thu,  5 Jan 2023 13:52:53 +0100
+Message-Id: <20230105125336.410234964@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -55,50 +56,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c5ed1fe0801f0c66b0fbce2785239a5664629057 ]
+[ Upstream commit 110d7b0325c55ff3620073ba4201845f59e22ebf ]
 
-dev_set_name() allocates memory for name, it need be freed
-when module exiting, call put_device() to give up reference,
-so that it can be freed in kobject_cleanup() when the refcount
-hit to 0. The vpe_device is static, so remove kfree() from
-vpe_device_release().
+After commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+move dev_set_name() after pnp_add_id() to avoid memory leak.
 
-Fixes: 17a1d523aa58 ("MIPS: APRP: Add VPE loader support for CMP platforms.")
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/vpe-cmp.c | 4 ++--
+ drivers/pnp/core.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/kernel/vpe-cmp.c b/arch/mips/kernel/vpe-cmp.c
-index 9268ebc0f61e..903c07bdc92d 100644
---- a/arch/mips/kernel/vpe-cmp.c
-+++ b/arch/mips/kernel/vpe-cmp.c
-@@ -75,7 +75,6 @@ ATTRIBUTE_GROUPS(vpe);
+diff --git a/drivers/pnp/core.c b/drivers/pnp/core.c
+index b54620e53830..3d5865c7694b 100644
+--- a/drivers/pnp/core.c
++++ b/drivers/pnp/core.c
+@@ -159,14 +159,14 @@ struct pnp_dev *pnp_alloc_dev(struct pnp_protocol *protocol, int id,
+ 	dev->dev.coherent_dma_mask = dev->dma_mask;
+ 	dev->dev.release = &pnp_release_device;
  
- static void vpe_device_release(struct device *cd)
- {
--	kfree(cd);
+-	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
+-
+ 	dev_id = pnp_add_id(dev, pnpid);
+ 	if (!dev_id) {
+ 		kfree(dev);
+ 		return NULL;
+ 	}
+ 
++	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
++
+ 	return dev;
  }
- 
- static struct class vpe_class = {
-@@ -157,6 +156,7 @@ int __init vpe_module_init(void)
- 	device_del(&vpe_device);
- 
- out_class:
-+	put_device(&vpe_device);
- 	class_unregister(&vpe_class);
- 
- out_chrdev:
-@@ -169,7 +169,7 @@ void __exit vpe_module_exit(void)
- {
- 	struct vpe *v, *n;
- 
--	device_del(&vpe_device);
-+	device_unregister(&vpe_device);
- 	class_unregister(&vpe_class);
- 	unregister_chrdev(major, VPE_MODULE_NAME);
  
 -- 
 2.35.1
