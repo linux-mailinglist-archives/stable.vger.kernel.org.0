@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC72465EB69
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:59:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 352BB65EB6A
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 13:59:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233853AbjAEM7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 07:59:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47570 "EHLO
+        id S233529AbjAEM7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 07:59:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233524AbjAEM70 (ORCPT
+        with ESMTP id S233533AbjAEM70 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 07:59:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCBAE5A8B7
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:58:59 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 536935AC67
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 04:59:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70573B81AD6
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:58:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A6A8C433EF;
-        Thu,  5 Jan 2023 12:58:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D58A961A15
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 12:59:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7029C433D2;
+        Thu,  5 Jan 2023 12:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923537;
-        bh=UXG5xEcbFozmPW46mXLt02JFSbw6mJXbrSMD13K5jMI=;
+        s=korg; t=1672923540;
+        bh=DikT6CTdO42c6haa+CmrezlDzIHPg65vYSZCtf9i6Hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GARgDqWekd3Ovx9+dGjyBIOIaNtUpcJedsSphFmORoe2vs3VTqveDU1CBS8QjwrZV
-         92vgrEUGbRIftgPRwXaXnAuyFWir9exZzDrnKrEkrJlxSZiMrRxcRayEoKiPJ5yGkh
-         lR3j4mlxnjTNWUsdxKtPKHiEiB6mr53EqhqnFrmg=
+        b=VGBMQFYdMFOUcWyyp3lHusYK91C4D6/4fMGY/nfKw8xNyQa2CdK+fuV3EIcep05Kp
+         gLkYxNOAVtLkfzr0gAnyinf8cnUMOyzDhn7gq8zEdNts4FZufxi2eupGu/3inQdRHB
+         AOxSBUEqPWj7UuoXiBx6Hc7szP4mWYv0B3FJK03E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
         Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 051/251] wifi: ath9k: hif_usb: fix memory leak of urbs in ath9k_hif_usb_dealloc_tx_urbs()
-Date:   Thu,  5 Jan 2023 13:53:08 +0100
-Message-Id: <20230105125337.121032603@linuxfoundation.org>
+Subject: [PATCH 4.9 052/251] wifi: ath9k: hif_usb: Fix use-after-free in ath9k_hif_usb_reg_in_cb()
+Date:   Thu,  5 Jan 2023 13:53:09 +0100
+Message-Id: <20230105125337.169451577@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -57,53 +57,111 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit c2a94de38c74e86f49124ac14f093d6a5c377a90 ]
+[ Upstream commit dd95f2239fc846795fc926787c3ae0ca701c9840 ]
 
-Syzkaller reports a long-known leak of urbs in
-ath9k_hif_usb_dealloc_tx_urbs().
+It is possible that skb is freed in ath9k_htc_rx_msg(), then
+usb_submit_urb() fails and we try to free skb again. It causes
+use-after-free bug. Moreover, if alloc_skb() fails, urb->context becomes
+NULL but rx_buf is not freed and there can be a memory leak.
 
-The cause of the leak is that usb_get_urb() is called but usb_free_urb()
-(or usb_put_urb()) is not called inside usb_kill_urb() as urb->dev or
-urb->ep fields have not been initialized and usb_kill_urb() returns
-immediately.
-
-The patch removes trying to kill urbs located in hif_dev->tx.tx_buf
-because hif_dev->tx.tx_buf is not supposed to contain urbs which are in
-pending state (the pending urbs are stored in hif_dev->tx.tx_pending).
-The tx.tx_lock is acquired so there should not be any changes in the list.
+The patch removes unnecessary nskb and makes skb processing more clear: it
+is supposed that ath9k_htc_rx_msg() either frees old skb or passes its
+managing to another callback function.
 
 Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
 
-Fixes: 03fb92a432ea ("ath9k: hif_usb: fix race condition between usb_get_urb() and usb_kill_anchored_urbs()")
+Fixes: 3deff76095c4 ("ath9k_htc: Increase URB count for REG_IN pipe")
 Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
 Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
 Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
 Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220725151359.283704-1-pchelkin@ispras.ru
+Link: https://lore.kernel.org/r/20221008114917.21404-1-pchelkin@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 28 +++++++++++++-----------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index 33a6be0f21ca..519cc8fd3299 100644
+index 519cc8fd3299..719cb53d8b4d 100644
 --- a/drivers/net/wireless/ath/ath9k/hif_usb.c
 +++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -779,14 +779,10 @@ static void ath9k_hif_usb_dealloc_tx_urbs(struct hif_device_usb *hif_dev)
- 	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
- 				 &hif_dev->tx.tx_buf, list) {
--		usb_get_urb(tx_buf->urb);
--		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
--		usb_kill_urb(tx_buf->urb);
- 		list_del(&tx_buf->list);
- 		usb_free_urb(tx_buf->urb);
- 		kfree(tx_buf->buf);
- 		kfree(tx_buf);
--		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
- 	}
- 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+@@ -707,14 +707,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ 	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
+ 	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
+ 	struct sk_buff *skb = rx_buf->skb;
+-	struct sk_buff *nskb;
+ 	int ret;
  
+ 	if (!skb)
+ 		return;
+ 
+ 	if (!hif_dev)
+-		goto free;
++		goto free_skb;
+ 
+ 	switch (urb->status) {
+ 	case 0:
+@@ -723,7 +722,7 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ 	case -ECONNRESET:
+ 	case -ENODEV:
+ 	case -ESHUTDOWN:
+-		goto free;
++		goto free_skb;
+ 	default:
+ 		skb_reset_tail_pointer(skb);
+ 		skb_trim(skb, 0);
+@@ -734,25 +733,27 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ 	if (likely(urb->actual_length != 0)) {
+ 		skb_put(skb, urb->actual_length);
+ 
+-		/* Process the command first */
++		/*
++		 * Process the command first.
++		 * skb is either freed here or passed to be
++		 * managed to another callback function.
++		 */
+ 		ath9k_htc_rx_msg(hif_dev->htc_handle, skb,
+ 				 skb->len, USB_REG_IN_PIPE);
+ 
+-
+-		nskb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
+-		if (!nskb) {
++		skb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
++		if (!skb) {
+ 			dev_err(&hif_dev->udev->dev,
+ 				"ath9k_htc: REG_IN memory allocation failure\n");
+-			urb->context = NULL;
+-			return;
++			goto free_rx_buf;
+ 		}
+ 
+-		rx_buf->skb = nskb;
++		rx_buf->skb = skb;
+ 
+ 		usb_fill_int_urb(urb, hif_dev->udev,
+ 				 usb_rcvintpipe(hif_dev->udev,
+ 						 USB_REG_IN_PIPE),
+-				 nskb->data, MAX_REG_IN_BUF_SIZE,
++				 skb->data, MAX_REG_IN_BUF_SIZE,
+ 				 ath9k_hif_usb_reg_in_cb, rx_buf, 1);
+ 	}
+ 
+@@ -761,12 +762,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
+ 	ret = usb_submit_urb(urb, GFP_ATOMIC);
+ 	if (ret) {
+ 		usb_unanchor_urb(urb);
+-		goto free;
++		goto free_skb;
+ 	}
+ 
+ 	return;
+-free:
++free_skb:
+ 	kfree_skb(skb);
++free_rx_buf:
+ 	kfree(rx_buf);
+ 	urb->context = NULL;
+ }
 -- 
 2.35.1
 
