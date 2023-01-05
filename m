@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA7865EC7D
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:10:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C0A65EC7E
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:10:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232093AbjAENKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:10:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60402 "EHLO
+        id S233608AbjAENKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:10:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230448AbjAENJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:09:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F06D5DE6C
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:09:28 -0800 (PST)
+        with ESMTP id S234163AbjAENJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:09:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51CB85E673
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:09:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1F5B617A9
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:09:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C72FCC433F0;
-        Thu,  5 Jan 2023 13:09:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3948B81AD4
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:09:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2195C433D2;
+        Thu,  5 Jan 2023 13:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672924167;
-        bh=JusvWpjWxCAj1UyScJG29hqDYgolKv8PEcvu+z9S7DU=;
+        s=korg; t=1672924170;
+        bh=YAa9wT7FQIiJ04MoACuQzX3ZdM2iVfrteFvO0skyQFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=chvS/CNRpN6WnaDWNPYlwEElG/wDwz/ascn+pMOBvtldB4QSnrMqYvl4doWBULu7l
-         1DuiPeC2rJNW7Bbcbybf+Yeqc/nO2s+co25vNBR0Tli8KHsRsVZ08s3q+P1UR7xa5m
-         182CwTiC1pe0EOyRAACieylEAxNhcFgOCKcGoZHQ=
+        b=t9caqs4xr/xkCiP9BeKJgpYniXT0Mv6zi5SfNurCNr2Szu7OLFc84ptQcfsW7/E8A
+         qzKIfrU8bubmk1QfHds0IcQxZLovyE10whZwQGrhpUZfE6p/LuGS3mDleyJ4DbsypR
+         mN1GqsANmhJwJZy9s9NKM31r+p75YYi3BNGyBFR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
-        kernel test robot <lkp@intel.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.9 228/251] ARM: ux500: do not directly dereference __iomem
-Date:   Thu,  5 Jan 2023 13:56:05 +0100
-Message-Id: <20230105125345.296497231@linuxfoundation.org>
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.9 229/251] dm cache: Fix ABBA deadlock between shrink_slab and dm_cache_metadata_abort
+Date:   Thu,  5 Jan 2023 13:56:06 +0100
+Message-Id: <20230105125345.346823619@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,54 +52,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Mike Snitzer <snitzer@kernel.org>
 
-commit 65b0e307a1a9193571db12910f382f84195a3d29 upstream.
+commit 352b837a5541690d4f843819028cf2b8be83d424 upstream.
 
-Sparse reports that calling add_device_randomness() on `uid` is a
-violation of address spaces. And indeed the next usage uses readl()
-properly, but that was left out when passing it toadd_device_
-randomness(). So instead copy the whole thing to the stack first.
+Same ABBA deadlock pattern fixed in commit 4b60f452ec51 ("dm thin: Fix
+ABBA deadlock between shrink_slab and dm_pool_abort_metadata") to
+DM-cache's metadata.
 
-Fixes: 4040d10a3d44 ("ARM: ux500: add DB serial number to entropy pool")
-Cc: Linus Walleij <linus.walleij@linaro.org>
+Reported-by: Zhihao Cheng <chengzhihao1@huawei.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/202210230819.loF90KDh-lkp@intel.com/
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Link: https://lore.kernel.org/r/20221108123755.207438-1-Jason@zx2c4.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 028ae9f76f29 ("dm cache: add fail io mode and needs_check flag")
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/ux500/ux500-soc-id.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/md/dm-cache-metadata.c |   55 +++++++++++++++++++++++++++++++++++------
+ 1 file changed, 48 insertions(+), 7 deletions(-)
 
---- a/drivers/soc/ux500/ux500-soc-id.c
-+++ b/drivers/soc/ux500/ux500-soc-id.c
-@@ -159,20 +159,18 @@ static ssize_t ux500_get_process(struct
- static const char *db8500_read_soc_id(struct device_node *backupram)
+--- a/drivers/md/dm-cache-metadata.c
++++ b/drivers/md/dm-cache-metadata.c
+@@ -522,11 +522,13 @@ static int __create_persistent_data_obje
+ 	return r;
+ }
+ 
+-static void __destroy_persistent_data_objects(struct dm_cache_metadata *cmd)
++static void __destroy_persistent_data_objects(struct dm_cache_metadata *cmd,
++					      bool destroy_bm)
  {
- 	void __iomem *base;
--	void __iomem *uid;
- 	const char *retstr;
-+	u32 uid[5];
+ 	dm_sm_destroy(cmd->metadata_sm);
+ 	dm_tm_destroy(cmd->tm);
+-	dm_block_manager_destroy(cmd->bm);
++	if (destroy_bm)
++		dm_block_manager_destroy(cmd->bm);
+ }
  
- 	base = of_iomap(backupram, 0);
- 	if (!base)
- 		return NULL;
--	uid = base + 0x1fc0;
-+	memcpy_fromio(uid, base + 0x1fc0, sizeof(uid));
+ typedef unsigned long (*flags_mutator)(unsigned long);
+@@ -780,7 +782,7 @@ static struct dm_cache_metadata *lookup_
+ 		cmd2 = lookup(bdev);
+ 		if (cmd2) {
+ 			mutex_unlock(&table_lock);
+-			__destroy_persistent_data_objects(cmd);
++			__destroy_persistent_data_objects(cmd, true);
+ 			kfree(cmd);
+ 			return cmd2;
+ 		}
+@@ -827,7 +829,7 @@ void dm_cache_metadata_close(struct dm_c
+ 		mutex_unlock(&table_lock);
  
- 	/* Throw these device-specific numbers into the entropy pool */
--	add_device_randomness(uid, 0x14);
-+	add_device_randomness(uid, sizeof(uid));
- 	retstr = kasprintf(GFP_KERNEL, "%08x%08x%08x%08x%08x",
--			 readl((u32 *)uid+0),
--			 readl((u32 *)uid+1), readl((u32 *)uid+2),
--			 readl((u32 *)uid+3), readl((u32 *)uid+4));
-+			   uid[0], uid[1], uid[2], uid[3], uid[4]);
- 	iounmap(base);
- 	return retstr;
+ 		if (!cmd->fail_io)
+-			__destroy_persistent_data_objects(cmd);
++			__destroy_persistent_data_objects(cmd, true);
+ 		kfree(cmd);
+ 	}
+ }
+@@ -1551,14 +1553,53 @@ int dm_cache_metadata_needs_check(struct
+ 
+ int dm_cache_metadata_abort(struct dm_cache_metadata *cmd)
+ {
+-	int r;
++	int r = -EINVAL;
++	struct dm_block_manager *old_bm = NULL, *new_bm = NULL;
++
++	/* fail_io is double-checked with cmd->root_lock held below */
++	if (unlikely(cmd->fail_io))
++		return r;
++
++	/*
++	 * Replacement block manager (new_bm) is created and old_bm destroyed outside of
++	 * cmd root_lock to avoid ABBA deadlock that would result (due to life-cycle of
++	 * shrinker associated with the block manager's bufio client vs cmd root_lock).
++	 * - must take shrinker_rwsem without holding cmd->root_lock
++	 */
++	new_bm = dm_block_manager_create(cmd->bdev, DM_CACHE_METADATA_BLOCK_SIZE << SECTOR_SHIFT,
++					 CACHE_METADATA_CACHE_SIZE,
++					 CACHE_MAX_CONCURRENT_LOCKS);
+ 
+ 	WRITE_LOCK(cmd);
+-	__destroy_persistent_data_objects(cmd);
+-	r = __create_persistent_data_objects(cmd, false);
++	if (cmd->fail_io) {
++		WRITE_UNLOCK(cmd);
++		goto out;
++	}
++
++	__destroy_persistent_data_objects(cmd, false);
++	old_bm = cmd->bm;
++	if (IS_ERR(new_bm)) {
++		DMERR("could not create block manager during abort");
++		cmd->bm = NULL;
++		r = PTR_ERR(new_bm);
++		goto out_unlock;
++	}
++
++	cmd->bm = new_bm;
++	r = __open_or_format_metadata(cmd, false);
++	if (r) {
++		cmd->bm = NULL;
++		goto out_unlock;
++	}
++	new_bm = NULL;
++out_unlock:
+ 	if (r)
+ 		cmd->fail_io = true;
+ 	WRITE_UNLOCK(cmd);
++	dm_block_manager_destroy(old_bm);
++out:
++	if (new_bm && !IS_ERR(new_bm))
++		dm_block_manager_destroy(new_bm);
+ 
+ 	return r;
  }
 
 
