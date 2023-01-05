@@ -2,151 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B0965E59B
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 07:26:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCF6265E5D1
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 08:13:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230088AbjAEG0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 01:26:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50446 "EHLO
+        id S229944AbjAEHNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 02:13:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230106AbjAEG0A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 01:26:00 -0500
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F2B662E3;
-        Wed,  4 Jan 2023 22:25:59 -0800 (PST)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.57])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4NnbwN6fDkzJq2l;
-        Thu,  5 Jan 2023 14:21:56 +0800 (CST)
-Received: from huawei.com (10.67.175.31) by dggpemm500024.china.huawei.com
- (7.185.36.203) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Thu, 5 Jan
- 2023 14:25:57 +0800
-From:   GUO Zihua <guozihua@huawei.com>
-To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
-        <zohar@linux.ibm.com>
-CC:     <paul@paul-moore.com>, <linux-integrity@vger.kernel.org>,
-        <luhuaxin1@huawei.com>
-Subject: [PATCH v6 3/3] ima: Handle -ESTALE returned by ima_filter_rule_match()
-Date:   Thu, 5 Jan 2023 14:23:12 +0800
-Message-ID: <20230105062312.14325-4-guozihua@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230105062312.14325-1-guozihua@huawei.com>
-References: <20230105062312.14325-1-guozihua@huawei.com>
+        with ESMTP id S229569AbjAEHNc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 02:13:32 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BF085276E
+        for <stable@vger.kernel.org>; Wed,  4 Jan 2023 23:13:28 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id o7-20020a17090a0a0700b00226c9b82c3aso1170977pjo.3
+        for <stable@vger.kernel.org>; Wed, 04 Jan 2023 23:13:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=RUY5y6zLuR5cWqeaKguClMSYR6J/UjlVX1mPxUIDiqs=;
+        b=m6nwvMfodTUiK5T/Uv1DDCxwV7esGTDPYetNfGjlb74iiqzdi73OInACFRwUrY56V9
+         /EYwAjG9HUXzOtpQxYxIO+vZxJcg+9/3sPkBJ64QgMY9FNKAvPd5AuX/lZniF77b6SY8
+         hT67OEXq2h20tdiPRPEzspvjufeNJ/DegP0w1qJ2qR94lotVsWUtOGu3Jiye+SBzEPJb
+         S74TmtP8ZmgsGdPNpkY6sN3Ka0DZgT8wdFOA3kTsjW7umjEpM7KXfX+vftH7iaTk8Rv3
+         GSCdO4BUpOOT/WInbiQeppK2uLLHS/31PsUz8X+UR98xcZW0tEFfaelkd8ZNkyXC070H
+         he5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=RUY5y6zLuR5cWqeaKguClMSYR6J/UjlVX1mPxUIDiqs=;
+        b=nwSALPk3WhV00loVx3FCVEsn79vXaArbu3F/fWRZbDn/Xis0kC4YvSylHFRh9i7RpZ
+         4pQbKvgzCW3OOE5ibW+KtcBOunu3xeMBR5KTfrJpUY6G0hL88QGXVPj6u93MrzGIIZ4s
+         CaTv8Sa9JkV0X96hezXho6GZCH/TsIK6Mek/64iVbIU0RMsbXFdUz1W9Ssp2qXt0Fi/s
+         eBlCrWSSsnFWuCJrAi92WiMJBxrBCuvK/XFT5xlOvbpz9Jl771HqNBEpogO73EqW2kpu
+         /Jr+5/CPNPR4ZyOY3TLcbPWxZwhJ+fozZ74lxoj4+2R6g73KX1YM12JdSSyv2KYx9l0S
+         OXRA==
+X-Gm-Message-State: AFqh2krYemkKIPgqDIGVO2YuQ/Wot52+OYJKlHpTPDfmrpYSYVxGpcjK
+        h1h9TZ63y4IEMDuJq5XNlRTuyX7QEWItX+pk1AI=
+X-Google-Smtp-Source: AMrXdXve2/QPtggyHVkQYX/DWrl5c3Gspk9EZSNuM17Jo3w86E17C5mQJ1mhUzKuzi7HvhmoutIC6PSz/J3JRLiXwGM=
+X-Received: by 2002:a17:903:130e:b0:192:58f4:59cf with SMTP id
+ iy14-20020a170903130e00b0019258f459cfmr2465140plb.170.1672902807947; Wed, 04
+ Jan 2023 23:13:27 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.175.31]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemm500024.china.huawei.com (7.185.36.203)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a05:7300:570d:b0:96:36ff:77ff with HTTP; Wed, 4 Jan 2023
+ 23:13:27 -0800 (PST)
+Reply-To: garryfoundation2022@gmail.com
+From:   Garry Myles <sadabridget13@gmail.com>
+Date:   Thu, 5 Jan 2023 10:13:27 +0300
+Message-ID: <CAH=MdMj766Khw8Dk2d=4=+b5WsSbuL2N_0-2ibomMQ7eTxBY7Q@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=4.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c7423dbdbc9ecef7fff5239d144cad4b9887f4de ]
+--=20
+Guten Tag
+Sie haben eine Spende von 2.000.000,00 =E2=82=AC von der GARRY CHARITY FOUN=
+DATION.
+Bitte kontaktieren Sie uns =C3=BCber: garryfoundation2022@gmail.com f=C3=BC=
+r
+weitere Informationen dar=C3=BCber, wie Sie diese Spende in Anspruch nehmen
+k=C3=B6nnen.
 
-IMA relies on the blocking LSM policy notifier callback to update the
-LSM based IMA policy rules.
-
-When SELinux update its policies, IMA would be notified and starts
-updating all its lsm rules one-by-one. During this time, -ESTALE would
-be returned by ima_filter_rule_match() if it is called with a LSM rule
-that has not yet been updated. In ima_match_rules(), -ESTALE is not
-handled, and the LSM rule is considered a match, causing extra files
-to be measured by IMA.
-
-Fix it by re-initializing a temporary rule if -ESTALE is returned by
-ima_filter_rule_match(). The origin rule in the rule list would be
-updated by the LSM policy notifier callback.
-
-Fixes: b16942455193 ("ima: use the lsm policy update notifier")
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
-Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: GUO Zihua <guozihua@huawei.com>
----
- security/integrity/ima/ima_policy.c | 37 ++++++++++++++++++++++-------
- 1 file changed, 29 insertions(+), 8 deletions(-)
-
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index d620c0dfc4e1..fb4ef8179e3e 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -375,6 +375,9 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 			    enum ima_hooks func, int mask)
- {
- 	int i;
-+	bool result = false;
-+	struct ima_rule_entry *lsm_rule = rule;
-+	bool rule_reinitialized = false;
- 
- 	if ((rule->flags & IMA_FUNC) &&
- 	    (rule->func != func && func != POST_SETATTR))
-@@ -413,35 +416,53 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		int rc = 0;
- 		u32 osid;
- 
--		if (!rule->lsm[i].rule)
-+		if (!lsm_rule->lsm[i].rule)
- 			continue;
- 
-+retry:
- 		switch (i) {
- 		case LSM_OBJ_USER:
- 		case LSM_OBJ_ROLE:
- 		case LSM_OBJ_TYPE:
- 			security_inode_getsecid(inode, &osid);
- 			rc = security_filter_rule_match(osid,
--							rule->lsm[i].type,
-+							lsm_rule->lsm[i].type,
- 							Audit_equal,
--							rule->lsm[i].rule,
-+							lsm_rule->lsm[i].rule,
- 							NULL);
- 			break;
- 		case LSM_SUBJ_USER:
- 		case LSM_SUBJ_ROLE:
- 		case LSM_SUBJ_TYPE:
- 			rc = security_filter_rule_match(secid,
--							rule->lsm[i].type,
-+							lsm_rule->lsm[i].type,
- 							Audit_equal,
--							rule->lsm[i].rule,
-+							lsm_rule->lsm[i].rule,
- 							NULL);
- 		default:
- 			break;
- 		}
--		if (!rc)
--			return false;
-+
-+		if (rc == -ESTALE && !rule_reinitialized) {
-+			lsm_rule = ima_lsm_copy_rule(rule);
-+			if (lsm_rule) {
-+				rule_reinitialized = true;
-+				goto retry;
-+			}
-+		}
-+		if (!rc) {
-+			result = false;
-+			goto out;
-+		}
-+	}
-+	result = true;
-+
-+out:
-+	if (rule_reinitialized) {
-+		ima_lsm_free_rule(lsm_rule);
-+		kfree(lsm_rule);
- 	}
--	return true;
-+	return result;
- }
- 
- /*
--- 
-2.17.1
-
+mit freundlichen Gr=C3=BC=C3=9Fen
+Garry Myles
