@@ -2,184 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 985FF65EE25
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 15:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3663065EE5F
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 15:08:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233880AbjAEOCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 09:02:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46930 "EHLO
+        id S232575AbjAEOIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 09:08:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234339AbjAEOCR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 09:02:17 -0500
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6ABB75C1DA
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 06:02:12 -0800 (PST)
-Received: by linux.microsoft.com (Postfix, from userid 1112)
-        id 2AEDD20B92A6; Thu,  5 Jan 2023 06:02:12 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 2AEDD20B92A6
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1672927332;
-        bh=LInXeHw1B+c1IWn1wOx98cgNFhPscD1Y3gDioaXOcPM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=FrfeOp8R2UMSy71SNhp+dDCvtcZXU52ph4O1LaWmbrmdnUP6KvbPOnbTZAD8W6WQR
-         DkdLPdW4JzNcjrKi8a0CAXEC1dDCb4npBZhR8hwugaCwW8WrRYADracH0ZnbZ4yllc
-         ELg5Oz6OTnlMeZ4dze8WGkuB0MBGzzGJqCNBRPDA=
-From:   Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-To:     stable@vger.kernel.org
-Cc:     Andreas Dilger <adilger@dilger.ca>,
-        Thilo Fromm <t-lo@linux.microsoft.com>,
-        Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
-        Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>
-Subject: [PATCH 5.15] ext4: fix deadlock due to mbcache entry corruption
-Date:   Thu,  5 Jan 2023 06:01:59 -0800
-Message-Id: <1672927319-22912-1-git-send-email-jpiotrowski@linux.microsoft.com>
-X-Mailer: git-send-email 1.8.3.1
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S234757AbjAEOIf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 09:08:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784E244C64
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 06:08:34 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F879B81AE8
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 14:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1560CC433D2;
+        Thu,  5 Jan 2023 14:08:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1672927711;
+        bh=nrx5rFy/NuygorsE+kWgn3I6xCfjKYugGy4omgwFW98=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Bcl6IMcrfXpFcDGMoiXIMmy9nI62G1hcKxubSR/VTW7VbaLNpK8zwUb+suZ+rESfx
+         58dI+TUTyw2OB5Xi7MtEqYJzusuaoO4Dris1uhg+EEsQxWFGwZ4yDlZSCvOy51S9mT
+         VqaIGBsFoY6JAi3IWhmSFKCAqdgpzBMnnDPAvH5dF5XbY2hvlW87HjvGcC9M9n9sPx
+         SnFT1nGsgiuKjoInJc5VEHDk5+wb/n6AsCu79m3llM2lUdj4fnlArAiWFFPFeIBFuM
+         V0RenKkSyYiH13Oy4gSHOikyWB5xTpx/XkYgm2nsZe8x1lNS9JOcJH887Mvd+mS/WG
+         i2wwEKCvqIOCw==
+Date:   Thu, 5 Jan 2023 14:08:26 +0000
+From:   Lee Jones <lee@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        John Keeping <john@metanate.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.15 481/731] usb: gadget: f_hid: fix f_hidg lifetime vs
+ cdev
+Message-ID: <Y7bZ2krq2uvjJqRR@google.com>
+References: <20221228144256.536395940@linuxfoundation.org>
+ <20221228144310.493605271@linuxfoundation.org>
+ <Y7bACmZQdEhlf121@google.com>
+ <Y7bCgNu1ZXlCHmPm@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Y7bCgNu1ZXlCHmPm@kroah.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+On Thu, 05 Jan 2023, Greg Kroah-Hartman wrote:
 
-commit a44e84a9b7764c72896f7241a0ec9ac7e7ef38dd upstream.
+> On Thu, Jan 05, 2023 at 12:18:18PM +0000, Lee Jones wrote:
+> > On Wed, 28 Dec 2022, Greg Kroah-Hartman wrote:
+> > 
+> > > From: John Keeping <john@metanate.com>
+> > > 
+> > > [ Upstream commit 89ff3dfac604614287ad5aad9370c3f984ea3f4b ]
+> > > 
+> > > The embedded struct cdev does not have its lifetime correctly tied to
+> > > the enclosing struct f_hidg, so there is a use-after-free if /dev/hidgN
+> > > is held open while the gadget is deleted.
+> > > 
+> > > This can readily be replicated with libusbgx's example programs (for
+> > > conciseness - operating directly via configfs is equivalent):
+> > > 
+> > > 	gadget-hid
+> > > 	exec 3<> /dev/hidg0
+> > > 	gadget-vid-pid-remove
+> > > 	exec 3<&-
+> > > 
+> > > Pull the existing device up in to struct f_hidg and make use of the
+> > > cdev_device_{add,del}() helpers.  This changes the lifetime of the
+> > > device object to match struct f_hidg, but note that it is still added
+> > > and deleted at the same time.
+> > > 
+> > > Fixes: 71adf1189469 ("USB: gadget: add HID gadget driver")
+> > > Tested-by: Lee Jones <lee@kernel.org>
+> > > Reviewed-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+> > > Reviewed-by: Lee Jones <lee@kernel.org>
+> > > Signed-off-by: John Keeping <john@metanate.com>
+> > > Link: https://lore.kernel.org/r/20221122123523.3068034-2-john@metanate.com
+> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > ---
+> > >  drivers/usb/gadget/function/f_hid.c | 52 ++++++++++++++++-------------
+> > >  1 file changed, 28 insertions(+), 24 deletions(-)
+> >  
+> > Dear Stable,
+> > 
+> > Would you be kind enough to take this back as far back as linux.4.14.y
+> > please?  There is a trivial fix-up required for kernels older than
+> > v5.15, but it's the same fix-up back through v4.14.
+> 
+> This is already in the queue for 5.10, 5.4, and 4.19, but for some
+> reason not in 4.14.  Can you verify that the 4.19 version works there
+> too?
 
-When manipulating xattr blocks, we can deadlock infinitely looping
-inside ext4_xattr_block_set() where we constantly keep finding xattr
-block for reuse in mbcache but we are unable to reuse it because its
-reference count is too big. This happens because cache entry for the
-xattr block is marked as reusable (e_reusable set) although its
-reference count is too big. When this inconsistency happens, this
-inconsistent state is kept indefinitely and so ext4_xattr_block_set()
-keeps retrying indefinitely.
+That works.  v4.19 isn't required.  Thanks.
 
-The inconsistent state is caused by non-atomic update of e_reusable bit.
-e_reusable is part of a bitfield and e_reusable update can race with
-update of e_referenced bit in the same bitfield resulting in loss of one
-of the updates. Fix the problem by using atomic bitops instead.
-
-This bug has been around for many years, but it became *much* easier
-to hit after commit 65f8b80053a1 ("ext4: fix race when reusing xattr
-blocks").
-
-A special backport to 5.15 was necessary due to changes to reference counting.
-
-Cc: stable@vger.kernel.org # 5.15
-Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
-Fixes: 65f8b80053a1 ("ext4: fix race when reusing xattr blocks")
-Reported-and-tested-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Reported-by: Thilo Fromm <t-lo@linux.microsoft.com>
-Link: https://lore.kernel.org/r/c77bf00f-4618-7149-56f1-b8d1664b9d07@linux.microsoft.com/
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20221123193950.16758-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
----
- fs/ext4/xattr.c         |  4 ++--
- fs/mbcache.c            | 14 ++++++++------
- include/linux/mbcache.h |  9 +++++++--
- 3 files changed, 17 insertions(+), 10 deletions(-)
-
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index 533216e80fa2..22700812a4d3 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1281,7 +1281,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
- 				ce = mb_cache_entry_get(ea_block_cache, hash,
- 							bh->b_blocknr);
- 				if (ce) {
--					ce->e_reusable = 1;
-+					set_bit(MBE_REUSABLE_B, &ce->e_flags);
- 					mb_cache_entry_put(ea_block_cache, ce);
- 				}
- 			}
-@@ -2042,7 +2042,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- 				}
- 				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
- 				if (ref == EXT4_XATTR_REFCOUNT_MAX)
--					ce->e_reusable = 0;
-+					clear_bit(MBE_REUSABLE_B, &ce->e_flags);
- 				ea_bdebug(new_bh, "reusing; refcount now=%d",
- 					  ref);
- 				ext4_xattr_block_csum_set(inode, new_bh);
-diff --git a/fs/mbcache.c b/fs/mbcache.c
-index 2010bc80a3f2..ac07b50ea3df 100644
---- a/fs/mbcache.c
-+++ b/fs/mbcache.c
-@@ -94,8 +94,9 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
- 	atomic_set(&entry->e_refcnt, 1);
- 	entry->e_key = key;
- 	entry->e_value = value;
--	entry->e_reusable = reusable;
--	entry->e_referenced = 0;
-+	entry->e_flags = 0;
-+	if (reusable)
-+		set_bit(MBE_REUSABLE_B, &entry->e_flags);
- 	head = mb_cache_entry_head(cache, key);
- 	hlist_bl_lock(head);
- 	hlist_bl_for_each_entry(dup, dup_node, head, e_hash_list) {
-@@ -155,7 +156,8 @@ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
- 	while (node) {
- 		entry = hlist_bl_entry(node, struct mb_cache_entry,
- 				       e_hash_list);
--		if (entry->e_key == key && entry->e_reusable) {
-+		if (entry->e_key == key &&
-+		    test_bit(MBE_REUSABLE_B, &entry->e_flags)) {
- 			atomic_inc(&entry->e_refcnt);
- 			goto out;
- 		}
-@@ -325,7 +327,7 @@ EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
- void mb_cache_entry_touch(struct mb_cache *cache,
- 			  struct mb_cache_entry *entry)
- {
--	entry->e_referenced = 1;
-+	set_bit(MBE_REFERENCED_B, &entry->e_flags);
- }
- EXPORT_SYMBOL(mb_cache_entry_touch);
- 
-@@ -350,8 +352,8 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
- 	while (nr_to_scan-- && !list_empty(&cache->c_list)) {
- 		entry = list_first_entry(&cache->c_list,
- 					 struct mb_cache_entry, e_list);
--		if (entry->e_referenced || atomic_read(&entry->e_refcnt) > 2) {
--			entry->e_referenced = 0;
-+		if (test_bit(MBE_REFERENCED_B, &entry->e_flags) || atomic_read(&entry->e_refcnt) > 2) {
-+			clear_bit(MBE_REFERENCED_B, &entry->e_flags);
- 			list_move_tail(&entry->e_list, &cache->c_list);
- 			continue;
- 		}
-diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
-index 8eca7f25c432..62927f7e2588 100644
---- a/include/linux/mbcache.h
-+++ b/include/linux/mbcache.h
-@@ -10,6 +10,12 @@
- 
- struct mb_cache;
- 
-+/* Cache entry flags */
-+enum {
-+	MBE_REFERENCED_B = 0,
-+	MBE_REUSABLE_B
-+};
-+
- struct mb_cache_entry {
- 	/* List of entries in cache - protected by cache->c_list_lock */
- 	struct list_head	e_list;
-@@ -18,8 +24,7 @@ struct mb_cache_entry {
- 	atomic_t		e_refcnt;
- 	/* Key in hash - stable during lifetime of the entry */
- 	u32			e_key;
--	u32			e_referenced:1;
--	u32			e_reusable:1;
-+	unsigned long		e_flags;
- 	/* User provided value - stable during lifetime of the entry */
- 	u64			e_value;
- };
 -- 
-2.25.1
-
+Lee Jones [李琼斯]
