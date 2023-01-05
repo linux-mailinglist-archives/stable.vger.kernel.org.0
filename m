@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A3F165EBEF
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:04:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7936D65EBF2
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:05:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233998AbjAENEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:04:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53424 "EHLO
+        id S233857AbjAENEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:04:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234012AbjAENEH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:04:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F5575A884
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:04:07 -0800 (PST)
+        with ESMTP id S233982AbjAENEQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:04:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3135AC6B
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:04:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFC4B61A10
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:04:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B75C5C433D2;
-        Thu,  5 Jan 2023 13:04:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6479EB81979
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:04:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF44C433D2;
+        Thu,  5 Jan 2023 13:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923846;
-        bh=1fh5uSQaCuld/b/wiLVBG+FpRirMbDpyosO/iKux4js=;
+        s=korg; t=1672923849;
+        bh=+wTZkiq4nSP8fmn3b+r+tj5v5aGdxXlpU6rp6yuNrt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Im6jxM1ImH/BG6NO+iddI5KFhZepR9HAr6wDeLDFH58XxLtvKoiDWaoC4JThU87O/
-         +KHPG9Z9mdzn9xGRFYPiPTo58YpOgekDtNx2uoijTJVlXyxHCu41O2iEPzbU0Qmjf+
-         KEbcWhU27WGIct5eDQ9H8X5oEJuB7/yowM7W6COk=
+        b=CxJb1E2UQvxuPljXNQ8SkjW+li4LYmv/XAI1Cp8aR2wvU246E/R9g3M5Nd5LiTlY1
+         YfIid5ecpihdOkEY5oaZ7lVFQy6pvMcwlbAKiMLEKKsRqIDJR7lFHYfOt44yMF33q1
+         4Y3HwgjIeq1cbuv9qXL7z5wCBF7MWOzSS35gCwgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 151/251] fbdev: vermilion: decrease reference count in error path
-Date:   Thu,  5 Jan 2023 13:54:48 +0100
-Message-Id: <20230105125341.735668495@linuxfoundation.org>
+Subject: [PATCH 4.9 152/251] fbdev: uvesafb: Fixes an error handling path in uvesafb_probe()
+Date:   Thu,  5 Jan 2023 13:54:49 +0100
+Message-Id: <20230105125341.783885179@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,38 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 001f2cdb952a9566c77fb4b5470cc361db5601bb ]
+[ Upstream commit a94371040712031ba129c7e9d8ff04a06a2f8207 ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev. For the error path, we need to use pci_dev_put() to decrease
-the reference count.
+If an error occurs after a successful uvesafb_init_mtrr() call, it must be
+undone by a corresponding arch_phys_wc_del() call, as already done in the
+remove function.
 
-Fixes: dbe7e429fedb ("vmlfb: framebuffer driver for Intel Vermilion Range")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+This has been added in the remove function in commit 63e28a7a5ffc
+("uvesafb: Clean up MTRR code")
+
+Fixes: 8bdb3a2d7df4 ("uvesafb: the driver core")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/vermilion/vermilion.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/uvesafb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/video/fbdev/vermilion/vermilion.c b/drivers/video/fbdev/vermilion/vermilion.c
-index 1c1e95a0b8fa..9774e9513ad0 100644
---- a/drivers/video/fbdev/vermilion/vermilion.c
-+++ b/drivers/video/fbdev/vermilion/vermilion.c
-@@ -291,8 +291,10 @@ static int vmlfb_get_gpu(struct vml_par *par)
- 
- 	mutex_unlock(&vml_mutex);
- 
--	if (pci_enable_device(par->gpu) < 0)
-+	if (pci_enable_device(par->gpu) < 0) {
-+		pci_dev_put(par->gpu);
- 		return -ENODEV;
-+	}
- 
- 	return 0;
- }
+diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
+index 9fe0d0bcdf62..01a3d9931348 100644
+--- a/drivers/video/fbdev/uvesafb.c
++++ b/drivers/video/fbdev/uvesafb.c
+@@ -1776,6 +1776,7 @@ static int uvesafb_probe(struct platform_device *dev)
+ out_unmap:
+ 	iounmap(info->screen_base);
+ out_mem:
++	arch_phys_wc_del(par->mtrr_handle);
+ 	release_mem_region(info->fix.smem_start, info->fix.smem_len);
+ out_reg:
+ 	release_region(0x3c0, 32);
 -- 
 2.35.1
 
