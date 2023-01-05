@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7FCB65EBA8
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:01:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 020C265EBA9
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233813AbjAENBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:01:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50142 "EHLO
+        id S233819AbjAENBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:01:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233819AbjAENBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:01:04 -0500
+        with ESMTP id S233878AbjAENBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:01:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E73F4574DF
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:01:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1106458325
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:01:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95292B81AE2
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:01:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E33C5C433D2;
-        Thu,  5 Jan 2023 13:00:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97BABB81A84
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:01:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC470C433D2;
+        Thu,  5 Jan 2023 13:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923660;
-        bh=7BHUSulhLThUy+eVvjs/yoHtUWj5oM5Ym+Hk7cFxcT4=;
+        s=korg; t=1672923663;
+        bh=lgma8Tgl+J2+lEuaJCNZpoav5V2deWosuXj0giNjuCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RzoH/EjER31NC50HcavfxaRn47IY0ABbcQSip/kpnYIPUW5jpUtPxhkOJDHRpfMzU
-         jo5UBTLepQcXd7Sl8zgOjdUb0QAbXZKIWY6x0HVYB1JE4+JPJnVzemWJXZP50+Ja+T
-         QndXYY4mQnWgAlmqihXU4GZ4HRT/CxFdIqu/h78M=
+        b=glNaqRJQpQ9QWy3kN3jBdOMNFXMkojsNX3mMMpkbNkl4AFa71zkVG9TCm8WfqzBtS
+         TDuT5RiCbHhJvsAZb2jFSS6Wc268TYSu5EDXSG3CiSc1woDDGSJa0JSjD8Sfm4JHCd
+         bvQcRKulIl9R1x67Om4sJ0yR86QB6WXUivPHsrXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liang He <windhl@126.com>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 090/251] media: c8sectpfe: Add of_node_put() when breaking out of loop
-Date:   Thu,  5 Jan 2023 13:53:47 +0100
-Message-Id: <20230105125338.916094587@linuxfoundation.org>
+Subject: [PATCH 4.9 091/251] media: coda: Add check for dcoda_iram_alloc
+Date:   Thu,  5 Jan 2023 13:53:48 +0100
+Message-Id: <20230105125338.962280799@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,34 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liang He <windhl@126.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 63ff05a1ad242a5a0f897921c87b70d601bda59c ]
+[ Upstream commit 6b8082238fb8bb20f67e46388123e67a5bbc558d ]
 
-In configure_channels(), we should call of_node_put() when breaking
-out of for_each_child_of_node() which will automatically increase
-and decrease the refcount.
+As the coda_iram_alloc may return NULL pointer,
+it should be better to check the return value
+in order to avoid NULL poineter dereference,
+same as the others.
 
-Fixes: c5f5d0f99794 ("[media] c8sectpfe: STiH407/10 Linux DVB demux support")
-Signed-off-by: Liang He <windhl@126.com>
+Fixes: b313bcc9a467 ("[media] coda: simplify IRAM setup")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/coda/coda-bit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c b/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c
-index 06e2cfd09855..c79dcc497e13 100644
---- a/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c
-+++ b/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c
-@@ -953,6 +953,7 @@ static int configure_channels(struct c8sectpfei *fei)
- 		if (ret) {
- 			dev_err(fei->dev,
- 				"configure_memdma_and_inputblock failed\n");
-+			of_node_put(child);
- 			goto err_unmap;
- 		}
- 		index++;
+diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
+index 7b4c93619c3d..b62c7098fc8c 100644
+--- a/drivers/media/platform/coda/coda-bit.c
++++ b/drivers/media/platform/coda/coda-bit.c
+@@ -595,7 +595,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+ 		/* Only H.264BP and H.263P3 are considered */
+ 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w64);
+ 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w64);
+-		if (!iram_info->buf_dbk_c_use)
++		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
+ 			goto out;
+ 		iram_info->axi_sram_use |= dbk_bits;
+ 
+@@ -619,7 +619,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+ 
+ 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w128);
+ 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w128);
+-		if (!iram_info->buf_dbk_c_use)
++		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
+ 			goto out;
+ 		iram_info->axi_sram_use |= dbk_bits;
+ 
 -- 
 2.35.1
 
