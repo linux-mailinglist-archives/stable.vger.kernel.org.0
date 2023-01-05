@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20C0865EBC2
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA2265EBC5
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:02:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbjAENCY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:02:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51768 "EHLO
+        id S233840AbjAENCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:02:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233950AbjAENCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:02:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A32375AC5D
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:02:00 -0800 (PST)
+        with ESMTP id S233998AbjAENCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:02:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D76E559C6
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:02:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4066B619F3
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:02:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35BD4C433EF;
-        Thu,  5 Jan 2023 13:01:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C00661A11
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:02:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59405C433EF;
+        Thu,  5 Jan 2023 13:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923719;
-        bh=NX5joZA1eY+p2NLYLWl4AB/WsxfTdxwDQj+/cxHmxgQ=;
+        s=korg; t=1672923725;
+        bh=jpWgG7Yzec5WjkENwDZihEJpPFUosVadviWqRlbtCJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KnTABIUKWDeQaLtcIPDosPA2u11ovUs9r1sxGoZbEhy40/7D3DHL49GpZ6dwFmAfb
-         Va+7DnY8Hjbc82LE8aDAFiQGOAEuIKkvwPxz1Rc6mIHhnKmos1bLSVW584zzc+ByJh
-         4XjY7cVXdjKYyAWzNog9bHozJNv/MefY3NFv+Ovw=
+        b=BTA7CRIUfyOAMsFfEMZvwspLphsSzCGPK2062Hx08GjNVXhYgJH4KielxbAKSFaQ+
+         QmhtZwj7rf+gYJZKW+kGM3xu5NV/+do7Ev6wDl4taOkIZb6EihJoyij5gamyoKWZQV
+         yrXZWHpXCPoX9KIZtdPE6sED392MVOy1SbU2UUBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 111/251] Bluetooth: hci_h5: dont call kfree_skb() under spin_lock_irqsave()
-Date:   Thu,  5 Jan 2023 13:54:08 +0100
-Message-Id: <20230105125339.919459920@linuxfoundation.org>
+Subject: [PATCH 4.9 112/251] Bluetooth: hci_bcsp: dont call kfree_skb() under spin_lock_irqsave()
+Date:   Thu,  5 Jan 2023 13:54:09 +0100
+Message-Id: <20230105125339.959764738@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -55,33 +55,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 383630cc6758d619874c2e8bb2f68a61f3f9ef6e ]
+[ Upstream commit 7b503e339c1a80bf0051ec2d19c3bc777014ac61 ]
 
 It is not allowed to call kfree_skb() from hardware interrupt
 context or with interrupts being disabled. So replace kfree_skb()
 with dev_kfree_skb_irq() under spin_lock_irqsave().
 
-Fixes: 43eb12d78960 ("Bluetooth: Fix/implement Three-wire reliable packet sending")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_h5.c | 2 +-
+ drivers/bluetooth/hci_bcsp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
-index 0879d64b1caf..a947e3c0af18 100644
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -266,7 +266,7 @@ static void h5_pkt_cull(struct h5 *h5)
- 			break;
+diff --git a/drivers/bluetooth/hci_bcsp.c b/drivers/bluetooth/hci_bcsp.c
+index 26f9982bab26..2056d5c01afa 100644
+--- a/drivers/bluetooth/hci_bcsp.c
++++ b/drivers/bluetooth/hci_bcsp.c
+@@ -392,7 +392,7 @@ static void bcsp_pkt_cull(struct bcsp_struct *bcsp)
+ 		i++;
  
- 		__skb_unlink(skb, &h5->unack);
+ 		__skb_unlink(skb, &bcsp->unack);
 -		kfree_skb(skb);
 +		dev_kfree_skb_irq(skb);
  	}
  
- 	if (skb_queue_empty(&h5->unack))
+ 	if (skb_queue_empty(&bcsp->unack))
 -- 
 2.35.1
 
