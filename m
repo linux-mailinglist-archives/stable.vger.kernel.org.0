@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6FA65EC00
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A18165EBDC
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:04:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234005AbjAENFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:05:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54276 "EHLO
+        id S233947AbjAENDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:03:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234081AbjAENEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:04:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34AC5A8A3
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:04:51 -0800 (PST)
+        with ESMTP id S234141AbjAENDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:03:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7CCA5B17D
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:03:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A92F0B81AC2
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:04:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00529C433D2;
-        Thu,  5 Jan 2023 13:04:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B44CB81A3E
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:03:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEED8C433EF;
+        Thu,  5 Jan 2023 13:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923889;
-        bh=To9YenKa38xIfNW1ELFoZ9tAXRzPd8vtBpipHId5cDQ=;
+        s=korg; t=1672923790;
+        bh=dJWsbAVjVwzRa2W8nZ2508jk4BnxyulUQgFbPvT/dcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b32ZIZpJMYpB8wGqryUlQOKk1YUa26KJTPVQa/41BFsEvU4bpRRcZEDGqDJS3+NV/
-         ByfLfddpBJPJLDOMpd42+pp9iStpM2r0Zco0lcqjUeY+X2P8wbgESQmsmghfHu7e9D
-         +77dgGaSIfNRjANTdNj5WDEeRfhmNKTIV2n8VfRA=
+        b=azPrf/PMmHQHBX8JgOwsHQJNCo0JXD1rFFJVXfKD8VGaYNzIfIIZkeeRwU/ZydXuJ
+         APc+UZOgji1eh+0JCP1XfCWgmIXTI50TzgecE29/2f6TDmr5v5z5aen3GsJm/Myy7b
+         v429ZJpPdRoBWk6XsUMSMJcX1R21Nlz3e818qYGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dragos Tatulea <dtatulea@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 125/251] IB/IPoIB: Fix queue count inconsistency for PKEY child interfaces
-Date:   Thu,  5 Jan 2023 13:54:22 +0100
-Message-Id: <20230105125340.555205316@linuxfoundation.org>
+Subject: [PATCH 4.9 126/251] drivers: dio: fix possible memory leak in dio_init()
+Date:   Thu,  5 Jan 2023 13:54:23 +0100
+Message-Id: <20230105125340.601962732@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,59 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Tatulea <dtatulea@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit dbc94a0fb81771a38733c0e8f2ea8c4fa6934dc1 ]
+[ Upstream commit e63e99397b2613d50a5f4f02ed07307e67a190f1 ]
 
-There are 2 ways to create IPoIB PKEY child interfaces:
-1) Writing a PKEY to /sys/class/net/<ib parent interface>/create_child.
-2) Using netlink with iproute.
+If device_register() returns error, the 'dev' and name needs be
+freed. Add a release function, and then call put_device() in the
+error path, so the name is freed in kobject_cleanup() and to the
+'dev' is freed in release function.
 
-While with sysfs the child interface has the same number of tx and
-rx queues as the parent, with netlink there will always be 1 tx
-and 1 rx queue for the child interface. That's because the
-get_num_tx/rx_queues() netlink ops are missing and the default value
-of 1 is taken for the number of queues (in rtnl_create_link()).
-
-This change adds the get_num_tx/rx_queues() ops which allows for
-interfaces with multiple queues to be created over netlink. This
-constant only represents the max number of tx and rx queues on that
-net device.
-
-Fixes: 9baa0b036410 ("IB/ipoib: Add rtnl_link_ops support")
-Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-Link: https://lore.kernel.org/r/f4a42c8aa43c02d5ae5559a60c3e5e0f18c82531.1670485816.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: 2e4c77bea3d8 ("m68k: dio - Kill warn_unused_result warnings")
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109064036.1835346-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/ipoib/ipoib_netlink.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/dio/dio.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
-index cdc7df4fdb8a..20a6d1071014 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
-@@ -42,6 +42,11 @@ static const struct nla_policy ipoib_policy[IFLA_IPOIB_MAX + 1] = {
- 	[IFLA_IPOIB_UMCAST]	= { .type = NLA_U16 },
- };
+diff --git a/drivers/dio/dio.c b/drivers/dio/dio.c
+index 55dd88d82d6d..e85895fc258d 100644
+--- a/drivers/dio/dio.c
++++ b/drivers/dio/dio.c
+@@ -109,6 +109,12 @@ static char dio_no_name[] = { 0 };
  
-+static unsigned int ipoib_get_max_num_queues(void)
+ #endif /* CONFIG_DIO_CONSTANTS */
+ 
++static void dio_dev_release(struct device *dev)
 +{
-+	return min_t(unsigned int, num_possible_cpus(), 128);
++	struct dio_dev *ddev = container_of(dev, typeof(struct dio_dev), dev);
++	kfree(ddev);
 +}
 +
- static int ipoib_fill_info(struct sk_buff *skb, const struct net_device *dev)
+ int __init dio_find(int deviceid)
  {
- 	struct ipoib_dev_priv *priv = netdev_priv(dev);
-@@ -167,6 +172,8 @@ static struct rtnl_link_ops ipoib_link_ops __read_mostly = {
- 	.dellink	= ipoib_unregister_child_dev,
- 	.get_size	= ipoib_get_size,
- 	.fill_info	= ipoib_fill_info,
-+	.get_num_rx_queues = ipoib_get_max_num_queues,
-+	.get_num_tx_queues = ipoib_get_max_num_queues,
- };
- 
- int __init ipoib_netlink_init(void)
+ 	/* Called to find a DIO device before the full bus scan has run.
+@@ -234,6 +240,7 @@ static int __init dio_init(void)
+ 		dev->bus = &dio_bus;
+ 		dev->dev.parent = &dio_bus.dev;
+ 		dev->dev.bus = &dio_bus_type;
++		dev->dev.release = dio_dev_release;
+ 		dev->scode = scode;
+ 		dev->resource.start = pa;
+ 		dev->resource.end = pa + DIO_SIZE(scode, va);
+@@ -261,6 +268,7 @@ static int __init dio_init(void)
+ 		if (error) {
+ 			pr_err("DIO: Error registering device %s\n",
+ 			       dev->name);
++			put_device(&dev->dev);
+ 			continue;
+ 		}
+ 		error = dio_create_sysfs_dev_files(dev);
 -- 
 2.35.1
 
