@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E7E65EBE1
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:04:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81A6A65EBE4
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233965AbjAENDp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:03:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
+        id S233976AbjAENDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:03:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234211AbjAENDc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:03:32 -0500
+        with ESMTP id S234244AbjAENDf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:03:35 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 527D95833E
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:03:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD1BA5792E
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:03:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B48AB81ADD
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38DECC433EF;
-        Thu,  5 Jan 2023 13:03:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6716BB81ABD
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:03:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CE19C433D2;
+        Thu,  5 Jan 2023 13:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672923808;
-        bh=XqXfvpqXrVudpOobH3Su1Z+5x92agyN75s09Jo3wSG8=;
+        s=korg; t=1672923812;
+        bh=LTp6fvFAwZeP0/UabPzonG7VdBWlE5e6OsrQs0qC/Ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XiOArQVfxeVsc/2RiHEvuH3bWqPvOA2LbjCG7HY2W0b37xDt0bM6mTbPm459V4ogC
-         VFhzvjb9JfdT/qyO5X35vaDq04lfKl01ELsvIt7yV7D3g+sYW+JhG3VWnuzFR0+C2w
-         qHDInwoF40PD4uzApmKHZfy7M35ct0wvkucVyF5A=
+        b=V8zgmaVpnFsXURni55W7kxDne2qk0QKXOpuO7TeUtG0LbwUBGy6zppn89Lo2bokzY
+         3tFUKD4l1E3uPYk+k+4D0GuWErc2r9FqvUKHa0oOWx8VxbF1PvmzHoEKWwijyiQ08J
+         oy2K1JtnE6FCjqwmi2+9Pe76PKxgg1Lp1rE4SMyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Thumshirn <jth@kernel.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 140/251] mcb: mcb-parse: fix error handing in chameleon_parse_gdd()
-Date:   Thu,  5 Jan 2023 13:54:37 +0100
-Message-Id: <20230105125341.249021068@linuxfoundation.org>
+Subject: [PATCH 4.9 141/251] chardev: fix error handling in cdev_device_add()
+Date:   Thu,  5 Jan 2023 13:54:38 +0100
+Message-Id: <20230105125341.299376896@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -55,36 +54,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 728ac3389296caf68638628c987aeae6c8851e2d ]
+[ Upstream commit 11fa7fefe3d8fac7da56bc9aa3dd5fb3081ca797 ]
 
-If mcb_device_register() returns error in chameleon_parse_gdd(), the refcount
-of bus and device name are leaked. Fix this by calling put_device() to give up
-the reference, so they can be released in mcb_release_dev() and kobject_cleanup().
+While doing fault injection test, I got the following report:
 
-Fixes: 3764e82e5150 ("drivers: Introduce MEN Chameleon Bus")
-Reviewed-by: Johannes Thumshirn <jth@kernel.org>
+------------[ cut here ]------------
+kobject: '(null)' (0000000039956980): is not initialized, yet kobject_put() is being called.
+WARNING: CPU: 3 PID: 6306 at kobject_put+0x23d/0x4e0
+CPU: 3 PID: 6306 Comm: 283 Tainted: G        W          6.1.0-rc2-00005-g307c1086d7c9 #1253
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:kobject_put+0x23d/0x4e0
+Call Trace:
+ <TASK>
+ cdev_device_add+0x15e/0x1b0
+ __iio_device_register+0x13b4/0x1af0 [industrialio]
+ __devm_iio_device_register+0x22/0x90 [industrialio]
+ max517_probe+0x3d8/0x6b4 [max517]
+ i2c_device_probe+0xa81/0xc00
+
+When device_add() is injected fault and returns error, if dev->devt is not set,
+cdev_add() is not called, cdev_del() is not needed. Fix this by checking dev->devt
+in error path.
+
+Fixes: 233ed09d7fda ("chardev: add helper function to register char devs with a struct device")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Link: https://lore.kernel.org/r/ebfb06e39b19272f0197fa9136b5e4b6f34ad732.1669624063.git.johannes.thumshirn@wdc.com
+Link: https://lore.kernel.org/r/20221202030237.520280-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mcb/mcb-parse.c | 2 +-
+ fs/char_dev.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mcb/mcb-parse.c b/drivers/mcb/mcb-parse.c
-index 4ca2739b4fad..fdc35341ff6c 100644
---- a/drivers/mcb/mcb-parse.c
-+++ b/drivers/mcb/mcb-parse.c
-@@ -107,7 +107,7 @@ static int chameleon_parse_gdd(struct mcb_bus *bus,
- 	return 0;
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index 1bbb966c0783..9f79fd345e79 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -528,7 +528,7 @@ int cdev_device_add(struct cdev *cdev, struct device *dev)
+ 	}
  
- err:
--	mcb_free_dev(mdev);
-+	put_device(&mdev->dev);
+ 	rc = device_add(dev);
+-	if (rc)
++	if (rc && dev->devt)
+ 		cdev_del(cdev);
  
- 	return ret;
- }
+ 	return rc;
 -- 
 2.35.1
 
