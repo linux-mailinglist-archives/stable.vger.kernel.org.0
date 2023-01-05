@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F89E65EC62
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:09:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE4B65EC63
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:09:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234162AbjAENJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 08:09:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56772 "EHLO
+        id S232122AbjAENJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 08:09:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234165AbjAENIq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:08:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA1A41D57
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:08:26 -0800 (PST)
+        with ESMTP id S234263AbjAENIy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:08:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18EE844C52
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:08:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E762F619F7
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:08:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D4AC433EF;
-        Thu,  5 Jan 2023 13:08:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5E72B81A84
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:08:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00005C433EF;
+        Thu,  5 Jan 2023 13:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672924105;
-        bh=mmZ706Q0KrnSn7MWQeX1U+ORMNh1hu+YoDf5F4gdlnk=;
+        s=korg; t=1672924108;
+        bh=gHjyYtXYek86mHpkNSUtHU0b3ffoTrbKviHqTLPfVK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/+z/+fEt7Nq4hUZh70fAIk7xM+NcMF5e4pUler+hz1NTqM1eax3z1WTXK32xPyaY
-         KHpgDTi+MSdSR266sqXNuwX7LrZsMPe1MbzHQtGx2fLrI9c+Qc/sBuWRa1Dgu9XJ09
-         DMKnIhYJ5WFSHYwsFooqliGHvMg2uKjRMhSRO8fU=
+        b=MgDSwqS4FvFnlsJaxVsWbaNZFJp9PpyPiPDyHEC3MYqUZwQbmbAWkb8CbqjwecThP
+         kiQIaEJUZV1rRwRFy9YIVwLqa3ToLzSjfdnFc8qaJsfrxGSK1xAJGRmK5w4NfKxVls
+         o8ZpLYJ7N+adinLzlHbKzG/B+PhsKYuscKJCW9vE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenwen Wang <wenwen@cs.uga.edu>,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.9 236/251] media: dvb-core: Fix double free in dvb_register_device()
-Date:   Thu,  5 Jan 2023 13:56:13 +0100
-Message-Id: <20230105125345.682014954@linuxfoundation.org>
+        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.9 237/251] cifs: fix confusing debug message
+Date:   Thu,  5 Jan 2023 13:56:14 +0100
+Message-Id: <20230105125345.722324012@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,42 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit 6b0d0477fce747d4137aa65856318b55fba72198 upstream.
+commit a85ceafd41927e41a4103d228a993df7edd8823b upstream.
 
-In function dvb_register_device() -> dvb_register_media_device() ->
-dvb_create_media_entity(), dvb->entity is allocated and initialized. If
-the initialization fails, it frees the dvb->entity, and return an error
-code. The caller takes the error code and handles the error by calling
-dvb_media_device_free(), which unregisters the entity and frees the
-field again if it is not NULL. As dvb->entity may not NULLed in
-dvb_create_media_entity() when the allocation of dvbdev->pad fails, a
-double free may occur. This may also cause an Use After free in
-media_device_unregister_entity().
+Since rc was initialised to -ENOMEM in cifs_get_smb_ses(), when an
+existing smb session was found, free_xid() would be called and then
+print
 
-Fix this by storing NULL to dvb->entity when it is freed.
+  CIFS: fs/cifs/connect.c: Existing tcp session with server found
+  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 44 with uid: 0
+  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
+  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 44) rc = -12
 
-Link: https://lore.kernel.org/linux-media/20220426052921.2088416-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Fixes: fcd5ce4b3936 ("media: dvb-core: fix a memory leak bug")
+Fix this by initialising rc to 0 and then let free_xid() print this
+instead
+
+  CIFS: fs/cifs/connect.c: Existing tcp session with server found
+  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 14 with uid: 0
+  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
+  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 14) rc = 0
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Cc: stable@vger.kernel.org
-Cc: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dvbdev.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/connect.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -317,6 +317,7 @@ static int dvb_create_media_entity(struc
- 				       GFP_KERNEL);
- 		if (!dvbdev->pads) {
- 			kfree(dvbdev->entity);
-+			dvbdev->entity = NULL;
- 			return -ENOMEM;
- 		}
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2599,7 +2599,7 @@ cifs_set_cifscreds(struct smb_vol *vol _
+ static struct cifs_ses *
+ cifs_get_smb_ses(struct TCP_Server_Info *server, struct smb_vol *volume_info)
+ {
+-	int rc = -ENOMEM;
++	int rc = 0;
+ 	unsigned int xid;
+ 	struct cifs_ses *ses;
+ 	struct sockaddr_in *addr = (struct sockaddr_in *)&server->dstaddr;
+@@ -2641,6 +2641,8 @@ cifs_get_smb_ses(struct TCP_Server_Info
+ 		return ses;
  	}
+ 
++	rc = -ENOMEM;
++
+ 	cifs_dbg(FYI, "Existing smb sess not found\n");
+ 	ses = sesInfoAlloc();
+ 	if (ses == NULL)
 
 
