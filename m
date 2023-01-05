@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6477A65EA32
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 12:50:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 372AF65EA34
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 12:50:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232824AbjAELtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 06:49:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41202 "EHLO
+        id S232798AbjAELux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 06:50:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232787AbjAELth (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 06:49:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76B8A3056F
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 03:49:36 -0800 (PST)
+        with ESMTP id S232489AbjAELut (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 06:50:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6483732EA6
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 03:50:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 289C2B819BC
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 11:49:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 922DCC433EF;
-        Thu,  5 Jan 2023 11:49:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C062B81AB7
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 11:50:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F7C9C433EF;
+        Thu,  5 Jan 2023 11:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672919373;
-        bh=ReRb5rRfkG0W5qU/URunlcYMQ+6LCsuNJ1tMpIrDTFQ=;
+        s=korg; t=1672919445;
+        bh=9fOpU/v07ryFsz4CpBnPO4r0PZE5llczH03XZuW6etQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yZmO8clKXNDXV6E+QB3RmUYb1+T75n2d+9GabRIIIc0fGIH11asUNR87m1qA3krGg
-         4cmh9VKMnExyQLNruCBD3U+MY2Of4WHZ8+UQvABYz+/A2cdrJIJaJMtKinV4rEs7DG
-         uk2fRuEJNOt58AAQVeSGx9oNrdJeaBDZ/wuNv3pU=
-Date:   Thu, 5 Jan 2023 12:49:30 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] block: mq-deadline: Fix dd_finish_request() for zoned
- devices
-Message-ID: <Y7a5SuwQZMB+Q+mr@kroah.com>
-References: <167284210313124@kroah.com>
- <20230105040756.579794-1-damien.lemoal@opensource.wdc.com>
+        b=uWLPlQosEpiNN1aJ5i5y+yDDP1v+kEqSpks6Ea1cPMk/tsNavMN6sLiqqIcsKFDMy
+         7DR3I8ilmWPixrb6vtE0vqZCdgaWbE/LBo40/Q6H6WljlqFrjKL/FGQrThVtQmeyiz
+         qlZ2XrK3YE2PeJfl+gYVSx5YD1JfAAex3fm1M+zA=
+Date:   Thu, 5 Jan 2023 12:50:40 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Zheng Yejian <zhengyejian1@huawei.com>
+Cc:     mhiramat@kernel.org, rostedt@goodmis.org, stable@vger.kernel.org,
+        zanussi@kernel.org
+Subject: Re: [PATCH 5.15] tracing: Fix issue of missing one synthetic field
+Message-ID: <Y7a5kA9o/wrYrX2Y@kroah.com>
+References: <16728414332518@kroah.com>
+ <20230105035452.3092172-1-zhengyejian1@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230105040756.579794-1-damien.lemoal@opensource.wdc.com>
+In-Reply-To: <20230105035452.3092172-1-zhengyejian1@huawei.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -50,38 +50,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 05, 2023 at 01:07:56PM +0900, Damien Le Moal wrote:
-> commit 2820e5d0820ac4daedff1272616a53d9c7682fd2 upstream.
+On Thu, Jan 05, 2023 at 11:54:52AM +0800, Zheng Yejian wrote:
+> [ Upstream commit ff4837f7fe59ff018eca4705a70eca5e0b486b97 ]
 > 
-> dd_finish_request() tests if the per prio fifo_list is not empty to
-> determine if request dispatching must be restarted for handling blocked
-> write requests to zoned devices with a call to
-> blk_mq_sched_mark_restart_hctx(). While simple, this implementation has
-> 2 problems:
+> The maximum number of synthetic fields supported is defined as
+> SYNTH_FIELDS_MAX which value currently is 64, but it actually fails
+> when try to generate a synthetic event with 64 fields by executing like:
 > 
-> 1) Only the priority level of the completed request is considered.
->    However, writes to a zone may be blocked due to other writes to the
->    same zone using a different priority level. While this is unlikely to
->    happen in practice, as writing a zone with different IO priorirites
->    does not make sense, nothing in the code prevents this from
->    happening.
-> 2) The use of list_empty() is dangerous as dd_finish_request() does not
->    take dd->lock and may run concurrently with the insert and dispatch
->    code.
+>   # echo "my_synth_event int v1; int v2; int v3; int v4; int v5; int v6;\
+>    int v7; int v8; int v9; int v10; int v11; int v12; int v13; int v14;\
+>    int v15; int v16; int v17; int v18; int v19; int v20; int v21; int v22;\
+>    int v23; int v24; int v25; int v26; int v27; int v28; int v29; int v30;\
+>    int v31; int v32; int v33; int v34; int v35; int v36; int v37; int v38;\
+>    int v39; int v40; int v41; int v42; int v43; int v44; int v45; int v46;\
+>    int v47; int v48; int v49; int v50; int v51; int v52; int v53; int v54;\
+>    int v55; int v56; int v57; int v58; int v59; int v60; int v61; int v62;\
+>    int v63; int v64" >> /sys/kernel/tracing/synthetic_events
 > 
-> Fix these 2 problems by testing the write fifo list of all priority
-> levels using the new helper dd_has_write_work(), and by testing each
-> fifo list using list_empty_careful().
+> Correct the field counting to fix it.
 > 
-> Fixes: c807ab520fc3 ("block/mq-deadline: Add I/O priority support")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-> Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-> Link: https://lore.kernel.org/r/20221124021208.242541-2-damien.lemoal@opensource.wdc.com
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> Link: https://lore.kernel.org/linux-trace-kernel/20221207091557.3137904-1-zhengyejian1@huawei.com
+> 
+> Cc: <mhiramat@kernel.org>
+> Cc: <zanussi@kernel.org>
+> Cc: stable@vger.kernel.org
+> Fixes: c9e759b1e845 ("tracing: Rework synthetic event command parsing")
+> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+> [Fix conflict due to lack of c24be24aed405d64ebcf04526614c13b2adfb1d2]
+> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
 > ---
->  block/mq-deadline.c | 18 +++++++++++++++---
->  1 file changed, 15 insertions(+), 3 deletions(-)
+>  kernel/trace/trace_events_synth.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
 Now queued up, thanks.
 
