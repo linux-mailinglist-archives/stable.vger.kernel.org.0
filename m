@@ -2,93 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4551B65EEEF
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 15:39:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02B8765EF08
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 15:43:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231710AbjAEOjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 09:39:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43254 "EHLO
+        id S233217AbjAEOnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 09:43:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233616AbjAEOjT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 09:39:19 -0500
-Received: from mail-vk1-xa2b.google.com (mail-vk1-xa2b.google.com [IPv6:2607:f8b0:4864:20::a2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3952B5AC72
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 06:39:17 -0800 (PST)
-Received: by mail-vk1-xa2b.google.com with SMTP id g65so14804726vkh.8
-        for <stable@vger.kernel.org>; Thu, 05 Jan 2023 06:39:17 -0800 (PST)
+        with ESMTP id S233408AbjAEOna (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 09:43:30 -0500
+Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C15CB1B9FC
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 06:43:28 -0800 (PST)
+Received: by mail-oi1-x233.google.com with SMTP id i127so32142212oif.8
+        for <stable@vger.kernel.org>; Thu, 05 Jan 2023 06:43:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:sender
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=0rY1eDR+swkJnqeQc/36sKH3QI7hy9HmzwzoY2fgaZc=;
-        b=FS4UgxEvqH5LK9EU28qAjXrcpj3LDyniHhvdU+cRzXg2+2JyeCOfVtqsYvMkRDf2HI
-         40xl+0Ov/RqAFRGPJPO3WtngjjiIcPwchX3N6z4u53EzVHqjrU5B1DXrPi0WCKTha/cZ
-         QYe2J4dElPKq+95FYH9l++PTs1E6wsqDMGtspSlvvW6lBZoxgn+PfHNvd7Gh4B+CmtkW
-         ymcRYTqBRaMXS6iDD1YTVB8DV24WAf607F8+HID39TNvEiGAAM6f3G5+KCWrjt1+gcpu
-         UR/Sv3g7DH5RkFvusW4LwxPg/JeUOr8UG3Kz8pDKvBYc9FTwUeeNSeqft0uD0cogWq0m
-         GhRA==
+        d=linuxtx.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=EdNIzr6K79WGrUyV+pZ/Ft7qJJmll5v3NGysEKK7sJ4=;
+        b=hV/gs6uGEhp2/BqwXHHWgvEpjroUzlbH5ZC972vJ/UcAIGkZD8KViT/iwG7m9ZfKVL
+         4p9k5lNOY3ZDmRf517hnQLx9WH5EIK2P2gDAOBbbOlFc04N54f2ZwtvGyUfWfQUcuyUc
+         lMnhJ/6husUN8ZqIPXO5e6DdPwmB40nz/jetw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:sender
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0rY1eDR+swkJnqeQc/36sKH3QI7hy9HmzwzoY2fgaZc=;
-        b=pzajLsJ2yJ97lNfugyN65jVBGXbTQBRMHoE7OIs15NSMAnJ3ilVeayqv7vvOQs291d
-         IFeMNjv/Y9N/EMM/gdIwfhPbJxYdyqckkb/uvrc91f9rzVKRB4Rkaqt45RRl10Vi6e21
-         bG3hRcddo5KNZhF7s/eCsAFu3i+YGPgst6bHfkDepI7Pb2ZcxHGw4vY+iUP+S5mo+blX
-         285QyL/B7NHh8FcU67t+LZAOoq8P1prStsruN6bs7va4z+hVGE6+RhmzzEJFv8ygnaFY
-         5ocb4kY0kRva8R5vuPBkFNybKb8W55VWU/7Ul0A9KAtG6SCnLGKVFZeK/edsvPAgrTx0
-         uTrQ==
-X-Gm-Message-State: AFqh2kp2YVF82vUEo/pC734zY2dn3tIMgBjr7jy8oHNI6XrodvhT1w5U
-        0jW1Y5fv4DDIw/Yqbd56B5YNZs7V2PJt8Mm4RzI=
-X-Google-Smtp-Source: AMrXdXv7wV2+Q1HQz2m952UWP9IB3fyAop6qLJHq0kVz1NbCytC3au3x9kbtyCmOMHFfpqOkxWll+NMPz4itIl+mZ3o=
-X-Received: by 2002:a1f:2dd6:0:b0:3b7:65cc:8ebc with SMTP id
- t205-20020a1f2dd6000000b003b765cc8ebcmr5453274vkt.5.1672929555448; Thu, 05
- Jan 2023 06:39:15 -0800 (PST)
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EdNIzr6K79WGrUyV+pZ/Ft7qJJmll5v3NGysEKK7sJ4=;
+        b=EwWt7iJtlMxNcgSEDIfQ4Q0bgXin/0xtiUJO4lS4E8R3/aVuZm+jVEF2omOIlLhwjo
+         HESEngiGXUuzLROZsb5ocuhPQgivfSTt/rT3pEYMqOsQ5ZDl5UR7PHAAwu8h6F61hcTV
+         0xpsXlgiOLImpQ6XGDmgDRAPlWhbABLpzlH8qnr7UlCVMRXsuOVi0ncZTWrcvXlQuF5A
+         3/VvGs3Zq1oYJPpk/HiRga98v2Tl+6UMAGPUd94oTShKDMpS/1VRkKhwxUlgwUKLNw1E
+         7kBoq1F4rG80Jk1FePLkw8xolawRsEocYyGdWMt/FPtNXQ4Sae4TCZYQGAON3anu3yTs
+         mzHQ==
+X-Gm-Message-State: AFqh2kpb6sTiuzhj+eg2Wic7zcuhu1cvS6xsRCPO8GutjSeimOC5LTCU
+        9MLRGJcpFUgi/uUTZSwccA5SLg==
+X-Google-Smtp-Source: AMrXdXs6IuHALNc2iJnYamsaDTWMfvdsNhCSKvmYJvtEl5OJreiggIYBSep+IOTVbeYybTh5KI2NKw==
+X-Received: by 2002:a05:6808:309a:b0:363:aeff:9969 with SMTP id bl26-20020a056808309a00b00363aeff9969mr10397466oib.13.1672929808065;
+        Thu, 05 Jan 2023 06:43:28 -0800 (PST)
+Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id n67-20020acabd46000000b0035b451d80afsm15375146oif.58.2023.01.05.06.43.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Jan 2023 06:43:27 -0800 (PST)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Thu, 5 Jan 2023 08:43:25 -0600
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/207] 6.1.4-rc1 review
+Message-ID: <Y7biDVBJ9ZR8BSfk@fedora64.linuxtx.org>
+References: <20230104160511.905925875@linuxfoundation.org>
 MIME-Version: 1.0
-Sender: imffundmoney@gmail.com
-Received: by 2002:a59:8e11:0:b0:32c:9332:3bfc with HTTP; Thu, 5 Jan 2023
- 06:39:14 -0800 (PST)
-From:   "MRS. ANGELA LARSSON" <mrs.angelalarsson@gmail.com>
-Date:   Thu, 5 Jan 2023 06:39:14 -0800
-X-Google-Sender-Auth: lCsDcMijsuudp7rEVPAi-_3y4_8
-Message-ID: <CAGjbKPWKKGqfi8VitWRzcUhkAg6Ryb4+NywVWU6Jd3U5pCkQ_w@mail.gmail.com>
-Subject: Espero recibir tu respuesta.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=2.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,LOTS_OF_MONEY,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        UNDISC_MONEY autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: **
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230104160511.905925875@linuxfoundation.org>
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Saludo de la Sra. Angela Larsson,
-Mi amado, Dios me ha tocado entregarte este dinero considerando mi
-=C3=BAltimo deseo, y tambi=C3=A9n debes saber que mi contacto contigo es po=
-r
-gracia especial de Dios, por favor, comprende que no me est=C3=A1s ayudando
-a m=C3=AD, sino que est=C3=A1s trabajando para Dios. creador del cielo y de=
- la
-tierra. Y de nuevo viuda sufriendo de una larga enfermedad.
-Actualmente estoy ingresado en un hospital de ligustro en el pa=C3=ADs,
-tengo algunos fondos que hered=C3=A9 de mi difunto y amado esposo, el Sr.
-Larsson Wisdom, la suma de ($ 5,500,000.00USD) que deposit=C3=B3 en el
-banco aqu=C3=AD y necesito un muy honesto y temeroso de Dios cristiano que
-puede usar estos fondos para la obra de Dios. Quiero que t=C3=BA y la
-iglesia siempre oren por m=C3=AD porque el se=C3=B1or es mi pastor. Mi feli=
-cidad
-es que viv=C3=AD una vida de cristiano digno y quien quiera servir al Se=C3=
-=B1or
-debe servirlo en esp=C3=ADritu y Verdad.
-Por favor, si pudiera utilizar estos fondos para la obra del Se=C3=B1or,
-tenga la amabilidad de responderme. No olvide orar siempre por m=C3=AD
-porque toda mi esperanza de sobrevivir est=C3=A1 en Dios, el creador, que
-tiene la muerte y la vida.
-Espero recibir tu respuesta.
-Sra. =C3=81ngela Larsson.
+On Wed, Jan 04, 2023 at 05:04:18PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.4 release.
+> There are 207 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 06 Jan 2023 16:04:29 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.4-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
+
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
