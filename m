@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C65165EC3E
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:07:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5344065EC40
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 14:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234132AbjAENHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234151AbjAENHm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 5 Jan 2023 08:07:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56852 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234067AbjAENHK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:07:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3FE44C52
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:07:08 -0800 (PST)
+        with ESMTP id S234239AbjAENHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 08:07:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4FA45AC72
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 05:07:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB7F9619F3
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:07:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F2DC433EF;
-        Thu,  5 Jan 2023 13:07:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C3D661A2A
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 13:07:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 019EEC433D2;
+        Thu,  5 Jan 2023 13:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672924027;
-        bh=XBHSr8rNkScvVhoneTba6U5GFKa24L9oWjWIUDEtzow=;
+        s=korg; t=1672924030;
+        bh=C7C5Ik7Hf2wbOGLRgyTRdxYtnixTmXGm6fvWKsrm3tA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aCkt+8NMX8Qqmutw5jud+9PW4AhaYtgztqa5i6rbPyoB8+lxfAmydxmT3BqXlfzwO
-         xp7Xmuz8WJxyKxvaTALfX0NTSvYhlBbYLyT64zVMX7czduoXHeekLBaYEeFPZ+1hkb
-         FC1t3ca9iTeaMtRdeYZEEKMwTkyx8AzL4rDwSwq8=
+        b=Le+RntPSTZe0vqZ15LHOcjT/6UMk7Qt/pNVzWe27aMXPmzqNNyaONMk5Am5fl90JD
+         V2Fx5HlosTu0VtJ5Q/7DmOsznT0v3d/rzhMKGpjn8IZ1wyFjiVPAHO6irIJ9X9eJRB
+         8R9b6G50xiwpMq6CMxR1LxKR7n1NXRBG0R58waA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        patches@lists.linux.dev,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 210/251] ASoC: mediatek: mt8173-rt5650-rt5514: fix refcount leak in mt8173_rt5650_rt5514_dev_probe()
-Date:   Thu,  5 Jan 2023 13:55:47 +0100
-Message-Id: <20230105125344.472195382@linuxfoundation.org>
+Subject: [PATCH 4.9 211/251] ASoC: wm8994: Fix potential deadlock
+Date:   Thu,  5 Jan 2023 13:55:48 +0100
+Message-Id: <20230105125344.520431406@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
 References: <20230105125334.727282894@linuxfoundation.org>
@@ -53,54 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 3327d721114c109ba0575f86f8fda3b525404054 ]
+[ Upstream commit 9529dc167ffcdfd201b9f0eda71015f174095f7e ]
 
-The node returned by of_parse_phandle() with refcount incremented,
-of_node_put() needs be called when finish using it. So add it in the
-error path in mt8173_rt5650_rt5514_dev_probe().
+Fix this by dropping wm8994->accdet_lock while calling
+cancel_delayed_work_sync(&wm8994->mic_work) in wm1811_jackdet_irq().
 
-Fixes: 0d1d7a664288 ("ASoC: mediatek: Refine mt8173 driver and change config option")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/1670234664-24246-1-git-send-email-wangyufen@huawei.com
+Fixes: c0cc3f166525 ("ASoC: wm8994: Allow a delay between jack insertion and microphone detect")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221209091657.1183-1-m.szyprowski@samsung.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wm8994.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-index 52fdd766ee82..8fbc59199d58 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-@@ -209,14 +209,16 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
- 	if (!mt8173_rt5650_rt5514_codecs[0].of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out;
- 	}
- 	mt8173_rt5650_rt5514_codecs[1].of_node =
- 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
- 	if (!mt8173_rt5650_rt5514_codecs[1].of_node) {
- 		dev_err(&pdev->dev,
- 			"Property 'audio-codec' missing or invalid\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out;
- 	}
- 	mt8173_rt5650_rt5514_codec_conf[0].of_node =
- 		mt8173_rt5650_rt5514_codecs[1].of_node;
-@@ -229,6 +231,7 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
+diff --git a/sound/soc/codecs/wm8994.c b/sound/soc/codecs/wm8994.c
+index f289762cd676..1feeeed4bfb2 100644
+--- a/sound/soc/codecs/wm8994.c
++++ b/sound/soc/codecs/wm8994.c
+@@ -3704,7 +3704,12 @@ static irqreturn_t wm1811_jackdet_irq(int irq, void *data)
+ 	} else {
+ 		dev_dbg(codec->dev, "Jack not detected\n");
  
-+out:
- 	of_node_put(platform_node);
- 	return ret;
- }
++		/* Release wm8994->accdet_lock to avoid deadlock:
++		 * cancel_delayed_work_sync() takes wm8994->mic_work internal
++		 * lock and wm1811_mic_work takes wm8994->accdet_lock */
++		mutex_unlock(&wm8994->accdet_lock);
+ 		cancel_delayed_work_sync(&wm8994->mic_work);
++		mutex_lock(&wm8994->accdet_lock);
+ 
+ 		snd_soc_update_bits(codec, WM8958_MICBIAS2,
+ 				    WM8958_MICB2_DISCH, WM8958_MICB2_DISCH);
 -- 
 2.35.1
 
