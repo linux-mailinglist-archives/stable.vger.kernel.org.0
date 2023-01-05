@@ -2,124 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB0565E65C
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 09:01:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F84865E6DA
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 09:29:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229838AbjAEIBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 03:01:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48178 "EHLO
+        id S229810AbjAEI3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 03:29:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229527AbjAEIBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 03:01:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6D32101C8;
-        Thu,  5 Jan 2023 00:01:34 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BB9D6190B;
-        Thu,  5 Jan 2023 08:01:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 642C0C433D2;
-        Thu,  5 Jan 2023 08:01:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672905693;
-        bh=LVyg+cyK1Nc4wdQGz1UH28N+2JKAjcGMMQTRSam2CZc=;
+        with ESMTP id S231841AbjAEI2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 03:28:50 -0500
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6D0BD5004A
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 00:28:13 -0800 (PST)
+Received: by linux.microsoft.com (Postfix, from userid 1112)
+        id 3268E20B8762; Thu,  5 Jan 2023 00:28:13 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3268E20B8762
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1672907293;
+        bh=ggfGt5HSdHVbU+RSt8RUnBV2GrCM1AJSa+2kl0SrK5M=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RdxU6w79YsogRTknVUR0WvT/1ZXI3HgeJ9+xsx/kuqWWYbqR13bKZ/aFCwdMi4hW+
-         bosdR/Envtwv+qzgqmbsrCdoL1KI9WFwXKutMu9JO0rQz+VA9R9a9KqV+UOV9SROjv
-         YaA1ytlYVWQwpCSjgvFjjQnIBXP9DqRHyB2xyWwk=
-Date:   Thu, 5 Jan 2023 09:01:31 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dragos-Marian Panait <dragos.panait@windriver.com>
-Cc:     Alex Deucher <alexdeucher@gmail.com>,
-        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-        Oded Gabbay <oded.gabbay@gmail.com>,
-        David Zhou <David1.Zhou@amd.com>,
-        amd-gfx@lists.freedesktop.org, David Airlie <airlied@linux.ie>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: Re: [PATCH 4.19 1/1] drm/amdkfd: Check for null pointer after
- calling kmemdup
-Message-ID: <Y7aD2zJq6jBWUxbO@kroah.com>
-References: <20230103184308.511448-1-dragos.panait@windriver.com>
- <20230103184308.511448-2-dragos.panait@windriver.com>
- <Y7Vz8mm0X+1h844b@kroah.com>
- <a8c6859f-5876-08cf-5949-ecf88e6bb528@amd.com>
- <CADnq5_Ons+yMyGxcSaFaOb5uNXooHgH_4N=ThHOGYaW9Pb_Q8A@mail.gmail.com>
- <Y7WRq7MaFaIJ2uGF@kroah.com>
- <7c0cb998-d714-235e-8c2b-efe0315eed7f@windriver.com>
+        b=rGBPkc1GeaqG59hb0+EgUYZD8/4HiPmyQqjhIWalCO2dnTu2meVrMG+NwfGrPYvdt
+         aKXuxEH6q/uKVvS3ftwxu6XIU8D7adgdNTiLxOhuaTm6unirhPwCxfZjmVU/NVEIgK
+         VjrXQkMToMsiugrwOEkwfMFazOtAPABhfyHcsjkw=
+Date:   Thu, 5 Jan 2023 00:28:13 -0800
+From:   Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+To:     jack@suse.cz
+Cc:     gregkh@linuxfoundation.org, adilger@dilger.ca,
+        t-lo@linux.microsoft.com, tytso@mit.edu, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] ext4: fix deadlock due to mbcache entry
+ corruption" failed to apply to 5.15-stable tree
+Message-ID: <20230105082813.GA3530@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+References: <1672844851195248@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <7c0cb998-d714-235e-8c2b-efe0315eed7f@windriver.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <1672844851195248@kroah.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 04, 2023 at 08:05:57PM +0200, Dragos-Marian Panait wrote:
+On Wed, Jan 04, 2023 at 04:07:31PM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> On 04.01.2023 16:48, Greg KH wrote:
-> > On Wed, Jan 04, 2023 at 09:35:03AM -0500, Alex Deucher wrote:
-> > > On Wed, Jan 4, 2023 at 8:23 AM Christian König <christian.koenig@amd.com> wrote:
-> > > > Am 04.01.23 um 13:41 schrieb Greg KH:
-> > > > > On Tue, Jan 03, 2023 at 08:43:08PM +0200, Dragos-Marian Panait wrote:
-> > > > > > From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-> > > > > > 
-> > > > > > [ Upstream commit abfaf0eee97925905e742aa3b0b72e04a918fa9e ]
-> > > > > > 
-> > > > > > As the possible failure of the allocation, kmemdup() may return NULL
-> > > > > > pointer.
-> > > > > > Therefore, it should be better to check the 'props2' in order to prevent
-> > > > > > the dereference of NULL pointer.
-> > > > > > 
-> > > > > > Fixes: 3a87177eb141 ("drm/amdkfd: Add topology support for dGPUs")
-> > > > > > Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-> > > > > > Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> > > > > > Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> > > > > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> > > > > > Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
-> > > > > > ---
-> > > > > >    drivers/gpu/drm/amd/amdkfd/kfd_crat.c | 3 +++
-> > > > > >    1 file changed, 3 insertions(+)
-> > > > > For obvious reasons, I can't take a patch for 4.19.y and not newer
-> > > > > kernel releases, right?
-> > > > > 
-> > > > > Please provide backports for all kernels if you really need to see this
-> > > > > merged.  And note, it's not a real bug at all, and given that a CVE was
-> > > > > allocated for it that makes me want to even more reject it to show the
-> > > > > whole folly of that mess.
-> > > > Well as far as I can see this is nonsense to back port.
-> > > > 
-> > > > The code in question is only used only once during driver load and then
-> > > > never again, that exactly this allocation fails while tons of other are
-> > > > made before and after is extremely unlikely.
-> > > > 
-> > > > It's nice to have it fixed in newer kernels, but not worth a backport
-> > > > and certainly not stuff for a CVE.
-> > > It's already fixed in Linus' tree:
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=abfaf0eee97925905e742aa3b0b72e04a918fa9e
-> > Yes, that's what the above commit shows...
-> > 
-> > confused,
-> > 
-> > greg k-h
-> Just for completeness, I also sent out patches for 5.4 and 5.10 stable
-> branches.
-> 5.15 stable branch already has this change: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.15.y&id=5609b7803947eea1711516dd8659c7ed39f5a868
+> The patch below does not apply to the 5.15-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> Possible dependencies:
+> 
+> a44e84a9b776 ("ext4: fix deadlock due to mbcache entry corruption")
+> 307af6c87937 ("mbcache: automatically delete entries from cache on freeing")
+> 65f8b80053a1 ("ext4: fix race when reusing xattr blocks")
+> fd48e9acdf26 ("ext4: unindent codeblock in ext4_xattr_block_set()")
+> 6bc0d63dad7f ("ext4: remove EA inode entry from mbcache on inode eviction")
+> 3dc96bba65f5 ("mbcache: add functions to delete entry if unused")
+> 58318914186c ("mbcache: don't reclaim used entries")
+> 4efd9f0d120c ("ext4: use kmemdup() to replace kmalloc + memcpy")
+> 
 
-Again, this is not a real bug and someone needs to go and invalidate
-that CVE so you don't have to worry about it anymore.  I suggest that
-you do that if your company cares about tracking CVEs.
+Hi Jan,
 
-thanks,
+What do you think of the backport I shared here:
+https://lore.kernel.org/linux-ext4/20221122174807.GA9658@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net/
 
-greg k-h
+Or do you think it makes more sense to backport some of the other patches listed above?
+
+Bests,
+Jeremi
+
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> >From a44e84a9b7764c72896f7241a0ec9ac7e7ef38dd Mon Sep 17 00:00:00 2001
+> From: Jan Kara <jack@suse.cz>
+> Date: Wed, 23 Nov 2022 20:39:50 +0100
+> Subject: [PATCH] ext4: fix deadlock due to mbcache entry corruption
+> 
+> When manipulating xattr blocks, we can deadlock infinitely looping
+> inside ext4_xattr_block_set() where we constantly keep finding xattr
+> block for reuse in mbcache but we are unable to reuse it because its
+> reference count is too big. This happens because cache entry for the
+> xattr block is marked as reusable (e_reusable set) although its
+> reference count is too big. When this inconsistency happens, this
+> inconsistent state is kept indefinitely and so ext4_xattr_block_set()
+> keeps retrying indefinitely.
+> 
+> The inconsistent state is caused by non-atomic update of e_reusable bit.
+> e_reusable is part of a bitfield and e_reusable update can race with
+> update of e_referenced bit in the same bitfield resulting in loss of one
+> of the updates. Fix the problem by using atomic bitops instead.
+> 
+> This bug has been around for many years, but it became *much* easier
+> to hit after commit 65f8b80053a1 ("ext4: fix race when reusing xattr
+> blocks").
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
+> Fixes: 65f8b80053a1 ("ext4: fix race when reusing xattr blocks")
+> Reported-and-tested-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+> Reported-by: Thilo Fromm <t-lo@linux.microsoft.com>
+> Link: https://lore.kernel.org/r/c77bf00f-4618-7149-56f1-b8d1664b9d07@linux.microsoft.com/
+> Signed-off-by: Jan Kara <jack@suse.cz>
+> Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+> Link: https://lore.kernel.org/r/20221123193950.16758-1-jack@suse.cz
+> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+> 
+> diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+> index 4d1c701f0eec..6bdd502527f8 100644
+> --- a/fs/ext4/xattr.c
+> +++ b/fs/ext4/xattr.c
+> @@ -1281,7 +1281,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
+>  				ce = mb_cache_entry_get(ea_block_cache, hash,
+>  							bh->b_blocknr);
+>  				if (ce) {
+> -					ce->e_reusable = 1;
+> +					set_bit(MBE_REUSABLE_B, &ce->e_flags);
+>  					mb_cache_entry_put(ea_block_cache, ce);
+>  				}
+>  			}
+> @@ -2043,7 +2043,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
+>  				}
+>  				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
+>  				if (ref == EXT4_XATTR_REFCOUNT_MAX)
+> -					ce->e_reusable = 0;
+> +					clear_bit(MBE_REUSABLE_B, &ce->e_flags);
+>  				ea_bdebug(new_bh, "reusing; refcount now=%d",
+>  					  ref);
+>  				ext4_xattr_block_csum_set(inode, new_bh);
+> diff --git a/fs/mbcache.c b/fs/mbcache.c
+> index e272ad738faf..2a4b8b549e93 100644
+> --- a/fs/mbcache.c
+> +++ b/fs/mbcache.c
+> @@ -100,8 +100,9 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
+>  	atomic_set(&entry->e_refcnt, 2);
+>  	entry->e_key = key;
+>  	entry->e_value = value;
+> -	entry->e_reusable = reusable;
+> -	entry->e_referenced = 0;
+> +	entry->e_flags = 0;
+> +	if (reusable)
+> +		set_bit(MBE_REUSABLE_B, &entry->e_flags);
+>  	head = mb_cache_entry_head(cache, key);
+>  	hlist_bl_lock(head);
+>  	hlist_bl_for_each_entry(dup, dup_node, head, e_hash_list) {
+> @@ -165,7 +166,8 @@ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
+>  	while (node) {
+>  		entry = hlist_bl_entry(node, struct mb_cache_entry,
+>  				       e_hash_list);
+> -		if (entry->e_key == key && entry->e_reusable &&
+> +		if (entry->e_key == key &&
+> +		    test_bit(MBE_REUSABLE_B, &entry->e_flags) &&
+>  		    atomic_inc_not_zero(&entry->e_refcnt))
+>  			goto out;
+>  		node = node->next;
+> @@ -284,7 +286,7 @@ EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
+>  void mb_cache_entry_touch(struct mb_cache *cache,
+>  			  struct mb_cache_entry *entry)
+>  {
+> -	entry->e_referenced = 1;
+> +	set_bit(MBE_REFERENCED_B, &entry->e_flags);
+>  }
+>  EXPORT_SYMBOL(mb_cache_entry_touch);
+>  
+> @@ -309,9 +311,9 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
+>  		entry = list_first_entry(&cache->c_list,
+>  					 struct mb_cache_entry, e_list);
+>  		/* Drop initial hash reference if there is no user */
+> -		if (entry->e_referenced ||
+> +		if (test_bit(MBE_REFERENCED_B, &entry->e_flags) ||
+>  		    atomic_cmpxchg(&entry->e_refcnt, 1, 0) != 1) {
+> -			entry->e_referenced = 0;
+> +			clear_bit(MBE_REFERENCED_B, &entry->e_flags);
+>  			list_move_tail(&entry->e_list, &cache->c_list);
+>  			continue;
+>  		}
+> diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
+> index 2da63fd7b98f..97e64184767d 100644
+> --- a/include/linux/mbcache.h
+> +++ b/include/linux/mbcache.h
+> @@ -10,6 +10,12 @@
+>  
+>  struct mb_cache;
+>  
+> +/* Cache entry flags */
+> +enum {
+> +	MBE_REFERENCED_B = 0,
+> +	MBE_REUSABLE_B
+> +};
+> +
+>  struct mb_cache_entry {
+>  	/* List of entries in cache - protected by cache->c_list_lock */
+>  	struct list_head	e_list;
+> @@ -26,8 +32,7 @@ struct mb_cache_entry {
+>  	atomic_t		e_refcnt;
+>  	/* Key in hash - stable during lifetime of the entry */
+>  	u32			e_key;
+> -	u32			e_referenced:1;
+> -	u32			e_reusable:1;
+> +	unsigned long		e_flags;
+>  	/* User provided value - stable during lifetime of the entry */
+>  	u64			e_value;
+>  };
