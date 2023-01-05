@@ -2,214 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F84865E6DA
-	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 09:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0068F65E6FB
+	for <lists+stable@lfdr.de>; Thu,  5 Jan 2023 09:41:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbjAEI3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 03:29:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37944 "EHLO
+        id S231289AbjAEIlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 03:41:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231841AbjAEI2u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 03:28:50 -0500
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6D0BD5004A
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 00:28:13 -0800 (PST)
-Received: by linux.microsoft.com (Postfix, from userid 1112)
-        id 3268E20B8762; Thu,  5 Jan 2023 00:28:13 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3268E20B8762
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1672907293;
-        bh=ggfGt5HSdHVbU+RSt8RUnBV2GrCM1AJSa+2kl0SrK5M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rGBPkc1GeaqG59hb0+EgUYZD8/4HiPmyQqjhIWalCO2dnTu2meVrMG+NwfGrPYvdt
-         aKXuxEH6q/uKVvS3ftwxu6XIU8D7adgdNTiLxOhuaTm6unirhPwCxfZjmVU/NVEIgK
-         VjrXQkMToMsiugrwOEkwfMFazOtAPABhfyHcsjkw=
-Date:   Thu, 5 Jan 2023 00:28:13 -0800
-From:   Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-To:     jack@suse.cz
-Cc:     gregkh@linuxfoundation.org, adilger@dilger.ca,
-        t-lo@linux.microsoft.com, tytso@mit.edu, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] ext4: fix deadlock due to mbcache entry
- corruption" failed to apply to 5.15-stable tree
-Message-ID: <20230105082813.GA3530@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <1672844851195248@kroah.com>
+        with ESMTP id S231657AbjAEIlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 03:41:31 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C16B4D4B8
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 00:40:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1672908043;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=V0EEGFVxQgHq62o0vTXA8Zrg5fmlPp4zowvFDCM/JBo=;
+        b=RrEGZ23Zhk90qYL7G7za9n/zSH3aHwIZ/+C0RDyqMSPyJO0vyr3G+iGaljgoCB8Ct5j4tr
+        2ZYO07ZhOX8IHvX+YRJfgVG1dpXMtOrzw/HjqZIC9RkRM75/w019PIfdRi1COIDmsBked3
+        Oo0ya3yQdu1YDL/AJj6Ryec3efabaHg=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-298-Otg0v0grMhuczIv1934fyA-1; Thu, 05 Jan 2023 03:40:37 -0500
+X-MC-Unique: Otg0v0grMhuczIv1934fyA-1
+Received: by mail-wm1-f72.google.com with SMTP id j1-20020a05600c1c0100b003d99070f529so677799wms.9
+        for <stable@vger.kernel.org>; Thu, 05 Jan 2023 00:40:36 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:organization:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=V0EEGFVxQgHq62o0vTXA8Zrg5fmlPp4zowvFDCM/JBo=;
+        b=2h3CLk/kXhEWFM3CJt5E7b6z2/dxsJZTaXtyF9hTokL5PAb0Q0CDTVobvRBgguJ8z6
+         LjglzA9J+CGl0r/RtasrDPn355QZtmXmOBMeFf3CkPAySfKaOY8DbC6qA6dEBGttRKK/
+         Y3kBFWLNSvpmPc2kZcEb4wE2LGO3QvovKNjTbYbp7TVv0/gbLXdpKMT91mnqwYpKfu76
+         HXjgLQAYYF1ZT3fk7qqJRYahzCX0u4B18G8d2Wu0NEP/LJvdhhsSjzeB8NA3JBPrpARo
+         rYhDAxINPIzotftA7q70IDrMvVP1IFi1oEGIjGT7k48o9LiYpBgY+35e3ERPTuCemB11
+         Y2TA==
+X-Gm-Message-State: AFqh2kpe9PUTd7ERL+VH/r33GVvu8tzBc0ylIRIKvou51Ftugnpc79am
+        SuguqRmmvKc0v+9/pcCr2B4c+K8ll9rjICT0/GlAgZZER2mMUBmBx0CM+EfOE9oLxNsE/DHp9I/
+        AyJm9xYYgmCO+Xqjc
+X-Received: by 2002:a05:600c:4e09:b0:3d4:5741:af9b with SMTP id b9-20020a05600c4e0900b003d45741af9bmr39382070wmq.0.1672907976070;
+        Thu, 05 Jan 2023 00:39:36 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXt+eMzp4Or8SPLGMCE7Sk7rJ0RqIPD6WCkqertmKUjTxcUtwA44aRvdfXaiUEttQmz5pbu3bg==
+X-Received: by 2002:a05:600c:4e09:b0:3d4:5741:af9b with SMTP id b9-20020a05600c4e0900b003d45741af9bmr39382056wmq.0.1672907975762;
+        Thu, 05 Jan 2023 00:39:35 -0800 (PST)
+Received: from ?IPV6:2003:cb:c707:6e00:ff02:ec7a:ded5:ec1e? (p200300cbc7076e00ff02ec7aded5ec1e.dip0.t-ipconnect.de. [2003:cb:c707:6e00:ff02:ec7a:ded5:ec1e])
+        by smtp.gmail.com with ESMTPSA id c7-20020a05600c0a4700b003c6bbe910fdsm1908482wmq.9.2023.01.05.00.39.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 05 Jan 2023 00:39:35 -0800 (PST)
+Message-ID: <db5797a5-c4e9-753d-790a-3d432ac525e3@redhat.com>
+Date:   Thu, 5 Jan 2023 09:39:34 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1672844851195248@kroah.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Spam-Status: No, score=-19.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH 1/3] mm/hugetlb: Pre-allocate pgtable pages for uffd
+ wr-protects
+Content-Language: en-US
+To:     Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        James Houghton <jthoughton@google.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-stable <stable@vger.kernel.org>
+References: <20230104225207.1066932-1-peterx@redhat.com>
+ <20230104225207.1066932-2-peterx@redhat.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20230104225207.1066932-2-peterx@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 04, 2023 at 04:07:31PM +0100, gregkh@linuxfoundation.org wrote:
+On 04.01.23 23:52, Peter Xu wrote:
+> Userfaultfd-wp uses pte markers to mark wr-protected pages for both shmem
+> and hugetlb.  Shmem has pre-allocation ready for markers, but hugetlb path
+> was overlooked.
 > 
-> The patch below does not apply to the 5.15-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Doing so by calling huge_pte_alloc() if the initial pgtable walk fails to
+> find the huge ptep.  It's possible that huge_pte_alloc() can fail with high
+> memory pressure, in that case stop the loop immediately and fail silently.
+> This is not the most ideal solution but it matches with what we do with
+> shmem meanwhile it avoids the splat in dmesg.
 > 
-> Possible dependencies:
+> Cc: linux-stable <stable@vger.kernel.org> # 5.19+
+> Fixes: 60dfaad65aa9 ("mm/hugetlb: allow uffd wr-protect none ptes")
+> Reported-by: James Houghton <jthoughton@google.com>
+> Signed-off-by: Peter Xu <peterx@redhat.com>
+> ---
+>   mm/hugetlb.c | 13 +++++++++++--
+>   1 file changed, 11 insertions(+), 2 deletions(-)
 > 
-> a44e84a9b776 ("ext4: fix deadlock due to mbcache entry corruption")
-> 307af6c87937 ("mbcache: automatically delete entries from cache on freeing")
-> 65f8b80053a1 ("ext4: fix race when reusing xattr blocks")
-> fd48e9acdf26 ("ext4: unindent codeblock in ext4_xattr_block_set()")
-> 6bc0d63dad7f ("ext4: remove EA inode entry from mbcache on inode eviction")
-> 3dc96bba65f5 ("mbcache: add functions to delete entry if unused")
-> 58318914186c ("mbcache: don't reclaim used entries")
-> 4efd9f0d120c ("ext4: use kmemdup() to replace kmalloc + memcpy")
-> 
+> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> index bf7a1f628357..017d9159cddf 100644
+> --- a/mm/hugetlb.c
+> +++ b/mm/hugetlb.c
+> @@ -6649,8 +6649,17 @@ unsigned long hugetlb_change_protection(struct vm_area_struct *vma,
+>   		spinlock_t *ptl;
+>   		ptep = hugetlb_walk(vma, address, psize);
 
-Hi Jan,
+if (!ptep && likely(!uffd_wp)) {
+	/* Nothing to protect. */
+	address |= last_addr_mask;
+	continue;
+} else if (!ptep) {
+	...
+}
 
-What do you think of the backport I shared here:
-https://lore.kernel.org/linux-ext4/20221122174807.GA9658@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net/
+Might look slightly more readable would minimize changes. This should 
+work, so
 
-Or do you think it makes more sense to backport some of the other patches listed above?
+Acked-by: David Hildenbrand <david@redhat.com>
 
-Bests,
-Jeremi
+>   		if (!ptep) {
+> -			address |= last_addr_mask;
+> -			continue;
+> +			if (!uffd_wp) {
+> +				address |= last_addr_mask;
+> +				continue;
+> +			}
+> +			/*
+> +			 * Userfaultfd wr-protect requires pgtable
+> +			 * pre-allocations to install pte markers.
+> +			 */
+> +			ptep = huge_pte_alloc(mm, vma, address, psize);
+> +			if (!ptep)
+> +				break;
+>   		}
+>   		ptl = huge_pte_lock(h, mm, ptep);
+>   		if (huge_pmd_unshare(mm, vma, address, ptep)) {
 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> >From a44e84a9b7764c72896f7241a0ec9ac7e7ef38dd Mon Sep 17 00:00:00 2001
-> From: Jan Kara <jack@suse.cz>
-> Date: Wed, 23 Nov 2022 20:39:50 +0100
-> Subject: [PATCH] ext4: fix deadlock due to mbcache entry corruption
-> 
-> When manipulating xattr blocks, we can deadlock infinitely looping
-> inside ext4_xattr_block_set() where we constantly keep finding xattr
-> block for reuse in mbcache but we are unable to reuse it because its
-> reference count is too big. This happens because cache entry for the
-> xattr block is marked as reusable (e_reusable set) although its
-> reference count is too big. When this inconsistency happens, this
-> inconsistent state is kept indefinitely and so ext4_xattr_block_set()
-> keeps retrying indefinitely.
-> 
-> The inconsistent state is caused by non-atomic update of e_reusable bit.
-> e_reusable is part of a bitfield and e_reusable update can race with
-> update of e_referenced bit in the same bitfield resulting in loss of one
-> of the updates. Fix the problem by using atomic bitops instead.
-> 
-> This bug has been around for many years, but it became *much* easier
-> to hit after commit 65f8b80053a1 ("ext4: fix race when reusing xattr
-> blocks").
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
-> Fixes: 65f8b80053a1 ("ext4: fix race when reusing xattr blocks")
-> Reported-and-tested-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-> Reported-by: Thilo Fromm <t-lo@linux.microsoft.com>
-> Link: https://lore.kernel.org/r/c77bf00f-4618-7149-56f1-b8d1664b9d07@linux.microsoft.com/
-> Signed-off-by: Jan Kara <jack@suse.cz>
-> Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-> Link: https://lore.kernel.org/r/20221123193950.16758-1-jack@suse.cz
-> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> 
-> diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-> index 4d1c701f0eec..6bdd502527f8 100644
-> --- a/fs/ext4/xattr.c
-> +++ b/fs/ext4/xattr.c
-> @@ -1281,7 +1281,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
->  				ce = mb_cache_entry_get(ea_block_cache, hash,
->  							bh->b_blocknr);
->  				if (ce) {
-> -					ce->e_reusable = 1;
-> +					set_bit(MBE_REUSABLE_B, &ce->e_flags);
->  					mb_cache_entry_put(ea_block_cache, ce);
->  				}
->  			}
-> @@ -2043,7 +2043,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
->  				}
->  				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
->  				if (ref == EXT4_XATTR_REFCOUNT_MAX)
-> -					ce->e_reusable = 0;
-> +					clear_bit(MBE_REUSABLE_B, &ce->e_flags);
->  				ea_bdebug(new_bh, "reusing; refcount now=%d",
->  					  ref);
->  				ext4_xattr_block_csum_set(inode, new_bh);
-> diff --git a/fs/mbcache.c b/fs/mbcache.c
-> index e272ad738faf..2a4b8b549e93 100644
-> --- a/fs/mbcache.c
-> +++ b/fs/mbcache.c
-> @@ -100,8 +100,9 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
->  	atomic_set(&entry->e_refcnt, 2);
->  	entry->e_key = key;
->  	entry->e_value = value;
-> -	entry->e_reusable = reusable;
-> -	entry->e_referenced = 0;
-> +	entry->e_flags = 0;
-> +	if (reusable)
-> +		set_bit(MBE_REUSABLE_B, &entry->e_flags);
->  	head = mb_cache_entry_head(cache, key);
->  	hlist_bl_lock(head);
->  	hlist_bl_for_each_entry(dup, dup_node, head, e_hash_list) {
-> @@ -165,7 +166,8 @@ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
->  	while (node) {
->  		entry = hlist_bl_entry(node, struct mb_cache_entry,
->  				       e_hash_list);
-> -		if (entry->e_key == key && entry->e_reusable &&
-> +		if (entry->e_key == key &&
-> +		    test_bit(MBE_REUSABLE_B, &entry->e_flags) &&
->  		    atomic_inc_not_zero(&entry->e_refcnt))
->  			goto out;
->  		node = node->next;
-> @@ -284,7 +286,7 @@ EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
->  void mb_cache_entry_touch(struct mb_cache *cache,
->  			  struct mb_cache_entry *entry)
->  {
-> -	entry->e_referenced = 1;
-> +	set_bit(MBE_REFERENCED_B, &entry->e_flags);
->  }
->  EXPORT_SYMBOL(mb_cache_entry_touch);
->  
-> @@ -309,9 +311,9 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
->  		entry = list_first_entry(&cache->c_list,
->  					 struct mb_cache_entry, e_list);
->  		/* Drop initial hash reference if there is no user */
-> -		if (entry->e_referenced ||
-> +		if (test_bit(MBE_REFERENCED_B, &entry->e_flags) ||
->  		    atomic_cmpxchg(&entry->e_refcnt, 1, 0) != 1) {
-> -			entry->e_referenced = 0;
-> +			clear_bit(MBE_REFERENCED_B, &entry->e_flags);
->  			list_move_tail(&entry->e_list, &cache->c_list);
->  			continue;
->  		}
-> diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
-> index 2da63fd7b98f..97e64184767d 100644
-> --- a/include/linux/mbcache.h
-> +++ b/include/linux/mbcache.h
-> @@ -10,6 +10,12 @@
->  
->  struct mb_cache;
->  
-> +/* Cache entry flags */
-> +enum {
-> +	MBE_REFERENCED_B = 0,
-> +	MBE_REUSABLE_B
-> +};
-> +
->  struct mb_cache_entry {
->  	/* List of entries in cache - protected by cache->c_list_lock */
->  	struct list_head	e_list;
-> @@ -26,8 +32,7 @@ struct mb_cache_entry {
->  	atomic_t		e_refcnt;
->  	/* Key in hash - stable during lifetime of the entry */
->  	u32			e_key;
-> -	u32			e_referenced:1;
-> -	u32			e_reusable:1;
-> +	unsigned long		e_flags;
->  	/* User provided value - stable during lifetime of the entry */
->  	u64			e_value;
->  };
+-- 
+Thanks,
+
+David / dhildenb
+
