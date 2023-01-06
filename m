@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A492660630
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 19:09:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33ABB660643
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 19:18:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231335AbjAFSI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 13:08:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51058 "EHLO
+        id S234793AbjAFSSA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 13:18:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231277AbjAFSI5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 13:08:57 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35604166F
-        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 10:08:56 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id h7-20020a17090aa88700b00225f3e4c992so5955097pjq.1
-        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 10:08:56 -0800 (PST)
+        with ESMTP id S235069AbjAFSR7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 13:17:59 -0500
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ED3A34D77
+        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 10:17:58 -0800 (PST)
+Received: by mail-wm1-x334.google.com with SMTP id m3so1643322wmq.0
+        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 10:17:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=aRfBMIOrWnkTgcTHC8fokRZyL82kMsM9senrx2vjrp4=;
-        b=KGEHXfRmPiYzMG2kUn40dLIk5Z1zjbUEthvuPHMpU6fXdKK6/8qi6QmjzIFqCAjxHo
-         jdVeSB8e9/bEAZb+jcbPfsS3Hvi9dlBXT03QtiyWDcGq+k9yn3JWMV2F6TuXSP3iN7bh
-         1C2hcM1cmLER/jBXk3lKj5hiOdZ3tqDNm480o=
+        d=ffwll.ch; s=google;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=vZgX/uzlYtYm+9CzMWs/3dsasYH/jPMu/yKWM7axVwk=;
+        b=EYP1baRZFqqVCOv2pOnk8Fyfs9j+68lHjfHjXy3FlgSyMB+a6B7b/8lxKKeXQM6i3+
+         DUnkfdSpmpGibulk4z1SW1HEiJ/8mZiJud0QlpdKVVZWFI5fO126Iwwh2aunqAGusgw9
+         FORTEE3dj1I00pDSrYlO+fYYkuAEfEm/4fEbU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aRfBMIOrWnkTgcTHC8fokRZyL82kMsM9senrx2vjrp4=;
-        b=a74xH+zRzL9FWph1ABSkBUmB7xzCBr4mCwApG/UUIAinCG60cmRMxv/FaYtJYVRhVG
-         mLHuZcAM/BjFsHBKkldM4H2+6CWccfOwezBlyi/uIQd31ZV8kvorLhfn89e6WfHnnhFD
-         orpC0uYkQ341/Z1F06Rv2etj5ERFqVY2WtSF/BLowvtG5UH6Vn7ZuKNilP7NaAvOAXuH
-         icQo3W2PKAFiXczmL9Gf8+UH1AAyiGDSDyc+tHQai+DWSxcKZ/mJxkiDnZZ+bGDf7xZz
-         86ZFpnhAc4cWZKXneDjV45qtGim4zdOq9k/UtQeHHtUfIQGUheDMqMsx51jnamjEmonI
-         dcSg==
-X-Gm-Message-State: AFqh2koIe+98e3XzvIP+t+rmLpkeHWgW7MMZAnG+LnabEqmFDEBis7Ef
-        Ydz9W+IGvJKLqxQn3Z2LubGAeGuTF/Xt5Xol
-X-Google-Smtp-Source: AMrXdXu3+CpeCXjMMRDSk0RxLILeTWZA5Pe+CQFqkM1hhlNB+wt9gU/hx35Rd9JRj7BX4MHLZ0xiiA==
-X-Received: by 2002:a17:902:eb8f:b0:192:8ec5:fd58 with SMTP id q15-20020a170902eb8f00b001928ec5fd58mr43083908plg.6.1673028536246;
-        Fri, 06 Jan 2023 10:08:56 -0800 (PST)
-Received: from google.com ([2620:15c:9d:2:5567:fb20:aa4f:352])
-        by smtp.gmail.com with ESMTPSA id u5-20020a170902e80500b00189529ed580sm1282081plg.60.2023.01.06.10.08.55
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vZgX/uzlYtYm+9CzMWs/3dsasYH/jPMu/yKWM7axVwk=;
+        b=5sahEV726CF6GqYPmG2wKUWCdOJhWK+ywEEc/y+jBLrtNEhbMT1q9jtd10wUr1Bmxm
+         fp1Wjsn1bSj/TIXJz39vXUpFEF3RPiMjI/Q6XPVB5bfOZz+3PvaO/hRmAAEqWaKhuND5
+         njEwkvSv84xyCijLa+qB4+1iRlLtiXjCO2bJhngSVCkZK4V7e0jiW8X0IKP3PdkXkLne
+         gf+zHNT6AqzO+hRd9gepTg7hmsmm/Z6Vb7gaUCpKyZnE5Gv5dS4OqstvkaPoK5BmZvqg
+         LW074BG2Z4+4mnplb2s67VTf0YYTA9yRornJfa/BcIlCeVcq7AD6A2DseSOQ7qF5Vs19
+         Gr0Q==
+X-Gm-Message-State: AFqh2kq13stgHg4yNSl/pTWoNg95PbYIWIWT/sGBu7y5GuG6yYm8LBtW
+        BUxsp4iGHTVktyHMc5LnedrK/w==
+X-Google-Smtp-Source: AMrXdXsk//Ebc0AFqktmpd6sDIvJObm64v2tJRUyH+TzrQSdtbUZvCiU+wBVSRkdkv1F957NrNmdzA==
+X-Received: by 2002:a05:600c:3d8a:b0:3d3:4406:8a37 with SMTP id bi10-20020a05600c3d8a00b003d344068a37mr40344682wmb.41.1673029076764;
+        Fri, 06 Jan 2023 10:17:56 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003d998412db6sm7762398wmn.28.2023.01.06.10.17.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Jan 2023 10:08:55 -0800 (PST)
-Date:   Fri, 6 Jan 2023 10:08:53 -0800
-From:   Brian Norris <briannorris@chromium.org>
-To:     Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
+        Fri, 06 Jan 2023 10:17:55 -0800 (PST)
+Date:   Fri, 6 Jan 2023 19:17:53 +0100
+From:   Daniel Vetter <daniel@ffwll.ch>
+To:     Brian Norris <briannorris@chromium.org>,
+        Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
         Sean Paul <seanpaul@chromium.org>,
         Michel =?iso-8859-1?Q?D=E4nzer?= <michel.daenzer@mailbox.org>,
         linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
@@ -55,23 +57,29 @@ To:     Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
         linux-rockchip@lists.infradead.org, stable@vger.kernel.org
 Subject: Re: [PATCH 1/2] drm/atomic: Allow vblank-enabled + self-refresh
  "disable"
-Message-ID: <Y7hjte/w8yP2TPlB@google.com>
+Message-ID: <Y7hl0Z9PZhFk8On9@phenom.ffwll.local>
+Mail-Followup-To: Brian Norris <briannorris@chromium.org>,
+        Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
+        Sean Paul <seanpaul@chromium.org>,
+        Michel =?iso-8859-1?Q?D=E4nzer?= <michel.daenzer@mailbox.org>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Sandy Huang <hjc@rock-chips.com>,
+        linux-rockchip@lists.infradead.org, stable@vger.kernel.org
 References: <20230105174001.1.I3904f697863649eb1be540ecca147a66e42bfad7@changeid>
  <Y7hgLUXOrD7QwKs1@phenom.ffwll.local>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <Y7hgLUXOrD7QwKs1@phenom.ffwll.local>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Operating-System: Linux phenom 5.19.0-2-amd64 
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
-
-Hi Daniel,
 
 On Fri, Jan 06, 2023 at 06:53:49PM +0100, Daniel Vetter wrote:
 > On Thu, Jan 05, 2023 at 05:40:17PM -0800, Brian Norris wrote:
@@ -114,36 +122,43 @@ On Fri, Jan 06, 2023 at 06:53:49PM +0100, Daniel Vetter wrote:
 > This very fishy, because we check in crtc_needs_disable whether this
 > output should stay on due to self-refresh. Which means you should never
 > end up in here.
-
-That's not what crtc_needs_disable() does w.r.t. self-refresh. In fact,
-it's the opposite; see, for example, the
-|new_state->self_refresh_active| clause. That clause means that if we're
-entering self-refresh, we *intend* to disable (i.e., we return 'true').
-That's because like I mention above, the self-refresh helpers overload
-what "disable" means.
-
-I'll also add my caveat again that I'm a bit new to DRM, so feel free to
-continue to correct me if I'm wrong :) Or perhaps Sean Paul could
-provide second opinions, as I believe he wrote this stuff.
-
+> 
 > And yes vblank better work in self refresh :-) If it doesn't, then you
 > need to fake it with a timer, that's at least what i915 has done for
 > transparent self-refresh.
-
-OK! Then that sounds like it at least ACKs my general idea for this
-series. (Michel and I poked at a few ideas in the thread at [1] and
-landed on approx. this solution, or else a fake/timer like you suggest.)
-
+> 
 > We might need a few more helpers. Also, probably more igt, or is this
 > something igt testing has uncovered? If so, please cite the igt testcase
 > which hits this.
 
-The current patch only fixes a warning that comes when I try to do the
-second patch. The second patch is a direct product of an IGT test
-failure (a few of kms_vblank's subtests), and I linked [1] the KernelCI
-report there.
+Ok I think I was a bit slow here, and it makes sense. Except this now
+means we loose this check, and I'm also not sure whether we really want
+drivers to implement this all.
 
-Brian
+What I think we want here is a bit more:
+- for the self-refresh case check that the vblank all still works
 
-[1] Link: https://lore.kernel.org/dri-devel/Y5itf0+yNIQa6fU4@sirena.org.uk/
-    Reported-by: "kernelci.org bot" <bot@kernelci.org>
+- check that drivers which use self_refresh are not using
+  drm_atomic_helper_wait_for_vblanks(), because that would defeat the
+  point
+
+- have a drm_crtc_vblank_off/on which take the crtc state, so they can
+  look at the self-refresh state
+
+- fake vblanks with hrtimer, because on most hw when you turn off the crtc
+  the vblanks are also turned off, and so your compositor would still
+  hang. The vblank machinery already has all the code to make this happen
+  (and if it's not all, then i915 psr code should have it).
+
+- I think kunit tests for this all would be really good, it's a rather
+  complex state machinery between modesets and vblank functionality. You
+  can speed up the kunit tests with some really high refresh rate, which
+  isn't possible on real hw.
+
+I'm also wondering why we've had this code for years and only hit issues
+now?
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
