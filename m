@@ -2,113 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B85165FE45
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 10:49:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA9B765FE69
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 10:55:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231661AbjAFJso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 04:48:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42384 "EHLO
+        id S232361AbjAFJzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 04:55:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233538AbjAFJsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 04:48:03 -0500
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC0BCF00C
-        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 01:48:00 -0800 (PST)
-Received: by mail-ej1-x62e.google.com with SMTP id gh17so2359029ejb.6
-        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 01:48:00 -0800 (PST)
+        with ESMTP id S229490AbjAFJzQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 04:55:16 -0500
+Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2EA24566D
+        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 01:55:15 -0800 (PST)
+Received: by mail-yb1-xb41.google.com with SMTP id l139so1282867ybl.12
+        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 01:55:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=77vHjeUHiCb66z/I743uh4gP4GpNQ4TQEZW0IuazaZY=;
-        b=Mn1qK9ulnq8ImWay2BFBcXNDLq264mzCvmvq6AowQek49U5nYnVbayLOXnP4HwLJIV
-         nSpt0a7h8jSPkuLiPG208Jt139i3iPgHUa+YzGZwR/hLDCqxqBrWu3lOof/yW/r45RiU
-         iIj2FQY3Qa4Qsy7LeSPOt8J84+CCA8qxGjFy1bAvvpF3q2GLNwujHFR8JDnGZs6Ezwci
-         M8U4d13moLskMm3M4IjXxFnJU0bdNheaVCJTbp6IyPGAAYGCjvbBUae5s4cJsZC4W8E2
-         go/R8RMiLCj9FnKam+Bw6xcS+jVTkL9QBHeSd1JDjsKXMcV137YfV/5rq6kk/bz7DeSU
-         AM7w==
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:sender:reply-to:mime-version:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Sm2IrX2as+k9LNhXBii+2EPLTtwp8Q7bZRIteVKR48Y=;
+        b=Hv2PF/a4etIaPxmJi0vEcv5OmqbVD3YkeyFFslNUgREOZ6nL3McnStIaZwObxxLkDw
+         dXYHYQ0wCiDTzZKEtX3T1tAk4x+Ng+pHup7pgO4bQz+EjT+TEWXtJKQcyy5hlqCuf4uY
+         4mnLrs3fMmE29PchUBQkirk7MOlWLPGwSo6crzxw5enk8tjXLa8davOmipdSbAtt7kht
+         lf91idWg9N8idI0GNfeT3ekCgxJX43Zd+k8OE/ytgHode0zrbXhACYWRdTQ3CYuBqKJ1
+         2pY+8MKe0+vY7Sw1pGq0GovSaw8inIP/F9aP59iksw+tnv9X8+C87rolf//Ehen25llp
+         gUNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        h=to:subject:message-id:date:from:sender:reply-to:mime-version
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=77vHjeUHiCb66z/I743uh4gP4GpNQ4TQEZW0IuazaZY=;
-        b=aspo5db++iTmOSe+A1/He7uqvYSt9NeSiFP7MLGDkJ5jgigYSwY4/F1AsG4Etkj/hv
-         hOCPcO3N3aKl+nSAamFAgqguhBbY2S3A2gI4CSN9b9XVLIuDPoFBGgg1MpQEbgpgWgF9
-         cV2epmyuwFuhOKf5M+rPSOLzYK0wIaNZHRPCf3sD/gVHCY6O3X+67UZIgmUIzrHe6+go
-         Rqko3M7y/QcnkPSYAqm0rqGT77LowREOY/iht+VsC2R3QMtICTED/UbbzMdApUWgjz/0
-         EMIKZX38DEXf2i3bKJAgMC1bsIk4+9psEpATZbgPzlsLmOn3NWo2qEJfxSLB9BlwI/C/
-         gYRw==
-X-Gm-Message-State: AFqh2kqaH0XeOlpSOxeJGmYjWtnO2sdKwhV73OOTs2CcuWQvww99s56D
-        LosAnBeCL0QQP5fJYFyd5McVaA==
-X-Google-Smtp-Source: AMrXdXvIYu/IktKkvb5RYfd4aovy6Jrw35I2OrveWf1zeDYWyJafG0t6A/8TBkyL5Db0Nb3k+KEkjw==
-X-Received: by 2002:a17:906:4f14:b0:7c1:98e:ed20 with SMTP id t20-20020a1709064f1400b007c1098eed20mr44270717eju.35.1672998479477;
-        Fri, 06 Jan 2023 01:47:59 -0800 (PST)
-Received: from [192.168.0.104] ([82.77.81.242])
-        by smtp.gmail.com with ESMTPSA id lb19-20020a170907785300b0084d1efe9af6sm246287ejc.58.2023.01.06.01.47.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 06 Jan 2023 01:47:59 -0800 (PST)
-Message-ID: <493d9a10-aaf3-70f6-36c3-9a2cf39f0759@linaro.org>
-Date:   Fri, 6 Jan 2023 11:47:57 +0200
+        bh=Sm2IrX2as+k9LNhXBii+2EPLTtwp8Q7bZRIteVKR48Y=;
+        b=dvWT1FqzK14pczeOh5oOEOtAr9wm6UkItS8i8dOLkOSq6eArI/Jau4ZgalCNMrfMxa
+         GCqVyOqyal+0ErE6N+MRs2pU+QkY2Dn1JIBOvQGd7qZJY7mue0Zub8nI4/YGFKJ/58CZ
+         OA5lC3GAjqINXnBuXBRfTYfLczuLsNmKLBgZXugf8QPGHw97a92WQ0gDdOPxUF0kSzWy
+         t3DXQnIIEYY7PkAu4CyVNP/q9yC/bWtoVCidS05IPyatV7OdWwh6sSsvkTmDiWTz7Ukw
+         8ZP1gqTKxEzk2H9BOtUTr8dwB/66PdnUtdasF4v2kYAl7qbQNHQesqLVZe0kE6sPSTuf
+         PtSA==
+X-Gm-Message-State: AFqh2kpzr1v+Uvi1TZSONxOZPVyFuXxdWKvrOo8MUobGFfiosayorqA0
+        rOtCT4x/HLOiEIuSMufDj4nBFOhhcTq2iHTLRGo=
+X-Google-Smtp-Source: AMrXdXsXVxacEeyfDgfOp/4rafS/UamC+BdeD/ynKaYoGLssUqT9YOuykEEKwU1GSt1oambgB8iZpwTIC7A1fFr8vLw=
+X-Received: by 2002:a25:ab0e:0:b0:77c:cbb3:9b14 with SMTP id
+ u14-20020a25ab0e000000b0077ccbb39b14mr4452517ybi.245.1672998914859; Fri, 06
+ Jan 2023 01:55:14 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH] mtd: spi-nor: spansion: Keep CFR5V[6] as 1 in Octal DTR
- enable/disable
-To:     tkuw584924@gmail.com, linux-mtd@lists.infradead.org
-Cc:     pratyush@kernel.org, michael@walle.cc, miquel.raynal@bootlin.com,
-        richard@nod.at, vigneshr@ti.com, Bacem.Daassi@infineon.com,
-        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
-        stable@vger.kernel.org
-References: <20230106030601.6530-1-Takahiro.Kuwano@infineon.com>
-Content-Language: en-US
-From:   Tudor Ambarus <tudor.ambarus@linaro.org>
-In-Reply-To: <20230106030601.6530-1-Takahiro.Kuwano@infineon.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Reply-To: mrs.maryander1947@gmail.com
+Sender: pascalkathrine1967@gmail.com
+Received: by 2002:a25:d407:0:b0:768:a2c0:d2c8 with HTTP; Fri, 6 Jan 2023
+ 01:55:14 -0800 (PST)
+From:   Mrs Mary Anderson <amrsmary16@gmail.com>
+Date:   Fri, 6 Jan 2023 09:55:14 +0000
+X-Google-Sender-Auth: OZ974prC7OvyrNdAh1UFcHyja-s
+Message-ID: <CAOmpBcbGM8Y4Vk_VmC-kR3KmdK35PDfSSf4=JPbzzxG-rM3KDQ@mail.gmail.com>
+Subject: Hello Dear,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=7.7 required=5.0 tests=BAYES_80,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
+        UNDISC_FREEM,UNDISC_MONEY autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:b41 listed in]
+        [list.dnswl.org]
+        *  2.0 BAYES_80 BODY: Bayes spam probability is 80 to 95%
+        *      [score: 0.8663]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [amrsmary16[at]gmail.com]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [mrs.maryander1947[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [pascalkathrine1967[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
+        *  2.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+        *  1.7 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey, Takahiro,
+Hello,
 
-On 06.01.2023 05:06, tkuw584924@gmail.com wrote:
-> From: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
-> 
-> CFR5V[6] is reserved bit and must always be 1.
+Dear Beloved,
 
-have you seen some strange behavior?
-> 
-> Fixes: c3266af101f2 ("mtd: spi-nor: spansion: add support for Cypress Semper flash")
-> Signed-off-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
-> Cc: stable@vger.kernel.org
-> ---
->   drivers/mtd/spi-nor/spansion.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/mtd/spi-nor/spansion.c b/drivers/mtd/spi-nor/spansion.c
-> index b621cdfd506f..4e094a432d29 100644
-> --- a/drivers/mtd/spi-nor/spansion.c
-> +++ b/drivers/mtd/spi-nor/spansion.c
-> @@ -21,8 +21,8 @@
->   #define SPINOR_REG_CYPRESS_CFR3V		0x00800004
->   #define SPINOR_REG_CYPRESS_CFR3V_PGSZ		BIT(4) /* Page size. */
->   #define SPINOR_REG_CYPRESS_CFR5V		0x00800006
-> -#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN	0x3
-> -#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS	0
-> +#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN	0x43
-> +#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS	0x40
+I am Mrs. Mary Anderson, It is understandable that you may be a bit
+apprehensive because you do not know me, I found your email address
+from a Human resources database and decided to contact you. I would
+love to employ you into my charity work, I am ready to donate some
+money to you to carry on the Charity work in your country. Please
+reply so that i will give you further details and tell you about
+myself.
 
-No, this looks bad. Instead of overwriting CFR5V with whatever value, we
-should instead first read it and then update only the bit that we're
-interested in. If it happens to write CFR5V before octal enable/disable,
-you'll overwrite the previous set values.
-
-Cheers,
-ta
+Yours Sincerely
+Mrs. Mary Anderson
