@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41EBE660356
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 16:33:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F8B6603BC
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 16:53:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235233AbjAFPdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 10:33:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43026 "EHLO
+        id S234039AbjAFPx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 10:53:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235725AbjAFPc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 10:32:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7843C193DC;
-        Fri,  6 Jan 2023 07:32:56 -0800 (PST)
+        with ESMTP id S233287AbjAFPxX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 10:53:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238E5809A4;
+        Fri,  6 Jan 2023 07:53:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03B22618A2;
-        Fri,  6 Jan 2023 15:32:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD0ABC433D2;
-        Fri,  6 Jan 2023 15:32:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673019175;
-        bh=MoJReKfnakkKkR+HCW1RUf/lLV/d/JIzG9RpdEBEcEE=;
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9683B81DA7;
+        Fri,  6 Jan 2023 15:53:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F198C433D2;
+        Fri,  6 Jan 2023 15:53:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673020400;
+        bh=ozokV6pT8SVbzlyCUBZ1GdL2Q6oCef7CdvW7wB8pYIE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=F5qh+PV05KsdefxSqbA8fNXGIuCG7pUCkxsCuYnuj7Bu0c8Jt16/4eXDNjLxxmt4B
-         vy/N9v454re2s/6tYP6PIq1J9hFrcw33IHV2/bCXItGgcoXjQjQD3xF5/a4aTrrest
-         qaSrCbaTb8qtyn2IRRGeNnY4HJhdyMCgsPJbaaRs=
-Date:   Fri, 6 Jan 2023 16:32:52 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Matthias Kaehlcke <mka@chromium.org>
-Cc:     Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Icenowy Zheng <uwu@icenowy.me>,
-        Douglas Anderson <dianders@chromium.org>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Subject: Re: [PATCH 1/2] usb: misc: onboard_hub: Invert driver registration
- order
-Message-ID: <Y7g/JA0KZukK+41g@kroah.com>
-References: <20230105230119.1.I75494ebee7027a50235ce4b1e930fa73a578fbe2@changeid>
+        b=hqnYqccDRPe4zfjFlZlGq9bMi1QK1K/ENv4FdpwXxTFpOni3HtRWSJbgGb2Y8pzB7
+         yXA630rU76YOWSRSXCN4o6T+ZbnSn7QtzfV3S28bz19GlBWQuPzbUxKo8dkSt4vE+C
+         5jVMF5S/TsAezCXVjg9o74v/H6ZKIYtLF0KKsiYWhUiyHgDUS61mqKlLPYKGwThD3k
+         kdJLlvgA2c6DNe6DTPTSZEiWVpMr/ePm8XBVVkt1FVtJUOh+AeioKGe0oxf4TO02Nv
+         SLOE0zta+l4LUtsqgIITFqD+OCEfPF04GI79Ur80y0moYs2CtCGxhbAaiEZIJwzs4+
+         77/N4m6dMlQ7w==
+Date:   Fri, 6 Jan 2023 09:53:25 -0600
+From:   "Gustavo A. R. Silva" <gustavoars@kernel.org>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        stable@vger.kernel.org, io-uring@vger.kernel.org,
+        Dylan Yudaken <dylany@fb.com>, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH v2] io_uring: Replace 0-length array with flexible array
+Message-ID: <Y7hD9XNAsNZ1zIcS@work>
+References: <20230105190507.gonna.131-kees@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230105230119.1.I75494ebee7027a50235ce4b1e930fa73a578fbe2@changeid>
+In-Reply-To: <20230105190507.gonna.131-kees@kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -55,38 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 05, 2023 at 11:03:28PM +0000, Matthias Kaehlcke wrote:
-> The onboard_hub 'driver' consists of two drivers, a platform
-> driver and a USB driver. Currently when the onboard hub driver
-> is initialized it first registers the platform driver, then the
-> USB driver. This results in a race condition when the 'attach'
-> work is executed, which is scheduled when the platform device
-> is probed. The purpose of fhe 'attach' work is to bind elegible
-> USB hub devices to the onboard_hub USB driver. This fails if
-> the work runs before the USB driver has been registered.
+On Thu, Jan 05, 2023 at 11:05:11AM -0800, Kees Cook wrote:
+> Zero-length arrays are deprecated[1]. Replace struct io_uring_buf_ring's
+> "bufs" with a flexible array member. (How is the size of this array
+> verified?) Detected with GCC 13, using -fstrict-flex-arrays=3:
 > 
-> Register the USB driver first, then the platform driver. This
-> increases the chances that the onboard_hub USB devices are probed
-> before their corresponding platform device, which the USB driver
-> tries to locate in _probe(). The driver already handles this
-> situation and defers probing if the onboard hub platform device
-> doesn't exist yet.
+> In function 'io_ring_buffer_select',
+>     inlined from 'io_buffer_select' at io_uring/kbuf.c:183:10:
+> io_uring/kbuf.c:141:23: warning: array subscript 255 is outside the bounds of an interior zero-length array 'struct io_uring_buf[0]' [-Wzero-length-bounds]
+>   141 |                 buf = &br->bufs[head];
+>       |                       ^~~~~~~~~~~~~~~
+> In file included from include/linux/io_uring.h:7,
+>                  from io_uring/kbuf.c:10:
+> include/uapi/linux/io_uring.h: In function 'io_buffer_select':
+> include/uapi/linux/io_uring.h:628:41: note: while referencing 'bufs'
+>   628 |                 struct io_uring_buf     bufs[0];
+>       |                                         ^~~~
 > 
+> [1] https://www.kernel.org/doc/html/latest/process/deprecated.html#zero-length-and-one-element-arrays
+> 
+> Fixes: c7fb19428d67 ("io_uring: add support for ring mapped supplied buffers")
+> Cc: Jens Axboe <axboe@kernel.dk>
+> Cc: Pavel Begunkov <asml.silence@gmail.com>
+> Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 > Cc: stable@vger.kernel.org
-> Fixes: 8bc063641ceb ("usb: misc: Add onboard_usb_hub driver")
-> Link: https://lore.kernel.org/lkml/Y6W00vQm3jfLflUJ@hovoldconsulting.com/T/#m0d64295f017942fd988f7c53425db302d61952b4
-> Reported-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-> Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+> Cc: io-uring@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+
+Thanks!
+--
+Gustavo
+
 > ---
+> v2: use helper since these flex arrays are in a union.
+> v1: https://lore.kernel.org/lkml/20230105033743.never.628-kees@kernel.org
+> ---
+>  include/uapi/linux/io_uring.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
->  drivers/usb/misc/onboard_usb_hub.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-
-Does this superseed this thread:
-	Link: https://lore.kernel.org/r/20221222022605.v2.1.If5e7ec83b1782e4dffa6ea759416a27326c8231d@changeid
-
-or is that also needed?
-
-confused,
-
-greg k-h
+> diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+> index 2780bce62faf..434f62e0fb72 100644
+> --- a/include/uapi/linux/io_uring.h
+> +++ b/include/uapi/linux/io_uring.h
+> @@ -625,7 +625,7 @@ struct io_uring_buf_ring {
+>  			__u16	resv3;
+>  			__u16	tail;
+>  		};
+> -		struct io_uring_buf	bufs[0];
+> +		__DECLARE_FLEX_ARRAY(struct io_uring_buf, bufs);
+>  	};
+>  };
+>  
+> -- 
+> 2.34.1
+> 
