@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 273C065FBA4
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 07:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC18F65FBAA
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 08:04:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229694AbjAFG6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 01:58:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42576 "EHLO
+        id S229628AbjAFHEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 02:04:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229547AbjAFG6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 01:58:52 -0500
+        with ESMTP id S229516AbjAFHEY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 02:04:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B0B5C92A;
-        Thu,  5 Jan 2023 22:58:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B2AF6ECAC;
+        Thu,  5 Jan 2023 23:04:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3A8361CE6;
-        Fri,  6 Jan 2023 06:58:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B28AC433D2;
-        Fri,  6 Jan 2023 06:58:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A77561CE6;
+        Fri,  6 Jan 2023 07:04:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D8A2C433EF;
+        Fri,  6 Jan 2023 07:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1672988329;
-        bh=el314kZ7VBsdxmxA7/FGLXa4ifdIwEn5Eeyvb0I5bRI=;
+        s=korg; t=1672988662;
+        bh=qlGN7Q8BEBO44VTZMj82wjsb2amhsplawHPBpCT6abQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hxAnJzheqjLmDSraLu9htVurlEHrLldoaSOOWWy4RR+Pve0W1+0F4ygFQKYI7wMnh
-         1Nuq6VlnvP/NaUZ88Ttl2drHewkKA9K7jz6CqYDRtI+Id3rU41qqYYMIpvvxm+g9hE
-         Fh1WE8i1zYoHDWa5WRuQi48UVEqddfsvNAERzXzU=
-Date:   Fri, 6 Jan 2023 07:58:45 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/207] 6.1.4-rc1 review
-Message-ID: <Y7fGpYyaJWym1BxW@kroah.com>
-References: <20230104160511.905925875@linuxfoundation.org>
- <Y7cmMKUr//oYKWXb@duo.ucw.cz>
+        b=rPTL/we73HWr5T98/8LoQxrTFaHLrNePzFCmc+rGdApeyVG+af5XsOhXGVJ0AsMY9
+         pEkLUVoCwjfT78I0BPFy18YC4jR0daQZbyGydviVWoyC6y4fNSuyTl6HQ/MpUisJ3P
+         ze5LoigI424ngRJvsPEVu7YrKzCG7qrAFEaNnon0=
+Date:   Fri, 6 Jan 2023 08:04:19 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
+        Sean Paul <seanpaul@chromium.org>,
+        Sandy Huang <hjc@rock-chips.com>,
+        Michel =?iso-8859-1?Q?D=E4nzer?= <michel.daenzer@mailbox.org>,
+        linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] drm/atomic: Allow vblank-enabled + self-refresh
+ "disable"
+Message-ID: <Y7fH88gNfja364JD@kroah.com>
+References: <20230105174001.1.I3904f697863649eb1be540ecca147a66e42bfad7@changeid>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y7cmMKUr//oYKWXb@duo.ucw.cz>
+In-Reply-To: <20230105174001.1.I3904f697863649eb1be540ecca147a66e42bfad7@changeid>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -54,26 +54,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 05, 2023 at 08:34:08PM +0100, Pavel Machek wrote:
-> Hi!
+On Thu, Jan 05, 2023 at 05:40:17PM -0800, Brian Norris wrote:
+> The self-refresh helper framework overloads "disable" to sometimes mean
+> "go into self-refresh mode," and this mode activates automatically
+> (e.g., after some period of unchanging display output). In such cases,
+> the display pipe is still considered "on", and user-space is not aware
+> that we went into self-refresh mode. Thus, users may expect that
+> vblank-related features (such as DRM_IOCTL_WAIT_VBLANK) still work
+> properly.
 > 
-> > This is the start of the stable review cycle for the 6.1.4 release.
-> > There are 207 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+> However, we trigger the WARN_ONCE() here if a CRTC driver tries to leave
+> vblank enabled here.
 > 
-> Thank you.
+> Add a new exception, such that we allow CRTCs to be "disabled" (with
+> self-refresh active) with vblank interrupts still enabled.
 > 
-> Is it known at this point if 6.1 will became next longterm release? It
-> is not listed as such on https://www.kernel.org/category/releases.html
-> . We might want to do some extra testing if it is.
+> Cc: <stable@vger.kernel.org> # dependency for subsequent patch
 
-A kernel can not become "long term" until it would have normally dropped
-off of support.  Right now there are known-regressions in 6.1 still that
-are not resolved.
-
-And "extra" testing is always good no matter what kernel branch it is
-happening for, why not always do it?
+"subsequent" doesn't mean much when it is committed, give it a name
+perhaps?
 
 thanks,
 
