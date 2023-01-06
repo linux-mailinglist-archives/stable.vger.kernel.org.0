@@ -2,76 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8712D660949
+	by mail.lfdr.de (Postfix) with ESMTP id EB67366094A
 	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 23:09:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235901AbjAFWJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 17:09:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47266 "EHLO
+        id S229612AbjAFWJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 17:09:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236478AbjAFWIo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 17:08:44 -0500
+        with ESMTP id S236846AbjAFWJD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 17:09:03 -0500
 Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC07584BD6
-        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 14:08:41 -0800 (PST)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 33BA35C0040;
-        Fri,  6 Jan 2023 17:08:41 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Fri, 06 Jan 2023 17:08:41 -0500
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C19584BEE
+        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 14:08:59 -0800 (PST)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id E92045C00D8;
+        Fri,  6 Jan 2023 17:08:58 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Fri, 06 Jan 2023 17:08:58 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tyhicks.com; h=
         cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm2; t=1673042921; x=1673129321; bh=X+
-        7+v+mgu7P0PjY0BmeY5WER7aSL4TAy5EaTuduUugI=; b=xwdafgL60a8dCAIKvQ
-        /dZAk3dCyU2jEaTVmRJ/+/U0uTjFfkt948ZbymLK74v3u2Yfd67QVssO7Xfjv//s
-        lSTHRKkGCiGNIECmRGrmin7RdYJL4x2b6q8P1VICgyBWt1G18PGSggxQycKpm/CS
-        Bou5clwnDfHxNwc3hEgj8WkPrOjQ8LRkvbn+jOuWgBVUo+gH/4wPFYUXQxekTjdZ
-        eezTza9ZAmHsM/N4BNnfGGA3dkMfiFupnuwQdOyrcEpctos+JTUyBUJSe+oIrq9X
-        96Y27/0I0Tqa80oGCaA3M67DX8KWd+Q+tXUhPVScTFMA4OIq4X+lqBlvxH/xhXai
-        mbZA==
+        :message-id:mime-version:reply-to:sender:subject:subject:to:to;
+         s=fm2; t=1673042938; x=1673129338; bh=dozno7prfTcaYWAUVFCcyR2pt
+        pV2cJYPN6XphVvRlWA=; b=oD3Eg4RdvjchAF9BWDjGcrp2jZ9jA75XYssizxBzk
+        lNTed9GHtpXsN2kiah+1htWQJvh45LBkYwt6NTDboCZkpPRw7boyV+TJatSMdBF7
+        8gauuh9UBMUMJmmT7c7FHAOh5h9YGNY1eaigFgsiXVzw2utsIdcXIb5fZ5460vv5
+        oL7nkMlAj4yzKNL/32tNZf2aD0+KYojrib/3p0bZc0yCQjDAzMBN4ZMGadfjtYdH
+        cO8b0JJnl9qFMqtXOKjjBhcpmo38ln9QiLBp8edi4EvMumASAkSXLAHk8AHLFOfU
+        4xSoAB0UQ4eBLLO5Srso6B3y9xWTwHyTEW2ybddUKyPHQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; t=1673042921; x=1673129321; bh=X+7+v+mgu7P0P
-        jY0BmeY5WER7aSL4TAy5EaTuduUugI=; b=VHO8ABlNnPDT3g/JzUU+Lbtju7xr/
-        YrUKDqE6BBT3bQxXancPL8EO60zUY+Ht7e7z/yaWaSD2ySfNIbmHGPvF//2kQuWp
-        iMFnR1IQBYfuLXdD6pNtt30IbjJ/BRIdvZHYPB0SjJOw6/BDlU6AxtkYlyVHnotd
-        X7iFG0CgGxYRuyhcM+ZPS0J0wZyjMoG/vXmMVRJZhIDMX1+/3z8GieyfrIHDDxV1
-        W17O4qAuNGAyIcGA/x0bKKlSS6C76NB2L9QWdB7lf0b18R9M8HuGXGC2T3ISIadK
-        PbIalIDC7cmVWW8Thcky7iBeeCKI3MKBaWxySrcRI/P9FYSdEzbimtQ5Q==
-X-ME-Sender: <xms:6Zu4Y4Klj6nWUjsipVnX7n5H3z0Guzgx-ueYHfOqMgX9CTUAPifYiQ>
-    <xme:6Zu4Y4Jgqthy1TxnkjU70iauF_3O6RgHz7lLJVU7uk0y25m9nEOjPktJj-G6H061K
-    EuDNSFQ5_DiHEV-HNg>
-X-ME-Received: <xmr:6Zu4Y4s7eP63sZ1NVWJak4seGKCsMNEnedj0yWGxl8J6Vxj8DyFZokaT3bQfriHQAICkpkb3qDes>
+        :feedback-id:feedback-id:from:from:in-reply-to:message-id
+        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+        1673042938; x=1673129338; bh=dozno7prfTcaYWAUVFCcyR2ptpV2cJYPN6X
+        phVvRlWA=; b=ML0uK/N5ieplGzOsXXd0ay6/uVAu/nEgLxXNgqQVJ1YPuKjuGb/
+        a5a71A8P+3Ki2hiHpGvESjom1SNIHNHtdoVVqkJeT4/WCK2fVtA5UwgzqIZ+4uCC
+        W0oySbkrV1KrIYNcprcTyic9hy5D6TLXTWTxSQHdyimzDM94XRlsc0Gv0purxi1K
+        WForK7pWJm+4NkTRieu/uqVZG4IadPw2kHM7Cm1byCsWW+P/hyYgsgwhJ9tZPrMo
+        Asn+efPW9lH/fa/30AccAc3HOsBzW/rdREdKaz1n2yfujKnojSsxDGnbhpeuBO93
+        qMJ8WLdH84DJk18jGPoFahxmEIWi1TJGXKQ==
+X-ME-Sender: <xms:-pu4Y7piCff00qhKUK4UXrfxfAS6PyLepBHSIiaMcfHIB5hzyebAUg>
+    <xme:-pu4Y1pBIDWRpTcRQau4LwYcFnopOQ_CDNV6dJDIfQjgimohIyhluYuDQ3r7u8tm7
+    tRznze3usinIg8ayxk>
+X-ME-Received: <xmr:-pu4Y4MHy9ufhiVnnuA9KyPBTI6Dh1MBjp_UbRhPNQYb79r14IA3iIClPf2bchhCG8LPUvdR9siE>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrkedtgdduheejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomhepvfihlhgv
-    rhcujfhitghkshcuoegtohguvgesthihhhhitghkshdrtghomheqnecuggftrfgrthhtvg
-    hrnhepteefieekkeeiueeiheffieegteffkeehtdetgeekheeggfffveefgeehvedtjeeh
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheptghoug
-    gvsehthihhihgtkhhsrdgtohhm
-X-ME-Proxy: <xmx:6Zu4Y1aotxEBuOMcRX-agysHvSTo92gz8Lno2-3gABdcgzOdmdF5gA>
-    <xmx:6Zu4Y_a0-4uLp_mWIaKqN_kb99cE2K9hwBs2YFv7xO1fpQLEfG8ePw>
-    <xmx:6Zu4YxCtb2bTMkqpSGqvV5vbx-wZVcHmGzdF-jyhBsMWFj8Vgch8Jw>
-    <xmx:6Zu4Y-kqMA8gTf9KMKsMd7IueFh4qTA_P9k_CLidZAY7suVvyF_jAg>
+    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomhepvfihlhgvrhcu
+    jfhitghkshcuoegtohguvgesthihhhhitghkshdrtghomheqnecuggftrfgrthhtvghrnh
+    epjeetteejvdefleekuddtgfelgeejudefieegfeekjeehtedvgefgfeffvdegudeknecu
+    vehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheptghouggvse
+    hthihhihgtkhhsrdgtohhm
+X-ME-Proxy: <xmx:-pu4Y-5Q2cnZEfdlx6RiG4UVmeRANkfxj0ILNsX53tKyMer2L8EwMA>
+    <xmx:-pu4Y64N6WvyT1Clpf-JFWRBmNRCWp-zQU-9iHkTmzoSadAAEgAYKA>
+    <xmx:-pu4Y2jD01V6lTV7xH-ZQcc79Rl4yNmnEFzMNmYNMtdNq_4dtiRpHQ>
+    <xmx:-pu4Y6HienFkkRWrgoJfIovOMjAvhXl1BBdsx4HnJdQnJ61B6kLNUg>
 Feedback-ID: i78e14604:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 6 Jan 2023 17:08:40 -0500 (EST)
+ 6 Jan 2023 17:08:58 -0500 (EST)
 From:   Tyler Hicks <code@tyhicks.com>
 To:     stable@vger.kernel.org
 Cc:     Shuah Khan <skhan@linuxfoundation.org>,
         Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Tyler Hicks <code@tyhicks.com>
-Subject: [PATCH 5.15 5.10 1/1] selftests: set the BUILD variable to absolute path
-Date:   Fri,  6 Jan 2023 16:08:16 -0600
-Message-Id: <20230106220816.763835-2-code@tyhicks.com>
+        "Tyler Hicks" <code@tyhicks.com>
+Subject: [PATCH 5.4 0/2] Fix kselftest builds when specifying an output dir
+Date:   Fri,  6 Jan 2023 16:08:42 -0600
+Message-Id: <20230106220844.763870-1-code@tyhicks.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230106220816.763835-1-code@tyhicks.com>
-References: <20230106220816.763835-1-code@tyhicks.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -84,72 +81,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Usama Anjum <usama.anjum@collabora.com>
+From: "Tyler Hicks" <code@tyhicks.com>
 
-commit 5ad51ab618de5d05f4e692ebabeb6fe6289aaa57 upstream.
+When attempting to build kselftests with a separate output directory, a
+number of the tests fail to build.
 
-The build of kselftests fails if relative path is specified through
-KBUILD_OUTPUT or O=<path> method. BUILD variable is used to determine
-the path of the output objects. When make is run from other directories
-with relative paths, the exact path of the build objects is ambiguous
-and build fails.
+For example,
 
-	make[1]: Entering directory '/home/usama/repos/kernel/linux_mainline2/tools/testing/selftests/alsa'
-	gcc     mixer-test.c -L/usr/lib/x86_64-linux-gnu -lasound  -o build/kselftest/alsa/mixer-test
-	/usr/bin/ld: cannot open output file build/kselftest/alsa/mixer-test
+ $ rm -rf build && \
+   make INSTALL_HDR_PATH=build/usr headers_install > /dev/null && \
+   make O=build FORCE_TARGETS=1 TARGETS=breakpoints -C tools/testing/selftests > /dev/null
+ /usr/bin/ld: cannot open output file
+ build/kselftest/breakpoints/step_after_suspend_test: No such file or directory
+ collect2: error: ld returned 1 exit status
+ make[1]: *** [../lib.mk:146: build/kselftest/breakpoints/step_after_suspend_test] Error 1
+ make: *** [Makefile:163: all] Error 2
 
-Set the BUILD variable to the absolute path of the output directory.
-Make the logic readable and easy to follow. Use spaces instead of tabs
-for indentation as if with tab indentation is considered recipe in make.
+This has already been addressed upstream with v5.18 commit 5ad51ab618de
+("selftests: set the BUILD variable to absolute path"). It does not
+cleanly cherry pick to the linux-5.4.y branch without v5.7 commit
+29e911ef7b70 ("selftests: Fix kselftest O=objdir build from cluttering
+top level objdir"). Commit 5ad51ab618de was written in a way that
+assumes that the kselftests aren't build in the top level objdir so it
+makes sense to bring the pre-req commit back but it does represent a
+slight change in behavior since the kselftests will now be built in a
+subdir of the specified objdir (O=). 
 
-Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
----
- tools/testing/selftests/Makefile | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+Tyler
 
-diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
-index 14206d1d1efe..56a4873a343c 100644
---- a/tools/testing/selftests/Makefile
-+++ b/tools/testing/selftests/Makefile
-@@ -114,19 +114,27 @@ ifdef building_out_of_srctree
- override LDFLAGS =
- endif
- 
--ifneq ($(O),)
--	BUILD := $(O)/kselftest
-+top_srcdir ?= ../../..
-+
-+ifeq ("$(origin O)", "command line")
-+  KBUILD_OUTPUT := $(O)
-+endif
-+
-+ifneq ($(KBUILD_OUTPUT),)
-+  # Make's built-in functions such as $(abspath ...), $(realpath ...) cannot
-+  # expand a shell special character '~'. We use a somewhat tedious way here.
-+  abs_objtree := $(shell cd $(top_srcdir) && mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) && pwd)
-+  $(if $(abs_objtree),, \
-+    $(error failed to create output directory "$(KBUILD_OUTPUT)"))
-+  # $(realpath ...) resolves symlinks
-+  abs_objtree := $(realpath $(abs_objtree))
-+  BUILD := $(abs_objtree)/kselftest
- else
--	ifneq ($(KBUILD_OUTPUT),)
--		BUILD := $(KBUILD_OUTPUT)/kselftest
--	else
--		BUILD := $(shell pwd)
--		DEFAULT_INSTALL_HDR_PATH := 1
--	endif
-+  BUILD := $(CURDIR)
-+  DEFAULT_INSTALL_HDR_PATH := 1
- endif
- 
- # Prepare for headers install
--top_srcdir ?= ../../..
- include $(top_srcdir)/scripts/subarch.include
- ARCH           ?= $(SUBARCH)
- export KSFT_KHDR_INSTALL_DONE := 1
+Muhammad Usama Anjum (1):
+  selftests: set the BUILD variable to absolute path
+
+Shuah Khan (1):
+  selftests: Fix kselftest O=objdir build from cluttering top level
+    objdir
+
+ tools/testing/selftests/Makefile | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
 -- 
 2.34.1
 
