@@ -2,134 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3817965F93B
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 02:40:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 907CE65F988
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 03:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230159AbjAFBkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 20:40:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59208 "EHLO
+        id S229551AbjAFCZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 Jan 2023 21:25:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230111AbjAFBka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 20:40:30 -0500
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF91432277
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 17:40:29 -0800 (PST)
-Received: by mail-pf1-x42d.google.com with SMTP id z7so73779pfq.13
-        for <stable@vger.kernel.org>; Thu, 05 Jan 2023 17:40:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=c8gCbSML/p6Kr09DdbXaCD2bHHww6ZP3H/AZnf3Fw7g=;
-        b=glG7tzqprNLpK21tSwouvhh29Ru3oQMMT++WF/8EdyAe9E16EXDVV2gQ7MgD/YLbfD
-         7i5ORFsmWI/15TfC6bE9Zh+BDD8BK7F3Cr25qWSmjIrnEIqHKvXKZPM93FIz7er9IXb9
-         P09kmLdjasAmuSD6VJ5W6wIZSgZ1vfi8G3Cak=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=c8gCbSML/p6Kr09DdbXaCD2bHHww6ZP3H/AZnf3Fw7g=;
-        b=Xa/KLnv4LIj7CYX4oQ2GFSYRPovWVsK5VDyXgZV7WcjcX7dodIadOkiTVPDiFszFdR
-         Dvy3GzeWVyutU55YEUcO4J66oo+vnv0t/vsJqxMwY2BR8CfzUnvTrTK9EIeJLCj9Twyp
-         U9CJpr3tGhRMxgHYRpeOSt/CMdH65whLqovehvqveQG5CqgFIHGJsLEhQ7UrXPUm1RHF
-         mgA6GX9RoWLknSNH7pqd9sxDC6LpAj4Q1gsZaHHi66dX0GIa+keAC5Lml/YmIWV0LtML
-         OjHUDIQl7qcS4GkLY5l9BWuUVxeMZ2pcFl0J2OGLZwy7DYlDmav11tv9u1IW8+0i4KJA
-         9TeQ==
-X-Gm-Message-State: AFqh2kobaGtyaDibm2/0tjjNIH2H9HUfh7V6bGzqLmnDT16nfAZDp7f/
-        7AsTL0l1nvmRRCRxrd72rEYoaQ==
-X-Google-Smtp-Source: AMrXdXvC7oDu6YyGV+8jfSbsR7fE2kCUxk5coKNVNbu0UAKMzyqM7NgLBCShEMc/OPWHessmN1xdtQ==
-X-Received: by 2002:a62:e510:0:b0:582:5b8d:52be with SMTP id n16-20020a62e510000000b005825b8d52bemr19080880pff.8.1672969229354;
-        Thu, 05 Jan 2023 17:40:29 -0800 (PST)
-Received: from localhost ([2620:15c:9d:2:5567:fb20:aa4f:352])
-        by smtp.gmail.com with UTF8SMTPSA id 142-20020a621994000000b00575caf80d08sm17868008pfz.31.2023.01.05.17.40.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 05 Jan 2023 17:40:28 -0800 (PST)
-From:   Brian Norris <briannorris@chromium.org>
-To:     =?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>,
-        Sean Paul <seanpaul@chromium.org>
-Cc:     Sandy Huang <hjc@rock-chips.com>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@mailbox.org>,
-        linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        dri-devel@lists.freedesktop.org,
-        Brian Norris <briannorris@chromium.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>
-Subject: [PATCH 2/2] drm/rockchip: vop: Leave vblank enabled in self-refresh
-Date:   Thu,  5 Jan 2023 17:40:18 -0800
-Message-Id: <20230105174001.2.Ic07cba4ab9a7bd3618a9e4258b8f92ea7d10ae5a@changeid>
-X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
-In-Reply-To: <20230105174001.1.I3904f697863649eb1be540ecca147a66e42bfad7@changeid>
-References: <20230105174001.1.I3904f697863649eb1be540ecca147a66e42bfad7@changeid>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        with ESMTP id S229455AbjAFCZE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 21:25:04 -0500
+Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0133963F54
+        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 18:25:00 -0800 (PST)
+Received: from epcas2p3.samsung.com (unknown [182.195.41.55])
+        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20230106022457epoutp03ea651692df74ecb2d02f2621eb1f3178~3lxO31HwO1672516725epoutp03l
+        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 02:24:57 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20230106022457epoutp03ea651692df74ecb2d02f2621eb1f3178~3lxO31HwO1672516725epoutp03l
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1672971897;
+        bh=zYAVVwKbYWstk25NjpAYrxBF81yAcrHna5VCyCM4pz8=;
+        h=Subject:Reply-To:From:To:CC:In-Reply-To:Date:References:From;
+        b=mtMuKQAPQ5gb4u0njOYlSAGUXfO60S83nMptdarFtNEE07qbA+XQpbza2kUocTw2i
+         f5OvZIsYVsK10mFrw0NAMK0d5CYOSUBx7ex60BKAQ2dqd5ezUq/uUK7f5XN8tuSaye
+         BoSddzSg6iwwWUpjCWBXTPNoE/Xw3E2LROsf3yaY=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+        epcas2p1.samsung.com (KnoxPortal) with ESMTP id
+        20230106022457epcas2p1e8b266521fd8f3ab2e6b8cec6ec29135~3lxOdNyH42057020570epcas2p1i;
+        Fri,  6 Jan 2023 02:24:57 +0000 (GMT)
+Received: from epsmges2p3.samsung.com (unknown [182.195.36.102]) by
+        epsnrtp3.localdomain (Postfix) with ESMTP id 4Np6cS3djLz4x9Q0; Fri,  6 Jan
+        2023 02:24:56 +0000 (GMT)
+X-AuditID: b6c32a47-619ff7000000f187-f5-63b786783a81
+Received: from epcas2p3.samsung.com ( [182.195.41.55]) by
+        epsmges2p3.samsung.com (Symantec Messaging Gateway) with SMTP id
+        51.0F.61831.87687B36; Fri,  6 Jan 2023 11:24:56 +0900 (KST)
+Mime-Version: 1.0
+Subject: RE:(2) [PATCH] scsi: ufs: core: fix devfreq deadlocks
+Reply-To: j-young.choi@samsung.com
+Sender: Jinyoung CHOI <j-young.choi@samsung.com>
+From:   Jinyoung CHOI <j-young.choi@samsung.com>
+To:     Avri Altman <Avri.Altman@wdc.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Asutosh Das <quic_asutoshd@quicinc.com>
+CC:     Johan Hovold <johan+linaro@kernel.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        ALIM AKHTAR <alim.akhtar@samsung.com>,
+        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Can Guo <quic_cang@quicinc.com>
+X-Priority: 3
+X-Content-Kind-Code: NORMAL
+In-Reply-To: <DM6PR04MB65750DE015FA51FDC08D994BFCFA9@DM6PR04MB6575.namprd04.prod.outlook.com>
+X-CPGS-Detection: blocking_info_exchange
+X-Drm-Type: N,general
+X-Msg-Generator: Mail
+X-Msg-Type: PERSONAL
+X-Reply-Demand: N
+Message-ID: <20230106022456epcms2p784b3cf9115f6b170bdef0732258381ba@epcms2p7>
+Date:   Fri, 06 Jan 2023 11:24:56 +0900
+X-CMS-MailID: 20230106022456epcms2p784b3cf9115f6b170bdef0732258381ba
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: AUTO_CONFIDENTIAL
+X-CPGSPASS: Y
+X-CPGSPASS: Y
+CMS-TYPE: 102P
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrMJsWRmVeSWpSXmKPExsWy7bCmuW5F2/Zkg0+XxSwezNvGZvHy51U2
+        i2kffjJbvDykabHoxjYmixWVFpd3zWGz6L6+g81i+fF/TBYLO+ayWEy6toHNYsHGR4wOPB6X
+        r3h7bFrVyeYxYdEBRo+PT2+xeEzcU+fRt2UVo8fnTXIe7Qe6mQI4orJtMlITU1KLFFLzkvNT
+        MvPSbZW8g+Od403NDAx1DS0tzJUU8hJzU22VXHwCdN0yc4AuVVIoS8wpBQoFJBYXK+nb2RTl
+        l5akKmTkF5fYKqUWpOQUmBfoFSfmFpfmpevlpZZYGRoYGJkCFSZkZ9x9/pCpYBVnxew5p5ka
+        GFexdzFyckgImEj0Tl3FCmILCexglDjaYdXFyMHBKyAo8XeHMEhYWMBOYs+x68wQJUoS59bM
+        YgQpERYwkLjVaw4SZhPQk/i5ZAYbSFhEoEzizeWYLkYuDmaBTmaJB3sXQ23ilZjR/pQFwpaW
+        2L58KyOIzSkQK7H60wxmiLiGxI9lvVC2qMTN1W/ZYez3x+YzQtgiEq33zkLVCEo8+LkbKi4p
+        cejQV7AbJATyJTYcCIQI10i8XX4AqkRf4lrHRhaIB30lvvV5gIRZBFQl/k2/CDXRReL8vD6w
+        rcwC8hLb385hBilnFtCUWL9LH2K4ssSRWywwPzVs/M2OzmYW4JPoOPwXLr5j3hMmiFY1iUVN
+        RhMYlWchwngWklWzEFYtYGRexSiWWlCcm55abFRgDI/V5PzcTYzg1KrlvoNxxtsPeocYmTgY
+        DzFKcDArifCW9W9LFuJNSaysSi3Kjy8qzUktPsRoCvTkRGYp0eR8YHLPK4k3NLE0MDEzMzQ3
+        MjUwVxLnDdo6P1lIID2xJDU7NbUgtQimj4mDU6qBiel2a1D0/xDdE5+WTnwUvEqAXf8Yi/ak
+        SFUG13+m8kvNW1jXPzvxsaFW7siX34cOc+463PP6Mff2YxvcIwLXdjWHfvv2zJTpXqZKUKNc
+        laTdVOcU6z0PFujW8P230z1ed7XlSXJF0eyFS24Z9oflihhPYb3mzbHVddLRyyt+b9hhezQ8
+        wSJrc65WX4wC3+w3X5LlnKXWPWS5tXH9uUNStcGLtwsucTfeWlVzRPmDVuJ6RVuW1dUn+ESq
+        zh87NmlN1pH7LFZzp9qeyZade5OvpdS81GkuY8nVlR5HLYI1+id6+ky8saLWun/zqrXl6d+j
+        IkS2HLj8WO6nlPTTecubku8oxLw223/x+qRH1qy1k5RYijMSDbWYi4oTAbW/Hvo2BAAA
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20230105072134epcas2p47a72da1ee48e341295575770d3eb573c
+References: <DM6PR04MB65750DE015FA51FDC08D994BFCFA9@DM6PR04MB6575.namprd04.prod.outlook.com>
+        <20221222102121.18682-1-johan+linaro@kernel.org>
+        <85e91255-1e6f-f428-5376-08416d2107a2@acm.org>
+        <20230104141045.GB8114@asutoshd-linux1.qualcomm.com>
+        <3db8c140-2e4e-0d75-4d81-b2c1f22f68d1@acm.org>
+        <CGME20230105072134epcas2p47a72da1ee48e341295575770d3eb573c@epcms2p7>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If we disable vblank when entering self-refresh, vblank APIs (like
-DRM_IOCTL_WAIT_VBLANK) no longer work. But user space is not aware when
-we enter self-refresh, so this appears to be an API violation -- that
-DRM_IOCTL_WAIT_VBLANK fails with EINVAL whenever the display is idle and
-enters self-refresh.
+>> On 1/4/23 06:10, Asutosh Das wrote:
+>> > Load based toggling of WB seemed fine to me then.
+>> > I haven't thought about another method to toggle WriteBooster yet.
+>> > Let me see if I can come up with something.
+>> > IMT if you have a mechanism in mind, please let me know.
+>> 
+>> Hi Asutosh,
+>> 
+>> Which UFS devices need this mechanism? All UFS devices I'm familiar with can
+>> achieve wire speed for large write requests without enabling the WriteBooster.
+>This feature assures SLC-performance for writes to the WriteBooster buffer.
+>So enabling it is advantageous as far as write performance.
 
-The downstream driver used by many of these systems never used to
-disable vblank for PSR, and in fact, even upstream, we didn't do that
-until radically redesigning the state machine in commit 6c836d965bad
-("drm/rockchip: Use the helpers for PSR").
+I agree with you. Also, it can be used in various ways.
 
-Thus, it seems like a reasonable API fix to simply restore that
-behavior, and leave vblank enabled.
+>As for the toggling functionality, compared to e.g. enabling it on init and leave it on,
+>some flash vendors require it because of device health considerations.
+>This is not the case for us, so let others to comment.
 
-Note that this appears to potentially unbalance the
-drm_crtc_vblank_{off,on}() calls in some cases, but:
-(a) drm_crtc_vblank_on() documents this as OK and
-(b) if I do the naive balancing, I find state machine issues such that
-    we're not in sync properly; so it's easier to take advantage of (a).
+In our case, it does not matter whether to toggle or not.
+To make the code simple, it seems to be a good way to enable it on init and leave it on.
+Considering device health, WB can be disabled through lifetime check.
 
-Backporting notes:
-Marking as 'Fixes' commit 6c836d965bad ("drm/rockchip: Use the helpers
-for PSR"), but it probably depends on commit bed030a49f3e
-("drm/rockchip: Don't fully disable vop on self refresh") as well.
+Thanks,
+Jinyoung.
 
-We also need the previous patch ("drm/atomic: Allow vblank-enabled +
-self-refresh "disable""), of course.
-
-Fixes: 6c836d965bad ("drm/rockchip: Use the helpers for PSR")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/dri-devel/Y5itf0+yNIQa6fU4@sirena.org.uk/
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
----
-
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index fa1f4ee6d195..c541967114b4 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -719,11 +719,11 @@ static void vop_crtc_atomic_disable(struct drm_crtc *crtc,
- 
- 	mutex_lock(&vop->vop_lock);
- 
--	drm_crtc_vblank_off(crtc);
--
- 	if (crtc->state->self_refresh_active)
- 		goto out;
- 
-+	drm_crtc_vblank_off(crtc);
-+
- 	/*
- 	 * Vop standby will take effect at end of current frame,
- 	 * if dsp hold valid irq happen, it means standby complete.
--- 
-2.39.0.314.g84b9a713c41-goog
+>
+>Thanks,
+>Avri
+>> 
+>> Thanks,
+>> 
+>> Bart.
 
