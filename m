@@ -2,102 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6E1965F9F2
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 04:08:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 273C065FBA4
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 07:58:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229514AbjAFDIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 Jan 2023 22:08:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33880 "EHLO
+        id S229694AbjAFG6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 01:58:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231576AbjAFDIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 Jan 2023 22:08:31 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29067193DD
-        for <stable@vger.kernel.org>; Thu,  5 Jan 2023 19:08:31 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id n4so403641plp.1
-        for <stable@vger.kernel.org>; Thu, 05 Jan 2023 19:08:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=2VLetstegDAmF4ny1Y3gq8bwqwrD3M6s6ZsjuqPUW4g=;
-        b=SQPs4GjIr8E+QL7RL+S6LiM5UGFEtcKNIVi1YyDci+rzwXIkEZ6ibNhWiz33+cCUf0
-         77uyX8lmz34q4uMLDII1loYhM6yh6LNqUc9qlvAHGRZwWlNl/AQGnB6pqlihsIl6cish
-         SYdIgmU7p7B4gL4JD98JMpgthQbianUbZPVIJZavBEDJ5FrozI+6lV5KfMm+aiG4AhGf
-         cy/BRBjyxeW6Z1RMf6rpj7jkXIyubdQonF77zlBpokVJMUIr3HPujjlENJ+vKO2ZyP4x
-         rTfqNLQsGM8nW50SCv8qZ6/UJJ5EA2wBqbYuRAdSmUE6jPB9vJtGLZNZPZ8lMNAe4TWF
-         u08A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2VLetstegDAmF4ny1Y3gq8bwqwrD3M6s6ZsjuqPUW4g=;
-        b=brQmM6qRtKnQjPHxsdE4zZpdemyUVA0onFhpbVWuN2GMP9/f1TztU/yQgG428GhojA
-         OkFJ67XUlwE4S6u3wxyQvyuuGqF4bpa+c6UlqupOVvwJv3gmX6qcMb0c8keYrRbaECRX
-         bFKvwuZP09cz6vbSj98+h7SgQQc8hgkBKM//6NCcakImXKcg++9944extITOq/8s0d0A
-         b9MFHI3HdHntdkWrUoxLAkDsPmT6u1yC7C+vF1V7vq/iF0S6O8HevX03dEo8jkhBrkOH
-         YBkv1jyBNH45Ogn/MHEC9tA1FT9WSJndtt+Og7BA7FKstomv4SbZW9UumvDKN608M7qW
-         6tAQ==
-X-Gm-Message-State: AFqh2kp517og/SrUPejr6BArgVjP3/gGnfHZlKwVWkJ9F4bfFQrPL2nl
-        K8qT9iwGwHOFJLXiiPo/HOQ=
-X-Google-Smtp-Source: AMrXdXuTzulKtnn92wYsH6GDStMBQGa72y5AwYy4Qvf8gge4HSZhAb2ApBfO6xNG7QyeUPGPRrgsag==
-X-Received: by 2002:a17:90a:62cc:b0:223:7910:95f8 with SMTP id k12-20020a17090a62cc00b00223791095f8mr65230627pjs.36.1672974510675;
-        Thu, 05 Jan 2023 19:08:30 -0800 (PST)
-Received: from ISCNPF1JZGWX.infineon.com (KD106168128197.ppp-bb.dion.ne.jp. [106.168.128.197])
-        by smtp.gmail.com with ESMTPSA id ns22-20020a17090b251600b00218f9bd50c7sm1979891pjb.50.2023.01.05.19.08.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Jan 2023 19:08:30 -0800 (PST)
-From:   tkuw584924@gmail.com
-X-Google-Original-From: Takahiro.Kuwano@infineon.com
-To:     linux-mtd@lists.infradead.org
-Cc:     tudor.ambarus@linaro.org, pratyush@kernel.org, michael@walle.cc,
-        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
-        tkuw584924@gmail.com, Bacem.Daassi@infineon.com,
-        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] mtd: spi-nor: spansion: Keep CFR5V[6] as 1 in Octal DTR enable/disable
-Date:   Fri,  6 Jan 2023 12:06:01 +0900
-Message-Id: <20230106030601.6530-1-Takahiro.Kuwano@infineon.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229547AbjAFG6w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 01:58:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B0B5C92A;
+        Thu,  5 Jan 2023 22:58:50 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3A8361CE6;
+        Fri,  6 Jan 2023 06:58:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B28AC433D2;
+        Fri,  6 Jan 2023 06:58:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1672988329;
+        bh=el314kZ7VBsdxmxA7/FGLXa4ifdIwEn5Eeyvb0I5bRI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hxAnJzheqjLmDSraLu9htVurlEHrLldoaSOOWWy4RR+Pve0W1+0F4ygFQKYI7wMnh
+         1Nuq6VlnvP/NaUZ88Ttl2drHewkKA9K7jz6CqYDRtI+Id3rU41qqYYMIpvvxm+g9hE
+         Fh1WE8i1zYoHDWa5WRuQi48UVEqddfsvNAERzXzU=
+Date:   Fri, 6 Jan 2023 07:58:45 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/207] 6.1.4-rc1 review
+Message-ID: <Y7fGpYyaJWym1BxW@kroah.com>
+References: <20230104160511.905925875@linuxfoundation.org>
+ <Y7cmMKUr//oYKWXb@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y7cmMKUr//oYKWXb@duo.ucw.cz>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
+On Thu, Jan 05, 2023 at 08:34:08PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > This is the start of the stable review cycle for the 6.1.4 release.
+> > There are 207 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> 
+> Thank you.
+> 
+> Is it known at this point if 6.1 will became next longterm release? It
+> is not listed as such on https://www.kernel.org/category/releases.html
+> . We might want to do some extra testing if it is.
 
-CFR5V[6] is reserved bit and must always be 1.
+A kernel can not become "long term" until it would have normally dropped
+off of support.  Right now there are known-regressions in 6.1 still that
+are not resolved.
 
-Fixes: c3266af101f2 ("mtd: spi-nor: spansion: add support for Cypress Semper flash")
-Signed-off-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
-Cc: stable@vger.kernel.org
----
- drivers/mtd/spi-nor/spansion.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+And "extra" testing is always good no matter what kernel branch it is
+happening for, why not always do it?
 
-diff --git a/drivers/mtd/spi-nor/spansion.c b/drivers/mtd/spi-nor/spansion.c
-index b621cdfd506f..4e094a432d29 100644
---- a/drivers/mtd/spi-nor/spansion.c
-+++ b/drivers/mtd/spi-nor/spansion.c
-@@ -21,8 +21,8 @@
- #define SPINOR_REG_CYPRESS_CFR3V		0x00800004
- #define SPINOR_REG_CYPRESS_CFR3V_PGSZ		BIT(4) /* Page size. */
- #define SPINOR_REG_CYPRESS_CFR5V		0x00800006
--#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN	0x3
--#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS	0
-+#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN	0x43
-+#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS	0x40
- #define SPINOR_OP_CYPRESS_RD_FAST		0xee
- 
- /* Cypress SPI NOR flash operations. */
--- 
-2.25.1
+thanks,
 
+greg k-h
