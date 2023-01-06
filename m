@@ -2,154 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 176FA66094C
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 23:09:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0C566097B
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 23:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbjAFWJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 17:09:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47694 "EHLO
+        id S235584AbjAFW2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 17:28:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234216AbjAFWJF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 17:09:05 -0500
-Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A44D84BDD
-        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 14:09:04 -0800 (PST)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 073F45C0113;
-        Fri,  6 Jan 2023 17:09:04 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Fri, 06 Jan 2023 17:09:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tyhicks.com; h=
-        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm2; t=1673042944; x=1673129344; bh=Aj
-        9ybdm3ZySJ8AExNZKhMb8mwIMaF3vekQTkVDndhAI=; b=qoMMlsy/UWod6tLfzg
-        q7EWpndhzTg7tYUMSncwdkakr30F6hWcML086dsAa/4T0A7R9LP914E6oIA3+1oG
-        y709vAoK5RwQ1x/qTHYd/AS3ydAwRTC7/SS9kI6ForoNG9T0gVrcjp3FXAu1XihQ
-        k0gq5tHCfX4L5XydhIGQJIv+oxjkkUk6lhj7lbAEwlKcmoZFAfI54FKMVe9C3Qkr
-        1kveMzAbf0oXt14J6NiVUKTepQsX8l4fFNLuai9Z9I7wsGv6XutrWxKakOTeCXte
-        Lq45ObGb6g1Q/X3rWrOMGrMBSoYiRKhfBpCu7dOnI5RMTNLjZh795BjMdIAKQCWi
-        o8VA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; t=1673042944; x=1673129344; bh=Aj9ybdm3ZySJ8
-        AExNZKhMb8mwIMaF3vekQTkVDndhAI=; b=RhkJ64a6G6Xnc5PkzoTPdvzNuy/SP
-        2tvRGvJ8nv++moaI8uGUZa9cOICMp/vzkajfH5qcFJ44ryVC+roP9mGWnpeBVaod
-        I9kySBYqHQqsuWoXVjIv4PLs+ZRPYpPccgdPgdV1/BnFWAh2wF1hF918TRIlYKzM
-        J3Fktx9WB8q/P2CTTd8lLQox9NwQSezgGrQ/0pGheyNeueeo9y5TO/8hY9BiT5Ee
-        /mz6+MoyqojMChu5v+32SU9XIFMWTeUeSyHCPBKZO1Wu9Xv866O/Zqed427KVSPb
-        UTOiqzNmr90FR9+6tDgW6slx5CEQfe/3oP0EkIzDiIFsnwKaS1f1T20Ew==
-X-ME-Sender: <xms:_5u4YyhB2bAm7plfDzHv-1sCUIpdcvLSttShN0ty9QYNzZUvn-bBBA>
-    <xme:_5u4YzDK4IU4lxIPQLpoKS2vTzbH379Nlai6k3sRWz9mZw3txNIQQcPLaubMguBbY
-    GbZcNkR0PHCUmabEHM>
-X-ME-Received: <xmr:_5u4Y6GO_fFBLU_icMuv6I98jSgmLu8Dz25TwYiJD2JwRLZrymHA_z7Z6A8LODpM5c3gtq85tVal>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrkedtgdduheejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomhepvfihlhgv
-    rhcujfhitghkshcuoegtohguvgesthihhhhitghkshdrtghomheqnecuggftrfgrthhtvg
-    hrnhepteefieekkeeiueeiheffieegteffkeehtdetgeekheeggfffveefgeehvedtjeeh
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheptghoug
-    gvsehthihhihgtkhhsrdgtohhm
-X-ME-Proxy: <xmx:_5u4Y7TMaTaLEJ_PVdN_QQgixF__MVTE1W22DeVkIh0h-8eO1t_68g>
-    <xmx:_5u4Y_ykKUPoQNld4zbjc8O7DVYHcYX1pJDdb4KLgpbJ9MyBjNt_Kg>
-    <xmx:_5u4Y55DLCQLhXqFCX_2TyN9NmASe3JO5pdbhHffA47CQkt55jrZ1w>
-    <xmx:AJy4Y6_VDZ92D1EVrGEt7cPcODZSPHBimxuNREmparVCi5_STNEq-A>
-Feedback-ID: i78e14604:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 6 Jan 2023 17:09:03 -0500 (EST)
-From:   Tyler Hicks <code@tyhicks.com>
-To:     stable@vger.kernel.org
-Cc:     Shuah Khan <skhan@linuxfoundation.org>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Tyler Hicks <code@tyhicks.com>
-Subject: [PATCH 5.4 2/2] selftests: set the BUILD variable to absolute path
-Date:   Fri,  6 Jan 2023 16:08:44 -0600
-Message-Id: <20230106220844.763870-3-code@tyhicks.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230106220844.763870-1-code@tyhicks.com>
-References: <20230106220844.763870-1-code@tyhicks.com>
+        with ESMTP id S231424AbjAFW2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 17:28:20 -0500
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC9E8113A
+        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 14:28:19 -0800 (PST)
+Received: by mail-qv1-xf2d.google.com with SMTP id o17so1947172qvn.4
+        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 14:28:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=QXQOUJjcoX1hrsbbTN+Z+gwuy5Yx5WlxprMyzhgXuL0=;
+        b=FSwATMmksAKMdpu1wQNSAU4HfcxbtJpqP5jg4jxAia7ZjIAJt4LpHBViEiX5ZkvhWV
+         XA077dHR8grrfxkhZnG7h3W83Y6u9reeX0IgVJqi16hhxZZAnt1gx0ImUTDz0+wZcva6
+         cB9bwoRmvnDNak/FU5AzQ18NzyvaFmMkZwKoA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QXQOUJjcoX1hrsbbTN+Z+gwuy5Yx5WlxprMyzhgXuL0=;
+        b=4aJU6ZsZrlMzrhqI1P8zLz5LJONGeIa+0fUcIqHOA5Za1/AXCexrUsLwNsvwfMoAJ3
+         MQofEY62wg66kPcf14FO8zHpzkazsOob17FuW3hXEu7xAAF+9umT2/wWfqfFFRzy9znH
+         8xj8T/4JjGdBU0v4b0MxMo7rErhtApSFcZMf85rVrj+7zlyedwA1XzhtoB9NKByIFjLj
+         ZB29PxpmKsXJKK9F9PtYNGTSUJ0lTuTikwXqLPIvUVdvCmX3yTEevgJSo87Pmk+dsa1v
+         KMVDT/U8hetme+RzSfYOBlzRZL+hGfFzJl7z2GmaH41IsWe60xYJ7SbS+TUCeGu+s3c5
+         fGFQ==
+X-Gm-Message-State: AFqh2krVKtzKHJcNL4ttyUeXrmb7zX9PTKjrfAc/Eq2Bi9r2ZDnFxFN2
+        AFuOdQM0dNA1gdMGJ36WyJPMp1+lQfFmslad
+X-Google-Smtp-Source: AMrXdXvpRaTZE5t5fK3L7taW1sjXkCJHVzjvVORUeY/yy3aaHl60DZNFbYmfraepjv322rGv/4BGUw==
+X-Received: by 2002:ad4:558b:0:b0:531:9d56:ab9e with SMTP id f11-20020ad4558b000000b005319d56ab9emr42039315qvx.10.1673044098416;
+        Fri, 06 Jan 2023 14:28:18 -0800 (PST)
+Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com. [209.85.219.54])
+        by smtp.gmail.com with ESMTPSA id c23-20020a05620a269700b006fb11eee465sm1221541qkp.64.2023.01.06.14.28.16
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 06 Jan 2023 14:28:17 -0800 (PST)
+Received: by mail-qv1-f54.google.com with SMTP id t7so1953750qvv.3
+        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 14:28:16 -0800 (PST)
+X-Received: by 2002:a0c:df09:0:b0:4f0:656b:c275 with SMTP id
+ g9-20020a0cdf09000000b004f0656bc275mr3791255qvl.129.1673044096460; Fri, 06
+ Jan 2023 14:28:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <Y7dPV5BK6jk1KvX+@zx2c4.com> <20230106030156.3258307-1-Jason@zx2c4.com>
+ <CAHk-=wjin0Rn6j+EvYV9pzrbA0G2xnHKdp_EAB6XnansQ8kpUA@mail.gmail.com> <CAA25o9Sbkg=qD+DH-aqXY9H5R_oBtePcnqagwAGCgoUk8D-Vyg@mail.gmail.com>
+In-Reply-To: <CAA25o9Sbkg=qD+DH-aqXY9H5R_oBtePcnqagwAGCgoUk8D-Vyg@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 6 Jan 2023 14:28:00 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wi60PhJRzaBJ9uvVCpOpqSsKy=oXkGDq7t844BJ6dRcmA@mail.gmail.com>
+Message-ID: <CAHk-=wi60PhJRzaBJ9uvVCpOpqSsKy=oXkGDq7t844BJ6dRcmA@mail.gmail.com>
+Subject: Re: [PATCH v2] tpm: Allow system suspend to continue when TPM suspend fails
+To:     Luigi Semenzato <semenzato@chromium.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Jan Dabros <jsd@semihalf.com>,
+        regressions@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
+        linux-integrity@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Johannes Altmanninger <aclopte@gmail.com>,
+        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
+        tbroch@chromium.org, dbasehore@chromium.org,
+        Kees Cook <keescook@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Usama Anjum <usama.anjum@collabora.com>
+On Fri, Jan 6, 2023 at 12:04 PM Luigi Semenzato <semenzato@chromium.org> wrote:
+>
+> I think it's fine to go ahead with your change, for multiple reasons.
 
-commit 5ad51ab618de5d05f4e692ebabeb6fe6289aaa57 upstream.
+Ok, I've applied the patch (although I did end up editing it to use
+dev_err() before doing that just to make myself happier about the
+printout).
 
-The build of kselftests fails if relative path is specified through
-KBUILD_OUTPUT or O=<path> method. BUILD variable is used to determine
-the path of the output objects. When make is run from other directories
-with relative paths, the exact path of the build objects is ambiguous
-and build fails.
-
-	make[1]: Entering directory '/home/usama/repos/kernel/linux_mainline2/tools/testing/selftests/alsa'
-	gcc     mixer-test.c -L/usr/lib/x86_64-linux-gnu -lasound  -o build/kselftest/alsa/mixer-test
-	/usr/bin/ld: cannot open output file build/kselftest/alsa/mixer-test
-
-Set the BUILD variable to the absolute path of the output directory.
-Make the logic readable and easy to follow. Use spaces instead of tabs
-for indentation as if with tab indentation is considered recipe in make.
-
-Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
----
- tools/testing/selftests/Makefile | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
-
-diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
-index 0eb5567bb94a..40ee6f57af78 100644
---- a/tools/testing/selftests/Makefile
-+++ b/tools/testing/selftests/Makefile
-@@ -85,19 +85,27 @@ ifdef building_out_of_srctree
- override LDFLAGS =
- endif
- 
--ifneq ($(O),)
--	BUILD := $(O)/kselftest
-+top_srcdir ?= ../../..
-+
-+ifeq ("$(origin O)", "command line")
-+  KBUILD_OUTPUT := $(O)
-+endif
-+
-+ifneq ($(KBUILD_OUTPUT),)
-+  # Make's built-in functions such as $(abspath ...), $(realpath ...) cannot
-+  # expand a shell special character '~'. We use a somewhat tedious way here.
-+  abs_objtree := $(shell cd $(top_srcdir) && mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) && pwd)
-+  $(if $(abs_objtree),, \
-+    $(error failed to create output directory "$(KBUILD_OUTPUT)"))
-+  # $(realpath ...) resolves symlinks
-+  abs_objtree := $(realpath $(abs_objtree))
-+  BUILD := $(abs_objtree)/kselftest
- else
--	ifneq ($(KBUILD_OUTPUT),)
--		BUILD := $(KBUILD_OUTPUT)/kselftest
--	else
--		BUILD := $(shell pwd)
--		DEFAULT_INSTALL_HDR_PATH := 1
--	endif
-+  BUILD := $(CURDIR)
-+  DEFAULT_INSTALL_HDR_PATH := 1
- endif
- 
- # Prepare for headers install
--top_srcdir ?= ../../..
- include $(top_srcdir)/scripts/subarch.include
- ARCH           ?= $(SUBARCH)
- export KSFT_KHDR_INSTALL_DONE := 1
--- 
-2.34.1
-
+            Linus
