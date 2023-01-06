@@ -2,83 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C45DC66024D
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 15:35:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9C666028B
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 15:52:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235347AbjAFOfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 09:35:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39528 "EHLO
+        id S234565AbjAFOvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 09:51:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235594AbjAFOep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 09:34:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 310B38318F;
-        Fri,  6 Jan 2023 06:34:21 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D75D8B81C0C;
-        Fri,  6 Jan 2023 14:34:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D60EC433D2;
-        Fri,  6 Jan 2023 14:34:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673015658;
-        bh=ynDFiEQrOvyn+hQ5jOy9DWfHWTy4bEEbSvBtrELW8dQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wMa2bMRGLHxuCrjcj5axey3B7v6+dvVeQQuaJ8ItKM59V2cpPmjUZXy6+op3d6hT5
-         A2BZBq2upk6x425FjB3YjhAokFgxKfnB82s2oZWj5Fj85R1ggEwW5sEpCyMfVUTG4T
-         /8dN2p/dGuSrjAsXsnH3oNaFVlGCivLJr8MfbVPA=
-Date:   Fri, 6 Jan 2023 15:34:15 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Georg =?iso-8859-1?Q?M=FCller?= <georgmueller@gmx.net>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.0 000/177] 6.0.18-rc1 review
-Message-ID: <Y7gxZ201DOi7nyZZ@kroah.com>
-References: <20230104160507.635888536@linuxfoundation.org>
- <53f19c0a-412d-ba8e-57bb-b626ba5b7672@gmx.net>
+        with ESMTP id S234652AbjAFOvT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 09:51:19 -0500
+Received: from alexa-out-sd-02.qualcomm.com (alexa-out-sd-02.qualcomm.com [199.106.114.39])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F5243A2C;
+        Fri,  6 Jan 2023 06:51:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
+  t=1673016677; x=1704552677;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=6RpF6eE4rplQHZrScRm77jw6rc0zQcUrLHjokMOcVV8=;
+  b=JYHFqGSUTGd5oQN+8FkiD2K3Mja81guR4QoRhZNfMgT6rtaUSS1sf2xx
+   lOqXcP7krE0rqFC4JpI/RLTLgr4RYCqDfkT8DGrxw9569b5JgJSugv9mj
+   0IMHQwFoCuMVbanNJirihLTgvC5crfSl3QpOajMjgekUb3VyGmZ1TVcl9
+   4=;
+Received: from unknown (HELO ironmsg04-sd.qualcomm.com) ([10.53.140.144])
+  by alexa-out-sd-02.qualcomm.com with ESMTP; 06 Jan 2023 06:51:17 -0800
+X-QCInternal: smtphost
+Received: from unknown (HELO nasanex01a.na.qualcomm.com) ([10.52.223.231])
+  by ironmsg04-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2023 06:51:17 -0800
+Received: from asutoshd-linux1.qualcomm.com (10.80.80.8) by
+ nasanex01a.na.qualcomm.com (10.52.223.231) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.36; Fri, 6 Jan 2023 06:51:16 -0800
+Date:   Fri, 6 Jan 2023 06:51:06 -0800
+From:   Asutosh Das <quic_asutoshd@quicinc.com>
+To:     Jinyoung CHOI <j-young.choi@samsung.com>
+CC:     Avri Altman <Avri.Altman@wdc.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "ALIM AKHTAR" <alim.akhtar@samsung.com>,
+        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Can Guo <quic_cang@quicinc.com>
+Subject: Re: (2) [PATCH] scsi: ufs: core: fix devfreq deadlocks
+Message-ID: <20230106145106.GA16911@asutoshd-linux1.qualcomm.com>
+References: <DM6PR04MB65750DE015FA51FDC08D994BFCFA9@DM6PR04MB6575.namprd04.prod.outlook.com>
+ <20221222102121.18682-1-johan+linaro@kernel.org>
+ <85e91255-1e6f-f428-5376-08416d2107a2@acm.org>
+ <20230104141045.GB8114@asutoshd-linux1.qualcomm.com>
+ <3db8c140-2e4e-0d75-4d81-b2c1f22f68d1@acm.org>
+ <CGME20230105072134epcas2p47a72da1ee48e341295575770d3eb573c@epcms2p7>
+ <20230106022456epcms2p784b3cf9115f6b170bdef0732258381ba@epcms2p7>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <53f19c0a-412d-ba8e-57bb-b626ba5b7672@gmx.net>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230106022456epcms2p784b3cf9115f6b170bdef0732258381ba@epcms2p7>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nasanex01a.na.qualcomm.com (10.52.223.231)
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 06, 2023 at 03:27:58PM +0100, Georg Müller wrote:
-> Hi Greg,
-> 
-> Am 04.01.23 um 17:04 schrieb Greg Kroah-Hartman:
-> > This is the start of the stable review cycle for the 6.0.18 release.
-> > There are 177 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 06 Jan 2023 16:04:29 +0000.
-> > Anything received after that time might be too late.
-> 
-> There is an easy-to-trigger kernel panic in cifs which was introduced in 6.0.16 and could be fixed by backporting the following commit:
-> 
->    9ee2afe5207b ("cifs: prevent copying past input buffer boundaries")
-> 
-> Please see https://bugzilla.kernel.org/show_bug.cgi?id=216895 for the details
-> 
-> Could this commit be added as well to 6.0.18?
+On Fri, Jan 06 2023 at 18:25 -0800, Jinyoung CHOI wrote:
+>>> On 1/4/23 06:10, Asutosh Das wrote:
+>>> > Load based toggling of WB seemed fine to me then.
+>>> > I haven't thought about another method to toggle WriteBooster yet.
+>>> > Let me see if I can come up with something.
+>>> > IMT if you have a mechanism in mind, please let me know.
+>>>
+>>> Hi Asutosh,
+>>>
+>>> Which UFS devices need this mechanism? All UFS devices I'm familiar with can
+>>> achieve wire speed for large write requests without enabling the WriteBooster.
+>>This feature assures SLC-performance for writes to the WriteBooster buffer.
+>>So enabling it is advantageous as far as write performance.
+>
+>I agree with you. Also, it can be used in various ways.
+>
+>>As for the toggling functionality, compared to e.g. enabling it on init and leave it on,
+>>some flash vendors require it because of device health considerations.
+>>This is not the case for us, so let others to comment.
+>
+>In our case, it does not matter whether to toggle or not.
+>To make the code simple, it seems to be a good way to enable it on init and leave it on.
+>Considering device health, WB can be disabled through lifetime check.
+>
+>Thanks,
+>Jinyoung.
+>
+Hi Jinyoung / Avri / Bart
 
-It is too late for this release, we can add it to the next one.  Or you
-can move to 6.1.y which you should be doing anyway as 6.0.y is about to
-go end-of-life in a few days.
+My understanding during the WriteBooster development was that the endurance of
+the SLC buffer is considerably less and hence it's *not* a good idea to always
+keep it ON. From the spec,
+"
+7279 Whenever the endurance of the WriteBooster Buffer is consumed completely, a write command is
+7280 processed as if WriteBooster feature was disabled. Therefore, it is recommended to set fWriteBoosterEn to
+7281 one, only when WriteBooster performance is needed, so that WriteBooster feature can be used for a longer
+7282 time.
+"
+Going by this toggling it to ON when the load is high and performance is needed seemed reasonable.
 
-thanks,
+Now then, if you confirm that there's no considerable difference in the WB buffer lifetime by
+either always keeping it on at init OR on-demand, then this toggle code should be removed.
+I will talk to other UFS device vendors who may not be active in this list and get back.
 
-greg k-h
+-asd
+
+>>
+>>Thanks,
+>>Avri
+>>>
+>>> Thanks,
+>>>
+>>> Bart.
+>
