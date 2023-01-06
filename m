@@ -2,112 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F8B6603BC
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 16:53:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD2696603D7
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 17:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234039AbjAFPx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 10:53:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57330 "EHLO
+        id S233358AbjAFQB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 11:01:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233287AbjAFPxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 10:53:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238E5809A4;
-        Fri,  6 Jan 2023 07:53:23 -0800 (PST)
+        with ESMTP id S230366AbjAFQBz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 11:01:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAA6058D24;
+        Fri,  6 Jan 2023 08:01:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9683B81DA7;
-        Fri,  6 Jan 2023 15:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F198C433D2;
-        Fri,  6 Jan 2023 15:53:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673020400;
-        bh=ozokV6pT8SVbzlyCUBZ1GdL2Q6oCef7CdvW7wB8pYIE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hqnYqccDRPe4zfjFlZlGq9bMi1QK1K/ENv4FdpwXxTFpOni3HtRWSJbgGb2Y8pzB7
-         yXA630rU76YOWSRSXCN4o6T+ZbnSn7QtzfV3S28bz19GlBWQuPzbUxKo8dkSt4vE+C
-         5jVMF5S/TsAezCXVjg9o74v/H6ZKIYtLF0KKsiYWhUiyHgDUS61mqKlLPYKGwThD3k
-         kdJLlvgA2c6DNe6DTPTSZEiWVpMr/ePm8XBVVkt1FVtJUOh+AeioKGe0oxf4TO02Nv
-         SLOE0zta+l4LUtsqgIITFqD+OCEfPF04GI79Ur80y0moYs2CtCGxhbAaiEZIJwzs4+
-         77/N4m6dMlQ7w==
-Date:   Fri, 6 Jan 2023 09:53:25 -0600
-From:   "Gustavo A. R. Silva" <gustavoars@kernel.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        stable@vger.kernel.org, io-uring@vger.kernel.org,
-        Dylan Yudaken <dylany@fb.com>, linux-kernel@vger.kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: Re: [PATCH v2] io_uring: Replace 0-length array with flexible array
-Message-ID: <Y7hD9XNAsNZ1zIcS@work>
-References: <20230105190507.gonna.131-kees@kernel.org>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3DF961787;
+        Fri,  6 Jan 2023 16:01:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42071C433D2;
+        Fri,  6 Jan 2023 16:01:47 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="MJcD+P6R"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1673020904;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=GBBdu/U+hz6Cjc+bNOWE5qE0BXhjUVEUBxjGp1oqy34=;
+        b=MJcD+P6RLNx85zvcTDbwATN1tyZPlfMj+IMI/v6tpbViVXdxcmKNhOrtlI3XjusmCbv5+x
+        J7TpkFOXiZ4iZ6OI5++8yRhz1LF/WD1nLP6TXO7dsHRPReRqLgS/U1bVqRxHu2ZlnLVq+g
+        zbMdCIya0ydVUzw1sn2CPgnVex97g/c=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id d703d995 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Fri, 6 Jan 2023 16:01:44 +0000 (UTC)
+Date:   Fri, 6 Jan 2023 17:01:42 +0100
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Jan Dabros <jsd@semihalf.com>,
+        regressions@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
+        linux-integrity@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Johannes Altmanninger <aclopte@gmail.com>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>, tbroch@chromium.org,
+        semenzato@chromium.org, dbasehore@chromium.org,
+        keescook@chromium.org
+Subject: Re: [PATCH v2] tpm: Allow system suspend to continue when TPM
+ suspend fails
+Message-ID: <Y7hF5vG8rWjbCLyL@zx2c4.com>
+References: <Y7dPV5BK6jk1KvX+@zx2c4.com>
+ <20230106030156.3258307-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20230105190507.gonna.131-kees@kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230106030156.3258307-1-Jason@zx2c4.com>
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 05, 2023 at 11:05:11AM -0800, Kees Cook wrote:
-> Zero-length arrays are deprecated[1]. Replace struct io_uring_buf_ring's
-> "bufs" with a flexible array member. (How is the size of this array
-> verified?) Detected with GCC 13, using -fstrict-flex-arrays=3:
-> 
-> In function 'io_ring_buffer_select',
->     inlined from 'io_buffer_select' at io_uring/kbuf.c:183:10:
-> io_uring/kbuf.c:141:23: warning: array subscript 255 is outside the bounds of an interior zero-length array 'struct io_uring_buf[0]' [-Wzero-length-bounds]
->   141 |                 buf = &br->bufs[head];
->       |                       ^~~~~~~~~~~~~~~
-> In file included from include/linux/io_uring.h:7,
->                  from io_uring/kbuf.c:10:
-> include/uapi/linux/io_uring.h: In function 'io_buffer_select':
-> include/uapi/linux/io_uring.h:628:41: note: while referencing 'bufs'
->   628 |                 struct io_uring_buf     bufs[0];
->       |                                         ^~~~
-> 
-> [1] https://www.kernel.org/doc/html/latest/process/deprecated.html#zero-length-and-one-element-arrays
-> 
-> Fixes: c7fb19428d67 ("io_uring: add support for ring mapped supplied buffers")
-> Cc: Jens Axboe <axboe@kernel.dk>
-> Cc: Pavel Begunkov <asml.silence@gmail.com>
-> Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-> Cc: stable@vger.kernel.org
-> Cc: io-uring@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+Hi Todd & ChromeOS folks,
 
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-
-Thanks!
---
-Gustavo
-
+On Fri, Jan 06, 2023 at 04:01:56AM +0100, Jason A. Donenfeld wrote:
+> TPM 1 is sometimes broken across system suspends, due to races or
+> locking issues or something else that haven't been diagnosed or fixed
+> yet, most likely having to do with concurrent reads from the TPM's
+> hardware random number generator driver. These issues prevent the system
+> from actually suspending, with errors like:
+> 
+>   tpm tpm0: A TPM error (28) occurred continue selftest
+>   ...
+>   tpm tpm0: A TPM error (28) occurred attempting get random
+>   ...
+>   tpm tpm0: Error (28) sending savestate before suspend
+>   tpm_tis 00:08: PM: __pnp_bus_suspend(): tpm_pm_suspend+0x0/0x80 returns 28
+>   tpm_tis 00:08: PM: dpm_run_callback(): pnp_bus_suspend+0x0/0x10 returns 28
+>   tpm_tis 00:08: PM: failed to suspend: error 28
+>   PM: Some devices failed to suspend, or early wake event detected
+> 
+> This issue was partially fixed by 23393c646142 ("char: tpm: Protect
+> tpm_pm_suspend with locks"), in a last minute 6.1 commit that Linus took
+> directly because the TPM maintainers weren't available. However, it
+> seems like this just addresses the most common cases of the bug, rather
+> than addressing it entirely. So there are more things to fix still,
+> apparently.
+> 
+> In lieu of actually fixing the underlying bug, just allow system suspend
+> to continue, so that laptops still go to sleep fine. Later, this can be
+> reverted when the real bug is fixed.
+> 
+> Link: https://lore.kernel.org/lkml/7cbe96cf-e0b5-ba63-d1b4-f63d2e826efa@suse.cz/
+> Cc: stable@vger.kernel.org # 6.1+
+> Reported-by: Vlastimil Babka <vbabka@suse.cz>
+> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 > ---
-> v2: use helper since these flex arrays are in a union.
-> v1: https://lore.kernel.org/lkml/20230105033743.never.628-kees@kernel.org
-> ---
->  include/uapi/linux/io_uring.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-> index 2780bce62faf..434f62e0fb72 100644
-> --- a/include/uapi/linux/io_uring.h
-> +++ b/include/uapi/linux/io_uring.h
-> @@ -625,7 +625,7 @@ struct io_uring_buf_ring {
->  			__u16	resv3;
->  			__u16	tail;
->  		};
-> -		struct io_uring_buf	bufs[0];
-> +		__DECLARE_FLEX_ARRAY(struct io_uring_buf, bufs);
->  	};
->  };
->  
-> -- 
-> 2.34.1
-> 
+> This is basically untested and I haven't worked out if there are any
+> awful implications of letting the system sleep when TPM suspend fails.
+> Maybe some PCRs get cleared and that will make everything explode on
+> resume? Maybe it doesn't matter? Somebody well versed in TPMology should
+> probably [n]ack this approach.
+
+When idling scrolling on my telephone to try to see what the
+implications of skipping TPM_ORD_SAVESTATE could be, I stumbled across
+some ChromeOS commits related to it, and realized that, ah-hah, finally
+there's an obvious group of stakeholders who make heavy use of the TPM
+and have likely amassed some expertise on it.
+
+So I was wondering if you'd take a look at this patch briefly to make
+sure it won't break ChromeOS laptops.
+
+Jason
