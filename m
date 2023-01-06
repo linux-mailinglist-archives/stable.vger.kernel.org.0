@@ -2,173 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02A386609A7
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 23:45:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C406660A6B
+	for <lists+stable@lfdr.de>; Sat,  7 Jan 2023 00:53:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236224AbjAFWpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 17:45:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59090 "EHLO
+        id S230268AbjAFXxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 18:53:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235581AbjAFWpH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 17:45:07 -0500
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 457EA87292
-        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 14:45:03 -0800 (PST)
-Received: by mail-wm1-x329.google.com with SMTP id k26-20020a05600c1c9a00b003d972646a7dso4591671wms.5
-        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 14:45:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=UGy1a+dQKHkfgMaGdXrExlXz8vRVE+MSLUjgxvFrzRU=;
-        b=b3vPWppdq1IsndpXupEfsRMTk3QaBdNYCMOlodFw2+b3gG45RHdjoWU9OLTCik7qNv
-         9F5GO45xYapdcd209T8SG1aQazvHxwfpd2RGChyyOzRjDbik6wbVgtjHhPZwIxk+N+vW
-         MQkZh5xRWdvCOtzEHgE8DaeyjK/bPET5GkPYI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UGy1a+dQKHkfgMaGdXrExlXz8vRVE+MSLUjgxvFrzRU=;
-        b=1xd3bhE/djzqnoPpz4y9G7ArJn43wsGtKr2pXYj76UkBS4AT6Z8GBHNKKN1COVuCUZ
-         ldpA/UC/OCUppkb7ceSno7vFVX3copXOqIJ20FRC/K58TShPGKaJwVBdg54cB8nRrRcx
-         vOAePI55gmRv3l57UyfX3kYYS6rqbxVoMYnshNgKrNtxgKpGqFKO0mlxSw3wWZfQNoN3
-         EMCFZFLMoyE0vMJXi2UYKSWI6Las6+jQLaLvZSBwl/UKVH/qZOSK4d5D/Ih62qWKhK7x
-         gFpGD7Uu+Ox3ODV9Yq8Ib3P2x+mX8uO7I9ObbeZVrS2+LdlgFOKo3mppqowXkADkt2Md
-         p6fQ==
-X-Gm-Message-State: AFqh2kq//mpa+Dd0QfDBHQIlGhm+Qn2VPfBanEH4eDWfPRZlpQbiJvrm
-        6Jn1mzLofbSWU0c6XagChFoCJw==
-X-Google-Smtp-Source: AMrXdXtZLtlt6MiuOrMIKvdJ9pC47OvNiNZ+yOBh4lsB+P6QM7nN6tzUBNdqkhjBij20IN3wDHGw0A==
-X-Received: by 2002:a05:600c:3d98:b0:3cf:d70d:d5a8 with SMTP id bi24-20020a05600c3d9800b003cfd70dd5a8mr39756580wmb.6.1673045101776;
-        Fri, 06 Jan 2023 14:45:01 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id l24-20020a1ced18000000b003d99da8d30asm7426155wmh.46.2023.01.06.14.45.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Jan 2023 14:45:00 -0800 (PST)
-Date:   Fri, 6 Jan 2023 23:44:58 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Brian Norris <briannorris@chromium.org>
-Cc:     Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
-        Sean Paul <seanpaul@chromium.org>,
-        Michel =?iso-8859-1?Q?D=E4nzer?= <michel.daenzer@mailbox.org>,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Sandy Huang <hjc@rock-chips.com>,
-        linux-rockchip@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] drm/atomic: Allow vblank-enabled + self-refresh
- "disable"
-Message-ID: <Y7ikar6ZcW3rrPGz@phenom.ffwll.local>
-Mail-Followup-To: Brian Norris <briannorris@chromium.org>,
-        Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
-        Sean Paul <seanpaul@chromium.org>,
-        Michel =?iso-8859-1?Q?D=E4nzer?= <michel.daenzer@mailbox.org>,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Sandy Huang <hjc@rock-chips.com>,
-        linux-rockchip@lists.infradead.org, stable@vger.kernel.org
-References: <20230105174001.1.I3904f697863649eb1be540ecca147a66e42bfad7@changeid>
- <Y7hgLUXOrD7QwKs1@phenom.ffwll.local>
- <Y7hl0Z9PZhFk8On9@phenom.ffwll.local>
- <Y7h3cuAVE2fdS9K3@google.com>
- <Y7iFAJqGNXA7wHoK@phenom.ffwll.local>
- <Y7iS6E4UQVllOCFv@google.com>
+        with ESMTP id S229780AbjAFXxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 18:53:19 -0500
+Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE46C72D22;
+        Fri,  6 Jan 2023 15:53:18 -0800 (PST)
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id B09D85C0071;
+        Fri,  6 Jan 2023 18:53:14 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 06 Jan 2023 18:53:14 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tyhicks.com; h=
+        cc:cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm2; t=1673049194; x=1673135594; bh=7G4/beSUaF
+        qqw1nEdaUkVcwlLhwLsSrWTndJbny1Uek=; b=hGJkAkQ5KCG0r0+DxIojSkT5BC
+        IBN6kbZKQq7pLRwfGGaNKDfW+LGae89wtH1h2F8OPrqSZ7MWp1xANmLhMrq/7CqJ
+        UNqfC8L2Dlzzoxk/fnYY8jVpJ+N+iQEIPkNYfO9/Kpth32Hfx3FfSlbZABAW3bL0
+        e8oXoaSlZ0m8HF7C9agSc3jtdXjob4z63GM6FftCC2GZmPeLWefHKApzyc8XXbe1
+        tmDr9pdDjkNQlu9xMya+nqSPue+SBmEGqmpCbDAbEbeRMGRUDezeYx/rB3dGCe7d
+        CGYSC5I2zJfTUJaR4eYiizl3dvCBHKDNb8llrGznk30FAS0UfV0ckudA/XbA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm2; t=1673049194; x=1673135594; bh=7G4/beSUaFqqw1nEdaUkVcwlLhwL
+        sSrWTndJbny1Uek=; b=mBm7DiKmDzFj3ZH0irV4Ph9MbVV6esIQVuP890YNs3Ms
+        2J3Q9JMWOXIu2joi/yhJVzqCuH7q+kP2TOYHGSGRN0xJYhdAYcWmRnHqRbr0h3ii
+        sIHPmp2KZoQVBcUUgUoI2ppwseRIKl6NOC1odHgJPaUOhE+ZZKBy2VhVff63nT8w
+        ydtyxhgUHKR71tOO6medUr3Neq/JyZRIWsCX4TVnto4uuXA8xfnyjTVKXr2PVyou
+        zTFbQdhDXelcxMqZbNLEkDWFWfwEo0deTwQi/Qf26grzK9x638wwn+hN6WOmhLpN
+        4uyqXwZ0wWEYQ8pMnbzBfn548+EwqttdaRTrhflX5w==
+X-ME-Sender: <xms:arS4Y3NrU9dkMAyPmyqkpUiyuXBI3RJ-_9macWGeKOZJAfScgmu2HA>
+    <xme:arS4Yx8uCLH0kJRxSzsggWaaI8aDgylq-XDQbiVXlg_rWF-MQ5ohRPMvYNWJKbpoL
+    WjxdvX_5vZAAKatE2I>
+X-ME-Received: <xmr:arS4Y2TV3xcJX-7-o7eZXgEyTzdYP9y0elAnRlnIoyJe_TpBOT2o2UeFubk>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrkedugdduhecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefvhihlvghr
+    ucfjihgtkhhsuceotghouggvsehthihhihgtkhhsrdgtohhmqeenucggtffrrghtthgvrh
+    hnpeetveeffeehgefgieffudeulefgffegudehjeejueffvefhkedvhfelvdevffelhfen
+    ucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhlvggvmhhhuhhishdrihhnfhhonecuve
+    hluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheptghouggvseht
+    hihhihgtkhhsrdgtohhm
+X-ME-Proxy: <xmx:arS4Y7sfGfnq-b-6O7kkX09GUiLNVAndrlxOAX9EVU9G3zabJMCCxg>
+    <xmx:arS4Y_dI3EhpUn-ByDqSEXM172wzx4vwNfXKXAsJymALFcQa2NIyuQ>
+    <xmx:arS4Y32X8-XxdSMA65eCzow_upFALDYXBItRTvHgbwjk-6mkspwBSQ>
+    <xmx:arS4Y631rLcbSN7M8lgby6MZ8r6zt4hEsd9Qgv25ecPAuUQ5KEtngg>
+Feedback-ID: i78e14604:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 6 Jan 2023 18:53:12 -0500 (EST)
+Date:   Fri, 6 Jan 2023 17:53:10 -0600
+From:   Tyler Hicks <code@tyhicks.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, stable@vger.kernel.org,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/207] 6.1.4-rc1 review
+Message-ID: <Y7i0ZukMa9CX+fzo@sequoia>
+References: <20230104160511.905925875@linuxfoundation.org>
+ <Y7cmMKUr//oYKWXb@duo.ucw.cz>
+ <Y7fGpYyaJWym1BxW@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y7iS6E4UQVllOCFv@google.com>
-X-Operating-System: Linux phenom 5.19.0-2-amd64 
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+In-Reply-To: <Y7fGpYyaJWym1BxW@kroah.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 06, 2023 at 01:30:16PM -0800, Brian Norris wrote:
-> On Fri, Jan 06, 2023 at 09:30:56PM +0100, Daniel Vetter wrote:
-> > On Fri, Jan 06, 2023 at 11:33:06AM -0800, Brian Norris wrote:
-> > > On Fri, Jan 06, 2023 at 07:17:53PM +0100, Daniel Vetter wrote:
-> > > > - check that drivers which use self_refresh are not using
-> > > >   drm_atomic_helper_wait_for_vblanks(), because that would defeat the
-> > > >   point
-> > > 
-> > > I'm a bit lost on this one. drm_atomic_helper_wait_for_vblanks() is part
-> > > of the common drm_atomic_helper_commit_tail*() helpers, and so it's
-> > > naturally used in many cases (including Rockchip/PSR). And how does it
-> > > defeat the point?
+On 2023-01-06 07:58:45, Greg Kroah-Hartman wrote:
+> On Thu, Jan 05, 2023 at 08:34:08PM +0100, Pavel Machek wrote:
+> > Hi!
 > > 
-> > Yeah, but that's for backwards compat reasons, the much better function is
-> > drm_atomic_helper_wait_for_flip_done(). And if you go into self refresh
-> > that's really the better one.
-> 
-> My knowledge is certainly going to diminish once you talk about
-> backwards compat for drivers I'm very unfamiliar with. Are you
-> suggesting I can change the default
-> drm_atomic_helper_commit_tail{,_rpm}() to use
-> drm_atomic_helper_wait_for_flip_done()? (Or, just when
-> self_refresh_active==true?) I can try to read through drivers for
-> compatibility, but I may be prone to breaking things.
-> 
-> Otherwise, I'd be copy/paste/modifying the generic commit helpers.
-
-Nah thus far we've just copypasted into drivers. Maybe it's time to fix
-the helpers instead, but I'm somewhat vary of the fallout this might
-cause. My idea was to get a few more drivers over to wait_for_fences with
-copypasting and then do the big switch for everyone else. Or something
-like that. I'd leave it as-is if you're not extremely bored I guess :-)
-
-> > > > - have a drm_crtc_vblank_off/on which take the crtc state, so they can
-> > > >   look at the self-refresh state
-> > > 
-> > > And I suppose you mean this helper variant would kick off the next step
-> > > (fake vblank timer)?
+> > > This is the start of the stable review cycle for the 6.1.4 release.
+> > > There are 207 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
 > > 
-> > Yeah, I figured that's the better way to implement this since it would be
-> > driver agnostic. But rockchip is still the only driver using the
-> > self-refresh helpers, so I guess it doesn't really matter.
-> 
-> I've run into enough gotchas with these helpers that I feel like it
-> might be difficult to ever get a second driver using this. Or at least,
-> we'd have to learn what requirements they have when we get there. (Well,
-> maybe you know better, but I certainly don't.)
-
-I'm still hopeful that we might need them a bit more.
-
-> I'm tempted to just go with what's the simplest for Rockchip now, and
-> look at some generic timer fallbacks later if the need arises.
-> 
-> > > Also, I still haven't found that fake timer machinery, but maybe I just
-> > > don't know what I'm looking for.
+> > Thank you.
 > > 
-> > I ... didn't find it either. I'm honestly not sure whether this works for
-> > intel, or whether we do something silly like disable self-refresh when a
-> > vblank interrupt is pending :-/
+> > Is it known at this point if 6.1 will became next longterm release? It
+> > is not listed as such on https://www.kernel.org/category/releases.html
+> > . We might want to do some extra testing if it is.
 > 
-> Nice to know I'm not the only one, I suppose :)
-> 
-> > I think new proposal from me is to just respin this patch here with our
-> > discussion all summarized (it's good to record this stuff for the next
-> > person that comes around), and the WARN_ON adjusted so it also checks that
-> > vblank interrupts keep working (per the ret value at least, it's not a
-> > real functional check). And call that good enough.
-> 
-> Sounds good. I'll try to summarize without immortalizing too much of my
-> ignorance ;)
-> 
-> And thanks for your thoughts.
-> 
-> > Also maybe look into switching from wait_for_vblanks to
-> > wait_for_flip_done, it's the right thing to do (see kerneldoc, it should
-> > explain things a bit).
-> 
-> I've read some, and will probably reread a few more times. And I left
-> one question above.
+> A kernel can not become "long term" until it would have normally dropped
+> off of support.  Right now there are known-regressions in 6.1 still that
+> are not resolved.
 
-Yeah makes all sense.
--Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Hey Greg - A couple questions...
+
+1. Does that mean that you always wait until N+1 is released by Linus
+   before declaring N to be an upstream LTS kernel?
+
+   Looking back to last year, v5.16 was released on 2022-01-10 and you
+   declared v5.15 as the LTS on 2022-01-16:
+
+    https://git.kernel.org/pub/scm/docs/kernel/website.git/commit/?id=c335525958a3424ec0200dc9093d2bbf95032f83
+
+   That one data point lines up but I want to confirm that's the normal
+   procedure because I hadn't noticed that pattern until now and I don't
+   see it mentioned on the kernel.org Releases page.
+
+2. Do you (or anyone else) happen to have a list of the known
+   regressions? I see one specific to linux-6.1.y in the regzbot list:
+
+    https://linux-regtracking.leemhuis.info/regzbot/stable/
+
+   Another reported here (with a potential fix identified):
+
+    https://lore.kernel.org/netdev/CAK8fFZ7cYRkGjUJD2D86G6Jh9YRmP_L+7Ke6CLFSyFmRkoe-Hg@mail.gmail.com/T/#m1b118647969eb0d64de016858506fc2345a0b834
+
+   A more complete list may help all of us currently evaluating v6.1.
+
+> And "extra" testing is always good no matter what kernel branch it is
+> happening for, why not always do it?
+
+That's a very good point. I have to admit that we are a bit too
+LTS-focused today when it comes to our testing. We have a goal to
+improve in that area.
+
+We have been working under the assumption that v6.1 is going to be the
+next LTS but, as you point out, we should be iteratively testing each
+release just the same. We are currently doing some additional/extra
+testing of v6.1 with our Microsoft Linux kernel and will let you know
+the results as they come in.
+
+Tyler
+
+> 
+> thanks,
+> 
+> greg k-h
