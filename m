@@ -2,155 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8451F66078B
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 21:04:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D8C5660850
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 21:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235857AbjAFUEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 15:04:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46112 "EHLO
+        id S235857AbjAFUbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 15:31:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235699AbjAFUEw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 15:04:52 -0500
-Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D35881D7A
-        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 12:04:51 -0800 (PST)
-Received: by mail-io1-xd2d.google.com with SMTP id n63so1243681iod.7
-        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 12:04:51 -0800 (PST)
+        with ESMTP id S229670AbjAFUbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 15:31:02 -0500
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5DAB3C709
+        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 12:31:00 -0800 (PST)
+Received: by mail-wr1-x433.google.com with SMTP id bn26so2372864wrb.0
+        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 12:31:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=MzDYy7xH3h8odSKsfYc3qRpLkXTC2bMipKsVQCeG9FI=;
-        b=LppGhafXep900ETRX0WoS44tL4OJE5U/oiAMFVHG9hQ0mds8BDedt6H6Bw1FrzaM4t
-         N4iN+eaxJ90iKHNasykQ02gS0Ik5BRQ9Gn/Ch5b5p8hIX+WAipztit/AA7bm7flrp2hU
-         dq28Syy8Q+Mdab8MPFuej1FbyZ91btaR7d6dQ=
+        d=ffwll.ch; s=google;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zmnTz8/2kfdFyB6x8PTFchjQzfo0fx86uAVQddggYnU=;
+        b=QDiE9naefEI1d5kfh4laxGY1RcATSlKvPxkPLXOkcJ9yILKQhTE4aESsj1oYoKNoD1
+         +JqJEO+cE/oaC3db0934YfBDzaJfkep6EF1RNkAzSCyF4yOW4irWP5lPS/S+Pa1HYOkj
+         8DNo819Vw9PzXSpGcwo9fonNqrP4IfiIKYlVA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=MzDYy7xH3h8odSKsfYc3qRpLkXTC2bMipKsVQCeG9FI=;
-        b=pTAnINg2to5lLRhNSUs5vvqPFmniH0as9ovlKE03Ya1JQTWAadALyXTmuGxujQDOMS
-         v+2xUQ94ywFDWOxJPlo+C7w5MRNMcf0ORCgmwaHfjy2cPJ6TnFOYeelDVqUelMoG0aTU
-         Swexs3fpTtBEVI8RB9Bhw5Vh76JuITxohOpHk73LvZcmD8us5vMhoTPjPGqIGMMrD4C5
-         eTjVmX3lwDI3DWmB274Fp9AJ/vVGOqhNCuh+fvgjNAmvSzULuAriqz9t9AtoxFh3BPVM
-         qO8CLvRSf3CJU7lsqX7JiyUCgWoHjppVN5lfPfLMc9LyYrcruBO1d1CcqTq07WrXF9x0
-         Ojaw==
-X-Gm-Message-State: AFqh2kq3XJUSsN4Iq7E4qAM3KHc3r9KHVNc43QUFtUqttn2X/V/6j9uG
-        s6Sprz50ygdG/PeK1mJBwA/xsucRTXA3qGWTdg5yVA==
-X-Google-Smtp-Source: AMrXdXt+OvGRW73oMucqsNbQBvW95NaKoS/i4Q0oSWPahJsIrZlzWwcHZyn2Uwc7cUnXowlDV8MNakYCs0MmrINVMWY=
-X-Received: by 2002:a02:665f:0:b0:376:1ab0:7bd5 with SMTP id
- l31-20020a02665f000000b003761ab07bd5mr5197244jaf.8.1673035489129; Fri, 06 Jan
- 2023 12:04:49 -0800 (PST)
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=zmnTz8/2kfdFyB6x8PTFchjQzfo0fx86uAVQddggYnU=;
+        b=p2rYLc6Xdrcrtz6ewEa6p91d89a9uvt1XKuKo3KJNy/u5uiPJWXmizpkRE+i7URX+o
+         pzykELpPKYxLeCJlULNcXJhUs7MkcSOO1lxEO4YPQCN5oOcN0ntBEScrZ6YazpebJS/H
+         d8VAb3gBpFqcO90Y21UcQeb2FR/LIPdROYM+GgiBLeregDkLrHiNBI5tJKyd35fwDjfD
+         327F3fOUpsuEwhs5sI64Y1bbVCLypE6lZgjOPgfxY1ir++y9P8w1l/ZuxdGDnwR/pMdH
+         a+FHTOoNPdoys1qu6QqpIgjEHqF/7hYxSqyaGR3W3+iXugnVVD0bqY8yrue8QqgNubPy
+         BAAQ==
+X-Gm-Message-State: AFqh2kpYpDWs5RBp9c6U3lhDqN/2xnruOu8xFIWrTb24Gq4WbYl/qhkZ
+        3Avc0nOswwABuLuxxGL9/+p5Lw==
+X-Google-Smtp-Source: AMrXdXsGhHQm6ue86ek8a/TahpSuukropvViZubkaaHdP6I4LctKBRL7+Y+FkYhKQhuX8FcLuzSEJg==
+X-Received: by 2002:adf:f54a:0:b0:242:2e1e:23a6 with SMTP id j10-20020adff54a000000b002422e1e23a6mr36969526wrp.22.1673037059116;
+        Fri, 06 Jan 2023 12:30:59 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id t14-20020adfeb8e000000b002baa780f0fasm1998405wrn.111.2023.01.06.12.30.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Jan 2023 12:30:58 -0800 (PST)
+Date:   Fri, 6 Jan 2023 21:30:56 +0100
+From:   Daniel Vetter <daniel@ffwll.ch>
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
+        Sean Paul <seanpaul@chromium.org>,
+        Michel =?iso-8859-1?Q?D=E4nzer?= <michel.daenzer@mailbox.org>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Sandy Huang <hjc@rock-chips.com>,
+        linux-rockchip@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] drm/atomic: Allow vblank-enabled + self-refresh
+ "disable"
+Message-ID: <Y7iFAJqGNXA7wHoK@phenom.ffwll.local>
+Mail-Followup-To: Brian Norris <briannorris@chromium.org>,
+        Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
+        Sean Paul <seanpaul@chromium.org>,
+        Michel =?iso-8859-1?Q?D=E4nzer?= <michel.daenzer@mailbox.org>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Sandy Huang <hjc@rock-chips.com>,
+        linux-rockchip@lists.infradead.org, stable@vger.kernel.org
+References: <20230105174001.1.I3904f697863649eb1be540ecca147a66e42bfad7@changeid>
+ <Y7hgLUXOrD7QwKs1@phenom.ffwll.local>
+ <Y7hl0Z9PZhFk8On9@phenom.ffwll.local>
+ <Y7h3cuAVE2fdS9K3@google.com>
 MIME-Version: 1.0
-References: <Y7dPV5BK6jk1KvX+@zx2c4.com> <20230106030156.3258307-1-Jason@zx2c4.com>
- <CAHk-=wjin0Rn6j+EvYV9pzrbA0G2xnHKdp_EAB6XnansQ8kpUA@mail.gmail.com>
-In-Reply-To: <CAHk-=wjin0Rn6j+EvYV9pzrbA0G2xnHKdp_EAB6XnansQ8kpUA@mail.gmail.com>
-From:   Luigi Semenzato <semenzato@chromium.org>
-Date:   Fri, 6 Jan 2023 12:04:37 -0800
-Message-ID: <CAA25o9Sbkg=qD+DH-aqXY9H5R_oBtePcnqagwAGCgoUk8D-Vyg@mail.gmail.com>
-Subject: Re: [PATCH v2] tpm: Allow system suspend to continue when TPM suspend fails
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jan Dabros <jsd@semihalf.com>,
-        regressions@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Johannes Altmanninger <aclopte@gmail.com>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        tbroch@chromium.org, dbasehore@chromium.org,
-        Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y7h3cuAVE2fdS9K3@google.com>
+X-Operating-System: Linux phenom 5.19.0-2-amd64 
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I think it's fine to go ahead with your change, for multiple reasons.
+On Fri, Jan 06, 2023 at 11:33:06AM -0800, Brian Norris wrote:
+> On Fri, Jan 06, 2023 at 07:17:53PM +0100, Daniel Vetter wrote:
+> > Ok I think I was a bit slow here, and it makes sense. Except this now
+> > means we loose this check, and I'm also not sure whether we really want
+> > drivers to implement this all.
+> > 
+> > What I think we want here is a bit more:
+> > - for the self-refresh case check that the vblank all still works
+> 
+> You mean, keep the WARN_ONCE(), but invert it to ensure that 'ret == 0'?
+> I did consider that, but I don't know why I stopped.
 
-1. I doubt that any of the ChromeOS devices using TPM 1.2 are still
-being updated.
-2. If the SAVESTATE command fails, it is probably better to continue
-the transition to S3, and fail at resume, than to block the suspend.
-The suspend is often triggered by closing the lid, so users would not
-see what's going on and might put their running laptop in a backpack,
-where it could overheat.
-3. I don't recall bugs due to failures of TPM suspend, and I didn't
-find any such bug in our database.  Many (most?) ChromeOS devices left
-the TPM powered on in S3, so didn't use the suspend/resume path.
+Yeah, so that we check that vblanks keep working in the self-refresh case.
 
-Thank you for asking!
+> > - check that drivers which use self_refresh are not using
+> >   drm_atomic_helper_wait_for_vblanks(), because that would defeat the
+> >   point
+> 
+> I'm a bit lost on this one. drm_atomic_helper_wait_for_vblanks() is part
+> of the common drm_atomic_helper_commit_tail*() helpers, and so it's
+> naturally used in many cases (including Rockchip/PSR). And how does it
+> defeat the point?
+
+Yeah, but that's for backwards compat reasons, the much better function is
+drm_atomic_helper_wait_for_flip_done(). And if you go into self refresh
+that's really the better one.
+
+> > - have a drm_crtc_vblank_off/on which take the crtc state, so they can
+> >   look at the self-refresh state
+> 
+> And I suppose you mean this helper variant would kick off the next step
+> (fake vblank timer)?
+
+Yeah, I figured that's the better way to implement this since it would be
+driver agnostic. But rockchip is still the only driver using the
+self-refresh helpers, so I guess it doesn't really matter.
+
+> > - fake vblanks with hrtimer, because on most hw when you turn off the crtc
+> >   the vblanks are also turned off, and so your compositor would still
+> >   hang. The vblank machinery already has all the code to make this happen
+> >   (and if it's not all, then i915 psr code should have it).
+> 
+> Is a timer better than an interrupt? I'm pretty sure the vblank
+> interrupts still can fire on Rockchip CRTC (VOP) (see also the other
+> branch of this thread), so this isn't really necessary. (IGT vblank
+> tests pass without hanging.) Unless you simply prefer a fake timer for
+> some reason.
+> 
+> Also, I still haven't found that fake timer machinery, but maybe I just
+> don't know what I'm looking for.
+
+I ... didn't find it either. I'm honestly not sure whether this works for
+intel, or whether we do something silly like disable self-refresh when a
+vblank interrupt is pending :-/
+ 
+> > - I think kunit tests for this all would be really good, it's a rather
+> >   complex state machinery between modesets and vblank functionality. You
+> >   can speed up the kunit tests with some really high refresh rate, which
+> >   isn't possible on real hw.
+> 
+> Last time I tried my hand at kunit in a subsystem with no prior kunit
+> tests, I had a miserable time and gave up. At least DRM has a few
+> already, so maybe this wouldn't be as terrible. Perhaps I can give this
+> a shot, but there's a chance this will kick things to the back burner
+> far enough that I simply don't get around to it at all. (So far, I'm
+> only addressing this because KernelCI complained.)
+
+Nah if we dont solve this in a generic way then we don't need kunit to
+make sure it keeps working.
+
+> > I'm also wondering why we've had this code for years and only hit issues
+> > now?
+> 
+> I'd guess a few reasons:
+> 1. drm_self_refresh_helper_init() is only used by one driver -- Rockchip
+> 2. Rockchip systems are most commonly either Chromebooks, or else
+>    otherwise cheap embedded things, and may not have displays at all,
+>    let alone displays with PSR
+> 3. Rockchip Chromebooks shipped with a kernel forked off of the earlier
+>    PSR support, before everything got refactored (and vblank handling
+>    regressed) for the self-refresh "helpers". They only upgraded to a
+>    newer upstream kernel within the last few months.
+> 4. AFAICT, ChromeOS user space doesn't even exercise the vblank-related
+>    ioctls, so we don't actually notice that this is "broken". I suppose
+>    it would only be IGT tests that notice.
+> 5. I fixed up various upstream PSR bugs are part of #3 [0],
+>    along the way I unborked PSR enough that KernelCI finally caught the
+>    bug. See my explanation in [1] for why the vblank bug was masked, and
+>    appeared to be a "regression" due to my more recent fixes.
+
+Yeah I thought we had more drivers using self-refresh helpers, bot that's
+not the case :-/
+
+I think new proposal from me is to just respin this patch here with our
+discussion all summarized (it's good to record this stuff for the next
+person that comes around), and the WARN_ON adjusted so it also checks that
+vblank interrupts keep working (per the ret value at least, it's not a
+real functional check). And call that good enough.
+
+Also maybe look into switching from wait_for_vblanks to
+wait_for_flip_done, it's the right thing to do (see kerneldoc, it should
+explain things a bit).
+-Daniel
 
 
-On Fri, Jan 6, 2023 at 11:00 AM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Thu, Jan 5, 2023 at 7:02 PM Jason A. Donenfeld <Jason@zx2c4.com> wrote:
-> >
-> > In lieu of actually fixing the underlying bug, just allow system suspend
-> > to continue, so that laptops still go to sleep fine. Later, this can be
-> > reverted when the real bug is fixed.
->
-> So the patch looks fine to me, but since there's still the ChromeOS
-> discussion pending I'll wait for that to finish.
->
-> Perhaps re-send or at least remind me if/when it does?
->
-> Also, a query about the printout:
->
-> > +       if (rc)
-> > +               pr_err("Unable to suspend tpm-%d (error %d), but continuing system suspend\n",
-> > +                      chip->dev_num, rc);
->
-> so I suspect that 99% of the time the dev_num isn't actually all that
-> useful, but what *might* be useful is which tpm driver it is.
->
-> Just comparing the error dmesg output you had:
->
->   ..
->   tpm tpm0: Error (28) sending savestate before suspend
->   tpm_tis 00:08: PM: __pnp_bus_suspend(): tpm_pm_suspend+0x0/0x80 returns 28
->   ..
->
-> that "tpm tpm0" output is kind of useless compared to the "tpm_tis 00:08" one.
->
-> So I think "dev_err(dev, ...)" would be more useful here.
->
-> Finally - and maybe I'm just being difficult here, I will note here
-> again that TPM2 devices don't have this issue, because the TPM2 path
-> for suspend doesn't do any of this at all.
->
-> It just does
->
->         tpm_transmit_cmd(..);
->
-> with a TPM2_CC_SHUTDOWN TPM_SU_STATE command, and doesn't even check
-> the return value. In fact, the tpm2 code *used* to have this comment:
->
->         /* In places where shutdown command is sent there's no much we can do
->          * except print the error code on a system failure.
->          */
->         if (rc < 0 && rc != -EPIPE)
->                 dev_warn(&chip->dev, "transmit returned %d while
-> stopping the TPM",
->                          rc);
->
-> but it was summarily removed when doing some re-organization around
-> buffer handling.
->
-> So just by looking at what tpm2 does, I'm not 100% convinced that tpm1
-> should do this dance at all.
->
-> But having a dev_err() is probably a good idea at least as a transitional thing.
->
->                   Linus
+> 
+> Brian
+> 
+> [0] Combined with point #2: ChromeOS would be the first serious users of
+>     the refactored PSR support. All this was needed to make it actually
+>     usable:
+> 
+>     (2021) c4c6ef229593 drm/bridge: analogix_dp: Make PSR-exit block less
+>     (2022) ca871659ec16 drm/bridge: analogix_dp: Support PSR-exit to disable transition <--- KernelCI "blamed" this one, because PSR was less broken
+>     (2022) e54a4424925a drm/atomic: Force bridge self-refresh-exit on CRTC switch
+> 
+> [1] https://lore.kernel.org/dri-devel/Y6OCg9BPnJvimQLT@google.com/
+> Re: renesas/master bisection: igt-kms-rockchip.kms_vblank.pipe-A-wait-forked on rk3399-gru-kevin
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
