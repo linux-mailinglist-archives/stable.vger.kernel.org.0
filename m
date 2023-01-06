@@ -2,120 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B33DF65FFA0
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 12:37:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFA9C65FFAB
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 12:43:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232992AbjAFLhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 06:37:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36380 "EHLO
+        id S229580AbjAFLnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 06:43:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231764AbjAFLhk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 06:37:40 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8009B71897
-        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 03:37:39 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1pDl2X-0008Kq-JE; Fri, 06 Jan 2023 12:37:37 +0100
-Received: from pengutronix.de (unknown [IPv6:2a03:f580:87bc:d400:ace:f7a6:f9d4:3e8a])
+        with ESMTP id S233524AbjAFLnG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 06:43:06 -0500
+Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [IPv6:2001:67c:2050:0:465::101])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E5969B1D;
+        Fri,  6 Jan 2023 03:43:04 -0800 (PST)
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:b231:465::1])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id C38DF14FE83;
-        Fri,  6 Jan 2023 11:37:36 +0000 (UTC)
-Date:   Fri, 6 Jan 2023 12:37:31 +0100
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     Oliver Hartkopp <socketcan@hartkopp.net>
-Cc:     linux-can@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] can: isotp: handle wait_event_interruptible() return
- values
-Message-ID: <20230106113731.irqfxdpn5ygae44e@pengutronix.de>
-References: <20230104164605.39666-1-socketcan@hartkopp.net>
- <20230105093226.alchrnm34s6tmfpp@pengutronix.de>
- <20bef3ed-47ef-8042-6b98-1f498b81962f@hartkopp.net>
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4NpM0K0sZFz9sTD;
+        Fri,  6 Jan 2023 12:42:57 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+        t=1673005377;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=+MKewvQAOmy/Zn8oNArbj5sMzsVqtojw6uyLjAN8pxw=;
+        b=RR68Uij7oOSXHjTTB6IOaiZ/WbfzNHq250+jiBWvglyo7RsQaixfIba1oTOVzP+MdTCWcf
+        Jyzp435Zmhb4JdZueZrcdt7ZjPijmFyzYkIdLkAOyk/2VRX8pMXF+7pDR3Zgh7S901EvLS
+        M9YeS46cK2eNA11KeWC1zaBgnwu5vISzjr8xftwfjXd7T8V9EwXqJ6jnEbkSVAx5s3y8V0
+        Ucish6QEzF4eXtaehQG4YxrtXfk0Y7NMwXCqtJ4zfn8XBPoaI6SDM0n/zAvHSBA/1eMjBr
+        /UbXykZOCpYV6Cg1HUXtLxoZmh/2XaE9ToBZ5CfSs0rtN2nUiCv6+py6c8s5jg==
+Message-ID: <9455bc5b-2074-4f48-71a7-5c816ee19a78@mailbox.org>
+Date:   Fri, 6 Jan 2023 12:42:54 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ushtqqd6jbjlmlrn"
-Content-Disposition: inline
-In-Reply-To: <20bef3ed-47ef-8042-6b98-1f498b81962f@hartkopp.net>
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Subject: Re: [PATCH 2/2] drm/rockchip: vop: Leave vblank enabled in
+ self-refresh
+To:     Brian Norris <briannorris@chromium.org>,
+        =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>,
+        Sean Paul <seanpaul@chromium.org>
+Cc:     "kernelci.org bot" <bot@kernelci.org>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Sandy Huang <hjc@rock-chips.com>,
+        linux-rockchip@lists.infradead.org, stable@vger.kernel.org
+References: <20230105174001.1.I3904f697863649eb1be540ecca147a66e42bfad7@changeid>
+ <20230105174001.2.Ic07cba4ab9a7bd3618a9e4258b8f92ea7d10ae5a@changeid>
+Content-Language: en-CA
+From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel.daenzer@mailbox.org>
+In-Reply-To: <20230105174001.2.Ic07cba4ab9a7bd3618a9e4258b8f92ea7d10ae5a@changeid>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-META: tq4hqps3dpqxcfuhdffygmxousg6bo4x
+X-MBO-RS-ID: a6ab78268fa770b490a
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 1/6/23 02:40, Brian Norris wrote:
+> If we disable vblank when entering self-refresh, vblank APIs (like
+> DRM_IOCTL_WAIT_VBLANK) no longer work. But user space is not aware when
+> we enter self-refresh, so this appears to be an API violation -- that
+> DRM_IOCTL_WAIT_VBLANK fails with EINVAL whenever the display is idle and
+> enters self-refresh.
+> 
+> The downstream driver used by many of these systems never used to
+> disable vblank for PSR, and in fact, even upstream, we didn't do that
+> until radically redesigning the state machine in commit 6c836d965bad
+> ("drm/rockchip: Use the helpers for PSR").
+> 
+> Thus, it seems like a reasonable API fix to simply restore that
+> behavior, and leave vblank enabled.
+> 
+> Note that this appears to potentially unbalance the
+> drm_crtc_vblank_{off,on}() calls in some cases, but:
+> (a) drm_crtc_vblank_on() documents this as OK and
+> (b) if I do the naive balancing, I find state machine issues such that
+>     we're not in sync properly; so it's easier to take advantage of (a).
+> 
+> Backporting notes:
+> Marking as 'Fixes' commit 6c836d965bad ("drm/rockchip: Use the helpers
+> for PSR"), but it probably depends on commit bed030a49f3e
+> ("drm/rockchip: Don't fully disable vop on self refresh") as well.
+> 
+> We also need the previous patch ("drm/atomic: Allow vblank-enabled +
+> self-refresh "disable""), of course.
+> 
+> Fixes: 6c836d965bad ("drm/rockchip: Use the helpers for PSR")
+> Cc: <stable@vger.kernel.org>
+> Link: https://lore.kernel.org/dri-devel/Y5itf0+yNIQa6fU4@sirena.org.uk/
+> Reported-by: "kernelci.org bot" <bot@kernelci.org>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> ---
+> 
+>  drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> index fa1f4ee6d195..c541967114b4 100644
+> --- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> +++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> @@ -719,11 +719,11 @@ static void vop_crtc_atomic_disable(struct drm_crtc *crtc,
+>  
+>  	mutex_lock(&vop->vop_lock);
+>  
+> -	drm_crtc_vblank_off(crtc);
+> -
+>  	if (crtc->state->self_refresh_active)
+>  		goto out;
+>  
+> +	drm_crtc_vblank_off(crtc);
+> +
+>  	/*
+>  	 * Vop standby will take effect at end of current frame,
+>  	 * if dsp hold valid irq happen, it means standby complete.
 
---ushtqqd6jbjlmlrn
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The out label immediately unlocks vop->vop_lock again, seems a bit pointless. :)
 
-On 05.01.2023 13:58:30, Oliver Hartkopp wrote:
->=20
->=20
-> On 05.01.23 10:32, Marc Kleine-Budde wrote:
-> > On 04.01.2023 17:46:05, Oliver Hartkopp wrote:
-> > > When wait_event_interruptible() has been interrupted by a signal the
-> > > tx.state value might not be ISOTP_IDLE. Force the state machines
-> > > into idle state to inhibit the timer handlers to continue working.
-> > >=20
-> > > Cc: stable@vger.kernel.org # >=3D v5.15
-> > > Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-> >=20
-> > Can you add a Fixes: tag?
->=20
-> Yes. Sent out a V3.
->=20
-> In fact I was not sure if it makes sense to apply the patch down to Linux
-> 5.10 as it might increase the possibility to trigger a WARN(1) in the
-> isotp_tx_timer_handler().
->=20
-> The patch is definitely helpful for the latest code including commit
-> 4b7fe92c0690 ("can: isotp: add local echo tx processing for consecutive
-> frames") introduced in Linux 5.18 and its fixes.
->=20
-> I did some testing with very long ISOTP PDUs and killed the waiting
-> isotp_release() with a Crtl-C.
->=20
-> To prevent the WARN(1) we might also stick this patch to
->=20
-> Fixes: 866337865f37 ("can: isotp: fix tx state handling for echo tx
-> processing")
->=20
-> What do you think about the WARN(1)?
+AFAICT the self_refresh_active case should just return immediately, the out label would also send any pending atomic commit completion event, which seems wrong now that the vblank interrupt is left enabled. (I also wonder if drm_crtc_vblank_off doesn't take care of that already, at least amdgpu doesn't do this explicitly AFAICT)
 
-If this short patch avoids potential WARN()s it's stable material.
 
-Marc
+-- 
+Earthling Michel Dänzer            |                  https://redhat.com
+Libre software enthusiast          |         Mesa and Xwayland developer
 
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
-
---ushtqqd6jbjlmlrn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmO4B/cACgkQrX5LkNig
-012pHAf/Wzm/yboJjvyc3kjgy4h0L9GPUQBrwxYvj/wXKIrao/bFRHEtI+arvYUo
-qj292oqE7BEYv0U9K1srbCMDxisO0n7naVJ8YfO1zvGs29QJp+YIRlP0JngTZyHw
-fEvG9stVwjSbasDfxerBVn+aD27CCv9kxTu+mHYOEa4X+4f5wOG+knhUolwHFdWP
-97vFETs+yxII+3ccJSAWKUkpPgD708GyMp/msV0t5ujSmBEkzygaS2bHIWaejMAT
-02K+c7rnq03AQtV5Yq4jJhDbn20vPpJxMIpQHFWGbv7bTVX67w736K3EppEt2Eq7
-4vyumIlSnsCoQaDSHFeRnzsDJW18Wg==
-=8m0r
------END PGP SIGNATURE-----
-
---ushtqqd6jbjlmlrn--
