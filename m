@@ -2,121 +2,244 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2368665FE6A
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 10:56:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96EDB65FE8F
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 11:12:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229490AbjAFJz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 04:55:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48068 "EHLO
+        id S232460AbjAFKMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 05:12:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231561AbjAFJz4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 04:55:56 -0500
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB4B10FA
-        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 01:55:55 -0800 (PST)
-Received: by mail-ej1-x630.google.com with SMTP id fy8so2320597ejc.13
-        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 01:55:55 -0800 (PST)
+        with ESMTP id S232375AbjAFKMw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 05:12:52 -0500
+Received: from mail-ua1-x931.google.com (mail-ua1-x931.google.com [IPv6:2607:f8b0:4864:20::931])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C35EA68C81
+        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 02:12:50 -0800 (PST)
+Received: by mail-ua1-x931.google.com with SMTP id q3so212016uao.2
+        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 02:12:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=MR+/NWA8p6VYz8uv/82PDoV9JZ8XB9MwZrQb5jkWV0Q=;
-        b=Gma/Ht/dQqftf/LiR6DcQta3AYBsESePrvrSgiVzPE2pgxhQdPw/lqfhTD+y8qDejO
-         QfSjvkKint4HPGmTKSTRWInv5nFkTbpOWmU0VtnVtzcYpir/ijafCrg951eo15GIAIQY
-         GfNYHzacOjUQ2hcgk/wJyUN/izI2rO/zubQQPTgYjz0/YwUjnJAZQUN+Fht00s1KEso4
-         v/BqfXIod2yXdwkyDlKGiClUAiYZMZEgncM+H//hJIJAB7brmlSdBw+uPeTUEB0yJzPc
-         0tTx9DwXPzKPPfIkOcu4TbowfBY+i8IjFchX53w8SaYcaeO15aIMifhMy9jmyg1Yy8y0
-         ltAQ==
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ywCSUF+X295X7XbFjWuK654uTeSEr3DQy9LQ0QXRwbk=;
+        b=JxA2IQYp1OzLpRTt6TJefF1yxxSYEAmcheawYkZApCdToXvztRP6ykTemrQTzi5eZa
+         yBF8fZGdBRzUuQFs8cGQdnWjRdPSmHvLj/AfIUdKmQej5LHmCfuRQZrFRqWbAqOckfLR
+         X6EobZrXLpp8ArH5LPGwd+6cyuJ8SJ6RCEDA+zqLH3ViGu0bAlvNJWF+XrkaJgMBZnS4
+         IAI34lqmP8TPbMpjpmCbZ51uY7rdnu/95O8BAVa17cKac+mp7rFV34dy9n9m5LKvH6XV
+         k2Zp+zaeRDlyR80sNsOnPp7m8bKjjGh1/QbZ240oL+Slg4+W3ImhAgbr+hT3yunCrqWu
+         E90g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MR+/NWA8p6VYz8uv/82PDoV9JZ8XB9MwZrQb5jkWV0Q=;
-        b=MMcFotWUAuVEzcJXZ5n/i6w/pzx/UP4miifOA+m3vU0UGdkDOsf0lGcefZajhF8PAS
-         N5cjpK0e3QcsYU8K90eEgtl32zgnLDLMwQnY6UrQuiCicdRNPmmblLrechOTHQ4nXjO3
-         r/QNQxI6yfp6z0fcZTL5DVmkVjDI4BYRGXFHTTmecBOupovv2eXoKZ2GTT7HOMgHLy/3
-         1TfL6ff6FyJ+WJcSZQSN8Lcoosq/4SUK7q6IkwwMQuLsksj3Cm2j3FNKbE5E8Md2f/db
-         ggjk5xKWBqDfs1uxNilW/+EnY1eHMizJg8pC3PwqrceWdqPkhGhOjPeg92ERCRVThCGY
-         +uzg==
-X-Gm-Message-State: AFqh2kpPULX0/tagJu0O7WhTlC6RUhr4mEMrTx8gImQ2Lt80nSnxyuxr
-        kv7dJMYbt0CSyZUonbKv9dDE+A==
-X-Google-Smtp-Source: AMrXdXscYlLtCHAq3/z9+5Df9Wjc/Ll9rYmx2DDunqCMB/61SovKITfnbg0PAHfiDTY+HRdzbnKOLQ==
-X-Received: by 2002:a17:907:80ce:b0:7c1:26b9:c556 with SMTP id io14-20020a17090780ce00b007c126b9c556mr50183303ejc.15.1672998953767;
-        Fri, 06 Jan 2023 01:55:53 -0800 (PST)
-Received: from [192.168.0.104] ([82.77.81.242])
-        by smtp.gmail.com with ESMTPSA id l10-20020a1709063d2a00b0078db18d7972sm248340ejf.117.2023.01.06.01.55.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 06 Jan 2023 01:55:53 -0800 (PST)
-Message-ID: <ebfec54e-f82e-4560-9a4a-7c02ed4c841b@linaro.org>
-Date:   Fri, 6 Jan 2023 11:55:46 +0200
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ywCSUF+X295X7XbFjWuK654uTeSEr3DQy9LQ0QXRwbk=;
+        b=s5G8DJTYahMbHiaWpItBN0qh+mNN/3UKudIsm0RPappA4h4HdFV1KOr+mOLnq7wQg5
+         FZuBOD6IwA8xDxVYqZpRI5uByibUV6SCd+KwGq4GX50bRF32gb/LqVYRc+Yi9SNY/s/X
+         r2ivzDS3WMcdzj/tKgX+IN4g7ksI9RV3+KYc7kYY2WfKb+hcMcSkbYvDi5CSzrNvSByS
+         YR2o0NEOdEs3OKG+l9l4ANYFSjBAtAbJxJxSechqf+kkcnnNNHt2o9r1KcRgY2Mjz8Hp
+         W9KGQam20BvCoi1lnM4ytBUTruaek9gLq8x67Lcx8W+RvvZnaFvnDpF5X2G+IjOy441r
+         05jw==
+X-Gm-Message-State: AFqh2krmozNWHZ9AWJ/Ag8LQ0NXsGTJYscBt+rxsaVRqB6gjk3X9JClk
+        wj7mOntAQUQ7C5jTG8xcfwdBgjtziVVQbQokgzzU7w==
+X-Google-Smtp-Source: AMrXdXuZ3NuN6/159on7c/7uCnqTDsn8Cbh4ESQwvfI5CMjlUpe800yuPE5y7O9SfoRYx8sCKp+7hCbBgCw38Yvi+HQ=
+X-Received: by 2002:ab0:152b:0:b0:418:620e:6794 with SMTP id
+ o40-20020ab0152b000000b00418620e6794mr5137240uae.59.1672999969735; Fri, 06
+ Jan 2023 02:12:49 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH] mtd: spi-nor: spansion: Keep CFR5V[6] as 1 in Octal DTR
- enable/disable
-Content-Language: en-US
-From:   Tudor Ambarus <tudor.ambarus@linaro.org>
-To:     tkuw584924@gmail.com, linux-mtd@lists.infradead.org
-Cc:     pratyush@kernel.org, michael@walle.cc, miquel.raynal@bootlin.com,
-        richard@nod.at, vigneshr@ti.com, Bacem.Daassi@infineon.com,
-        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
-        stable@vger.kernel.org
-References: <20230106030601.6530-1-Takahiro.Kuwano@infineon.com>
- <493d9a10-aaf3-70f6-36c3-9a2cf39f0759@linaro.org>
-In-Reply-To: <493d9a10-aaf3-70f6-36c3-9a2cf39f0759@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20230105125334.727282894@linuxfoundation.org>
+In-Reply-To: <20230105125334.727282894@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 6 Jan 2023 15:42:38 +0530
+Message-ID: <CA+G9fYsgUDmUENC4+a66U=wXP_HQRyEeR8CGZCOy+zjw2pjm_Q@mail.gmail.com>
+Subject: Re: [PATCH 4.9 000/251] 4.9.337-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 5 Jan 2023 at 18:28, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> -------------------------------------------
+> NOTE:
+>
+> This is going to be the LAST 4.9.y release to be made by the stable/LTS
+> kernel maintainers.  After this release, it will be end-of-life and you
+> should not use it at all.  You should have moved to a newer kernel
+> branch by now (as seen on the https://kernel.org/category/releases.html
+> page), but if NOT, and this is going to be a real hardship, please
+> contact me directly.
+> -------------------------------------------
+>
+> This is the start of the stable review cycle for the 4.9.337 release.
+> There are 251 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 07 Jan 2023 12:52:55 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.337-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
 
-On 06.01.2023 11:47, Tudor Ambarus wrote:
-> Hey, Takahiro,
-> 
-> On 06.01.2023 05:06, tkuw584924@gmail.com wrote:
->> From: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
->>
->> CFR5V[6] is reserved bit and must always be 1.
-> 
-> have you seen some strange behavior?
->>
->> Fixes: c3266af101f2 ("mtd: spi-nor: spansion: add support for Cypress 
->> Semper flash")
->> Signed-off-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
->> Cc: stable@vger.kernel.org
->> ---
->>   drivers/mtd/spi-nor/spansion.c | 4 ++--
->>   1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/mtd/spi-nor/spansion.c 
->> b/drivers/mtd/spi-nor/spansion.c
->> index b621cdfd506f..4e094a432d29 100644
->> --- a/drivers/mtd/spi-nor/spansion.c
->> +++ b/drivers/mtd/spi-nor/spansion.c
->> @@ -21,8 +21,8 @@
->>   #define SPINOR_REG_CYPRESS_CFR3V        0x00800004
->>   #define SPINOR_REG_CYPRESS_CFR3V_PGSZ        BIT(4) /* Page size. */
->>   #define SPINOR_REG_CYPRESS_CFR5V        0x00800006
->> -#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN    0x3
->> -#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS    0
->> +#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN    0x43
->> +#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS    0x40
-> 
-> No, this looks bad. Instead of overwriting CFR5V with whatever value, we
-> should instead first read it and then update only the bit that we're
-> interested in. If it happens to write CFR5V before octal enable/disable,
-> you'll overwrite the previous set values.
-> 
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-other idea is to keep some sort of cache register values in the code, to
-avoid reading repeatedly register values at each update. But we probably
-don't do so many updates for now, and maybe we can leave this for later.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 4.9.337-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.9.y
+* git commit: e5be668a53e8317a07f6b4a6b3e0b17b232cb6a1
+* git describe: v4.9.336-252-ge5be668a53e8
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.3=
+36-252-ge5be668a53e8
+
+## Test Regressions (compared to v4.9.336)
+
+## Metric Regressions (compared to v4.9.336)
+
+## Test Fixes (compared to v4.9.336)
+
+## Metric Fixes (compared to v4.9.336)
+
+## Test result summary
+total: 77532, pass: 66466, fail: 2409, skip: 8290, xfail: 367
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 284 total, 278 passed, 6 failed
+* arm64: 55 total, 48 passed, 7 failed
+* i386: 31 total, 30 passed, 1 failed
+* mips: 43 total, 40 passed, 3 failed
+* parisc: 2 total, 0 passed, 2 failed
+* powerpc: 27 total, 21 passed, 6 failed
+* s390: 17 total, 12 passed, 5 failed
+* sh: 26 total, 24 passed, 2 failed
+* sparc: 14 total, 14 passed, 0 failed
+* x86_64: 52 total, 49 passed, 3 failed
+
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
