@@ -2,71 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7E22660531
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 18:00:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C8E4660579
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 18:17:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229452AbjAFRAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 12:00:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41988 "EHLO
+        id S234565AbjAFRRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 12:17:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229686AbjAFRAi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 12:00:38 -0500
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B1578A7A;
-        Fri,  6 Jan 2023 09:00:37 -0800 (PST)
-Received: by mail-lj1-x229.google.com with SMTP id q2so2045460ljp.6;
-        Fri, 06 Jan 2023 09:00:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=POLRBla4fWO4DDMyrna7D/MzpTf8F2YLX+r/78ZrUW8=;
-        b=a1G1K9KNr9j1bT/MzbZJizjMJHw/9D7ZJJXDzWaUYa0pvsXwbmAABskVdggHKPaV9S
-         Mw4HS+E17YTEjN3ffdnsUMXyqMGeb4QLEZ1cedvdy4lgc1XERZ485uEM8eoOVzR+CmJS
-         yoQMx/xP8kXNGqkZcPN5yMe2y0w30mg1zSLPcWvecMgynRFT6L/OBmACKsPBzc3fPlvl
-         qH6lwkqyroj0SQsp8pTWTzJI8mRAPIBRmAgwwhReYp+JmtlBjFCdLBUcGoFkRguJJwwS
-         Vrf0SZZPULirnDA40TVz/3+tMiLHMWFz/E7vVZD4OijIL4MiGvLcswvID5S8086vHhi9
-         pCWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=POLRBla4fWO4DDMyrna7D/MzpTf8F2YLX+r/78ZrUW8=;
-        b=J9AtWPOPK4//lzymXoguaxG78+0+TGNY+9+dRwfDmk2psY34P6cYjkYw+bCRP3PKrE
-         7QrEBFPHmLFRSSnmPMDhVLn00iZ1w6DcV3M+N+VHULkOKkyFn3FHqMVgTL+zWN5HqzmP
-         Yv36A+sOc+T5Pk3cVH3dcD8AhndOAv7hJEP96Kkg18f/dOX1Qk0rUajbbFkQOBz1Z8Li
-         CerWUPCtLjsQejIZJxet2yXDDAduGNFg2dqduNyZpGsQ4F6VbTkg6TDY7zPHGCK0rkMK
-         T3PDKpYrbttAsb/hDd4olhpRzqcvPMyo3mVLPIUQFXoLOyo4MeBY5neDCq7oAl/bgO7l
-         OGrQ==
-X-Gm-Message-State: AFqh2kofCHMNvJ9JSyhW+Cp4/8CWkYxMP5OBwdq1u/8dT+zsR7RQBHZS
-        isUc+qQlZsk6RUHqf/7SFh4w1wl9SEHVbf+tY6aXGkfjCRA6LfW8
-X-Google-Smtp-Source: AMrXdXvJse1KDy0QTt2SO3flLiTDVx3NApWbGOr/2H5WEL2Wg9RerY4810wmbeXLv6A0Dx69VS4w5OLUyIvebmds9kk=
-X-Received: by 2002:a2e:9d0a:0:b0:27f:d80a:f361 with SMTP id
- t10-20020a2e9d0a000000b0027fd80af361mr2366332lji.433.1673024435790; Fri, 06
- Jan 2023 09:00:35 -0800 (PST)
+        with ESMTP id S233925AbjAFRQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 12:16:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A62E7D1E4;
+        Fri,  6 Jan 2023 09:16:39 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D24B6616F5;
+        Fri,  6 Jan 2023 17:16:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6F67C433D2;
+        Fri,  6 Jan 2023 17:16:37 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="gjort3rq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1673025394;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=13qVFvzj+JoRi8+CvI6HYB6uSTn1bytbuVR6Q3H6GEE=;
+        b=gjort3rqIxDFFSGMUL9g9t+pqxS2//Zx7rkx+zku1tA6P4s8RntIG8YRn7KXe7ivEpzJHn
+        zoh2J5sHguhfXCw8ss9r6PyzWE60yUD6tpziYgDl1BDFZY1QAR7MrDP8p67ltchwloJp/N
+        wP+bU8MM3voRLDUdQfONxFQRlCCWWfs=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 7be4b881 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+        Fri, 6 Jan 2023 17:16:33 +0000 (UTC)
+Received: by mail-ed1-f43.google.com with SMTP id c34so3163163edf.0;
+        Fri, 06 Jan 2023 09:16:33 -0800 (PST)
+X-Gm-Message-State: AFqh2kpkWdw3IX0G1uTlagvLAoZrmwujK9888TurxozTUPmu2xZiVnq7
+        Ve3AqgkJpp/CfXPUUohcegpBUXbfhXP3SGfJZiw=
+X-Google-Smtp-Source: AMrXdXsOo0zAqxZ998Wih8ahYgW4gf0ivgvhe+bP0n7y8cElI+fRQWdIBw3TWxXjrERiCHQLHXqTwXOD50gJpMIQKx8=
+X-Received: by 2002:aa7:cb13:0:b0:48e:ae51:464d with SMTP id
+ s19-20020aa7cb13000000b0048eae51464dmr1649004edt.341.1673025391232; Fri, 06
+ Jan 2023 09:16:31 -0800 (PST)
 MIME-Version: 1.0
-References: <20230106131905.81854-1-iivanov@suse.de>
-In-Reply-To: <20230106131905.81854-1-iivanov@suse.de>
-From:   Peter Robinson <pbrobinson@gmail.com>
-Date:   Fri, 6 Jan 2023 17:00:24 +0000
-Message-ID: <CALeDE9M_AOs_hMdjBtFCYGXXMQzZ-uXK=x8=19GruC+UQN1ESg@mail.gmail.com>
-Subject: Re: [PATCH v2] brcmfmac: Prefer DT board type over DMI board type
-To:     "Ivan T. Ivanov" <iivanov@suse.de>
-Cc:     aspriel@gmail.com, marcan@marcan.st, franky.lin@broadcom.com,
-        hante.meuleman@broadcom.com, rmk+kernel@armlinux.org.uk,
-        stefan.wahren@i2se.com, jforbes@fedoraproject.org,
-        kvalo@kernel.org, davem@davemloft.net, devicetree@vger.kernel.org,
-        edumazet@google.com, krzysztof.kozlowski+dt@linaro.org,
-        kuba@kernel.org, pabeni@redhat.com, robh+dt@kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        brcm80211-dev-list.pdl@broadcom.com,
-        SHA-cyfmac-dev-list@infineon.com, stable@vger.kernel.org
+References: <Y7dPV5BK6jk1KvX+@zx2c4.com> <20230106030156.3258307-1-Jason@zx2c4.com>
+ <Y7hF5vG8rWjbCLyL@zx2c4.com> <CAA25o9RGVbiXS6ne53gdM1K706zT=hm5c-KuMWrCA_CJtJDXdw@mail.gmail.com>
+In-Reply-To: <CAA25o9RGVbiXS6ne53gdM1K706zT=hm5c-KuMWrCA_CJtJDXdw@mail.gmail.com>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Fri, 6 Jan 2023 18:16:19 +0100
+X-Gmail-Original-Message-ID: <CAHmME9pwUZ+rOLEB=zLTUObAv0At=_n5vs=xQfB=Kw_hwA03Tg@mail.gmail.com>
+Message-ID: <CAHmME9pwUZ+rOLEB=zLTUObAv0At=_n5vs=xQfB=Kw_hwA03Tg@mail.gmail.com>
+Subject: Re: [PATCH v2] tpm: Allow system suspend to continue when TPM suspend fails
+To:     Luigi Semenzato <semenzato@chromium.org>
+Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Jan Dabros <jsd@semihalf.com>,
+        regressions@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
+        linux-integrity@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Johannes Altmanninger <aclopte@gmail.com>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>, tbroch@chromium.org,
+        dbasehore@chromium.org, keescook@chromium.org
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -74,59 +79,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 6, 2023 at 1:19 PM Ivan T. Ivanov <iivanov@suse.de> wrote:
+On Fri, Jan 6, 2023 at 6:04 PM Luigi Semenzato <semenzato@chromium.org> wro=
+te:
 >
-> The introduction of support for Apple board types inadvertently changed
-> the precedence order, causing hybrid SMBIOS+DT platforms to look up the
-> firmware using the DMI information instead of the device tree compatible
-> to generate the board type. Revert back to the old behavior,
-> as affected platforms use firmwares named after the DT compatible.
->
-> Fixes: 7682de8b3351 ("wifi: brcmfmac: of: Fetch Apple properties")
->
-> [1] https://bugzilla.opensuse.org/show_bug.cgi?id=1206697#c13
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
-> Reviewed-by: Hector Martin <marcan@marcan.st>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
+> I worked a fair amount on TPM 1.0 about 10 years ago and I even vaguely r=
+emember suspend-related problems.  I'd be happy to take a look.  The linked=
+ thread shows that Peter Huewe was copied.  I know Peter well, his opinion =
+can be trusted.  Unfortunately I don't immediately see a link to a patch, c=
+an you help?
 
-Tested on a RPi3B+, a RPi4B and a Rockchips device with 6.2rc2 and it
-fixed the issue I had seen on Fedora.
+Sorry, I should have included that:
+https://lore.kernel.org/lkml/20230106030156.3258307-1-Jason@zx2c4.com/
+Instead of blocking system suspend when TPM_ORD_SAVESTATE fails, it
+just lets the system sleep anyway. This means that presumably the
+system might sleep without having called TPM_ORD_SAVESTATE. Trying to
+figure out how bad that is.
 
-Thanks
+And yes, Peter Huewe certainly knows about TPMs, especially as he
+maintains the code in Linux, but the maintainers haven't been so much
+available, unfortunately. This bug happens to intersect with something
+mostly related that I work on (the rng), so I'm motivated to at least
+prevent the worst of the breakage, but I otherwise don't know anything
+about the Linux TPM driver.
 
-> ---
-> Changes since v1
-> Rewrite commit message according feedback.
-> https://lore.kernel.org/all/20230106072746.29516-1-iivanov@suse.de/
->
->  drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c
-> index a83699de01ec..fdd0c9abc1a1 100644
-> --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c
-> +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c
-> @@ -79,7 +79,8 @@ void brcmf_of_probe(struct device *dev, enum brcmf_bus_type bus_type,
->         /* Apple ARM64 platforms have their own idea of board type, passed in
->          * via the device tree. They also have an antenna SKU parameter
->          */
-> -       if (!of_property_read_string(np, "brcm,board-type", &prop))
-> +       err = of_property_read_string(np, "brcm,board-type", &prop);
-> +       if (!err)
->                 settings->board_type = prop;
->
->         if (!of_property_read_string(np, "apple,antenna-sku", &prop))
-> @@ -87,7 +88,7 @@ void brcmf_of_probe(struct device *dev, enum brcmf_bus_type bus_type,
->
->         /* Set board-type to the first string of the machine compatible prop */
->         root = of_find_node_by_path("/");
-> -       if (root && !settings->board_type) {
-> +       if (root && err) {
->                 char *board_type;
->                 const char *tmp;
->
-> --
-> 2.35.3
->
+Jason
