@@ -2,133 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B906600D3
-	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 14:01:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 269EC660117
+	for <lists+stable@lfdr.de>; Fri,  6 Jan 2023 14:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233148AbjAFNAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 08:00:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
+        id S234369AbjAFNTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 08:19:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234545AbjAFNAY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 08:00:24 -0500
-Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [85.215.255.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0792F75D12;
-        Fri,  6 Jan 2023 05:00:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1673009998;
-    s=strato-dkim-0002; d=hartkopp.net;
-    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=ft/wlpfHhe3+YuvCCjuB7CQEkEhwpLGejLvvvKfZx9w=;
-    b=WF7OSkeQaulJxUPvQlQPQqUm3zGLPr1kzyMNHaOANe93U23g6IcnUQFv33VV3yKxXE
-    HI+Lwwpib1MHlAILR6+lvA2zERfYF7fkBeML3svPNi5BU15KKaUGKKypFgyS1xz/IJei
-    npHGL7KDdZTkpcg7oJdnsoDd6v7AYB0N+JGJy8ZS64CwbpyGe8wHoyz4ELwVcmRCOBnm
-    xHN7G7cKsb5JsrEm0s7bzJYGHn7nf0FukDhOEaS3hAkW3gdegYQUimK+oA1DOUhBt5YB
-    NuYtCd8XDlIRB2lftwGi9r7rG6u7FxSkkMmf4O4Mebslh4LkBpIS0YFChLHv9k012/89
-    o3pg==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1o3TMaFqTEVR5J8xpzl0="
-X-RZG-CLASS-ID: mo00
-Received: from [192.168.10.47]
-    by smtp.strato.de (RZmta 48.2.1 DYNA|AUTH)
-    with ESMTPSA id j06241z06Cxw4vV
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Fri, 6 Jan 2023 13:59:58 +0100 (CET)
-Message-ID: <0e0e041b-8dd9-0764-3fd1-a426c99ec417@hartkopp.net>
-Date:   Fri, 6 Jan 2023 13:59:54 +0100
+        with ESMTP id S233050AbjAFNT1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 08:19:27 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1452E7682C;
+        Fri,  6 Jan 2023 05:19:26 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 7C6F026B8B;
+        Fri,  6 Jan 2023 13:19:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1673011163; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=kAERvk5nBFa12V2mZMiTZvP60v0XGkRfhjbzVAQuTyw=;
+        b=KoonKBdqVvpkdxegu6pG4IIpAzTIWP1YVsgfTGDmIEyWBLDkV1vUsCGeEuGagMEymkLlQI
+        1a46Sety7WRP8zuE6rODKmsi/ePQzaMFMnkJGv2FW2OqZAxjMeMWyz4iMIUYHYF+7txIT+
+        QVKX9hfbGiVk4ETEXzBnUwdR4SkknoE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1673011163;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=kAERvk5nBFa12V2mZMiTZvP60v0XGkRfhjbzVAQuTyw=;
+        b=mVOGvsNkU0K+hZCpdmecHUjBvj1vb+B5uiCNA6nsXp0agsu2GmF9XWw5hpwtBKCJOu/bD/
+        saclmeVmvMxVQqCg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 59D17139D5;
+        Fri,  6 Jan 2023 13:19:23 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id +sfIFdsfuGOBWAAAMHmgww
+        (envelope-from <iivanov@suse.de>); Fri, 06 Jan 2023 13:19:23 +0000
+From:   "Ivan T. Ivanov" <iivanov@suse.de>
+To:     aspriel@gmail.com, marcan@marcan.st
+Cc:     franky.lin@broadcom.com, hante.meuleman@broadcom.com,
+        rmk+kernel@armlinux.org.uk, stefan.wahren@i2se.com,
+        pbrobinson@gmail.com, jforbes@fedoraproject.org, kvalo@kernel.org,
+        davem@davemloft.net, devicetree@vger.kernel.org,
+        edumazet@google.com, krzysztof.kozlowski+dt@linaro.org,
+        kuba@kernel.org, pabeni@redhat.com, robh+dt@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        SHA-cyfmac-dev-list@infineon.com,
+        "Ivan T. Ivanov" <iivanov@suse.de>, stable@vger.kernel.org
+Subject: [PATCH v2] brcmfmac: Prefer DT board type over DMI board type
+Date:   Fri,  6 Jan 2023 15:19:05 +0200
+Message-Id: <20230106131905.81854-1-iivanov@suse.de>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH v2] can: isotp: handle wait_event_interruptible() return
- values
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     linux-can@vger.kernel.org, stable@vger.kernel.org
-References: <20230104164605.39666-1-socketcan@hartkopp.net>
- <20230105093226.alchrnm34s6tmfpp@pengutronix.de>
- <20bef3ed-47ef-8042-6b98-1f498b81962f@hartkopp.net>
- <20230106113731.irqfxdpn5ygae44e@pengutronix.de>
-Content-Language: en-US
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-In-Reply-To: <20230106113731.irqfxdpn5ygae44e@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The introduction of support for Apple board types inadvertently changed
+the precedence order, causing hybrid SMBIOS+DT platforms to look up the
+firmware using the DMI information instead of the device tree compatible
+to generate the board type. Revert back to the old behavior,
+as affected platforms use firmwares named after the DT compatible.
 
+Fixes: 7682de8b3351 ("wifi: brcmfmac: of: Fetch Apple properties")
 
-On 06.01.23 12:37, Marc Kleine-Budde wrote:
-> On 05.01.2023 13:58:30, Oliver Hartkopp wrote:
->>
->>
->> On 05.01.23 10:32, Marc Kleine-Budde wrote:
->>> On 04.01.2023 17:46:05, Oliver Hartkopp wrote:
->>>> When wait_event_interruptible() has been interrupted by a signal the
->>>> tx.state value might not be ISOTP_IDLE. Force the state machines
->>>> into idle state to inhibit the timer handlers to continue working.
->>>>
->>>> Cc: stable@vger.kernel.org # >= v5.15
->>>> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
->>>
->>> Can you add a Fixes: tag?
->>
->> Yes. Sent out a V3.
->>
->> In fact I was not sure if it makes sense to apply the patch down to Linux
->> 5.10 as it might increase the possibility to trigger a WARN(1) in the
->> isotp_tx_timer_handler().
->>
->> The patch is definitely helpful for the latest code including commit
->> 4b7fe92c0690 ("can: isotp: add local echo tx processing for consecutive
->> frames") introduced in Linux 5.18 and its fixes.
->>
->> I did some testing with very long ISOTP PDUs and killed the waiting
->> isotp_release() with a Crtl-C.
->>
->> To prevent the WARN(1) we might also stick this patch to
->>
->> Fixes: 866337865f37 ("can: isotp: fix tx state handling for echo tx
->> processing")
->>
->> What do you think about the WARN(1)?
-> 
-> If this short patch avoids potential WARN()s it's stable material.
-> 
+[1] https://bugzilla.opensuse.org/show_bug.cgi?id=1206697#c13
 
-It is the other way around. As written above this patch might increase 
-the possibility to trigger a WARN(1).
+Cc: stable@vger.kernel.org
+Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
+Reviewed-by: Hector Martin <marcan@marcan.st>
+---
+Changes since v1
+Rewrite commit message according feedback.
+https://lore.kernel.org/all/20230106072746.29516-1-iivanov@suse.de/
 
-With the patch:
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-https://lore.kernel.org/linux-can/20230104145701.2422-1-socketcan@hartkopp.net/T/#u
-
-the WARN(1) is removed and this patch here makes the situation better.
-
-Alternatively I could provide another patch for kernels < v6.0 which set 
-the rx/tx states AND remove the WARN(1).
-
-Back to your original question about the "Fixes:" tag, I would suggest 
-to tag this patch similar to
-
-https://lore.kernel.org/linux-can/20230104145701.2422-1-socketcan@hartkopp.net/T/#u
-
-Namely:
-
-Fixes: 866337865f37 ("can: isotp: fix tx state handling for echo tx 
-processing")
-Cc: stable@vger.kernel.org # >= v6.0
-
-And later check whether I should remove the WARN(1) in older stable kernels.
-
-Should I send a V4 with the new "Fixes: 866337865f37" tag?
-
-Best regards,
-Oliver
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c
+index a83699de01ec..fdd0c9abc1a1 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c
+@@ -79,7 +79,8 @@ void brcmf_of_probe(struct device *dev, enum brcmf_bus_type bus_type,
+ 	/* Apple ARM64 platforms have their own idea of board type, passed in
+ 	 * via the device tree. They also have an antenna SKU parameter
+ 	 */
+-	if (!of_property_read_string(np, "brcm,board-type", &prop))
++	err = of_property_read_string(np, "brcm,board-type", &prop);
++	if (!err)
+ 		settings->board_type = prop;
+ 
+ 	if (!of_property_read_string(np, "apple,antenna-sku", &prop))
+@@ -87,7 +88,7 @@ void brcmf_of_probe(struct device *dev, enum brcmf_bus_type bus_type,
+ 
+ 	/* Set board-type to the first string of the machine compatible prop */
+ 	root = of_find_node_by_path("/");
+-	if (root && !settings->board_type) {
++	if (root && err) {
+ 		char *board_type;
+ 		const char *tmp;
+ 
+-- 
+2.35.3
 
