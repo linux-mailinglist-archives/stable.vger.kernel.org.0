@@ -2,150 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD5EF660B66
-	for <lists+stable@lfdr.de>; Sat,  7 Jan 2023 02:20:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF1C660B6A
+	for <lists+stable@lfdr.de>; Sat,  7 Jan 2023 02:21:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229620AbjAGBUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 Jan 2023 20:20:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38674 "EHLO
+        id S230244AbjAGBV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 Jan 2023 20:21:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229870AbjAGBUK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 20:20:10 -0500
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E4C01E3ED
-        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 17:20:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673054410; x=1704590410;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=QbP122LMPjgCQtrQbA4fnDNOgEeN9MtQDCEXBp1A+go=;
-  b=YREAhmUhEX2ZWHjXJInrx3pDYcLID6/YhfX+oh/vgZ+lmUAPlV4KelWl
-   OHyVyO25PamkYGuzljyuoBYph1lo4osm4FvqRIeJf21aFax6j/KyVFd0N
-   S5C9ADcuZL1/H2uDM7Zvodw5cHy7xNXwV1tyaR3nZyjSk8ipYGzJAxtNm
-   /JyxDCWfz6naLtA4+vxSOCdkVKYlpiuymDIFJntXtY93qRlYCiG5Fsg1m
-   q9wnpEo46AgqCThW8gBnfYEAyt00ReqVzb8hgsyjaRGG+JYrVFFWdcunZ
-   Lo+tZW1UUCsA+sHAUg5tXB3R3YEdgepKIauqk2KUNFshVDxxAVWJEvezC
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10582"; a="322672301"
-X-IronPort-AV: E=Sophos;i="5.96,307,1665471600"; 
-   d="scan'208";a="322672301"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2023 17:20:08 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10582"; a="649475320"
-X-IronPort-AV: E=Sophos;i="5.96,307,1665471600"; 
-   d="scan'208";a="649475320"
-Received: from mechevar-mobl.amr.corp.intel.com (HELO mjmartin-desk2.intel.com) ([10.209.66.63])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2023 17:20:07 -0800
-From:   Mat Martineau <mathew.j.martineau@linux.intel.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Cc:     Matthieu Baerts <matthieu.baerts@tessares.net>, pabeni@redhat.com,
-        mptcp@lists.linux.dev,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 2/2] mptcp: use proper req destructor for IPv6
-Date:   Fri,  6 Jan 2023 17:19:58 -0800
-Message-Id: <20230107011959.448249-3-mathew.j.martineau@linux.intel.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230107011959.448249-1-mathew.j.martineau@linux.intel.com>
-References: <20230107011959.448249-1-mathew.j.martineau@linux.intel.com>
+        with ESMTP id S232821AbjAGBVZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 Jan 2023 20:21:25 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61A4C9FFA
+        for <stable@vger.kernel.org>; Fri,  6 Jan 2023 17:21:23 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id l1-20020a17090a384100b00226f05b9595so1571381pjf.0
+        for <stable@vger.kernel.org>; Fri, 06 Jan 2023 17:21:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=fGp7XQc2VGbBDxiW6oPsPSq8rd+Pp+GUF89FSmtguMY=;
+        b=ctHCqkF8lWWCEMvSMP9SB71dYd2YSRUg9u4uNjoTKAZOuhG9kNvAcXTqwBn8Pl6rDm
+         o/rzUuIRcux5YaDdSV5Ygdm16fu+ymgygpIhROQBk1CdYiXLc6BAV0oHyT4CP24tQoAP
+         BJLKuFdc8n/R4v9FAHU85MgPACIAHu0IsRGws=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=fGp7XQc2VGbBDxiW6oPsPSq8rd+Pp+GUF89FSmtguMY=;
+        b=Uq/vPFH7A7XdhpRs+BKzTzzI2O5xaYJ3/fCs3p0bMaq42PA53y7o+4Sj5P1HsqxrYs
+         yj9rEm18GlAt5GX66U34Ku4lQzJTjpcNmtze6ceXyXjfqNb8gHXOD+1LZgVNsZYjuQpm
+         gIxfVyNUpQ9RfvOvaVOGiz2WPHiv4uaOV5F7N0h1UNAQtXqCdqtZk05/k43Zci/ISTNg
+         rMmvNFAJyil8aCCWZkawTh+Idd+sP5emwop1iVOeCzdZNAbwQRMUXOxFqf1RxBqkgZ5C
+         g6ytfrAyuub9aPQwxCAXd+dowE+Mdjo/BOOsJAGtdQ1PHhPU1aDAyOGBD9GGZKiKvLbD
+         ZMAg==
+X-Gm-Message-State: AFqh2kqSRje8TeNj93C+QGXk4ERNVAwWDt7h/t3Xm808l7eIrdL7UBdo
+        h7wN07E6R+i3LaEI4rkp7yBFig==
+X-Google-Smtp-Source: AMrXdXucd5QiL3Gpmu1dQs5wApEskRuwAtx0qubwZvtkLbZyghXUapggu1smjFX+LjoGpUNSoGZhlw==
+X-Received: by 2002:a17:902:e354:b0:192:6aa8:e3d8 with SMTP id p20-20020a170902e35400b001926aa8e3d8mr46653793plc.28.1673054482918;
+        Fri, 06 Jan 2023 17:21:22 -0800 (PST)
+Received: from google.com ([2620:15c:9d:2:bc4e:2cc9:68b3:15dc])
+        by smtp.gmail.com with ESMTPSA id m7-20020a170902db0700b00192b0a07891sm1545055plx.101.2023.01.06.17.21.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Jan 2023 17:21:22 -0800 (PST)
+Date:   Fri, 6 Jan 2023 17:21:19 -0800
+From:   Brian Norris <briannorris@chromium.org>
+To:     Michel =?iso-8859-1?Q?D=E4nzer?= <michel.daenzer@mailbox.org>
+Cc:     Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
+        Sean Paul <seanpaul@chromium.org>,
+        "kernelci.org bot" <bot@kernelci.org>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Sandy Huang <hjc@rock-chips.com>,
+        linux-rockchip@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] drm/rockchip: vop: Leave vblank enabled in
+ self-refresh
+Message-ID: <Y7jJDw4RcNceyLbR@google.com>
+References: <20230105174001.1.I3904f697863649eb1be540ecca147a66e42bfad7@changeid>
+ <20230105174001.2.Ic07cba4ab9a7bd3618a9e4258b8f92ea7d10ae5a@changeid>
+ <9455bc5b-2074-4f48-71a7-5c816ee19a78@mailbox.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <9455bc5b-2074-4f48-71a7-5c816ee19a78@mailbox.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+On Fri, Jan 06, 2023 at 12:42:54PM +0100, Michel Dänzer wrote:
+> On 1/6/23 02:40, Brian Norris wrote:
+> > --- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> > +++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> > @@ -719,11 +719,11 @@ static void vop_crtc_atomic_disable(struct drm_crtc *crtc,
+> >  
+> >  	mutex_lock(&vop->vop_lock);
+> >  
+> > -	drm_crtc_vblank_off(crtc);
+> > -
+> >  	if (crtc->state->self_refresh_active)
+> >  		goto out;
+> >  
+> > +	drm_crtc_vblank_off(crtc);
+> > +
+> >  	/*
+> >  	 * Vop standby will take effect at end of current frame,
+> >  	 * if dsp hold valid irq happen, it means standby complete.
+> 
+> The out label immediately unlocks vop->vop_lock again, seems a bit pointless. :)
 
-commit d3295fee3c756ece33ac0d935e172e68c0a4161b upstream.
+Oops, of course. Will change that in v2.
 
-Before, only the destructor from TCP request sock in IPv4 was called
-even if the subflow was IPv6.
+> AFAICT the self_refresh_active case should just return immediately,
+> the out label would also send any pending atomic commit completion
+> event, which seems wrong now that the vblank interrupt is left
+> enabled.
 
-It is important to use the right destructor to avoid memory leaks with
-some advanced IPv6 features, e.g. when the request socks contain
-specific IPv6 options.
+If I return immediately and drop that completion, I hit a warning:
 
-Fixes: 79c0949e9a09 ("mptcp: Add key generation and token tree")
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Cc: stable@vger.kernel.org # 5.15
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
- net/mptcp/subflow.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+[    4.423876] WARNING: CPU: 5 PID: 58 at drivers/gpu/drm/drm_atomic_helper.c:2460 drm_atomic_helper_commit_hw_done+0xe0/0xe8
+...
+[    4.424036] Call trace:
+[    4.424039]  drm_atomic_helper_commit_hw_done+0xe0/0xe8
+[    4.424045]  drm_atomic_helper_commit_tail_rpm+0x58/0x7c
+...
 
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index c1d76ec65c42..ba4241d7c5ef 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -45,7 +45,6 @@ static void subflow_req_destructor(struct request_sock *req)
- 		sock_put((struct sock *)subflow_req->msk);
- 
- 	mptcp_token_destroy_request(req);
--	tcp_request_sock_ops.destructor(req);
- }
- 
- static void subflow_generate_hmac(u64 key1, u64 key2, u32 nonce1, u32 nonce2,
-@@ -504,6 +503,12 @@ static int subflow_v4_conn_request(struct sock *sk, struct sk_buff *skb)
- 	return 0;
- }
- 
-+static void subflow_v4_req_destructor(struct request_sock *req)
-+{
-+	subflow_req_destructor(req);
-+	tcp_request_sock_ops.destructor(req);
-+}
-+
- #if IS_ENABLED(CONFIG_MPTCP_IPV6)
- static struct request_sock_ops mptcp_subflow_v6_request_sock_ops __ro_after_init;
- static struct tcp_request_sock_ops subflow_request_sock_ipv6_ops __ro_after_init;
-@@ -535,6 +540,12 @@ static int subflow_v6_conn_request(struct sock *sk, struct sk_buff *skb)
- 	tcp_listendrop(sk);
- 	return 0; /* don't send reset */
- }
-+
-+static void subflow_v6_req_destructor(struct request_sock *req)
-+{
-+	subflow_req_destructor(req);
-+	tcp6_request_sock_ops.destructor(req);
-+}
- #endif
- 
- struct request_sock *mptcp_subflow_reqsk_alloc(const struct request_sock_ops *ops,
-@@ -1806,8 +1817,6 @@ static int subflow_ops_init(struct request_sock_ops *subflow_ops)
- 	if (!subflow_ops->slab)
- 		return -ENOMEM;
- 
--	subflow_ops->destructor = subflow_req_destructor;
--
- 	return 0;
- }
- 
-@@ -1815,6 +1824,8 @@ void __init mptcp_subflow_init(void)
- {
- 	mptcp_subflow_v4_request_sock_ops = tcp_request_sock_ops;
- 	mptcp_subflow_v4_request_sock_ops.slab_name = "request_sock_subflow_v4";
-+	mptcp_subflow_v4_request_sock_ops.destructor = subflow_v4_req_destructor;
-+
- 	if (subflow_ops_init(&mptcp_subflow_v4_request_sock_ops) != 0)
- 		panic("MPTCP: failed to init subflow v4 request sock ops\n");
- 
-@@ -1839,6 +1850,8 @@ void __init mptcp_subflow_init(void)
- 
- 	mptcp_subflow_v6_request_sock_ops = tcp6_request_sock_ops;
- 	mptcp_subflow_v6_request_sock_ops.slab_name = "request_sock_subflow_v6";
-+	mptcp_subflow_v6_request_sock_ops.destructor = subflow_v6_req_destructor;
-+
- 	if (subflow_ops_init(&mptcp_subflow_v6_request_sock_ops) != 0)
- 		panic("MPTCP: failed to init subflow v6 request sock ops\n");
- 
--- 
-2.39.0
+I plan to leave it as-is for v2.
 
+> (I also wonder if drm_crtc_vblank_off doesn't take care of
+> that already, at least amdgpu doesn't do this explicitly AFAICT)
+
+I'm not sure.
+
+Brian
