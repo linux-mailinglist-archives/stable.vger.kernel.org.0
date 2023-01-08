@@ -2,96 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BA526617F5
-	for <lists+stable@lfdr.de>; Sun,  8 Jan 2023 19:18:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CE5E66198A
+	for <lists+stable@lfdr.de>; Sun,  8 Jan 2023 21:52:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233274AbjAHSSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 Jan 2023 13:18:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48930 "EHLO
+        id S233036AbjAHUwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 Jan 2023 15:52:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233668AbjAHSSH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Jan 2023 13:18:07 -0500
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF941DA;
-        Sun,  8 Jan 2023 10:18:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
-        t=1673201876; bh=Ue64tR1L9y9zqhBq+z1LUgoa2umwcYX39u8aBNldhkU=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=nsFplF0j940ChYwpMPhXePVg1LaweDnJIMNnDfU9HsB8m19+bh1+EUagej/6KV/vd
-         bRCuavSg8gro4GbbRif9SvQ7ateVxCW3NFp8cY66oGIG/4BQmcECrJLCEEAAGgsjNm
-         QmaF3APuUeoIxP5wrRr3QZudUlIOMlg0bnlZG8g6+gQ0sLieVddp9rm8+nMEyIMGoe
-         ZvIy3nwf0idhL21DY/EUgES6V749Ok4mGjf7zN/S1FOBZuQZQSEa3ahIsIvSuUXgNE
-         6LYtMEeLihr6uGpBcDVY6G2JCo/eRhANTTK5WuzpIjurGEyM1ORr+BzUEHZfXmnzGl
-         0S8rsz9Uv57cA==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from Venus.speedport.ip ([84.162.7.17]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MD9XF-1p5Xpl358r-0099D8; Sun, 08
- Jan 2023 19:17:56 +0100
-From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
-To:     gregkh@linuxfoundation.org, jirislaby@kernel.org
-Cc:     linux@armlinux.org.uk, linux-serial@vger.kernel.org,
-        linux-kernel@vger.kernel.org, l.sanfilippo@kunbus.com,
-        LinoSanfilippo@gmx.de, lukas@wunner.de, p.rosenberger@kunbus.com,
-        stable@vger.kernel.org
-Subject: [PATCH] serial: amba-pl011: fix high priority character transmission in rs486 mode
-Date:   Sun,  8 Jan 2023 19:17:35 +0100
-Message-Id: <20230108181735.10937-1-LinoSanfilippo@gmx.de>
-X-Mailer: git-send-email 2.39.0
+        with ESMTP id S231402AbjAHUwP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Jan 2023 15:52:15 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A82D101DC;
+        Sun,  8 Jan 2023 12:52:14 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id x10so6953458edd.10;
+        Sun, 08 Jan 2023 12:52:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/W1ZH7okdp3bC5pjHi5v6nQazt9WUGWbkW62SJcD8hQ=;
+        b=CZSi5VCe45fYPvoueF3Xz9/2f8RQXo4zyAt34wYxgvnxVuDjBRRzHICHSsCVFL9qvD
+         y0k+0LPoVdQjSsrczYbF/yitqgcOmTgTpEhjZtjt3K0/vdqY5X6LE/vA8Fahyg8LBmDb
+         JgHj7ZOPWTu5jVphQgd2X6yMgiB49QeVi3N0e+QyysPEGlgHC2MSxjtVjIIvUA/FAPRj
+         S2/zFCg6UTJiLPOnA34xzSUTpD7z1bpfhFvFx175/mX+wgOxWh3adhrMU+ehQ0Yfx+qm
+         4zBi2y/2PuqdbZfQq8N2IMW2hGoNSPkVsIURkr3reDhJWPsvh63lvhO3Fate3WhzcCbZ
+         oqTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/W1ZH7okdp3bC5pjHi5v6nQazt9WUGWbkW62SJcD8hQ=;
+        b=pRmlAb6i0zyxBrV0PcZcZmTaEFcVY0CdajtFthMXJYou2gegsYIqCn5mhYB+0gVvAq
+         IuSriOLFqVgAxAQknxlbWDb/Uj7PBZlbyzVhTjeob5A/jMh9yFlpTcMWb7ewDIHXluI9
+         p7tGMFtbWgkm9wH9SVn22oimTN5SxTyygiDKV9M/ur422O5bMcNzPtavoYmAW3PFCS5G
+         bAKqhkrcGpCmj8jaMcIPgFl7CX14JA43SdAHXe0ISV7onoBpiTs5KswMFGPCVaKDBa8W
+         ivwch7gboWh7ZBH1GA8vBTK0YoKuq9X/RycL3xJ9jMGY8Wo+3UABHbEd8HFhaTMktvua
+         iHFw==
+X-Gm-Message-State: AFqh2koORUSgiOiUKxVAxOFhEfnDiTocahbcdCYI23X53mEnbEm9N4J4
+        qThAfPAGts/R8ZtW1Uzbnu4=
+X-Google-Smtp-Source: AMrXdXthkxdR5S3Vx/C5pVKc8nmwQsnxhLxbv5FwkjZ/fyeqvLUsh+ZvJxXis6Q2Ef7PtQwkRWND5A==
+X-Received: by 2002:a05:6402:104d:b0:486:ac69:b9e4 with SMTP id e13-20020a056402104d00b00486ac69b9e4mr36935941edu.4.1673211133033;
+        Sun, 08 Jan 2023 12:52:13 -0800 (PST)
+Received: from jernej-laptop.localnet (82-149-19-102.dynamic.telemach.net. [82.149.19.102])
+        by smtp.gmail.com with ESMTPSA id k26-20020a508ada000000b00487fc51c532sm3016451edk.33.2023.01.08.12.52.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 Jan 2023 12:52:12 -0800 (PST)
+From:   Jernej =?utf-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>
+To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Samuel Holland <samuel@sholland.org>
+Cc:     Samuel Holland <samuel@sholland.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-sunxi@lists.linux.dev, stable@vger.kernel.org,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: Re: [PATCH v2 1/2] nvmem: sunxi_sid: Always use 32-bit MMIO reads
+Date:   Sun, 08 Jan 2023 21:52:11 +0100
+Message-ID: <5829449.MhkbZ0Pkbq@jernej-laptop>
+In-Reply-To: <20230101183316.43642-2-samuel@sholland.org>
+References: <20230101183316.43642-1-samuel@sholland.org>
+ <20230101183316.43642-2-samuel@sholland.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-X-Provags-ID: V03:K1:wjqYc8SNEaE4jlrIZG5Osc3vN+ELeRU7LHPoC3iLh6qm4AykcZ9
- +Og6ZfK+ZBqkqoQma8XzayY5F0zgF7ozCrch7/q9NkLZD00c6Wram5zcGqMm+dTze4rH4n2
- hSwSLg1i1l/9CODvtDOjlMXCSUgIxuXzQlmwh9gyL94Ul+1f3aVps+uCqZuR3M52o7k1t4k
- t6dlAGMdTCTm2NL4lbBig==
-UI-OutboundReport: notjunk:1;M01:P0:9bzYUfwnTaw=;4W8UX6PCPm3CIzddWsYVLzW937E
- QdBoQVS2ndbg57qNKGmG31AQFVnOR9yN1OFsrz+nXWyaVlD3uZUGMbaqklm/bJBnPCZXr3/nA
- SMwJNN6VFfJbMNpjG5M50DF7r8MrkZedWe5S6/1JvGrUNCY9TgNp2NQDNuIeHzoxXQ3MiISHu
- MxY1TxgqYtitfTNoJd/JiEInSpKfBZECrf9SJI99njtJ9DLytnSbCgx6ib19GjfLW2ZCmhrOa
- hlJq2tn/oOIDj6rR0J4z0sxNH7whv9QEXZOlxosTmC2bkjfup3yUpW3A7sZOuJ2r378RqAmDI
- sp93+jkmEQdEqztATVYVsgfU2NF4Rt1/ATnY2VbTJWWwjX+UXRpQ8jqdotrpvqjvAjRvkUhcG
- eEYIwoyO9ZRR2XJis58AeSxWj5dhGvnK5u4UbJ+qs21tL9x6z9/A133iLR9Myuo0HWc1pK1s8
- HxYs+IVZ6DULM2wUj0L7sKbGYVHqopALdUeAxFXi/e7j1ehJ/T10eUd4uJJOat51bzwY1io4n
- guOZ42UHKkJHnjg4CiIsyD58snsgOttRZz/Aji2C7IZ1/pz1mNuuE+61zD3bhdJIKZ7Ho7gZB
- ogHXf5PoTb34oRI32uSuB6rtnR+ZcFSh6/91R9pRi02fqD4r1Utj4dkkV3u/zsQu0hZ+WJNSx
- NCJ7R5KENqySdQu26m8TQGyaBcAIUjNQ4TugGSsy6UoVJItQV3GUK/G0qS6Ag2Y0WrXRmkbb5
- mOvZSIXrjK8RELMsGQ+u/1jytY0ONPewe3mvF3k9VHBlI1Muo1ozpk3xBvXm5mGdIb9AMXVcd
- cvWCblvZ6SU+P89+qr2qNiwQxN7BaXY8QbKiwK5Zs8KsygWU0i9Fv75KOc6No857FUdL5tJUH
- kILSWkkQ8TgshG8K8QA2qy3Omdx9OK8hNNoeXIUgycsK+y0tidr44aU5PY9ASuP+L4OaR6qbw
- w9TYWthZD8gI6r+E8HPVvaLJ3AI=
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,MIME_BASE64_TEXT,
-        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogTGlubyBTYW5maWxpcHBvIDxsLnNhbmZpbGlwcG9Aa3VuYnVzLmNvbT4KCkluIFJTNDg1
-IG1vZGUgdGhlIHRyYW5zbWlzc2lvbiBvZiBhIGhpZ2ggcHJpb3JpdHkgY2hhcmFjdGVyIGZhaWxz
-IHNpbmNlIGl0CmlzIHdyaXR0ZW4gdG8gdGhlIGRhdGEgcmVnaXN0ZXIgYmVmb3JlIHRoZSB0cmFu
-c21pdHRlciBpcyBlbmFibGVkLiBGaXggdGhpcwppbiBwbDAxMV90eF9jaGFycygpIGJ5IGVuYWJs
-aW5nIFJTNDg1IHRyYW5zbWlzc2lvbiBiZWZvcmUgd3JpdGluZyB0aGUKY2hhcmFjdGVyLgoKRml4
-ZXM6IDhkNDc5MjM3NzI3YyAoInNlcmlhbDogYW1iYS1wbDAxMTogYWRkIFJTNDg1IHN1cHBvcnQi
-KQpDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZwpTaWduZWQtb2ZmLWJ5OiBMaW5vIFNhbmZpbGlw
-cG8gPGwuc2FuZmlsaXBwb0BrdW5idXMuY29tPgotLS0KIGRyaXZlcnMvdHR5L3NlcmlhbC9hbWJh
-LXBsMDExLmMgfCA4ICsrKystLS0tCiAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA0
-IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdHR5L3NlcmlhbC9hbWJhLXBsMDEx
-LmMgYi9kcml2ZXJzL3R0eS9zZXJpYWwvYW1iYS1wbDAxMS5jCmluZGV4IGQ3NWMzOWY0NjIyYi4u
-ZDhjMmYzNDU1ZWViIDEwMDY0NAotLS0gYS9kcml2ZXJzL3R0eS9zZXJpYWwvYW1iYS1wbDAxMS5j
-CisrKyBiL2RyaXZlcnMvdHR5L3NlcmlhbC9hbWJhLXBsMDExLmMKQEAgLTE0NjYsNiArMTQ2Niwx
-MCBAQCBzdGF0aWMgYm9vbCBwbDAxMV90eF9jaGFycyhzdHJ1Y3QgdWFydF9hbWJhX3BvcnQgKnVh
-cCwgYm9vbCBmcm9tX2lycSkKIAlzdHJ1Y3QgY2lyY19idWYgKnhtaXQgPSAmdWFwLT5wb3J0LnN0
-YXRlLT54bWl0OwogCWludCBjb3VudCA9IHVhcC0+Zmlmb3NpemUgPj4gMTsKIAorCWlmICgodWFw
-LT5wb3J0LnJzNDg1LmZsYWdzICYgU0VSX1JTNDg1X0VOQUJMRUQpICYmCisJICAgICF1YXAtPnJz
-NDg1X3R4X3N0YXJ0ZWQpCisJCXBsMDExX3JzNDg1X3R4X3N0YXJ0KHVhcCk7CisKIAlpZiAodWFw
-LT5wb3J0LnhfY2hhcikgewogCQlpZiAoIXBsMDExX3R4X2NoYXIodWFwLCB1YXAtPnBvcnQueF9j
-aGFyLCBmcm9tX2lycSkpCiAJCQlyZXR1cm4gdHJ1ZTsKQEAgLTE0NzcsMTAgKzE0ODEsNiBAQCBz
-dGF0aWMgYm9vbCBwbDAxMV90eF9jaGFycyhzdHJ1Y3QgdWFydF9hbWJhX3BvcnQgKnVhcCwgYm9v
-bCBmcm9tX2lycSkKIAkJcmV0dXJuIGZhbHNlOwogCX0KIAotCWlmICgodWFwLT5wb3J0LnJzNDg1
-LmZsYWdzICYgU0VSX1JTNDg1X0VOQUJMRUQpICYmCi0JICAgICF1YXAtPnJzNDg1X3R4X3N0YXJ0
-ZWQpCi0JCXBsMDExX3JzNDg1X3R4X3N0YXJ0KHVhcCk7Ci0KIAkvKiBJZiB3ZSBhcmUgdXNpbmcg
-RE1BIG1vZGUsIHRyeSB0byBzZW5kIHNvbWUgY2hhcmFjdGVycy4gKi8KIAlpZiAocGwwMTFfZG1h
-X3R4X2lycSh1YXApKQogCQlyZXR1cm4gdHJ1ZTsKCmJhc2UtY29tbWl0OiA5MzkyOGQ0ODVkOWRm
-MTJiZTcyNGNiZGYxY2FhN2QxOTdiNjUwMDFlCi0tIAoyLjM5LjAKCg==
+Dne nedelja, 01. januar 2023 ob 19:33:15 CET je Samuel Holland napisal(a):
+> The SID SRAM on at least some SoCs (A64 and D1) returns different values
+> when read with bus cycles narrower than 32 bits. This is not immediately
+> obvious, because memcpy_fromio() uses word-size accesses as long as
+> enough data is being copied.
+> 
+> The vendor driver always uses 32-bit MMIO reads, so do the same here.
+> This is faster than the register-based method, which is currently used
+> as a workaround on A64. And it fixes the values returned on D1, where
+> the SRAM method was being used.
+> 
+> The special case for the last word is needed to maintain .word_size == 1
+> for sysfs ABI compatibility, as noted previously in commit de2a3eaea552
+> ("nvmem: sunxi_sid: Optimize register read-out method").
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 07ae4fde9efa ("nvmem: sunxi_sid: Add support for D1 variant")
+> Tested-by: Heiko Stuebner <heiko@sntech.de>
+> Signed-off-by: Samuel Holland <samuel@sholland.org>
+
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+
+Best regards,
+Jernej
+
+
