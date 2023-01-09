@@ -2,51 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABCFC662A11
-	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 16:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97FF56629E2
+	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 16:29:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237218AbjAIPcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Jan 2023 10:32:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45292 "EHLO
+        id S234464AbjAIP32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Jan 2023 10:29:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234329AbjAIPbv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 10:31:51 -0500
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C785717047
-        for <stable@vger.kernel.org>; Mon,  9 Jan 2023 07:31:10 -0800 (PST)
+        with ESMTP id S237139AbjAIP3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 10:29:14 -0500
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F77212;
+        Mon,  9 Jan 2023 07:29:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673278270; x=1704814270;
+  t=1673278153; x=1704814153;
   h=from:to:cc:subject:date:message-id;
   bh=wva8vZRxBk1WM1WW4WpFbcoP5MmHOU8eLhwsXmsxR3Q=;
-  b=T6p60CsODXR0wswMd/I17mKCOnhxk4WFy/OGGfxWLlNn6OkjA62L2CuF
-   OuzI4iG7QU3x3EwqSWottAcGicEioRB0yC+mVEXhqarzz7I8ovMzcQaGZ
-   1H17THzxXQGVZS/Qn0va4fjy2iECd7mnLWvnIr8lJ/caTQP28hSNQUAS6
-   dwoeBK1mVKbOXhzLFOAiV3G9OBU31k5GVVRhuKdt2bB0cd0v/E24EhsS4
-   NuJjy/B+qXl73tLt2xl9I8etNFZLVStOIABDjUwlVJqzOUfIfmcVKj0dp
-   YHhLqqPhe5OvVOYtEzuU0MVbYLhii9zWqzKZFUpTLAiHwfWfy+M6Ac0La
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="409140306"
+  b=e73+XiHzh0fgyvqAOyfPe7h9I4NOvg+UXaug//snuBw/Z9zRLF9R5tr+
+   2y2S+mc+qQ5YLTuZ2ZmjTgZNgd/0GDeQvlKLcF9SHawiP44YhNfPpE2U3
+   1LXWnxceI0/EtdMxhPKAD8nvZPRv6vEuYbDU8XpflUKdQFliMcsPafsku
+   8pZOI/4sl6XW+28JDJUAVxuxdwsmZRkKfyFLDtztG2DlGrMXv5OTAyjc5
+   iGF/dg1C1r801RinBllbI088FJ0Oq+Te63d3tzETL4aWiPQ6MPwD4fsIL
+   Bw/ppg6aWVm8c3DJ4yL9+LI7RNaIyWSwH4CnUjAyTkPfmIDvLyKqpQHPN
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="385201766"
 X-IronPort-AV: E=Sophos;i="5.96,311,1665471600"; 
-   d="scan'208";a="409140306"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jan 2023 07:27:55 -0800
+   d="scan'208";a="385201766"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jan 2023 07:29:13 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="725208250"
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="719960144"
 X-IronPort-AV: E=Sophos;i="5.96,311,1665471600"; 
-   d="scan'208";a="725208250"
+   d="scan'208";a="719960144"
 Received: from linux.intel.com ([10.54.29.200])
-  by fmsmga004.fm.intel.com with ESMTP; 09 Jan 2023 07:27:55 -0800
+  by fmsmga008.fm.intel.com with ESMTP; 09 Jan 2023 07:29:12 -0800
 Received: from noorazur1-iLBPG12.png.intel.com (noorazur1-iLBPG12.png.intel.com [10.88.229.87])
-        by linux.intel.com (Postfix) with ESMTP id D5C8D5809A0;
-        Mon,  9 Jan 2023 07:27:53 -0800 (PST)
+        by linux.intel.com (Postfix) with ESMTP id 50F405809A0;
+        Mon,  9 Jan 2023 07:29:07 -0800 (PST)
 From:   Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>
-To:     Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>
-Cc:     Noor Azura Ahmad Tarmizi 
-        <noor.azura.ahmad.tarmizi@linux.intel.com>, stable@vger.kernel.org
+To:     "David S . Miller" <davem@davemloft.net>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>
+Cc:     netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Noor Azura Ahmad Tarmizi 
+        <noor.azura.ahmad.tarmizi@linux.intel.com>,
+        Tan Tee Min <tee.min.tan@intel.com>,
+        Looi Hong Aun <hong.aun.looi@intel.com>,
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>,
+        stable@vger.kernel.org
 Subject: [PATCH net 1/1] net: stmmac: add aux timestamps fifo clearance wait
-Date:   Mon,  9 Jan 2023 23:14:33 +0800
-Message-Id: <20230109151433.26201-1-noor.azura.ahmad.tarmizi@intel.com>
+Date:   Mon,  9 Jan 2023 23:15:46 +0800
+Message-Id: <20230109151546.26247-1-noor.azura.ahmad.tarmizi@intel.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-1.4 required=5.0 tests=AC_FROM_MANY_DOTS,BAYES_00,
         DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
