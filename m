@@ -2,118 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BA51662B58
-	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 17:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C309662B65
+	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 17:39:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233189AbjAIQgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Jan 2023 11:36:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34994 "EHLO
+        id S234441AbjAIQjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Jan 2023 11:39:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233713AbjAIQgX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 11:36:23 -0500
-Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 80CC7FCA;
-        Mon,  9 Jan 2023 08:36:22 -0800 (PST)
-X-IronPort-AV: E=Sophos;i="5.96,311,1665414000"; 
-   d="scan'208";a="148740488"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie6.idc.renesas.com with ESMTP; 10 Jan 2023 01:36:21 +0900
-Received: from localhost.localdomain (unknown [10.226.92.188])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id DC37240078D9;
-        Tue, 10 Jan 2023 01:36:16 +0900 (JST)
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     "David S. Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Sasha Levin <sashal@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Mitsuhiro Kimura <mitsuhiro.kimura.kc@renesas.com>,
-        netdev@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        stable@vger.kernel.org,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH] ravb: Fix "failed to switch device to config mode" message during unbind
-Date:   Mon,  9 Jan 2023 16:36:14 +0000
-Message-Id: <20230109163614.667480-1-biju.das.jz@bp.renesas.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S234657AbjAIQja (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 11:39:30 -0500
+Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 875BA35903
+        for <stable@vger.kernel.org>; Mon,  9 Jan 2023 08:39:28 -0800 (PST)
+Received: by mail-il1-x12d.google.com with SMTP id o13so5085074ilc.7
+        for <stable@vger.kernel.org>; Mon, 09 Jan 2023 08:39:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloudflare.com; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Xrg136BCp0PmT+E9WTU4STUIwjfV5DcN5FDK70FqYcI=;
+        b=aIFfWS0cT4UCU3f6+rKm+5rHYgjr2Tnu5w/qCdXoxWFfN6ueukXs1tp/iAqvpFruK7
+         6tN75Q/bqrlviXjadh9+tAa31LXc9OPq9r3CqA566MBQTvoURfX3gKuDU8AqrQDRBhyZ
+         c06SMvz82ThLUp5ehRVxJiZtnjJqPdFRKpKEA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Xrg136BCp0PmT+E9WTU4STUIwjfV5DcN5FDK70FqYcI=;
+        b=I6nqwULpggB54EnonaUh9rITIJqsU/qBs9h9lguQrLVVBOmgDgWBvg8egLbWIbqroI
+         32pFCYujFMTmcm8dqeCLWGRGTJQOZVQ3kxpLcz10JCFlNmKqtOqyFIeTxbCuhE1RiamG
+         UomvyteGxwqb6U5QKoQKb8AeQXRDz7i3uK5s9M2pYpb0KsYGVApJQXRHOxKa5p7nvVhi
+         IGO3RVHrmUVeOtmcGnmqBQbBw0ynFcRDMbQyMzFurGXUU+I1295Lv5X25SCQPXA/OE4+
+         yCl4omzsNG5wjGyAwvYXP6OieYq5xcko2fhfxZ0SJD2pKMOaQ+Nbu/jAH8qPyNQUJQf/
+         OGJA==
+X-Gm-Message-State: AFqh2kr6J5C2HybTFfIxRkTOLYGD/4VH/ECFEeC+F5ByVSpIw0HsGEth
+        qRGK5nI0kL69VxQn0+b5dgwnz42vRBNJklE6
+X-Google-Smtp-Source: AMrXdXsKno4G65HN0v8xsEuZOmhCnZC8InIBvJDkqhetZl7+YX9yYEGFPoFLGieuDFZqVW7UzXp4lQ==
+X-Received: by 2002:a05:6e02:2205:b0:30d:92c4:8d6 with SMTP id j5-20020a056e02220500b0030d92c408d6mr9444298ilf.10.1673282367876;
+        Mon, 09 Jan 2023 08:39:27 -0800 (PST)
+Received: from localhost.localdomain ([70.57.89.124])
+        by smtp.gmail.com with ESMTPSA id w17-20020a92ad11000000b0030c44ed932asm2790684ilh.29.2023.01.09.08.39.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Jan 2023 08:39:27 -0800 (PST)
+From:   Frederick Lawler <fred@cloudflare.com>
+To:     jhs@mojatatu.com, xiyou.wangcong@gmail.com, jiri@resnulli.us,
+        kuba@kernel.org, linux-kernel@vger.kernel.org
+Cc:     davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+        zymon.heidrich@gmail.com, phil@nwl.cc, netdev@vger.kernel.org,
+        kernel-team@cloudflare.com, Frederick Lawler <fred@cloudflare.com>,
+        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>
+Subject: [PATCH net] net: sched: disallow noqueue for qdisc classes
+Date:   Mon,  9 Jan 2023 10:39:06 -0600
+Message-Id: <20230109163906.706000-1-fred@cloudflare.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=1.1 required=5.0 tests=AC_FROM_MANY_DOTS,BAYES_00,
-        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: *
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit c72a7e42592b2e18d862cf120876070947000d7a upstream.
+While experimenting with applying noqueue to a classful queue discipline,
+we discovered a NULL pointer dereference in the __dev_queue_xmit()
+path that generates a kernel OOPS:
 
-This patch fixes the error "ravb 11c20000.ethernet eth0: failed to switch
-device to config mode" during unbind.
+    # dev=enp0s5
+    # tc qdisc replace dev $dev root handle 1: htb default 1
+    # tc class add dev $dev parent 1: classid 1:1 htb rate 10mbit
+    # tc qdisc add dev $dev parent 1:1 handle 10: noqueue
+    # ping -I $dev -w 1 -c 1 1.1.1.1
 
-We are doing register access after pm_runtime_put_sync().
+[    2.172856] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[    2.173217] #PF: supervisor instruction fetch in kernel mode
+...
+[    2.178451] Call Trace:
+[    2.178577]  <TASK>
+[    2.178686]  htb_enqueue+0x1c8/0x370
+[    2.178880]  dev_qdisc_enqueue+0x15/0x90
+[    2.179093]  __dev_queue_xmit+0x798/0xd00
+[    2.179305]  ? _raw_write_lock_bh+0xe/0x30
+[    2.179522]  ? __local_bh_enable_ip+0x32/0x70
+[    2.179759]  ? ___neigh_create+0x610/0x840
+[    2.179968]  ? eth_header+0x21/0xc0
+[    2.180144]  ip_finish_output2+0x15e/0x4f0
+[    2.180348]  ? dst_output+0x30/0x30
+[    2.180525]  ip_push_pending_frames+0x9d/0xb0
+[    2.180739]  raw_sendmsg+0x601/0xcb0
+[    2.180916]  ? _raw_spin_trylock+0xe/0x50
+[    2.181112]  ? _raw_spin_unlock_irqrestore+0x16/0x30
+[    2.181354]  ? get_page_from_freelist+0xcd6/0xdf0
+[    2.181594]  ? sock_sendmsg+0x56/0x60
+[    2.181781]  sock_sendmsg+0x56/0x60
+[    2.181958]  __sys_sendto+0xf7/0x160
+[    2.182139]  ? handle_mm_fault+0x6e/0x1d0
+[    2.182366]  ? do_user_addr_fault+0x1e1/0x660
+[    2.182627]  __x64_sys_sendto+0x1b/0x30
+[    2.182881]  do_syscall_64+0x38/0x90
+[    2.183085]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+...
+[    2.187402]  </TASK>
 
-We usually do cleanup in reverse order of init. Currently in
-remove(), the "pm_runtime_put_sync" is not in reverse order.
+Previously in commit d66d6c3152e8 ("net: sched: register noqueue
+qdisc"), NULL was set for the noqueue discipline on noqueue init
+so that __dev_queue_xmit() falls through for the noqueue case. This
+also sets a bypass of the enqueue NULL check in the
+register_qdisc() function for the struct noqueue_disc_ops.
 
-Probe
-	reset_control_deassert(rstc);
-	pm_runtime_enable(&pdev->dev);
-	pm_runtime_get_sync(&pdev->dev);
+Classful queue disciplines make it past the NULL check in
+__dev_queue_xmit() because the discipline is set to htb (in this case),
+and then in the call to __dev_xmit_skb(), it calls into htb_enqueue()
+which grabs a leaf node for a class and then calls qdisc_enqueue() by
+passing in a queue discipline which assumes ->enqueue() is not set to NULL.
 
-remove
-	pm_runtime_put_sync(&pdev->dev);
-	unregister_netdev(ndev);
-	..
-	ravb_mdio_release(priv);
-	pm_runtime_disable(&pdev->dev);
+Fix this by not allowing classes to be assigned to the noqueue
+discipline. Linux TC Notes states that classes cannot be set to
+the noqueue discipline. [1] Let's enforce that here.
 
-Consider the call to unregister_netdev()
-unregister_netdev->unregister_netdevice_queue->rollback_registered_many
-that calls the below functions which access the registers after
-pm_runtime_put_sync()
- 1) ravb_get_stats
- 2) ravb_close
+Links:
+1. https://linux-tc-notes.sourceforge.net/tc/doc/sch_noqueue.txt
 
-Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
-Cc: stable@vger.kernel.org # 4.9.y
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221214105118.2495313-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-[biju: cherry-picked from 6.0 stable]
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Fixes: d66d6c3152e8 ("net: sched: register noqueue qdisc")
+Cc: stable@vger.kernel.org
+Signed-off-by: Frederick Lawler <fred@cloudflare.com>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
 ---
-Resending to 4.9 with confilcts[1] fixed
-[1] https://lore.kernel.org/stable/1672841813129164@kroah.com/
----
- drivers/net/ethernet/renesas/ravb_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_api.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 2bebf39fe047..eeb8005d75d0 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -2129,11 +2129,11 @@ static int ravb_remove(struct platform_device *pdev)
- 			  priv->desc_bat_dma);
- 	/* Set reset mode */
- 	ravb_write(ndev, CCC_OPC_RESET, CCC);
--	pm_runtime_put_sync(&pdev->dev);
- 	unregister_netdev(ndev);
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
- 	ravb_mdio_release(priv);
-+	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	free_netdev(ndev);
- 	platform_set_drvdata(pdev, NULL);
+diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
+index 2317db02c764..72d2c204d5f3 100644
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1133,6 +1133,11 @@ static int qdisc_graft(struct net_device *dev, struct Qdisc *parent,
+ 			return -ENOENT;
+ 		}
+ 
++		if (new && new->ops == &noqueue_qdisc_ops) {
++			NL_SET_ERR_MSG(extack, "Cannot assign noqueue to a class");
++			return -EINVAL;
++		}
++
+ 		err = cops->graft(parent, cl, new, &old, extack);
+ 		if (err)
+ 			return err;
 -- 
-2.25.1
+2.34.1
 
