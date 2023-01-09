@@ -2,70 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB09C662AC6
-	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 17:05:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE56B662AD9
+	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 17:08:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232222AbjAIQFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Jan 2023 11:05:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43584 "EHLO
+        id S236152AbjAIQIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Jan 2023 11:08:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233804AbjAIQFj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 11:05:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 340F71DDF7;
-        Mon,  9 Jan 2023 08:05:39 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABAF9611BE;
-        Mon,  9 Jan 2023 16:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F105BC433F0;
-        Mon,  9 Jan 2023 16:05:35 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="XOaraKj2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1673280333;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=z+niQef/oIp19ZPZkiD3NOHrMKlrLAG21vq0oN2bzI8=;
-        b=XOaraKj2DB2VFDzDX60zwUrFOyOgbAtEalCGXgZoKcew8HXZkEKWbtoYI7BI5SJwRGAKwh
-        Lo+oIg9AP89/Fp6cWVKILhFRly1Dpn3yCm1LoJH7SK+5GL2tqzWQL7dqz0rQXHXgNVRiqp
-        YxjflGD7X2Q8pUHpjdn6R6yC1jpCAAA=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id b1117af8 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-        Mon, 9 Jan 2023 16:05:33 +0000 (UTC)
-Date:   Mon, 9 Jan 2023 17:05:28 +0100
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Luigi Semenzato <semenzato@chromium.org>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jan Dabros <jsd@semihalf.com>,
-        regressions@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Johannes Altmanninger <aclopte@gmail.com>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        tbroch@chromium.org, dbasehore@chromium.org,
-        Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v2] tpm: Allow system suspend to continue when TPM
- suspend fails
-Message-ID: <Y7w7SMitXFkcR6Gb@zx2c4.com>
-References: <Y7dPV5BK6jk1KvX+@zx2c4.com>
- <20230106030156.3258307-1-Jason@zx2c4.com>
- <CAHk-=wjin0Rn6j+EvYV9pzrbA0G2xnHKdp_EAB6XnansQ8kpUA@mail.gmail.com>
- <CAA25o9Sbkg=qD+DH-aqXY9H5R_oBtePcnqagwAGCgoUk8D-Vyg@mail.gmail.com>
- <CAHk-=wi60PhJRzaBJ9uvVCpOpqSsKy=oXkGDq7t844BJ6dRcmA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wi60PhJRzaBJ9uvVCpOpqSsKy=oXkGDq7t844BJ6dRcmA@mail.gmail.com>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        with ESMTP id S237172AbjAIQIR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 11:08:17 -0500
+Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D1B61DDD6
+        for <stable@vger.kernel.org>; Mon,  9 Jan 2023 08:08:15 -0800 (PST)
+Received: by mail-pl1-x649.google.com with SMTP id u6-20020a170903124600b00188cd4769bcso6536270plh.0
+        for <stable@vger.kernel.org>; Mon, 09 Jan 2023 08:08:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:mime-version:message-id:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=xyECd1rsW3exJndECu8q+ev3KdOyDWWEbigO77NqdCk=;
+        b=kdlmONTLmbqdAZs/NBYP9jUdOxLAvA9jdwZbpjHZ3tHyjKxTjfuYCoDYum07dI89m+
+         QA/38bTswLYyeXsN3mwxQyODhROjF+E9OSa+b5n97FSe7w+0ZmqtrE/RjlL9NqxaHuz3
+         CRMS65fzgV2Qdurg0/02eiWhqj8bUG5iObMSWz+AFwR+TTc0yH30HL5Ygupu9JDCxzx7
+         vXXo16GwV7Lw54C1yComnMOTMBkzkm3Uu8vjLepmcAGGJvEMaRhdqT3JvZAjXcLPbl3Q
+         8V4xupbRgxh9G8haSYFa/ZQow09ZZYa7EG/tKB7LxTa5ns9ZKgc6nJ78eKvktKo/tRWO
+         GrPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xyECd1rsW3exJndECu8q+ev3KdOyDWWEbigO77NqdCk=;
+        b=MX54QVUSR34773C26wVQ3B3Vhh1gQsde2Imiakl1DnYxeeBu/6GmODrVd4piSFQeKg
+         z/P/fV1JgP0+GPMoo3UVkq1Y1j2PHgK1zHSc7gghUyO3JqApHCHrt7XrhQYlSqbgIjQ5
+         Ox/gu5J1EvyI7yvsgw1P3PDztryVHsPPr9afCI2/tzNqeqR9/+vl7N7z+qyv2TJFJrIb
+         tfijreeVob3QmtBISVOjvg+MByq99FUPa7ah8gtnrNW3uIc2oTY+6nnJCbMYs+pyitjh
+         Zli7nSYY13mHn+F+kyFBfkKAGuDtV8x74zH995FIQdHUAdv7/mh+1EHjOw9IrGQfoKb3
+         rNDg==
+X-Gm-Message-State: AFqh2krJoULFJ1gpQPqNnnE/LGqlmMLxycokcagJtb5BTQIMk388xBDU
+        pbqHk947Cjs3Ztl7rxvcKFUz2nynnkw=
+X-Google-Smtp-Source: AMrXdXtfd2sfBIxNw+Rxy/KydCOZGP1eQYUZB45FYydRThzpSXrCW/RZvZm+D+uYBJzZ6R3Ukg06UrfuG1g=
+X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:11:ca:b043:174:2b96])
+ (user=pgonda job=sendgmr) by 2002:a17:902:8213:b0:192:a805:29d with SMTP id
+ x19-20020a170902821300b00192a805029dmr2217114pln.31.1673280494640; Mon, 09
+ Jan 2023 08:08:14 -0800 (PST)
+Date:   Mon,  9 Jan 2023 08:08:08 -0800
+Message-Id: <20230109160808.3618132-1-pgonda@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
+Subject: [PATCH] KVM: sev: Fix int overflow in send|recieve_update_data ioctls
+From:   Peter Gonda <pgonda@google.com>
+To:     kvm@vger.kernel.org
+Cc:     Peter Gonda <pgonda@google.com>, Andy Nguyen <theflow@google.com>,
+        Thomas Lendacky <thomas.lendacky@amd.com>,
+        David Rientjes <rientjes@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -73,15 +69,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 06, 2023 at 02:28:00PM -0800, Linus Torvalds wrote:
-> On Fri, Jan 6, 2023 at 12:04 PM Luigi Semenzato <semenzato@chromium.org> wrote:
-> >
-> > I think it's fine to go ahead with your change, for multiple reasons.
-> 
-> Ok, I've applied the patch (although I did end up editing it to use
-> dev_err() before doing that just to make myself happier about the
-> printout).
+KVM_SEV_SEND_UPDATE_DATA and KVM_SEV_RECEIVE_UPDATE_DATA have an integer
+overflow issue. Params.guest_len and offset are both 32bite wide, with a
+large params.guest_len the check to confirm a page boundary is not
+crossed can falsely pass:
 
-Thanks for fixing it up to use dev_err(). Final commit looks good to me.
+    /* Check if we are crossing the page boundary *
+    offset = params.guest_uaddr & (PAGE_SIZE - 1);
+    if ((params.guest_len + offset > PAGE_SIZE))
 
-Jason
+Add an additional check to this conditional to confirm that
+params.guest_len itself is not greater than PAGE_SIZE.
+
+The current code is can only overflow with a params.guest_len of greater
+than 0xfffff000. And the FW spec says these commands fail with lengths
+greater than 16KB. So this issue should not be a security concern
+
+Fixes: 15fb7de1a7f5 ("KVM: SVM: Add KVM_SEV_RECEIVE_UPDATE_DATA command")
+Fixes: d3d1af85e2c7 ("KVM: SVM: Add KVM_SEND_UPDATE_DATA command")
+Reported-by: Andy Nguyen <theflow@google.com>
+Suggested-by: Thomas Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Peter Gonda <pgonda@google.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: kvm@vger.kernel.org
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ arch/x86/kvm/svm/sev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+index 273cba809328..9451de72f917 100644
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -1294,7 +1294,7 @@ static int sev_send_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 
+ 	/* Check if we are crossing the page boundary */
+ 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
+-	if ((params.guest_len + offset > PAGE_SIZE))
++	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset > PAGE_SIZE))
+ 		return -EINVAL;
+ 
+ 	/* Pin guest memory */
+@@ -1474,7 +1474,7 @@ static int sev_receive_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 
+ 	/* Check if we are crossing the page boundary */
+ 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
+-	if ((params.guest_len + offset > PAGE_SIZE))
++	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset > PAGE_SIZE))
+ 		return -EINVAL;
+ 
+ 	hdr = psp_copy_user_blob(params.hdr_uaddr, params.hdr_len);
+-- 
+2.39.0.314.g84b9a713c41-goog
+
