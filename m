@@ -2,51 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBCCC662250
-	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 11:02:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4E676622B8
+	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 11:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234756AbjAIKBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Jan 2023 05:01:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49360 "EHLO
+        id S236845AbjAIKOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Jan 2023 05:14:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237076AbjAIKBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 05:01:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E8F13CCE;
-        Mon,  9 Jan 2023 02:00:08 -0800 (PST)
+        with ESMTP id S236831AbjAIKOH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 05:14:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB31B1C1;
+        Mon,  9 Jan 2023 02:13:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42987B80D6B;
-        Mon,  9 Jan 2023 10:00:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC4E7C433D2;
-        Mon,  9 Jan 2023 10:00:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FF4560FC1;
+        Mon,  9 Jan 2023 10:13:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1258FC433D2;
+        Mon,  9 Jan 2023 10:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673258405;
-        bh=Nh8eBv0pbdoP2Fxa0Ctewmwg/Sjiw7vgx4Zhp6AFwrA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=EdhUqKnT0U1DCDLSZeOgg8imXGwMtcZDpAS0L2UdP7Qnhnu0aPLOTWQInj5B99Jx/
-         SBnolViQ9rIKcFKvKNr6EtPMV4qSzwgX6Ms7SHlxLC7JSJmpGYXXOqAA6MyqZL1ui2
-         7vrpUuhO9qRTE1HFsvOq/dxofg0+pHjnQLHfof+wbdkvhETy6iecVLn1FvB5F+w5bI
-         FN2VCpCejswQJGSQEHVOxfUPmm+lFpIErf0MoGWZ7gXqJIEpLJOGvNkD7IKSCG/lOz
-         S7teXnZnCZkV/NneFdsHSgDnrhJMTxiXsE++W390OA9BxAXcH4CJNK45OFiPouhSWD
-         mTc6YZBK3YNSw==
-From:   Ard Biesheuvel <ardb@kernel.org>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     linux-efi@vger.kernel.org, will@kernel.org,
-        catalin.marinas@arm.com, Ard Biesheuvel <ardb@kernel.org>,
-        stable@vger.kernel.org, Peter Jones <pjones@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Matthew Garrett <mjg59@srcf.ucam.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH] efi: tpm: Avoid READ_ONCE() for accessing the event log
-Date:   Mon,  9 Jan 2023 10:59:48 +0100
-Message-Id: <20230109095948.2471205-1-ardb@kernel.org>
-X-Mailer: git-send-email 2.39.0
+        s=k20201202; t=1673259212;
+        bh=pvqVDoJZCa0ZOaavtmQbruLzVu9U05hJ2hV/NAI13Qw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lEs48J/cW6Rt4gv7+9VTuxBSiG1DFLqbRoDIUst0m6CC9WqhK7cFM5Yx2i7OqY5Rf
+         eb2ng1ub9H/Amdrilz0pjEpvcXPZZm7d0E8StYkffl3jV/wT1TpfHnTDrNLQDMDgmR
+         Il2uPg0Um5RR4Kay4uNRCkcf8oqU1slVdUVYqlOHQ5YgaBpGXfvK8+oWYu+Wewe4Rk
+         RQar24Dwi4vbIEbCegrbbFRfKD81IBWnZxEB+7cO6aFxPoChIDja2lYLRunRddny32
+         cih+IYSpI8r8mF5wJm05NihUbNai0QFUlFyJ54/BjvMn5h741QyIZnMXU2atGZBM6B
+         YZxY86c8R61tw==
+Date:   Mon, 9 Jan 2023 18:13:21 +0800
+From:   Peter Chen <peter.chen@kernel.org>
+To:     Pawel Laszczak <pawell@cadence.com>
+Cc:     Peter Chen <hzpeterchen@gmail.com>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "felipe.balbi@linux.intel.com" <felipe.balbi@linux.intel.com>,
+        "rogerq@kernel.org" <rogerq@kernel.org>,
+        "a-govindraju@ti.com" <a-govindraju@ti.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] usb: cdns3: remove fetched trb from cache before
+ dequeuing
+Message-ID: <20230109101321.GA94204@nchen-desktop>
+References: <20221115100039.441295-1-pawell@cadence.com>
+ <CAL411-o4BETLPd-V_4yR6foXbES=72-P4tq-fQ_W_p0P_3ZqEw@mail.gmail.com>
+ <BYAPR07MB5381AE961B59046ECB615C65DD069@BYAPR07MB5381.namprd07.prod.outlook.com>
+ <CAL411-rFz5Dde4F_uWbksxJG2uqbD7VsU2GG1JQ0mU3LpbeoUA@mail.gmail.com>
+ <BYAPR07MB5381157D62415BFFBD328C5ADDFE9@BYAPR07MB5381.namprd07.prod.outlook.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1895; i=ardb@kernel.org; h=from:subject; bh=Nh8eBv0pbdoP2Fxa0Ctewmwg/Sjiw7vgx4Zhp6AFwrA=; b=owEB7QES/pANAwAKAcNPIjmS2Y8kAcsmYgBju+WT2qQ1l9KxiZXUPY8HLSZjOTMomBF3ScVyUzK0 LTZ+0IiJAbMEAAEKAB0WIQT72WJ8QGnJQhU3VynDTyI5ktmPJAUCY7vlkwAKCRDDTyI5ktmPJDMTDA Ci5HPG2rRnKV8cwXA2HNl+/KRumoSC7n8OjYP/JkiSSIOyUvPnncFLgT5jvFUrACvk7+13y1lHLZ7x JUFxbLz6l6rT5CqM7ui/lwrmZ0rOlkWAoJOK9JnmVSmuMUI+Y5Wzi5BQGfKbR+DA2F15DFbNx/hLFf ffWg2A5SCnZ18H84EBGs3xAnqpF52K7r3mBOa0Y9Acu//XPcO+/yUVLJVKJTkesKz9FSIxmRWknUov pyXR1iMR50ZPWFuKguJN6sjkiNcZ4q8Cuw15f1DnFdXAmG78Sp/tmHtuOlBh+I+k3SK0bkWRI3VLMi MANfQ6Y9yfRj/2n0kTGBziW2otWc6eQhrpGkwYb+/Q8LUPzsYPn9yLsGXPDMt6fGJLkdVgCydWfN7e Gfcezgh/ArrAy+n6cjIa02uH9BJ6WLlvN3ODAxhYG7zj0gdzl8PYd+ScLuyaPQ5jaROAFVYDzNPC+d S2YzfKkfKGMluKmdWFEFOnYQ7dMwFOc4IkJsORAGv1kOA=
-X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <BYAPR07MB5381157D62415BFFBD328C5ADDFE9@BYAPR07MB5381.namprd07.prod.outlook.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -56,49 +64,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Nathan reports that recent kernels built with LTO will crash when doing
-EFI boot using Fedora's GRUB and SHIM. The culprit turns out to be a
-misaligned load from the TPM event log, which is annotated with
-READ_ONCE(), and under LTO, this gets translated into a LDAR instruction
-which does not tolerate misaligned accesses.
+On 23-01-09 05:38:31, Pawel Laszczak wrote:
+> >
+> >On Thu, Nov 17, 2022 at 8:27 PM Pawel Laszczak <pawell@cadence.com>
+> >wrote:
+> >>
+> >> >
+> >> >On Tue, Nov 15, 2022 at 6:01 PM Pawel Laszczak <pawell@cadence.com>
+> >> >wrote:
+> >> >>
+> >> >> After doorbell DMA fetches the TRB. If during dequeuing request
+> >> >> driver changes NORMAL TRB to LINK TRB but doesn't delete it from
+> >> >> controller cache then controller will handle cached TRB and packet can be
+> >lost.
+> >> >>
+> >> >> The example scenario for this issue looks like:
+> >> >> 1. queue request - set doorbell
+> >> >> 2. dequeue request
+> >> >> 3. send OUT data packet from host
+> >> >> 4. Device will accept this packet which is unexpected 5. queue new
+> >> >> request - set doorbell 6. Device lost the expected packet.
+> >> >>
+> >> >> By setting DFLUSH controller clears DRDY bit and stop DMA transfer.
+> >> >>
+> >> >> Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+> >> >> cc: <stable@vger.kernel.org>
+> >> >> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+> >> >> ---
+> >> >>  drivers/usb/cdns3/cdns3-gadget.c | 12 ++++++++++++
+> >> >>  1 file changed, 12 insertions(+)
+> >> >>
+> >> >> diff --git a/drivers/usb/cdns3/cdns3-gadget.c
+> >> >> b/drivers/usb/cdns3/cdns3-gadget.c
+> >> >> index 5adcb349718c..ccfaebca6faa 100644
+> >> >> --- a/drivers/usb/cdns3/cdns3-gadget.c
+> >> >> +++ b/drivers/usb/cdns3/cdns3-gadget.c
+> >> >> @@ -2614,6 +2614,7 @@ int cdns3_gadget_ep_dequeue(struct usb_ep
+> >*ep,
+> >> >>         u8 req_on_hw_ring = 0;
+> >> >>         unsigned long flags;
+> >> >>         int ret = 0;
+> >> >> +       int val;
+> >> >>
+> >> >>         if (!ep || !request || !ep->desc)
+> >> >>                 return -EINVAL;
+> >> >> @@ -2649,6 +2650,13 @@ int cdns3_gadget_ep_dequeue(struct usb_ep
+> >> >*ep,
+> >> >>
+> >> >>         /* Update ring only if removed request is on pending_req_list list */
+> >> >>         if (req_on_hw_ring && link_trb) {
+> >> >> +               /* Stop DMA */
+> >> >> +               writel(EP_CMD_DFLUSH, &priv_dev->regs->ep_cmd);
+> >> >> +
+> >> >> +               /* wait for DFLUSH cleared */
+> >> >> +               readl_poll_timeout_atomic(&priv_dev->regs->ep_cmd, val,
+> >> >> +                                         !(val & EP_CMD_DFLUSH),
+> >> >> + 1, 1000);
+> >> >> +
+> >> >>                 link_trb->buffer = cpu_to_le32(TRB_BUFFER(priv_ep-
+> >> >>trb_pool_dma +
+> >> >>                         ((priv_req->end_trb + 1) * TRB_SIZE)));
+> >> >>                 link_trb->control =
+> >> >> cpu_to_le32((le32_to_cpu(link_trb->control) & TRB_CYCLE) | @@
+> >> >>-2660,6
+> >> >> +2668,10 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
+> >> >>
+> >> >>         cdns3_gadget_giveback(priv_ep, priv_req, -ECONNRESET);
+> >> >>
+> >> >> +       req = cdns3_next_request(&priv_ep->pending_req_list);
+> >> >> +       if (req)
+> >> >> +               cdns3_rearm_transfer(priv_ep, 1);
+> >> >> +
+> >> >
+> >> >Why the above changes are needed?
+> >> >
+> >>
+> >> Do you mean the last line or this patch?
+> >>
+> >> Last line:
+> >> DMA is stopped, so driver arm the queued transfers
+> >>
+> >
+> >Sorry, I have been very busy recently, so the response may not be in time.
+> >I mean why it needs to re-arm the transfers after DMA is stopped?
+> 
+> Because driver can have queued more transfers. Only one of them are
+> dequeued. In the vast majority of the rest request will be removed in the
+> next steps, but there can be case in which we have queued e.g. 10 usb requests
+> and only one of them will be removed. In such case the driver can stuck.
+> To avoid this driver, rearm the endpoint if there are other transfer
+> in transfer ring.
+> 
 
-Interestingly, this does not happen when booting the same kernel
-straight from the UEFI shell, and so the fact that the event log may
-appear misaligned in memory may be caused by a bug in GRUB or SHIM.
+Since this logic (re-arm the pending request) is different with current
+one, please test it well to avoid other use cases. After you have fully
+tested, feel free to add my ack:
 
-However, using READ_ONCE() to access firmware tables is slightly unusual
-in any case, and here, we only need to ensure that 'event' is not
-dereferenced again after it gets unmapped, so a compiler barrier should
-be sufficient, and works around the reported issue.
+Acked-by: Peter Chen <peter.chen@kernel.org>
 
-Cc: <stable@vger.kernel.org>
-Cc: Peter Jones <pjones@redhat.com>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1782
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
----
- include/linux/tpm_eventlog.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Peter
 
-diff --git a/include/linux/tpm_eventlog.h b/include/linux/tpm_eventlog.h
-index 20c0ff54b7a0d313..0abcc85904cba874 100644
---- a/include/linux/tpm_eventlog.h
-+++ b/include/linux/tpm_eventlog.h
-@@ -198,8 +198,10 @@ static __always_inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *ev
- 	 * The loop below will unmap these fields if the log is larger than
- 	 * one page, so save them here for reference:
- 	 */
--	count = READ_ONCE(event->count);
--	event_type = READ_ONCE(event->event_type);
-+	count = event->count;
-+	event_type = event->event_type;
-+
-+	barrier();
- 
- 	/* Verify that it's the log header */
- 	if (event_header->pcr_idx != 0 ||
+> Regards,
+> Pawel
+> 
+> >
+> >
+> >> If you means this patch:
+> >> Issue was detected by customer test. I don’t know whether it was only
+> >> test or the real application.
+> >>
+> >> The problem happens because user application queued the transfer
+> >> (endpoint has been armed), so controller fetch the TRB.
+> >> When user application removed this request the TRB was still processed
+> >> by controller. If at that time the host will send data packet then
+> >> controller will accept it, but it shouldn't because the usb_request
+> >> associated with TRB cached by controller was removed.
+> >> To force the controller to drop this TRB DFLUSH is required.
+> >>
+> >> Pawel
+> >>
+> >> >
+> >> >>  not_found:
+> >> >>         spin_unlock_irqrestore(&priv_dev->lock, flags);
+> >> >>         return ret;
+> >> >> --
+> >> >> 2.25.1
+> >> >>
+
 -- 
-2.39.0
 
+Thanks,
+Peter Chen
