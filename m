@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4A96633C1
-	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 23:16:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 047D86633C5
+	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 23:17:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234593AbjAIWQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Jan 2023 17:16:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44672 "EHLO
+        id S237703AbjAIWQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Jan 2023 17:16:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237624AbjAIWQe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 17:16:34 -0500
+        with ESMTP id S237710AbjAIWQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 17:16:37 -0500
 Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 721D011A2A
-        for <stable@vger.kernel.org>; Mon,  9 Jan 2023 14:16:33 -0800 (PST)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-4bdeb1bbeafso106102817b3.4
-        for <stable@vger.kernel.org>; Mon, 09 Jan 2023 14:16:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEEE8178AB
+        for <stable@vger.kernel.org>; Mon,  9 Jan 2023 14:16:36 -0800 (PST)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-4bdeb1bbeafso106104467b3.4
+        for <stable@vger.kernel.org>; Mon, 09 Jan 2023 14:16:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=UAY7ziXR1pDWT8yIaOxG4IQsxtcRX6+lmyo9rcOBFQI=;
-        b=UEui1WQccphNYJS2B2rBldr80G72ZMsvoPivgTxDn/fxNbkP3rl2cZegNrl31wiaJT
-         YWRA3jP5BrD3xglYqWwZOfFl/74UQK2ntqKI8UxjMlnvXsrObTXRacBD1jvkt9U0pv0N
-         Rz6yX12fdD0UTvmPzwtyRL69HEjoWr6xF72eVcgjMKIwVTabZpr1OKMy01LQRmUelK34
-         uoJL9SNCI4SOmZf1qKQGaD9pPn6QfObQYClE7Mk4i0jKselSNB1MRU7B3RGPs/M3WYXA
-         PmQuYNpgcql7zAPOU+xV8XEM/v8in/FSMDrsPu9J1WTG35YD3VEUUbyMXCfFe8PA+/hf
-         OYug==
+        bh=y9TFZ1eWP+JIndu1JdgCdrPRh+jAT3LtUVgzdE/rI84=;
+        b=C0Hc9uF3im6Ys2/s/4e6nNvgxvlythCwW8m17GdXHrOqWQ9yn0iW0LTZyj+MdItAEY
+         iybja8FN1XyhoSwQX36EF+9wSfenpbb6LvJn2ASIr9ARjPf3bBYDEf0TmC1ADROKbIzA
+         uqBW5UJwXEglstUm+YQchdmDfMIzIajQqCXdq5tXej2n/om0MByQQj7QiCcAlkoHzW+f
+         0EvQf8SiwDxeGivZRKBfCGtD95VHgBTkc0pBRfvgB/JhWJIan9MB+IxMjhlK+NPhAWfg
+         dNKLyThxKdiUaJhH8Ndfdtdxjx9wWLvlbjqkUFmWXQ0tbaB5ICv8vHAarsuXw/gDkqnj
+         gHfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UAY7ziXR1pDWT8yIaOxG4IQsxtcRX6+lmyo9rcOBFQI=;
-        b=PAa9TITfr/Y92K83N0GKfVLGHRleBI+cRhKmOXkx0bP1KjvulGJf562XljUazJz/r1
-         ZmcheqmDe/39HuvibJDnkA30Nr3CRCNoJ2YrsVYkYpoFRiFL3H9Z0CizxfiCrvUi8hiO
-         2Ok5Zc/82i+u4uqxLjbQJcLyY8ukhikTg4tx4X90EjVfbxqC9xlayF5n6hUein7otrDf
-         CAeIluqJcfBNhvOQxJ4XCQjpFePd0Y62S/+s+L/GZUb9v7994rkop7X3adfIwlw/rXBA
-         6+ov6bTOgWxux4GSJcUbQaZmP+qmt0/ZlIlKGAwwCYUQxCHh4A7JomomZNPagnv7Umto
-         DBZA==
-X-Gm-Message-State: AFqh2kp/NVuSnQw9d/KOEybEamKAUu9UYBUHhcOwLrMMkmDzO4HshCTC
-        0LLPqeE/3aGDpT/bhVfTMEXMQZ3ouCBY1fvd8zb+dA==
-X-Google-Smtp-Source: AMrXdXsf7/34OOYlD8ImdQqEPY+KiIDRkgSsEo2WjPbDVqBrR8MswUATMamEBK1Wv6pIN7qPxVRK/kO82VgT8MFNA9fdcA==
+        bh=y9TFZ1eWP+JIndu1JdgCdrPRh+jAT3LtUVgzdE/rI84=;
+        b=6sa58Y4cL5dGC2yunb8hXlgomWQGcr3f5rv7iB4awlhpDBEbZj0/nbRrrXioa/wLJw
+         lUmiEh3NF34rfcJenfxnI1RNnq32x+PTJb3R5tNyorSbFTe7lhljPeQ9Hx86LcjsvE9W
+         9cUqXB2ZA6GFfNKnW+OGWJwujgRO3ctxXhmI7XQiv+wCzf+ql6FDCAmpx09O6w/XtJfP
+         rCziPLYoQL+enUiKGAb9y1brto1Ie6HhihecuJtTOnbL9EBNisSwS3d+dfELLhFbS4uB
+         JjT4g9lpWBfU11A/mRyh+27FhyB9SUvAw+BSV97SzmCISAo6gwBZyYD4opCwDqg+RLIq
+         B81Q==
+X-Gm-Message-State: AFqh2koacHp3wRgAxDpDcSAzoASAqYOdOZqc9IvF5Jr4fgeLrmjSyI1u
+        CU2VpcbkngFAKSfCHqgBwkP2Ny6cAD2DPRs6xYEhMQ==
+X-Google-Smtp-Source: AMrXdXvHobRDwuXj4MA5OcW3NVM1spLgSqNMAAiW4GhwomXZXFwO2kaU1GbMWchPaX3UjiQoZHyyjBmkbD8YjhmyaldVbQ==
 X-Received: from isaacmanjarres.irv.corp.google.com ([2620:15c:2d:3:3990:5e50:b0f8:bcdd])
- (user=isaacmanjarres job=sendgmr) by 2002:a0d:d944:0:b0:46a:a08b:b5c9 with
- SMTP id b65-20020a0dd944000000b0046aa08bb5c9mr712139ywe.431.1673302592743;
- Mon, 09 Jan 2023 14:16:32 -0800 (PST)
-Date:   Mon,  9 Jan 2023 14:16:22 -0800
+ (user=isaacmanjarres job=sendgmr) by 2002:a05:690c:b08:b0:469:28df:b2c2 with
+ SMTP id cj8-20020a05690c0b0800b0046928dfb2c2mr1656471ywb.122.1673302596557;
+ Mon, 09 Jan 2023 14:16:36 -0800 (PST)
+Date:   Mon,  9 Jan 2023 14:16:23 -0800
 In-Reply-To: <20230109221624.592315-1-isaacmanjarres@google.com>
 Mime-Version: 1.0
 References: <20230109221624.592315-1-isaacmanjarres@google.com>
 X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
-Message-ID: <20230109221624.592315-2-isaacmanjarres@google.com>
-Subject: [PATCH v1 1/2] mm/cma.c: Make kmemleak aware of all CMA regions
+Message-ID: <20230109221624.592315-3-isaacmanjarres@google.com>
+Subject: [PATCH v1 2/2] mm/cma.c: Delete kmemleak objects when freeing CMA
+ areas to buddy at boot
 From:   "Isaac J. Manjarres" <isaacmanjarres@google.com>
 To:     Andrew Morton <akpm@linux-foundation.org>
 Cc:     Saravana Kannan <saravanak@google.com>,
@@ -70,32 +71,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, kmemleak tracks CMA regions that are specified through the
-devicetree. However, if the global CMA region is specified through
-the commandline, kmemleak will be unaware of the CMA region because
-kmemleak_alloc_phys() is not invoked after memblock_reserve(). Add
-the missing call to kmemleak_alloc_phys() so that all CMA regions are
-tracked by kmemleak before they are freed to the page allocator in
-cma_activate_area().
+Since every CMA region is now tracked by kmemleak at the time
+cma_activate_area() is invoked, and cma_activate_area() is called
+for each CMA region, invoke kmemleak_free_part_phys() during
+cma_activate_area() to inform kmemleak that the CMA region will
+be freed. Doing so also removes the need to invoke
+kmemleak_ignore_phys() when the global CMA region is being created,
+as the kmemleak object for it will be deleted.
+
+This helps resolve a crash when kmemleak and CONFIG_DEBUG_PAGEALLOC
+are both enabled, since CONFIG_DEBUG_PAGEALLOC causes the CMA region
+to be unmapped from the kernel's address space when the pages are freed
+to buddy. Without this patch, kmemleak will attempt to scan the CMA
+regions, even though they are unmapped, which leads to a page-fault.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
 ---
- mm/cma.c | 2 ++
- 1 file changed, 2 insertions(+)
+ mm/cma.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
 diff --git a/mm/cma.c b/mm/cma.c
-index 4a978e09547a..674b7fdd563e 100644
+index 674b7fdd563e..dd25b095d9ca 100644
 --- a/mm/cma.c
 +++ b/mm/cma.c
-@@ -318,6 +318,8 @@ int __init cma_declare_contiguous_nid(phys_addr_t base,
- 			ret = -EBUSY;
- 			goto err;
- 		}
+@@ -102,6 +102,13 @@ static void __init cma_activate_area(struct cma *cma)
+ 	if (!cma->bitmap)
+ 		goto out_error;
+ 
++	/*
++	 * The CMA region was marked as allocated by kmemleak when it was either
++	 * dynamically allocated or statically reserved. In any case,
++	 * inform kmemleak that the region is about to be freed to the page allocator.
++	 */
++	kmemleak_free_part_phys(cma_get_base(cma), cma_get_size(cma));
 +
-+		kmemleak_alloc_phys(base, size, 0);
- 	} else {
- 		phys_addr_t addr = 0;
+ 	/*
+ 	 * alloc_contig_range() requires the pfn range specified to be in the
+ 	 * same zone. Simplify by forcing the entire CMA resv range to be in the
+@@ -361,11 +368,6 @@ int __init cma_declare_contiguous_nid(phys_addr_t base,
+ 			}
+ 		}
+ 
+-		/*
+-		 * kmemleak scans/reads tracked objects for pointers to other
+-		 * objects but this address isn't mapped and accessible
+-		 */
+-		kmemleak_ignore_phys(addr);
+ 		base = addr;
+ 	}
  
 -- 
 2.39.0.314.g84b9a713c41-goog
