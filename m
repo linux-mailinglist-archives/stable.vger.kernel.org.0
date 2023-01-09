@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A131766294A
-	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 16:04:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB425662951
+	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 16:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231371AbjAIPE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Jan 2023 10:04:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49698 "EHLO
+        id S236468AbjAIPGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Jan 2023 10:06:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233877AbjAIPEw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 10:04:52 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67BC41E3C7
-        for <stable@vger.kernel.org>; Mon,  9 Jan 2023 07:04:51 -0800 (PST)
+        with ESMTP id S232875AbjAIPGK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 10:06:10 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F99F12E
+        for <stable@vger.kernel.org>; Mon,  9 Jan 2023 07:05:49 -0800 (PST)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 799F03F149;
-        Mon,  9 Jan 2023 15:04:49 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id F32C14696;
+        Mon,  9 Jan 2023 15:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1673276689; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1673276748; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=9Yi1OzODcTdBG92zJ+Vu6KfAkh5Gz6h0Ktzr/eSa1d4=;
-        b=QY5vTLVXNYv7BsryOF+zBr4llB8VnC3ifaJrC7shXhxzBU3a0jBCTDPVyny3jrD9x9FzL/
-        s3gnxSyumZsdy0Q4QveEM7d/suyrMuNHc+AHXF4XO+3U0/mnct8Xu+Y6XgBz5wS0RUo74x
-        KvGtyvQEZKKSg/mae2KcGufpiPDEPg0=
+        bh=OfJkh1o91GDn+Lns7O1tGUfnaHNTusfEDNvTAzRVavY=;
+        b=OeyHL0NnFAsiWFGIQk+5IcyYT36aA+ObOSCgS35sZ96GCJBI0exSdqcGNuCrJ5mppKnZ9C
+        CxyTi2yzHPuK7CCMasaJ9aOKdQxzi0YGWOwQdVsMqeAPZSyf9VnEF9IWBjaSez5mkTvmQ/
+        nb2qS6q88+2CLfUJbu0dkjNo+7gvYSI=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1673276689;
+        s=susede2_ed25519; t=1673276748;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=9Yi1OzODcTdBG92zJ+Vu6KfAkh5Gz6h0Ktzr/eSa1d4=;
-        b=woDdPbq9fiG+nSzRxjfEEyXhkgUzcZqyGs+Yjkrq4u7pTMwFOlpI8H9vV8pff7zQkD5CGP
-        VvLE2OYoLgbYOSCA==
+        bh=OfJkh1o91GDn+Lns7O1tGUfnaHNTusfEDNvTAzRVavY=;
+        b=2QPLHP4hldnzYKDsEdLHP4VPf87mFECvCgJvK1ssMPPWKP4jzqFkfs9WLh/SjQv1JRj45N
+        6pORK0uyPsVu6rCA==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 59E6F134AD;
-        Mon,  9 Jan 2023 15:04:49 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D812F134AD;
+        Mon,  9 Jan 2023 15:05:47 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id rlYLFREtvGO1QgAAMHmgww
-        (envelope-from <tiwai@suse.de>); Mon, 09 Jan 2023 15:04:49 +0000
-Date:   Mon, 09 Jan 2023 16:04:48 +0100
-Message-ID: <87h6wzg35b.wl-tiwai@suse.de>
+        id nKcKNEstvGNSQwAAMHmgww
+        (envelope-from <tiwai@suse.de>); Mon, 09 Jan 2023 15:05:47 +0000
+Date:   Mon, 09 Jan 2023 16:05:47 +0100
+Message-ID: <87fscjg33o.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Jaroslav Kysela <perex@perex.cz>
 Cc:     ALSA development <alsa-devel@alsa-project.org>,
-        yang.yang29@zte.com.cn, stable@vger.kernel.org
-Subject: Re: [PATCH v2] ALSA: control-led: use strscpy in set_led_id()
-In-Reply-To: <20230109150119.342771-1-perex@perex.cz>
-References: <20230109150119.342771-1-perex@perex.cz>
+        Dan Carpenter <error27@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] ALSA: usb-audio: Always initialize fixed_rate in snd_usb_find_implicit_fb_sync_format()
+In-Reply-To: <20230109141133.335543-1-perex@perex.cz>
+References: <20230109141133.335543-1-perex@perex.cz>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/27.2 Mule/6.0
 MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
 Content-Type: text/plain; charset=US-ASCII
@@ -67,24 +67,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 09 Jan 2023 16:01:18 +0100,
+On Mon, 09 Jan 2023 15:11:33 +0100,
 Jaroslav Kysela wrote:
 > 
-> The use of strncpy() in the set_led_id() was incorrect.
-> The len variable should use 'min(sizeof(buf2) - 1, count)'
-> expression.
+> Handle the fallback code path, too.
 > 
-> Use strscpy() function to simplify things and handle the error gracefully.
-> 
-> Reported-by: yang.yang29@zte.com.cn
-> BugLink: https://lore.kernel.org/alsa-devel/202301091945513559977@zte.com.cn/
+> Fixes: fd28941cff1c ("ALSA: usb-audio: Add new quirk FIXED_RATE for JBL Quantum810 Wireless")
+> BugLink: https://lore.kernel.org/alsa-devel/Y7frf3N%2FxzvESEsN@kili/
+> Reported-by: Dan Carpenter <error27@gmail.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Jaroslav Kysela <perex@perex.cz>
 
-Let's use the normal Link tag instead of BugLink.  The former is
-preferred.
+Thanks, applied.
 
-Also, it'd be great if you can put the Fixes tag, too.
-
-
-thanks,
 
 Takashi
