@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8D69661BE7
-	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 02:33:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96F09661BF4
+	for <lists+stable@lfdr.de>; Mon,  9 Jan 2023 02:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233703AbjAIBdq convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 8 Jan 2023 20:33:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41366 "EHLO
+        id S234057AbjAIBfW convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 8 Jan 2023 20:35:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231325AbjAIBdq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 Jan 2023 20:33:46 -0500
-X-Greylist: delayed 198 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 08 Jan 2023 17:33:42 PST
+        with ESMTP id S233961AbjAIBfW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 Jan 2023 20:35:22 -0500
 Received: from mg.richtek.com (mg.richtek.com [220.130.44.152])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C4D04B86E
-        for <stable@vger.kernel.org>; Sun,  8 Jan 2023 17:33:42 -0800 (PST)
-X-MailGates: (flag:3,DYNAMIC,RELAY,NOHOST:PASS)(compute_score:DELIVER,40
-        ,3)
-Received: from 192.168.8.21
-        by mg.richtek.com with MailGates ESMTP Server V3.0(2734:0:AUTH_RELAY)
-        (envelope-from <prvs=1372DA5DC2=cy_huang@richtek.com>); Mon, 09 Jan 2023 09:33:38 +0800 (CST)
-X-MailGates: (compute_score:DELIVER,40,3)
-Received: from 192.168.10.47
-        by mg.richtek.com with MailGates ESMTP Server V5.0(16477:0:AUTH_RELAY)
-        (envelope-from <cy_huang@richtek.com>); Mon, 09 Jan 2023 09:30:20 +0800 (CST)
-Received: from ex3.rt.l (192.168.10.46) by ex4.rt.l (192.168.10.47) with
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C7CC6B86E
+        for <stable@vger.kernel.org>; Sun,  8 Jan 2023 17:35:18 -0800 (PST)
+X-MailGates: (flag:4,DYNAMIC,BADHELO,RELAY,NOHOST:PASS)(compute_score:DE
+        LIVER,40,3)
+Received: from 192.168.10.46
+        by mg.richtek.com with MailGates ESMTP Server V5.0(16482:0:AUTH_RELAY)
+        (envelope-from <cy_huang@richtek.com>); Mon, 09 Jan 2023 09:34:54 +0800 (CST)
+Received: from ex3.rt.l (192.168.10.46) by ex3.rt.l (192.168.10.46) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.20; Mon, 9 Jan
- 2023 09:30:19 +0800
+ 2023 09:34:53 +0800
 Received: from linuxcarl2.richtek.com (192.168.10.154) by ex3.rt.l
  (192.168.10.45) with Microsoft SMTP Server id 15.2.1118.20 via Frontend
- Transport; Mon, 9 Jan 2023 09:30:19 +0800
+ Transport; Mon, 9 Jan 2023 09:34:53 +0800
 From:   <cy_huang@richtek.com>
-To:     <u0084500@gmail.com>
-CC:     ChiYuan Huang <cy_huang@richtek.com>, <stable@vger.kernel.org>
+To:     <linux@roeck-us.net>, <heikki.krogerus@linux.intel.com>,
+        <matthias.bgg@gmail.com>
+CC:     <gregkh@linuxfoundation.org>, <gene_chen@richtek.com>,
+        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        ChiYuan Huang <cy_huang@richtek.com>, <stable@vger.kernel.org>
 Subject: [PATCH v2] usb: typec: tcpm: Fix altmode re-registration causes sysfs create fail
-Date:   Mon, 9 Jan 2023 09:30:18 +0800
-Message-ID: <1673227818-26946-1-git-send-email-cy_huang@richtek.com>
+Date:   Mon, 9 Jan 2023 09:34:52 +0800
+Message-ID: <1673228092-27281-1-git-send-email-cy_huang@richtek.com>
 X-Mailer: git-send-email 1.8.3.1
 MIME-Version: 1.0
 Content-Type: text/plain
