@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B41E5664A6B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:33:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FBCF664888
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239361AbjAJScr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:32:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46596 "EHLO
+        id S238963AbjAJSMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239479AbjAJScT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346D25B4BD
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:26 -0800 (PST)
+        with ESMTP id S239034AbjAJSL4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:11:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B321E17405
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C51DC617C9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA296C433EF;
-        Tue, 10 Jan 2023 18:27:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DADDB818FB
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C17F9C433EF;
+        Tue, 10 Jan 2023 18:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375245;
-        bh=1g8bunrCfIV6wTghoygRW85CedI0LGm+mHYXXS+sfgQ=;
+        s=korg; t=1673374212;
+        bh=75i0XpobXTTFAm3StXjdoef9ukBtI8ePJVRs50TY/H8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yE7DDsLOoUrTpzlEKt7isVs1ABVRNLNqYE6kn4lt7WjPRfQLBAPQEAd5z6hkd/aHm
-         u9GeB83dgvK/2ppnFsn/wIVhLRzgC3ECgjW8L0CpDjSkC4GhOnZhGURWMKAOZlBom9
-         +nXbBaY+PmLuUMjn8V9wgcdd4kiL/8fcAIu28B1Q=
+        b=h/q2FTPk1t58nXTvQV+0UMVvFXszy+ivISau8nX5HO4bH2QbJGgwsKT2fIyDf6i7H
+         A0l2Day2Cw12T+KexpGfqy1xVw57zH9fC2QUdzHvtxDw7r6GeZ+CztBUVanaiVbN4o
+         BQD8AQgG75Djcox/EZX2OX9l37vrQsfnGLtIJmx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Zijlstra <peterz@infradead.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 5.15 099/290] x86/kprobes: Fix optprobe optimization check with CONFIG_RETHUNK
+        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Ian Ray <ian.ray@ge.com>,
+        Philipp Zabel <philipp.zabel@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 087/148] drm/imx: ipuv3-plane: Fix overlay plane width
 Date:   Tue, 10 Jan 2023 19:03:11 +0100
-Message-Id: <20230110180035.049744645@linuxfoundation.org>
+Message-Id: <20230110180019.958809876@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,84 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-commit 63dc6325ff41ee9e570bde705ac34a39c5dbeb44 upstream.
+[ Upstream commit 92d43bd3bc9728c1fb114d7011d46f5ea9489e28 ]
 
-Since the CONFIG_RETHUNK and CONFIG_SLS will use INT3 for stopping
-speculative execution after function return, kprobe jump optimization
-always fails on the functions with such INT3 inside the function body.
-(It already checks the INT3 padding between functions, but not inside
- the function)
+ipu_src_rect_width() was introduced to support odd screen resolutions
+such as 1366x768 by internally rounding up primary plane width to a
+multiple of 8 and compensating with reduced horizontal blanking.
+This also caused overlay plane width to be rounded up, which was not
+intended. Fix overlay plane width by limiting the rounding up to the
+primary plane.
 
-To avoid this issue, as same as kprobes, check whether the INT3 comes
-from kgdb or not, and if so, stop decoding and make it fail. The other
-INT3 will come from CONFIG_RETHUNK/CONFIG_SLS and those can be
-treated as a one-byte instruction.
+drm_rect_width(&new_state->src) >> 16 is the same value as
+drm_rect_width(dst) because there is no plane scaling support.
 
-Fixes: e463a09af2f0 ("x86: Add straight-line-speculation mitigation")
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/167146051929.1374301.7419382929328081706.stgit@devnote3
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 94dfec48fca7 ("drm/imx: Add 8 pixel alignment fix")
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Link: https://lore.kernel.org/r/20221108141420.176696-1-p.zabel@pengutronix.de
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221108141420.176696-1-p.zabel@pengutronix.de
+Tested-by: Ian Ray <ian.ray@ge.com>
+(cherry picked from commit 4333472f8d7befe62359fecb1083cd57a6e07bfc)
+Signed-off-by: Philipp Zabel <philipp.zabel@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kprobes/opt.c |   28 ++++++++--------------------
- 1 file changed, 8 insertions(+), 20 deletions(-)
+ drivers/gpu/drm/imx/ipuv3-plane.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/kprobes/opt.c
-+++ b/arch/x86/kernel/kprobes/opt.c
-@@ -15,6 +15,7 @@
- #include <linux/extable.h>
- #include <linux/kdebug.h>
- #include <linux/kallsyms.h>
-+#include <linux/kgdb.h>
- #include <linux/ftrace.h>
- #include <linux/objtool.h>
- #include <linux/pgtable.h>
-@@ -272,19 +273,6 @@ static int insn_is_indirect_jump(struct
- 	return ret;
- }
+diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
+index ea5f594955df..4b05f310071c 100644
+--- a/drivers/gpu/drm/imx/ipuv3-plane.c
++++ b/drivers/gpu/drm/imx/ipuv3-plane.c
+@@ -615,6 +615,11 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 		break;
+ 	}
  
--static bool is_padding_int3(unsigned long addr, unsigned long eaddr)
--{
--	unsigned char ops;
--
--	for (; addr < eaddr; addr++) {
--		if (get_kernel_nofault(ops, (void *)addr) < 0 ||
--		    ops != INT3_INSN_OPCODE)
--			return false;
--	}
--
--	return true;
--}
--
- /* Decode whole function to ensure any instructions don't jump into target */
- static int can_optimize(unsigned long paddr)
- {
-@@ -327,15 +315,15 @@ static int can_optimize(unsigned long pa
- 		ret = insn_decode_kernel(&insn, (void *)recovered_insn);
- 		if (ret < 0)
- 			return 0;
--
-+#ifdef CONFIG_KGDB
- 		/*
--		 * In the case of detecting unknown breakpoint, this could be
--		 * a padding INT3 between functions. Let's check that all the
--		 * rest of the bytes are also INT3.
-+		 * If there is a dynamically installed kgdb sw breakpoint,
-+		 * this function should not be probed.
- 		 */
--		if (insn.opcode.bytes[0] == INT3_INSN_OPCODE)
--			return is_padding_int3(addr, paddr - offset + size) ? 1 : 0;
--
-+		if (insn.opcode.bytes[0] == INT3_INSN_OPCODE &&
-+		    kgdb_has_hit_break(addr))
-+			return 0;
-+#endif
- 		/* Recover address */
- 		insn.kaddr = (void *)addr;
- 		insn.next_byte = (void *)(addr + insn.length);
++	if (ipu_plane->dp_flow == IPU_DP_FLOW_SYNC_BG)
++		width = ipu_src_rect_width(new_state);
++	else
++		width = drm_rect_width(&new_state->src) >> 16;
++
+ 	eba = drm_plane_state_to_eba(new_state, 0);
+ 
+ 	/*
+@@ -623,8 +628,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 	 */
+ 	if (ipu_state->use_pre) {
+ 		axi_id = ipu_chan_assign_axi_id(ipu_plane->dma);
+-		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id,
+-					  ipu_src_rect_width(new_state),
++		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id, width,
+ 					  drm_rect_height(&new_state->src) >> 16,
+ 					  fb->pitches[0], fb->format->format,
+ 					  fb->modifier, &eba);
+@@ -679,9 +683,8 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 		break;
+ 	}
+ 
+-	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, ALIGN(drm_rect_width(dst), 8));
++	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, width);
+ 
+-	width = ipu_src_rect_width(new_state);
+ 	height = drm_rect_height(&new_state->src) >> 16;
+ 	info = drm_format_info(fb->format->format);
+ 	ipu_calculate_bursts(width, info->cpp[0], fb->pitches[0],
+@@ -745,8 +748,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 		ipu_cpmem_set_burstsize(ipu_plane->ipu_ch, 16);
+ 
+ 		ipu_cpmem_zero(ipu_plane->alpha_ch);
+-		ipu_cpmem_set_resolution(ipu_plane->alpha_ch,
+-					 ipu_src_rect_width(new_state),
++		ipu_cpmem_set_resolution(ipu_plane->alpha_ch, width,
+ 					 drm_rect_height(&new_state->src) >> 16);
+ 		ipu_cpmem_set_format_passthrough(ipu_plane->alpha_ch, 8);
+ 		ipu_cpmem_set_high_priority(ipu_plane->alpha_ch);
+-- 
+2.35.1
+
 
 
