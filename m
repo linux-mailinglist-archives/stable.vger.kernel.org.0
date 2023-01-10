@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B76664A7B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:33:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B0D766490F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235193AbjAJSdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:33:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43754 "EHLO
+        id S238928AbjAJSRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:17:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239515AbjAJScY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F78C8D5F7
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:52 -0800 (PST)
+        with ESMTP id S239169AbjAJSRN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE9DD15723
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 507E4B81903
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C8B4C433D2;
-        Tue, 10 Jan 2023 18:27:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C6046186E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:15:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3942FC433F0;
+        Tue, 10 Jan 2023 18:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375269;
-        bh=AIIe8Ged/CuIo0+OmKvgnzKmeBji8mpkBtsH1lhkHg4=;
+        s=korg; t=1673374531;
+        bh=I5+E7RCwRQpQ6m2jnvmsVnbn2uXvIuJJeQCZx5A0CzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1JEIrHLhEa/S5SIYptv/76ADWDUtYO139IP4Jgt/XTqTaIqLyEA43IywWitqQ9xF
-         ybb7U+2mC33f5LPL3M8DnmzLa1KbKOLEe19n8xJjhJBVVcVnoGwZvymqmrOIhD1xnf
-         RLKHaVNHqUXNHcfmNIhimyy3qVvr6aI+nge4WnxE=
+        b=181xCxKz0Hkdo5Gsz/KyWZ2tdQZKYxTYycHJBgOnUyJzlH1tckf0iScrZHLf2eyJ6
+         LZKcWaUO4s9Jn1Iv+0a8oFCwuXrdTP1ogRddJfT8A3If4tl7OfDdzfRxza7oAlj36u
+         6kPe7o8Q0TkqouZpEyhAb1+Jo7XFYnIEDpT4PJUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Yang Jihong <yangjihong1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 104/290] tracing: Fix infinite loop in tracing_read_pipe on overflowed print_trace_line
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Gonglei <arei.gonglei@huawei.com>,
+        zhenwei pi <pizhenwei@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 048/159] virtio-crypto: fix memory leak in virtio_crypto_alg_skcipher_close_session()
 Date:   Tue, 10 Jan 2023 19:03:16 +0100
-Message-Id: <20230110180035.334946510@linuxfoundation.org>
+Message-Id: <20230110180019.839104598@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit c1ac03af6ed45d05786c219d102f37eb44880f28 upstream.
+[ Upstream commit b1d65f717cd6305a396a8738e022c6f7c65cfbe8 ]
 
-print_trace_line may overflow seq_file buffer. If the event is not
-consumed, the while loop keeps peeking this event, causing a infinite loop.
+'vc_ctrl_req' is alloced in virtio_crypto_alg_skcipher_close_session(),
+and should be freed in the invalid ctrl_status->status error handling
+case. Otherwise there is a memory leak.
 
-Link: https://lkml.kernel.org/r/20221129113009.182425-1-yangjihong1@huawei.com
-
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 088b1e427dbba ("ftrace: pipe fixes")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0756ad15b1fe ("virtio-crypto: use private buffer for control request")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Message-Id: <20221114110740.537276-1-weiyongjun@huaweicloud.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Gonglei <arei.gonglei@huawei.com>
+Acked-by: zhenwei pi<pizhenwei@bytedance.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/crypto/virtio/virtio_crypto_skcipher_algs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -6764,7 +6764,20 @@ waitagain:
+diff --git a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
+index e553ccadbcbc..e5876286828b 100644
+--- a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
+@@ -239,7 +239,8 @@ static int virtio_crypto_alg_skcipher_close_session(
+ 		pr_err("virtio_crypto: Close session failed status: %u, session_id: 0x%llx\n",
+ 			ctrl_status->status, destroy_session->session_id);
  
- 		ret = print_trace_line(iter);
- 		if (ret == TRACE_TYPE_PARTIAL_LINE) {
--			/* don't print partial lines */
-+			/*
-+			 * If one print_trace_line() fills entire trace_seq in one shot,
-+			 * trace_seq_to_user() will returns -EBUSY because save_len == 0,
-+			 * In this case, we need to consume it, otherwise, loop will peek
-+			 * this event next time, resulting in an infinite loop.
-+			 */
-+			if (save_len == 0) {
-+				iter->seq.full = 0;
-+				trace_seq_puts(&iter->seq, "[LINE TOO BIG]\n");
-+				trace_consume(iter);
-+				break;
-+			}
-+
-+			/* In other cases, don't print partial lines */
- 			iter->seq.seq.len = save_len;
- 			break;
- 		}
+-		return -EINVAL;
++		err = -EINVAL;
++		goto out;
+ 	}
+ 
+ 	err = 0;
+-- 
+2.35.1
+
 
 
