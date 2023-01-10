@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10AD1664927
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0BB664A57
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235380AbjAJSSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:18:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59362 "EHLO
+        id S234673AbjAJScc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239216AbjAJSRf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D6A13CCC
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:12 -0800 (PST)
+        with ESMTP id S239417AbjAJSbe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EDC69748E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43288B818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8283FC433EF;
-        Tue, 10 Jan 2023 18:16:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 109596184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07D0FC433EF;
+        Tue, 10 Jan 2023 18:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374570;
-        bh=C6aaC7dEEj/94roJOoP9V7BTOQZCt8kHmoXOk/GmSL4=;
+        s=korg; t=1673375209;
+        bh=a3SrtMPOpfa7g6GNQtdu1xyMFAj+xosFpM/Tc6gTXWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWmuOdD7jWoQwpNhWyHcm3ov/kM09QhID4s+lW5YmikHALa/6k4H94FpA03iPMTOY
-         XoA1LjivLstrMTFXq5Q84ZAMtgl7LhySrsdFzUuKPTtMPuT5CRIR4g2Bd9tLNlTVr4
-         EFX/uHWctiSO9AvxBWIcVDMMF+nY8f/A1nYAaPW8=
+        b=QddIrm7aQSRveZmICkwAsNsxMd7OHI2Gtz65JtVxiUKsYPN6RzoHkdSu8f3WR0RV3
+         CH0Q6JMsBi6BJ+j5k7lg7LRPN+fH4ows/1nj+W7tiwz9Ohl0Gsxvx9MaCo7rOgNNJV
+         fiQRYPZU5QAZ4JXw6CRame2Tzdgf9YG3Dpto5gAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Mi <cmi@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 059/159] net/mlx5e: Always clear dest encap in neigh-update-del
+        patches@lists.linux.dev, Aditya Garg <gargaditya08@live.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.15 115/290] efi: Add iMac Pro 2017 to uefi skip cert quirk
 Date:   Tue, 10 Jan 2023 19:03:27 +0100
-Message-Id: <20230110180020.191159456@linuxfoundation.org>
+Message-Id: <20230110180035.767137370@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Mi <cmi@nvidia.com>
+From: Aditya Garg <gargaditya08@live.com>
 
-[ Upstream commit 2951b2e142ecf6e0115df785ba91e91b6da74602 ]
+commit 0be56a116220f9e5731a6609e66a11accfe8d8e2 upstream.
 
-The cited commit introduced a bug for multiple encapsulations flow.
-If one dest encap becomes invalid, the flow is set slow path flag.
-But when other dests encap become invalid, they are not cleared due
-to slow path flag of the flow. When neigh-update-add is running, it
-will use invalid encap.
+The iMac Pro 2017 is also a T2 Mac. Thus add it to the list of uefi skip
+cert.
 
-Fix it by checking slow path flag after clearing dest encap.
-
-Fixes: 9a5f9cc794e1 ("net/mlx5e: Fix possible use-after-free deleting fdb rule")
-Signed-off-by: Chris Mi <cmi@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 155ca952c7ca ("efi: Do not import certificates from UEFI Secure Boot for T2 Macs")
+Link: https://lore.kernel.org/linux-integrity/9D46D92F-1381-4F10-989C-1A12CD2FFDD8@live.com/
+Signed-off-by: Aditya Garg <gargaditya08@live.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c    | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ security/integrity/platform_certs/load_uefi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c
-index ff73d25bc6eb..2aaf8ab857b8 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c
-@@ -222,7 +222,7 @@ void mlx5e_tc_encap_flows_del(struct mlx5e_priv *priv,
- 	int err;
+--- a/security/integrity/platform_certs/load_uefi.c
++++ b/security/integrity/platform_certs/load_uefi.c
+@@ -34,6 +34,7 @@ static const struct dmi_system_id uefi_s
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "MacPro7,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,1") },
+ 	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMac20,2") },
++	{ UEFI_QUIRK_SKIP_CERT("Apple Inc.", "iMacPro1,1") },
+ 	{ }
+ };
  
- 	list_for_each_entry(flow, flow_list, tmp_list) {
--		if (!mlx5e_is_offloaded_flow(flow) || flow_flag_test(flow, SLOW))
-+		if (!mlx5e_is_offloaded_flow(flow))
- 			continue;
- 
- 		attr = mlx5e_tc_get_encap_attr(flow);
-@@ -231,6 +231,13 @@ void mlx5e_tc_encap_flows_del(struct mlx5e_priv *priv,
- 		esw_attr->dests[flow->tmp_entry_index].flags &= ~MLX5_ESW_DEST_ENCAP_VALID;
- 		esw_attr->dests[flow->tmp_entry_index].pkt_reformat = NULL;
- 
-+		/* Clear pkt_reformat before checking slow path flag. Because
-+		 * in next iteration, the same flow is already set slow path
-+		 * flag, but still need to clear the pkt_reformat.
-+		 */
-+		if (flow_flag_test(flow, SLOW))
-+			continue;
-+
- 		/* update from encap rule to slow path rule */
- 		spec = &flow->attr->parse_attr->spec;
- 		rule = mlx5e_tc_offload_to_slow_path(esw, flow, spec);
--- 
-2.35.1
-
 
 
