@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D9496648DC
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6204B664A93
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235564AbjAJSPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:15:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54322 "EHLO
+        id S239510AbjAJSd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:33:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239017AbjAJSP0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D1832191
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:19 -0800 (PST)
+        with ESMTP id S239312AbjAJScl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:41 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C689B2032
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1221617EC
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDAD8C433D2;
-        Tue, 10 Jan 2023 18:13:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1CC12CE18D1
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1BA5C433EF;
+        Tue, 10 Jan 2023 18:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374398;
-        bh=Hh6dD2GhnzyuOIjgo81WyskRoZT+sws2hgYvShrjC1U=;
+        s=korg; t=1673375334;
+        bh=zcVKfKTtXeP8xkrtc5v0nskaerHxSDnXleMoOBhzmio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1w1p76gOBBzLtKI8zxPJvh67W/pNC25VL/SsQeXaTZNlCkSw97TQI4JsGSeHiPCZ6
-         PdoeGmwenJD4JU5PW94vs1ni9Z7nXgSQaviWT03qiUYuK+nIO5jysPjCE8wlBdhJLK
-         6fzgIApjF+gEdU2h2fhH3+OOtIs0xaT4NwcBgPz0=
+        b=TXJdZnRiiSKKgMD6GG2T2TrEyf/YQ8D/ExkKhw6tVH6LDzXnK80jpQsXTHrCfvKHs
+         7stQ/X3a6JSZDyHAaKrPaHryOlr+PWQ9y9FHl6XDmkUP5z+eVonXEod7/N5V4/qzQi
+         w1WQw84xjpmAzXSQr/g05u9AgihN26RN9KRMHCWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?=E5=B0=8F=E5=A4=AA?= <nospam@kota.moe>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 142/148] btrfs: handle case when repair happens with dev-replace
-Date:   Tue, 10 Jan 2023 19:04:06 +0100
-Message-Id: <20230110180021.685107820@linuxfoundation.org>
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Jan Kara <jack@suse.cz>, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 155/290] ext4: fix corruption when online resizing a 1K bigalloc fs
+Date:   Tue, 10 Jan 2023 19:04:07 +0100
+Message-Id: <20230110180037.206816511@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,112 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit d73a27b86fc722c28a26ec64002e3a7dc86d1c07 ]
+commit 0aeaa2559d6d53358fca3e3fce73807367adca74 upstream.
 
-[BUG]
-There is a bug report that a BUG_ON() in btrfs_repair_io_failure()
-(originally repair_io_failure() in v6.0 kernel) got triggered when
-replacing a unreliable disk:
+When a backup superblock is updated in update_backups(), the primary
+superblock's offset in the group (that is, sbi->s_sbh->b_blocknr) is used
+as the backup superblock's offset in its group. However, when the block
+size is 1K and bigalloc is enabled, the two offsets are not equal. This
+causes the backup group descriptors to be overwritten by the superblock
+in update_backups(). Moreover, if meta_bg is enabled, the file system will
+be corrupted because this feature uses backup group descriptors.
 
-  BTRFS warning (device sda1): csum failed root 257 ino 2397453 off 39624704 csum 0xb0d18c75 expected csum 0x4dae9c5e mirror 3
-  kernel BUG at fs/btrfs/extent_io.c:2380!
-  invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
-  CPU: 9 PID: 3614331 Comm: kworker/u257:2 Tainted: G           OE      6.0.0-5-amd64 #1  Debian 6.0.10-2
-  Hardware name: Micro-Star International Co., Ltd. MS-7C60/TRX40 PRO WIFI (MS-7C60), BIOS 2.70 07/01/2021
-  Workqueue: btrfs-endio btrfs_end_bio_work [btrfs]
-  RIP: 0010:repair_io_failure+0x24a/0x260 [btrfs]
-  Call Trace:
-   <TASK>
-   clean_io_failure+0x14d/0x180 [btrfs]
-   end_bio_extent_readpage+0x412/0x6e0 [btrfs]
-   ? __switch_to+0x106/0x420
-   process_one_work+0x1c7/0x380
-   worker_thread+0x4d/0x380
-   ? rescuer_thread+0x3a0/0x3a0
-   kthread+0xe9/0x110
-   ? kthread_complete_and_exit+0x20/0x20
-   ret_from_fork+0x22/0x30
+To solve this issue, we use a more accurate ext4_group_first_block_no() as
+the offset of the backup superblock in its group.
 
-[CAUSE]
-
-Before the BUG_ON(), we got some read errors from the replace target
-first, note the mirror number (3, which is beyond RAID1 duplication,
-thus it's read from the replace target device).
-
-Then at the BUG_ON() location, we are trying to writeback the repaired
-sectors back the failed device.
-
-The check looks like this:
-
-		ret = btrfs_map_block(fs_info, BTRFS_MAP_WRITE, logical,
-				      &map_length, &bioc, mirror_num);
-		if (ret)
-			goto out_counter_dec;
-		BUG_ON(mirror_num != bioc->mirror_num);
-
-But inside btrfs_map_block(), we can modify bioc->mirror_num especially
-for dev-replace:
-
-	if (dev_replace_is_ongoing && mirror_num == map->num_stripes + 1 &&
-	    !need_full_stripe(op) && dev_replace->tgtdev != NULL) {
-		ret = get_extra_mirror_from_replace(fs_info, logical, *length,
-						    dev_replace->srcdev->devid,
-						    &mirror_num,
-					    &physical_to_patch_in_first_stripe);
-		patch_the_first_stripe_for_dev_replace = 1;
-	}
-
-Thus if we're repairing the replace target device, we're going to
-trigger that BUG_ON().
-
-But in reality, the read failure from the replace target device may be
-that, our replace hasn't reached the range we're reading, thus we're
-reading garbage, but with replace running, the range would be properly
-filled later.
-
-Thus in that case, we don't need to do anything but let the replace
-routine to handle it.
-
-[FIX]
-Instead of a BUG_ON(), just skip the repair if we're repairing the
-device replace target device.
-
-Reported-by: 小太 <nospam@kota.moe>
-Link: https://lore.kernel.org/linux-btrfs/CACsxjPYyJGQZ+yvjzxA1Nn2LuqkYqTCcUH43S=+wXhyf8S00Ag@mail.gmail.com/
-CC: stable@vger.kernel.org # 6.0+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d77147ff443b ("ext4: add support for online resizing with bigalloc")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20221117040341.1380702-4-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/ext4/resize.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index cf4f19e80e2f..0982995177a6 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -2377,7 +2377,16 @@ static int repair_io_failure(struct btrfs_fs_info *fs_info, u64 ino, u64 start,
- 				      &map_length, &bioc, mirror_num);
- 		if (ret)
- 			goto out_counter_dec;
--		BUG_ON(mirror_num != bioc->mirror_num);
-+		/*
-+		 * This happens when dev-replace is also running, and the
-+		 * mirror_num indicates the dev-replace target.
-+		 *
-+		 * In this case, we don't need to do anything, as the read
-+		 * error just means the replace progress hasn't reached our
-+		 * read range, and later replace routine would handle it well.
-+		 */
-+		if (mirror_num != bioc->mirror_num)
-+			goto out_counter_dec;
- 	}
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -1557,8 +1557,8 @@ exit_journal:
+ 		int meta_bg = ext4_has_feature_meta_bg(sb);
+ 		sector_t old_gdb = 0;
  
- 	sector = bioc->stripes[bioc->mirror_num - 1].physical >> 9;
--- 
-2.35.1
-
+-		update_backups(sb, sbi->s_sbh->b_blocknr, (char *)es,
+-			       sizeof(struct ext4_super_block), 0);
++		update_backups(sb, ext4_group_first_block_no(sb, 0),
++			       (char *)es, sizeof(struct ext4_super_block), 0);
+ 		for (; gdb_num <= gdb_num_end; gdb_num++) {
+ 			struct buffer_head *gdb_bh;
+ 
+@@ -1769,7 +1769,7 @@ errout:
+ 		if (test_opt(sb, DEBUG))
+ 			printk(KERN_DEBUG "EXT4-fs: extended group to %llu "
+ 			       "blocks\n", ext4_blocks_count(es));
+-		update_backups(sb, EXT4_SB(sb)->s_sbh->b_blocknr,
++		update_backups(sb, ext4_group_first_block_no(sb, 0),
+ 			       (char *)es, sizeof(struct ext4_super_block), 0);
+ 	}
+ 	return err;
 
 
