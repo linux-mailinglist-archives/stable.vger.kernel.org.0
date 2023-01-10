@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E299A66489F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B06664A3B
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:31:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238927AbjAJSMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52968 "EHLO
+        id S239401AbjAJSbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:31:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238938AbjAJSMM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658411159
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:05 -0800 (PST)
+        with ESMTP id S239358AbjAJSai (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB5BC564E3
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E86FF6186D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0736FC433D2;
-        Tue, 10 Jan 2023 18:11:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96601B818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB961C433EF;
+        Tue, 10 Jan 2023 18:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374264;
-        bh=aF9XGd847OBV9ASn/3QWJID57AOLr6pHJv2XGS0Veog=;
+        s=korg; t=1673375131;
+        bh=V8zPG/IfKobL5RDYEPT2r9W/On5PYTdz9V1zJrInIuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOIP35hLxHoiR7GGeo0ROBVJwAEKHjIMAmeMivAf3zFdf6vmb1ihkwC/AHr2TgoR/
-         BFOU8VBhxw0+R6PYQu7hNjnwKQiw7cDzlsGiZ48GPpdeGS63T2oAcaRSZLtwWQPV7H
-         qBpZJmty6S9Y4LgjqMduTh0ZhSviQB6wEkVNhM/4=
+        b=V4484zMQKRIHSaEj/IpGCAe1JERjpl+T8wdA0nr0vX1pXwuRHTwnXG/S7OSD3ouOG
+         9zhRQ/lYvGCh7Jvo1sFlx0qU2+mw/oX6ZZtDdU1iQS43gS7tUOUDfY6MoXiozEzC+J
+         ZCHxGfAImcUsUAlX1WEs6Qb4H3Z/VX5TXoETj+c8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Carlo Caione <ccaione@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 076/148] drm/meson: Reduce the FIFO lines held when AFBC is not used
+        patches@lists.linux.dev, Luo Meng <luomeng12@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.15 088/290] dm cache: Fix UAF in destroy()
 Date:   Tue, 10 Jan 2023 19:03:00 +0100
-Message-Id: <20230110180019.627162866@linuxfoundation.org>
+Message-Id: <20230110180034.641552767@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlo Caione <ccaione@baylibre.com>
+From: Luo Meng <luomeng12@huawei.com>
 
-[ Upstream commit 3b754ed6d1cd90017e66e5cc16f3923e4a952ffc ]
+commit 6a459d8edbdbe7b24db42a5a9f21e6aa9e00c2aa upstream.
 
-Having a bigger number of FIFO lines held after vsync is only useful to
-SoCs using AFBC to give time to the AFBC decoder to be reset, configured
-and enabled again.
+Dm_cache also has the same UAF problem when dm_resume()
+and dm_destroy() are concurrent.
 
-For SoCs not using AFBC this, on the contrary, is causing on some
-displays issues and a few pixels vertical offset in the displayed image.
+Therefore, cancelling timer again in destroy().
 
-Conditionally increase the number of lines held after vsync only for
-SoCs using AFBC, leaving the default value for all the others.
-
-Fixes: 24e0d4058eff ("drm/meson: hold 32 lines after vsync to give time for AFBC start")
-Signed-off-by: Carlo Caione <ccaione@baylibre.com>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Neil Armstrong <neil.armstrong@linaro.org>
-[narmstrong: added fixes tag]
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221216-afbc_s905x-v1-0-033bebf780d9@baylibre.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: c6b4fcbad044e ("dm: add cache target")
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/meson/meson_viu.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/md/dm-cache-target.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
-index d4b907889a21..cd399b0b7181 100644
---- a/drivers/gpu/drm/meson/meson_viu.c
-+++ b/drivers/gpu/drm/meson/meson_viu.c
-@@ -436,15 +436,14 @@ void meson_viu_init(struct meson_drm *priv)
+--- a/drivers/md/dm-cache-target.c
++++ b/drivers/md/dm-cache-target.c
+@@ -1895,6 +1895,7 @@ static void destroy(struct cache *cache)
+ 	if (cache->prison)
+ 		dm_bio_prison_destroy_v2(cache->prison);
  
- 	/* Initialize OSD1 fifo control register */
- 	reg = VIU_OSD_DDR_PRIORITY_URGENT |
--		VIU_OSD_HOLD_FIFO_LINES(31) |
- 		VIU_OSD_FIFO_DEPTH_VAL(32) | /* fifo_depth_val: 32*8=256 */
- 		VIU_OSD_WORDS_PER_BURST(4) | /* 4 words in 1 burst */
- 		VIU_OSD_FIFO_LIMITS(2);      /* fifo_lim: 2*16=32 */
++	cancel_delayed_work_sync(&cache->waker);
+ 	if (cache->wq)
+ 		destroy_workqueue(cache->wq);
  
- 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
--		reg |= VIU_OSD_BURST_LENGTH_32;
-+		reg |= (VIU_OSD_BURST_LENGTH_32 | VIU_OSD_HOLD_FIFO_LINES(31));
- 	else
--		reg |= VIU_OSD_BURST_LENGTH_64;
-+		reg |= (VIU_OSD_BURST_LENGTH_64 | VIU_OSD_HOLD_FIFO_LINES(4));
- 
- 	writel_relaxed(reg, priv->io_base + _REG(VIU_OSD1_FIFO_CTRL_STAT));
- 	writel_relaxed(reg, priv->io_base + _REG(VIU_OSD2_FIFO_CTRL_STAT));
--- 
-2.35.1
-
 
 
