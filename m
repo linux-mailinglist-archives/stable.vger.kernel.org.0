@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3938866485C
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EB53664A4D
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238914AbjAJSLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
+        id S235029AbjAJSb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:31:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238949AbjAJSKR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD01B200E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:33 -0800 (PST)
+        with ESMTP id S239334AbjAJSbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D174FCD8
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DF8D6186E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5109DC433EF;
-        Tue, 10 Jan 2023 18:08:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C587617C9
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E57BC433D2;
+        Tue, 10 Jan 2023 18:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374112;
-        bh=M2+raMIVrjpqAgnjFM8PMQbbtgP1F2s+Hk1RreFBXTE=;
+        s=korg; t=1673375176;
+        bh=J3fX5e4y2THab1EuQpPnMsa/0H8Leg+fhzKfUtBMB5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySgHatSCoCfNI9Nh/q7T+EC7ivjBG1pF2RDs7SfSMDruNoH71nvF6JnKcb/inlnfj
-         q+cDex0IeZSAOUBuTmOx8vJ++FBcTLJ/JPJD28aDcQURnjP9uDG3KWhCw8xqvEB4Rm
-         cG4WQXMuI4iW2Rk8ZXR3/ZReNZG+qWf7UJ2ccXgI=
+        b=nr04zYZNWkOOoo6A8rNbJL41GrWdz9Xa5lCetZsgdApjpTd5oDMmTyIYvrSIpOiXC
+         NKgXaQ2pVOx8x9RJdpBMs++TxjFeN4UiATo47Dg6cfyIKdruSPXkTlQGb6SXa4ncvn
+         25ZNs6FUQdlh8eRDDcW5QSyZWqjURB1gWzzi8pUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Moshe Shemesh <moshe@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 050/148] net/mlx5: E-Switch, properly handle ingress tagged packets on VST
+        patches@lists.linux.dev,
+        "John Warthog9 Hawley (VMware)" <warthog9@eaglescrag.net>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 5.15 062/290] kest.pl: Fix grub2 menu handling for rebooting
 Date:   Tue, 10 Jan 2023 19:02:34 +0100
-Message-Id: <20230110180018.806353759@linuxfoundation.org>
+Message-Id: <20230110180033.781084518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,261 +53,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-[ Upstream commit 1f0ae22ab470946143485a02cc1cd7e05c0f9120 ]
+commit 26df05a8c1420ad3de314fdd407e7fc2058cc7aa upstream.
 
-Fix SRIOV VST mode behavior to insert cvlan when a guest tag is already
-present in the frame. Previous VST mode behavior was to drop packets or
-override existing tag, depending on the device version.
+grub2 has submenus where to use grub-reboot, it requires:
 
-In this patch we fix this behavior by correctly building the HW steering
-rule with a push vlan action, or for older devices we ask the FW to stack
-the vlan when a vlan is already present.
+  grub-reboot X>Y
 
-Fixes: 07bab9502641 ("net/mlx5: E-Switch, Refactor eswitch ingress acl codes")
-Fixes: dfcb1ed3c331 ("net/mlx5: E-Switch, Vport ingress/egress ACLs rules for VST mode")
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+where X is the main index and Y is the submenu. Thus if you have:
+
+menuentry 'Debian GNU/Linux' --class debian --class gnu-linux ...
+	[...]
+}
+submenu 'Advanced options for Debian GNU/Linux' $menuentry_id_option ...
+        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64' --class debian --class gnu-linux ...
+                [...]
+        }
+        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64 (recovery mode)' --class debian --class gnu-linux ...
+		[...]
+        }
+        menuentry 'Debian GNU/Linux, with Linux test' --class debian --class gnu-linux ...
+                [...]
+        }
+
+And wanted to boot to the "Linux test" kernel, you need to run:
+
+ # grub-reboot 1>2
+
+As 1 is the second top menu (the submenu) and 2 is the third of the sub
+menu entries.
+
+Have the grub.cfg parsing for grub2 handle such cases.
+
+Cc: stable@vger.kernel.org
+Fixes: a15ba91361d46 ("ktest: Add support for grub2")
+Reviewed-by: John 'Warthog9' Hawley (VMware) <warthog9@eaglescrag.net>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../mellanox/mlx5/core/esw/acl/egress_lgcy.c  |  7 +++-
- .../mellanox/mlx5/core/esw/acl/ingress_lgcy.c | 33 ++++++++++++++++---
- .../net/ethernet/mellanox/mlx5/core/eswitch.c | 30 ++++++++++++-----
- .../net/ethernet/mellanox/mlx5/core/eswitch.h |  6 ++++
- include/linux/mlx5/device.h                   |  5 +++
- include/linux/mlx5/mlx5_ifc.h                 |  3 +-
- 6 files changed, 68 insertions(+), 16 deletions(-)
+ tools/testing/ktest/ktest.pl |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
-index 60a73990017c..6b4c9ffad95b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
-@@ -67,6 +67,7 @@ static void esw_acl_egress_lgcy_groups_destroy(struct mlx5_vport *vport)
- int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
- 			      struct mlx5_vport *vport)
- {
-+	bool vst_mode_steering = esw_vst_mode_is_steering(esw);
- 	struct mlx5_flow_destination drop_ctr_dst = {};
- 	struct mlx5_flow_destination *dst = NULL;
- 	struct mlx5_fc *drop_counter = NULL;
-@@ -77,6 +78,7 @@ int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
- 	 */
- 	int table_size = 2;
- 	int dest_num = 0;
-+	int actions_flag;
- 	int err = 0;
+--- a/tools/testing/ktest/ktest.pl
++++ b/tools/testing/ktest/ktest.pl
+@@ -1963,7 +1963,7 @@ sub run_scp_mod {
  
- 	if (vport->egress.legacy.drop_counter) {
-@@ -119,8 +121,11 @@ int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
- 		  vport->vport, vport->info.vlan, vport->info.qos);
+ sub _get_grub_index {
  
- 	/* Allowed vlan rule */
-+	actions_flag = MLX5_FLOW_CONTEXT_ACTION_ALLOW;
-+	if (vst_mode_steering)
-+		actions_flag |= MLX5_FLOW_CONTEXT_ACTION_VLAN_POP;
- 	err = esw_egress_acl_vlan_create(esw, vport, NULL, vport->info.vlan,
--					 MLX5_FLOW_CONTEXT_ACTION_ALLOW);
-+					 actions_flag);
- 	if (err)
- 		goto out;
+-    my ($command, $target, $skip) = @_;
++    my ($command, $target, $skip, $submenu) = @_;
  
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
-index b1a5199260f6..093ed86a0acd 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
-@@ -139,11 +139,14 @@ static void esw_acl_ingress_lgcy_groups_destroy(struct mlx5_vport *vport)
- int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
- 			       struct mlx5_vport *vport)
- {
-+	bool vst_mode_steering = esw_vst_mode_is_steering(esw);
- 	struct mlx5_flow_destination drop_ctr_dst = {};
- 	struct mlx5_flow_destination *dst = NULL;
- 	struct mlx5_flow_act flow_act = {};
- 	struct mlx5_flow_spec *spec = NULL;
- 	struct mlx5_fc *counter = NULL;
-+	bool vst_check_cvlan = false;
-+	bool vst_push_cvlan = false;
- 	/* The ingress acl table contains 4 groups
- 	 * (2 active rules at the same time -
- 	 *      1 allow rule from one of the first 3 groups.
-@@ -203,7 +206,26 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
- 		goto out;
+     return if (defined($grub_number) && defined($last_grub_menu) &&
+ 	$last_grub_menu eq $grub_menu && defined($last_machine) &&
+@@ -1980,11 +1980,16 @@ sub _get_grub_index {
+ 
+     my $found = 0;
+ 
++    my $submenu_number = 0;
++
+     while (<IN>) {
+ 	if (/$target/) {
+ 	    $grub_number++;
+ 	    $found = 1;
+ 	    last;
++	} elsif (defined($submenu) && /$submenu/) {
++		$submenu_number++;
++		$grub_number = -1;
+ 	} elsif (/$skip/) {
+ 	    $grub_number++;
  	}
+@@ -1993,6 +1998,9 @@ sub _get_grub_index {
  
--	if (vport->info.vlan || vport->info.qos)
-+	if ((vport->info.vlan || vport->info.qos)) {
-+		if (vst_mode_steering)
-+			vst_push_cvlan = true;
-+		else if (!MLX5_CAP_ESW(esw->dev, vport_cvlan_insert_always))
-+			vst_check_cvlan = true;
-+	}
-+
-+	if (vst_check_cvlan || vport->info.spoofchk)
-+		spec->match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
-+
-+	/* Create ingress allow rule */
-+	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_ALLOW;
-+	if (vst_push_cvlan) {
-+		flow_act.action |= MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH;
-+		flow_act.vlan[0].prio = vport->info.qos;
-+		flow_act.vlan[0].vid = vport->info.vlan;
-+		flow_act.vlan[0].ethtype = ETH_P_8021Q;
-+	}
-+
-+	if (vst_check_cvlan)
- 		MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
- 				 outer_headers.cvlan_tag);
+     dodie "Could not find '$grub_menu' through $command on $machine"
+ 	if (!$found);
++    if ($submenu_number > 0) {
++	$grub_number = "$submenu_number>$grub_number";
++    }
+     doprint "$grub_number\n";
+     $last_grub_menu = $grub_menu;
+     $last_machine = $machine;
+@@ -2003,6 +2011,7 @@ sub get_grub_index {
+     my $command;
+     my $target;
+     my $skip;
++    my $submenu;
+     my $grub_menu_qt;
  
-@@ -218,9 +240,6 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
- 		ether_addr_copy(smac_v, vport->info.mac);
- 	}
+     if ($reboot_type !~ /^grub/) {
+@@ -2017,8 +2026,9 @@ sub get_grub_index {
+ 	$skip = '^\s*title\s';
+     } elsif ($reboot_type eq "grub2") {
+ 	$command = "cat $grub_file";
+-	$target = '^menuentry.*' . $grub_menu_qt;
+-	$skip = '^menuentry\s|^submenu\s';
++	$target = '^\s*menuentry.*' . $grub_menu_qt;
++	$skip = '^\s*menuentry';
++	$submenu = '^\s*submenu\s';
+     } elsif ($reboot_type eq "grub2bls") {
+ 	$command = $grub_bls_get;
+ 	$target = '^title=.*' . $grub_menu_qt;
+@@ -2027,7 +2037,7 @@ sub get_grub_index {
+ 	return;
+     }
  
--	/* Create ingress allow rule */
--	spec->match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
--	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_ALLOW;
- 	vport->ingress.allow_rule = mlx5_add_flow_rules(vport->ingress.acl, spec,
- 							&flow_act, NULL, 0);
- 	if (IS_ERR(vport->ingress.allow_rule)) {
-@@ -232,6 +251,9 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
- 		goto out;
- 	}
- 
-+	if (!vst_check_cvlan && !vport->info.spoofchk)
-+		goto out;
-+
- 	memset(&flow_act, 0, sizeof(flow_act));
- 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_DROP;
- 	/* Attach drop flow counter */
-@@ -257,7 +279,8 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
- 	return 0;
- 
- out:
--	esw_acl_ingress_lgcy_cleanup(esw, vport);
-+	if (err)
-+		esw_acl_ingress_lgcy_cleanup(esw, vport);
- 	kvfree(spec);
- 	return err;
+-    _get_grub_index($command, $target, $skip);
++    _get_grub_index($command, $target, $skip, $submenu);
  }
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-index 59cffa49e4b5..940e893f3f09 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -161,10 +161,17 @@ static int modify_esw_vport_cvlan(struct mlx5_core_dev *dev, u16 vport,
- 			 esw_vport_context.vport_cvlan_strip, 1);
  
- 	if (set_flags & SET_VLAN_INSERT) {
--		/* insert only if no vlan in packet */
--		MLX5_SET(modify_esw_vport_context_in, in,
--			 esw_vport_context.vport_cvlan_insert, 1);
--
-+		if (MLX5_CAP_ESW(dev, vport_cvlan_insert_always)) {
-+			/* insert either if vlan exist in packet or not */
-+			MLX5_SET(modify_esw_vport_context_in, in,
-+				 esw_vport_context.vport_cvlan_insert,
-+				 MLX5_VPORT_CVLAN_INSERT_ALWAYS);
-+		} else {
-+			/* insert only if no vlan in packet */
-+			MLX5_SET(modify_esw_vport_context_in, in,
-+				 esw_vport_context.vport_cvlan_insert,
-+				 MLX5_VPORT_CVLAN_INSERT_WHEN_NO_CVLAN);
-+		}
- 		MLX5_SET(modify_esw_vport_context_in, in,
- 			 esw_vport_context.cvlan_pcp, qos);
- 		MLX5_SET(modify_esw_vport_context_in, in,
-@@ -774,6 +781,7 @@ static void esw_vport_cleanup_acl(struct mlx5_eswitch *esw,
- 
- static int esw_vport_setup(struct mlx5_eswitch *esw, struct mlx5_vport *vport)
- {
-+	bool vst_mode_steering = esw_vst_mode_is_steering(esw);
- 	u16 vport_num = vport->vport;
- 	int flags;
- 	int err;
-@@ -800,8 +808,9 @@ static int esw_vport_setup(struct mlx5_eswitch *esw, struct mlx5_vport *vport)
- 
- 	flags = (vport->info.vlan || vport->info.qos) ?
- 		SET_VLAN_STRIP | SET_VLAN_INSERT : 0;
--	modify_esw_vport_cvlan(esw->dev, vport_num, vport->info.vlan,
--			       vport->info.qos, flags);
-+	if (esw->mode == MLX5_ESWITCH_OFFLOADS || !vst_mode_steering)
-+		modify_esw_vport_cvlan(esw->dev, vport_num, vport->info.vlan,
-+				       vport->info.qos, flags);
- 
- 	return 0;
- }
-@@ -1806,6 +1815,7 @@ int __mlx5_eswitch_set_vport_vlan(struct mlx5_eswitch *esw,
- 				  u16 vport, u16 vlan, u8 qos, u8 set_flags)
- {
- 	struct mlx5_vport *evport = mlx5_eswitch_get_vport(esw, vport);
-+	bool vst_mode_steering = esw_vst_mode_is_steering(esw);
- 	int err = 0;
- 
- 	if (IS_ERR(evport))
-@@ -1813,9 +1823,11 @@ int __mlx5_eswitch_set_vport_vlan(struct mlx5_eswitch *esw,
- 	if (vlan > 4095 || qos > 7)
- 		return -EINVAL;
- 
--	err = modify_esw_vport_cvlan(esw->dev, vport, vlan, qos, set_flags);
--	if (err)
--		return err;
-+	if (esw->mode == MLX5_ESWITCH_OFFLOADS || !vst_mode_steering) {
-+		err = modify_esw_vport_cvlan(esw->dev, vport, vlan, qos, set_flags);
-+		if (err)
-+			return err;
-+	}
- 
- 	evport->info.vlan = vlan;
- 	evport->info.qos = qos;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
-index 5ceed4e6c658..03080e8161cb 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
-@@ -513,6 +513,12 @@ int mlx5_eswitch_del_vlan_action(struct mlx5_eswitch *esw,
- int __mlx5_eswitch_set_vport_vlan(struct mlx5_eswitch *esw,
- 				  u16 vport, u16 vlan, u8 qos, u8 set_flags);
- 
-+static inline bool esw_vst_mode_is_steering(struct mlx5_eswitch *esw)
-+{
-+	return (MLX5_CAP_ESW_EGRESS_ACL(esw->dev, pop_vlan) &&
-+		MLX5_CAP_ESW_INGRESS_ACL(esw->dev, push_vlan));
-+}
-+
- static inline bool mlx5_eswitch_vlan_actions_supported(struct mlx5_core_dev *dev,
- 						       u8 vlan_depth)
- {
-diff --git a/include/linux/mlx5/device.h b/include/linux/mlx5/device.h
-index b5f58fd37a0f..4b00221f57e2 100644
---- a/include/linux/mlx5/device.h
-+++ b/include/linux/mlx5/device.h
-@@ -1088,6 +1088,11 @@ enum {
- 	MLX5_VPORT_ADMIN_STATE_AUTO  = 0x2,
- };
- 
-+enum {
-+	MLX5_VPORT_CVLAN_INSERT_WHEN_NO_CVLAN  = 0x1,
-+	MLX5_VPORT_CVLAN_INSERT_ALWAYS         = 0x3,
-+};
-+
- enum {
- 	MLX5_L3_PROT_TYPE_IPV4		= 0,
- 	MLX5_L3_PROT_TYPE_IPV6		= 1,
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index 4acd5610e96b..e640c27b1b6d 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -877,7 +877,8 @@ struct mlx5_ifc_e_switch_cap_bits {
- 	u8         vport_svlan_insert[0x1];
- 	u8         vport_cvlan_insert_if_not_exist[0x1];
- 	u8         vport_cvlan_insert_overwrite[0x1];
--	u8         reserved_at_5[0x2];
-+	u8         reserved_at_5[0x1];
-+	u8         vport_cvlan_insert_always[0x1];
- 	u8         esw_shared_ingress_acl[0x1];
- 	u8         esw_uplink_ingress_acl[0x1];
- 	u8         root_ft_on_other_esw[0x1];
--- 
-2.35.1
-
+ sub wait_for_input {
+@@ -2090,7 +2100,7 @@ sub reboot_to {
+     if ($reboot_type eq "grub") {
+ 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
+     } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
+-	run_ssh "$grub_reboot $grub_number";
++	run_ssh "$grub_reboot \"'$grub_number'\"";
+     } elsif ($reboot_type eq "syslinux") {
+ 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
+     } elsif (defined $reboot_script) {
 
 
