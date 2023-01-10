@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B2766498B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:23:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4B90664A99
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239187AbjAJSW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:22:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36468 "EHLO
+        id S239525AbjAJSd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:33:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239224AbjAJSWG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C07948F29F
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:35 -0800 (PST)
+        with ESMTP id S239317AbjAJScn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2547BC770
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:29:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EC1461864
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 523B4C433EF;
-        Tue, 10 Jan 2023 18:19:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C72ACB818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:29:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10D5EC433F0;
+        Tue, 10 Jan 2023 18:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374774;
-        bh=U0IgMbheWfPsgM7fBPstUM3K0hXuWEkzuDByQym12CE=;
+        s=korg; t=1673375343;
+        bh=lHoniaakvkSjUtvZx9UxJFjUJDpGskCNxSTMNyp3d/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5ckhKcL0vlwc0IPaDuTRT709qravn51QmEed4V62jfWieQnYI5SdHngFs1p6zEyD
-         f9OtZTcug+vjU7x3Zp/8bKVjAmUkqYjisrEoKZ9LelhJ8nLqMEphIoCuDePzlkE0fx
-         f6yC18jDRTWfVvLn3wJoelQSv/ceITWtjAbBkKC4=
+        b=yVj72G6HlJ6rvPvT1VQ+sttqHus9LOHDk7GJfRI96MVGegPv2vOJxc843i+GEFAex
+         zD/Pw5MPAl0/XbfgkQ6G80ODJVgUdbewf3/WFc38w/KOrci/twezEkY+h2ML33//yv
+         H7o06o4PAERxQhZBmvXLMWtI0aUtjQuo3zmON4LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Ming Lei <ming.lei@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 102/159] ublk: honor IO_URING_F_NONBLOCK for handling control command
+        patches@lists.linux.dev,
+        syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com,
+        Jun Nie <jun.nie@linaro.org>, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.15 158/290] ext4: fix kernel BUG in ext4_write_inline_data_end()
 Date:   Tue, 10 Jan 2023 19:04:10 +0100
-Message-Id: <20230110180021.529737547@linuxfoundation.org>
+Message-Id: <20230110180037.335088055@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit fa8e442e832a3647cdd90f3e606c473a51bc1b26 ]
+commit 5c099c4fdc438014d5893629e70a8ba934433ee8 upstream.
 
-Most of control command handlers may sleep, so return -EAGAIN in case
-of IO_URING_F_NONBLOCK to defer the handling into io wq context.
+Syzbot report follow issue:
+------------[ cut here ]------------
+kernel BUG at fs/ext4/inline.c:227!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 3629 Comm: syz-executor212 Not tainted 6.1.0-rc5-syzkaller-00018-g59d0d52c30d4 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+RIP: 0010:ext4_write_inline_data+0x344/0x3e0 fs/ext4/inline.c:227
+RSP: 0018:ffffc90003b3f368 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: ffff8880704e16c0 RCX: 0000000000000000
+RDX: ffff888021763a80 RSI: ffffffff821e31a4 RDI: 0000000000000006
+RBP: 000000000006818e R08: 0000000000000006 R09: 0000000000068199
+R10: 0000000000000079 R11: 0000000000000000 R12: 000000000000000b
+R13: 0000000000068199 R14: ffffc90003b3f408 R15: ffff8880704e1c82
+FS:  000055555723e3c0(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fffe8ac9080 CR3: 0000000079f81000 CR4: 0000000000350ee0
+Call Trace:
+ <TASK>
+ ext4_write_inline_data_end+0x2a3/0x12f0 fs/ext4/inline.c:768
+ ext4_write_end+0x242/0xdd0 fs/ext4/inode.c:1313
+ ext4_da_write_end+0x3ed/0xa30 fs/ext4/inode.c:3063
+ generic_perform_write+0x316/0x570 mm/filemap.c:3764
+ ext4_buffered_write_iter+0x15b/0x460 fs/ext4/file.c:285
+ ext4_file_write_iter+0x8bc/0x16e0 fs/ext4/file.c:700
+ call_write_iter include/linux/fs.h:2191 [inline]
+ do_iter_readv_writev+0x20b/0x3b0 fs/read_write.c:735
+ do_iter_write+0x182/0x700 fs/read_write.c:861
+ vfs_iter_write+0x74/0xa0 fs/read_write.c:902
+ iter_file_splice_write+0x745/0xc90 fs/splice.c:686
+ do_splice_from fs/splice.c:764 [inline]
+ direct_splice_actor+0x114/0x180 fs/splice.c:931
+ splice_direct_to_actor+0x335/0x8a0 fs/splice.c:886
+ do_splice_direct+0x1ab/0x280 fs/splice.c:974
+ do_sendfile+0xb19/0x1270 fs/read_write.c:1255
+ __do_sys_sendfile64 fs/read_write.c:1323 [inline]
+ __se_sys_sendfile64 fs/read_write.c:1309 [inline]
+ __x64_sys_sendfile64+0x1d0/0x210 fs/read_write.c:1309
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+---[ end trace 0000000000000000 ]---
 
-Fixes: 71f28f3136af ("ublk_drv: add io_uring based userspace block driver")
-Reported-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20230104133235.836536-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Above issue may happens as follows:
+ext4_da_write_begin
+  ext4_da_write_inline_data_begin
+    ext4_da_convert_inline_data_to_extent
+      ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+ext4_da_write_end
+
+ext4_run_li_request
+  ext4_mb_prefetch
+    ext4_read_block_bitmap_nowait
+      ext4_validate_block_bitmap
+        ext4_mark_group_bitmap_corrupted(sb, block_group, EXT4_GROUP_INFO_BBITMAP_CORRUPT)
+	 percpu_counter_sub(&sbi->s_freeclusters_counter,grp->bb_free);
+	  -> sbi->s_freeclusters_counter become zero
+ext4_da_write_begin
+  if (ext4_nonda_switch(inode->i_sb)) -> As freeclusters_counter is zero will return true
+    *fsdata = (void *)FALL_BACK_TO_NONDELALLOC;
+    ext4_write_begin
+ext4_da_write_end
+  if (write_mode == FALL_BACK_TO_NONDELALLOC)
+    ext4_write_end
+      if (inline_data)
+        ext4_write_inline_data_end
+	  ext4_write_inline_data
+	    BUG_ON(pos + len > EXT4_I(inode)->i_inline_size);
+           -> As inode is already convert to extent, so 'pos + len' > inline_size
+	   -> then trigger BUG.
+
+To solve this issue, instead of checking ext4_has_inline_data() which
+is only cleared after data has been written back, check the
+EXT4_STATE_MAY_INLINE_DATA flag in ext4_write_end().
+
+Fixes: f19d5870cbf7 ("ext4: add normal write support for inline data")
+Reported-by: syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com
+Reported-by: Jun Nie <jun.nie@linaro.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20221206144134.1919987-1-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/ublk_drv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/inode.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/ublk_drv.c b/drivers/block/ublk_drv.c
-index e9de9d846b73..17b677b5d3b2 100644
---- a/drivers/block/ublk_drv.c
-+++ b/drivers/block/ublk_drv.c
-@@ -1992,6 +1992,9 @@ static int ublk_ctrl_uring_cmd(struct io_uring_cmd *cmd,
- 	struct ublksrv_ctrl_cmd *header = (struct ublksrv_ctrl_cmd *)cmd->cmd;
- 	int ret = -EINVAL;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1304,7 +1304,8 @@ static int ext4_write_end(struct file *f
  
-+	if (issue_flags & IO_URING_F_NONBLOCK)
-+		return -EAGAIN;
-+
- 	ublk_ctrl_cmd_dump(cmd);
+ 	trace_ext4_write_end(inode, pos, len, copied);
  
- 	if (!(issue_flags & IO_URING_F_SQE128))
--- 
-2.35.1
-
+-	if (ext4_has_inline_data(inode))
++	if (ext4_has_inline_data(inode) &&
++	    ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA))
+ 		return ext4_write_inline_data_end(inode, pos, len, copied, page);
+ 
+ 	copied = block_write_end(file, mapping, pos, len, copied, page, fsdata);
 
 
