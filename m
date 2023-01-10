@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57DAE663ACC
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 09:20:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D4C663AD9
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 09:22:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229958AbjAJIUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 03:20:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49146 "EHLO
+        id S231316AbjAJIWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 03:22:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229660AbjAJIUE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 03:20:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E088542E2C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 00:20:03 -0800 (PST)
+        with ESMTP id S231534AbjAJIWU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 03:22:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9037443A10
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 00:22:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FFA3B81106
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:20:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64E83C433D2;
-        Tue, 10 Jan 2023 08:20:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2625E614EC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:22:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF1DBC433D2;
+        Tue, 10 Jan 2023 08:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673338800;
-        bh=d50POXJpH48ogqKbH6/NVl9b6SbiE/OCysc2+IVmtgk=;
+        s=korg; t=1673338938;
+        bh=WwzjxzeVBkmw76nxLR4gyKwrVd42FfTlLZKFkHBuAKM=;
         h=Subject:To:Cc:From:Date:From;
-        b=hd1f/mp7NBQ5o/qXO4PArzWz1S6o78uZV25sxHCGEZM69YRTtp+Z4Vr/D9AyCxFxL
-         B912n5Ck7u+xbcVkdGMep3eqkZGTnSalU/GX1Qzef/F1Eb2mgjUvhSftt8ts5DjGWD
-         gq33tfxX4GqhQ6AoLf/LcKndUG6BX1NY2zS4rwFU=
-Subject: FAILED: patch "[PATCH] drm/amd/display: Uninitialized variables causing 4k60 UCLK to" failed to apply to 6.0-stable tree
-To:     samson.tam@amd.com, alexander.deucher@amd.com, aric.cyr@amd.com,
-        aurabindo.pillai@amd.com, daniel.wheeler@amd.com
+        b=w0anSUitsQisxE8HSpvg0/gns+cWJlOETlA644gkZBhUBlSqcZqR3Ebqe5Er1t6hR
+         zo7g+bxSybbNikFSH2AUHyASF3SyuvF310XxooBJZ82yCSYYqIafppFWQIbC8UjvBw
+         Yx76lndFXIbiIMqklAI1SlXfnTXIjYkWEyyls46M=
+Subject: FAILED: patch "[PATCH] drm/i915/gvt: fix gvt debugfs destroy" failed to apply to 4.19-stable tree
+To:     zhenyuw@linux.intel.com, yu.he@intel.com, zhi.a.wang@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Jan 2023 09:19:49 +0100
-Message-ID: <1673338789226131@kroah.com>
+Date:   Tue, 10 Jan 2023 09:22:10 +0100
+Message-ID: <16733389306175@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,15 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.0-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-f3c23bea598a ("drm/amd/display: Uninitialized variables causing 4k60 UCLK to stay at DPM1 and not DPM0")
-6d4727c80947 ("drm/amd/display: Add check for DET fetch latency hiding for dcn32")
+c4b850d1f448 ("drm/i915/gvt: fix gvt debugfs destroy")
 
 thanks,
 
@@ -64,44 +62,92 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f3c23bea598ab7e8e4b8c5ca66598921310f718e Mon Sep 17 00:00:00 2001
-From: Samson Tam <samson.tam@amd.com>
-Date: Mon, 5 Dec 2022 11:08:40 -0500
-Subject: [PATCH] drm/amd/display: Uninitialized variables causing 4k60 UCLK to
- stay at DPM1 and not DPM0
+From c4b850d1f448a901fbf4f7f36dec38c84009b489 Mon Sep 17 00:00:00 2001
+From: Zhenyu Wang <zhenyuw@linux.intel.com>
+Date: Mon, 19 Dec 2022 22:03:56 +0800
+Subject: [PATCH] drm/i915/gvt: fix gvt debugfs destroy
 
-[Why]
-SwathSizePerSurfaceY[] and SwathSizePerSurfaceC[] values are uninitialized
- because we are using += instead of = operator.
+When gvt debug fs is destroyed, need to have a sane check if drm
+minor's debugfs root is still available or not, otherwise in case like
+device remove through unbinding, drm minor's debugfs directory has
+already been removed, then intel_gvt_debugfs_clean() would act upon
+dangling pointer like below oops.
 
-[How]
-Assign values in loop with = operator.
+i915 0000:00:02.0: Direct firmware load for i915/gvt/vid_0x8086_did_0x1926_rid_0x0a.golden_hw_state failed with error -2
+i915 0000:00:02.0: MDEV: Registered
+Console: switching to colour dummy device 80x25
+i915 0000:00:02.0: MDEV: Unregistering
+BUG: kernel NULL pointer dereference, address: 00000000000000a0
+PGD 0 P4D 0
+Oops: 0002 [#1] PREEMPT SMP PTI
+CPU: 2 PID: 2486 Comm: gfx-unbind.sh Tainted: G          I        6.1.0-rc8+ #15
+Hardware name: Dell Inc. XPS 13 9350/0JXC1H, BIOS 1.13.0 02/10/2020
+RIP: 0010:down_write+0x1f/0x90
+Code: 1d ff ff 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 53 48 89 fb e8 62 c0 ff ff bf 01 00 00 00 e8 28 5e 31 ff 31 c0 ba 01 00 00 00 <f0> 48 0f b1 13 75 33 65 48 8b 04 25 c0 bd 01 00 48 89 43 08 bf 01
+RSP: 0018:ffff9eb3036ffcc8 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 00000000000000a0 RCX: ffffff8100000000
+RDX: 0000000000000001 RSI: 0000000000000064 RDI: ffffffffa48787a8
+RBP: ffff9eb3036ffd30 R08: ffffeb1fc45a0608 R09: ffffeb1fc45a05c0
+R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff91acc33fa328 R14: ffff91acc033f080 R15: ffff91acced533e0
+FS:  00007f6947bba740(0000) GS:ffff91ae36d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000000000a0 CR3: 00000001133a2002 CR4: 00000000003706e0
+Call Trace:
+ <TASK>
+ simple_recursive_removal+0x9f/0x2a0
+ ? start_creating.part.0+0x120/0x120
+ ? _raw_spin_lock+0x13/0x40
+ debugfs_remove+0x40/0x60
+ intel_gvt_debugfs_clean+0x15/0x30 [kvmgt]
+ intel_gvt_clean_device+0x49/0xe0 [kvmgt]
+ intel_gvt_driver_remove+0x2f/0xb0
+ i915_driver_remove+0xa4/0xf0
+ i915_pci_remove+0x1a/0x30
+ pci_device_remove+0x33/0xa0
+ device_release_driver_internal+0x1b2/0x230
+ unbind_store+0xe0/0x110
+ kernfs_fop_write_iter+0x11b/0x1f0
+ vfs_write+0x203/0x3d0
+ ksys_write+0x63/0xe0
+ do_syscall_64+0x37/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f6947cb5190
+Code: 40 00 48 8b 15 71 9c 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 80 3d 51 24 0e 00 00 74 17 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83 ec 28 48 89
+RSP: 002b:00007ffcbac45a28 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 000000000000000d RCX: 00007f6947cb5190
+RDX: 000000000000000d RSI: 0000555e35c866a0 RDI: 0000000000000001
+RBP: 0000555e35c866a0 R08: 0000000000000002 R09: 0000555e358cb97c
+R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000000001
+R13: 000000000000000d R14: 0000000000000000 R15: 0000555e358cb8e0
+ </TASK>
+Modules linked in: kvmgt
+CR2: 00000000000000a0
+---[ end trace 0000000000000000 ]---
 
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Samson Tam <samson.tam@amd.com>
-Reviewed-by: Aric Cyr <aric.cyr@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.0.x, 6.1.x
+Cc: Wang, Zhi <zhi.a.wang@intel.com>
+Cc: He, Yu <yu.he@intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
+Fixes: bc7b0be316ae ("drm/i915/gvt: Add basic debugfs infrastructure")
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20221219140357.769557-1-zhenyuw@linux.intel.com
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c
-index 5af601cff1a0..b53feeaf5cf1 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c
-@@ -6257,12 +6257,12 @@ bool dml32_CalculateDETSwathFillLatencyHiding(unsigned int NumberOfActiveSurface
- 	double SwathSizePerSurfaceC[DC__NUM_DPP__MAX];
- 	bool NotEnoughDETSwathFillLatencyHiding = false;
- 
--	/* calculate sum of single swath size for all pipes in bytes*/
-+	/* calculate sum of single swath size for all pipes in bytes */
- 	for (k = 0; k < NumberOfActiveSurfaces; k++) {
--		SwathSizePerSurfaceY[k] += SwathHeightY[k] * SwathWidthY[k] * BytePerPixelInDETY[k] * NumOfDPP[k];
-+		SwathSizePerSurfaceY[k] = SwathHeightY[k] * SwathWidthY[k] * BytePerPixelInDETY[k] * NumOfDPP[k];
- 
- 		if (SwathHeightC[k] != 0)
--			SwathSizePerSurfaceC[k] += SwathHeightC[k] * SwathWidthC[k] * BytePerPixelInDETC[k] * NumOfDPP[k];
-+			SwathSizePerSurfaceC[k] = SwathHeightC[k] * SwathWidthC[k] * BytePerPixelInDETC[k] * NumOfDPP[k];
- 		else
- 			SwathSizePerSurfaceC[k] = 0;
- 
+diff --git a/drivers/gpu/drm/i915/gvt/debugfs.c b/drivers/gpu/drm/i915/gvt/debugfs.c
+index 9f1c209d9251..d7df27feee8c 100644
+--- a/drivers/gpu/drm/i915/gvt/debugfs.c
++++ b/drivers/gpu/drm/i915/gvt/debugfs.c
+@@ -199,6 +199,10 @@ void intel_gvt_debugfs_init(struct intel_gvt *gvt)
+  */
+ void intel_gvt_debugfs_clean(struct intel_gvt *gvt)
+ {
+-	debugfs_remove_recursive(gvt->debugfs_root);
+-	gvt->debugfs_root = NULL;
++	struct drm_minor *minor = gvt->gt->i915->drm.primary;
++
++	if (minor->debugfs_root) {
++		debugfs_remove_recursive(gvt->debugfs_root);
++		gvt->debugfs_root = NULL;
++	}
+ }
 
