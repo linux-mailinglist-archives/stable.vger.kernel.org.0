@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31239664952
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1025A6648BB
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:14:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239182AbjAJSUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:20:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58816 "EHLO
+        id S234759AbjAJSOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:14:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239262AbjAJSUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ABD09236C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:42 -0800 (PST)
+        with ESMTP id S239234AbjAJSNx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:13:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0930188DD4
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACE196183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF02FC433EF;
-        Tue, 10 Jan 2023 18:17:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EF0E6184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09CC6C433EF;
+        Tue, 10 Jan 2023 18:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374661;
-        bh=j1WvO70Pg2EFn4KmvJ4S33yhxRpbrPQthKjGMxFVn94=;
+        s=korg; t=1673374338;
+        bh=5aFHYIVxMfb6Kc0qnVsY3n++IxGDVygAskwKw6gclMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QuUDL5ocIXGuvzMsGovNg9d2pUe8XRr0VC+71PoFfogGvc/W9S779ssNzdzLrGf1+
-         ZQyc2A+qRwuUg2f4PfPmcXV/freYgG4zbXHnEzrKC7OmPWsSCI3oqJsynfUhBItbBW
-         4zalf9m59MxwWTjDobwKXnMFB/vSS86z7QuA+ljU=
+        b=h723iLCsNCvp1hAJ/Rs58qvAkeExxgovP9LS6tuUICuCd8bPinL13ha8uQEh/43QT
+         0Q54SU5Gs5ACLXodna10g2XNc1yQlAQfM2S6NQ34B/AHcw+0G6UyqBZFiTQZgW8k8J
+         i60eJUaZv/NIdn7Q9TVelBmRH1Gbas+/EZTN1Xf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 090/159] drm/virtio: Fix memory leak in virtio_gpu_object_create()
+        patches@lists.linux.dev, Ben Dooks <ben-linux@fluff.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.0 134/148] riscv: uaccess: fix type of 0 variable on error in get_user()
 Date:   Tue, 10 Jan 2023 19:03:58 +0100
-Message-Id: <20230110180021.167187566@linuxfoundation.org>
+Message-Id: <20230110180021.430080179@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Ben Dooks <ben-linux@fluff.org>
 
-[ Upstream commit a764da46cd15f8b40292d2c0b29c4bf9a3e66c7e ]
+commit b9b916aee6715cd7f3318af6dc360c4729417b94 upstream.
 
-The virtio_gpu_object_shmem_init() will alloc memory and save it in
-@ents, so when virtio_gpu_array_alloc() fails, this memory should be
-freed, this patch fixes it.
+If the get_user(x, ptr) has x as a pointer, then the setting
+of (x) = 0 is going to produce the following sparse warning,
+so fix this by forcing the type of 'x' when access_ok() fails.
 
-Fixes: e7fef0923303 ("drm/virtio: Simplify error handling of virtio_gpu_object_create()")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221109091905.55451-1-xiujianfeng@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+fs/aio.c:2073:21: warning: Using plain integer as NULL pointer
+
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/r/20221229170545.718264-1-ben-linux@fluff.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_object.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/riscv/include/asm/uaccess.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 8d7728181de0..c7e74cf13022 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -184,7 +184,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 	struct virtio_gpu_object_array *objs = NULL;
- 	struct drm_gem_shmem_object *shmem_obj;
- 	struct virtio_gpu_object *bo;
--	struct virtio_gpu_mem_entry *ents;
-+	struct virtio_gpu_mem_entry *ents = NULL;
- 	unsigned int nents;
- 	int ret;
+--- a/arch/riscv/include/asm/uaccess.h
++++ b/arch/riscv/include/asm/uaccess.h
+@@ -165,7 +165,7 @@ do {								\
+ 	might_fault();						\
+ 	access_ok(__p, sizeof(*__p)) ?		\
+ 		__get_user((x), __p) :				\
+-		((x) = 0, -EFAULT);				\
++		((x) = (__force __typeof__(x))0, -EFAULT);	\
+ })
  
-@@ -210,7 +210,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 		ret = -ENOMEM;
- 		objs = virtio_gpu_array_alloc(1);
- 		if (!objs)
--			goto err_put_id;
-+			goto err_free_entry;
- 		virtio_gpu_array_add_obj(objs, &bo->base.base);
- 
- 		ret = virtio_gpu_array_lock_resv(objs);
-@@ -239,6 +239,8 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 
- err_put_objs:
- 	virtio_gpu_array_put_free(objs);
-+err_free_entry:
-+	kvfree(ents);
- err_put_id:
- 	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
- err_free_gem:
--- 
-2.35.1
-
+ #define __put_user_asm(insn, x, ptr, err)			\
 
 
