@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0F7666487A
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0432C664A03
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238755AbjAJSL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48898 "EHLO
+        id S239132AbjAJS3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:29:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239109AbjAJSKg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F47AFE8
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:35 -0800 (PST)
+        with ESMTP id S239349AbjAJS2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F706C770
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 200CDB818E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 785B9C433EF;
-        Tue, 10 Jan 2023 18:09:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 083E6B818EF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C8B2C433F1;
+        Tue, 10 Jan 2023 18:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374172;
-        bh=hheDl6dpJScVhrmPq2AAcUlVM0ti6E2A5kbDfg9FTRI=;
+        s=korg; t=1673375029;
+        bh=QnvjRGIqM9Ckpjf65P+sC2J/8O32NT2H6LdMzphI6l0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0VEpugw/SBifXPCMhq+z3k/PZ6gY44oa3UKOsNVc3aypvR1z5TiU4LWYsI+WgkpL
-         E9vz+ThMSukn3I3gzKrewv0r0pwyA0iNdCNnIjSAZHL2F6xXx3jBob3AcHPS5B/SzP
-         KzPAg77BLwE+u+YhKt0dRWlBaxVCUK1IN+/7es8o=
+        b=X28SN7WtgxNuU1lZAcfrRRrjWPRGdCMsmj2UJaTSE0pOtcj7smDb+fvFAkP8GTumm
+         NxG2AEZGXrVNtVXiw0KXbTry0n80mCT8xcdamwB+U10D7QhOMMnfvLDVBt+6fOPQ9Z
+         bdqFzvh/HXCeti7jGvULaAPBes7tNEsfd4/4Gppw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 042/148] vhost/vsock: Fix error handling in vhost_vsock_init()
+        patches@lists.linux.dev, Marco Elver <elver@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.15 054/290] kcsan: Instrument memcpy/memset/memmove with newer Clang
 Date:   Tue, 10 Jan 2023 19:02:26 +0100
-Message-Id: <20230110180018.554368086@linuxfoundation.org>
+Message-Id: <20230110180033.481725091@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +52,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 7a4efe182ca61fb3e5307e69b261c57cbf434cd4 ]
+commit 7c201739beef1a586d806463f1465429cdce34c5 upstream.
 
-A problem about modprobe vhost_vsock failed is triggered with the
-following log given:
+With Clang version 16+, -fsanitize=thread will turn
+memcpy/memset/memmove calls in instrumented functions into
+__tsan_memcpy/__tsan_memset/__tsan_memmove calls respectively.
 
-modprobe: ERROR: could not insert 'vhost_vsock': Device or resource busy
+Add these functions to the core KCSAN runtime, so that we (a) catch data
+races with mem* functions, and (b) won't run into linker errors with
+such newer compilers.
 
-The reason is that vhost_vsock_init() returns misc_register() directly
-without checking its return value, if misc_register() failed, it returns
-without calling vsock_core_unregister() on vhost_transport, resulting the
-vhost_vsock can never be installed later.
-A simple call graph is shown as below:
-
- vhost_vsock_init()
-   vsock_core_register() # register vhost_transport
-   misc_register()
-     device_create_with_groups()
-       device_create_groups_vargs()
-         dev = kzalloc(...) # OOM happened
-   # return without unregister vhost_transport
-
-Fix by calling vsock_core_unregister() when misc_register() returns error.
-
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Message-Id: <20221108101705.45981-1-yuancan@huawei.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+[ elver@google.com: adjust check_access() call for v5.15 and earlier. ]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vsock.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ kernel/kcsan/core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 5703775af129..10a7d23731fe 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -959,7 +959,14 @@ static int __init vhost_vsock_init(void)
- 				  VSOCK_TRANSPORT_F_H2G);
- 	if (ret < 0)
- 		return ret;
--	return misc_register(&vhost_vsock_misc);
-+
-+	ret = misc_register(&vhost_vsock_misc);
-+	if (ret) {
-+		vsock_core_unregister(&vhost_transport.transport);
-+		return ret;
-+	}
-+
-+	return 0;
- };
+--- a/kernel/kcsan/core.c
++++ b/kernel/kcsan/core.c
+@@ -14,10 +14,12 @@
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/list.h>
++#include <linux/minmax.h>
+ #include <linux/moduleparam.h>
+ #include <linux/percpu.h>
+ #include <linux/preempt.h>
+ #include <linux/sched.h>
++#include <linux/string.h>
+ #include <linux/uaccess.h>
  
- static void __exit vhost_vsock_exit(void)
--- 
-2.35.1
-
+ #include "encoding.h"
+@@ -1060,3 +1062,51 @@ EXPORT_SYMBOL(__tsan_atomic_thread_fence
+ void __tsan_atomic_signal_fence(int memorder);
+ void __tsan_atomic_signal_fence(int memorder) { }
+ EXPORT_SYMBOL(__tsan_atomic_signal_fence);
++
++#ifdef __HAVE_ARCH_MEMSET
++void *__tsan_memset(void *s, int c, size_t count);
++noinline void *__tsan_memset(void *s, int c, size_t count)
++{
++	/*
++	 * Instead of not setting up watchpoints where accessed size is greater
++	 * than MAX_ENCODABLE_SIZE, truncate checked size to MAX_ENCODABLE_SIZE.
++	 */
++	size_t check_len = min_t(size_t, count, MAX_ENCODABLE_SIZE);
++
++	check_access(s, check_len, KCSAN_ACCESS_WRITE);
++	return memset(s, c, count);
++}
++#else
++void *__tsan_memset(void *s, int c, size_t count) __alias(memset);
++#endif
++EXPORT_SYMBOL(__tsan_memset);
++
++#ifdef __HAVE_ARCH_MEMMOVE
++void *__tsan_memmove(void *dst, const void *src, size_t len);
++noinline void *__tsan_memmove(void *dst, const void *src, size_t len)
++{
++	size_t check_len = min_t(size_t, len, MAX_ENCODABLE_SIZE);
++
++	check_access(dst, check_len, KCSAN_ACCESS_WRITE);
++	check_access(src, check_len, 0);
++	return memmove(dst, src, len);
++}
++#else
++void *__tsan_memmove(void *dst, const void *src, size_t len) __alias(memmove);
++#endif
++EXPORT_SYMBOL(__tsan_memmove);
++
++#ifdef __HAVE_ARCH_MEMCPY
++void *__tsan_memcpy(void *dst, const void *src, size_t len);
++noinline void *__tsan_memcpy(void *dst, const void *src, size_t len)
++{
++	size_t check_len = min_t(size_t, len, MAX_ENCODABLE_SIZE);
++
++	check_access(dst, check_len, KCSAN_ACCESS_WRITE);
++	check_access(src, check_len, 0);
++	return memcpy(dst, src, len);
++}
++#else
++void *__tsan_memcpy(void *dst, const void *src, size_t len) __alias(memcpy);
++#endif
++EXPORT_SYMBOL(__tsan_memcpy);
 
 
