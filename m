@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E4D664A88
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2870B6648C5
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233930AbjAJSdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:33:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46106 "EHLO
+        id S238872AbjAJSOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:14:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238268AbjAJScf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:35 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DAAE299
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:24 -0800 (PST)
+        with ESMTP id S239212AbjAJSNs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:13:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D84E87936
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EC272CE18D1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8271C433D2;
-        Tue, 10 Jan 2023 18:28:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EF0B617EC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C8E9C433F0;
+        Tue, 10 Jan 2023 18:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375301;
-        bh=hKrALJRB+rNEnhaaKB9mnPcW4CZbiNZso1Pnh6B0U2c=;
+        s=korg; t=1673374335;
+        bh=sivQZ7fBkirVjV4uvmddVbqfmKT1DffMkbAStZfykFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQeLhxfOtnOFhQghICuDVFYo2d/OiQX+vybUsvadsAgRue4722AL1JU94J94ISney
-         jKp72MiZeEWHPc2vyjJ/UEqDyvOdfnWToobRYTl2bem/hLS6oUMa90f9BR2aWZo/pq
-         BQ+nNRBEvu+zDci4/g8mj5wyLJWfLudm8jAHjCuc=
+        b=uipbvU2DCwVdfsyC7oMDs3vzypNnTbdDvoAnG/p/ZwPgVoZB79aaA/Rg2Wm/f0IV2
+         kWfRcITI3cdNe68YlyVBCf/NqXOL9Uedei5VSAsvwoGpJ6yS6l8amqxDcFHEju2+60
+         3/CLLf1CeAn5oloEKgn3JG+IXOULFO3pKJnq4aSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.15 145/290] ext4: add EXT4_IGET_BAD flag to prevent unexpected bad inode
+        patches@lists.linux.dev,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 6.0 133/148] thermal: int340x: Add missing attribute for data rate base
 Date:   Tue, 10 Jan 2023 19:03:57 +0100
-Message-Id: <20230110180036.844244093@linuxfoundation.org>
+Message-Id: <20230110180021.398134936@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-commit 63b1e9bccb71fe7d7e3ddc9877dbdc85e5d2d023 upstream.
+commit b878d3ba9bb41cddb73ba4b56e5552f0a638daca upstream.
 
-There are many places that will get unhappy (and crash) when ext4_iget()
-returns a bad inode. However, if iget the boot loader inode, allows a bad
-inode to be returned, because the inode may not be initialized. This
-mechanism can be used to bypass some checks and cause panic. To solve this
-problem, we add a special iget flag EXT4_IGET_BAD. Only with this flag
-we'd be returning bad inode from ext4_iget(), otherwise we always return
-the error code if the inode is bad inode.(suggested by Jan Kara)
+Commit 473be51142ad ("thermal: int340x: processor_thermal: Add RFIM
+driver")' added rfi_restriction_data_rate_base string, mmio details and
+documentation, but missed adding attribute to sysfs.
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221026042310.3839669-4-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Add missing sysfs attribute.
+
+Fixes: 473be51142ad ("thermal: int340x: processor_thermal: Add RFIM driver")
+Cc: 5.11+ <stable@vger.kernel.org> # v5.11+
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h  |    3 ++-
- fs/ext4/inode.c |    8 +++++++-
- fs/ext4/ioctl.c |    3 ++-
- 3 files changed, 11 insertions(+), 3 deletions(-)
+ drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2996,7 +2996,8 @@ int do_journal_get_write_access(handle_t
- typedef enum {
- 	EXT4_IGET_NORMAL =	0,
- 	EXT4_IGET_SPECIAL =	0x0001, /* OK to iget a system inode */
--	EXT4_IGET_HANDLE = 	0x0002	/* Inode # is from a handle */
-+	EXT4_IGET_HANDLE = 	0x0002,	/* Inode # is from a handle */
-+	EXT4_IGET_BAD =		0x0004  /* Allow to iget a bad inode */
- } ext4_iget_flags;
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
+@@ -172,6 +172,7 @@ static const struct attribute_group fivr
+ RFIM_SHOW(rfi_restriction_run_busy, 1)
+ RFIM_SHOW(rfi_restriction_err_code, 1)
+ RFIM_SHOW(rfi_restriction_data_rate, 1)
++RFIM_SHOW(rfi_restriction_data_rate_base, 1)
+ RFIM_SHOW(ddr_data_rate_point_0, 1)
+ RFIM_SHOW(ddr_data_rate_point_1, 1)
+ RFIM_SHOW(ddr_data_rate_point_2, 1)
+@@ -181,11 +182,13 @@ RFIM_SHOW(rfi_disable, 1)
+ RFIM_STORE(rfi_restriction_run_busy, 1)
+ RFIM_STORE(rfi_restriction_err_code, 1)
+ RFIM_STORE(rfi_restriction_data_rate, 1)
++RFIM_STORE(rfi_restriction_data_rate_base, 1)
+ RFIM_STORE(rfi_disable, 1)
  
- extern struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4885,8 +4885,14 @@ struct inode *__ext4_iget(struct super_b
- 	if (IS_CASEFOLDED(inode) && !ext4_has_feature_casefold(inode->i_sb))
- 		ext4_error_inode(inode, function, line, 0,
- 				 "casefold flag without casefold feature");
--	brelse(iloc.bh);
-+	if (is_bad_inode(inode) && !(flags & EXT4_IGET_BAD)) {
-+		ext4_error_inode(inode, function, line, 0,
-+				 "bad inode without EXT4_IGET_BAD flag");
-+		ret = -EUCLEAN;
-+		goto bad_inode;
-+	}
- 
-+	brelse(iloc.bh);
- 	unlock_new_inode(inode);
- 	return inode;
- 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -124,7 +124,8 @@ static long swap_inode_boot_loader(struc
- 	blkcnt_t blocks;
- 	unsigned short bytes;
- 
--	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO, EXT4_IGET_SPECIAL);
-+	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO,
-+			EXT4_IGET_SPECIAL | EXT4_IGET_BAD);
- 	if (IS_ERR(inode_bl))
- 		return PTR_ERR(inode_bl);
- 	ei_bl = EXT4_I(inode_bl);
+ static DEVICE_ATTR_RW(rfi_restriction_run_busy);
+ static DEVICE_ATTR_RW(rfi_restriction_err_code);
+ static DEVICE_ATTR_RW(rfi_restriction_data_rate);
++static DEVICE_ATTR_RW(rfi_restriction_data_rate_base);
+ static DEVICE_ATTR_RO(ddr_data_rate_point_0);
+ static DEVICE_ATTR_RO(ddr_data_rate_point_1);
+ static DEVICE_ATTR_RO(ddr_data_rate_point_2);
+@@ -248,6 +251,7 @@ static struct attribute *dvfs_attrs[] =
+ 	&dev_attr_rfi_restriction_run_busy.attr,
+ 	&dev_attr_rfi_restriction_err_code.attr,
+ 	&dev_attr_rfi_restriction_data_rate.attr,
++	&dev_attr_rfi_restriction_data_rate_base.attr,
+ 	&dev_attr_ddr_data_rate_point_0.attr,
+ 	&dev_attr_ddr_data_rate_point_1.attr,
+ 	&dev_attr_ddr_data_rate_point_2.attr,
 
 
