@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F806649AA
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4747E664AF3
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239242AbjAJSXx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:23:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38272 "EHLO
+        id S239382AbjAJSiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:38:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239320AbjAJSWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA1926C0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:21 -0800 (PST)
+        with ESMTP id S239628AbjAJShY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F4C5B491
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F7F36182C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B017AC433D2;
-        Tue, 10 Jan 2023 18:20:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B03161852
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97AACC433EF;
+        Tue, 10 Jan 2023 18:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374820;
-        bh=9yfrKjpoLfam7sqSxNdXGHK6ZdtMKk+di4SnzdkCxu4=;
+        s=korg; t=1673375558;
+        bh=NuUtDbxuA3n3PBjoaCTEehvd5Xsx/FEgE/wkr6Y4rKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNkoFtwyN+NPUvDTxgiviQejlosdgXYUKcJbi2Cc/t2ack9eF9bDKZjZz+AARbcQ/
-         UMzkQMzUSka5ccgyUFhMGvZSV5ON3opqq8ovtyOXg1VPiL8v/e1Prje4u5GKFTPBgU
-         cPaZ8OYFSE4zDgc2iYd9igKAmQ+BfsvatCpZUbVw=
+        b=GPvpQ3ytGBQwmyX8OJlWIgeS/hLVSEE51IHidZf1Cx90k0AaM5qMgEIgsmkTTRelT
+         W4NUYI9oMMRMrkzTGV5cRRglacWeTfzoWqdo7vq3esUc+cLymxibBecPv8KgnB6Eyu
+         7mKL0ljeB2/qjHO2Zen+TUQlAL2lxGyBMsoAIPWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mukul Joshi <mukul.joshi@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 145/159] drm/amdkfd: Fix kernel warning during topology setup
+        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 201/290] netfilter: nf_tables: consolidate set description
 Date:   Tue, 10 Jan 2023 19:04:53 +0100
-Message-Id: <20230110180023.096589987@linuxfoundation.org>
+Message-Id: <20230110180038.905078986@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +52,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mukul Joshi <mukul.joshi@amd.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit cf97eb7e47d4671084c7e114c5d88a3d0540ecbd upstream.
+[ Upstream commit bed4a63ea4ae77cfe5aae004ef87379f0655260a ]
 
-This patch fixes the following kernel warning seen during
-driver load by correctly initializing the p2plink attr before
-creating the sysfs file:
+Add the following fields to the set description:
 
-[  +0.002865] ------------[ cut here ]------------
-[  +0.002327] kobject: '(null)' (0000000056260cfb): is not initialized, yet kobject_put() is being called.
-[  +0.004780] WARNING: CPU: 32 PID: 1006 at lib/kobject.c:718 kobject_put+0xaa/0x1c0
-[  +0.001361] Call Trace:
-[  +0.001234]  <TASK>
-[  +0.001067]  kfd_remove_sysfs_node_entry+0x24a/0x2d0 [amdgpu]
-[  +0.003147]  kfd_topology_update_sysfs+0x3d/0x750 [amdgpu]
-[  +0.002890]  kfd_topology_add_device+0xbd7/0xc70 [amdgpu]
-[  +0.002844]  ? lock_release+0x13c/0x2e0
-[  +0.001936]  ? smu_cmn_send_smc_msg_with_param+0x1e8/0x2d0 [amdgpu]
-[  +0.003313]  ? amdgpu_dpm_get_mclk+0x54/0x60 [amdgpu]
-[  +0.002703]  kgd2kfd_device_init.cold+0x39f/0x4ed [amdgpu]
-[  +0.002930]  amdgpu_amdkfd_device_init+0x13d/0x1f0 [amdgpu]
-[  +0.002944]  amdgpu_device_init.cold+0x1464/0x17b4 [amdgpu]
-[  +0.002970]  ? pci_bus_read_config_word+0x43/0x80
-[  +0.002380]  amdgpu_driver_load_kms+0x15/0x100 [amdgpu]
-[  +0.002744]  amdgpu_pci_probe+0x147/0x370 [amdgpu]
-[  +0.002522]  local_pci_probe+0x40/0x80
-[  +0.001896]  work_for_cpu_fn+0x10/0x20
-[  +0.001892]  process_one_work+0x26e/0x5a0
-[  +0.002029]  worker_thread+0x1fd/0x3e0
-[  +0.001890]  ? process_one_work+0x5a0/0x5a0
-[  +0.002115]  kthread+0xea/0x110
-[  +0.001618]  ? kthread_complete_and_exit+0x20/0x20
-[  +0.002422]  ret_from_fork+0x1f/0x30
-[  +0.001808]  </TASK>
-[  +0.001103] irq event stamp: 59837
-[  +0.001718] hardirqs last  enabled at (59849): [<ffffffffb30fab12>] __up_console_sem+0x52/0x60
-[  +0.004414] hardirqs last disabled at (59860): [<ffffffffb30faaf7>] __up_console_sem+0x37/0x60
-[  +0.004414] softirqs last  enabled at (59654): [<ffffffffb307d9c7>] irq_exit_rcu+0xd7/0x130
-[  +0.004205] softirqs last disabled at (59649): [<ffffffffb307d9c7>] irq_exit_rcu+0xd7/0x130
-[  +0.004203] ---[ end trace 0000000000000000 ]---
+- key type
+- data type
+- object type
+- policy
+- gc_int: garbage collection interval)
+- timeout: element timeout
 
-Fixes: 0f28cca87e9a ("drm/amdkfd: Extend KFD device topology to surface peer-to-peer links")
-Signed-off-by: Mukul Joshi <mukul.joshi@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This prepares for stricter set type checks on updates in a follow up
+patch.
+
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Stable-dep-of: f6594c372afd ("netfilter: nf_tables: perform type checking for existing sets")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/netfilter/nf_tables.h | 12 +++++++
+ net/netfilter/nf_tables_api.c     | 58 +++++++++++++++----------------
+ 2 files changed, 40 insertions(+), 30 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-@@ -801,7 +801,7 @@ static int kfd_build_sysfs_node_entry(st
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index 53746494eb84..5377dbfba120 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -283,17 +283,29 @@ struct nft_set_iter {
+ /**
+  *	struct nft_set_desc - description of set elements
+  *
++ *	@ktype: key type
+  *	@klen: key length
++ *	@dtype: data type
+  *	@dlen: data length
++ *	@objtype: object type
++ *	@flags: flags
+  *	@size: number of set elements
++ *	@policy: set policy
++ *	@gc_int: garbage collector interval
+  *	@field_len: length of each field in concatenation, bytes
+  *	@field_count: number of concatenated fields in element
+  *	@expr: set must support for expressions
+  */
+ struct nft_set_desc {
++	u32			ktype;
+ 	unsigned int		klen;
++	u32			dtype;
+ 	unsigned int		dlen;
++	u32			objtype;
+ 	unsigned int		size;
++	u32			policy;
++	u32			gc_int;
++	u64			timeout;
+ 	u8			field_len[NFT_REG32_COUNT];
+ 	u8			field_count;
+ 	bool			expr;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 3fac57d66dda..dd19726a9ac9 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3635,8 +3635,7 @@ static bool nft_set_ops_candidate(const struct nft_set_type *type, u32 flags)
+ static const struct nft_set_ops *
+ nft_select_set_ops(const struct nft_ctx *ctx,
+ 		   const struct nlattr * const nla[],
+-		   const struct nft_set_desc *desc,
+-		   enum nft_set_policies policy)
++		   const struct nft_set_desc *desc)
+ {
+ 	struct nftables_pernet *nft_net = nft_pernet(ctx->net);
+ 	const struct nft_set_ops *ops, *bops;
+@@ -3665,7 +3664,7 @@ nft_select_set_ops(const struct nft_ctx *ctx,
+ 		if (!ops->estimate(desc, flags, &est))
+ 			continue;
  
- 		p2plink->attr.name = "properties";
- 		p2plink->attr.mode = KFD_SYSFS_FILE_MODE;
--		sysfs_attr_init(&iolink->attr);
-+		sysfs_attr_init(&p2plink->attr);
- 		ret = sysfs_create_file(p2plink->kobj, &p2plink->attr);
- 		if (ret < 0)
- 			return ret;
+-		switch (policy) {
++		switch (desc->policy) {
+ 		case NFT_SET_POL_PERFORMANCE:
+ 			if (est.lookup < best.lookup)
+ 				break;
+@@ -4247,7 +4246,6 @@ static int nf_tables_set_desc_parse(struct nft_set_desc *desc,
+ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 			    const struct nlattr * const nla[])
+ {
+-	u32 ktype, dtype, flags, policy, gc_int, objtype;
+ 	struct netlink_ext_ack *extack = info->extack;
+ 	u8 genmask = nft_genmask_next(info->net);
+ 	u8 family = info->nfmsg->nfgen_family;
+@@ -4260,10 +4258,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	struct nft_set *set;
+ 	struct nft_ctx ctx;
+ 	size_t alloc_size;
+-	u64 timeout;
+ 	char *name;
+ 	int err, i;
+ 	u16 udlen;
++	u32 flags;
+ 	u64 size;
+ 
+ 	if (nla[NFTA_SET_TABLE] == NULL ||
+@@ -4274,10 +4272,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 
+ 	memset(&desc, 0, sizeof(desc));
+ 
+-	ktype = NFT_DATA_VALUE;
++	desc.ktype = NFT_DATA_VALUE;
+ 	if (nla[NFTA_SET_KEY_TYPE] != NULL) {
+-		ktype = ntohl(nla_get_be32(nla[NFTA_SET_KEY_TYPE]));
+-		if ((ktype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK)
++		desc.ktype = ntohl(nla_get_be32(nla[NFTA_SET_KEY_TYPE]));
++		if ((desc.ktype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK)
+ 			return -EINVAL;
+ 	}
+ 
+@@ -4302,17 +4300,17 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 			return -EOPNOTSUPP;
+ 	}
+ 
+-	dtype = 0;
++	desc.dtype = 0;
+ 	if (nla[NFTA_SET_DATA_TYPE] != NULL) {
+ 		if (!(flags & NFT_SET_MAP))
+ 			return -EINVAL;
+ 
+-		dtype = ntohl(nla_get_be32(nla[NFTA_SET_DATA_TYPE]));
+-		if ((dtype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK &&
+-		    dtype != NFT_DATA_VERDICT)
++		desc.dtype = ntohl(nla_get_be32(nla[NFTA_SET_DATA_TYPE]));
++		if ((desc.dtype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK &&
++		    desc.dtype != NFT_DATA_VERDICT)
+ 			return -EINVAL;
+ 
+-		if (dtype != NFT_DATA_VERDICT) {
++		if (desc.dtype != NFT_DATA_VERDICT) {
+ 			if (nla[NFTA_SET_DATA_LEN] == NULL)
+ 				return -EINVAL;
+ 			desc.dlen = ntohl(nla_get_be32(nla[NFTA_SET_DATA_LEN]));
+@@ -4327,34 +4325,34 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 		if (!(flags & NFT_SET_OBJECT))
+ 			return -EINVAL;
+ 
+-		objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
+-		if (objtype == NFT_OBJECT_UNSPEC ||
+-		    objtype > NFT_OBJECT_MAX)
++		desc.objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
++		if (desc.objtype == NFT_OBJECT_UNSPEC ||
++		    desc.objtype > NFT_OBJECT_MAX)
+ 			return -EOPNOTSUPP;
+ 	} else if (flags & NFT_SET_OBJECT)
+ 		return -EINVAL;
+ 	else
+-		objtype = NFT_OBJECT_UNSPEC;
++		desc.objtype = NFT_OBJECT_UNSPEC;
+ 
+-	timeout = 0;
++	desc.timeout = 0;
+ 	if (nla[NFTA_SET_TIMEOUT] != NULL) {
+ 		if (!(flags & NFT_SET_TIMEOUT))
+ 			return -EINVAL;
+ 
+-		err = nf_msecs_to_jiffies64(nla[NFTA_SET_TIMEOUT], &timeout);
++		err = nf_msecs_to_jiffies64(nla[NFTA_SET_TIMEOUT], &desc.timeout);
+ 		if (err)
+ 			return err;
+ 	}
+-	gc_int = 0;
++	desc.gc_int = 0;
+ 	if (nla[NFTA_SET_GC_INTERVAL] != NULL) {
+ 		if (!(flags & NFT_SET_TIMEOUT))
+ 			return -EINVAL;
+-		gc_int = ntohl(nla_get_be32(nla[NFTA_SET_GC_INTERVAL]));
++		desc.gc_int = ntohl(nla_get_be32(nla[NFTA_SET_GC_INTERVAL]));
+ 	}
+ 
+-	policy = NFT_SET_POL_PERFORMANCE;
++	desc.policy = NFT_SET_POL_PERFORMANCE;
+ 	if (nla[NFTA_SET_POLICY] != NULL)
+-		policy = ntohl(nla_get_be32(nla[NFTA_SET_POLICY]));
++		desc.policy = ntohl(nla_get_be32(nla[NFTA_SET_POLICY]));
+ 
+ 	if (nla[NFTA_SET_DESC] != NULL) {
+ 		err = nf_tables_set_desc_parse(&desc, nla[NFTA_SET_DESC]);
+@@ -4399,7 +4397,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
+ 		return -ENOENT;
+ 
+-	ops = nft_select_set_ops(&ctx, nla, &desc, policy);
++	ops = nft_select_set_ops(&ctx, nla, &desc);
+ 	if (IS_ERR(ops))
+ 		return PTR_ERR(ops);
+ 
+@@ -4439,18 +4437,18 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	set->table = table;
+ 	write_pnet(&set->net, net);
+ 	set->ops = ops;
+-	set->ktype = ktype;
++	set->ktype = desc.ktype;
+ 	set->klen = desc.klen;
+-	set->dtype = dtype;
+-	set->objtype = objtype;
++	set->dtype = desc.dtype;
++	set->objtype = desc.objtype;
+ 	set->dlen = desc.dlen;
+ 	set->flags = flags;
+ 	set->size = desc.size;
+-	set->policy = policy;
++	set->policy = desc.policy;
+ 	set->udlen = udlen;
+ 	set->udata = udata;
+-	set->timeout = timeout;
+-	set->gc_int = gc_int;
++	set->timeout = desc.timeout;
++	set->gc_int = desc.gc_int;
+ 
+ 	set->field_count = desc.field_count;
+ 	for (i = 0; i < desc.field_count; i++)
+-- 
+2.35.1
+
 
 
