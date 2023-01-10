@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 445EB664A4C
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4EE664936
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:19:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235220AbjAJSb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:31:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43722 "EHLO
+        id S239215AbjAJSTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:19:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239361AbjAJSbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:12 -0500
+        with ESMTP id S239250AbjAJSSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:18:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5CA46E43E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00513564E3
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E5B961866
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70790C433EF;
-        Tue, 10 Jan 2023 18:26:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 924E161852
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A829AC433EF;
+        Tue, 10 Jan 2023 18:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375178;
-        bh=ldX9Gj9b+pHy704wZZd93DDiMSAUejVTE++tea0+yK4=;
+        s=korg; t=1673374602;
+        bh=2oD/y0D3rpipucRQMgvxc9+/kWgAozyojY34wdQ/9q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lBmPkB8XAIOloHCKMt/HRPUQicLwrCX24OHSo+P/wlJ1lIcE9dl2qkU6eXRe5bbWR
-         NIijVqazZMyeAi1oC1cYPa95f1CyNnLO82tqrdH/A8manMOSe/RNJcuzhTa6hZuipq
-         JondkMjHu+QkiB51RHcRcFDo6P0t19q9Y3r/E/Eo=
+        b=xSAEoBNnHO9D63B3chTSksQO7OQoTB6Ls8PJCKRLt7+CxmdwDOdrU10ejFDg7vGUP
+         v9NZVUREN7T/dDyKsVXnWciDvMLqR+Co+KyEQsjgVD7PmPSGU4WLOKEGT1KFRB9Vd0
+         18YIEztkGjo1vXfuOAMx0vNJVrgcj74m/MzJqwwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "x86@kernel.org" <x86@kernel.org>, Borislav Petkov <bp@alien8.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 097/290] ftrace/x86: Add back ftrace_expected for ftrace bug reports
+        patches@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+        Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 041/159] vdpa/mlx5: Fix wrong mac address deletion
 Date:   Tue, 10 Jan 2023 19:03:09 +0100
-Message-Id: <20230110180034.978218508@linuxfoundation.org>
+Message-Id: <20230110180019.620039599@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,47 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Eli Cohen <elic@nvidia.com>
 
-commit fd3dc56253acbe9c641a66d312d8393cd55eb04c upstream.
+[ Upstream commit 1ab53760d322c82fb4cb5e81b5817065801e3ec4 ]
 
-After someone reported a bug report with a failed modification due to the
-expected value not matching what was found, it came to my attention that
-the ftrace_expected is no longer set when that happens. This makes for
-debugging the issue a bit more difficult.
+Delete the old MAC from the table and not the new one which is not there
+yet.
 
-Set ftrace_expected to the expected code before calling ftrace_bug, so
-that it shows what was expected and why it failed.
-
-Link: https://lore.kernel.org/all/CA+wXwBQ-VhK+hpBtYtyZP-NiX4g8fqRRWithFOHQW-0coQ3vLg@mail.gmail.com/
-Link: https://lore.kernel.org/linux-trace-kernel/20221209105247.01d4e51d@gandalf.local.home
-
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: "x86@kernel.org" <x86@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 768ae4406a5c ("x86/ftrace: Use text_poke()")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: baf2ad3f6a98 ("vdpa/mlx5: Add RX MAC VLAN filter support")
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Message-Id: <20221114131759.57883-4-elic@nvidia.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ftrace.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -219,7 +219,9 @@ void ftrace_replace_code(int enable)
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 3fb06dcee943..444d6572b2d0 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1686,7 +1686,7 @@ static virtio_net_ctrl_ack handle_ctrl_mac(struct mlx5_vdpa_dev *mvdev, u8 cmd)
  
- 		ret = ftrace_verify_code(rec->ip, old);
- 		if (ret) {
-+			ftrace_expected = old;
- 			ftrace_bug(ret, rec);
-+			ftrace_expected = NULL;
- 			return;
- 		}
- 	}
+ 		/* Need recreate the flow table entry, so that the packet could forward back
+ 		 */
+-		mac_vlan_del(ndev, ndev->config.mac, 0, false);
++		mac_vlan_del(ndev, mac_back, 0, false);
+ 
+ 		if (mac_vlan_add(ndev, ndev->config.mac, 0, false)) {
+ 			mlx5_vdpa_warn(mvdev, "failed to insert forward rules, try to restore\n");
+-- 
+2.35.1
+
 
 
