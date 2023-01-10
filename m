@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88072664A5A
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71AAC664939
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:19:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235034AbjAJScc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:32:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43766 "EHLO
+        id S239230AbjAJSTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:19:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239424AbjAJSbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7E7974B6
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:55 -0800 (PST)
+        with ESMTP id S239262AbjAJSSh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:18:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9E18D3B3
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2DCDDCE18E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09039C433EF;
-        Tue, 10 Jan 2023 18:26:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACE9C6187E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5439C433D2;
+        Tue, 10 Jan 2023 18:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375212;
-        bh=mKJ1aGPNXMFzwdU9M0rzlYDOi2xZvL5zclJgBwYODAo=;
+        s=korg; t=1673374605;
+        bh=1JIWVJ0flhz7FPNn6lszDP5EwvZGL1coAPAAM2Gmcds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7KurthpnXBwJRfKoJaOmieF4fGK3294EfRkS3xLjzIwG96V7L7xXkg2DOVbTacI7
-         prAvyAZeB2JjAk3U3m8Tl7RW8WO+E2nIyAmLeQoC50B1HF6+dS5up/PGWBa1tyex2j
-         x2WUvwLZIBBQreQMIoZ4PNrymm3gPq5/N/66cPe8=
+        b=1s/mxw/7eaGhX8ua54IC/waHEQ+W7ZzQVn9AtsasoXGejn9eP48Ygv5teJXpMLhYE
+         L0QBfV6PCo2eoqP1wXhl2yO15LrEntUDO0gnkV0hTnMwb2rCGmCLLXfGNIZ+5y83/B
+         jH7XJetiaIReBv6XbbljlCozSAmEhZp4vU5pUmAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Zijlstra <peterz@infradead.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-Subject: [PATCH 5.15 098/290] x86/kprobes: Fix kprobes instruction boudary check with CONFIG_RETHUNK
+        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 042/159] vdpa_sim: fix possible memory leak in vdpasim_net_init() and vdpasim_blk_init()
 Date:   Tue, 10 Jan 2023 19:03:10 +0100
-Message-Id: <20230110180035.018723256@linuxfoundation.org>
+Message-Id: <20230110180019.654823011@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,66 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+From: ruanjinjie <ruanjinjie@huawei.com>
 
-commit 1993bf97992df2d560287f3c4120eda57426843d upstream.
+[ Upstream commit aeca7ff254843d49a8739f07f7dab1341450111d ]
 
-Since the CONFIG_RETHUNK and CONFIG_SLS will use INT3 for stopping
-speculative execution after RET instruction, kprobes always failes to
-check the probed instruction boundary by decoding the function body if
-the probed address is after such sequence. (Note that some conditional
-code blocks will be placed after function return, if compiler decides
-it is not on the hot path.)
+Inject fault while probing module, if device_register() fails in
+vdpasim_net_init() or vdpasim_blk_init(), but the refcount of kobject is
+not decreased to 0, the name allocated in dev_set_name() is leaked.
+Fix this by calling put_device(), so that name can be freed in
+callback function kobject_cleanup().
 
-This is because kprobes expects kgdb puts the INT3 as a software
-breakpoint and it will replace the original instruction.
-But these INT3 are not such purpose, it doesn't need to recover the
-original instruction.
+(vdpa_sim_net)
+unreferenced object 0xffff88807eebc370 (size 16):
+  comm "modprobe", pid 3848, jiffies 4362982860 (age 18.153s)
+  hex dump (first 16 bytes):
+    76 64 70 61 73 69 6d 5f 6e 65 74 00 6b 6b 6b a5  vdpasim_net.kkk.
+  backtrace:
+    [<ffffffff8174f19e>] __kmalloc_node_track_caller+0x4e/0x150
+    [<ffffffff81731d53>] kstrdup+0x33/0x60
+    [<ffffffff83a5d421>] kobject_set_name_vargs+0x41/0x110
+    [<ffffffff82d87aab>] dev_set_name+0xab/0xe0
+    [<ffffffff82d91a23>] device_add+0xe3/0x1a80
+    [<ffffffffa0270013>] 0xffffffffa0270013
+    [<ffffffff81001c27>] do_one_initcall+0x87/0x2e0
+    [<ffffffff813739cb>] do_init_module+0x1ab/0x640
+    [<ffffffff81379d20>] load_module+0x5d00/0x77f0
+    [<ffffffff8137bc40>] __do_sys_finit_module+0x110/0x1b0
+    [<ffffffff83c4d505>] do_syscall_64+0x35/0x80
+    [<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-To avoid this issue, kprobes checks whether the INT3 is owned by
-kgdb or not, and if so, stop decoding and make it fail. The other
-INT3 will come from CONFIG_RETHUNK/CONFIG_SLS and those can be
-treated as a one-byte instruction.
+(vdpa_sim_blk)
+unreferenced object 0xffff8881070c1250 (size 16):
+  comm "modprobe", pid 6844, jiffies 4364069319 (age 17.572s)
+  hex dump (first 16 bytes):
+    76 64 70 61 73 69 6d 5f 62 6c 6b 00 6b 6b 6b a5  vdpasim_blk.kkk.
+  backtrace:
+    [<ffffffff8174f19e>] __kmalloc_node_track_caller+0x4e/0x150
+    [<ffffffff81731d53>] kstrdup+0x33/0x60
+    [<ffffffff83a5d421>] kobject_set_name_vargs+0x41/0x110
+    [<ffffffff82d87aab>] dev_set_name+0xab/0xe0
+    [<ffffffff82d91a23>] device_add+0xe3/0x1a80
+    [<ffffffffa0220013>] 0xffffffffa0220013
+    [<ffffffff81001c27>] do_one_initcall+0x87/0x2e0
+    [<ffffffff813739cb>] do_init_module+0x1ab/0x640
+    [<ffffffff81379d20>] load_module+0x5d00/0x77f0
+    [<ffffffff8137bc40>] __do_sys_finit_module+0x110/0x1b0
+    [<ffffffff83c4d505>] do_syscall_64+0x35/0x80
+    [<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Fixes: e463a09af2f0 ("x86: Add straight-line-speculation mitigation")
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/167146051026.1374301.392728975473572291.stgit@devnote3
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 899c4d187f6a ("vdpa_sim_blk: add support for vdpa management tool")
+Fixes: a3c06ae158dd ("vdpa_sim_net: Add support for user supported devices")
+
+Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Message-Id: <20221110082348.4105476-1-ruanjinjie@huawei.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kprobes/core.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 4 +++-
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -37,6 +37,7 @@
- #include <linux/extable.h>
- #include <linux/kdebug.h>
- #include <linux/kallsyms.h>
-+#include <linux/kgdb.h>
- #include <linux/ftrace.h>
- #include <linux/kasan.h>
- #include <linux/moduleloader.h>
-@@ -289,12 +290,15 @@ static int can_probe(unsigned long paddr
- 		if (ret < 0)
- 			return 0;
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+index c6db1a1baf76..f745926237a8 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+@@ -427,8 +427,10 @@ static int __init vdpasim_blk_init(void)
+ 	int ret;
  
-+#ifdef CONFIG_KGDB
- 		/*
--		 * Another debugging subsystem might insert this breakpoint.
--		 * In that case, we can't recover it.
-+		 * If there is a dynamically installed kgdb sw breakpoint,
-+		 * this function should not be probed.
- 		 */
--		if (insn.opcode.bytes[0] == INT3_INSN_OPCODE)
-+		if (insn.opcode.bytes[0] == INT3_INSN_OPCODE &&
-+		    kgdb_has_hit_break(addr))
- 			return 0;
-+#endif
- 		addr += insn.length;
- 	}
+ 	ret = device_register(&vdpasim_blk_mgmtdev);
+-	if (ret)
++	if (ret) {
++		put_device(&vdpasim_blk_mgmtdev);
+ 		return ret;
++	}
  
+ 	ret = vdpa_mgmtdev_register(&mgmt_dev);
+ 	if (ret)
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+index c3cb225ea469..11f5a121df24 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+@@ -305,8 +305,10 @@ static int __init vdpasim_net_init(void)
+ 	int ret;
+ 
+ 	ret = device_register(&vdpasim_net_mgmtdev);
+-	if (ret)
++	if (ret) {
++		put_device(&vdpasim_net_mgmtdev);
+ 		return ret;
++	}
+ 
+ 	ret = vdpa_mgmtdev_register(&mgmt_dev);
+ 	if (ret)
+-- 
+2.35.1
+
 
 
