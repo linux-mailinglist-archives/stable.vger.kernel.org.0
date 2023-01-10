@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30B39664A0F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ED94664860
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235304AbjAJS3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:29:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42170 "EHLO
+        id S238890AbjAJSLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239403AbjAJS21 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E8B54DAC
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:08 -0800 (PST)
+        with ESMTP id S238947AbjAJSKQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD242FC0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5590561846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B0EBC433D2;
-        Tue, 10 Jan 2023 18:24:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 596006182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 712DDC433EF;
+        Tue, 10 Jan 2023 18:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375047;
-        bh=vpHY3yCyjDyMsittJot1xs2OUEtJ98M7D8jeS/sWKM4=;
+        s=korg; t=1673374104;
+        bh=I5+E7RCwRQpQ6m2jnvmsVnbn2uXvIuJJeQCZx5A0CzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBhRlg73Ohh4pxMlx0I+33Czya22r2ObN45hrVvm1sL6nZ+iKDjCDnUDhogwURSLM
-         bEmoB305+iV8arppewOFYqPBgkUT8zwRZ4v8XnNeLqMHdNzdUkh4vne2+NZVXfsCKE
-         QJ96+YbUeWgFhZ3+kSyRDMovHIdrNJNmkIFsdKxw=
+        b=a4Y+GqtgmrCAlNXlrXBNlc784eLdr+6lAln9bH2OfJuNOV5nCUytcPEBKdWIzPHwF
+         IY8kQMvKruQK1F08jw2P5KC92uaAptRxCVlM4oG+bHduBnp4ukkbB9xEMSI/0dkXFV
+         AGApN03/WopN/VnqXaxmrHxCHRFX/JG0K3/rovIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
+        patches@lists.linux.dev, Wei Yongjun <weiyongjun1@huawei.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH 5.15 059/290] net/af_packet: make sure to pull mac header
+        Gonglei <arei.gonglei@huawei.com>,
+        zhenwei pi <pizhenwei@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 047/148] virtio-crypto: fix memory leak in virtio_crypto_alg_skcipher_close_session()
 Date:   Tue, 10 Jan 2023 19:02:31 +0100
-Message-Id: <20230110180033.658438712@linuxfoundation.org>
+Message-Id: <20230110180018.706961279@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,95 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit e9d3f80935b6607dcdc5682b00b1d4b28e0a0c5d upstream.
+[ Upstream commit b1d65f717cd6305a396a8738e022c6f7c65cfbe8 ]
 
-GSO assumes skb->head contains link layer headers.
+'vc_ctrl_req' is alloced in virtio_crypto_alg_skcipher_close_session(),
+and should be freed in the invalid ctrl_status->status error handling
+case. Otherwise there is a memory leak.
 
-tun device in some case can provide base 14 bytes,
-regardless of VLAN being used or not.
-
-After blamed commit, we can end up setting a network
-header offset of 18+, we better pull the missing
-bytes to avoid a posible crash in GSO.
-
-syzbot report was:
-kernel BUG at include/linux/skbuff.h:2699!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 3601 Comm: syz-executor210 Not tainted 5.18.0-syzkaller-11338-g2c5ca23f7414 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__skb_pull include/linux/skbuff.h:2699 [inline]
-RIP: 0010:skb_mac_gso_segment+0x48f/0x530 net/core/gro.c:136
-Code: 00 48 c7 c7 00 96 d4 8a c6 05 cb d3 45 06 01 e8 26 bb d0 01 e9 2f fd ff ff 49 c7 c4 ea ff ff ff e9 f1 fe ff ff e8 91 84 19 fa <0f> 0b 48 89 df e8 97 44 66 fa e9 7f fd ff ff e8 ad 44 66 fa e9 48
-RSP: 0018:ffffc90002e2f4b8 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 0000000000000012 RCX: 0000000000000000
-RDX: ffff88805bb58000 RSI: ffffffff8760ed0f RDI: 0000000000000004
-RBP: 0000000000005dbc R08: 0000000000000004 R09: 0000000000000fe0
-R10: 0000000000000fe4 R11: 0000000000000000 R12: 0000000000000fe0
-R13: ffff88807194d780 R14: 1ffff920005c5e9b R15: 0000000000000012
-FS:  000055555730f300(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000200015c0 CR3: 0000000071ff8000 CR4: 0000000000350ee0
-Call Trace:
- <TASK>
- __skb_gso_segment+0x327/0x6e0 net/core/dev.c:3411
- skb_gso_segment include/linux/netdevice.h:4749 [inline]
- validate_xmit_skb+0x6bc/0xf10 net/core/dev.c:3669
- validate_xmit_skb_list+0xbc/0x120 net/core/dev.c:3719
- sch_direct_xmit+0x3d1/0xbe0 net/sched/sch_generic.c:327
- __dev_xmit_skb net/core/dev.c:3815 [inline]
- __dev_queue_xmit+0x14a1/0x3a00 net/core/dev.c:4219
- packet_snd net/packet/af_packet.c:3071 [inline]
- packet_sendmsg+0x21cb/0x5550 net/packet/af_packet.c:3102
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:734
- ____sys_sendmsg+0x6eb/0x810 net/socket.c:2492
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2546
- __sys_sendmsg net/socket.c:2575 [inline]
- __do_sys_sendmsg net/socket.c:2584 [inline]
- __se_sys_sendmsg net/socket.c:2582 [inline]
- __x64_sys_sendmsg+0x132/0x220 net/socket.c:2582
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7f4b95da06c9
-Code: 28 c3 e8 4a 15 00 00 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffd7defc4c8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007ffd7defc4f0 RCX: 00007f4b95da06c9
-RDX: 0000000000000000 RSI: 0000000020000140 RDI: 0000000000000003
-RBP: 0000000000000003 R08: bb1414ac00000050 R09: bb1414ac00000050
-R10: 0000000000000004 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffd7defc4e0 R14: 00007ffd7defc4d8 R15: 00007ffd7defc4d4
- </TASK>
-
-Fixes: dfed913e8b55 ("net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0756ad15b1fe ("virtio-crypto: use private buffer for control request")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Message-Id: <20221114110740.537276-1-weiyongjun@huaweicloud.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Gonglei <arei.gonglei@huawei.com>
+Acked-by: zhenwei pi<pizhenwei@bytedance.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/crypto/virtio/virtio_crypto_skcipher_algs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1899,8 +1899,10 @@ static void packet_parse_headers(struct
- 	/* Move network header to the right position for VLAN tagged packets */
- 	if (likely(skb->dev->type == ARPHRD_ETHER) &&
- 	    eth_type_vlan(skb->protocol) &&
--	    __vlan_get_protocol(skb, skb->protocol, &depth) != 0)
--		skb_set_network_header(skb, depth);
-+	    __vlan_get_protocol(skb, skb->protocol, &depth) != 0) {
-+		if (pskb_may_pull(skb, depth))
-+			skb_set_network_header(skb, depth);
-+	}
+diff --git a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
+index e553ccadbcbc..e5876286828b 100644
+--- a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
+@@ -239,7 +239,8 @@ static int virtio_crypto_alg_skcipher_close_session(
+ 		pr_err("virtio_crypto: Close session failed status: %u, session_id: 0x%llx\n",
+ 			ctrl_status->status, destroy_session->session_id);
  
- 	skb_probe_transport_header(skb);
- }
+-		return -EINVAL;
++		err = -EINVAL;
++		goto out;
+ 	}
+ 
+ 	err = 0;
+-- 
+2.35.1
+
 
 
