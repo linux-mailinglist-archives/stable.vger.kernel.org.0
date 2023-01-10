@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 945D1664AAA
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BC9A6648B1
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:14:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239102AbjAJSeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:34:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48340 "EHLO
+        id S233634AbjAJSOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:14:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239398AbjAJSdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:33:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 464904C73A
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:29:31 -0800 (PST)
+        with ESMTP id S238820AbjAJSND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:13:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA9E93DBE1
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D90616183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:29:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEC18C433F2;
-        Tue, 10 Jan 2023 18:29:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D380B81905
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3E2CC433EF;
+        Tue, 10 Jan 2023 18:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375370;
-        bh=uxBb52BqfenCFt/oknVJvgG70hUeO2wQUUfflj4lV70=;
+        s=korg; t=1673374306;
+        bh=JHP98bqicxNgYOd9locjjcLnZK3M8/4aSkYLEPn57Xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npJ7gqyBUPOzHtBpyerwW8ycUisEnpBMbVZ0R0BCa1KqWQPDjFXc9cA4EQ9+aahSP
-         S1aOUkktvxEqO/SwsP5zNMsjxY8jULiYcISQ4RRR6BAu9F9eKLsaKK6g+eb8iCRiUl
-         mRcKIuxaob1jfHeeD9ZElR44H/amllj0vybd8b/M=
+        b=tkH2x1UV8xPyyoDeFAKUtFoiKtR6WZCCPmU/IAZ91AaqF3Wrk6aueFcYLHOQTHouJ
+         ZPEWM6TfOc6sipXoibyhMmTxRL5DpIDJcQexVeI5lRELasVUvuVZHTqthbZvjjd6Vk
+         sVxosRuq1zj15DkuNzSL7AP+LQx+mgNHVNcFZ/VY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Simon Ser <contact@emersion.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Lyude Paul <lyude@redhat.com>,
-        =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@redhat.com>
-Subject: [PATCH 5.15 135/290] drm/connector: send hotplug uevent on connector cleanup
+        patches@lists.linux.dev, Steve Dickson <steved@redhat.com>,
+        JianHong Yin <yin-jianhong@163.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 6.0 123/148] nfsd: fix handling of readdir in v4root vs. mount upcall timeout
 Date:   Tue, 10 Jan 2023 19:03:47 +0100
-Message-Id: <20230110180036.509122111@linuxfoundation.org>
+Message-Id: <20230110180021.092760411@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Ser <contact@emersion.fr>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 6fdc2d490ea1369d17afd7e6eb66fecc5b7209bc upstream.
+commit cad853374d85fe678d721512cecfabd7636e51f3 upstream.
 
-A typical DP-MST unplug removes a KMS connector. However care must
-be taken to properly synchronize with user-space. The expected
-sequence of events is the following:
+If v4 READDIR operation hits a mountpoint and gets back an error,
+then it will include that entry in the reply and set RDATTR_ERROR for it
+to the error.
 
-1. The kernel notices that the DP-MST port is gone.
-2. The kernel marks the connector as disconnected, then sends a
-   uevent to make user-space re-scan the connector list.
-3. User-space notices the connector goes from connected to disconnected,
-   disables it.
-4. Kernel handles the IOCTL disabling the connector. On success,
-   the very last reference to the struct drm_connector is dropped and
-   drm_connector_cleanup() is called.
-5. The connector is removed from the list, and a uevent is sent to tell
-   user-space that the connector disappeared.
+That's fine for "normal" exported filesystems, but on the v4root, we
+need to be more careful to only expose the existence of dentries that
+lead to exports.
 
-The very last step was missing. As a result, user-space thought the
-connector still existed and could try to disable it again. Since the
-kernel no longer knows about the connector, that would end up with
-EINVAL and confused user-space.
+If the mountd upcall times out while checking to see whether a
+mountpoint on the v4root is exported, then we have no recourse other
+than to fail the whole operation.
 
-Fix this by sending a hotplug uevent from drm_connector_cleanup().
-
-Signed-off-by: Simon Ser <contact@emersion.fr>
-Cc: stable@vger.kernel.org
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Jonas Ådahl <jadahl@redhat.com>
-Tested-by: Jonas Ådahl <jadahl@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221017153150.60675-2-contact@emersion.fr
+Cc: Steve Dickson <steved@redhat.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216777
+Reported-by: JianHong Yin <yin-jianhong@163.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_connector.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/nfsd/nfs4xdr.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/gpu/drm/drm_connector.c
-+++ b/drivers/gpu/drm/drm_connector.c
-@@ -487,6 +487,9 @@ void drm_connector_cleanup(struct drm_co
- 	mutex_destroy(&connector->mutex);
- 
- 	memset(connector, 0, sizeof(*connector));
-+
-+	if (dev->registered)
-+		drm_sysfs_hotplug_event(dev);
- }
- EXPORT_SYMBOL(drm_connector_cleanup);
- 
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -3528,6 +3528,17 @@ nfsd4_encode_dirent(void *ccdv, const ch
+ 	case nfserr_noent:
+ 		xdr_truncate_encode(xdr, start_offset);
+ 		goto skip_entry;
++	case nfserr_jukebox:
++		/*
++		 * The pseudoroot should only display dentries that lead to
++		 * exports. If we get EJUKEBOX here, then we can't tell whether
++		 * this entry should be included. Just fail the whole READDIR
++		 * with NFS4ERR_DELAY in that case, and hope that the situation
++		 * will resolve itself by the client's next attempt.
++		 */
++		if (cd->rd_fhp->fh_export->ex_flags & NFSEXP_V4ROOT)
++			goto fail;
++		fallthrough;
+ 	default:
+ 		/*
+ 		 * If the client requested the RDATTR_ERROR attribute,
 
 
