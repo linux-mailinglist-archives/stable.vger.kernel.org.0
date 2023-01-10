@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C857C6649D5
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:26:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2A7D664844
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238160AbjAJS0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:26:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36776 "EHLO
+        id S238672AbjAJSKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:10:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239319AbjAJSZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:25:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB7CA97499
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:22:08 -0800 (PST)
+        with ESMTP id S239014AbjAJSJ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:09:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4788E9AE
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 266C561864
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:22:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36BAFC433EF;
-        Tue, 10 Jan 2023 18:22:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51E0FB81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE03CC433EF;
+        Tue, 10 Jan 2023 18:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374927;
-        bh=hKHXMAMWL1NXM0izGVoWj7LRNkSoiFY9a5DF3hb10w8=;
+        s=korg; t=1673374039;
+        bh=IVsJLTN9Ds8ZTDHFMg6LQCsP1w+6bSjoafRpXZWh/fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWcgHC3JYmFLjlP/tIBItjnIh4NJyrAA3qyZwsKqpjG/0AfwCOyTYz9pBYRyDBtul
-         uq/mg6QPY9n8FBMSzh1kYWz6WX2SAI3cbvULLe8jOX5nzsBlz+2k4Y3GDpEzOk8HVi
-         kYPY2O3MeaFOqNI3x9R3jiRajHk6PIf8+TyIx5Bs=
+        b=IeOqbKS+t2FWM3cdrC9YNdKMl5EhpnsFajVbjQbgjt+t5MFDd3fIfeOwxuZet6O+Q
+         cCW/wn1WmqZwcMHFJAcT2US+wSgylhziN0+MWrcGZ2Rki3YRgVyQhc1JvPY1mNMmUq
+         Y9U9mW8k7kQDuhxNYcMoUNzroNPoy/fMDWMq/AIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 020/290] fs/ntfs3: Add null pointer check for inode operations
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 008/148] phy: qcom-qmp-combo: fix broken power on
 Date:   Tue, 10 Jan 2023 19:01:52 +0100
-Message-Id: <20230110180032.285152166@linuxfoundation.org>
+Message-Id: <20230110180017.436940087@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,106 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Lo <edward.lo@ambergroup.io>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit c1ca8ef0262b25493631ecbd9cb8c9893e1481a1 ]
+[ Upstream commit 7a7d86d14d073dfa3429c550667a8e78b99edbd4 ]
 
-This adds a sanity check for the i_op pointer of the inode which is
-returned after reading Root directory MFT record. We should check the
-i_op is valid before trying to create the root dentry, otherwise we may
-encounter a NPD while mounting a image with a funny Root directory MFT
-record.
+The PHY is powered on during phy-init by setting the SW_PWRDN bit in the
+COM_POWER_DOWN_CTRL register and then setting the same bit in the in the
+PCS_POWER_DOWN_CONTROL register that belongs to the USB part of the
+PHY.
 
-[  114.484325] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[  114.484811] #PF: supervisor read access in kernel mode
-[  114.485084] #PF: error_code(0x0000) - not-present page
-[  114.485606] PGD 0 P4D 0
-[  114.485975] Oops: 0000 [#1] PREEMPT SMP KASAN NOPTI
-[  114.486570] CPU: 0 PID: 237 Comm: mount Tainted: G    B              6.0.0-rc4 #28
-[  114.486977] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[  114.488169] RIP: 0010:d_flags_for_inode+0xe0/0x110
-[  114.488816] Code: 24 f7 ff 49 83 3e 00 74 41 41 83 cd 02 66 44 89 6b 02 eb 92 48 8d 7b 20 e8 6d 24 f7 ff 4c 8b 73 20 49 8d 7e 08 e8 60 241
-[  114.490326] RSP: 0018:ffff8880065e7aa8 EFLAGS: 00000296
-[  114.490695] RAX: 0000000000000001 RBX: ffff888008ccd750 RCX: ffffffff84af2aea
-[  114.490986] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffff87abd020
-[  114.491364] RBP: ffff8880065e7ac8 R08: 0000000000000001 R09: fffffbfff0f57a05
-[  114.491675] R10: ffffffff87abd027 R11: fffffbfff0f57a04 R12: 0000000000000000
-[  114.491954] R13: 0000000000000008 R14: 0000000000000000 R15: ffff888008ccd750
-[  114.492397] FS:  00007fdc8a627e40(0000) GS:ffff888058200000(0000) knlGS:0000000000000000
-[  114.492797] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  114.493150] CR2: 0000000000000008 CR3: 00000000013ba000 CR4: 00000000000006f0
-[  114.493671] Call Trace:
-[  114.493890]  <TASK>
-[  114.494075]  __d_instantiate+0x24/0x1c0
-[  114.494505]  d_instantiate.part.0+0x35/0x50
-[  114.494754]  d_make_root+0x53/0x80
-[  114.494998]  ntfs_fill_super+0x1232/0x1b50
-[  114.495260]  ? put_ntfs+0x1d0/0x1d0
-[  114.495499]  ? vsprintf+0x20/0x20
-[  114.495723]  ? set_blocksize+0x95/0x150
-[  114.495964]  get_tree_bdev+0x232/0x370
-[  114.496272]  ? put_ntfs+0x1d0/0x1d0
-[  114.496502]  ntfs_fs_get_tree+0x15/0x20
-[  114.496859]  vfs_get_tree+0x4c/0x130
-[  114.497099]  path_mount+0x654/0xfe0
-[  114.497507]  ? putname+0x80/0xa0
-[  114.497933]  ? finish_automount+0x2e0/0x2e0
-[  114.498362]  ? putname+0x80/0xa0
-[  114.498571]  ? kmem_cache_free+0x1c4/0x440
-[  114.498819]  ? putname+0x80/0xa0
-[  114.499069]  do_mount+0xd6/0xf0
-[  114.499343]  ? path_mount+0xfe0/0xfe0
-[  114.499683]  ? __kasan_check_write+0x14/0x20
-[  114.500133]  __x64_sys_mount+0xca/0x110
-[  114.500592]  do_syscall_64+0x3b/0x90
-[  114.500930]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  114.501294] RIP: 0033:0x7fdc898e948a
-[  114.501542] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
-[  114.502716] RSP: 002b:00007ffd793e58f8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
-[  114.503175] RAX: ffffffffffffffda RBX: 0000564b2228f060 RCX: 00007fdc898e948a
-[  114.503588] RDX: 0000564b2228f260 RSI: 0000564b2228f2e0 RDI: 0000564b22297ce0
-[  114.504925] RBP: 0000000000000000 R08: 0000564b2228f280 R09: 0000000000000020
-[  114.505484] R10: 00000000c0ed0000 R11: 0000000000000202 R12: 0000564b22297ce0
-[  114.505823] R13: 0000564b2228f260 R14: 0000000000000000 R15: 00000000ffffffff
-[  114.506562]  </TASK>
-[  114.506887] Modules linked in:
-[  114.507648] CR2: 0000000000000008
-[  114.508884] ---[ end trace 0000000000000000 ]---
-[  114.509675] RIP: 0010:d_flags_for_inode+0xe0/0x110
-[  114.510140] Code: 24 f7 ff 49 83 3e 00 74 41 41 83 cd 02 66 44 89 6b 02 eb 92 48 8d 7b 20 e8 6d 24 f7 ff 4c 8b 73 20 49 8d 7e 08 e8 60 241
-[  114.511762] RSP: 0018:ffff8880065e7aa8 EFLAGS: 00000296
-[  114.512401] RAX: 0000000000000001 RBX: ffff888008ccd750 RCX: ffffffff84af2aea
-[  114.513103] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffff87abd020
-[  114.513512] RBP: ffff8880065e7ac8 R08: 0000000000000001 R09: fffffbfff0f57a05
-[  114.513831] R10: ffffffff87abd027 R11: fffffbfff0f57a04 R12: 0000000000000000
-[  114.514757] R13: 0000000000000008 R14: 0000000000000000 R15: ffff888008ccd750
-[  114.515411] FS:  00007fdc8a627e40(0000) GS:ffff888058200000(0000) knlGS:0000000000000000
-[  114.515794] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  114.516208] CR2: 0000000000000008 CR3: 00000000013ba000 CR4: 00000000000006f0
+Currently, whether power on succeeds depends on probe order and having
+the USB part of the PHY be initialised first. In case the DP part of the
+PHY is instead initialised first, the intended power on of the USB block
+results in a corrupted DP_PHY register (e.g. DP_PHY_AUX_CFG8).
 
-Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Add a pointer to the USB part of the PHY to the driver data and use that
+to power on the PHY also if the DP part of the PHY is initialised first.
+
+Fixes: 52e013d0bffa ("phy: qcom-qmp: Add support for DP in USB3+DP combo phy")
+Cc: stable@vger.kernel.org	# 5.10
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Link: https://lore.kernel.org/r/20221114081346.5116-5-johan+linaro@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/super.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-qmp-combo.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
-index 4ff0d2c9507c..a18fb431abbe 100644
---- a/fs/ntfs3/super.c
-+++ b/fs/ntfs3/super.c
-@@ -1255,9 +1255,9 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
- 	ref.low = cpu_to_le32(MFT_REC_ROOT);
- 	ref.seq = cpu_to_le16(MFT_REC_ROOT);
- 	inode = ntfs_iget5(sb, &ref, &NAME_ROOT);
--	if (IS_ERR(inode)) {
-+	if (IS_ERR(inode) || !inode->i_op) {
- 		ntfs_err(sb, "Failed to load root.");
--		err = PTR_ERR(inode);
-+		err = IS_ERR(inode) ? PTR_ERR(inode) : -EINVAL;
- 		goto out;
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-combo.c b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
+index 0feda8eb93b5..5e011520650d 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
+@@ -767,6 +767,7 @@ struct qcom_qmp {
+ 	struct regulator_bulk_data *vregs;
+ 
+ 	struct qmp_phy **phys;
++	struct qmp_phy *usb_phy;
+ 
+ 	struct mutex phy_mutex;
+ 	int init_count;
+@@ -1607,7 +1608,7 @@ static int qcom_qmp_phy_combo_com_init(struct qmp_phy *qphy)
+ {
+ 	struct qcom_qmp *qmp = qphy->qmp;
+ 	const struct qmp_phy_cfg *cfg = qphy->cfg;
+-	void __iomem *pcs = qphy->pcs;
++	struct qmp_phy *usb_phy = qmp->usb_phy;
+ 	void __iomem *dp_com = qmp->dp_com;
+ 	int ret;
+ 
+@@ -1663,13 +1664,13 @@ static int qcom_qmp_phy_combo_com_init(struct qmp_phy *qphy)
+ 		qphy_clrbits(dp_com, QPHY_V3_DP_COM_SW_RESET, SW_RESET);
  	}
  
+-	if (cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL])
+-		qphy_setbits(pcs,
+-				cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
+-				cfg->pwrdn_ctrl);
++	if (usb_phy->cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL])
++		qphy_setbits(usb_phy->pcs,
++				usb_phy->cfg->regs[QPHY_PCS_POWER_DOWN_CONTROL],
++				usb_phy->cfg->pwrdn_ctrl);
+ 	else
+-		qphy_setbits(pcs, QPHY_V2_PCS_POWER_DOWN_CONTROL,
+-				cfg->pwrdn_ctrl);
++		qphy_setbits(usb_phy->pcs, QPHY_V2_PCS_POWER_DOWN_CONTROL,
++				usb_phy->cfg->pwrdn_ctrl);
+ 
+ 	mutex_unlock(&qmp->phy_mutex);
+ 
+@@ -2576,6 +2577,8 @@ static int qcom_qmp_phy_combo_probe(struct platform_device *pdev)
+ 				goto err_node_put;
+ 			}
+ 
++			qmp->usb_phy = qmp->phys[id];
++
+ 			/*
+ 			 * Register the pipe clock provided by phy.
+ 			 * See function description to see details of this pipe clock.
+@@ -2591,6 +2594,9 @@ static int qcom_qmp_phy_combo_probe(struct platform_device *pdev)
+ 		id++;
+ 	}
+ 
++	if (!qmp->usb_phy)
++		return -EINVAL;
++
+ 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
+ 	if (!IS_ERR(phy_provider))
+ 		dev_info(dev, "Registered Qcom-QMP phy\n");
 -- 
 2.35.1
 
