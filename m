@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 843CD66487F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D84D7664880
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238970AbjAJSMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52882 "EHLO
+        id S235280AbjAJSMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238982AbjAJSLJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:11:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E99F41B1C7
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:46 -0800 (PST)
+        with ESMTP id S238937AbjAJSLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:11:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A91415FE0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74E1261866
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA68C433D2;
-        Tue, 10 Jan 2023 18:09:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF943B818D0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CF3CC433EF;
+        Tue, 10 Jan 2023 18:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374185;
-        bh=72ve7lWZsViKGgo3D+Vbi1ulsZyPUI9G+5vwBV2mwic=;
+        s=korg; t=1673374188;
+        bh=bPws9NpxZo9Nb8uUU7NWxqMCbuzwrtfqgfIUiMJIjq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Beelpxc2brxPo8/oDiVTLtSMNLUZaQPGGYGtC67esDng94iOEKaBO0eKoZZpFocQS
-         R7z7cKBGz3YyBinkVDNSSQCyJkicARMqDOdbpnWCOpNtZWqqRRwp5L8669SItHYJCI
-         BtQQYFgP/7Wu/NqK3ZWh4GyL3HUUkImpmzMZLscc=
+        b=Hy7tPl32nHwH/BUaEQGBEYRuGXGCzKmf7SItdxiaji16nTD+2BIqv/nH4JTiL0nf2
+         OO2yflkJ1gm12RHaaJAYZG4mcE/2RGT3RDaOypGSg4a3cuervMOSszG5TOq3/nVqqR
+         ytEtn3sUD1kCH9Ab3NFeg25Gc8wFhVXVf2YnK74w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 078/148] ceph: switch to vfs_inode_has_locks() to fix file lock bug
-Date:   Tue, 10 Jan 2023 19:03:02 +0100
-Message-Id: <20230110180019.685662551@linuxfoundation.org>
+Subject: [PATCH 6.0 079/148] gpio: sifive: Fix refcount leak in sifive_gpio_probe
+Date:   Tue, 10 Jan 2023 19:03:03 +0100
+Message-Id: <20230110180019.714690834@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
 References: <20230110180017.145591678@linuxfoundation.org>
@@ -54,83 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 461ab10ef7e6ea9b41a0571a7fc6a72af9549a3c ]
+[ Upstream commit 694175cd8a1643cde3acb45c9294bca44a8e08e9 ]
 
-For the POSIX locks they are using the same owner, which is the
-thread id. And multiple POSIX locks could be merged into single one,
-so when checking whether the 'file' has locks may fail.
+of_irq_find_parent() returns a node pointer with refcount incremented,
+We should use of_node_put() on it when not needed anymore.
+Add missing of_node_put() to avoid refcount leak.
 
-For a file where some openers use locking and others don't is a
-really odd usage pattern though. Locks are like stoplights -- they
-only work if everyone pays attention to them.
-
-Just switch ceph_get_caps() to check whether any locks are set on
-the inode. If there are POSIX/OFD/FLOCK locks on the file at the
-time, we should set CHECK_FILELOCK, regardless of what fd was used
-to set the lock.
-
-Fixes: ff5d913dfc71 ("ceph: return -EIO if read/write against filp that lost file locks")
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: 96868dce644d ("gpio/sifive: Add GPIO driver for SiFive SoCs")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c  | 2 +-
- fs/ceph/locks.c | 4 ----
- fs/ceph/super.h | 1 -
- 3 files changed, 1 insertion(+), 6 deletions(-)
+ drivers/gpio/gpio-sifive.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 02b5c0ac5654..af8dbcf932ab 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -2910,7 +2910,7 @@ int ceph_get_caps(struct file *filp, int need, int want, loff_t endoff, int *got
- 
- 	while (true) {
- 		flags &= CEPH_FILE_MODE_MASK;
--		if (atomic_read(&fi->num_locks))
-+		if (vfs_inode_has_locks(inode))
- 			flags |= CHECK_FILELOCK;
- 		_got = 0;
- 		ret = try_get_cap_refs(inode, need, want, endoff,
-diff --git a/fs/ceph/locks.c b/fs/ceph/locks.c
-index 3e2843e86e27..b191426bf880 100644
---- a/fs/ceph/locks.c
-+++ b/fs/ceph/locks.c
-@@ -32,18 +32,14 @@ void __init ceph_flock_init(void)
- 
- static void ceph_fl_copy_lock(struct file_lock *dst, struct file_lock *src)
- {
--	struct ceph_file_info *fi = dst->fl_file->private_data;
- 	struct inode *inode = file_inode(dst->fl_file);
- 	atomic_inc(&ceph_inode(inode)->i_filelock_ref);
--	atomic_inc(&fi->num_locks);
- }
- 
- static void ceph_fl_release_lock(struct file_lock *fl)
- {
--	struct ceph_file_info *fi = fl->fl_file->private_data;
- 	struct inode *inode = file_inode(fl->fl_file);
- 	struct ceph_inode_info *ci = ceph_inode(inode);
--	atomic_dec(&fi->num_locks);
- 	if (atomic_dec_and_test(&ci->i_filelock_ref)) {
- 		/* clear error when all locks are released */
- 		spin_lock(&ci->i_ceph_lock);
-diff --git a/fs/ceph/super.h b/fs/ceph/super.h
-index 40630e6f691c..ae4126f63410 100644
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -788,7 +788,6 @@ struct ceph_file_info {
- 	struct list_head rw_contexts;
- 
- 	u32 filp_gen;
--	atomic_t num_locks;
- };
- 
- struct ceph_dir_file_info {
+diff --git a/drivers/gpio/gpio-sifive.c b/drivers/gpio/gpio-sifive.c
+index 238f3210970c..bc5660f61c57 100644
+--- a/drivers/gpio/gpio-sifive.c
++++ b/drivers/gpio/gpio-sifive.c
+@@ -215,6 +215,7 @@ static int sifive_gpio_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 	parent = irq_find_host(irq_parent);
++	of_node_put(irq_parent);
+ 	if (!parent) {
+ 		dev_err(dev, "no IRQ parent domain\n");
+ 		return -ENODEV;
 -- 
 2.35.1
 
