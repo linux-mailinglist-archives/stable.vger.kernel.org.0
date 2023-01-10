@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15F4A664866
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0006664A10
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238932AbjAJSL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52842 "EHLO
+        id S239208AbjAJS3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:29:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238948AbjAJSKQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:16 -0500
+        with ESMTP id S239417AbjAJS2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A12FC1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A39D67187
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A18EF61871
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA979C433F0;
-        Tue, 10 Jan 2023 18:08:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A7BB61846
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7894C433EF;
+        Tue, 10 Jan 2023 18:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374110;
-        bh=FVlfO/J8VkzYWSb9W1b6+Ms5IcyRbnr1I8DQGyb17Ug=;
+        s=korg; t=1673375054;
+        bh=5yRS6mx8C1HfwzAVjei95PV2yRsuOL6oYpiGnuR8FwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWqGGi6I4gDkFDaiUALoimLTtT7kP4RivC8oAu8cZsD9q3eqwNPGfdzUxvKoh+8UZ
-         0y4HfpXlytv+ZmvMvwGPrz0UHmDn1a1BjD5mTj6dpcSF7b2g6kJ3s41LJ8AcL/bYE3
-         OK3MQQvFItIoKfP/HceW2+laPJellQkQZJED1cX4=
+        b=wentZVFItO4L3FYrLQbKYmw0zDrGSGH4EgBSJFg6Rh6Kh05OFHVz3E62z4EPew6t0
+         v5gtdDPpL8ejiN3QkcyyXEE2drJAKJ3AoLTPZRDZQhmfSffZOkSTDfDG84okSQvesY
+         OYOd6+MWUoRjk+8WaVF76tn0UvuGjoB66civsS+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gautam Dawar <gautam.dawar@xilinx.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Gautam Dawar <gautam.dawar@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 049/148] vdpasim: fix memory leak when freeing IOTLBs
+        patches@lists.linux.dev, Borislav Petkov <bp@alien8.de>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 5.15 061/290] soc: qcom: Select REMAP_MMIO for LLCC driver
 Date:   Tue, 10 Jan 2023 19:02:33 +0100
-Message-Id: <20230110180018.766578406@linuxfoundation.org>
+Message-Id: <20230110180033.740985067@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 0b7a04a30eef20e6b24926a45c0ce7906ae85bd6 ]
+commit 5d2fe2d7b616b8baa18348ead857b504fc2de336 upstream.
 
-After commit bda324fd037a ("vdpasim: control virtqueue support"),
-vdpasim->iommu became an array of IOTLB, so we should clean the
-mappings of each free one by one instead of just deleting the ranges
-in the first IOTLB which may leak maps.
+LLCC driver uses REGMAP_MMIO for accessing the hardware registers. So
+select the dependency in Kconfig. Without this, there will be errors
+while building the driver with COMPILE_TEST only:
 
-Fixes: bda324fd037a ("vdpasim: control virtqueue support")
-Cc: Gautam Dawar <gautam.dawar@xilinx.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Message-Id: <20221213090717.61529-1-jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Gautam Dawar <gautam.dawar@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ERROR: modpost: "__devm_regmap_init_mmio_clk" [drivers/soc/qcom/llcc-qcom.ko] undefined!
+make[1]: *** [scripts/Makefile.modpost:126: Module.symvers] Error 1
+make: *** [Makefile:1944: modpost] Error 2
+
+Cc: <stable@vger.kernel.org> # 4.19
+Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
+Reported-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221129071201.30024-2-manivannan.sadhasivam@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/soc/qcom/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 1701e0623408..6489f44bca1a 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -679,7 +679,9 @@ static void vdpasim_free(struct vdpa_device *vdpa)
- 	}
- 
- 	kvfree(vdpasim->buffer);
--	vhost_iotlb_free(vdpasim->iommu);
-+	for (i = 0; i < vdpasim->dev_attr.nas; i++)
-+		vhost_iotlb_reset(&vdpasim->iommu[i]);
-+	kfree(vdpasim->iommu);
- 	kfree(vdpasim->vqs);
- 	kfree(vdpasim->config);
- }
--- 
-2.35.1
-
+--- a/drivers/soc/qcom/Kconfig
++++ b/drivers/soc/qcom/Kconfig
+@@ -63,6 +63,7 @@ config QCOM_GSBI
+ config QCOM_LLCC
+ 	tristate "Qualcomm Technologies, Inc. LLCC driver"
+ 	depends on ARCH_QCOM || COMPILE_TEST
++	select REGMAP_MMIO
+ 	help
+ 	  Qualcomm Technologies, Inc. platform specific
+ 	  Last Level Cache Controller(LLCC) driver for platforms such as,
 
 
