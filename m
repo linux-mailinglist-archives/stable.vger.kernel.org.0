@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD1936649B3
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2CA664AE6
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239314AbjAJSX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:23:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35794 "EHLO
+        id S239421AbjAJShg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:37:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239144AbjAJSXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F34810FD5
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:03 -0800 (PST)
+        with ESMTP id S239480AbjAJSgo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:36:44 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295EC8F2B1
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:31:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38FD461865
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D24C433D2;
-        Tue, 10 Jan 2023 18:21:01 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 968A4CE18B3
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B93FC433D2;
+        Tue, 10 Jan 2023 18:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374862;
-        bh=Ct/bgKycpYWxzxoDdzyIIYlq2VcDmnixPsOH4PVJ/xA=;
+        s=korg; t=1673375512;
+        bh=Dm/YtF3GZklzKstOwt2dcrdE8o2PMXfQTqoOEEhpbDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ky/kn8iVwFgEc0KHlVqxD9OdfHkIjL5c/5dH7HrQm19KvseoT5NtMzfpZFaRqkZzo
-         Fomkqokw8HbgtNIiiPZAROa4dXkqXmC4Al9P8ArbaZsEtGVMS9H2Zt/PptGJyEDaVx
-         NqB2tBzw5Sm/ONjA3FVJQ9p+o9J0TAXEwCxSwjHs=
+        b=Vz1j5looCZQhmHWJ3w3f1q0F6nrRdjBUz6UHE39UKLSnYNpwHkwrdBH98Vv2meL6B
+         b/vhkxtpmor2DiMnN54RxVwouFcjuJuQ7ir4cRNiKRJRNIsYZVvRmG/We692J7HpvC
+         rDOtfeKvEFOHcaPK65Qw1R0cV6Qp4XQna6O0mnFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 6.1 158/159] efi: random: combine bootloader provided RNG seed with RNG protocol output
+        patches@lists.linux.dev,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 214/290] qlcnic: prevent ->dcb use-after-free on qlcnic_dcb_enable() failure
 Date:   Tue, 10 Jan 2023 19:05:06 +0100
-Message-Id: <20230110180023.619459181@linuxfoundation.org>
+Message-Id: <20230110180039.385986892@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,180 +55,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-commit 196dff2712ca5a2e651977bb2fe6b05474111a83 upstream.
+[ Upstream commit 13a7c8964afcd8ca43c0b6001ebb0127baa95362 ]
 
-Instead of blindly creating the EFI random seed configuration table if
-the RNG protocol is implemented and works, check whether such a EFI
-configuration table was provided by an earlier boot stage and if so,
-concatenate the existing and the new seeds, leaving it up to the core
-code to mix it in and credit it the way it sees fit.
+adapter->dcb would get silently freed inside qlcnic_dcb_enable() in
+case qlcnic_dcb_attach() would return an error, which always happens
+under OOM conditions. This would lead to use-after-free because both
+of the existing callers invoke qlcnic_dcb_get_info() on the obtained
+pointer, which is potentially freed at that point.
 
-This can be used for, e.g., systemd-boot, to pass an additional seed to
-Linux in a way that can be consumed by the kernel very early. In that
-case, the following definitions should be used to pass the seed to the
-EFI stub:
+Propagate errors from qlcnic_dcb_enable(), and instead free the dcb
+pointer at callsite using qlcnic_dcb_free(). This also removes the now
+unused qlcnic_clear_dcb_ops() helper, which was a simple wrapper around
+kfree() also causing memory leaks for partially initialized dcb.
 
-struct linux_efi_random_seed {
-      u32     size; // of the 'seed' array in bytes
-      u8      seed[];
-};
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
 
-The memory for the struct must be allocated as EFI_ACPI_RECLAIM_MEMORY
-pool memory, and the address of the struct in memory should be installed
-as a EFI configuration table using the following GUID:
-
-LINUX_EFI_RANDOM_SEED_TABLE_GUID        1ce1e5bc-7ceb-42f2-81e5-8aadf180f57b
-
-Note that doing so is safe even on kernels that were built without this
-patch applied, but the seed will simply be overwritten with a seed
-derived from the EFI RNG protocol, if available. The recommended seed
-size is 32 bytes, and seeds larger than 512 bytes are considered
-corrupted and ignored entirely.
-
-In order to preserve forward secrecy, seeds from previous bootloaders
-are memzero'd out, and in order to preserve memory, those older seeds
-are also freed from memory. Freeing from memory without first memzeroing
-is not safe to do, as it's possible that nothing else will ever
-overwrite those pages used by EFI.
-
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-[ardb: incorporate Jason's followup changes to extend the maximum seed
-       size on the consumer end, memzero() it and drop a needless printk]
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3c44bba1d270 ("qlcnic: Disable DCB operations from SR-IOV VFs")
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/efi.c             |    4 +--
- drivers/firmware/efi/libstub/efistub.h |    2 +
- drivers/firmware/efi/libstub/random.c  |   42 ++++++++++++++++++++++++++++-----
- include/linux/efi.h                    |    2 -
- 4 files changed, 40 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c |  8 +++++++-
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h       | 10 ++--------
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c      |  8 +++++++-
+ 3 files changed, 16 insertions(+), 10 deletions(-)
 
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -611,7 +611,7 @@ int __init efi_config_parse_tables(const
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+index 27dffa299ca6..7c3cf9ad4563 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+@@ -2505,7 +2505,13 @@ int qlcnic_83xx_init(struct qlcnic_adapter *adapter, int pci_using_dac)
+ 		goto disable_mbx_intr;
  
- 		seed = early_memremap(efi_rng_seed, sizeof(*seed));
- 		if (seed != NULL) {
--			size = min(seed->size, EFI_RANDOM_SEED_SIZE);
-+			size = min_t(u32, seed->size, SZ_1K); // sanity check
- 			early_memunmap(seed, sizeof(*seed));
- 		} else {
- 			pr_err("Could not map UEFI random seed!\n");
-@@ -620,8 +620,8 @@ int __init efi_config_parse_tables(const
- 			seed = early_memremap(efi_rng_seed,
- 					      sizeof(*seed) + size);
- 			if (seed != NULL) {
--				pr_notice("seeding entropy pool\n");
- 				add_bootloader_randomness(seed->bits, size);
-+				memzero_explicit(seed->bits, size);
- 				early_memunmap(seed, sizeof(*seed) + size);
- 			} else {
- 				pr_err("Could not map UEFI random seed!\n");
---- a/drivers/firmware/efi/libstub/efistub.h
-+++ b/drivers/firmware/efi/libstub/efistub.h
-@@ -882,6 +882,8 @@ efi_status_t efi_get_random_bytes(unsign
- efi_status_t efi_random_alloc(unsigned long size, unsigned long align,
- 			      unsigned long *addr, unsigned long random_seed);
- 
-+efi_status_t efi_random_get_seed(void);
+ 	qlcnic_83xx_clear_function_resources(adapter);
+-	qlcnic_dcb_enable(adapter->dcb);
 +
- efi_status_t check_platform_features(void);
- 
- void *get_efi_config_table(efi_guid_t guid);
---- a/drivers/firmware/efi/libstub/random.c
-+++ b/drivers/firmware/efi/libstub/random.c
-@@ -67,8 +67,9 @@ efi_status_t efi_random_get_seed(void)
- 	efi_guid_t rng_proto = EFI_RNG_PROTOCOL_GUID;
- 	efi_guid_t rng_algo_raw = EFI_RNG_ALGORITHM_RAW;
- 	efi_guid_t rng_table_guid = LINUX_EFI_RANDOM_SEED_TABLE_GUID;
-+	struct linux_efi_random_seed *prev_seed, *seed = NULL;
-+	int prev_seed_size = 0, seed_size = EFI_RANDOM_SEED_SIZE;
- 	efi_rng_protocol_t *rng = NULL;
--	struct linux_efi_random_seed *seed = NULL;
- 	efi_status_t status;
- 
- 	status = efi_bs_call(locate_protocol, &rng_proto, NULL, (void **)&rng);
-@@ -76,18 +77,33 @@ efi_status_t efi_random_get_seed(void)
- 		return status;
- 
- 	/*
-+	 * Check whether a seed was provided by a prior boot stage. In that
-+	 * case, instead of overwriting it, let's create a new buffer that can
-+	 * hold both, and concatenate the existing and the new seeds.
-+	 * Note that we should read the seed size with caution, in case the
-+	 * table got corrupted in memory somehow.
-+	 */
-+	prev_seed = get_efi_config_table(LINUX_EFI_RANDOM_SEED_TABLE_GUID);
-+	if (prev_seed && prev_seed->size <= 512U) {
-+		prev_seed_size = prev_seed->size;
-+		seed_size += prev_seed_size;
++	err = qlcnic_dcb_enable(adapter->dcb);
++	if (err) {
++		qlcnic_dcb_free(adapter->dcb);
++		goto disable_mbx_intr;
 +	}
 +
-+	/*
- 	 * Use EFI_ACPI_RECLAIM_MEMORY here so that it is guaranteed that the
- 	 * allocation will survive a kexec reboot (although we refresh the seed
- 	 * beforehand)
- 	 */
- 	status = efi_bs_call(allocate_pool, EFI_ACPI_RECLAIM_MEMORY,
--			     sizeof(*seed) + EFI_RANDOM_SEED_SIZE,
-+			     struct_size(seed, bits, seed_size),
- 			     (void **)&seed);
--	if (status != EFI_SUCCESS)
--		return status;
-+	if (status != EFI_SUCCESS) {
-+		efi_warn("Failed to allocate memory for RNG seed.\n");
-+		goto err_warn;
-+	}
+ 	qlcnic_83xx_initialize_nic(adapter, 1);
+ 	qlcnic_dcb_get_info(adapter->dcb);
  
- 	status = efi_call_proto(rng, get_rng, &rng_algo_raw,
--				 EFI_RANDOM_SEED_SIZE, seed->bits);
-+				EFI_RANDOM_SEED_SIZE, seed->bits);
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+index 7519773eaca6..22afa2be85fd 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+@@ -41,11 +41,6 @@ struct qlcnic_dcb {
+ 	unsigned long			state;
+ };
  
- 	if (status == EFI_UNSUPPORTED)
- 		/*
-@@ -100,14 +116,28 @@ efi_status_t efi_random_get_seed(void)
- 	if (status != EFI_SUCCESS)
- 		goto err_freepool;
- 
--	seed->size = EFI_RANDOM_SEED_SIZE;
-+	seed->size = seed_size;
-+	if (prev_seed_size)
-+		memcpy(seed->bits + EFI_RANDOM_SEED_SIZE, prev_seed->bits,
-+		       prev_seed_size);
-+
- 	status = efi_bs_call(install_configuration_table, &rng_table_guid, seed);
- 	if (status != EFI_SUCCESS)
- 		goto err_freepool;
- 
-+	if (prev_seed_size) {
-+		/* wipe and free the old seed if we managed to install the new one */
-+		memzero_explicit(prev_seed->bits, prev_seed_size);
-+		efi_bs_call(free_pool, prev_seed);
-+	}
- 	return EFI_SUCCESS;
- 
- err_freepool:
-+	memzero_explicit(seed, struct_size(seed, bits, seed_size));
- 	efi_bs_call(free_pool, seed);
-+	efi_warn("Failed to obtain seed from EFI_RNG_PROTOCOL\n");
-+err_warn:
-+	if (prev_seed)
-+		efi_warn("Retaining bootloader-supplied seed only");
- 	return status;
- }
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -1170,8 +1170,6 @@ void efi_check_for_embedded_firmwares(vo
- static inline void efi_check_for_embedded_firmwares(void) { }
- #endif
- 
--efi_status_t efi_random_get_seed(void);
+-static inline void qlcnic_clear_dcb_ops(struct qlcnic_dcb *dcb)
+-{
+-	kfree(dcb);
+-}
 -
- #define arch_efi_call_virt(p, f, args...)	((p)->f(args))
+ static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
+ {
+ 	if (dcb && dcb->ops->get_hw_capability)
+@@ -112,9 +107,8 @@ static inline void qlcnic_dcb_init_dcbnl_ops(struct qlcnic_dcb *dcb)
+ 		dcb->ops->init_dcbnl_ops(dcb);
+ }
  
- /*
+-static inline void qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
++static inline int qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
+ {
+-	if (dcb && qlcnic_dcb_attach(dcb))
+-		qlcnic_clear_dcb_ops(dcb);
++	return dcb ? qlcnic_dcb_attach(dcb) : 0;
+ }
+ #endif
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+index 75960a29f80e..cec07d5bbe67 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+@@ -2616,7 +2616,13 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 			 "Device does not support MSI interrupts\n");
+ 
+ 	if (qlcnic_82xx_check(adapter)) {
+-		qlcnic_dcb_enable(adapter->dcb);
++		err = qlcnic_dcb_enable(adapter->dcb);
++		if (err) {
++			qlcnic_dcb_free(adapter->dcb);
++			dev_err(&pdev->dev, "Failed to enable DCB\n");
++			goto err_out_free_hw;
++		}
++
+ 		qlcnic_dcb_get_info(adapter->dcb);
+ 		err = qlcnic_setup_intr(adapter);
+ 
+-- 
+2.35.1
+
 
 
