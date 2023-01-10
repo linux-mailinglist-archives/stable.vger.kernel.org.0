@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D450664998
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:23:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5482C664A9B
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239196AbjAJSXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:23:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38404 "EHLO
+        id S239537AbjAJSeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:34:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239125AbjAJSWT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:19 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FDF69152F
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:50 -0800 (PST)
+        with ESMTP id S239322AbjAJSco (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BD1B1C134
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:29:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7DAD2CE18DE
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65AB4C433EF;
-        Tue, 10 Jan 2023 18:19:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE48E6187F
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:29:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6551C433EF;
+        Tue, 10 Jan 2023 18:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374786;
-        bh=mM9hQQdsSaOws+dktzHTN33AcjfUxJ/YEfP2W+5W2u4=;
+        s=korg; t=1673375352;
+        bh=MmC78Fi0wtPXXJtVuKWOJiw9aVaLdwHpX40716mURks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/KRkr7wZ7jLDIIXdfMfvrxTi7HXEi305Qn6s0WHE6KhCadVsZcZ7m3K5bTjo3Elt
-         sQCZ9Elk51mxRjBV1aq8zkCpeVJrWKIf+zxwTjajw4Egm2nn3nw1fyo62cygZDs9Ri
-         NJoX2yGIbHvnYGsVq46b5wJaSofF0xj7/1FlQuok=
+        b=V279YgoaxvxpHHYpZSxTuvOc/Ti5K/Lf6rgrjoxqTZTyF+LzA6W1fvN1MWm0K1SZ/
+         K85iAJ+7U26rqbpffW1CMAatNKLltmNL0JYIrfgP6q1EkibtIR2FkGUByFyUHgZwBQ
+         BQhciPVkkmSFW04fd77pL+wTubzQPSgWIaredVQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, slipper <slipper.alive@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 104/159] net/ulp: prevent ULP without clone op from entering the LISTEN status
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        stable@kernel.org, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 160/290] ext4: initialize quota before expanding inode in setproject ioctl
 Date:   Tue, 10 Jan 2023 19:04:12 +0100
-Message-Id: <20230110180021.591659945@linuxfoundation.org>
+Message-Id: <20230110180037.416491049@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 2c02d41d71f90a5168391b6a5f2954112ba2307c ]
+commit 1485f726c6dec1a1f85438f2962feaa3d585526f upstream.
 
-When an ULP-enabled socket enters the LISTEN status, the listener ULP data
-pointer is copied inside the child/accepted sockets by sk_clone_lock().
+Make sure we initialize quotas before possibly expanding inode space
+(and thus maybe needing to allocate external xattr block) in
+ext4_ioctl_setproject(). This prevents not accounting the necessary
+block allocation.
 
-The relevant ULP can take care of de-duplicating the context pointer via
-the clone() operation, but only MPTCP and SMC implement such op.
-
-Other ULPs may end-up with a double-free at socket disposal time.
-
-We can't simply clear the ULP data at clone time, as TLS replaces the
-socket ops with custom ones assuming a valid TLS ULP context is
-available.
-
-Instead completely prevent clone-less ULP sockets from entering the
-LISTEN status.
-
-Fixes: 734942cc4ea6 ("tcp: ULP infrastructure")
-Reported-by: slipper <slipper.alive@gmail.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Link: https://lore.kernel.org/r/4b80c3d1dbe3d0ab072f80450c202d9bc88b4b03.1672740602.git.pabeni@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20221207115937.26601-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_connection_sock.c | 14 ++++++++++++++
- net/ipv4/tcp_ulp.c              |  4 ++++
- 2 files changed, 18 insertions(+)
+ fs/ext4/ioctl.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-index 0465ada82799..647b3c6b575e 100644
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -1200,12 +1200,26 @@ void inet_csk_prepare_forced_close(struct sock *sk)
- }
- EXPORT_SYMBOL(inet_csk_prepare_forced_close);
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -492,6 +492,10 @@ static int ext4_ioctl_setproject(struct
+ 	if (ext4_is_quota_file(inode))
+ 		return err;
  
-+static int inet_ulp_can_listen(const struct sock *sk)
-+{
-+	const struct inet_connection_sock *icsk = inet_csk(sk);
-+
-+	if (icsk->icsk_ulp_ops && !icsk->icsk_ulp_ops->clone)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
- int inet_csk_listen_start(struct sock *sk)
- {
- 	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct inet_sock *inet = inet_sk(sk);
- 	int err;
- 
-+	err = inet_ulp_can_listen(sk);
-+	if (unlikely(err))
++	err = dquot_initialize(inode);
++	if (err)
 +		return err;
 +
- 	reqsk_queue_alloc(&icsk->icsk_accept_queue);
- 
- 	sk->sk_ack_backlog = 0;
-diff --git a/net/ipv4/tcp_ulp.c b/net/ipv4/tcp_ulp.c
-index 9ae50b1bd844..05b6077b9f2c 100644
---- a/net/ipv4/tcp_ulp.c
-+++ b/net/ipv4/tcp_ulp.c
-@@ -139,6 +139,10 @@ static int __tcp_set_ulp(struct sock *sk, const struct tcp_ulp_ops *ulp_ops)
- 	if (sk->sk_socket)
- 		clear_bit(SOCK_SUPPORT_ZC, &sk->sk_socket->flags);
- 
-+	err = -EINVAL;
-+	if (!ulp_ops->clone && sk->sk_state == TCP_LISTEN)
-+		goto out_err;
-+
- 	err = ulp_ops->init(sk);
+ 	err = ext4_get_inode_loc(inode, &iloc);
  	if (err)
- 		goto out_err;
--- 
-2.35.1
-
+ 		return err;
+@@ -507,10 +511,6 @@ static int ext4_ioctl_setproject(struct
+ 		brelse(iloc.bh);
+ 	}
+ 
+-	err = dquot_initialize(inode);
+-	if (err)
+-		return err;
+-
+ 	handle = ext4_journal_start(inode, EXT4_HT_QUOTA,
+ 		EXT4_QUOTA_INIT_BLOCKS(sb) +
+ 		EXT4_QUOTA_DEL_BLOCKS(sb) + 3);
 
 
