@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FBCF664888
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E742B664887
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238963AbjAJSMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53228 "EHLO
+        id S238807AbjAJSMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239034AbjAJSL4 (ORCPT
+        with ESMTP id S238802AbjAJSL4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:11:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B321E17405
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:14 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F21175BA
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DADDB818FB
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C17F9C433EF;
-        Tue, 10 Jan 2023 18:10:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44D0C6182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BAE4C433D2;
+        Tue, 10 Jan 2023 18:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374212;
-        bh=75i0XpobXTTFAm3StXjdoef9ukBtI8ePJVRs50TY/H8=;
+        s=korg; t=1673374214;
+        bh=C0j+hwubaVzbBy2zsflSWNv6PYZpDP0K3kDviiz78Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/q2FTPk1t58nXTvQV+0UMVvFXszy+ivISau8nX5HO4bH2QbJGgwsKT2fIyDf6i7H
-         A0l2Day2Cw12T+KexpGfqy1xVw57zH9fC2QUdzHvtxDw7r6GeZ+CztBUVanaiVbN4o
-         BQD8AQgG75Djcox/EZX2OX9l37vrQsfnGLtIJmx4=
+        b=L2uQYvqs73Qw1680r9QKG4SHoQz5hcriERB4csXT8jlqC8slFSeISZ+DCjHzVOqKE
+         nzCAfYzPcxZeZnkpW++r/hecupo9K/Z4HhEhYClsHgMaAh285m3dOlkXGM0yrQ6p/+
+         5rscG4+yDAHrKSP3dd6rbgMULoNgDMUwhv5DRU7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Ian Ray <ian.ray@ge.com>,
-        Philipp Zabel <philipp.zabel@gmail.com>,
+        patches@lists.linux.dev,
+        syzbot <syzbot+bed15dbf10294aa4f2ae@syzkaller.appspotmail.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 087/148] drm/imx: ipuv3-plane: Fix overlay plane width
-Date:   Tue, 10 Jan 2023 19:03:11 +0100
-Message-Id: <20230110180019.958809876@linuxfoundation.org>
+Subject: [PATCH 6.0 088/148] fs/ntfs3: dont hold ni_lock when calling truncate_setsize()
+Date:   Tue, 10 Jan 2023 19:03:12 +0100
+Message-Id: <20230110180019.988725224@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
 References: <20230110180017.145591678@linuxfoundation.org>
@@ -55,80 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 92d43bd3bc9728c1fb114d7011d46f5ea9489e28 ]
+[ Upstream commit 0226635c304cfd5c9db9b78c259cb713819b057e ]
 
-ipu_src_rect_width() was introduced to support odd screen resolutions
-such as 1366x768 by internally rounding up primary plane width to a
-multiple of 8 and compensating with reduced horizontal blanking.
-This also caused overlay plane width to be rounded up, which was not
-intended. Fix overlay plane width by limiting the rounding up to the
-primary plane.
+syzbot is reporting hung task at do_user_addr_fault() [1], for there is
+a silent deadlock between PG_locked bit and ni_lock lock.
 
-drm_rect_width(&new_state->src) >> 16 is the same value as
-drm_rect_width(dst) because there is no plane scaling support.
+Since filemap_update_page() calls filemap_read_folio() after calling
+folio_trylock() which will set PG_locked bit, ntfs_truncate() must not
+call truncate_setsize() which will wait for PG_locked bit to be cleared
+when holding ni_lock lock.
 
-Fixes: 94dfec48fca7 ("drm/imx: Add 8 pixel alignment fix")
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Link: https://lore.kernel.org/r/20221108141420.176696-1-p.zabel@pengutronix.de
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221108141420.176696-1-p.zabel@pengutronix.de
-Tested-by: Ian Ray <ian.ray@ge.com>
-(cherry picked from commit 4333472f8d7befe62359fecb1083cd57a6e07bfc)
-Signed-off-by: Philipp Zabel <philipp.zabel@gmail.com>
+Link: https://lore.kernel.org/all/00000000000060d41f05f139aa44@google.com/
+Link: https://syzkaller.appspot.com/bug?extid=bed15dbf10294aa4f2ae [1]
+Reported-by: syzbot <syzbot+bed15dbf10294aa4f2ae@syzkaller.appspotmail.com>
+Debugged-by: Linus Torvalds <torvalds@linux-foundation.org>
+Co-developed-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 4342306f0f0d ("fs/ntfs3: Add file operations and implementation")
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/ipuv3-plane.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ fs/ntfs3/file.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
-index ea5f594955df..4b05f310071c 100644
---- a/drivers/gpu/drm/imx/ipuv3-plane.c
-+++ b/drivers/gpu/drm/imx/ipuv3-plane.c
-@@ -615,6 +615,11 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 		break;
- 	}
+diff --git a/fs/ntfs3/file.c b/fs/ntfs3/file.c
+index 4f2ffc7ef296..f31c0389a2e7 100644
+--- a/fs/ntfs3/file.c
++++ b/fs/ntfs3/file.c
+@@ -486,10 +486,10 @@ static int ntfs_truncate(struct inode *inode, loff_t new_size)
  
-+	if (ipu_plane->dp_flow == IPU_DP_FLOW_SYNC_BG)
-+		width = ipu_src_rect_width(new_state);
-+	else
-+		width = drm_rect_width(&new_state->src) >> 16;
+ 	new_valid = ntfs_up_block(sb, min_t(u64, ni->i_valid, new_size));
+ 
+-	ni_lock(ni);
+-
+ 	truncate_setsize(inode, new_size);
+ 
++	ni_lock(ni);
 +
- 	eba = drm_plane_state_to_eba(new_state, 0);
- 
- 	/*
-@@ -623,8 +628,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 	 */
- 	if (ipu_state->use_pre) {
- 		axi_id = ipu_chan_assign_axi_id(ipu_plane->dma);
--		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id,
--					  ipu_src_rect_width(new_state),
-+		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id, width,
- 					  drm_rect_height(&new_state->src) >> 16,
- 					  fb->pitches[0], fb->format->format,
- 					  fb->modifier, &eba);
-@@ -679,9 +683,8 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 		break;
- 	}
- 
--	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, ALIGN(drm_rect_width(dst), 8));
-+	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, width);
- 
--	width = ipu_src_rect_width(new_state);
- 	height = drm_rect_height(&new_state->src) >> 16;
- 	info = drm_format_info(fb->format->format);
- 	ipu_calculate_bursts(width, info->cpp[0], fb->pitches[0],
-@@ -745,8 +748,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 		ipu_cpmem_set_burstsize(ipu_plane->ipu_ch, 16);
- 
- 		ipu_cpmem_zero(ipu_plane->alpha_ch);
--		ipu_cpmem_set_resolution(ipu_plane->alpha_ch,
--					 ipu_src_rect_width(new_state),
-+		ipu_cpmem_set_resolution(ipu_plane->alpha_ch, width,
- 					 drm_rect_height(&new_state->src) >> 16);
- 		ipu_cpmem_set_format_passthrough(ipu_plane->alpha_ch, 8);
- 		ipu_cpmem_set_high_priority(ipu_plane->alpha_ch);
+ 	down_write(&ni->file.run_lock);
+ 	err = attr_set_size(ni, ATTR_DATA, NULL, 0, &ni->file.run, new_size,
+ 			    &new_valid, ni->mi.sbi->options->prealloc, NULL);
 -- 
 2.35.1
 
