@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E16BC66487C
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE760664A02
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234218AbjAJSL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52918 "EHLO
+        id S235064AbjAJS3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:29:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238673AbjAJSKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E38B7D0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:39 -0800 (PST)
+        with ESMTP id S237888AbjAJS2D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3463A327
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CC816187D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0DA8C433F0;
-        Tue, 10 Jan 2023 18:09:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E488FB81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F64CC433D2;
+        Tue, 10 Jan 2023 18:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374178;
-        bh=DsLJ6L4A+XGZHFUWQ0IXTedkImRz8ApCZXUKcKsJTdM=;
+        s=korg; t=1673375001;
+        bh=ESXuLs9+vE49p5WEz+JrzEXK0Qi5Brjlf8ty7BdMVyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yh9C/J5YQr8CYx6uMOZmRMYkKNzQl4VLjrOUcSAJvRY+CW5Lc5NucCKs1JmyvcapW
-         or+zXHON6eTNUdJ1U4FizPlXUGAxDnUP6XFbh5ekdBvZrRjxjV50aHvGELYArsLVaM
-         1pbI3HNoNrEyrj6kWtCGqr8RTUIbcY1LzJJQB6fg=
+        b=LPfjQcnIygOOIDMGgUUpBQKDUXaUvh9+c2YPAd55W5t0xqEI+XnKE9mp7ug1PUyKk
+         Z3KlJmGQ2DmKjQUsW33KTmnq7GVFiYJnHa0297koeQf6Fx4uS7nC8l2RDM4pCKc/Ry
+         hJYcZbOMiEzEXkTdz4Rw/V281R6Xj39hCyx9+hW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 034/148] nfc: Fix potential resource leaks
+        patches@lists.linux.dev,
+        NARIBAYASHI Akira <a.naribayashi@fujitsu.com>,
+        David Rientjes <rientjes@google.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 046/290] mm, compaction: fix fast_isolate_around() to stay within boundaries
 Date:   Tue, 10 Jan 2023 19:02:18 +0100
-Message-Id: <20230110180018.303339986@linuxfoundation.org>
+Message-Id: <20230110180033.194815288@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,127 +56,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: NARIBAYASHI Akira <a.naribayashi@fujitsu.com>
 
-[ Upstream commit df49908f3c52d211aea5e2a14a93bbe67a2cb3af ]
+commit be21b32afe470c5ae98e27e49201158a47032942 upstream.
 
-nfc_get_device() take reference for the device, add missing
-nfc_put_device() to release it when not need anymore.
-Also fix the style warnning by use error EOPNOTSUPP instead of
-ENOTSUPP.
+Depending on the memory configuration, isolate_freepages_block() may scan
+pages out of the target range and causes panic.
 
-Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
-Fixes: 29e76924cf08 ("nfc: netlink: Add capability to reply to vendor_cmd with data")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Panic can occur on systems with multiple zones in a single pageblock.
+
+The reason it is rare is that it only happens in special
+configurations.  Depending on how many similar systems there are, it
+may be a good idea to fix this problem for older kernels as well.
+
+The problem is that pfn as argument of fast_isolate_around() could be out
+of the target range.  Therefore we should consider the case where pfn <
+start_pfn, and also the case where end_pfn < pfn.
+
+This problem should have been addressd by the commit 6e2b7044c199 ("mm,
+compaction: make fast_isolate_freepages() stay within zone") but there was
+an oversight.
+
+ Case1: pfn < start_pfn
+
+  <at memory compaction for node Y>
+  |  node X's zone  | node Y's zone
+  +-----------------+------------------------------...
+   pageblock    ^   ^     ^
+  +-----------+-----------+-----------+-----------+...
+                ^   ^     ^
+                ^   ^      end_pfn
+                ^    start_pfn = cc->zone->zone_start_pfn
+                 pfn
+                <---------> scanned range by "Scan After"
+
+ Case2: end_pfn < pfn
+
+  <at memory compaction for node X>
+  |  node X's zone  | node Y's zone
+  +-----------------+------------------------------...
+   pageblock  ^     ^   ^
+  +-----------+-----------+-----------+-----------+...
+              ^     ^   ^
+              ^     ^    pfn
+              ^      end_pfn
+               start_pfn
+              <---------> scanned range by "Scan Before"
+
+It seems that there is no good reason to skip nr_isolated pages just after
+given pfn.  So let perform simple scan from start to end instead of
+dividing the scan into "Before" and "After".
+
+Link: https://lkml.kernel.org/r/20221026112438.236336-1-a.naribayashi@fujitsu.com
+Fixes: 6e2b7044c199 ("mm, compaction: make fast_isolate_freepages() stay within zone").
+Signed-off-by: NARIBAYASHI Akira <a.naribayashi@fujitsu.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/netlink.c | 52 ++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 38 insertions(+), 14 deletions(-)
+ mm/compaction.c |   18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index 7c62417ccfd7..32a08ae9ad11 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1497,6 +1497,7 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	u32 dev_idx, se_idx;
- 	u8 *apdu;
- 	size_t apdu_len;
-+	int rc;
- 
- 	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
- 	    !info->attrs[NFC_ATTR_SE_INDEX] ||
-@@ -1510,25 +1511,37 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	if (!dev)
- 		return -ENODEV;
- 
--	if (!dev->ops || !dev->ops->se_io)
--		return -ENOTSUPP;
-+	if (!dev->ops || !dev->ops->se_io) {
-+		rc = -EOPNOTSUPP;
-+		goto put_dev;
-+	}
- 
- 	apdu_len = nla_len(info->attrs[NFC_ATTR_SE_APDU]);
--	if (apdu_len == 0)
--		return -EINVAL;
-+	if (apdu_len == 0) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
- 
- 	apdu = nla_data(info->attrs[NFC_ATTR_SE_APDU]);
--	if (!apdu)
--		return -EINVAL;
-+	if (!apdu) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
- 
- 	ctx = kzalloc(sizeof(struct se_io_ctx), GFP_KERNEL);
--	if (!ctx)
--		return -ENOMEM;
-+	if (!ctx) {
-+		rc = -ENOMEM;
-+		goto put_dev;
-+	}
- 
- 	ctx->dev_idx = dev_idx;
- 	ctx->se_idx = se_idx;
- 
--	return nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
-+	rc = nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
-+
-+put_dev:
-+	nfc_put_device(dev);
-+	return rc;
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -1350,7 +1350,7 @@ move_freelist_tail(struct list_head *fre
  }
  
- static int nfc_genl_vendor_cmd(struct sk_buff *skb,
-@@ -1551,14 +1564,21 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 	subcmd = nla_get_u32(info->attrs[NFC_ATTR_VENDOR_SUBCMD]);
+ static void
+-fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long nr_isolated)
++fast_isolate_around(struct compact_control *cc, unsigned long pfn)
+ {
+ 	unsigned long start_pfn, end_pfn;
+ 	struct page *page;
+@@ -1371,21 +1371,13 @@ fast_isolate_around(struct compact_contr
+ 	if (!page)
+ 		return;
  
- 	dev = nfc_get_device(dev_idx);
--	if (!dev || !dev->vendor_cmds || !dev->n_vendor_cmds)
-+	if (!dev)
- 		return -ENODEV;
+-	/* Scan before */
+-	if (start_pfn != pfn) {
+-		isolate_freepages_block(cc, &start_pfn, pfn, &cc->freepages, 1, false);
+-		if (cc->nr_freepages >= cc->nr_migratepages)
+-			return;
+-	}
+-
+-	/* Scan after */
+-	start_pfn = pfn + nr_isolated;
+-	if (start_pfn < end_pfn)
+-		isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
++	isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
  
-+	if (!dev->vendor_cmds || !dev->n_vendor_cmds) {
-+		err = -ENODEV;
-+		goto put_dev;
-+	}
+ 	/* Skip this pageblock in the future as it's full or nearly full */
+ 	if (cc->nr_freepages < cc->nr_migratepages)
+ 		set_pageblock_skip(page);
 +
- 	if (info->attrs[NFC_ATTR_VENDOR_DATA]) {
- 		data = nla_data(info->attrs[NFC_ATTR_VENDOR_DATA]);
- 		data_len = nla_len(info->attrs[NFC_ATTR_VENDOR_DATA]);
--		if (data_len == 0)
--			return -EINVAL;
-+		if (data_len == 0) {
-+			err = -EINVAL;
-+			goto put_dev;
-+		}
- 	} else {
- 		data = NULL;
- 		data_len = 0;
-@@ -1573,10 +1593,14 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 		dev->cur_cmd_info = info;
- 		err = cmd->doit(dev, data, data_len);
- 		dev->cur_cmd_info = NULL;
--		return err;
-+		goto put_dev;
- 	}
- 
--	return -EOPNOTSUPP;
-+	err = -EOPNOTSUPP;
-+
-+put_dev:
-+	nfc_put_device(dev);
-+	return err;
++	return;
  }
  
- /* message building helper */
--- 
-2.35.1
-
+ /* Search orders in round-robin fashion */
+@@ -1561,7 +1553,7 @@ fast_isolate_freepages(struct compact_co
+ 		return cc->free_pfn;
+ 
+ 	low_pfn = page_to_pfn(page);
+-	fast_isolate_around(cc, low_pfn, nr_isolated);
++	fast_isolate_around(cc, low_pfn);
+ 	return low_pfn;
+ }
+ 
 
 
