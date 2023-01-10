@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F760664853
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B91A664A1E
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:30:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234904AbjAJSLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50262 "EHLO
+        id S239321AbjAJSaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:30:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238878AbjAJSKJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD392187
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:03 -0800 (PST)
+        with ESMTP id S239357AbjAJS3r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:29:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA183A4C7F
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9391BB818E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED4E7C433EF;
-        Tue, 10 Jan 2023 18:08:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7063C617C9
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 620EDC433EF;
+        Tue, 10 Jan 2023 18:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374081;
-        bh=DWUBk+OrLRiO0rS7gtLI+Xu3zcpjxO0VvfjPCGFbwW0=;
+        s=korg; t=1673375071;
+        bh=v0kGGHNNW8Opu5GPb0ENBLEfnSZTo+jwJLIuih8H7mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TuntgMVw2p47+uMn7VntZRxwXfiCzEWGIsTd3FTXys06LaBu7OARdwQBiXq7PTP0U
-         +oxPOhYoQQb5GdVimjnwXJ9Qg5lrYasNofClBH3JDZdueXvwjuvwANWpFDB1dJr2t8
-         OXeAlmJaqHpumNpb65AtXsqa79Ni374Wqai2p+GU=
+        b=Gra9+JWkECEW2toB0BLx0BeTKo9eyZPTtshpsan9blHM5fLpTiV6B60ssiy1ee8s/
+         j/6HvyvLQxDItdwz7Pf+JSUKpJWisYt7eVRsQdteHoDpOGrZlpCjxfV05lb0O16rhI
+         DW2xZIONhbr8bRjhDxZS1jUNuIQgwn7u9oxpoiRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Piotr Raczynski <piotr.raczynski@intel.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 025/148] net: lan966x: Fix configuration of the PCS
+        patches@lists.linux.dev, Qiujun Huang <hqjagain@gmail.com>,
+        WeiXiong Liao <gmpy.liaowx@gmail.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.15 037/290] pstore/zone: Use GFP_ATOMIC to allocate zone buffer
 Date:   Tue, 10 Jan 2023 19:02:09 +0100
-Message-Id: <20230110180018.004102724@linuxfoundation.org>
+Message-Id: <20230110180032.866038828@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-[ Upstream commit d717f9474e3fb7e6bd3e43ca16e131f04320ed6f ]
+commit 99b3b837855b987563bcfb397cf9ddd88262814b upstream.
 
-When the PCS was taken out of reset, we were changing by mistake also
-the speed to 100 Mbit. But in case the link was going down, the link
-up routine was setting correctly the link speed. If the link was not
-getting down then the speed was forced to run at 100 even if the
-speed was something else.
-On lan966x, to set the speed link to 1G or 2.5G a value of 1 needs to be
-written in DEV_CLOCK_CFG_LINK_SPEED. This is similar to the procedure in
-lan966x_port_init.
+There is a case found when triggering a panic_on_oom, pstore fails to dump
+kmsg. Because psz_kmsg_write_record can't get the new buffer.
 
-The issue was reproduced using 1000base-x sfp module using the commands:
-ip link set dev eth2 up
-ip link addr add 10.97.10.2/24 dev eth2
-ethtool -s eth2 speed 1000 autoneg off
+Handle this by using GFP_ATOMIC to allocate a buffer at lower watermark.
 
-Fixes: d28d6d2e37d1 ("net: lan966x: add port module support")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Reviewed-by: Piotr Raczynski <piotr.raczynski@intel.com>
-Link: https://lore.kernel.org/r/20221221093315.939133-1-horatiu.vultur@microchip.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Fixes: 335426c6dcdd ("pstore/zone: Provide way to skip "broken" zone for MTD devices")
+Cc: WeiXiong Liao <gmpy.liaowx@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/CAJRQjofRCF7wjrYmw3D7zd5QZnwHQq+F8U-mJDJ6NZ4bddYdLA@mail.gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/lan966x/lan966x_port.c | 2 +-
+ fs/pstore/zone.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_port.c b/drivers/net/ethernet/microchip/lan966x/lan966x_port.c
-index f141644e4372..26c5cdf373c4 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_port.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_port.c
-@@ -369,7 +369,7 @@ int lan966x_port_pcs_set(struct lan966x_port *port,
- 	}
- 
- 	/* Take PCS out of reset */
--	lan_rmw(DEV_CLOCK_CFG_LINK_SPEED_SET(2) |
-+	lan_rmw(DEV_CLOCK_CFG_LINK_SPEED_SET(LAN966X_SPEED_1000) |
- 		DEV_CLOCK_CFG_PCS_RX_RST_SET(0) |
- 		DEV_CLOCK_CFG_PCS_TX_RST_SET(0),
- 		DEV_CLOCK_CFG_LINK_SPEED |
--- 
-2.35.1
-
+--- a/fs/pstore/zone.c
++++ b/fs/pstore/zone.c
+@@ -761,7 +761,7 @@ static inline int notrace psz_kmsg_write
+ 		/* avoid destroying old data, allocate a new one */
+ 		len = zone->buffer_size + sizeof(*zone->buffer);
+ 		zone->oldbuf = zone->buffer;
+-		zone->buffer = kzalloc(len, GFP_KERNEL);
++		zone->buffer = kzalloc(len, GFP_ATOMIC);
+ 		if (!zone->buffer) {
+ 			zone->buffer = zone->oldbuf;
+ 			return -ENOMEM;
 
 
