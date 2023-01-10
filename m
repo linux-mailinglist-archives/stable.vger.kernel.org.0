@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9076E6648CE
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B261A664991
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:23:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238938AbjAJSPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:15:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53200 "EHLO
+        id S239161AbjAJSXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239088AbjAJSOt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7FC3F5B
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:51 -0800 (PST)
+        with ESMTP id S239150AbjAJSWP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CFD591526
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5483461866
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E19F8C433EF;
-        Tue, 10 Jan 2023 18:12:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19B68B8189A
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E04AC433EF;
+        Tue, 10 Jan 2023 18:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374370;
-        bh=5qBgZrEU9QTReooa3VV96A8GGKnPsNfmShLSGQ3rlAQ=;
+        s=korg; t=1673374783;
+        bh=OgXuRLzzsJEFs3qmOPhwLSmm0nSXHx05WDwCdh2CwyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AF4OirmvRkffXp688RkuTFj2aNlGo9bcKUWgMcZlztbruxtJzmonea1Msb2DR64HV
-         /TuKIPxGCkCVRNLcdpnUU5h0yOWRd1dxR2qp6sgye/1nBtcm8A8ufhC0jgtr+Qu0qg
-         iu7HJin0KQBNcAcDaVm37PRdz6RUO29ikMa4PRLc=
+        b=dqowo+nt0ZN0l0nIV9B/Wmefkmujt0LqXEqw0C910+V2TP3b3vEFgRwGr6RwPemwA
+         RIzpRxMJXTaaZiiFn4JWWsbPpvCoqloA0gm5foYaz+cbCz9EcHTmg6CGafa45ILfit
+         Q9hBgjSLfLtMzUx/R74h/PDWx0DQwFJ/wHbR+gnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.0 146/148] btrfs: make thaw time super block check to also verify checksum
-Date:   Tue, 10 Jan 2023 19:04:10 +0100
-Message-Id: <20230110180021.815272890@linuxfoundation.org>
+        patches@lists.linux.dev, Caleb Sander <csander@purestorage.com>,
+        Alok Prasad <palok@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 103/159] qed: allow sleep in qed_mcp_trace_dump()
+Date:   Tue, 10 Jan 2023 19:04:11 +0100
+Message-Id: <20230110180021.560230399@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,117 +54,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Caleb Sander <csander@purestorage.com>
 
-commit 3d17adea74a56a4965f7a603d8ed8c66bb9356d9 upstream.
+[ Upstream commit 5401c3e0992860b11fb4b25796e4c4f1921740df ]
 
-Previous commit a05d3c915314 ("btrfs: check superblock to ensure the fs
-was not modified at thaw time") only checks the content of the super
-block, but it doesn't really check if the on-disk super block has a
-matching checksum.
+By default, qed_mcp_cmd_and_union() delays 10us at a time in a loop
+that can run 500K times, so calls to qed_mcp_nvm_rd_cmd()
+may block the current thread for over 5s.
+We observed thread scheduling delays over 700ms in production,
+with stacktraces pointing to this code as the culprit.
 
-This patch will add the checksum verification to thaw time superblock
-verification.
+qed_mcp_trace_dump() is called from ethtool, so sleeping is permitted.
+It already can sleep in qed_mcp_halt(), which calls qed_mcp_cmd().
+Add a "can sleep" parameter to qed_find_nvram_image() and
+qed_nvram_read() so they can sleep during qed_mcp_trace_dump().
+qed_mcp_trace_get_meta_info() and qed_mcp_trace_read_meta(),
+called only by qed_mcp_trace_dump(), allow these functions to sleep.
+I can't tell if the other caller (qed_grc_dump_mcp_hw_dump()) can sleep,
+so keep b_can_sleep set to false when it calls these functions.
 
-This involves the following extra changes:
+An example stacktrace from a custom warning we added to the kernel
+showing a thread that has not scheduled despite long needing resched:
+[ 2745.362925,17] ------------[ cut here ]------------
+[ 2745.362941,17] WARNING: CPU: 23 PID: 5640 at arch/x86/kernel/irq.c:233 do_IRQ+0x15e/0x1a0()
+[ 2745.362946,17] Thread not rescheduled for 744 ms after irq 99
+[ 2745.362956,17] Modules linked in: ...
+[ 2745.363339,17] CPU: 23 PID: 5640 Comm: lldpd Tainted: P           O    4.4.182+ #202104120910+6d1da174272d.61x
+[ 2745.363343,17] Hardware name: FOXCONN MercuryB/Quicksilver Controller, BIOS H11P1N09 07/08/2020
+[ 2745.363346,17]  0000000000000000 ffff885ec07c3ed8 ffffffff8131eb2f ffff885ec07c3f20
+[ 2745.363358,17]  ffffffff81d14f64 ffff885ec07c3f10 ffffffff81072ac2 ffff88be98ed0000
+[ 2745.363369,17]  0000000000000063 0000000000000174 0000000000000074 0000000000000000
+[ 2745.363379,17] Call Trace:
+[ 2745.363382,17]  <IRQ>  [<ffffffff8131eb2f>] dump_stack+0x8e/0xcf
+[ 2745.363393,17]  [<ffffffff81072ac2>] warn_slowpath_common+0x82/0xc0
+[ 2745.363398,17]  [<ffffffff81072b4c>] warn_slowpath_fmt+0x4c/0x50
+[ 2745.363404,17]  [<ffffffff810d5a8e>] ? rcu_irq_exit+0xae/0xc0
+[ 2745.363408,17]  [<ffffffff817c99fe>] do_IRQ+0x15e/0x1a0
+[ 2745.363413,17]  [<ffffffff817c7ac9>] common_interrupt+0x89/0x89
+[ 2745.363416,17]  <EOI>  [<ffffffff8132aa74>] ? delay_tsc+0x24/0x50
+[ 2745.363425,17]  [<ffffffff8132aa04>] __udelay+0x34/0x40
+[ 2745.363457,17]  [<ffffffffa04d45ff>] qed_mcp_cmd_and_union+0x36f/0x7d0 [qed]
+[ 2745.363473,17]  [<ffffffffa04d5ced>] qed_mcp_nvm_rd_cmd+0x4d/0x90 [qed]
+[ 2745.363490,17]  [<ffffffffa04e1dc7>] qed_mcp_trace_dump+0x4a7/0x630 [qed]
+[ 2745.363504,17]  [<ffffffffa04e2556>] ? qed_fw_asserts_dump+0x1d6/0x1f0 [qed]
+[ 2745.363520,17]  [<ffffffffa04e4ea7>] qed_dbg_mcp_trace_get_dump_buf_size+0x37/0x80 [qed]
+[ 2745.363536,17]  [<ffffffffa04ea881>] qed_dbg_feature_size+0x61/0xa0 [qed]
+[ 2745.363551,17]  [<ffffffffa04eb427>] qed_dbg_all_data_size+0x247/0x260 [qed]
+[ 2745.363560,17]  [<ffffffffa0482c10>] qede_get_regs_len+0x30/0x40 [qede]
+[ 2745.363566,17]  [<ffffffff816c9783>] ethtool_get_drvinfo+0xe3/0x190
+[ 2745.363570,17]  [<ffffffff816cc152>] dev_ethtool+0x1362/0x2140
+[ 2745.363575,17]  [<ffffffff8109bcc6>] ? finish_task_switch+0x76/0x260
+[ 2745.363580,17]  [<ffffffff817c2116>] ? __schedule+0x3c6/0x9d0
+[ 2745.363585,17]  [<ffffffff810dbd50>] ? hrtimer_start_range_ns+0x1d0/0x370
+[ 2745.363589,17]  [<ffffffff816c1e5b>] ? dev_get_by_name_rcu+0x6b/0x90
+[ 2745.363594,17]  [<ffffffff816de6a8>] dev_ioctl+0xe8/0x710
+[ 2745.363599,17]  [<ffffffff816a58a8>] sock_do_ioctl+0x48/0x60
+[ 2745.363603,17]  [<ffffffff816a5d87>] sock_ioctl+0x1c7/0x280
+[ 2745.363608,17]  [<ffffffff8111f393>] ? seccomp_phase1+0x83/0x220
+[ 2745.363612,17]  [<ffffffff811e3503>] do_vfs_ioctl+0x2b3/0x4e0
+[ 2745.363616,17]  [<ffffffff811e3771>] SyS_ioctl+0x41/0x70
+[ 2745.363619,17]  [<ffffffff817c6ffe>] entry_SYSCALL_64_fastpath+0x1e/0x79
+[ 2745.363622,17] ---[ end trace f6954aa440266421 ]---
 
-- Export btrfs_check_super_csum()
-  As we need to call it in super.c.
-
-- Change the argument list of btrfs_check_super_csum()
-  Instead of passing a char *, directly pass struct btrfs_super_block *
-  pointer.
-
-- Verify that our checksum type didn't change before checking the
-  checksum value, like it's done at mount time
-
-Fixes: a05d3c915314 ("btrfs: check superblock to ensure the fs was not modified at thaw time")
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c965db4446291 ("qed: Add support for debug data collection")
+Signed-off-by: Caleb Sander <csander@purestorage.com>
+Acked-by: Alok Prasad <palok@marvell.com>
+Link: https://lore.kernel.org/r/20230103233021.1457646-1-csander@purestorage.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c |   10 ++++------
- fs/btrfs/disk-io.h |    2 ++
- fs/btrfs/super.c   |   16 ++++++++++++++++
- 3 files changed, 22 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_debug.c | 28 +++++++++++++++------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -167,11 +167,9 @@ static bool btrfs_supported_super_csum(u
-  * Return 0 if the superblock checksum type matches the checksum value of that
-  * algorithm. Pass the raw disk superblock data.
-  */
--static int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
--				  char *raw_disk_sb)
-+int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
-+			   const struct btrfs_super_block *disk_sb)
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_debug.c b/drivers/net/ethernet/qlogic/qed/qed_debug.c
+index 86ecb080b153..cdcead614e9f 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_debug.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_debug.c
+@@ -1832,7 +1832,8 @@ static enum dbg_status qed_find_nvram_image(struct qed_hwfn *p_hwfn,
+ 					    struct qed_ptt *p_ptt,
+ 					    u32 image_type,
+ 					    u32 *nvram_offset_bytes,
+-					    u32 *nvram_size_bytes)
++					    u32 *nvram_size_bytes,
++					    bool b_can_sleep)
  {
--	struct btrfs_super_block *disk_sb =
--		(struct btrfs_super_block *)raw_disk_sb;
- 	char result[BTRFS_CSUM_SIZE];
- 	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
+ 	u32 ret_mcp_resp, ret_mcp_param, ret_txn_size;
+ 	struct mcp_file_att file_att;
+@@ -1846,7 +1847,8 @@ static enum dbg_status qed_find_nvram_image(struct qed_hwfn *p_hwfn,
+ 					&ret_mcp_resp,
+ 					&ret_mcp_param,
+ 					&ret_txn_size,
+-					(u32 *)&file_att, false);
++					(u32 *)&file_att,
++					b_can_sleep);
  
-@@ -182,7 +180,7 @@ static int btrfs_check_super_csum(struct
- 	 * BTRFS_SUPER_INFO_SIZE range, we expect that the unused space is
- 	 * filled with zeros and is included in the checksum.
- 	 */
--	crypto_shash_digest(shash, raw_disk_sb + BTRFS_CSUM_SIZE,
-+	crypto_shash_digest(shash, (const u8 *)disk_sb + BTRFS_CSUM_SIZE,
- 			    BTRFS_SUPER_INFO_SIZE - BTRFS_CSUM_SIZE, result);
- 
- 	if (memcmp(disk_sb->csum, result, fs_info->csum_size))
-@@ -3471,7 +3469,7 @@ int __cold open_ctree(struct super_block
- 	 * We want to check superblock checksum, the type is stored inside.
- 	 * Pass the whole disk block of size BTRFS_SUPER_INFO_SIZE (4k).
- 	 */
--	if (btrfs_check_super_csum(fs_info, (u8 *)disk_super)) {
-+	if (btrfs_check_super_csum(fs_info, disk_super)) {
- 		btrfs_err(fs_info, "superblock checksum mismatch");
- 		err = -EINVAL;
- 		btrfs_release_disk_super(disk_super);
---- a/fs/btrfs/disk-io.h
-+++ b/fs/btrfs/disk-io.h
-@@ -42,6 +42,8 @@ struct extent_buffer *btrfs_find_create_
- void btrfs_clean_tree_block(struct extent_buffer *buf);
- void btrfs_clear_oneshot_options(struct btrfs_fs_info *fs_info);
- int btrfs_start_pre_rw_mount(struct btrfs_fs_info *fs_info);
-+int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
-+			   const struct btrfs_super_block *disk_sb);
- int __cold open_ctree(struct super_block *sb,
- 	       struct btrfs_fs_devices *fs_devices,
- 	       char *options);
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -2553,6 +2553,7 @@ static int check_dev_super(struct btrfs_
+ 	/* Check response */
+ 	if (nvm_result || (ret_mcp_resp & FW_MSG_CODE_MASK) !=
+@@ -1873,7 +1875,9 @@ static enum dbg_status qed_find_nvram_image(struct qed_hwfn *p_hwfn,
+ static enum dbg_status qed_nvram_read(struct qed_hwfn *p_hwfn,
+ 				      struct qed_ptt *p_ptt,
+ 				      u32 nvram_offset_bytes,
+-				      u32 nvram_size_bytes, u32 *ret_buf)
++				      u32 nvram_size_bytes,
++				      u32 *ret_buf,
++				      bool b_can_sleep)
  {
- 	struct btrfs_fs_info *fs_info = dev->fs_info;
- 	struct btrfs_super_block *sb;
-+	u16 csum_type;
- 	int ret = 0;
+ 	u32 ret_mcp_resp, ret_mcp_param, ret_read_size, bytes_to_copy;
+ 	s32 bytes_left = nvram_size_bytes;
+@@ -1899,7 +1903,7 @@ static enum dbg_status qed_nvram_read(struct qed_hwfn *p_hwfn,
+ 				       &ret_mcp_resp,
+ 				       &ret_mcp_param, &ret_read_size,
+ 				       (u32 *)((u8 *)ret_buf + read_offset),
+-				       false))
++				       b_can_sleep))
+ 			return DBG_STATUS_NVRAM_READ_FAILED;
  
- 	/* This should be called with fs still frozen. */
-@@ -2567,6 +2568,21 @@ static int check_dev_super(struct btrfs_
- 	if (IS_ERR(sb))
- 		return PTR_ERR(sb);
+ 		/* Check response */
+@@ -3380,7 +3384,8 @@ static u32 qed_grc_dump_mcp_hw_dump(struct qed_hwfn *p_hwfn,
+ 				      p_ptt,
+ 				      NVM_TYPE_HW_DUMP_OUT,
+ 				      &hw_dump_offset_bytes,
+-				      &hw_dump_size_bytes);
++				      &hw_dump_size_bytes,
++				      false);
+ 	if (status != DBG_STATUS_OK)
+ 		return 0;
  
-+	/* Verify the checksum. */
-+	csum_type = btrfs_super_csum_type(sb);
-+	if (csum_type != btrfs_super_csum_type(fs_info->super_copy)) {
-+		btrfs_err(fs_info, "csum type changed, has %u expect %u",
-+			  csum_type, btrfs_super_csum_type(fs_info->super_copy));
-+		ret = -EUCLEAN;
-+		goto out;
-+	}
-+
-+	if (btrfs_check_super_csum(fs_info, sb)) {
-+		btrfs_err(fs_info, "csum for on-disk super block no longer matches");
-+		ret = -EUCLEAN;
-+		goto out;
-+	}
-+
- 	/* Btrfs_validate_super() includes fsid check against super->fsid. */
- 	ret = btrfs_validate_super(fs_info, sb, 0);
- 	if (ret < 0)
+@@ -3397,7 +3402,9 @@ static u32 qed_grc_dump_mcp_hw_dump(struct qed_hwfn *p_hwfn,
+ 		status = qed_nvram_read(p_hwfn,
+ 					p_ptt,
+ 					hw_dump_offset_bytes,
+-					hw_dump_size_bytes, dump_buf + offset);
++					hw_dump_size_bytes,
++					dump_buf + offset,
++					false);
+ 		if (status != DBG_STATUS_OK) {
+ 			DP_NOTICE(p_hwfn,
+ 				  "Failed to read MCP HW Dump image from NVRAM\n");
+@@ -4123,7 +4130,9 @@ static enum dbg_status qed_mcp_trace_get_meta_info(struct qed_hwfn *p_hwfn,
+ 	return qed_find_nvram_image(p_hwfn,
+ 				    p_ptt,
+ 				    nvram_image_type,
+-				    trace_meta_offset, trace_meta_size);
++				    trace_meta_offset,
++				    trace_meta_size,
++				    true);
+ }
+ 
+ /* Reads the MCP Trace meta data from NVRAM into the specified buffer */
+@@ -4139,7 +4148,10 @@ static enum dbg_status qed_mcp_trace_read_meta(struct qed_hwfn *p_hwfn,
+ 	/* Read meta data from NVRAM */
+ 	status = qed_nvram_read(p_hwfn,
+ 				p_ptt,
+-				nvram_offset_in_bytes, size_in_bytes, buf);
++				nvram_offset_in_bytes,
++				size_in_bytes,
++				buf,
++				true);
+ 	if (status != DBG_STATUS_OK)
+ 		return status;
+ 
+-- 
+2.35.1
+
 
 
