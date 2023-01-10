@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0CC664AB7
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:35:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9908966497B
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:22:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234137AbjAJSfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:35:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48376 "EHLO
+        id S239228AbjAJSWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:22:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239574AbjAJSeL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:34:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02E99A2AB9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:01 -0800 (PST)
+        with ESMTP id S239210AbjAJSVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:21:46 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2559564F7
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D219B81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A515CC433F0;
-        Tue, 10 Jan 2023 18:29:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 596CECE18D9
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 484DCC433D2;
+        Tue, 10 Jan 2023 18:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375399;
-        bh=qJrV89CsO+/FvgnnSTAWxvS20GRi1b82ZGmEhhK76qc=;
+        s=korg; t=1673374751;
+        bh=hUoYY6F6FpWJZB58X7VFaaWni/kn8cgpFMjjLid3rVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hw9buUqCGJmlMUu3cr5peVgwKl4g0nctvhY4SqSFTvdBphtBycKH6jJj4q80R9GLT
-         eYULdl2ce4pvxUe2uvtocJ7p0Dm2Tz3qTzXSOACdXn8YwDnSR/cetxLilllPlzpkyF
-         bHRwrOd1jCMYujgMUTmja2XTuTxgD2dm4fCKLJiI=
+        b=nZvwZX493OKTEP1OZtUlTae06VWtvdQm1Vwuz7DgOnwPOwGAksRJSoMZS8eYPO2pB
+         LpMMuugrTaoRqda0IQj9BY+VeeQ1lOtFGMZ30IIvywddHLk5S07U7HBh2GD2hfThRH
+         mNmTouZlYGssee02VngtuG5uXPDecj6wipT10VPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        Jens Axboe <axboe@kernel.dk>, Hui Tang <tanghui20@huawei.com>
-Subject: [PATCH 5.15 177/290] ARM: renumber bits related to _TIF_WORK_MASK
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 121/159] io_uring: check for valid register opcode earlier
 Date:   Tue, 10 Jan 2023 19:04:29 +0100
-Message-Id: <20230110180038.023473246@linuxfoundation.org>
+Message-Id: <20230110180022.175777075@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit 191f8453fc99a537ea78b727acea739782378b0d upstream.
+[ Upstream commit 343190841a1f22b96996d9f8cfab902a4d1bfd0e ]
 
-We want to ensure that the mask related to calling do_work_pending()
-is within the first 16 bits. Move bits unrelated to that outside of
-that range, to avoid spuriously calling do_work_pending() when we don't
-need to.
+We only check the register opcode value inside the restricted ring
+section, move it into the main io_uring_register() function instead
+and check it up front.
 
-Cc: stable@vger.kernel.org
-Fixes: 32d59773da38 ("arm: add support for TIF_NOTIFY_SIGNAL")
-Reported-and-tested-by: Hui Tang <tanghui20@huawei.com>
-Suggested-by: Russell King (Oracle) <linux@armlinux.org.uk>
-Link: https://lore.kernel.org/lkml/7ecb8f3c-2aeb-a905-0d4a-aa768b9649b5@huawei.com/
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/thread_info.h |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ io_uring/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/arm/include/asm/thread_info.h
-+++ b/arch/arm/include/asm/thread_info.h
-@@ -129,15 +129,16 @@ extern int vfp_restore_user_hwstate(stru
- #define TIF_NEED_RESCHED	1	/* rescheduling necessary */
- #define TIF_NOTIFY_RESUME	2	/* callback before returning to user */
- #define TIF_UPROBE		3	/* breakpointed or singlestepping */
--#define TIF_SYSCALL_TRACE	4	/* syscall trace active */
--#define TIF_SYSCALL_AUDIT	5	/* syscall auditing active */
--#define TIF_SYSCALL_TRACEPOINT	6	/* syscall tracepoint instrumentation */
--#define TIF_SECCOMP		7	/* seccomp syscall filtering active */
--#define TIF_NOTIFY_SIGNAL	8	/* signal notifications exist */
-+#define TIF_NOTIFY_SIGNAL	4	/* signal notifications exist */
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 71f1cabb9f3d..1bc68dfda340 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -3897,8 +3897,6 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 		return -EEXIST;
  
- #define TIF_USING_IWMMXT	17
- #define TIF_MEMDIE		18	/* is terminating due to OOM killer */
--#define TIF_RESTORE_SIGMASK	20
-+#define TIF_RESTORE_SIGMASK	19
-+#define TIF_SYSCALL_TRACE	20	/* syscall trace active */
-+#define TIF_SYSCALL_AUDIT	21	/* syscall auditing active */
-+#define TIF_SYSCALL_TRACEPOINT	22	/* syscall tracepoint instrumentation */
-+#define TIF_SECCOMP		23	/* seccomp syscall filtering active */
+ 	if (ctx->restricted) {
+-		if (opcode >= IORING_REGISTER_LAST)
+-			return -EINVAL;
+ 		opcode = array_index_nospec(opcode, IORING_REGISTER_LAST);
+ 		if (!test_bit(opcode, ctx->restrictions.register_op))
+ 			return -EACCES;
+@@ -4054,6 +4052,9 @@ SYSCALL_DEFINE4(io_uring_register, unsigned int, fd, unsigned int, opcode,
+ 	long ret = -EBADF;
+ 	struct fd f;
+ 
++	if (opcode >= IORING_REGISTER_LAST)
++		return -EINVAL;
 +
- 
- #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
- #define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
+ 	f = fdget(fd);
+ 	if (!f.file)
+ 		return -EBADF;
+-- 
+2.35.1
+
 
 
