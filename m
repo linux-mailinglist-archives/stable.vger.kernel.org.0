@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EB8664922
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DC46648A2
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239172AbjAJSSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:18:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
+        id S239020AbjAJSM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239210AbjAJSRd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05BAFE0CC
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:08 -0800 (PST)
+        with ESMTP id S239024AbjAJSMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E871BCA6
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 956FB61852
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2F27C433EF;
-        Tue, 10 Jan 2023 18:16:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFE38B81905
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B06C433EF;
+        Tue, 10 Jan 2023 18:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374567;
-        bh=WbSEZbiygLJ8vY925beSj9sKHvYADsjiC9HOcj6wBRs=;
+        s=korg; t=1673374269;
+        bh=Mgp1tA2OFevIx3mzZEDuWq5RCF5ZS41ytX25kB19hJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+fSSBc0SGrMg1pwPikVd3kosW1G68vCUBnlttr1waaqEViQ4SS0V7GdT97U1vWRs
-         YSqz/74sJy1RU7cXNjNHDcule/6bsmJLYKicnyuIe941iKCQm+a416l8LdzsHEjN/5
-         qEBWz3PrB0xqMsqik7eVIl2klcNzQYz7/6GceAec=
+        b=bnxPO/deiAYAZ+J22CeDQssHYMNmDnVqNBG0LjLEteADcX8OtAFg2ubglrx6fjf5Q
+         Si4e00sC5QVIN/Hvz7twp1wzgAX7+ve85PLUdZbh7j9pKSwE2EgNUVI6fD6ZOjJ0J7
+         pKVea3m3Bt3Cz1Y348j5KMm1XGM1BX1yOLRSlxfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Mi <cmi@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 058/159] net/mlx5e: CT: Fix ct debugfs folder name
+Subject: [PATCH 6.0 102/148] usb: dwc3: xilinx: include linux/gpio/consumer.h
 Date:   Tue, 10 Jan 2023 19:03:26 +0100
-Message-Id: <20230110180020.161810785@linuxfoundation.org>
+Message-Id: <20230110180020.424948655@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Mi <cmi@nvidia.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 849190e3e4ccf452fbe2240eace30a9ca83fb8d2 ]
+[ Upstream commit e498a04443240c15c3c857165f7b652b87f4fd96 ]
 
-Need to use sprintf to build a string instead of sscanf. Otherwise
-dirname is null and both "ct_nic" and "ct_fdb" won't be created.
-But its redundant anyway as driver could be in switchdev mode but
-still add nic rules. So use "ct" as folder name.
+The newly added gpio consumer calls cause a build failure in configurations
+that fail to include the right header implicitly:
 
-Fixes: 77422a8f6f61 ("net/mlx5e: CT: Add ct driver counters")
-Signed-off-by: Chris Mi <cmi@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+drivers/usb/dwc3/dwc3-xilinx.c: In function 'dwc3_xlnx_init_zynqmp':
+drivers/usb/dwc3/dwc3-xilinx.c:207:22: error: implicit declaration of function 'devm_gpiod_get_optional'; did you mean 'devm_clk_get_optional'? [-Werror=implicit-function-declaration]
+  207 |         reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LOW);
+      |                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                      devm_clk_get_optional
+
+Fixes: ca05b38252d7 ("usb: dwc3: xilinx: Add gpio-reset support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230103121755.956027-1-arnd@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/usb/dwc3/dwc3-xilinx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-index 864ce0c393e6..f01f7dfdbcf8 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-@@ -2080,14 +2080,9 @@ mlx5_tc_ct_init_check_support(struct mlx5e_priv *priv,
- static void
- mlx5_ct_tc_create_dbgfs(struct mlx5_tc_ct_priv *ct_priv)
- {
--	bool is_fdb = ct_priv->ns_type == MLX5_FLOW_NAMESPACE_FDB;
- 	struct mlx5_tc_ct_debugfs *ct_dbgfs = &ct_priv->debugfs;
--	char dirname[16] = {};
- 
--	if (sscanf(dirname, "ct_%s", is_fdb ? "fdb" : "nic") < 0)
--		return;
--
--	ct_dbgfs->root = debugfs_create_dir(dirname, mlx5_debugfs_get_dev_root(ct_priv->dev));
-+	ct_dbgfs->root = debugfs_create_dir("ct", mlx5_debugfs_get_dev_root(ct_priv->dev));
- 	debugfs_create_atomic_t("offloaded", 0400, ct_dbgfs->root,
- 				&ct_dbgfs->stats.offloaded);
- 	debugfs_create_atomic_t("rx_dropped", 0400, ct_dbgfs->root,
+diff --git a/drivers/usb/dwc3/dwc3-xilinx.c b/drivers/usb/dwc3/dwc3-xilinx.c
+index 67b237c7a76a..550ae64350df 100644
+--- a/drivers/usb/dwc3/dwc3-xilinx.c
++++ b/drivers/usb/dwc3/dwc3-xilinx.c
+@@ -13,6 +13,7 @@
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/dma-mapping.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/of_gpio.h>
+ #include <linux/of_platform.h>
+ #include <linux/pm_runtime.h>
 -- 
 2.35.1
 
