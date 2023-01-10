@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB6966499D
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 319EC664ACE
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239245AbjAJSXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:23:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36530 "EHLO
+        id S239393AbjAJSgO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:36:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239257AbjAJSWd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EB53921D5
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:06 -0800 (PST)
+        with ESMTP id S239436AbjAJSfN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:13 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AAFD52C45
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C05CC61846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6B93C433D2;
-        Tue, 10 Jan 2023 18:20:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 68C57CE18E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4562EC433D2;
+        Tue, 10 Jan 2023 18:30:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374805;
-        bh=bdDW3LLmItTeom4b4EPuVajnxo0DYPgkWZ1jf9gfEmM=;
+        s=korg; t=1673375439;
+        bh=qhhyOKllGRL9irDnPq1l4bZup0he4hGa0pBYGaVGkmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZh0ZdoGADCoU2Sfrq3hdTNar95v7FWYrTkM0Oz5C8mXX56zEn7LiH/voZz4IOxh4
-         SbEAVIxFOTqstNsc4OSN076Bg9XlvOutAQDwn0Nz9FcpJUKkyfRVJPCQND1P2vMyrR
-         +bjS3QjdNVzkJXn6cZF1J217+WkhgwkgMUeohHqk=
+        b=xGb6psU6LcknNU0P7ExH1HfFj21WMDSJx33U7klEjoBR2oFM32y+hv1kH7VjDgoVB
+         6hLbdkCU9jmeRPg0piTAxRzCENpnyBObKFgLf8QkwgzdJTuntWf+XN+1EaiPdZpHIX
+         4LGkyYqp33V6HWpEcRDonmbd8rQ49U6HUNUGWoKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ronald Wahl <ronald.wahl@raritan.com>,
-        Christian Marangi <ansuelsmth@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 6.1 132/159] Revert "net: dsa: qca8k: cache lo and hi for mdio write"
-Date:   Tue, 10 Jan 2023 19:04:40 +0100
-Message-Id: <20230110180022.559245338@linuxfoundation.org>
+        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 189/290] ravb: Fix "failed to switch device to config mode" message during unbind
+Date:   Tue, 10 Jan 2023 19:04:41 +0100
+Message-Id: <20230110180038.479626056@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,177 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Marangi <ansuelsmth@gmail.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-commit 03cb9e6d0b32b768e3d9d473c5c4ca1100877664 upstream.
+[ Upstream commit c72a7e42592b2e18d862cf120876070947000d7a ]
 
-This reverts commit 2481d206fae7884cd07014fd1318e63af35e99eb.
+This patch fixes the error "ravb 11c20000.ethernet eth0: failed to switch
+device to config mode" during unbind.
 
-The Documentation is very confusing about the topic.
-The cache logic for hi and lo is wrong and actually miss some regs to be
-actually written.
+We are doing register access after pm_runtime_put_sync().
 
-What the Documentation actually intended was that it's possible to skip
-writing hi OR lo if half of the reg is not needed to be written or read.
+We usually do cleanup in reverse order of init. Currently in
+remove(), the "pm_runtime_put_sync" is not in reverse order.
 
-Revert the change in favor of a better and correct implementation.
+Probe
+	reset_control_deassert(rstc);
+	pm_runtime_enable(&pdev->dev);
+	pm_runtime_get_sync(&pdev->dev);
 
-Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Cc: stable@vger.kernel.org # v5.18+
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+remove
+	pm_runtime_put_sync(&pdev->dev);
+	unregister_netdev(ndev);
+	..
+	ravb_mdio_release(priv);
+	pm_runtime_disable(&pdev->dev);
+
+Consider the call to unregister_netdev()
+unregister_netdev->unregister_netdevice_queue->rollback_registered_many
+that calls the below functions which access the registers after
+pm_runtime_put_sync()
+ 1) ravb_get_stats
+ 2) ravb_close
+
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Cc: stable@vger.kernel.org
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20221214105118.2495313-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/qca/qca8k-8xxx.c |   61 +++++++--------------------------------
- drivers/net/dsa/qca/qca8k.h      |    5 ---
- 2 files changed, 12 insertions(+), 54 deletions(-)
+ drivers/net/ethernet/renesas/ravb_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/dsa/qca/qca8k-8xxx.c
-+++ b/drivers/net/dsa/qca/qca8k-8xxx.c
-@@ -37,44 +37,6 @@ qca8k_split_addr(u32 regaddr, u16 *r1, u
- }
- 
- static int
--qca8k_set_lo(struct qca8k_priv *priv, int phy_id, u32 regnum, u16 lo)
--{
--	u16 *cached_lo = &priv->mdio_cache.lo;
--	struct mii_bus *bus = priv->bus;
--	int ret;
--
--	if (lo == *cached_lo)
--		return 0;
--
--	ret = bus->write(bus, phy_id, regnum, lo);
--	if (ret < 0)
--		dev_err_ratelimited(&bus->dev,
--				    "failed to write qca8k 32bit lo register\n");
--
--	*cached_lo = lo;
--	return 0;
--}
--
--static int
--qca8k_set_hi(struct qca8k_priv *priv, int phy_id, u32 regnum, u16 hi)
--{
--	u16 *cached_hi = &priv->mdio_cache.hi;
--	struct mii_bus *bus = priv->bus;
--	int ret;
--
--	if (hi == *cached_hi)
--		return 0;
--
--	ret = bus->write(bus, phy_id, regnum, hi);
--	if (ret < 0)
--		dev_err_ratelimited(&bus->dev,
--				    "failed to write qca8k 32bit hi register\n");
--
--	*cached_hi = hi;
--	return 0;
--}
--
--static int
- qca8k_mii_read32(struct mii_bus *bus, int phy_id, u32 regnum, u32 *val)
- {
- 	int ret;
-@@ -97,7 +59,7 @@ qca8k_mii_read32(struct mii_bus *bus, in
- }
- 
- static void
--qca8k_mii_write32(struct qca8k_priv *priv, int phy_id, u32 regnum, u32 val)
-+qca8k_mii_write32(struct mii_bus *bus, int phy_id, u32 regnum, u32 val)
- {
- 	u16 lo, hi;
- 	int ret;
-@@ -105,9 +67,12 @@ qca8k_mii_write32(struct qca8k_priv *pri
- 	lo = val & 0xffff;
- 	hi = (u16)(val >> 16);
- 
--	ret = qca8k_set_lo(priv, phy_id, regnum, lo);
-+	ret = bus->write(bus, phy_id, regnum, lo);
- 	if (ret >= 0)
--		ret = qca8k_set_hi(priv, phy_id, regnum + 1, hi);
-+		ret = bus->write(bus, phy_id, regnum + 1, hi);
-+	if (ret < 0)
-+		dev_err_ratelimited(&bus->dev,
-+				    "failed to write qca8k 32bit register\n");
- }
- 
- static int
-@@ -417,7 +382,7 @@ qca8k_regmap_write(void *ctx, uint32_t r
- 	if (ret < 0)
- 		goto exit;
- 
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- exit:
- 	mutex_unlock(&bus->mdio_lock);
-@@ -450,7 +415,7 @@ qca8k_regmap_update_bits(void *ctx, uint
- 
- 	val &= ~mask;
- 	val |= write_val;
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- exit:
- 	mutex_unlock(&bus->mdio_lock);
-@@ -725,14 +690,14 @@ qca8k_mdio_write(struct qca8k_priv *priv
- 	if (ret)
- 		goto exit;
- 
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- 	ret = qca8k_mdio_busy_wait(bus, QCA8K_MDIO_MASTER_CTRL,
- 				   QCA8K_MDIO_MASTER_BUSY);
- 
- exit:
- 	/* even if the busy_wait timeouts try to clear the MASTER_EN */
--	qca8k_mii_write32(priv, 0x10 | r2, r1, 0);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, 0);
- 
- 	mutex_unlock(&bus->mdio_lock);
- 
-@@ -762,7 +727,7 @@ qca8k_mdio_read(struct qca8k_priv *priv,
- 	if (ret)
- 		goto exit;
- 
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- 	ret = qca8k_mdio_busy_wait(bus, QCA8K_MDIO_MASTER_CTRL,
- 				   QCA8K_MDIO_MASTER_BUSY);
-@@ -773,7 +738,7 @@ qca8k_mdio_read(struct qca8k_priv *priv,
- 
- exit:
- 	/* even if the busy_wait timeouts try to clear the MASTER_EN */
--	qca8k_mii_write32(priv, 0x10 | r2, r1, 0);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, 0);
- 
- 	mutex_unlock(&bus->mdio_lock);
- 
-@@ -1943,8 +1908,6 @@ qca8k_sw_probe(struct mdio_device *mdiod
- 	}
- 
- 	priv->mdio_cache.page = 0xffff;
--	priv->mdio_cache.lo = 0xffff;
--	priv->mdio_cache.hi = 0xffff;
- 
- 	/* Check the detected switch id */
- 	ret = qca8k_read_switch_id(priv);
---- a/drivers/net/dsa/qca/qca8k.h
-+++ b/drivers/net/dsa/qca/qca8k.h
-@@ -375,11 +375,6 @@ struct qca8k_mdio_cache {
-  * mdio writes
-  */
- 	u16 page;
--/* lo and hi can also be cached and from Documentation we can skip one
-- * extra mdio write if lo or hi is didn't change.
-- */
--	u16 lo;
--	u16 hi;
- };
- 
- struct qca8k_pcs {
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index 77a19336abec..c89bcdd15f16 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -2378,11 +2378,11 @@ static int ravb_remove(struct platform_device *pdev)
+ 			  priv->desc_bat_dma);
+ 	/* Set reset mode */
+ 	ravb_write(ndev, CCC_OPC_RESET, CCC);
+-	pm_runtime_put_sync(&pdev->dev);
+ 	unregister_netdev(ndev);
+ 	netif_napi_del(&priv->napi[RAVB_NC]);
+ 	netif_napi_del(&priv->napi[RAVB_BE]);
+ 	ravb_mdio_release(priv);
++	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	reset_control_assert(priv->rstc);
+ 	free_netdev(ndev);
+-- 
+2.35.1
+
 
 
