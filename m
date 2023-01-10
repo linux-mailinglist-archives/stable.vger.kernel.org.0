@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30CF2664B20
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 926D46649A9
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239477AbjAJSi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53626 "EHLO
+        id S239257AbjAJSXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239539AbjAJShx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C4CB983FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:09 -0800 (PST)
+        with ESMTP id S239340AbjAJSWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D3D25F927
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE5AC6183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE375C433F0;
-        Tue, 10 Jan 2023 18:33:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C01D061866
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D63B4C433D2;
+        Tue, 10 Jan 2023 18:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375588;
-        bh=VYWLCPCjOxlzsoYd1BEjuStBHWfWxouoZS7kR+gb8LU=;
+        s=korg; t=1673374836;
+        bh=uCYUh72vBFjzwmz50me+PrTbWUZV1WLilXeESQebrVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+aKeLbYaoJcBCyBnSvYpYTCXFxTZZ8EylDK0xkfP7XoLdrOEky1Iw6NiADrKHqsT
-         wpC5b5hjKDijD+defQpJaNxb9rhbh/s/vtoTXv5xOGcZ1f+52RS8WmfTuLyvPAPBqa
-         Bxuw1QDb7hQhWXMOGt91E/kf2yUlCYMVmsL3dJwI=
+        b=Hy2peAz7qWQUO5gwDdP4/RjTf9buzZNNgytXOCy8KQ9m1kytukr5ottnI05QnJGEQ
+         yyS/k5OTJpfzHXUgyrKbEoBbzioibTeUIYjlx0Mge+wyDUQBKCMKx7Z01wQMajm9me
+         1+GYDlkjzF+h/nk7w9u3xxRJrfbyNsuL8OhJV+qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Magnus Karlsson <magnus.karlsson@gmail.com>,
-        Shawn Bohrer <sbohrer@cloudflare.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Alvin Lee <Alvin.Lee2@amd.com>,
+        Jun Lei <Jun.Lei@amd.com>, Brian Chang <Brian.Chang@amd.com>,
+        Dillon Varone <Dillon.Varone@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 206/290] veth: Fix race with AF_XDP exposing old or uninitialized descriptors
+Subject: [PATCH 6.1 150/159] drm/amd/display: Add check for DET fetch latency hiding for dcn32
 Date:   Tue, 10 Jan 2023 19:04:58 +0100
-Message-Id: <20230110180039.091179179@linuxfoundation.org>
+Message-Id: <20230110180023.290608302@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +56,221 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Bohrer <sbohrer@cloudflare.com>
+From: Dillon Varone <Dillon.Varone@amd.com>
 
-[ Upstream commit fa349e396e4886d742fd6501c599ec627ef1353b ]
+[ Upstream commit 6d4727c80947de0e6fad58b196a9d215e3b32608 ]
 
-When AF_XDP is used on on a veth interface the RX ring is updated in two
-steps.  veth_xdp_rcv() removes packet descriptors from the FILL ring
-fills them and places them in the RX ring updating the cached_prod
-pointer.  Later xdp_do_flush() syncs the RX ring prod pointer with the
-cached_prod pointer allowing user-space to see the recently filled in
-descriptors.  The rings are intended to be SPSC, however the existing
-order in veth_poll allows the xdp_do_flush() to run concurrently with
-another CPU creating a race condition that allows user-space to see old
-or uninitialized descriptors in the RX ring.  This bug has been observed
-in production systems.
+[WHY?]
+Some configurations are constructed with very marginal DET buffers relative to
+the worst possible time required to fetch a swath.
 
-To summarize, we are expecting this ordering:
+[HOW?]
+Add a check to see that the DET buffer allocated for each pipe can hide the
+latency for all pipes to fetch at least one swath.
 
-CPU 0 __xsk_rcv_zc()
-CPU 0 __xsk_map_flush()
-CPU 2 __xsk_rcv_zc()
-CPU 2 __xsk_map_flush()
-
-But we are seeing this order:
-
-CPU 0 __xsk_rcv_zc()
-CPU 2 __xsk_rcv_zc()
-CPU 0 __xsk_map_flush()
-CPU 2 __xsk_map_flush()
-
-This occurs because we rely on NAPI to ensure that only one napi_poll
-handler is running at a time for the given veth receive queue.
-napi_schedule_prep() will prevent multiple instances from getting
-scheduled. However calling napi_complete_done() signals that this
-napi_poll is complete and allows subsequent calls to
-napi_schedule_prep() and __napi_schedule() to succeed in scheduling a
-concurrent napi_poll before the xdp_do_flush() has been called.  For the
-veth driver a concurrent call to napi_schedule_prep() and
-__napi_schedule() can occur on a different CPU because the veth xmit
-path can additionally schedule a napi_poll creating the race.
-
-The fix as suggested by Magnus Karlsson, is to simply move the
-xdp_do_flush() call before napi_complete_done().  This syncs the
-producer ring pointers before another instance of napi_poll can be
-scheduled on another CPU.  It will also slightly improve performance by
-moving the flush closer to when the descriptors were placed in the
-RX ring.
-
-Fixes: d1396004dd86 ("veth: Add XDP TX and REDIRECT")
-Suggested-by: Magnus Karlsson <magnus.karlsson@gmail.com>
-Signed-off-by: Shawn Bohrer <sbohrer@cloudflare.com>
-Link: https://lore.kernel.org/r/20221220185903.1105011-1-sbohrer@cloudflare.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Brian Chang <Brian.Chang@amd.com>
+Signed-off-by: Dillon Varone <Dillon.Varone@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Stable-dep-of: f3c23bea598a ("drm/amd/display: Uninitialized variables causing 4k60 UCLK to stay at DPM1 and not DPM0")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/veth.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ .../dc/dml/dcn32/display_mode_vba_32.c        | 39 +++++++++++
+ .../dc/dml/dcn32/display_mode_vba_util_32.c   | 69 +++++++++++++++++++
+ .../dc/dml/dcn32/display_mode_vba_util_32.h   | 18 +++++
+ .../drm/amd/display/dc/dml/display_mode_vba.h |  2 +
+ 4 files changed, 128 insertions(+)
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index 64fa8e9c0a22..41cb9179e8b7 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -916,6 +916,9 @@ static int veth_poll(struct napi_struct *napi, int budget)
- 	xdp_set_return_frame_no_direct();
- 	done = veth_xdp_rcv(rq, budget, &bq, &stats);
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c
+index 9afd9ba23fb2..820042f6aaca 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_32.c
+@@ -670,6 +670,25 @@ static void DISPCLKDPPCLKDCFCLKDeepSleepPrefetchParametersWatermarksAndPerforman
+ 		v->cursor_bw[k] = mode_lib->vba.NumberOfCursors[k] * mode_lib->vba.CursorWidth[k][0] * mode_lib->vba.CursorBPP[k][0] / 8 / (mode_lib->vba.HTotal[k] / mode_lib->vba.PixelClock[k]) * mode_lib->vba.VRatio[k];
+ 	}
  
-+	if (stats.xdp_redirect > 0)
-+		xdp_do_flush();
++	v->NotEnoughDETSwathFillLatencyHiding = dml32_CalculateDETSwathFillLatencyHiding(
++						mode_lib->vba.NumberOfActiveSurfaces,
++						mode_lib->vba.ReturnBW,
++						v->UrgentLatency,
++						mode_lib->vba.SwathHeightY,
++						mode_lib->vba.SwathHeightC,
++						v->swath_width_luma_ub,
++						v->swath_width_chroma_ub,
++						v->BytePerPixelDETY,
++						v->BytePerPixelDETC,
++						mode_lib->vba.DETBufferSizeY,
++						mode_lib->vba.DETBufferSizeC,
++						mode_lib->vba.DPPPerPlane,
++						mode_lib->vba.HTotal,
++						mode_lib->vba.PixelClock,
++						mode_lib->vba.VRatio,
++						mode_lib->vba.VRatioChroma,
++						mode_lib->vba.UsesMALLForPStateChange);
 +
- 	if (done < budget && napi_complete_done(napi, done)) {
- 		/* Write rx_notify_masked before reading ptr_ring */
- 		smp_store_mb(rq->rx_notify_masked, false);
-@@ -929,8 +932,6 @@ static int veth_poll(struct napi_struct *napi, int budget)
+ 	for (k = 0; k < mode_lib->vba.NumberOfActiveSurfaces; ++k) {
+ 		v->MaxVStartupLines[k] = ((mode_lib->vba.Interlace[k] &&
+ 				!mode_lib->vba.ProgressiveToInterlaceUnitInOPP) ?
+@@ -1664,6 +1683,7 @@ static void mode_support_configuration(struct vba_vars_st *v,
+ 				&& mode_lib->vba.PTEBufferSizeNotExceeded[i][j] == true
+ 				&& mode_lib->vba.DCCMetaBufferSizeNotExceeded[i][j] == true
+ 				&& mode_lib->vba.NonsupportedDSCInputBPC == false
++				&& mode_lib->vba.NotEnoughDETSwathFillLatencyHidingPerState[i][j] == false
+ 				&& !mode_lib->vba.ExceededMALLSize
+ 				&& ((mode_lib->vba.HostVMEnable == false
+ 				&& !mode_lib->vba.ImmediateFlipRequiredFinal)
+@@ -3158,6 +3178,25 @@ void dml32_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
+ 					mode_lib->vba.UrgentBurstFactorChroma,
+ 					mode_lib->vba.UrgentBurstFactorCursor);
  
- 	if (stats.xdp_tx > 0)
- 		veth_xdp_flush(rq, &bq);
--	if (stats.xdp_redirect > 0)
--		xdp_do_flush();
- 	xdp_clear_return_frame_no_direct();
++			mode_lib->vba.NotEnoughDETSwathFillLatencyHidingPerState[i][j] = dml32_CalculateDETSwathFillLatencyHiding(
++					mode_lib->vba.NumberOfActiveSurfaces,
++					mode_lib->vba.ReturnBWPerState[i][j],
++					mode_lib->vba.UrgLatency[i],
++					mode_lib->vba.SwathHeightYThisState,
++					mode_lib->vba.SwathHeightCThisState,
++					mode_lib->vba.swath_width_luma_ub_this_state,
++					mode_lib->vba.swath_width_chroma_ub_this_state,
++					mode_lib->vba.BytePerPixelInDETY,
++					mode_lib->vba.BytePerPixelInDETC,
++					mode_lib->vba.DETBufferSizeYThisState,
++					mode_lib->vba.DETBufferSizeCThisState,
++					mode_lib->vba.NoOfDPPThisState,
++					mode_lib->vba.HTotal,
++					mode_lib->vba.PixelClock,
++					mode_lib->vba.VRatio,
++					mode_lib->vba.VRatioChroma,
++					mode_lib->vba.UsesMALLForPStateChange);
++
+ 			v->dummy_vars.dml32_ModeSupportAndSystemConfigurationFull.VMDataOnlyReturnBWPerState = dml32_get_return_bw_mbps_vm_only(&mode_lib->vba.soc, i,
+ 					mode_lib->vba.DCFCLKState[i][j], mode_lib->vba.FabricClockPerState[i],
+ 					mode_lib->vba.DRAMSpeedPerState[i]);
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c
+index debe46b24a3e..5af601cff1a0 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.c
+@@ -6228,3 +6228,72 @@ void dml32_CalculateImmediateFlipBandwithSupport(unsigned int NumberOfActiveSurf
+ 	*ImmediateFlipBandwidthSupport = (*TotalBandwidth <= ReturnBW);
+ 	*FractionOfUrgentBandwidth = *TotalBandwidth / ReturnBW;
+ }
++
++bool dml32_CalculateDETSwathFillLatencyHiding(unsigned int NumberOfActiveSurfaces,
++		double ReturnBW,
++		double UrgentLatency,
++		unsigned int SwathHeightY[],
++		unsigned int SwathHeightC[],
++		unsigned int SwathWidthY[],
++		unsigned int SwathWidthC[],
++		double  BytePerPixelInDETY[],
++		double  BytePerPixelInDETC[],
++		unsigned int    DETBufferSizeY[],
++		unsigned int    DETBufferSizeC[],
++		unsigned int	NumOfDPP[],
++		unsigned int	HTotal[],
++		double	PixelClock[],
++		double	VRatioY[],
++		double	VRatioC[],
++		enum dm_use_mall_for_pstate_change_mode UsesMALLForPStateChange[DC__NUM_DPP__MAX])
++{
++	int k;
++	double SwathSizeAllSurfaces = 0;
++	double SwathSizeAllSurfacesInFetchTimeUs;
++	double DETSwathLatencyHidingUs;
++	double DETSwathLatencyHidingYUs;
++	double DETSwathLatencyHidingCUs;
++	double SwathSizePerSurfaceY[DC__NUM_DPP__MAX];
++	double SwathSizePerSurfaceC[DC__NUM_DPP__MAX];
++	bool NotEnoughDETSwathFillLatencyHiding = false;
++
++	/* calculate sum of single swath size for all pipes in bytes*/
++	for (k = 0; k < NumberOfActiveSurfaces; k++) {
++		SwathSizePerSurfaceY[k] += SwathHeightY[k] * SwathWidthY[k] * BytePerPixelInDETY[k] * NumOfDPP[k];
++
++		if (SwathHeightC[k] != 0)
++			SwathSizePerSurfaceC[k] += SwathHeightC[k] * SwathWidthC[k] * BytePerPixelInDETC[k] * NumOfDPP[k];
++		else
++			SwathSizePerSurfaceC[k] = 0;
++
++		SwathSizeAllSurfaces += SwathSizePerSurfaceY[k] + SwathSizePerSurfaceC[k];
++	}
++
++	SwathSizeAllSurfacesInFetchTimeUs = SwathSizeAllSurfaces / ReturnBW + UrgentLatency;
++
++	/* ensure all DET - 1 swath can hide a fetch for all surfaces */
++	for (k = 0; k < NumberOfActiveSurfaces; k++) {
++		double LineTime = HTotal[k] / PixelClock[k];
++
++		/* only care if surface is not phantom */
++		if (UsesMALLForPStateChange[k] != dm_use_mall_pstate_change_phantom_pipe) {
++			DETSwathLatencyHidingYUs = (dml_floor(DETBufferSizeY[k] / BytePerPixelInDETY[k] / SwathWidthY[k], 1.0) - SwathHeightY[k]) / VRatioY[k] * LineTime;
++
++			if (SwathHeightC[k] != 0) {
++				DETSwathLatencyHidingCUs = (dml_floor(DETBufferSizeC[k] / BytePerPixelInDETC[k] / SwathWidthC[k], 1.0) - SwathHeightC[k]) / VRatioC[k] * LineTime;
++
++				DETSwathLatencyHidingUs = dml_min(DETSwathLatencyHidingYUs, DETSwathLatencyHidingCUs);
++			} else {
++				DETSwathLatencyHidingUs = DETSwathLatencyHidingYUs;
++			}
++
++			/* DET must be able to hide time to fetch 1 swath for each surface */
++			if (DETSwathLatencyHidingUs < SwathSizeAllSurfacesInFetchTimeUs) {
++				NotEnoughDETSwathFillLatencyHiding = true;
++				break;
++			}
++		}
++	}
++
++	return NotEnoughDETSwathFillLatencyHiding;
++}
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.h b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.h
+index 3989c2a28fae..779c6805f599 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.h
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/display_mode_vba_util_32.h
+@@ -1141,4 +1141,22 @@ void dml32_CalculateImmediateFlipBandwithSupport(unsigned int NumberOfActiveSurf
+ 		double  *FractionOfUrgentBandwidth,
+ 		bool *ImmediateFlipBandwidthSupport);
  
- 	return done;
++bool dml32_CalculateDETSwathFillLatencyHiding(unsigned int NumberOfActiveSurfaces,
++		double ReturnBW,
++		double UrgentLatency,
++		unsigned int SwathHeightY[],
++		unsigned int SwathHeightC[],
++		unsigned int SwathWidthY[],
++		unsigned int SwathWidthC[],
++		double  BytePerPixelInDETY[],
++		double  BytePerPixelInDETC[],
++		unsigned int    DETBufferSizeY[],
++		unsigned int    DETBufferSizeC[],
++		unsigned int	NumOfDPP[],
++		unsigned int	HTotal[],
++		double	PixelClock[],
++		double	VRatioY[],
++		double	VRatioC[],
++		enum dm_use_mall_for_pstate_change_mode UsesMALLForPStateChange[DC__NUM_DPP__MAX]);
++
+ #endif
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/display_mode_vba.h b/drivers/gpu/drm/amd/display/dc/dml/display_mode_vba.h
+index a0207a8f8756..2b34b02dbd45 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/display_mode_vba.h
++++ b/drivers/gpu/drm/amd/display/dc/dml/display_mode_vba.h
+@@ -1041,6 +1041,7 @@ struct vba_vars_st {
+ 	double MinFullDETBufferingTime;
+ 	double AverageReadBandwidthGBytePerSecond;
+ 	bool   FirstMainPlane;
++	bool NotEnoughDETSwathFillLatencyHiding;
+ 
+ 	unsigned int ViewportWidthChroma[DC__NUM_DPP__MAX];
+ 	unsigned int ViewportHeightChroma[DC__NUM_DPP__MAX];
+@@ -1224,6 +1225,7 @@ struct vba_vars_st {
+ 	unsigned int BlockWidthC[DC__NUM_DPP__MAX];
+ 	unsigned int SubViewportLinesNeededInMALL[DC__NUM_DPP__MAX];
+ 	bool VActiveBandwithSupport[DC__VOLTAGE_STATES][2];
++	bool NotEnoughDETSwathFillLatencyHidingPerState[DC__VOLTAGE_STATES][2];
+ 	struct dummy_vars dummy_vars;
+ };
+ 
 -- 
 2.35.1
 
