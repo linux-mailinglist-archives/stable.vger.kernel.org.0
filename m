@@ -2,68 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F143366474F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 18:22:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B26D2664760
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 18:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233094AbjAJRWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 12:22:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50466 "EHLO
+        id S231776AbjAJR0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 12:26:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234774AbjAJRVi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 12:21:38 -0500
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 870871EAEC
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 09:21:04 -0800 (PST)
-Received: by mail-lf1-x12f.google.com with SMTP id b3so19570112lfv.2
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 09:21:04 -0800 (PST)
+        with ESMTP id S229889AbjAJR0U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 12:26:20 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11049568B2
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 09:26:19 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id n12so13122211pjp.1
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 09:26:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=BiD9HDtY677v73zD/DAwV3gxXKXHJJtF5vodMznouXI=;
-        b=LtCcapEfaq7jnw+0fGg77tKfZIsc0Ia1/E/mVPvdvIeEfaUDocpq2qs66q6GPOw+JK
-         Pxve+JFGST72umFROmdvgPrsqTgozMzdSDcaFCaoI1HgN98eGnYmPwCErho77OzrCd0l
-         DLNCw3XmItwejeHB5US7WEj8eASOgmF6/aqG0U7Ua0YD0Moww9aHxy4rjyUyEuGrLljV
-         HW2zTdvTCyJ57N8jf8aGm4sEhw5g2bqc3PYf41lorsBz2Vn69tLFRehGj5nuHhYxNFGF
-         dfwiulkdAaoKjGof+vEdw0VtFxBzi3L3diD4231k+0gVkLoVA8PLU6bBwlDNdQGnujjB
-         vMUQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=nliJQlj23z9hbeKyMSl59voNvnRlEhNGeqPCO5Oz7iU=;
+        b=JtUMyHuaaLvvtJ0Fme1GYAdkyW69Isn/2P63QiKEOP2DRZx7EhXV7XEooZU6TK79SM
+         RuXL/owazMPaqo0dqEwk/Dc+tR20eY5cYKSt4dJYcAa5/y39hGZYq1aIOAj8gdtxLpF9
+         j3+TTMF5aRCOn5A3z5Fo7WkUsRGMu08mGgF/YsQYUXTY96+644NpoA89xCcK3XgHl3z0
+         +J18XngsZnrB9tIpbjC7fSeB4FlCqpPsw9bKve+WlNWt9nfWWdRObXOOdv2eS3nCxw15
+         zFcRJlvvzaGd3tDYImErAhgOkRye2rfhfkZWmbTI9/xieHGMovO7/QPpWc0Y0Gr5jYsB
+         gAwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=BiD9HDtY677v73zD/DAwV3gxXKXHJJtF5vodMznouXI=;
-        b=MEb6U1ekmROzYw94SdDOoqPVw/HmkmQSA5MhENzFPuV6+rysYtYL6A8JZ4B6q+bIpW
-         398RxrUkcGl4q/JCpphA602Xr5+tZ5RhdLfuKUue4FqOeaIGee1kBAAQI5uUw2ith/69
-         08rdT8S55X753AAXptNTTpLDw+fmTOQb1WqIIBe3kxAQI/c6TFtS2l2y/ZFHc7Xs6ROs
-         ss8qVvtDPCVgPQqnUt6qHALp2eXQybnJdxh2ERXtiBf6WM8pOH9opg/7cJrzwKH6Uztl
-         nRTGn0E/b2OoIqeib+nwKWbU3MHFvO8rg+Ko+YilsTl5jui54UzPsfRYoCeFBn4KzQSp
-         gO6g==
-X-Gm-Message-State: AFqh2krtMA0lXO6WlcHcBIpNVglj3W5Ahn9FhtD4oTxHypZy0NNS/+3U
-        zwcMB6deYMq3rX2qdjZJr3pYCF6Zqn3zm4EhWOo2+Q==
-X-Google-Smtp-Source: AMrXdXvlEhCNddUYn/gUScAlB9NgzJOTwBVEkk8vjb8E2yu2dOexlTIBWM5iNW3SRH+747A4nRXGVYTTy+jvR2TDsAU=
-X-Received: by 2002:a05:6512:22d6:b0:4cb:3ff7:f24a with SMTP id
- g22-20020a05651222d600b004cb3ff7f24amr1538148lfu.409.1673371262485; Tue, 10
- Jan 2023 09:21:02 -0800 (PST)
+        bh=nliJQlj23z9hbeKyMSl59voNvnRlEhNGeqPCO5Oz7iU=;
+        b=YvktSalS2xLSnib8n0Gtz3IBxDEx4rwMProF19imBvNMXOe7Eo/PytGAvRTsZC2VIc
+         Vl7hFf3lVQsKrXiXzuRT0feYFKu6P3mTHXPIJcPexQVLbw8xzX9HwqyH2ckHSSpuTOEf
+         UT67vRBvUJGYziDdZP3m6fST/o46MAYjCcL4f4qivYg2Lad/FDmaREYA2E3/1/KjyfLx
+         dnE2mZ2MeYoSGzkLzEwImNzJE8OeVePFYbzEm9vxZ6RAvwfBdlPBDahj9/1O2pN3F+0n
+         JbUECQ+3nUTuysE6AlGeBNpATMjth0LfthBCKsEXOeaoqoeFSERs6jGzZHiFxS8QkGlk
+         ZLSQ==
+X-Gm-Message-State: AFqh2kpSurFriRlwL2uOb7hr3+Frgk7rHOmVjO6Qm+0pK4fqyOs1pePa
+        oEOr7zdNdTQe47v5ywXYYOt4ER2E5xc3W161/ehvPA==
+X-Google-Smtp-Source: AMrXdXvBL3zRsr8olr3Bhlzc2NYxbufoRsKfOSDdWnXy87QDREh6MK+bytKWyhrhrXL8UC1aEoQ4rg==
+X-Received: by 2002:a17:902:6b89:b0:189:cf92:6f5c with SMTP id p9-20020a1709026b8900b00189cf926f5cmr73644692plk.52.1673371578147;
+        Tue, 10 Jan 2023 09:26:18 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a13-20020a1709027e4d00b0019312dd3f99sm8089498pln.176.2023.01.10.09.26.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Jan 2023 09:26:17 -0800 (PST)
+Message-ID: <63bd9fb9.170a0220.3c058.d462@mx.google.com>
+Date:   Tue, 10 Jan 2023 09:26:17 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20230109160808.3618132-1-pgonda@google.com> <74745684-785e-71b2-288e-91fbcf1b555b@amd.com>
- <CAMkAt6q_E-+VV=KOs9LbDzawirWR7M4xL2pCF9fR2kMuBuFM-A@mail.gmail.com> <d6c2455c-aff5-a135-2610-53dd6b586b59@amd.com>
-In-Reply-To: <d6c2455c-aff5-a135-2610-53dd6b586b59@amd.com>
-From:   Peter Gonda <pgonda@google.com>
-Date:   Tue, 10 Jan 2023 10:20:50 -0700
-Message-ID: <CAMkAt6orqOCrOiy=kjBq=5jnP1CyM=cbaYYaVAZLDnqbRpgUCw@mail.gmail.com>
-Subject: Re: [PATCH] KVM: sev: Fix int overflow in send|recieve_update_data ioctls
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     kvm@vger.kernel.org, Andy Nguyen <theflow@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.162-767-ge4c2d6d2444c
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.10.y baseline: 116 runs,
+ 1 regressions (v5.10.162-767-ge4c2d6d2444c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,47 +71,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 10, 2023 at 10:16 AM Tom Lendacky <thomas.lendacky@amd.com> wrote:
->
-> On 1/10/23 10:44, Peter Gonda wrote:
-> >>>
-> >>> diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-> >>> index 273cba809328..9451de72f917 100644
-> >>> --- a/arch/x86/kvm/svm/sev.c
-> >>> +++ b/arch/x86/kvm/svm/sev.c
-> >>> @@ -1294,7 +1294,7 @@ static int sev_send_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
-> >>>
-> >>>        /* Check if we are crossing the page boundary */
-> >>>        offset = params.guest_uaddr & (PAGE_SIZE - 1);
-> >>> -     if ((params.guest_len + offset > PAGE_SIZE))
-> >>> +     if (params.guest_len > PAGE_SIZE || (params.guest_len + offset > PAGE_SIZE))
-> >>
-> >> I see the original if statement had double parentheses, which looks
-> >> strange. Should this if (and the one below) be:
-> >>
-> >>          if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
-> >
-> > Isn't the order of operations here: '+' and then '>'. So is the patch
-> > correct and matches the old conditional? I am fine adding additional
->
-> But what was the purpose of them in the old conditional? They weren't
-> necessary.
->
-> But, yes, that order of operations is correct and those are both before
-> '||'. So the extra parentheses around the second condition check are still
-> strange then, right?
->
-> Given that, then:
->
->         if (params.guest_len > PAGE_SIZE || params.guest_len + offset > PAGE_SIZE)
->
-> > () for clarity though.
->
-> I do like the look and clarity of the parentheses around the addition.
+stable-rc/linux-5.10.y baseline: 116 runs, 1 regressions (v5.10.162-767-ge4=
+c2d6d2444c)
 
-Sounds good to me. I'll update the V2 in a couple days to wait for any
-other comments.
+Regressions Summary
+-------------------
 
->
-> Thanks,
-> Tom
+platform          | arch | lab     | compiler | defconfig          | regres=
+sions
+------------------+------+---------+----------+--------------------+-------=
+-----
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
+     =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.162-767-ge4c2d6d2444c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.162-767-ge4c2d6d2444c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e4c2d6d2444cdb93738ea7ddcef5938def711d15 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab     | compiler | defconfig          | regres=
+sions
+------------------+------+---------+----------+--------------------+-------=
+-----
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/63bd6b13abced621311d39d7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: shmobile_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+62-767-ge4c2d6d2444c/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+62-767-ge4c2d6d2444c/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230109.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63bd6b13abced621311d3=
+9d8
+        failing since 12 days (last pass: v5.10.161-561-g6081b6cc6ce7, firs=
+t fail: v5.10.161-575-g2bd054a0af64) =
+
+ =20
