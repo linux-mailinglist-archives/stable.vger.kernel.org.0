@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A0DD6649C1
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E15B2664AC8
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235296AbjAJSYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:24:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36792 "EHLO
+        id S239369AbjAJSgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:36:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239460AbjAJSXf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6080C4C73A
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:31 -0800 (PST)
+        with ESMTP id S239427AbjAJSfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5362F9B2A2
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07685B818EF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63EA6C433F0;
-        Tue, 10 Jan 2023 18:21:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0175EB81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21BECC433D2;
+        Tue, 10 Jan 2023 18:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374888;
-        bh=djq9lIQ0nqp7d9nYg+s4qgATiy3Xr6m3SiYI/DdRwGk=;
+        s=korg; t=1673375436;
+        bh=MazqOz3mBOgpLDVrM8IiQPoQnCER46oXA8YS7qQjh20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mz8U3L2ulLc6tEGYzW3W3YT9AYL/0VCDhlgsclboToOUdmiRZ5grA4m3pD5tOBgfk
-         4ewNWVD1P7W+vhnnJmP70/4ZjJ8Dz7mm2eyvXOHRcKeGztcIJoITz83N5B/W95MI4j
-         cpl1HagVHBnKxXKjW8IuPAw3FoETNpLxxRluBMK0=
+        b=m7lZYuUNsoSOdOm3Ywewkae63zuQEIBHeeQdliJtJ9/HLx8oJF7hKcJ7zURYAcWdi
+         NKP+IvVy9te/gG1dvjTdTD2TcccmZl9sU0nfb+Y5Cn245iJKhDukGhuz52/fx3Nrmj
+         RXsnzL3hpnHNtxU+70plmLXJW30sql/jWwBM1mHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 131/159] Revert "drm/amd/display: Enable Freesync Video Mode by default"
-Date:   Tue, 10 Jan 2023 19:04:39 +0100
-Message-Id: <20230110180022.531254217@linuxfoundation.org>
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 188/290] perf probe: Fix to get the DW_AT_decl_file and DW_AT_call_file as unsinged data
+Date:   Tue, 10 Jan 2023 19:04:40 +0100
+Message-Id: <20230110180038.443835403@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,127 +60,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michel Dänzer <mdaenzer@redhat.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-commit 6fe6ece398f7431784847e922a2c8c385dc58a35 upstream.
+[ Upstream commit a9dfc46c67b52ad43b8e335e28f4cf8002c67793 ]
 
-This reverts commit de05abe6b9d0fe08f65d744f7f75a4cba4df27ad.
+DWARF version 5 standard Sec 2.14 says that
 
-The bug referenced below was bisected to this commit. There has been no
-activity toward fixing it in 3 months, so let's revert for now.
+  Any debugging information entry representing the declaration of an object,
+  module, subprogram or type may have DW_AT_decl_file, DW_AT_decl_line and
+  DW_AT_decl_column attributes, each of whose value is an unsigned integer
+  constant.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2162
-Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+So it should be an unsigned integer data. Also, even though the standard
+doesn't clearly say the DW_AT_call_file is signed or unsigned, the
+elfutils (eu-readelf) interprets it as unsigned integer data and it is
+natural to handle it as unsigned integer data as same as DW_AT_decl_file.
+This changes the DW_AT_call_file as unsigned integer data too.
+
+Fixes: 3f4460a28fb2f73d ("perf probe: Filter out redundant inline-instances")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/166761727445.480106.3738447577082071942.stgit@devnote3
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu.h               |    1 
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c           |   27 ++++++++++++++++++++++
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   12 +++++----
- 3 files changed, 35 insertions(+), 5 deletions(-)
+ tools/perf/util/dwarf-aux.c | 21 ++++-----------------
+ 1 file changed, 4 insertions(+), 17 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-@@ -196,6 +196,7 @@ extern int amdgpu_emu_mode;
- extern uint amdgpu_smu_memory_pool_size;
- extern int amdgpu_smu_pptable_id;
- extern uint amdgpu_dc_feature_mask;
-+extern uint amdgpu_freesync_vid_mode;
- extern uint amdgpu_dc_debug_mask;
- extern uint amdgpu_dc_visual_confirm;
- extern uint amdgpu_dm_abm_level;
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -180,6 +180,7 @@ int amdgpu_mes_kiq;
- int amdgpu_noretry = -1;
- int amdgpu_force_asic_type = -1;
- int amdgpu_tmz = -1; /* auto */
-+uint amdgpu_freesync_vid_mode;
- int amdgpu_reset_method = -1; /* auto */
- int amdgpu_num_kcq = -1;
- int amdgpu_smartshift_bias;
-@@ -878,6 +879,32 @@ MODULE_PARM_DESC(tmz, "Enable TMZ featur
- module_param_named(tmz, amdgpu_tmz, int, 0444);
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index a07efbadb775..623527edeac1 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -315,19 +315,6 @@ static int die_get_attr_udata(Dwarf_Die *tp_die, unsigned int attr_name,
+ 	return 0;
+ }
  
+-/* Get attribute and translate it as a sdata */
+-static int die_get_attr_sdata(Dwarf_Die *tp_die, unsigned int attr_name,
+-			      Dwarf_Sword *result)
+-{
+-	Dwarf_Attribute attr;
+-
+-	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
+-	    dwarf_formsdata(&attr, result) != 0)
+-		return -ENOENT;
+-
+-	return 0;
+-}
+-
  /**
-+ * DOC: freesync_video (uint)
-+ * Enable the optimization to adjust front porch timing to achieve seamless
-+ * mode change experience when setting a freesync supported mode for which full
-+ * modeset is not needed.
-+ *
-+ * The Display Core will add a set of modes derived from the base FreeSync
-+ * video mode into the corresponding connector's mode list based on commonly
-+ * used refresh rates and VRR range of the connected display, when users enable
-+ * this feature. From the userspace perspective, they can see a seamless mode
-+ * change experience when the change between different refresh rates under the
-+ * same resolution. Additionally, userspace applications such as Video playback
-+ * can read this modeset list and change the refresh rate based on the video
-+ * frame rate. Finally, the userspace can also derive an appropriate mode for a
-+ * particular refresh rate based on the FreeSync Mode and add it to the
-+ * connector's mode list.
-+ *
-+ * Note: This is an experimental feature.
-+ *
-+ * The default value: 0 (off).
-+ */
-+MODULE_PARM_DESC(
-+	freesync_video,
-+	"Enable freesync modesetting optimization feature (0 = off (default), 1 = on)");
-+module_param_named(freesync_video, amdgpu_freesync_vid_mode, uint, 0444);
-+
-+/**
-  * DOC: reset_method (int)
-  * GPU reset method (-1 = auto (default), 0 = legacy, 1 = mode0, 2 = mode1, 3 = mode2, 4 = baco)
-  */
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -5807,7 +5807,8 @@ create_stream_for_sink(struct amdgpu_dm_
- 		 */
- 		DRM_DEBUG_DRIVER("No preferred mode found\n");
- 	} else {
--		recalculate_timing = is_freesync_video_mode(&mode, aconnector);
-+		recalculate_timing = amdgpu_freesync_vid_mode &&
-+				 is_freesync_video_mode(&mode, aconnector);
- 		if (recalculate_timing) {
- 			freesync_mode = get_highest_refresh_rate_mode(aconnector, false);
- 			drm_mode_copy(&saved_mode, &mode);
-@@ -6892,7 +6893,7 @@ static void amdgpu_dm_connector_add_free
- 	struct amdgpu_dm_connector *amdgpu_dm_connector =
- 		to_amdgpu_dm_connector(connector);
+  * die_is_signed_type - Check whether a type DIE is signed or not
+  * @tp_die: a DIE of a type
+@@ -467,9 +454,9 @@ int die_get_data_member_location(Dwarf_Die *mb_die, Dwarf_Word *offs)
+ /* Get the call file index number in CU DIE */
+ static int die_get_call_fileno(Dwarf_Die *in_die)
+ {
+-	Dwarf_Sword idx;
++	Dwarf_Word idx;
  
--	if (!edid)
-+	if (!(amdgpu_freesync_vid_mode && edid))
- 		return;
+-	if (die_get_attr_sdata(in_die, DW_AT_call_file, &idx) == 0)
++	if (die_get_attr_udata(in_die, DW_AT_call_file, &idx) == 0)
+ 		return (int)idx;
+ 	else
+ 		return -ENOENT;
+@@ -478,9 +465,9 @@ static int die_get_call_fileno(Dwarf_Die *in_die)
+ /* Get the declared file index number in CU DIE */
+ static int die_get_decl_fileno(Dwarf_Die *pdie)
+ {
+-	Dwarf_Sword idx;
++	Dwarf_Word idx;
  
- 	if (amdgpu_dm_connector->max_vfreq - amdgpu_dm_connector->min_vfreq > 10)
-@@ -8753,7 +8754,8 @@ static int dm_update_crtc_state(struct a
- 		 * TODO: Refactor this function to allow this check to work
- 		 * in all conditions.
- 		 */
--		if (dm_new_crtc_state->stream &&
-+		if (amdgpu_freesync_vid_mode &&
-+		    dm_new_crtc_state->stream &&
- 		    is_timing_unchanged_for_freesync(new_crtc_state, old_crtc_state))
- 			goto skip_modeset;
- 
-@@ -8788,7 +8790,7 @@ static int dm_update_crtc_state(struct a
- 		if (!dm_old_crtc_state->stream)
- 			goto skip_modeset;
- 
--		if (dm_new_crtc_state->stream &&
-+		if (amdgpu_freesync_vid_mode && dm_new_crtc_state->stream &&
- 		    is_timing_unchanged_for_freesync(new_crtc_state,
- 						     old_crtc_state)) {
- 			new_crtc_state->mode_changed = false;
-@@ -8800,7 +8802,7 @@ static int dm_update_crtc_state(struct a
- 			set_freesync_fixed_config(dm_new_crtc_state);
- 
- 			goto skip_modeset;
--		} else if (aconnector &&
-+		} else if (amdgpu_freesync_vid_mode && aconnector &&
- 			   is_freesync_video_mode(&new_crtc_state->mode,
- 						  aconnector)) {
- 			struct drm_display_mode *high_mode;
+-	if (die_get_attr_sdata(pdie, DW_AT_decl_file, &idx) == 0)
++	if (die_get_attr_udata(pdie, DW_AT_decl_file, &idx) == 0)
+ 		return (int)idx;
+ 	else
+ 		return -ENOENT;
+-- 
+2.35.1
+
 
 
