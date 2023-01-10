@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 825D06648FE
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 398736648A0
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238956AbjAJSQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:16:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59372 "EHLO
+        id S232148AbjAJSMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239124AbjAJSQH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A3E650150
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:14:36 -0800 (PST)
+        with ESMTP id S238466AbjAJSMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33779F50
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE1C16182C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF5B9C433A1;
-        Tue, 10 Jan 2023 18:14:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FEFEB81905
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612EFC433D2;
+        Tue, 10 Jan 2023 18:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374475;
-        bh=GJgiAw4nbrY/Ut+LGTQ97pgYhspitOT8WG92by63uNQ=;
+        s=korg; t=1673374261;
+        bh=GQGUFmhYX1ymiYp2gW0b6dWHKW8PtEC70qugp1r+wK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTbtwBL1Bb0l4ra0ge2nKZYOJgE+9xzA7/lEywTTd7QlxQBb03/yKOeOeHO1SFZ6+
-         gIM/V5N/kOWSbSbEA4kAOq4KNcTN/OQV42ShOBTUUZB9xnrBmQDaOr8ygdz4IZUGT2
-         KiJhBmGFLvaV65Lkhfhe0hjt2ya+UtuM2DaMEDro=
+        b=cd1wGwejGEkUh9lgv7zjnbl2kGfqDEjPTt2RVZ8pqHigY2SOdxKGHx/YWcqQoQJVc
+         +RvB7ZBZhKbwt8oteb7l1KPFoQGwC7INIvrVEQUSayz5TbP0NhL0A4Vxl6BsNsYQQY
+         IjxUEYyncrOLXoRaH5nMFBLhmHONRDAez1i6BPqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jian Shen <shenjian15@huawei.com>,
-        Hao Lan <lanhao@huawei.com>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 030/159] net: hns3: fix miss L3E checking for rx packet
-Date:   Tue, 10 Jan 2023 19:02:58 +0100
-Message-Id: <20230110180019.272816806@linuxfoundation.org>
+Subject: [PATCH 6.0 075/148] selftests: net: return non-zero for failures reported in arp_ndisc_evict_nocarrier
+Date:   Tue, 10 Jan 2023 19:02:59 +0100
+Message-Id: <20230110180019.595763360@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +53,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-[ Upstream commit 7d89b53cea1a702f97117fb4361523519bb1e52c ]
+[ Upstream commit 1856628baa17032531916984808d1bdfd62700d4 ]
 
-For device supports RXD advanced layout, the driver will
-return directly if the hardware finish the checksum
-calculate. It cause missing L3E checking for ip packets.
-Fixes it.
+Return non-zero return value if there is any failure reported in this
+script during the test. Otherwise it can only reflect the status of
+the last command.
 
-Fixes: 1ddc028ac849 ("net: hns3: refactor out RX completion checksum")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Hao Lan <lanhao@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: f86ca07eb531 ("selftests: net: add arp_ndisc_evict_nocarrier")
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ .../selftests/net/arp_ndisc_evict_nocarrier.sh        | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 028577943ec5..248f15dac86b 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -3855,18 +3855,16 @@ static int hns3_gro_complete(struct sk_buff *skb, u32 l234info)
- 	return 0;
- }
+diff --git a/tools/testing/selftests/net/arp_ndisc_evict_nocarrier.sh b/tools/testing/selftests/net/arp_ndisc_evict_nocarrier.sh
+index b4ec1eeee6c9..4a110bb01e53 100755
+--- a/tools/testing/selftests/net/arp_ndisc_evict_nocarrier.sh
++++ b/tools/testing/selftests/net/arp_ndisc_evict_nocarrier.sh
+@@ -18,6 +18,7 @@ readonly V4_ADDR1=10.0.10.2
+ readonly V6_ADDR0=2001:db8:91::1
+ readonly V6_ADDR1=2001:db8:91::2
+ nsid=100
++ret=0
  
--static bool hns3_checksum_complete(struct hns3_enet_ring *ring,
-+static void hns3_checksum_complete(struct hns3_enet_ring *ring,
- 				   struct sk_buff *skb, u32 ptype, u16 csum)
+ cleanup_v6()
  {
- 	if (ptype == HNS3_INVALID_PTYPE ||
- 	    hns3_rx_ptype_tbl[ptype].ip_summed != CHECKSUM_COMPLETE)
--		return false;
-+		return;
+@@ -61,7 +62,7 @@ setup_v6() {
+     if [ $? -ne 0 ]; then
+         cleanup_v6
+         echo "failed"
+-        exit
++        exit 1
+     fi
  
- 	hns3_ring_stats_update(ring, csum_complete);
- 	skb->ip_summed = CHECKSUM_COMPLETE;
- 	skb->csum = csum_unfold((__force __sum16)csum);
--
--	return true;
- }
+     # Set veth2 down, which will put veth1 in NOCARRIER state
+@@ -88,7 +89,7 @@ setup_v4() {
+     if [ $? -ne 0 ]; then
+         cleanup_v4
+         echo "failed"
+-        exit
++        exit 1
+     fi
  
- static void hns3_rx_handle_csum(struct sk_buff *skb, u32 l234info,
-@@ -3926,8 +3924,7 @@ static void hns3_rx_checksum(struct hns3_enet_ring *ring, struct sk_buff *skb,
- 		ptype = hnae3_get_field(ol_info, HNS3_RXD_PTYPE_M,
- 					HNS3_RXD_PTYPE_S);
+     # Set veth1 down, which will put veth0 in NOCARRIER state
+@@ -115,6 +116,7 @@ run_arp_evict_nocarrier_enabled() {
  
--	if (hns3_checksum_complete(ring, skb, ptype, csum))
--		return;
-+	hns3_checksum_complete(ring, skb, ptype, csum);
+     if [ $? -eq 0 ];then
+         echo "failed"
++        ret=1
+     else
+         echo "ok"
+     fi
+@@ -134,6 +136,7 @@ run_arp_evict_nocarrier_disabled() {
+         echo "ok"
+     else
+         echo "failed"
++        ret=1
+     fi
  
- 	/* check if hardware has done checksum */
- 	if (!(bd_base_info & BIT(HNS3_RXD_L3L4P_B)))
-@@ -3936,6 +3933,7 @@ static void hns3_rx_checksum(struct hns3_enet_ring *ring, struct sk_buff *skb,
- 	if (unlikely(l234info & (BIT(HNS3_RXD_L3E_B) | BIT(HNS3_RXD_L4E_B) |
- 				 BIT(HNS3_RXD_OL3E_B) |
- 				 BIT(HNS3_RXD_OL4E_B)))) {
-+		skb->ip_summed = CHECKSUM_NONE;
- 		hns3_ring_stats_update(ring, l3l4_csum_err);
+     cleanup_v4
+@@ -164,6 +167,7 @@ run_ndisc_evict_nocarrier_enabled() {
  
- 		return;
+     if [ $? -eq 0 ];then
+         echo "failed"
++        ret=1
+     else
+         echo "ok"
+     fi
+@@ -182,6 +186,7 @@ run_ndisc_evict_nocarrier_disabled() {
+         echo "ok"
+     else
+         echo "failed"
++        ret=1
+     fi
+ 
+     cleanup_v6
+@@ -198,6 +203,7 @@ run_ndisc_evict_nocarrier_disabled_all() {
+         echo "ok"
+     else
+         echo "failed"
++        ret=1
+     fi
+ 
+     cleanup_v6
+@@ -218,3 +224,4 @@ if [ "$(id -u)" -ne 0 ];then
+ fi
+ 
+ run_all_tests
++exit $ret
 -- 
 2.35.1
 
