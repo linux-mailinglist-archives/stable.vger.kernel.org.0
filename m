@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AADE66484D
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFBDB664A00
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238780AbjAJSKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:10:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49088 "EHLO
+        id S238618AbjAJS3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:29:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238372AbjAJSKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:06 -0500
+        with ESMTP id S231585AbjAJS2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8118E13DF1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6824AF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19BB86184D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3093EC433D2;
-        Tue, 10 Jan 2023 18:07:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 730A661865
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6649BC433D2;
+        Tue, 10 Jan 2023 18:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374065;
-        bh=BZ7bSWUvlsOmfgm9OPUpKf7s2/cwvpivWLNyXNyDkTY=;
+        s=korg; t=1673374995;
+        bh=28HnGYvLUBH0VcEp2wUB5MgJsMx54LSkc1ou7ocB4qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CFNbq7Lkku68L4u7Z80QU32KvHoO970L4mIB0u3ZD2I4DjiKHmR0Wq/SzIcxjA+XN
-         3Ju8j/fiNoDefIIHjOii8tICyROr1L9x5KmpIOsRIB2nZU6QFXZzHXB7QYc1QOaGNU
-         2MBuKM0MDf71W7MKCZuNiIMcaNOpPL+zuEog3qBU=
+        b=Rr4m8DkjC+HvJHnFfVlFKLxJGYMBIghAUtHAtcQnWoe/2VOUHdvh6Qi80yvYbHvjr
+         jAELhaV/sr+DkECtZLO7o3PDzallWUaxvhJm6vm3numgAa41+LtR3IKnMSDZfZxZtY
+         zFkrHMvpyBo/O1YVWkRt1TWp856XbR0MGVaFVNIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 032/148] qlcnic: prevent ->dcb use-after-free on qlcnic_dcb_enable() failure
+        patches@lists.linux.dev, ChiYuan Huang <cy_huang@richtek.com>,
+        Lee Jones <lee@kernel.org>
+Subject: [PATCH 5.15 044/290] mfd: mt6360: Add bounds checking in Regmap read/write call-backs
 Date:   Tue, 10 Jan 2023 19:02:16 +0100
-Message-Id: <20230110180018.240563573@linuxfoundation.org>
+Message-Id: <20230110180033.115199871@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,103 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: ChiYuan Huang <cy_huang@richtek.com>
 
-[ Upstream commit 13a7c8964afcd8ca43c0b6001ebb0127baa95362 ]
+commit 5f4f94e9f26cca6514474b307b59348b8485e711 upstream.
 
-adapter->dcb would get silently freed inside qlcnic_dcb_enable() in
-case qlcnic_dcb_attach() would return an error, which always happens
-under OOM conditions. This would lead to use-after-free because both
-of the existing callers invoke qlcnic_dcb_get_info() on the obtained
-pointer, which is potentially freed at that point.
+Fix the potential risk of OOB read if bank index is over the maximum.
 
-Propagate errors from qlcnic_dcb_enable(), and instead free the dcb
-pointer at callsite using qlcnic_dcb_free(). This also removes the now
-unused qlcnic_clear_dcb_ops() helper, which was a simple wrapper around
-kfree() also causing memory leaks for partially initialized dcb.
+Refer to the discussion list for the experiment result on mt6370.
+https://lore.kernel.org/all/20220914013345.GA5802@cyhuang-hp-elitebook-840-g3.rt/
+If not to check the bound, there is the same issue on mt6360.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
-
-Fixes: 3c44bba1d270 ("qlcnic: Disable DCB operations from SR-IOV VFs")
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 3b0850440a06c (mfd: mt6360: Merge different sub-devices I2C read/write)
+Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/1664416817-31590-1-git-send-email-u0084500@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c |  8 +++++++-
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h       | 10 ++--------
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c      |  8 +++++++-
- 3 files changed, 16 insertions(+), 10 deletions(-)
+ drivers/mfd/mt6360-core.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-index dbb800769cb6..c95d56e56c59 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-@@ -2505,7 +2505,13 @@ int qlcnic_83xx_init(struct qlcnic_adapter *adapter)
- 		goto disable_mbx_intr;
+--- a/drivers/mfd/mt6360-core.c
++++ b/drivers/mfd/mt6360-core.c
+@@ -402,7 +402,7 @@ static int mt6360_regmap_read(void *cont
+ 	struct mt6360_ddata *ddata = context;
+ 	u8 bank = *(u8 *)reg;
+ 	u8 reg_addr = *(u8 *)(reg + 1);
+-	struct i2c_client *i2c = ddata->i2c[bank];
++	struct i2c_client *i2c;
+ 	bool crc_needed = false;
+ 	u8 *buf;
+ 	int buf_len = MT6360_ALLOC_READ_SIZE(val_size);
+@@ -410,6 +410,11 @@ static int mt6360_regmap_read(void *cont
+ 	u8 crc;
+ 	int ret;
  
- 	qlcnic_83xx_clear_function_resources(adapter);
--	qlcnic_dcb_enable(adapter->dcb);
++	if (bank >= MT6360_SLAVE_MAX)
++		return -EINVAL;
 +
-+	err = qlcnic_dcb_enable(adapter->dcb);
-+	if (err) {
-+		qlcnic_dcb_free(adapter->dcb);
-+		goto disable_mbx_intr;
-+	}
++	i2c = ddata->i2c[bank];
 +
- 	qlcnic_83xx_initialize_nic(adapter, 1);
- 	qlcnic_dcb_get_info(adapter->dcb);
+ 	if (bank == MT6360_SLAVE_PMIC || bank == MT6360_SLAVE_LDO) {
+ 		crc_needed = true;
+ 		ret = mt6360_xlate_pmicldo_addr(&reg_addr, val_size);
+@@ -453,13 +458,18 @@ static int mt6360_regmap_write(void *con
+ 	struct mt6360_ddata *ddata = context;
+ 	u8 bank = *(u8 *)val;
+ 	u8 reg_addr = *(u8 *)(val + 1);
+-	struct i2c_client *i2c = ddata->i2c[bank];
++	struct i2c_client *i2c;
+ 	bool crc_needed = false;
+ 	u8 *buf;
+ 	int buf_len = MT6360_ALLOC_WRITE_SIZE(val_size);
+ 	int write_size = val_size - MT6360_REGMAP_REG_BYTE_SIZE;
+ 	int ret;
  
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-index 7519773eaca6..22afa2be85fd 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-@@ -41,11 +41,6 @@ struct qlcnic_dcb {
- 	unsigned long			state;
- };
- 
--static inline void qlcnic_clear_dcb_ops(struct qlcnic_dcb *dcb)
--{
--	kfree(dcb);
--}
--
- static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
- {
- 	if (dcb && dcb->ops->get_hw_capability)
-@@ -112,9 +107,8 @@ static inline void qlcnic_dcb_init_dcbnl_ops(struct qlcnic_dcb *dcb)
- 		dcb->ops->init_dcbnl_ops(dcb);
- }
- 
--static inline void qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
-+static inline int qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
- {
--	if (dcb && qlcnic_dcb_attach(dcb))
--		qlcnic_clear_dcb_ops(dcb);
-+	return dcb ? qlcnic_dcb_attach(dcb) : 0;
- }
- #endif
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-index 28476b982bab..44dac3c0908e 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-@@ -2599,7 +2599,13 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			 "Device does not support MSI interrupts\n");
- 
- 	if (qlcnic_82xx_check(adapter)) {
--		qlcnic_dcb_enable(adapter->dcb);
-+		err = qlcnic_dcb_enable(adapter->dcb);
-+		if (err) {
-+			qlcnic_dcb_free(adapter->dcb);
-+			dev_err(&pdev->dev, "Failed to enable DCB\n");
-+			goto err_out_free_hw;
-+		}
++	if (bank >= MT6360_SLAVE_MAX)
++		return -EINVAL;
 +
- 		qlcnic_dcb_get_info(adapter->dcb);
- 		err = qlcnic_setup_intr(adapter);
- 
--- 
-2.35.1
-
++	i2c = ddata->i2c[bank];
++
+ 	if (bank == MT6360_SLAVE_PMIC || bank == MT6360_SLAVE_LDO) {
+ 		crc_needed = true;
+ 		ret = mt6360_xlate_pmicldo_addr(&reg_addr, val_size - MT6360_REGMAP_REG_BYTE_SIZE);
 
 
