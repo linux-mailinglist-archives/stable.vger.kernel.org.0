@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F141664A0B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9163E664864
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238749AbjAJS3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:29:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41430 "EHLO
+        id S238930AbjAJSL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239359AbjAJS2Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:16 -0500
+        with ESMTP id S238939AbjAJSKP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E83344C77
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84376F24
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E50161865
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D00DC433EF;
-        Tue, 10 Jan 2023 18:23:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FCA961864
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EAA4C433EF;
+        Tue, 10 Jan 2023 18:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375035;
-        bh=ret46/LcU2YGtUqVc0FGhBHKTOuNAiqwvd142O1puPs=;
+        s=korg; t=1673374099;
+        bh=W8VJ1W+khlaCFUy2flCJ7ZF7VXVhqpIwtC6XSejzBls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B490vBdRHcO/H2VO7skD4YZ5JLssFbGqTzM4mIXjL0Gb9P8WKfZtc4xG+fhMg+aI0
-         NesY5wSAybhtx2y7scHW6E5MvJ3zngovGtN0pd8vLGgQykriHvXsImulMztx7oaEvn
-         SO5TW2ahZ/OgEvugiQfrpGIDeMfTwNMntUPoCzXk=
+        b=dL3UFcbrSXWSnV/sXh2TM7U8BvyYtBeiFfMgeXyFexlaA5MuxnZG5ZVU6pyqjQX5O
+         syIuKjUhxM6f0H1CfqIkN0l7p5kQoO2II1jLYSacoCiPGTRDUks9/289OS1g+XG/U3
+         mZGGqCoJ6gx5K7NsAQVSA9fi6TulUFEc5TsGk2js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 056/290] ASoC/SoundWire: dai: expand stream concept beyond SoundWire
-Date:   Tue, 10 Jan 2023 19:02:28 +0100
-Message-Id: <20230110180033.556388184@linuxfoundation.org>
+        patches@lists.linux.dev, Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 045/148] vhost-vdpa: fix an iotlb memory leak
+Date:   Tue, 10 Jan 2023 19:02:29 +0100
+Message-Id: <20230110180018.646970896@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,395 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit e8444560b4d9302a511f0996f4cfdf85b628f4ca upstream.
+[ Upstream commit c070c1912a83432530cbb4271d5b9b11fa36b67a ]
 
-The HDAudio ASoC support relies on the set_tdm_slots() helper to store
-the HDaudio stream tag in the tx_mask. This only works because of the
-pre-existing order in soc-pcm.c, where the hw_params() is handled for
-codec_dais *before* cpu_dais. When the order is reversed, the
-stream_tag is used as a mask in the codec fixup functions:
+Before commit 3d5698793897 ("vhost-vdpa: introduce asid based IOTLB")
+we called vhost_vdpa_iotlb_unmap(v, iotlb, 0ULL, 0ULL - 1) during
+release to free all the resources allocated when processing user IOTLB
+messages through vhost_vdpa_process_iotlb_update().
+That commit changed the handling of IOTLB a bit, and we accidentally
+removed some code called during the release.
 
-	/* fixup params based on TDM slot masks */
-	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
-	    codec_dai->tx_mask)
-		soc_pcm_codec_params_fixup(&codec_params,
-					   codec_dai->tx_mask);
+We partially fixed this with commit 037d4305569a ("vhost-vdpa: call
+vhost_vdpa_cleanup during the release") but a potential memory leak is
+still there as showed by kmemleak if the application does not send
+VHOST_IOTLB_INVALIDATE or crashes:
 
-As a result of this confusion, the codec_params_fixup() ends-up
-generating bad channel masks, depending on what stream_tag was
-allocated.
+  unreferenced object 0xffff888007fbaa30 (size 16):
+    comm "blkio-bench", pid 914, jiffies 4294993521 (age 885.500s)
+    hex dump (first 16 bytes):
+      40 73 41 07 80 88 ff ff 00 00 00 00 00 00 00 00  @sA.............
+    backtrace:
+      [<0000000087736d2a>] kmem_cache_alloc_trace+0x142/0x1c0
+      [<0000000060740f50>] vhost_vdpa_process_iotlb_msg+0x68c/0x901 [vhost_vdpa]
+      [<0000000083e8e205>] vhost_chr_write_iter+0xc0/0x4a0 [vhost]
+      [<000000008f2f414a>] vhost_vdpa_chr_write_iter+0x18/0x20 [vhost_vdpa]
+      [<00000000de1cd4a0>] vfs_write+0x216/0x4b0
+      [<00000000a2850200>] ksys_write+0x71/0xf0
+      [<00000000de8e720b>] __x64_sys_write+0x19/0x20
+      [<0000000018b12cbb>] do_syscall_64+0x3f/0x90
+      [<00000000986ec465>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-We could add a flag to state that the tx_mask is really not a mask,
-but it would be quite ugly to persist in overloading concepts.
+Let's fix this calling vhost_vdpa_iotlb_unmap() on the whole range in
+vhost_vdpa_remove_as(). We move that call before vhost_dev_cleanup()
+since we need a valid v->vdev.mm in vhost_vdpa_pa_unmap().
+vhost_iotlb_reset() call can be removed, since vhost_vdpa_iotlb_unmap()
+on the whole range removes all the entries.
 
-Instead, this patch suggests a more generic get/set 'stream' API based
-on the existing model for SoundWire. We can expand the concept to
-store 'stream' opaque information that is specific to different DAI
-types. In the case of HDAudio DAIs, we only need to store a stream tag
-as an unsigned char pointer. The TDM rx_ and tx_masks should really
-only be used to store masks.
+The kmemleak log reported was observed with a vDPA device that has `use_va`
+set to true (e.g. VDUSE). This patch has been tested with both types of
+devices.
 
-Rename get_sdw_stream/set_sdw_stream callbacks and helpers as
-get_stream/set_stream. No functionality change beyond the rename.
-
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Acked-By: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20211224021034.26635-5-yung-chuan.liao@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 037d4305569a ("vhost-vdpa: call vhost_vdpa_cleanup during the release")
+Fixes: 3d5698793897 ("vhost-vdpa: introduce asid based IOTLB")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Message-Id: <20221109154213.146789-1-sgarzare@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/intel.c        |    8 ++++----
- drivers/soundwire/qcom.c         |    8 ++++----
- drivers/soundwire/stream.c       |    4 ++--
- include/sound/soc-dai.h          |   32 ++++++++++++++++----------------
- sound/soc/codecs/max98373-sdw.c  |    2 +-
- sound/soc/codecs/rt1308-sdw.c    |    2 +-
- sound/soc/codecs/rt1316-sdw.c    |    2 +-
- sound/soc/codecs/rt5682-sdw.c    |    2 +-
- sound/soc/codecs/rt700.c         |    2 +-
- sound/soc/codecs/rt711-sdca.c    |    2 +-
- sound/soc/codecs/rt711.c         |    2 +-
- sound/soc/codecs/rt715-sdca.c    |    2 +-
- sound/soc/codecs/rt715.c         |    2 +-
- sound/soc/codecs/sdw-mockup.c    |    2 +-
- sound/soc/codecs/wcd938x.c       |    2 +-
- sound/soc/codecs/wsa881x.c       |    2 +-
- sound/soc/intel/boards/sof_sdw.c |    6 +++---
- sound/soc/qcom/sdm845.c          |    4 ++--
- sound/soc/qcom/sm8250.c          |    4 ++--
- 19 files changed, 45 insertions(+), 45 deletions(-)
+ drivers/vhost/vdpa.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/soundwire/intel.c
-+++ b/drivers/soundwire/intel.c
-@@ -1065,8 +1065,8 @@ static const struct snd_soc_dai_ops inte
- 	.prepare = intel_prepare,
- 	.hw_free = intel_hw_free,
- 	.shutdown = intel_shutdown,
--	.set_sdw_stream = intel_pcm_set_sdw_stream,
--	.get_sdw_stream = intel_get_sdw_stream,
-+	.set_stream = intel_pcm_set_sdw_stream,
-+	.get_stream = intel_get_sdw_stream,
- };
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 166044642fd5..b08e07fc7d1f 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -65,6 +65,10 @@ static DEFINE_IDA(vhost_vdpa_ida);
  
- static const struct snd_soc_dai_ops intel_pdm_dai_ops = {
-@@ -1075,8 +1075,8 @@ static const struct snd_soc_dai_ops inte
- 	.prepare = intel_prepare,
- 	.hw_free = intel_hw_free,
- 	.shutdown = intel_shutdown,
--	.set_sdw_stream = intel_pdm_set_sdw_stream,
--	.get_sdw_stream = intel_get_sdw_stream,
-+	.set_stream = intel_pdm_set_sdw_stream,
-+	.get_stream = intel_get_sdw_stream,
- };
+ static dev_t vhost_vdpa_major;
  
- static const struct snd_soc_component_driver dai_component = {
---- a/drivers/soundwire/qcom.c
-+++ b/drivers/soundwire/qcom.c
-@@ -1032,8 +1032,8 @@ static int qcom_swrm_startup(struct snd_
- 	ctrl->sruntime[dai->id] = sruntime;
- 
- 	for_each_rtd_codec_dais(rtd, i, codec_dai) {
--		ret = snd_soc_dai_set_sdw_stream(codec_dai, sruntime,
--						 substream->stream);
-+		ret = snd_soc_dai_set_stream(codec_dai, sruntime,
-+					     substream->stream);
- 		if (ret < 0 && ret != -ENOTSUPP) {
- 			dev_err(dai->dev, "Failed to set sdw stream on %s\n",
- 				codec_dai->name);
-@@ -1059,8 +1059,8 @@ static const struct snd_soc_dai_ops qcom
- 	.hw_free = qcom_swrm_hw_free,
- 	.startup = qcom_swrm_startup,
- 	.shutdown = qcom_swrm_shutdown,
--	.set_sdw_stream = qcom_swrm_set_sdw_stream,
--	.get_sdw_stream = qcom_swrm_get_sdw_stream,
-+	.set_stream = qcom_swrm_set_sdw_stream,
-+	.get_stream = qcom_swrm_get_sdw_stream,
- };
- 
- static const struct snd_soc_component_driver qcom_swrm_dai_component = {
---- a/drivers/soundwire/stream.c
-+++ b/drivers/soundwire/stream.c
-@@ -1880,7 +1880,7 @@ static int set_stream(struct snd_pcm_sub
- 
- 	/* Set stream pointer on all DAIs */
- 	for_each_rtd_dais(rtd, i, dai) {
--		ret = snd_soc_dai_set_sdw_stream(dai, sdw_stream, substream->stream);
-+		ret = snd_soc_dai_set_stream(dai, sdw_stream, substream->stream);
- 		if (ret < 0) {
- 			dev_err(rtd->dev, "failed to set stream pointer on dai %s\n", dai->name);
- 			break;
-@@ -1951,7 +1951,7 @@ void sdw_shutdown_stream(void *sdw_subst
- 	/* Find stream from first CPU DAI */
- 	dai = asoc_rtd_to_cpu(rtd, 0);
- 
--	sdw_stream = snd_soc_dai_get_sdw_stream(dai, substream->stream);
-+	sdw_stream = snd_soc_dai_get_stream(dai, substream->stream);
- 
- 	if (IS_ERR(sdw_stream)) {
- 		dev_err(rtd->dev, "no stream found for DAI %s\n", dai->name);
---- a/include/sound/soc-dai.h
-+++ b/include/sound/soc-dai.h
-@@ -295,9 +295,9 @@ struct snd_soc_dai_ops {
- 			unsigned int *rx_num, unsigned int *rx_slot);
- 	int (*set_tristate)(struct snd_soc_dai *dai, int tristate);
- 
--	int (*set_sdw_stream)(struct snd_soc_dai *dai,
--			void *stream, int direction);
--	void *(*get_sdw_stream)(struct snd_soc_dai *dai, int direction);
-+	int (*set_stream)(struct snd_soc_dai *dai,
-+			  void *stream, int direction);
-+	void *(*get_stream)(struct snd_soc_dai *dai, int direction);
- 
- 	/*
- 	 * DAI digital mute - optional.
-@@ -515,42 +515,42 @@ static inline void *snd_soc_dai_get_drvd
- }
- 
- /**
-- * snd_soc_dai_set_sdw_stream() - Configures a DAI for SDW stream operation
-+ * snd_soc_dai_set_stream() - Configures a DAI for stream operation
-  * @dai: DAI
-- * @stream: STREAM
-+ * @stream: STREAM (opaque structure depending on DAI type)
-  * @direction: Stream direction(Playback/Capture)
-- * SoundWire subsystem doesn't have a notion of direction and we reuse
-+ * Some subsystems, such as SoundWire, don't have a notion of direction and we reuse
-  * the ASoC stream direction to configure sink/source ports.
-  * Playback maps to source ports and Capture for sink ports.
-  *
-  * This should be invoked with NULL to clear the stream set previously.
-  * Returns 0 on success, a negative error code otherwise.
-  */
--static inline int snd_soc_dai_set_sdw_stream(struct snd_soc_dai *dai,
--				void *stream, int direction)
-+static inline int snd_soc_dai_set_stream(struct snd_soc_dai *dai,
-+					 void *stream, int direction)
++static void vhost_vdpa_iotlb_unmap(struct vhost_vdpa *v,
++				   struct vhost_iotlb *iotlb,
++				   u64 start, u64 last);
++
+ static inline u32 iotlb_to_asid(struct vhost_iotlb *iotlb)
  {
--	if (dai->driver->ops->set_sdw_stream)
--		return dai->driver->ops->set_sdw_stream(dai, stream, direction);
-+	if (dai->driver->ops->set_stream)
-+		return dai->driver->ops->set_stream(dai, stream, direction);
- 	else
- 		return -ENOTSUPP;
+ 	struct vhost_vdpa_as *as = container_of(iotlb, struct
+@@ -135,7 +139,7 @@ static int vhost_vdpa_remove_as(struct vhost_vdpa *v, u32 asid)
+ 		return -EINVAL;
+ 
+ 	hlist_del(&as->hash_link);
+-	vhost_iotlb_reset(&as->iotlb);
++	vhost_vdpa_iotlb_unmap(v, &as->iotlb, 0ULL, 0ULL - 1);
+ 	kfree(as);
+ 
+ 	return 0;
+@@ -1162,14 +1166,14 @@ static void vhost_vdpa_cleanup(struct vhost_vdpa *v)
+ 	struct vhost_vdpa_as *as;
+ 	u32 asid;
+ 
+-	vhost_dev_cleanup(&v->vdev);
+-	kfree(v->vdev.vqs);
+-
+ 	for (asid = 0; asid < v->vdpa->nas; asid++) {
+ 		as = asid_to_as(v, asid);
+ 		if (as)
+ 			vhost_vdpa_remove_as(v, asid);
+ 	}
++
++	vhost_dev_cleanup(&v->vdev);
++	kfree(v->vdev.vqs);
  }
  
- /**
-- * snd_soc_dai_get_sdw_stream() - Retrieves SDW stream from DAI
-+ * snd_soc_dai_get_stream() - Retrieves stream from DAI
-  * @dai: DAI
-  * @direction: Stream direction(Playback/Capture)
-  *
-  * This routine only retrieves that was previously configured
-- * with snd_soc_dai_get_sdw_stream()
-+ * with snd_soc_dai_get_stream()
-  *
-  * Returns pointer to stream or an ERR_PTR value, e.g.
-  * ERR_PTR(-ENOTSUPP) if callback is not supported;
-  */
--static inline void *snd_soc_dai_get_sdw_stream(struct snd_soc_dai *dai,
--					       int direction)
-+static inline void *snd_soc_dai_get_stream(struct snd_soc_dai *dai,
-+					   int direction)
- {
--	if (dai->driver->ops->get_sdw_stream)
--		return dai->driver->ops->get_sdw_stream(dai, direction);
-+	if (dai->driver->ops->get_stream)
-+		return dai->driver->ops->get_stream(dai, direction);
- 	else
- 		return ERR_PTR(-ENOTSUPP);
- }
---- a/sound/soc/codecs/max98373-sdw.c
-+++ b/sound/soc/codecs/max98373-sdw.c
-@@ -741,7 +741,7 @@ static int max98373_sdw_set_tdm_slot(str
- static const struct snd_soc_dai_ops max98373_dai_sdw_ops = {
- 	.hw_params = max98373_sdw_dai_hw_params,
- 	.hw_free = max98373_pcm_hw_free,
--	.set_sdw_stream = max98373_set_sdw_stream,
-+	.set_stream = max98373_set_sdw_stream,
- 	.shutdown = max98373_shutdown,
- 	.set_tdm_slot = max98373_sdw_set_tdm_slot,
- };
---- a/sound/soc/codecs/rt1308-sdw.c
-+++ b/sound/soc/codecs/rt1308-sdw.c
-@@ -613,7 +613,7 @@ static const struct snd_soc_component_dr
- static const struct snd_soc_dai_ops rt1308_aif_dai_ops = {
- 	.hw_params = rt1308_sdw_hw_params,
- 	.hw_free	= rt1308_sdw_pcm_hw_free,
--	.set_sdw_stream	= rt1308_set_sdw_stream,
-+	.set_stream	= rt1308_set_sdw_stream,
- 	.shutdown	= rt1308_sdw_shutdown,
- 	.set_tdm_slot	= rt1308_sdw_set_tdm_slot,
- };
---- a/sound/soc/codecs/rt1316-sdw.c
-+++ b/sound/soc/codecs/rt1316-sdw.c
-@@ -602,7 +602,7 @@ static const struct snd_soc_component_dr
- static const struct snd_soc_dai_ops rt1316_aif_dai_ops = {
- 	.hw_params = rt1316_sdw_hw_params,
- 	.hw_free	= rt1316_sdw_pcm_hw_free,
--	.set_sdw_stream	= rt1316_set_sdw_stream,
-+	.set_stream	= rt1316_set_sdw_stream,
- 	.shutdown	= rt1316_sdw_shutdown,
- };
- 
---- a/sound/soc/codecs/rt5682-sdw.c
-+++ b/sound/soc/codecs/rt5682-sdw.c
-@@ -272,7 +272,7 @@ static int rt5682_sdw_hw_free(struct snd
- static const struct snd_soc_dai_ops rt5682_sdw_ops = {
- 	.hw_params	= rt5682_sdw_hw_params,
- 	.hw_free	= rt5682_sdw_hw_free,
--	.set_sdw_stream	= rt5682_set_sdw_stream,
-+	.set_stream	= rt5682_set_sdw_stream,
- 	.shutdown	= rt5682_sdw_shutdown,
- };
- 
---- a/sound/soc/codecs/rt700.c
-+++ b/sound/soc/codecs/rt700.c
-@@ -1015,7 +1015,7 @@ static int rt700_pcm_hw_free(struct snd_
- static const struct snd_soc_dai_ops rt700_ops = {
- 	.hw_params	= rt700_pcm_hw_params,
- 	.hw_free	= rt700_pcm_hw_free,
--	.set_sdw_stream	= rt700_set_sdw_stream,
-+	.set_stream	= rt700_set_sdw_stream,
- 	.shutdown	= rt700_shutdown,
- };
- 
---- a/sound/soc/codecs/rt711-sdca.c
-+++ b/sound/soc/codecs/rt711-sdca.c
-@@ -1361,7 +1361,7 @@ static int rt711_sdca_pcm_hw_free(struct
- static const struct snd_soc_dai_ops rt711_sdca_ops = {
- 	.hw_params	= rt711_sdca_pcm_hw_params,
- 	.hw_free	= rt711_sdca_pcm_hw_free,
--	.set_sdw_stream	= rt711_sdca_set_sdw_stream,
-+	.set_stream	= rt711_sdca_set_sdw_stream,
- 	.shutdown	= rt711_sdca_shutdown,
- };
- 
---- a/sound/soc/codecs/rt711.c
-+++ b/sound/soc/codecs/rt711.c
-@@ -1092,7 +1092,7 @@ static int rt711_pcm_hw_free(struct snd_
- static const struct snd_soc_dai_ops rt711_ops = {
- 	.hw_params	= rt711_pcm_hw_params,
- 	.hw_free	= rt711_pcm_hw_free,
--	.set_sdw_stream	= rt711_set_sdw_stream,
-+	.set_stream	= rt711_set_sdw_stream,
- 	.shutdown	= rt711_shutdown,
- };
- 
---- a/sound/soc/codecs/rt715-sdca.c
-+++ b/sound/soc/codecs/rt715-sdca.c
-@@ -938,7 +938,7 @@ static int rt715_sdca_pcm_hw_free(struct
- static const struct snd_soc_dai_ops rt715_sdca_ops = {
- 	.hw_params	= rt715_sdca_pcm_hw_params,
- 	.hw_free	= rt715_sdca_pcm_hw_free,
--	.set_sdw_stream	= rt715_sdca_set_sdw_stream,
-+	.set_stream	= rt715_sdca_set_sdw_stream,
- 	.shutdown	= rt715_sdca_shutdown,
- };
- 
---- a/sound/soc/codecs/rt715.c
-+++ b/sound/soc/codecs/rt715.c
-@@ -909,7 +909,7 @@ static int rt715_pcm_hw_free(struct snd_
- static const struct snd_soc_dai_ops rt715_ops = {
- 	.hw_params	= rt715_pcm_hw_params,
- 	.hw_free	= rt715_pcm_hw_free,
--	.set_sdw_stream	= rt715_set_sdw_stream,
-+	.set_stream	= rt715_set_sdw_stream,
- 	.shutdown	= rt715_shutdown,
- };
- 
---- a/sound/soc/codecs/sdw-mockup.c
-+++ b/sound/soc/codecs/sdw-mockup.c
-@@ -138,7 +138,7 @@ static int sdw_mockup_pcm_hw_free(struct
- static const struct snd_soc_dai_ops sdw_mockup_ops = {
- 	.hw_params	= sdw_mockup_pcm_hw_params,
- 	.hw_free	= sdw_mockup_pcm_hw_free,
--	.set_sdw_stream	= sdw_mockup_set_sdw_stream,
-+	.set_stream	= sdw_mockup_set_sdw_stream,
- 	.shutdown	= sdw_mockup_shutdown,
- };
- 
---- a/sound/soc/codecs/wcd938x.c
-+++ b/sound/soc/codecs/wcd938x.c
-@@ -4302,7 +4302,7 @@ static int wcd938x_codec_set_sdw_stream(
- static const struct snd_soc_dai_ops wcd938x_sdw_dai_ops = {
- 	.hw_params = wcd938x_codec_hw_params,
- 	.hw_free = wcd938x_codec_free,
--	.set_sdw_stream = wcd938x_codec_set_sdw_stream,
-+	.set_stream = wcd938x_codec_set_sdw_stream,
- };
- 
- static struct snd_soc_dai_driver wcd938x_dais[] = {
---- a/sound/soc/codecs/wsa881x.c
-+++ b/sound/soc/codecs/wsa881x.c
-@@ -1026,7 +1026,7 @@ static const struct snd_soc_dai_ops wsa8
- 	.hw_params = wsa881x_hw_params,
- 	.hw_free = wsa881x_hw_free,
- 	.mute_stream = wsa881x_digital_mute,
--	.set_sdw_stream = wsa881x_set_sdw_stream,
-+	.set_stream = wsa881x_set_sdw_stream,
- };
- 
- static struct snd_soc_dai_driver wsa881x_dais[] = {
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -291,7 +291,7 @@ int sdw_prepare(struct snd_pcm_substream
- 	/* Find stream from first CPU DAI */
- 	dai = asoc_rtd_to_cpu(rtd, 0);
- 
--	sdw_stream = snd_soc_dai_get_sdw_stream(dai, substream->stream);
-+	sdw_stream = snd_soc_dai_get_stream(dai, substream->stream);
- 
- 	if (IS_ERR(sdw_stream)) {
- 		dev_err(rtd->dev, "no stream found for DAI %s", dai->name);
-@@ -311,7 +311,7 @@ int sdw_trigger(struct snd_pcm_substream
- 	/* Find stream from first CPU DAI */
- 	dai = asoc_rtd_to_cpu(rtd, 0);
- 
--	sdw_stream = snd_soc_dai_get_sdw_stream(dai, substream->stream);
-+	sdw_stream = snd_soc_dai_get_stream(dai, substream->stream);
- 
- 	if (IS_ERR(sdw_stream)) {
- 		dev_err(rtd->dev, "no stream found for DAI %s", dai->name);
-@@ -350,7 +350,7 @@ int sdw_hw_free(struct snd_pcm_substream
- 	/* Find stream from first CPU DAI */
- 	dai = asoc_rtd_to_cpu(rtd, 0);
- 
--	sdw_stream = snd_soc_dai_get_sdw_stream(dai, substream->stream);
-+	sdw_stream = snd_soc_dai_get_stream(dai, substream->stream);
- 
- 	if (IS_ERR(sdw_stream)) {
- 		dev_err(rtd->dev, "no stream found for DAI %s", dai->name);
---- a/sound/soc/qcom/sdm845.c
-+++ b/sound/soc/qcom/sdm845.c
-@@ -56,8 +56,8 @@ static int sdm845_slim_snd_hw_params(str
- 	int ret = 0, i;
- 
- 	for_each_rtd_codec_dais(rtd, i, codec_dai) {
--		sruntime = snd_soc_dai_get_sdw_stream(codec_dai,
--						      substream->stream);
-+		sruntime = snd_soc_dai_get_stream(codec_dai,
-+						  substream->stream);
- 		if (sruntime != ERR_PTR(-ENOTSUPP))
- 			pdata->sruntime[cpu_dai->id] = sruntime;
- 
---- a/sound/soc/qcom/sm8250.c
-+++ b/sound/soc/qcom/sm8250.c
-@@ -70,8 +70,8 @@ static int sm8250_snd_hw_params(struct s
- 	switch (cpu_dai->id) {
- 	case WSA_CODEC_DMA_RX_0:
- 		for_each_rtd_codec_dais(rtd, i, codec_dai) {
--			sruntime = snd_soc_dai_get_sdw_stream(codec_dai,
--						      substream->stream);
-+			sruntime = snd_soc_dai_get_stream(codec_dai,
-+							  substream->stream);
- 			if (sruntime != ERR_PTR(-ENOTSUPP))
- 				pdata->sruntime[cpu_dai->id] = sruntime;
- 		}
+ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
+-- 
+2.35.1
+
 
 
