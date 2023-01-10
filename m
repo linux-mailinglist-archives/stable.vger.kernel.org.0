@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82E046648D3
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C2116648D4
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234677AbjAJSPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:15:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54342 "EHLO
+        id S234998AbjAJSPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:15:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239151AbjAJSPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:03 -0500
+        with ESMTP id S239161AbjAJSPE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7572A1571D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9F399FCC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11FE6617EC
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19448C433F0;
-        Tue, 10 Jan 2023 18:13:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 566C96182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33019C433D2;
+        Tue, 10 Jan 2023 18:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374381;
-        bh=AkGcjnLk+Y3qQw+Y3CRBlivILlXfV2KR4KZINAIIhMU=;
+        s=korg; t=1673374384;
+        bh=hKYGC5H2oiLKLMRiQ9bbuBinHNDMMLRAg3FgR9iX3xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xcG1qiwHwTDRpf+UiDT3fO9D+FgGJ7lDSwyIvL0wHz1h9VqjUCFezUt1Wh2gvVVK/
-         OePfCgTbAglwnothVUQPwMv1y2Z76RWsfIZv4kntHNKqg2GR2Wn1PQX7EC3q3Cf8tz
-         yUI3NKZ5Yipmy8Yh1pfeS7bguu6uFYAadFFp4fUs=
+        b=lsw3mCKlCCo1ZzwAQBQDd1dIbxSWucyACP3/lM8o/rSzv3taSy+eZbHtkwzvDSXAJ
+         reFou8vUFRjhn9PU1ZkmiqaRWVRVc7y67BoWxfF0cxsqz5egZ8teIG1Dl9PVwRNtjo
+         cA/betsSCY8oIlGpTTMhooUxFLmoMfd9RMlKWZds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mukul Joshi <mukul.joshi@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.0 137/148] drm/amdkfd: Fix kernel warning during topology setup
-Date:   Tue, 10 Jan 2023 19:04:01 +0100
-Message-Id: <20230110180021.519678102@linuxfoundation.org>
+        patches@lists.linux.dev, "Wang, Zhi" <zhi.a.wang@intel.com>,
+        "He, Yu" <yu.he@intel.com>, Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Wang@vger.kernel.org, He@vger.kernel.org
+Subject: [PATCH 6.0 138/148] drm/i915/gvt: fix gvt debugfs destroy
+Date:   Tue, 10 Jan 2023 19:04:02 +0100
+Message-Id: <20230110180021.551109057@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
 References: <20230110180017.145591678@linuxfoundation.org>
@@ -53,72 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mukul Joshi <mukul.joshi@amd.com>
+From: Zhenyu Wang <zhenyuw@linux.intel.com>
 
-commit cf97eb7e47d4671084c7e114c5d88a3d0540ecbd upstream.
+commit c4b850d1f448a901fbf4f7f36dec38c84009b489 upstream.
 
-This patch fixes the following kernel warning seen during
-driver load by correctly initializing the p2plink attr before
-creating the sysfs file:
+When gvt debug fs is destroyed, need to have a sane check if drm
+minor's debugfs root is still available or not, otherwise in case like
+device remove through unbinding, drm minor's debugfs directory has
+already been removed, then intel_gvt_debugfs_clean() would act upon
+dangling pointer like below oops.
 
-[  +0.002865] ------------[ cut here ]------------
-[  +0.002327] kobject: '(null)' (0000000056260cfb): is not initialized, yet kobject_put() is being called.
-[  +0.004780] WARNING: CPU: 32 PID: 1006 at lib/kobject.c:718 kobject_put+0xaa/0x1c0
-[  +0.001361] Call Trace:
-[  +0.001234]  <TASK>
-[  +0.001067]  kfd_remove_sysfs_node_entry+0x24a/0x2d0 [amdgpu]
-[  +0.003147]  kfd_topology_update_sysfs+0x3d/0x750 [amdgpu]
-[  +0.002890]  kfd_topology_add_device+0xbd7/0xc70 [amdgpu]
-[  +0.002844]  ? lock_release+0x13c/0x2e0
-[  +0.001936]  ? smu_cmn_send_smc_msg_with_param+0x1e8/0x2d0 [amdgpu]
-[  +0.003313]  ? amdgpu_dpm_get_mclk+0x54/0x60 [amdgpu]
-[  +0.002703]  kgd2kfd_device_init.cold+0x39f/0x4ed [amdgpu]
-[  +0.002930]  amdgpu_amdkfd_device_init+0x13d/0x1f0 [amdgpu]
-[  +0.002944]  amdgpu_device_init.cold+0x1464/0x17b4 [amdgpu]
-[  +0.002970]  ? pci_bus_read_config_word+0x43/0x80
-[  +0.002380]  amdgpu_driver_load_kms+0x15/0x100 [amdgpu]
-[  +0.002744]  amdgpu_pci_probe+0x147/0x370 [amdgpu]
-[  +0.002522]  local_pci_probe+0x40/0x80
-[  +0.001896]  work_for_cpu_fn+0x10/0x20
-[  +0.001892]  process_one_work+0x26e/0x5a0
-[  +0.002029]  worker_thread+0x1fd/0x3e0
-[  +0.001890]  ? process_one_work+0x5a0/0x5a0
-[  +0.002115]  kthread+0xea/0x110
-[  +0.001618]  ? kthread_complete_and_exit+0x20/0x20
-[  +0.002422]  ret_from_fork+0x1f/0x30
-[  +0.001808]  </TASK>
-[  +0.001103] irq event stamp: 59837
-[  +0.001718] hardirqs last  enabled at (59849): [<ffffffffb30fab12>] __up_console_sem+0x52/0x60
-[  +0.004414] hardirqs last disabled at (59860): [<ffffffffb30faaf7>] __up_console_sem+0x37/0x60
-[  +0.004414] softirqs last  enabled at (59654): [<ffffffffb307d9c7>] irq_exit_rcu+0xd7/0x130
-[  +0.004205] softirqs last disabled at (59649): [<ffffffffb307d9c7>] irq_exit_rcu+0xd7/0x130
-[  +0.004203] ---[ end trace 0000000000000000 ]---
+i915 0000:00:02.0: Direct firmware load for i915/gvt/vid_0x8086_did_0x1926_rid_0x0a.golden_hw_state failed with error -2
+i915 0000:00:02.0: MDEV: Registered
+Console: switching to colour dummy device 80x25
+i915 0000:00:02.0: MDEV: Unregistering
+BUG: kernel NULL pointer dereference, address: 00000000000000a0
+PGD 0 P4D 0
+Oops: 0002 [#1] PREEMPT SMP PTI
+CPU: 2 PID: 2486 Comm: gfx-unbind.sh Tainted: G          I        6.1.0-rc8+ #15
+Hardware name: Dell Inc. XPS 13 9350/0JXC1H, BIOS 1.13.0 02/10/2020
+RIP: 0010:down_write+0x1f/0x90
+Code: 1d ff ff 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 53 48 89 fb e8 62 c0 ff ff bf 01 00 00 00 e8 28 5e 31 ff 31 c0 ba 01 00 00 00 <f0> 48 0f b1 13 75 33 65 48 8b 04 25 c0 bd 01 00 48 89 43 08 bf 01
+RSP: 0018:ffff9eb3036ffcc8 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 00000000000000a0 RCX: ffffff8100000000
+RDX: 0000000000000001 RSI: 0000000000000064 RDI: ffffffffa48787a8
+RBP: ffff9eb3036ffd30 R08: ffffeb1fc45a0608 R09: ffffeb1fc45a05c0
+R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff91acc33fa328 R14: ffff91acc033f080 R15: ffff91acced533e0
+FS:  00007f6947bba740(0000) GS:ffff91ae36d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000000000a0 CR3: 00000001133a2002 CR4: 00000000003706e0
+Call Trace:
+ <TASK>
+ simple_recursive_removal+0x9f/0x2a0
+ ? start_creating.part.0+0x120/0x120
+ ? _raw_spin_lock+0x13/0x40
+ debugfs_remove+0x40/0x60
+ intel_gvt_debugfs_clean+0x15/0x30 [kvmgt]
+ intel_gvt_clean_device+0x49/0xe0 [kvmgt]
+ intel_gvt_driver_remove+0x2f/0xb0
+ i915_driver_remove+0xa4/0xf0
+ i915_pci_remove+0x1a/0x30
+ pci_device_remove+0x33/0xa0
+ device_release_driver_internal+0x1b2/0x230
+ unbind_store+0xe0/0x110
+ kernfs_fop_write_iter+0x11b/0x1f0
+ vfs_write+0x203/0x3d0
+ ksys_write+0x63/0xe0
+ do_syscall_64+0x37/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f6947cb5190
+Code: 40 00 48 8b 15 71 9c 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 80 3d 51 24 0e 00 00 74 17 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83 ec 28 48 89
+RSP: 002b:00007ffcbac45a28 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 000000000000000d RCX: 00007f6947cb5190
+RDX: 000000000000000d RSI: 0000555e35c866a0 RDI: 0000000000000001
+RBP: 0000555e35c866a0 R08: 0000000000000002 R09: 0000555e358cb97c
+R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000000001
+R13: 000000000000000d R14: 0000000000000000 R15: 0000555e358cb8e0
+ </TASK>
+Modules linked in: kvmgt
+CR2: 00000000000000a0
+---[ end trace 0000000000000000 ]---
 
-Fixes: 0f28cca87e9a ("drm/amdkfd: Extend KFD device topology to surface peer-to-peer links")
-Signed-off-by: Mukul Joshi <mukul.joshi@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Wang, Zhi <zhi.a.wang@intel.com>
+Cc: He, Yu <yu.he@intel.com>
 Cc: stable@vger.kernel.org
+Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
+Fixes: bc7b0be316ae ("drm/i915/gvt: Add basic debugfs infrastructure")
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20221219140357.769557-1-zhenyuw@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gvt/debugfs.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_topology.c b/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-index bceb1a5b2518..3fdaba56be6f 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
-@@ -801,7 +801,7 @@ static int kfd_build_sysfs_node_entry(struct kfd_topology_device *dev,
- 
- 		p2plink->attr.name = "properties";
- 		p2plink->attr.mode = KFD_SYSFS_FILE_MODE;
--		sysfs_attr_init(&iolink->attr);
-+		sysfs_attr_init(&p2plink->attr);
- 		ret = sysfs_create_file(p2plink->kobj, &p2plink->attr);
- 		if (ret < 0)
- 			return ret;
--- 
-2.39.0
-
+--- a/drivers/gpu/drm/i915/gvt/debugfs.c
++++ b/drivers/gpu/drm/i915/gvt/debugfs.c
+@@ -199,6 +199,10 @@ void intel_gvt_debugfs_init(struct intel
+  */
+ void intel_gvt_debugfs_clean(struct intel_gvt *gvt)
+ {
+-	debugfs_remove_recursive(gvt->debugfs_root);
+-	gvt->debugfs_root = NULL;
++	struct drm_minor *minor = gvt->gt->i915->drm.primary;
++
++	if (minor->debugfs_root) {
++		debugfs_remove_recursive(gvt->debugfs_root);
++		gvt->debugfs_root = NULL;
++	}
+ }
 
 
