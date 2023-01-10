@@ -2,149 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8336C6649B8
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C232F664A54
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239323AbjAJSYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:24:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36714 "EHLO
+        id S239047AbjAJScE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239158AbjAJSXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:07 -0500
-Received: from mail-vs1-xe2e.google.com (mail-vs1-xe2e.google.com [IPv6:2607:f8b0:4864:20::e2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC1F19C02
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:09 -0800 (PST)
-Received: by mail-vs1-xe2e.google.com with SMTP id i188so13150117vsi.8
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:09 -0800 (PST)
+        with ESMTP id S235385AbjAJSb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:26 -0500
+Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A41384BF5
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:38 -0800 (PST)
+Received: by mail-lj1-x236.google.com with SMTP id s25so13465878lji.2
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
+        d=joelfernandes.org; s=google;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=LhqMrGa+5XAAvhdm/qvpg845MSH/5HVvI+D0qxBhnAg=;
-        b=crr5n8812Ux90csqTMCY/9ikO5dYLT3PeVDNtY+owxJs8/cjRLyN1GSEJqAArFKTYb
-         agQgQUwTuvIk9IQJxSP3rIKMlMQQlzgZEm4UGHvaULonPAeeMu73bl3cW6yHbKm/gHnT
-         VqwKyMPjuXBIPRtGhzahm/OC2GLvx+fTbDdII7YqlezLFaEA3Z5yaoD48lRrA6tBlvo+
-         0yxanczW/1ondR9hgf5yumrJMu5vbWR3VjOvdhSx4UFkpxn0npAqkikgciwgs8Gc6Bo+
-         1CXEuVECVkCIhYvgGqzVj79z+0RpAb8DXUwEvEymg6QjPG5b8GCmPVOQaTDukOJjmKOZ
-         uG0A==
+        bh=umnoYAX8D2Tr68PlIYbZPWDjCMAMX/1KvuLyQtZeqK8=;
+        b=jsqv4DOK15Rk14o6RJoHQIf+I8wV5JPFwEOyN3HkV6hcVYU6PH5ZG5I3H5RKC6hQ+6
+         jk23DcxEegDUq96itVTOypxgkbghGveZ9+hqVEPvVKzHzECbTMIrPBqnGaBJ3Gu1+7EY
+         By5vDoTvy41uWgJplf+l+0r3MwX+yb9vzA1Zw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=LhqMrGa+5XAAvhdm/qvpg845MSH/5HVvI+D0qxBhnAg=;
-        b=NjwjPB3b1Jq3m0hP8tvb274HXEdFnOTyAeGl+A8ukZ5MZGYCr6Ri02waQn3MDp/x+O
-         brftQah81Pw/AYXjsIG2cPdgd7ZOiWwTJJE4LtMTcsqMwfzmNs0/sODrDe+gyNyp9xby
-         ZzyTsoZbMf/BTc5FJur4zodjEu+aoKh7ZAajLeoWLqcUtVDJf3+T+De6eq1+zluE7p9o
-         Lxa01V6H6KVBUxY6auM5XlwvTF0zyz2aZJOqHvV+IVmDKR7y8hrn2GUbrJxr4YobOx4y
-         vPXMUz/DLay5uZyd6rSGiZQfAx6nWYCL3gA6jm+kZXQEvkLny34RyPRi3+0S2Tvah/Wx
-         IL/Q==
-X-Gm-Message-State: AFqh2kqX7mL7Nx5UU+omSSykUmEOfQIh1IKtAQrIv7v/rUCl8tNQ5koG
-        ptk4HGBQSKh0vqpvCOHdcbDjBTPWlU35M/iYcXUXeQ==
-X-Google-Smtp-Source: AMrXdXulHZB8SHI/FLgkZGq1+rQO1MVRnWBVjyA9v3ohzuwYh+ownssImMjB38Pe8P3yocbk2Q10H0Wvk/BKaCPzyt8=
-X-Received: by 2002:a05:6102:94e:b0:3b5:1de3:19fa with SMTP id
- a14-20020a056102094e00b003b51de319famr8349620vsi.35.1673374867880; Tue, 10
- Jan 2023 10:21:07 -0800 (PST)
+        bh=umnoYAX8D2Tr68PlIYbZPWDjCMAMX/1KvuLyQtZeqK8=;
+        b=pgmMLJ63wc+elY04hK+gY/2sO5FHTfpeWthsv+J8CNwDVeu0WHbH7GhzEw/BVmbTH/
+         687lRwlmkOcHM0F9ceaLx0LGGakCJu1gfM53TzpJIkr+IGBx9+7AACuEmEw/uVJr4V3g
+         KJcHzhqGY1IrX0mPtwiMSoSx2cTqRRV1anOTB19reX3PnEPT25tl/40WVj4x8ANG56Sb
+         YumMLfC8AHinjm0XyLEQKE3BK0jVSP7xkqemcLJ1c8eCJyumsBGQOTkdRps58e4dgMjv
+         CDLkLTtV+E8Pzp5DgFCJR8t5N+dLg9UNTonZ1b7TDx2chCU0keGZKKoMPnorNIGliw6n
+         6TpA==
+X-Gm-Message-State: AFqh2krQVDZLJpamR/bbbjR20sGTIwaVoIUHoqZ3Z6tIPirK4nYDWL9R
+        VE1Yc2X1ghanqHtuHrFM3BxdafspABTKAcf1OvTIiw==
+X-Google-Smtp-Source: AMrXdXtYN53tGqW+tV4hYqOK9gKGVooKMivQbY8+mErrwYDnvZs612fyy7mOAbc325wj81E4ab8ADcirvi1AYbWkRXc=
+X-Received: by 2002:a2e:3c15:0:b0:27f:dca1:8584 with SMTP id
+ j21-20020a2e3c15000000b0027fdca18584mr3488840lja.313.1673375196818; Tue, 10
+ Jan 2023 10:26:36 -0800 (PST)
 MIME-Version: 1.0
-References: <20221219191855.2010466-1-allenwebb@google.com>
- <20221219204619.2205248-1-allenwebb@google.com> <20221219204619.2205248-3-allenwebb@google.com>
- <Y6FaUynXTrYD6OYT@kroah.com> <CAJzde04Hbd2+s-Bqog2V81dBEeZD7WWaFCf2BkesQS4yUAKiNA@mail.gmail.com>
- <Y6H6/U0w96Z4kpDn@bombadil.infradead.org> <CAJzde04igO0LJ46Hsbcm-hJBFtPdqJC6svaoMkb3WBG0e1fGBw@mail.gmail.com>
- <Y6IDOwxOxZpsdtiu@bombadil.infradead.org> <87cz7nsz24.fsf@esperi.org.uk>
-In-Reply-To: <87cz7nsz24.fsf@esperi.org.uk>
-From:   Allen Webb <allenwebb@google.com>
-Date:   Tue, 10 Jan 2023 12:20:56 -0600
-Message-ID: <CAJzde05oSJuxSz1dBjxXppu39kcbNvZt1tP6QRxkHAqy94c-9w@mail.gmail.com>
-Subject: Re: [PATCH v9 02/10] rockchip-mailbox: Fix typo
-To:     Nick Alcock <nick.alcock@oracle.com>
-Cc:     Luis Chamberlain <mcgrof@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-modules@vger.kernel.org" <linux-modules@vger.kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org,
-        kernel test robot <lkp@intel.com>
+References: <20230110180031.620810905@linuxfoundation.org> <20230110180033.597780936@linuxfoundation.org>
+In-Reply-To: <20230110180033.597780936@linuxfoundation.org>
+From:   Joel Fernandes <joel@joelfernandes.org>
+Date:   Tue, 10 Jan 2023 13:26:25 -0500
+Message-ID: <CAEXW_YQhoJkCNaBKRSLh5OCYn1ObA8dy63ZrgmRgpEaVorBnnQ@mail.gmail.com>
+Subject: Re: [PATCH 5.15 057/290] rcu-tasks: Simplify trc_read_check_handler()
+ atomic operations
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        "Paul E. McKenney" <paulmck@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 9, 2023 at 5:54 AM Nick Alcock <nick.alcock@oracle.com> wrote:
+On Tue, Jan 10, 2023 at 1:23 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On 20 Dec 2022, Luis Chamberlain uttered the following:
-> >> It also raises the question how many modules have device tables, but
-> >> do not call MODULE_DEVICE_TABLE since they are only ever built-in.
-> >> Maybe there should be some build time enforcement mechanism to make
-> >> sure that these are consistent.
-> >
-> > Definitely, Nick Alcock is doing some related work where the semantics
-> > of built-in modules needs to be clearer, he for instance is now removing
-> > a few MODULE_() macros for things which *are never* modules, and this is
-> > because after commit 8b41fc4454e ("kbuild: create modules.builtin
-> > without Makefile.modbuiltin or tristate.conf") we rely on the module
-> > license tag to generate the modules.builtin file. Without that commit
-> > we end up traversing the source tree twice. Nick's work builds on
-> > that work and futher clarifies these semantics by adding tooling which
-> > complains when something which is *never* capable of being a module
-> > uses module macros. The macro you are extending, MODULE_DEVICE_TABLE(),
-> > today is a no-op for built-in, but you are adding support to extend it
-> > for built-in stuff. Nick's work will help with clarifying symbol locality
-> > and so he may be interested in your association for the data in
-> > MODULE_DEVICE_TABLE and how you associate to a respective would-be
-> > module. His work is useful for making tracing more accurate with respect
-> > to symbol associations, so the data in MODULE_DEVICE_TABLE() may be
-> > useful as well to him.
+> From: Paul E. McKenney <paulmck@kernel.org>
 >
-> The kallmodsyms module info (and, thus, modules.builtin) and
-> MODULE_DEVICE_TABLE do seem interestingly related. I wonder if we can in
-> future reuse at least the module names so we can save a few KiB more
-> space... (in this case, the canonical copy should probably be the one in
-> kallmodsyms, because that lets kallmodsyms reuse strings where modules
-> and their source file have similar names. Something for the future...)
+> commit 96017bf9039763a2e02dcc6adaa18592cd73a39d upstream.
 
-It appeared to me like the symbols added for MODULE_DEVICE_TABLE are
-only needed temporarily and could be stripped as part of the final
-linking step. This would make space less of a concern, but extern
-variables don't support the visibility attribute and in the build I am
-using the space difference is less than 1MB out of 613MB for the
-uncompressed kernel.
+Thanks Greg, I had sent the same patch earlier for 5.15. Just so I
+learn, anything I did wrong or should have done differently?
+
+ - Joel
+
 
 >
-> > You folks may want to Cc each other on your patches.
+> Currently, trc_wait_for_one_reader() atomically increments
+> the trc_n_readers_need_end counter before sending the IPI
+> invoking trc_read_check_handler().  All failure paths out of
+> trc_read_check_handler() and also from the smp_call_function_single()
+> within trc_wait_for_one_reader() must carefully atomically decrement
+> this counter.  This is more complex than it needs to be.
 >
-> I'd welcome that.
+> This commit therefore simplifies things and saves a few lines of
+> code by dispensing with the atomic decrements in favor of having
+> trc_read_check_handler() do the atomic increment only in the success case.
+> In theory, this represents no change in functionality.
 >
-> btw, do you want another kallmodsyms patch series from me just arranging
-> to drop fewer MODULE_ entries from non-modules (just MODULE_LICENSE) or
-> would this be considered noise for now? (Are we deadlocked on each
-> other, or are you still looking at the last series I sent, which I think
-> was v10 in late November?)
-
-For now I just need MODULE_DEVICE_TABLE to stick around for USB and
-thunderbolt related modules (including built-in modules), so if you
-aren't removing it for any then I don't think we are blocking each
-other.
-
-Longer term it makes sense to have MODULE_DEVICE_TABLE for any module
-that makes use of a subsystem that had the authorized attribute. While
-this is currently just USB/thunderbolt it could expand in the future,
-but there are subsystems where it is likely to make no difference.
-
-We might have a tiny amount of redundancy in our patch sets because
-there are some cases of invalid MODULE_DEVICE_TABLE entries I fixed in
-my patch series, but that could be dropped. These have the potential
-for conflicts / blocking each other, but it should be easy to resolve
-them if I change my fixes to a removal of the MODULE_DEVICE_TABLE
-entries.
-
+> Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+> Cc: Joel Fernandes <joel@joelfernandes.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  kernel/rcu/tasks.h |   20 +++-----------------
+>  1 file changed, 3 insertions(+), 17 deletions(-)
 >
-> --
-> NULL && (void)
+> --- a/kernel/rcu/tasks.h
+> +++ b/kernel/rcu/tasks.h
+> @@ -892,32 +892,24 @@ static void trc_read_check_handler(void
+>
+>         // If the task is no longer running on this CPU, leave.
+>         if (unlikely(texp != t)) {
+> -               if (WARN_ON_ONCE(atomic_dec_and_test(&trc_n_readers_need_end)))
+> -                       wake_up(&trc_wait);
+>                 goto reset_ipi; // Already on holdout list, so will check later.
+>         }
+>
+>         // If the task is not in a read-side critical section, and
+>         // if this is the last reader, awaken the grace-period kthread.
+>         if (likely(!READ_ONCE(t->trc_reader_nesting))) {
+> -               if (WARN_ON_ONCE(atomic_dec_and_test(&trc_n_readers_need_end)))
+> -                       wake_up(&trc_wait);
+> -               // Mark as checked after decrement to avoid false
+> -               // positives on the above WARN_ON_ONCE().
+>                 WRITE_ONCE(t->trc_reader_checked, true);
+>                 goto reset_ipi;
+>         }
+>         // If we are racing with an rcu_read_unlock_trace(), try again later.
+> -       if (unlikely(READ_ONCE(t->trc_reader_nesting) < 0)) {
+> -               if (WARN_ON_ONCE(atomic_dec_and_test(&trc_n_readers_need_end)))
+> -                       wake_up(&trc_wait);
+> +       if (unlikely(READ_ONCE(t->trc_reader_nesting) < 0))
+>                 goto reset_ipi;
+> -       }
+>         WRITE_ONCE(t->trc_reader_checked, true);
+>
+>         // Get here if the task is in a read-side critical section.  Set
+>         // its state so that it will awaken the grace-period kthread upon
+>         // exit from that critical section.
+> +       atomic_inc(&trc_n_readers_need_end); // One more to wait on.
+>         WARN_ON_ONCE(READ_ONCE(t->trc_reader_special.b.need_qs));
+>         WRITE_ONCE(t->trc_reader_special.b.need_qs, true);
+>
+> @@ -1017,21 +1009,15 @@ static void trc_wait_for_one_reader(stru
+>                 if (per_cpu(trc_ipi_to_cpu, cpu) || t->trc_ipi_to_cpu >= 0)
+>                         return;
+>
+> -               atomic_inc(&trc_n_readers_need_end);
+>                 per_cpu(trc_ipi_to_cpu, cpu) = true;
+>                 t->trc_ipi_to_cpu = cpu;
+>                 rcu_tasks_trace.n_ipis++;
+> -               if (smp_call_function_single(cpu,
+> -                                            trc_read_check_handler, t, 0)) {
+> +               if (smp_call_function_single(cpu, trc_read_check_handler, t, 0)) {
+>                         // Just in case there is some other reason for
+>                         // failure than the target CPU being offline.
+>                         rcu_tasks_trace.n_ipis_fails++;
+>                         per_cpu(trc_ipi_to_cpu, cpu) = false;
+>                         t->trc_ipi_to_cpu = cpu;
+> -                       if (atomic_dec_and_test(&trc_n_readers_need_end)) {
+> -                               WARN_ON_ONCE(1);
+> -                               wake_up(&trc_wait);
+> -                       }
+>                 }
+>         }
+>  }
+>
+>
