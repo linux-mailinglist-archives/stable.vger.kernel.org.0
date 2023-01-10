@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA46566495F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD30664A6C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239243AbjAJSUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:20:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58452 "EHLO
+        id S239366AbjAJSct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239308AbjAJSUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B8E7DEF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:11 -0800 (PST)
+        with ESMTP id S239495AbjAJScU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53FB8F29F
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB4566183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6186C433EF;
-        Tue, 10 Jan 2023 18:18:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 966A0B818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCD13C433EF;
+        Tue, 10 Jan 2023 18:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374690;
-        bh=EQ1jRH5vIEAHNeX6uQDmxhMkhx15/XlqY/KvqTJPKcA=;
+        s=korg; t=1673375248;
+        bh=eJ0VRc9PuWyAsoO5PIQYsnPOpsJZpDN7OfcXDHUzTsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vnSwSaV0pVmaouAnzmonayPg/bxHgX1jUOdTe7Oyo4Mycia8eZE0Z0al8rD8nvBJX
-         Yd3KWm/AJY800C/sMkFcChllZU6zi8ks4QJSsFt6ZGb7+Q+MYodcy/VS2ASQzYtTTh
-         /9vHW0fF3joqFTuK2FgTin/tfGdWuxvkJ3gRlJUY=
+        b=rRua7eMarXfyzPxtogovKf8wOq25CGGcUSmddnibPhpYXW+dj9QFYOm/11fl8dup1
+         ZMM+/aV1D+YtVtMB074KBEGaMMy/y8Eb2dYVaek0RI/GzahyLPHGubGAt/EWxyKYC0
+         Yf/MXCm7OVk8Tn/hqH5vCINAozE8i4IobAHn/xFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Agroskin <shayagr@amazon.com>,
-        David Arinzon <darinzon@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 070/159] net: ena: Use bitmask to indicate packet redirection
+        patches@lists.linux.dev,
+        Sergey Matyukevich <sergey.matyukevich@syntacore.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.15 126/290] riscv: mm: notify remote harts about mmu cache updates
 Date:   Tue, 10 Jan 2023 19:03:38 +0100
-Message-Id: <20230110180020.538657438@linuxfoundation.org>
+Message-Id: <20230110180036.170357425@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,193 +53,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Arinzon <darinzon@amazon.com>
+From: Sergey Matyukevich <sergey.matyukevich@syntacore.com>
 
-[ Upstream commit 59811faa2c54dbcf44d575b5a8f6e7077da88dc2 ]
+commit 4bd1d80efb5af640f99157f39b50fb11326ce641 upstream.
 
-Redirecting packets with XDP Redirect is done in two phases:
-1. A packet is passed by the driver to the kernel using
-   xdp_do_redirect().
-2. After finishing polling for new packets the driver lets the kernel
-   know that it can now process the redirected packet using
-   xdp_do_flush_map().
-   The packets' redirection is handled in the napi context of the
-   queue that called xdp_do_redirect()
+Current implementation of update_mmu_cache function performs local TLB
+flush. It does not take into account ASID information. Besides, it does
+not take into account other harts currently running the same mm context
+or possible migration of the running context to other harts. Meanwhile
+TLB flush is not performed for every context switch if ASID support
+is enabled.
 
-To avoid calling xdp_do_flush_map() each time the driver first checks
-whether any packets were redirected, using
-	xdp_flags |= xdp_verdict;
-and
-	if (xdp_flags & XDP_REDIRECT)
-	    xdp_do_flush_map()
+Patch [1] proposed to add ASID support to update_mmu_cache to avoid
+flushing local TLB entirely. This patch takes into account other
+harts currently running the same mm context as well as possible
+migration of this context to other harts.
 
-essentially treating XDP instructions as a bitmask, which isn't the case:
-    enum xdp_action {
-	    XDP_ABORTED = 0,
-	    XDP_DROP,
-	    XDP_PASS,
-	    XDP_TX,
-	    XDP_REDIRECT,
-    };
+For this purpose the approach from flush_icache_mm is reused. Remote
+harts currently running the same mm context are informed via SBI calls
+that they need to flush their local TLBs. All the other harts are marked
+as needing a deferred TLB flush when this mm context runs on them.
 
-Given the current possible values of xdp_action, the current design
-doesn't have a bug (since XDP_REDIRECT = 100b), but it is still
-flawed.
+[1] https://lore.kernel.org/linux-riscv/20220821013926.8968-1-tjytimi@163.com/
 
-This patch makes the driver use a bitmask instead, to avoid future
-issues.
-
-Fixes: a318c70ad152 ("net: ena: introduce XDP redirect implementation")
-Signed-off-by: Shay Agroskin <shayagr@amazon.com>
-Signed-off-by: David Arinzon <darinzon@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich@syntacore.com>
+Fixes: 65d4b9c53017 ("RISC-V: Implement ASID allocator")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-riscv/20220829205219.283543-1-geomatsi@gmail.com/#t
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 26 ++++++++++++--------
- drivers/net/ethernet/amazon/ena/ena_netdev.h |  9 +++++++
- 2 files changed, 25 insertions(+), 10 deletions(-)
+ arch/riscv/include/asm/mmu.h      |    2 ++
+ arch/riscv/include/asm/pgtable.h  |    2 +-
+ arch/riscv/include/asm/tlbflush.h |   18 ++++++++++++++++++
+ arch/riscv/mm/context.c           |   10 ++++++++++
+ arch/riscv/mm/tlbflush.c          |   28 +++++++++++-----------------
+ 5 files changed, 42 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 69f2364b8468..821355c5db10 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -374,9 +374,9 @@ static int ena_xdp_xmit(struct net_device *dev, int n,
+--- a/arch/riscv/include/asm/mmu.h
++++ b/arch/riscv/include/asm/mmu.h
+@@ -19,6 +19,8 @@ typedef struct {
+ #ifdef CONFIG_SMP
+ 	/* A local icache flush is needed before user execution can resume. */
+ 	cpumask_t icache_stale_mask;
++	/* A local tlb flush is needed before user execution can resume. */
++	cpumask_t tlb_stale_mask;
+ #endif
+ } mm_context_t;
  
- static int ena_xdp_execute(struct ena_ring *rx_ring, struct xdp_buff *xdp)
- {
-+	u32 verdict = ENA_XDP_PASS;
- 	struct bpf_prog *xdp_prog;
- 	struct ena_ring *xdp_ring;
--	u32 verdict = XDP_PASS;
- 	struct xdp_frame *xdpf;
- 	u64 *xdp_stat;
- 
-@@ -393,7 +393,7 @@ static int ena_xdp_execute(struct ena_ring *rx_ring, struct xdp_buff *xdp)
- 		if (unlikely(!xdpf)) {
- 			trace_xdp_exception(rx_ring->netdev, xdp_prog, verdict);
- 			xdp_stat = &rx_ring->rx_stats.xdp_aborted;
--			verdict = XDP_ABORTED;
-+			verdict = ENA_XDP_DROP;
- 			break;
- 		}
- 
-@@ -409,29 +409,35 @@ static int ena_xdp_execute(struct ena_ring *rx_ring, struct xdp_buff *xdp)
- 
- 		spin_unlock(&xdp_ring->xdp_tx_lock);
- 		xdp_stat = &rx_ring->rx_stats.xdp_tx;
-+		verdict = ENA_XDP_TX;
- 		break;
- 	case XDP_REDIRECT:
- 		if (likely(!xdp_do_redirect(rx_ring->netdev, xdp, xdp_prog))) {
- 			xdp_stat = &rx_ring->rx_stats.xdp_redirect;
-+			verdict = ENA_XDP_REDIRECT;
- 			break;
- 		}
- 		trace_xdp_exception(rx_ring->netdev, xdp_prog, verdict);
- 		xdp_stat = &rx_ring->rx_stats.xdp_aborted;
--		verdict = XDP_ABORTED;
-+		verdict = ENA_XDP_DROP;
- 		break;
- 	case XDP_ABORTED:
- 		trace_xdp_exception(rx_ring->netdev, xdp_prog, verdict);
- 		xdp_stat = &rx_ring->rx_stats.xdp_aborted;
-+		verdict = ENA_XDP_DROP;
- 		break;
- 	case XDP_DROP:
- 		xdp_stat = &rx_ring->rx_stats.xdp_drop;
-+		verdict = ENA_XDP_DROP;
- 		break;
- 	case XDP_PASS:
- 		xdp_stat = &rx_ring->rx_stats.xdp_pass;
-+		verdict = ENA_XDP_PASS;
- 		break;
- 	default:
- 		bpf_warn_invalid_xdp_action(rx_ring->netdev, xdp_prog, verdict);
- 		xdp_stat = &rx_ring->rx_stats.xdp_invalid;
-+		verdict = ENA_XDP_DROP;
- 	}
- 
- 	ena_increase_stat(xdp_stat, 1, &rx_ring->syncp);
-@@ -1621,12 +1627,12 @@ static int ena_xdp_handle_buff(struct ena_ring *rx_ring, struct xdp_buff *xdp)
- 	 * we expect, then we simply drop it
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -386,7 +386,7 @@ static inline void update_mmu_cache(stru
+ 	 * Relying on flush_tlb_fix_spurious_fault would suffice, but
+ 	 * the extra traps reduce performance.  So, eagerly SFENCE.VMA.
  	 */
- 	if (unlikely(rx_ring->ena_bufs[0].len > ENA_XDP_MAX_MTU))
--		return XDP_DROP;
-+		return ENA_XDP_DROP;
+-	local_flush_tlb_page(address);
++	flush_tlb_page(vma, address);
+ }
  
- 	ret = ena_xdp_execute(rx_ring, xdp);
- 
- 	/* The xdp program might expand the headers */
--	if (ret == XDP_PASS) {
-+	if (ret == ENA_XDP_PASS) {
- 		rx_info->page_offset = xdp->data - xdp->data_hard_start;
- 		rx_ring->ena_bufs[0].len = xdp->data_end - xdp->data;
- 	}
-@@ -1665,7 +1671,7 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
- 	xdp_init_buff(&xdp, ENA_PAGE_SIZE, &rx_ring->xdp_rxq);
- 
- 	do {
--		xdp_verdict = XDP_PASS;
-+		xdp_verdict = ENA_XDP_PASS;
- 		skb = NULL;
- 		ena_rx_ctx.ena_bufs = rx_ring->ena_bufs;
- 		ena_rx_ctx.max_bufs = rx_ring->sgl_size;
-@@ -1693,7 +1699,7 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
- 			xdp_verdict = ena_xdp_handle_buff(rx_ring, &xdp);
- 
- 		/* allocate skb and fill it */
--		if (xdp_verdict == XDP_PASS)
-+		if (xdp_verdict == ENA_XDP_PASS)
- 			skb = ena_rx_skb(rx_ring,
- 					 rx_ring->ena_bufs,
- 					 ena_rx_ctx.descs,
-@@ -1711,13 +1717,13 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
- 				/* Packets was passed for transmission, unmap it
- 				 * from RX side.
- 				 */
--				if (xdp_verdict == XDP_TX || xdp_verdict == XDP_REDIRECT) {
-+				if (xdp_verdict & ENA_XDP_FORWARDED) {
- 					ena_unmap_rx_buff(rx_ring,
- 							  &rx_ring->rx_buffer_info[req_id]);
- 					rx_ring->rx_buffer_info[req_id].page = NULL;
- 				}
- 			}
--			if (xdp_verdict != XDP_PASS) {
-+			if (xdp_verdict != ENA_XDP_PASS) {
- 				xdp_flags |= xdp_verdict;
- 				total_len += ena_rx_ctx.ena_bufs[0].len;
- 				res_budget--;
-@@ -1763,7 +1769,7 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
- 		ena_refill_rx_bufs(rx_ring, refill_required);
- 	}
- 
--	if (xdp_flags & XDP_REDIRECT)
-+	if (xdp_flags & ENA_XDP_REDIRECT)
- 		xdp_do_flush_map();
- 
- 	return work_done;
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.h b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-index 1bdce99bf688..290ae9bf47ee 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.h
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-@@ -409,6 +409,15 @@ enum ena_xdp_errors_t {
- 	ENA_XDP_NO_ENOUGH_QUEUES,
- };
- 
-+enum ENA_XDP_ACTIONS {
-+	ENA_XDP_PASS		= 0,
-+	ENA_XDP_TX		= BIT(0),
-+	ENA_XDP_REDIRECT	= BIT(1),
-+	ENA_XDP_DROP		= BIT(2)
-+};
-+
-+#define ENA_XDP_FORWARDED (ENA_XDP_TX | ENA_XDP_REDIRECT)
-+
- static inline bool ena_xdp_present(struct ena_adapter *adapter)
+ static inline void update_mmu_cache_pmd(struct vm_area_struct *vma,
+--- a/arch/riscv/include/asm/tlbflush.h
++++ b/arch/riscv/include/asm/tlbflush.h
+@@ -22,6 +22,24 @@ static inline void local_flush_tlb_page(
  {
- 	return !!adapter->xdp_bpf_prog;
--- 
-2.35.1
-
+ 	ALT_FLUSH_TLB_PAGE(__asm__ __volatile__ ("sfence.vma %0" : : "r" (addr) : "memory"));
+ }
++
++static inline void local_flush_tlb_all_asid(unsigned long asid)
++{
++	__asm__ __volatile__ ("sfence.vma x0, %0"
++			:
++			: "r" (asid)
++			: "memory");
++}
++
++static inline void local_flush_tlb_page_asid(unsigned long addr,
++		unsigned long asid)
++{
++	__asm__ __volatile__ ("sfence.vma %0, %1"
++			:
++			: "r" (addr), "r" (asid)
++			: "memory");
++}
++
+ #else /* CONFIG_MMU */
+ #define local_flush_tlb_all()			do { } while (0)
+ #define local_flush_tlb_page(addr)		do { } while (0)
+--- a/arch/riscv/mm/context.c
++++ b/arch/riscv/mm/context.c
+@@ -196,6 +196,16 @@ switch_mm_fast:
+ 
+ 	if (need_flush_tlb)
+ 		local_flush_tlb_all();
++#ifdef CONFIG_SMP
++	else {
++		cpumask_t *mask = &mm->context.tlb_stale_mask;
++
++		if (cpumask_test_cpu(cpu, mask)) {
++			cpumask_clear_cpu(cpu, mask);
++			local_flush_tlb_all_asid(cntx & asid_mask);
++		}
++	}
++#endif
+ }
+ 
+ static void set_mm_noasid(struct mm_struct *mm)
+--- a/arch/riscv/mm/tlbflush.c
++++ b/arch/riscv/mm/tlbflush.c
+@@ -5,23 +5,7 @@
+ #include <linux/sched.h>
+ #include <asm/sbi.h>
+ #include <asm/mmu_context.h>
+-
+-static inline void local_flush_tlb_all_asid(unsigned long asid)
+-{
+-	__asm__ __volatile__ ("sfence.vma x0, %0"
+-			:
+-			: "r" (asid)
+-			: "memory");
+-}
+-
+-static inline void local_flush_tlb_page_asid(unsigned long addr,
+-		unsigned long asid)
+-{
+-	__asm__ __volatile__ ("sfence.vma %0, %1"
+-			:
+-			: "r" (addr), "r" (asid)
+-			: "memory");
+-}
++#include <asm/tlbflush.h>
+ 
+ void flush_tlb_all(void)
+ {
+@@ -31,6 +15,7 @@ void flush_tlb_all(void)
+ static void __sbi_tlb_flush_range(struct mm_struct *mm, unsigned long start,
+ 				  unsigned long size, unsigned long stride)
+ {
++	struct cpumask *pmask = &mm->context.tlb_stale_mask;
+ 	struct cpumask *cmask = mm_cpumask(mm);
+ 	struct cpumask hmask;
+ 	unsigned int cpuid;
+@@ -45,6 +30,15 @@ static void __sbi_tlb_flush_range(struct
+ 	if (static_branch_unlikely(&use_asid_allocator)) {
+ 		unsigned long asid = atomic_long_read(&mm->context.id);
+ 
++		/*
++		 * TLB will be immediately flushed on harts concurrently
++		 * executing this MM context. TLB flush on other harts
++		 * is deferred until this MM context migrates there.
++		 */
++		cpumask_setall(pmask);
++		cpumask_clear_cpu(cpuid, pmask);
++		cpumask_andnot(pmask, pmask, cmask);
++
+ 		if (broadcast) {
+ 			riscv_cpuid_to_hartid_mask(cmask, &hmask);
+ 			sbi_remote_sfence_vma_asid(cpumask_bits(&hmask),
 
 
