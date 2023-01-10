@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7E756648E1
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17334664956
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239079AbjAJSQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:16:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54594 "EHLO
+        id S239186AbjAJSUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:20:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239077AbjAJSPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0C03B5
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:29 -0800 (PST)
+        with ESMTP id S239271AbjAJSUE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73B7A13DC4
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85E7AB818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5FD9C433EF;
-        Tue, 10 Jan 2023 18:13:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C3B9B818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BD79C433D2;
+        Tue, 10 Jan 2023 18:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374407;
-        bh=OqJS7mdcDFWczlCp7zGtOy4ei+eCaRVuC/4bgPswZSc=;
+        s=korg; t=1673374666;
+        bh=p4dt/o+VKh4m5q/5yUy2pks5GSDjSqYgTOIINbJLB90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4XCZNTHjkkLo3ohziCf9X8Be6BHwl/CuloGmsgbEgrnTv94dRUXgRvm5fzmAGKGi
-         Ig/W61SvPoGUBgwwZeiUyEpQvBemRIPmXxLLk8rH5HxouacyYgU62vYz1vd9cTVL5n
-         fe9SD2hwwMpg+SXokKddvkD3s8vIUFSzLiiB/GQo=
+        b=RdJWINTO85eL75I/zARoIts8O+HKVsMMoLuShUwaNpp5+LLnKlY/Pn2HDB1B1p72E
+         HDXM732h8x8BxR3X+I9oa7B+MZaWHLgOsr0zJq69w8QZpzwbuKOAsr3yHHHRlv10B5
+         LLH2Y3aeb3ePwo2NibklGk602uA9di6FX7jeTs3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.0 135/148] riscv, kprobes: Stricter c.jr/c.jalr decoding
-Date:   Tue, 10 Jan 2023 19:03:59 +0100
-Message-Id: <20230110180021.460380563@linuxfoundation.org>
+        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Ian Ray <ian.ray@ge.com>,
+        Philipp Zabel <philipp.zabel@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 092/159] drm/imx: ipuv3-plane: Fix overlay plane width
+Date:   Tue, 10 Jan 2023 19:04:00 +0100
+Message-Id: <20230110180021.227656377@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn@rivosinc.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-commit b2d473a6019ef9a54b0156ecdb2e0398c9fa6a24 upstream.
+[ Upstream commit 92d43bd3bc9728c1fb114d7011d46f5ea9489e28 ]
 
-In the compressed instruction extension, c.jr, c.jalr, c.mv, and c.add
-is encoded the following way (each instruction is 16b):
+ipu_src_rect_width() was introduced to support odd screen resolutions
+such as 1366x768 by internally rounding up primary plane width to a
+multiple of 8 and compensating with reduced horizontal blanking.
+This also caused overlay plane width to be rounded up, which was not
+intended. Fix overlay plane width by limiting the rounding up to the
+primary plane.
 
----+-+-----------+-----------+--
-100 0 rs1[4:0]!=0       00000 10 : c.jr
-100 1 rs1[4:0]!=0       00000 10 : c.jalr
-100 0  rd[4:0]!=0 rs2[4:0]!=0 10 : c.mv
-100 1  rd[4:0]!=0 rs2[4:0]!=0 10 : c.add
+drm_rect_width(&new_state->src) >> 16 is the same value as
+drm_rect_width(dst) because there is no plane scaling support.
 
-The following logic is used to decode c.jr and c.jalr:
-
-  insn & 0xf007 == 0x8002 => instruction is an c.jr
-  insn & 0xf007 == 0x9002 => instruction is an c.jalr
-
-When 0xf007 is used to mask the instruction, c.mv can be incorrectly
-decoded as c.jr, and c.add as c.jalr.
-
-Correct the decoding by changing the mask from 0xf007 to 0xf07f.
-
-Fixes: c22b0bcb1dd0 ("riscv: Add kprobes supported")
-Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20230102160748.1307289-1-bjorn@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 94dfec48fca7 ("drm/imx: Add 8 pixel alignment fix")
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Link: https://lore.kernel.org/r/20221108141420.176696-1-p.zabel@pengutronix.de
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221108141420.176696-1-p.zabel@pengutronix.de
+Tested-by: Ian Ray <ian.ray@ge.com>
+(cherry picked from commit 4333472f8d7befe62359fecb1083cd57a6e07bfc)
+Signed-off-by: Philipp Zabel <philipp.zabel@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/probes/simulate-insn.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/imx/ipuv3-plane.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/arch/riscv/kernel/probes/simulate-insn.h
-+++ b/arch/riscv/kernel/probes/simulate-insn.h
-@@ -31,9 +31,9 @@ __RISCV_INSN_FUNCS(fence,	0x7f, 0x0f);
- 	} while (0)
+diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
+index dba4f7d81d69..80142d9a4a55 100644
+--- a/drivers/gpu/drm/imx/ipuv3-plane.c
++++ b/drivers/gpu/drm/imx/ipuv3-plane.c
+@@ -614,6 +614,11 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 		break;
+ 	}
  
- __RISCV_INSN_FUNCS(c_j,		0xe003, 0xa001);
--__RISCV_INSN_FUNCS(c_jr,	0xf007, 0x8002);
-+__RISCV_INSN_FUNCS(c_jr,	0xf07f, 0x8002);
- __RISCV_INSN_FUNCS(c_jal,	0xe003, 0x2001);
--__RISCV_INSN_FUNCS(c_jalr,	0xf007, 0x9002);
-+__RISCV_INSN_FUNCS(c_jalr,	0xf07f, 0x9002);
- __RISCV_INSN_FUNCS(c_beqz,	0xe003, 0xc001);
- __RISCV_INSN_FUNCS(c_bnez,	0xe003, 0xe001);
- __RISCV_INSN_FUNCS(c_ebreak,	0xffff, 0x9002);
++	if (ipu_plane->dp_flow == IPU_DP_FLOW_SYNC_BG)
++		width = ipu_src_rect_width(new_state);
++	else
++		width = drm_rect_width(&new_state->src) >> 16;
++
+ 	eba = drm_plane_state_to_eba(new_state, 0);
+ 
+ 	/*
+@@ -622,8 +627,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 	 */
+ 	if (ipu_state->use_pre) {
+ 		axi_id = ipu_chan_assign_axi_id(ipu_plane->dma);
+-		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id,
+-					  ipu_src_rect_width(new_state),
++		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id, width,
+ 					  drm_rect_height(&new_state->src) >> 16,
+ 					  fb->pitches[0], fb->format->format,
+ 					  fb->modifier, &eba);
+@@ -678,9 +682,8 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 		break;
+ 	}
+ 
+-	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, ALIGN(drm_rect_width(dst), 8));
++	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, width);
+ 
+-	width = ipu_src_rect_width(new_state);
+ 	height = drm_rect_height(&new_state->src) >> 16;
+ 	info = drm_format_info(fb->format->format);
+ 	ipu_calculate_bursts(width, info->cpp[0], fb->pitches[0],
+@@ -744,8 +747,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 		ipu_cpmem_set_burstsize(ipu_plane->ipu_ch, 16);
+ 
+ 		ipu_cpmem_zero(ipu_plane->alpha_ch);
+-		ipu_cpmem_set_resolution(ipu_plane->alpha_ch,
+-					 ipu_src_rect_width(new_state),
++		ipu_cpmem_set_resolution(ipu_plane->alpha_ch, width,
+ 					 drm_rect_height(&new_state->src) >> 16);
+ 		ipu_cpmem_set_format_passthrough(ipu_plane->alpha_ch, 8);
+ 		ipu_cpmem_set_high_priority(ipu_plane->alpha_ch);
+-- 
+2.35.1
+
 
 
