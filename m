@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B24CE664AED
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F007B664AF0
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239448AbjAJShn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:37:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48562 "EHLO
+        id S239572AbjAJSiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:38:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239581AbjAJShP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 415D15950D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:17 -0800 (PST)
+        with ESMTP id S239587AbjAJShQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FD865950E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 869CB61866
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 584F4C433EF;
-        Tue, 10 Jan 2023 18:32:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E89DB818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A32C433D2;
+        Tue, 10 Jan 2023 18:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375536;
-        bh=ZhtmRA+u4gIHaC5Y3uDMv1g2djYMOG01OpYmHtIJe4o=;
+        s=korg; t=1673375539;
+        bh=ma6A+WmiOu/0GB8d4wu91OdxwtFc8uJ7q61tmKdNAUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zOPbiyH49+8C9KXjDz+rYIYsZ0uz790mdMU66E+8JuN34zgNsySs2AfUxEvmNC9EU
-         jHuSOyDNXYzgHc/S7HyvUo4j9zSYzZ0KRx3kOFeH1bQuXNbPxCN+HluNYExG1POS4J
-         P9/0Nwq2tfDSlSug0IyBF44lCmyIHHXohSnN134E=
+        b=j80MRs4nsbbOlK+TFZFHXSQgCc0G9Vf30nisgxYmjs5Wqas6P334NDi/CoK2VQ2/q
+         EaWt3Wt1Jm9v8wCoE/mf+XqLIt58IcPpYZ1tIjBFiUZBol4OmV8CbWqTyzpIBJsS0z
+         VjGKEEFUjlQbUlpJtPH4TvPpdphALXUcriUraJ1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefano Garzarella <sgarzare@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        patches@lists.linux.dev, Moshe Shemesh <moshe@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 221/290] vdpa_sim: fix vringh initialization in vdpasim_queue_ready()
-Date:   Tue, 10 Jan 2023 19:05:13 +0100
-Message-Id: <20230110180039.638536509@linuxfoundation.org>
+Subject: [PATCH 5.15 222/290] net/mlx5: E-Switch, properly handle ingress tagged packets on VST
+Date:   Tue, 10 Jan 2023 19:05:14 +0100
+Message-Id: <20230110180039.668839504@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -55,47 +54,259 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-[ Upstream commit 794ec498c9fa79e6bfd71b931410d5897a9c00d4 ]
+[ Upstream commit 1f0ae22ab470946143485a02cc1cd7e05c0f9120 ]
 
-When we initialize vringh, we should pass the features and the
-number of elements in the virtqueue negotiated with the driver,
-otherwise operations with vringh may fail.
+Fix SRIOV VST mode behavior to insert cvlan when a guest tag is already
+present in the frame. Previous VST mode behavior was to drop packets or
+override existing tag, depending on the device version.
 
-This was discovered in a case where the driver sets a number of
-elements in the virtqueue different from the value returned by
-.get_vq_num_max().
+In this patch we fix this behavior by correctly building the HW steering
+rule with a push vlan action, or for older devices we ask the FW to stack
+the vlan when a vlan is already present.
 
-In vdpasim_vq_reset() is safe to initialize the vringh with
-default values, since the virtqueue will not be used until
-vdpasim_queue_ready() is called again.
-
-Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Message-Id: <20221110141335.62171-1-sgarzare@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Eugenio Pérez <eperezma@redhat.com>
+Fixes: 07bab9502641 ("net/mlx5: E-Switch, Refactor eswitch ingress acl codes")
+Fixes: dfcb1ed3c331 ("net/mlx5: E-Switch, Vport ingress/egress ACLs rules for VST mode")
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../mellanox/mlx5/core/esw/acl/egress_lgcy.c  |  7 +++-
+ .../mellanox/mlx5/core/esw/acl/ingress_lgcy.c | 33 ++++++++++++++++---
+ .../net/ethernet/mellanox/mlx5/core/eswitch.c | 30 ++++++++++++-----
+ .../net/ethernet/mellanox/mlx5/core/eswitch.h |  6 ++++
+ include/linux/mlx5/device.h                   |  5 +++
+ include/linux/mlx5/mlx5_ifc.h                 |  3 +-
+ 6 files changed, 68 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 2faf3bd1c3ba..4d9e3fdae5f6 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -66,8 +66,7 @@ static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
+index 60a73990017c..6b4c9ffad95b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/egress_lgcy.c
+@@ -67,6 +67,7 @@ static void esw_acl_egress_lgcy_groups_destroy(struct mlx5_vport *vport)
+ int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
+ 			      struct mlx5_vport *vport)
  {
- 	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
++	bool vst_mode_steering = esw_vst_mode_is_steering(esw);
+ 	struct mlx5_flow_destination drop_ctr_dst = {};
+ 	struct mlx5_flow_destination *dst = NULL;
+ 	struct mlx5_fc *drop_counter = NULL;
+@@ -77,6 +78,7 @@ int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
+ 	 */
+ 	int table_size = 2;
+ 	int dest_num = 0;
++	int actions_flag;
+ 	int err = 0;
  
--	vringh_init_iotlb(&vq->vring, vdpasim->dev_attr.supported_features,
--			  VDPASIM_QUEUE_MAX, false,
-+	vringh_init_iotlb(&vq->vring, vdpasim->features, vq->num, false,
- 			  (struct vring_desc *)(uintptr_t)vq->desc_addr,
- 			  (struct vring_avail *)
- 			  (uintptr_t)vq->driver_addr,
+ 	if (vport->egress.legacy.drop_counter) {
+@@ -119,8 +121,11 @@ int esw_acl_egress_lgcy_setup(struct mlx5_eswitch *esw,
+ 		  vport->vport, vport->info.vlan, vport->info.qos);
+ 
+ 	/* Allowed vlan rule */
++	actions_flag = MLX5_FLOW_CONTEXT_ACTION_ALLOW;
++	if (vst_mode_steering)
++		actions_flag |= MLX5_FLOW_CONTEXT_ACTION_VLAN_POP;
+ 	err = esw_egress_acl_vlan_create(esw, vport, NULL, vport->info.vlan,
+-					 MLX5_FLOW_CONTEXT_ACTION_ALLOW);
++					 actions_flag);
+ 	if (err)
+ 		goto out;
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
+index b1a5199260f6..093ed86a0acd 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/acl/ingress_lgcy.c
+@@ -139,11 +139,14 @@ static void esw_acl_ingress_lgcy_groups_destroy(struct mlx5_vport *vport)
+ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
+ 			       struct mlx5_vport *vport)
+ {
++	bool vst_mode_steering = esw_vst_mode_is_steering(esw);
+ 	struct mlx5_flow_destination drop_ctr_dst = {};
+ 	struct mlx5_flow_destination *dst = NULL;
+ 	struct mlx5_flow_act flow_act = {};
+ 	struct mlx5_flow_spec *spec = NULL;
+ 	struct mlx5_fc *counter = NULL;
++	bool vst_check_cvlan = false;
++	bool vst_push_cvlan = false;
+ 	/* The ingress acl table contains 4 groups
+ 	 * (2 active rules at the same time -
+ 	 *      1 allow rule from one of the first 3 groups.
+@@ -203,7 +206,26 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
+ 		goto out;
+ 	}
+ 
+-	if (vport->info.vlan || vport->info.qos)
++	if ((vport->info.vlan || vport->info.qos)) {
++		if (vst_mode_steering)
++			vst_push_cvlan = true;
++		else if (!MLX5_CAP_ESW(esw->dev, vport_cvlan_insert_always))
++			vst_check_cvlan = true;
++	}
++
++	if (vst_check_cvlan || vport->info.spoofchk)
++		spec->match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
++
++	/* Create ingress allow rule */
++	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_ALLOW;
++	if (vst_push_cvlan) {
++		flow_act.action |= MLX5_FLOW_CONTEXT_ACTION_VLAN_PUSH;
++		flow_act.vlan[0].prio = vport->info.qos;
++		flow_act.vlan[0].vid = vport->info.vlan;
++		flow_act.vlan[0].ethtype = ETH_P_8021Q;
++	}
++
++	if (vst_check_cvlan)
+ 		MLX5_SET_TO_ONES(fte_match_param, spec->match_criteria,
+ 				 outer_headers.cvlan_tag);
+ 
+@@ -218,9 +240,6 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
+ 		ether_addr_copy(smac_v, vport->info.mac);
+ 	}
+ 
+-	/* Create ingress allow rule */
+-	spec->match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
+-	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_ALLOW;
+ 	vport->ingress.allow_rule = mlx5_add_flow_rules(vport->ingress.acl, spec,
+ 							&flow_act, NULL, 0);
+ 	if (IS_ERR(vport->ingress.allow_rule)) {
+@@ -232,6 +251,9 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
+ 		goto out;
+ 	}
+ 
++	if (!vst_check_cvlan && !vport->info.spoofchk)
++		goto out;
++
+ 	memset(&flow_act, 0, sizeof(flow_act));
+ 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_DROP;
+ 	/* Attach drop flow counter */
+@@ -257,7 +279,8 @@ int esw_acl_ingress_lgcy_setup(struct mlx5_eswitch *esw,
+ 	return 0;
+ 
+ out:
+-	esw_acl_ingress_lgcy_cleanup(esw, vport);
++	if (err)
++		esw_acl_ingress_lgcy_cleanup(esw, vport);
+ 	kvfree(spec);
+ 	return err;
+ }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+index 51a8cecc4a7c..2b9278002354 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+@@ -160,10 +160,17 @@ static int modify_esw_vport_cvlan(struct mlx5_core_dev *dev, u16 vport,
+ 			 esw_vport_context.vport_cvlan_strip, 1);
+ 
+ 	if (set_flags & SET_VLAN_INSERT) {
+-		/* insert only if no vlan in packet */
+-		MLX5_SET(modify_esw_vport_context_in, in,
+-			 esw_vport_context.vport_cvlan_insert, 1);
+-
++		if (MLX5_CAP_ESW(dev, vport_cvlan_insert_always)) {
++			/* insert either if vlan exist in packet or not */
++			MLX5_SET(modify_esw_vport_context_in, in,
++				 esw_vport_context.vport_cvlan_insert,
++				 MLX5_VPORT_CVLAN_INSERT_ALWAYS);
++		} else {
++			/* insert only if no vlan in packet */
++			MLX5_SET(modify_esw_vport_context_in, in,
++				 esw_vport_context.vport_cvlan_insert,
++				 MLX5_VPORT_CVLAN_INSERT_WHEN_NO_CVLAN);
++		}
+ 		MLX5_SET(modify_esw_vport_context_in, in,
+ 			 esw_vport_context.cvlan_pcp, qos);
+ 		MLX5_SET(modify_esw_vport_context_in, in,
+@@ -773,6 +780,7 @@ static void esw_vport_cleanup_acl(struct mlx5_eswitch *esw,
+ 
+ static int esw_vport_setup(struct mlx5_eswitch *esw, struct mlx5_vport *vport)
+ {
++	bool vst_mode_steering = esw_vst_mode_is_steering(esw);
+ 	u16 vport_num = vport->vport;
+ 	int flags;
+ 	int err;
+@@ -802,8 +810,9 @@ static int esw_vport_setup(struct mlx5_eswitch *esw, struct mlx5_vport *vport)
+ 
+ 	flags = (vport->info.vlan || vport->info.qos) ?
+ 		SET_VLAN_STRIP | SET_VLAN_INSERT : 0;
+-	modify_esw_vport_cvlan(esw->dev, vport_num, vport->info.vlan,
+-			       vport->info.qos, flags);
++	if (esw->mode == MLX5_ESWITCH_OFFLOADS || !vst_mode_steering)
++		modify_esw_vport_cvlan(esw->dev, vport_num, vport->info.vlan,
++				       vport->info.qos, flags);
+ 
+ 	return 0;
+ }
+@@ -1846,6 +1855,7 @@ int __mlx5_eswitch_set_vport_vlan(struct mlx5_eswitch *esw,
+ 				  u16 vport, u16 vlan, u8 qos, u8 set_flags)
+ {
+ 	struct mlx5_vport *evport = mlx5_eswitch_get_vport(esw, vport);
++	bool vst_mode_steering = esw_vst_mode_is_steering(esw);
+ 	int err = 0;
+ 
+ 	if (IS_ERR(evport))
+@@ -1853,9 +1863,11 @@ int __mlx5_eswitch_set_vport_vlan(struct mlx5_eswitch *esw,
+ 	if (vlan > 4095 || qos > 7)
+ 		return -EINVAL;
+ 
+-	err = modify_esw_vport_cvlan(esw->dev, vport, vlan, qos, set_flags);
+-	if (err)
+-		return err;
++	if (esw->mode == MLX5_ESWITCH_OFFLOADS || !vst_mode_steering) {
++		err = modify_esw_vport_cvlan(esw->dev, vport, vlan, qos, set_flags);
++		if (err)
++			return err;
++	}
+ 
+ 	evport->info.vlan = vlan;
+ 	evport->info.qos = qos;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
+index 2c7444101bb9..0e2c9e6fccb6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.h
+@@ -505,6 +505,12 @@ static inline bool mlx5_esw_qos_enabled(struct mlx5_eswitch *esw)
+ 	return esw->qos.enabled;
+ }
+ 
++static inline bool esw_vst_mode_is_steering(struct mlx5_eswitch *esw)
++{
++	return (MLX5_CAP_ESW_EGRESS_ACL(esw->dev, pop_vlan) &&
++		MLX5_CAP_ESW_INGRESS_ACL(esw->dev, push_vlan));
++}
++
+ static inline bool mlx5_eswitch_vlan_actions_supported(struct mlx5_core_dev *dev,
+ 						       u8 vlan_depth)
+ {
+diff --git a/include/linux/mlx5/device.h b/include/linux/mlx5/device.h
+index 66eaf0aa7f69..3e72133545ca 100644
+--- a/include/linux/mlx5/device.h
++++ b/include/linux/mlx5/device.h
+@@ -1074,6 +1074,11 @@ enum {
+ 	MLX5_VPORT_ADMIN_STATE_AUTO  = 0x2,
+ };
+ 
++enum {
++	MLX5_VPORT_CVLAN_INSERT_WHEN_NO_CVLAN  = 0x1,
++	MLX5_VPORT_CVLAN_INSERT_ALWAYS         = 0x3,
++};
++
+ enum {
+ 	MLX5_L3_PROT_TYPE_IPV4		= 0,
+ 	MLX5_L3_PROT_TYPE_IPV6		= 1,
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index cd9d1c95129e..49ea0004109e 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -822,7 +822,8 @@ struct mlx5_ifc_e_switch_cap_bits {
+ 	u8         vport_svlan_insert[0x1];
+ 	u8         vport_cvlan_insert_if_not_exist[0x1];
+ 	u8         vport_cvlan_insert_overwrite[0x1];
+-	u8         reserved_at_5[0x2];
++	u8         reserved_at_5[0x1];
++	u8         vport_cvlan_insert_always[0x1];
+ 	u8         esw_shared_ingress_acl[0x1];
+ 	u8         esw_uplink_ingress_acl[0x1];
+ 	u8         root_ft_on_other_esw[0x1];
 -- 
 2.35.1
 
