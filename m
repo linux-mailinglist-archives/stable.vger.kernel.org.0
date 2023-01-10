@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 025FF663AE5
+	by mail.lfdr.de (Postfix) with ESMTP id 5731E663AE6
 	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 09:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237505AbjAJIXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237523AbjAJIXN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 10 Jan 2023 03:23:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50928 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237709AbjAJIXJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 03:23:09 -0500
+        with ESMTP id S231500AbjAJIXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 03:23:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6307443A0E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 00:23:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 124DC43A1B
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 00:23:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECBEA6151B
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:23:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C3EFC433F0;
-        Tue, 10 Jan 2023 08:23:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E1306151D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:23:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7237DC433D2;
+        Tue, 10 Jan 2023 08:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673338987;
-        bh=k/eQITlJB7KxN0rv1v5l49rD12IIE7xTWDE8iPQKkLU=;
+        s=korg; t=1673338990;
+        bh=AU/UZHXZjZOEE+s4cNsq/InmLh6SCbCkTTqIQIjoApg=;
         h=Subject:To:Cc:From:Date:From;
-        b=adeADEoQc457uz7YcLBClTtADuamj5Ey8IlGqGXkSnTs/CHA4tXQU7SJlxh0yIUhO
-         Id/kr2TY7zTmsUwZXPlyhg50b86t80pVAj9E7LlOYnoZizcE14BGDuuFXZevqvAZpm
-         gDFDk/woK4IjqbWzs0+XeaeqSjS4Lf9ShVpj668A=
-Subject: FAILED: patch "[PATCH] drm/i915/gvt: fix vgpu debugfs clean in remove" failed to apply to 5.4-stable tree
+        b=wub64WlXla5bTybafjVoJSGKVfPk7kdZDPWfjW9yL5eJPvQds/L7we/CgVwE3cmoY
+         2TMZCuRr05TmS3yHsKESOBUHmNLQ0DOqnnEivJAe3jecpV59ErttCi9s6RhbB8w3Xn
+         uQMl9fElSt2wxV6sNzZBCwZXTWzcOpUT5y+tB+RM=
+Subject: FAILED: patch "[PATCH] drm/i915/gvt: fix vgpu debugfs clean in remove" failed to apply to 4.19-stable tree
 To:     zhenyuw@linux.intel.com, alex.williamson@redhat.com,
         yu.he@intel.com, zhi.a.wang@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Jan 2023 09:22:39 +0100
-Message-ID: <16733389592637@kroah.com>
+Date:   Tue, 10 Jan 2023 09:22:42 +0100
+Message-ID: <16733389623379@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
