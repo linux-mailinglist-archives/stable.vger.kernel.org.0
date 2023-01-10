@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A096D664AF4
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D421664AF7
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239419AbjAJSiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
+        id S239449AbjAJSiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:38:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239625AbjAJShY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A11DC5B49E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:37 -0800 (PST)
+        with ESMTP id S239637AbjAJShZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05B85B496
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B118B818E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB7D6C433EF;
-        Tue, 10 Jan 2023 18:32:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C266B81902
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3E9DC433EF;
+        Tue, 10 Jan 2023 18:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375555;
-        bh=qByWPVrL98Y6KtiGg5+/3GLGRTU8oh/YauQRgeycSE4=;
+        s=korg; t=1673375561;
+        bh=TLcAoKOOrytHrR5zm0L7Fa5L0yWYku3xqp1n/7eTZXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OU5+Yop+CN+VNeJ+cGffozb7jbxgD2fpUb6VNQq6nIjkjwjROnvdInmp2R6cLuJ1Y
-         GRfY6cCSfLDwxJJS58qb4f9jnzlfVx5eoZTXIdwxS5agzS9Phm08KywI5TmiSZQGuZ
-         55wEooDnNcVy+1pM3KQWkG8GagAUIGU1HiqK/nMA=
+        b=KNVMNXlGOHPKwo4bZ6DkZgaZpQtCaoNuAFKoqUlRBe9bgmqDkDYG6cXGztaL0EndB
+         Az+MDd/5mt1Ic6mAx/uEYPauhlXSXwkDvSAsK3y6o8W8uMo7414KHPhq/kI2vFxSIn
+         plSt5GqaF3dogWI9RES4TNJcT9vnkZS2Cr6olul4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Mi <cmi@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
+        patches@lists.linux.dev, Adham Faris <afaris@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 227/290] net/mlx5e: Always clear dest encap in neigh-update-del
-Date:   Tue, 10 Jan 2023 19:05:19 +0100
-Message-Id: <20230110180039.848723073@linuxfoundation.org>
+Subject: [PATCH 5.15 228/290] net/mlx5e: Fix hw mtu initializing at XDP SQ allocation
+Date:   Tue, 10 Jan 2023 19:05:20 +0100
+Message-Id: <20230110180039.887020518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -54,52 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Mi <cmi@nvidia.com>
+From: Adham Faris <afaris@nvidia.com>
 
-[ Upstream commit 2951b2e142ecf6e0115df785ba91e91b6da74602 ]
+[ Upstream commit 1e267ab88dc44c48f556218f7b7f14c76f7aa066 ]
 
-The cited commit introduced a bug for multiple encapsulations flow.
-If one dest encap becomes invalid, the flow is set slow path flag.
-But when other dests encap become invalid, they are not cleared due
-to slow path flag of the flow. When neigh-update-add is running, it
-will use invalid encap.
+Current xdp xmit functions logic (mlx5e_xmit_xdp_frame_mpwqe or
+mlx5e_xmit_xdp_frame), validates xdp packet length by comparing it to
+hw mtu (configured at xdp sq allocation) before xmiting it. This check
+does not account for ethernet fcs length (calculated and filled by the
+nic). Hence, when we try sending packets with length > (hw-mtu -
+ethernet-fcs-size), the device port drops it and tx_errors_phy is
+incremented. Desired behavior is to catch these packets and drop them
+by the driver.
 
-Fix it by checking slow path flag after clearing dest encap.
+Fix this behavior in XDP SQ allocation function (mlx5e_alloc_xdpsq) by
+subtracting ethernet FCS header size (4 Bytes) from current hw mtu
+value, since ethernet FCS is calculated and written to ethernet frames
+by the nic.
 
-Fixes: 9a5f9cc794e1 ("net/mlx5e: Fix possible use-after-free deleting fdb rule")
-Signed-off-by: Chris Mi <cmi@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
+Fixes: d8bec2b29a82 ("net/mlx5e: Support bpf_xdp_adjust_head()")
+Signed-off-by: Adham Faris <afaris@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c    | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c
-index 3b63d9c20580..a8d7f07ee2ca 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c
-@@ -188,12 +188,19 @@ void mlx5e_tc_encap_flows_del(struct mlx5e_priv *priv,
- 	int err;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index c1c4f380803a..be19f5cf9d15 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -977,7 +977,7 @@ static int mlx5e_alloc_xdpsq(struct mlx5e_channel *c,
+ 	sq->channel   = c;
+ 	sq->uar_map   = mdev->mlx5e_res.hw_objs.bfreg.map;
+ 	sq->min_inline_mode = params->tx_min_inline_mode;
+-	sq->hw_mtu    = MLX5E_SW2HW_MTU(params, params->sw_mtu);
++	sq->hw_mtu    = MLX5E_SW2HW_MTU(params, params->sw_mtu) - ETH_FCS_LEN;
+ 	sq->xsk_pool  = xsk_pool;
  
- 	list_for_each_entry(flow, flow_list, tmp_list) {
--		if (!mlx5e_is_offloaded_flow(flow) || flow_flag_test(flow, SLOW))
-+		if (!mlx5e_is_offloaded_flow(flow))
- 			continue;
- 		attr = flow->attr;
- 		esw_attr = attr->esw_attr;
- 		spec = &attr->parse_attr->spec;
- 
-+		/* Clear pkt_reformat before checking slow path flag. Because
-+		 * in next iteration, the same flow is already set slow path
-+		 * flag, but still need to clear the pkt_reformat.
-+		 */
-+		if (flow_flag_test(flow, SLOW))
-+			continue;
-+
- 		/* update from encap rule to slow path rule */
- 		rule = mlx5e_tc_offload_to_slow_path(esw, flow, spec);
- 		/* mark the flow's encap dest as non-valid */
+ 	sq->stats = sq->xsk_pool ?
 -- 
 2.35.1
 
