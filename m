@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D02F7664B22
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89EED664B29
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239486AbjAJSi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53704 "EHLO
+        id S239444AbjAJSjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:39:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239422AbjAJSiH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09BE39B299
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:18 -0800 (PST)
+        with ESMTP id S239643AbjAJSia (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78419496F4
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AD3A61864
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5469C433D2;
-        Tue, 10 Jan 2023 18:33:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 243E0B818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B4D0C433D2;
+        Tue, 10 Jan 2023 18:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375597;
-        bh=tM5jMiHZ4UKmta86IYYK4t+6FQ4uP2htZNeqxkq2lbA=;
+        s=korg; t=1673375634;
+        bh=TSA+NxmmsuExvj62j4Sm8/wAeX2Hy8yaMNj1kKNWnfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yNLb3sAdkN7Rh9fUbH6yej1kfl7YlVHEFeooDmLcofYv1rcpwHzPtEO3qqcOveKVn
-         /J8nK1xHclDKQfiQhD7shssMAwAoXwGB0Q5SaCpox9RohycEiCw/TUbK/6W16K/WSt
-         9Rpjgyu1r13pooqHajQAaHjMgQVT6oCqVoFcbKqo=
+        b=s3KVb1sq/0Q2iu3wkfns6OclcnP1aQvwvUjqMG+EMh7TK2S7RUED+TCNA4l4fq8RC
+         ioCIA5YJ64HdxRBFoe+3koYq6o+Or054K7giSWKi3ciwTExj0rV0Ln9XPW91JGivQz
+         +jsG+TM7Oe6g3UaXLNd+yLBn1d3FB2SPfUTXLQRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Osama Abboud <osamaabb@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        David Arinzon <darinzon@amazon.com>,
+        patches@lists.linux.dev, David Arinzon <darinzon@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 234/290] net: ena: Fix rx_copybreak value update
-Date:   Tue, 10 Jan 2023 19:05:26 +0100
-Message-Id: <20230110180040.087271316@linuxfoundation.org>
+Subject: [PATCH 5.15 235/290] net: ena: Set default value for RX interrupt moderation
+Date:   Tue, 10 Jan 2023 19:05:27 +0100
+Message-Id: <20230110180040.122438423@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -57,90 +55,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Arinzon <darinzon@amazon.com>
 
-[ Upstream commit c7062aaee099f2f43d6f07a71744b44b94b94b34 ]
+[ Upstream commit e712f3e4920b3a1a5e6b536827d118e14862896c ]
 
-Make the upper bound on rx_copybreak tighter, by
-making sure it is smaller than the minimum of mtu and
-ENA_PAGE_SIZE. With the current upper bound of mtu,
-rx_copybreak can be larger than a page. Such large
-rx_copybreak will not bring any performance benefit to
-the user and therefore makes no sense.
+RX ring can be NULL in XDP use cases where only TX queues
+are configured. In this scenario, the RX interrupt moderation
+value sent to the device remains in its default value of 0.
 
-In addition, the value update was only reflected in
-the adapter structure, but not applied for each ring,
-causing it to not take effect.
+In this change, setting the default value of the RX interrupt
+moderation to be the same as of the TX.
 
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Osama Abboud <osamaabb@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Fixes: 548c4940b9f1 ("net: ena: Implement XDP_TX action")
 Signed-off-by: David Arinzon <darinzon@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_ethtool.c |  6 +-----
- drivers/net/ethernet/amazon/ena/ena_netdev.c  | 18 ++++++++++++++++++
- drivers/net/ethernet/amazon/ena/ena_netdev.h  |  2 ++
- 3 files changed, 21 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_ethtool.c b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-index 13e745cf3781..413082f10dc1 100644
---- a/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-@@ -880,11 +880,7 @@ static int ena_set_tunable(struct net_device *netdev,
- 	switch (tuna->id) {
- 	case ETHTOOL_RX_COPYBREAK:
- 		len = *(u32 *)data;
--		if (len > adapter->netdev->mtu) {
--			ret = -EINVAL;
--			break;
--		}
--		adapter->rx_copybreak = len;
-+		ret = ena_set_rx_copybreak(adapter, len);
- 		break;
- 	default:
- 		ret = -EINVAL;
 diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 294f21a839cf..8f1b205e7333 100644
+index 8f1b205e7333..b1533a45f645 100644
 --- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
 +++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -2829,6 +2829,24 @@ int ena_update_queue_sizes(struct ena_adapter *adapter,
- 	return dev_was_up ? ena_up(adapter) : 0;
- }
- 
-+int ena_set_rx_copybreak(struct ena_adapter *adapter, u32 rx_copybreak)
-+{
-+	struct ena_ring *rx_ring;
-+	int i;
-+
-+	if (rx_copybreak > min_t(u16, adapter->netdev->mtu, ENA_PAGE_SIZE))
-+		return -EINVAL;
-+
-+	adapter->rx_copybreak = rx_copybreak;
-+
-+	for (i = 0; i < adapter->num_io_queues; i++) {
-+		rx_ring = &adapter->rx_ring[i];
-+		rx_ring->rx_copybreak = rx_copybreak;
-+	}
-+
-+	return 0;
-+}
-+
- int ena_update_queue_count(struct ena_adapter *adapter, u32 new_channel_count)
+@@ -1836,8 +1836,9 @@ static void ena_adjust_adaptive_rx_intr_moderation(struct ena_napi *ena_napi)
+ static void ena_unmask_interrupt(struct ena_ring *tx_ring,
+ 					struct ena_ring *rx_ring)
  {
- 	struct ena_com_dev *ena_dev = adapter->ena_dev;
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.h b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-index ada2f8faa33a..2b5eb573ff23 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.h
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-@@ -404,6 +404,8 @@ int ena_update_queue_sizes(struct ena_adapter *adapter,
- 
- int ena_update_queue_count(struct ena_adapter *adapter, u32 new_channel_count);
- 
-+int ena_set_rx_copybreak(struct ena_adapter *adapter, u32 rx_copybreak);
++	u32 rx_interval = tx_ring->smoothed_interval;
+ 	struct ena_eth_io_intr_reg intr_reg;
+-	u32 rx_interval = 0;
 +
- int ena_get_sset_count(struct net_device *netdev, int sset);
- 
- enum ena_xdp_errors_t {
+ 	/* Rx ring can be NULL when for XDP tx queues which don't have an
+ 	 * accompanying rx_ring pair.
+ 	 */
 -- 
 2.35.1
 
