@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E2D36649B7
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D4ED664AE8
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239320AbjAJSYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:24:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38818 "EHLO
+        id S239430AbjAJShi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:37:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239191AbjAJSXE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4E4B21
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:06 -0800 (PST)
+        with ESMTP id S239541AbjAJShI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C13892370
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A6CF61865
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42493C433EF;
-        Tue, 10 Jan 2023 18:21:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6CE2B818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 120C5C433D2;
+        Tue, 10 Jan 2023 18:31:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374865;
-        bh=+Xujxti2WMXwcRIQiW0Tx9XQrp7jBeY2Dl7C+92vKC8=;
+        s=korg; t=1673375518;
+        bh=HKQ7PsnS85SH7cyDcIJA3NOTBxKs3zJlJOaq3AWqmgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YDYktM+CsgMMd7dlbQK/V0UXGs7xXggoftWwfp+xqR7oRfVmrii10Ouhmae0LLUbR
-         oM/1KI84OYzhLdUPQzzUNQUBG1FyUjGcFajh0QMDCqJFuTLS+OqL/0mreNjRNHqlDR
-         SRViX2lbPMp+CxSKHzVLpIMZTkdgHtrx+gsom/KY=
+        b=R+J4+z3BETU8/DsBs3bccWf/TSCJZZg6CF7OLXxH/lz/NVd1ihk+8wvKhjM2LZG1G
+         S4l1kTPzZc2KzCvnLAwZanTcVxb2INw7FiVn3HNJqUaecWtHjmnxhXPZFIEpiHvcgW
+         BJVZ1SnBNDgpCfPq4ImZSYRfQcwZY1ApCuN4+gtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baochen Qiang <quic_bqiang@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 6.1 159/159] wifi: ath11k: Send PME message during wakeup from D3cold
-Date:   Tue, 10 Jan 2023 19:05:07 +0100
-Message-Id: <20230110180023.650450201@linuxfoundation.org>
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 216/290] nfc: Fix potential resource leaks
+Date:   Tue, 10 Jan 2023 19:05:08 +0100
+Message-Id: <20230110180039.458720490@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baochen Qiang <quic_bqiang@quicinc.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 3f9b09ccf7d5f23066b02881a737bee42def9d1a upstream.
+[ Upstream commit df49908f3c52d211aea5e2a14a93bbe67a2cb3af ]
 
-We are seeing system stuck on some specific platforms due to
-WLAN chip fails to wakeup from D3cold state.
+nfc_get_device() take reference for the device, add missing
+nfc_put_device() to release it when not need anymore.
+Also fix the style warnning by use error EOPNOTSUPP instead of
+ENOTSUPP.
 
-With this flag, firmware will send PME message during wakeup
-and this issue is gone.
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
-
-Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Link: https://lore.kernel.org/r/20221010033237.415478-1-quic_bqiang@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
+Fixes: 29e76924cf08 ("nfc: netlink: Add capability to reply to vendor_cmd with data")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/qmi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/nfc/netlink.c | 52 ++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 14 deletions(-)
 
---- a/drivers/net/wireless/ath/ath11k/qmi.c
-+++ b/drivers/net/wireless/ath/ath11k/qmi.c
-@@ -19,6 +19,7 @@
- #define SLEEP_CLOCK_SELECT_INTERNAL_BIT	0x02
- #define HOST_CSTATE_BIT			0x04
- #define PLATFORM_CAP_PCIE_GLOBAL_RESET	0x08
-+#define PLATFORM_CAP_PCIE_PME_D3COLD	0x10
+diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
+index a207f0b8137b..d928d5a24bbc 100644
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1497,6 +1497,7 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
+ 	u32 dev_idx, se_idx;
+ 	u8 *apdu;
+ 	size_t apdu_len;
++	int rc;
  
- #define FW_BUILD_ID_MASK "QC_IMAGE_VERSION_STRING="
+ 	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
+ 	    !info->attrs[NFC_ATTR_SE_INDEX] ||
+@@ -1510,25 +1511,37 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
+ 	if (!dev)
+ 		return -ENODEV;
  
-@@ -1752,6 +1753,8 @@ static int ath11k_qmi_host_cap_send(stru
- 	if (ab->hw_params.global_reset)
- 		req.nm_modem |= PLATFORM_CAP_PCIE_GLOBAL_RESET;
+-	if (!dev->ops || !dev->ops->se_io)
+-		return -ENOTSUPP;
++	if (!dev->ops || !dev->ops->se_io) {
++		rc = -EOPNOTSUPP;
++		goto put_dev;
++	}
  
-+	req.nm_modem |= PLATFORM_CAP_PCIE_PME_D3COLD;
+ 	apdu_len = nla_len(info->attrs[NFC_ATTR_SE_APDU]);
+-	if (apdu_len == 0)
+-		return -EINVAL;
++	if (apdu_len == 0) {
++		rc = -EINVAL;
++		goto put_dev;
++	}
+ 
+ 	apdu = nla_data(info->attrs[NFC_ATTR_SE_APDU]);
+-	if (!apdu)
+-		return -EINVAL;
++	if (!apdu) {
++		rc = -EINVAL;
++		goto put_dev;
++	}
+ 
+ 	ctx = kzalloc(sizeof(struct se_io_ctx), GFP_KERNEL);
+-	if (!ctx)
+-		return -ENOMEM;
++	if (!ctx) {
++		rc = -ENOMEM;
++		goto put_dev;
++	}
+ 
+ 	ctx->dev_idx = dev_idx;
+ 	ctx->se_idx = se_idx;
+ 
+-	return nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
++	rc = nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
 +
- 	ath11k_dbg(ab, ATH11K_DBG_QMI, "qmi host cap request\n");
++put_dev:
++	nfc_put_device(dev);
++	return rc;
+ }
  
- 	ret = qmi_txn_init(&ab->qmi.handle, &txn,
+ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+@@ -1551,14 +1564,21 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+ 	subcmd = nla_get_u32(info->attrs[NFC_ATTR_VENDOR_SUBCMD]);
+ 
+ 	dev = nfc_get_device(dev_idx);
+-	if (!dev || !dev->vendor_cmds || !dev->n_vendor_cmds)
++	if (!dev)
+ 		return -ENODEV;
+ 
++	if (!dev->vendor_cmds || !dev->n_vendor_cmds) {
++		err = -ENODEV;
++		goto put_dev;
++	}
++
+ 	if (info->attrs[NFC_ATTR_VENDOR_DATA]) {
+ 		data = nla_data(info->attrs[NFC_ATTR_VENDOR_DATA]);
+ 		data_len = nla_len(info->attrs[NFC_ATTR_VENDOR_DATA]);
+-		if (data_len == 0)
+-			return -EINVAL;
++		if (data_len == 0) {
++			err = -EINVAL;
++			goto put_dev;
++		}
+ 	} else {
+ 		data = NULL;
+ 		data_len = 0;
+@@ -1573,10 +1593,14 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+ 		dev->cur_cmd_info = info;
+ 		err = cmd->doit(dev, data, data_len);
+ 		dev->cur_cmd_info = NULL;
+-		return err;
++		goto put_dev;
+ 	}
+ 
+-	return -EOPNOTSUPP;
++	err = -EOPNOTSUPP;
++
++put_dev:
++	nfc_put_device(dev);
++	return err;
+ }
+ 
+ /* message building helper */
+-- 
+2.35.1
+
 
 
