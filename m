@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 945DA6648CB
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D598A664A62
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234009AbjAJSPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:15:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53204 "EHLO
+        id S239327AbjAJSco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234998AbjAJSON (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F070D8CD35
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:38 -0800 (PST)
+        with ESMTP id S239382AbjAJScM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:12 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FEE65B4A4
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CF03B81905
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAFF8C433EF;
-        Tue, 10 Jan 2023 18:12:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CCB66CE18D3
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95C15C433F0;
+        Tue, 10 Jan 2023 18:27:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374356;
-        bh=FEtUr/Gan8ISm1ZRpqlEU0e8MxqjIzKyArIWyBNe/7E=;
+        s=korg; t=1673375236;
+        bh=lMVamHMM+vEk8IA5i0jJkCVEqhM9ozFacyQREegkRCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JQLgauJO2UrygFyDyM+Q+bZLIHFHbtCvg4vtSnHWoTBJqgZ+HCefFwpEBinU/nuTO
-         NnSXdNQME7cnM2D9Wl1dbBxtdgP84hnsc29iLl4xv0xLwLnknsqr7ETl/tmwc/I8G3
-         G9y3Z2tfw1J3g+IJmD3sl1BYzl6HV+WYU3SgkX+c=
+        b=YZt9kHfNj7xsyMN2pxQUkWJNP1OVmr1cZvI8rJGqB9pPUW3dbRXVLKkzn7f3ZyFUD
+         80Lx0NVdjmpEueFQvsfquKlrGICdz4+IzZxRAcDPbnwETirR+iYJg6tz8Npp/d4VGW
+         tiGdUH7fzfIoliGAbAut0pAXYvG9VgSnLSXaEdCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 110/148] drm/amdkfd: Fix double release compute pasid
-Date:   Tue, 10 Jan 2023 19:03:34 +0100
-Message-Id: <20230110180020.678574036@linuxfoundation.org>
+        patches@lists.linux.dev, Wei Gong <gongwei833x@gmail.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.15 123/290] PCI: Fix pci_device_is_present() for VFs by checking PF
+Date:   Tue, 10 Jan 2023 19:03:35 +0100
+Message-Id: <20230110180036.048602762@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,181 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-[ Upstream commit 1a799c4c190ea9f0e81028e3eb3037ed0ab17ff5 ]
+commit 98b04dd0b4577894520493d96bc4623387767445 upstream.
 
-If kfd_process_device_init_vm returns failure after vm is converted to
-compute vm and vm->pasid set to compute pasid, KFD will not take
-pdd->drm_file reference. As a result, drm close file handler maybe
-called to release the compute pasid before KFD process destroy worker to
-release the same pasid and set vm->pasid to zero, this generates below
-WARNING backtrace and NULL pointer access.
+pci_device_is_present() previously didn't work for VFs because it reads the
+Vendor and Device ID, which are 0xffff for VFs, which looks like they
+aren't present.  Check the PF instead.
 
-Add helper amdgpu_amdkfd_gpuvm_set_vm_pasid and call it at the last step
-of kfd_process_device_init_vm, to ensure vm pasid is the original pasid
-if acquiring vm failed or is the compute pasid with pdd->drm_file
-reference taken to avoid double release same pasid.
+Wei Gong reported that if virtio I/O is in progress when the driver is
+unbound or "0" is written to /sys/.../sriov_numvfs, the virtio I/O
+operation hangs, which may result in output like this:
 
- amdgpu: Failed to create process VM object
- ida_free called for id=32770 which is not allocated.
- WARNING: CPU: 57 PID: 72542 at ../lib/idr.c:522 ida_free+0x96/0x140
- RIP: 0010:ida_free+0x96/0x140
- Call Trace:
-  amdgpu_pasid_free_delayed+0xe1/0x2a0 [amdgpu]
-  amdgpu_driver_postclose_kms+0x2d8/0x340 [amdgpu]
-  drm_file_free.part.13+0x216/0x270 [drm]
-  drm_close_helper.isra.14+0x60/0x70 [drm]
-  drm_release+0x6e/0xf0 [drm]
-  __fput+0xcc/0x280
-  ____fput+0xe/0x20
-  task_work_run+0x96/0xc0
-  do_exit+0x3d0/0xc10
+  task:bash state:D stack:    0 pid: 1773 ppid:  1241 flags:0x00004002
+  Call Trace:
+   schedule+0x4f/0xc0
+   blk_mq_freeze_queue_wait+0x69/0xa0
+   blk_mq_freeze_queue+0x1b/0x20
+   blk_cleanup_queue+0x3d/0xd0
+   virtblk_remove+0x3c/0xb0 [virtio_blk]
+   virtio_dev_remove+0x4b/0x80
+   ...
+   device_unregister+0x1b/0x60
+   unregister_virtio_device+0x18/0x30
+   virtio_pci_remove+0x41/0x80
+   pci_device_remove+0x3e/0xb0
 
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- RIP: 0010:ida_free+0x76/0x140
- Call Trace:
-  amdgpu_pasid_free_delayed+0xe1/0x2a0 [amdgpu]
-  amdgpu_driver_postclose_kms+0x2d8/0x340 [amdgpu]
-  drm_file_free.part.13+0x216/0x270 [drm]
-  drm_close_helper.isra.14+0x60/0x70 [drm]
-  drm_release+0x6e/0xf0 [drm]
-  __fput+0xcc/0x280
-  ____fput+0xe/0x20
-  task_work_run+0x96/0xc0
-  do_exit+0x3d0/0xc10
+This happened because pci_device_is_present(VF) returned "false" in
+virtio_pci_remove(), so it called virtio_break_device().  The broken vq
+meant that vring_interrupt() skipped the vq.callback() that would have
+completed the virtio I/O operation via virtblk_done().
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[bhelgaas: commit log, simplify to always use pci_physfn(), add stable tag]
+Link: https://lore.kernel.org/r/20221026060912.173250-1-mst@redhat.com
+Reported-by: Wei Gong <gongwei833x@gmail.com>
+Tested-by: Wei Gong <gongwei833x@gmail.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h    |  4 +-
- .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c  | 39 +++++++++++++------
- drivers/gpu/drm/amd/amdkfd/kfd_process.c      | 12 ++++--
- 3 files changed, 40 insertions(+), 15 deletions(-)
+ drivers/pci/pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-index 647220a8762d..30f145dc8724 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-@@ -265,8 +265,10 @@ int amdgpu_amdkfd_get_pcie_bandwidth_mbytes(struct amdgpu_device *adev, bool is_
- 	(&((struct amdgpu_fpriv *)					\
- 		((struct drm_file *)(drm_priv))->driver_priv)->vm)
- 
-+int amdgpu_amdkfd_gpuvm_set_vm_pasid(struct amdgpu_device *adev,
-+				     struct file *filp, u32 pasid);
- int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
--					struct file *filp, u32 pasid,
-+					struct file *filp,
- 					void **process_info,
- 					struct dma_fence **ef);
- void amdgpu_amdkfd_gpuvm_release_process_vm(struct amdgpu_device *adev,
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index 6659630303a3..ba5a09c2b3ce 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1471,10 +1471,9 @@ static void amdgpu_amdkfd_gpuvm_unpin_bo(struct amdgpu_bo *bo)
- 	amdgpu_bo_unreserve(bo);
- }
- 
--int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
--					   struct file *filp, u32 pasid,
--					   void **process_info,
--					   struct dma_fence **ef)
-+int amdgpu_amdkfd_gpuvm_set_vm_pasid(struct amdgpu_device *adev,
-+				     struct file *filp, u32 pasid)
-+
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -6383,6 +6383,8 @@ bool pci_device_is_present(struct pci_de
  {
- 	struct amdgpu_fpriv *drv_priv;
- 	struct amdgpu_vm *avm;
-@@ -1485,10 +1484,6 @@ int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
- 		return ret;
- 	avm = &drv_priv->vm;
+ 	u32 v;
  
--	/* Already a compute VM? */
--	if (avm->process_info)
--		return -EINVAL;
--
- 	/* Free the original amdgpu allocated pasid,
- 	 * will be replaced with kfd allocated pasid.
- 	 */
-@@ -1497,14 +1492,36 @@ int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
- 		amdgpu_vm_set_pasid(adev, avm, 0);
- 	}
- 
--	/* Convert VM into a compute VM */
--	ret = amdgpu_vm_make_compute(adev, avm);
-+	ret = amdgpu_vm_set_pasid(adev, avm, pasid);
- 	if (ret)
- 		return ret;
- 
--	ret = amdgpu_vm_set_pasid(adev, avm, pasid);
-+	return 0;
-+}
-+
-+int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
-+					   struct file *filp,
-+					   void **process_info,
-+					   struct dma_fence **ef)
-+{
-+	struct amdgpu_fpriv *drv_priv;
-+	struct amdgpu_vm *avm;
-+	int ret;
-+
-+	ret = amdgpu_file_to_fpriv(filp, &drv_priv);
- 	if (ret)
- 		return ret;
-+	avm = &drv_priv->vm;
-+
-+	/* Already a compute VM? */
-+	if (avm->process_info)
-+		return -EINVAL;
-+
-+	/* Convert VM into a compute VM */
-+	ret = amdgpu_vm_make_compute(adev, avm);
-+	if (ret)
-+		return ret;
-+
- 	/* Initialize KFD part of the VM and process info */
- 	ret = init_kfd_vm(avm, process_info, ef);
- 	if (ret)
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_process.c b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-index 04678f9e214b..febf0e9f7af1 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-@@ -1581,9 +1581,9 @@ int kfd_process_device_init_vm(struct kfd_process_device *pdd,
- 	p = pdd->process;
- 	dev = pdd->dev;
- 
--	ret = amdgpu_amdkfd_gpuvm_acquire_process_vm(
--		dev->adev, drm_file, p->pasid,
--		&p->kgd_process_info, &p->ef);
-+	ret = amdgpu_amdkfd_gpuvm_acquire_process_vm(dev->adev, drm_file,
-+						     &p->kgd_process_info,
-+						     &p->ef);
- 	if (ret) {
- 		pr_err("Failed to create process VM object\n");
- 		return ret;
-@@ -1598,10 +1598,16 @@ int kfd_process_device_init_vm(struct kfd_process_device *pdd,
- 	if (ret)
- 		goto err_init_cwsr;
- 
-+	ret = amdgpu_amdkfd_gpuvm_set_vm_pasid(dev->adev, drm_file, p->pasid);
-+	if (ret)
-+		goto err_set_pasid;
-+
- 	pdd->drm_file = drm_file;
- 
- 	return 0;
- 
-+err_set_pasid:
-+	kfd_process_device_destroy_cwsr_dgpu(pdd);
- err_init_cwsr:
- 	kfd_process_device_destroy_ib_mem(pdd);
- err_reserve_ib_mem:
--- 
-2.35.1
-
++	/* Check PF if pdev is a VF, since VF Vendor/Device IDs are 0xffff */
++	pdev = pci_physfn(pdev);
+ 	if (pci_dev_is_disconnected(pdev))
+ 		return false;
+ 	return pci_bus_read_dev_vendor_id(pdev->bus, pdev->devfn, &v, 0);
 
 
