@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE9266649B9
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40CC0664AC6
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239158AbjAJSYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:24:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38316 "EHLO
+        id S235038AbjAJSgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:36:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239246AbjAJSXI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:08 -0500
+        with ESMTP id S239438AbjAJSfN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A363F11F
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B568F52C46
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A4F261874
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B7AFC433D2;
-        Tue, 10 Jan 2023 18:21:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5472361866
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 484F1C433F0;
+        Tue, 10 Jan 2023 18:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374868;
-        bh=CW/XVXv/E36Si5Kzkb1uTs8yx0CwoYx52sajY93CVsg=;
+        s=korg; t=1673375442;
+        bh=9rICvZa/yaDaKNvUCF4i7cWKrFkVIno2q6+ZEu6D0Ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=psVTSWaIIp4mIVrZphkPsRYGpo5/G4gMjJvBFH0T6//pC4W/r/254BkueTwYWObB7
-         aeQYaA+F5Z55botWpsJhxq2y+Q3OD+HLMHKwgY8iijVnVr1twrjyB9/DOIA2ROBUmY
-         C3t7qPzztXJtrNlDyatjGCsH6CJIJD5br38dFOW4=
+        b=BR4Wheq+cx18oDA0g6Wlv9Hi4y+UBl2vj/A+Qg8haUjCX8uwl8YXuwob5VIzrO2uY
+         UtYzY5kt1pgWT1OFg5b8v9ayTgqEHIgQrydfIE4z2PbM/qFb+AXL1Me8fSjZ3FBjgS
+         uXVS2KiUw1jCG97EZG1c+v8TZ+/Ii2btMR3fRhLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ronald Wahl <ronald.wahl@raritan.com>,
-        Christian Marangi <ansuelsmth@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 6.1 134/159] net: dsa: tag_qca: fix wrong MGMT_DATA2 size
+        patches@lists.linux.dev, Jason Yan <yanaijie@huawei.com>,
+        Jan Kara <jack@suse.cz>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 190/290] ext4: goto right label failed_mount3a
 Date:   Tue, 10 Jan 2023 19:04:42 +0100
-Message-Id: <20230110180022.644146676@linuxfoundation.org>
+Message-Id: <20230110180038.509627502@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Marangi <ansuelsmth@gmail.com>
+From: Jason Yan <yanaijie@huawei.com>
 
-commit d9dba91be71f03cc75bcf39fc0d5d99ff33f1ae0 upstream.
+[ Upstream commit 43bd6f1b49b61f43de4d4e33661b8dbe8c911f14 ]
 
-It was discovered that MGMT_DATA2 can contain up to 28 bytes of data
-instead of the 12 bytes written in the Documentation by accounting the
-limit of 16 bytes declared in Documentation subtracting the first 4 byte
-in the packet header.
+Before these two branches neither loaded the journal nor created the
+xattr cache. So the right label to goto is 'failed_mount3a'. Although
+this did not cause any issues because the error handler validated if the
+pointer is null. However this still made me confused when reading
+the code. So it's still worth to modify to goto the right label.
 
-Update the define with the real world value.
-
-Tested-by: Ronald Wahl <ronald.wahl@raritan.com>
-Fixes: c2ee8181fddb ("net: dsa: tag_qca: add define for handling mgmt Ethernet packet")
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Cc: stable@vger.kernel.org # v5.18+
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220916141527.1012715-2-yanaijie@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Stable-dep-of: 89481b5fa8c0 ("ext4: correct inconsistent error msg in nojournal mode")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/dsa/tag_qca.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/super.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/include/linux/dsa/tag_qca.h
-+++ b/include/linux/dsa/tag_qca.h
-@@ -45,8 +45,8 @@ struct sk_buff;
- 					QCA_HDR_MGMT_COMMAND_LEN + \
- 					QCA_HDR_MGMT_DATA1_LEN)
- 
--#define QCA_HDR_MGMT_DATA2_LEN		12 /* Other 12 byte for the mdio data */
--#define QCA_HDR_MGMT_PADDING_LEN	34 /* Padding to reach the min Ethernet packet */
-+#define QCA_HDR_MGMT_DATA2_LEN		28 /* Other 28 byte for the mdio data */
-+#define QCA_HDR_MGMT_PADDING_LEN	18 /* Padding to reach the min Ethernet packet */
- 
- #define QCA_HDR_MGMT_PKT_LEN		(QCA_HDR_MGMT_HEADER_LEN + \
- 					QCA_HDR_LEN + \
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index cdc2b1e6aa41..fd7565707975 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4664,30 +4664,30 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 		   ext4_has_feature_journal_needs_recovery(sb)) {
+ 		ext4_msg(sb, KERN_ERR, "required journal recovery "
+ 		       "suppressed and not mounted read-only");
+-		goto failed_mount_wq;
++		goto failed_mount3a;
+ 	} else {
+ 		/* Nojournal mode, all journal mount options are illegal */
+ 		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+ 				 "journal_checksum, fs mounted w/o journal");
+-			goto failed_mount_wq;
++			goto failed_mount3a;
+ 		}
+ 		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+ 				 "journal_async_commit, fs mounted w/o journal");
+-			goto failed_mount_wq;
++			goto failed_mount3a;
+ 		}
+ 		if (sbi->s_commit_interval != JBD2_DEFAULT_MAX_COMMIT_AGE*HZ) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+ 				 "commit=%lu, fs mounted w/o journal",
+ 				 sbi->s_commit_interval / HZ);
+-			goto failed_mount_wq;
++			goto failed_mount3a;
+ 		}
+ 		if (EXT4_MOUNT_DATA_FLAGS &
+ 		    (sbi->s_mount_opt ^ sbi->s_def_mount_opt)) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+ 				 "data=, fs mounted w/o journal");
+-			goto failed_mount_wq;
++			goto failed_mount3a;
+ 		}
+ 		sbi->s_def_mount_opt &= ~EXT4_MOUNT_JOURNAL_CHECKSUM;
+ 		clear_opt(sb, JOURNAL_CHECKSUM);
+-- 
+2.35.1
+
 
 
