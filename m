@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B4A664895
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 836E5664A50
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238880AbjAJSMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53280 "EHLO
+        id S239250AbjAJScB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238869AbjAJSL7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:11:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76755E5E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:36 -0800 (PST)
+        with ESMTP id S239467AbjAJSbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C82C490856
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12D2961866
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A6E3C433D2;
-        Tue, 10 Jan 2023 18:10:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72ACFB81904
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1531C433EF;
+        Tue, 10 Jan 2023 18:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374235;
-        bh=1kWbMsaTYrYA+ClJ3yAOD06gUm4odCYDxQnfopTjvdA=;
+        s=korg; t=1673375188;
+        bh=vxs/uePeqY9uEnTL5udaLloHxcY/GXkuhbWxtSbsUG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioutHlxPH1jEpcaAPL8ZElLHKjX9aFukEYwXAL0O50L5VB2L64OaM8sB37Ebwd8DA
-         xLPC3a+R5FBHNb9hFI2EOJr6ss7kxprCqOy04CH2DieQd0pfBm++oZvEqRcHgIvsf5
-         kqfm4AsdXWecs6rGsOrGl7Nd8WE38LCJhyrZT4K4=
+        b=XN7MPECFIronrK6jxTobczDGEzMUR//2/opAdv/4hCgX6HJKY5xTeALSD+5WWRHlY
+         USPyWAdh9UO9h+X7SmPlzHLjElC0Pj5PFIZnWT4oxQOsNiscviZlFZ/JEYSYUoGmbE
+         IcZ0nFzYZoJcXHGeRMPZwTuDHALeGn9NeLl7xT9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 096/148] drm/i915/gvt: fix double free bug in split_2MB_gtt_entry
+        patches@lists.linux.dev, Wenwen Wang <wenwen@cs.uga.edu>,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.15 108/290] media: dvb-core: Fix double free in dvb_register_device()
 Date:   Tue, 10 Jan 2023 19:03:20 +0100
-Message-Id: <20230110180020.238132316@linuxfoundation.org>
+Message-Id: <20230110180035.514496792@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wang <zyytlz.wz@163.com>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-[ Upstream commit 4a61648af68f5ba4884f0e3b494ee1cabc4b6620 ]
+commit 6b0d0477fce747d4137aa65856318b55fba72198 upstream.
 
-If intel_gvt_dma_map_guest_page failed, it will call
-ppgtt_invalidate_spt, which will finally free the spt.
-But the caller function ppgtt_populate_spt_by_guest_entry
-does not notice that, it will free spt again in its error
-path.
+In function dvb_register_device() -> dvb_register_media_device() ->
+dvb_create_media_entity(), dvb->entity is allocated and initialized. If
+the initialization fails, it frees the dvb->entity, and return an error
+code. The caller takes the error code and handles the error by calling
+dvb_media_device_free(), which unregisters the entity and frees the
+field again if it is not NULL. As dvb->entity may not NULLed in
+dvb_create_media_entity() when the allocation of dvbdev->pad fails, a
+double free may occur. This may also cause an Use After free in
+media_device_unregister_entity().
 
-Fix this by canceling the mapping of DMA address and freeing sub_spt.
-Besides, leave the handle of spt destroy to caller function instead
-of callee function when error occurs.
+Fix this by storing NULL to dvb->entity when it is freed.
 
-Fixes: b901b252b6cf ("drm/i915/gvt: Add 2M huge gtt support")
-Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20221229165641.1192455-1-zyytlz.wz@163.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/linux-media/20220426052921.2088416-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+Fixes: fcd5ce4b3936 ("media: dvb-core: fix a memory leak bug")
+Cc: stable@vger.kernel.org
+Cc: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gvt/gtt.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/media/dvb-core/dvbdev.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/i915/gvt/gtt.c b/drivers/gpu/drm/i915/gvt/gtt.c
-index ce0eb03709c3..80c60754a5c1 100644
---- a/drivers/gpu/drm/i915/gvt/gtt.c
-+++ b/drivers/gpu/drm/i915/gvt/gtt.c
-@@ -1214,10 +1214,8 @@ static int split_2MB_gtt_entry(struct intel_vgpu *vgpu,
- 	for_each_shadow_entry(sub_spt, &sub_se, sub_index) {
- 		ret = intel_gvt_dma_map_guest_page(vgpu, start_gfn + sub_index,
- 						   PAGE_SIZE, &dma_addr);
--		if (ret) {
--			ppgtt_invalidate_spt(spt);
--			return ret;
--		}
-+		if (ret)
-+			goto err;
- 		sub_se.val64 = se->val64;
- 
- 		/* Copy the PAT field from PDE. */
-@@ -1236,6 +1234,17 @@ static int split_2MB_gtt_entry(struct intel_vgpu *vgpu,
- 	ops->set_pfn(se, sub_spt->shadow_page.mfn);
- 	ppgtt_set_shadow_entry(spt, se, index);
- 	return 0;
-+err:
-+	/* Cancel the existing addess mappings of DMA addr. */
-+	for_each_present_shadow_entry(sub_spt, &sub_se, sub_index) {
-+		gvt_vdbg_mm("invalidate 4K entry\n");
-+		ppgtt_invalidate_pte(sub_spt, &sub_se);
-+	}
-+	/* Release the new allocated spt. */
-+	trace_spt_change(sub_spt->vgpu->id, "release", sub_spt,
-+		sub_spt->guest_page.gfn, sub_spt->shadow_page.type);
-+	ppgtt_free_spt(sub_spt);
-+	return ret;
- }
- 
- static int split_64KB_gtt_entry(struct intel_vgpu *vgpu,
--- 
-2.35.1
-
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -345,6 +345,7 @@ static int dvb_create_media_entity(struc
+ 				       GFP_KERNEL);
+ 		if (!dvbdev->pads) {
+ 			kfree(dvbdev->entity);
++			dvbdev->entity = NULL;
+ 			return -ENOMEM;
+ 		}
+ 	}
 
 
