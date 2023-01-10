@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E038664A5D
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2C846648BD
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:14:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235386AbjAJSce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:32:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43812 "EHLO
+        id S239016AbjAJSOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:14:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239448AbjAJSbr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:47 -0500
+        with ESMTP id S239282AbjAJSOA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720F19B29C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26FCF8BF06
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B951A61871
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C87ACC433EF;
-        Tue, 10 Jan 2023 18:27:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B619C6186E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8120C433D2;
+        Tue, 10 Jan 2023 18:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375221;
-        bh=2N3IxBBaew08NRpgyGDAx6iQFHPkrI3e7ae5yz1PApk=;
+        s=korg; t=1673374347;
+        bh=nbEQCC/a/+NsXj6d7pAHo1OtVx4lNUjq9z845PL8KLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oen37yMQZyA2tgoNtcINz7T3rFFDoF6YbLeIOTPN3S5wJbIOfDxX8bJp69Nxh/jBo
-         BTshpNYqgLpejkzQqueX4JyFWzDCW65iUvXubIKmXkLz1MUAUUa05A5qfMh2sQ3yHz
-         dLp5i6lMEGK5CEI4Vp2VMsB4sP3ffDLR9td5Q7EU=
+        b=FAcbE8eXYNSkrbrhFEKqo4TUAb0933jrzke5BO5zghfvkpd15ReftQigVDgUMyvUZ
+         Do/k7fbMmkYfP+Ynk/B+Efy7xT5u9t5fX4GhZOPRdEcqq5ztSgnaVzvQ+V3pEEus10
+         b71tqrEVOap5Q5Pa7Wm7FDaFDyaHettMkqYP24UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maximilian Luz <luzmaximilian@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>
-Subject: [PATCH 5.15 118/290] ipu3-imgu: Fix NULL pointer dereference in imgu_subdev_set_selection()
-Date:   Tue, 10 Jan 2023 19:03:30 +0100
-Message-Id: <20230110180035.868422724@linuxfoundation.org>
+        patches@lists.linux.dev, YC Hung <yc.hung@mediatek.com>,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 107/148] ASoC: SOF: mediatek: initialize panic_info to zero
+Date:   Tue, 10 Jan 2023 19:03:31 +0100
+Message-Id: <20230110180020.577497269@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,135 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: YC Hung <yc.hung@mediatek.com>
 
-commit dc608edf7d45ba0c2ad14c06eccd66474fec7847 upstream.
+[ Upstream commit 7bd220f2ba9014b78f0304178103393554b8c4fe ]
 
-Calling v4l2_subdev_get_try_crop() and v4l2_subdev_get_try_compose()
-with a subdev state of NULL leads to a NULL pointer dereference. This
-can currently happen in imgu_subdev_set_selection() when the state
-passed in is NULL, as this method first gets pointers to both the "try"
-and "active" states and only then decides which to use.
+Coverity spotted that panic_info is not initialized to zero in
+mtk_adsp_dump. Using uninitialized value panic_info.linenum when
+calling snd_sof_get_status. Fix this coverity by initializing
+panic_info struct as zero.
 
-The same issue has been addressed for imgu_subdev_get_selection() with
-commit 30d03a0de650 ("ipu3-imgu: Fix NULL pointer dereference in active
-selection access"). However the issue still persists in
-imgu_subdev_set_selection().
-
-Therefore, apply a similar fix as done in the aforementioned commit to
-imgu_subdev_set_selection(). To keep things a bit cleaner, introduce
-helper functions for "crop" and "compose" access and use them in both
-imgu_subdev_set_selection() and imgu_subdev_get_selection().
-
-Fixes: 0d346d2a6f54 ("media: v4l2-subdev: add subdev-wide state struct")
-Cc: stable@vger.kernel.org # for v5.14 and later
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: YC Hung <yc.hung@mediatek.com>
+Reviewed-by: Curtis Malainey <cujomalainey@chromium.org>
+Link: https://lore.kernel.org/r/20221213115617.25086-1-yc.hung@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/ipu3/ipu3-v4l2.c | 57 +++++++++++++++-----------
- 1 file changed, 34 insertions(+), 23 deletions(-)
+ sound/soc/sof/mediatek/mtk-adsp-common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/ipu3/ipu3-v4l2.c b/drivers/staging/media/ipu3/ipu3-v4l2.c
-index ce13e746c15f..e530767e80a5 100644
---- a/drivers/staging/media/ipu3/ipu3-v4l2.c
-+++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
-@@ -188,6 +188,28 @@ static int imgu_subdev_set_fmt(struct v4l2_subdev *sd,
- 	return 0;
- }
- 
-+static struct v4l2_rect *
-+imgu_subdev_get_crop(struct imgu_v4l2_subdev *sd,
-+		     struct v4l2_subdev_state *sd_state, unsigned int pad,
-+		     enum v4l2_subdev_format_whence which)
-+{
-+	if (which == V4L2_SUBDEV_FORMAT_TRY)
-+		return v4l2_subdev_get_try_crop(&sd->subdev, sd_state, pad);
-+	else
-+		return &sd->rect.eff;
-+}
-+
-+static struct v4l2_rect *
-+imgu_subdev_get_compose(struct imgu_v4l2_subdev *sd,
-+			struct v4l2_subdev_state *sd_state, unsigned int pad,
-+			enum v4l2_subdev_format_whence which)
-+{
-+	if (which == V4L2_SUBDEV_FORMAT_TRY)
-+		return v4l2_subdev_get_try_compose(&sd->subdev, sd_state, pad);
-+	else
-+		return &sd->rect.bds;
-+}
-+
- static int imgu_subdev_get_selection(struct v4l2_subdev *sd,
- 				     struct v4l2_subdev_state *sd_state,
- 				     struct v4l2_subdev_selection *sel)
-@@ -200,18 +222,12 @@ static int imgu_subdev_get_selection(struct v4l2_subdev *sd,
- 
- 	switch (sel->target) {
- 	case V4L2_SEL_TGT_CROP:
--		if (sel->which == V4L2_SUBDEV_FORMAT_TRY)
--			sel->r = *v4l2_subdev_get_try_crop(sd, sd_state,
--							   sel->pad);
--		else
--			sel->r = imgu_sd->rect.eff;
-+		sel->r = *imgu_subdev_get_crop(imgu_sd, sd_state, sel->pad,
-+					       sel->which);
- 		return 0;
- 	case V4L2_SEL_TGT_COMPOSE:
--		if (sel->which == V4L2_SUBDEV_FORMAT_TRY)
--			sel->r = *v4l2_subdev_get_try_compose(sd, sd_state,
--							      sel->pad);
--		else
--			sel->r = imgu_sd->rect.bds;
-+		sel->r = *imgu_subdev_get_compose(imgu_sd, sd_state, sel->pad,
-+						  sel->which);
- 		return 0;
- 	default:
- 		return -EINVAL;
-@@ -223,10 +239,9 @@ static int imgu_subdev_set_selection(struct v4l2_subdev *sd,
- 				     struct v4l2_subdev_selection *sel)
+diff --git a/sound/soc/sof/mediatek/mtk-adsp-common.c b/sound/soc/sof/mediatek/mtk-adsp-common.c
+index 1e0769c668a7..de8dbe27cd0d 100644
+--- a/sound/soc/sof/mediatek/mtk-adsp-common.c
++++ b/sound/soc/sof/mediatek/mtk-adsp-common.c
+@@ -60,7 +60,7 @@ void mtk_adsp_dump(struct snd_sof_dev *sdev, u32 flags)
  {
- 	struct imgu_device *imgu = v4l2_get_subdevdata(sd);
--	struct imgu_v4l2_subdev *imgu_sd = container_of(sd,
--							struct imgu_v4l2_subdev,
--							subdev);
--	struct v4l2_rect *rect, *try_sel;
-+	struct imgu_v4l2_subdev *imgu_sd =
-+		container_of(sd, struct imgu_v4l2_subdev, subdev);
-+	struct v4l2_rect *rect;
- 
- 	dev_dbg(&imgu->pci_dev->dev,
- 		 "set subdev %u sel which %u target 0x%4x rect [%ux%u]",
-@@ -238,22 +253,18 @@ static int imgu_subdev_set_selection(struct v4l2_subdev *sd,
- 
- 	switch (sel->target) {
- 	case V4L2_SEL_TGT_CROP:
--		try_sel = v4l2_subdev_get_try_crop(sd, sd_state, sel->pad);
--		rect = &imgu_sd->rect.eff;
-+		rect = imgu_subdev_get_crop(imgu_sd, sd_state, sel->pad,
-+					    sel->which);
- 		break;
- 	case V4L2_SEL_TGT_COMPOSE:
--		try_sel = v4l2_subdev_get_try_compose(sd, sd_state, sel->pad);
--		rect = &imgu_sd->rect.bds;
-+		rect = imgu_subdev_get_compose(imgu_sd, sd_state, sel->pad,
-+					       sel->which);
- 		break;
- 	default:
- 		return -EINVAL;
- 	}
- 
--	if (sel->which == V4L2_SUBDEV_FORMAT_TRY)
--		*try_sel = sel->r;
--	else
--		*rect = sel->r;
--
-+	*rect = sel->r;
- 	return 0;
- }
+ 	char *level = (flags & SOF_DBG_DUMP_OPTIONAL) ? KERN_DEBUG : KERN_ERR;
+ 	struct sof_ipc_dsp_oops_xtensa xoops;
+-	struct sof_ipc_panic_info panic_info;
++	struct sof_ipc_panic_info panic_info = {};
+ 	u32 stack[MTK_ADSP_STACK_DUMP_SIZE];
+ 	u32 status;
  
 -- 
-2.39.0
+2.35.1
 
 
 
