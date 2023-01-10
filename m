@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ABD6664AA3
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA09664949
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239559AbjAJSeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:34:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48252 "EHLO
+        id S239128AbjAJSU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:20:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239360AbjAJSdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:33:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F7E147330
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:29:28 -0800 (PST)
+        with ESMTP id S239229AbjAJSTS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:19:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C3E917E12
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2FDE61871
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:29:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECF82C433D2;
-        Tue, 10 Jan 2023 18:29:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8EFFB81901
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31428C433EF;
+        Tue, 10 Jan 2023 18:17:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375367;
-        bh=tCshiWcTYy6mvN5x1VPQnRQIF6uLj44V3yIWC6Ms7ro=;
+        s=korg; t=1673374626;
+        bh=GQGUFmhYX1ymiYp2gW0b6dWHKW8PtEC70qugp1r+wK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fA18IMy9+ydaDLhwexjJsM5H5MHmVdkfx7hRWcMsP3MF0rS9CGirRSffOAzsX2+PI
-         /tRrC6T3nhbZ/efGX7SDP2efENn8bMpxwx1S/1p1UwEETpstm7iKbLz7/iHnNx7k73
-         pRCMJZX6G2/0gJXNEgBTwQMBeZVjHx7NROOcs6b4=
+        b=J9p2VnNg1w8AMIFhhEVUwVaDonIdu51Yc9sNCUmJD5MKm4La///4rGRb2SNmfm7eb
+         RSN0ltkwm2oER8Ufiff7nmSmsBCIeAiwR2oUqxOlDrkWV96CVyykI3LgGa60pGPfju
+         FqKtn9i3/jUGJ41qnh3Y4VS9Nr5b3RgLtRxbNZJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
-        Aristeu Rozanski <aris@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.15 134/290] device_cgroup: Roll back to original exceptions after copy failure
-Date:   Tue, 10 Jan 2023 19:03:46 +0100
-Message-Id: <20230110180036.469194398@linuxfoundation.org>
+        patches@lists.linux.dev, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 079/159] selftests: net: return non-zero for failures reported in arp_ndisc_evict_nocarrier
+Date:   Tue, 10 Jan 2023 19:03:47 +0100
+Message-Id: <20230110180020.828346570@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Weiyang <wangweiyang2@huawei.com>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-commit e68bfbd3b3c3a0ec3cf8c230996ad8cabe90322f upstream.
+[ Upstream commit 1856628baa17032531916984808d1bdfd62700d4 ]
 
-When add the 'a *:* rwm' entry to devcgroup A's whitelist, at first A's
-exceptions will be cleaned and A's behavior is changed to
-DEVCG_DEFAULT_ALLOW. Then parent's exceptions will be copyed to A's
-whitelist. If copy failure occurs, just return leaving A to grant
-permissions to all devices. And A may grant more permissions than
-parent.
+Return non-zero return value if there is any failure reported in this
+script during the test. Otherwise it can only reflect the status of
+the last command.
 
-Backup A's whitelist and recover original exceptions after copy
-failure.
-
-Cc: stable@vger.kernel.org
-Fixes: 4cef7299b478 ("device_cgroup: add proper checking when changing default behavior")
-Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
-Reviewed-by: Aristeu Rozanski <aris@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f86ca07eb531 ("selftests: net: add arp_ndisc_evict_nocarrier")
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/device_cgroup.c |   33 +++++++++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 4 deletions(-)
+ .../selftests/net/arp_ndisc_evict_nocarrier.sh        | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/security/device_cgroup.c
-+++ b/security/device_cgroup.c
-@@ -81,6 +81,17 @@ free_and_exit:
- 	return -ENOMEM;
- }
+diff --git a/tools/testing/selftests/net/arp_ndisc_evict_nocarrier.sh b/tools/testing/selftests/net/arp_ndisc_evict_nocarrier.sh
+index b4ec1eeee6c9..4a110bb01e53 100755
+--- a/tools/testing/selftests/net/arp_ndisc_evict_nocarrier.sh
++++ b/tools/testing/selftests/net/arp_ndisc_evict_nocarrier.sh
+@@ -18,6 +18,7 @@ readonly V4_ADDR1=10.0.10.2
+ readonly V6_ADDR0=2001:db8:91::1
+ readonly V6_ADDR1=2001:db8:91::2
+ nsid=100
++ret=0
  
-+static void dev_exceptions_move(struct list_head *dest, struct list_head *orig)
-+{
-+	struct dev_exception_item *ex, *tmp;
-+
-+	lockdep_assert_held(&devcgroup_mutex);
-+
-+	list_for_each_entry_safe(ex, tmp, orig, list) {
-+		list_move_tail(&ex->list, dest);
-+	}
-+}
-+
- /*
-  * called under devcgroup_mutex
-  */
-@@ -603,11 +614,13 @@ static int devcgroup_update_access(struc
- 	int count, rc = 0;
- 	struct dev_exception_item ex;
- 	struct dev_cgroup *parent = css_to_devcgroup(devcgroup->css.parent);
-+	struct dev_cgroup tmp_devcgrp;
+ cleanup_v6()
+ {
+@@ -61,7 +62,7 @@ setup_v6() {
+     if [ $? -ne 0 ]; then
+         cleanup_v6
+         echo "failed"
+-        exit
++        exit 1
+     fi
  
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
+     # Set veth2 down, which will put veth1 in NOCARRIER state
+@@ -88,7 +89,7 @@ setup_v4() {
+     if [ $? -ne 0 ]; then
+         cleanup_v4
+         echo "failed"
+-        exit
++        exit 1
+     fi
  
- 	memset(&ex, 0, sizeof(ex));
-+	memset(&tmp_devcgrp, 0, sizeof(tmp_devcgrp));
- 	b = buffer;
+     # Set veth1 down, which will put veth0 in NOCARRIER state
+@@ -115,6 +116,7 @@ run_arp_evict_nocarrier_enabled() {
  
- 	switch (*b) {
-@@ -619,15 +632,27 @@ static int devcgroup_update_access(struc
+     if [ $? -eq 0 ];then
+         echo "failed"
++        ret=1
+     else
+         echo "ok"
+     fi
+@@ -134,6 +136,7 @@ run_arp_evict_nocarrier_disabled() {
+         echo "ok"
+     else
+         echo "failed"
++        ret=1
+     fi
  
- 			if (!may_allow_all(parent))
- 				return -EPERM;
--			dev_exception_clean(devcgroup);
--			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
--			if (!parent)
-+			if (!parent) {
-+				devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
-+				dev_exception_clean(devcgroup);
- 				break;
-+			}
+     cleanup_v4
+@@ -164,6 +167,7 @@ run_ndisc_evict_nocarrier_enabled() {
  
-+			INIT_LIST_HEAD(&tmp_devcgrp.exceptions);
-+			rc = dev_exceptions_copy(&tmp_devcgrp.exceptions,
-+						 &devcgroup->exceptions);
-+			if (rc)
-+				return rc;
-+			dev_exception_clean(devcgroup);
- 			rc = dev_exceptions_copy(&devcgroup->exceptions,
- 						 &parent->exceptions);
--			if (rc)
-+			if (rc) {
-+				dev_exceptions_move(&devcgroup->exceptions,
-+						    &tmp_devcgrp.exceptions);
- 				return rc;
-+			}
-+			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
-+			dev_exception_clean(&tmp_devcgrp);
- 			break;
- 		case DEVCG_DENY:
- 			if (css_has_online_children(&devcgroup->css))
+     if [ $? -eq 0 ];then
+         echo "failed"
++        ret=1
+     else
+         echo "ok"
+     fi
+@@ -182,6 +186,7 @@ run_ndisc_evict_nocarrier_disabled() {
+         echo "ok"
+     else
+         echo "failed"
++        ret=1
+     fi
+ 
+     cleanup_v6
+@@ -198,6 +203,7 @@ run_ndisc_evict_nocarrier_disabled_all() {
+         echo "ok"
+     else
+         echo "failed"
++        ret=1
+     fi
+ 
+     cleanup_v6
+@@ -218,3 +224,4 @@ if [ "$(id -u)" -ne 0 ];then
+ fi
+ 
+ run_all_tests
++exit $ret
+-- 
+2.35.1
+
 
 
