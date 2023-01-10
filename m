@@ -2,106 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD98D66464F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 17:41:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ACD2664678
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 17:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232405AbjAJQlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 11:41:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55086 "EHLO
+        id S234189AbjAJQro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 11:47:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233394AbjAJQlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 11:41:02 -0500
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED10825CA;
-        Tue, 10 Jan 2023 08:41:00 -0800 (PST)
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30AGDQO3011416;
-        Tue, 10 Jan 2023 16:40:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2022-7-12; bh=f+ZiSxSYIGDsBpu3KVLkv2Tip7lmyPNI8cSaAfTSWQE=;
- b=GHkLlOYQNfTcMFNZLGlzC1V0h7crFLYmnLsBSFYjiZSah6bevtIJ0A4ic8lgwkiEfCfP
- +w7sy+GpPr3EceQ/3ApwqUl2oq5O3Ccldw0eRA/VfFeUcom1d2IcsHB1y42IYx+1SGpj
- 8uIHiMX+OPorVJKh9xzNfXfy70HrlHzbyfSBJe4DXslVPJxyYpnVvpRBXBUObVSoBMPl
- D3AIK65dKs8qVdsuigTM1isinQrRbQB1wPBMIwQIwA60s6z+nPuwa4Q3edMT5/a1ww7c
- mGs/l5KRbORaNJ8Q9fbxhTycJJYmGl1J/VeK6TgAUxeKo4zC8eTfFsL6GHDTNPvDKwrh vg== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3n1au1g5nf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 Jan 2023 16:40:56 +0000
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 30AG8g0l008188;
-        Tue, 10 Jan 2023 16:40:55 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3n1a43e3wf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 10 Jan 2023 16:40:54 +0000
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30AGYWHE011905;
-        Tue, 10 Jan 2023 16:40:54 GMT
-Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.129.136.47])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3n1a43e3vy-1;
-        Tue, 10 Jan 2023 16:40:54 +0000
-From:   Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Cc:     stable@vger.kernel.org, harshit.m.mogalapalli@oracle.com,
-        error27@gmail.com, darren.kenny@oracle.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 5.10.y] io_uring: Fix unsigned 'res' comparison with zero in io_fixup_rw_res()
-Date:   Tue, 10 Jan 2023 08:40:43 -0800
-Message-Id: <20230110164044.755234-1-harshit.m.mogalapalli@oracle.com>
-X-Mailer: git-send-email 2.38.1
+        with ESMTP id S233763AbjAJQrP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 11:47:15 -0500
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE961DDE9
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:46:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1673369185; x=1704905185;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=PkhBq/zvP+lRjp86ajagPkVnZzfkI+X9oK4GrUJ4TCI=;
+  b=naUQvHKl+ZQ252q6fXdQaUQYJ6Q4Az+fvzUgb+jgHDViGo/9THhqQRwH
+   t+qr+ozTbnHd4Y48C4Dsw49OSrQysUcXII2dWBBDZe7o6plL1ojllJS6V
+   9Pi8DWFvh7TPx9vZtpCXaacpad7Cg1EuS4BEjuH1/DSXmaak/S67qyKOm
+   MkUXFO0ka663Ojwa8tGJvYH8zgch1TkMSso5VYSdA4EKHFqfD/ulTdeYR
+   +IPguKEBIB7NsOan6rLUabMHt0BP3r45NMHfopBnBfWCN7Owo1+B1GK/d
+   O8YWaYMbE/lvGfBWQadSqzB7IDeQR7FJgTRDgCuhaD33G5a32HlkMe3XY
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="387649455"
+X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
+   d="scan'208";a="387649455"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 08:43:00 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="687625635"
+X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
+   d="scan'208";a="687625635"
+Received: from lkp-server02.sh.intel.com (HELO f1920e93ebb5) ([10.239.97.151])
+  by orsmga008.jf.intel.com with ESMTP; 10 Jan 2023 08:42:59 -0800
+Received: from kbuild by f1920e93ebb5 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pFHiE-0008D5-2P;
+        Tue, 10 Jan 2023 16:42:58 +0000
+Date:   Wed, 11 Jan 2023 00:42:09 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH 5.10.y] io_uring: Fix unsigned 'res' comparison with zero
+ in io_fixup_rw_res()
+Message-ID: <Y72VYW1FaqvbCYKm@d82c38c126d2>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-10_06,2023-01-10_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 bulkscore=0 spamscore=0
- suspectscore=0 adultscore=0 phishscore=0 malwarescore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2301100105
-X-Proofpoint-ORIG-GUID: -QehMCJaFJPhNNGSZSlaHboOl3q9GtTL
-X-Proofpoint-GUID: -QehMCJaFJPhNNGSZSlaHboOl3q9GtTL
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230110164044.755234-1-harshit.m.mogalapalli@oracle.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Smatch warning: io_fixup_rw_res() warn:
-	unsigned 'res' is never less than zero.
+Hi,
 
-Change type of 'res' from unsigned to long.
+Thanks for your patch.
 
-Fixes: 788d0824269b ("io_uring: import 5.15-stable io_uring")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
----
-Note: The Fixes commit is a 5.15 to 5.10 backport, the commit which
-this patch actually Fixes in 5.15 is d6b7efc722a2
----
- io_uring/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 945faf036ad0..0c4d16afb9ef 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -2702,7 +2702,7 @@ static bool __io_complete_rw_common(struct io_kiocb *req, long res)
- 	return false;
- }
- 
--static inline int io_fixup_rw_res(struct io_kiocb *req, unsigned res)
-+static inline int io_fixup_rw_res(struct io_kiocb *req, long res)
- {
- 	struct io_async_rw *io = req->async_data;
- 
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [PATCH 5.10.y] io_uring: Fix unsigned 'res' comparison with zero in io_fixup_rw_res()
+Link: https://lore.kernel.org/stable/20230110164044.755234-1-harshit.m.mogalapalli%40oracle.com
+
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+
 -- 
-2.38.1
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
+
+
 
