@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D37266486F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72D826648EB
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238959AbjAJSLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48962 "EHLO
+        id S235453AbjAJSQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:16:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239068AbjAJSKY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11D182BDD
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:04 -0800 (PST)
+        with ESMTP id S238955AbjAJSPv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CB3514D0A
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B86DAB818D0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A2E0C433EF;
-        Tue, 10 Jan 2023 18:09:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAE1C6184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F215AC433EF;
+        Tue, 10 Jan 2023 18:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374141;
-        bh=W2ZA42LxkmspmCSpJqNhI9UlfDiggxcQmXejsapH+QM=;
+        s=korg; t=1673374432;
+        bh=lOYfb9yQ2IjAmeG9ihKbH9wFjVyodaJLuuv90tFB7cE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HXrQe3HfQocOrXPS0xKe1GMN+hgf3RdAEsfFBxn7iYvESlA3rk6/HS/KQJXOpQ3mM
-         t6Wp5+AzlBlmJpxTFoPnI6+OK62vahh7YiCZR+/QRDSP6pPBDMZYJT7rN154lU5uUv
-         AubEKy7Dz6u8mykO2WuW2WJxUMKIrfTKKJUEl9bA=
+        b=u3idxPWlJCt6K2pqfZvyDw429WsrcCH8p5vDsGCKtGkIAYSHHN5wV7GbfJDhsiTyG
+         Nlxr7/rFvZiEBSZdmJqtLRdtdGTos4snkdaJSDdJCTIUmxKc26cb+Tp+lkYojlo8Yg
+         nIUgLxGpWhZZbFjx21lDkF7SoFRuXYv8bk7QsgrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eli Cohen <elic@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 060/148] net/mlx5: Lag, fix failure to cancel delayed bond work
+Subject: [PATCH 6.1 016/159] netfilter: nf_tables: consolidate set description
 Date:   Tue, 10 Jan 2023 19:02:44 +0100
-Message-Id: <20230110180019.126484175@linuxfoundation.org>
+Message-Id: <20230110180018.823509822@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +52,223 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 4d1c1379d71777ddeda3e54f8fc26e9ecbfd1009 ]
+[ Upstream commit bed4a63ea4ae77cfe5aae004ef87379f0655260a ]
 
-Commit 0d4e8ed139d8 ("net/mlx5: Lag, avoid lockdep warnings")
-accidentally removed a call to cancel delayed bond work thus it may
-cause queued delay to expire and fall on an already destroyed work
-queue.
+Add the following fields to the set description:
 
-Fix by restoring the call cancel_delayed_work_sync() before
-destroying the workqueue.
+- key type
+- data type
+- object type
+- policy
+- gc_int: garbage collection interval)
+- timeout: element timeout
 
-This prevents call trace such as this:
+This prepares for stricter set type checks on updates in a follow up
+patch.
 
-[  329.230417] BUG: kernel NULL pointer dereference, address: 0000000000000000
- [  329.231444] #PF: supervisor write access in kernel mode
- [  329.232233] #PF: error_code(0x0002) - not-present page
- [  329.233007] PGD 0 P4D 0
- [  329.233476] Oops: 0002 [#1] SMP
- [  329.234012] CPU: 5 PID: 145 Comm: kworker/u20:4 Tainted: G OE      6.0.0-rc5_mlnx #1
- [  329.235282] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
- [  329.236868] Workqueue: mlx5_cmd_0000:08:00.1 cmd_work_handler [mlx5_core]
- [  329.237886] RIP: 0010:_raw_spin_lock+0xc/0x20
- [  329.238585] Code: f0 0f b1 17 75 02 f3 c3 89 c6 e9 6f 3c 5f ff 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 0f 1f 44 00 00 31 c0 ba 01 00 00 00 <f0> 0f b1 17 75 02 f3 c3 89 c6 e9 45 3c 5f ff 0f 1f 44 00 00 0f 1f
- [  329.241156] RSP: 0018:ffffc900001b0e98 EFLAGS: 00010046
- [  329.241940] RAX: 0000000000000000 RBX: ffffffff82374ae0 RCX: 0000000000000000
- [  329.242954] RDX: 0000000000000001 RSI: 0000000000000014 RDI: 0000000000000000
- [  329.243974] RBP: ffff888106ccf000 R08: ffff8881004000c8 R09: ffff888100400000
- [  329.244990] R10: 0000000000000000 R11: ffffffff826669f8 R12: 0000000000002000
- [  329.246009] R13: 0000000000000005 R14: ffff888100aa7ce0 R15: ffff88852ca80000
- [  329.247030] FS:  0000000000000000(0000) GS:ffff88852ca80000(0000) knlGS:0000000000000000
- [  329.248260] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [  329.249111] CR2: 0000000000000000 CR3: 000000016d675001 CR4: 0000000000770ee0
- [  329.250133] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- [  329.251152] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- [  329.252176] PKRU: 55555554
-
-Fixes: 0d4e8ed139d8 ("net/mlx5: Lag, avoid lockdep warnings")
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Stable-dep-of: f6594c372afd ("netfilter: nf_tables: perform type checking for existing sets")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/netfilter/nf_tables.h | 12 +++++++
+ net/netfilter/nf_tables_api.c     | 58 +++++++++++++++----------------
+ 2 files changed, 40 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-index bbe810f3b373..c142011d2097 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-@@ -201,6 +201,7 @@ static void mlx5_ldev_free(struct kref *ref)
- 	if (ldev->nb.notifier_call)
- 		unregister_netdevice_notifier_net(&init_net, &ldev->nb);
- 	mlx5_lag_mp_cleanup(ldev);
-+	cancel_delayed_work_sync(&ldev->bond_work);
- 	destroy_workqueue(ldev->wq);
- 	mlx5_lag_mpesw_cleanup(ldev);
- 	mutex_destroy(&ldev->lock);
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index cdb7db9b0e25..ddcdde230747 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -311,17 +311,29 @@ struct nft_set_iter {
+ /**
+  *	struct nft_set_desc - description of set elements
+  *
++ *	@ktype: key type
+  *	@klen: key length
++ *	@dtype: data type
+  *	@dlen: data length
++ *	@objtype: object type
++ *	@flags: flags
+  *	@size: number of set elements
++ *	@policy: set policy
++ *	@gc_int: garbage collector interval
+  *	@field_len: length of each field in concatenation, bytes
+  *	@field_count: number of concatenated fields in element
+  *	@expr: set must support for expressions
+  */
+ struct nft_set_desc {
++	u32			ktype;
+ 	unsigned int		klen;
++	u32			dtype;
+ 	unsigned int		dlen;
++	u32			objtype;
+ 	unsigned int		size;
++	u32			policy;
++	u32			gc_int;
++	u64			timeout;
+ 	u8			field_len[NFT_REG32_COUNT];
+ 	u8			field_count;
+ 	bool			expr;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 7a09421f19e1..a31f8dc40646 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3732,8 +3732,7 @@ static bool nft_set_ops_candidate(const struct nft_set_type *type, u32 flags)
+ static const struct nft_set_ops *
+ nft_select_set_ops(const struct nft_ctx *ctx,
+ 		   const struct nlattr * const nla[],
+-		   const struct nft_set_desc *desc,
+-		   enum nft_set_policies policy)
++		   const struct nft_set_desc *desc)
+ {
+ 	struct nftables_pernet *nft_net = nft_pernet(ctx->net);
+ 	const struct nft_set_ops *ops, *bops;
+@@ -3762,7 +3761,7 @@ nft_select_set_ops(const struct nft_ctx *ctx,
+ 		if (!ops->estimate(desc, flags, &est))
+ 			continue;
+ 
+-		switch (policy) {
++		switch (desc->policy) {
+ 		case NFT_SET_POL_PERFORMANCE:
+ 			if (est.lookup < best.lookup)
+ 				break;
+@@ -4344,7 +4343,6 @@ static int nf_tables_set_desc_parse(struct nft_set_desc *desc,
+ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 			    const struct nlattr * const nla[])
+ {
+-	u32 ktype, dtype, flags, policy, gc_int, objtype;
+ 	struct netlink_ext_ack *extack = info->extack;
+ 	u8 genmask = nft_genmask_next(info->net);
+ 	u8 family = info->nfmsg->nfgen_family;
+@@ -4357,10 +4355,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	struct nft_set *set;
+ 	struct nft_ctx ctx;
+ 	size_t alloc_size;
+-	u64 timeout;
+ 	char *name;
+ 	int err, i;
+ 	u16 udlen;
++	u32 flags;
+ 	u64 size;
+ 
+ 	if (nla[NFTA_SET_TABLE] == NULL ||
+@@ -4371,10 +4369,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 
+ 	memset(&desc, 0, sizeof(desc));
+ 
+-	ktype = NFT_DATA_VALUE;
++	desc.ktype = NFT_DATA_VALUE;
+ 	if (nla[NFTA_SET_KEY_TYPE] != NULL) {
+-		ktype = ntohl(nla_get_be32(nla[NFTA_SET_KEY_TYPE]));
+-		if ((ktype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK)
++		desc.ktype = ntohl(nla_get_be32(nla[NFTA_SET_KEY_TYPE]));
++		if ((desc.ktype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK)
+ 			return -EINVAL;
+ 	}
+ 
+@@ -4399,17 +4397,17 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 			return -EOPNOTSUPP;
+ 	}
+ 
+-	dtype = 0;
++	desc.dtype = 0;
+ 	if (nla[NFTA_SET_DATA_TYPE] != NULL) {
+ 		if (!(flags & NFT_SET_MAP))
+ 			return -EINVAL;
+ 
+-		dtype = ntohl(nla_get_be32(nla[NFTA_SET_DATA_TYPE]));
+-		if ((dtype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK &&
+-		    dtype != NFT_DATA_VERDICT)
++		desc.dtype = ntohl(nla_get_be32(nla[NFTA_SET_DATA_TYPE]));
++		if ((desc.dtype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK &&
++		    desc.dtype != NFT_DATA_VERDICT)
+ 			return -EINVAL;
+ 
+-		if (dtype != NFT_DATA_VERDICT) {
++		if (desc.dtype != NFT_DATA_VERDICT) {
+ 			if (nla[NFTA_SET_DATA_LEN] == NULL)
+ 				return -EINVAL;
+ 			desc.dlen = ntohl(nla_get_be32(nla[NFTA_SET_DATA_LEN]));
+@@ -4424,34 +4422,34 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 		if (!(flags & NFT_SET_OBJECT))
+ 			return -EINVAL;
+ 
+-		objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
+-		if (objtype == NFT_OBJECT_UNSPEC ||
+-		    objtype > NFT_OBJECT_MAX)
++		desc.objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
++		if (desc.objtype == NFT_OBJECT_UNSPEC ||
++		    desc.objtype > NFT_OBJECT_MAX)
+ 			return -EOPNOTSUPP;
+ 	} else if (flags & NFT_SET_OBJECT)
+ 		return -EINVAL;
+ 	else
+-		objtype = NFT_OBJECT_UNSPEC;
++		desc.objtype = NFT_OBJECT_UNSPEC;
+ 
+-	timeout = 0;
++	desc.timeout = 0;
+ 	if (nla[NFTA_SET_TIMEOUT] != NULL) {
+ 		if (!(flags & NFT_SET_TIMEOUT))
+ 			return -EINVAL;
+ 
+-		err = nf_msecs_to_jiffies64(nla[NFTA_SET_TIMEOUT], &timeout);
++		err = nf_msecs_to_jiffies64(nla[NFTA_SET_TIMEOUT], &desc.timeout);
+ 		if (err)
+ 			return err;
+ 	}
+-	gc_int = 0;
++	desc.gc_int = 0;
+ 	if (nla[NFTA_SET_GC_INTERVAL] != NULL) {
+ 		if (!(flags & NFT_SET_TIMEOUT))
+ 			return -EINVAL;
+-		gc_int = ntohl(nla_get_be32(nla[NFTA_SET_GC_INTERVAL]));
++		desc.gc_int = ntohl(nla_get_be32(nla[NFTA_SET_GC_INTERVAL]));
+ 	}
+ 
+-	policy = NFT_SET_POL_PERFORMANCE;
++	desc.policy = NFT_SET_POL_PERFORMANCE;
+ 	if (nla[NFTA_SET_POLICY] != NULL)
+-		policy = ntohl(nla_get_be32(nla[NFTA_SET_POLICY]));
++		desc.policy = ntohl(nla_get_be32(nla[NFTA_SET_POLICY]));
+ 
+ 	if (nla[NFTA_SET_DESC] != NULL) {
+ 		err = nf_tables_set_desc_parse(&desc, nla[NFTA_SET_DESC]);
+@@ -4496,7 +4494,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
+ 		return -ENOENT;
+ 
+-	ops = nft_select_set_ops(&ctx, nla, &desc, policy);
++	ops = nft_select_set_ops(&ctx, nla, &desc);
+ 	if (IS_ERR(ops))
+ 		return PTR_ERR(ops);
+ 
+@@ -4536,18 +4534,18 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	set->table = table;
+ 	write_pnet(&set->net, net);
+ 	set->ops = ops;
+-	set->ktype = ktype;
++	set->ktype = desc.ktype;
+ 	set->klen = desc.klen;
+-	set->dtype = dtype;
+-	set->objtype = objtype;
++	set->dtype = desc.dtype;
++	set->objtype = desc.objtype;
+ 	set->dlen = desc.dlen;
+ 	set->flags = flags;
+ 	set->size = desc.size;
+-	set->policy = policy;
++	set->policy = desc.policy;
+ 	set->udlen = udlen;
+ 	set->udata = udata;
+-	set->timeout = timeout;
+-	set->gc_int = gc_int;
++	set->timeout = desc.timeout;
++	set->gc_int = desc.gc_int;
+ 
+ 	set->field_count = desc.field_count;
+ 	for (i = 0; i < desc.field_count; i++)
 -- 
 2.35.1
 
