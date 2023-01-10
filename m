@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 574E16649C5
+	by mail.lfdr.de (Postfix) with ESMTP id A2E226649C6
 	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:25:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233327AbjAJSYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:24:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38294 "EHLO
+        id S235267AbjAJSYn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:24:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239247AbjAJSXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B99983FB
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:37 -0800 (PST)
+        with ESMTP id S239307AbjAJSX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0F4D9B286
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8482B81904
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB27C433D2;
-        Tue, 10 Jan 2023 18:21:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4370761864
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47E3EC433D2;
+        Tue, 10 Jan 2023 18:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374894;
-        bh=jbKrjFf5vEHQ/m6vPNkHUzH1B0zdwcDmQy/lMABskgU=;
+        s=korg; t=1673374897;
+        bh=8skN8bpyKyT8v7iwET29azJN+vswFiGAVoPeQRr1F30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B5LSQzcWWRkJM+wdiPs0vgfcQOmx5GmNMxmFKTubMe1Ea0vQw34ZJwT5IiWbJxmln
-         RS3GPWhLcNjBnqfKZT8yzFsAvE3DCPE2m2lGI8mMc7VqqgYita+D+8w6ttAWAqWzX7
-         l9XwnAso+p2kMAHVTO9IDw/HpJJXXk4ec50wmijw=
+        b=pSEzMYEeIe2mjxccDwBIiF/0wD0oXH/I4Yct4WmYUW8SUvdBBC1Tds+pAT71jPyoY
+         ffNyXtcMvwbNbwg5zE7z0kPmUm1VbJ2UgMHCQc28xMcgHkeql0iDcsgPqD7qjMT8Tz
+         U8TI4rNhU2MrywVfqMwpoD2YOvxxEXEcRf5kI1VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Freund <adrian@freund.io>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Yi Zhang <yi.zhang@redhat.com>,
+        Yu Kuai <yukuai3@huawei.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 010/290] ACPI: resource: do IRQ override on Lenovo 14ALC7
-Date:   Tue, 10 Jan 2023 19:01:42 +0100
-Message-Id: <20230110180031.974625149@linuxfoundation.org>
+Subject: [PATCH 5.15 011/290] block, bfq: fix uaf for bfqq in bfq_exit_icq_bfqq
+Date:   Tue, 10 Jan 2023 19:01:43 +0100
+Message-Id: <20230110180032.003884551@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -53,54 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Freund <adrian@freund.io>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit f3cb9b740869712d448edf3b9ef5952b847caf8b ]
+[ Upstream commit 246cf66e300b76099b5dbd3fdd39e9a5dbc53f02 ]
 
-Commit bfcdf58380b1 ("ACPI: resource: do IRQ override on LENOVO IdeaPad")
-added an override for Lenovo IdeaPad 5 16ALC7. The 14ALC7 variant also
-suffers from a broken touchscreen and trackpad.
+Commit 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'")
+will access 'bic->bfqq' in bic_set_bfqq(), however, bfq_exit_icq_bfqq()
+can free bfqq first, and then call bic_set_bfqq(), which will cause uaf.
 
-Fixes: 9946e39fe8d0 ("ACPI: resource: skip IRQ override on AMD Zen platforms")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216804
-Signed-off-by: Adrian Freund <adrian@freund.io>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix the problem by moving bfq_exit_bfqq() behind bic_set_bfqq().
+
+Fixes: 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'")
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20221226030605.1437081-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/resource.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ block/bfq-iosched.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index d0bed7e66a33..33921949bd8f 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -417,7 +417,14 @@ static const struct dmi_system_id asus_laptop[] = {
- 	{ }
- };
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index b8b6e9eae94b..85120d7b5cf0 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -5251,8 +5251,8 @@ static void bfq_exit_icq_bfqq(struct bfq_io_cq *bic, bool is_sync)
+ 		unsigned long flags;
  
--static const struct dmi_system_id lenovo_82ra[] = {
-+static const struct dmi_system_id lenovo_laptop[] = {
-+	{
-+		.ident = "LENOVO IdeaPad Flex 5 14ALC7",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "82R9"),
-+		},
-+	},
- 	{
- 		.ident = "LENOVO IdeaPad Flex 5 16ALC7",
- 		.matches = {
-@@ -451,8 +458,8 @@ struct irq_override_cmp {
- static const struct irq_override_cmp override_table[] = {
- 	{ medion_laptop, 1, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, false },
- 	{ asus_laptop, 1, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, false },
--	{ lenovo_82ra, 6, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
--	{ lenovo_82ra, 10, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
-+	{ lenovo_laptop, 6, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
-+	{ lenovo_laptop, 10, ACPI_LEVEL_SENSITIVE, ACPI_ACTIVE_LOW, 0, true },
- 	{ schenker_gm_rg, 1, ACPI_EDGE_SENSITIVE, ACPI_ACTIVE_LOW, 1, true },
- };
- 
+ 		spin_lock_irqsave(&bfqd->lock, flags);
+-		bfq_exit_bfqq(bfqd, bfqq);
+ 		bic_set_bfqq(bic, NULL, is_sync);
++		bfq_exit_bfqq(bfqd, bfqq);
+ 		spin_unlock_irqrestore(&bfqd->lock, flags);
+ 	}
+ }
 -- 
 2.35.1
 
