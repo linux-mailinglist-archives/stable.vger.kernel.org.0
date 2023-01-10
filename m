@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7294966491F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0F9E66489A
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239156AbjAJSSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:18:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58396 "EHLO
+        id S238889AbjAJSMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239197AbjAJSRa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 801683B5
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:59 -0800 (PST)
+        with ESMTP id S238882AbjAJSMI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DC81900D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A6BA6184D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:15:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11AE3C433F0;
-        Tue, 10 Jan 2023 18:15:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7A05B81901
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F90DC433D2;
+        Tue, 10 Jan 2023 18:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374558;
-        bh=D9ihkQTjcQ+hTWO3+NUPKPxLt2mqk0abKfM1jTtszPk=;
+        s=korg; t=1673374248;
+        bh=TeVUh8dUZgnT16RGC+nQBIRxsr3/6yXJ8gB2mW3y3bE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KDwM6ijrZ9lmAepSno3KQ6Dnqs0Ma+V4XehiOQJLmbXmY0m2KfGZEn+myK9d7sYSp
-         OZrkcGDFHmOTQNr3WmcPKIL+1zyZreOi+gX6EUZQS2BIULDkeDwP+4WDtNHzDpoEmH
-         aw0yqLJJbJ7UOjMtaViQxzziuIjG/4FNCO8tbyug=
+        b=VCvGt0ji/8q8EPnm4pE7eWZZ/UIhPvkAsxVsnFtamsIceHqfmZA09aLzsyr57+hCW
+         wM7MibMhrZVXF4mFIOk0Gn/P0D13OTyUkQbncie5GUmzc51jaArIrNWMEA5FxDWdLF
+         RU6mUTZ9AdRGcaLiXr6oIRbtftTm7/RZ9bOVZB7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Jiri Pirko <jiri@nvidia.com>, Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 055/159] net/mlx5: Fix RoCE setting at HCA level
-Date:   Tue, 10 Jan 2023 19:03:23 +0100
-Message-Id: <20230110180020.061583031@linuxfoundation.org>
+Subject: [PATCH 6.0 100/148] caif: fix memory leak in cfctrl_linkup_request()
+Date:   Tue, 10 Jan 2023 19:03:24 +0100
+Message-Id: <20230110180020.363203265@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit c4ad5f2bdad56265b23d3635494ecdb205431807 ]
+[ Upstream commit fe69230f05897b3de758427b574fc98025dfc907 ]
 
-mlx5 PF can disable RoCE for its VFs and SFs. In such case RoCE is
-marked as unsupported on those VFs/SFs.
-The cited patch added an option for disable (and enable) RoCE at HCA
-level. However, that commit didn't check whether RoCE is supported on
-the HCA and enabled user to try and set RoCE to on.
-Fix it by checking whether the HCA supports RoCE.
+When linktype is unknown or kzalloc failed in cfctrl_linkup_request(),
+pkt is not released. Add release process to error path.
 
-Fixes: fbfa97b4d79f ("net/mlx5: Disable roce at HCA level")
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: b482cd2053e3 ("net-caif: add CAIF core protocol stack")
+Fixes: 8d545c8f958f ("caif: Disconnect without waiting for response")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Link: https://lore.kernel.org/r/20230104065146.1153009-1-shaozhengchao@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/devlink.c | 2 +-
- drivers/net/ethernet/mellanox/mlx5/core/main.c    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/caif/cfctrl.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-index 9e4e8d551884..97e9ec44a759 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-@@ -468,7 +468,7 @@ static int mlx5_devlink_enable_roce_validate(struct devlink *devlink, u32 id,
- 	bool new_state = val.vbool;
- 
- 	if (new_state && !MLX5_CAP_GEN(dev, roce) &&
--	    !MLX5_CAP_GEN(dev, roce_rw_supported)) {
-+	    !(MLX5_CAP_GEN(dev, roce_rw_supported) && MLX5_CAP_GEN_MAX(dev, roce))) {
- 		NL_SET_ERR_MSG_MOD(extack, "Device doesn't support RoCE");
- 		return -EOPNOTSUPP;
+diff --git a/net/caif/cfctrl.c b/net/caif/cfctrl.c
+index 2809cbd6b7f7..d8cb4b2a076b 100644
+--- a/net/caif/cfctrl.c
++++ b/net/caif/cfctrl.c
+@@ -269,11 +269,15 @@ int cfctrl_linkup_request(struct cflayer *layer,
+ 	default:
+ 		pr_warn("Request setup of bad link type = %d\n",
+ 			param->linktype);
++		cfpkt_destroy(pkt);
+ 		return -EINVAL;
  	}
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 6776bf5b8d55..00758312df06 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -614,7 +614,7 @@ static int handle_hca_cap(struct mlx5_core_dev *dev, void *set_ctx)
- 		MLX5_SET(cmd_hca_cap, set_hca_cap, num_total_dynamic_vf_msix,
- 			 MLX5_CAP_GEN_MAX(dev, num_total_dynamic_vf_msix));
- 
--	if (MLX5_CAP_GEN(dev, roce_rw_supported))
-+	if (MLX5_CAP_GEN(dev, roce_rw_supported) && MLX5_CAP_GEN_MAX(dev, roce))
- 		MLX5_SET(cmd_hca_cap, set_hca_cap, roce,
- 			 mlx5_is_roce_on(dev));
- 
+ 	req = kzalloc(sizeof(*req), GFP_KERNEL);
+-	if (!req)
++	if (!req) {
++		cfpkt_destroy(pkt);
+ 		return -ENOMEM;
++	}
++
+ 	req->client_layer = user_layer;
+ 	req->cmd = CFCTRL_CMD_LINK_SETUP;
+ 	req->param = *param;
 -- 
 2.35.1
 
