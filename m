@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25BB06649BA
+	by mail.lfdr.de (Postfix) with ESMTP id C615F6649BC
 	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239325AbjAJSYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:24:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36756 "EHLO
+        id S239326AbjAJSYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:24:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239278AbjAJSXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B84AC74F
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:15 -0800 (PST)
+        with ESMTP id S239387AbjAJSXT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF2754C73E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B893861865
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA289C433D2;
-        Tue, 10 Jan 2023 18:21:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0E9461866
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C73BEC433D2;
+        Tue, 10 Jan 2023 18:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374874;
-        bh=uGACMhsOpM7hfjg2xI4r2v2groQOxRMt8vRjIuOUL1o=;
+        s=korg; t=1673374877;
+        bh=4MNYDDyqkOB7ro9LpW25zKg63k4giqqTj4O2CTFFCfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1GLlUL/+UnluxyeVgO7r+TwNOMSSnhYl2MompPUAOmKOpLGm+3mei3kNLoZLF3Hr8
-         6vEcZJPbZn0ukHeYHhJUpy9vIuoIgP1/lTcHCisLxR8N/oo5xNxZlHNxfYzWOvuZvW
-         JF1degPcJYdBMx/94Ne1O4gfmTd6K70QbrkXw6oI=
+        b=z3rl5HLVZEG0HnOOoiQYf0JK+lRLg2RN99WFWrpkBJVsXdMlkdbpjsadSObIc/TBu
+         fjTRyyWwo6xKhAfSeM7Sq6mnSSkJSiK4cEcnPCyPG0Jz1PhuEdI9LBf0DMMhXVGU0/
+         E20GB4zf4QlPAI5kcY5PcB9gUJrXin/G3QeRsBNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.1 136/159] io_uring: pin context while queueing deferred tw
-Date:   Tue, 10 Jan 2023 19:04:44 +0100
-Message-Id: <20230110180022.727454346@linuxfoundation.org>
+Subject: [PATCH 6.1 137/159] io_uring: fix CQ waiting timeout handling
+Date:   Tue, 10 Jan 2023 19:04:45 +0100
+Message-Id: <20230110180022.774317447@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
 References: <20230110180018.288460217@linuxfoundation.org>
@@ -54,52 +54,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 9ffa13ff78a0a55df968a72d6f0ebffccee5c9f4 upstream.
+commit 12521a5d5cb7ff0ad43eadfc9c135d86e1131fa8 upstream.
 
-Unlike normal tw, nothing prevents deferred tw to be executed right
-after an tw item added to ->work_llist in io_req_local_work_add(). For
-instance, the waiting task may get waken up by CQ posting or a normal
-tw. Thus we need to pin the ring for the rest of io_req_local_work_add()
+Jiffy to ktime CQ waiting conversion broke how we treat timeouts, in
+particular we rearm it anew every time we get into
+io_cqring_wait_schedule() without adjusting the timeout. Waiting for 2
+CQEs and getting a task_work in the middle may double the timeout value,
+or even worse in some cases task may wait indefinitely.
 
 Cc: stable@vger.kernel.org
-Fixes: c0e0d6ba25f18 ("io_uring: add IORING_SETUP_DEFER_TASKRUN")
+Fixes: 228339662b398 ("io_uring: don't convert to jiffies for waiting on timeouts")
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/1a79362b9c10b8523ef70b061d96523650a23344.1672795998.git.asml.silence@gmail.com
+Link: https://lore.kernel.org/r/f7bffddd71b08f28a877d44d37ac953ddb01590d.1672915663.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/io_uring.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ io_uring/io_uring.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 --- a/io_uring/io_uring.c
 +++ b/io_uring/io_uring.c
-@@ -1109,13 +1109,18 @@ static void io_req_local_work_add(struct
+@@ -2364,7 +2364,7 @@ int io_run_task_work_sig(struct io_ring_
+ /* when returns >0, the caller should retry */
+ static inline int io_cqring_wait_schedule(struct io_ring_ctx *ctx,
+ 					  struct io_wait_queue *iowq,
+-					  ktime_t timeout)
++					  ktime_t *timeout)
  {
- 	struct io_ring_ctx *ctx = req->ctx;
- 
--	if (!llist_add(&req->io_task_work.node, &ctx->work_llist))
-+	percpu_ref_get(&ctx->refs);
-+
-+	if (!llist_add(&req->io_task_work.node, &ctx->work_llist)) {
-+		percpu_ref_put(&ctx->refs);
- 		return;
-+	}
- 	/* need it for the following io_cqring_wake() */
- 	smp_mb__after_atomic();
- 
- 	if (unlikely(atomic_read(&req->task->io_uring->in_idle))) {
- 		io_move_task_work_from_local(ctx);
-+		percpu_ref_put(&ctx->refs);
- 		return;
+ 	int ret;
+ 	unsigned long check_cq;
+@@ -2382,7 +2382,7 @@ static inline int io_cqring_wait_schedul
+ 		if (check_cq & BIT(IO_CHECK_CQ_DROPPED_BIT))
+ 			return -EBADR;
  	}
- 
-@@ -1125,6 +1130,7 @@ static void io_req_local_work_add(struct
- 	if (ctx->has_evfd)
- 		io_eventfd_signal(ctx);
- 	__io_cqring_wake(ctx);
-+	percpu_ref_put(&ctx->refs);
+-	if (!schedule_hrtimeout(&timeout, HRTIMER_MODE_ABS))
++	if (!schedule_hrtimeout(timeout, HRTIMER_MODE_ABS))
+ 		return -ETIME;
+ 	return 1;
  }
+@@ -2452,7 +2452,7 @@ static int io_cqring_wait(struct io_ring
+ 		}
+ 		prepare_to_wait_exclusive(&ctx->cq_wait, &iowq.wq,
+ 						TASK_INTERRUPTIBLE);
+-		ret = io_cqring_wait_schedule(ctx, &iowq, timeout);
++		ret = io_cqring_wait_schedule(ctx, &iowq, &timeout);
+ 		cond_resched();
+ 	} while (ret > 0);
  
- static inline void __io_req_task_work_add(struct io_kiocb *req, bool allow_local)
 
 
