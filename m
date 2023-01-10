@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4B90664A99
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9076E6648CE
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239525AbjAJSd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:33:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
+        id S238938AbjAJSPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:15:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239317AbjAJScn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2547BC770
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:29:06 -0800 (PST)
+        with ESMTP id S239088AbjAJSOt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7FC3F5B
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C72ACB818E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:29:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10D5EC433F0;
-        Tue, 10 Jan 2023 18:29:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5483461866
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E19F8C433EF;
+        Tue, 10 Jan 2023 18:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375343;
-        bh=lHoniaakvkSjUtvZx9UxJFjUJDpGskCNxSTMNyp3d/4=;
+        s=korg; t=1673374370;
+        bh=5qBgZrEU9QTReooa3VV96A8GGKnPsNfmShLSGQ3rlAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yVj72G6HlJ6rvPvT1VQ+sttqHus9LOHDk7GJfRI96MVGegPv2vOJxc843i+GEFAex
-         zD/Pw5MPAl0/XbfgkQ6G80ODJVgUdbewf3/WFc38w/KOrci/twezEkY+h2ML33//yv
-         H7o06o4PAERxQhZBmvXLMWtI0aUtjQuo3zmON4LQ=
+        b=AF4OirmvRkffXp688RkuTFj2aNlGo9bcKUWgMcZlztbruxtJzmonea1Msb2DR64HV
+         /TuKIPxGCkCVRNLcdpnUU5h0yOWRd1dxR2qp6sgye/1nBtcm8A8ufhC0jgtr+Qu0qg
+         iu7HJin0KQBNcAcDaVm37PRdz6RUO29ikMa4PRLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com,
-        Jun Nie <jun.nie@linaro.org>, Ye Bin <yebin10@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.15 158/290] ext4: fix kernel BUG in ext4_write_inline_data_end()
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.0 146/148] btrfs: make thaw time super block check to also verify checksum
 Date:   Tue, 10 Jan 2023 19:04:10 +0100
-Message-Id: <20230110180037.335088055@linuxfoundation.org>
+Message-Id: <20230110180021.815272890@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 5c099c4fdc438014d5893629e70a8ba934433ee8 upstream.
+commit 3d17adea74a56a4965f7a603d8ed8c66bb9356d9 upstream.
 
-Syzbot report follow issue:
-------------[ cut here ]------------
-kernel BUG at fs/ext4/inline.c:227!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 3629 Comm: syz-executor212 Not tainted 6.1.0-rc5-syzkaller-00018-g59d0d52c30d4 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-RIP: 0010:ext4_write_inline_data+0x344/0x3e0 fs/ext4/inline.c:227
-RSP: 0018:ffffc90003b3f368 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: ffff8880704e16c0 RCX: 0000000000000000
-RDX: ffff888021763a80 RSI: ffffffff821e31a4 RDI: 0000000000000006
-RBP: 000000000006818e R08: 0000000000000006 R09: 0000000000068199
-R10: 0000000000000079 R11: 0000000000000000 R12: 000000000000000b
-R13: 0000000000068199 R14: ffffc90003b3f408 R15: ffff8880704e1c82
-FS:  000055555723e3c0(0000) GS:ffff8880b9b00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fffe8ac9080 CR3: 0000000079f81000 CR4: 0000000000350ee0
-Call Trace:
- <TASK>
- ext4_write_inline_data_end+0x2a3/0x12f0 fs/ext4/inline.c:768
- ext4_write_end+0x242/0xdd0 fs/ext4/inode.c:1313
- ext4_da_write_end+0x3ed/0xa30 fs/ext4/inode.c:3063
- generic_perform_write+0x316/0x570 mm/filemap.c:3764
- ext4_buffered_write_iter+0x15b/0x460 fs/ext4/file.c:285
- ext4_file_write_iter+0x8bc/0x16e0 fs/ext4/file.c:700
- call_write_iter include/linux/fs.h:2191 [inline]
- do_iter_readv_writev+0x20b/0x3b0 fs/read_write.c:735
- do_iter_write+0x182/0x700 fs/read_write.c:861
- vfs_iter_write+0x74/0xa0 fs/read_write.c:902
- iter_file_splice_write+0x745/0xc90 fs/splice.c:686
- do_splice_from fs/splice.c:764 [inline]
- direct_splice_actor+0x114/0x180 fs/splice.c:931
- splice_direct_to_actor+0x335/0x8a0 fs/splice.c:886
- do_splice_direct+0x1ab/0x280 fs/splice.c:974
- do_sendfile+0xb19/0x1270 fs/read_write.c:1255
- __do_sys_sendfile64 fs/read_write.c:1323 [inline]
- __se_sys_sendfile64 fs/read_write.c:1309 [inline]
- __x64_sys_sendfile64+0x1d0/0x210 fs/read_write.c:1309
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
----[ end trace 0000000000000000 ]---
+Previous commit a05d3c915314 ("btrfs: check superblock to ensure the fs
+was not modified at thaw time") only checks the content of the super
+block, but it doesn't really check if the on-disk super block has a
+matching checksum.
 
-Above issue may happens as follows:
-ext4_da_write_begin
-  ext4_da_write_inline_data_begin
-    ext4_da_convert_inline_data_to_extent
-      ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
-ext4_da_write_end
+This patch will add the checksum verification to thaw time superblock
+verification.
 
-ext4_run_li_request
-  ext4_mb_prefetch
-    ext4_read_block_bitmap_nowait
-      ext4_validate_block_bitmap
-        ext4_mark_group_bitmap_corrupted(sb, block_group, EXT4_GROUP_INFO_BBITMAP_CORRUPT)
-	 percpu_counter_sub(&sbi->s_freeclusters_counter,grp->bb_free);
-	  -> sbi->s_freeclusters_counter become zero
-ext4_da_write_begin
-  if (ext4_nonda_switch(inode->i_sb)) -> As freeclusters_counter is zero will return true
-    *fsdata = (void *)FALL_BACK_TO_NONDELALLOC;
-    ext4_write_begin
-ext4_da_write_end
-  if (write_mode == FALL_BACK_TO_NONDELALLOC)
-    ext4_write_end
-      if (inline_data)
-        ext4_write_inline_data_end
-	  ext4_write_inline_data
-	    BUG_ON(pos + len > EXT4_I(inode)->i_inline_size);
-           -> As inode is already convert to extent, so 'pos + len' > inline_size
-	   -> then trigger BUG.
+This involves the following extra changes:
 
-To solve this issue, instead of checking ext4_has_inline_data() which
-is only cleared after data has been written back, check the
-EXT4_STATE_MAY_INLINE_DATA flag in ext4_write_end().
+- Export btrfs_check_super_csum()
+  As we need to call it in super.c.
 
-Fixes: f19d5870cbf7 ("ext4: add normal write support for inline data")
-Reported-by: syzbot+4faa160fa96bfba639f8@syzkaller.appspotmail.com
-Reported-by: Jun Nie <jun.nie@linaro.org>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20221206144134.1919987-1-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+- Change the argument list of btrfs_check_super_csum()
+  Instead of passing a char *, directly pass struct btrfs_super_block *
+  pointer.
+
+- Verify that our checksum type didn't change before checking the
+  checksum value, like it's done at mount time
+
+Fixes: a05d3c915314 ("btrfs: check superblock to ensure the fs was not modified at thaw time")
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/disk-io.c |   10 ++++------
+ fs/btrfs/disk-io.h |    2 ++
+ fs/btrfs/super.c   |   16 ++++++++++++++++
+ 3 files changed, 22 insertions(+), 6 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1304,7 +1304,8 @@ static int ext4_write_end(struct file *f
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -167,11 +167,9 @@ static bool btrfs_supported_super_csum(u
+  * Return 0 if the superblock checksum type matches the checksum value of that
+  * algorithm. Pass the raw disk superblock data.
+  */
+-static int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
+-				  char *raw_disk_sb)
++int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
++			   const struct btrfs_super_block *disk_sb)
+ {
+-	struct btrfs_super_block *disk_sb =
+-		(struct btrfs_super_block *)raw_disk_sb;
+ 	char result[BTRFS_CSUM_SIZE];
+ 	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
  
- 	trace_ext4_write_end(inode, pos, len, copied);
+@@ -182,7 +180,7 @@ static int btrfs_check_super_csum(struct
+ 	 * BTRFS_SUPER_INFO_SIZE range, we expect that the unused space is
+ 	 * filled with zeros and is included in the checksum.
+ 	 */
+-	crypto_shash_digest(shash, raw_disk_sb + BTRFS_CSUM_SIZE,
++	crypto_shash_digest(shash, (const u8 *)disk_sb + BTRFS_CSUM_SIZE,
+ 			    BTRFS_SUPER_INFO_SIZE - BTRFS_CSUM_SIZE, result);
  
--	if (ext4_has_inline_data(inode))
-+	if (ext4_has_inline_data(inode) &&
-+	    ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA))
- 		return ext4_write_inline_data_end(inode, pos, len, copied, page);
+ 	if (memcmp(disk_sb->csum, result, fs_info->csum_size))
+@@ -3471,7 +3469,7 @@ int __cold open_ctree(struct super_block
+ 	 * We want to check superblock checksum, the type is stored inside.
+ 	 * Pass the whole disk block of size BTRFS_SUPER_INFO_SIZE (4k).
+ 	 */
+-	if (btrfs_check_super_csum(fs_info, (u8 *)disk_super)) {
++	if (btrfs_check_super_csum(fs_info, disk_super)) {
+ 		btrfs_err(fs_info, "superblock checksum mismatch");
+ 		err = -EINVAL;
+ 		btrfs_release_disk_super(disk_super);
+--- a/fs/btrfs/disk-io.h
++++ b/fs/btrfs/disk-io.h
+@@ -42,6 +42,8 @@ struct extent_buffer *btrfs_find_create_
+ void btrfs_clean_tree_block(struct extent_buffer *buf);
+ void btrfs_clear_oneshot_options(struct btrfs_fs_info *fs_info);
+ int btrfs_start_pre_rw_mount(struct btrfs_fs_info *fs_info);
++int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
++			   const struct btrfs_super_block *disk_sb);
+ int __cold open_ctree(struct super_block *sb,
+ 	       struct btrfs_fs_devices *fs_devices,
+ 	       char *options);
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -2553,6 +2553,7 @@ static int check_dev_super(struct btrfs_
+ {
+ 	struct btrfs_fs_info *fs_info = dev->fs_info;
+ 	struct btrfs_super_block *sb;
++	u16 csum_type;
+ 	int ret = 0;
  
- 	copied = block_write_end(file, mapping, pos, len, copied, page, fsdata);
+ 	/* This should be called with fs still frozen. */
+@@ -2567,6 +2568,21 @@ static int check_dev_super(struct btrfs_
+ 	if (IS_ERR(sb))
+ 		return PTR_ERR(sb);
+ 
++	/* Verify the checksum. */
++	csum_type = btrfs_super_csum_type(sb);
++	if (csum_type != btrfs_super_csum_type(fs_info->super_copy)) {
++		btrfs_err(fs_info, "csum type changed, has %u expect %u",
++			  csum_type, btrfs_super_csum_type(fs_info->super_copy));
++		ret = -EUCLEAN;
++		goto out;
++	}
++
++	if (btrfs_check_super_csum(fs_info, sb)) {
++		btrfs_err(fs_info, "csum for on-disk super block no longer matches");
++		ret = -EUCLEAN;
++		goto out;
++	}
++
+ 	/* Btrfs_validate_super() includes fsid check against super->fsid. */
+ 	ret = btrfs_validate_super(fs_info, sb, 0);
+ 	if (ret < 0)
 
 
