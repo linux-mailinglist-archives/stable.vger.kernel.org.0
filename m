@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4A24664B1C
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC5F664B21
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239555AbjAJSiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
+        id S239464AbjAJSi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:38:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239477AbjAJSiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 600CC10B3
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:31 -0800 (PST)
+        with ESMTP id S239486AbjAJSiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B7B2032
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F06C061846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF6B1C433EF;
-        Tue, 10 Jan 2023 18:33:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6391761846
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1ECBC433EF;
+        Tue, 10 Jan 2023 18:33:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375610;
-        bh=pVdiIitNul5NXHt+7J2ZK1/ODbbM2U/unFVJGDXMS5w=;
+        s=korg; t=1673375613;
+        bh=DgXGfryL/9xQiWxj/r9BrYqkmOTGeayp6MF9PvrFavo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIJKANqGWEMF/O8kUBmSlO1oNpJ0qjX3hTvWEBdeebJv5wnHJCsIy9fLBcz647yuM
-         SViHoGxpRsUpMARX+95DUQ4pCzOt2PTz+rnif5nf3FeZuT0aBNmaE6PeRdrn70S7fb
-         /4wYGzsg/hU3MEVW2VWs1JswmMbtmMko+WAUXqUc=
+        b=AwSZqjosCVgJksJnsgYl0Kz8sJ9zgNGoQOxITVMKlbQu20waMIpqsGxB7LbSiknr0
+         kqXKAUjsVm94aqcJLXeeHpFCEg/kzrJP3CW88VPfpwfKpt6x5AAiMKOgA8LhfndEbP
+         V0mEXOqQLW1oleI6dtRQr8xHK6kQc18clFXPAwmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        =?UTF-8?q?=D0=9C=D0=B0=D1=80=D0=BA=20=D0=9A=D0=BE=D1=80=D0=B5=D0=BD=D0=B1=D0=B5=D1=80=D0=B3?= 
+        <socketpair@gmail.com>, Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 246/290] net: sparx5: Fix reading of the MAC address
-Date:   Tue, 10 Jan 2023 19:05:38 +0100
-Message-Id: <20230110180040.505635718@linuxfoundation.org>
+Subject: [PATCH 5.15 247/290] netfilter: ipset: fix hash:net,port,net hang with /0 subnet
+Date:   Tue, 10 Jan 2023 19:05:39 +0100
+Message-Id: <20230110180040.536446148@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -54,38 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Jozsef Kadlecsik <kadlec@netfilter.org>
 
-[ Upstream commit 588ab2dc25f60efeb516b4abedb6c551949cc185 ]
+[ Upstream commit a31d47be64b9b74f8cfedffe03e0a8a1f9e51f23 ]
 
-There is an issue with the checking of the return value of
-'of_get_mac_address', which returns 0 on success and negative value on
-failure. The driver interpretated the result the opposite way. Therefore
-if there was a MAC address defined in the DT, then the driver was
-generating a random MAC address otherwise it would use address 0.
-Fix this by checking correctly the return value of 'of_get_mac_address'
+The hash:net,port,net set type supports /0 subnets. However, the patch
+commit 5f7b51bf09baca8e titled "netfilter: ipset: Limit the maximal range
+of consecutive elements to add/delete" did not take into account it and
+resulted in an endless loop. The bug is actually older but the patch
+5f7b51bf09baca8e brings it out earlier.
 
-Fixes: b74ef9f9cb91 ("net: sparx5: Do not use mac_addr uninitialized in mchp_sparx5_probe()")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Handle /0 subnets properly in hash:net,port,net set types.
+
+Fixes: 5f7b51bf09ba ("netfilter: ipset: Limit the maximal range of consecutive elements to add/delete")
+Reported-by: Марк Коренберг <socketpair@gmail.com>
+Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/sparx5/sparx5_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/ipset/ip_set_hash_netportnet.c | 40 ++++++++++----------
+ 1 file changed, 21 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
-index 0463f20da17b..174d89ee6374 100644
---- a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
-+++ b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
-@@ -779,7 +779,7 @@ static int mchp_sparx5_probe(struct platform_device *pdev)
- 	if (err)
- 		goto cleanup_config;
+diff --git a/net/netfilter/ipset/ip_set_hash_netportnet.c b/net/netfilter/ipset/ip_set_hash_netportnet.c
+index 19bcdb3141f6..005a7ce87217 100644
+--- a/net/netfilter/ipset/ip_set_hash_netportnet.c
++++ b/net/netfilter/ipset/ip_set_hash_netportnet.c
+@@ -173,17 +173,26 @@ hash_netportnet4_kadt(struct ip_set *set, const struct sk_buff *skb,
+ 	return adtfn(set, &e, &ext, &opt->ext, opt->cmdflags);
+ }
  
--	if (!of_get_mac_address(np, sparx5->base_mac)) {
-+	if (of_get_mac_address(np, sparx5->base_mac)) {
- 		dev_info(sparx5->dev, "MAC addr was not set, use random MAC\n");
- 		eth_random_addr(sparx5->base_mac);
- 		sparx5->base_mac[5] = 0;
++static u32
++hash_netportnet4_range_to_cidr(u32 from, u32 to, u8 *cidr)
++{
++	if (from == 0 && to == UINT_MAX) {
++		*cidr = 0;
++		return to;
++	}
++	return ip_set_range_to_cidr(from, to, cidr);
++}
++
+ static int
+ hash_netportnet4_uadt(struct ip_set *set, struct nlattr *tb[],
+ 		      enum ipset_adt adt, u32 *lineno, u32 flags, bool retried)
+ {
+-	const struct hash_netportnet4 *h = set->data;
++	struct hash_netportnet4 *h = set->data;
+ 	ipset_adtfn adtfn = set->variant->adt[adt];
+ 	struct hash_netportnet4_elem e = { };
+ 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
+ 	u32 ip = 0, ip_to = 0, p = 0, port, port_to;
+-	u32 ip2_from = 0, ip2_to = 0, ip2, ipn;
+-	u64 n = 0, m = 0;
++	u32 ip2_from = 0, ip2_to = 0, ip2, i = 0;
+ 	bool with_ports = false;
+ 	int ret;
+ 
+@@ -285,19 +294,6 @@ hash_netportnet4_uadt(struct ip_set *set, struct nlattr *tb[],
+ 	} else {
+ 		ip_set_mask_from_to(ip2_from, ip2_to, e.cidr[1]);
+ 	}
+-	ipn = ip;
+-	do {
+-		ipn = ip_set_range_to_cidr(ipn, ip_to, &e.cidr[0]);
+-		n++;
+-	} while (ipn++ < ip_to);
+-	ipn = ip2_from;
+-	do {
+-		ipn = ip_set_range_to_cidr(ipn, ip2_to, &e.cidr[1]);
+-		m++;
+-	} while (ipn++ < ip2_to);
+-
+-	if (n*m*(port_to - port + 1) > IPSET_MAX_RANGE)
+-		return -ERANGE;
+ 
+ 	if (retried) {
+ 		ip = ntohl(h->next.ip[0]);
+@@ -310,13 +306,19 @@ hash_netportnet4_uadt(struct ip_set *set, struct nlattr *tb[],
+ 
+ 	do {
+ 		e.ip[0] = htonl(ip);
+-		ip = ip_set_range_to_cidr(ip, ip_to, &e.cidr[0]);
++		ip = hash_netportnet4_range_to_cidr(ip, ip_to, &e.cidr[0]);
+ 		for (; p <= port_to; p++) {
+ 			e.port = htons(p);
+ 			do {
++				i++;
+ 				e.ip[1] = htonl(ip2);
+-				ip2 = ip_set_range_to_cidr(ip2, ip2_to,
+-							   &e.cidr[1]);
++				if (i > IPSET_MAX_RANGE) {
++					hash_netportnet4_data_next(&h->next,
++								   &e);
++					return -ERANGE;
++				}
++				ip2 = hash_netportnet4_range_to_cidr(ip2,
++							ip2_to, &e.cidr[1]);
+ 				ret = adtfn(set, &e, &ext, &ext, flags);
+ 				if (ret && !ip_set_eexist(ret, flags))
+ 					return ret;
 -- 
 2.35.1
 
