@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4177166490B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87068664A40
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234580AbjAJSRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:17:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55384 "EHLO
+        id S239426AbjAJSbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:31:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238955AbjAJSRG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A6118B25
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:18 -0800 (PST)
+        with ESMTP id S239440AbjAJSal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E50208E98D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70BE5B818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:15:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFFE2C433D2;
-        Tue, 10 Jan 2023 18:15:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CF85617C9
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71434C433D2;
+        Tue, 10 Jan 2023 18:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374516;
-        bh=FOlV/HumeGkbYbpx5KCypQmc+6psSaz0IwS3rricb80=;
+        s=korg; t=1673375146;
+        bh=o0evxTQZ7hHbtrdnN+03QUm23PIlf09rrvcvTIaTnBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jfu19wjjHTm/pCxwV4KTfNNbJtdthXkpDAMWqBlBe9zjsqVy4N6qoqEPY/6Tavqb0
-         ZjmDd9gd/z26KlqhAuOMD+UDnsNsOcpsvI6/39FKhKkS5auMt5qoSxjG7mFcD8OzI6
-         mLelYh3HdVoBdwSXENWLzzSmUn6vXpxFPLmTG+xo=
+        b=rvYzMhTZwM4FkzQJTMVzw9QB2oP706tDK/W50W3lw4upO9htTrX3kx4so7bseicn/
+         xZeNWTtwoTPKWjoBKOs3GcsvmabvAJj1PnS9pcd/A+YinS3a1pJuskHtLRAhXPqFUd
+         4t4UsJoC3DC4WyncIZeKhPKnFPfv61RlnEenAgDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 035/159] nfc: Fix potential resource leaks
-Date:   Tue, 10 Jan 2023 19:03:03 +0100
-Message-Id: <20230110180019.431003608@linuxfoundation.org>
+        patches@lists.linux.dev, Peter Maydell <peter.maydell@linaro.org>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.15 092/290] of/kexec: Fix reading 32-bit "linux,initrd-{start,end}" values
+Date:   Tue, 10 Jan 2023 19:03:04 +0100
+Message-Id: <20230110180034.792413983@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,127 +52,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit df49908f3c52d211aea5e2a14a93bbe67a2cb3af ]
+commit e553ad8d7957697385e81034bf76db3b2cb2cf27 upstream.
 
-nfc_get_device() take reference for the device, add missing
-nfc_put_device() to release it when not need anymore.
-Also fix the style warnning by use error EOPNOTSUPP instead of
-ENOTSUPP.
+"linux,initrd-start" and "linux,initrd-end" can be 32-bit values even on
+a 64-bit platform. Ideally, the size should be based on
+'#address-cells', but that has never been enforced in the kernel's FDT
+boot parsing code (early_init_dt_check_for_initrd()). Bootloader
+behavior is known to vary. For example, kexec always writes these as
+64-bit. The result of incorrectly reading 32-bit values is most likely
+the reserved memory for the original initrd will still be reserved
+for the new kernel. The original arm64 equivalent of this code failed to
+release the initrd reserved memory in *all* cases.
 
-Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
-Fixes: 29e76924cf08 ("nfc: netlink: Add capability to reply to vendor_cmd with data")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Use of_read_number() to mirror the early_init_dt_check_for_initrd()
+code.
+
+Fixes: b30be4dc733e ("of: Add a common kexec FDT setup function")
+Cc: stable@vger.kernel.org
+Reported-by: Peter Maydell <peter.maydell@linaro.org>
+Link: https://lore.kernel.org/r/20221128202440.1411895-1-robh@kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/netlink.c | 52 ++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 38 insertions(+), 14 deletions(-)
+ drivers/of/kexec.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index 9d91087b9399..1fc339084d89 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1497,6 +1497,7 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	u32 dev_idx, se_idx;
- 	u8 *apdu;
- 	size_t apdu_len;
-+	int rc;
+--- a/drivers/of/kexec.c
++++ b/drivers/of/kexec.c
+@@ -284,7 +284,7 @@ void *of_kexec_alloc_and_setup_fdt(const
+ 				   const char *cmdline, size_t extra_fdt_size)
+ {
+ 	void *fdt;
+-	int ret, chosen_node;
++	int ret, chosen_node, len;
+ 	const void *prop;
+ 	size_t fdt_size;
  
- 	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
- 	    !info->attrs[NFC_ATTR_SE_INDEX] ||
-@@ -1510,25 +1511,37 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	if (!dev)
- 		return -ENODEV;
+@@ -327,19 +327,19 @@ void *of_kexec_alloc_and_setup_fdt(const
+ 		goto out;
  
--	if (!dev->ops || !dev->ops->se_io)
--		return -ENOTSUPP;
-+	if (!dev->ops || !dev->ops->se_io) {
-+		rc = -EOPNOTSUPP;
-+		goto put_dev;
-+	}
+ 	/* Did we boot using an initrd? */
+-	prop = fdt_getprop(fdt, chosen_node, "linux,initrd-start", NULL);
++	prop = fdt_getprop(fdt, chosen_node, "linux,initrd-start", &len);
+ 	if (prop) {
+ 		u64 tmp_start, tmp_end, tmp_size;
  
- 	apdu_len = nla_len(info->attrs[NFC_ATTR_SE_APDU]);
--	if (apdu_len == 0)
--		return -EINVAL;
-+	if (apdu_len == 0) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
+-		tmp_start = fdt64_to_cpu(*((const fdt64_t *) prop));
++		tmp_start = of_read_number(prop, len / 4);
  
- 	apdu = nla_data(info->attrs[NFC_ATTR_SE_APDU]);
--	if (!apdu)
--		return -EINVAL;
-+	if (!apdu) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
+-		prop = fdt_getprop(fdt, chosen_node, "linux,initrd-end", NULL);
++		prop = fdt_getprop(fdt, chosen_node, "linux,initrd-end", &len);
+ 		if (!prop) {
+ 			ret = -EINVAL;
+ 			goto out;
+ 		}
  
- 	ctx = kzalloc(sizeof(struct se_io_ctx), GFP_KERNEL);
--	if (!ctx)
--		return -ENOMEM;
-+	if (!ctx) {
-+		rc = -ENOMEM;
-+		goto put_dev;
-+	}
+-		tmp_end = fdt64_to_cpu(*((const fdt64_t *) prop));
++		tmp_end = of_read_number(prop, len / 4);
  
- 	ctx->dev_idx = dev_idx;
- 	ctx->se_idx = se_idx;
- 
--	return nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
-+	rc = nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
-+
-+put_dev:
-+	nfc_put_device(dev);
-+	return rc;
- }
- 
- static int nfc_genl_vendor_cmd(struct sk_buff *skb,
-@@ -1551,14 +1564,21 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 	subcmd = nla_get_u32(info->attrs[NFC_ATTR_VENDOR_SUBCMD]);
- 
- 	dev = nfc_get_device(dev_idx);
--	if (!dev || !dev->vendor_cmds || !dev->n_vendor_cmds)
-+	if (!dev)
- 		return -ENODEV;
- 
-+	if (!dev->vendor_cmds || !dev->n_vendor_cmds) {
-+		err = -ENODEV;
-+		goto put_dev;
-+	}
-+
- 	if (info->attrs[NFC_ATTR_VENDOR_DATA]) {
- 		data = nla_data(info->attrs[NFC_ATTR_VENDOR_DATA]);
- 		data_len = nla_len(info->attrs[NFC_ATTR_VENDOR_DATA]);
--		if (data_len == 0)
--			return -EINVAL;
-+		if (data_len == 0) {
-+			err = -EINVAL;
-+			goto put_dev;
-+		}
- 	} else {
- 		data = NULL;
- 		data_len = 0;
-@@ -1573,10 +1593,14 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 		dev->cur_cmd_info = info;
- 		err = cmd->doit(dev, data, data_len);
- 		dev->cur_cmd_info = NULL;
--		return err;
-+		goto put_dev;
- 	}
- 
--	return -EOPNOTSUPP;
-+	err = -EOPNOTSUPP;
-+
-+put_dev:
-+	nfc_put_device(dev);
-+	return err;
- }
- 
- /* message building helper */
--- 
-2.35.1
-
+ 		/*
+ 		 * kexec reserves exact initrd size, while firmware may
 
 
