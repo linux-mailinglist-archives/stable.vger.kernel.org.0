@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E325664B5A
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:42:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13C64664B5C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:42:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233936AbjAJSma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:42:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54532 "EHLO
+        id S239308AbjAJSmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:42:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239778AbjAJSlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:41:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE88983F4
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:35:30 -0800 (PST)
+        with ESMTP id S239527AbjAJSlz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:41:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33EA965354
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:35:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69D2461846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:35:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8373BC433EF;
-        Tue, 10 Jan 2023 18:35:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E157DB818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:35:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ADEDC433D2;
+        Tue, 10 Jan 2023 18:35:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375729;
-        bh=uWp+iYH7DgjcTmE6pnj/PWn1+WFiBib6LLyVpL9wW8M=;
+        s=korg; t=1673375732;
+        bh=g2PkE/tr3bvchFsj/S5SUnwLe/yeS743362QdG15lgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKiAUaPTnE66CJf14N4Tq0uWOyeN0odnV7nSt0hN1SLXIpx1/izssLHzbc4zHFGwz
-         wzQAh7w/76pwtqplMgDkvqjVFqnByF7GXs1kBOjr08PtcsxsQZS3TZsKz88opkoYO+
-         Es443uEP5PF18+29tzmDV2MK4pXt/N4JhNnJ9WQw=
+        b=EJ3EOxcCat6/+m5JAnI8hJWcQJ77jPoohJ6xch0xB84dtcltDAn9OkFMCSJ3O6msi
+         pgbgwe4ZgzGUf8hhgdQis+nxvHBBU72Z6XaA0RhY0hYl08J8+8H9ZOpcOU8X7kpnZ/
+         RM4auGksLXxJEgopNd+T6Gp8BjYj2Ns2qlF0D8+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        "Tyler Hicks (Microsoft)" <code@tyhicks.com>
-Subject: [PATCH 5.15 284/290] selftests: set the BUILD variable to absolute path
-Date:   Tue, 10 Jan 2023 19:06:16 +0100
-Message-Id: <20230110180041.715124664@linuxfoundation.org>
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 285/290] btrfs: make thaw time super block check to also verify checksum
+Date:   Tue, 10 Jan 2023 19:06:17 +0100
+Message-Id: <20230110180041.747292993@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -54,70 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Usama Anjum <usama.anjum@collabora.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 5ad51ab618de5d05f4e692ebabeb6fe6289aaa57 upstream.
+commit 3d17adea74a56a4965f7a603d8ed8c66bb9356d9 upstream.
 
-The build of kselftests fails if relative path is specified through
-KBUILD_OUTPUT or O=<path> method. BUILD variable is used to determine
-the path of the output objects. When make is run from other directories
-with relative paths, the exact path of the build objects is ambiguous
-and build fails.
+Previous commit a05d3c915314 ("btrfs: check superblock to ensure the fs
+was not modified at thaw time") only checks the content of the super
+block, but it doesn't really check if the on-disk super block has a
+matching checksum.
 
-	make[1]: Entering directory '/home/usama/repos/kernel/linux_mainline2/tools/testing/selftests/alsa'
-	gcc     mixer-test.c -L/usr/lib/x86_64-linux-gnu -lasound  -o build/kselftest/alsa/mixer-test
-	/usr/bin/ld: cannot open output file build/kselftest/alsa/mixer-test
+This patch will add the checksum verification to thaw time superblock
+verification.
 
-Set the BUILD variable to the absolute path of the output directory.
-Make the logic readable and easy to follow. Use spaces instead of tabs
-for indentation as if with tab indentation is considered recipe in make.
+This involves the following extra changes:
 
-Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
+- Export btrfs_check_super_csum()
+  As we need to call it in super.c.
+
+- Change the argument list of btrfs_check_super_csum()
+  Instead of passing a char *, directly pass struct btrfs_super_block *
+  pointer.
+
+- Verify that our checksum type didn't change before checking the
+  checksum value, like it's done at mount time
+
+Fixes: a05d3c915314 ("btrfs: check superblock to ensure the fs was not modified at thaw time")
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/Makefile |   26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ fs/btrfs/disk-io.c |   10 ++++------
+ fs/btrfs/disk-io.h |    2 ++
+ fs/btrfs/super.c   |   16 ++++++++++++++++
+ 3 files changed, 22 insertions(+), 6 deletions(-)
 
---- a/tools/testing/selftests/Makefile
-+++ b/tools/testing/selftests/Makefile
-@@ -114,19 +114,27 @@ ifdef building_out_of_srctree
- override LDFLAGS =
- endif
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -202,11 +202,9 @@ static bool btrfs_supported_super_csum(u
+  * Return 0 if the superblock checksum type matches the checksum value of that
+  * algorithm. Pass the raw disk superblock data.
+  */
+-static int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
+-				  char *raw_disk_sb)
++int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
++			   const struct btrfs_super_block *disk_sb)
+ {
+-	struct btrfs_super_block *disk_sb =
+-		(struct btrfs_super_block *)raw_disk_sb;
+ 	char result[BTRFS_CSUM_SIZE];
+ 	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
  
--ifneq ($(O),)
--	BUILD := $(O)/kselftest
-+top_srcdir ?= ../../..
-+
-+ifeq ("$(origin O)", "command line")
-+  KBUILD_OUTPUT := $(O)
-+endif
-+
-+ifneq ($(KBUILD_OUTPUT),)
-+  # Make's built-in functions such as $(abspath ...), $(realpath ...) cannot
-+  # expand a shell special character '~'. We use a somewhat tedious way here.
-+  abs_objtree := $(shell cd $(top_srcdir) && mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) && pwd)
-+  $(if $(abs_objtree),, \
-+    $(error failed to create output directory "$(KBUILD_OUTPUT)"))
-+  # $(realpath ...) resolves symlinks
-+  abs_objtree := $(realpath $(abs_objtree))
-+  BUILD := $(abs_objtree)/kselftest
- else
--	ifneq ($(KBUILD_OUTPUT),)
--		BUILD := $(KBUILD_OUTPUT)/kselftest
--	else
--		BUILD := $(shell pwd)
--		DEFAULT_INSTALL_HDR_PATH := 1
--	endif
-+  BUILD := $(CURDIR)
-+  DEFAULT_INSTALL_HDR_PATH := 1
- endif
+@@ -217,7 +215,7 @@ static int btrfs_check_super_csum(struct
+ 	 * BTRFS_SUPER_INFO_SIZE range, we expect that the unused space is
+ 	 * filled with zeros and is included in the checksum.
+ 	 */
+-	crypto_shash_digest(shash, raw_disk_sb + BTRFS_CSUM_SIZE,
++	crypto_shash_digest(shash, (const u8 *)disk_sb + BTRFS_CSUM_SIZE,
+ 			    BTRFS_SUPER_INFO_SIZE - BTRFS_CSUM_SIZE, result);
  
- # Prepare for headers install
--top_srcdir ?= ../../..
- include $(top_srcdir)/scripts/subarch.include
- ARCH           ?= $(SUBARCH)
- export KSFT_KHDR_INSTALL_DONE := 1
+ 	if (memcmp(disk_sb->csum, result, fs_info->csum_size))
+@@ -3210,7 +3208,7 @@ int __cold open_ctree(struct super_block
+ 	 * We want to check superblock checksum, the type is stored inside.
+ 	 * Pass the whole disk block of size BTRFS_SUPER_INFO_SIZE (4k).
+ 	 */
+-	if (btrfs_check_super_csum(fs_info, (u8 *)disk_super)) {
++	if (btrfs_check_super_csum(fs_info, disk_super)) {
+ 		btrfs_err(fs_info, "superblock checksum mismatch");
+ 		err = -EINVAL;
+ 		btrfs_release_disk_super(disk_super);
+--- a/fs/btrfs/disk-io.h
++++ b/fs/btrfs/disk-io.h
+@@ -52,6 +52,8 @@ struct extent_buffer *btrfs_find_create_
+ void btrfs_clean_tree_block(struct extent_buffer *buf);
+ void btrfs_clear_oneshot_options(struct btrfs_fs_info *fs_info);
+ int btrfs_start_pre_rw_mount(struct btrfs_fs_info *fs_info);
++int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
++			   const struct btrfs_super_block *disk_sb);
+ int __cold open_ctree(struct super_block *sb,
+ 	       struct btrfs_fs_devices *fs_devices,
+ 	       char *options);
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -2501,6 +2501,7 @@ static int check_dev_super(struct btrfs_
+ {
+ 	struct btrfs_fs_info *fs_info = dev->fs_info;
+ 	struct btrfs_super_block *sb;
++	u16 csum_type;
+ 	int ret = 0;
+ 
+ 	/* This should be called with fs still frozen. */
+@@ -2515,6 +2516,21 @@ static int check_dev_super(struct btrfs_
+ 	if (IS_ERR(sb))
+ 		return PTR_ERR(sb);
+ 
++	/* Verify the checksum. */
++	csum_type = btrfs_super_csum_type(sb);
++	if (csum_type != btrfs_super_csum_type(fs_info->super_copy)) {
++		btrfs_err(fs_info, "csum type changed, has %u expect %u",
++			  csum_type, btrfs_super_csum_type(fs_info->super_copy));
++		ret = -EUCLEAN;
++		goto out;
++	}
++
++	if (btrfs_check_super_csum(fs_info, sb)) {
++		btrfs_err(fs_info, "csum for on-disk super block no longer matches");
++		ret = -EUCLEAN;
++		goto out;
++	}
++
+ 	/* Btrfs_validate_super() includes fsid check against super->fsid. */
+ 	ret = btrfs_validate_super(fs_info, sb, 0);
+ 	if (ret < 0)
 
 
