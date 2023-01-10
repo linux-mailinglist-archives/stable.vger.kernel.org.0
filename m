@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DAAF664953
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7E756648E1
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239142AbjAJSUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:20:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60672 "EHLO
+        id S239079AbjAJSQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:16:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239267AbjAJSUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBF9196107
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:44 -0800 (PST)
+        with ESMTP id S239077AbjAJSPh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0C03B5
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EBC161852
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AFCAC433D2;
-        Tue, 10 Jan 2023 18:17:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85E7AB818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5FD9C433EF;
+        Tue, 10 Jan 2023 18:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374663;
-        bh=xoYbi+hmUNgRsml78Ol/y1m/gtELfKwwvRgQtyDDQ1c=;
+        s=korg; t=1673374407;
+        bh=OqJS7mdcDFWczlCp7zGtOy4ei+eCaRVuC/4bgPswZSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7/7I+L1842CVmITfwNfbkNt71fwZPsm6hEtS1dNr8S1Hu2kLjAUeLpG0drRyf4C7
-         2ssDyfiQVEyfxSqV0wJ4LFPfEb1nT3TNPvvlgb78tn/o/0pMbwHDh6zG2XRtG5O1VA
-         v9xMYPnw+thpEjp7l3VSEgGjAPVpcpHYjOGmivq0=
+        b=V4XCZNTHjkkLo3ohziCf9X8Be6BHwl/CuloGmsgbEgrnTv94dRUXgRvm5fzmAGKGi
+         Ig/W61SvPoGUBgwwZeiUyEpQvBemRIPmXxLLk8rH5HxouacyYgU62vYz1vd9cTVL5n
+         fe9SD2hwwMpg+SXokKddvkD3s8vIUFSzLiiB/GQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
-        Miaoqian Lin <linmq006@gmail.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 091/159] perf tools: Fix resources leak in perf_data__open_dir()
+        patches@lists.linux.dev,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.0 135/148] riscv, kprobes: Stricter c.jr/c.jalr decoding
 Date:   Tue, 10 Jan 2023 19:03:59 +0100
-Message-Id: <20230110180021.196874086@linuxfoundation.org>
+Message-Id: <20230110180021.460380563@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,52 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Björn Töpel <bjorn@rivosinc.com>
 
-[ Upstream commit 0a6564ebd953c4590663c9a3c99a3ea9920ade6f ]
+commit b2d473a6019ef9a54b0156ecdb2e0398c9fa6a24 upstream.
 
-In perf_data__open_dir(), opendir() opens the directory stream.  Add
-missing closedir() to release it after use.
+In the compressed instruction extension, c.jr, c.jalr, c.mv, and c.add
+is encoded the following way (each instruction is 16b):
 
-Fixes: eb6176709b235b96 ("perf data: Add perf_data__open_dir_data function")
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20221229090903.1402395-1-linmq006@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+---+-+-----------+-----------+--
+100 0 rs1[4:0]!=0       00000 10 : c.jr
+100 1 rs1[4:0]!=0       00000 10 : c.jalr
+100 0  rd[4:0]!=0 rs2[4:0]!=0 10 : c.mv
+100 1  rd[4:0]!=0 rs2[4:0]!=0 10 : c.add
+
+The following logic is used to decode c.jr and c.jalr:
+
+  insn & 0xf007 == 0x8002 => instruction is an c.jr
+  insn & 0xf007 == 0x9002 => instruction is an c.jalr
+
+When 0xf007 is used to mask the instruction, c.mv can be incorrectly
+decoded as c.jr, and c.add as c.jalr.
+
+Correct the decoding by changing the mask from 0xf007 to 0xf07f.
+
+Fixes: c22b0bcb1dd0 ("riscv: Add kprobes supported")
+Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20230102160748.1307289-1-bjorn@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/data.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/kernel/probes/simulate-insn.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/data.c b/tools/perf/util/data.c
-index a7f68c309545..fc16299c915f 100644
---- a/tools/perf/util/data.c
-+++ b/tools/perf/util/data.c
-@@ -132,6 +132,7 @@ int perf_data__open_dir(struct perf_data *data)
- 		file->size = st.st_size;
- 	}
+--- a/arch/riscv/kernel/probes/simulate-insn.h
++++ b/arch/riscv/kernel/probes/simulate-insn.h
+@@ -31,9 +31,9 @@ __RISCV_INSN_FUNCS(fence,	0x7f, 0x0f);
+ 	} while (0)
  
-+	closedir(dir);
- 	if (!files)
- 		return -EINVAL;
- 
-@@ -140,6 +141,7 @@ int perf_data__open_dir(struct perf_data *data)
- 	return 0;
- 
- out_err:
-+	closedir(dir);
- 	close_dir(files, nr);
- 	return ret;
- }
--- 
-2.35.1
-
+ __RISCV_INSN_FUNCS(c_j,		0xe003, 0xa001);
+-__RISCV_INSN_FUNCS(c_jr,	0xf007, 0x8002);
++__RISCV_INSN_FUNCS(c_jr,	0xf07f, 0x8002);
+ __RISCV_INSN_FUNCS(c_jal,	0xe003, 0x2001);
+-__RISCV_INSN_FUNCS(c_jalr,	0xf007, 0x9002);
++__RISCV_INSN_FUNCS(c_jalr,	0xf07f, 0x9002);
+ __RISCV_INSN_FUNCS(c_beqz,	0xe003, 0xc001);
+ __RISCV_INSN_FUNCS(c_bnez,	0xe003, 0xe001);
+ __RISCV_INSN_FUNCS(c_ebreak,	0xffff, 0x9002);
 
 
