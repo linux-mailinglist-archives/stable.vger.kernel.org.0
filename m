@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B64664B40
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:40:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E37C2664878
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239287AbjAJSkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:40:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
+        id S238953AbjAJSLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239283AbjAJS2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13E392007
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:43 -0800 (PST)
+        with ESMTP id S239102AbjAJSKd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAEFB7655
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C77B3B81903
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3863C433D2;
-        Tue, 10 Jan 2023 18:23:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 660E56182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C330C433EF;
+        Tue, 10 Jan 2023 18:09:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375020;
-        bh=c3VF0qu2U6pgL0vMGGsUgEruu4nCzsA2Fbd0aMKbZcs=;
+        s=korg; t=1673374164;
+        bh=NLDaGtG/aGC806gBRUr5J9DkRwkEETYuF4Z0jBKtvJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUuYem2ZJl0Z9A+Ie6gD2YBGcaodhZAZB9/79USM4xfMO+Omh0DJQu9yMKFR6TRTh
-         Y1T4bj8lj/V7WcmhSzmXPuhA+MpyV19DIn6/QszCQGDet9Qy+pxUSQsm3jBhC2PKbk
-         6yUn2tdIhWfM6j/W41FvNm+xL0xv2H+MRY4CkYLQ=
+        b=zmrsGnmopBpZv77vkJd2pm4Rpj4z0YAejh4wojurfKze91vUh6IAoArz44giYHKdn
+         AMZZ3SNXX9/batwzPRtR54aSd74N2tnPniUSbQ9KbTLnMBWCBg4vXV9nfRv2/NXOig
+         L8tFqr2ODam4PjROZPRWYKUU0VMMS5fLgzMh7nY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hanjun Guo <guohanjun@huawei.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.15 051/290] tpm: tpm_crb: Add the missed acpi_put_table() to fix memory leak
+        patches@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+        Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 039/148] vdpa/mlx5: Fix rule forwarding VLAN to TIR
 Date:   Tue, 10 Jan 2023 19:02:23 +0100
-Message-Id: <20230110180033.379267134@linuxfoundation.org>
+Message-Id: <20230110180018.459007366@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,85 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Eli Cohen <elic@nvidia.com>
 
-commit 37e90c374dd11cf4919c51e847c6d6ced0abc555 upstream.
+[ Upstream commit a6ce72c0fb6041f9871f880b2d02b294f7f49cb4 ]
 
-In crb_acpi_add(), we get the TPM2 table to retrieve information
-like start method, and then assign them to the priv data, so the
-TPM2 table is not used after the init, should be freed, call
-acpi_put_table() to fix the memory leak.
+Set the VLAN id to the header values field instead of overwriting the
+headers criteria field.
 
-Fixes: 30fc8d138e91 ("tpm: TPM 2.0 CRB Interface")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Before this fix, VLAN filtering would not really work and tagged packets
+would be forwarded unfiltered to the TIR.
+
+Fixes: baf2ad3f6a98 ("vdpa/mlx5: Add RX MAC VLAN filter support")
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Message-Id: <20221114131759.57883-2-elic@nvidia.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_crb.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/char/tpm/tpm_crb.c
-+++ b/drivers/char/tpm/tpm_crb.c
-@@ -676,12 +676,16 @@ static int crb_acpi_add(struct acpi_devi
- 
- 	/* Should the FIFO driver handle this? */
- 	sm = buf->start_method;
--	if (sm == ACPI_TPM2_MEMORY_MAPPED)
--		return -ENODEV;
-+	if (sm == ACPI_TPM2_MEMORY_MAPPED) {
-+		rc = -ENODEV;
-+		goto out;
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 90913365def4..3fb06dcee943 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1468,11 +1468,13 @@ static int mlx5_vdpa_add_mac_vlan_rules(struct mlx5_vdpa_net *ndev, u8 *mac,
+ 	dmac_v = MLX5_ADDR_OF(fte_match_param, headers_v, outer_headers.dmac_47_16);
+ 	eth_broadcast_addr(dmac_c);
+ 	ether_addr_copy(dmac_v, mac);
+-	MLX5_SET(fte_match_set_lyr_2_4, headers_c, cvlan_tag, 1);
++	if (ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VLAN)) {
++		MLX5_SET(fte_match_set_lyr_2_4, headers_c, cvlan_tag, 1);
++		MLX5_SET_TO_ONES(fte_match_set_lyr_2_4, headers_c, first_vid);
 +	}
- 
- 	priv = devm_kzalloc(dev, sizeof(struct crb_priv), GFP_KERNEL);
--	if (!priv)
--		return -ENOMEM;
-+	if (!priv) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
- 
- 	if (sm == ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC) {
- 		if (buf->header.length < (sizeof(*buf) + sizeof(*crb_smc))) {
-@@ -689,7 +693,8 @@ static int crb_acpi_add(struct acpi_devi
- 				FW_BUG "TPM2 ACPI table has wrong size %u for start method type %d\n",
- 				buf->header.length,
- 				ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC);
--			return -EINVAL;
-+			rc = -EINVAL;
-+			goto out;
- 		}
- 		crb_smc = ACPI_ADD_PTR(struct tpm2_crb_smc, buf, sizeof(*buf));
- 		priv->smc_func_id = crb_smc->smc_func_id;
-@@ -700,17 +705,23 @@ static int crb_acpi_add(struct acpi_devi
- 
- 	rc = crb_map_io(device, priv, buf);
- 	if (rc)
--		return rc;
-+		goto out;
- 
- 	chip = tpmm_chip_alloc(dev, &tpm_crb);
--	if (IS_ERR(chip))
--		return PTR_ERR(chip);
-+	if (IS_ERR(chip)) {
-+		rc = PTR_ERR(chip);
-+		goto out;
-+	}
- 
- 	dev_set_drvdata(&chip->dev, priv);
- 	chip->acpi_dev_handle = device->handle;
- 	chip->flags = TPM_CHIP_FLAG_TPM2;
- 
--	return tpm_chip_register(chip);
-+	rc = tpm_chip_register(chip);
-+
-+out:
-+	acpi_put_table((struct acpi_table_header *)buf);
-+	return rc;
- }
- 
- static int crb_acpi_remove(struct acpi_device *device)
+ 	if (tagged) {
+ 		MLX5_SET(fte_match_set_lyr_2_4, headers_v, cvlan_tag, 1);
+-		MLX5_SET_TO_ONES(fte_match_set_lyr_2_4, headers_c, first_vid);
+-		MLX5_SET(fte_match_set_lyr_2_4, headers_c, first_vid, vid);
++		MLX5_SET(fte_match_set_lyr_2_4, headers_v, first_vid, vid);
+ 	}
+ 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
+ 	dest.type = MLX5_FLOW_DESTINATION_TYPE_TIR;
+-- 
+2.35.1
+
 
 
