@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB69664B04
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 107C6664ADD
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239390AbjAJSip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48272 "EHLO
+        id S239500AbjAJSgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:36:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239416AbjAJSiG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C029B298
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:16 -0800 (PST)
+        with ESMTP id S239570AbjAJSfs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2EB850E46
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:31:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63024B81906
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E2FCC433EF;
-        Tue, 10 Jan 2023 18:33:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92D686183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87F99C433EF;
+        Tue, 10 Jan 2023 18:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375594;
-        bh=A/ExnhSVHK7qignorG62La22hdVT0sMzzctwBDzImmY=;
+        s=korg; t=1673375492;
+        bh=6xsuzvb+bBD8H/eNq3YwVOjm7bVh1RahiHHpsCg7s9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s46YpNymQ0tnKcMEhF8TsuBVhYeugQTflKg8G2+BWfZBXwZRPgslX2Y8NPrdZMAQp
-         8CSeIuFXLxl6yTgBqavSQ++AySdXLRgZTjwnK2UpaYaL0VyXNI7znECSwBt+75/iBg
-         VckWnVWMIPb/vpkm2ppGfXoWVQVaOzaZFN3W+o9k=
+        b=z+aoMejN0Cx3dVkV5CwtBBnSStmT40nFyh5rUNYDQPe7EBXJrlEmd0GQGOZshhS1k
+         9jMmNQQlL8NqrR7QUGCnijymvftcJxJO/3rWgFyslrqQVj9IFp+/UnZsiZEyg0ZKQf
+         t6LTRu/0GWsEOIGM5dCCXhgwWrZVLI5Wi3OFjlv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Anand Parthasarathy <anpartha@meta.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 198/290] btrfs: fix an error handling path in btrfs_defrag_leaves()
-Date:   Tue, 10 Jan 2023 19:04:50 +0100
-Message-Id: <20230110180038.799192375@linuxfoundation.org>
+Subject: [PATCH 5.15 199/290] bpf: pull before calling skb_postpull_rcsum()
+Date:   Tue, 10 Jan 2023 19:04:51 +0100
+Message-Id: <20230110180038.834092825@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -54,43 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit db0a4a7b8e95f9312a59a67cbd5bc589f090e13d ]
+From: Jakub Kicinski <kuba@kernel.org>
 
-All error handling paths end to 'out', except this memory allocation
-failure.
+[ Upstream commit 54c3f1a81421f85e60ae2eaae7be3727a09916ee ]
 
-This is spurious. So branch to the error handling path also in this case.
-It will add a call to:
+Anand hit a BUG() when pulling off headers on egress to a SW tunnel.
+We get to skb_checksum_help() with an invalid checksum offset
+(commit d7ea0d9df2a6 ("net: remove two BUG() from skb_checksum_help()")
+converted those BUGs to WARN_ONs()).
+He points out oddness in how skb_postpull_rcsum() gets used.
+Indeed looks like we should pull before "postpull", otherwise
+the CHECKSUM_PARTIAL fixup from skb_postpull_rcsum() will not
+be able to do its job:
 
-	memset(&root->defrag_progress, 0,
-	       sizeof(root->defrag_progress));
+	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+	    skb_checksum_start_offset(skb) < 0)
+		skb->ip_summed = CHECKSUM_NONE;
 
-Fixes: 6702ed490ca0 ("Btrfs: Add run time btree defrag, and an ioctl to force btree defrag")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Anand Parthasarathy <anpartha@meta.com>
+Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20221220004701.402165-1-kuba@kernel.org
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-defrag.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/core/filter.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/tree-defrag.c b/fs/btrfs/tree-defrag.c
-index 7c45d960b53c..259a3b5f9303 100644
---- a/fs/btrfs/tree-defrag.c
-+++ b/fs/btrfs/tree-defrag.c
-@@ -39,8 +39,10 @@ int btrfs_defrag_leaves(struct btrfs_trans_handle *trans,
- 		goto out;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 2da05622afbe..b2031148dd8b 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -3182,15 +3182,18 @@ static int bpf_skb_generic_push(struct sk_buff *skb, u32 off, u32 len)
  
- 	path = btrfs_alloc_path();
--	if (!path)
--		return -ENOMEM;
-+	if (!path) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
+ static int bpf_skb_generic_pop(struct sk_buff *skb, u32 off, u32 len)
+ {
++	void *old_data;
++
+ 	/* skb_ensure_writable() is not needed here, as we're
+ 	 * already working on an uncloned skb.
+ 	 */
+ 	if (unlikely(!pskb_may_pull(skb, off + len)))
+ 		return -ENOMEM;
  
- 	level = btrfs_header_level(root->node);
+-	skb_postpull_rcsum(skb, skb->data + off, len);
+-	memmove(skb->data + len, skb->data, off);
++	old_data = skb->data;
+ 	__skb_pull(skb, len);
++	skb_postpull_rcsum(skb, old_data + off, len);
++	memmove(skb->data, old_data, off);
  
+ 	return 0;
+ }
 -- 
 2.35.1
 
