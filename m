@@ -2,251 +2,366 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF6A3664DC6
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 21:59:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FAED664DE5
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 22:15:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232281AbjAJU7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 15:59:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56962 "EHLO
+        id S233741AbjAJVPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 16:15:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233074AbjAJU7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 15:59:04 -0500
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE6859537
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 12:59:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
-        t=1673384337; bh=8te9rmxT7njdo4VpGB+lBuJKeKO6QaWvuNqi8HgfrAc=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=o3AyqMVijmkcL47lE/LSivEK/vpaGjvw3HALTg3g1KlNJuOihqLfY2NJP6+sLqbiS
-         5uf3kDydXlV7C6YUXRk/9uzs1ejztvfFG7XQ+5j2JH4AboEQ6vvebaRM5z9hYKeyrN
-         sbQq92PMNQxKUCStoxj2mEqqkBMKJVMsgLtSBxA0CbOXbPOM31/4KKnu2K6EiwgbMz
-         wAqnfTpWBrvf3mVt9r5aV+ghvZ0Sl2nrtoCfR1pOLRWPioCAcnPZaquB3L40E7JLGG
-         sLtLf57LdTlFjB1rjLTFmtcjtE0HqmLkoJxv/MwLOsGQzs6bcnpdapFZ1ACiwC6YD3
-         II8vqMYJkCv7Q==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from p100 ([92.116.138.186]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MNbkp-1pQY033dr1-00P3kZ; Tue, 10
- Jan 2023 21:58:56 +0100
-Date:   Tue, 10 Jan 2023 21:58:54 +0100
-From:   Helge Deller <deller@gmx.de>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     John David Anglin <dave.anglin@bell.net>
-Subject: [STABLE 4.14/4.19] [PATCH] parisc: Align parisc MADV_XXX constants
- with all other architectures
-Message-ID: <Y73Rjn7y35vQskE1@p100>
+        with ESMTP id S231704AbjAJVOt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 16:14:49 -0500
+Received: from lahtoruutu.iki.fi (lahtoruutu.iki.fi [IPv6:2a0b:5c81:1c1::37])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C690434D6F;
+        Tue, 10 Jan 2023 13:14:47 -0800 (PST)
+Received: from meesny.iki.fi (meesny.iki.fi [195.140.195.201])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by lahtoruutu.iki.fi (Postfix) with ESMTPS id 536E11B0018D;
+        Tue, 10 Jan 2023 23:14:42 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=lahtoruutu;
+        t=1673385282;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ULRiYPz9Y2OPjmhAT5my0ouQzJqnC6IotSn8YqA5Kqg=;
+        b=BVENdWopGBs/4bs9o619i4MQamCgbT2m97k3TwF27fEiR+DbdiI8VB2gP4QiObrlNqAxD9
+        A9an1GfoimgG01T/D/PHS2Juw5F0as0Pm+uY1/rcUZ/8+Kk+TyFMITTnPiRT5FBmL0z+De
+        qYMEGoxgK51THUQCIAfdm7BiM+IODRDDZeTjb/5rxT2oclA86rV3BsEu8oIrDSLrGKMfrS
+        mSALKWE4NBWCHiOHfs5IO57ZrrMUcX7SJQ0ol+9p7sKOuqZ+k1D7sF8BMPVYQPQXrXxYKZ
+        eAKLOA5ont5KIJHGsl9VGIHxfl8xbCspW8Aqbd4k3zW34R3I1g0Mhrje7Ay+zg==
+Received: from darkstar.musicnaut.iki.fi (85-76-134-241-nat.elisa-mobile.fi [85.76.134.241])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: aaro.koskinen)
+        by meesny.iki.fi (Postfix) with ESMTPSA id 59E1220071;
+        Tue, 10 Jan 2023 23:14:36 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=meesny;
+        t=1673385277;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ULRiYPz9Y2OPjmhAT5my0ouQzJqnC6IotSn8YqA5Kqg=;
+        b=XGL2ZJdTgxLL3+YeVPtx+TtdCRt9m5xhmJtGV8qnSnveat80rDukpAhkzopOnIgaBdMzGR
+        jgihMhZRexm/7TbEHtulYD7uDePbE8bi0Evm/ED19dHtt1ONPcSVfIcdL101Tc8fKGM3A4
+        aRnyuyLEy5bTZDYBIkyyOq71HAOH744=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
+        s=meesny; t=1673385277;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ULRiYPz9Y2OPjmhAT5my0ouQzJqnC6IotSn8YqA5Kqg=;
+        b=VwrizmUL9E+fgeXCYl5tCwpfm6C6QFAEMcoSGIZKkg5GYO7LoFb59xILGa1nBMjqstzrjo
+        wUTjK6i+2Kr2wOzNnCbUWQ9ljSRL5Ca57vgcNdvktr63S3icftvUpSJuM2YQPeeKkhnAAT
+        38qxorTYNe4RRF1tEECxgmdAPGRKR/k=
+ARC-Authentication-Results: i=1;
+        ORIGINATING;
+        auth=pass smtp.auth=aaro.koskinen smtp.mailfrom=aaro.koskinen@iki.fi
+ARC-Seal: i=1; s=meesny; d=iki.fi; t=1673385277; a=rsa-sha256; cv=none;
+        b=AQwjJli5gmf5bleqxZvmCRk2GeqRjmFsurdVWACb3hSZeyJNZ1FtpSe6V3Bjkk6zyTd6Z0
+        vaPd1gkXXWJrynADaV0vm0PwjOPDMt2/hOyo4zYLGnULEhizydLZxxLQHZ1njIH4ZW3gTR
+        8cQwHOiqpYUf9ZUlC7PJ8w73fDV3O90=
+Date:   Tue, 10 Jan 2023 23:14:34 +0200
+From:   Aaro Koskinen <aaro.koskinen@iki.fi>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/3] ARM: omap1: fix !ARCH_OMAP1_ANY link failures
+Message-ID: <20230110211434.GG730856@darkstar.musicnaut.iki.fi>
+References: <20230109161636.512203-1-arnd@kernel.org>
+ <20230109161636.512203-3-arnd@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Provags-ID: V03:K1:vevvzD/G/+1rV+dBU1FG7TKzVuiDyOSEvMGah41HMcwf5mYvGEY
- 4RUldsacZBHS7hgnQ3XR9UBXnueskqtVzNpRq5iPVjrrkuYZDQy27tnAol0vvQBMEJXoD66
- 18w4LKz76n1wzq0YBvZER/NoyptKZzbqRFDzCI9hDttJlHWTLCBGsP7/VPh1rNXOcZkGzY4
- RRxbpuToI0vtkniuNWSsg==
-UI-OutboundReport: notjunk:1;M01:P0:KdWo8OzBZvg=;5b9m6hA6piKoVpPiw00e6ZEvktq
- 3y/5e855MvSESItEDn41Ejmddk5yXLXg6T47hKjhqXuRvcy+Ui68l3jJOKMHS7P0Q/wOQL/Mx
- sUbv1XeqVUg4Gt9O/1+GgJ2gobJyFlYm6kNqXa7/tYytG1wW4ZSqgFQ5OU9/yg2gKgGM/nNr7
- /k+8my7Nw2pSk1LFBage7p+DsdA0lXdSVtJ0/BvOfscES/gP38ffHxgrZ0HJPWfYZw6vpXzN0
- ZCWUYJxmhN6vT/X3rMB1Ib9c/+WBwcGdyS9rUnSXgdnBNg7XzgaBqH3wSya7Fnl+DPiRWqzik
- jZo4FXNsiVv5y5cmhXTzi3CC6dhSVBS1B3aLrNbkSmQ4DFhU2n/HzWMj1NUlYWrSkN4AxON6a
- OUzcOEuVyPSjq+Y856kR11ytu8dLht95pm/7qA0wTHtx78eq2V5ndaid+qlGmNkgDfnQMlcQi
- U/Nnx9XNIS+SK4JDX0FppU8p+ggUef3TkEhyRVigsSBHuyALzUJSYlo1kUirfEdC8mp44mHyQ
- uCZq239X8b3vEIERzw5wt3hcdeyWA4WFexh/1JyvN03YbpyK95hcFO+XUHRTTX1fi+Vehwk+E
- e12sZQqrV4wu2cECdJMdUbHB/xtlpVC1IvmXVUjPWbypJvyVmBRB6IIbH3c9cF6GNj4HF9B9X
- tvruewdxhrjVVyV4gs4PPOmyIrAZMVUWdLJSwecXMtGSfMN5q5VCBny0iSQkpce3lh2d1jJY8
- M3zAS4HZqwoctl6IR4GUbGeHgloZLc7IZStopzFzrSDEFS4a15M8L6ja0KsVna0cXKJqtdZeB
- CCV4AA22/EJrrcw4YrI49KZdKD/VcDJekAq2tW4V2LRDAxn7ewu//Q3T4ur7F2A21Tr4yVPYW
- yF7wqfRElDFkB0yUclurnNhV/mCWO1q2wO0Dj4o5SHaGlndxvAlhYK6HszhcoH9KdVAKY/VoW
- OwHEfz6qCXSMl7ZwCE/iyRy/Q9k=
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230109161636.512203-3-arnd@kernel.org>
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Hi,
 
-can you please consider adding this patch to the 4.14 and 4.19 stable kern=
-els?
-It's a backport of upstream commit 71bdea6f798b425bc0003780b13e3fdecb16a01=
-0
+On Mon, Jan 09, 2023 at 05:16:35PM +0100, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> While compile-testing randconfig builds for the upcoming boardfile
+> removal, I noticed that an earlier patch of mine was completely
+> broken, and the introduction of CONFIG_ARCH_OMAP1_ANY only replaced
+> one set of build failures with another one, now resulting in
+> link failures like
+> 
+> ld: drivers/video/fbdev/omap/omapfb_main.o: in function `omapfb_do_probe':
+> drivers/video/fbdev/omap/omapfb_main.c:1703: undefined reference to `omap_set_dma_priority'
+> ld: drivers/dma/ti/omap-dma.o: in function `omap_dma_free_chan_resources':
+> drivers/dma/ti/omap-dma.c:777: undefined reference to `omap_free_dma'
+> drivers/dma/ti/omap-dma.c:1685: undefined reference to `omap_get_plat_info'
+> ld: drivers/usb/gadget/udc/omap_udc.o: in function `next_in_dma':
+> drivers/usb/gadget/udc/omap_udc.c:820: undefined reference to `omap_get_dma_active_status'
+> 
+> I tried reworking it, but the resulting patch ended up much bigger than
+> simply avoiding the original problem of unused-function warnings like
+> 
+> arch/arm/mach-omap1/mcbsp.c:76:30: error: unused variable 'omap1_mcbsp_ops' [-Werror,-Wunused-variable]
+> 
+> As a result, revert the previous fix, and rearrange the code that
+> produces warnings to hide them. For mcbsp, the #ifdef check can
+> simply be removed as the cpu_is_omapxxx() checks already achieve
+> the same result, while in the io.c the easiest solution appears to
+> be to merge the common map bits into each soc specific portion.
+> This gets cleaned in a nicer way after omap7xx support gets dropped,
+> as the remaining SoCs all have the exact same I/O map.
+> 
+> Fixes: 615dce5bf736 ("ARM: omap1: fix build with no SoC selected")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Thanks!
-Helge
+Acked-by: Aaro Koskinen <aaro.koskinen@iki.fi>
 
+A.
 
-
-=46rom 71bdea6f798b425bc0003780b13e3fdecb16a010 Mon Sep 17 00:00:00 2001
-From: Helge Deller <deller@gmx.de>
-Subject: [PATCH] parisc: Align parisc MADV_XXX constants with all other ar=
-chitectures
-
-Adjust some MADV_XXX constants to be in sync what their values are on
-all other platforms. There is currently no reason to have an own
-numbering on parisc, but it requires workarounds in many userspace
-sources (e.g. glibc, qemu, ...) - which are often forgotten and thus
-introduce bugs and different behaviour on parisc.
-
-A wrapper avoids an ABI breakage for existing userspace applications by
-translating any old values to the new ones, so this change allows us to
-move over all programs to the new ABI over time.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-
-diff --git a/arch/parisc/include/uapi/asm/mman.h b/arch/parisc/include/uap=
-i/asm/mman.h
-index 870fbf8c7088..13f61fdf3823 100644
-=2D-- a/arch/parisc/include/uapi/asm/mman.h
-+++ b/arch/parisc/include/uapi/asm/mman.h
-@@ -50,25 +50,24 @@
- #define MADV_DONTFORK	10		/* don't inherit across fork */
- #define MADV_DOFORK	11		/* do inherit across fork */
-
--#define MADV_MERGEABLE   65		/* KSM may merge identical pages */
--#define MADV_UNMERGEABLE 66		/* KSM may not merge identical pages */
-+#define MADV_MERGEABLE   12		/* KSM may merge identical pages */
-+#define MADV_UNMERGEABLE 13		/* KSM may not merge identical pages */
-
--#define MADV_HUGEPAGE	67		/* Worth backing with hugepages */
--#define MADV_NOHUGEPAGE	68		/* Not worth backing with hugepages */
-+#define MADV_HUGEPAGE	14		/* Worth backing with hugepages */
-+#define MADV_NOHUGEPAGE 15		/* Not worth backing with hugepages */
-
--#define MADV_DONTDUMP   69		/* Explicity exclude from the core dump,
-+#define MADV_DONTDUMP   16		/* Explicity exclude from the core dump,
- 					   overrides the coredump filter bits */
--#define MADV_DODUMP	70		/* Clear the MADV_NODUMP flag */
-+#define MADV_DODUMP	17		/* Clear the MADV_NODUMP flag */
-
--#define MADV_WIPEONFORK 71		/* Zero memory on fork, child only */
--#define MADV_KEEPONFORK 72		/* Undo MADV_WIPEONFORK */
-+#define MADV_WIPEONFORK 18		/* Zero memory on fork, child only */
-+#define MADV_KEEPONFORK 19		/* Undo MADV_WIPEONFORK */
-
- #define MADV_HWPOISON     100		/* poison a page for testing */
- #define MADV_SOFT_OFFLINE 101		/* soft offline page for testing */
-
- /* compatibility flags */
- #define MAP_FILE	0
--#define MAP_VARIABLE	0
-
- #define PKEY_DISABLE_ACCESS	0x1
- #define PKEY_DISABLE_WRITE	0x2
-diff --git a/arch/parisc/kernel/sys_parisc.c b/arch/parisc/kernel/sys_pari=
-sc.c
-index 376ea0d1b275..4306d1bea98b 100644
-=2D-- a/arch/parisc/kernel/sys_parisc.c
-+++ b/arch/parisc/kernel/sys_parisc.c
-@@ -386,3 +386,30 @@ long parisc_personality(unsigned long personality)
-
- 	return err;
- }
-+
-+/*
-+ * madvise() wrapper
-+ *
-+ * Up to kernel v6.1 parisc has different values than all other
-+ * platforms for the MADV_xxx flags listed below.
-+ * To keep binary compatibility with existing userspace programs
-+ * translate the former values to the new values.
-+ *
-+ * XXX: Remove this wrapper in year 2025 (or later)
-+ */
-+
-+asmlinkage notrace long parisc_madvise(unsigned long start, size_t len_in=
-, int behavior)
-+{
-+	switch (behavior) {
-+	case 65: behavior =3D MADV_MERGEABLE;	break;
-+	case 66: behavior =3D MADV_UNMERGEABLE;	break;
-+	case 67: behavior =3D MADV_HUGEPAGE;	break;
-+	case 68: behavior =3D MADV_NOHUGEPAGE;	break;
-+	case 69: behavior =3D MADV_DONTDUMP;	break;
-+	case 70: behavior =3D MADV_DODUMP;	break;
-+	case 71: behavior =3D MADV_WIPEONFORK;	break;
-+	case 72: behavior =3D MADV_KEEPONFORK;	break;
-+	}
-+
-+	return sys_madvise(start, len_in, behavior);
-+}
-diff --git a/arch/parisc/kernel/syscall_table.S b/arch/parisc/kernel/sysca=
-ll_table.S
-index fe3f2a49d2b1..64a72f161eeb 100644
-=2D-- a/arch/parisc/kernel/syscall_table.S
-+++ b/arch/parisc/kernel/syscall_table.S
-@@ -195,7 +195,7 @@
- 	ENTRY_COMP(sysinfo)
- 	ENTRY_SAME(shutdown)
- 	ENTRY_SAME(fsync)
--	ENTRY_SAME(madvise)
-+	ENTRY_OURS(madvise)
- 	ENTRY_SAME(clone_wrapper)	/* 120 */
- 	ENTRY_SAME(setdomainname)
- 	ENTRY_COMP(sendfile)
-diff --git a/tools/arch/parisc/include/uapi/asm/mman.h b/tools/arch/parisc=
-/include/uapi/asm/mman.h
-index 1bd78758bde9..5d789369aeef 100644
-=2D-- a/tools/arch/parisc/include/uapi/asm/mman.h
-+++ b/tools/arch/parisc/include/uapi/asm/mman.h
-@@ -1,20 +1,20 @@
- /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
- #ifndef TOOLS_ARCH_PARISC_UAPI_ASM_MMAN_FIX_H
- #define TOOLS_ARCH_PARISC_UAPI_ASM_MMAN_FIX_H
--#define MADV_DODUMP	70
-+#define MADV_DODUMP	17
- #define MADV_DOFORK	11
--#define MADV_DONTDUMP   69
-+#define MADV_DONTDUMP   16
- #define MADV_DONTFORK	10
- #define MADV_DONTNEED   4
- #define MADV_FREE	8
--#define MADV_HUGEPAGE	67
--#define MADV_MERGEABLE   65
--#define MADV_NOHUGEPAGE	68
-+#define MADV_HUGEPAGE	14
-+#define MADV_MERGEABLE  12
-+#define MADV_NOHUGEPAGE 15
- #define MADV_NORMAL     0
- #define MADV_RANDOM     1
- #define MADV_REMOVE	9
- #define MADV_SEQUENTIAL 2
--#define MADV_UNMERGEABLE 66
-+#define MADV_UNMERGEABLE 13
- #define MADV_WILLNEED   3
- #define MAP_ANONYMOUS	0x10
- #define MAP_DENYWRITE	0x0800
-diff --git a/tools/perf/bench/bench.h b/tools/perf/bench/bench.h
-index b3e418afc21a..71010922cd4d 100644
-=2D-- a/tools/perf/bench/bench.h
-+++ b/tools/perf/bench/bench.h
-@@ -10,25 +10,13 @@ extern struct timeval bench__start, bench__end, bench_=
-_runtime;
-  * The madvise transparent hugepage constants were added in glibc
-  * 2.13. For compatibility with older versions of glibc, define these
-  * tokens if they are not already defined.
-- *
-- * PA-RISC uses different madvise values from other architectures and
-- * needs to be special-cased.
-  */
--#ifdef __hppa__
--# ifndef MADV_HUGEPAGE
--#  define MADV_HUGEPAGE		67
--# endif
--# ifndef MADV_NOHUGEPAGE
--#  define MADV_NOHUGEPAGE	68
--# endif
--#else
- # ifndef MADV_HUGEPAGE
- #  define MADV_HUGEPAGE		14
- # endif
- # ifndef MADV_NOHUGEPAGE
- #  define MADV_NOHUGEPAGE	15
- # endif
--#endif
-
- int bench_numa(int argc, const char **argv);
- int bench_sched_messaging(int argc, const char **argv);
+> ---
+>  arch/arm/mach-omap1/Kconfig     |  5 +----
+>  arch/arm/mach-omap1/Makefile    |  4 ----
+>  arch/arm/mach-omap1/io.c        | 32 +++++++++++++++-----------------
+>  arch/arm/mach-omap1/mcbsp.c     | 21 ---------------------
+>  arch/arm/mach-omap1/pm.h        |  7 -------
+>  include/linux/soc/ti/omap1-io.h |  4 ++--
+>  6 files changed, 18 insertions(+), 55 deletions(-)
+> 
+> diff --git a/arch/arm/mach-omap1/Kconfig b/arch/arm/mach-omap1/Kconfig
+> index 538a960257cc..7ec7ada287e0 100644
+> --- a/arch/arm/mach-omap1/Kconfig
+> +++ b/arch/arm/mach-omap1/Kconfig
+> @@ -4,6 +4,7 @@ menuconfig ARCH_OMAP1
+>  	depends on ARCH_MULTI_V4T || ARCH_MULTI_V5
+>  	depends on CPU_LITTLE_ENDIAN
+>  	depends on ATAGS
+> +	select ARCH_OMAP
+>  	select ARCH_HAS_HOLES_MEMORYMODEL
+>  	select ARCH_OMAP
+>  	select CLKSRC_MMIO
+> @@ -45,10 +46,6 @@ config ARCH_OMAP16XX
+>  	select CPU_ARM926T
+>  	select OMAP_DM_TIMER
+>  
+> -config ARCH_OMAP1_ANY
+> -	select ARCH_OMAP
+> -	def_bool ARCH_OMAP730 || ARCH_OMAP850 || ARCH_OMAP15XX || ARCH_OMAP16XX
+> -
+>  config ARCH_OMAP
+>  	bool
+>  
+> diff --git a/arch/arm/mach-omap1/Makefile b/arch/arm/mach-omap1/Makefile
+> index 506074b86333..0615cb0ba580 100644
+> --- a/arch/arm/mach-omap1/Makefile
+> +++ b/arch/arm/mach-omap1/Makefile
+> @@ -3,8 +3,6 @@
+>  # Makefile for the linux kernel.
+>  #
+>  
+> -ifdef CONFIG_ARCH_OMAP1_ANY
+> -
+>  # Common support
+>  obj-y := io.o id.o sram-init.o sram.o time.o irq.o mux.o flash.o \
+>  	 serial.o devices.o dma.o omap-dma.o fb.o
+> @@ -59,5 +57,3 @@ obj-$(CONFIG_ARCH_OMAP730)		+= gpio7xx.o
+>  obj-$(CONFIG_ARCH_OMAP850)		+= gpio7xx.o
+>  obj-$(CONFIG_ARCH_OMAP15XX)		+= gpio15xx.o
+>  obj-$(CONFIG_ARCH_OMAP16XX)		+= gpio16xx.o
+> -
+> -endif
+> diff --git a/arch/arm/mach-omap1/io.c b/arch/arm/mach-omap1/io.c
+> index d2db9b8aed3f..0074b011a05a 100644
+> --- a/arch/arm/mach-omap1/io.c
+> +++ b/arch/arm/mach-omap1/io.c
+> @@ -22,17 +22,14 @@
+>   * The machine specific code may provide the extra mapping besides the
+>   * default mapping provided here.
+>   */
+> -static struct map_desc omap_io_desc[] __initdata = {
+> +#if defined (CONFIG_ARCH_OMAP730) || defined (CONFIG_ARCH_OMAP850)
+> +static struct map_desc omap7xx_io_desc[] __initdata = {
+>  	{
+>  		.virtual	= OMAP1_IO_VIRT,
+>  		.pfn		= __phys_to_pfn(OMAP1_IO_PHYS),
+>  		.length		= OMAP1_IO_SIZE,
+>  		.type		= MT_DEVICE
+> -	}
+> -};
+> -
+> -#if defined (CONFIG_ARCH_OMAP730) || defined (CONFIG_ARCH_OMAP850)
+> -static struct map_desc omap7xx_io_desc[] __initdata = {
+> +	},
+>  	{
+>  		.virtual	= OMAP7XX_DSP_BASE,
+>  		.pfn		= __phys_to_pfn(OMAP7XX_DSP_START),
+> @@ -49,6 +46,12 @@ static struct map_desc omap7xx_io_desc[] __initdata = {
+>  
+>  #ifdef CONFIG_ARCH_OMAP15XX
+>  static struct map_desc omap1510_io_desc[] __initdata = {
+> +	{
+> +		.virtual	= OMAP1_IO_VIRT,
+> +		.pfn		= __phys_to_pfn(OMAP1_IO_PHYS),
+> +		.length		= OMAP1_IO_SIZE,
+> +		.type		= MT_DEVICE
+> +	},
+>  	{
+>  		.virtual	= OMAP1510_DSP_BASE,
+>  		.pfn		= __phys_to_pfn(OMAP1510_DSP_START),
+> @@ -65,6 +68,12 @@ static struct map_desc omap1510_io_desc[] __initdata = {
+>  
+>  #if defined(CONFIG_ARCH_OMAP16XX)
+>  static struct map_desc omap16xx_io_desc[] __initdata = {
+> +	{
+> +		.virtual	= OMAP1_IO_VIRT,
+> +		.pfn		= __phys_to_pfn(OMAP1_IO_PHYS),
+> +		.length		= OMAP1_IO_SIZE,
+> +		.type		= MT_DEVICE
+> +	},
+>  	{
+>  		.virtual	= OMAP16XX_DSP_BASE,
+>  		.pfn		= __phys_to_pfn(OMAP16XX_DSP_START),
+> @@ -79,18 +88,9 @@ static struct map_desc omap16xx_io_desc[] __initdata = {
+>  };
+>  #endif
+>  
+> -/*
+> - * Maps common IO regions for omap1
+> - */
+> -static void __init omap1_map_common_io(void)
+> -{
+> -	iotable_init(omap_io_desc, ARRAY_SIZE(omap_io_desc));
+> -}
+> -
+>  #if defined (CONFIG_ARCH_OMAP730) || defined (CONFIG_ARCH_OMAP850)
+>  void __init omap7xx_map_io(void)
+>  {
+> -	omap1_map_common_io();
+>  	iotable_init(omap7xx_io_desc, ARRAY_SIZE(omap7xx_io_desc));
+>  }
+>  #endif
+> @@ -98,7 +98,6 @@ void __init omap7xx_map_io(void)
+>  #ifdef CONFIG_ARCH_OMAP15XX
+>  void __init omap15xx_map_io(void)
+>  {
+> -	omap1_map_common_io();
+>  	iotable_init(omap1510_io_desc, ARRAY_SIZE(omap1510_io_desc));
+>  }
+>  #endif
+> @@ -106,7 +105,6 @@ void __init omap15xx_map_io(void)
+>  #if defined(CONFIG_ARCH_OMAP16XX)
+>  void __init omap16xx_map_io(void)
+>  {
+> -	omap1_map_common_io();
+>  	iotable_init(omap16xx_io_desc, ARRAY_SIZE(omap16xx_io_desc));
+>  }
+>  #endif
+> diff --git a/arch/arm/mach-omap1/mcbsp.c b/arch/arm/mach-omap1/mcbsp.c
+> index 05c25c432449..b1632cbe37e6 100644
+> --- a/arch/arm/mach-omap1/mcbsp.c
+> +++ b/arch/arm/mach-omap1/mcbsp.c
+> @@ -89,7 +89,6 @@ static struct omap_mcbsp_ops omap1_mcbsp_ops = {
+>  #define OMAP1610_MCBSP2_BASE	0xfffb1000
+>  #define OMAP1610_MCBSP3_BASE	0xe1017000
+>  
+> -#if defined(CONFIG_ARCH_OMAP730) || defined(CONFIG_ARCH_OMAP850)
+>  struct resource omap7xx_mcbsp_res[][6] = {
+>  	{
+>  		{
+> @@ -159,14 +158,7 @@ static struct omap_mcbsp_platform_data omap7xx_mcbsp_pdata[] = {
+>  };
+>  #define OMAP7XX_MCBSP_RES_SZ		ARRAY_SIZE(omap7xx_mcbsp_res[1])
+>  #define OMAP7XX_MCBSP_COUNT		ARRAY_SIZE(omap7xx_mcbsp_res)
+> -#else
+> -#define omap7xx_mcbsp_res_0		NULL
+> -#define omap7xx_mcbsp_pdata		NULL
+> -#define OMAP7XX_MCBSP_RES_SZ		0
+> -#define OMAP7XX_MCBSP_COUNT		0
+> -#endif
+>  
+> -#ifdef CONFIG_ARCH_OMAP15XX
+>  struct resource omap15xx_mcbsp_res[][6] = {
+>  	{
+>  		{
+> @@ -266,14 +258,7 @@ static struct omap_mcbsp_platform_data omap15xx_mcbsp_pdata[] = {
+>  };
+>  #define OMAP15XX_MCBSP_RES_SZ		ARRAY_SIZE(omap15xx_mcbsp_res[1])
+>  #define OMAP15XX_MCBSP_COUNT		ARRAY_SIZE(omap15xx_mcbsp_res)
+> -#else
+> -#define omap15xx_mcbsp_res_0		NULL
+> -#define omap15xx_mcbsp_pdata		NULL
+> -#define OMAP15XX_MCBSP_RES_SZ		0
+> -#define OMAP15XX_MCBSP_COUNT		0
+> -#endif
+>  
+> -#ifdef CONFIG_ARCH_OMAP16XX
+>  struct resource omap16xx_mcbsp_res[][6] = {
+>  	{
+>  		{
+> @@ -373,12 +358,6 @@ static struct omap_mcbsp_platform_data omap16xx_mcbsp_pdata[] = {
+>  };
+>  #define OMAP16XX_MCBSP_RES_SZ		ARRAY_SIZE(omap16xx_mcbsp_res[1])
+>  #define OMAP16XX_MCBSP_COUNT		ARRAY_SIZE(omap16xx_mcbsp_res)
+> -#else
+> -#define omap16xx_mcbsp_res_0		NULL
+> -#define omap16xx_mcbsp_pdata		NULL
+> -#define OMAP16XX_MCBSP_RES_SZ		0
+> -#define OMAP16XX_MCBSP_COUNT		0
+> -#endif
+>  
+>  static void omap_mcbsp_register_board_cfg(struct resource *res, int res_count,
+>  			struct omap_mcbsp_platform_data *config, int size)
+> diff --git a/arch/arm/mach-omap1/pm.h b/arch/arm/mach-omap1/pm.h
+> index d9165709c532..0d1f092821ff 100644
+> --- a/arch/arm/mach-omap1/pm.h
+> +++ b/arch/arm/mach-omap1/pm.h
+> @@ -106,13 +106,6 @@
+>  #define OMAP7XX_IDLECT3		0xfffece24
+>  #define OMAP7XX_IDLE_LOOP_REQUEST	0x0C00
+>  
+> -#if     !defined(CONFIG_ARCH_OMAP730) && \
+> -	!defined(CONFIG_ARCH_OMAP850) && \
+> -	!defined(CONFIG_ARCH_OMAP15XX) && \
+> -	!defined(CONFIG_ARCH_OMAP16XX)
+> -#warning "Power management for this processor not implemented yet"
+> -#endif
+> -
+>  #ifndef __ASSEMBLER__
+>  
+>  #include <linux/clk.h>
+> diff --git a/include/linux/soc/ti/omap1-io.h b/include/linux/soc/ti/omap1-io.h
+> index f7f12728d4a6..9a60f45899d3 100644
+> --- a/include/linux/soc/ti/omap1-io.h
+> +++ b/include/linux/soc/ti/omap1-io.h
+> @@ -5,7 +5,7 @@
+>  #ifndef __ASSEMBLER__
+>  #include <linux/types.h>
+>  
+> -#ifdef CONFIG_ARCH_OMAP1_ANY
+> +#ifdef CONFIG_ARCH_OMAP1
+>  /*
+>   * NOTE: Please use ioremap + __raw_read/write where possible instead of these
+>   */
+> @@ -15,7 +15,7 @@ extern u32 omap_readl(u32 pa);
+>  extern void omap_writeb(u8 v, u32 pa);
+>  extern void omap_writew(u16 v, u32 pa);
+>  extern void omap_writel(u32 v, u32 pa);
+> -#else
+> +#elif defined(CONFIG_COMPILE_TEST)
+>  static inline u8 omap_readb(u32 pa)  { return 0; }
+>  static inline u16 omap_readw(u32 pa) { return 0; }
+>  static inline u32 omap_readl(u32 pa) { return 0; }
+> -- 
+> 2.39.0
+> 
