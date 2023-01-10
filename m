@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78210664AD5
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01DA766496F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239452AbjAJSga (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:36:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47332 "EHLO
+        id S239126AbjAJSV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:21:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239512AbjAJSfl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35EEB58804
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:31:21 -0800 (PST)
+        with ESMTP id S239257AbjAJSVB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:21:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF62D3F455
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C745D61846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD9D7C433D2;
-        Tue, 10 Jan 2023 18:31:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6CC1DB8189A
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90F0AC433D2;
+        Tue, 10 Jan 2023 18:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375480;
-        bh=7SpcSdzupjlMER5OEfkLC9wDYdoAG8sN2rTwJtpmpZs=;
+        s=korg; t=1673374731;
+        bh=Q+aLjfmw1lf7v0QXfXiSlJeUYfjFIzLOvb9p4L6Myvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohzzaCEQFEQ1DR9wCZKm0N1NgKI8Ve0TCqMzWLH7J6gl88Bnvs0PXrgFRMoGe8LVc
-         AzL31/jhbfH7B3pa9ycCEk47NcOJL5Mu5FWnj6a6+3nOrOK8UirG16xHenade3eYZn
-         kIqb8bGocYm1ZteVWofeDL1shqcGuOiMk+zWwFWo=
+        b=sVT3LQ9A9bu9XcGt1UWmwAL2HiL7gb7TAlAaX9W9/XTw83mvXxI5wkdk4Oe2HxdPx
+         TXqutotd+X2HBymOfOHkHVjEeSaTq2klXtAp2YoM8fRI8UxBdAQc3IJvQqF0+5Ze9k
+         JKrC4DD3HcLtUgLSpwo0sY6Iujm66VCjNO5Vk3kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.15 171/290] ext4: fix potential out of bound read in ext4_fc_replay_scan()
+        patches@lists.linux.dev, Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 115/159] drm/amdkfd: Fix double release compute pasid
 Date:   Tue, 10 Jan 2023 19:04:23 +0100
-Message-Id: <20230110180037.813163503@linuxfoundation.org>
+Message-Id: <20230110180021.966959490@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +54,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@kernel.org>
+From: Philip Yang <Philip.Yang@amd.com>
 
-From: Ye Bin <yebin10@huawei.com>
+[ Upstream commit 1a799c4c190ea9f0e81028e3eb3037ed0ab17ff5 ]
 
-commit 1b45cc5c7b920fd8bf72e5a888ec7abeadf41e09 upstream.
+If kfd_process_device_init_vm returns failure after vm is converted to
+compute vm and vm->pasid set to compute pasid, KFD will not take
+pdd->drm_file reference. As a result, drm close file handler maybe
+called to release the compute pasid before KFD process destroy worker to
+release the same pasid and set vm->pasid to zero, this generates below
+WARNING backtrace and NULL pointer access.
 
-For scan loop must ensure that at least EXT4_FC_TAG_BASE_LEN space. If remain
-space less than EXT4_FC_TAG_BASE_LEN which will lead to out of bound read
-when mounting corrupt file system image.
-ADD_RANGE/HEAD/TAIL is needed to add extra check when do journal scan, as this
-three tags will read data during scan, tag length couldn't less than data length
-which will read.
+Add helper amdgpu_amdkfd_gpuvm_set_vm_pasid and call it at the last step
+of kfd_process_device_init_vm, to ensure vm pasid is the original pasid
+if acquiring vm failed or is the compute pasid with pdd->drm_file
+reference taken to avoid double release same pasid.
 
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20220924075233.2315259-4-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ amdgpu: Failed to create process VM object
+ ida_free called for id=32770 which is not allocated.
+ WARNING: CPU: 57 PID: 72542 at ../lib/idr.c:522 ida_free+0x96/0x140
+ RIP: 0010:ida_free+0x96/0x140
+ Call Trace:
+  amdgpu_pasid_free_delayed+0xe1/0x2a0 [amdgpu]
+  amdgpu_driver_postclose_kms+0x2d8/0x340 [amdgpu]
+  drm_file_free.part.13+0x216/0x270 [drm]
+  drm_close_helper.isra.14+0x60/0x70 [drm]
+  drm_release+0x6e/0xf0 [drm]
+  __fput+0xcc/0x280
+  ____fput+0xe/0x20
+  task_work_run+0x96/0xc0
+  do_exit+0x3d0/0xc10
+
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ RIP: 0010:ida_free+0x76/0x140
+ Call Trace:
+  amdgpu_pasid_free_delayed+0xe1/0x2a0 [amdgpu]
+  amdgpu_driver_postclose_kms+0x2d8/0x340 [amdgpu]
+  drm_file_free.part.13+0x216/0x270 [drm]
+  drm_close_helper.isra.14+0x60/0x70 [drm]
+  drm_release+0x6e/0xf0 [drm]
+  __fput+0xcc/0x280
+  ____fput+0xe/0x20
+  task_work_run+0x96/0xc0
+  do_exit+0x3d0/0xc10
+
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/fast_commit.c |   38 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 36 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h    |  4 +-
+ .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c  | 39 +++++++++++++------
+ drivers/gpu/drm/amd/amdkfd/kfd_process.c      | 12 ++++--
+ 3 files changed, 40 insertions(+), 15 deletions(-)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1907,6 +1907,34 @@ void ext4_fc_replay_cleanup(struct super
- 	kfree(sbi->s_fc_replay_state.fc_modified_inodes);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
+index 647220a8762d..30f145dc8724 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
+@@ -265,8 +265,10 @@ int amdgpu_amdkfd_get_pcie_bandwidth_mbytes(struct amdgpu_device *adev, bool is_
+ 	(&((struct amdgpu_fpriv *)					\
+ 		((struct drm_file *)(drm_priv))->driver_priv)->vm)
+ 
++int amdgpu_amdkfd_gpuvm_set_vm_pasid(struct amdgpu_device *adev,
++				     struct file *filp, u32 pasid);
+ int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
+-					struct file *filp, u32 pasid,
++					struct file *filp,
+ 					void **process_info,
+ 					struct dma_fence **ef);
+ void amdgpu_amdkfd_gpuvm_release_process_vm(struct amdgpu_device *adev,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+index fe87b3402f06..29f045079a3e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+@@ -1473,10 +1473,9 @@ static void amdgpu_amdkfd_gpuvm_unpin_bo(struct amdgpu_bo *bo)
+ 	amdgpu_bo_unreserve(bo);
  }
  
-+static inline bool ext4_fc_tag_len_isvalid(struct ext4_fc_tl *tl,
-+					   u8 *val, u8 *end)
-+{
-+	if (val + tl->fc_len > end)
-+		return false;
+-int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
+-					   struct file *filp, u32 pasid,
+-					   void **process_info,
+-					   struct dma_fence **ef)
++int amdgpu_amdkfd_gpuvm_set_vm_pasid(struct amdgpu_device *adev,
++				     struct file *filp, u32 pasid)
 +
-+	/* Here only check ADD_RANGE/TAIL/HEAD which will read data when do
-+	 * journal rescan before do CRC check. Other tags length check will
-+	 * rely on CRC check.
-+	 */
-+	switch (tl->fc_tag) {
-+	case EXT4_FC_TAG_ADD_RANGE:
-+		return (sizeof(struct ext4_fc_add_range) == tl->fc_len);
-+	case EXT4_FC_TAG_TAIL:
-+		return (sizeof(struct ext4_fc_tail) <= tl->fc_len);
-+	case EXT4_FC_TAG_HEAD:
-+		return (sizeof(struct ext4_fc_head) == tl->fc_len);
-+	case EXT4_FC_TAG_DEL_RANGE:
-+	case EXT4_FC_TAG_LINK:
-+	case EXT4_FC_TAG_UNLINK:
-+	case EXT4_FC_TAG_CREAT:
-+	case EXT4_FC_TAG_INODE:
-+	case EXT4_FC_TAG_PAD:
-+	default:
-+		return true;
-+	}
-+}
-+
- /*
-  * Recovery Scan phase handler
-  *
-@@ -1963,10 +1991,15 @@ static int ext4_fc_replay_scan(journal_t
+ {
+ 	struct amdgpu_fpriv *drv_priv;
+ 	struct amdgpu_vm *avm;
+@@ -1487,10 +1486,6 @@ int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
+ 		return ret;
+ 	avm = &drv_priv->vm;
+ 
+-	/* Already a compute VM? */
+-	if (avm->process_info)
+-		return -EINVAL;
+-
+ 	/* Free the original amdgpu allocated pasid,
+ 	 * will be replaced with kfd allocated pasid.
+ 	 */
+@@ -1499,14 +1494,36 @@ int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
+ 		amdgpu_vm_set_pasid(adev, avm, 0);
  	}
  
- 	state->fc_replay_expected_off++;
--	for (cur = start; cur < end;
-+	for (cur = start; cur < end - EXT4_FC_TAG_BASE_LEN;
- 	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
- 		ext4_fc_get_tl(&tl, cur);
- 		val = cur + EXT4_FC_TAG_BASE_LEN;
-+		if (!ext4_fc_tag_len_isvalid(&tl, val, end)) {
-+			ret = state->fc_replay_num_tags ?
-+				JBD2_FC_REPLAY_STOP : -ECANCELED;
-+			goto out_err;
-+		}
- 		ext4_debug("Scan phase, tag:%s, blk %lld\n",
- 			   tag2str(tl.fc_tag), bh->b_blocknr);
- 		switch (tl.fc_tag) {
-@@ -2077,7 +2110,7 @@ static int ext4_fc_replay(journal_t *jou
- 	start = (u8 *)bh->b_data;
- 	end = (__u8 *)bh->b_data + journal->j_blocksize - 1;
+-	/* Convert VM into a compute VM */
+-	ret = amdgpu_vm_make_compute(adev, avm);
++	ret = amdgpu_vm_set_pasid(adev, avm, pasid);
+ 	if (ret)
+ 		return ret;
  
--	for (cur = start; cur < end;
-+	for (cur = start; cur < end - EXT4_FC_TAG_BASE_LEN;
- 	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
- 		ext4_fc_get_tl(&tl, cur);
- 		val = cur + EXT4_FC_TAG_BASE_LEN;
-@@ -2087,6 +2120,7 @@ static int ext4_fc_replay(journal_t *jou
- 			ext4_fc_set_bitmaps_and_counters(sb);
- 			break;
- 		}
+-	ret = amdgpu_vm_set_pasid(adev, avm, pasid);
++	return 0;
++}
 +
- 		ext4_debug("Replay phase, tag:%s\n", tag2str(tl.fc_tag));
- 		state->fc_replay_num_tags--;
- 		switch (tl.fc_tag) {
++int amdgpu_amdkfd_gpuvm_acquire_process_vm(struct amdgpu_device *adev,
++					   struct file *filp,
++					   void **process_info,
++					   struct dma_fence **ef)
++{
++	struct amdgpu_fpriv *drv_priv;
++	struct amdgpu_vm *avm;
++	int ret;
++
++	ret = amdgpu_file_to_fpriv(filp, &drv_priv);
+ 	if (ret)
+ 		return ret;
++	avm = &drv_priv->vm;
++
++	/* Already a compute VM? */
++	if (avm->process_info)
++		return -EINVAL;
++
++	/* Convert VM into a compute VM */
++	ret = amdgpu_vm_make_compute(adev, avm);
++	if (ret)
++		return ret;
++
+ 	/* Initialize KFD part of the VM and process info */
+ 	ret = init_kfd_vm(avm, process_info, ef);
+ 	if (ret)
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_process.c b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
+index 9821fa9268d3..dd351105c1bc 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_process.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
+@@ -1576,9 +1576,9 @@ int kfd_process_device_init_vm(struct kfd_process_device *pdd,
+ 	p = pdd->process;
+ 	dev = pdd->dev;
+ 
+-	ret = amdgpu_amdkfd_gpuvm_acquire_process_vm(
+-		dev->adev, drm_file, p->pasid,
+-		&p->kgd_process_info, &p->ef);
++	ret = amdgpu_amdkfd_gpuvm_acquire_process_vm(dev->adev, drm_file,
++						     &p->kgd_process_info,
++						     &p->ef);
+ 	if (ret) {
+ 		pr_err("Failed to create process VM object\n");
+ 		return ret;
+@@ -1593,10 +1593,16 @@ int kfd_process_device_init_vm(struct kfd_process_device *pdd,
+ 	if (ret)
+ 		goto err_init_cwsr;
+ 
++	ret = amdgpu_amdkfd_gpuvm_set_vm_pasid(dev->adev, drm_file, p->pasid);
++	if (ret)
++		goto err_set_pasid;
++
+ 	pdd->drm_file = drm_file;
+ 
+ 	return 0;
+ 
++err_set_pasid:
++	kfd_process_device_destroy_cwsr_dgpu(pdd);
+ err_init_cwsr:
+ 	kfd_process_device_destroy_ib_mem(pdd);
+ err_reserve_ib_mem:
+-- 
+2.35.1
+
 
 
