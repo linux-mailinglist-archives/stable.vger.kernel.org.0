@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E26BD664A86
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE4C5664955
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234991AbjAJSdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:33:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47342 "EHLO
+        id S239176AbjAJSUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:20:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238814AbjAJSch (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:37 -0500
+        with ESMTP id S239274AbjAJSUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53534E79
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0350B96117
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F045CB81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44CF8C433D2;
-        Tue, 10 Jan 2023 18:28:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DE4FB818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 530CCC433F0;
+        Tue, 10 Jan 2023 18:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375315;
-        bh=klK8k98N1/aMAR8o70ZfvSD3KevfMpw7nLCKsWQzM/8=;
+        s=korg; t=1673374669;
+        bh=C0j+hwubaVzbBy2zsflSWNv6PYZpDP0K3kDviiz78Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IUQymJ2HoGqf+bcgQ9kqKzwK5XM0vzvCHpvCSLAfypUuj+W4sSDLWOmLOouQdWwwc
-         fU95ZwIE5a3UcNRIw9f/9ZGd+ogsEKbOoqhuIvaqfiAcoAgAuISKfEJtb2a8K2ZpLH
-         etC1w86sBJVxVgbVu4ZjuevL5KvCAEOb1BM3h+HU=
+        b=g0IfuUao4eiDuX95uVvniug4YOLhOKkxxWCS5kzYWG3FeqjD+eh0TYWfJcDX2hqXP
+         Z5nAFUdThwr26erEUgjxPc263LEprU2y+orTvVK3IAwiL2UGfDtkkQMZmncFF9/YbW
+         u2soMvtqVFPvezkjN8P/rAPlmJPN5V27Uydq6q4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Zhang Yi <yi.zhang@huawei.com>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.15 149/290] ext4: check and assert if marking an no_delete evicting inode dirty
+        patches@lists.linux.dev,
+        syzbot <syzbot+bed15dbf10294aa4f2ae@syzkaller.appspotmail.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 093/159] fs/ntfs3: dont hold ni_lock when calling truncate_setsize()
 Date:   Tue, 10 Jan 2023 19:04:01 +0100
-Message-Id: <20230110180036.980717866@linuxfoundation.org>
+Message-Id: <20230110180021.257462804@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 318cdc822c63b6e2befcfdc2088378ae6fa18def upstream.
+[ Upstream commit 0226635c304cfd5c9db9b78c259cb713819b057e ]
 
-In ext4_evict_inode(), if we evicting an inode in the 'no_delete' path,
-it cannot be raced by another mark_inode_dirty(). If it happens,
-someone else may accidentally dirty it without holding inode refcount
-and probably cause use-after-free issues in the writeback procedure.
-It's indiscoverable and hard to debug, so add an WARN_ON_ONCE() to
-check and detect this issue in advance.
+syzbot is reporting hung task at do_user_addr_fault() [1], for there is
+a silent deadlock between PG_locked bit and ni_lock lock.
 
-Suggested-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220629112647.4141034-2-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since filemap_update_page() calls filemap_read_folio() after calling
+folio_trylock() which will set PG_locked bit, ntfs_truncate() must not
+call truncate_setsize() which will wait for PG_locked bit to be cleared
+when holding ni_lock lock.
+
+Link: https://lore.kernel.org/all/00000000000060d41f05f139aa44@google.com/
+Link: https://syzkaller.appspot.com/bug?extid=bed15dbf10294aa4f2ae [1]
+Reported-by: syzbot <syzbot+bed15dbf10294aa4f2ae@syzkaller.appspotmail.com>
+Debugged-by: Linus Torvalds <torvalds@linux-foundation.org>
+Co-developed-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 4342306f0f0d ("fs/ntfs3: Add file operations and implementation")
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ntfs3/file.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -338,6 +338,12 @@ stop_handle:
- 	ext4_xattr_inode_array_free(ea_inode_array);
- 	return;
- no_delete:
-+	/*
-+	 * Check out some where else accidentally dirty the evicting inode,
-+	 * which may probably cause inode use-after-free issues later.
-+	 */
-+	WARN_ON_ONCE(!list_empty_careful(&inode->i_io_list));
+diff --git a/fs/ntfs3/file.c b/fs/ntfs3/file.c
+index 4f2ffc7ef296..f31c0389a2e7 100644
+--- a/fs/ntfs3/file.c
++++ b/fs/ntfs3/file.c
+@@ -486,10 +486,10 @@ static int ntfs_truncate(struct inode *inode, loff_t new_size)
+ 
+ 	new_valid = ntfs_up_block(sb, min_t(u64, ni->i_valid, new_size));
+ 
+-	ni_lock(ni);
+-
+ 	truncate_setsize(inode, new_size);
+ 
++	ni_lock(ni);
 +
- 	if (!list_empty(&EXT4_I(inode)->i_fc_list))
- 		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM, NULL);
- 	ext4_clear_inode(inode);	/* We must guarantee clearing of inode... */
+ 	down_write(&ni->file.run_lock);
+ 	err = attr_set_size(ni, ATTR_DATA, NULL, 0, &ni->file.run, new_size,
+ 			    &new_valid, ni->mi.sbi->options->prealloc, NULL);
+-- 
+2.35.1
+
 
 
