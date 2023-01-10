@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F9F664B07
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2698C664B23
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239474AbjAJSiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53926 "EHLO
+        id S239422AbjAJSjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:39:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239497AbjAJSiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEE64BC2B
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:38 -0800 (PST)
+        with ESMTP id S239591AbjAJSiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFFD919C04
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CA406183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CA6EC433EF;
-        Tue, 10 Jan 2023 18:33:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 927ECB818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA4D4C433F0;
+        Tue, 10 Jan 2023 18:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375617;
-        bh=wL3ahbFvoXvzkCr9+8F1FRWLK2t4id05bo+AMRIlzLY=;
+        s=korg; t=1673375621;
+        bh=NUWbpgOyZQpQaOjxCGZOQUYD9m2a/zVpPuU8XztvRHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Y6H94UR/Glh3BYEwbDdsZ8rQhrx2SnBSwzrFrzkYcbB5MRnpxWGAqVw7uwk5RmjP
-         wn/F5y+o5nkAxp6PtleFR7PbkVKAuEHUfmB9eevTLIoNB7+Mn9F55+7BqNZry3/M5o
-         8wFsre/Q+FShMsTgZ+kkAUaVCpfvnsrwxL4ItkSs=
+        b=spvULVfHBlpKGTQ7YX0BhNM6XIOuslcpQAfK4qUxbmy5wCzR9aEB7OWFuAgLOXnCA
+         dJ7ozkgGrJrS1Q6e7Ywc/zlpbbb1tPnS+mmDgHYxLJkL/rt9qXW8dkymUk9YMHgt9S
+         lV3gpCFCpoTNB98s7eD7jhHR1rPvEI+/3wMaGJYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+9204e7399656300bf271@syzkaller.appspotmail.com,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
+        Miaoqian Lin <linmq006@gmail.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 248/290] netfilter: ipset: Rework long task execution when adding/deleting entries
-Date:   Tue, 10 Jan 2023 19:05:40 +0100
-Message-Id: <20230110180040.569129134@linuxfoundation.org>
+Subject: [PATCH 5.15 249/290] perf tools: Fix resources leak in perf_data__open_dir()
+Date:   Tue, 10 Jan 2023 19:05:41 +0100
+Message-Id: <20230110180040.599840425@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -55,459 +60,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jozsef Kadlecsik <kadlec@netfilter.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 5e29dc36bd5e2166b834ceb19990d9e68a734d7d ]
+[ Upstream commit 0a6564ebd953c4590663c9a3c99a3ea9920ade6f ]
 
-When adding/deleting large number of elements in one step in ipset, it can
-take a reasonable amount of time and can result in soft lockup errors. The
-patch 5f7b51bf09ba ("netfilter: ipset: Limit the maximal range of
-consecutive elements to add/delete") tried to fix it by limiting the max
-elements to process at all. However it was not enough, it is still possible
-that we get hung tasks. Lowering the limit is not reasonable, so the
-approach in this patch is as follows: rely on the method used at resizing
-sets and save the state when we reach a smaller internal batch limit,
-unlock/lock and proceed from the saved state. Thus we can avoid long
-continuous tasks and at the same time removed the limit to add/delete large
-number of elements in one step.
+In perf_data__open_dir(), opendir() opens the directory stream.  Add
+missing closedir() to release it after use.
 
-The nfnl mutex is held during the whole operation which prevents one to
-issue other ipset commands in parallel.
-
-Fixes: 5f7b51bf09ba ("netfilter: ipset: Limit the maximal range of consecutive elements to add/delete")
-Reported-by: syzbot+9204e7399656300bf271@syzkaller.appspotmail.com
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: eb6176709b235b96 ("perf data: Add perf_data__open_dir_data function")
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Bayduraev <alexey.v.bayduraev@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20221229090903.1402395-1-linmq006@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter/ipset/ip_set.h      |  2 +-
- net/netfilter/ipset/ip_set_core.c           |  7 ++++---
- net/netfilter/ipset/ip_set_hash_ip.c        | 14 ++++++-------
- net/netfilter/ipset/ip_set_hash_ipmark.c    | 13 ++++++------
- net/netfilter/ipset/ip_set_hash_ipport.c    | 13 ++++++------
- net/netfilter/ipset/ip_set_hash_ipportip.c  | 13 ++++++------
- net/netfilter/ipset/ip_set_hash_ipportnet.c | 13 +++++++-----
- net/netfilter/ipset/ip_set_hash_net.c       | 17 +++++++--------
- net/netfilter/ipset/ip_set_hash_netiface.c  | 15 ++++++--------
- net/netfilter/ipset/ip_set_hash_netnet.c    | 23 +++++++--------------
- net/netfilter/ipset/ip_set_hash_netport.c   | 19 +++++++----------
- 11 files changed, 68 insertions(+), 81 deletions(-)
+ tools/perf/util/data.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/netfilter/ipset/ip_set.h b/include/linux/netfilter/ipset/ip_set.h
-index ada1296c87d5..72f5ebc5c97a 100644
---- a/include/linux/netfilter/ipset/ip_set.h
-+++ b/include/linux/netfilter/ipset/ip_set.h
-@@ -197,7 +197,7 @@ struct ip_set_region {
- };
- 
- /* Max range where every element is added/deleted in one step */
--#define IPSET_MAX_RANGE		(1<<20)
-+#define IPSET_MAX_RANGE		(1<<14)
- 
- /* The max revision number supported by any set type + 1 */
- #define IPSET_REVISION_MAX	9
-diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
-index 16ae92054baa..ae061b27e446 100644
---- a/net/netfilter/ipset/ip_set_core.c
-+++ b/net/netfilter/ipset/ip_set_core.c
-@@ -1698,9 +1698,10 @@ call_ad(struct net *net, struct sock *ctnl, struct sk_buff *skb,
- 		ret = set->variant->uadt(set, tb, adt, &lineno, flags, retried);
- 		ip_set_unlock(set);
- 		retried = true;
--	} while (ret == -EAGAIN &&
--		 set->variant->resize &&
--		 (ret = set->variant->resize(set, retried)) == 0);
-+	} while (ret == -ERANGE ||
-+		 (ret == -EAGAIN &&
-+		  set->variant->resize &&
-+		  (ret = set->variant->resize(set, retried)) == 0));
- 
- 	if (!ret || (ret == -IPSET_ERR_EXIST && eexist))
- 		return 0;
-diff --git a/net/netfilter/ipset/ip_set_hash_ip.c b/net/netfilter/ipset/ip_set_hash_ip.c
-index 75d556d71652..24adcdd7a0b1 100644
---- a/net/netfilter/ipset/ip_set_hash_ip.c
-+++ b/net/netfilter/ipset/ip_set_hash_ip.c
-@@ -98,11 +98,11 @@ static int
- hash_ip4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	      enum ipset_adt adt, u32 *lineno, u32 flags, bool retried)
- {
--	const struct hash_ip4 *h = set->data;
-+	struct hash_ip4 *h = set->data;
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_ip4_elem e = { 0 };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 ip = 0, ip_to = 0, hosts;
-+	u32 ip = 0, ip_to = 0, hosts, i = 0;
- 	int ret = 0;
- 
- 	if (tb[IPSET_ATTR_LINENO])
-@@ -147,14 +147,14 @@ hash_ip4_uadt(struct ip_set *set, struct nlattr *tb[],
- 
- 	hosts = h->netmask == 32 ? 1 : 2 << (32 - h->netmask - 1);
- 
--	/* 64bit division is not allowed on 32bit */
--	if (((u64)ip_to - ip + 1) >> (32 - h->netmask) > IPSET_MAX_RANGE)
--		return -ERANGE;
--
- 	if (retried)
- 		ip = ntohl(h->next.ip);
--	for (; ip <= ip_to;) {
-+	for (; ip <= ip_to; i++) {
- 		e.ip = htonl(ip);
-+		if (i > IPSET_MAX_RANGE) {
-+			hash_ip4_data_next(&h->next, &e);
-+			return -ERANGE;
-+		}
- 		ret = adtfn(set, &e, &ext, &ext, flags);
- 		if (ret && !ip_set_eexist(ret, flags))
- 			return ret;
-diff --git a/net/netfilter/ipset/ip_set_hash_ipmark.c b/net/netfilter/ipset/ip_set_hash_ipmark.c
-index 153de3457423..a22ec1a6f6ec 100644
---- a/net/netfilter/ipset/ip_set_hash_ipmark.c
-+++ b/net/netfilter/ipset/ip_set_hash_ipmark.c
-@@ -97,11 +97,11 @@ static int
- hash_ipmark4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		  enum ipset_adt adt, u32 *lineno, u32 flags, bool retried)
- {
--	const struct hash_ipmark4 *h = set->data;
-+	struct hash_ipmark4 *h = set->data;
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_ipmark4_elem e = { };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 ip, ip_to = 0;
-+	u32 ip, ip_to = 0, i = 0;
- 	int ret;
- 
- 	if (tb[IPSET_ATTR_LINENO])
-@@ -148,13 +148,14 @@ hash_ipmark4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		ip_set_mask_from_to(ip, ip_to, cidr);
+diff --git a/tools/perf/util/data.c b/tools/perf/util/data.c
+index 15a4547d608e..090a76be522b 100644
+--- a/tools/perf/util/data.c
++++ b/tools/perf/util/data.c
+@@ -127,6 +127,7 @@ int perf_data__open_dir(struct perf_data *data)
+ 		file->size = st.st_size;
  	}
  
--	if (((u64)ip_to - ip + 1) > IPSET_MAX_RANGE)
--		return -ERANGE;
--
- 	if (retried)
- 		ip = ntohl(h->next.ip);
--	for (; ip <= ip_to; ip++) {
-+	for (; ip <= ip_to; ip++, i++) {
- 		e.ip = htonl(ip);
-+		if (i > IPSET_MAX_RANGE) {
-+			hash_ipmark4_data_next(&h->next, &e);
-+			return -ERANGE;
-+		}
- 		ret = adtfn(set, &e, &ext, &ext, flags);
++	closedir(dir);
+ 	if (!files)
+ 		return -EINVAL;
  
- 		if (ret && !ip_set_eexist(ret, flags))
-diff --git a/net/netfilter/ipset/ip_set_hash_ipport.c b/net/netfilter/ipset/ip_set_hash_ipport.c
-index 7303138e46be..10481760a9b2 100644
---- a/net/netfilter/ipset/ip_set_hash_ipport.c
-+++ b/net/netfilter/ipset/ip_set_hash_ipport.c
-@@ -105,11 +105,11 @@ static int
- hash_ipport4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		  enum ipset_adt adt, u32 *lineno, u32 flags, bool retried)
- {
--	const struct hash_ipport4 *h = set->data;
-+	struct hash_ipport4 *h = set->data;
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_ipport4_elem e = { .ip = 0 };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 ip, ip_to = 0, p = 0, port, port_to;
-+	u32 ip, ip_to = 0, p = 0, port, port_to, i = 0;
- 	bool with_ports = false;
- 	int ret;
+@@ -135,6 +136,7 @@ int perf_data__open_dir(struct perf_data *data)
+ 	return 0;
  
-@@ -173,17 +173,18 @@ hash_ipport4_uadt(struct ip_set *set, struct nlattr *tb[],
- 			swap(port, port_to);
- 	}
- 
--	if (((u64)ip_to - ip + 1)*(port_to - port + 1) > IPSET_MAX_RANGE)
--		return -ERANGE;
--
- 	if (retried)
- 		ip = ntohl(h->next.ip);
- 	for (; ip <= ip_to; ip++) {
- 		p = retried && ip == ntohl(h->next.ip) ? ntohs(h->next.port)
- 						       : port;
--		for (; p <= port_to; p++) {
-+		for (; p <= port_to; p++, i++) {
- 			e.ip = htonl(ip);
- 			e.port = htons(p);
-+			if (i > IPSET_MAX_RANGE) {
-+				hash_ipport4_data_next(&h->next, &e);
-+				return -ERANGE;
-+			}
- 			ret = adtfn(set, &e, &ext, &ext, flags);
- 
- 			if (ret && !ip_set_eexist(ret, flags))
-diff --git a/net/netfilter/ipset/ip_set_hash_ipportip.c b/net/netfilter/ipset/ip_set_hash_ipportip.c
-index 334fb1ad0e86..39a01934b153 100644
---- a/net/netfilter/ipset/ip_set_hash_ipportip.c
-+++ b/net/netfilter/ipset/ip_set_hash_ipportip.c
-@@ -108,11 +108,11 @@ static int
- hash_ipportip4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		    enum ipset_adt adt, u32 *lineno, u32 flags, bool retried)
- {
--	const struct hash_ipportip4 *h = set->data;
-+	struct hash_ipportip4 *h = set->data;
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_ipportip4_elem e = { .ip = 0 };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 ip, ip_to = 0, p = 0, port, port_to;
-+	u32 ip, ip_to = 0, p = 0, port, port_to, i = 0;
- 	bool with_ports = false;
- 	int ret;
- 
-@@ -180,17 +180,18 @@ hash_ipportip4_uadt(struct ip_set *set, struct nlattr *tb[],
- 			swap(port, port_to);
- 	}
- 
--	if (((u64)ip_to - ip + 1)*(port_to - port + 1) > IPSET_MAX_RANGE)
--		return -ERANGE;
--
- 	if (retried)
- 		ip = ntohl(h->next.ip);
- 	for (; ip <= ip_to; ip++) {
- 		p = retried && ip == ntohl(h->next.ip) ? ntohs(h->next.port)
- 						       : port;
--		for (; p <= port_to; p++) {
-+		for (; p <= port_to; p++, i++) {
- 			e.ip = htonl(ip);
- 			e.port = htons(p);
-+			if (i > IPSET_MAX_RANGE) {
-+				hash_ipportip4_data_next(&h->next, &e);
-+				return -ERANGE;
-+			}
- 			ret = adtfn(set, &e, &ext, &ext, flags);
- 
- 			if (ret && !ip_set_eexist(ret, flags))
-diff --git a/net/netfilter/ipset/ip_set_hash_ipportnet.c b/net/netfilter/ipset/ip_set_hash_ipportnet.c
-index 7df94f437f60..5c6de605a9fb 100644
---- a/net/netfilter/ipset/ip_set_hash_ipportnet.c
-+++ b/net/netfilter/ipset/ip_set_hash_ipportnet.c
-@@ -160,12 +160,12 @@ static int
- hash_ipportnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		     enum ipset_adt adt, u32 *lineno, u32 flags, bool retried)
- {
--	const struct hash_ipportnet4 *h = set->data;
-+	struct hash_ipportnet4 *h = set->data;
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_ipportnet4_elem e = { .cidr = HOST_MASK - 1 };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
- 	u32 ip = 0, ip_to = 0, p = 0, port, port_to;
--	u32 ip2_from = 0, ip2_to = 0, ip2;
-+	u32 ip2_from = 0, ip2_to = 0, ip2, i = 0;
- 	bool with_ports = false;
- 	u8 cidr;
- 	int ret;
-@@ -253,9 +253,6 @@ hash_ipportnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 			swap(port, port_to);
- 	}
- 
--	if (((u64)ip_to - ip + 1)*(port_to - port + 1) > IPSET_MAX_RANGE)
--		return -ERANGE;
--
- 	ip2_to = ip2_from;
- 	if (tb[IPSET_ATTR_IP2_TO]) {
- 		ret = ip_set_get_hostipaddr4(tb[IPSET_ATTR_IP2_TO], &ip2_to);
-@@ -282,9 +279,15 @@ hash_ipportnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		for (; p <= port_to; p++) {
- 			e.port = htons(p);
- 			do {
-+				i++;
- 				e.ip2 = htonl(ip2);
- 				ip2 = ip_set_range_to_cidr(ip2, ip2_to, &cidr);
- 				e.cidr = cidr - 1;
-+				if (i > IPSET_MAX_RANGE) {
-+					hash_ipportnet4_data_next(&h->next,
-+								  &e);
-+					return -ERANGE;
-+				}
- 				ret = adtfn(set, &e, &ext, &ext, flags);
- 
- 				if (ret && !ip_set_eexist(ret, flags))
-diff --git a/net/netfilter/ipset/ip_set_hash_net.c b/net/netfilter/ipset/ip_set_hash_net.c
-index 1422739d9aa2..ce0a9ce5a91f 100644
---- a/net/netfilter/ipset/ip_set_hash_net.c
-+++ b/net/netfilter/ipset/ip_set_hash_net.c
-@@ -136,11 +136,11 @@ static int
- hash_net4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	       enum ipset_adt adt, u32 *lineno, u32 flags, bool retried)
- {
--	const struct hash_net4 *h = set->data;
-+	struct hash_net4 *h = set->data;
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_net4_elem e = { .cidr = HOST_MASK };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 ip = 0, ip_to = 0, ipn, n = 0;
-+	u32 ip = 0, ip_to = 0, i = 0;
- 	int ret;
- 
- 	if (tb[IPSET_ATTR_LINENO])
-@@ -188,19 +188,16 @@ hash_net4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		if (ip + UINT_MAX == ip_to)
- 			return -IPSET_ERR_HASH_RANGE;
- 	}
--	ipn = ip;
--	do {
--		ipn = ip_set_range_to_cidr(ipn, ip_to, &e.cidr);
--		n++;
--	} while (ipn++ < ip_to);
--
--	if (n > IPSET_MAX_RANGE)
--		return -ERANGE;
- 
- 	if (retried)
- 		ip = ntohl(h->next.ip);
- 	do {
-+		i++;
- 		e.ip = htonl(ip);
-+		if (i > IPSET_MAX_RANGE) {
-+			hash_net4_data_next(&h->next, &e);
-+			return -ERANGE;
-+		}
- 		ip = ip_set_range_to_cidr(ip, ip_to, &e.cidr);
- 		ret = adtfn(set, &e, &ext, &ext, flags);
- 		if (ret && !ip_set_eexist(ret, flags))
-diff --git a/net/netfilter/ipset/ip_set_hash_netiface.c b/net/netfilter/ipset/ip_set_hash_netiface.c
-index 9810f5bf63f5..031073286236 100644
---- a/net/netfilter/ipset/ip_set_hash_netiface.c
-+++ b/net/netfilter/ipset/ip_set_hash_netiface.c
-@@ -202,7 +202,7 @@ hash_netiface4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_netiface4_elem e = { .cidr = HOST_MASK, .elem = 1 };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 ip = 0, ip_to = 0, ipn, n = 0;
-+	u32 ip = 0, ip_to = 0, i = 0;
- 	int ret;
- 
- 	if (tb[IPSET_ATTR_LINENO])
-@@ -256,19 +256,16 @@ hash_netiface4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	} else {
- 		ip_set_mask_from_to(ip, ip_to, e.cidr);
- 	}
--	ipn = ip;
--	do {
--		ipn = ip_set_range_to_cidr(ipn, ip_to, &e.cidr);
--		n++;
--	} while (ipn++ < ip_to);
--
--	if (n > IPSET_MAX_RANGE)
--		return -ERANGE;
- 
- 	if (retried)
- 		ip = ntohl(h->next.ip);
- 	do {
-+		i++;
- 		e.ip = htonl(ip);
-+		if (i > IPSET_MAX_RANGE) {
-+			hash_netiface4_data_next(&h->next, &e);
-+			return -ERANGE;
-+		}
- 		ip = ip_set_range_to_cidr(ip, ip_to, &e.cidr);
- 		ret = adtfn(set, &e, &ext, &ext, flags);
- 
-diff --git a/net/netfilter/ipset/ip_set_hash_netnet.c b/net/netfilter/ipset/ip_set_hash_netnet.c
-index 3d09eefe998a..c07b70bf32db 100644
---- a/net/netfilter/ipset/ip_set_hash_netnet.c
-+++ b/net/netfilter/ipset/ip_set_hash_netnet.c
-@@ -163,13 +163,12 @@ static int
- hash_netnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		  enum ipset_adt adt, u32 *lineno, u32 flags, bool retried)
- {
--	const struct hash_netnet4 *h = set->data;
-+	struct hash_netnet4 *h = set->data;
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_netnet4_elem e = { };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
- 	u32 ip = 0, ip_to = 0;
--	u32 ip2 = 0, ip2_from = 0, ip2_to = 0, ipn;
--	u64 n = 0, m = 0;
-+	u32 ip2 = 0, ip2_from = 0, ip2_to = 0, i = 0;
- 	int ret;
- 
- 	if (tb[IPSET_ATTR_LINENO])
-@@ -245,19 +244,6 @@ hash_netnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	} else {
- 		ip_set_mask_from_to(ip2_from, ip2_to, e.cidr[1]);
- 	}
--	ipn = ip;
--	do {
--		ipn = ip_set_range_to_cidr(ipn, ip_to, &e.cidr[0]);
--		n++;
--	} while (ipn++ < ip_to);
--	ipn = ip2_from;
--	do {
--		ipn = ip_set_range_to_cidr(ipn, ip2_to, &e.cidr[1]);
--		m++;
--	} while (ipn++ < ip2_to);
--
--	if (n*m > IPSET_MAX_RANGE)
--		return -ERANGE;
- 
- 	if (retried) {
- 		ip = ntohl(h->next.ip[0]);
-@@ -270,7 +256,12 @@ hash_netnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		e.ip[0] = htonl(ip);
- 		ip = ip_set_range_to_cidr(ip, ip_to, &e.cidr[0]);
- 		do {
-+			i++;
- 			e.ip[1] = htonl(ip2);
-+			if (i > IPSET_MAX_RANGE) {
-+				hash_netnet4_data_next(&h->next, &e);
-+				return -ERANGE;
-+			}
- 			ip2 = ip_set_range_to_cidr(ip2, ip2_to, &e.cidr[1]);
- 			ret = adtfn(set, &e, &ext, &ext, flags);
- 			if (ret && !ip_set_eexist(ret, flags))
-diff --git a/net/netfilter/ipset/ip_set_hash_netport.c b/net/netfilter/ipset/ip_set_hash_netport.c
-index 09cf72eb37f8..d1a0628df4ef 100644
---- a/net/netfilter/ipset/ip_set_hash_netport.c
-+++ b/net/netfilter/ipset/ip_set_hash_netport.c
-@@ -154,12 +154,11 @@ static int
- hash_netport4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		   enum ipset_adt adt, u32 *lineno, u32 flags, bool retried)
- {
--	const struct hash_netport4 *h = set->data;
-+	struct hash_netport4 *h = set->data;
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_netport4_elem e = { .cidr = HOST_MASK - 1 };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 port, port_to, p = 0, ip = 0, ip_to = 0, ipn;
--	u64 n = 0;
-+	u32 port, port_to, p = 0, ip = 0, ip_to = 0, i = 0;
- 	bool with_ports = false;
- 	u8 cidr;
- 	int ret;
-@@ -236,14 +235,6 @@ hash_netport4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	} else {
- 		ip_set_mask_from_to(ip, ip_to, e.cidr + 1);
- 	}
--	ipn = ip;
--	do {
--		ipn = ip_set_range_to_cidr(ipn, ip_to, &cidr);
--		n++;
--	} while (ipn++ < ip_to);
--
--	if (n*(port_to - port + 1) > IPSET_MAX_RANGE)
--		return -ERANGE;
- 
- 	if (retried) {
- 		ip = ntohl(h->next.ip);
-@@ -255,8 +246,12 @@ hash_netport4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		e.ip = htonl(ip);
- 		ip = ip_set_range_to_cidr(ip, ip_to, &cidr);
- 		e.cidr = cidr - 1;
--		for (; p <= port_to; p++) {
-+		for (; p <= port_to; p++, i++) {
- 			e.port = htons(p);
-+			if (i > IPSET_MAX_RANGE) {
-+				hash_netport4_data_next(&h->next, &e);
-+				return -ERANGE;
-+			}
- 			ret = adtfn(set, &e, &ext, &ext, flags);
- 			if (ret && !ip_set_eexist(ret, flags))
- 				return ret;
+ out_err:
++	closedir(dir);
+ 	close_dir(files, nr);
+ 	return ret;
+ }
 -- 
 2.35.1
 
