@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DFA66492A
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D67E664883
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239059AbjAJSSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:18:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59338 "EHLO
+        id S233597AbjAJSMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239158AbjAJSSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:18:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF73887936
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:25 -0800 (PST)
+        with ESMTP id S238965AbjAJSLw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:11:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72AF916483
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B0B06182C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 191F4C433EF;
-        Tue, 10 Jan 2023 18:16:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F08516186D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09DDBC433EF;
+        Tue, 10 Jan 2023 18:09:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374584;
-        bh=sJbNDVqeUB6hBhszBFPEQPXgKTnUPpTdcG7iiRE056Q=;
+        s=korg; t=1673374196;
+        bh=EyFzlm1AF0BcmS4C0dEN0f2te3uirLZkZiddwNlgE3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bYNTTqXmHsa8MJ+dVd/6O6HRLkIxJ9a2nSR1jGACPY2FrmtZ2jM20SoYxtovoZMOI
-         QJJqcOkelEnd0gAWRrDtQJ24eib1ZiJlZ2twEUJiQk1WvWAR4V/meROmD9CTYrXpxq
-         6twiErELtsFMONRvxZd8r+JAV7FHQi/D32Wbd3V8=
+        b=Zo9ufSz4Ko22iI+6vcB2XeQzLRlX7NUyRyj/Htia7p9GTtZMn+u+wkNanaQUQzeQw
+         tESxb1FVjmKNYNT6K79hRsRpA8cNleLkgpww0BzxxVa5PgAiOhLHYw5WxqNcS6JDMr
+         y/j6uB1b8QrMShTCsVCo4mr3wcfoMMzIwJNSd0VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andy Gospodarek <andrew.gospodarek@broadcom.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        patches@lists.linux.dev, Ido Schimmel <idosch@nvidia.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 037/159] bnxt_en: Fix XDP RX path
-Date:   Tue, 10 Jan 2023 19:03:05 +0100
-Message-Id: <20230110180019.497412113@linuxfoundation.org>
+Subject: [PATCH 6.0 082/148] vxlan: Fix memory leaks in error path
+Date:   Tue, 10 Jan 2023 19:03:06 +0100
+Message-Id: <20230110180019.805593918@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 9b3e607871ea5ee90f10f5be3965fc07f2aa3ef7 ]
+[ Upstream commit 06bf62944144a92d83dd14fd1378d2a288259561 ]
 
-The XDP program can change the starting address of the RX data buffer and
-this information needs to be passed back from bnxt_rx_xdp() to
-bnxt_rx_pkt() for the XDP_PASS case so that the SKB can point correctly
-to the modified buffer address.  Add back the data_ptr parameter to
-bnxt_rx_xdp() to make this work.
+The memory allocated by vxlan_vnigroup_init() is not freed in the error
+path, leading to memory leaks [1]. Fix by calling
+vxlan_vnigroup_uninit() in the error path.
 
-Fixes: b231c3f3414c ("bnxt: refactor bnxt_rx_xdp to separate xdp_init_buff/xdp_prepare_buff")
-Reviewed-by: Andy Gospodarek <andrew.gospodarek@broadcom.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+The leaks can be reproduced by annotating gro_cells_init() with
+ALLOW_ERROR_INJECTION() and then running:
+
+ # echo "100" > /sys/kernel/debug/fail_function/probability
+ # echo "1" > /sys/kernel/debug/fail_function/times
+ # echo "gro_cells_init" > /sys/kernel/debug/fail_function/inject
+ # printf %#x -12 > /sys/kernel/debug/fail_function/gro_cells_init/retval
+ # ip link add name vxlan0 type vxlan dstport 4789 external vnifilter
+ RTNETLINK answers: Cannot allocate memory
+
+[1]
+unreferenced object 0xffff88810db84a00 (size 512):
+  comm "ip", pid 330, jiffies 4295010045 (age 66.016s)
+  hex dump (first 32 bytes):
+    f8 d5 76 0e 81 88 ff ff 01 00 00 00 00 00 00 02  ..v.............
+    03 00 04 00 48 00 00 00 00 00 00 01 04 00 01 00  ....H...........
+  backtrace:
+    [<ffffffff81a3097a>] kmalloc_trace+0x2a/0x60
+    [<ffffffff82f049fc>] vxlan_vnigroup_init+0x4c/0x160
+    [<ffffffff82ecd69e>] vxlan_init+0x1ae/0x280
+    [<ffffffff836858ca>] register_netdevice+0x57a/0x16d0
+    [<ffffffff82ef67b7>] __vxlan_dev_create+0x7c7/0xa50
+    [<ffffffff82ef6ce6>] vxlan_newlink+0xd6/0x130
+    [<ffffffff836d02ab>] __rtnl_newlink+0x112b/0x18a0
+    [<ffffffff836d0a8c>] rtnl_newlink+0x6c/0xa0
+    [<ffffffff836c0ddf>] rtnetlink_rcv_msg+0x43f/0xd40
+    [<ffffffff83908ce0>] netlink_rcv_skb+0x170/0x440
+    [<ffffffff839066af>] netlink_unicast+0x53f/0x810
+    [<ffffffff839072d8>] netlink_sendmsg+0x958/0xe70
+    [<ffffffff835c319f>] ____sys_sendmsg+0x78f/0xa90
+    [<ffffffff835cd6da>] ___sys_sendmsg+0x13a/0x1e0
+    [<ffffffff835cd94c>] __sys_sendmsg+0x11c/0x1f0
+    [<ffffffff8424da78>] do_syscall_64+0x38/0x80
+unreferenced object 0xffff88810e76d5f8 (size 192):
+  comm "ip", pid 330, jiffies 4295010045 (age 66.016s)
+  hex dump (first 32 bytes):
+    04 00 00 00 00 00 00 00 db e1 4f e7 00 00 00 00  ..........O.....
+    08 d6 76 0e 81 88 ff ff 08 d6 76 0e 81 88 ff ff  ..v.......v.....
+  backtrace:
+    [<ffffffff81a3162e>] __kmalloc_node+0x4e/0x90
+    [<ffffffff81a0e166>] kvmalloc_node+0xa6/0x1f0
+    [<ffffffff8276e1a3>] bucket_table_alloc.isra.0+0x83/0x460
+    [<ffffffff8276f18b>] rhashtable_init+0x43b/0x7c0
+    [<ffffffff82f04a1c>] vxlan_vnigroup_init+0x6c/0x160
+    [<ffffffff82ecd69e>] vxlan_init+0x1ae/0x280
+    [<ffffffff836858ca>] register_netdevice+0x57a/0x16d0
+    [<ffffffff82ef67b7>] __vxlan_dev_create+0x7c7/0xa50
+    [<ffffffff82ef6ce6>] vxlan_newlink+0xd6/0x130
+    [<ffffffff836d02ab>] __rtnl_newlink+0x112b/0x18a0
+    [<ffffffff836d0a8c>] rtnl_newlink+0x6c/0xa0
+    [<ffffffff836c0ddf>] rtnetlink_rcv_msg+0x43f/0xd40
+    [<ffffffff83908ce0>] netlink_rcv_skb+0x170/0x440
+    [<ffffffff839066af>] netlink_unicast+0x53f/0x810
+    [<ffffffff839072d8>] netlink_sendmsg+0x958/0xe70
+    [<ffffffff835c319f>] ____sys_sendmsg+0x78f/0xa90
+
+Fixes: f9c4bb0b245c ("vxlan: vni filtering support on collect metadata device")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c     | 2 +-
- drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c | 7 +++++--
- drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h | 4 ++--
- 3 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/vxlan/vxlan_core.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 0166c99cb7c6..a83d534a096a 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -1937,7 +1937,7 @@ static int bnxt_rx_pkt(struct bnxt *bp, struct bnxt_cp_ring_info *cpr,
- 	}
+diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
+index c3285242f74f..a03752ef544f 100644
+--- a/drivers/net/vxlan/vxlan_core.c
++++ b/drivers/net/vxlan/vxlan_core.c
+@@ -2920,16 +2920,23 @@ static int vxlan_init(struct net_device *dev)
+ 		vxlan_vnigroup_init(vxlan);
  
- 	if (xdp_active) {
--		if (bnxt_rx_xdp(bp, rxr, cons, xdp, data, &len, event)) {
-+		if (bnxt_rx_xdp(bp, rxr, cons, xdp, data, &data_ptr, &len, event)) {
- 			rc = 1;
- 			goto next_rx;
- 		}
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
-index 1847f191577d..2ceeaa818c1c 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
-@@ -222,7 +222,8 @@ void bnxt_xdp_buff_frags_free(struct bnxt_rx_ring_info *rxr,
-  * false   - packet should be passed to the stack.
-  */
- bool bnxt_rx_xdp(struct bnxt *bp, struct bnxt_rx_ring_info *rxr, u16 cons,
--		 struct xdp_buff xdp, struct page *page, unsigned int *len, u8 *event)
-+		 struct xdp_buff xdp, struct page *page, u8 **data_ptr,
-+		 unsigned int *len, u8 *event)
- {
- 	struct bpf_prog *xdp_prog = READ_ONCE(rxr->xdp_prog);
- 	struct bnxt_tx_ring_info *txr;
-@@ -255,8 +256,10 @@ bool bnxt_rx_xdp(struct bnxt *bp, struct bnxt_rx_ring_info *rxr, u16 cons,
- 		*event &= ~BNXT_RX_EVENT;
- 
- 	*len = xdp.data_end - xdp.data;
--	if (orig_data != xdp.data)
-+	if (orig_data != xdp.data) {
- 		offset = xdp.data - xdp.data_hard_start;
-+		*data_ptr = xdp.data_hard_start + offset;
+ 	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
+-	if (!dev->tstats)
+-		return -ENOMEM;
++	if (!dev->tstats) {
++		err = -ENOMEM;
++		goto err_vnigroup_uninit;
 +	}
  
- 	switch (act) {
- 	case XDP_PASS:
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
-index 2bbdb8e7c506..ea430d6961df 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
-@@ -18,8 +18,8 @@ struct bnxt_sw_tx_bd *bnxt_xmit_bd(struct bnxt *bp,
- 				   struct xdp_buff *xdp);
- void bnxt_tx_int_xdp(struct bnxt *bp, struct bnxt_napi *bnapi, int nr_pkts);
- bool bnxt_rx_xdp(struct bnxt *bp, struct bnxt_rx_ring_info *rxr, u16 cons,
--		 struct xdp_buff xdp, struct page *page, unsigned int *len,
--		 u8 *event);
-+		 struct xdp_buff xdp, struct page *page, u8 **data_ptr,
-+		 unsigned int *len, u8 *event);
- int bnxt_xdp(struct net_device *dev, struct netdev_bpf *xdp);
- int bnxt_xdp_xmit(struct net_device *dev, int num_frames,
- 		  struct xdp_frame **frames, u32 flags);
+ 	err = gro_cells_init(&vxlan->gro_cells, dev);
+-	if (err) {
+-		free_percpu(dev->tstats);
+-		return err;
+-	}
++	if (err)
++		goto err_free_percpu;
+ 
+ 	return 0;
++
++err_free_percpu:
++	free_percpu(dev->tstats);
++err_vnigroup_uninit:
++	if (vxlan->cfg.flags & VXLAN_F_VNIFILTER)
++		vxlan_vnigroup_uninit(vxlan);
++	return err;
+ }
+ 
+ static void vxlan_fdb_delete_default(struct vxlan_dev *vxlan, __be32 vni)
 -- 
 2.35.1
 
