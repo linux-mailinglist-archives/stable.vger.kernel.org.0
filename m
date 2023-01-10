@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2398B664AB1
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:35:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10A69664973
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239263AbjAJSet (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:34:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46606 "EHLO
+        id S239149AbjAJSVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:21:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239497AbjAJSdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:33:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6466796116;
-        Tue, 10 Jan 2023 10:29:51 -0800 (PST)
+        with ESMTP id S239201AbjAJSVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:21:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 163332187
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCDF36183C;
-        Tue, 10 Jan 2023 18:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3AA1C433D2;
-        Tue, 10 Jan 2023 18:29:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4CB36182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFC3EC433EF;
+        Tue, 10 Jan 2023 18:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375390;
-        bh=+WXWNH6jeRU3k+fDl+APUVH2IKvB+O2CQOXUjoaiN0Y=;
+        s=korg; t=1673374740;
+        bh=Nh+PE6b0zozXPBpBs8UrxaUxKujKyhLS05XtQAqHiw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgQgPRLcl4V1JLvibHOnzSAj7UTAqhnlq96QzN7xdmiswebdNOb+GX4VbX5rYVr4D
-         sjjjOMZQ25+2GCU7c07I25sZ5W/IJAlNZhKfkJrFG+Lpvem09Sz5DlxqhEoCvt1OIg
-         c2XI59vhFbGGhoYaGYFvCuChvmW34wxvEmDpBc+Q=
+        b=RSH26Xtxldu4q/B809QdH4/p+qhYin2NRB4C3xjKNMytGhHFUEEKv0EAi8ccl5PWN
+         jP9N4USqchVnAnC7Hi5aR93uJwIOEdP0pVQ2QfrPO7GV2qj82ecQD8t3oRLQdrkMQ0
+         xOdp/UaYT5kP4hzDYmkyrmRFdUsRyqtLhp8979Fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "linux-ext4@vger.kernel.org, Theodore Tso" <tytso@mit.edu>,
-        Eric Biggers <ebiggers@google.com>,
-        Theodore Ts'o <tytso@mit.edu>
-Subject: [PATCH 5.15 174/290] ext4: add missing validation of fast-commit record lengths
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 118/159] ACPI: video: Allow GPU drivers to report no panels
 Date:   Tue, 10 Jan 2023 19:04:26 +0100
-Message-Id: <20230110180037.928741712@linuxfoundation.org>
+Message-Id: <20230110180022.057092389@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@kernel.org>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-From: Eric Biggers <ebiggers@google.com>
+[ Upstream commit 00a734104af7d878f1252d49eff9298785c6cbdc ]
 
-commit 64b4a25c3de81a69724e888ec2db3533b43816e2 upstream.
+The current logic for the ACPI backlight detection will create
+a backlight device if no native or vendor drivers have created
+8 seconds after the system has booted if the ACPI tables
+included backlight control methods.
 
-Validate the inode and filename lengths in fast-commit journal records
-so that a malicious fast-commit journal cannot cause a crash by having
-invalid values for these.  Also validate EXT4_FC_TAG_DEL_RANGE.
+If the GPU drivers have loaded, they may be able to report whether
+any LCD panels were found.  Allow using this information to factor
+in whether to enable the fallback logic for making an acpi_video0
+backlight device.
 
-Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221106224841.279231-5-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/fast_commit.c |   38 +++++++++++++++++++-------------------
- fs/ext4/fast_commit.h |    2 +-
- 2 files changed, 20 insertions(+), 20 deletions(-)
+ drivers/acpi/acpi_video.c | 11 +++++++++++
+ include/acpi/video.h      |  2 ++
+ 2 files changed, 13 insertions(+)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1916,32 +1916,31 @@ void ext4_fc_replay_cleanup(struct super
- 	kfree(sbi->s_fc_replay_state.fc_modified_inodes);
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index 32953646caeb..f64fdb029090 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -2178,6 +2178,17 @@ static bool should_check_lcd_flag(void)
+ 	return false;
  }
  
--static inline bool ext4_fc_tag_len_isvalid(struct ext4_fc_tl *tl,
--					   u8 *val, u8 *end)
-+static bool ext4_fc_value_len_isvalid(struct ext4_sb_info *sbi,
-+				      int tag, int len)
++/*
++ * At least one graphics driver has reported that no LCD is connected
++ * via the native interface. cancel the registration for fallback acpi_video0.
++ * If another driver still deems this necessary, it can explicitly register it.
++ */
++void acpi_video_report_nolcd(void)
++{
++	cancel_delayed_work(&video_bus_register_backlight_work);
++}
++EXPORT_SYMBOL(acpi_video_report_nolcd);
++
+ int acpi_video_register(void)
  {
--	if (val + tl->fc_len > end)
--		return false;
--
--	/* Here only check ADD_RANGE/TAIL/HEAD which will read data when do
--	 * journal rescan before do CRC check. Other tags length check will
--	 * rely on CRC check.
--	 */
--	switch (tl->fc_tag) {
-+	switch (tag) {
- 	case EXT4_FC_TAG_ADD_RANGE:
--		return (sizeof(struct ext4_fc_add_range) == tl->fc_len);
--	case EXT4_FC_TAG_TAIL:
--		return (sizeof(struct ext4_fc_tail) <= tl->fc_len);
--	case EXT4_FC_TAG_HEAD:
--		return (sizeof(struct ext4_fc_head) == tl->fc_len);
-+		return len == sizeof(struct ext4_fc_add_range);
- 	case EXT4_FC_TAG_DEL_RANGE:
-+		return len == sizeof(struct ext4_fc_del_range);
-+	case EXT4_FC_TAG_CREAT:
- 	case EXT4_FC_TAG_LINK:
- 	case EXT4_FC_TAG_UNLINK:
--	case EXT4_FC_TAG_CREAT:
-+		len -= sizeof(struct ext4_fc_dentry_info);
-+		return len >= 1 && len <= EXT4_NAME_LEN;
- 	case EXT4_FC_TAG_INODE:
-+		len -= sizeof(struct ext4_fc_inode);
-+		return len >= EXT4_GOOD_OLD_INODE_SIZE &&
-+			len <= sbi->s_inode_size;
- 	case EXT4_FC_TAG_PAD:
--	default:
--		return true;
-+		return true; /* padding can have any length */
-+	case EXT4_FC_TAG_TAIL:
-+		return len >= sizeof(struct ext4_fc_tail);
-+	case EXT4_FC_TAG_HEAD:
-+		return len == sizeof(struct ext4_fc_head);
- 	}
-+	return false;
- }
- 
- /*
-@@ -2004,7 +2003,8 @@ static int ext4_fc_replay_scan(journal_t
- 	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
- 		ext4_fc_get_tl(&tl, cur);
- 		val = cur + EXT4_FC_TAG_BASE_LEN;
--		if (!ext4_fc_tag_len_isvalid(&tl, val, end)) {
-+		if (tl.fc_len > end - val ||
-+		    !ext4_fc_value_len_isvalid(sbi, tl.fc_tag, tl.fc_len)) {
- 			ret = state->fc_replay_num_tags ?
- 				JBD2_FC_REPLAY_STOP : -ECANCELED;
- 			goto out_err;
---- a/fs/ext4/fast_commit.h
-+++ b/fs/ext4/fast_commit.h
-@@ -58,7 +58,7 @@ struct ext4_fc_dentry_info {
- 	__u8 fc_dname[0];
+ 	int ret = 0;
+diff --git a/include/acpi/video.h b/include/acpi/video.h
+index a275c35e5249..8ed9bec03e53 100644
+--- a/include/acpi/video.h
++++ b/include/acpi/video.h
+@@ -53,6 +53,7 @@ enum acpi_backlight_type {
  };
  
--/* Value structure for EXT4_FC_TAG_INODE and EXT4_FC_TAG_INODE_PARTIAL. */
-+/* Value structure for EXT4_FC_TAG_INODE. */
- struct ext4_fc_inode {
- 	__le32 fc_ino;
- 	__u8 fc_raw_inode[0];
+ #if IS_ENABLED(CONFIG_ACPI_VIDEO)
++extern void acpi_video_report_nolcd(void);
+ extern int acpi_video_register(void);
+ extern void acpi_video_unregister(void);
+ extern void acpi_video_register_backlight(void);
+@@ -69,6 +70,7 @@ extern int acpi_video_get_levels(struct acpi_device *device,
+ 				 struct acpi_video_device_brightness **dev_br,
+ 				 int *pmax_level);
+ #else
++static inline void acpi_video_report_nolcd(void) { return; };
+ static inline int acpi_video_register(void) { return -ENODEV; }
+ static inline void acpi_video_unregister(void) { return; }
+ static inline void acpi_video_register_backlight(void) { return; }
+-- 
+2.35.1
+
 
 
