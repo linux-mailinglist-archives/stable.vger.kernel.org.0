@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F84C664A04
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87FD2664874
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234581AbjAJS3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:29:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43678 "EHLO
+        id S234498AbjAJSLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239263AbjAJS2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C0E8BC05
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:35 -0800 (PST)
+        with ESMTP id S239092AbjAJSKa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A147B65A7
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAE396183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D21CEC433D2;
-        Tue, 10 Jan 2023 18:23:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26347B818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DA1FC433D2;
+        Tue, 10 Jan 2023 18:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375014;
-        bh=KCXNKdNnGCvwv7UhPIhQEaaJqCNCvCLh8bS2TEuILeM=;
+        s=korg; t=1673374151;
+        bh=al4WhUBLVcLg2wEADBFB5wreFDHHjfzHqyEexl0uWQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeIgCYWKE7sEIpkOO9nsYAyI7czsF8s1oNSyAiynTsprLYs8CvikatUyccJW/Dck6
-         ypjUlduHP70WQqFqhYTXqz3R81T+nxn+tQdqWcX1uuoSGwIM8tGkeSh+0PGPUIzEAC
-         14knTjBWQp2c+rEvXX0+PLPuc/VvxITDnPy6tXh0=
+        b=QuvPFN/T1TOywX3ofJWs7HrV90iPJUIEztHiLyW1USWcRVMIp+4+lvleA6uvEypef
+         g4pByrtbeBPLIkCHTYCXHWDI3RcFt8qu7aINPrlm73bwS2exdCRvrDs4Y4Qc6viPLR
+         2vPVwEbAQ3/oSYDOPoet5msWxtMjlvi2ZUSf7cOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 049/290] mmc: vub300: fix warning - do not call blocking ops when !TASK_RUNNING
+        patches@lists.linux.dev,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
+        Andy Gospodarek <andrew.gospodarek@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 037/148] bnxt_en: Fix first buffer size calculations for XDP multi-buffer
 Date:   Tue, 10 Jan 2023 19:02:21 +0100
-Message-Id: <20230110180033.291194209@linuxfoundation.org>
+Message-Id: <20230110180018.400681960@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,64 +56,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Deren Wu <deren.wu@mediatek.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 4a44cd249604e29e7b90ae796d7692f5773dd348 upstream.
+[ Upstream commit 1abeacc1979fa4a756695f5030791d8f0fa934b9 ]
 
-vub300_enable_sdio_irq() works with mutex and need TASK_RUNNING here.
-Ensure that we mark current as TASK_RUNNING for sleepable context.
+The size of the first buffer is always page size, and the useable
+space is the page size minus the offset and the skb_shared_info size.
+Make sure SKB and XDP buf sizes match so that the skb_shared_info
+is at the same offset seen from the SKB and XDP_BUF.
 
-[   77.554641] do not call blocking ops when !TASK_RUNNING; state=1 set at [<ffffffff92a72c1d>] sdio_irq_thread+0x17d/0x5b0
-[   77.554652] WARNING: CPU: 2 PID: 1983 at kernel/sched/core.c:9813 __might_sleep+0x116/0x160
-[   77.554905] CPU: 2 PID: 1983 Comm: ksdioirqd/mmc1 Tainted: G           OE      6.1.0-rc5 #1
-[   77.554910] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, BIOS BECFL357.86A.0081.2020.0504.1834 05/04/2020
-[   77.554912] RIP: 0010:__might_sleep+0x116/0x160
-[   77.554920] RSP: 0018:ffff888107b7fdb8 EFLAGS: 00010282
-[   77.554923] RAX: 0000000000000000 RBX: ffff888118c1b740 RCX: 0000000000000000
-[   77.554926] RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffed1020f6ffa9
-[   77.554928] RBP: ffff888107b7fde0 R08: 0000000000000001 R09: ffffed1043ea60ba
-[   77.554930] R10: ffff88821f5305cb R11: ffffed1043ea60b9 R12: ffffffff93aa3a60
-[   77.554932] R13: 000000000000011b R14: 7fffffffffffffff R15: ffffffffc0558660
-[   77.554934] FS:  0000000000000000(0000) GS:ffff88821f500000(0000) knlGS:0000000000000000
-[   77.554937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   77.554939] CR2: 00007f8a44010d68 CR3: 000000024421a003 CR4: 00000000003706e0
-[   77.554942] Call Trace:
-[   77.554944]  <TASK>
-[   77.554952]  mutex_lock+0x78/0xf0
-[   77.554973]  vub300_enable_sdio_irq+0x103/0x3c0 [vub300]
-[   77.554981]  sdio_irq_thread+0x25c/0x5b0
-[   77.555006]  kthread+0x2b8/0x370
-[   77.555017]  ret_from_fork+0x1f/0x30
-[   77.555023]  </TASK>
-[   77.555025] ---[ end trace 0000000000000000 ]---
+build_skb() should be passed PAGE_SIZE.  xdp_init_buff() should
+be passed PAGE_SIZE as well.  xdp_get_shared_info_from_buff() will
+automatically deduct the skb_shared_info size if the XDP buffer
+has frags.  There is no need to keep bp->xdp_has_frags.
 
-Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87dc45b122d26d63c80532976813c9365d7160b3.1670140888.git.deren.wu@mediatek.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Change BNXT_PAGE_MODE_BUF_SIZE to BNXT_MAX_PAGE_MODE_MTU_SBUF
+since this constant is really the MTU with ethernet header size
+subtracted.
+
+Also fix the BNXT_MAX_PAGE_MODE_MTU macro with proper parentheses.
+
+Fixes: 32861236190b ("bnxt: change receive ring space parameters")
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Reviewed-by: Andy Gospodarek <andrew.gospodarek@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/vub300.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c     |  9 +++++----
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h     | 15 +++++++++++----
+ drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c |  7 +------
+ 3 files changed, 17 insertions(+), 14 deletions(-)
 
---- a/drivers/mmc/host/vub300.c
-+++ b/drivers/mmc/host/vub300.c
-@@ -2049,6 +2049,7 @@ static void vub300_enable_sdio_irq(struc
- 		return;
- 	kref_get(&vub300->kref);
- 	if (enable) {
-+		set_current_state(TASK_RUNNING);
- 		mutex_lock(&vub300->irq_mutex);
- 		if (vub300->irqs_queued) {
- 			vub300->irqs_queued -= 1;
-@@ -2064,6 +2065,7 @@ static void vub300_enable_sdio_irq(struc
- 			vub300_queue_poll_work(vub300, 0);
- 		}
- 		mutex_unlock(&vub300->irq_mutex);
-+		set_current_state(TASK_INTERRUPTIBLE);
- 	} else {
- 		vub300->irq_enabled = 0;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 31c427d53b90..be82464e1a77 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -988,8 +988,7 @@ static struct sk_buff *bnxt_rx_multi_page_skb(struct bnxt *bp,
+ 	dma_addr -= bp->rx_dma_offset;
+ 	dma_unmap_page_attrs(&bp->pdev->dev, dma_addr, PAGE_SIZE, bp->rx_dir,
+ 			     DMA_ATTR_WEAK_ORDERING);
+-	skb = build_skb(page_address(page), BNXT_PAGE_MODE_BUF_SIZE +
+-					    bp->rx_dma_offset);
++	skb = build_skb(page_address(page), PAGE_SIZE);
+ 	if (!skb) {
+ 		__free_page(page);
+ 		return NULL;
+@@ -3966,8 +3965,10 @@ void bnxt_set_ring_params(struct bnxt *bp)
+ 		bp->rx_agg_ring_mask = (bp->rx_agg_nr_pages * RX_DESC_CNT) - 1;
+ 
+ 		if (BNXT_RX_PAGE_MODE(bp)) {
+-			rx_space = BNXT_PAGE_MODE_BUF_SIZE;
+-			rx_size = BNXT_MAX_PAGE_MODE_MTU;
++			rx_space = PAGE_SIZE;
++			rx_size = PAGE_SIZE -
++				  ALIGN(max(NET_SKB_PAD, XDP_PACKET_HEADROOM), 8) -
++				  SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+ 		} else {
+ 			rx_size = SKB_DATA_ALIGN(BNXT_RX_COPY_THRESH + NET_IP_ALIGN);
+ 			rx_space = rx_size + NET_SKB_PAD +
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+index d5fa43cfe524..02741d499bf4 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -591,12 +591,20 @@ struct nqe_cn {
+ #define BNXT_RX_PAGE_SIZE (1 << BNXT_RX_PAGE_SHIFT)
+ 
+ #define BNXT_MAX_MTU		9500
+-#define BNXT_PAGE_MODE_BUF_SIZE \
++
++/* First RX buffer page in XDP multi-buf mode
++ *
++ * +-------------------------------------------------------------------------+
++ * | XDP_PACKET_HEADROOM | bp->rx_buf_use_size              | skb_shared_info|
++ * | (bp->rx_dma_offset) |                                  |                |
++ * +-------------------------------------------------------------------------+
++ */
++#define BNXT_MAX_PAGE_MODE_MTU_SBUF \
+ 	((unsigned int)PAGE_SIZE - VLAN_ETH_HLEN - NET_IP_ALIGN -	\
+ 	 XDP_PACKET_HEADROOM)
+ #define BNXT_MAX_PAGE_MODE_MTU	\
+-	BNXT_PAGE_MODE_BUF_SIZE - \
+-	SKB_DATA_ALIGN((unsigned int)sizeof(struct skb_shared_info))
++	(BNXT_MAX_PAGE_MODE_MTU_SBUF - \
++	 SKB_DATA_ALIGN((unsigned int)sizeof(struct skb_shared_info)))
+ 
+ #define BNXT_MIN_PKT_SIZE	52
+ 
+@@ -2131,7 +2139,6 @@ struct bnxt {
+ #define BNXT_DUMP_CRASH		1
+ 
+ 	struct bpf_prog		*xdp_prog;
+-	u8			xdp_has_frags;
+ 
+ 	struct bnxt_ptp_cfg	*ptp_cfg;
+ 	u8			ptp_all_rx_tstamp;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
+index 2ceeaa818c1c..36d5202c0aee 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
+@@ -193,9 +193,6 @@ void bnxt_xdp_buff_init(struct bnxt *bp, struct bnxt_rx_ring_info *rxr,
+ 	mapping = rx_buf->mapping - bp->rx_dma_offset;
+ 	dma_sync_single_for_cpu(&pdev->dev, mapping + offset, len, bp->rx_dir);
+ 
+-	if (bp->xdp_has_frags)
+-		buflen = BNXT_PAGE_MODE_BUF_SIZE + offset;
+-
+ 	xdp_init_buff(xdp, buflen, &rxr->xdp_rxq);
+ 	xdp_prepare_buff(xdp, data_ptr - offset, offset, len, false);
+ }
+@@ -404,10 +401,8 @@ static int bnxt_xdp_set(struct bnxt *bp, struct bpf_prog *prog)
+ 		netdev_warn(dev, "ethtool rx/tx channels must be combined to support XDP.\n");
+ 		return -EOPNOTSUPP;
  	}
+-	if (prog) {
++	if (prog)
+ 		tx_xdp = bp->rx_nr_rings;
+-		bp->xdp_has_frags = prog->aux->xdp_has_frags;
+-	}
+ 
+ 	tc = netdev_get_num_tc(dev);
+ 	if (!tc)
+-- 
+2.35.1
+
 
 
