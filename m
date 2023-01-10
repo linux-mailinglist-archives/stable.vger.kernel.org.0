@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D20166484F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18B3E664A19
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238799AbjAJSK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:10:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52654 "EHLO
+        id S239371AbjAJS3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:29:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238856AbjAJSKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3C11F8
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:57 -0800 (PST)
+        with ESMTP id S239495AbjAJS2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15922983E9
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A588F6184D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8CE4C433EF;
-        Tue, 10 Jan 2023 18:07:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D1CA61864
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95159C433D2;
+        Tue, 10 Jan 2023 18:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374076;
-        bh=iGMXcCS5e9ltibJ1bUYJcVYR0FMAhElb1qbT5TR5L48=;
+        s=korg; t=1673375066;
+        bh=Q4+1VlJTlw/DYxy/uF6f2fA59Qid9ENriGqINxiMqG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcAK4Y9KE7RWRDJCB5GwizsSuly0AU8MMIiz6QPptW5W+L/J3Iu1rzO9TilCEzmOZ
-         TkG1XTNYnOlC8rggArCR1XSN/ViWkAn8NaziJ9I+5zjXrjPlLPqj0U0IqbQGbNFMuT
-         4Z7P+23CuYr1YxKJy00VT/s2uvMESqw5OTucsH/A=
+        b=Mi2EJyyjHfiMjGDQRQPt/8trPlNEWV9fXxS/4iWNxKSZZBV7c0Eb+Tgjpp35qr9Il
+         A0T/XUuv7ciTeoOfLZ7Gq+wTaJRTe1jbr4f4h8rk3AoGznV0d347AS70NEhapZxhbK
+         L0XVSxS4ezhJ3JytRAP4lSbxlLOlQusguf7+07ZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 023/148] netfilter: nf_tables: honor set timeout and garbage collection updates
+        patches@lists.linux.dev,
+        Terry Junge <linuxhid@cosmicgizmosystems.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 035/290] HID: plantronics: Additional PIDs for double volume key presses quirk
 Date:   Tue, 10 Jan 2023 19:02:07 +0100
-Message-Id: <20230110180017.932939114@linuxfoundation.org>
+Message-Id: <20230110180032.794649610@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,206 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Terry Junge <linuxhid@cosmicgizmosystems.com>
 
-[ Upstream commit 123b99619cca94bdca0bf7bde9abe28f0a0dfe06 ]
+[ Upstream commit 3d57f36c89d8ba32b2c312f397a37fd1a2dc7cfc ]
 
-Set timeout and garbage collection interval updates are ignored on
-updates. Add transaction to update global set element timeout and
-garbage collection interval.
+I no longer work for Plantronics (aka Poly, aka HP) and do not have
+access to the headsets in order to test. However, as noted by Maxim,
+the other 32xx models that share the same base code set as the 3220
+would need the same quirk. This patch adds the PIDs for the rest of
+the Blackwire 32XX product family that require the quirk.
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Suggested-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Plantronics Blackwire 3210 Series (047f:c055)
+Plantronics Blackwire 3215 Series (047f:c057)
+Plantronics Blackwire 3225 Series (047f:c058)
+
+Quote from previous patch by Maxim Mikityanskiy
+Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
+for each volume key press. This patch adds a quirk to hid-plantronics
+for this product ID, which will ignore the second volume key press if
+it happens within 5 ms from the last one that was handled.
+
+The patch was tested on the mentioned model only, it shouldn't affect
+other models, however, this quirk might be needed for them too.
+Auto-repeat (when a key is held pressed) is not affected, because the
+rate is about 3 times per second, which is far less frequent than once
+in 5 ms.
+End quote
+
+Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_tables.h | 13 ++++++-
- net/netfilter/nf_tables_api.c     | 63 ++++++++++++++++++++++---------
- 2 files changed, 57 insertions(+), 19 deletions(-)
+ drivers/hid/hid-ids.h         | 3 +++
+ drivers/hid/hid-plantronics.c | 9 +++++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index ddcdde230747..1daededfa75e 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -592,7 +592,9 @@ void *nft_set_catchall_gc(const struct nft_set *set);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 78b55f845d2d..8698d49edaa3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -966,7 +966,10 @@
+ #define USB_DEVICE_ID_ORTEK_IHOME_IMAC_A210S	0x8003
  
- static inline unsigned long nft_set_gc_interval(const struct nft_set *set)
- {
--	return set->gc_int ? msecs_to_jiffies(set->gc_int) : HZ;
-+	u32 gc_int = READ_ONCE(set->gc_int);
-+
-+	return gc_int ? msecs_to_jiffies(gc_int) : HZ;
+ #define USB_VENDOR_ID_PLANTRONICS	0x047f
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES	0xc055
+ #define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES	0xc057
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES	0xc058
+ 
+ #define USB_VENDOR_ID_PANASONIC		0x04da
+ #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
+diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
+index e81b7cec2d12..3d414ae194ac 100644
+--- a/drivers/hid/hid-plantronics.c
++++ b/drivers/hid/hid-plantronics.c
+@@ -198,9 +198,18 @@ static int plantronics_probe(struct hid_device *hdev,
  }
  
- /**
-@@ -1563,6 +1565,9 @@ struct nft_trans_rule {
- struct nft_trans_set {
- 	struct nft_set			*set;
- 	u32				set_id;
-+	u32				gc_int;
-+	u64				timeout;
-+	bool				update;
- 	bool				bound;
+ static const struct hid_device_id plantronics_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
+ 					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
+ 		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
+ 	{ }
  };
- 
-@@ -1572,6 +1577,12 @@ struct nft_trans_set {
- 	(((struct nft_trans_set *)trans->data)->set_id)
- #define nft_trans_set_bound(trans)	\
- 	(((struct nft_trans_set *)trans->data)->bound)
-+#define nft_trans_set_update(trans)	\
-+	(((struct nft_trans_set *)trans->data)->update)
-+#define nft_trans_set_timeout(trans)	\
-+	(((struct nft_trans_set *)trans->data)->timeout)
-+#define nft_trans_set_gc_int(trans)	\
-+	(((struct nft_trans_set *)trans->data)->gc_int)
- 
- struct nft_trans_chain {
- 	bool				update;
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 9fa155f2632c..e0c156bb0b17 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -465,8 +465,9 @@ static int nft_delrule_by_chain(struct nft_ctx *ctx)
- 	return 0;
- }
- 
--static int nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
--			     struct nft_set *set)
-+static int __nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
-+			       struct nft_set *set,
-+			       const struct nft_set_desc *desc)
- {
- 	struct nft_trans *trans;
- 
-@@ -474,17 +475,28 @@ static int nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
- 	if (trans == NULL)
- 		return -ENOMEM;
- 
--	if (msg_type == NFT_MSG_NEWSET && ctx->nla[NFTA_SET_ID] != NULL) {
-+	if (msg_type == NFT_MSG_NEWSET && ctx->nla[NFTA_SET_ID] && !desc) {
- 		nft_trans_set_id(trans) =
- 			ntohl(nla_get_be32(ctx->nla[NFTA_SET_ID]));
- 		nft_activate_next(ctx->net, set);
- 	}
- 	nft_trans_set(trans) = set;
-+	if (desc) {
-+		nft_trans_set_update(trans) = true;
-+		nft_trans_set_gc_int(trans) = desc->gc_int;
-+		nft_trans_set_timeout(trans) = desc->timeout;
-+	}
- 	nft_trans_commit_list_add_tail(ctx->net, trans);
- 
- 	return 0;
- }
- 
-+static int nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
-+			     struct nft_set *set)
-+{
-+	return __nft_trans_set_add(ctx, msg_type, set, NULL);
-+}
-+
- static int nft_delset(const struct nft_ctx *ctx, struct nft_set *set)
- {
- 	int err;
-@@ -3996,8 +4008,10 @@ static int nf_tables_fill_set_concat(struct sk_buff *skb,
- static int nf_tables_fill_set(struct sk_buff *skb, const struct nft_ctx *ctx,
- 			      const struct nft_set *set, u16 event, u16 flags)
- {
--	struct nlmsghdr *nlh;
-+	u64 timeout = READ_ONCE(set->timeout);
-+	u32 gc_int = READ_ONCE(set->gc_int);
- 	u32 portid = ctx->portid;
-+	struct nlmsghdr *nlh;
- 	struct nlattr *nest;
- 	u32 seq = ctx->seq;
- 	int i;
-@@ -4033,13 +4047,13 @@ static int nf_tables_fill_set(struct sk_buff *skb, const struct nft_ctx *ctx,
- 	    nla_put_be32(skb, NFTA_SET_OBJ_TYPE, htonl(set->objtype)))
- 		goto nla_put_failure;
- 
--	if (set->timeout &&
-+	if (timeout &&
- 	    nla_put_be64(skb, NFTA_SET_TIMEOUT,
--			 nf_jiffies64_to_msecs(set->timeout),
-+			 nf_jiffies64_to_msecs(timeout),
- 			 NFTA_SET_PAD))
- 		goto nla_put_failure;
--	if (set->gc_int &&
--	    nla_put_be32(skb, NFTA_SET_GC_INTERVAL, htonl(set->gc_int)))
-+	if (gc_int &&
-+	    nla_put_be32(skb, NFTA_SET_GC_INTERVAL, htonl(gc_int)))
- 		goto nla_put_failure;
- 
- 	if (set->policy != NFT_SET_POL_PERFORMANCE) {
-@@ -4584,7 +4598,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 		for (i = 0; i < num_exprs; i++)
- 			nft_expr_destroy(&ctx, exprs[i]);
- 
--		return err;
-+		if (err < 0)
-+			return err;
-+
-+		return __nft_trans_set_add(&ctx, NFT_MSG_NEWSET, set, &desc);
- 	}
- 
- 	if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
-@@ -6022,7 +6039,7 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
- 			return err;
- 	} else if (set->flags & NFT_SET_TIMEOUT &&
- 		   !(flags & NFT_SET_ELEM_INTERVAL_END)) {
--		timeout = set->timeout;
-+		timeout = READ_ONCE(set->timeout);
- 	}
- 
- 	expiration = 0;
-@@ -6123,7 +6140,7 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
- 		if (err < 0)
- 			goto err_parse_key_end;
- 
--		if (timeout != set->timeout) {
-+		if (timeout != READ_ONCE(set->timeout)) {
- 			err = nft_set_ext_add(&tmpl, NFT_SET_EXT_TIMEOUT);
- 			if (err < 0)
- 				goto err_parse_key_end;
-@@ -9039,14 +9056,20 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
- 				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
- 			break;
- 		case NFT_MSG_NEWSET:
--			nft_clear(net, nft_trans_set(trans));
--			/* This avoids hitting -EBUSY when deleting the table
--			 * from the transaction.
--			 */
--			if (nft_set_is_anonymous(nft_trans_set(trans)) &&
--			    !list_empty(&nft_trans_set(trans)->bindings))
--				trans->ctx.table->use--;
-+			if (nft_trans_set_update(trans)) {
-+				struct nft_set *set = nft_trans_set(trans);
- 
-+				WRITE_ONCE(set->timeout, nft_trans_set_timeout(trans));
-+				WRITE_ONCE(set->gc_int, nft_trans_set_gc_int(trans));
-+			} else {
-+				nft_clear(net, nft_trans_set(trans));
-+				/* This avoids hitting -EBUSY when deleting the table
-+				 * from the transaction.
-+				 */
-+				if (nft_set_is_anonymous(nft_trans_set(trans)) &&
-+				    !list_empty(&nft_trans_set(trans)->bindings))
-+					trans->ctx.table->use--;
-+			}
- 			nf_tables_set_notify(&trans->ctx, nft_trans_set(trans),
- 					     NFT_MSG_NEWSET, GFP_KERNEL);
- 			nft_trans_destroy(trans);
-@@ -9268,6 +9291,10 @@ static int __nf_tables_abort(struct net *net, enum nfnl_abort_action action)
- 			nft_trans_destroy(trans);
- 			break;
- 		case NFT_MSG_NEWSET:
-+			if (nft_trans_set_update(trans)) {
-+				nft_trans_destroy(trans);
-+				break;
-+			}
- 			trans->ctx.table->use--;
- 			if (nft_trans_set_bound(trans)) {
- 				nft_trans_destroy(trans);
 -- 
 2.35.1
 
