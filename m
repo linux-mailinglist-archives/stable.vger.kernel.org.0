@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EC99664840
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F7EA6649D9
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238640AbjAJSKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:10:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52812 "EHLO
+        id S239214AbjAJS00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:26:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239022AbjAJSJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:09:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40F538D5DF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:25 -0800 (PST)
+        with ESMTP id S239372AbjAJSZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:25:35 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36CB974A5
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:22:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D37A6617EC
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6759C433EF;
-        Tue, 10 Jan 2023 18:07:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0BE81CE18D4
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:22:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0944C433F2;
+        Tue, 10 Jan 2023 18:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374044;
-        bh=zhIDN1V9+cgc3xKA8KmzVxE5jZb8/vgHLnbqpmY3j/E=;
+        s=korg; t=1673374933;
+        bh=5fV7kvGtHW9ADho4JolrZd3a8XvqrD6p8OLZBMFTvBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P0dK8685taguGsgexp2N6/QrVrzaBAx85KZQ0ZCmedm3pyektd7wbJu2EHwt9qA8Z
-         BDNgcSWH/f178pN1nM51Db042flihfEx/+tRMnUGFsRFzAtAOSRJabnnbo7pzzpiXz
-         ECjkNaY71N7LIzo9QDIEXJIqBVhy0kboK+4IcfDs=
+        b=1k8iyBNPZf93b8IlmeAQqTqdWI267+B+yWpddrDu6TQpoxPdovawXB8XD5/cE/qbj
+         R4wO54S0T7MLrZqVvr0KoYreccFW1QfQeQAl+b8nGq4Cgi5VlQ0SOKlSDSdCJMwcoj
+         3V+ix0jTBc3SGan4Fsdfqmu5bduy0/Svw5yvl1G4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 010/148] ext4: correct inconsistent error msg in nojournal mode
+        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 022/290] fs/ntfs3: Validate buffer length while parsing index
 Date:   Tue, 10 Jan 2023 19:01:54 +0100
-Message-Id: <20230110180017.509176090@linuxfoundation.org>
+Message-Id: <20230110180032.355881469@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Edward Lo <edward.lo@ambergroup.io>
 
-[ Upstream commit 89481b5fa8c0640e62ba84c6020cee895f7ac643 ]
+[ Upstream commit 4d42ecda239cc13738d6fd84d098a32e67b368b9 ]
 
-When we used the journal_async_commit mounting option in nojournal mode,
-the kernel told me that "can't mount with journal_checksum", was very
-confusing. I find that when we mount with journal_async_commit, both the
-JOURNAL_ASYNC_COMMIT and EXPLICIT_JOURNAL_CHECKSUM flags are set. However,
-in the error branch, CHECKSUM is checked before ASYNC_COMMIT. As a result,
-the above inconsistency occurs, and the ASYNC_COMMIT branch becomes dead
-code that cannot be executed. Therefore, we exchange the positions of the
-two judgments to make the error msg more accurate.
+indx_read is called when we have some NTFS directory operations that
+need more information from the index buffers. This adds a sanity check
+to make sure the returned index buffer length is legit, or we may have
+some out-of-bound memory accesses.
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221109074343.4184862-1-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+[  560.897595] BUG: KASAN: slab-out-of-bounds in hdr_find_e.isra.0+0x10c/0x320
+[  560.898321] Read of size 2 at addr ffff888009497238 by task exp/245
+[  560.898760]
+[  560.899129] CPU: 0 PID: 245 Comm: exp Not tainted 6.0.0-rc6 #37
+[  560.899505] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[  560.900170] Call Trace:
+[  560.900407]  <TASK>
+[  560.900732]  dump_stack_lvl+0x49/0x63
+[  560.901108]  print_report.cold+0xf5/0x689
+[  560.901395]  ? hdr_find_e.isra.0+0x10c/0x320
+[  560.901716]  kasan_report+0xa7/0x130
+[  560.901950]  ? hdr_find_e.isra.0+0x10c/0x320
+[  560.902208]  __asan_load2+0x68/0x90
+[  560.902427]  hdr_find_e.isra.0+0x10c/0x320
+[  560.902846]  ? cmp_uints+0xe0/0xe0
+[  560.903363]  ? cmp_sdh+0x90/0x90
+[  560.903883]  ? ntfs_bread_run+0x190/0x190
+[  560.904196]  ? rwsem_down_read_slowpath+0x750/0x750
+[  560.904969]  ? ntfs_fix_post_read+0xe0/0x130
+[  560.905259]  ? __kasan_check_write+0x14/0x20
+[  560.905599]  ? up_read+0x1a/0x90
+[  560.905853]  ? indx_read+0x22c/0x380
+[  560.906096]  indx_find+0x2ef/0x470
+[  560.906352]  ? indx_find_buffer+0x2d0/0x2d0
+[  560.906692]  ? __kasan_kmalloc+0x88/0xb0
+[  560.906977]  dir_search_u+0x196/0x2f0
+[  560.907220]  ? ntfs_nls_to_utf16+0x450/0x450
+[  560.907464]  ? __kasan_check_write+0x14/0x20
+[  560.907747]  ? mutex_lock+0x8f/0xe0
+[  560.907970]  ? __mutex_lock_slowpath+0x20/0x20
+[  560.908214]  ? kmem_cache_alloc+0x143/0x4b0
+[  560.908459]  ntfs_lookup+0xe0/0x100
+[  560.908788]  __lookup_slow+0x116/0x220
+[  560.909050]  ? lookup_fast+0x1b0/0x1b0
+[  560.909309]  ? lookup_fast+0x13f/0x1b0
+[  560.909601]  walk_component+0x187/0x230
+[  560.909944]  link_path_walk.part.0+0x3f0/0x660
+[  560.910285]  ? handle_lookup_down+0x90/0x90
+[  560.910618]  ? path_init+0x642/0x6e0
+[  560.911084]  ? percpu_counter_add_batch+0x6e/0xf0
+[  560.912559]  ? __alloc_file+0x114/0x170
+[  560.913008]  path_openat+0x19c/0x1d10
+[  560.913419]  ? getname_flags+0x73/0x2b0
+[  560.913815]  ? kasan_save_stack+0x3a/0x50
+[  560.914125]  ? kasan_save_stack+0x26/0x50
+[  560.914542]  ? __kasan_slab_alloc+0x6d/0x90
+[  560.914924]  ? kmem_cache_alloc+0x143/0x4b0
+[  560.915339]  ? getname_flags+0x73/0x2b0
+[  560.915647]  ? getname+0x12/0x20
+[  560.916114]  ? __x64_sys_open+0x4c/0x60
+[  560.916460]  ? path_lookupat.isra.0+0x230/0x230
+[  560.916867]  ? __isolate_free_page+0x2e0/0x2e0
+[  560.917194]  do_filp_open+0x15c/0x1f0
+[  560.917448]  ? may_open_dev+0x60/0x60
+[  560.917696]  ? expand_files+0xa4/0x3a0
+[  560.917923]  ? __kasan_check_write+0x14/0x20
+[  560.918185]  ? _raw_spin_lock+0x88/0xdb
+[  560.918409]  ? _raw_spin_lock_irqsave+0x100/0x100
+[  560.918783]  ? _find_next_bit+0x4a/0x130
+[  560.919026]  ? _raw_spin_unlock+0x19/0x40
+[  560.919276]  ? alloc_fd+0x14b/0x2d0
+[  560.919635]  do_sys_openat2+0x32a/0x4b0
+[  560.920035]  ? file_open_root+0x230/0x230
+[  560.920336]  ? __rcu_read_unlock+0x5b/0x280
+[  560.920813]  do_sys_open+0x99/0xf0
+[  560.921208]  ? filp_open+0x60/0x60
+[  560.921482]  ? exit_to_user_mode_prepare+0x49/0x180
+[  560.921867]  __x64_sys_open+0x4c/0x60
+[  560.922128]  do_syscall_64+0x3b/0x90
+[  560.922369]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  560.923030] RIP: 0033:0x7f7dff2e4469
+[  560.923681] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 088
+[  560.924451] RSP: 002b:00007ffd41a210b8 EFLAGS: 00000206 ORIG_RAX: 0000000000000002
+[  560.925168] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f7dff2e4469
+[  560.925655] RDX: 0000000000000000 RSI: 0000000000000002 RDI: 00007ffd41a211f0
+[  560.926085] RBP: 00007ffd41a252a0 R08: 00007f7dff60fba0 R09: 00007ffd41a25388
+[  560.926405] R10: 0000000000400b80 R11: 0000000000000206 R12: 00000000004004e0
+[  560.926867] R13: 00007ffd41a25380 R14: 0000000000000000 R15: 0000000000000000
+[  560.927241]  </TASK>
+[  560.927491]
+[  560.927755] Allocated by task 245:
+[  560.928409]  kasan_save_stack+0x26/0x50
+[  560.929271]  __kasan_kmalloc+0x88/0xb0
+[  560.929778]  __kmalloc+0x192/0x320
+[  560.930023]  indx_read+0x249/0x380
+[  560.930224]  indx_find+0x2a2/0x470
+[  560.930695]  dir_search_u+0x196/0x2f0
+[  560.930892]  ntfs_lookup+0xe0/0x100
+[  560.931115]  __lookup_slow+0x116/0x220
+[  560.931323]  walk_component+0x187/0x230
+[  560.931570]  link_path_walk.part.0+0x3f0/0x660
+[  560.931791]  path_openat+0x19c/0x1d10
+[  560.932008]  do_filp_open+0x15c/0x1f0
+[  560.932226]  do_sys_openat2+0x32a/0x4b0
+[  560.932413]  do_sys_open+0x99/0xf0
+[  560.932709]  __x64_sys_open+0x4c/0x60
+[  560.933417]  do_syscall_64+0x3b/0x90
+[  560.933776]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  560.934235]
+[  560.934486] The buggy address belongs to the object at ffff888009497000
+[  560.934486]  which belongs to the cache kmalloc-512 of size 512
+[  560.935239] The buggy address is located 56 bytes to the right of
+[  560.935239]  512-byte region [ffff888009497000, ffff888009497200)
+[  560.936153]
+[  560.937326] The buggy address belongs to the physical page:
+[  560.938228] page:0000000062a3dfae refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x9496
+[  560.939616] head:0000000062a3dfae order:1 compound_mapcount:0 compound_pincount:0
+[  560.940219] flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
+[  560.942702] raw: 000fffffc0010200 ffffea0000164f80 dead000000000005 ffff888001041c80
+[  560.943932] raw: 0000000000000000 0000000080080008 00000001ffffffff 0000000000000000
+[  560.944568] page dumped because: kasan: bad access detected
+[  560.945735]
+[  560.946112] Memory state around the buggy address:
+[  560.946870]  ffff888009497100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  560.947242]  ffff888009497180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  560.947611] >ffff888009497200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  560.947915]                                         ^
+[  560.948249]  ffff888009497280: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  560.948687]  ffff888009497300: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+
+Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/ntfs3/index.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index fedfe8cb78c6..ac083526c115 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5066,14 +5066,15 @@ static int __ext4_fill_super(struct fs_context *fc, struct super_block *sb)
- 		goto failed_mount3a;
- 	} else {
- 		/* Nojournal mode, all journal mount options are illegal */
--		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
-+		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
- 			ext4_msg(sb, KERN_ERR, "can't mount with "
--				 "journal_checksum, fs mounted w/o journal");
-+				 "journal_async_commit, fs mounted w/o journal");
- 			goto failed_mount3a;
- 		}
--		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
+diff --git a/fs/ntfs3/index.c b/fs/ntfs3/index.c
+index 76ebea253fa2..99f8a57e9f7a 100644
+--- a/fs/ntfs3/index.c
++++ b/fs/ntfs3/index.c
+@@ -1017,6 +1017,12 @@ int indx_read(struct ntfs_index *indx, struct ntfs_inode *ni, CLST vbn,
+ 		err = 0;
+ 	}
+ 
++	/* check for index header length */
++	if (offsetof(struct INDEX_BUFFER, ihdr) + ib->ihdr.used > bytes) {
++		err = -EINVAL;
++		goto out;
++	}
 +
-+		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
- 			ext4_msg(sb, KERN_ERR, "can't mount with "
--				 "journal_async_commit, fs mounted w/o journal");
-+				 "journal_checksum, fs mounted w/o journal");
- 			goto failed_mount3a;
- 		}
- 		if (sbi->s_commit_interval != JBD2_DEFAULT_MAX_COMMIT_AGE*HZ) {
+ 	in->index = ib;
+ 	*node = in;
+ 
 -- 
 2.35.1
 
