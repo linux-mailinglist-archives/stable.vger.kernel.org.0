@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5D666487D
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 743A2664909
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238290AbjAJSMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53200 "EHLO
+        id S239093AbjAJSRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:17:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238810AbjAJSK6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F2C6766A
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:41 -0800 (PST)
+        with ESMTP id S239113AbjAJSQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25CC93B3
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BF5D6184D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54981C433D2;
-        Tue, 10 Jan 2023 18:09:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC050B81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:15:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BC1CC433D2;
+        Tue, 10 Jan 2023 18:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374180;
-        bh=FlDJv/+5Ru/7oyuqch/s00FYsOWscsaneNxrRb557PI=;
+        s=korg; t=1673374501;
+        bh=NFKZ7NjqHaVhheaZCrKkqgNlYFXUGP+hKfjkYtSkBS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0YbkrzXO+3YcWVj3G4oYucgspj9wKcXaK/8xT1zXrfvYt1DxMRuabWB01ZOe0jJR
-         WiY6cR64j9Wn7YJKWtxDmE7eC1joiFvO6PfYF5eZDOrHNdkmfYq97Ec2cjd+My8Ce6
-         gYhxIMF8UeWs/ApGiM88RuDLKZpqE9wRRzH2aqHM=
+        b=EOO58RFiwYNOxPwOlH6ncW2xXNcnVFnls0wcZhBgGhdWs91a6jBeHOFZyipl0fvfz
+         wcigYTsxPZjg5655YYCyvSf2TPwCdyCquvNahtVXKFya4Bb1fJHAgblhUHPFgwcm6A
+         6xuZTl+YBcd/9osv8QvVPt+nDQPtpZ44Ob+s17BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Osama Abboud <osamaabb@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        David Arinzon <darinzon@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 068/148] net: ena: Fix rx_copybreak value update
-Date:   Tue, 10 Jan 2023 19:02:52 +0100
-Message-Id: <20230110180019.378823646@linuxfoundation.org>
+Subject: [PATCH 6.1 025/159] bonding: fix lockdep splat in bond_miimon_commit()
+Date:   Tue, 10 Jan 2023 19:02:53 +0100
+Message-Id: <20230110180019.110519214@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +58,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Arinzon <darinzon@amazon.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit c7062aaee099f2f43d6f07a71744b44b94b94b34 ]
+[ Upstream commit 42c7ded0eeacd2ba5db599205c71c279dc715de7 ]
 
-Make the upper bound on rx_copybreak tighter, by
-making sure it is smaller than the minimum of mtu and
-ENA_PAGE_SIZE. With the current upper bound of mtu,
-rx_copybreak can be larger than a page. Such large
-rx_copybreak will not bring any performance benefit to
-the user and therefore makes no sense.
+bond_miimon_commit() is run while RTNL is held, not RCU.
 
-In addition, the value update was only reflected in
-the adapter structure, but not applied for each ring,
-causing it to not take effect.
+WARNING: suspicious RCU usage
+6.1.0-syzkaller-09671-g89529367293c #0 Not tainted
+-----------------------------
+drivers/net/bonding/bond_main.c:2704 suspicious rcu_dereference_check() usage!
 
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Osama Abboud <osamaabb@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
-Signed-off-by: David Arinzon <darinzon@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e95cc44763a4 ("bonding: do failover when high prio link up")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Hangbin Liu <liuhangbin@gmail.com>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Link: https://lore.kernel.org/r/20221220130831.1480888-1-edumazet@google.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_ethtool.c |  6 +-----
- drivers/net/ethernet/amazon/ena/ena_netdev.c  | 18 ++++++++++++++++++
- drivers/net/ethernet/amazon/ena/ena_netdev.h  |  2 ++
- 3 files changed, 21 insertions(+), 5 deletions(-)
+ drivers/net/bonding/bond_main.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_ethtool.c b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-index 39242c5a1729..108506721bcf 100644
---- a/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_ethtool.c
-@@ -887,11 +887,7 @@ static int ena_set_tunable(struct net_device *netdev,
- 	switch (tuna->id) {
- 	case ETHTOOL_RX_COPYBREAK:
- 		len = *(u32 *)data;
--		if (len > adapter->netdev->mtu) {
--			ret = -EINVAL;
--			break;
--		}
--		adapter->rx_copybreak = len;
-+		ret = ena_set_rx_copybreak(adapter, len);
- 		break;
- 	default:
- 		ret = -EINVAL;
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index a27a7963df76..083754e0bf23 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -2816,6 +2816,24 @@ int ena_update_queue_sizes(struct ena_adapter *adapter,
- 	return dev_was_up ? ena_up(adapter) : 0;
- }
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index b108f2f4adc2..fce9301c8ebb 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2653,10 +2653,12 @@ static void bond_miimon_link_change(struct bonding *bond,
  
-+int ena_set_rx_copybreak(struct ena_adapter *adapter, u32 rx_copybreak)
-+{
-+	struct ena_ring *rx_ring;
-+	int i;
-+
-+	if (rx_copybreak > min_t(u16, adapter->netdev->mtu, ENA_PAGE_SIZE))
-+		return -EINVAL;
-+
-+	adapter->rx_copybreak = rx_copybreak;
-+
-+	for (i = 0; i < adapter->num_io_queues; i++) {
-+		rx_ring = &adapter->rx_ring[i];
-+		rx_ring->rx_copybreak = rx_copybreak;
-+	}
-+
-+	return 0;
-+}
-+
- int ena_update_queue_count(struct ena_adapter *adapter, u32 new_channel_count)
+ static void bond_miimon_commit(struct bonding *bond)
  {
- 	struct ena_com_dev *ena_dev = adapter->ena_dev;
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.h b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-index 290ae9bf47ee..f9d862b630fa 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.h
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-@@ -392,6 +392,8 @@ int ena_update_queue_sizes(struct ena_adapter *adapter,
+-	struct slave *slave, *primary;
++	struct slave *slave, *primary, *active;
+ 	bool do_failover = false;
+ 	struct list_head *iter;
  
- int ena_update_queue_count(struct ena_adapter *adapter, u32 new_channel_count);
- 
-+int ena_set_rx_copybreak(struct ena_adapter *adapter, u32 rx_copybreak);
++	ASSERT_RTNL();
 +
- int ena_get_sset_count(struct net_device *netdev, int sset);
+ 	bond_for_each_slave(bond, slave, iter) {
+ 		switch (slave->link_new_state) {
+ 		case BOND_LINK_NOCHANGE:
+@@ -2699,8 +2701,8 @@ static void bond_miimon_commit(struct bonding *bond)
  
- static inline void ena_reset_device(struct ena_adapter *adapter,
+ 			bond_miimon_link_change(bond, slave, BOND_LINK_UP);
+ 
+-			if (!rcu_access_pointer(bond->curr_active_slave) || slave == primary ||
+-			    slave->prio > rcu_dereference(bond->curr_active_slave)->prio)
++			active = rtnl_dereference(bond->curr_active_slave);
++			if (!active || slave == primary || slave->prio > active->prio)
+ 				do_failover = true;
+ 
+ 			continue;
 -- 
 2.35.1
 
