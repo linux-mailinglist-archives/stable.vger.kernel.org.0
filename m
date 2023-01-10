@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C64664B5C
+	by mail.lfdr.de (Postfix) with ESMTP id B77A0664B5E
 	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:42:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239308AbjAJSmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:42:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57886 "EHLO
+        id S239397AbjAJSmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:42:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239527AbjAJSlz (ORCPT
+        with ESMTP id S239561AbjAJSlz (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:41:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33EA965354
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:35:35 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69535A4C6D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:35:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E157DB818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:35:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ADEDC433D2;
-        Tue, 10 Jan 2023 18:35:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FB0FB81902
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:35:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70C69C433F0;
+        Tue, 10 Jan 2023 18:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375732;
-        bh=g2PkE/tr3bvchFsj/S5SUnwLe/yeS743362QdG15lgo=;
+        s=korg; t=1673375735;
+        bh=EGLAa3kA26fPNtKykDB/ST9tLtlNY2jHKz81cKlT5Po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EJ3EOxcCat6/+m5JAnI8hJWcQJ77jPoohJ6xch0xB84dtcltDAn9OkFMCSJ3O6msi
-         pgbgwe4ZgzGUf8hhgdQis+nxvHBBU72Z6XaA0RhY0hYl08J8+8H9ZOpcOU8X7kpnZ/
-         RM4auGksLXxJEgopNd+T6Gp8BjYj2Ns2qlF0D8+g=
+        b=ya483ZWbiDmAh41dULCcCfqAupCktwpZvMmkZd1mBYrSH3yk1rZTDUIGRzdzdkwhd
+         5Fu87Kog7Af1rh7wtuWYpYA6CNEcyXcZIN52oq8EiwFiAiizB/ysltCyhMWfqIk6I8
+         hGjg3zbMjbqbFtJ5OF4ewfymDSKUTqA2SWfTxPg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 285/290] btrfs: make thaw time super block check to also verify checksum
-Date:   Tue, 10 Jan 2023 19:06:17 +0100
-Message-Id: <20230110180041.747292993@linuxfoundation.org>
+        patches@lists.linux.dev, Jie Wang <wangjie125@huawei.com>,
+        Hao Lan <lanhao@huawei.com>, Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.15 286/290] net: hns3: fix return value check bug of rx copybreak
+Date:   Tue, 10 Jan 2023 19:06:18 +0100
+Message-Id: <20230110180041.781789957@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -53,117 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Jie Wang <wangjie125@huawei.com>
 
-commit 3d17adea74a56a4965f7a603d8ed8c66bb9356d9 upstream.
+commit 29df7c695ed67a8fa32bb7805bad8fe2a76c1f88 upstream.
 
-Previous commit a05d3c915314 ("btrfs: check superblock to ensure the fs
-was not modified at thaw time") only checks the content of the super
-block, but it doesn't really check if the on-disk super block has a
-matching checksum.
+The refactoring of rx copybreak modifies the original return logic, which
+will make this feature unavailable. So this patch fixes the return logic of
+rx copybreak.
 
-This patch will add the checksum verification to thaw time superblock
-verification.
-
-This involves the following extra changes:
-
-- Export btrfs_check_super_csum()
-  As we need to call it in super.c.
-
-- Change the argument list of btrfs_check_super_csum()
-  Instead of passing a char *, directly pass struct btrfs_super_block *
-  pointer.
-
-- Verify that our checksum type didn't change before checking the
-  checksum value, like it's done at mount time
-
-Fixes: a05d3c915314 ("btrfs: check superblock to ensure the fs was not modified at thaw time")
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: e74a726da2c4 ("net: hns3: refactor hns3_nic_reuse_page()")
+Fixes: 99f6b5fb5f63 ("net: hns3: use bounce buffer when rx page can not be reused")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Hao Lan <lanhao@huawei.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/disk-io.c |   10 ++++------
- fs/btrfs/disk-io.h |    2 ++
- fs/btrfs/super.c   |   16 ++++++++++++++++
- 3 files changed, 22 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -202,11 +202,9 @@ static bool btrfs_supported_super_csum(u
-  * Return 0 if the superblock checksum type matches the checksum value of that
-  * algorithm. Pass the raw disk superblock data.
-  */
--static int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
--				  char *raw_disk_sb)
-+int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
-+			   const struct btrfs_super_block *disk_sb)
- {
--	struct btrfs_super_block *disk_sb =
--		(struct btrfs_super_block *)raw_disk_sb;
- 	char result[BTRFS_CSUM_SIZE];
- 	SHASH_DESC_ON_STACK(shash, fs_info->csum_shash);
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -3590,8 +3590,8 @@ static void hns3_nic_reuse_page(struct s
+ 		desc_cb->reuse_flag = 1;
+ 	} else if (frag_size <= ring->rx_copybreak) {
+ 		ret = hns3_handle_rx_copybreak(skb, i, ring, pull_len, desc_cb);
+-		if (ret)
+-			goto out;
++		if (!ret)
++			return;
+ 	}
  
-@@ -217,7 +215,7 @@ static int btrfs_check_super_csum(struct
- 	 * BTRFS_SUPER_INFO_SIZE range, we expect that the unused space is
- 	 * filled with zeros and is included in the checksum.
- 	 */
--	crypto_shash_digest(shash, raw_disk_sb + BTRFS_CSUM_SIZE,
-+	crypto_shash_digest(shash, (const u8 *)disk_sb + BTRFS_CSUM_SIZE,
- 			    BTRFS_SUPER_INFO_SIZE - BTRFS_CSUM_SIZE, result);
- 
- 	if (memcmp(disk_sb->csum, result, fs_info->csum_size))
-@@ -3210,7 +3208,7 @@ int __cold open_ctree(struct super_block
- 	 * We want to check superblock checksum, the type is stored inside.
- 	 * Pass the whole disk block of size BTRFS_SUPER_INFO_SIZE (4k).
- 	 */
--	if (btrfs_check_super_csum(fs_info, (u8 *)disk_super)) {
-+	if (btrfs_check_super_csum(fs_info, disk_super)) {
- 		btrfs_err(fs_info, "superblock checksum mismatch");
- 		err = -EINVAL;
- 		btrfs_release_disk_super(disk_super);
---- a/fs/btrfs/disk-io.h
-+++ b/fs/btrfs/disk-io.h
-@@ -52,6 +52,8 @@ struct extent_buffer *btrfs_find_create_
- void btrfs_clean_tree_block(struct extent_buffer *buf);
- void btrfs_clear_oneshot_options(struct btrfs_fs_info *fs_info);
- int btrfs_start_pre_rw_mount(struct btrfs_fs_info *fs_info);
-+int btrfs_check_super_csum(struct btrfs_fs_info *fs_info,
-+			   const struct btrfs_super_block *disk_sb);
- int __cold open_ctree(struct super_block *sb,
- 	       struct btrfs_fs_devices *fs_devices,
- 	       char *options);
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -2501,6 +2501,7 @@ static int check_dev_super(struct btrfs_
- {
- 	struct btrfs_fs_info *fs_info = dev->fs_info;
- 	struct btrfs_super_block *sb;
-+	u16 csum_type;
- 	int ret = 0;
- 
- 	/* This should be called with fs still frozen. */
-@@ -2515,6 +2516,21 @@ static int check_dev_super(struct btrfs_
- 	if (IS_ERR(sb))
- 		return PTR_ERR(sb);
- 
-+	/* Verify the checksum. */
-+	csum_type = btrfs_super_csum_type(sb);
-+	if (csum_type != btrfs_super_csum_type(fs_info->super_copy)) {
-+		btrfs_err(fs_info, "csum type changed, has %u expect %u",
-+			  csum_type, btrfs_super_csum_type(fs_info->super_copy));
-+		ret = -EUCLEAN;
-+		goto out;
-+	}
-+
-+	if (btrfs_check_super_csum(fs_info, sb)) {
-+		btrfs_err(fs_info, "csum for on-disk super block no longer matches");
-+		ret = -EUCLEAN;
-+		goto out;
-+	}
-+
- 	/* Btrfs_validate_super() includes fsid check against super->fsid. */
- 	ret = btrfs_validate_super(fs_info, sb, 0);
- 	if (ret < 0)
+ out:
 
 
