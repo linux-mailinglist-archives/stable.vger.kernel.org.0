@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4105E6648B8
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:14:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C74C8664928
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235544AbjAJSOe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:14:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53422 "EHLO
+        id S235457AbjAJSSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:18:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239278AbjAJSOA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E7288DCB
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:25 -0800 (PST)
+        with ESMTP id S239075AbjAJSR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92F92F782
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C40CC61871
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF35FC433D2;
-        Tue, 10 Jan 2023 18:12:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A58C6183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B08DC433EF;
+        Tue, 10 Jan 2023 18:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374344;
-        bh=aLbKv6XLfTue2wCV/nY8BTSu4/Ky1k+5ZDJqu7uYoi4=;
+        s=korg; t=1673374578;
+        bh=wd6HwZ3z2rSh1FbO2fiX12iUIhaMbSiS/omuQOlAcuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JNgzNu7mFkN49PbRZ15GMWCbcfj3AJ5tlTnVuEBHVA9pd9z7GW219HQwqFAMD7p7J
-         x6P4UJXZmJaiVyDRRVbAjbpTSf8THaYLdMsQ95q87w9yBaOJLjTU8pqB5PRw+ltv59
-         EalkD50JFLPai/mIzWZ0D//iwfNBrbt3KIi67GOE=
+        b=RZWBNOAx8qSrJEB6GpcJA3ILRumj67B+tB4SruOo+P9uIpUw9DdJBQfBYw9xz6bQk
+         hUpKBgCzqRQsu6gdDSqJpmZjdcm9cIWJNJbrmPlIyIRFDK2sftWp6hbKuG+O+GbWMe
+         SUOO5XibSWThrN3tbFz2lVISixC0oB6HgeETic+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Eli Cohen <elic@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 106/148] ASoC: Intel: bytcr_rt5640: Add quirk for the Advantech MICA-071 tablet
+Subject: [PATCH 6.1 062/159] net/mlx5: Lag, fix failure to cancel delayed bond work
 Date:   Tue, 10 Jan 2023 19:03:30 +0100
-Message-Id: <20230110180020.545605496@linuxfoundation.org>
+Message-Id: <20230110180020.279889166@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit a1dec9d70b6ad97087b60b81d2492134a84208c6 ]
+[ Upstream commit 4d1c1379d71777ddeda3e54f8fc26e9ecbfd1009 ]
 
-The Advantech MICA-071 tablet deviates from the defaults for
-a non CR Bay Trail based tablet in several ways:
+Commit 0d4e8ed139d8 ("net/mlx5: Lag, avoid lockdep warnings")
+accidentally removed a call to cancel delayed bond work thus it may
+cause queued delay to expire and fall on an already destroyed work
+queue.
 
-1. It uses an analog MIC on IN3 rather then using DMIC1
-2. It only has 1 speaker
-3. It needs the OVCD current threshold to be set to 1500uA instead of
-   the default 2000uA to reliable differentiate between headphones vs
-   headsets
+Fix by restoring the call cancel_delayed_work_sync() before
+destroying the workqueue.
 
-Add a quirk with these settings for this tablet.
+This prevents call trace such as this:
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221213123246.11226-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[  329.230417] BUG: kernel NULL pointer dereference, address: 0000000000000000
+ [  329.231444] #PF: supervisor write access in kernel mode
+ [  329.232233] #PF: error_code(0x0002) - not-present page
+ [  329.233007] PGD 0 P4D 0
+ [  329.233476] Oops: 0002 [#1] SMP
+ [  329.234012] CPU: 5 PID: 145 Comm: kworker/u20:4 Tainted: G OE      6.0.0-rc5_mlnx #1
+ [  329.235282] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+ [  329.236868] Workqueue: mlx5_cmd_0000:08:00.1 cmd_work_handler [mlx5_core]
+ [  329.237886] RIP: 0010:_raw_spin_lock+0xc/0x20
+ [  329.238585] Code: f0 0f b1 17 75 02 f3 c3 89 c6 e9 6f 3c 5f ff 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 0f 1f 44 00 00 31 c0 ba 01 00 00 00 <f0> 0f b1 17 75 02 f3 c3 89 c6 e9 45 3c 5f ff 0f 1f 44 00 00 0f 1f
+ [  329.241156] RSP: 0018:ffffc900001b0e98 EFLAGS: 00010046
+ [  329.241940] RAX: 0000000000000000 RBX: ffffffff82374ae0 RCX: 0000000000000000
+ [  329.242954] RDX: 0000000000000001 RSI: 0000000000000014 RDI: 0000000000000000
+ [  329.243974] RBP: ffff888106ccf000 R08: ffff8881004000c8 R09: ffff888100400000
+ [  329.244990] R10: 0000000000000000 R11: ffffffff826669f8 R12: 0000000000002000
+ [  329.246009] R13: 0000000000000005 R14: ffff888100aa7ce0 R15: ffff88852ca80000
+ [  329.247030] FS:  0000000000000000(0000) GS:ffff88852ca80000(0000) knlGS:0000000000000000
+ [  329.248260] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ [  329.249111] CR2: 0000000000000000 CR3: 000000016d675001 CR4: 0000000000770ee0
+ [  329.250133] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ [  329.251152] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ [  329.252176] PKRU: 55555554
+
+Fixes: 0d4e8ed139d8 ("net/mlx5: Lag, avoid lockdep warnings")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index fb9d9e271845..ddd2625bed90 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -570,6 +570,21 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF1 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{
-+		/* Advantech MICA-071 */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Advantech"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MICA-071"),
-+		},
-+		/* OVCD Th = 1500uA to reliable detect head-phones vs -set */
-+		.driver_data = (void *)(BYT_RT5640_IN3_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_1500UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_MONO_SPEAKER |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ARCHOS"),
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
+index 32c3e0a649a7..ad32b80e8501 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
+@@ -228,6 +228,7 @@ static void mlx5_ldev_free(struct kref *ref)
+ 	if (ldev->nb.notifier_call)
+ 		unregister_netdevice_notifier_net(&init_net, &ldev->nb);
+ 	mlx5_lag_mp_cleanup(ldev);
++	cancel_delayed_work_sync(&ldev->bond_work);
+ 	destroy_workqueue(ldev->wq);
+ 	mlx5_lag_mpesw_cleanup(ldev);
+ 	mutex_destroy(&ldev->lock);
 -- 
 2.35.1
 
