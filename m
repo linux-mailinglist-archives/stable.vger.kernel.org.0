@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49375664A26
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:31:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C970466486E
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235439AbjAJSay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:30:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43176 "EHLO
+        id S238947AbjAJSLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239317AbjAJSaE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 459C5A7034
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:46 -0800 (PST)
+        with ESMTP id S239069AbjAJSK1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15DD62DEA
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED7FFB818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44C8AC433D2;
-        Tue, 10 Jan 2023 18:24:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 985EE61874
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADBC8C433D2;
+        Tue, 10 Jan 2023 18:09:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375083;
-        bh=yaHBIuIAl34nhrTwnheacBJHnZjVUe1lU80y62L09dg=;
+        s=korg; t=1673374144;
+        bh=Hwurm5mbX+g2QRl/NLU/ieeaFZOAJILoCq5INb9cfmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d91RF2df0CZP+HXcjJ3Bb1gIphhXetXn4jUdBPbuQx+R+5UrAOxnYYb4ur3aVqiMO
-         s0KofYPoOdJ2ZC2P8AyAOs4W6pFveth0E3NFtlZODe6WdFNrva+Ryuu/yk3QGD6WND
-         oYZDsTUlRQZIER2bFjR6aFL5L5yjhA7x6UNwDAeo=
+        b=sWMCp6e3wft4nMpbMC1utwyigjLagcfqAhBCLYPvVnVqUh0x+lXKT3bEAUmQivQM3
+         2kmk/48w/H8+VpglTZ0IZHQwK4LQkOl/cFCF5h9ydsmzsfFu32De5EolgRuyoFDvQM
+         n7fwB3DLymZBs3LgEoG0Fr5c5/xk8fEFpl2ABgtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chanwoo Choi <cwchoi00@gmail.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Kant Fan <kant@allwinnertech.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>
-Subject: [PATCH 5.15 073/290] PM/devfreq: governor: Add a private governor_data for governor
+        patches@lists.linux.dev, Hao Lan <lanhao@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 061/148] net: hns3: refactor function hclge_mbx_handler()
 Date:   Tue, 10 Jan 2023 19:02:45 +0100
-Message-Id: <20230110180034.159980095@linuxfoundation.org>
+Message-Id: <20230110180019.157262646@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,144 +54,496 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kant Fan <kant@allwinnertech.com>
+From: Hao Lan <lanhao@huawei.com>
 
-commit 5fdded8448924e3631d466eea499b11606c43640 upstream.
+[ Upstream commit 09431ed8de874881e2d5d430042d718ae074d371 ]
 
-The member void *data in the structure devfreq can be overwrite
-by governor_userspace. For example:
-1. The device driver assigned the devfreq governor to simple_ondemand
-by the function devfreq_add_device() and init the devfreq member
-void *data to a pointer of a static structure devfreq_simple_ondemand_data
-by the function devfreq_add_device().
-2. The user changed the devfreq governor to userspace by the command
-"echo userspace > /sys/class/devfreq/.../governor".
-3. The governor userspace alloced a dynamic memory for the struct
-userspace_data and assigend the member void *data of devfreq to
-this memory by the function userspace_init().
-4. The user changed the devfreq governor back to simple_ondemand
-by the command "echo simple_ondemand > /sys/class/devfreq/.../governor".
-5. The governor userspace exited and assigned the member void *data
-in the structure devfreq to NULL by the function userspace_exit().
-6. The governor simple_ondemand fetched the static information of
-devfreq_simple_ondemand_data in the function
-devfreq_simple_ondemand_func() but the member void *data of devfreq was
-assigned to NULL by the function userspace_exit().
-7. The information of upthreshold and downdifferential is lost
-and the governor simple_ondemand can't work correctly.
+Currently, the function hclge_mbx_handler() has too many switch-case
+statements, it makes this function too long. To improve code readability,
+refactor this function and use lookup table instead.
 
-The member void *data in the structure devfreq is designed for
-a static pointer used in a governor and inited by the function
-devfreq_add_device(). This patch add an element named governor_data
-in the devfreq structure which can be used by a governor(E.g userspace)
-who want to assign a private data to do some private things.
-
-Fixes: ce26c5bb9569 ("PM / devfreq: Add basic governors")
-Cc: stable@vger.kernel.org # 5.10+
-Reviewed-by: Chanwoo Choi <cwchoi00@gmail.com>
-Acked-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-Signed-off-by: Kant Fan <kant@allwinnertech.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hao Lan <lanhao@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Stable-dep-of: fec7352117fa ("net: hns3: refine the handling for VF heartbeat")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/devfreq.c            |    6 ++----
- drivers/devfreq/governor_userspace.c |   12 ++++++------
- include/linux/devfreq.h              |    7 ++++---
- 3 files changed, 12 insertions(+), 13 deletions(-)
+ .../net/ethernet/hisilicon/hns3/hclge_mbx.h   |  11 +
+ .../hisilicon/hns3/hns3pf/hclge_mbx.c         | 415 ++++++++++++------
+ 2 files changed, 284 insertions(+), 142 deletions(-)
 
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -775,8 +775,7 @@ static void remove_sysfs_files(struct de
-  * @dev:	the device to add devfreq feature.
-  * @profile:	device-specific profile to run devfreq.
-  * @governor_name:	name of the policy to choose frequency.
-- * @data:	private data for the governor. The devfreq framework does not
-- *		touch this value.
-+ * @data:	devfreq driver pass to governors, governor should not change it.
-  */
- struct devfreq *devfreq_add_device(struct device *dev,
- 				   struct devfreq_dev_profile *profile,
-@@ -1003,8 +1002,7 @@ static void devm_devfreq_dev_release(str
-  * @dev:	the device to add devfreq feature.
-  * @profile:	device-specific profile to run devfreq.
-  * @governor_name:	name of the policy to choose frequency.
-- * @data:	private data for the governor. The devfreq framework does not
-- *		touch this value.
-+ * @data:	 devfreq driver pass to governors, governor should not change it.
-  *
-  * This function manages automatically the memory of devfreq device using device
-  * resource management and simplify the free operation for memory of devfreq
---- a/drivers/devfreq/governor_userspace.c
-+++ b/drivers/devfreq/governor_userspace.c
-@@ -21,7 +21,7 @@ struct userspace_data {
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+index 7d4ae467f3ad..abcd7877f7d2 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+@@ -233,6 +233,17 @@ struct hclgevf_mbx_arq_ring {
+ 	__le16 msg_q[HCLGE_MBX_MAX_ARQ_MSG_NUM][HCLGE_MBX_MAX_ARQ_MSG_SIZE];
+ };
  
- static int devfreq_userspace_func(struct devfreq *df, unsigned long *freq)
- {
--	struct userspace_data *data = df->data;
-+	struct userspace_data *data = df->governor_data;
- 
- 	if (data->valid)
- 		*freq = data->user_frequency;
-@@ -40,7 +40,7 @@ static ssize_t set_freq_store(struct dev
- 	int err = 0;
- 
- 	mutex_lock(&devfreq->lock);
--	data = devfreq->data;
-+	data = devfreq->governor_data;
- 
- 	sscanf(buf, "%lu", &wanted);
- 	data->user_frequency = wanted;
-@@ -60,7 +60,7 @@ static ssize_t set_freq_show(struct devi
- 	int err = 0;
- 
- 	mutex_lock(&devfreq->lock);
--	data = devfreq->data;
-+	data = devfreq->governor_data;
- 
- 	if (data->valid)
- 		err = sprintf(buf, "%lu\n", data->user_frequency);
-@@ -91,7 +91,7 @@ static int userspace_init(struct devfreq
- 		goto out;
++struct hclge_dev;
++
++#define HCLGE_MBX_OPCODE_MAX 256
++struct hclge_mbx_ops_param {
++	struct hclge_vport *vport;
++	struct hclge_mbx_vf_to_pf_cmd *req;
++	struct hclge_respond_to_vf_msg *resp_msg;
++};
++
++typedef int (*hclge_mbx_ops_fn)(struct hclge_mbx_ops_param *param);
++
+ #define hclge_mbx_ring_ptr_move_crq(crq) \
+ 	(crq->next_to_use = (crq->next_to_use + 1) % crq->desc_num)
+ #define hclge_mbx_tail_ptr_move_arq(arq) \
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index e1012f7f9b73..a7b06c63143c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -779,17 +779,284 @@ static void hclge_handle_vf_tbl(struct hclge_vport *vport,
  	}
- 	data->valid = false;
--	devfreq->data = data;
-+	devfreq->governor_data = data;
- 
- 	err = sysfs_create_group(&devfreq->dev.kobj, &dev_attr_group);
- out:
-@@ -107,8 +107,8 @@ static void userspace_exit(struct devfre
- 	if (devfreq->dev.kobj.sd)
- 		sysfs_remove_group(&devfreq->dev.kobj, &dev_attr_group);
- 
--	kfree(devfreq->data);
--	devfreq->data = NULL;
-+	kfree(devfreq->governor_data);
-+	devfreq->governor_data = NULL;
  }
  
- static int devfreq_userspace_handler(struct devfreq *devfreq,
---- a/include/linux/devfreq.h
-+++ b/include/linux/devfreq.h
-@@ -149,8 +149,8 @@ struct devfreq_stats {
-  * @work:	delayed work for load monitoring.
-  * @previous_freq:	previously configured frequency value.
-  * @last_status:	devfreq user device info, performance statistics
-- * @data:	Private data of the governor. The devfreq framework does not
-- *		touch this.
-+ * @data:	devfreq driver pass to governors, governor should not change it.
-+ * @governor_data:	private data for governors, devfreq core doesn't touch it.
-  * @user_min_freq_req:	PM QoS minimum frequency request from user (via sysfs)
-  * @user_max_freq_req:	PM QoS maximum frequency request from user (via sysfs)
-  * @scaling_min_freq:	Limit minimum frequency requested by OPP interface
-@@ -187,7 +187,8 @@ struct devfreq {
- 	unsigned long previous_freq;
- 	struct devfreq_dev_status last_status;
++static int
++hclge_mbx_map_ring_to_vector_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_map_unmap_ring_to_vf_vector(param->vport, true,
++						 param->req);
++}
++
++static int
++hclge_mbx_unmap_ring_to_vector_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_map_unmap_ring_to_vf_vector(param->vport, false,
++						 param->req);
++}
++
++static int
++hclge_mbx_get_ring_vector_map_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_get_vf_ring_vector_map(param->vport, param->req,
++					   param->resp_msg);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF fail(%d) to get VF ring vector map\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_set_promisc_mode_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_set_vf_promisc_mode(param->vport, param->req);
++	return 0;
++}
++
++static int hclge_mbx_set_unicast_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_uc_mac_addr(param->vport, param->req);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF fail(%d) to set VF UC MAC Addr\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_set_multicast_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_mc_mac_addr(param->vport, param->req);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF fail(%d) to set VF MC MAC Addr\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_set_vlan_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_vlan_cfg(param->vport, param->req, param->resp_msg);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF failed(%d) to config VF's VLAN\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_set_alive_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_alive(param->vport, param->req);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"PF failed(%d) to set VF's ALIVE\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_get_qinfo_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_vf_queue_info(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_get_qdepth_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_vf_queue_depth(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_get_basic_info_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_basic_info(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_get_link_status_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_push_vf_link_status(param->vport);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"failed to inform link stat to VF, ret = %d\n",
++			ret);
++	return ret;
++}
++
++static int hclge_mbx_queue_reset_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_mbx_reset_vf_queue(param->vport, param->req,
++					param->resp_msg);
++}
++
++static int hclge_mbx_reset_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_reset_vf(param->vport);
++}
++
++static int hclge_mbx_keep_alive_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_vf_keep_alive(param->vport);
++	return 0;
++}
++
++static int hclge_mbx_set_mtu_handler(struct hclge_mbx_ops_param *param)
++{
++	int ret;
++
++	ret = hclge_set_vf_mtu(param->vport, param->req);
++	if (ret)
++		dev_err(&param->vport->back->pdev->dev,
++			"VF fail(%d) to set mtu\n", ret);
++	return ret;
++}
++
++static int hclge_mbx_get_qid_in_pf_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_get_queue_id_in_pf(param->vport, param->req,
++					param->resp_msg);
++}
++
++static int hclge_mbx_get_rss_key_handler(struct hclge_mbx_ops_param *param)
++{
++	return hclge_get_rss_key(param->vport, param->req, param->resp_msg);
++}
++
++static int hclge_mbx_get_link_mode_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_link_mode(param->vport, param->req);
++	return 0;
++}
++
++static int
++hclge_mbx_get_vf_flr_status_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_rm_vport_all_mac_table(param->vport, false,
++				     HCLGE_MAC_ADDR_UC);
++	hclge_rm_vport_all_mac_table(param->vport, false,
++				     HCLGE_MAC_ADDR_MC);
++	hclge_rm_vport_all_vlan_table(param->vport, false);
++	return 0;
++}
++
++static int hclge_mbx_vf_uninit_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_rm_vport_all_mac_table(param->vport, true,
++				     HCLGE_MAC_ADDR_UC);
++	hclge_rm_vport_all_mac_table(param->vport, true,
++				     HCLGE_MAC_ADDR_MC);
++	hclge_rm_vport_all_vlan_table(param->vport, true);
++	return 0;
++}
++
++static int hclge_mbx_get_media_type_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_vf_media_type(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_push_link_status_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_handle_link_change_event(param->vport->back, param->req);
++	return 0;
++}
++
++static int hclge_mbx_get_mac_addr_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_get_vf_mac_addr(param->vport, param->resp_msg);
++	return 0;
++}
++
++static int hclge_mbx_ncsi_error_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_handle_ncsi_error(param->vport->back);
++	return 0;
++}
++
++static int hclge_mbx_handle_vf_tbl_handler(struct hclge_mbx_ops_param *param)
++{
++	hclge_handle_vf_tbl(param->vport, param->req);
++	return 0;
++}
++
++static const hclge_mbx_ops_fn hclge_mbx_ops_list[HCLGE_MBX_OPCODE_MAX] = {
++	[HCLGE_MBX_RESET]   = hclge_mbx_reset_handler,
++	[HCLGE_MBX_SET_UNICAST] = hclge_mbx_set_unicast_handler,
++	[HCLGE_MBX_SET_MULTICAST] = hclge_mbx_set_multicast_handler,
++	[HCLGE_MBX_SET_VLAN] = hclge_mbx_set_vlan_handler,
++	[HCLGE_MBX_MAP_RING_TO_VECTOR] = hclge_mbx_map_ring_to_vector_handler,
++	[HCLGE_MBX_UNMAP_RING_TO_VECTOR] = hclge_mbx_unmap_ring_to_vector_handler,
++	[HCLGE_MBX_SET_PROMISC_MODE] = hclge_mbx_set_promisc_mode_handler,
++	[HCLGE_MBX_GET_QINFO] = hclge_mbx_get_qinfo_handler,
++	[HCLGE_MBX_GET_QDEPTH] = hclge_mbx_get_qdepth_handler,
++	[HCLGE_MBX_GET_BASIC_INFO] = hclge_mbx_get_basic_info_handler,
++	[HCLGE_MBX_GET_RSS_KEY] = hclge_mbx_get_rss_key_handler,
++	[HCLGE_MBX_GET_MAC_ADDR] = hclge_mbx_get_mac_addr_handler,
++	[HCLGE_MBX_GET_LINK_STATUS] = hclge_mbx_get_link_status_handler,
++	[HCLGE_MBX_QUEUE_RESET] = hclge_mbx_queue_reset_handler,
++	[HCLGE_MBX_KEEP_ALIVE] = hclge_mbx_keep_alive_handler,
++	[HCLGE_MBX_SET_ALIVE] = hclge_mbx_set_alive_handler,
++	[HCLGE_MBX_SET_MTU] = hclge_mbx_set_mtu_handler,
++	[HCLGE_MBX_GET_QID_IN_PF] = hclge_mbx_get_qid_in_pf_handler,
++	[HCLGE_MBX_GET_LINK_MODE] = hclge_mbx_get_link_mode_handler,
++	[HCLGE_MBX_GET_MEDIA_TYPE] = hclge_mbx_get_media_type_handler,
++	[HCLGE_MBX_VF_UNINIT] = hclge_mbx_vf_uninit_handler,
++	[HCLGE_MBX_HANDLE_VF_TBL] = hclge_mbx_handle_vf_tbl_handler,
++	[HCLGE_MBX_GET_RING_VECTOR_MAP] = hclge_mbx_get_ring_vector_map_handler,
++	[HCLGE_MBX_GET_VF_FLR_STATUS] = hclge_mbx_get_vf_flr_status_handler,
++	[HCLGE_MBX_PUSH_LINK_STATUS] = hclge_mbx_push_link_status_handler,
++	[HCLGE_MBX_NCSI_ERROR] = hclge_mbx_ncsi_error_handler,
++};
++
++static void hclge_mbx_request_handling(struct hclge_mbx_ops_param *param)
++{
++	hclge_mbx_ops_fn cmd_func = NULL;
++	struct hclge_dev *hdev;
++	int ret = 0;
++
++	hdev = param->vport->back;
++	cmd_func = hclge_mbx_ops_list[param->req->msg.code];
++	if (cmd_func)
++		ret = cmd_func(param);
++	else
++		dev_err(&hdev->pdev->dev,
++			"un-supported mailbox message, code = %u\n",
++			param->req->msg.code);
++
++	/* PF driver should not reply IMP */
++	if (hnae3_get_bit(param->req->mbx_need_resp, HCLGE_MBX_NEED_RESP_B) &&
++	    param->req->msg.code < HCLGE_MBX_GET_VF_FLR_STATUS) {
++		param->resp_msg->status = ret;
++		if (time_is_before_jiffies(hdev->last_mbx_scheduled +
++					   HCLGE_MBX_SCHED_TIMEOUT))
++			dev_warn(&hdev->pdev->dev,
++				 "resp vport%u mbx(%u,%u) late\n",
++				 param->req->mbx_src_vfid,
++				 param->req->msg.code,
++				 param->req->msg.subcode);
++
++		hclge_gen_resp_to_vf(param->vport, param->req, param->resp_msg);
++	}
++}
++
+ void hclge_mbx_handler(struct hclge_dev *hdev)
+ {
+ 	struct hclge_comm_cmq_ring *crq = &hdev->hw.hw.cmq.crq;
+ 	struct hclge_respond_to_vf_msg resp_msg;
+ 	struct hclge_mbx_vf_to_pf_cmd *req;
+-	struct hclge_vport *vport;
++	struct hclge_mbx_ops_param param;
+ 	struct hclge_desc *desc;
+-	bool is_del = false;
+ 	unsigned int flag;
+-	int ret = 0;
  
--	void *data; /* private data for governors */
-+	void *data;
-+	void *governor_data;
++	param.resp_msg = &resp_msg;
+ 	/* handle all the mailbox requests in the queue */
+ 	while (!hclge_cmd_crq_empty(&hdev->hw)) {
+ 		if (test_bit(HCLGE_COMM_STATE_CMD_DISABLE,
+@@ -814,152 +1081,16 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
+ 			continue;
+ 		}
  
- 	struct dev_pm_qos_request user_min_freq_req;
- 	struct dev_pm_qos_request user_max_freq_req;
+-		vport = &hdev->vport[req->mbx_src_vfid];
+-
+ 		trace_hclge_pf_mbx_get(hdev, req);
+ 
+ 		/* clear the resp_msg before processing every mailbox message */
+ 		memset(&resp_msg, 0, sizeof(resp_msg));
+-
+-		switch (req->msg.code) {
+-		case HCLGE_MBX_MAP_RING_TO_VECTOR:
+-			ret = hclge_map_unmap_ring_to_vf_vector(vport, true,
+-								req);
+-			break;
+-		case HCLGE_MBX_UNMAP_RING_TO_VECTOR:
+-			ret = hclge_map_unmap_ring_to_vf_vector(vport, false,
+-								req);
+-			break;
+-		case HCLGE_MBX_GET_RING_VECTOR_MAP:
+-			ret = hclge_get_vf_ring_vector_map(vport, req,
+-							   &resp_msg);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF fail(%d) to get VF ring vector map\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_SET_PROMISC_MODE:
+-			hclge_set_vf_promisc_mode(vport, req);
+-			break;
+-		case HCLGE_MBX_SET_UNICAST:
+-			ret = hclge_set_vf_uc_mac_addr(vport, req);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF fail(%d) to set VF UC MAC Addr\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_SET_MULTICAST:
+-			ret = hclge_set_vf_mc_mac_addr(vport, req);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF fail(%d) to set VF MC MAC Addr\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_SET_VLAN:
+-			ret = hclge_set_vf_vlan_cfg(vport, req, &resp_msg);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF failed(%d) to config VF's VLAN\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_SET_ALIVE:
+-			ret = hclge_set_vf_alive(vport, req);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"PF failed(%d) to set VF's ALIVE\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_GET_QINFO:
+-			hclge_get_vf_queue_info(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_QDEPTH:
+-			hclge_get_vf_queue_depth(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_BASIC_INFO:
+-			hclge_get_basic_info(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_LINK_STATUS:
+-			ret = hclge_push_vf_link_status(vport);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"failed to inform link stat to VF, ret = %d\n",
+-					ret);
+-			break;
+-		case HCLGE_MBX_QUEUE_RESET:
+-			ret = hclge_mbx_reset_vf_queue(vport, req, &resp_msg);
+-			break;
+-		case HCLGE_MBX_RESET:
+-			ret = hclge_reset_vf(vport);
+-			break;
+-		case HCLGE_MBX_KEEP_ALIVE:
+-			hclge_vf_keep_alive(vport);
+-			break;
+-		case HCLGE_MBX_SET_MTU:
+-			ret = hclge_set_vf_mtu(vport, req);
+-			if (ret)
+-				dev_err(&hdev->pdev->dev,
+-					"VF fail(%d) to set mtu\n", ret);
+-			break;
+-		case HCLGE_MBX_GET_QID_IN_PF:
+-			ret = hclge_get_queue_id_in_pf(vport, req, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_RSS_KEY:
+-			ret = hclge_get_rss_key(vport, req, &resp_msg);
+-			break;
+-		case HCLGE_MBX_GET_LINK_MODE:
+-			hclge_get_link_mode(vport, req);
+-			break;
+-		case HCLGE_MBX_GET_VF_FLR_STATUS:
+-		case HCLGE_MBX_VF_UNINIT:
+-			is_del = req->msg.code == HCLGE_MBX_VF_UNINIT;
+-			hclge_rm_vport_all_mac_table(vport, is_del,
+-						     HCLGE_MAC_ADDR_UC);
+-			hclge_rm_vport_all_mac_table(vport, is_del,
+-						     HCLGE_MAC_ADDR_MC);
+-			hclge_rm_vport_all_vlan_table(vport, is_del);
+-			break;
+-		case HCLGE_MBX_GET_MEDIA_TYPE:
+-			hclge_get_vf_media_type(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_PUSH_LINK_STATUS:
+-			hclge_handle_link_change_event(hdev, req);
+-			break;
+-		case HCLGE_MBX_GET_MAC_ADDR:
+-			hclge_get_vf_mac_addr(vport, &resp_msg);
+-			break;
+-		case HCLGE_MBX_NCSI_ERROR:
+-			hclge_handle_ncsi_error(hdev);
+-			break;
+-		case HCLGE_MBX_HANDLE_VF_TBL:
+-			hclge_handle_vf_tbl(vport, req);
+-			break;
+-		default:
+-			dev_err(&hdev->pdev->dev,
+-				"un-supported mailbox message, code = %u\n",
+-				req->msg.code);
+-			break;
+-		}
+-
+-		/* PF driver should not reply IMP */
+-		if (hnae3_get_bit(req->mbx_need_resp, HCLGE_MBX_NEED_RESP_B) &&
+-		    req->msg.code < HCLGE_MBX_GET_VF_FLR_STATUS) {
+-			resp_msg.status = ret;
+-			if (time_is_before_jiffies(hdev->last_mbx_scheduled +
+-						   HCLGE_MBX_SCHED_TIMEOUT))
+-				dev_warn(&hdev->pdev->dev,
+-					 "resp vport%u mbx(%u,%u) late\n",
+-					 req->mbx_src_vfid,
+-					 req->msg.code,
+-					 req->msg.subcode);
+-
+-			hclge_gen_resp_to_vf(vport, req, &resp_msg);
+-		}
++		param.vport = &hdev->vport[req->mbx_src_vfid];
++		param.req = req;
++		hclge_mbx_request_handling(&param);
+ 
+ 		crq->desc[crq->next_to_use].flag = 0;
+ 		hclge_mbx_ring_ptr_move_crq(crq);
+-
+-		/* reinitialize ret after complete the mbx message processing */
+-		ret = 0;
+ 	}
+ 
+ 	/* Write back CMDQ_RQ header pointer, M7 need this pointer */
+-- 
+2.35.1
+
 
 
