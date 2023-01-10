@@ -2,269 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81528664A33
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:31:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02B92664896
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239092AbjAJSb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:31:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43822 "EHLO
+        id S238863AbjAJSMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239406AbjAJSad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6CE29B290
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:14 -0800 (PST)
+        with ESMTP id S238872AbjAJSMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2AA2659A
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 407DA617C9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B95CC433F0;
-        Tue, 10 Jan 2023 18:25:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EB4BB81901
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C18ACC4339B;
+        Tue, 10 Jan 2023 18:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375113;
-        bh=xpsZApEK//ngLHmNtDEVS2ccN2WFRvNyvnxxcKApM3Q=;
+        s=korg; t=1673374238;
+        bh=Zx4aD6pUUaFlUxCeLUsdN9vbY/6yEUA8XwWNlv0DpfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8uiC/781OaehPL2QrTnxZDzdtjnd57DU3iK+LL7OY9FpVaDFHc5bqE8wBwJBQ1A+
-         xaEaj8cJ6H6JqIRqQIy5mHxYxzzzBl1TCco77cuXYgnqenlFt4e549DdyRIPBX0bKG
-         g6DTUU2GNrTnFZdYVi3CEjaCbtOlP5+9h3WprMIk=
+        b=W0TtvAmLnCi+nOZJGuDjpxmDLOfkRDmqOaOP57NQuxbgDznF59YBVPYBM0ZOfIunB
+         vDuM/n05cBD3tB5bE5Dv0yGtFM6LocGMsyFrfndvqg6Aepn/2YXancQYWUdQ25eH85
+         C/uiJZt8oK256N9FqkOVpjL8FtiLtGVDQblooQgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.15 082/290] dm thin: Fix ABBA deadlock between shrink_slab and dm_pool_abort_metadata
+        patches@lists.linux.dev, David Arinzon <darinzon@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 070/148] net: ena: Update NUMA TPH hint register upon NUMA node update
 Date:   Tue, 10 Jan 2023 19:02:54 +0100
-Message-Id: <20230110180034.435313824@linuxfoundation.org>
+Message-Id: <20230110180019.439957961@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,WEIRD_PORT autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: David Arinzon <darinzon@amazon.com>
 
-commit 8111964f1b8524c4bb56b02cd9c7a37725ea21fd upstream.
+[ Upstream commit a8ee104f986e720cea52133885cc822d459398c7 ]
 
-Following concurrent processes:
+The device supports a PCIe optimization hint, which indicates on
+which NUMA the queue is currently processed. This hint is utilized
+by PCIe in order to reduce its access time by accessing the
+correct NUMA resources and maintaining cache coherence.
 
-          P1(drop cache)                P2(kworker)
-drop_caches_sysctl_handler
- drop_slab
-  shrink_slab
-   down_read(&shrinker_rwsem)  - LOCK A
-   do_shrink_slab
-    super_cache_scan
-     prune_icache_sb
-      dispose_list
-       evict
-        ext4_evict_inode
-	 ext4_clear_inode
-	  ext4_discard_preallocations
-	   ext4_mb_load_buddy_gfp
-	    ext4_mb_init_cache
-	     ext4_read_block_bitmap_nowait
-	      ext4_read_bh_nowait
-	       submit_bh
-	        dm_submit_bio
-		                 do_worker
-				  process_deferred_bios
-				   commit
-				    metadata_operation_failed
-				     dm_pool_abort_metadata
-				      down_write(&pmd->root_lock) - LOCK B
-		                      __destroy_persistent_data_objects
-				       dm_block_manager_destroy
-				        dm_bufio_client_destroy
-				         unregister_shrinker
-					  down_write(&shrinker_rwsem)
-		 thin_map                            |
-		  dm_thin_find_block                 ↓
-		   down_read(&pmd->root_lock) --> ABBA deadlock
+The driver calls the register update for the hint (called TPH -
+TLP Processing Hint) during the NAPI loop.
 
-, which triggers hung task:
+Though the update is expected upon a NUMA change (when a queue
+is moved from one NUMA to the other), the current logic performs
+a register update when the queue is moved to a different CPU,
+but the CPU is not necessarily in a different NUMA.
 
-[   76.974820] INFO: task kworker/u4:3:63 blocked for more than 15 seconds.
-[   76.976019]       Not tainted 6.1.0-rc4-00011-g8f17dd350364-dirty #910
-[   76.978521] task:kworker/u4:3    state:D stack:0     pid:63    ppid:2
-[   76.978534] Workqueue: dm-thin do_worker
-[   76.978552] Call Trace:
-[   76.978564]  __schedule+0x6ba/0x10f0
-[   76.978582]  schedule+0x9d/0x1e0
-[   76.978588]  rwsem_down_write_slowpath+0x587/0xdf0
-[   76.978600]  down_write+0xec/0x110
-[   76.978607]  unregister_shrinker+0x2c/0xf0
-[   76.978616]  dm_bufio_client_destroy+0x116/0x3d0
-[   76.978625]  dm_block_manager_destroy+0x19/0x40
-[   76.978629]  __destroy_persistent_data_objects+0x5e/0x70
-[   76.978636]  dm_pool_abort_metadata+0x8e/0x100
-[   76.978643]  metadata_operation_failed+0x86/0x110
-[   76.978649]  commit+0x6a/0x230
-[   76.978655]  do_worker+0xc6e/0xd90
-[   76.978702]  process_one_work+0x269/0x630
-[   76.978714]  worker_thread+0x266/0x630
-[   76.978730]  kthread+0x151/0x1b0
-[   76.978772] INFO: task test.sh:2646 blocked for more than 15 seconds.
-[   76.979756]       Not tainted 6.1.0-rc4-00011-g8f17dd350364-dirty #910
-[   76.982111] task:test.sh         state:D stack:0     pid:2646  ppid:2459
-[   76.982128] Call Trace:
-[   76.982139]  __schedule+0x6ba/0x10f0
-[   76.982155]  schedule+0x9d/0x1e0
-[   76.982159]  rwsem_down_read_slowpath+0x4f4/0x910
-[   76.982173]  down_read+0x84/0x170
-[   76.982177]  dm_thin_find_block+0x4c/0xd0
-[   76.982183]  thin_map+0x201/0x3d0
-[   76.982188]  __map_bio+0x5b/0x350
-[   76.982195]  dm_submit_bio+0x2b6/0x930
-[   76.982202]  __submit_bio+0x123/0x2d0
-[   76.982209]  submit_bio_noacct_nocheck+0x101/0x3e0
-[   76.982222]  submit_bio_noacct+0x389/0x770
-[   76.982227]  submit_bio+0x50/0xc0
-[   76.982232]  submit_bh_wbc+0x15e/0x230
-[   76.982238]  submit_bh+0x14/0x20
-[   76.982241]  ext4_read_bh_nowait+0xc5/0x130
-[   76.982247]  ext4_read_block_bitmap_nowait+0x340/0xc60
-[   76.982254]  ext4_mb_init_cache+0x1ce/0xdc0
-[   76.982259]  ext4_mb_load_buddy_gfp+0x987/0xfa0
-[   76.982263]  ext4_discard_preallocations+0x45d/0x830
-[   76.982274]  ext4_clear_inode+0x48/0xf0
-[   76.982280]  ext4_evict_inode+0xcf/0xc70
-[   76.982285]  evict+0x119/0x2b0
-[   76.982290]  dispose_list+0x43/0xa0
-[   76.982294]  prune_icache_sb+0x64/0x90
-[   76.982298]  super_cache_scan+0x155/0x210
-[   76.982303]  do_shrink_slab+0x19e/0x4e0
-[   76.982310]  shrink_slab+0x2bd/0x450
-[   76.982317]  drop_slab+0xcc/0x1a0
-[   76.982323]  drop_caches_sysctl_handler+0xb7/0xe0
-[   76.982327]  proc_sys_call_handler+0x1bc/0x300
-[   76.982331]  proc_sys_write+0x17/0x20
-[   76.982334]  vfs_write+0x3d3/0x570
-[   76.982342]  ksys_write+0x73/0x160
-[   76.982347]  __x64_sys_write+0x1e/0x30
-[   76.982352]  do_syscall_64+0x35/0x80
-[   76.982357]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+The changes include:
+1. Performing the TPH update only when the queue has switched
+a NUMA node.
+2. Moving the TPH update call to be triggered only when NAPI was
+scheduled from interrupt context, as opposed to a busy-polling loop.
+This is due to the fact that during busy-polling, the frequency
+of CPU switches for a particular queue is significantly higher,
+thus, the likelihood to switch NUMA is much higher. Therefore,
+providing the frequent updates to the device upon a NUMA update
+are unlikely to be beneficial.
 
-Function metadata_operation_failed() is called when operations failed
-on dm pool metadata, dm pool will destroy and recreate metadata. So,
-shrinker will be unregistered and registered, which could down write
-shrinker_rwsem under pmd_write_lock.
-
-Fix it by allocating dm_block_manager before locking pmd->root_lock
-and destroying old dm_block_manager after unlocking pmd->root_lock,
-then old dm_block_manager is replaced with new dm_block_manager under
-pmd->root_lock. So, shrinker register/unregister could be done without
-holding pmd->root_lock.
-
-Fetch a reproducer in [Link].
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216676
-Cc: stable@vger.kernel.org #v5.2+
-Fixes: e49e582965b3 ("dm thin: add read only and fail io modes")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: David Arinzon <darinzon@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-thin-metadata.c |   51 +++++++++++++++++++++++++++++++++++-------
- 1 file changed, 43 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 27 +++++++++++++-------
+ drivers/net/ethernet/amazon/ena/ena_netdev.h |  6 +++--
+ 2 files changed, 22 insertions(+), 11 deletions(-)
 
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -776,13 +776,15 @@ static int __create_persistent_data_obje
- 	return r;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index b25a2fcff339..413714f373ff 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -680,6 +680,7 @@ static void ena_init_io_rings_common(struct ena_adapter *adapter,
+ 	ring->ena_dev = adapter->ena_dev;
+ 	ring->per_napi_packets = 0;
+ 	ring->cpu = 0;
++	ring->numa_node = 0;
+ 	ring->no_interrupt_event_cnt = 0;
+ 	u64_stats_init(&ring->syncp);
  }
- 
--static void __destroy_persistent_data_objects(struct dm_pool_metadata *pmd)
-+static void __destroy_persistent_data_objects(struct dm_pool_metadata *pmd,
-+					      bool destroy_bm)
- {
- 	dm_sm_destroy(pmd->data_sm);
- 	dm_sm_destroy(pmd->metadata_sm);
- 	dm_tm_destroy(pmd->nb_tm);
- 	dm_tm_destroy(pmd->tm);
--	dm_block_manager_destroy(pmd->bm);
-+	if (destroy_bm)
-+		dm_block_manager_destroy(pmd->bm);
- }
- 
- static int __begin_transaction(struct dm_pool_metadata *pmd)
-@@ -989,7 +991,7 @@ int dm_pool_metadata_close(struct dm_poo
- 	}
- 	pmd_write_unlock(pmd);
- 	if (!pmd->fail_io)
--		__destroy_persistent_data_objects(pmd);
-+		__destroy_persistent_data_objects(pmd, true);
- 
- 	kfree(pmd);
+@@ -783,6 +784,7 @@ static int ena_setup_tx_resources(struct ena_adapter *adapter, int qid)
+ 	tx_ring->next_to_use = 0;
+ 	tx_ring->next_to_clean = 0;
+ 	tx_ring->cpu = ena_irq->cpu;
++	tx_ring->numa_node = node;
  	return 0;
-@@ -1888,19 +1890,52 @@ static void __set_abort_with_changes_fla
- int dm_pool_abort_metadata(struct dm_pool_metadata *pmd)
- {
- 	int r = -EINVAL;
-+	struct dm_block_manager *old_bm = NULL, *new_bm = NULL;
-+
-+	/* fail_io is double-checked with pmd->root_lock held below */
-+	if (unlikely(pmd->fail_io))
-+		return r;
-+
-+	/*
-+	 * Replacement block manager (new_bm) is created and old_bm destroyed outside of
-+	 * pmd root_lock to avoid ABBA deadlock that would result (due to life-cycle of
-+	 * shrinker associated with the block manager's bufio client vs pmd root_lock).
-+	 * - must take shrinker_rwsem without holding pmd->root_lock
-+	 */
-+	new_bm = dm_block_manager_create(pmd->bdev, THIN_METADATA_BLOCK_SIZE << SECTOR_SHIFT,
-+					 THIN_MAX_CONCURRENT_LOCKS);
  
- 	pmd_write_lock(pmd);
--	if (pmd->fail_io)
-+	if (pmd->fail_io) {
-+		pmd_write_unlock(pmd);
- 		goto out;
-+	}
+ err_push_buf_intermediate_buf:
+@@ -915,6 +917,7 @@ static int ena_setup_rx_resources(struct ena_adapter *adapter,
+ 	rx_ring->next_to_clean = 0;
+ 	rx_ring->next_to_use = 0;
+ 	rx_ring->cpu = ena_irq->cpu;
++	rx_ring->numa_node = node;
  
- 	__set_abort_with_changes_flags(pmd);
--	__destroy_persistent_data_objects(pmd);
--	r = __create_persistent_data_objects(pmd, false);
-+	__destroy_persistent_data_objects(pmd, false);
-+	old_bm = pmd->bm;
-+	if (IS_ERR(new_bm)) {
-+		DMERR("could not create block manager during abort");
-+		pmd->bm = NULL;
-+		r = PTR_ERR(new_bm);
-+		goto out_unlock;
-+	}
-+
-+	pmd->bm = new_bm;
-+	r = __open_or_format_metadata(pmd, false);
-+	if (r) {
-+		pmd->bm = NULL;
-+		goto out_unlock;
-+	}
-+	new_bm = NULL;
-+out_unlock:
- 	if (r)
- 		pmd->fail_io = true;
--
--out:
- 	pmd_write_unlock(pmd);
-+	dm_block_manager_destroy(old_bm);
-+out:
-+	if (new_bm && !IS_ERR(new_bm))
-+		dm_block_manager_destroy(new_bm);
- 
- 	return r;
+ 	return 0;
  }
+@@ -1863,20 +1866,27 @@ static void ena_update_ring_numa_node(struct ena_ring *tx_ring,
+ 	if (likely(tx_ring->cpu == cpu))
+ 		goto out;
+ 
++	tx_ring->cpu = cpu;
++	if (rx_ring)
++		rx_ring->cpu = cpu;
++
+ 	numa_node = cpu_to_node(cpu);
++
++	if (likely(tx_ring->numa_node == numa_node))
++		goto out;
++
+ 	put_cpu();
+ 
+ 	if (numa_node != NUMA_NO_NODE) {
+ 		ena_com_update_numa_node(tx_ring->ena_com_io_cq, numa_node);
+-		if (rx_ring)
++		tx_ring->numa_node = numa_node;
++		if (rx_ring) {
++			rx_ring->numa_node = numa_node;
+ 			ena_com_update_numa_node(rx_ring->ena_com_io_cq,
+ 						 numa_node);
++		}
+ 	}
+ 
+-	tx_ring->cpu = cpu;
+-	if (rx_ring)
+-		rx_ring->cpu = cpu;
+-
+ 	return;
+ out:
+ 	put_cpu();
+@@ -1997,11 +2007,10 @@ static int ena_io_poll(struct napi_struct *napi, int budget)
+ 			if (ena_com_get_adaptive_moderation_enabled(rx_ring->ena_dev))
+ 				ena_adjust_adaptive_rx_intr_moderation(ena_napi);
+ 
++			ena_update_ring_numa_node(tx_ring, rx_ring);
+ 			ena_unmask_interrupt(tx_ring, rx_ring);
+ 		}
+ 
+-		ena_update_ring_numa_node(tx_ring, rx_ring);
+-
+ 		ret = rx_work_done;
+ 	} else {
+ 		ret = budget;
+@@ -2388,7 +2397,7 @@ static int ena_create_io_tx_queue(struct ena_adapter *adapter, int qid)
+ 	ctx.mem_queue_type = ena_dev->tx_mem_queue_type;
+ 	ctx.msix_vector = msix_vector;
+ 	ctx.queue_size = tx_ring->ring_size;
+-	ctx.numa_node = cpu_to_node(tx_ring->cpu);
++	ctx.numa_node = tx_ring->numa_node;
+ 
+ 	rc = ena_com_create_io_queue(ena_dev, &ctx);
+ 	if (rc) {
+@@ -2456,7 +2465,7 @@ static int ena_create_io_rx_queue(struct ena_adapter *adapter, int qid)
+ 	ctx.mem_queue_type = ENA_ADMIN_PLACEMENT_POLICY_HOST;
+ 	ctx.msix_vector = msix_vector;
+ 	ctx.queue_size = rx_ring->ring_size;
+-	ctx.numa_node = cpu_to_node(rx_ring->cpu);
++	ctx.numa_node = rx_ring->numa_node;
+ 
+ 	rc = ena_com_create_io_queue(ena_dev, &ctx);
+ 	if (rc) {
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.h b/drivers/net/ethernet/amazon/ena/ena_netdev.h
+index f9d862b630fa..2cb141079474 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.h
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.h
+@@ -262,9 +262,11 @@ struct ena_ring {
+ 	bool disable_meta_caching;
+ 	u16 no_interrupt_event_cnt;
+ 
+-	/* cpu for TPH */
++	/* cpu and NUMA for TPH */
+ 	int cpu;
+-	 /* number of tx/rx_buffer_info's entries */
++	int numa_node;
++
++	/* number of tx/rx_buffer_info's entries */
+ 	int ring_size;
+ 
+ 	enum ena_admin_placement_policy_type tx_mem_queue_type;
+-- 
+2.35.1
+
 
 
