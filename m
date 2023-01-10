@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8910E664ADE
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 458B96649AE
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239368AbjAJSh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:37:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46920 "EHLO
+        id S239282AbjAJSXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239373AbjAJSgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:36:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDACA50F48
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:31:35 -0800 (PST)
+        with ESMTP id S239353AbjAJSWx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8093592360
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6333861846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52957C433F0;
-        Tue, 10 Jan 2023 18:31:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 304BBB818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C1DC433D2;
+        Tue, 10 Jan 2023 18:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375494;
-        bh=OCsansl0UVaOotlGn7PDLgrU1rFfctIdyqh1OWCXdQs=;
+        s=korg; t=1673374844;
+        bh=4TF8tqhfo5TpvXjjkDOaufGntD8y+TLVXpOYik8QrpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLfsZOIvCGm7jG1klAlqkgp75cUeFFxlwJJUKnZZ4YxSkM6N68Rva3K8cMN1IoubA
-         cfwOr6ZL8UX7T8LztTmODXEG7E+yk8K3+QqU6eXu8drRNcuiFHty0V6AKNpuDD4DoY
-         0QwA6oW2wUrnl6oODRIvE2cP4Z0Ibd4VkFrp+g/I=
+        b=L1Fh+Rhvgp7z4/tTXNarABaCVfdgkiseJ9qHECXPuSAnM4qh6Q7VgSmYJBe8i6T1L
+         deKhuIJJb7yOoOBYX2dZ218IgW4HzJBreI2/dmdb+dVHBmnMr9xmzMkkqr/NwCXY+g
+         sNw2455oO0CJDvGlJAoxyoV88pPreUSlPTulXnJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jie Wang <wangjie125@huawei.com>,
-        Hao Lan <lanhao@huawei.com>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?=E5=B0=8F=E5=A4=AA?= <nospam@kota.moe>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 208/290] net: hns3: add interrupts re-initialization while doing VF FLR
+Subject: [PATCH 6.1 152/159] btrfs: handle case when repair happens with dev-replace
 Date:   Tue, 10 Jan 2023 19:05:00 +0100
-Message-Id: <20230110180039.175611680@linuxfoundation.org>
+Message-Id: <20230110180023.362391836@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Wang <wangjie125@huawei.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 09e6b30eeb254f1818a008cace3547159e908dfd ]
+[ Upstream commit d73a27b86fc722c28a26ec64002e3a7dc86d1c07 ]
 
-Currently keep alive message between PF and VF may be lost and the VF is
-unalive in PF. So the VF will not do reset during PF FLR reset process.
-This would make the allocated interrupt resources of VF invalid and VF
-would't receive or respond to PF any more.
+[BUG]
+There is a bug report that a BUG_ON() in btrfs_repair_io_failure()
+(originally repair_io_failure() in v6.0 kernel) got triggered when
+replacing a unreliable disk:
 
-So this patch adds VF interrupts re-initialization during VF FLR for VF
-recovery in above cases.
+  BTRFS warning (device sda1): csum failed root 257 ino 2397453 off 39624704 csum 0xb0d18c75 expected csum 0x4dae9c5e mirror 3
+  kernel BUG at fs/btrfs/extent_io.c:2380!
+  invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+  CPU: 9 PID: 3614331 Comm: kworker/u257:2 Tainted: G           OE      6.0.0-5-amd64 #1  Debian 6.0.10-2
+  Hardware name: Micro-Star International Co., Ltd. MS-7C60/TRX40 PRO WIFI (MS-7C60), BIOS 2.70 07/01/2021
+  Workqueue: btrfs-endio btrfs_end_bio_work [btrfs]
+  RIP: 0010:repair_io_failure+0x24a/0x260 [btrfs]
+  Call Trace:
+   <TASK>
+   clean_io_failure+0x14d/0x180 [btrfs]
+   end_bio_extent_readpage+0x412/0x6e0 [btrfs]
+   ? __switch_to+0x106/0x420
+   process_one_work+0x1c7/0x380
+   worker_thread+0x4d/0x380
+   ? rescuer_thread+0x3a0/0x3a0
+   kthread+0xe9/0x110
+   ? kthread_complete_and_exit+0x20/0x20
+   ret_from_fork+0x22/0x30
 
-Fixes: 862d969a3a4d ("net: hns3: do VF's pci re-initialization while PF doing FLR")
-Signed-off-by: Jie Wang <wangjie125@huawei.com>
-Signed-off-by: Hao Lan <lanhao@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[CAUSE]
+
+Before the BUG_ON(), we got some read errors from the replace target
+first, note the mirror number (3, which is beyond RAID1 duplication,
+thus it's read from the replace target device).
+
+Then at the BUG_ON() location, we are trying to writeback the repaired
+sectors back the failed device.
+
+The check looks like this:
+
+		ret = btrfs_map_block(fs_info, BTRFS_MAP_WRITE, logical,
+				      &map_length, &bioc, mirror_num);
+		if (ret)
+			goto out_counter_dec;
+		BUG_ON(mirror_num != bioc->mirror_num);
+
+But inside btrfs_map_block(), we can modify bioc->mirror_num especially
+for dev-replace:
+
+	if (dev_replace_is_ongoing && mirror_num == map->num_stripes + 1 &&
+	    !need_full_stripe(op) && dev_replace->tgtdev != NULL) {
+		ret = get_extra_mirror_from_replace(fs_info, logical, *length,
+						    dev_replace->srcdev->devid,
+						    &mirror_num,
+					    &physical_to_patch_in_first_stripe);
+		patch_the_first_stripe_for_dev_replace = 1;
+	}
+
+Thus if we're repairing the replace target device, we're going to
+trigger that BUG_ON().
+
+But in reality, the read failure from the replace target device may be
+that, our replace hasn't reached the range we're reading, thus we're
+reading garbage, but with replace running, the range would be properly
+filled later.
+
+Thus in that case, we don't need to do anything but let the replace
+routine to handle it.
+
+[FIX]
+Instead of a BUG_ON(), just skip the repair if we're repairing the
+device replace target device.
+
+Reported-by: 小太 <nospam@kota.moe>
+Link: https://lore.kernel.org/linux-btrfs/CACsxjPYyJGQZ+yvjzxA1Nn2LuqkYqTCcUH43S=+wXhyf8S00Ag@mail.gmail.com/
+CC: stable@vger.kernel.org # 6.0+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/extent_io.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 21678c12afa2..3c1ff3313221 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -3258,7 +3258,8 @@ static int hclgevf_pci_reset(struct hclgevf_dev *hdev)
- 	struct pci_dev *pdev = hdev->pdev;
- 	int ret = 0;
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 4dcf22e051ff..acb3c5c3b025 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -580,7 +580,16 @@ static int repair_io_failure(struct btrfs_fs_info *fs_info, u64 ino, u64 start,
+ 				      &map_length, &bioc, mirror_num);
+ 		if (ret)
+ 			goto out_counter_dec;
+-		BUG_ON(mirror_num != bioc->mirror_num);
++		/*
++		 * This happens when dev-replace is also running, and the
++		 * mirror_num indicates the dev-replace target.
++		 *
++		 * In this case, we don't need to do anything, as the read
++		 * error just means the replace progress hasn't reached our
++		 * read range, and later replace routine would handle it well.
++		 */
++		if (mirror_num != bioc->mirror_num)
++			goto out_counter_dec;
+ 	}
  
--	if (hdev->reset_type == HNAE3_VF_FULL_RESET &&
-+	if ((hdev->reset_type == HNAE3_VF_FULL_RESET ||
-+	     hdev->reset_type == HNAE3_FLR_RESET) &&
- 	    test_bit(HCLGEVF_STATE_IRQ_INITED, &hdev->state)) {
- 		hclgevf_misc_irq_uninit(hdev);
- 		hclgevf_uninit_msi(hdev);
+ 	sector = bioc->stripes[bioc->mirror_num - 1].physical >> 9;
 -- 
 2.35.1
 
