@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9274C664871
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1FE664A2A
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:31:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232697AbjAJSLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52626 "EHLO
+        id S239207AbjAJSaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:30:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239088AbjAJSKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:30 -0500
+        with ESMTP id S239354AbjAJSaJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3A565B5
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39ED552C46
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 886A4B81909
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E11BAC433EF;
-        Tue, 10 Jan 2023 18:09:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4320B81904
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 162C7C433D2;
+        Tue, 10 Jan 2023 18:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374149;
-        bh=gY1a5ERSTIZgrNMRDuG2O2Et1lzql3dRj0Y0QDk1ce8=;
+        s=korg; t=1673375092;
+        bh=3X7QBvt+nReWM4RCcJ5NJZELzae6draRoMZQN5MhuK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tx/HC8AHdF/ExdKLCbdR7X5PaSo7Ua5EdZYcjxVX8/68QLqrl0bU3gRrJmapG5S2x
-         kai1QDLOx+DW2U2Bim12MlP4Mrtw9TT68X2jVKsTQRop9cEfvaOkc6osFb3Ih5f8fk
-         87WvDf+/OdXCmMxnCKHO7VYdryvfVbHzuMdUP/n0=
+        b=PQM/1Wv42N0+s0xlEXvhpnlw6YuDd6Al/yrOw8rDUAer5HZJnUir0o3i9qCmLG70Y
+         XoEFxZuXMXTAFigUMrWsroMhssgzoxG0GNK1fXPYdRrGF6lTghihUx/oh+lcml+K5P
+         damQ7ck//yOs+aL7AqCdRjjEbg7a7xDCbI7PRhf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiguang Xiao <jiguang.xiao@windriver.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 063/148] net: amd-xgbe: add missed tasklet_kill
-Date:   Tue, 10 Jan 2023 19:02:47 +0100
-Message-Id: <20230110180019.226757958@linuxfoundation.org>
+        patches@lists.linux.dev, Chris Chiu <chris.chiu@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 076/290] ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude laptops
+Date:   Tue, 10 Jan 2023 19:02:48 +0100
+Message-Id: <20230110180034.255921610@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +52,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiguang Xiao <jiguang.xiao@windriver.com>
+From: Chris Chiu <chris.chiu@canonical.com>
 
-[ Upstream commit d530ece70f16f912e1d1bfeea694246ab78b0a4b ]
+[ Upstream commit a4517c4f3423c7c448f2c359218f97c1173523a1 ]
 
-The driver does not call tasklet_kill in several places.
-Add the calls to fix it.
+The Dell Latiture 3340/3440/3540 laptops with Realtek ALC3204 have
+dual codecs and need the ALC1220_FIXUP_GB_DUAL_CODECS to fix the
+conflicts of Master controls. The existing headset mic fixup for
+Dell is also required to enable the jack sense and the headset mic.
 
-Fixes: 85b85c853401 ("amd-xgbe: Re-issue interrupt if interrupt status not cleared")
-Signed-off-by: Jiguang Xiao <jiguang.xiao@windriver.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Introduce a new fixup to fix the dual codec and headset mic issues
+for particular Dell laptops since other old Dell laptops with the
+same codec configuration are already well handled by the fixup in
+alc269_fallback_pin_fixup_tbl[].
+
+Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221226114303.4027500-1-chris.chiu@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c  | 3 +++
- drivers/net/ethernet/amd/xgbe/xgbe-i2c.c  | 4 +++-
- drivers/net/ethernet/amd/xgbe/xgbe-mdio.c | 4 +++-
- 3 files changed, 9 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-index f342bb853189..2ee2cd4a1e35 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -1064,6 +1064,9 @@ static void xgbe_free_irqs(struct xgbe_prv_data *pdata)
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index f74c49987f1a..642e212278ac 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6969,6 +6969,7 @@ enum {
+ 	ALC285_FIXUP_LEGION_Y9000X_AUTOMUTE,
+ 	ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED,
+ 	ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS,
++	ALC236_FIXUP_DELL_DUAL_CODECS,
+ };
  
- 	devm_free_irq(pdata->dev, pdata->dev_irq, pdata);
+ /* A special fixup for Lenovo C940 and Yoga Duet 7;
+@@ -8801,6 +8802,12 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
+ 	},
++	[ALC236_FIXUP_DELL_DUAL_CODECS] = {
++		.type = HDA_FIXUP_PINS,
++		.v.func = alc1220_fixup_gb_dual_codecs,
++		.chained = true,
++		.chain_id = ALC255_FIXUP_DELL1_MIC_NO_PRESENCE,
++	},
+ };
  
-+	tasklet_kill(&pdata->tasklet_dev);
-+	tasklet_kill(&pdata->tasklet_ecc);
-+
- 	if (pdata->vdata->ecc_support && (pdata->dev_irq != pdata->ecc_irq))
- 		devm_free_irq(pdata->dev, pdata->ecc_irq, pdata);
- 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
-index 22d4fc547a0a..a9ccc4258ee5 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
-@@ -447,8 +447,10 @@ static void xgbe_i2c_stop(struct xgbe_prv_data *pdata)
- 	xgbe_i2c_disable(pdata);
- 	xgbe_i2c_clear_all_interrupts(pdata);
- 
--	if (pdata->dev_irq != pdata->i2c_irq)
-+	if (pdata->dev_irq != pdata->i2c_irq) {
- 		devm_free_irq(pdata->dev, pdata->i2c_irq, pdata);
-+		tasklet_kill(&pdata->tasklet_i2c);
-+	}
- }
- 
- static int xgbe_i2c_start(struct xgbe_prv_data *pdata)
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-index 4e97b4869522..0c5c1b155683 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-@@ -1390,8 +1390,10 @@ static void xgbe_phy_stop(struct xgbe_prv_data *pdata)
- 	/* Disable auto-negotiation */
- 	xgbe_an_disable_all(pdata);
- 
--	if (pdata->dev_irq != pdata->an_irq)
-+	if (pdata->dev_irq != pdata->an_irq) {
- 		devm_free_irq(pdata->dev, pdata->an_irq, pdata);
-+		tasklet_kill(&pdata->tasklet_an);
-+	}
- 
- 	pdata->phy_if.phy_impl.stop(pdata);
- 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8902,6 +8909,12 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1028, 0x0b1a, "Dell Precision 5570", ALC289_FIXUP_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1028, 0x0b37, "Dell Inspiron 16 Plus 7620 2-in-1", ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS),
+ 	SND_PCI_QUIRK(0x1028, 0x0b71, "Dell Inspiron 16 Plus 7620", ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS),
++	SND_PCI_QUIRK(0x1028, 0x0c19, "Dell Precision 3340", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1a, "Dell Precision 3340", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1b, "Dell Precision 3440", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1c, "Dell Precision 3540", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1d, "Dell Precision 3440", ALC236_FIXUP_DELL_DUAL_CODECS),
++	SND_PCI_QUIRK(0x1028, 0x0c1e, "Dell Precision 3540", ALC236_FIXUP_DELL_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
 -- 
 2.35.1
 
