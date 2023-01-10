@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5293664AC3
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BDC9664AC7
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239312AbjAJSgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:36:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46106 "EHLO
+        id S239367AbjAJSgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:36:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239418AbjAJSfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9729A48CF3
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:33 -0800 (PST)
+        with ESMTP id S239424AbjAJSfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55BC59B284
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44977B818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C072C433EF;
-        Tue, 10 Jan 2023 18:30:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16983B81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45255C433F1;
+        Tue, 10 Jan 2023 18:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375430;
-        bh=E197O7xsWe5SHEN6MKBjY0u10uLKWwpkAH016H4KgbM=;
+        s=korg; t=1673375433;
+        bh=23Y+SkDURi9CGMI5edQEczX2f06PQaExVNlvLySayM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3n7wCcwkwiseNV0ANwFSxvU2oaZni9vjP2FMQKkdb7oE3QnJWFleoAZGxErBmG6T
-         KUeeXD+L95fkTpcwn4idPNYNlBEdoQbWJM1Nx5YjraMaV5xE5EZwzuZtD7+1eu3H9O
-         yAdWsf1d5/7WK4Zyp9wj9m8mjuCj+RvKrS3vqWA0=
+        b=oC1u7nVsbQWT4Jpycgpol5McX76MtABdaGmRuPJs1qOv5klDr9YUx6xynHrqwYnTM
+         fo4ZkCKNcWdoWZmc7AOgvP8Ar/PX2GtCE3p/l7kOmh939vdYPu3lk+75IkfEccGYqd
+         qSieq8FvQ1cOnZZiLRTPf1Do3oN/tNko76VOPPCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-fsd@tesla.com,
-        Smitha T Murthy <smitha.t@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 186/290] media: s5p-mfc: Fix in register read and write for H264
-Date:   Tue, 10 Jan 2023 19:04:38 +0100
-Message-Id: <20230110180038.372247626@linuxfoundation.org>
+Subject: [PATCH 5.15 187/290] perf probe: Use dwarf_attr_integrate as generic DWARF attr accessor
+Date:   Tue, 10 Jan 2023 19:04:39 +0100
+Message-Id: <20230110180038.408369697@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -54,83 +59,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smitha T Murthy <smitha.t@samsung.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-[ Upstream commit 06710cd5d2436135046898d7e4b9408c8bb99446 ]
+[ Upstream commit f828929ab7f0dc3353e4a617f94f297fa8f3dec3 ]
 
-Few of the H264 encoder registers written were not getting reflected
-since the read values were not stored and getting overwritten.
+Use dwarf_attr_integrate() instead of dwarf_attr() for generic attribute
+acccessor functions, so that it can find the specified attribute from
+abstact origin DIE etc.
 
-Fixes: 6a9c6f681257 ("[media] s5p-mfc: Add variants to access mfc registers")
-
-Cc: stable@vger.kernel.org
-Cc: linux-fsd@tesla.com
-Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/166731051988.2100653.13595339994343449770.stgit@devnote3
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Stable-dep-of: a9dfc46c67b5 ("perf probe: Fix to get the DW_AT_decl_file and DW_AT_call_file as unsinged data")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ tools/perf/util/dwarf-aux.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c b/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
-index a1453053e31a..ef8169f6c428 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
-@@ -1060,7 +1060,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
- 	}
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index 609ca1671501..a07efbadb775 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -308,7 +308,7 @@ static int die_get_attr_udata(Dwarf_Die *tp_die, unsigned int attr_name,
+ {
+ 	Dwarf_Attribute attr;
  
- 	/* aspect ratio VUI */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 5);
- 	reg |= ((p_h264->vui_sar & 0x1) << 5);
- 	writel(reg, mfc_regs->e_h264_options);
-@@ -1083,7 +1083,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+-	if (dwarf_attr(tp_die, attr_name, &attr) == NULL ||
++	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
+ 	    dwarf_formudata(&attr, result) != 0)
+ 		return -ENOENT;
  
- 	/* intra picture period for H.264 open GOP */
- 	/* control */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 4);
- 	reg |= ((p_h264->open_gop & 0x1) << 4);
- 	writel(reg, mfc_regs->e_h264_options);
-@@ -1097,23 +1097,23 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
- 	}
+@@ -321,7 +321,7 @@ static int die_get_attr_sdata(Dwarf_Die *tp_die, unsigned int attr_name,
+ {
+ 	Dwarf_Attribute attr;
  
- 	/* 'WEIGHTED_BI_PREDICTION' for B is disable */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x3 << 9);
- 	writel(reg, mfc_regs->e_h264_options);
+-	if (dwarf_attr(tp_die, attr_name, &attr) == NULL ||
++	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
+ 	    dwarf_formsdata(&attr, result) != 0)
+ 		return -ENOENT;
  
- 	/* 'CONSTRAINED_INTRA_PRED_ENABLE' is disable */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 14);
- 	writel(reg, mfc_regs->e_h264_options);
- 
- 	/* ASO */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 6);
- 	reg |= ((p_h264->aso & 0x1) << 6);
- 	writel(reg, mfc_regs->e_h264_options);
- 
- 	/* hier qp enable */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 8);
- 	reg |= ((p_h264->open_gop & 0x1) << 8);
- 	writel(reg, mfc_regs->e_h264_options);
-@@ -1134,7 +1134,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
- 	writel(reg, mfc_regs->e_h264_num_t_layer);
- 
- 	/* frame packing SEI generation */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 25);
- 	reg |= ((p_h264->sei_frame_packing & 0x1) << 25);
- 	writel(reg, mfc_regs->e_h264_options);
 -- 
 2.35.1
 
