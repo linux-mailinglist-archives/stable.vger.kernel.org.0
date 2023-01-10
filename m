@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F169664857
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E31656649F8
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233949AbjAJSLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48922 "EHLO
+        id S235318AbjAJS25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:28:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238929AbjAJSKO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223C34914F
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:10 -0800 (PST)
+        with ESMTP id S239308AbjAJS1x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:27:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDAE638B
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3B066184D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9EEEC433EF;
-        Tue, 10 Jan 2023 18:08:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79C5B61866
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B0F7C433EF;
+        Tue, 10 Jan 2023 18:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374089;
-        bh=I/sl2UGRqOISXruPbGjEzY0hBc8yilnmyoCw4FWvD3c=;
+        s=korg; t=1673374983;
+        bh=H+jK/kkfPEUxy8HtQMsBbg/oI9+yg73/cKirKjnaxHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qf73GuLGlUY5fW3sZ944RKhbaphNj6m4wz+5aodV5IZzb+0syM2yhKcLmU1I95X35
-         4fyz9gMjW5SV+nV8oXc5VBGhE6JKrkoA8TwvF620GHUau+S8I/5al38DdX5p9ZODot
-         vEwyjjFNMw/qlBcyh210x/B0Kx41AGC02zYlSsJs=
+        b=faq7tvfr6LCPldNu/tGEv8whInryYEbDExnzMpUyefXxJo+yn+lGlPH+GHOLNJExl
+         iXhchML6azCfgdb4q9ysnQK8LYbZ8/m+SyKsmSI8Tn4tx9M8WkqenKmmTj/e9UDkVj
+         Hr5DKiXWUDFHiHvRIuPs6c41/Zql2RgovQagRRKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jie Wang <wangjie125@huawei.com>,
-        Hao Lan <lanhao@huawei.com>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 028/148] net: hns3: add interrupts re-initialization while doing VF FLR
+        patches@lists.linux.dev,
+        Zhang Tianci <zhangtianci.1997@bytedance.com>,
+        Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.15 040/290] ovl: Use ovl mounters fsuid and fsgid in ovl_link()
 Date:   Tue, 10 Jan 2023 19:02:12 +0100
-Message-Id: <20230110180018.094820758@linuxfoundation.org>
+Message-Id: <20230110180032.966998316@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Wang <wangjie125@huawei.com>
+From: Zhang Tianci <zhangtianci.1997@bytedance.com>
 
-[ Upstream commit 09e6b30eeb254f1818a008cace3547159e908dfd ]
+commit 5b0db51215e895a361bc63132caa7cca36a53d6a upstream.
 
-Currently keep alive message between PF and VF may be lost and the VF is
-unalive in PF. So the VF will not do reset during PF FLR reset process.
-This would make the allocated interrupt resources of VF invalid and VF
-would't receive or respond to PF any more.
+There is a wrong case of link() on overlay:
+  $ mkdir /lower /fuse /merge
+  $ mount -t fuse /fuse
+  $ mkdir /fuse/upper /fuse/work
+  $ mount -t overlay /merge -o lowerdir=/lower,upperdir=/fuse/upper,\
+    workdir=work
+  $ touch /merge/file
+  $ chown bin.bin /merge/file // the file's caller becomes "bin"
+  $ ln /merge/file /merge/lnkfile
 
-So this patch adds VF interrupts re-initialization during VF FLR for VF
-recovery in above cases.
+Then we will get an error(EACCES) because fuse daemon checks the link()'s
+caller is "bin", it denied this request.
 
-Fixes: 862d969a3a4d ("net: hns3: do VF's pci re-initialization while PF doing FLR")
-Signed-off-by: Jie Wang <wangjie125@huawei.com>
-Signed-off-by: Hao Lan <lanhao@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In the changing history of ovl_link(), there are two key commits:
+
+The first is commit bb0d2b8ad296 ("ovl: fix sgid on directory") which
+overrides the cred's fsuid/fsgid using the new inode. The new inode's
+owner is initialized by inode_init_owner(), and inode->fsuid is
+assigned to the current user. So the override fsuid becomes the
+current user. We know link() is actually modifying the directory, so
+the caller must have the MAY_WRITE permission on the directory. The
+current caller may should have this permission. This is acceptable
+to use the caller's fsuid.
+
+The second is commit 51f7e52dc943 ("ovl: share inode for hard link")
+which removed the inode creation in ovl_link(). This commit move
+inode_init_owner() into ovl_create_object(), so the ovl_link() just
+give the old inode to ovl_create_or_link(). Then the override fsuid
+becomes the old inode's fsuid, neither the caller nor the overlay's
+mounter! So this is incorrect.
+
+Fix this bug by using ovl mounter's fsuid/fsgid to do underlying
+fs's link().
+
+Link: https://lore.kernel.org/all/20220817102952.xnvesg3a7rbv576x@wittgenstein/T
+Link: https://lore.kernel.org/lkml/20220825130552.29587-1-zhangtianci.1997@bytedance.com/t
+Signed-off-by: Zhang Tianci <zhangtianci.1997@bytedance.com>
+Signed-off-by: Jiachen Zhang <zhangjiachen.jaycee@bytedance.com>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Fixes: 51f7e52dc943 ("ovl: share inode for hard link")
+Cc: <stable@vger.kernel.org> # v4.8
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/overlayfs/dir.c |   46 ++++++++++++++++++++++++++++++----------------
+ 1 file changed, 30 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 26f87330173e..c551508e6932 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2767,7 +2767,8 @@ static int hclgevf_pci_reset(struct hclgevf_dev *hdev)
- 	struct pci_dev *pdev = hdev->pdev;
- 	int ret = 0;
+--- a/fs/overlayfs/dir.c
++++ b/fs/overlayfs/dir.c
+@@ -589,28 +589,42 @@ static int ovl_create_or_link(struct den
+ 			goto out_revert_creds;
+ 	}
  
--	if (hdev->reset_type == HNAE3_VF_FULL_RESET &&
-+	if ((hdev->reset_type == HNAE3_VF_FULL_RESET ||
-+	     hdev->reset_type == HNAE3_FLR_RESET) &&
- 	    test_bit(HCLGEVF_STATE_IRQ_INITED, &hdev->state)) {
- 		hclgevf_misc_irq_uninit(hdev);
- 		hclgevf_uninit_msi(hdev);
--- 
-2.35.1
-
+-	err = -ENOMEM;
+-	override_cred = prepare_creds();
+-	if (override_cred) {
++	if (!attr->hardlink) {
++		err = -ENOMEM;
++		override_cred = prepare_creds();
++		if (!override_cred)
++			goto out_revert_creds;
++		/*
++		 * In the creation cases(create, mkdir, mknod, symlink),
++		 * ovl should transfer current's fs{u,g}id to underlying
++		 * fs. Because underlying fs want to initialize its new
++		 * inode owner using current's fs{u,g}id. And in this
++		 * case, the @inode is a new inode that is initialized
++		 * in inode_init_owner() to current's fs{u,g}id. So use
++		 * the inode's i_{u,g}id to override the cred's fs{u,g}id.
++		 *
++		 * But in the other hardlink case, ovl_link() does not
++		 * create a new inode, so just use the ovl mounter's
++		 * fs{u,g}id.
++		 */
+ 		override_cred->fsuid = inode->i_uid;
+ 		override_cred->fsgid = inode->i_gid;
+-		if (!attr->hardlink) {
+-			err = security_dentry_create_files_as(dentry,
+-					attr->mode, &dentry->d_name, old_cred,
+-					override_cred);
+-			if (err) {
+-				put_cred(override_cred);
+-				goto out_revert_creds;
+-			}
++		err = security_dentry_create_files_as(dentry,
++				attr->mode, &dentry->d_name, old_cred,
++				override_cred);
++		if (err) {
++			put_cred(override_cred);
++			goto out_revert_creds;
+ 		}
+ 		put_cred(override_creds(override_cred));
+ 		put_cred(override_cred);
+-
+-		if (!ovl_dentry_is_whiteout(dentry))
+-			err = ovl_create_upper(dentry, inode, attr);
+-		else
+-			err = ovl_create_over_whiteout(dentry, inode, attr);
+ 	}
++
++	if (!ovl_dentry_is_whiteout(dentry))
++		err = ovl_create_upper(dentry, inode, attr);
++	else
++		err = ovl_create_over_whiteout(dentry, inode, attr);
++
+ out_revert_creds:
+ 	revert_creds(old_cred);
+ 	return err;
 
 
