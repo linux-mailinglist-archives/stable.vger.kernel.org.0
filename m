@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C74C8664928
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E038664A5D
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235457AbjAJSSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:18:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60140 "EHLO
+        id S235386AbjAJSce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239075AbjAJSR4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:56 -0500
+        with ESMTP id S239448AbjAJSbr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92F92F782
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720F19B29C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A58C6183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B08DC433EF;
-        Tue, 10 Jan 2023 18:16:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B951A61871
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C87ACC433EF;
+        Tue, 10 Jan 2023 18:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374578;
-        bh=wd6HwZ3z2rSh1FbO2fiX12iUIhaMbSiS/omuQOlAcuo=;
+        s=korg; t=1673375221;
+        bh=2N3IxBBaew08NRpgyGDAx6iQFHPkrI3e7ae5yz1PApk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RZWBNOAx8qSrJEB6GpcJA3ILRumj67B+tB4SruOo+P9uIpUw9DdJBQfBYw9xz6bQk
-         hUpKBgCzqRQsu6gdDSqJpmZjdcm9cIWJNJbrmPlIyIRFDK2sftWp6hbKuG+O+GbWMe
-         SUOO5XibSWThrN3tbFz2lVISixC0oB6HgeETic+g=
+        b=Oen37yMQZyA2tgoNtcINz7T3rFFDoF6YbLeIOTPN3S5wJbIOfDxX8bJp69Nxh/jBo
+         BTshpNYqgLpejkzQqueX4JyFWzDCW65iUvXubIKmXkLz1MUAUUa05A5qfMh2sQ3yHz
+         dLp5i6lMEGK5CEI4Vp2VMsB4sP3ffDLR9td5Q7EU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eli Cohen <elic@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 062/159] net/mlx5: Lag, fix failure to cancel delayed bond work
+        patches@lists.linux.dev, Maximilian Luz <luzmaximilian@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>
+Subject: [PATCH 5.15 118/290] ipu3-imgu: Fix NULL pointer dereference in imgu_subdev_set_selection()
 Date:   Tue, 10 Jan 2023 19:03:30 +0100
-Message-Id: <20230110180020.279889166@linuxfoundation.org>
+Message-Id: <20230110180035.868422724@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +52,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit 4d1c1379d71777ddeda3e54f8fc26e9ecbfd1009 ]
+commit dc608edf7d45ba0c2ad14c06eccd66474fec7847 upstream.
 
-Commit 0d4e8ed139d8 ("net/mlx5: Lag, avoid lockdep warnings")
-accidentally removed a call to cancel delayed bond work thus it may
-cause queued delay to expire and fall on an already destroyed work
-queue.
+Calling v4l2_subdev_get_try_crop() and v4l2_subdev_get_try_compose()
+with a subdev state of NULL leads to a NULL pointer dereference. This
+can currently happen in imgu_subdev_set_selection() when the state
+passed in is NULL, as this method first gets pointers to both the "try"
+and "active" states and only then decides which to use.
 
-Fix by restoring the call cancel_delayed_work_sync() before
-destroying the workqueue.
+The same issue has been addressed for imgu_subdev_get_selection() with
+commit 30d03a0de650 ("ipu3-imgu: Fix NULL pointer dereference in active
+selection access"). However the issue still persists in
+imgu_subdev_set_selection().
 
-This prevents call trace such as this:
+Therefore, apply a similar fix as done in the aforementioned commit to
+imgu_subdev_set_selection(). To keep things a bit cleaner, introduce
+helper functions for "crop" and "compose" access and use them in both
+imgu_subdev_set_selection() and imgu_subdev_get_selection().
 
-[  329.230417] BUG: kernel NULL pointer dereference, address: 0000000000000000
- [  329.231444] #PF: supervisor write access in kernel mode
- [  329.232233] #PF: error_code(0x0002) - not-present page
- [  329.233007] PGD 0 P4D 0
- [  329.233476] Oops: 0002 [#1] SMP
- [  329.234012] CPU: 5 PID: 145 Comm: kworker/u20:4 Tainted: G OE      6.0.0-rc5_mlnx #1
- [  329.235282] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
- [  329.236868] Workqueue: mlx5_cmd_0000:08:00.1 cmd_work_handler [mlx5_core]
- [  329.237886] RIP: 0010:_raw_spin_lock+0xc/0x20
- [  329.238585] Code: f0 0f b1 17 75 02 f3 c3 89 c6 e9 6f 3c 5f ff 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 0f 1f 44 00 00 31 c0 ba 01 00 00 00 <f0> 0f b1 17 75 02 f3 c3 89 c6 e9 45 3c 5f ff 0f 1f 44 00 00 0f 1f
- [  329.241156] RSP: 0018:ffffc900001b0e98 EFLAGS: 00010046
- [  329.241940] RAX: 0000000000000000 RBX: ffffffff82374ae0 RCX: 0000000000000000
- [  329.242954] RDX: 0000000000000001 RSI: 0000000000000014 RDI: 0000000000000000
- [  329.243974] RBP: ffff888106ccf000 R08: ffff8881004000c8 R09: ffff888100400000
- [  329.244990] R10: 0000000000000000 R11: ffffffff826669f8 R12: 0000000000002000
- [  329.246009] R13: 0000000000000005 R14: ffff888100aa7ce0 R15: ffff88852ca80000
- [  329.247030] FS:  0000000000000000(0000) GS:ffff88852ca80000(0000) knlGS:0000000000000000
- [  329.248260] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [  329.249111] CR2: 0000000000000000 CR3: 000000016d675001 CR4: 0000000000770ee0
- [  329.250133] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- [  329.251152] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- [  329.252176] PKRU: 55555554
-
-Fixes: 0d4e8ed139d8 ("net/mlx5: Lag, avoid lockdep warnings")
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0d346d2a6f54 ("media: v4l2-subdev: add subdev-wide state struct")
+Cc: stable@vger.kernel.org # for v5.14 and later
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/media/ipu3/ipu3-v4l2.c | 57 +++++++++++++++-----------
+ 1 file changed, 34 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-index 32c3e0a649a7..ad32b80e8501 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/lag.c
-@@ -228,6 +228,7 @@ static void mlx5_ldev_free(struct kref *ref)
- 	if (ldev->nb.notifier_call)
- 		unregister_netdevice_notifier_net(&init_net, &ldev->nb);
- 	mlx5_lag_mp_cleanup(ldev);
-+	cancel_delayed_work_sync(&ldev->bond_work);
- 	destroy_workqueue(ldev->wq);
- 	mlx5_lag_mpesw_cleanup(ldev);
- 	mutex_destroy(&ldev->lock);
+diff --git a/drivers/staging/media/ipu3/ipu3-v4l2.c b/drivers/staging/media/ipu3/ipu3-v4l2.c
+index ce13e746c15f..e530767e80a5 100644
+--- a/drivers/staging/media/ipu3/ipu3-v4l2.c
++++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
+@@ -188,6 +188,28 @@ static int imgu_subdev_set_fmt(struct v4l2_subdev *sd,
+ 	return 0;
+ }
+ 
++static struct v4l2_rect *
++imgu_subdev_get_crop(struct imgu_v4l2_subdev *sd,
++		     struct v4l2_subdev_state *sd_state, unsigned int pad,
++		     enum v4l2_subdev_format_whence which)
++{
++	if (which == V4L2_SUBDEV_FORMAT_TRY)
++		return v4l2_subdev_get_try_crop(&sd->subdev, sd_state, pad);
++	else
++		return &sd->rect.eff;
++}
++
++static struct v4l2_rect *
++imgu_subdev_get_compose(struct imgu_v4l2_subdev *sd,
++			struct v4l2_subdev_state *sd_state, unsigned int pad,
++			enum v4l2_subdev_format_whence which)
++{
++	if (which == V4L2_SUBDEV_FORMAT_TRY)
++		return v4l2_subdev_get_try_compose(&sd->subdev, sd_state, pad);
++	else
++		return &sd->rect.bds;
++}
++
+ static int imgu_subdev_get_selection(struct v4l2_subdev *sd,
+ 				     struct v4l2_subdev_state *sd_state,
+ 				     struct v4l2_subdev_selection *sel)
+@@ -200,18 +222,12 @@ static int imgu_subdev_get_selection(struct v4l2_subdev *sd,
+ 
+ 	switch (sel->target) {
+ 	case V4L2_SEL_TGT_CROP:
+-		if (sel->which == V4L2_SUBDEV_FORMAT_TRY)
+-			sel->r = *v4l2_subdev_get_try_crop(sd, sd_state,
+-							   sel->pad);
+-		else
+-			sel->r = imgu_sd->rect.eff;
++		sel->r = *imgu_subdev_get_crop(imgu_sd, sd_state, sel->pad,
++					       sel->which);
+ 		return 0;
+ 	case V4L2_SEL_TGT_COMPOSE:
+-		if (sel->which == V4L2_SUBDEV_FORMAT_TRY)
+-			sel->r = *v4l2_subdev_get_try_compose(sd, sd_state,
+-							      sel->pad);
+-		else
+-			sel->r = imgu_sd->rect.bds;
++		sel->r = *imgu_subdev_get_compose(imgu_sd, sd_state, sel->pad,
++						  sel->which);
+ 		return 0;
+ 	default:
+ 		return -EINVAL;
+@@ -223,10 +239,9 @@ static int imgu_subdev_set_selection(struct v4l2_subdev *sd,
+ 				     struct v4l2_subdev_selection *sel)
+ {
+ 	struct imgu_device *imgu = v4l2_get_subdevdata(sd);
+-	struct imgu_v4l2_subdev *imgu_sd = container_of(sd,
+-							struct imgu_v4l2_subdev,
+-							subdev);
+-	struct v4l2_rect *rect, *try_sel;
++	struct imgu_v4l2_subdev *imgu_sd =
++		container_of(sd, struct imgu_v4l2_subdev, subdev);
++	struct v4l2_rect *rect;
+ 
+ 	dev_dbg(&imgu->pci_dev->dev,
+ 		 "set subdev %u sel which %u target 0x%4x rect [%ux%u]",
+@@ -238,22 +253,18 @@ static int imgu_subdev_set_selection(struct v4l2_subdev *sd,
+ 
+ 	switch (sel->target) {
+ 	case V4L2_SEL_TGT_CROP:
+-		try_sel = v4l2_subdev_get_try_crop(sd, sd_state, sel->pad);
+-		rect = &imgu_sd->rect.eff;
++		rect = imgu_subdev_get_crop(imgu_sd, sd_state, sel->pad,
++					    sel->which);
+ 		break;
+ 	case V4L2_SEL_TGT_COMPOSE:
+-		try_sel = v4l2_subdev_get_try_compose(sd, sd_state, sel->pad);
+-		rect = &imgu_sd->rect.bds;
++		rect = imgu_subdev_get_compose(imgu_sd, sd_state, sel->pad,
++					       sel->which);
+ 		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
+ 
+-	if (sel->which == V4L2_SUBDEV_FORMAT_TRY)
+-		*try_sel = sel->r;
+-	else
+-		*rect = sel->r;
+-
++	*rect = sel->r;
+ 	return 0;
+ }
+ 
 -- 
-2.35.1
+2.39.0
 
 
 
