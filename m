@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73FCE664A60
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB750664967
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235393AbjAJScl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:32:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46926 "EHLO
+        id S239131AbjAJSVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:21:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239367AbjAJScL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FAEF5B49D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:15 -0800 (PST)
+        with ESMTP id S239119AbjAJSUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B3D14D3B
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A74EB81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EBDC433EF;
-        Tue, 10 Jan 2023 18:27:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E380ACE18D3
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4555C433EF;
+        Tue, 10 Jan 2023 18:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375233;
-        bh=kPfkr10vSTUUGbHK++BxhQ27fBbG54iakhQ9d+iP+6k=;
+        s=korg; t=1673374707;
+        bh=cXdCNR8nu5ygjA54s1N0q7ZeNRds9B/Ser1GVR5pifM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWqSiTPbc922MPOt566EvGeWXmK/ud5na1fTRo9O2oElDlVtwfOpiCeHgq2Lj0f+J
-         jvHhvuqX1iObtdTHuRjcbTJ+q+4IUobTH17EciJrz7UUWOGV2JNd7OlY3itmS4e6tU
-         AGbRrLbpMfKUWLd0zjEAO+y8XE9tJ9W9JcHNK4Fk=
+        b=tz8tyGdAiKFQczsYSZIM5LOxxK0nDJDd1FJTAPNrBElp2PY1O6sppLUQ1dCUMPMis
+         1kdLB/n71rb17fdymXEVecTA7v3ivNNXq9dHzDLmN7tq2T4j/xTTu8LW7ZEdEi0haR
+         BLfM1RTfYbRD5rsYh7/IgeGoMsHQbRGXjPlzF/ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.15 122/290] ipmi: fix use after free in _ipmi_destroy_user()
+        patches@lists.linux.dev, Jiguang Xiao <jiguang.xiao@windriver.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 066/159] net: amd-xgbe: add missed tasklet_kill
 Date:   Tue, 10 Jan 2023 19:03:34 +0100
-Message-Id: <20230110180036.008036375@linuxfoundation.org>
+Message-Id: <20230110180020.401693348@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,43 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Jiguang Xiao <jiguang.xiao@windriver.com>
 
-commit a92ce570c81dc0feaeb12a429b4bc65686d17967 upstream.
+[ Upstream commit d530ece70f16f912e1d1bfeea694246ab78b0a4b ]
 
-The intf_free() function frees the "intf" pointer so we cannot
-dereference it again on the next line.
+The driver does not call tasklet_kill in several places.
+Add the calls to fix it.
 
-Fixes: cbb79863fc31 ("ipmi: Don't allow device module unload when in use")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Message-Id: <Y3M8xa1drZv4CToE@kili>
-Cc: <stable@vger.kernel.org> # 5.5+
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 85b85c853401 ("amd-xgbe: Re-issue interrupt if interrupt status not cleared")
+Signed-off-by: Jiguang Xiao <jiguang.xiao@windriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-drv.c  | 3 +++
+ drivers/net/ethernet/amd/xgbe/xgbe-i2c.c  | 4 +++-
+ drivers/net/ethernet/amd/xgbe/xgbe-mdio.c | 4 +++-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -1273,6 +1273,7 @@ static void _ipmi_destroy_user(struct ip
- 	unsigned long    flags;
- 	struct cmd_rcvr  *rcvr;
- 	struct cmd_rcvr  *rcvrs = NULL;
-+	struct module    *owner;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+index 7b666106feee..614c0278419b 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+@@ -1064,6 +1064,9 @@ static void xgbe_free_irqs(struct xgbe_prv_data *pdata)
  
- 	if (!acquire_ipmi_user(user, &i)) {
- 		/*
-@@ -1334,8 +1335,9 @@ static void _ipmi_destroy_user(struct ip
- 		kfree(rcvr);
- 	}
+ 	devm_free_irq(pdata->dev, pdata->dev_irq, pdata);
  
-+	owner = intf->owner;
- 	kref_put(&intf->refcount, intf_free);
--	module_put(intf->owner);
-+	module_put(owner);
++	tasklet_kill(&pdata->tasklet_dev);
++	tasklet_kill(&pdata->tasklet_ecc);
++
+ 	if (pdata->vdata->ecc_support && (pdata->dev_irq != pdata->ecc_irq))
+ 		devm_free_irq(pdata->dev, pdata->ecc_irq, pdata);
+ 
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
+index 22d4fc547a0a..a9ccc4258ee5 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
+@@ -447,8 +447,10 @@ static void xgbe_i2c_stop(struct xgbe_prv_data *pdata)
+ 	xgbe_i2c_disable(pdata);
+ 	xgbe_i2c_clear_all_interrupts(pdata);
+ 
+-	if (pdata->dev_irq != pdata->i2c_irq)
++	if (pdata->dev_irq != pdata->i2c_irq) {
+ 		devm_free_irq(pdata->dev, pdata->i2c_irq, pdata);
++		tasklet_kill(&pdata->tasklet_i2c);
++	}
  }
  
- int ipmi_destroy_user(struct ipmi_user *user)
+ static int xgbe_i2c_start(struct xgbe_prv_data *pdata)
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+index 4e97b4869522..0c5c1b155683 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+@@ -1390,8 +1390,10 @@ static void xgbe_phy_stop(struct xgbe_prv_data *pdata)
+ 	/* Disable auto-negotiation */
+ 	xgbe_an_disable_all(pdata);
+ 
+-	if (pdata->dev_irq != pdata->an_irq)
++	if (pdata->dev_irq != pdata->an_irq) {
+ 		devm_free_irq(pdata->dev, pdata->an_irq, pdata);
++		tasklet_kill(&pdata->tasklet_an);
++	}
+ 
+ 	pdata->phy_if.phy_impl.stop(pdata);
+ 
+-- 
+2.35.1
+
 
 
