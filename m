@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C12664A8C
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F6C6648C8
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239270AbjAJSdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:33:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
+        id S231864AbjAJSPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:15:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238747AbjAJScg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:36 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 171AC327
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:33 -0800 (PST)
+        with ESMTP id S239041AbjAJSOn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4230B1900D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 85FF1CE18D1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7377EC433D2;
-        Tue, 10 Jan 2023 18:28:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E56CAB81909
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41732C433EF;
+        Tue, 10 Jan 2023 18:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375309;
-        bh=YXsvVkbz4VetYhwqccxBJRYFNckHVXQjcLQThVKAgvw=;
+        s=korg; t=1673374364;
+        bh=Hcsc32datdJIw2r0yngOaym2xlbqVvOOHNwIVM7PqJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KN+PvN+YM4582yYaLqGiY69HGiFuEq6nH2q19nRnIXzgXH+zK/dexHfXWAmICY8IC
-         eUXFwZgBGv/1kPrEfzVz2REfSh1hTOJ6+evoQ+MKeEsNIJzVQUTSHwiH3chWxXEw6o
-         1QW11dNaVd4iR3ljwWNQS2Nr1a0lSirYxjC9CIp8=
+        b=oTFrnoDFTquDR00bVI6ny0NgmqqqgtT2eNpiakNnNJQBlpw3ShZG6EfCHVWjXnzyw
+         hJMZUQKnKSQMsSqVU5XgkoM/tQewFfCiGNsKu7CybQCbZ1L3qGbdIavKwEwsZHhCgX
+         qo3ym6C+8fAd09cCa/PRWw9SEWcvoxx/6By+ovms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com,
-        Ye Bin <yebin10@huawei.com>, Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.15 148/290] ext4: fix reserved cluster accounting in __es_remove_extent()
+        patches@lists.linux.dev, Andreas Rammhold <andreas@rammhold.de>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 6.0 136/148] of/fdt: run soc memory setup when early_init_dt_scan_memory fails
 Date:   Tue, 10 Jan 2023 19:04:00 +0100
-Message-Id: <20230110180036.945422079@linuxfoundation.org>
+Message-Id: <20230110180021.490252631@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +52,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Andreas Rammhold <andreas@rammhold.de>
 
-commit 1da18e38cb97e9521e93d63034521a9649524f64 upstream.
+commit 2a12187d5853d9fd5102278cecef7dac7c8ce7ea upstream.
 
-When bigalloc is enabled, reserved cluster accounting for delayed
-allocation is handled in extent_status.c.  With a corrupted file
-system, it's possible for this accounting to be incorrect,
-dsicovered by Syzbot:
+If memory has been found early_init_dt_scan_memory now returns 1. If
+it hasn't found any memory it will return 0, allowing other memory
+setup mechanisms to carry on.
 
-EXT4-fs error (device loop0): ext4_validate_block_bitmap:398: comm rep:
-	bg 0: block 5: invalid block bitmap
-EXT4-fs (loop0): Delayed block allocation failed for inode 18 at logical
-	offset 0 with max blocks 32 with error 28
-EXT4-fs (loop0): This should not happen!! Data will be lost
+Previously early_init_dt_scan_memory always returned 0 without
+distinguishing between any kind of memory setup being done or not. Any
+code path after the early_init_dt_scan memory call in the ramips
+plat_mem_setup code wouldn't be executed anymore. Making
+early_init_dt_scan_memory the only way to initialize the memory.
 
-EXT4-fs (loop0): Total free blocks count 0
-EXT4-fs (loop0): Free/Dirty block details
-EXT4-fs (loop0): free_blocks=0
-EXT4-fs (loop0): dirty_blocks=32
-EXT4-fs (loop0): Block reservation details
-EXT4-fs (loop0): i_reserved_data_blocks=2
-EXT4-fs (loop0): Inode 18 (00000000845cd634):
-	i_reserved_data_blocks (1) not cleared!
+Some boards, including my mt7621 based Cudy X6 board, depend on memory
+initialization being done via the soc_info.mem_detect function
+pointer. Those wouldn't be able to obtain memory and panic the kernel
+during early bootup with the message "early_init_dt_alloc_memory_arch:
+Failed to allocate 12416 bytes align=0x40".
 
-Above issue happens as follows:
-Assume:
-sbi->s_cluster_ratio = 16
-Step1:
-Insert delay block [0, 31] -> ei->i_reserved_data_blocks=2
-Step2:
-ext4_writepages
-  mpage_map_and_submit_extent -> return failed
-  mpage_release_unused_pages -> to release [0, 30]
-    ext4_es_remove_extent -> remove lblk=0 end=30
-      __es_remove_extent -> len1=0 len2=31-30=1
- __es_remove_extent:
- ...
- if (len2 > 0) {
-  ...
-	  if (len1 > 0) {
-		  ...
-	  } else {
-		es->es_lblk = end + 1;
-		es->es_len = len2;
-		...
-	  }
-  	if (count_reserved)
-		count_rsvd(inode, lblk, ...);
-	goto out; -> will return but didn't calculate 'reserved'
- ...
-Step3:
-ext4_destroy_inode -> trigger "i_reserved_data_blocks (1) not cleared!"
-
-To solve above issue if 'len2>0' call 'get_rsvd()' before goto out.
-
-Reported-by: syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com
-Fixes: 8fcc3a580651 ("ext4: rework reserved cluster accounting when invalidating pages")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Eric Whitney <enwlinux@gmail.com>
-Link: https://lore.kernel.org/r/20221208033426.1832460-2-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Fixes: 1f012283e936 ("of/fdt: Rework early_init_dt_scan_memory() to call directly")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Rammhold <andreas@rammhold.de>
+Link: https://lore.kernel.org/r/20221223112748.2935235-1-andreas@rammhold.de
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents_status.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/mips/ralink/of.c |    2 +-
+ drivers/of/fdt.c      |    6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/extents_status.c
-+++ b/fs/ext4/extents_status.c
-@@ -1372,7 +1372,7 @@ retry:
- 		if (count_reserved)
- 			count_rsvd(inode, lblk, orig_es.es_len - len1 - len2,
- 				   &orig_es, &rc);
--		goto out;
-+		goto out_get_reserved;
- 	}
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -64,7 +64,7 @@ void __init plat_mem_setup(void)
+ 	dtb = get_fdt();
+ 	__dt_setup_arch(dtb);
  
- 	if (len1 > 0) {
-@@ -1414,6 +1414,7 @@ retry:
+-	if (!early_init_dt_scan_memory())
++	if (early_init_dt_scan_memory())
+ 		return;
+ 
+ 	if (soc_info.mem_detect)
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1106,7 +1106,7 @@ u64 __init dt_mem_next_cell(int s, const
+  */
+ int __init early_init_dt_scan_memory(void)
+ {
+-	int node;
++	int node, found_memory = 0;
+ 	const void *fdt = initial_boot_params;
+ 
+ 	fdt_for_each_subnode(node, fdt, 0) {
+@@ -1146,6 +1146,8 @@ int __init early_init_dt_scan_memory(voi
+ 
+ 			early_init_dt_add_memory_arch(base, size);
+ 
++			found_memory = 1;
++
+ 			if (!hotpluggable)
+ 				continue;
+ 
+@@ -1154,7 +1156,7 @@ int __init early_init_dt_scan_memory(voi
+ 					base, base + size);
  		}
  	}
+-	return 0;
++	return found_memory;
+ }
  
-+out_get_reserved:
- 	if (count_reserved)
- 		*reserved = get_rsvd(inode, end, es, &rc);
- out:
+ int __init early_init_dt_scan_chosen(char *cmdline)
 
 
