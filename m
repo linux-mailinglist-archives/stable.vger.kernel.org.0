@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B10664AE5
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D69C06649B6
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239418AbjAJShf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:37:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
+        id S239144AbjAJSX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239456AbjAJSgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:36:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3BFD8D5E5
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:31:50 -0800 (PST)
+        with ESMTP id S239377AbjAJSXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8212B7EC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 308B761852
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C94C433D2;
-        Tue, 10 Jan 2023 18:31:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D04D3B81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DEEFC433F0;
+        Tue, 10 Jan 2023 18:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375509;
-        bh=hoe1RCmQz79P0aXU40qFi8IHVezbn95IsYiYMh5Tw7Q=;
+        s=korg; t=1673374859;
+        bh=blPbxiJS8xaEfUuPdOJp/iP2vaDLqlAVnfXRSlY6OHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTbF+2uux22zAJ1Cgeye751J7ZdRJaeS2tF4aed/L7Ev8ryUZJJTsqjhYbjD3YTnS
-         ZC9+XKcjVOaJK3obVgExRBtRe3ydKOVTROfRvZhy0l5GNnAXFVhKyOQPBIGeXnnF0B
-         1LD7yWlw6Ez87BLShbNvPw/BeEyHfXcFfV1JrAuE=
+        b=kXWbCJk7QfMzhj0rqTZ1uwD2xBYw/+QkkLx1EfNZyYpP5KbhOpQkW5hvF3Ox/i5vJ
+         N0JeRU73U2XbeFLmLINCowP3aWQVNbJ0EGfBifPydx64rEoJhjN2qWCkN02rH9iXKO
+         Edoeii1f2xQh0ixlAeblFWVTXbU5U1GrSlLK4UsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com,
-        Cong Wang <cong.wang@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 213/290] net: sched: fix memory leak in tcindex_set_parms
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 6.1 157/159] drm/i915/dsi: fix MIPI_BKLT_EN_1 native GPIO index
 Date:   Tue, 10 Jan 2023 19:05:05 +0100
-Message-Id: <20230110180039.344671429@linuxfoundation.org>
+Message-Id: <20230110180023.569812671@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,150 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit 399ab7fe0fa0d846881685fd4e57e9a8ef7559f7 ]
+commit 6217e9f05a74df48c77ee68993d587cdfdb1feb7 upstream.
 
-Syzkaller reports a memory leak as follows:
-====================================
-BUG: memory leak
-unreferenced object 0xffff88810c287f00 (size 256):
-  comm "syz-executor105", pid 3600, jiffies 4294943292 (age 12.990s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff814cf9f0>] kmalloc_trace+0x20/0x90 mm/slab_common.c:1046
-    [<ffffffff839c9e07>] kmalloc include/linux/slab.h:576 [inline]
-    [<ffffffff839c9e07>] kmalloc_array include/linux/slab.h:627 [inline]
-    [<ffffffff839c9e07>] kcalloc include/linux/slab.h:659 [inline]
-    [<ffffffff839c9e07>] tcf_exts_init include/net/pkt_cls.h:250 [inline]
-    [<ffffffff839c9e07>] tcindex_set_parms+0xa7/0xbe0 net/sched/cls_tcindex.c:342
-    [<ffffffff839caa1f>] tcindex_change+0xdf/0x120 net/sched/cls_tcindex.c:553
-    [<ffffffff8394db62>] tc_new_tfilter+0x4f2/0x1100 net/sched/cls_api.c:2147
-    [<ffffffff8389e91c>] rtnetlink_rcv_msg+0x4dc/0x5d0 net/core/rtnetlink.c:6082
-    [<ffffffff839eba67>] netlink_rcv_skb+0x87/0x1d0 net/netlink/af_netlink.c:2540
-    [<ffffffff839eab87>] netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
-    [<ffffffff839eab87>] netlink_unicast+0x397/0x4c0 net/netlink/af_netlink.c:1345
-    [<ffffffff839eb046>] netlink_sendmsg+0x396/0x710 net/netlink/af_netlink.c:1921
-    [<ffffffff8383e796>] sock_sendmsg_nosec net/socket.c:714 [inline]
-    [<ffffffff8383e796>] sock_sendmsg+0x56/0x80 net/socket.c:734
-    [<ffffffff8383eb08>] ____sys_sendmsg+0x178/0x410 net/socket.c:2482
-    [<ffffffff83843678>] ___sys_sendmsg+0xa8/0x110 net/socket.c:2536
-    [<ffffffff838439c5>] __sys_sendmmsg+0x105/0x330 net/socket.c:2622
-    [<ffffffff83843c14>] __do_sys_sendmmsg net/socket.c:2651 [inline]
-    [<ffffffff83843c14>] __se_sys_sendmmsg net/socket.c:2648 [inline]
-    [<ffffffff83843c14>] __x64_sys_sendmmsg+0x24/0x30 net/socket.c:2648
-    [<ffffffff84605fd5>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff84605fd5>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff84800087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-====================================
+Due to copy-paste fail, MIPI_BKLT_EN_1 would always use PPS index 1,
+never 0. Fix the sloppiest commit in recent memory.
 
-Kernel uses tcindex_change() to change an existing
-filter properties.
-
-Yet the problem is that, during the process of changing,
-if `old_r` is retrieved from `p->perfect`, then
-kernel uses tcindex_alloc_perfect_hash() to newly
-allocate filter results, uses tcindex_filter_result_init()
-to clear the old filter result, without destroying
-its tcf_exts structure, which triggers the above memory leak.
-
-To be more specific, there are only two source for the `old_r`,
-according to the tcindex_lookup(). `old_r` is retrieved from
-`p->perfect`, or `old_r` is retrieved from `p->h`.
-
-  * If `old_r` is retrieved from `p->perfect`, kernel uses
-tcindex_alloc_perfect_hash() to newly allocate the
-filter results. Then `r` is assigned with `cp->perfect + handle`,
-which is newly allocated. So condition `old_r && old_r != r` is
-true in this situation, and kernel uses tcindex_filter_result_init()
-to clear the old filter result, without destroying
-its tcf_exts structure
-
-  * If `old_r` is retrieved from `p->h`, then `p->perfect` is NULL
-according to the tcindex_lookup(). Considering that `cp->h`
-is directly copied from `p->h` and `p->perfect` is NULL,
-`r` is assigned with `tcindex_lookup(cp, handle)`, whose value
-should be the same as `old_r`, so condition `old_r && old_r != r`
-is false in this situation, kernel ignores using
-tcindex_filter_result_init() to clear the old filter result.
-
-So only when `old_r` is retrieved from `p->perfect` does kernel use
-tcindex_filter_result_init() to clear the old filter result, which
-triggers the above memory leak.
-
-Considering that there already exists a tc_filter_wq workqueue
-to destroy the old tcindex_data by tcindex_partial_destroy_work()
-at the end of tcindex_set_parms(), this patch solves
-this memory leak bug by removing this old filter result
-clearing part and delegating it to the tc_filter_wq workqueue.
-
-Note that this patch doesn't introduce any other issues. If
-`old_r` is retrieved from `p->perfect`, this patch just
-delegates old filter result clearing part to the
-tc_filter_wq workqueue; If `old_r` is retrieved from `p->h`,
-kernel doesn't reach the old filter result clearing part, so
-removing this part has no effect.
-
-[Thanks to the suggestion from Jakub Kicinski, Cong Wang, Paolo Abeni
-and Dmitry Vyukov]
-
-Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
-Link: https://lore.kernel.org/all/0000000000001de5c505ebc9ec59@google.com/
-Reported-by: syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com
-Tested-by: syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com
-Cc: Cong Wang <cong.wang@bytedance.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 963bbdb32b47 ("drm/i915/dsi: add support for ICL+ native MIPI GPIO sequence")
+Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221220140105.313333-1-jani.nikula@intel.com
+(cherry picked from commit a561933c571798868b5fa42198427a7e6df56c09)
+Cc: stable@vger.kernel.org # 6.1
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_tcindex.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dsi_vbt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index 742c7d49a958..8d1ef858db87 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -332,7 +332,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 		  struct tcindex_filter_result *r, struct nlattr **tb,
- 		  struct nlattr *est, u32 flags, struct netlink_ext_ack *extack)
- {
--	struct tcindex_filter_result new_filter_result, *old_r = r;
-+	struct tcindex_filter_result new_filter_result;
- 	struct tcindex_data *cp = NULL, *oldp;
- 	struct tcindex_filter *f = NULL; /* make gcc behave */
- 	struct tcf_result cr = {};
-@@ -401,7 +401,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 	err = tcindex_filter_result_init(&new_filter_result, cp, net);
- 	if (err < 0)
- 		goto errout_alloc;
--	if (old_r)
-+	if (r)
- 		cr = r->res;
+--- a/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
++++ b/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
+@@ -430,7 +430,7 @@ static void icl_native_gpio_set_value(st
+ 		break;
+ 	case MIPI_BKLT_EN_1:
+ 	case MIPI_BKLT_EN_2:
+-		index = gpio == MIPI_AVDD_EN_1 ? 0 : 1;
++		index = gpio == MIPI_BKLT_EN_1 ? 0 : 1;
  
- 	err = -EBUSY;
-@@ -478,14 +478,6 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 		tcf_bind_filter(tp, &cr, base);
- 	}
- 
--	if (old_r && old_r != r) {
--		err = tcindex_filter_result_init(old_r, cp, net);
--		if (err < 0) {
--			kfree(f);
--			goto errout_alloc;
--		}
--	}
--
- 	oldp = p;
- 	r->res = cr;
- 	tcf_exts_change(&r->exts, &e);
--- 
-2.35.1
-
+ 		intel_de_rmw(dev_priv, PP_CONTROL(index), EDP_BLC_ENABLE,
+ 			     value ? EDP_BLC_ENABLE : 0);
 
 
