@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42FF566496B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1BD9664ABA
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239177AbjAJSVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:21:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60786 "EHLO
+        id S234682AbjAJSfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:35:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239169AbjAJSUd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:33 -0500
+        with ESMTP id S239457AbjAJSfU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:20 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D897B4A96E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D1310065
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82E36B81903
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0D45C433D2;
-        Tue, 10 Jan 2023 18:18:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 918BFB818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEF76C433D2;
+        Tue, 10 Jan 2023 18:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374719;
-        bh=aLbKv6XLfTue2wCV/nY8BTSu4/Ky1k+5ZDJqu7uYoi4=;
+        s=korg; t=1673375455;
+        bh=u3ScWIUxO3NcaVexuYMtFc5TdZEK44N1eLTM0uZlS3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irvXbKQuysRYQxWWGMav/ZUgSNJt0/ZGzHb104Hcy35zqW42B6dX19184d2JQwkR2
-         /9PfM7AcS1m3SCmpTCKE6k1bStoMPMkBPeQjMDwssGTuf91L1yPQYd9yooxb45hYQr
-         Jbv+gAPdV8GKrfUUJYvTqFfSAv3PzR1H80nPrkPE=
+        b=dY7TSIP+icoQWL7wyQUOa+Lexl8Vp3sK0PJildFIRKQuyfwyBPf+E8To2cxkcN9mi
+         pztrZmKDqDdzl94s+WAqN66LqH+T6xGL4zzVy8UItCcfNgXbMKRIqlEpazzUoKJS+K
+         l3HVMj7EMuw5MrKRBZEohMorRFVsWUyNqrDDgCMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 111/159] ASoC: Intel: bytcr_rt5640: Add quirk for the Advantech MICA-071 tablet
+        patches@lists.linux.dev, Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>,
+        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.15 167/290] ext4: remove unused enum EXT4_FC_COMMIT_FAILED
 Date:   Tue, 10 Jan 2023 19:04:19 +0100
-Message-Id: <20230110180021.824407072@linuxfoundation.org>
+Message-Id: <20230110180037.673263016@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Eric Biggers <ebiggers@kernel.org>
 
-[ Upstream commit a1dec9d70b6ad97087b60b81d2492134a84208c6 ]
+From: Ritesh Harjani <riteshh@linux.ibm.com>
 
-The Advantech MICA-071 tablet deviates from the defaults for
-a non CR Bay Trail based tablet in several ways:
+commit c864ccd182d6ff2730a0f5b636c6b7c48f6f4f7f upstream.
 
-1. It uses an analog MIC on IN3 rather then using DMIC1
-2. It only has 1 speaker
-3. It needs the OVCD current threshold to be set to 1500uA instead of
-   the default 2000uA to reliable differentiate between headphones vs
-   headsets
+Below commit removed all references of EXT4_FC_COMMIT_FAILED.
+commit 0915e464cb274 ("ext4: simplify updating of fast commit stats")
 
-Add a quirk with these settings for this tablet.
+Just remove it since it is not used anymore.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221213123246.11226-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Link: https://lore.kernel.org/r/c941357e476be07a1138c7319ca5faab7fb80fc6.1647057583.git.riteshh@linux.ibm.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ fs/ext4/fast_commit.h |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index fb9d9e271845..ddd2625bed90 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -570,6 +570,21 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF1 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{
-+		/* Advantech MICA-071 */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Advantech"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MICA-071"),
-+		},
-+		/* OVCD Th = 1500uA to reliable detect head-phones vs -set */
-+		.driver_data = (void *)(BYT_RT5640_IN3_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_1500UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_MONO_SPEAKER |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ARCHOS"),
--- 
-2.35.1
-
+--- a/fs/ext4/fast_commit.h
++++ b/fs/ext4/fast_commit.h
+@@ -93,7 +93,6 @@ enum {
+ 	EXT4_FC_REASON_RENAME_DIR,
+ 	EXT4_FC_REASON_FALLOC_RANGE,
+ 	EXT4_FC_REASON_INODE_JOURNAL_DATA,
+-	EXT4_FC_COMMIT_FAILED,
+ 	EXT4_FC_REASON_MAX
+ };
+ 
 
 
