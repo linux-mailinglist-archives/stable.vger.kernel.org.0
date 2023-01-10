@@ -2,82 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5573F664689
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 17:51:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74D9B6646B0
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 17:56:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233737AbjAJQvW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 11:51:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34190 "EHLO
+        id S233856AbjAJQ4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 11:56:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238669AbjAJQvE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 11:51:04 -0500
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 338D5203B
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:51:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673369463; x=1704905463;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   in-reply-to;
-  bh=BAd06rtmMXFRaSqKZ0oSUYvyH0olKfYhzZL/Ml6ObJE=;
-  b=iPPMS/cUokwtKa48I6+BX2Ha/u49rdxQ6LJFFRwmVsLRZmeCSTyAN/fY
-   yHIJfBhiI146AyRgRpxelKWNVm9JZj6HJg2eBTbw+OH0oZMpGuERvqL2d
-   ZprNjUgcSUgG+/8gmlAo7lqM/5yP6cFEn40EJYZf0IQTLPP4hznO3LMjj
-   03ve58d8xXn+sTOkunmRBKFpy+8jwHczB4kxFMEF2gxiwtD2xqkpdoCsJ
-   W2R0jt9xFsSN1Ocx+HcmFqCs7aConifDXsfYmCli+1NFpHJYUYKCLVu2G
-   dZ7ltLUt0BU9Y34WnW15SECPqPclUrrKGUOxLs+H103y+EIEgNVQ+UQsV
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="310997794"
-X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="310997794"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 08:51:01 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="745838371"
-X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="745838371"
-Received: from lkp-server02.sh.intel.com (HELO f1920e93ebb5) ([10.239.97.151])
-  by FMSMGA003.fm.intel.com with ESMTP; 10 Jan 2023 08:50:59 -0800
-Received: from kbuild by f1920e93ebb5 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pFHpz-0008Da-0a;
-        Tue, 10 Jan 2023 16:50:59 +0000
-Date:   Wed, 11 Jan 2023 00:50:54 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
-Subject: Re: [PATCH 5.15.y] io_uring: Fix unsigned 'res' comparison with zero
- in io_fixup_rw_res()
-Message-ID: <Y72XbqncuE9kRqKJ@d82c38c126d2>
+        with ESMTP id S238165AbjAJQ4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 11:56:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FAD8CE01
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:56:52 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23B28B81891
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 16:56:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161BCC433F0;
+        Tue, 10 Jan 2023 16:56:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1673369807;
+        bh=P7Il/kvj9Yg6T1GzmYZFK6QBKFye28F0IdN0PglIjd4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2Ax1LslCMNPxUzMlxlD39bigJWp0Ktzj2RlllmBZlG+gS6pm/tn05UYJBgb63CUKt
+         /1aLUim48UD8MmeqdqMUgb0FzB5ombjoTHnUmyOq3TtmKJBuW4OPdaUOqoq3AULfna
+         Kx9HdLKQnDoIklD9uIxDpJ6xa8p2QlmLcWeGAZok=
+Date:   Tue, 10 Jan 2023 17:56:41 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>
+Subject: Re: [PATCH stable] efi: random: combine bootloader provided RNG seed
+ with RNG protocol output
+Message-ID: <Y72YyXw5HcsbDac1@kroah.com>
+References: <20230110160416.2590-1-Jason@zx2c4.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230110164647.755556-1-harshit.m.mogalapalli@oracle.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230110160416.2590-1-Jason@zx2c4.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Tue, Jan 10, 2023 at 05:04:16PM +0100, Jason A. Donenfeld wrote:
+> From: Ard Biesheuvel <ardb@kernel.org>
+> 
+> commit 196dff2712ca5a2e651977bb2fe6b05474111a83 upstream.
+> 
+> Instead of blindly creating the EFI random seed configuration table if
+> the RNG protocol is implemented and works, check whether such a EFI
+> configuration table was provided by an earlier boot stage and if so,
+> concatenate the existing and the new seeds, leaving it up to the core
+> code to mix it in and credit it the way it sees fit.
+> 
+> This can be used for, e.g., systemd-boot, to pass an additional seed to
+> Linux in a way that can be consumed by the kernel very early. In that
+> case, the following definitions should be used to pass the seed to the
+> EFI stub:
+> 
+> struct linux_efi_random_seed {
+>       u32     size; // of the 'seed' array in bytes
+>       u8      seed[];
+> };
+> 
+> The memory for the struct must be allocated as EFI_ACPI_RECLAIM_MEMORY
+> pool memory, and the address of the struct in memory should be installed
+> as a EFI configuration table using the following GUID:
+> 
+> LINUX_EFI_RANDOM_SEED_TABLE_GUID        1ce1e5bc-7ceb-42f2-81e5-8aadf180f57b
+> 
+> Note that doing so is safe even on kernels that were built without this
+> patch applied, but the seed will simply be overwritten with a seed
+> derived from the EFI RNG protocol, if available. The recommended seed
+> size is 32 bytes, and seeds larger than 512 bytes are considered
+> corrupted and ignored entirely.
+> 
+> In order to preserve forward secrecy, seeds from previous bootloaders
+> are memzero'd out, and in order to preserve memory, those older seeds
+> are also freed from memory. Freeing from memory without first memzeroing
+> is not safe to do, as it's possible that nothing else will ever
+> overwrite those pages used by EFI.
+> 
+> Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> [ardb: incorporate Jason's followup changes to extend the maximum seed
+>        size on the consumer end, memzero() it and drop a needless printk]
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  drivers/firmware/efi/efi.c             |  4 +--
+>  drivers/firmware/efi/libstub/efistub.h |  2 ++
+>  drivers/firmware/efi/libstub/random.c  | 42 ++++++++++++++++++++++----
+>  include/linux/efi.h                    |  2 --
+>  4 files changed, 40 insertions(+), 10 deletions(-)
 
-Thanks for your patch.
+Now queued up, thanks.
 
-FYI: kernel test robot notices the stable kernel rule is not satisfied.
-
-Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-Subject: [PATCH 5.15.y] io_uring: Fix unsigned 'res' comparison with zero in io_fixup_rw_res()
-Link: https://lore.kernel.org/stable/20230110164647.755556-1-harshit.m.mogalapalli%40oracle.com
-
-The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
-
-
-
+greg k-h
