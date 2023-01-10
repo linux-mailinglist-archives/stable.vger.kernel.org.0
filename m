@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE9F96648EE
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D447A664A47
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238884AbjAJSQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:16:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53236 "EHLO
+        id S239437AbjAJSbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:31:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239092AbjAJSPl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E5F65D2
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:44 -0800 (PST)
+        with ESMTP id S239199AbjAJSaz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C97684F121
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CEB66182C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EDE4C433EF;
-        Tue, 10 Jan 2023 18:13:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AC29B818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D287CC433F0;
+        Tue, 10 Jan 2023 18:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374423;
-        bh=J7FBa41VCdWOW3WhQvIKSo9zaLEjMakbdgyb0o5uhg4=;
+        s=korg; t=1673375167;
+        bh=RjCZfCQOnhbJzOINR5uUbRsnbtupjbvh63TDF+SAkZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQUvmumI8OeL9ubksnWF9e7eySzI67CSbar+5AEPNOu71rTh0hM+3bI6sCWO8DVXM
-         ZVEljW6tx15HKAcu+snQBlKV4i7kUcHt+7wxxeb85eLGxSHe4fA0a4Y9MkQW7CumFJ
-         KaR/ZwvD8ycAXAmnEGLryAVCpv9zaRvnwb+bpl3o=
+        b=SiV0cfE88pIkqYd3kit275mvO7YRPjHC/Tfqs9Tq+Mq8viephTucC0cAuI5I/uAC0
+         ZdLW6n/+f2Krgf2BpIpdCH/cUPgbw2UU/ai425phQ7pzzjXr7TQ5PX/rdsw8/+8UA6
+         Hx/49LhapNkkgpfwlJceQk8ehVD5VfJEfRzOFVHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 013/159] wifi: ath9k: use proper statements in conditionals
+        patches@lists.linux.dev, Qu Wenruo <wqu@suse.com>,
+        Boris Burkov <boris@bur.io>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 069/290] btrfs: fix resolving backrefs for inline extent followed by prealloc
 Date:   Tue, 10 Jan 2023 19:02:41 +0100
-Message-Id: <20230110180018.732768778@linuxfoundation.org>
+Message-Id: <20230110180034.024963251@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,65 +52,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Boris Burkov <boris@bur.io>
 
-[ Upstream commit b7dc753fe33a707379e2254317794a4dad6c0fe2 ]
+commit 560840afc3e63bbe5d9c5ef6b2ecf8f3589adff6 upstream.
 
-A previous cleanup patch accidentally broke some conditional
-expressions by replacing the safe "do {} while (0)" constructs
-with empty macros. gcc points this out when extra warnings
-are enabled:
+If a file consists of an inline extent followed by a regular or prealloc
+extent, then a legitimate attempt to resolve a logical address in the
+non-inline region will result in add_all_parents reading the invalid
+offset field of the inline extent. If the inline extent item is placed
+in the leaf eb s.t. it is the first item, attempting to access the
+offset field will not only be meaningless, it will go past the end of
+the eb and cause this panic:
 
-drivers/net/wireless/ath/ath9k/hif_usb.c: In function 'ath9k_skb_queue_complete':
-drivers/net/wireless/ath/ath9k/hif_usb.c:251:57: error: suggest braces around empty body in an 'else' statement [-Werror=empty-body]
-  251 |                         TX_STAT_INC(hif_dev, skb_failed);
+  [17.626048] BTRFS warning (device dm-2): bad eb member end: ptr 0x3fd4 start 30834688 member offset 16377 size 8
+  [17.631693] general protection fault, probably for non-canonical address 0x5088000000000: 0000 [#1] SMP PTI
+  [17.635041] CPU: 2 PID: 1267 Comm: btrfs Not tainted 5.12.0-07246-g75175d5adc74-dirty #199
+  [17.637969] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+  [17.641995] RIP: 0010:btrfs_get_64+0xe7/0x110
+  [17.649890] RSP: 0018:ffffc90001f73a08 EFLAGS: 00010202
+  [17.651652] RAX: 0000000000000001 RBX: ffff88810c42d000 RCX: 0000000000000000
+  [17.653921] RDX: 0005088000000000 RSI: ffffc90001f73a0f RDI: 0000000000000001
+  [17.656174] RBP: 0000000000000ff9 R08: 0000000000000007 R09: c0000000fffeffff
+  [17.658441] R10: ffffc90001f73790 R11: ffffc90001f73788 R12: ffff888106afe918
+  [17.661070] R13: 0000000000003fd4 R14: 0000000000003f6f R15: cdcdcdcdcdcdcdcd
+  [17.663617] FS:  00007f64e7627d80(0000) GS:ffff888237c80000(0000) knlGS:0000000000000000
+  [17.666525] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [17.668664] CR2: 000055d4a39152e8 CR3: 000000010c596002 CR4: 0000000000770ee0
+  [17.671253] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [17.673634] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [17.676034] PKRU: 55555554
+  [17.677004] Call Trace:
+  [17.677877]  add_all_parents+0x276/0x480
+  [17.679325]  find_parent_nodes+0xfae/0x1590
+  [17.680771]  btrfs_find_all_leafs+0x5e/0xa0
+  [17.682217]  iterate_extent_inodes+0xce/0x260
+  [17.683809]  ? btrfs_inode_flags_to_xflags+0x50/0x50
+  [17.685597]  ? iterate_inodes_from_logical+0xa1/0xd0
+  [17.687404]  iterate_inodes_from_logical+0xa1/0xd0
+  [17.689121]  ? btrfs_inode_flags_to_xflags+0x50/0x50
+  [17.691010]  btrfs_ioctl_logical_to_ino+0x131/0x190
+  [17.692946]  btrfs_ioctl+0x104a/0x2f60
+  [17.694384]  ? selinux_file_ioctl+0x182/0x220
+  [17.695995]  ? __x64_sys_ioctl+0x84/0xc0
+  [17.697394]  __x64_sys_ioctl+0x84/0xc0
+  [17.698697]  do_syscall_64+0x33/0x40
+  [17.700017]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [17.701753] RIP: 0033:0x7f64e72761b7
+  [17.709355] RSP: 002b:00007ffefb067f58 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  [17.712088] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f64e72761b7
+  [17.714667] RDX: 00007ffefb067fb0 RSI: 00000000c0389424 RDI: 0000000000000003
+  [17.717386] RBP: 00007ffefb06d188 R08: 000055d4a390d2b0 R09: 00007f64e7340a60
+  [17.719938] R10: 0000000000000231 R11: 0000000000000246 R12: 0000000000000001
+  [17.722383] R13: 0000000000000000 R14: 00000000c0389424 R15: 000055d4a38fd2a0
+  [17.724839] Modules linked in:
 
-Make both sets of macros proper expressions again.
+Fix the bug by detecting the inline extent item in add_all_parents and
+skipping to the next extent item.
 
-Fixes: d7fc76039b74 ("ath9k: htc: clean up statistics macros")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221215165553.1950307-1-arnd@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Boris Burkov <boris@bur.io>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath9k/htc.h | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ fs/btrfs/backref.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
-index 30f0765fb9fd..237f4ec2cffd 100644
---- a/drivers/net/wireless/ath/ath9k/htc.h
-+++ b/drivers/net/wireless/ath/ath9k/htc.h
-@@ -327,9 +327,9 @@ static inline struct ath9k_htc_tx_ctl *HTC_SKB_CB(struct sk_buff *skb)
- }
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -433,6 +433,7 @@ static int add_all_parents(struct btrfs_
+ 	u64 wanted_disk_byte = ref->wanted_disk_byte;
+ 	u64 count = 0;
+ 	u64 data_offset;
++	u8 type;
  
- #ifdef CONFIG_ATH9K_HTC_DEBUGFS
--#define __STAT_SAFE(hif_dev, expr)	((hif_dev)->htc_handle->drv_priv ? (expr) : 0)
--#define CAB_STAT_INC(priv)		((priv)->debug.tx_stats.cab_queued++)
--#define TX_QSTAT_INC(priv, q)		((priv)->debug.tx_stats.queue_stats[q]++)
-+#define __STAT_SAFE(hif_dev, expr)	do { ((hif_dev)->htc_handle->drv_priv ? (expr) : 0); } while (0)
-+#define CAB_STAT_INC(priv)		do { ((priv)->debug.tx_stats.cab_queued++); } while (0)
-+#define TX_QSTAT_INC(priv, q)		do { ((priv)->debug.tx_stats.queue_stats[q]++); } while (0)
+ 	if (level != 0) {
+ 		eb = path->nodes[level];
+@@ -487,6 +488,9 @@ static int add_all_parents(struct btrfs_
+ 			continue;
+ 		}
+ 		fi = btrfs_item_ptr(eb, slot, struct btrfs_file_extent_item);
++		type = btrfs_file_extent_type(eb, fi);
++		if (type == BTRFS_FILE_EXTENT_INLINE)
++			goto next;
+ 		disk_byte = btrfs_file_extent_disk_bytenr(eb, fi);
+ 		data_offset = btrfs_file_extent_offset(eb, fi);
  
- #define TX_STAT_INC(hif_dev, c) \
- 		__STAT_SAFE((hif_dev), (hif_dev)->htc_handle->drv_priv->debug.tx_stats.c++)
-@@ -378,10 +378,10 @@ void ath9k_htc_get_et_stats(struct ieee80211_hw *hw,
- 			    struct ethtool_stats *stats, u64 *data);
- #else
- 
--#define TX_STAT_INC(hif_dev, c)
--#define TX_STAT_ADD(hif_dev, c, a)
--#define RX_STAT_INC(hif_dev, c)
--#define RX_STAT_ADD(hif_dev, c, a)
-+#define TX_STAT_INC(hif_dev, c)		do { } while (0)
-+#define TX_STAT_ADD(hif_dev, c, a)	do { } while (0)
-+#define RX_STAT_INC(hif_dev, c)		do { } while (0)
-+#define RX_STAT_ADD(hif_dev, c, a)	do { } while (0)
- 
- #define CAB_STAT_INC(priv)
- #define TX_QSTAT_INC(priv, c)
--- 
-2.35.1
-
 
 
