@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 273BD664A42
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35AFD664A45
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239429AbjAJSbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:31:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43754 "EHLO
+        id S234604AbjAJSbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:31:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239459AbjAJSas (ORCPT
+        with ESMTP id S239460AbjAJSas (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:48 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0C9F2189
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:55 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79D7A2602
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 66ECBCE18E6
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D1ABC433EF;
-        Tue, 10 Jan 2023 18:25:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 166EA6183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28068C433F0;
+        Tue, 10 Jan 2023 18:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375152;
-        bh=vq1hLRbfBe5Zm1RWvzGNGvQGbBfT9Sm2KN97pI4VIfo=;
+        s=korg; t=1673375155;
+        bh=niq1puUHSWRuqR67eOn4otG54988L9xjSn9/iX5cTwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XiO2B84MGSF3NTsFnL0l8l+FawkXY333yHRdInTw+PWnQjrWjeSq7CRnrQ+u7F+Th
-         AyWGx0iO937KCV/GLqitrpaQMzMSB/DQeIWUcbOftwAR1gwH0ZdHay4ilec/1bVpFJ
-         4EKr2DINf1EuG+6kWg7WDBgb50ndtievZ7PB49Cg=
+        b=FX8cMZ7PkUBdQcf9ZBHeEUWNudJqfqc9ebdBkk/6GxJ17DPO/Nm1bVFmRF7fXRDmn
+         B0DiwWBGL1OGsNFhcRHspQPFLQBXElbHYtAu+8Xxootjjp4aXMWwAWMDUW1YDZeSHI
+         q0VmXBiqzSVx+mWB4QqyPQvHu+W0hvPTCETy13TE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Li <ercli@ucdavis.edu>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 5.15 094/290] KVM: nVMX: Inject #GP, not #UD, if "generic" VMXON CR0/CR4 check fails
-Date:   Tue, 10 Jan 2023 19:03:06 +0100
-Message-Id: <20230110180034.864395677@linuxfoundation.org>
+        patches@lists.linux.dev, Aaron Lewis <aaronlewis@google.com>,
+        Yu Zhang <yu.c.zhang@linux.intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 095/290] KVM: nVMX: Properly expose ENABLE_USR_WAIT_PAUSE control to L1
+Date:   Tue, 10 Jan 2023 19:03:07 +0100
+Message-Id: <20230110180034.894293364@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -54,134 +57,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 9cc409325ddd776f6fd6293d5ce93ce1248af6e4 upstream.
+commit 31de69f4eea77b28a9724b3fa55aae104fc91fc7 upstream.
 
-Inject #GP for if VMXON is attempting with a CR0/CR4 that fails the
-generic "is CRx valid" check, but passes the CR4.VMXE check, and do the
-generic checks _after_ handling the post-VMXON VM-Fail.
+Set ENABLE_USR_WAIT_PAUSE in KVM's supported VMX MSR configuration if the
+feature is supported in hardware and enabled in KVM's base, non-nested
+configuration, i.e. expose ENABLE_USR_WAIT_PAUSE to L1 if it's supported.
+This fixes a bug where saving/restoring, i.e. migrating, a vCPU will fail
+if WAITPKG (the associated CPUID feature) is enabled for the vCPU, and
+obviously allows L1 to enable the feature for L2.
 
-The CR4.VMXE check, and all other #UD cases, are special pre-conditions
-that are enforced prior to pivoting on the current VMX mode, i.e. occur
-before interception if VMXON is attempted in VMX non-root mode.
+KVM already effectively exposes ENABLE_USR_WAIT_PAUSE to L1 by stuffing
+the allowed-1 control ina vCPU's virtual MSR_IA32_VMX_PROCBASED_CTLS2 when
+updating secondary controls in response to KVM_SET_CPUID(2), but (a) that
+depends on flawed code (KVM shouldn't touch VMX MSRs in response to CPUID
+updates) and (b) runs afoul of vmx_restore_control_msr()'s restriction
+that the guest value must be a strict subset of the supported host value.
 
-All other CR0/CR4 checks generate #GP and effectively have lower priority
-than the post-VMXON check.
+Although no past commit explicitly enabled nested support for WAITPKG,
+doing so is safe and functionally correct from an architectural
+perspective as no additional KVM support is needed to virtualize TPAUSE,
+UMONITOR, and UMWAIT for L2 relative to L1, and KVM already forwards
+VM-Exits to L1 as necessary (commit bf653b78f960, "KVM: vmx: Introduce
+handle_unexpected_vmexit and handle WAITPKG vmexit").
 
-Per the SDM:
+Note, KVM always keeps the hosts MSR_IA32_UMWAIT_CONTROL resident in
+hardware, i.e. always runs both L1 and L2 with the host's power management
+settings for TPAUSE and UMWAIT.  See commit bf09fb6cba4f ("KVM: VMX: Stop
+context switching MSR_IA32_UMWAIT_CONTROL") for more details.
 
-    IF (register operand) or (CR0.PE = 0) or (CR4.VMXE = 0) or ...
-        THEN #UD;
-    ELSIF not in VMX operation
-        THEN
-            IF (CPL > 0) or (in A20M mode) or
-            (the values of CR0 and CR4 are not supported in VMX operation)
-                THEN #GP(0);
-    ELSIF in VMX non-root operation
-        THEN VMexit;
-    ELSIF CPL > 0
-        THEN #GP(0);
-    ELSE VMfail("VMXON executed in VMX root operation");
-    FI;
-
-which, if re-written without ELSIF, yields:
-
-    IF (register operand) or (CR0.PE = 0) or (CR4.VMXE = 0) or ...
-        THEN #UD
-
-    IF in VMX non-root operation
-        THEN VMexit;
-
-    IF CPL > 0
-        THEN #GP(0)
-
-    IF in VMX operation
-        THEN VMfail("VMXON executed in VMX root operation");
-
-    IF (in A20M mode) or
-       (the values of CR0 and CR4 are not supported in VMX operation)
-                THEN #GP(0);
-
-Note, KVM unconditionally forwards VMXON VM-Exits that occur in L2 to L1,
-i.e. there is no need to check the vCPU is not in VMX non-root mode.  Add
-a comment to explain why unconditionally forwarding such exits is
-functionally correct.
-
-Reported-by: Eric Li <ercli@ucdavis.edu>
-Fixes: c7d855c2aff2 ("KVM: nVMX: Inject #UD if VMXON is attempted with incompatible CR0/CR4")
+Fixes: e69e72faa3a0 ("KVM: x86: Add support for user wait instructions")
 Cc: stable@vger.kernel.org
+Reported-by: Aaron Lewis <aaronlewis@google.com>
+Reported-by: Yu Zhang <yu.c.zhang@linux.intel.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Link: https://lore.kernel.org/r/20221006001956.329314-1-seanjc@google.com
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20221213062306.667649-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |   44 +++++++++++++++++++++++++++++++++-----------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ arch/x86/kvm/vmx/nested.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/arch/x86/kvm/vmx/nested.c
 +++ b/arch/x86/kvm/vmx/nested.c
-@@ -4970,24 +4970,35 @@ static int handle_vmon(struct kvm_vcpu *
- 		| FEAT_CTL_VMX_ENABLED_OUTSIDE_SMX;
+@@ -6666,7 +6666,8 @@ void nested_vmx_setup_ctls_msrs(struct n
+ 		SECONDARY_EXEC_ENABLE_INVPCID |
+ 		SECONDARY_EXEC_RDSEED_EXITING |
+ 		SECONDARY_EXEC_XSAVES |
+-		SECONDARY_EXEC_TSC_SCALING;
++		SECONDARY_EXEC_TSC_SCALING |
++		SECONDARY_EXEC_ENABLE_USR_WAIT_PAUSE;
  
  	/*
--	 * Note, KVM cannot rely on hardware to perform the CR0/CR4 #UD checks
--	 * that have higher priority than VM-Exit (see Intel SDM's pseudocode
--	 * for VMXON), as KVM must load valid CR0/CR4 values into hardware while
--	 * running the guest, i.e. KVM needs to check the _guest_ values.
-+	 * Manually check CR4.VMXE checks, KVM must force CR4.VMXE=1 to enter
-+	 * the guest and so cannot rely on hardware to perform the check,
-+	 * which has higher priority than VM-Exit (see Intel SDM's pseudocode
-+	 * for VMXON).
- 	 *
--	 * Rely on hardware for the other two pre-VM-Exit checks, !VM86 and
--	 * !COMPATIBILITY modes.  KVM may run the guest in VM86 to emulate Real
--	 * Mode, but KVM will never take the guest out of those modes.
-+	 * Rely on hardware for the other pre-VM-Exit checks, CR0.PE=1, !VM86
-+	 * and !COMPATIBILITY modes.  For an unrestricted guest, KVM doesn't
-+	 * force any of the relevant guest state.  For a restricted guest, KVM
-+	 * does force CR0.PE=1, but only to also force VM86 in order to emulate
-+	 * Real Mode, and so there's no need to check CR0.PE manually.
- 	 */
--	if (!nested_host_cr0_valid(vcpu, kvm_read_cr0(vcpu)) ||
--	    !nested_host_cr4_valid(vcpu, kvm_read_cr4(vcpu))) {
-+	if (!kvm_read_cr4_bits(vcpu, X86_CR4_VMXE)) {
- 		kvm_queue_exception(vcpu, UD_VECTOR);
- 		return 1;
- 	}
- 
- 	/*
--	 * CPL=0 and all other checks that are lower priority than VM-Exit must
--	 * be checked manually.
-+	 * The CPL is checked for "not in VMX operation" and for "in VMX root",
-+	 * and has higher priority than the VM-Fail due to being post-VMXON,
-+	 * i.e. VMXON #GPs outside of VMX non-root if CPL!=0.  In VMX non-root,
-+	 * VMXON causes VM-Exit and KVM unconditionally forwards VMXON VM-Exits
-+	 * from L2 to L1, i.e. there's no need to check for the vCPU being in
-+	 * VMX non-root.
-+	 *
-+	 * Forwarding the VM-Exit unconditionally, i.e. without performing the
-+	 * #UD checks (see above), is functionally ok because KVM doesn't allow
-+	 * L1 to run L2 without CR4.VMXE=0, and because KVM never modifies L2's
-+	 * CR0 or CR4, i.e. it's L2's responsibility to emulate #UDs that are
-+	 * missed by hardware due to shadowing CR0 and/or CR4.
- 	 */
- 	if (vmx_get_cpl(vcpu)) {
- 		kvm_inject_gp(vcpu, 0);
-@@ -4997,6 +5008,17 @@ static int handle_vmon(struct kvm_vcpu *
- 	if (vmx->nested.vmxon)
- 		return nested_vmx_fail(vcpu, VMXERR_VMXON_IN_VMX_ROOT_OPERATION);
- 
-+	/*
-+	 * Invalid CR0/CR4 generates #GP.  These checks are performed if and
-+	 * only if the vCPU isn't already in VMX operation, i.e. effectively
-+	 * have lower priority than the VM-Fail above.
-+	 */
-+	if (!nested_host_cr0_valid(vcpu, kvm_read_cr0(vcpu)) ||
-+	    !nested_host_cr4_valid(vcpu, kvm_read_cr4(vcpu))) {
-+		kvm_inject_gp(vcpu, 0);
-+		return 1;
-+	}
-+
- 	if ((vmx->msr_ia32_feature_control & VMXON_NEEDED_FEATURES)
- 			!= VMXON_NEEDED_FEATURES) {
- 		kvm_inject_gp(vcpu, 0);
+ 	 * We can emulate "VMCS shadowing," even if the hardware
 
 
