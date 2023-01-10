@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E742B664887
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A928066490E
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238807AbjAJSMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53226 "EHLO
+        id S238955AbjAJSRk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:17:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238802AbjAJSL4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:11:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F21175BA
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:15 -0800 (PST)
+        with ESMTP id S238928AbjAJSRG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 278D2F24
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44D0C6182C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BAE4C433D2;
-        Tue, 10 Jan 2023 18:10:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAC7E617EC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:15:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1DC6C433EF;
+        Tue, 10 Jan 2023 18:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374214;
-        bh=C0j+hwubaVzbBy2zsflSWNv6PYZpDP0K3kDviiz78Wo=;
+        s=korg; t=1673374519;
+        bh=NHV1uZP18/ivUYfuQgq1KElGEiNUlT867nmeD9phacY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2uQYvqs73Qw1680r9QKG4SHoQz5hcriERB4csXT8jlqC8slFSeISZ+DCjHzVOqKE
-         nzCAfYzPcxZeZnkpW++r/hecupo9K/Z4HhEhYClsHgMaAh285m3dOlkXGM0yrQ6p/+
-         5rscG4+yDAHrKSP3dd6rbgMULoNgDMUwhv5DRU7A=
+        b=pdU7iJ3V8bNZqi3S8H+wR14C8/yVqBiOXeRS4RozvXxeh9CasmbxJQDUrNaNi8uny
+         AeSfe1sNuvxL/w5TpbzqZUCaIzqN4dDF20SJ/z4tkLjWNyoL3GDAiO4M/LqUMkgWbL
+         GbdUuoLpxf2BmLPovHI3vRbV7WVIXAHx1Dm1wSo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot <syzbot+bed15dbf10294aa4f2ae@syzkaller.appspotmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 088/148] fs/ntfs3: dont hold ni_lock when calling truncate_setsize()
+Subject: [PATCH 6.1 044/159] vringh: fix range used in iotlb_translate()
 Date:   Tue, 10 Jan 2023 19:03:12 +0100
-Message-Id: <20230110180019.988725224@linuxfoundation.org>
+Message-Id: <20230110180019.715311370@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 0226635c304cfd5c9db9b78c259cb713819b057e ]
+[ Upstream commit f85efa9b0f5381874f727bd98f56787840313f0b ]
 
-syzbot is reporting hung task at do_user_addr_fault() [1], for there is
-a silent deadlock between PG_locked bit and ni_lock lock.
+vhost_iotlb_itree_first() requires `start` and `last` parameters
+to search for a mapping that overlaps the range.
 
-Since filemap_update_page() calls filemap_read_folio() after calling
-folio_trylock() which will set PG_locked bit, ntfs_truncate() must not
-call truncate_setsize() which will wait for PG_locked bit to be cleared
-when holding ni_lock lock.
+In iotlb_translate() we cyclically call vhost_iotlb_itree_first(),
+incrementing `addr` by the amount already translated, so rightly
+we move the `start` parameter passed to vhost_iotlb_itree_first(),
+but we should hold the `last` parameter constant.
 
-Link: https://lore.kernel.org/all/00000000000060d41f05f139aa44@google.com/
-Link: https://syzkaller.appspot.com/bug?extid=bed15dbf10294aa4f2ae [1]
-Reported-by: syzbot <syzbot+bed15dbf10294aa4f2ae@syzkaller.appspotmail.com>
-Debugged-by: Linus Torvalds <torvalds@linux-foundation.org>
-Co-developed-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 4342306f0f0d ("fs/ntfs3: Add file operations and implementation")
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Let's fix it by saving the `last` parameter value before incrementing
+`addr` in the loop.
+
+Fixes: 9ad9c49cfe97 ("vringh: IOTLB support")
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Message-Id: <20221109102503.18816-2-sgarzare@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/file.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/vhost/vringh.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ntfs3/file.c b/fs/ntfs3/file.c
-index 4f2ffc7ef296..f31c0389a2e7 100644
---- a/fs/ntfs3/file.c
-+++ b/fs/ntfs3/file.c
-@@ -486,10 +486,10 @@ static int ntfs_truncate(struct inode *inode, loff_t new_size)
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 11f59dd06a74..828c29306565 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -1102,7 +1102,7 @@ static int iotlb_translate(const struct vringh *vrh,
+ 	struct vhost_iotlb_map *map;
+ 	struct vhost_iotlb *iotlb = vrh->iotlb;
+ 	int ret = 0;
+-	u64 s = 0;
++	u64 s = 0, last = addr + len - 1;
  
- 	new_valid = ntfs_up_block(sb, min_t(u64, ni->i_valid, new_size));
+ 	spin_lock(vrh->iotlb_lock);
  
--	ni_lock(ni);
--
- 	truncate_setsize(inode, new_size);
+@@ -1114,8 +1114,7 @@ static int iotlb_translate(const struct vringh *vrh,
+ 			break;
+ 		}
  
-+	ni_lock(ni);
-+
- 	down_write(&ni->file.run_lock);
- 	err = attr_set_size(ni, ATTR_DATA, NULL, 0, &ni->file.run, new_size,
- 			    &new_valid, ni->mi.sbi->options->prealloc, NULL);
+-		map = vhost_iotlb_itree_first(iotlb, addr,
+-					      addr + len - 1);
++		map = vhost_iotlb_itree_first(iotlb, addr, last);
+ 		if (!map || map->start > addr) {
+ 			ret = -EINVAL;
+ 			break;
 -- 
 2.35.1
 
