@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED9FB664AB4
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:35:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F4D66497A
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:22:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235340AbjAJSfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:35:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46606 "EHLO
+        id S239183AbjAJSWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:22:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239119AbjAJSeR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:34:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9FCBA4C46
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:03 -0800 (PST)
+        with ESMTP id S239213AbjAJSVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:21:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B66564E6
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45D0661866
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EAEBC433EF;
-        Tue, 10 Jan 2023 18:30:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 165BE6182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1052CC433F1;
+        Tue, 10 Jan 2023 18:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375402;
-        bh=RDlG89BbPXv1Aj8W02aAUx2HNRoExrRTQB546UcaMq4=;
+        s=korg; t=1673374754;
+        bh=Aw66NbHdR3tzqai8la13Xdy3HPRRFqBMPg1ZLoBnsdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I4FAtKcvoeVkuykNYBz+mbrZ/hzRzCZ9v+Dgl2ANKHU5QC9dJMzR3CACW0vQPolp5
-         QY7+Yd8IouuZz2ZeHTDiQYoEHlmVc687gTinkF0Mxsp3iC7UeAbueTqeWPZac/BEb1
-         UqCTh5PcCbGRxs005agGYKl6fyZ7zX4q+PWSQA4w=
+        b=YmGGi79X28nn5NnwItIKsE6/SIl5alTnLQco25ji41cC2gy1Wv0kq2bYuzGGYXYrK
+         W7iFz2J1uCjIJMsZLb1siVtdErFtriMOn0NZkDFuSnIoq2qI6F6G7qVg0uKnysB5Sa
+         jV8Xjc+lpR24JPKDu0o9fySmfkfxyZrGye87WE1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 178/290] phy: qcom-qmp-combo: fix out-of-bounds clock access
+        patches@lists.linux.dev, "YoungJun.park" <her0gyugyu@gmail.com>,
+        David Gow <davidgow@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 122/159] kunit: alloc_string_stream_fragment error handling bug fix
 Date:   Tue, 10 Jan 2023 19:04:30 +0100
-Message-Id: <20230110180038.054170887@linuxfoundation.org>
+Message-Id: <20230110180022.216965718@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8a5b59c5fc75c99ba17e3eb1a8f580d8d172b28 ]
+From: YoungJun.park <her0gyugyu@gmail.com>
 
-The SM8250 only uses three clocks but the DP configuration erroneously
-described four clocks.
+[ Upstream commit 93ef83050e597634d2c7dc838a28caf5137b9404 ]
 
-In case the DP part of the PHY is initialised before the USB part, this
-would lead to uninitialised memory beyond the bulk-clocks array to be
-treated as a clock pointer as the clocks are requested based on the USB
-configuration.
+When it fails to allocate fragment, it does not free and return error.
+And check the pointer inappropriately.
 
-Fixes: aff188feb5e1 ("phy: qcom-qmp: add support for sm8250-usb3-dp phy")
-Cc: stable@vger.kernel.org	# 5.13
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221114081346.5116-2-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixed merge conflicts with
+commit 618887768bb7 ("kunit: update NULL vs IS_ERR() tests")
+Shuah Khan <skhan@linuxfoundation.org>
+
+Signed-off-by: YoungJun.park <her0gyugyu@gmail.com>
+Reviewed-by: David Gow <davidgow@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/kunit/string-stream.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
-index 817298d8b0e3..a9687e040960 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-@@ -3805,8 +3805,8 @@ static const struct qmp_phy_cfg sm8250_dpphy_cfg = {
- 	.serdes_tbl_hbr3	= qmp_v4_dp_serdes_tbl_hbr3,
- 	.serdes_tbl_hbr3_num	= ARRAY_SIZE(qmp_v4_dp_serdes_tbl_hbr3),
+diff --git a/lib/kunit/string-stream.c b/lib/kunit/string-stream.c
+index a608746020a9..7aeabe1a3dc5 100644
+--- a/lib/kunit/string-stream.c
++++ b/lib/kunit/string-stream.c
+@@ -23,8 +23,10 @@ static struct string_stream_fragment *alloc_string_stream_fragment(
+ 		return ERR_PTR(-ENOMEM);
  
--	.clk_list		= qmp_v4_phy_clk_l,
--	.num_clks		= ARRAY_SIZE(qmp_v4_phy_clk_l),
-+	.clk_list		= qmp_v4_sm8250_usbphy_clk_l,
-+	.num_clks		= ARRAY_SIZE(qmp_v4_sm8250_usbphy_clk_l),
- 	.reset_list		= msm8996_usb3phy_reset_l,
- 	.num_resets		= ARRAY_SIZE(msm8996_usb3phy_reset_l),
- 	.vreg_list		= qmp_phy_vreg_l,
+ 	frag->fragment = kunit_kmalloc(test, len, gfp);
+-	if (!frag->fragment)
++	if (!frag->fragment) {
++		kunit_kfree(test, frag);
+ 		return ERR_PTR(-ENOMEM);
++	}
+ 
+ 	return frag;
+ }
 -- 
 2.35.1
 
