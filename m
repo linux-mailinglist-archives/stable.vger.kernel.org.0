@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE14A664838
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:10:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08F6D6649F2
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:28:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238900AbjAJSKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:10:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48952 "EHLO
+        id S234244AbjAJS2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:28:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238932AbjAJSJ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:09:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263F68B536
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:06 -0800 (PST)
+        with ESMTP id S239104AbjAJS1u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:27:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 435038F2A8
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:22:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 340E761870
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E9D8C433F0;
-        Tue, 10 Jan 2023 18:07:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0FA6B818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 437FEC433F0;
+        Tue, 10 Jan 2023 18:22:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374025;
-        bh=TEwRPOme9qr1Ipp97vYKB26UQbuz/4AoMcaQrUeTy5w=;
+        s=korg; t=1673374974;
+        bh=AhlfT/ar6KkfA72yOOL2q9tadrb57H/GbX+37Aq1Rag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YgIjrCAjwMKOdsBaUaLWtyP0rZc4pFvFcROV3SdJFWZ7IKl8turJmob7TZGOQlzv6
-         68LCOUNFh08kCgT2k6xnwGfhotrab2cNoB17zEtLHGt3oxvPKC8X8H7uEyt1ppuefF
-         jEx8mOtOZZvnil8tXl+HuPsaz8mYmpL/+fdmog7o=
+        b=rSuubFN8ItejuT6uW2IOfEiDZaci1lL33vD53+g1Aduir0z81l233jY+85D7YIMfE
+         1/NJ5WgQiWgK7ta5K9seCpWicXiEohdGaHmjTfE5yNFOmldyJBSlTcAFRcWk7RVVmF
+         1a2+cGPIJfDLAZKQrBV9eajNDulPM0cvJvCZj0EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 017/148] netfilter: nf_tables: add function to create set stateful expressions
+Subject: [PATCH 5.15 029/290] fs/ntfs3: Delete duplicate condition in ntfs_read_mft()
 Date:   Tue, 10 Jan 2023 19:02:01 +0100
-Message-Id: <20230110180017.741663879@linuxfoundation.org>
+Message-Id: <20230110180032.599765351@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,183 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a8fe4154fa5a1bae590b243ed60f871e5a5e1378 ]
+[ Upstream commit 658015167a8432b88f5d032e9d85d8fd50e5bf2c ]
 
-Add a helper function to allocate and initialize the stateful expressions
-that are defined in a set.
+There were two patches which addressed the same bug and added the same
+condition:
 
-This patch allows to reuse this code from the set update path, to check
-that type of the update matches the existing set in the kernel.
+commit 6db620863f85 ("fs/ntfs3: Validate data run offset")
+commit 887bfc546097 ("fs/ntfs3: Fix slab-out-of-bounds read in run_unpack")
 
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Stable-dep-of: f6594c372afd ("netfilter: nf_tables: perform type checking for existing sets")
+Delete one condition.
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 106 ++++++++++++++++++++++------------
- 1 file changed, 68 insertions(+), 38 deletions(-)
+ fs/ntfs3/inode.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index eb6a2e09ec7b..1659b2575c05 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -4340,6 +4340,59 @@ static int nf_tables_set_desc_parse(struct nft_set_desc *desc,
- 	return err;
- }
+diff --git a/fs/ntfs3/inode.c b/fs/ntfs3/inode.c
+index 00fd368e7b4a..ed640e4e3fac 100644
+--- a/fs/ntfs3/inode.c
++++ b/fs/ntfs3/inode.c
+@@ -374,12 +374,6 @@ static struct inode *ntfs_read_mft(struct inode *inode,
  
-+static int nft_set_expr_alloc(struct nft_ctx *ctx, struct nft_set *set,
-+			      const struct nlattr * const *nla,
-+			      struct nft_expr **exprs, int *num_exprs,
-+			      u32 flags)
-+{
-+	struct nft_expr *expr;
-+	int err, i;
-+
-+	if (nla[NFTA_SET_EXPR]) {
-+		expr = nft_set_elem_expr_alloc(ctx, set, nla[NFTA_SET_EXPR]);
-+		if (IS_ERR(expr)) {
-+			err = PTR_ERR(expr);
-+			goto err_set_expr_alloc;
-+		}
-+		exprs[0] = expr;
-+		(*num_exprs)++;
-+	} else if (nla[NFTA_SET_EXPRESSIONS]) {
-+		struct nlattr *tmp;
-+		int left;
-+
-+		if (!(flags & NFT_SET_EXPR)) {
-+			err = -EINVAL;
-+			goto err_set_expr_alloc;
-+		}
-+		i = 0;
-+		nla_for_each_nested(tmp, nla[NFTA_SET_EXPRESSIONS], left) {
-+			if (i == NFT_SET_EXPR_MAX) {
-+				err = -E2BIG;
-+				goto err_set_expr_alloc;
-+			}
-+			if (nla_type(tmp) != NFTA_LIST_ELEM) {
-+				err = -EINVAL;
-+				goto err_set_expr_alloc;
-+			}
-+			expr = nft_set_elem_expr_alloc(ctx, set, tmp);
-+			if (IS_ERR(expr)) {
-+				err = PTR_ERR(expr);
-+				goto err_set_expr_alloc;
-+			}
-+			exprs[i++] = expr;
-+			(*num_exprs)++;
-+		}
-+	}
-+
-+	return 0;
-+
-+err_set_expr_alloc:
-+	for (i = 0; i < *num_exprs; i++)
-+		nft_expr_destroy(ctx, exprs[i]);
-+
-+	return err;
-+}
-+
- static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 			    const struct nlattr * const nla[])
- {
-@@ -4347,7 +4400,6 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 	u8 genmask = nft_genmask_next(info->net);
- 	u8 family = info->nfmsg->nfgen_family;
- 	const struct nft_set_ops *ops;
--	struct nft_expr *expr = NULL;
- 	struct net *net = info->net;
- 	struct nft_set_desc desc;
- 	struct nft_table *table;
-@@ -4355,6 +4407,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 	struct nft_set *set;
- 	struct nft_ctx ctx;
- 	size_t alloc_size;
-+	int num_exprs = 0;
- 	char *name;
- 	int err, i;
- 	u16 udlen;
-@@ -4481,6 +4534,8 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 			return PTR_ERR(set);
- 		}
- 	} else {
-+		struct nft_expr *exprs[NFT_SET_EXPR_MAX] = {};
-+
- 		if (info->nlh->nlmsg_flags & NLM_F_EXCL) {
- 			NL_SET_BAD_ATTR(extack, nla[NFTA_SET_NAME]);
- 			return -EEXIST;
-@@ -4488,6 +4543,13 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 		if (info->nlh->nlmsg_flags & NLM_F_REPLACE)
- 			return -EOPNOTSUPP;
+ 	t64 = le64_to_cpu(attr->nres.svcn);
  
-+		err = nft_set_expr_alloc(&ctx, set, nla, exprs, &num_exprs, flags);
-+		if (err < 0)
-+			return err;
-+
-+		for (i = 0; i < num_exprs; i++)
-+			nft_expr_destroy(&ctx, exprs[i]);
-+
- 		return 0;
- 	}
- 
-@@ -4555,43 +4617,11 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 	if (err < 0)
- 		goto err_set_init;
- 
--	if (nla[NFTA_SET_EXPR]) {
--		expr = nft_set_elem_expr_alloc(&ctx, set, nla[NFTA_SET_EXPR]);
--		if (IS_ERR(expr)) {
--			err = PTR_ERR(expr);
--			goto err_set_expr_alloc;
--		}
--		set->exprs[0] = expr;
--		set->num_exprs++;
--	} else if (nla[NFTA_SET_EXPRESSIONS]) {
--		struct nft_expr *expr;
--		struct nlattr *tmp;
--		int left;
--
--		if (!(flags & NFT_SET_EXPR)) {
--			err = -EINVAL;
--			goto err_set_expr_alloc;
--		}
--		i = 0;
--		nla_for_each_nested(tmp, nla[NFTA_SET_EXPRESSIONS], left) {
--			if (i == NFT_SET_EXPR_MAX) {
--				err = -E2BIG;
--				goto err_set_expr_alloc;
--			}
--			if (nla_type(tmp) != NFTA_LIST_ELEM) {
--				err = -EINVAL;
--				goto err_set_expr_alloc;
--			}
--			expr = nft_set_elem_expr_alloc(&ctx, set, tmp);
--			if (IS_ERR(expr)) {
--				err = PTR_ERR(expr);
--				goto err_set_expr_alloc;
--			}
--			set->exprs[i++] = expr;
--			set->num_exprs++;
--		}
+-	/* offset to packed runs is out-of-bounds */
+-	if (roff > asize) {
+-		err = -EINVAL;
+-		goto out;
 -	}
-+	err = nft_set_expr_alloc(&ctx, set, nla, set->exprs, &num_exprs, flags);
-+	if (err < 0)
-+		goto err_set_destroy;
- 
-+	set->num_exprs = num_exprs;
- 	set->handle = nf_tables_alloc_handle(table);
- 
- 	err = nft_trans_set_add(&ctx, NFT_MSG_NEWSET, set);
-@@ -4605,7 +4635,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- err_set_expr_alloc:
- 	for (i = 0; i < set->num_exprs; i++)
- 		nft_expr_destroy(&ctx, set->exprs[i]);
 -
-+err_set_destroy:
- 	ops->destroy(set);
- err_set_init:
- 	kfree(set->name);
+ 	err = run_unpack_ex(run, sbi, ino, t64, le64_to_cpu(attr->nres.evcn),
+ 			    t64, Add2Ptr(attr, roff), asize - roff);
+ 	if (err < 0)
 -- 
 2.35.1
 
