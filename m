@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FA4B664A29
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:31:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C4CD664915
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239226AbjAJSa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:30:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43698 "EHLO
+        id S239009AbjAJSRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:17:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239352AbjAJSaJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78260A703D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:50 -0800 (PST)
+        with ESMTP id S239085AbjAJSQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:45 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FCC46D522
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1289F6187D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D58C433D2;
-        Tue, 10 Jan 2023 18:24:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6C9CDCE18D4
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:15:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C028C433D2;
+        Tue, 10 Jan 2023 18:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375089;
-        bh=sVh5f78YFyFM5ve39ol/U1lRIpkjMfBJAHGHZ4yXHTs=;
+        s=korg; t=1673374513;
+        bh=/CFWjlEv1k5sF1WtWPeQYPJ2W/TyBqJHil37cYtaW3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vbk8PTOxd5GYU/cjhYwDL7gcSurdJPDWex7eKtxPmFOqWBVTXu1e6nZnjftwE1ibH
-         E/mTtRTcdLSE9F0I/OtMc1229Zmrl4tqZywXBa61YiD5AGTcznZNsbWSuYUq8Nh073
-         wDrFSUIPEVztdzjYYDsyn3mlKHlxAhgotV/OeIqc=
+        b=m+vbW9THMToeSjM7iQuCjIIQ+mDeYNP9nja2hEhM7RAWiHNw9tRtii9TLx4galrkb
+         1JOK4A8JnwpdgjTlrbrHupKUtA/n46UegWDzTaLl6m0uhK9yOLwmlmuZ4c1Lk4k8vv
+         Ed6Y1D56QhmTBdvaDci2c+S2X01t0CEq/T5adGHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Philipp Jungkamp <p.jungkamp@gmx.net>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 075/290] ALSA: patch_realtek: Fix Dell Inspiron Plus 16
+        patches@lists.linux.dev,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Robin Cowley <robin.cowley@thehutgroup.com>,
+        Chandan Kumar Rout <chandanx.rout@intel.com>
+Subject: [PATCH 6.1 019/159] ice: xsk: do not use xdp_return_frame() on tx_buf->raw_buf
 Date:   Tue, 10 Jan 2023 19:02:47 +0100
-Message-Id: <20230110180034.225892754@linuxfoundation.org>
+Message-Id: <20230110180018.922532324@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,92 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Jungkamp <p.jungkamp@gmx.net>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 2912cdda734d9136615ed05636d9fcbca2a7a3c5 ]
+[ Upstream commit 53fc61be273a1e76dd5e356f91805dce00ff2d2c ]
 
-The Dell Inspiron Plus 16, in both laptop and 2in1 form factor, has top
-speakers connected on NID 0x17, which the codec reports as unconnected.
-These speakers should be connected to the DAC on NID 0x03.
+Previously ice XDP xmit routine was changed in a way that it avoids
+xdp_buff->xdp_frame conversion as it is simply not needed for handling
+XDP_TX action and what is more it saves us CPU cycles. This routine is
+re-used on ZC driver to handle XDP_TX action.
 
-Signed-off-by: Philipp Jungkamp <p.jungkamp@gmx.net>
-Link: https://lore.kernel.org/r/20221205163713.7476-1-p.jungkamp@gmx.net
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Stable-dep-of: a4517c4f3423 ("ALSA: hda/realtek: Apply dual codec fixup for Dell Latitude laptops")
+Although for XDP_TX on Rx ZC xdp_buff that comes from xsk_buff_pool is
+converted to xdp_frame, xdp_frame itself is not stored inside
+ice_tx_buf, we only store raw data pointer. Casting this pointer to
+xdp_frame and calling against it xdp_return_frame in
+ice_clean_xdp_tx_buf() results in undefined behavior.
+
+To fix this, simply call page_frag_free() on tx_buf->raw_buf.
+Later intention is to remove the buff->frame conversion in order to
+simplify the codebase and improve XDP_TX performance on ZC.
+
+Fixes: 126cdfe1007a ("ice: xsk: Improve AF_XDP ZC Tx and use batching API")
+Reported-and-tested-by: Robin Cowley <robin.cowley@thehutgroup.com>
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Piotr Raczynski <piotr.raczynski@.intel.com>
+Link: https://lore.kernel.org/r/20221220175448.693999-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 37 +++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_xsk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 79c65da1b4ee..f74c49987f1a 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6709,6 +6709,34 @@ static void alc256_fixup_mic_no_presence_and_resume(struct hda_codec *codec,
- 	}
- }
- 
-+static void alc295_fixup_dell_inspiron_top_speakers(struct hda_codec *codec,
-+					  const struct hda_fixup *fix, int action)
-+{
-+	static const struct hda_pintbl pincfgs[] = {
-+		{ 0x14, 0x90170151 },
-+		{ 0x17, 0x90170150 },
-+		{ }
-+	};
-+	static const hda_nid_t conn[] = { 0x02, 0x03 };
-+	static const hda_nid_t preferred_pairs[] = {
-+		0x14, 0x02,
-+		0x17, 0x03,
-+		0x21, 0x02,
-+		0
-+	};
-+	struct alc_spec *spec = codec->spec;
-+
-+	alc_fixup_no_shutup(codec, fix, action);
-+
-+	switch (action) {
-+	case HDA_FIXUP_ACT_PRE_PROBE:
-+		snd_hda_apply_pincfgs(codec, pincfgs);
-+		snd_hda_override_conn_list(codec, 0x17, ARRAY_SIZE(conn), conn);
-+		spec->gen.preferred_dacs = preferred_pairs;
-+		break;
-+	}
-+}
-+
- enum {
- 	ALC269_FIXUP_GPIO2,
- 	ALC269_FIXUP_SONY_VAIO,
-@@ -6940,6 +6968,7 @@ enum {
- 	ALC285_FIXUP_LEGION_Y9000X_SPEAKERS,
- 	ALC285_FIXUP_LEGION_Y9000X_AUTOMUTE,
- 	ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED,
-+	ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS,
- };
- 
- /* A special fixup for Lenovo C940 and Yoga Duet 7;
-@@ -8766,6 +8795,12 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC285_FIXUP_HP_MUTE_LED,
- 	},
-+	[ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc295_fixup_dell_inspiron_top_speakers,
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8865,6 +8900,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1028, 0x0a9e, "Dell Latitude 5430", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x0b19, "Dell XPS 15 9520", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x0b1a, "Dell Precision 5570", ALC289_FIXUP_DUAL_SPK),
-+	SND_PCI_QUIRK(0x1028, 0x0b37, "Dell Inspiron 16 Plus 7620 2-in-1", ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS),
-+	SND_PCI_QUIRK(0x1028, 0x0b71, "Dell Inspiron 16 Plus 7620", ALC295_FIXUP_DELL_INSPIRON_TOP_SPEAKERS),
- 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
+index 056c904b83cc..79fa65d1cf20 100644
+--- a/drivers/net/ethernet/intel/ice/ice_xsk.c
++++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
+@@ -772,7 +772,7 @@ int ice_clean_rx_irq_zc(struct ice_rx_ring *rx_ring, int budget)
+ static void
+ ice_clean_xdp_tx_buf(struct ice_tx_ring *xdp_ring, struct ice_tx_buf *tx_buf)
+ {
+-	xdp_return_frame((struct xdp_frame *)tx_buf->raw_buf);
++	page_frag_free(tx_buf->raw_buf);
+ 	xdp_ring->xdp_tx_active--;
+ 	dma_unmap_single(xdp_ring->dev, dma_unmap_addr(tx_buf, dma),
+ 			 dma_unmap_len(tx_buf, len), DMA_TO_DEVICE);
 -- 
 2.35.1
 
