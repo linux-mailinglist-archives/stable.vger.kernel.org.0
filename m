@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BC3664AA2
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B03AB66499A
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:23:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239554AbjAJSeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:34:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46856 "EHLO
+        id S239125AbjAJSXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239363AbjAJScs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:48 -0500
+        with ESMTP id S239256AbjAJSWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:25 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B851D0C9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:29:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2219C9151A
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AD6CCCE18E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:29:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 954A0C433F1;
-        Tue, 10 Jan 2023 18:29:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7C79CCE18DD
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57098C433D2;
+        Tue, 10 Jan 2023 18:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375358;
-        bh=PWqLdHypSuZXaC62R7TbGePyOqIlp+jAVHI0tFtupG0=;
+        s=korg; t=1673374792;
+        bh=EnGJh14adUcW7YplYDIsXkNcYIGezlUAC7fk2wc/m8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K/YCYEtMCDqdJMOproaMt59Z0qjusZf0gQHu3ZlkUovsZ4EzuLr/C/Nf0Df+b6lUP
-         omUL90Jno/9ITBaWY/MdimL2UwfTtes7QENdFusjk1MwP05881dHfdz68xaYa8awfD
-         O2eDdgxVyihVG9u50NnyEHy5JjFprTTyF8M4fOsU=
+        b=LU7Uzyc4ACWtAOZovlHefgUf9UiNf1QAmwsi8grrhXEOrWGIh/lUBPLoZqmr4DnKQ
+         OH6WkEycByvaXMTRTtFrXo2mio+9hemtGXbEdWxYvrVX1Bj6JnHibNzhX7TMKoQXFr
+         e+8zcpg0InOxxd6TnZrsbgaVgY/aAeiG5ualrER8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.15 162/290] ext4: allocate extended attribute value in vmalloc area
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 106/159] udf: Fix extension of the last extent in the file
 Date:   Tue, 10 Jan 2023 19:04:14 +0100
-Message-Id: <20230110180037.478604546@linuxfoundation.org>
+Message-Id: <20230110180021.663642769@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-commit cc12a6f25e07ed05d5825a1664b67a970842b2ca upstream.
+[ Upstream commit 83c7423d1eb6806d13c521d1002cc1a012111719 ]
 
-Now, extended attribute value maximum length is 64K. The memory
-requested here does not need continuous physical addresses, so it is
-appropriate to use kvmalloc to request memory. At the same time, it
-can also cope with the situation that the extended attribute will
-become longer in the future.
+When extending the last extent in the file within the last block, we
+wrongly computed the length of the last extent. This is mostly a
+cosmetical problem since the extent does not contain any data and the
+length will be fixed up by following operations but still.
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221208023233.1231330-3-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1f3868f06855 ("udf: Fix extending file within last block")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/udf/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2549,7 +2549,7 @@ static int ext4_xattr_move_to_block(hand
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index f713d108f21d..e92a16435a29 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -600,7 +600,7 @@ static void udf_do_extend_final_block(struct inode *inode,
+ 	 */
+ 	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
+ 		return;
+-	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
++	added_bytes = new_elen - (last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+ 	last_ext->extLength += added_bytes;
+ 	UDF_I(inode)->i_lenExtents += added_bytes;
  
- 	is = kzalloc(sizeof(struct ext4_xattr_ibody_find), GFP_NOFS);
- 	bs = kzalloc(sizeof(struct ext4_xattr_block_find), GFP_NOFS);
--	buffer = kmalloc(value_size, GFP_NOFS);
-+	buffer = kvmalloc(value_size, GFP_NOFS);
- 	b_entry_name = kmalloc(entry->e_name_len + 1, GFP_NOFS);
- 	if (!is || !bs || !buffer || !b_entry_name) {
- 		error = -ENOMEM;
-@@ -2601,7 +2601,7 @@ static int ext4_xattr_move_to_block(hand
- 	error = 0;
- out:
- 	kfree(b_entry_name);
--	kfree(buffer);
-+	kvfree(buffer);
- 	if (is)
- 		brelse(is->iloc.bh);
- 	if (bs)
+-- 
+2.35.1
+
 
 
