@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AECBE66483A
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 151C96649CD
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:25:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239117AbjAJSKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:10:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48974 "EHLO
+        id S233815AbjAJSZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:25:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234635AbjAJSJm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:09:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B33BC8CD1F
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:11 -0800 (PST)
+        with ESMTP id S238705AbjAJSZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:25:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8290397491
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9582E6182C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC51C433D2;
-        Tue, 10 Jan 2023 18:07:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA4EEB81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E370AC433F0;
+        Tue, 10 Jan 2023 18:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374031;
-        bh=P5RnGk+PCodDtv0xhmpQ0M+NtPgVtGzSb5j6g2zOY3s=;
+        s=korg; t=1673374915;
+        bh=kotq1IpxW+OQPhpHgydlHYOhpXWG6YhF9aPJ0ryePDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5zXtaoOxDCkEvhagEqW50xUDko1D0Cxl8xGrGnnhyb2drkeChOd2dwsZUrSxHGzP
-         RG6qSAh8tSwEyzdUgdgOzl93gKkLiHVouqxfj6OwJSus9d10O4CXQ+wuqHVcITrl7I
-         EmD2DvB1wLi/fSXSKdK3lIxwjuQiacxVEMYYfoJQ=
+        b=Vp89iiG+RRVIfUMGTiTi0wX9iaE4fMtoxCYLN6TN7quW68QvdYc7h+1o+MBJENOzu
+         gh/0cJTCuywmRwIVG97rOivghPiW+4F0UUt5o1noOyV3LiEY9KDYOGdTKvYtY/kA3Z
+         eTfWHHXwf/2L+zpbkp6oFBNRK39x0VMLEWg0MRms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 6.0 005/148] usb: dwc3: gadget: Ignore End Transfer delay on teardown
+        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 017/290] fs/ntfs3: Validate data run offset
 Date:   Tue, 10 Jan 2023 19:01:49 +0100
-Message-Id: <20230110180017.339439834@linuxfoundation.org>
+Message-Id: <20230110180032.194721589@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,56 +53,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Edward Lo <edward.lo@ambergroup.io>
 
-commit c4e3ef5685393c5051b52cf1e94b8891d49793ab upstream.
+[ Upstream commit 6db620863f8528ed9a9aa5ad323b26554a17881d ]
 
-If we delay sending End Transfer for Setup TRB to be prepared, we need
-to check if the End Transfer was in preparation for a driver
-teardown/soft-disconnect. In those cases, just send the End Transfer
-command without delay.
+This adds sanity checks for data run offset. We should make sure data
+run offset is legit before trying to unpack them, otherwise we may
+encounter use-after-free or some unexpected memory access behaviors.
 
-In the case of soft-disconnect, there's a very small chance the command
-may not go through immediately. But should it happen, the Setup TRB will
-be prepared during the polling of the controller halted state, allowing
-the command to go through then.
+[   82.940342] BUG: KASAN: use-after-free in run_unpack+0x2e3/0x570
+[   82.941180] Read of size 1 at addr ffff888008a8487f by task mount/240
+[   82.941670]
+[   82.942069] CPU: 0 PID: 240 Comm: mount Not tainted 5.19.0+ #15
+[   82.942482] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[   82.943720] Call Trace:
+[   82.944204]  <TASK>
+[   82.944471]  dump_stack_lvl+0x49/0x63
+[   82.944908]  print_report.cold+0xf5/0x67b
+[   82.945141]  ? __wait_on_bit+0x106/0x120
+[   82.945750]  ? run_unpack+0x2e3/0x570
+[   82.946626]  kasan_report+0xa7/0x120
+[   82.947046]  ? run_unpack+0x2e3/0x570
+[   82.947280]  __asan_load1+0x51/0x60
+[   82.947483]  run_unpack+0x2e3/0x570
+[   82.947709]  ? memcpy+0x4e/0x70
+[   82.947927]  ? run_pack+0x7a0/0x7a0
+[   82.948158]  run_unpack_ex+0xad/0x3f0
+[   82.948399]  ? mi_enum_attr+0x14a/0x200
+[   82.948717]  ? run_unpack+0x570/0x570
+[   82.949072]  ? ni_enum_attr_ex+0x1b2/0x1c0
+[   82.949332]  ? ni_fname_type.part.0+0xd0/0xd0
+[   82.949611]  ? mi_read+0x262/0x2c0
+[   82.949970]  ? ntfs_cmp_names_cpu+0x125/0x180
+[   82.950249]  ntfs_iget5+0x632/0x1870
+[   82.950621]  ? ntfs_get_block_bmap+0x70/0x70
+[   82.951192]  ? evict+0x223/0x280
+[   82.951525]  ? iput.part.0+0x286/0x320
+[   82.951969]  ntfs_fill_super+0x1321/0x1e20
+[   82.952436]  ? put_ntfs+0x1d0/0x1d0
+[   82.952822]  ? vsprintf+0x20/0x20
+[   82.953188]  ? mutex_unlock+0x81/0xd0
+[   82.953379]  ? set_blocksize+0x95/0x150
+[   82.954001]  get_tree_bdev+0x232/0x370
+[   82.954438]  ? put_ntfs+0x1d0/0x1d0
+[   82.954700]  ntfs_fs_get_tree+0x15/0x20
+[   82.955049]  vfs_get_tree+0x4c/0x130
+[   82.955292]  path_mount+0x645/0xfd0
+[   82.955615]  ? putname+0x80/0xa0
+[   82.955955]  ? finish_automount+0x2e0/0x2e0
+[   82.956310]  ? kmem_cache_free+0x110/0x390
+[   82.956723]  ? putname+0x80/0xa0
+[   82.957023]  do_mount+0xd6/0xf0
+[   82.957411]  ? path_mount+0xfd0/0xfd0
+[   82.957638]  ? __kasan_check_write+0x14/0x20
+[   82.957948]  __x64_sys_mount+0xca/0x110
+[   82.958310]  do_syscall_64+0x3b/0x90
+[   82.958719]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[   82.959341] RIP: 0033:0x7fd0d1ce948a
+[   82.960193] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
+[   82.961532] RSP: 002b:00007ffe59ff69a8 EFLAGS: 00000202 ORIG_RAX: 00000000000000a5
+[   82.962527] RAX: ffffffffffffffda RBX: 0000564dcc107060 RCX: 00007fd0d1ce948a
+[   82.963266] RDX: 0000564dcc107260 RSI: 0000564dcc1072e0 RDI: 0000564dcc10fce0
+[   82.963686] RBP: 0000000000000000 R08: 0000564dcc107280 R09: 0000000000000020
+[   82.964272] R10: 00000000c0ed0000 R11: 0000000000000202 R12: 0000564dcc10fce0
+[   82.964785] R13: 0000564dcc107260 R14: 0000000000000000 R15: 00000000ffffffff
 
-In the case of disabling endpoint due to reconfiguration (e.g.
-set_interface(alt-setting) or usb reset), then it's driven by the host.
-Typically the host wouldn't immediately cancel the control request and
-send another control transfer to trigger the End Transfer command
-timeout.
-
-Fixes: 4db0fbb60136 ("usb: dwc3: gadget: Don't delay End Transfer on delayed_status")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/f1617a323e190b9cc408fb8b65456e32b5814113.1670546756.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/ntfs3/attrib.c   | 13 +++++++++++++
+ fs/ntfs3/attrlist.c |  5 +++++
+ fs/ntfs3/frecord.c  | 14 ++++++++++++++
+ fs/ntfs3/fslog.c    |  9 +++++++++
+ fs/ntfs3/inode.c    |  5 +++++
+ 5 files changed, 46 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1702,6 +1702,7 @@ static int __dwc3_stop_active_transfer(s
- 	else if (!ret)
- 		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
+diff --git a/fs/ntfs3/attrib.c b/fs/ntfs3/attrib.c
+index e8c00dda42ad..43e85c493c05 100644
+--- a/fs/ntfs3/attrib.c
++++ b/fs/ntfs3/attrib.c
+@@ -101,6 +101,10 @@ int attr_load_runs(struct ATTRIB *attr, struct ntfs_inode *ni,
  
-+	dep->flags &= ~DWC3_EP_DELAY_STOP;
- 	return ret;
- }
- 
-@@ -3701,8 +3702,10 @@ void dwc3_stop_active_transfer(struct dw
- 	if (dep->number <= 1 && dwc->ep0state != EP0_DATA_PHASE)
- 		return;
- 
-+	if (interrupt && (dep->flags & DWC3_EP_DELAY_STOP))
-+		return;
+ 	asize = le32_to_cpu(attr->size);
+ 	run_off = le16_to_cpu(attr->nres.run_off);
 +
- 	if (!(dep->flags & DWC3_EP_TRANSFER_STARTED) ||
--	    (dep->flags & DWC3_EP_DELAY_STOP) ||
- 	    (dep->flags & DWC3_EP_END_TRANSFER_PENDING))
- 		return;
++	if (run_off > asize)
++		return -EINVAL;
++
+ 	err = run_unpack_ex(run, ni->mi.sbi, ni->mi.rno, svcn, evcn,
+ 			    vcn ? *vcn : svcn, Add2Ptr(attr, run_off),
+ 			    asize - run_off);
+@@ -1157,6 +1161,10 @@ int attr_load_runs_vcn(struct ntfs_inode *ni, enum ATTR_TYPE type,
+ 	}
  
+ 	ro = le16_to_cpu(attr->nres.run_off);
++
++	if (ro > le32_to_cpu(attr->size))
++		return -EINVAL;
++
+ 	err = run_unpack_ex(run, ni->mi.sbi, ni->mi.rno, svcn, evcn, svcn,
+ 			    Add2Ptr(attr, ro), le32_to_cpu(attr->size) - ro);
+ 	if (err < 0)
+@@ -1832,6 +1840,11 @@ int attr_collapse_range(struct ntfs_inode *ni, u64 vbo, u64 bytes)
+ 			u16 le_sz;
+ 			u16 roff = le16_to_cpu(attr->nres.run_off);
+ 
++			if (roff > le32_to_cpu(attr->size)) {
++				err = -EINVAL;
++				goto out;
++			}
++
+ 			run_unpack_ex(RUN_DEALLOCATE, sbi, ni->mi.rno, svcn,
+ 				      evcn1 - 1, svcn, Add2Ptr(attr, roff),
+ 				      le32_to_cpu(attr->size) - roff);
+diff --git a/fs/ntfs3/attrlist.c b/fs/ntfs3/attrlist.c
+index bad6d8a849a2..c0c6bcbc8c05 100644
+--- a/fs/ntfs3/attrlist.c
++++ b/fs/ntfs3/attrlist.c
+@@ -68,6 +68,11 @@ int ntfs_load_attr_list(struct ntfs_inode *ni, struct ATTRIB *attr)
+ 
+ 		run_init(&ni->attr_list.run);
+ 
++		if (run_off > le32_to_cpu(attr->size)) {
++			err = -EINVAL;
++			goto out;
++		}
++
+ 		err = run_unpack_ex(&ni->attr_list.run, ni->mi.sbi, ni->mi.rno,
+ 				    0, le64_to_cpu(attr->nres.evcn), 0,
+ 				    Add2Ptr(attr, run_off),
+diff --git a/fs/ntfs3/frecord.c b/fs/ntfs3/frecord.c
+index 18842998c8fa..cdeb0b51f0ba 100644
+--- a/fs/ntfs3/frecord.c
++++ b/fs/ntfs3/frecord.c
+@@ -567,6 +567,12 @@ static int ni_repack(struct ntfs_inode *ni)
+ 		}
+ 
+ 		roff = le16_to_cpu(attr->nres.run_off);
++
++		if (roff > le32_to_cpu(attr->size)) {
++			err = -EINVAL;
++			break;
++		}
++
+ 		err = run_unpack(&run, sbi, ni->mi.rno, svcn, evcn, svcn,
+ 				 Add2Ptr(attr, roff),
+ 				 le32_to_cpu(attr->size) - roff);
+@@ -1541,6 +1547,9 @@ int ni_delete_all(struct ntfs_inode *ni)
+ 		asize = le32_to_cpu(attr->size);
+ 		roff = le16_to_cpu(attr->nres.run_off);
+ 
++		if (roff > asize)
++			return -EINVAL;
++
+ 		/* run==1 means unpack and deallocate. */
+ 		run_unpack_ex(RUN_DEALLOCATE, sbi, ni->mi.rno, svcn, evcn, svcn,
+ 			      Add2Ptr(attr, roff), asize - roff);
+@@ -2242,6 +2251,11 @@ int ni_decompress_file(struct ntfs_inode *ni)
+ 		asize = le32_to_cpu(attr->size);
+ 		roff = le16_to_cpu(attr->nres.run_off);
+ 
++		if (roff > asize) {
++			err = -EINVAL;
++			goto out;
++		}
++
+ 		/*run==1  Means unpack and deallocate. */
+ 		run_unpack_ex(RUN_DEALLOCATE, sbi, ni->mi.rno, svcn, evcn, svcn,
+ 			      Add2Ptr(attr, roff), asize - roff);
+diff --git a/fs/ntfs3/fslog.c b/fs/ntfs3/fslog.c
+index 614513460b8e..bcdddcd7bc79 100644
+--- a/fs/ntfs3/fslog.c
++++ b/fs/ntfs3/fslog.c
+@@ -2727,6 +2727,9 @@ static inline bool check_attr(const struct MFT_REC *rec,
+ 			return false;
+ 		}
+ 
++		if (run_off > asize)
++			return false;
++
+ 		if (run_unpack(NULL, sbi, 0, svcn, evcn, svcn,
+ 			       Add2Ptr(attr, run_off), asize - run_off) < 0) {
+ 			return false;
+@@ -4769,6 +4772,12 @@ int log_replay(struct ntfs_inode *ni, bool *initialized)
+ 		u16 roff = le16_to_cpu(attr->nres.run_off);
+ 		CLST svcn = le64_to_cpu(attr->nres.svcn);
+ 
++		if (roff > t32) {
++			kfree(oa->attr);
++			oa->attr = NULL;
++			goto fake_attr;
++		}
++
+ 		err = run_unpack(&oa->run0, sbi, inode->i_ino, svcn,
+ 				 le64_to_cpu(attr->nres.evcn), svcn,
+ 				 Add2Ptr(attr, roff), t32 - roff);
+diff --git a/fs/ntfs3/inode.c b/fs/ntfs3/inode.c
+index 64b4a3c29878..83d4c9f42d9c 100644
+--- a/fs/ntfs3/inode.c
++++ b/fs/ntfs3/inode.c
+@@ -364,6 +364,11 @@ static struct inode *ntfs_read_mft(struct inode *inode,
+ attr_unpack_run:
+ 	roff = le16_to_cpu(attr->nres.run_off);
+ 
++	if (roff > asize) {
++		err = -EINVAL;
++		goto out;
++	}
++
+ 	t64 = le64_to_cpu(attr->nres.svcn);
+ 	err = run_unpack_ex(run, sbi, ino, t64, le64_to_cpu(attr->nres.evcn),
+ 			    t64, Add2Ptr(attr, roff), asize - roff);
+-- 
+2.35.1
+
 
 
