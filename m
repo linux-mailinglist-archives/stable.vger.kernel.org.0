@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84627664898
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01FE466491E
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238984AbjAJSMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54290 "EHLO
+        id S239147AbjAJSSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:18:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232917AbjAJSMG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02DCC1581D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:46 -0800 (PST)
+        with ESMTP id S239193AbjAJSR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BAEDD6C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC8DBB81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A2FEC433EF;
-        Tue, 10 Jan 2023 18:10:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 276616183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:15:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17953C433F0;
+        Tue, 10 Jan 2023 18:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374243;
-        bh=OgXuRLzzsJEFs3qmOPhwLSmm0nSXHx05WDwCdh2CwyQ=;
+        s=korg; t=1673374555;
+        bh=wUjPSj0Y21PCsF42h/PRTsbBwKOarE0Iin+YDkUH7tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XdPF33yoDVFf0ZgOILCsO/FU9HDm7TL4+6++xsQXyOZThNspfchPpUMthC1NHL4/K
-         AaeEMujdUTs1pEgWhZVA0mMmCG9X6KsOF8jfEesin+1cCMEBflLcYbHF3V2vWw/Luj
-         H8cgi+PcQ8+jDsi+Xa0tSYVo9U25/Ndjr163zIMQ=
+        b=oZPTPpqEDwKXlQ9AHrepJZiaFluDHi7C4hxBRFCej666pOkIYOL0r49caxZI0fQJs
+         rHBrpIqQv3cTxD79dXZwnoVNFK3OxacRcoCV6yj3ObbzobPnU9Tx7SFpZeEmKH5aFx
+         QUiQBM1ZeffEJ+R81kqDn0e243oeSfC57HUHm50s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Caleb Sander <csander@purestorage.com>,
-        Alok Prasad <palok@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 098/148] qed: allow sleep in qed_mcp_trace_dump()
+Subject: [PATCH 6.1 054/159] net/mlx5: Avoid recovery in probe flows
 Date:   Tue, 10 Jan 2023 19:03:22 +0100
-Message-Id: <20230110180020.297231696@linuxfoundation.org>
+Message-Id: <20230110180020.022355093@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,166 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Caleb Sander <csander@purestorage.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 5401c3e0992860b11fb4b25796e4c4f1921740df ]
+[ Upstream commit 9078e843efec530f279a155f262793c58b0746bd ]
 
-By default, qed_mcp_cmd_and_union() delays 10us at a time in a loop
-that can run 500K times, so calls to qed_mcp_nvm_rd_cmd()
-may block the current thread for over 5s.
-We observed thread scheduling delays over 700ms in production,
-with stacktraces pointing to this code as the culprit.
+Currently, recovery is done without considering whether the device is
+still in probe flow.
+This may lead to recovery before device have finished probed
+successfully. e.g.: while mlx5_init_one() is running. Recovery flow is
+using functionality that is loaded only by mlx5_init_one(), and there
+is no point in running recovery without mlx5_init_one() finished
+successfully.
 
-qed_mcp_trace_dump() is called from ethtool, so sleeping is permitted.
-It already can sleep in qed_mcp_halt(), which calls qed_mcp_cmd().
-Add a "can sleep" parameter to qed_find_nvram_image() and
-qed_nvram_read() so they can sleep during qed_mcp_trace_dump().
-qed_mcp_trace_get_meta_info() and qed_mcp_trace_read_meta(),
-called only by qed_mcp_trace_dump(), allow these functions to sleep.
-I can't tell if the other caller (qed_grc_dump_mcp_hw_dump()) can sleep,
-so keep b_can_sleep set to false when it calls these functions.
+Fix it by waiting for probe flow to finish and checking whether the
+device is probed before trying to perform recovery.
 
-An example stacktrace from a custom warning we added to the kernel
-showing a thread that has not scheduled despite long needing resched:
-[ 2745.362925,17] ------------[ cut here ]------------
-[ 2745.362941,17] WARNING: CPU: 23 PID: 5640 at arch/x86/kernel/irq.c:233 do_IRQ+0x15e/0x1a0()
-[ 2745.362946,17] Thread not rescheduled for 744 ms after irq 99
-[ 2745.362956,17] Modules linked in: ...
-[ 2745.363339,17] CPU: 23 PID: 5640 Comm: lldpd Tainted: P           O    4.4.182+ #202104120910+6d1da174272d.61x
-[ 2745.363343,17] Hardware name: FOXCONN MercuryB/Quicksilver Controller, BIOS H11P1N09 07/08/2020
-[ 2745.363346,17]  0000000000000000 ffff885ec07c3ed8 ffffffff8131eb2f ffff885ec07c3f20
-[ 2745.363358,17]  ffffffff81d14f64 ffff885ec07c3f10 ffffffff81072ac2 ffff88be98ed0000
-[ 2745.363369,17]  0000000000000063 0000000000000174 0000000000000074 0000000000000000
-[ 2745.363379,17] Call Trace:
-[ 2745.363382,17]  <IRQ>  [<ffffffff8131eb2f>] dump_stack+0x8e/0xcf
-[ 2745.363393,17]  [<ffffffff81072ac2>] warn_slowpath_common+0x82/0xc0
-[ 2745.363398,17]  [<ffffffff81072b4c>] warn_slowpath_fmt+0x4c/0x50
-[ 2745.363404,17]  [<ffffffff810d5a8e>] ? rcu_irq_exit+0xae/0xc0
-[ 2745.363408,17]  [<ffffffff817c99fe>] do_IRQ+0x15e/0x1a0
-[ 2745.363413,17]  [<ffffffff817c7ac9>] common_interrupt+0x89/0x89
-[ 2745.363416,17]  <EOI>  [<ffffffff8132aa74>] ? delay_tsc+0x24/0x50
-[ 2745.363425,17]  [<ffffffff8132aa04>] __udelay+0x34/0x40
-[ 2745.363457,17]  [<ffffffffa04d45ff>] qed_mcp_cmd_and_union+0x36f/0x7d0 [qed]
-[ 2745.363473,17]  [<ffffffffa04d5ced>] qed_mcp_nvm_rd_cmd+0x4d/0x90 [qed]
-[ 2745.363490,17]  [<ffffffffa04e1dc7>] qed_mcp_trace_dump+0x4a7/0x630 [qed]
-[ 2745.363504,17]  [<ffffffffa04e2556>] ? qed_fw_asserts_dump+0x1d6/0x1f0 [qed]
-[ 2745.363520,17]  [<ffffffffa04e4ea7>] qed_dbg_mcp_trace_get_dump_buf_size+0x37/0x80 [qed]
-[ 2745.363536,17]  [<ffffffffa04ea881>] qed_dbg_feature_size+0x61/0xa0 [qed]
-[ 2745.363551,17]  [<ffffffffa04eb427>] qed_dbg_all_data_size+0x247/0x260 [qed]
-[ 2745.363560,17]  [<ffffffffa0482c10>] qede_get_regs_len+0x30/0x40 [qede]
-[ 2745.363566,17]  [<ffffffff816c9783>] ethtool_get_drvinfo+0xe3/0x190
-[ 2745.363570,17]  [<ffffffff816cc152>] dev_ethtool+0x1362/0x2140
-[ 2745.363575,17]  [<ffffffff8109bcc6>] ? finish_task_switch+0x76/0x260
-[ 2745.363580,17]  [<ffffffff817c2116>] ? __schedule+0x3c6/0x9d0
-[ 2745.363585,17]  [<ffffffff810dbd50>] ? hrtimer_start_range_ns+0x1d0/0x370
-[ 2745.363589,17]  [<ffffffff816c1e5b>] ? dev_get_by_name_rcu+0x6b/0x90
-[ 2745.363594,17]  [<ffffffff816de6a8>] dev_ioctl+0xe8/0x710
-[ 2745.363599,17]  [<ffffffff816a58a8>] sock_do_ioctl+0x48/0x60
-[ 2745.363603,17]  [<ffffffff816a5d87>] sock_ioctl+0x1c7/0x280
-[ 2745.363608,17]  [<ffffffff8111f393>] ? seccomp_phase1+0x83/0x220
-[ 2745.363612,17]  [<ffffffff811e3503>] do_vfs_ioctl+0x2b3/0x4e0
-[ 2745.363616,17]  [<ffffffff811e3771>] SyS_ioctl+0x41/0x70
-[ 2745.363619,17]  [<ffffffff817c6ffe>] entry_SYSCALL_64_fastpath+0x1e/0x79
-[ 2745.363622,17] ---[ end trace f6954aa440266421 ]---
-
-Fixes: c965db4446291 ("qed: Add support for debug data collection")
-Signed-off-by: Caleb Sander <csander@purestorage.com>
-Acked-by: Alok Prasad <palok@marvell.com>
-Link: https://lore.kernel.org/r/20230103233021.1457646-1-csander@purestorage.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 51d138c2610a ("net/mlx5: Fix health error state handling")
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_debug.c | 28 +++++++++++++++------
- 1 file changed, 20 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/health.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_debug.c b/drivers/net/ethernet/qlogic/qed/qed_debug.c
-index 86ecb080b153..cdcead614e9f 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_debug.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_debug.c
-@@ -1832,7 +1832,8 @@ static enum dbg_status qed_find_nvram_image(struct qed_hwfn *p_hwfn,
- 					    struct qed_ptt *p_ptt,
- 					    u32 image_type,
- 					    u32 *nvram_offset_bytes,
--					    u32 *nvram_size_bytes)
-+					    u32 *nvram_size_bytes,
-+					    bool b_can_sleep)
- {
- 	u32 ret_mcp_resp, ret_mcp_param, ret_txn_size;
- 	struct mcp_file_att file_att;
-@@ -1846,7 +1847,8 @@ static enum dbg_status qed_find_nvram_image(struct qed_hwfn *p_hwfn,
- 					&ret_mcp_resp,
- 					&ret_mcp_param,
- 					&ret_txn_size,
--					(u32 *)&file_att, false);
-+					(u32 *)&file_att,
-+					b_can_sleep);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/health.c b/drivers/net/ethernet/mellanox/mlx5/core/health.c
+index 86ed87d704f7..96417c5feed7 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
+@@ -674,6 +674,12 @@ static void mlx5_fw_fatal_reporter_err_work(struct work_struct *work)
+ 	dev = container_of(priv, struct mlx5_core_dev, priv);
+ 	devlink = priv_to_devlink(dev);
  
- 	/* Check response */
- 	if (nvm_result || (ret_mcp_resp & FW_MSG_CODE_MASK) !=
-@@ -1873,7 +1875,9 @@ static enum dbg_status qed_find_nvram_image(struct qed_hwfn *p_hwfn,
- static enum dbg_status qed_nvram_read(struct qed_hwfn *p_hwfn,
- 				      struct qed_ptt *p_ptt,
- 				      u32 nvram_offset_bytes,
--				      u32 nvram_size_bytes, u32 *ret_buf)
-+				      u32 nvram_size_bytes,
-+				      u32 *ret_buf,
-+				      bool b_can_sleep)
- {
- 	u32 ret_mcp_resp, ret_mcp_param, ret_read_size, bytes_to_copy;
- 	s32 bytes_left = nvram_size_bytes;
-@@ -1899,7 +1903,7 @@ static enum dbg_status qed_nvram_read(struct qed_hwfn *p_hwfn,
- 				       &ret_mcp_resp,
- 				       &ret_mcp_param, &ret_read_size,
- 				       (u32 *)((u8 *)ret_buf + read_offset),
--				       false))
-+				       b_can_sleep))
- 			return DBG_STATUS_NVRAM_READ_FAILED;
- 
- 		/* Check response */
-@@ -3380,7 +3384,8 @@ static u32 qed_grc_dump_mcp_hw_dump(struct qed_hwfn *p_hwfn,
- 				      p_ptt,
- 				      NVM_TYPE_HW_DUMP_OUT,
- 				      &hw_dump_offset_bytes,
--				      &hw_dump_size_bytes);
-+				      &hw_dump_size_bytes,
-+				      false);
- 	if (status != DBG_STATUS_OK)
- 		return 0;
- 
-@@ -3397,7 +3402,9 @@ static u32 qed_grc_dump_mcp_hw_dump(struct qed_hwfn *p_hwfn,
- 		status = qed_nvram_read(p_hwfn,
- 					p_ptt,
- 					hw_dump_offset_bytes,
--					hw_dump_size_bytes, dump_buf + offset);
-+					hw_dump_size_bytes,
-+					dump_buf + offset,
-+					false);
- 		if (status != DBG_STATUS_OK) {
- 			DP_NOTICE(p_hwfn,
- 				  "Failed to read MCP HW Dump image from NVRAM\n");
-@@ -4123,7 +4130,9 @@ static enum dbg_status qed_mcp_trace_get_meta_info(struct qed_hwfn *p_hwfn,
- 	return qed_find_nvram_image(p_hwfn,
- 				    p_ptt,
- 				    nvram_image_type,
--				    trace_meta_offset, trace_meta_size);
-+				    trace_meta_offset,
-+				    trace_meta_size,
-+				    true);
- }
- 
- /* Reads the MCP Trace meta data from NVRAM into the specified buffer */
-@@ -4139,7 +4148,10 @@ static enum dbg_status qed_mcp_trace_read_meta(struct qed_hwfn *p_hwfn,
- 	/* Read meta data from NVRAM */
- 	status = qed_nvram_read(p_hwfn,
- 				p_ptt,
--				nvram_offset_in_bytes, size_in_bytes, buf);
-+				nvram_offset_in_bytes,
-+				size_in_bytes,
-+				buf,
-+				true);
- 	if (status != DBG_STATUS_OK)
- 		return status;
- 
++	mutex_lock(&dev->intf_state_mutex);
++	if (test_bit(MLX5_DROP_NEW_HEALTH_WORK, &health->flags)) {
++		mlx5_core_err(dev, "health works are not permitted at this stage\n");
++		return;
++	}
++	mutex_unlock(&dev->intf_state_mutex);
+ 	enter_error_state(dev, false);
+ 	if (IS_ERR_OR_NULL(health->fw_fatal_reporter)) {
+ 		devl_lock(devlink);
 -- 
 2.35.1
 
