@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B5666494B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D014664A7E
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:33:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239138AbjAJSUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:20:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60872 "EHLO
+        id S238978AbjAJSdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:33:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239183AbjAJSTu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:19:50 -0500
+        with ESMTP id S239523AbjAJSc0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF536921E4
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 115E28F2AD
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DAD8B8189A
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4414C43396;
-        Tue, 10 Jan 2023 18:17:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7551B81901
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D66EC433EF;
+        Tue, 10 Jan 2023 18:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374638;
-        bh=bPws9NpxZo9Nb8uUU7NWxqMCbuzwrtfqgfIUiMJIjq8=;
+        s=korg; t=1673375281;
+        bh=Hwa8o7r8odp/e5oqGGwCtlTyOwSrK1CPBSMknm2Qcfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgFc8z0M2st/478Q1Xeea5iiwwh+gJTpIRoN1b2T17iU16uVV/Pln+tN9jUxjO79a
-         r8nAP1d6Op2RUIaPoskbaCyJpns20aIhP7kBTfIcdAPsvP8tkFQSUevOwxlEYLh054
-         B3yzFVGYGDje+7c8wQDtp64gILt5dNX/2mszZ9fc=
+        b=c/Up6ZFfS/T7nGNGuiBxvI5AKR54R9cwwW1oGULEXumChT3FjhuK+3Fv+hAtqjnAL
+         mWa0F7U9m4uNx+icdwBgqrQ5VMqF63Ku+zc+h0XicjKJNS7wtngwBJVeq7FJ2E1j3p
+         2VYx2y9qG/OGun5lxMlOVgnId1qud/Dv20NQmyRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 083/159] gpio: sifive: Fix refcount leak in sifive_gpio_probe
+        patches@lists.linux.dev, stable@kernel.org,
+        Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 139/290] ext4: silence the warning when evicting inode with dioread_nolock
 Date:   Tue, 10 Jan 2023 19:03:51 +0100
-Message-Id: <20230110180020.955343295@linuxfoundation.org>
+Message-Id: <20230110180036.649155927@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 694175cd8a1643cde3acb45c9294bca44a8e08e9 ]
+commit bc12ac98ea2e1b70adc6478c8b473a0003b659d3 upstream.
 
-of_irq_find_parent() returns a node pointer with refcount incremented,
-We should use of_node_put() on it when not needed anymore.
-Add missing of_node_put() to avoid refcount leak.
+When evicting an inode with default dioread_nolock, it could be raced by
+the unwritten extents converting kworker after writeback some new
+allocated dirty blocks. It convert unwritten extents to written, the
+extents could be merged to upper level and free extent blocks, so it
+could mark the inode dirty again even this inode has been marked
+I_FREEING. But the inode->i_io_list check and warning in
+ext4_evict_inode() missing this corner case. Fortunately,
+ext4_evict_inode() will wait all extents converting finished before this
+check, so it will not lead to inode use-after-free problem, every thing
+is OK besides this warning. The WARN_ON_ONCE was originally designed
+for finding inode use-after-free issues in advance, but if we add
+current dioread_nolock case in, it will become not quite useful, so fix
+this warning by just remove this check.
 
-Fixes: 96868dce644d ("gpio/sifive: Add GPIO driver for SiFive SoCs")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ ======
+ WARNING: CPU: 7 PID: 1092 at fs/ext4/inode.c:227
+ ext4_evict_inode+0x875/0xc60
+ ...
+ RIP: 0010:ext4_evict_inode+0x875/0xc60
+ ...
+ Call Trace:
+  <TASK>
+  evict+0x11c/0x2b0
+  iput+0x236/0x3a0
+  do_unlinkat+0x1b4/0x490
+  __x64_sys_unlinkat+0x4c/0xb0
+  do_syscall_64+0x3b/0x90
+  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+ RIP: 0033:0x7fa933c1115b
+ ======
+
+rm                          kworker
+                            ext4_end_io_end()
+vfs_unlink()
+ ext4_unlink()
+                             ext4_convert_unwritten_io_end_vec()
+                              ext4_convert_unwritten_extents()
+                               ext4_map_blocks()
+                                ext4_ext_map_blocks()
+                                 ext4_ext_try_to_merge_up()
+                                  __mark_inode_dirty()
+                                   check !I_FREEING
+                                   locked_inode_to_wb_and_lock_list()
+ iput()
+  iput_final()
+   evict()
+    ext4_evict_inode()
+     truncate_inode_pages_final() //wait release io_end
+                                    inode_io_list_move_locked()
+                             ext4_release_io_end()
+     trigger WARN_ON_ONCE()
+
+Cc: stable@kernel.org
+Fixes: ceff86fddae8 ("ext4: Avoid freeing inodes on dirty list")
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220629112647.4141034-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-sifive.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/inode.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpio/gpio-sifive.c b/drivers/gpio/gpio-sifive.c
-index 238f3210970c..bc5660f61c57 100644
---- a/drivers/gpio/gpio-sifive.c
-+++ b/drivers/gpio/gpio-sifive.c
-@@ -215,6 +215,7 @@ static int sifive_gpio_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 	parent = irq_find_host(irq_parent);
-+	of_node_put(irq_parent);
- 	if (!parent) {
- 		dev_err(dev, "no IRQ parent domain\n");
- 		return -ENODEV;
--- 
-2.35.1
-
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -225,13 +225,13 @@ void ext4_evict_inode(struct inode *inod
+ 
+ 	/*
+ 	 * For inodes with journalled data, transaction commit could have
+-	 * dirtied the inode. Flush worker is ignoring it because of I_FREEING
+-	 * flag but we still need to remove the inode from the writeback lists.
++	 * dirtied the inode. And for inodes with dioread_nolock, unwritten
++	 * extents converting worker could merge extents and also have dirtied
++	 * the inode. Flush worker is ignoring it because of I_FREEING flag but
++	 * we still need to remove the inode from the writeback lists.
+ 	 */
+-	if (!list_empty_careful(&inode->i_io_list)) {
+-		WARN_ON_ONCE(!ext4_should_journal_data(inode));
++	if (!list_empty_careful(&inode->i_io_list))
+ 		inode_io_list_del(inode);
+-	}
+ 
+ 	/*
+ 	 * Protect us against freezing - iput() caller didn't have to have any
 
 
