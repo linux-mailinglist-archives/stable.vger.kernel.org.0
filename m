@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D598A664A62
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2796648A3
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239327AbjAJSco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:32:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46106 "EHLO
+        id S239022AbjAJSNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:13:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239382AbjAJScM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:12 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FEE65B4A4
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:19 -0800 (PST)
+        with ESMTP id S239025AbjAJSMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32E05BF42
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CCB66CE18D3
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95C15C433F0;
-        Tue, 10 Jan 2023 18:27:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C52C56187E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9074C433AC;
+        Tue, 10 Jan 2023 18:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375236;
-        bh=lMVamHMM+vEk8IA5i0jJkCVEqhM9ozFacyQREegkRCA=;
+        s=korg; t=1673374272;
+        bh=IP+4s/k+bzBJn3D5iiaZOX/SeDn5Z15NhHYYtopFoxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZt9kHfNj7xsyMN2pxQUkWJNP1OVmr1cZvI8rJGqB9pPUW3dbRXVLKkzn7f3ZyFUD
-         80Lx0NVdjmpEueFQvsfquKlrGICdz4+IzZxRAcDPbnwETirR+iYJg6tz8Npp/d4VGW
-         tiGdUH7fzfIoliGAbAut0pAXYvG9VgSnLSXaEdCE=
+        b=UqH90pos/eGOoZUlPpJjISk+3s/dGQNL86J3GI+bPA5dJUCy+AChHdljSnCjVPaHl
+         ib5fp1Naw6t0Lum7VtQW85exAm+u2viANDsHCIJDzTS5LI1u1rMkwGHoOxBDHqzfPc
+         V20EDYeW1T+hr75KeUbBR4UOSZjkJw/XOiWyBPwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Gong <gongwei833x@gmail.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.15 123/290] PCI: Fix pci_device_is_present() for VFs by checking PF
+        patches@lists.linux.dev, Yanjun Zhang <zhangyanjun@cestc.cn>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 111/148] nvme: fix multipath crash caused by flush request when blktrace is enabled
 Date:   Tue, 10 Jan 2023 19:03:35 +0100
-Message-Id: <20230110180036.048602762@linuxfoundation.org>
+Message-Id: <20230110180020.709044109@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +52,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Yanjun Zhang <zhangyanjun@cestc.cn>
 
-commit 98b04dd0b4577894520493d96bc4623387767445 upstream.
+[ Upstream commit 3659fb5ac29a5e6102bebe494ac789fd47fb78f4 ]
 
-pci_device_is_present() previously didn't work for VFs because it reads the
-Vendor and Device ID, which are 0xffff for VFs, which looks like they
-aren't present.  Check the PF instead.
+The flush request initialized by blk_kick_flush has NULL bio,
+and it may be dealt with nvme_end_req during io completion.
+When blktrace is enabled, nvme_trace_bio_complete with multipath
+activated trying to access NULL pointer bio from flush request
+results in the following crash:
 
-Wei Gong reported that if virtio I/O is in progress when the driver is
-unbound or "0" is written to /sys/.../sriov_numvfs, the virtio I/O
-operation hangs, which may result in output like this:
+[ 2517.831677] BUG: kernel NULL pointer dereference, address: 000000000000001a
+[ 2517.835213] #PF: supervisor read access in kernel mode
+[ 2517.838724] #PF: error_code(0x0000) - not-present page
+[ 2517.842222] PGD 7b2d51067 P4D 0
+[ 2517.845684] Oops: 0000 [#1] SMP NOPTI
+[ 2517.849125] CPU: 2 PID: 732 Comm: kworker/2:1H Kdump: loaded Tainted: G S                5.15.67-0.cl9.x86_64 #1
+[ 2517.852723] Hardware name: XFUSION 2288H V6/BC13MBSBC, BIOS 1.13 07/27/2022
+[ 2517.856358] Workqueue: nvme_tcp_wq nvme_tcp_io_work [nvme_tcp]
+[ 2517.859993] RIP: 0010:blk_add_trace_bio_complete+0x6/0x30
+[ 2517.863628] Code: 1f 44 00 00 48 8b 46 08 31 c9 ba 04 00 10 00 48 8b 80 50 03 00 00 48 8b 78 50 e9 e5 fe ff ff 0f 1f 44 00 00 41 54 49 89 f4 55 <0f> b6 7a 1a 48 89 d5 e8 3e 1c 2b 00 48 89 ee 4c 89 e7 5d 89 c1 ba
+[ 2517.871269] RSP: 0018:ff7f6a008d9dbcd0 EFLAGS: 00010286
+[ 2517.875081] RAX: ff3d5b4be00b1d50 RBX: 0000000002040002 RCX: ff3d5b0a270f2000
+[ 2517.878966] RDX: 0000000000000000 RSI: ff3d5b0b021fb9f8 RDI: 0000000000000000
+[ 2517.882849] RBP: ff3d5b0b96a6fa00 R08: 0000000000000001 R09: 0000000000000000
+[ 2517.886718] R10: 000000000000000c R11: 000000000000000c R12: ff3d5b0b021fb9f8
+[ 2517.890575] R13: 0000000002000000 R14: ff3d5b0b021fb1b0 R15: 0000000000000018
+[ 2517.894434] FS:  0000000000000000(0000) GS:ff3d5b42bfc80000(0000) knlGS:0000000000000000
+[ 2517.898299] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 2517.902157] CR2: 000000000000001a CR3: 00000004f023e005 CR4: 0000000000771ee0
+[ 2517.906053] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 2517.909930] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 2517.913761] PKRU: 55555554
+[ 2517.917558] Call Trace:
+[ 2517.921294]  <TASK>
+[ 2517.924982]  nvme_complete_rq+0x1c3/0x1e0 [nvme_core]
+[ 2517.928715]  nvme_tcp_recv_pdu+0x4d7/0x540 [nvme_tcp]
+[ 2517.932442]  nvme_tcp_recv_skb+0x4f/0x240 [nvme_tcp]
+[ 2517.936137]  ? nvme_tcp_recv_pdu+0x540/0x540 [nvme_tcp]
+[ 2517.939830]  tcp_read_sock+0x9c/0x260
+[ 2517.943486]  nvme_tcp_try_recv+0x65/0xa0 [nvme_tcp]
+[ 2517.947173]  nvme_tcp_io_work+0x64/0x90 [nvme_tcp]
+[ 2517.950834]  process_one_work+0x1e8/0x390
+[ 2517.954473]  worker_thread+0x53/0x3c0
+[ 2517.958069]  ? process_one_work+0x390/0x390
+[ 2517.961655]  kthread+0x10c/0x130
+[ 2517.965211]  ? set_kthread_struct+0x40/0x40
+[ 2517.968760]  ret_from_fork+0x1f/0x30
+[ 2517.972285]  </TASK>
 
-  task:bash state:D stack:    0 pid: 1773 ppid:  1241 flags:0x00004002
-  Call Trace:
-   schedule+0x4f/0xc0
-   blk_mq_freeze_queue_wait+0x69/0xa0
-   blk_mq_freeze_queue+0x1b/0x20
-   blk_cleanup_queue+0x3d/0xd0
-   virtblk_remove+0x3c/0xb0 [virtio_blk]
-   virtio_dev_remove+0x4b/0x80
-   ...
-   device_unregister+0x1b/0x60
-   unregister_virtio_device+0x18/0x30
-   virtio_pci_remove+0x41/0x80
-   pci_device_remove+0x3e/0xb0
+To avoid this situation, add a NULL check for req->bio before
+calling trace_block_bio_complete.
 
-This happened because pci_device_is_present(VF) returned "false" in
-virtio_pci_remove(), so it called virtio_break_device().  The broken vq
-meant that vring_interrupt() skipped the vq.callback() that would have
-completed the virtio I/O operation via virtblk_done().
-
-[bhelgaas: commit log, simplify to always use pci_physfn(), add stable tag]
-Link: https://lore.kernel.org/r/20221026060912.173250-1-mst@redhat.com
-Reported-by: Wei Gong <gongwei833x@gmail.com>
-Tested-by: Wei Gong <gongwei833x@gmail.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yanjun Zhang <zhangyanjun@cestc.cn>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nvme/host/nvme.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -6383,6 +6383,8 @@ bool pci_device_is_present(struct pci_de
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 70555022cb44..35352206b5de 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -872,7 +872,7 @@ static inline void nvme_trace_bio_complete(struct request *req)
  {
- 	u32 v;
+ 	struct nvme_ns *ns = req->q->queuedata;
  
-+	/* Check PF if pdev is a VF, since VF Vendor/Device IDs are 0xffff */
-+	pdev = pci_physfn(pdev);
- 	if (pci_dev_is_disconnected(pdev))
- 		return false;
- 	return pci_bus_read_dev_vendor_id(pdev->bus, pdev->devfn, &v, 0);
+-	if (req->cmd_flags & REQ_NVME_MPATH)
++	if ((req->cmd_flags & REQ_NVME_MPATH) && req->bio)
+ 		trace_block_bio_complete(ns->head->disk->queue, req->bio);
+ }
+ 
+-- 
+2.35.1
+
 
 
