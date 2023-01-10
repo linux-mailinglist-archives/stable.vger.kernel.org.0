@@ -2,53 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 567CC66492E
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:19:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 330B4664A5C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239081AbjAJSSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:18:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60670 "EHLO
+        id S235436AbjAJSce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239123AbjAJSSB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:18:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D1AA49167;
-        Tue, 10 Jan 2023 10:16:22 -0800 (PST)
+        with ESMTP id S239462AbjAJSbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BF37A2AA5
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22C576182C;
-        Tue, 10 Jan 2023 18:16:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01F4BC433EF;
-        Tue, 10 Jan 2023 18:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6A3861864
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFC68C433D2;
+        Tue, 10 Jan 2023 18:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374581;
-        bh=+Lit4qXqjTU8SXzTxs+LdrnFmU+EcXSJrDMEiB6WfCk=;
+        s=korg; t=1673375224;
+        bh=go9v8viwIjZtLWIHYEBl2vH+FrY8ZELBcbuiFrPAVKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evNfgRYDsNPLiDxwSOwyyBN+PZsweDoUfGtCCa4+iRNeetT2GoEhMkyCzC8cX9BHu
-         4x273fXq8+7z05uSxn4WHQRhJhwWLDmN9ruRA6Tu/mXyB4JiSan/xnHWix3aDrdmNa
-         B8N3Fh26X+7CrJV1cJ7g7zVqxz1QMFA5rqN1mxRM=
+        b=wNtiFzrYvDhc5QSWngAzh8aPUk9tvmEwyULZ+IecqxKjPWoXzp/U3JN0wzBUe/Aoh
+         3IK8+4szN7zCyNSZUus6h7PeIvoD74T+p9lE26x8lQd4Zlmj4/nF/wpMBYMuoVQgKA
+         nKUlKIqjcmKkF4TaHqwRrRibc7rI0pIJxSOQdreg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyunwoo Kim <v4bel@theori.io>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        bpf@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 063/159] bpf: Always use maximal size for copy_array()
+        patches@lists.linux.dev,
+        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 5.15 119/290] ipmi: fix long wait in unload when IPMI disconnect
 Date:   Tue, 10 Jan 2023 19:03:31 +0100
-Message-Id: <20230110180020.309474655@linuxfoundation.org>
+Message-Id: <20230110180035.910475961@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,71 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
 
-[ Upstream commit 45435d8da71f9f3e6860e6e6ea9667b6ec17ec64 ]
+commit f6f1234d98cce69578bfac79df147a1f6660596c upstream.
 
-Instead of counting on prior allocations to have sized allocations to
-the next kmalloc bucket size, always perform a krealloc that is at least
-ksize(dst) in size (which is a no-op), so the size can be correctly
-tracked by all the various allocation size trackers (KASAN,
-__alloc_size, etc).
+When fixing the problem mentioned in PATCH1, we also found
+the following problem:
 
-Reported-by: Hyunwoo Kim <v4bel@theori.io>
-Link: https://lore.kernel.org/bpf/20221223094551.GA1439509@ubuntu
-Fixes: ceb35b666d42 ("bpf/verifier: Use kmalloc_size_roundup() to match ksize() usage")
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Martin KaFai Lau <martin.lau@linux.dev>
-Cc: Song Liu <song@kernel.org>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Stanislav Fomichev <sdf@google.com>
-Cc: Hao Luo <haoluo@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: bpf@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221223182836.never.866-kees@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If the IPMI is disconnected and in the sending process, the
+uninstallation driver will be stuck for a long time.
+
+The main problem is that uninstalling the driver waits for curr_msg to
+be sent or HOSED. After stopping tasklet, the only place to trigger the
+timeout mechanism is the circular poll in shutdown_smi.
+
+The poll function delays 10us and calls smi_event_handler(smi_info,10).
+Smi_event_handler deducts 10us from kcs->ibf_timeout.
+
+But the poll func is followed by schedule_timeout_uninterruptible(1).
+The time consumed here is not counted in kcs->ibf_timeout.
+
+So when 10us is deducted from kcs->ibf_timeout, at least 1 jiffies has
+actually passed. The waiting time has increased by more than a
+hundredfold.
+
+Now instead of calling poll(). call smi_event_handler() directly and
+calculate the elapsed time.
+
+For verification, you can directly use ebpf to check the kcs->
+ibf_timeout for each call to kcs_event() when IPMI is disconnected.
+Decrement at normal rate before unloading. The decrement rate becomes
+very slow after unloading.
+
+  $ bpftrace -e 'kprobe:kcs_event {printf("kcs->ibftimeout : %d\n",
+      *(arg0+584));}'
+
+Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+Message-Id: <20221007092617.87597-3-zhangyuchen.lcr@bytedance.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/char/ipmi/ipmi_si_intf.c |   27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 242fe307032f..b4d5b343c191 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1000,6 +1000,8 @@ static void print_insn_state(struct bpf_verifier_env *env,
-  */
- static void *copy_array(void *dst, const void *src, size_t n, size_t size, gfp_t flags)
+--- a/drivers/char/ipmi/ipmi_si_intf.c
++++ b/drivers/char/ipmi/ipmi_si_intf.c
+@@ -2152,6 +2152,20 @@ skip_fallback_noirq:
+ }
+ module_init(init_ipmi_si);
+ 
++static void wait_msg_processed(struct smi_info *smi_info)
++{
++	unsigned long jiffies_now;
++	long time_diff;
++
++	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
++		jiffies_now = jiffies;
++		time_diff = (((long)jiffies_now - (long)smi_info->last_timeout_jiffies)
++		     * SI_USEC_PER_JIFFY);
++		smi_event_handler(smi_info, time_diff);
++		schedule_timeout_uninterruptible(1);
++	}
++}
++
+ static void shutdown_smi(void *send_info)
  {
-+	size_t alloc_bytes;
-+	void *orig = dst;
- 	size_t bytes;
+ 	struct smi_info *smi_info = send_info;
+@@ -2186,16 +2200,13 @@ static void shutdown_smi(void *send_info
+ 	 * in the BMC.  Note that timers and CPU interrupts are off,
+ 	 * so no need for locks.
+ 	 */
+-	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
+-		poll(smi_info);
+-		schedule_timeout_uninterruptible(1);
+-	}
++	wait_msg_processed(smi_info);
++
+ 	if (smi_info->handlers)
+ 		disable_si_irq(smi_info);
+-	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
+-		poll(smi_info);
+-		schedule_timeout_uninterruptible(1);
+-	}
++
++	wait_msg_processed(smi_info);
++
+ 	if (smi_info->handlers)
+ 		smi_info->handlers->cleanup(smi_info->si_sm);
  
- 	if (ZERO_OR_NULL_PTR(src))
-@@ -1008,11 +1010,11 @@ static void *copy_array(void *dst, const void *src, size_t n, size_t size, gfp_t
- 	if (unlikely(check_mul_overflow(n, size, &bytes)))
- 		return NULL;
- 
--	if (ksize(dst) < ksize(src)) {
--		kfree(dst);
--		dst = kmalloc_track_caller(kmalloc_size_roundup(bytes), flags);
--		if (!dst)
--			return NULL;
-+	alloc_bytes = max(ksize(orig), kmalloc_size_roundup(bytes));
-+	dst = krealloc(orig, alloc_bytes, flags);
-+	if (!dst) {
-+		kfree(orig);
-+		return NULL;
- 	}
- 
- 	memcpy(dst, src, bytes);
--- 
-2.35.1
-
 
 
