@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 952A2664A43
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3306648E2
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239432AbjAJSbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:31:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43784 "EHLO
+        id S239080AbjAJSQC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:16:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234173AbjAJSax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122B72ADE
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:04 -0800 (PST)
+        with ESMTP id S234967AbjAJSPj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D8C8FD4
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8E63B818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0053FC433EF;
-        Tue, 10 Jan 2023 18:26:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 761AE617EC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FE0C433D2;
+        Tue, 10 Jan 2023 18:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375161;
-        bh=x8me41N348hYbjwYMm5GojH45ZUnFvfBjbyZQRgZt1I=;
+        s=korg; t=1673374416;
+        bh=UmmP9nAoiVGcDPOobEbHkraUxstIymo9uKKeIwU19sU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sfhCyWPRqCD+aDTPVKMKxHrRfw1Xb5xyOUeI+5jYwdxJjK8s8QTGwXOlfllWSluhS
-         WvD7FAV3uP1pc3+ilN0AABZ1p2cYJZxHEcKq4doaGV2eAxEq1R2tChSdsNyRp43/8J
-         uSMGAwhxOqfp8u0o4uSY33BvCz+pp/mYuCQTQceE=
+        b=2CLHe+WtsajIIY0gipBgKof8XhjIC8KGxuDlVcSMndCRtSWOsolTO1C5KVto0/QLh
+         a3QgL3WlCihsV4r4/HRt1McVlHP7+jNC2mAgJcvlAhm0/UrycbwiY0+BOWsZimfvg2
+         jYEy1UE8DsQyW2GDmzoZZ8oo0w335Jz3oQOwzxJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Subject: [PATCH 5.15 067/290] arm64: dts: qcom: sdm845-db845c: correct SPI2 pins drive strength
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 011/159] btrfs: fix an error handling path in btrfs_defrag_leaves()
 Date:   Tue, 10 Jan 2023 19:02:39 +0100
-Message-Id: <20230110180033.951378619@linuxfoundation.org>
+Message-Id: <20230110180018.667808652@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+[ Upstream commit db0a4a7b8e95f9312a59a67cbd5bc589f090e13d ]
 
-commit 9905370560d9c29adc15f4937c5a0c0dac05f0b4 upstream.
+All error handling paths end to 'out', except this memory allocation
+failure.
 
-The pin configuration (done with generic pin controller helpers and
-as expressed by bindings) requires children nodes with either:
-1. "pins" property and the actual configuration,
-2. another set of nodes with above point.
+This is spurious. So branch to the error handling path also in this case.
+It will add a call to:
 
-The qup_spi2_default pin configuration uses alreaady the second method
-with a "pinmux" child, so configure drive-strength similarly in
-"pinconf".  Otherwise the PIN drive strength would not be applied.
+	memset(&root->defrag_progress, 0,
+	       sizeof(root->defrag_progress));
 
-Fixes: 8d23a0040475 ("arm64: dts: qcom: db845c: add Low speed expansion i2c and spi nodes")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221010114417.29859-2-krzysztof.kozlowski@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6702ed490ca0 ("Btrfs: Add run time btree defrag, and an ioctl to force btree defrag")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845-db845c.dts |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/btrfs/tree-defrag.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
-@@ -1045,7 +1045,10 @@
+diff --git a/fs/btrfs/tree-defrag.c b/fs/btrfs/tree-defrag.c
+index b6cf39f4e7e4..072ab9a1374b 100644
+--- a/fs/btrfs/tree-defrag.c
++++ b/fs/btrfs/tree-defrag.c
+@@ -31,8 +31,10 @@ int btrfs_defrag_leaves(struct btrfs_trans_handle *trans,
+ 		goto out;
  
- /* PINCTRL - additions to nodes defined in sdm845.dtsi */
- &qup_spi2_default {
--	drive-strength = <16>;
-+	pinconf {
-+		pins = "gpio27", "gpio28", "gpio29", "gpio30";
-+		drive-strength = <16>;
-+	};
- };
+ 	path = btrfs_alloc_path();
+-	if (!path)
+-		return -ENOMEM;
++	if (!path) {
++		ret = -ENOMEM;
++		goto out;
++	}
  
- &qup_uart3_default{
+ 	level = btrfs_header_level(root->node);
+ 
+-- 
+2.35.1
+
 
 
