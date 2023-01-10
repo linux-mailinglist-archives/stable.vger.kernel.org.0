@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CB6B6648B7
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:14:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9E85664A7F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:33:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235183AbjAJSOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:14:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54318 "EHLO
+        id S238983AbjAJSdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:33:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235161AbjAJSNH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:13:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B07C71012
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:57 -0800 (PST)
+        with ESMTP id S234089AbjAJSca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:30 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E0B8D5DF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D6A16186D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60DACC433EF;
-        Tue, 10 Jan 2023 18:11:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 32AE9CE18D1
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27255C433EF;
+        Tue, 10 Jan 2023 18:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374316;
-        bh=bdDW3LLmItTeom4b4EPuVajnxo0DYPgkWZ1jf9gfEmM=;
+        s=korg; t=1673375285;
+        bh=plsvWqq3KzG6QZ2GE/koKpdD/gxOWAx0+3lyWXyqmyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FQa5h95o+YvVOQjVX3WLx/Q+AdhB9dPgb7IeYKyzItG/ORoh84V/eRrMArOlJcHa3
-         86+dst1yNJQiPJ/IyoW+T4rZsMfJWQckKixdJNg5+XXgULoiKswC1qNI0or4uVr+I1
-         0K7OUC09SouWrJh/9K0oD3o1yce7QSW2KQCHoRaQ=
+        b=Q78Vgl+z3p1CdQxt1IpYQlMQ/Pk9P5AxIrCvTrIlnGNHxuSd8LUyPg4TC0kP/bPLy
+         pyK6LBgATaRhJxckQTJkNCNmoW7m46XjbG6m49eRgErv8Flkvwrf/IFQr8cEVkWg7+
+         drK+6MgKGPpE65mPpaugMdR28vsKBHxrZ2GJ5JL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ronald Wahl <ronald.wahl@raritan.com>,
-        Christian Marangi <ansuelsmth@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 6.0 127/148] Revert "net: dsa: qca8k: cache lo and hi for mdio write"
-Date:   Tue, 10 Jan 2023 19:03:51 +0100
-Message-Id: <20230110180021.215469717@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Baokun Li <libaokun1@huawei.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.15 140/290] ext4: add inode table check in __ext4_get_inode_loc to aovid possible infinite loop
+Date:   Tue, 10 Jan 2023 19:03:52 +0100
+Message-Id: <20230110180036.679826818@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,177 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Marangi <ansuelsmth@gmail.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 03cb9e6d0b32b768e3d9d473c5c4ca1100877664 upstream.
+commit eee22187b53611e173161e38f61de1c7ecbeb876 upstream.
 
-This reverts commit 2481d206fae7884cd07014fd1318e63af35e99eb.
+In do_writepages, if the value returned by ext4_writepages is "-ENOMEM"
+and "wbc->sync_mode == WB_SYNC_ALL", retry until the condition is not met.
 
-The Documentation is very confusing about the topic.
-The cache logic for hi and lo is wrong and actually miss some regs to be
-actually written.
+In __ext4_get_inode_loc, if the bh returned by sb_getblk is NULL,
+the function returns -ENOMEM.
 
-What the Documentation actually intended was that it's possible to skip
-writing hi OR lo if half of the reg is not needed to be written or read.
+In __getblk_slow, if the return value of grow_buffers is less than 0,
+the function returns NULL.
 
-Revert the change in favor of a better and correct implementation.
+When the three processes are connected in series like the following stack,
+an infinite loop may occur:
 
-Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Cc: stable@vger.kernel.org # v5.18+
-Signed-off-by: David S. Miller <davem@davemloft.net>
+do_writepages					<--- keep retrying
+ ext4_writepages
+  mpage_map_and_submit_extent
+   mpage_map_one_extent
+    ext4_map_blocks
+     ext4_ext_map_blocks
+      ext4_ext_handle_unwritten_extents
+       ext4_ext_convert_to_initialized
+        ext4_split_extent
+         ext4_split_extent_at
+          __ext4_ext_dirty
+           __ext4_mark_inode_dirty
+            ext4_reserve_inode_write
+             ext4_get_inode_loc
+              __ext4_get_inode_loc		<--- return -ENOMEM
+               sb_getblk
+                __getblk_gfp
+                 __getblk_slow			<--- return NULL
+                  grow_buffers
+                   grow_dev_page		<--- return -ENXIO
+                    ret = (block < end_block) ? 1 : -ENXIO;
+
+In this issue, bg_inode_table_hi is overwritten as an incorrect value.
+As a result, `block < end_block` cannot be met in grow_dev_page.
+Therefore, __ext4_get_inode_loc always returns '-ENOMEM' and do_writepages
+keeps retrying. As a result, the writeback process is in the D state due
+to an infinite loop.
+
+Add a check on inode table block in the __ext4_get_inode_loc function by
+referring to ext4_read_inode_bitmap to avoid this infinite loop.
+
+Cc: stable@kernel.org
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220817132701.3015912-3-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/qca/qca8k-8xxx.c |   61 +++++++--------------------------------
- drivers/net/dsa/qca/qca8k.h      |    5 ---
- 2 files changed, 12 insertions(+), 54 deletions(-)
+ fs/ext4/inode.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/qca/qca8k-8xxx.c
-+++ b/drivers/net/dsa/qca/qca8k-8xxx.c
-@@ -37,44 +37,6 @@ qca8k_split_addr(u32 regaddr, u16 *r1, u
- }
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4299,9 +4299,17 @@ static int __ext4_get_inode_loc(struct s
+ 	inodes_per_block = EXT4_SB(sb)->s_inodes_per_block;
+ 	inode_offset = ((ino - 1) %
+ 			EXT4_INODES_PER_GROUP(sb));
+-	block = ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block);
+ 	iloc->offset = (inode_offset % inodes_per_block) * EXT4_INODE_SIZE(sb);
  
- static int
--qca8k_set_lo(struct qca8k_priv *priv, int phy_id, u32 regnum, u16 lo)
--{
--	u16 *cached_lo = &priv->mdio_cache.lo;
--	struct mii_bus *bus = priv->bus;
--	int ret;
--
--	if (lo == *cached_lo)
--		return 0;
--
--	ret = bus->write(bus, phy_id, regnum, lo);
--	if (ret < 0)
--		dev_err_ratelimited(&bus->dev,
--				    "failed to write qca8k 32bit lo register\n");
--
--	*cached_lo = lo;
--	return 0;
--}
--
--static int
--qca8k_set_hi(struct qca8k_priv *priv, int phy_id, u32 regnum, u16 hi)
--{
--	u16 *cached_hi = &priv->mdio_cache.hi;
--	struct mii_bus *bus = priv->bus;
--	int ret;
--
--	if (hi == *cached_hi)
--		return 0;
--
--	ret = bus->write(bus, phy_id, regnum, hi);
--	if (ret < 0)
--		dev_err_ratelimited(&bus->dev,
--				    "failed to write qca8k 32bit hi register\n");
--
--	*cached_hi = hi;
--	return 0;
--}
--
--static int
- qca8k_mii_read32(struct mii_bus *bus, int phy_id, u32 regnum, u32 *val)
- {
- 	int ret;
-@@ -97,7 +59,7 @@ qca8k_mii_read32(struct mii_bus *bus, in
- }
- 
- static void
--qca8k_mii_write32(struct qca8k_priv *priv, int phy_id, u32 regnum, u32 val)
-+qca8k_mii_write32(struct mii_bus *bus, int phy_id, u32 regnum, u32 val)
- {
- 	u16 lo, hi;
- 	int ret;
-@@ -105,9 +67,12 @@ qca8k_mii_write32(struct qca8k_priv *pri
- 	lo = val & 0xffff;
- 	hi = (u16)(val >> 16);
- 
--	ret = qca8k_set_lo(priv, phy_id, regnum, lo);
-+	ret = bus->write(bus, phy_id, regnum, lo);
- 	if (ret >= 0)
--		ret = qca8k_set_hi(priv, phy_id, regnum + 1, hi);
-+		ret = bus->write(bus, phy_id, regnum + 1, hi);
-+	if (ret < 0)
-+		dev_err_ratelimited(&bus->dev,
-+				    "failed to write qca8k 32bit register\n");
- }
- 
- static int
-@@ -417,7 +382,7 @@ qca8k_regmap_write(void *ctx, uint32_t r
- 	if (ret < 0)
- 		goto exit;
- 
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- exit:
- 	mutex_unlock(&bus->mdio_lock);
-@@ -450,7 +415,7 @@ qca8k_regmap_update_bits(void *ctx, uint
- 
- 	val &= ~mask;
- 	val |= write_val;
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- exit:
- 	mutex_unlock(&bus->mdio_lock);
-@@ -725,14 +690,14 @@ qca8k_mdio_write(struct qca8k_priv *priv
- 	if (ret)
- 		goto exit;
- 
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- 	ret = qca8k_mdio_busy_wait(bus, QCA8K_MDIO_MASTER_CTRL,
- 				   QCA8K_MDIO_MASTER_BUSY);
- 
- exit:
- 	/* even if the busy_wait timeouts try to clear the MASTER_EN */
--	qca8k_mii_write32(priv, 0x10 | r2, r1, 0);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, 0);
- 
- 	mutex_unlock(&bus->mdio_lock);
- 
-@@ -762,7 +727,7 @@ qca8k_mdio_read(struct qca8k_priv *priv,
- 	if (ret)
- 		goto exit;
- 
--	qca8k_mii_write32(priv, 0x10 | r2, r1, val);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, val);
- 
- 	ret = qca8k_mdio_busy_wait(bus, QCA8K_MDIO_MASTER_CTRL,
- 				   QCA8K_MDIO_MASTER_BUSY);
-@@ -773,7 +738,7 @@ qca8k_mdio_read(struct qca8k_priv *priv,
- 
- exit:
- 	/* even if the busy_wait timeouts try to clear the MASTER_EN */
--	qca8k_mii_write32(priv, 0x10 | r2, r1, 0);
-+	qca8k_mii_write32(bus, 0x10 | r2, r1, 0);
- 
- 	mutex_unlock(&bus->mdio_lock);
- 
-@@ -1943,8 +1908,6 @@ qca8k_sw_probe(struct mdio_device *mdiod
- 	}
- 
- 	priv->mdio_cache.page = 0xffff;
--	priv->mdio_cache.lo = 0xffff;
--	priv->mdio_cache.hi = 0xffff;
- 
- 	/* Check the detected switch id */
- 	ret = qca8k_read_switch_id(priv);
---- a/drivers/net/dsa/qca/qca8k.h
-+++ b/drivers/net/dsa/qca/qca8k.h
-@@ -375,11 +375,6 @@ struct qca8k_mdio_cache {
-  * mdio writes
-  */
- 	u16 page;
--/* lo and hi can also be cached and from Documentation we can skip one
-- * extra mdio write if lo or hi is didn't change.
-- */
--	u16 lo;
--	u16 hi;
- };
- 
- struct qca8k_pcs {
++	block = ext4_inode_table(sb, gdp);
++	if ((block <= le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block)) ||
++	    (block >= ext4_blocks_count(EXT4_SB(sb)->s_es))) {
++		ext4_error(sb, "Invalid inode table block %llu in "
++			   "block_group %u", block, iloc->block_group);
++		return -EFSCORRUPTED;
++	}
++	block += (inode_offset / inodes_per_block);
++
+ 	bh = sb_getblk(sb, block);
+ 	if (unlikely(!bh))
+ 		return -ENOMEM;
 
 
