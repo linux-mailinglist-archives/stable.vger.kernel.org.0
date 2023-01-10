@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2034F664A7D
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:33:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C39E664965
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235463AbjAJSdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:33:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45788 "EHLO
+        id S239268AbjAJSVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:21:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239522AbjAJSc0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED9390274
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:01 -0800 (PST)
+        with ESMTP id S239092AbjAJSUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AC6613CCC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 015F4B81905
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F864C433EF;
-        Tue, 10 Jan 2023 18:27:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBA576186E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF874C433D2;
+        Tue, 10 Jan 2023 18:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375278;
-        bh=+6HINLH99K/PZvEoeD/YFUfi3Gag3I21MVoPQzcYZz8=;
+        s=korg; t=1673374701;
+        bh=qR6ssOcePY4bE+MRpEZp0lPnMh4TA3sLIpcorx5sMZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vyI90apbQmHJDlxx99oZjWQOrTnx820km0FQfab9LuwOZx2pLuEcNlc4/LMqkOdPI
-         egoi1aizPbPu8SE4/i4RmXehi7msDK8BCnmsmDZenMtg1iOQOnciC+H0l1RFxmi1Y1
-         b7nFvBEtJ7DKsKNZi2cxRUWm/ZaLFAwmo374V+4k=
+        b=wHjUhCo9DyJjRDtW7OkfC1+OcdVMElDZ2q7SeBWWMqkiNJ1twvmOTU9MLf+pUW04y
+         eDqRUSumC5QNvx4LPsS7fVBFBEzFC9z/fI9DdLQLtG4TwxviULepesK8v12BYIsOEQ
+         3HdcNNoLtFciEW9o56SG1O/Nzhxhl8QufK/QIZB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 130/290] phy: qcom-qmp-combo: fix sc8180x reset
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 074/159] net: phy: xgmiitorgmii: Fix refcount leak in xgmiitorgmii_probe
 Date:   Tue, 10 Jan 2023 19:03:42 +0100
-Message-Id: <20230110180036.321887226@linuxfoundation.org>
+Message-Id: <20230110180020.666800414@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 910dd4883d757af5faac92590f33f0f7da963032 upstream.
+[ Upstream commit d039535850ee47079d59527e96be18d8e0daa84b ]
 
-The SC8180X has two resets but the DP configuration erroneously
-described only one.
+of_phy_find_device() return device node with refcount incremented.
+Call put_device() to relese it when not needed anymore.
 
-In case the DP part of the PHY is initialised before the USB part (e.g.
-depending on probe order), then only the first reset would be asserted.
-
-Fixes: 1633802cd4ac ("phy: qcom: qmp: Add SC8180x USB/DP combo")
-Cc: stable@vger.kernel.org	# 5.15
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Link: https://lore.kernel.org/r/20221114081346.5116-4-johan+linaro@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ab4e6ee578e8 ("net: phy: xgmiitorgmii: Check phy_driver ready before accessing")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qmp.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/phy/xilinx_gmii2rgmii.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-@@ -3417,8 +3417,8 @@ static const struct qmp_phy_cfg sc7180_d
+diff --git a/drivers/net/phy/xilinx_gmii2rgmii.c b/drivers/net/phy/xilinx_gmii2rgmii.c
+index 8dcb49ed1f3d..7fd9fe6a602b 100644
+--- a/drivers/net/phy/xilinx_gmii2rgmii.c
++++ b/drivers/net/phy/xilinx_gmii2rgmii.c
+@@ -105,6 +105,7 @@ static int xgmiitorgmii_probe(struct mdio_device *mdiodev)
  
- 	.clk_list		= qmp_v3_phy_clk_l,
- 	.num_clks		= ARRAY_SIZE(qmp_v3_phy_clk_l),
--	.reset_list		= sc7180_usb3phy_reset_l,
--	.num_resets		= ARRAY_SIZE(sc7180_usb3phy_reset_l),
-+	.reset_list		= msm8996_usb3phy_reset_l,
-+	.num_resets		= ARRAY_SIZE(msm8996_usb3phy_reset_l),
- 	.vreg_list		= qmp_phy_vreg_l,
- 	.num_vregs		= ARRAY_SIZE(qmp_phy_vreg_l),
- 	.regs			= qmp_v3_usb3phy_regs_layout,
+ 	if (!priv->phy_dev->drv) {
+ 		dev_info(dev, "Attached phy not ready\n");
++		put_device(&priv->phy_dev->mdio.dev);
+ 		return -EPROBE_DEFER;
+ 	}
+ 
+-- 
+2.35.1
+
 
 
