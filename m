@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61517664A59
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86E326648B2
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:14:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235151AbjAJScc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:32:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46822 "EHLO
+        id S239303AbjAJSOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:14:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234173AbjAJSbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B6097490
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:57 -0800 (PST)
+        with ESMTP id S239095AbjAJSN1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:13:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C531D0C9
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D62DB81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A95C433D2;
-        Tue, 10 Jan 2023 18:26:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEE4D6186D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E28FCC433EF;
+        Tue, 10 Jan 2023 18:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375215;
-        bh=s0kT/Y1VsWxsKgOLbCakZ/h0VaCKTkR4AhzbQxJecp4=;
+        s=korg; t=1673374327;
+        bh=FbV0q6beeAFmQblRc8HSsLotow8WXUVOUrnLu92Y8wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2HSpx17VKJVzMTomsDJBfvQEjkyg3gsCRpfe5YH9l/TJ2fcXt2BjAnVRNXTwPhE8L
-         XYqAa3iuBwJZqquDeeviPj2Fqmm9E3RISCCBM2xeegWVywphJ6ZlqfbSNKa9BybQ6V
-         yOX5l3mPhK/9ebNgoEZAlOXTKbrERFo/JBPP63/E=
+        b=YtAVSz+THTyzsw/Ti19JTxtsH4vyfihVA32cDgvTTnHlT5CzHu4V55LeLGka74oVt
+         6cxXBeIWv58EspT5YYFevqxl7NkLG8NVprFg0ZvHUlevgt2IjXZmB/KjUccBmcMiFj
+         Ma+kcmX58BGgI6QyaSz9hmr6uAmQimnEV56JNb0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Walle <michael@walle.cc>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.15 116/290] wifi: wilc1000: sdio: fix module autoloading
+        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 104/148] ASoC: SOF: Revert: "core: unregister clients and machine drivers in .shutdown"
 Date:   Tue, 10 Jan 2023 19:03:28 +0100
-Message-Id: <20230110180035.806444227@linuxfoundation.org>
+Message-Id: <20230110180020.483536549@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +57,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-commit 57d545b5a3d6ce3a8fb6b093f02bfcbb908973f3 upstream.
+[ Upstream commit 44fda61d2bcfb74a942df93959e083a4e8eff75f ]
 
-There are no SDIO module aliases included in the driver, therefore,
-module autoloading isn't working. Add the proper MODULE_DEVICE_TABLE().
+The unregister machine drivers call is not safe to do when
+kexec is used. Kexec-lite gets blocked with following backtrace:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221027171221.491937-1-michael@walle.cc
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[   84.943749] Freezing user space processes ... (elapsed 0.111 seconds) done.
+[  246.784446] INFO: task kexec-lite:5123 blocked for more than 122 seconds.
+[  246.819035] Call Trace:
+[  246.821782]  <TASK>
+[  246.824186]  __schedule+0x5f9/0x1263
+[  246.828231]  schedule+0x87/0xc5
+[  246.831779]  snd_card_disconnect_sync+0xb5/0x127
+...
+[  246.889249]  snd_sof_device_shutdown+0xb4/0x150
+[  246.899317]  pci_device_shutdown+0x37/0x61
+[  246.903990]  device_shutdown+0x14c/0x1d6
+[  246.908391]  kernel_kexec+0x45/0xb9
+
+This reverts commit 83bfc7e793b555291785136c3ae86abcdc046887.
+
+Reported-by: Ricardo Ribalda <ribalda@chromium.org>
+Cc: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Link: https://lore.kernel.org/r/20221209114529.3909192-3-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/microchip/wilc1000/sdio.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/sof/core.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
---- a/drivers/net/wireless/microchip/wilc1000/sdio.c
-+++ b/drivers/net/wireless/microchip/wilc1000/sdio.c
-@@ -20,6 +20,7 @@ static const struct sdio_device_id wilc_
- 	{ SDIO_DEVICE(SDIO_VENDOR_ID_MICROCHIP_WILC, SDIO_DEVICE_ID_MICROCHIP_WILC1000) },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(sdio, wilc_sdio_ids);
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index c99b5e6c026c..694a2d94a222 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -472,19 +472,10 @@ EXPORT_SYMBOL(snd_sof_device_remove);
+ int snd_sof_device_shutdown(struct device *dev)
+ {
+ 	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
+-	struct snd_sof_pdata *pdata = sdev->pdata;
  
- #define WILC_SDIO_BLOCK_SIZE 512
+ 	if (IS_ENABLED(CONFIG_SND_SOC_SOF_PROBE_WORK_QUEUE))
+ 		cancel_work_sync(&sdev->probe_work);
  
+-	/*
+-	 * make sure clients and machine driver(s) are unregistered to force
+-	 * all userspace devices to be closed prior to the DSP shutdown sequence
+-	 */
+-	sof_unregister_clients(sdev);
+-
+-	snd_sof_machine_unregister(sdev, pdata);
+-
+ 	if (sdev->fw_state == SOF_FW_BOOT_COMPLETE)
+ 		return snd_sof_shutdown(sdev);
+ 
+-- 
+2.35.1
+
 
 
