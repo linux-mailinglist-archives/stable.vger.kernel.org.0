@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A03664AC0
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D8E664993
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:23:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239203AbjAJSf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:35:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46948 "EHLO
+        id S239103AbjAJSXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239408AbjAJSfH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F9F872BD
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:31 -0800 (PST)
+        with ESMTP id S239247AbjAJSWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDED69084B
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 83C22CE18D1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C05AC433D2;
-        Tue, 10 Jan 2023 18:30:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79E236183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8705FC433D2;
+        Tue, 10 Jan 2023 18:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375427;
-        bh=qgRQMPUO1Uc+cH74o/UKEo8XOXmapK+SQ9IzDbHibi4=;
+        s=korg; t=1673374780;
+        bh=t8f8DNXiDvRnjw2hNIYtvv1DZHWqIdv5xXPmWN+vyXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ghNmI4w0i6iIxAvRKg3FXEj3TzpF/hAcV4trgaa1002vtKd9600cjlRsRortl6fHZ
-         bG3v2gtA6AUfJ+hc6zIQqf1fS+AdQWHv2PoGzdEXiYpO1V8DdldtqlngOkrm1T0sUe
-         2spwgvlklIW6znzLZvHbGd4WbcE4Xf8nAdhW4eU0=
+        b=AaxkSTUZ4URueZB1RYHWMSmpbRfNwnpAJg8sWVYNtmYvO1dWedl+/CH8qzbC8hNPC
+         7w20g/KJ6krgOop0kv6Jzz/HYBiJ/dm9uRLpqaLmDdmXm2sYvrUjEEtK3m3m4DriGD
+         iZnCT/pT70IFRuzbrjkZQ0fCmpeDfzypJcTvlhAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-fsd@tesla.com,
-        Smitha T Murthy <smitha.t@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 185/290] media: s5p-mfc: Clear workbit to handle error condition
-Date:   Tue, 10 Jan 2023 19:04:37 +0100
-Message-Id: <20230110180038.333194427@linuxfoundation.org>
+        patches@lists.linux.dev, Chuang Wang <nashuiliang@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>, Song Liu <song@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 6.1 130/159] bpf: Fix panic due to wrong pageattr of im->image
+Date:   Tue, 10 Jan 2023 19:04:38 +0100
+Message-Id: <20230110180022.489564078@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smitha T Murthy <smitha.t@samsung.com>
+From: Chuang Wang <nashuiliang@gmail.com>
 
-[ Upstream commit d3f3c2fe54e30b0636496d842ffbb5ad3a547f9b ]
+commit 9ed1d9aeef5842ecacb660fce933613b58af1e00 upstream.
 
-During error on CLOSE_INSTANCE command, ctx_work_bits was not getting
-cleared. During consequent mfc execution NULL pointer dereferencing of
-this context led to kernel panic. This patch fixes this issue by making
-sure to clear ctx_work_bits always.
+In the scenario where livepatch and kretfunc coexist, the pageattr of
+im->image is rox after arch_prepare_bpf_trampoline in
+bpf_trampoline_update, and then modify_fentry or register_fentry returns
+-EAGAIN from bpf_tramp_ftrace_ops_func, the BPF_TRAMP_F_ORIG_STACK flag
+will be configured, and arch_prepare_bpf_trampoline will be re-executed.
 
-Fixes: 818cd91ab8c6 ("[media] s5p-mfc: Extract open/close MFC instance commands")
+At this time, because the pageattr of im->image is rox,
+arch_prepare_bpf_trampoline will read and write im->image, which causes
+a fault. as follows:
+
+  insmod livepatch-sample.ko    # samples/livepatch/livepatch-sample.c
+  bpftrace -e 'kretfunc:cmdline_proc_show {}'
+
+BUG: unable to handle page fault for address: ffffffffa0206000
+PGD 322d067 P4D 322d067 PUD 322e063 PMD 1297e067 PTE d428061
+Oops: 0003 [#1] PREEMPT SMP PTI
+CPU: 2 PID: 270 Comm: bpftrace Tainted: G            E K    6.1.0 #5
+RIP: 0010:arch_prepare_bpf_trampoline+0xed/0x8c0
+RSP: 0018:ffffc90001083ad8 EFLAGS: 00010202
+RAX: ffffffffa0206000 RBX: 0000000000000020 RCX: 0000000000000000
+RDX: ffffffffa0206001 RSI: ffffffffa0206000 RDI: 0000000000000030
+RBP: ffffc90001083b70 R08: 0000000000000066 R09: ffff88800f51b400
+R10: 000000002e72c6e5 R11: 00000000d0a15080 R12: ffff8880110a68c8
+R13: 0000000000000000 R14: ffff88800f51b400 R15: ffffffff814fec10
+FS:  00007f87bc0dc780(0000) GS:ffff88803e600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffa0206000 CR3: 0000000010b70000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+ bpf_trampoline_update+0x25a/0x6b0
+ __bpf_trampoline_link_prog+0x101/0x240
+ bpf_trampoline_link_prog+0x2d/0x50
+ bpf_tracing_prog_attach+0x24c/0x530
+ bpf_raw_tp_link_attach+0x73/0x1d0
+ __sys_bpf+0x100e/0x2570
+ __x64_sys_bpf+0x1c/0x30
+ do_syscall_64+0x5b/0x80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+With this patch, when modify_fentry or register_fentry returns -EAGAIN
+from bpf_tramp_ftrace_ops_func, the pageattr of im->image will be reset
+to nx+rw.
+
 Cc: stable@vger.kernel.org
-Cc: linux-fsd@tesla.com
-Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 00963a2e75a8 ("bpf: Support bpf_trampoline on functions with IPMODIFY (e.g. livepatch)")
+Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Acked-by: Song Liu <song@kernel.org>
+Link: https://lore.kernel.org/r/20221224133146.780578-1-nashuiliang@gmail.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/bpf/trampoline.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c b/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
-index da138c314963..58822ec5370e 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
-@@ -468,8 +468,10 @@ void s5p_mfc_close_mfc_inst(struct s5p_mfc_dev *dev, struct s5p_mfc_ctx *ctx)
- 	s5p_mfc_hw_call(dev->mfc_ops, try_run, dev);
- 	/* Wait until instance is returned or timeout occurred */
- 	if (s5p_mfc_wait_for_done_ctx(ctx,
--				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0))
-+				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0)){
-+		clear_work_bit_irqsave(ctx);
- 		mfc_err("Err returning instance\n");
-+	}
- 
- 	/* Free resources */
- 	s5p_mfc_hw_call(dev->mfc_ops, release_codec_buffers, ctx);
--- 
-2.35.1
-
+--- a/kernel/bpf/trampoline.c
++++ b/kernel/bpf/trampoline.c
+@@ -489,6 +489,10 @@ again:
+ 		/* reset fops->func and fops->trampoline for re-register */
+ 		tr->fops->func = NULL;
+ 		tr->fops->trampoline = 0;
++
++		/* reset im->image memory attr for arch_prepare_bpf_trampoline */
++		set_memory_nx((long)im->image, 1);
++		set_memory_rw((long)im->image, 1);
+ 		goto again;
+ 	}
+ #endif
 
 
