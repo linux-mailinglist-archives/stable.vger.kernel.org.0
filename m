@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D1B664ACA
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42FF566496B
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239380AbjAJSgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:36:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
+        id S239177AbjAJSVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:21:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239393AbjAJSfD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:03 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 662A2A4C78
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:24 -0800 (PST)
+        with ESMTP id S239169AbjAJSUd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D897B4A96E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D402FCE18E4
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9040BC433EF;
-        Tue, 10 Jan 2023 18:30:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82E36B81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0D45C433D2;
+        Tue, 10 Jan 2023 18:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375421;
-        bh=TLPhNNOhWhH/1mz4q+rjssDv0vh6wmbTXvfKYYoEA6M=;
+        s=korg; t=1673374719;
+        bh=aLbKv6XLfTue2wCV/nY8BTSu4/Ky1k+5ZDJqu7uYoi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=csOe7ViJY1OONlR5GmAijP/f3rrpmG7KgeSW8DY6RrmbudaN0fPs+UY4IO/lxw8BG
-         vs9HNws0GNYMgBO9j2RzmOIxBRBb9SQJVuIL6W/heXfQmdOMoFtUazP+hMKDM46zRr
-         3S3TEc3u4WRITJJS5k2qaGnJDul90/k2Ll/Luwrg=
+        b=irvXbKQuysRYQxWWGMav/ZUgSNJt0/ZGzHb104Hcy35zqW42B6dX19184d2JQwkR2
+         /9PfM7AcS1m3SCmpTCKE6k1bStoMPMkBPeQjMDwssGTuf91L1yPQYd9yooxb45hYQr
+         Jbv+gAPdV8GKrfUUJYvTqFfSAv3PzR1H80nPrkPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, zanussi@kernel.org,
-        Zheng Yejian <zhengyejian1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 166/290] tracing: Fix issue of missing one synthetic field
-Date:   Tue, 10 Jan 2023 19:04:18 +0100
-Message-Id: <20230110180037.639531066@linuxfoundation.org>
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 111/159] ASoC: Intel: bytcr_rt5640: Add quirk for the Advantech MICA-071 tablet
+Date:   Tue, 10 Jan 2023 19:04:19 +0100
+Message-Id: <20230110180021.824407072@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit ff4837f7fe59ff018eca4705a70eca5e0b486b97 upstream.
+[ Upstream commit a1dec9d70b6ad97087b60b81d2492134a84208c6 ]
 
-The maximum number of synthetic fields supported is defined as
-SYNTH_FIELDS_MAX which value currently is 64, but it actually fails
-when try to generate a synthetic event with 64 fields by executing like:
+The Advantech MICA-071 tablet deviates from the defaults for
+a non CR Bay Trail based tablet in several ways:
 
-  # echo "my_synth_event int v1; int v2; int v3; int v4; int v5; int v6;\
-   int v7; int v8; int v9; int v10; int v11; int v12; int v13; int v14;\
-   int v15; int v16; int v17; int v18; int v19; int v20; int v21; int v22;\
-   int v23; int v24; int v25; int v26; int v27; int v28; int v29; int v30;\
-   int v31; int v32; int v33; int v34; int v35; int v36; int v37; int v38;\
-   int v39; int v40; int v41; int v42; int v43; int v44; int v45; int v46;\
-   int v47; int v48; int v49; int v50; int v51; int v52; int v53; int v54;\
-   int v55; int v56; int v57; int v58; int v59; int v60; int v61; int v62;\
-   int v63; int v64" >> /sys/kernel/tracing/synthetic_events
+1. It uses an analog MIC on IN3 rather then using DMIC1
+2. It only has 1 speaker
+3. It needs the OVCD current threshold to be set to 1500uA instead of
+   the default 2000uA to reliable differentiate between headphones vs
+   headsets
 
-Correct the field counting to fix it.
+Add a quirk with these settings for this tablet.
 
-Link: https://lore.kernel.org/linux-trace-kernel/20221207091557.3137904-1-zhengyejian1@huawei.com
-
-Cc: <mhiramat@kernel.org>
-Cc: <zanussi@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: c9e759b1e845 ("tracing: Rework synthetic event command parsing")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-[Fix conflict due to lack of c24be24aed405d64ebcf04526614c13b2adfb1d2]
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20221213123246.11226-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_synth.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/kernel/trace/trace_events_synth.c
-+++ b/kernel/trace/trace_events_synth.c
-@@ -1275,12 +1275,12 @@ static int __create_synth_event(const ch
- 				goto err;
- 			}
- 
--			fields[n_fields++] = field;
- 			if (n_fields == SYNTH_FIELDS_MAX) {
- 				synth_err(SYNTH_ERR_TOO_MANY_FIELDS, 0);
- 				ret = -EINVAL;
- 				goto err;
- 			}
-+			fields[n_fields++] = field;
- 
- 			n_fields_this_loop++;
- 		}
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index fb9d9e271845..ddd2625bed90 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -570,6 +570,21 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_SSP0_AIF1 |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{
++		/* Advantech MICA-071 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Advantech"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MICA-071"),
++		},
++		/* OVCD Th = 1500uA to reliable detect head-phones vs -set */
++		.driver_data = (void *)(BYT_RT5640_IN3_MAP |
++					BYT_RT5640_JD_SRC_JD2_IN4N |
++					BYT_RT5640_OVCD_TH_1500UA |
++					BYT_RT5640_OVCD_SF_0P75 |
++					BYT_RT5640_MONO_SPEAKER |
++					BYT_RT5640_DIFF_MIC |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ARCHOS"),
+-- 
+2.35.1
+
 
 
