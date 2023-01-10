@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B2796648A3
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:13:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F7566493D
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239022AbjAJSNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:13:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53226 "EHLO
+        id S239116AbjAJSTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:19:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239025AbjAJSMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32E05BF42
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:13 -0800 (PST)
+        with ESMTP id S239137AbjAJSSr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:18:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF3A19085A
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C52C56187E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9074C433AC;
-        Tue, 10 Jan 2023 18:11:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A0D2B81901
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1636C433F0;
+        Tue, 10 Jan 2023 18:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374272;
-        bh=IP+4s/k+bzBJn3D5iiaZOX/SeDn5Z15NhHYYtopFoxU=;
+        s=korg; t=1673374614;
+        bh=i81+vgyo5eoEMD33WPTo3oucR8Vtafk+UhU2oREnPhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UqH90pos/eGOoZUlPpJjISk+3s/dGQNL86J3GI+bPA5dJUCy+AChHdljSnCjVPaHl
-         ib5fp1Naw6t0Lum7VtQW85exAm+u2viANDsHCIJDzTS5LI1u1rMkwGHoOxBDHqzfPc
-         V20EDYeW1T+hr75KeUbBR4UOSZjkJw/XOiWyBPwI=
+        b=hKLvJ4N/EkJ2rxqvUDBV6l/65plWZAomtqNPEO0J83tDZFlNeRigROXbBGN/Kyuu9
+         01YjdZMeoQyZxs0qjrDGt2ygPtQ2+zH0KWyQdbq5Zb/ryTTEbzdAgrfd/kmUiUT1pX
+         EbooRGdvxOP5ZzPZUWnRDuJjnnY6Z7Vw2BHVinkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yanjun Zhang <zhangyanjun@cestc.cn>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 111/148] nvme: fix multipath crash caused by flush request when blktrace is enabled
+        patches@lists.linux.dev, Nati Koler <nkoler@amazon.com>,
+        David Arinzon <darinzon@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 067/159] net: ena: Fix toeplitz initial hash value
 Date:   Tue, 10 Jan 2023 19:03:35 +0100
-Message-Id: <20230110180020.709044109@linuxfoundation.org>
+Message-Id: <20230110180020.432392199@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,78 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanjun Zhang <zhangyanjun@cestc.cn>
+From: David Arinzon <darinzon@amazon.com>
 
-[ Upstream commit 3659fb5ac29a5e6102bebe494ac789fd47fb78f4 ]
+[ Upstream commit 332b49ff637d6c1a75b971022a8b992cf3c57db1 ]
 
-The flush request initialized by blk_kick_flush has NULL bio,
-and it may be dealt with nvme_end_req during io completion.
-When blktrace is enabled, nvme_trace_bio_complete with multipath
-activated trying to access NULL pointer bio from flush request
-results in the following crash:
+On driver initialization, RSS hash initial value is set to zero,
+instead of the default value. This happens because we pass NULL as
+the RSS key parameter, which caused us to never initialize
+the RSS hash value.
 
-[ 2517.831677] BUG: kernel NULL pointer dereference, address: 000000000000001a
-[ 2517.835213] #PF: supervisor read access in kernel mode
-[ 2517.838724] #PF: error_code(0x0000) - not-present page
-[ 2517.842222] PGD 7b2d51067 P4D 0
-[ 2517.845684] Oops: 0000 [#1] SMP NOPTI
-[ 2517.849125] CPU: 2 PID: 732 Comm: kworker/2:1H Kdump: loaded Tainted: G S                5.15.67-0.cl9.x86_64 #1
-[ 2517.852723] Hardware name: XFUSION 2288H V6/BC13MBSBC, BIOS 1.13 07/27/2022
-[ 2517.856358] Workqueue: nvme_tcp_wq nvme_tcp_io_work [nvme_tcp]
-[ 2517.859993] RIP: 0010:blk_add_trace_bio_complete+0x6/0x30
-[ 2517.863628] Code: 1f 44 00 00 48 8b 46 08 31 c9 ba 04 00 10 00 48 8b 80 50 03 00 00 48 8b 78 50 e9 e5 fe ff ff 0f 1f 44 00 00 41 54 49 89 f4 55 <0f> b6 7a 1a 48 89 d5 e8 3e 1c 2b 00 48 89 ee 4c 89 e7 5d 89 c1 ba
-[ 2517.871269] RSP: 0018:ff7f6a008d9dbcd0 EFLAGS: 00010286
-[ 2517.875081] RAX: ff3d5b4be00b1d50 RBX: 0000000002040002 RCX: ff3d5b0a270f2000
-[ 2517.878966] RDX: 0000000000000000 RSI: ff3d5b0b021fb9f8 RDI: 0000000000000000
-[ 2517.882849] RBP: ff3d5b0b96a6fa00 R08: 0000000000000001 R09: 0000000000000000
-[ 2517.886718] R10: 000000000000000c R11: 000000000000000c R12: ff3d5b0b021fb9f8
-[ 2517.890575] R13: 0000000002000000 R14: ff3d5b0b021fb1b0 R15: 0000000000000018
-[ 2517.894434] FS:  0000000000000000(0000) GS:ff3d5b42bfc80000(0000) knlGS:0000000000000000
-[ 2517.898299] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2517.902157] CR2: 000000000000001a CR3: 00000004f023e005 CR4: 0000000000771ee0
-[ 2517.906053] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 2517.909930] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 2517.913761] PKRU: 55555554
-[ 2517.917558] Call Trace:
-[ 2517.921294]  <TASK>
-[ 2517.924982]  nvme_complete_rq+0x1c3/0x1e0 [nvme_core]
-[ 2517.928715]  nvme_tcp_recv_pdu+0x4d7/0x540 [nvme_tcp]
-[ 2517.932442]  nvme_tcp_recv_skb+0x4f/0x240 [nvme_tcp]
-[ 2517.936137]  ? nvme_tcp_recv_pdu+0x540/0x540 [nvme_tcp]
-[ 2517.939830]  tcp_read_sock+0x9c/0x260
-[ 2517.943486]  nvme_tcp_try_recv+0x65/0xa0 [nvme_tcp]
-[ 2517.947173]  nvme_tcp_io_work+0x64/0x90 [nvme_tcp]
-[ 2517.950834]  process_one_work+0x1e8/0x390
-[ 2517.954473]  worker_thread+0x53/0x3c0
-[ 2517.958069]  ? process_one_work+0x390/0x390
-[ 2517.961655]  kthread+0x10c/0x130
-[ 2517.965211]  ? set_kthread_struct+0x40/0x40
-[ 2517.968760]  ret_from_fork+0x1f/0x30
-[ 2517.972285]  </TASK>
+This patch fixes it by making sure the initial value is set, no matter
+what the value of the RSS key is.
 
-To avoid this situation, add a NULL check for req->bio before
-calling trace_block_bio_complete.
-
-Signed-off-by: Yanjun Zhang <zhangyanjun@cestc.cn>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 91a65b7d3ed8 ("net: ena: fix potential crash when rxfh key is NULL")
+Signed-off-by: Nati Koler <nkoler@amazon.com>
+Signed-off-by: David Arinzon <darinzon@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/nvme.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 29 +++++++----------------
+ 1 file changed, 9 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 70555022cb44..35352206b5de 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -872,7 +872,7 @@ static inline void nvme_trace_bio_complete(struct request *req)
- {
- 	struct nvme_ns *ns = req->q->queuedata;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index 8c8b4c88c7de..451c3a1b6255 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -2400,29 +2400,18 @@ int ena_com_fill_hash_function(struct ena_com_dev *ena_dev,
+ 		return -EOPNOTSUPP;
+ 	}
  
--	if (req->cmd_flags & REQ_NVME_MPATH)
-+	if ((req->cmd_flags & REQ_NVME_MPATH) && req->bio)
- 		trace_block_bio_complete(ns->head->disk->queue, req->bio);
- }
+-	switch (func) {
+-	case ENA_ADMIN_TOEPLITZ:
+-		if (key) {
+-			if (key_len != sizeof(hash_key->key)) {
+-				netdev_err(ena_dev->net_device,
+-					   "key len (%u) doesn't equal the supported size (%zu)\n",
+-					   key_len, sizeof(hash_key->key));
+-				return -EINVAL;
+-			}
+-			memcpy(hash_key->key, key, key_len);
+-			rss->hash_init_val = init_val;
+-			hash_key->key_parts = key_len / sizeof(hash_key->key[0]);
++	if ((func == ENA_ADMIN_TOEPLITZ) && key) {
++		if (key_len != sizeof(hash_key->key)) {
++			netdev_err(ena_dev->net_device,
++				   "key len (%u) doesn't equal the supported size (%zu)\n",
++				   key_len, sizeof(hash_key->key));
++			return -EINVAL;
+ 		}
+-		break;
+-	case ENA_ADMIN_CRC32:
+-		rss->hash_init_val = init_val;
+-		break;
+-	default:
+-		netdev_err(ena_dev->net_device, "Invalid hash function (%d)\n",
+-			   func);
+-		return -EINVAL;
++		memcpy(hash_key->key, key, key_len);
++		hash_key->key_parts = key_len / sizeof(hash_key->key[0]);
+ 	}
  
++	rss->hash_init_val = init_val;
+ 	old_func = rss->hash_func;
+ 	rss->hash_func = func;
+ 	rc = ena_com_set_hash_function(ena_dev);
 -- 
 2.35.1
 
