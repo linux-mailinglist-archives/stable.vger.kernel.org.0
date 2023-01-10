@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30818664B47
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:40:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA6A4664B6C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:43:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239585AbjAJSko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:40:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53000 "EHLO
+        id S235404AbjAJSnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:43:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239653AbjAJSkU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:40:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C87555865
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:34:45 -0800 (PST)
+        with ESMTP id S239409AbjAJSmf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:42:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59AF41BE84
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:36:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E886EB818E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:34:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36AF2C433EF;
-        Tue, 10 Jan 2023 18:34:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07819B81906
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:36:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF95C433D2;
+        Tue, 10 Jan 2023 18:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375682;
-        bh=wIJKBYaQ1VXqSBSFwrxCbb9ti8ZKJ7yZl0stDP+aba8=;
+        s=korg; t=1673375772;
+        bh=dd92YWzFiVZhgBOTETbDWYg8nbJN+PJhfSxol844Rnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Agf3AA7NMlAkwEQhp/79HlWoQi9QOgMzuBlcKTRLrfezBHFhcuxK+hv2Z5ApqGKRj
-         iFw3EqYKOjHrouN7Nuk/1EybMR7gU1bTXMhP/EMqIdb1jfA32TipxQ2tsPBxy8FNKb
-         +UC6qPhB6EzkNu6HHmvt9Wb7mDtDeMNrFBZ7uoXM=
+        b=lCOSY6Nxin2jJuJ1Gb9FQwgJmF77Z7jTLaUUGVYWNxgfiiJP2IqL1Eclh51VCzEFN
+         sntLxvGIEeQT0hHCbaWjyvezef9LicQjmO5PPxyaJHusBqjMUNqt9xtZXTGRn6YD6W
+         qksWPLS106Qf6EslJOTUysvYTjJtUM14ZUx4BbvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rodrigo Branco <bsdaemon@google.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.15 266/290] x86/bugs: Flush IBP in ib_prctl_set()
-Date:   Tue, 10 Jan 2023 19:05:58 +0100
-Message-Id: <20230110180041.155443404@linuxfoundation.org>
+        patches@lists.linux.dev, Steve Dickson <steved@redhat.com>,
+        JianHong Yin <yin-jianhong@163.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.15 267/290] nfsd: fix handling of readdir in v4root vs. mount upcall timeout
+Date:   Tue, 10 Jan 2023 19:05:59 +0100
+Message-Id: <20230110180041.185830868@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -53,31 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Branco <bsdaemon@google.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit a664ec9158eeddd75121d39c9a0758016097fa96 upstream.
+commit cad853374d85fe678d721512cecfabd7636e51f3 upstream.
 
-We missed the window between the TIF flag update and the next reschedule.
+If v4 READDIR operation hits a mountpoint and gets back an error,
+then it will include that entry in the reply and set RDATTR_ERROR for it
+to the error.
 
-Signed-off-by: Rodrigo Branco <bsdaemon@google.com>
-Reviewed-by: Borislav Petkov (AMD) <bp@alien8.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+That's fine for "normal" exported filesystems, but on the v4root, we
+need to be more careful to only expose the existence of dentries that
+lead to exports.
+
+If the mountd upcall times out while checking to see whether a
+mountpoint on the v4root is exported, then we have no recourse other
+than to fail the whole operation.
+
+Cc: Steve Dickson <steved@redhat.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216777
+Reported-by: JianHong Yin <yin-jianhong@163.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/bugs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfsd/nfs4xdr.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1951,6 +1951,8 @@ static int ib_prctl_set(struct task_stru
- 		if (ctrl == PR_SPEC_FORCE_DISABLE)
- 			task_set_spec_ib_force_disable(task);
- 		task_update_spec_tif(task);
-+		if (task == current)
-+			indirect_branch_prediction_barrier();
- 		break;
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -3514,6 +3514,17 @@ nfsd4_encode_dirent(void *ccdv, const ch
+ 	case nfserr_noent:
+ 		xdr_truncate_encode(xdr, start_offset);
+ 		goto skip_entry;
++	case nfserr_jukebox:
++		/*
++		 * The pseudoroot should only display dentries that lead to
++		 * exports. If we get EJUKEBOX here, then we can't tell whether
++		 * this entry should be included. Just fail the whole READDIR
++		 * with NFS4ERR_DELAY in that case, and hope that the situation
++		 * will resolve itself by the client's next attempt.
++		 */
++		if (cd->rd_fhp->fh_export->ex_flags & NFSEXP_V4ROOT)
++			goto fail;
++		fallthrough;
  	default:
- 		return -ERANGE;
+ 		/*
+ 		 * If the client requested the RDATTR_ERROR attribute,
 
 
