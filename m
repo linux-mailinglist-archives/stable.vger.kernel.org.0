@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDDD7664A0E
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 632146648F1
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239191AbjAJS3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:29:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42132 "EHLO
+        id S239017AbjAJSQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:16:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239399AbjAJS20 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CB404E427
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:07 -0800 (PST)
+        with ESMTP id S239098AbjAJSP4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D94614D3B
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:14:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1911CB81903
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74315C433D2;
-        Tue, 10 Jan 2023 18:24:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A0146184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49EFEC433F0;
+        Tue, 10 Jan 2023 18:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375044;
-        bh=pAy+j9Xm+TGWLsRfvcQ04jwxyR262ZZfCzejTTc/S7s=;
+        s=korg; t=1673374444;
+        bh=8N9IoaFFPEWKDahZmRc4MIX/AxAv9fs11GFAWzj2gWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xyz5CwUC0tzV/xpVKc2Ht+6Zvj63ZaQIEOffbSjRJ9J7tRVH3g6UEylw6ggcTd771
-         8DVRKJ8g3L5AjJ2UkFJ6P9SrnzmO6AMrAf4t/DSjQ3QNUyIuPiy7EFM/BLgYbz7wo3
-         BSqwmzY2BCSZPVznpLLl54T6Um7HB/n85wN/KZlI=
+        b=LGlBYFIFTOloiT/4pHayFz8lS8CSerSsM2F5wNaIl7Mn/g0qrfrnjRsAogzWf3XZc
+         PppRtAvoNc54Q31ko/qfjG9rGkIT8GwoktN6T0U/vZGHLhBixlWGmnSdmysZabuX5x
+         XpsYQ79h23BlM7BQzEykVVEJ2bAYv4+g+lLXk5mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hangbin Liu <liuhangbin@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH 5.15 058/290] net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO
-Date:   Tue, 10 Jan 2023 19:02:30 +0100
-Message-Id: <20230110180033.628653984@linuxfoundation.org>
+        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 6.1 003/159] cifs: fix interface count calculation during refresh
+Date:   Tue, 10 Jan 2023 19:02:31 +0100
+Message-Id: <20230110180018.402708055@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,90 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit dfed913e8b55a0c2c4906f1242fd38fd9a116e49 upstream.
+commit cc7d79d4fad6a4eab3f88c4bb237de72be4478f1 upstream.
 
-Currently, the kernel drops GSO VLAN tagged packet if it's created with
-socket(AF_PACKET, SOCK_RAW, 0) plus virtio_net_hdr.
+The last fix to iface_count did fix the overcounting issue.
+However, during each refresh, we could end up undercounting
+the iface_count, if a match was found.
 
-The reason is AF_PACKET doesn't adjust the skb network header if there is
-a VLAN tag. Then after virtio_net_hdr_set_proto() called, the skb->protocol
-will be set to ETH_P_IP/IPv6. And in later inet/ipv6_gso_segment() the skb
-is dropped as network header position is invalid.
+Fixing this by doing increments and decrements instead of
+setting it to 0 before each parsing of server interfaces.
 
-Let's handle VLAN packets by adjusting network header position in
-packet_parse_headers(). The adjustment is safe and does not affect the
-later xmit as tap device also did that.
-
-In packet_snd(), packet_parse_headers() need to be moved before calling
-virtio_net_hdr_set_proto(), so we can set correct skb->protocol and
-network header first.
-
-There is no need to update tpacket_snd() as it calls packet_parse_headers()
-in tpacket_fill_skb(), which is already before calling virtio_net_hdr_*
-functions.
-
-skb->no_fcs setting is also moved upper to make all skb settings together
-and keep consistency with function packet_sendmsg_spkt().
-
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20220425014502.985464-1-liuhangbin@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+Fixes: 096bbeec7bd6 ("smb3: interface count displayed incorrectly")
+Cc: stable@vger.kernel.org # 6.1
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/packet/af_packet.c |   18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ fs/cifs/smb2ops.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1888,12 +1888,20 @@ oom:
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -530,7 +530,6 @@ parse_server_interfaces(struct network_i
+ 	p = buf;
  
- static void packet_parse_headers(struct sk_buff *skb, struct socket *sock)
- {
-+	int depth;
-+
- 	if ((!skb->protocol || skb->protocol == htons(ETH_P_ALL)) &&
- 	    sock->type == SOCK_RAW) {
- 		skb_reset_mac_header(skb);
- 		skb->protocol = dev_parse_header_protocol(skb);
+ 	spin_lock(&ses->iface_lock);
+-	ses->iface_count = 0;
+ 	/*
+ 	 * Go through iface_list and do kref_put to remove
+ 	 * any unused ifaces. ifaces in use will be removed
+@@ -540,6 +539,7 @@ parse_server_interfaces(struct network_i
+ 				 iface_head) {
+ 		iface->is_active = 0;
+ 		kref_put(&iface->refcount, release_iface);
++		ses->iface_count--;
  	}
+ 	spin_unlock(&ses->iface_lock);
  
-+	/* Move network header to the right position for VLAN tagged packets */
-+	if (likely(skb->dev->type == ARPHRD_ETHER) &&
-+	    eth_type_vlan(skb->protocol) &&
-+	    __vlan_get_protocol(skb, skb->protocol, &depth) != 0)
-+		skb_set_network_header(skb, depth);
-+
- 	skb_probe_transport_header(skb);
- }
- 
-@@ -3008,6 +3016,11 @@ static int packet_snd(struct socket *soc
- 	skb->mark = sockc.mark;
- 	skb->tstamp = sockc.transmit_time;
- 
-+	if (unlikely(extra_len == 4))
-+		skb->no_fcs = 1;
-+
-+	packet_parse_headers(skb, sock);
-+
- 	if (has_vnet_hdr) {
- 		err = virtio_net_hdr_to_skb(skb, &vnet_hdr, vio_le());
- 		if (err)
-@@ -3016,11 +3029,6 @@ static int packet_snd(struct socket *soc
- 		virtio_net_hdr_set_proto(skb, &vnet_hdr);
- 	}
- 
--	packet_parse_headers(skb, sock);
--
--	if (unlikely(extra_len == 4))
--		skb->no_fcs = 1;
--
- 	err = po->xmit(skb);
- 	if (unlikely(err != 0)) {
- 		if (err > 0)
+@@ -618,6 +618,7 @@ parse_server_interfaces(struct network_i
+ 				/* just get a ref so that it doesn't get picked/freed */
+ 				iface->is_active = 1;
+ 				kref_get(&iface->refcount);
++				ses->iface_count++;
+ 				spin_unlock(&ses->iface_lock);
+ 				goto next_iface;
+ 			} else if (ret < 0) {
 
 
