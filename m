@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17334664956
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00C12664A8C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239186AbjAJSUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:20:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60758 "EHLO
+        id S239270AbjAJSdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:33:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239271AbjAJSUE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73B7A13DC4
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:49 -0800 (PST)
+        with ESMTP id S238747AbjAJScg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 171AC327
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C3B9B818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BD79C433D2;
-        Tue, 10 Jan 2023 18:17:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 85FF1CE18D1
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7377EC433D2;
+        Tue, 10 Jan 2023 18:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374666;
-        bh=p4dt/o+VKh4m5q/5yUy2pks5GSDjSqYgTOIINbJLB90=;
+        s=korg; t=1673375309;
+        bh=YXsvVkbz4VetYhwqccxBJRYFNckHVXQjcLQThVKAgvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdJWINTO85eL75I/zARoIts8O+HKVsMMoLuShUwaNpp5+LLnKlY/Pn2HDB1B1p72E
-         HDXM732h8x8BxR3X+I9oa7B+MZaWHLgOsr0zJq69w8QZpzwbuKOAsr3yHHHRlv10B5
-         LLH2Y3aeb3ePwo2NibklGk602uA9di6FX7jeTs3s=
+        b=KN+PvN+YM4582yYaLqGiY69HGiFuEq6nH2q19nRnIXzgXH+zK/dexHfXWAmICY8IC
+         eUXFwZgBGv/1kPrEfzVz2REfSh1hTOJ6+evoQ+MKeEsNIJzVQUTSHwiH3chWxXEw6o
+         1QW11dNaVd4iR3ljwWNQS2Nr1a0lSirYxjC9CIp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Ian Ray <ian.ray@ge.com>,
-        Philipp Zabel <philipp.zabel@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 092/159] drm/imx: ipuv3-plane: Fix overlay plane width
+        patches@lists.linux.dev,
+        syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com,
+        Ye Bin <yebin10@huawei.com>, Eric Whitney <enwlinux@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.15 148/290] ext4: fix reserved cluster accounting in __es_remove_extent()
 Date:   Tue, 10 Jan 2023 19:04:00 +0100
-Message-Id: <20230110180021.227656377@linuxfoundation.org>
+Message-Id: <20230110180036.945422079@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 92d43bd3bc9728c1fb114d7011d46f5ea9489e28 ]
+commit 1da18e38cb97e9521e93d63034521a9649524f64 upstream.
 
-ipu_src_rect_width() was introduced to support odd screen resolutions
-such as 1366x768 by internally rounding up primary plane width to a
-multiple of 8 and compensating with reduced horizontal blanking.
-This also caused overlay plane width to be rounded up, which was not
-intended. Fix overlay plane width by limiting the rounding up to the
-primary plane.
+When bigalloc is enabled, reserved cluster accounting for delayed
+allocation is handled in extent_status.c.  With a corrupted file
+system, it's possible for this accounting to be incorrect,
+dsicovered by Syzbot:
 
-drm_rect_width(&new_state->src) >> 16 is the same value as
-drm_rect_width(dst) because there is no plane scaling support.
+EXT4-fs error (device loop0): ext4_validate_block_bitmap:398: comm rep:
+	bg 0: block 5: invalid block bitmap
+EXT4-fs (loop0): Delayed block allocation failed for inode 18 at logical
+	offset 0 with max blocks 32 with error 28
+EXT4-fs (loop0): This should not happen!! Data will be lost
 
-Fixes: 94dfec48fca7 ("drm/imx: Add 8 pixel alignment fix")
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Link: https://lore.kernel.org/r/20221108141420.176696-1-p.zabel@pengutronix.de
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221108141420.176696-1-p.zabel@pengutronix.de
-Tested-by: Ian Ray <ian.ray@ge.com>
-(cherry picked from commit 4333472f8d7befe62359fecb1083cd57a6e07bfc)
-Signed-off-by: Philipp Zabel <philipp.zabel@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+EXT4-fs (loop0): Total free blocks count 0
+EXT4-fs (loop0): Free/Dirty block details
+EXT4-fs (loop0): free_blocks=0
+EXT4-fs (loop0): dirty_blocks=32
+EXT4-fs (loop0): Block reservation details
+EXT4-fs (loop0): i_reserved_data_blocks=2
+EXT4-fs (loop0): Inode 18 (00000000845cd634):
+	i_reserved_data_blocks (1) not cleared!
+
+Above issue happens as follows:
+Assume:
+sbi->s_cluster_ratio = 16
+Step1:
+Insert delay block [0, 31] -> ei->i_reserved_data_blocks=2
+Step2:
+ext4_writepages
+  mpage_map_and_submit_extent -> return failed
+  mpage_release_unused_pages -> to release [0, 30]
+    ext4_es_remove_extent -> remove lblk=0 end=30
+      __es_remove_extent -> len1=0 len2=31-30=1
+ __es_remove_extent:
+ ...
+ if (len2 > 0) {
+  ...
+	  if (len1 > 0) {
+		  ...
+	  } else {
+		es->es_lblk = end + 1;
+		es->es_len = len2;
+		...
+	  }
+  	if (count_reserved)
+		count_rsvd(inode, lblk, ...);
+	goto out; -> will return but didn't calculate 'reserved'
+ ...
+Step3:
+ext4_destroy_inode -> trigger "i_reserved_data_blocks (1) not cleared!"
+
+To solve above issue if 'len2>0' call 'get_rsvd()' before goto out.
+
+Reported-by: syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com
+Fixes: 8fcc3a580651 ("ext4: rework reserved cluster accounting when invalidating pages")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Eric Whitney <enwlinux@gmail.com>
+Link: https://lore.kernel.org/r/20221208033426.1832460-2-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/imx/ipuv3-plane.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ fs/ext4/extents_status.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
-index dba4f7d81d69..80142d9a4a55 100644
---- a/drivers/gpu/drm/imx/ipuv3-plane.c
-+++ b/drivers/gpu/drm/imx/ipuv3-plane.c
-@@ -614,6 +614,11 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 		break;
+--- a/fs/ext4/extents_status.c
++++ b/fs/ext4/extents_status.c
+@@ -1372,7 +1372,7 @@ retry:
+ 		if (count_reserved)
+ 			count_rsvd(inode, lblk, orig_es.es_len - len1 - len2,
+ 				   &orig_es, &rc);
+-		goto out;
++		goto out_get_reserved;
  	}
  
-+	if (ipu_plane->dp_flow == IPU_DP_FLOW_SYNC_BG)
-+		width = ipu_src_rect_width(new_state);
-+	else
-+		width = drm_rect_width(&new_state->src) >> 16;
-+
- 	eba = drm_plane_state_to_eba(new_state, 0);
- 
- 	/*
-@@ -622,8 +627,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 	 */
- 	if (ipu_state->use_pre) {
- 		axi_id = ipu_chan_assign_axi_id(ipu_plane->dma);
--		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id,
--					  ipu_src_rect_width(new_state),
-+		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id, width,
- 					  drm_rect_height(&new_state->src) >> 16,
- 					  fb->pitches[0], fb->format->format,
- 					  fb->modifier, &eba);
-@@ -678,9 +682,8 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 		break;
+ 	if (len1 > 0) {
+@@ -1414,6 +1414,7 @@ retry:
+ 		}
  	}
  
--	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, ALIGN(drm_rect_width(dst), 8));
-+	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, width);
- 
--	width = ipu_src_rect_width(new_state);
- 	height = drm_rect_height(&new_state->src) >> 16;
- 	info = drm_format_info(fb->format->format);
- 	ipu_calculate_bursts(width, info->cpp[0], fb->pitches[0],
-@@ -744,8 +747,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 		ipu_cpmem_set_burstsize(ipu_plane->ipu_ch, 16);
- 
- 		ipu_cpmem_zero(ipu_plane->alpha_ch);
--		ipu_cpmem_set_resolution(ipu_plane->alpha_ch,
--					 ipu_src_rect_width(new_state),
-+		ipu_cpmem_set_resolution(ipu_plane->alpha_ch, width,
- 					 drm_rect_height(&new_state->src) >> 16);
- 		ipu_cpmem_set_format_passthrough(ipu_plane->alpha_ch, 8);
- 		ipu_cpmem_set_high_priority(ipu_plane->alpha_ch);
--- 
-2.35.1
-
++out_get_reserved:
+ 	if (count_reserved)
+ 		*reserved = get_rsvd(inode, end, es, &rc);
+ out:
 
 
