@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 948D6664861
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5CE6648F7
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234097AbjAJSLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48940 "EHLO
+        id S239098AbjAJSQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:16:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238955AbjAJSKR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21D5FED
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:38 -0800 (PST)
+        with ESMTP id S239077AbjAJSQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F2615FD6
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:14:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CA2361866
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FDC4C433D2;
-        Tue, 10 Jan 2023 18:08:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A59606184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89817C433D2;
+        Tue, 10 Jan 2023 18:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374117;
-        bh=dgBuJ/wNFAepbRyhDsrrdjQVSLl/ASi5irr8hnsThJs=;
+        s=korg; t=1673374459;
+        bh=23Y+SkDURi9CGMI5edQEczX2f06PQaExVNlvLySayM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iyr/EZ1yVvRO1In89JBXBaGysIqUzC9Rr1AzB50pC3aRFmZA7tpA2amVoHFfqgEEX
-         Yr6tqyoLZhw+3ikE5Q07yy7OAFra4LeoDB6RxrXvORns/ENK7gmE1WitFv+NmAFTHW
-         bahJCjV065uDfob4wlTmXIOxd/u12oRi1TAcg0t4=
+        b=ladEYRChHHwzIhfVMbEuTpf5UIW+WxScLJyEkRZyJ0XVoz6SG7ckerAvow6wgd4S2
+         s1uPibTvvZLaPdcxfoMBHuMPAcyjn7CuNypRfRts/TGaar9oBici4eULQyFBFSRVGH
+         5+JRNDNotVGMnl5FAhyczAzqWqwHGr2nXyNhpKTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 052/148] net/mlx5: Fix io_eq_size and event_eq_size params validation
+Subject: [PATCH 6.1 008/159] perf probe: Use dwarf_attr_integrate as generic DWARF attr accessor
 Date:   Tue, 10 Jan 2023 19:02:36 +0100
-Message-Id: <20230110180018.876633126@linuxfoundation.org>
+Message-Id: <20230110180018.571015962@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +59,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-[ Upstream commit 44aee8ea15ac205490a41b00cbafcccbf9f7f82b ]
+[ Upstream commit f828929ab7f0dc3353e4a617f94f297fa8f3dec3 ]
 
-io_eq_size and event_eq_size params are of param type
-DEVLINK_PARAM_TYPE_U32. But, the validation callback is addressing them
-as DEVLINK_PARAM_TYPE_U16.
+Use dwarf_attr_integrate() instead of dwarf_attr() for generic attribute
+acccessor functions, so that it can find the specified attribute from
+abstact origin DIE etc.
 
-This cause mismatch in validation in big-endian systems, in which
-values in range were rejected while 268500991 was accepted.
-Fix it by checking the U32 value in the validation callback.
-
-Fixes: 0844fa5f7b89 ("net/mlx5: Let user configure io_eq_size param")
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/166731051988.2100653.13595339994343449770.stgit@devnote3
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Stable-dep-of: a9dfc46c67b5 ("perf probe: Fix to get the DW_AT_decl_file and DW_AT_call_file as unsinged data")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/devlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/dwarf-aux.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-index 66c6a7017695..9e4e8d551884 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-@@ -563,7 +563,7 @@ static int mlx5_devlink_eq_depth_validate(struct devlink *devlink, u32 id,
- 					  union devlink_param_value val,
- 					  struct netlink_ext_ack *extack)
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index 609ca1671501..a07efbadb775 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -308,7 +308,7 @@ static int die_get_attr_udata(Dwarf_Die *tp_die, unsigned int attr_name,
  {
--	return (val.vu16 >= 64 && val.vu16 <= 4096) ? 0 : -EINVAL;
-+	return (val.vu32 >= 64 && val.vu32 <= 4096) ? 0 : -EINVAL;
- }
+ 	Dwarf_Attribute attr;
  
- static const struct devlink_param mlx5_devlink_params[] = {
+-	if (dwarf_attr(tp_die, attr_name, &attr) == NULL ||
++	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
+ 	    dwarf_formudata(&attr, result) != 0)
+ 		return -ENOENT;
+ 
+@@ -321,7 +321,7 @@ static int die_get_attr_sdata(Dwarf_Die *tp_die, unsigned int attr_name,
+ {
+ 	Dwarf_Attribute attr;
+ 
+-	if (dwarf_attr(tp_die, attr_name, &attr) == NULL ||
++	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
+ 	    dwarf_formsdata(&attr, result) != 0)
+ 		return -ENOENT;
+ 
 -- 
 2.35.1
 
