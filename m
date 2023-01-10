@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A540C664AEF
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F97664AF1
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233242AbjAJSiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50916 "EHLO
+        id S234635AbjAJSiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:38:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239593AbjAJShR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04AE159511
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:25 -0800 (PST)
+        with ESMTP id S239597AbjAJShS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD9115B480
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BAB8B818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 852AFC433EF;
-        Tue, 10 Jan 2023 18:32:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66945B81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99E41C433D2;
+        Tue, 10 Jan 2023 18:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375543;
-        bh=Lr40U5ZuWB65aS+exA9s1l+90FJWmFU1LIELZQ3E7MA=;
+        s=korg; t=1673375546;
+        bh=vf+dRLzV0fVr7x8Nvi2cjyidTrBzrO4V+ePwLdjAAGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLbAVgnmtYNcltNnGNaBe0vuy6Jee8iVsG1APFp9X7l1icK9dLtDK7ODqHQdOJAUG
-         d2U+TCzV02srWtlzN5MHMtS27xo3yKZtzHIOg0dd66L2V9Sa9fnKGxXCmTouMQVEZM
-         sIuVPDlpUtBa+fnth6Q/v89aZx09HW1sHtjhY7mI=
+        b=1V0Lo2d8Bn+JV0dM+R4Wbf0mjLGhjYHCs9A+JBAspKr5O1wpcu7riSwJI3R5NrY32
+         t3fHRY3j0AqvZaAeom9vFOohk9xZSXNN0vFKPsaGcAkMBm3ZYeBrjx00kXyP3cewnB
+         iadGqANXu69YkAhH6hQQE3IF3wU/4FtocXGoPRrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiri Pirko <jiri@nvidia.com>,
+        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 223/290] net/mlx5: Add forgotten cleanup calls into mlx5_init_once() error path
-Date:   Tue, 10 Jan 2023 19:05:15 +0100
-Message-Id: <20230110180039.709592250@linuxfoundation.org>
+Subject: [PATCH 5.15 224/290] net/mlx5: Avoid recovery in probe flows
+Date:   Tue, 10 Jan 2023 19:05:16 +0100
+Message-Id: <20230110180039.740076624@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -53,36 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Pirko <jiri@nvidia.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 2a35b2c2e6a252eda2134aae6a756861d9299531 ]
+[ Upstream commit 9078e843efec530f279a155f262793c58b0746bd ]
 
-There are two cleanup calls missing in mlx5_init_once() error path.
-Add them making the error path flow to be the same as
-mlx5_cleanup_once().
+Currently, recovery is done without considering whether the device is
+still in probe flow.
+This may lead to recovery before device have finished probed
+successfully. e.g.: while mlx5_init_one() is running. Recovery flow is
+using functionality that is loaded only by mlx5_init_one(), and there
+is no point in running recovery without mlx5_init_one() finished
+successfully.
 
-Fixes: 52ec462eca9b ("net/mlx5: Add reserved-gids support")
-Fixes: 7c39afb394c7 ("net/mlx5: PTP code migration to driver core section")
-Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+Fix it by waiting for probe flow to finish and checking whether the
+device is probed before trying to perform recovery.
+
+Fixes: 51d138c2610a ("net/mlx5: Fix health error state handling")
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/health.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 19c11d33f4b6..145e56f5eeee 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -928,6 +928,8 @@ static int mlx5_init_once(struct mlx5_core_dev *dev)
- err_tables_cleanup:
- 	mlx5_geneve_destroy(dev->geneve);
- 	mlx5_vxlan_destroy(dev->vxlan);
-+	mlx5_cleanup_clock(dev);
-+	mlx5_cleanup_reserved_gids(dev);
- 	mlx5_cq_debugfs_cleanup(dev);
- 	mlx5_fw_reset_cleanup(dev);
- err_events_cleanup:
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/health.c b/drivers/net/ethernet/mellanox/mlx5/core/health.c
+index 037e18dd4be0..3dceab45986d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
+@@ -614,6 +614,12 @@ static void mlx5_fw_fatal_reporter_err_work(struct work_struct *work)
+ 	priv = container_of(health, struct mlx5_priv, health);
+ 	dev = container_of(priv, struct mlx5_core_dev, priv);
+ 
++	mutex_lock(&dev->intf_state_mutex);
++	if (test_bit(MLX5_DROP_NEW_HEALTH_WORK, &health->flags)) {
++		mlx5_core_err(dev, "health works are not permitted at this stage\n");
++		return;
++	}
++	mutex_unlock(&dev->intf_state_mutex);
+ 	enter_error_state(dev, false);
+ 	if (IS_ERR_OR_NULL(health->fw_fatal_reporter)) {
+ 		if (mlx5_health_try_recover(dev))
 -- 
 2.35.1
 
