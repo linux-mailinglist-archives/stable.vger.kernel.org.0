@@ -2,120 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 267A9663786
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 03:51:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA386637B1
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 04:09:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbjAJCvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 Jan 2023 21:51:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37056 "EHLO
+        id S235368AbjAJDJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 Jan 2023 22:09:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230016AbjAJCvr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 21:51:47 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBB55DF1C
-        for <stable@vger.kernel.org>; Mon,  9 Jan 2023 18:51:45 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id b12so7269414pgj.6
-        for <stable@vger.kernel.org>; Mon, 09 Jan 2023 18:51:45 -0800 (PST)
+        with ESMTP id S237663AbjAJDJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 Jan 2023 22:09:17 -0500
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7F9273D
+        for <stable@vger.kernel.org>; Mon,  9 Jan 2023 19:09:17 -0800 (PST)
+Received: by mail-pf1-x431.google.com with SMTP id c85so4469197pfc.8
+        for <stable@vger.kernel.org>; Mon, 09 Jan 2023 19:09:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=5meWItoTd251picJ9ZZoggNoMLVQJNPZDukwLx4P4Fo=;
-        b=FTIN0qCwcdC0RFsTbszZsp8hpV0nAzklNuFi+W48h/6zQm7mVQnulh7P53TOwENCWK
-         FJK4yzNhIuHCTb+yZ8V9Tb4LTk7dp7UdVjJ7HQTG/vdflFy+2gC05o27/lm6jU2OZcMI
-         p67fOS8j4whKCWLdPjsmJRrwD+PPdy8TbpKtQ6TuzMT+rH+Wc/zvUIakCbJLCWHtCsnl
-         IiGWmshq5Wq1R3UZc9sRWcieQiZp93pEIAqk5b9lNT5jOizUIrBhdRUCAGz8l8+i4z9b
-         t/vJ5yuV0GmlNuQYSjYeJodBTrtPF8RnJESeI9ZCL6DjcgBwpQxT/z2rdsDstCzFwPda
-         JeSg==
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/krrOzf32PMDRBi/P9qe9m671OONK8NSr+9AstJjJkE=;
+        b=oBYZYsv77L0PwOdrPH2EJaan0L6Oe2Gg0o/cxZAUqcFrqTSUV5f1SbXJhtIuxJrdlO
+         HHOpzs5wlcTcBIXuXZgrhKNjX9d/qMSHRnA+IlpXu2eaCTMZbyHVZVEJVLCeqfmEqJgI
+         BKOvn8k6bYbtDaHaV39XzPhDXzb7sVBo6K4LIM9kvH6o39USDdRwsluakYdTNdkdS6Cx
+         GS4G1lIjjsnbZ+qY5Fy+2bGnhbhH7HQWOOhfKC72wkMyss+K1q3jKMPP92547H+aer8d
+         MzE954/h0gfm5GGgu99q/tfwYvZ5Z6XnbECc7I4n+VTnEeEcCBs33IWyD7iVaO16tRzE
+         yCMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5meWItoTd251picJ9ZZoggNoMLVQJNPZDukwLx4P4Fo=;
-        b=kcNBcZHp+G9g9WQUzsfkiS93VdaB2BL7mxiHZN0dRsY9TsZgN5na6Sxd/OytF5XRrW
-         KlrO8o8PVXpCg6HZo+nQcjIGRYsgp2rX8vqiBA7iHa2teBqZv2yA5YfgVk6xbvFPUhW4
-         rQI2jeN8mRWb4kwyoKXOgtOmrkpxvlMCKPCqh8o65qekDSsDVg7QxGCfFO129OkiykDZ
-         mqi/bLLxw1RZ98Yc57NvzRH0W6V/IIqwDVZXBMUwjGvp1hQ5efTl3PHM6JOs6xrQyRT1
-         hF0PJfYTnteU1c2Jb5IYUHr0DekD0iC8IG21HvGfbCuES0hg8g4GYJBQ32WxF7cbcb2O
-         2Nhw==
-X-Gm-Message-State: AFqh2kp+Y5lvyGHT85NqTFunbQzaHIlyuY0OeTtpw9C2M7TR+dMnr3Dz
-        oHR0hOQsJCXEqdX0HoB4n3Au5UwGp+Y9ZpQQ1sD43sYqEZ7B
-X-Google-Smtp-Source: AMrXdXuUZ5WLT6djW0CNkEpfzxyMHta7DZhjMwqsgvtHpwUDkM1FcUIKllbnolg0mFubdUk+JTKOseZRdKMR+5AFjok=
-X-Received: by 2002:a63:e20b:0:b0:479:2109:506 with SMTP id
- q11-20020a63e20b000000b0047921090506mr3643575pgh.92.1673319105204; Mon, 09
- Jan 2023 18:51:45 -0800 (PST)
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=/krrOzf32PMDRBi/P9qe9m671OONK8NSr+9AstJjJkE=;
+        b=5OmCrzgbDWMs3Fmv9diZ9dq2f/hbGjCrBWhhknGvxXPX1KiCs2kvZVwWARgS2GJ8tn
+         NkNWGNL00VKBdChP++iBYIivhR/TaZO7vga0U9WjL35azP/aZIzH9KyK44/EMCMwdc7M
+         tl/lbDYmDNGKCx6yXWUDPWkQw0//uY2yHHmLycvKnBqc2JANeI5WNJTndRGtu61GXRVL
+         sVq1AGSzm9dsY6AuaxU+oowME110N4GfJwwFzE7am0r4rVbUgsiw1vUfsawAWMeaWXRP
+         MicAWBLO10vY4Gc+pd/nBK4ZWu/Umb4ed2GVWghaV0DC3FBM6/MlGZOzQq/iVSgyRPZ5
+         yEiQ==
+X-Gm-Message-State: AFqh2kp7jTKAa25HVTswkM08GK0a/JRyhV1jz6ekKpECBcvwwVvl94+y
+        hOLDF0SUHMv9eWQFyVSaqNSHhN4GvEIyPVTVmNE=
+X-Google-Smtp-Source: AMrXdXtWVtjzqAivk7hg7I+++ZwZeiq29WpkzuY9J5CXxBEftkwgV1NQ0xCIaK4w7M5W0Ro2khbtla3aHYUkiFVCQPY=
+X-Received: by 2002:a05:6a02:30e:b0:477:e302:ee5d with SMTP id
+ bn14-20020a056a02030e00b00477e302ee5dmr2689733pgb.335.1673320156501; Mon, 09
+ Jan 2023 19:09:16 -0800 (PST)
 MIME-Version: 1.0
-References: <20230106012106.21559-1-guozihua@huawei.com>
-In-Reply-To: <20230106012106.21559-1-guozihua@huawei.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 9 Jan 2023 21:51:34 -0500
-Message-ID: <CAHC9VhR7JXB5KNGardhRA2422VLEUmWVx-AQVPCFANikdsUbEw@mail.gmail.com>
-Subject: Re: [PATCH v7 0/3] ima: Fix IMA mishandling of LSM based rule during
-To:     GUO Zihua <guozihua@huawei.com>
-Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        zohar@linux.ibm.com, linux-integrity@vger.kernel.org,
-        luhuaxin1@huawei.com
+Received: by 2002:a05:6a20:6da6:b0:af:752d:83c8 with HTTP; Mon, 9 Jan 2023
+ 19:09:15 -0800 (PST)
+Reply-To: avamedicinemed3@gmail.com
+From:   Dr Ava Smith <tracy4love1035@gmail.com>
+Date:   Tue, 10 Jan 2023 04:09:15 +0100
+Message-ID: <CA+3ub-4t0gvhB=2VEX2OZfq=XxDTFMr8MG67nBm6MiizryvZQQ@mail.gmail.com>
+Subject: From Dr Ava Smith in United States
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=4.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 5, 2023 at 8:24 PM GUO Zihua <guozihua@huawei.com> wrote:
->
-> Backports the following three patches to fix the issue of IMA mishandling
-> LSM based rule during LSM policy update, causing a file to match an
-> unexpected rule.
->
-> v7:
->   Fixed the target for free in ima_lsm_copy_rule().
->
-> v6:
->   Removed the redundent i in ima_free_rule().
->
-> v5:
->   goes back to ima_lsm_free_rule() instead to avoid freeing
-> rule->fsname.
->
-> v4:
->   Make use of the exisiting ima_free_rule() instead of backported
-> ima_lsm_free_rule(). Which resolves additional memory leak issues.
->
-> v3:
->   Backport "LSM: switch to blocking policy update notifiers" as well, as
-> the prerequsite of "ima: use the lsm policy update notifier".
->
-> v2:
->   Re-adjust the bacported logic.
->
-> GUO Zihua (1):
->   ima: Handle -ESTALE returned by ima_filter_rule_match()
->
-> Janne Karhunen (2):
->   LSM: switch to blocking policy update notifiers
->   ima: use the lsm policy update notifier
-
-I'll defer to Mimi for the IMA bits, but the LSM and SELinux related
-bits looks fine to me and appear to be faithful backports of patches
-already in Linus' tree.
-
->  drivers/infiniband/core/device.c    |   4 +-
->  include/linux/security.h            |  12 +--
->  security/integrity/ima/ima.h        |   2 +
->  security/integrity/ima/ima_main.c   |   8 ++
->  security/integrity/ima/ima_policy.c | 151 ++++++++++++++++++++++------
->  security/security.c                 |  23 +++--
->  security/selinux/hooks.c            |   2 +-
->  security/selinux/selinuxfs.c        |   2 +-
->  8 files changed, 155 insertions(+), 49 deletions(-)
->
-> --
-> 2.17.1
-
 -- 
-paul-moore.com
+Hello Dear
+My name is Dr Ava Smith,a medical doctor from United States.
+I have Dual citizenship which is English and French.
+I will share pictures and more details about me as soon as i get
+a response from you
+Thanks
+Ava
