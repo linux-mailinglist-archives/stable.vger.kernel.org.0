@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1BD9664ABA
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D318566496C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234682AbjAJSfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:35:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47786 "EHLO
+        id S239205AbjAJSVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:21:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239457AbjAJSfU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:20 -0500
+        with ESMTP id S239220AbjAJSUu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D1310065
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:30:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B507671B5
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 918BFB818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:30:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEF76C433D2;
-        Tue, 10 Jan 2023 18:30:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6E51B81904
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF4B0C433D2;
+        Tue, 10 Jan 2023 18:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375455;
-        bh=u3ScWIUxO3NcaVexuYMtFc5TdZEK44N1eLTM0uZlS3k=;
+        s=korg; t=1673374722;
+        bh=nbEQCC/a/+NsXj6d7pAHo1OtVx4lNUjq9z845PL8KLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dY7TSIP+icoQWL7wyQUOa+Lexl8Vp3sK0PJildFIRKQuyfwyBPf+E8To2cxkcN9mi
-         pztrZmKDqDdzl94s+WAqN66LqH+T6xGL4zzVy8UItCcfNgXbMKRIqlEpazzUoKJS+K
-         l3HVMj7EMuw5MrKRBZEohMorRFVsWUyNqrDDgCMM=
+        b=fLzUhOGlboFPJRSlEgoq+ZzzUuRB09X5YS0jcHgPRsY5ykZUEn4dfw+O0U5gpZegK
+         oPYKYJiu4w9i82k9lCCo4y5JFe8heWnvTD3hWwSBe7WwpnZpu+hWAu2g97TqnAkNGR
+         XAVD+6I9sNZjQ8vhqklCYypuoqW5Gz0hBhbiKtdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>,
-        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.15 167/290] ext4: remove unused enum EXT4_FC_COMMIT_FAILED
-Date:   Tue, 10 Jan 2023 19:04:19 +0100
-Message-Id: <20230110180037.673263016@linuxfoundation.org>
+        patches@lists.linux.dev, YC Hung <yc.hung@mediatek.com>,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 112/159] ASoC: SOF: mediatek: initialize panic_info to zero
+Date:   Tue, 10 Jan 2023 19:04:20 +0100
+Message-Id: <20230110180021.858949235@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@kernel.org>
+From: YC Hung <yc.hung@mediatek.com>
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+[ Upstream commit 7bd220f2ba9014b78f0304178103393554b8c4fe ]
 
-commit c864ccd182d6ff2730a0f5b636c6b7c48f6f4f7f upstream.
+Coverity spotted that panic_info is not initialized to zero in
+mtk_adsp_dump. Using uninitialized value panic_info.linenum when
+calling snd_sof_get_status. Fix this coverity by initializing
+panic_info struct as zero.
 
-Below commit removed all references of EXT4_FC_COMMIT_FAILED.
-commit 0915e464cb274 ("ext4: simplify updating of fast commit stats")
-
-Just remove it since it is not used anymore.
-
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
-Link: https://lore.kernel.org/r/c941357e476be07a1138c7319ca5faab7fb80fc6.1647057583.git.riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: YC Hung <yc.hung@mediatek.com>
+Reviewed-by: Curtis Malainey <cujomalainey@chromium.org>
+Link: https://lore.kernel.org/r/20221213115617.25086-1-yc.hung@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/fast_commit.h |    1 -
- 1 file changed, 1 deletion(-)
+ sound/soc/sof/mediatek/mtk-adsp-common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/fast_commit.h
-+++ b/fs/ext4/fast_commit.h
-@@ -93,7 +93,6 @@ enum {
- 	EXT4_FC_REASON_RENAME_DIR,
- 	EXT4_FC_REASON_FALLOC_RANGE,
- 	EXT4_FC_REASON_INODE_JOURNAL_DATA,
--	EXT4_FC_COMMIT_FAILED,
- 	EXT4_FC_REASON_MAX
- };
+diff --git a/sound/soc/sof/mediatek/mtk-adsp-common.c b/sound/soc/sof/mediatek/mtk-adsp-common.c
+index 1e0769c668a7..de8dbe27cd0d 100644
+--- a/sound/soc/sof/mediatek/mtk-adsp-common.c
++++ b/sound/soc/sof/mediatek/mtk-adsp-common.c
+@@ -60,7 +60,7 @@ void mtk_adsp_dump(struct snd_sof_dev *sdev, u32 flags)
+ {
+ 	char *level = (flags & SOF_DBG_DUMP_OPTIONAL) ? KERN_DEBUG : KERN_ERR;
+ 	struct sof_ipc_dsp_oops_xtensa xoops;
+-	struct sof_ipc_panic_info panic_info;
++	struct sof_ipc_panic_info panic_info = {};
+ 	u32 stack[MTK_ADSP_STACK_DUMP_SIZE];
+ 	u32 status;
  
+-- 
+2.35.1
+
 
 
