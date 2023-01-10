@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BDB664A18
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D20166484F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239353AbjAJS3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:29:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43864 "EHLO
+        id S238799AbjAJSK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:10:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239473AbjAJS2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FA07872BD
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:24 -0800 (PST)
+        with ESMTP id S238856AbjAJSKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3C11F8
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0A6F6183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A37C433D2;
-        Tue, 10 Jan 2023 18:24:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A588F6184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8CE4C433EF;
+        Tue, 10 Jan 2023 18:07:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375063;
-        bh=kFlvvN/F4Q4jjg+FlXi2/15AXOZOcS12kKDfV8xHyTo=;
+        s=korg; t=1673374076;
+        bh=iGMXcCS5e9ltibJ1bUYJcVYR0FMAhElb1qbT5TR5L48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VPy6soyTodA9B1V1DGHTLBds/Oh5UFsPZNJEWqBD4b6Hjby3bkHBcU29anIzJXPhp
-         /cBisaEtaI8yDmeQurwUckFu8WTvo1BEPxaDZMLMcHCgIe7aDe0MM5tl31Qfbgx/OD
-         iLZP5paS3llZaNttYx6/vMRZ9kH/zTAmNIYTa0ok=
+        b=YcAK4Y9KE7RWRDJCB5GwizsSuly0AU8MMIiz6QPptW5W+L/J3Iu1rzO9TilCEzmOZ
+         TkG1XTNYnOlC8rggArCR1XSN/ViWkAn8NaziJ9I+5zjXrjPlLPqj0U0IqbQGbNFMuT
+         4Z7P+23CuYr1YxKJy00VT/s2uvMESqw5OTucsH/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akito <the@akito.ooo>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 034/290] HID: multitouch: fix Asus ExpertBook P2 P2451FA trackpoint
-Date:   Tue, 10 Jan 2023 19:02:06 +0100
-Message-Id: <20230110180032.759804509@linuxfoundation.org>
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 023/148] netfilter: nf_tables: honor set timeout and garbage collection updates
+Date:   Tue, 10 Jan 2023 19:02:07 +0100
+Message-Id: <20230110180017.932939114@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +53,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 4eab1c2fe06c98a4dff258dd64800b6986c101e9 ]
+[ Upstream commit 123b99619cca94bdca0bf7bde9abe28f0a0dfe06 ]
 
-The HID descriptor of this device contains two mouse collections, one
-for mouse emulation and the other for the trackpoint.
+Set timeout and garbage collection interval updates are ignored on
+updates. Add transaction to update global set element timeout and
+garbage collection interval.
 
-Both collections get merged and, because the first one defines X and Y,
-the movemenent events reported by the trackpoint collection are
-ignored.
-
-Set the MT_CLS_WIN_8_FORCE_MULTI_INPUT class for this device to be able
-to receive its reports.
-
-This fix is similar to/based on commit 40d5bb87377a ("HID: multitouch:
-enable multi-input as a quirk for some devices").
-
-Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/825
-Reported-by: Akito <the@akito.ooo>
-Tested-by: Akito <the@akito.ooo>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Suggested-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-multitouch.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/net/netfilter/nf_tables.h | 13 ++++++-
+ net/netfilter/nf_tables_api.c     | 63 ++++++++++++++++++++++---------
+ 2 files changed, 57 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 08462ac72b89..6b86d368d5e7 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1965,6 +1965,10 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
- 			USB_VENDOR_ID_ELAN, 0x313a) },
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index ddcdde230747..1daededfa75e 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -592,7 +592,9 @@ void *nft_set_catchall_gc(const struct nft_set *set);
  
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_ELAN, 0x3148) },
+ static inline unsigned long nft_set_gc_interval(const struct nft_set *set)
+ {
+-	return set->gc_int ? msecs_to_jiffies(set->gc_int) : HZ;
++	u32 gc_int = READ_ONCE(set->gc_int);
 +
- 	/* Elitegroup panel */
- 	{ .driver_data = MT_CLS_SERIAL,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
++	return gc_int ? msecs_to_jiffies(gc_int) : HZ;
+ }
+ 
+ /**
+@@ -1563,6 +1565,9 @@ struct nft_trans_rule {
+ struct nft_trans_set {
+ 	struct nft_set			*set;
+ 	u32				set_id;
++	u32				gc_int;
++	u64				timeout;
++	bool				update;
+ 	bool				bound;
+ };
+ 
+@@ -1572,6 +1577,12 @@ struct nft_trans_set {
+ 	(((struct nft_trans_set *)trans->data)->set_id)
+ #define nft_trans_set_bound(trans)	\
+ 	(((struct nft_trans_set *)trans->data)->bound)
++#define nft_trans_set_update(trans)	\
++	(((struct nft_trans_set *)trans->data)->update)
++#define nft_trans_set_timeout(trans)	\
++	(((struct nft_trans_set *)trans->data)->timeout)
++#define nft_trans_set_gc_int(trans)	\
++	(((struct nft_trans_set *)trans->data)->gc_int)
+ 
+ struct nft_trans_chain {
+ 	bool				update;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 9fa155f2632c..e0c156bb0b17 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -465,8 +465,9 @@ static int nft_delrule_by_chain(struct nft_ctx *ctx)
+ 	return 0;
+ }
+ 
+-static int nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
+-			     struct nft_set *set)
++static int __nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
++			       struct nft_set *set,
++			       const struct nft_set_desc *desc)
+ {
+ 	struct nft_trans *trans;
+ 
+@@ -474,17 +475,28 @@ static int nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
+ 	if (trans == NULL)
+ 		return -ENOMEM;
+ 
+-	if (msg_type == NFT_MSG_NEWSET && ctx->nla[NFTA_SET_ID] != NULL) {
++	if (msg_type == NFT_MSG_NEWSET && ctx->nla[NFTA_SET_ID] && !desc) {
+ 		nft_trans_set_id(trans) =
+ 			ntohl(nla_get_be32(ctx->nla[NFTA_SET_ID]));
+ 		nft_activate_next(ctx->net, set);
+ 	}
+ 	nft_trans_set(trans) = set;
++	if (desc) {
++		nft_trans_set_update(trans) = true;
++		nft_trans_set_gc_int(trans) = desc->gc_int;
++		nft_trans_set_timeout(trans) = desc->timeout;
++	}
+ 	nft_trans_commit_list_add_tail(ctx->net, trans);
+ 
+ 	return 0;
+ }
+ 
++static int nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
++			     struct nft_set *set)
++{
++	return __nft_trans_set_add(ctx, msg_type, set, NULL);
++}
++
+ static int nft_delset(const struct nft_ctx *ctx, struct nft_set *set)
+ {
+ 	int err;
+@@ -3996,8 +4008,10 @@ static int nf_tables_fill_set_concat(struct sk_buff *skb,
+ static int nf_tables_fill_set(struct sk_buff *skb, const struct nft_ctx *ctx,
+ 			      const struct nft_set *set, u16 event, u16 flags)
+ {
+-	struct nlmsghdr *nlh;
++	u64 timeout = READ_ONCE(set->timeout);
++	u32 gc_int = READ_ONCE(set->gc_int);
+ 	u32 portid = ctx->portid;
++	struct nlmsghdr *nlh;
+ 	struct nlattr *nest;
+ 	u32 seq = ctx->seq;
+ 	int i;
+@@ -4033,13 +4047,13 @@ static int nf_tables_fill_set(struct sk_buff *skb, const struct nft_ctx *ctx,
+ 	    nla_put_be32(skb, NFTA_SET_OBJ_TYPE, htonl(set->objtype)))
+ 		goto nla_put_failure;
+ 
+-	if (set->timeout &&
++	if (timeout &&
+ 	    nla_put_be64(skb, NFTA_SET_TIMEOUT,
+-			 nf_jiffies64_to_msecs(set->timeout),
++			 nf_jiffies64_to_msecs(timeout),
+ 			 NFTA_SET_PAD))
+ 		goto nla_put_failure;
+-	if (set->gc_int &&
+-	    nla_put_be32(skb, NFTA_SET_GC_INTERVAL, htonl(set->gc_int)))
++	if (gc_int &&
++	    nla_put_be32(skb, NFTA_SET_GC_INTERVAL, htonl(gc_int)))
+ 		goto nla_put_failure;
+ 
+ 	if (set->policy != NFT_SET_POL_PERFORMANCE) {
+@@ -4584,7 +4598,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 		for (i = 0; i < num_exprs; i++)
+ 			nft_expr_destroy(&ctx, exprs[i]);
+ 
+-		return err;
++		if (err < 0)
++			return err;
++
++		return __nft_trans_set_add(&ctx, NFT_MSG_NEWSET, set, &desc);
+ 	}
+ 
+ 	if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
+@@ -6022,7 +6039,7 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 			return err;
+ 	} else if (set->flags & NFT_SET_TIMEOUT &&
+ 		   !(flags & NFT_SET_ELEM_INTERVAL_END)) {
+-		timeout = set->timeout;
++		timeout = READ_ONCE(set->timeout);
+ 	}
+ 
+ 	expiration = 0;
+@@ -6123,7 +6140,7 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 		if (err < 0)
+ 			goto err_parse_key_end;
+ 
+-		if (timeout != set->timeout) {
++		if (timeout != READ_ONCE(set->timeout)) {
+ 			err = nft_set_ext_add(&tmpl, NFT_SET_EXT_TIMEOUT);
+ 			if (err < 0)
+ 				goto err_parse_key_end;
+@@ -9039,14 +9056,20 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
+ 			break;
+ 		case NFT_MSG_NEWSET:
+-			nft_clear(net, nft_trans_set(trans));
+-			/* This avoids hitting -EBUSY when deleting the table
+-			 * from the transaction.
+-			 */
+-			if (nft_set_is_anonymous(nft_trans_set(trans)) &&
+-			    !list_empty(&nft_trans_set(trans)->bindings))
+-				trans->ctx.table->use--;
++			if (nft_trans_set_update(trans)) {
++				struct nft_set *set = nft_trans_set(trans);
+ 
++				WRITE_ONCE(set->timeout, nft_trans_set_timeout(trans));
++				WRITE_ONCE(set->gc_int, nft_trans_set_gc_int(trans));
++			} else {
++				nft_clear(net, nft_trans_set(trans));
++				/* This avoids hitting -EBUSY when deleting the table
++				 * from the transaction.
++				 */
++				if (nft_set_is_anonymous(nft_trans_set(trans)) &&
++				    !list_empty(&nft_trans_set(trans)->bindings))
++					trans->ctx.table->use--;
++			}
+ 			nf_tables_set_notify(&trans->ctx, nft_trans_set(trans),
+ 					     NFT_MSG_NEWSET, GFP_KERNEL);
+ 			nft_trans_destroy(trans);
+@@ -9268,6 +9291,10 @@ static int __nf_tables_abort(struct net *net, enum nfnl_abort_action action)
+ 			nft_trans_destroy(trans);
+ 			break;
+ 		case NFT_MSG_NEWSET:
++			if (nft_trans_set_update(trans)) {
++				nft_trans_destroy(trans);
++				break;
++			}
+ 			trans->ctx.table->use--;
+ 			if (nft_trans_set_bound(trans)) {
+ 				nft_trans_destroy(trans);
 -- 
 2.35.1
 
