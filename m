@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E71CB664950
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91DA26648B5
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:14:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239170AbjAJSUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:20:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32814 "EHLO
+        id S239310AbjAJSOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:14:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239257AbjAJSUB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 501FDC779
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:36 -0800 (PST)
+        with ESMTP id S239120AbjAJSNb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:13:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE755E0CC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7D6FCCE18D9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B54AC433EF;
-        Tue, 10 Jan 2023 18:17:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FD436184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 822D4C433EF;
+        Tue, 10 Jan 2023 18:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374652;
-        bh=CgHq5/OaWXG23HaQZn6IfpHevBnIX8ZweH2AY3P6dHI=;
+        s=korg; t=1673374329;
+        bh=FK5vYvcolesBqPpiMrp3z75kxJ38f8dAIolBbaWHHFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0RjUxn8jnAr0CFwkjkeelaCyG4bDxHHiOnPtq+JZ5+InA9bODHex1dtTpuJZI2iM
-         oqbV7NzdbKY+tgb4dqHfRuhS2KXPrMKSWLNaxoZH8nrCZYmzcTrzcLCgUYTKYE6cQx
-         pAyr2gZ1pq+IV3WT2OcIMktj8dhzrUWrMJM3/97M=
+        b=USrNeVmS80KdsLlvPIiiXi62/VH9Wg05OrbjS6xdMIWSOZsQGXtu2lJ6iJICuYfYv
+         /IzNewgdhHj4G7v+Kuz9gSAiNBf6o0c2X7vBgs4py1NImC6457h9iJMSJp1fFIT6Cj
+         0QLV7mqiSTFFvkmum82hsKf1Ise9mTEzCw0M4yMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 087/159] net: sparx5: Fix reading of the MAC address
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.0 131/148] io_uring: fix CQ waiting timeout handling
 Date:   Tue, 10 Jan 2023 19:03:55 +0100
-Message-Id: <20230110180021.076300834@linuxfoundation.org>
+Message-Id: <20230110180021.338129364@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 588ab2dc25f60efeb516b4abedb6c551949cc185 ]
+commit 12521a5d5cb7ff0ad43eadfc9c135d86e1131fa8 upstream.
 
-There is an issue with the checking of the return value of
-'of_get_mac_address', which returns 0 on success and negative value on
-failure. The driver interpretated the result the opposite way. Therefore
-if there was a MAC address defined in the DT, then the driver was
-generating a random MAC address otherwise it would use address 0.
-Fix this by checking correctly the return value of 'of_get_mac_address'
+Jiffy to ktime CQ waiting conversion broke how we treat timeouts, in
+particular we rearm it anew every time we get into
+io_cqring_wait_schedule() without adjusting the timeout. Waiting for 2
+CQEs and getting a task_work in the middle may double the timeout value,
+or even worse in some cases task may wait indefinitely.
 
-Fixes: b74ef9f9cb91 ("net: sparx5: Do not use mac_addr uninitialized in mchp_sparx5_probe()")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 228339662b398 ("io_uring: don't convert to jiffies for waiting on timeouts")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/f7bffddd71b08f28a877d44d37ac953ddb01590d.1672915663.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/sparx5/sparx5_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ io_uring/io_uring.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
-index b6bbb3c9bd7a..3423c95cc84a 100644
---- a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
-+++ b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
-@@ -824,7 +824,7 @@ static int mchp_sparx5_probe(struct platform_device *pdev)
- 	if (err)
- 		goto cleanup_config;
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2206,7 +2206,7 @@ int io_run_task_work_sig(void)
+ /* when returns >0, the caller should retry */
+ static inline int io_cqring_wait_schedule(struct io_ring_ctx *ctx,
+ 					  struct io_wait_queue *iowq,
+-					  ktime_t timeout)
++					  ktime_t *timeout)
+ {
+ 	int ret;
+ 	unsigned long check_cq;
+@@ -2224,7 +2224,7 @@ static inline int io_cqring_wait_schedul
+ 		if (check_cq & BIT(IO_CHECK_CQ_DROPPED_BIT))
+ 			return -EBADR;
+ 	}
+-	if (!schedule_hrtimeout(&timeout, HRTIMER_MODE_ABS))
++	if (!schedule_hrtimeout(timeout, HRTIMER_MODE_ABS))
+ 		return -ETIME;
+ 	return 1;
+ }
+@@ -2289,7 +2289,7 @@ static int io_cqring_wait(struct io_ring
+ 		}
+ 		prepare_to_wait_exclusive(&ctx->cq_wait, &iowq.wq,
+ 						TASK_INTERRUPTIBLE);
+-		ret = io_cqring_wait_schedule(ctx, &iowq, timeout);
++		ret = io_cqring_wait_schedule(ctx, &iowq, &timeout);
+ 		cond_resched();
+ 	} while (ret > 0);
  
--	if (!of_get_mac_address(np, sparx5->base_mac)) {
-+	if (of_get_mac_address(np, sparx5->base_mac)) {
- 		dev_info(sparx5->dev, "MAC addr was not set, use random MAC\n");
- 		eth_random_addr(sparx5->base_mac);
- 		sparx5->base_mac[5] = 0;
--- 
-2.35.1
-
 
 
