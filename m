@@ -2,181 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5731E663AE6
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 09:23:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 792F4663BA5
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 09:49:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237523AbjAJIXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 03:23:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50992 "EHLO
+        id S231630AbjAJItE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 03:49:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231500AbjAJIXN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 03:23:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 124DC43A1B
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 00:23:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E1306151D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7237DC433D2;
-        Tue, 10 Jan 2023 08:23:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673338990;
-        bh=AU/UZHXZjZOEE+s4cNsq/InmLh6SCbCkTTqIQIjoApg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=wub64WlXla5bTybafjVoJSGKVfPk7kdZDPWfjW9yL5eJPvQds/L7we/CgVwE3cmoY
-         2TMZCuRr05TmS3yHsKESOBUHmNLQ0DOqnnEivJAe3jecpV59ErttCi9s6RhbB8w3Xn
-         uQMl9fElSt2wxV6sNzZBCwZXTWzcOpUT5y+tB+RM=
-Subject: FAILED: patch "[PATCH] drm/i915/gvt: fix vgpu debugfs clean in remove" failed to apply to 4.19-stable tree
-To:     zhenyuw@linux.intel.com, alex.williamson@redhat.com,
-        yu.he@intel.com, zhi.a.wang@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 10 Jan 2023 09:22:42 +0100
-Message-ID: <16733389623379@kroah.com>
+        with ESMTP id S238058AbjAJInA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 03:43:00 -0500
+Received: from out20-1.mail.aliyun.com (out20-1.mail.aliyun.com [115.124.20.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C81DB4D481;
+        Tue, 10 Jan 2023 00:42:38 -0800 (PST)
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.05019253|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_enroll_verification|0.108887-0.000464039-0.890649;FP=0|0|0|0|0|-1|-1|-1;HT=ay29a033018047211;MF=wangyugui@e16-tech.com;NM=1;PH=DS;RN=3;RT=3;SR=0;TI=SMTPD_---.QpBQLz6_1673340153;
+Received: from 192.168.2.112(mailfrom:wangyugui@e16-tech.com fp:SMTPD_---.QpBQLz6_1673340153)
+          by smtp.aliyun-inc.com;
+          Tue, 10 Jan 2023 16:42:34 +0800
+Date:   Tue, 10 Jan 2023 16:42:35 +0800
+From:   Wang Yugui <wangyugui@e16-tech.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: please rebase the patch queue-6.1(btrfs: fix an error handling path in btrfs_defrag_leaves)
+Cc:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <Y70aTKUaBOLah8EQ@kroah.com>
+References: <20230110123813.7DCC.409509F4@e16-tech.com> <Y70aTKUaBOLah8EQ@kroah.com>
+Message-Id: <20230110164234.14C5.409509F4@e16-tech.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.81.04 [en]
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,UNPARSEABLE_RELAY autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+> On Tue, Jan 10, 2023 at 12:38:14PM +0800, Wang Yugui wrote:
+> > Hi, Sasha Levin
+> > 
+> > please rebase the patch queue-6.1(btrfs: fix an error handling path in btrfs_defrag_leaves)
+> > just like queue-6.0, and then drop its 8 depency patches.
+> > 
+> > the 2 of 8 depency patches are file rename, so it will make later depency patch become
+> > difficult?
+> > #btrfs-move-btrfs_get_block_group-helper-out-of-disk-.patch
+> > #btrfs-move-flush-related-definitions-to-space-info.h.patch
+> > #btrfs-move-btrfs_print_data_csum_error-into-inode.c.patch
+> > #btrfs-move-fs-wide-helpers-out-of-ctree.h.patch
+> > #btrfs-move-assert-helpers-out-of-ctree.h.patch
+> > #btrfs-move-the-printk-helpers-out-of-ctree.h.patch
+> > #**btrfs-rename-struct-funcs.c-to-accessors.c.patch
+> > #**btrfs-rename-tree-defrag.c-to-defrag.c.patch
+> > 
+> > and the patch(btrfs: fix an error handling path in btrfs_defrag_leaves) is small,
+> > so a rebase will be a good choice.
+> 
+> I do not understand, sorry, we can not rebase anything, that's not how
+> our patch queue works.
+> 
+> So what exactly do you want to see changed?  What patches dropped?  And
+> what added?
 
-Possible dependencies:
+What I suggest:
 
-704f3384f322 ("drm/i915/gvt: fix vgpu debugfs clean in remove")
+1)replace queue-6.1/btrfs-fix-an-error-handling-path-in-btrfs_defrag_lea.patch
+        with queue-6.0/btrfs-fix-an-error-handling-path-in-btrfs_defrag_lea.patch
 
-thanks,
+2) drop pathes in queue-6.1/
+btrfs-move-btrfs_get_block_group-helper-out-of-disk-.patch
+btrfs-move-flush-related-definitions-to-space-info.h.patch
+btrfs-move-btrfs_print_data_csum_error-into-inode.c.patch
+btrfs-move-fs-wide-helpers-out-of-ctree.h.patch
+btrfs-move-assert-helpers-out-of-ctree.h.patch
+btrfs-move-the-printk-helpers-out-of-ctree.h.patch
+btrfs-rename-struct-funcs.c-to-accessors.c.patch
+btrfs-rename-tree-defrag.c-to-defrag.c.patch
 
-greg k-h
+Best Regards
+Wang Yugui (wangyugui@e16-tech.com)
+2023/01/10
 
------------------- original commit in Linus's tree ------------------
+> thanks,
+> 
+> greg k-h
 
-From 704f3384f322b40ba24d958473edfb1c9750c8fd Mon Sep 17 00:00:00 2001
-From: Zhenyu Wang <zhenyuw@linux.intel.com>
-Date: Mon, 19 Dec 2022 22:03:57 +0800
-Subject: [PATCH] drm/i915/gvt: fix vgpu debugfs clean in remove
-
-Check carefully on root debugfs available when destroying vgpu,
-e.g in remove case drm minor's debugfs root might already be destroyed,
-which led to kernel oops like below.
-
-Console: switching to colour dummy device 80x25
-i915 0000:00:02.0: MDEV: Unregistering
-intel_vgpu_mdev b1338b2d-a709-4c23-b766-cc436c36cdf0: Removing from iommu group 14
-BUG: kernel NULL pointer dereference, address: 0000000000000150
-PGD 0 P4D 0
-Oops: 0000 [#1] PREEMPT SMP
-CPU: 3 PID: 1046 Comm: driverctl Not tainted 6.1.0-rc2+ #6
-Hardware name: HP HP ProDesk 600 G3 MT/829D, BIOS P02 Ver. 02.44 09/13/2022
-RIP: 0010:__lock_acquire+0x5e2/0x1f90
-Code: 87 ad 09 00 00 39 05 e1 1e cc 02 0f 82 f1 09 00 00 ba 01 00 00 00 48 83 c4 48 89 d0 5b 5d 41 5c 41 5d 41 5e 41 5f c3 45 31 ff <48> 81 3f 60 9e c2 b6 45 0f 45 f8 83 fe 01 0f 87 55 fa ff ff 89 f0
-RSP: 0018:ffff9f770274f948 EFLAGS: 00010046
-RAX: 0000000000000003 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000150
-RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff8895d1173300 R11: 0000000000000001 R12: 0000000000000000
-R13: 0000000000000150 R14: 0000000000000000 R15: 0000000000000000
-FS:  00007fc9b2ba0740(0000) GS:ffff889cdfcc0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000150 CR3: 000000010fd93005 CR4: 00000000003706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- lock_acquire+0xbf/0x2b0
- ? simple_recursive_removal+0xa5/0x2b0
- ? lock_release+0x13d/0x2d0
- down_write+0x2a/0xd0
- ? simple_recursive_removal+0xa5/0x2b0
- simple_recursive_removal+0xa5/0x2b0
- ? start_creating.part.0+0x110/0x110
- ? _raw_spin_unlock+0x29/0x40
- debugfs_remove+0x40/0x60
- intel_gvt_debugfs_remove_vgpu+0x15/0x30 [kvmgt]
- intel_gvt_destroy_vgpu+0x60/0x100 [kvmgt]
- intel_vgpu_release_dev+0xe/0x20 [kvmgt]
- device_release+0x30/0x80
- kobject_put+0x79/0x1b0
- device_release_driver_internal+0x1b8/0x230
- bus_remove_device+0xec/0x160
- device_del+0x189/0x400
- ? up_write+0x9c/0x1b0
- ? mdev_device_remove_common+0x60/0x60 [mdev]
- mdev_device_remove_common+0x22/0x60 [mdev]
- mdev_device_remove_cb+0x17/0x20 [mdev]
- device_for_each_child+0x56/0x80
- mdev_unregister_parent+0x5a/0x81 [mdev]
- intel_gvt_clean_device+0x2d/0xe0 [kvmgt]
- intel_gvt_driver_remove+0x2e/0xb0 [i915]
- i915_driver_remove+0xac/0x100 [i915]
- i915_pci_remove+0x1a/0x30 [i915]
- pci_device_remove+0x31/0xa0
- device_release_driver_internal+0x1b8/0x230
- unbind_store+0xd8/0x100
- kernfs_fop_write_iter+0x156/0x210
- vfs_write+0x236/0x4a0
- ksys_write+0x61/0xd0
- do_syscall_64+0x55/0x80
- ? find_held_lock+0x2b/0x80
- ? lock_release+0x13d/0x2d0
- ? up_read+0x17/0x20
- ? lock_is_held_type+0xe3/0x140
- ? asm_exc_page_fault+0x22/0x30
- ? lockdep_hardirqs_on+0x7d/0x100
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7fc9b2c9e0c4
-Code: 15 71 7d 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 80 3d 3d 05 0e 00 00 74 13 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 54 c3 0f 1f 00 48 83 ec 28 48 89 54 24 18 48
-RSP: 002b:00007ffec29c81c8 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 000000000000000d RCX: 00007fc9b2c9e0c4
-RDX: 000000000000000d RSI: 0000559f8b5f48a0 RDI: 0000000000000001
-RBP: 0000559f8b5f48a0 R08: 0000559f8b5f3540 R09: 00007fc9b2d76d30
-R10: 0000000000000000 R11: 0000000000000202 R12: 000000000000000d
-R13: 00007fc9b2d77780 R14: 000000000000000d R15: 00007fc9b2d72a00
- </TASK>
-Modules linked in: sunrpc intel_rapl_msr intel_rapl_common intel_pmc_core_pltdrv intel_pmc_core intel_tcc_cooling x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel ee1004 igbvf rapl vfat fat intel_cstate intel_uncore pktcdvd i2c_i801 pcspkr wmi_bmof i2c_smbus acpi_pad vfio_pci vfio_pci_core vfio_virqfd zram fuse dm_multipath kvmgt mdev vfio_iommu_type1 vfio kvm irqbypass i915 nvme e1000e igb nvme_core crct10dif_pclmul crc32_pclmul crc32c_intel polyval_clmulni polyval_generic serio_raw ghash_clmulni_intel sha512_ssse3 dca drm_buddy intel_gtt video wmi drm_display_helper ttm
-CR2: 0000000000000150
----[ end trace 0000000000000000 ]---
-
-Cc: Wang Zhi <zhi.a.wang@intel.com>
-Cc: He Yu <yu.he@intel.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
-Tested-by: Yu He <yu.he@intel.com>
-Fixes: bc7b0be316ae ("drm/i915/gvt: Add basic debugfs infrastructure")
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20221219140357.769557-2-zhenyuw@linux.intel.com
-
-diff --git a/drivers/gpu/drm/i915/gvt/debugfs.c b/drivers/gpu/drm/i915/gvt/debugfs.c
-index d7df27feee8c..e08ed0e9f165 100644
---- a/drivers/gpu/drm/i915/gvt/debugfs.c
-+++ b/drivers/gpu/drm/i915/gvt/debugfs.c
-@@ -175,8 +175,13 @@ void intel_gvt_debugfs_add_vgpu(struct intel_vgpu *vgpu)
-  */
- void intel_gvt_debugfs_remove_vgpu(struct intel_vgpu *vgpu)
- {
--	debugfs_remove_recursive(vgpu->debugfs);
--	vgpu->debugfs = NULL;
-+	struct intel_gvt *gvt = vgpu->gvt;
-+	struct drm_minor *minor = gvt->gt->i915->drm.primary;
-+
-+	if (minor->debugfs_root && gvt->debugfs_root) {
-+		debugfs_remove_recursive(vgpu->debugfs);
-+		vgpu->debugfs = NULL;
-+	}
- }
- 
- /**
 
