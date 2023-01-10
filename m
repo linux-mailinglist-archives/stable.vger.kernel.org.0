@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D4ED664AE8
+	by mail.lfdr.de (Postfix) with ESMTP id 71EA2664AE9
 	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239430AbjAJShi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:37:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
+        id S239433AbjAJShj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:37:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239541AbjAJShI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C13892370
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:01 -0800 (PST)
+        with ESMTP id S239555AbjAJShK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE49D9748E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6CE2B818E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 120C5C433D2;
-        Tue, 10 Jan 2023 18:31:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5FD9B81906
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07793C433D2;
+        Tue, 10 Jan 2023 18:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375518;
-        bh=HKQ7PsnS85SH7cyDcIJA3NOTBxKs3zJlJOaq3AWqmgU=;
+        s=korg; t=1673375521;
+        bh=ixnKv8wdPAj5tdS3ND0CS1tCHSm8LByOCvupJI+h+O0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+J4+z3BETU8/DsBs3bccWf/TSCJZZg6CF7OLXxH/lz/NVd1ihk+8wvKhjM2LZG1G
-         S4l1kTPzZc2KzCvnLAwZanTcVxb2INw7FiVn3HNJqUaecWtHjmnxhXPZFIEpiHvcgW
-         BJVZ1SnBNDgpCfPq4ImZSYRfQcwZY1ApCuN4+gtA=
+        b=NxsdhGa0kJaSwHQzcjlEpbtBmQvmlzj0zPkg5YMTEk2Ld6JN7DWEgj0jRspCsZ5iJ
+         aWu1VLcbUy0isSv8gHPKtDfh3WgVwBmGClIvxg4nC1Q5CfFY+PClP2Pm65ve/UnYm7
+         Ns1SIiUDZikMimoBI8cNJskte5sOGDto2D0C5I6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 216/290] nfc: Fix potential resource leaks
-Date:   Tue, 10 Jan 2023 19:05:08 +0100
-Message-Id: <20230110180039.458720490@linuxfoundation.org>
+Subject: [PATCH 5.15 217/290] vdpa_sim: fix possible memory leak in vdpasim_net_init() and vdpasim_blk_init()
+Date:   Tue, 10 Jan 2023 19:05:09 +0100
+Message-Id: <20230110180039.493649560@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -53,125 +55,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: ruanjinjie <ruanjinjie@huawei.com>
 
-[ Upstream commit df49908f3c52d211aea5e2a14a93bbe67a2cb3af ]
+[ Upstream commit aeca7ff254843d49a8739f07f7dab1341450111d ]
 
-nfc_get_device() take reference for the device, add missing
-nfc_put_device() to release it when not need anymore.
-Also fix the style warnning by use error EOPNOTSUPP instead of
-ENOTSUPP.
+Inject fault while probing module, if device_register() fails in
+vdpasim_net_init() or vdpasim_blk_init(), but the refcount of kobject is
+not decreased to 0, the name allocated in dev_set_name() is leaked.
+Fix this by calling put_device(), so that name can be freed in
+callback function kobject_cleanup().
 
-Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
-Fixes: 29e76924cf08 ("nfc: netlink: Add capability to reply to vendor_cmd with data")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+(vdpa_sim_net)
+unreferenced object 0xffff88807eebc370 (size 16):
+  comm "modprobe", pid 3848, jiffies 4362982860 (age 18.153s)
+  hex dump (first 16 bytes):
+    76 64 70 61 73 69 6d 5f 6e 65 74 00 6b 6b 6b a5  vdpasim_net.kkk.
+  backtrace:
+    [<ffffffff8174f19e>] __kmalloc_node_track_caller+0x4e/0x150
+    [<ffffffff81731d53>] kstrdup+0x33/0x60
+    [<ffffffff83a5d421>] kobject_set_name_vargs+0x41/0x110
+    [<ffffffff82d87aab>] dev_set_name+0xab/0xe0
+    [<ffffffff82d91a23>] device_add+0xe3/0x1a80
+    [<ffffffffa0270013>] 0xffffffffa0270013
+    [<ffffffff81001c27>] do_one_initcall+0x87/0x2e0
+    [<ffffffff813739cb>] do_init_module+0x1ab/0x640
+    [<ffffffff81379d20>] load_module+0x5d00/0x77f0
+    [<ffffffff8137bc40>] __do_sys_finit_module+0x110/0x1b0
+    [<ffffffff83c4d505>] do_syscall_64+0x35/0x80
+    [<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+(vdpa_sim_blk)
+unreferenced object 0xffff8881070c1250 (size 16):
+  comm "modprobe", pid 6844, jiffies 4364069319 (age 17.572s)
+  hex dump (first 16 bytes):
+    76 64 70 61 73 69 6d 5f 62 6c 6b 00 6b 6b 6b a5  vdpasim_blk.kkk.
+  backtrace:
+    [<ffffffff8174f19e>] __kmalloc_node_track_caller+0x4e/0x150
+    [<ffffffff81731d53>] kstrdup+0x33/0x60
+    [<ffffffff83a5d421>] kobject_set_name_vargs+0x41/0x110
+    [<ffffffff82d87aab>] dev_set_name+0xab/0xe0
+    [<ffffffff82d91a23>] device_add+0xe3/0x1a80
+    [<ffffffffa0220013>] 0xffffffffa0220013
+    [<ffffffff81001c27>] do_one_initcall+0x87/0x2e0
+    [<ffffffff813739cb>] do_init_module+0x1ab/0x640
+    [<ffffffff81379d20>] load_module+0x5d00/0x77f0
+    [<ffffffff8137bc40>] __do_sys_finit_module+0x110/0x1b0
+    [<ffffffff83c4d505>] do_syscall_64+0x35/0x80
+    [<ffffffff83e0006a>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+Fixes: 899c4d187f6a ("vdpa_sim_blk: add support for vdpa management tool")
+Fixes: a3c06ae158dd ("vdpa_sim_net: Add support for user supported devices")
+
+Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Message-Id: <20221110082348.4105476-1-ruanjinjie@huawei.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/netlink.c | 52 ++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 38 insertions(+), 14 deletions(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 4 +++-
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index a207f0b8137b..d928d5a24bbc 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1497,6 +1497,7 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	u32 dev_idx, se_idx;
- 	u8 *apdu;
- 	size_t apdu_len;
-+	int rc;
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+index a790903f243e..22b812c32bee 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+@@ -308,8 +308,10 @@ static int __init vdpasim_blk_init(void)
+ 	int ret;
  
- 	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
- 	    !info->attrs[NFC_ATTR_SE_INDEX] ||
-@@ -1510,25 +1511,37 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	if (!dev)
- 		return -ENODEV;
- 
--	if (!dev->ops || !dev->ops->se_io)
--		return -ENOTSUPP;
-+	if (!dev->ops || !dev->ops->se_io) {
-+		rc = -EOPNOTSUPP;
-+		goto put_dev;
+ 	ret = device_register(&vdpasim_blk_mgmtdev);
+-	if (ret)
++	if (ret) {
++		put_device(&vdpasim_blk_mgmtdev);
+ 		return ret;
 +	}
  
- 	apdu_len = nla_len(info->attrs[NFC_ATTR_SE_APDU]);
--	if (apdu_len == 0)
--		return -EINVAL;
-+	if (apdu_len == 0) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
- 
- 	apdu = nla_data(info->attrs[NFC_ATTR_SE_APDU]);
--	if (!apdu)
--		return -EINVAL;
-+	if (!apdu) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
- 
- 	ctx = kzalloc(sizeof(struct se_io_ctx), GFP_KERNEL);
--	if (!ctx)
--		return -ENOMEM;
-+	if (!ctx) {
-+		rc = -ENOMEM;
-+		goto put_dev;
-+	}
- 
- 	ctx->dev_idx = dev_idx;
- 	ctx->se_idx = se_idx;
- 
--	return nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
-+	rc = nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
-+
-+put_dev:
-+	nfc_put_device(dev);
-+	return rc;
- }
- 
- static int nfc_genl_vendor_cmd(struct sk_buff *skb,
-@@ -1551,14 +1564,21 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 	subcmd = nla_get_u32(info->attrs[NFC_ATTR_VENDOR_SUBCMD]);
- 
- 	dev = nfc_get_device(dev_idx);
--	if (!dev || !dev->vendor_cmds || !dev->n_vendor_cmds)
-+	if (!dev)
- 		return -ENODEV;
- 
-+	if (!dev->vendor_cmds || !dev->n_vendor_cmds) {
-+		err = -ENODEV;
-+		goto put_dev;
-+	}
-+
- 	if (info->attrs[NFC_ATTR_VENDOR_DATA]) {
- 		data = nla_data(info->attrs[NFC_ATTR_VENDOR_DATA]);
- 		data_len = nla_len(info->attrs[NFC_ATTR_VENDOR_DATA]);
--		if (data_len == 0)
--			return -EINVAL;
-+		if (data_len == 0) {
-+			err = -EINVAL;
-+			goto put_dev;
-+		}
- 	} else {
- 		data = NULL;
- 		data_len = 0;
-@@ -1573,10 +1593,14 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 		dev->cur_cmd_info = info;
- 		err = cmd->doit(dev, data, data_len);
- 		dev->cur_cmd_info = NULL;
--		return err;
-+		goto put_dev;
+ 	ret = vdpa_mgmtdev_register(&mgmt_dev);
+ 	if (ret)
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+index a1ab6163f7d1..f1c420c5e26e 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+@@ -194,8 +194,10 @@ static int __init vdpasim_net_init(void)
  	}
  
--	return -EOPNOTSUPP;
-+	err = -EOPNOTSUPP;
-+
-+put_dev:
-+	nfc_put_device(dev);
-+	return err;
- }
+ 	ret = device_register(&vdpasim_net_mgmtdev);
+-	if (ret)
++	if (ret) {
++		put_device(&vdpasim_net_mgmtdev);
+ 		return ret;
++	}
  
- /* message building helper */
+ 	ret = vdpa_mgmtdev_register(&mgmt_dev);
+ 	if (ret)
 -- 
 2.35.1
 
