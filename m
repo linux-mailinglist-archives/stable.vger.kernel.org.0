@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D474664A58
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90619664A56
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234431AbjAJScb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:32:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46594 "EHLO
+        id S233840AbjAJSc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239395AbjAJSb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F3797480
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:45 -0800 (PST)
+        with ESMTP id S239403AbjAJSbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C15BD97498
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87ECEB81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE359C433D2;
-        Tue, 10 Jan 2023 18:26:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C325E6184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA6DDC433D2;
+        Tue, 10 Jan 2023 18:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375203;
-        bh=2WbrLLNwA1qS4ZG0wdRfRChzE1APonQ1xlMhTvHvqt8=;
+        s=korg; t=1673375206;
+        bh=8aQTdZPbthd0oFASr0UjKiG1mwMMkeX332+n5g1948Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oAFuW84zni0TOziZ8jJ2DKuu2ewja0u7aqDhBHUebshfzqZ0u/cYoiWIGetPie6go
-         HXk+WY1DnBvhZPYEANJqWfuJahyAovWACvL008saSueqYbtq/BgiZT5jpxsd28WHtf
-         xEJVuwlbG6bZJa1KH8zUFvH2eLYiqm1kgYsWAHdo=
+        b=NIyVmHRX8ZYhjBHXMnbgQQK8unkKD2xtEPew5+YbpEq+Pl8XuGAEv7QO1I0rJv5KK
+         2ZWVTGWlTJ26mvC/yz3GQswF6N6l4ajHi9no85kZDJ+Sd+ACjBGsXHiEHCucDXT4yC
+         W0eYDrRnH7/ZSYXYRxc0opO8QrWYILkwQsG+xPeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 113/290] block: mq-deadline: Do not break sequential write streams to zoned HDDs
-Date:   Tue, 10 Jan 2023 19:03:25 +0100
-Message-Id: <20230110180035.688668314@linuxfoundation.org>
+        Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>, Song Liu <song@kernel.org>
+Subject: [PATCH 5.15 114/290] md/bitmap: Fix bitmap chunk size overflow issues
+Date:   Tue, 10 Jan 2023 19:03:26 +0100
+Message-Id: <20230110180035.722557452@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -54,162 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
 
-commit 015d02f48537cf2d1a65eeac50717566f9db6eec upstream.
+commit 4555211190798b6b6fa2c37667d175bf67945c78 upstream.
 
-mq-deadline ensures an in order dispatching of write requests to zoned
-block devices using a per zone lock (a bit). This implies that for any
-purely sequential write workload, the drive is exercised most of the
-time at a maximum queue depth of one.
+- limit bitmap chunk size internal u64 variable to values not overflowing
+  the u32 bitmap superblock structure variable stored on persistent media
+- assign bitmap chunk size internal u64 variable from unsigned values to
+  avoid possible sign extension artifacts when assigning from a s32 value
 
-However, when such sequential write workload crosses a zone boundary
-(when sequentially writing multiple contiguous zones), zone write
-locking may prevent the last write to one zone to be issued (as the
-previous write is still being executed) but allow the first write to the
-following zone to be issued (as that zone is not yet being writen and
-not locked). This result in an out of order delivery of the sequential
-write commands to the device every time a zone boundary is crossed.
+The bug has been there since at least kernel 4.0.
+Steps to reproduce it:
+1: mdadm -C /dev/mdx -l 1 --bitmap=internal --bitmap-chunk=256M -e 1.2
+-n2 /dev/rnbd1 /dev/rnbd2
+2 resize member device rnbd1 and rnbd2 to 8 TB
+3 mdadm --grow /dev/mdx --size=max
 
-While such behavior does not break the sequential write constraint of
-zoned block devices (and does not generate any write error), some zoned
-hard-disks react badly to seeing these out of order writes, resulting in
-lower write throughput.
+The bitmap_chunksize will overflow without patch.
 
-This problem can be addressed by always dispatching the first request
-of a stream of sequential write requests, regardless of the zones
-targeted by these sequential writes. To do so, the function
-deadline_skip_seq_writes() is introduced and used in
-deadline_next_request() to select the next write command to issue if the
-target device is an HDD (blk_queue_nonrot() being false).
-deadline_fifo_request() is modified using the new
-deadline_earlier_request() and deadline_is_seq_write() helpers to ignore
-requests in the fifo list that have a preceding request in lba order
-that is sequential.
+Cc: stable@vger.kernel.org
 
-With this fix, a sequential write workload executed with the following
-fio command:
-
-fio  --name=seq-write --filename=/dev/sda --zonemode=zbd --direct=1 \
-     --size=68719476736  --ioengine=libaio --iodepth=32 --rw=write \
-     --bs=65536
-
-results in an increase from 225 MB/s to 250 MB/s of the write throughput
-of an SMR HDD (11% increase).
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20221124021208.242541-3-damien.lemoal@opensource.wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/mq-deadline.c |   66 ++++++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 62 insertions(+), 4 deletions(-)
+ drivers/md/md-bitmap.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -154,6 +154,20 @@ static u8 dd_rq_ioclass(struct request *
+--- a/drivers/md/md-bitmap.c
++++ b/drivers/md/md-bitmap.c
+@@ -486,7 +486,7 @@ void md_bitmap_print_sb(struct bitmap *b
+ 	sb = kmap_atomic(bitmap->storage.sb_page);
+ 	pr_debug("%s: bitmap file superblock:\n", bmname(bitmap));
+ 	pr_debug("         magic: %08x\n", le32_to_cpu(sb->magic));
+-	pr_debug("       version: %d\n", le32_to_cpu(sb->version));
++	pr_debug("       version: %u\n", le32_to_cpu(sb->version));
+ 	pr_debug("          uuid: %08x.%08x.%08x.%08x\n",
+ 		 le32_to_cpu(*(__le32 *)(sb->uuid+0)),
+ 		 le32_to_cpu(*(__le32 *)(sb->uuid+4)),
+@@ -497,11 +497,11 @@ void md_bitmap_print_sb(struct bitmap *b
+ 	pr_debug("events cleared: %llu\n",
+ 		 (unsigned long long) le64_to_cpu(sb->events_cleared));
+ 	pr_debug("         state: %08x\n", le32_to_cpu(sb->state));
+-	pr_debug("     chunksize: %d B\n", le32_to_cpu(sb->chunksize));
+-	pr_debug("  daemon sleep: %ds\n", le32_to_cpu(sb->daemon_sleep));
++	pr_debug("     chunksize: %u B\n", le32_to_cpu(sb->chunksize));
++	pr_debug("  daemon sleep: %us\n", le32_to_cpu(sb->daemon_sleep));
+ 	pr_debug("     sync size: %llu KB\n",
+ 		 (unsigned long long)le64_to_cpu(sb->sync_size)/2);
+-	pr_debug("max write behind: %d\n", le32_to_cpu(sb->write_behind));
++	pr_debug("max write behind: %u\n", le32_to_cpu(sb->write_behind));
+ 	kunmap_atomic(sb);
  }
  
- /*
-+ * get the request before `rq' in sector-sorted order
-+ */
-+static inline struct request *
-+deadline_earlier_request(struct request *rq)
-+{
-+	struct rb_node *node = rb_prev(&rq->rb_node);
-+
-+	if (node)
-+		return rb_entry_rq(node);
-+
-+	return NULL;
-+}
-+
-+/*
-  * get the request after `rq' in sector-sorted order
-  */
- static inline struct request *
-@@ -289,6 +303,39 @@ static inline int deadline_check_fifo(st
+@@ -2106,7 +2106,8 @@ int md_bitmap_resize(struct bitmap *bitm
+ 			bytes = DIV_ROUND_UP(chunks, 8);
+ 			if (!bitmap->mddev->bitmap_info.external)
+ 				bytes += sizeof(bitmap_super_t);
+-		} while (bytes > (space << 9));
++		} while (bytes > (space << 9) && (chunkshift + BITMAP_BLOCK_SHIFT) <
++			(BITS_PER_BYTE * sizeof(((bitmap_super_t *)0)->chunksize) - 1));
+ 	} else
+ 		chunkshift = ffz(~chunksize) - BITMAP_BLOCK_SHIFT;
+ 
+@@ -2151,7 +2152,7 @@ int md_bitmap_resize(struct bitmap *bitm
+ 	bitmap->counts.missing_pages = pages;
+ 	bitmap->counts.chunkshift = chunkshift;
+ 	bitmap->counts.chunks = chunks;
+-	bitmap->mddev->bitmap_info.chunksize = 1 << (chunkshift +
++	bitmap->mddev->bitmap_info.chunksize = 1UL << (chunkshift +
+ 						     BITMAP_BLOCK_SHIFT);
+ 
+ 	blocks = min(old_counts.chunks << old_counts.chunkshift,
+@@ -2177,8 +2178,8 @@ int md_bitmap_resize(struct bitmap *bitm
+ 				bitmap->counts.missing_pages = old_counts.pages;
+ 				bitmap->counts.chunkshift = old_counts.chunkshift;
+ 				bitmap->counts.chunks = old_counts.chunks;
+-				bitmap->mddev->bitmap_info.chunksize = 1 << (old_counts.chunkshift +
+-									     BITMAP_BLOCK_SHIFT);
++				bitmap->mddev->bitmap_info.chunksize =
++					1UL << (old_counts.chunkshift + BITMAP_BLOCK_SHIFT);
+ 				blocks = old_counts.chunks << old_counts.chunkshift;
+ 				pr_warn("Could not pre-allocate in-memory bitmap for cluster raid\n");
+ 				break;
+@@ -2519,6 +2520,9 @@ chunksize_store(struct mddev *mddev, con
+ 	if (csize < 512 ||
+ 	    !is_power_of_2(csize))
+ 		return -EINVAL;
++	if (BITS_PER_LONG > 32 && csize >= (1ULL << (BITS_PER_BYTE *
++		sizeof(((bitmap_super_t *)0)->chunksize))))
++		return -EOVERFLOW;
+ 	mddev->bitmap_info.chunksize = csize;
+ 	return len;
  }
- 
- /*
-+ * Check if rq has a sequential request preceding it.
-+ */
-+static bool deadline_is_seq_writes(struct deadline_data *dd, struct request *rq)
-+{
-+	struct request *prev = deadline_earlier_request(rq);
-+
-+	if (!prev)
-+		return false;
-+
-+	return blk_rq_pos(prev) + blk_rq_sectors(prev) == blk_rq_pos(rq);
-+}
-+
-+/*
-+ * Skip all write requests that are sequential from @rq, even if we cross
-+ * a zone boundary.
-+ */
-+static struct request *deadline_skip_seq_writes(struct deadline_data *dd,
-+						struct request *rq)
-+{
-+	sector_t pos = blk_rq_pos(rq);
-+	sector_t skipped_sectors = 0;
-+
-+	while (rq) {
-+		if (blk_rq_pos(rq) != pos + skipped_sectors)
-+			break;
-+		skipped_sectors += blk_rq_sectors(rq);
-+		rq = deadline_latter_request(rq);
-+	}
-+
-+	return rq;
-+}
-+
-+/*
-  * For the specified data direction, return the next request to
-  * dispatch using arrival ordered lists.
-  */
-@@ -308,11 +355,16 @@ deadline_fifo_request(struct deadline_da
- 
- 	/*
- 	 * Look for a write request that can be dispatched, that is one with
--	 * an unlocked target zone.
-+	 * an unlocked target zone. For some HDDs, breaking a sequential
-+	 * write stream can lead to lower throughput, so make sure to preserve
-+	 * sequential write streams, even if that stream crosses into the next
-+	 * zones and these zones are unlocked.
- 	 */
- 	spin_lock_irqsave(&dd->zone_lock, flags);
- 	list_for_each_entry(rq, &per_prio->fifo_list[DD_WRITE], queuelist) {
--		if (blk_req_can_dispatch_to_zone(rq))
-+		if (blk_req_can_dispatch_to_zone(rq) &&
-+		    (blk_queue_nonrot(rq->q) ||
-+		     !deadline_is_seq_writes(dd, rq)))
- 			goto out;
- 	}
- 	rq = NULL;
-@@ -342,13 +394,19 @@ deadline_next_request(struct deadline_da
- 
- 	/*
- 	 * Look for a write request that can be dispatched, that is one with
--	 * an unlocked target zone.
-+	 * an unlocked target zone. For some HDDs, breaking a sequential
-+	 * write stream can lead to lower throughput, so make sure to preserve
-+	 * sequential write streams, even if that stream crosses into the next
-+	 * zones and these zones are unlocked.
- 	 */
- 	spin_lock_irqsave(&dd->zone_lock, flags);
- 	while (rq) {
- 		if (blk_req_can_dispatch_to_zone(rq))
- 			break;
--		rq = deadline_latter_request(rq);
-+		if (blk_queue_nonrot(rq->q))
-+			rq = deadline_latter_request(rq);
-+		else
-+			rq = deadline_skip_seq_writes(dd, rq);
- 	}
- 	spin_unlock_irqrestore(&dd->zone_lock, flags);
- 
 
 
