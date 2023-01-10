@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87068664A40
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18EF866491C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239426AbjAJSbg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:31:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42170 "EHLO
+        id S239129AbjAJSSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:18:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239440AbjAJSal (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E50208E98D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:47 -0800 (PST)
+        with ESMTP id S239182AbjAJSRZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BB9DC7D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CF85617C9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71434C433D2;
-        Tue, 10 Jan 2023 18:25:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCEED6182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:15:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA739C433EF;
+        Tue, 10 Jan 2023 18:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375146;
-        bh=o0evxTQZ7hHbtrdnN+03QUm23PIlf09rrvcvTIaTnBw=;
+        s=korg; t=1673374551;
+        bh=n7tc5ARTsuv1Q+XxG3kbtY5dIk6Dmq71j1oRw9w49Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvYzMhTZwM4FkzQJTMVzw9QB2oP706tDK/W50W3lw4upO9htTrX3kx4so7bseicn/
-         xZeNWTtwoTPKWjoBKOs3GcsvmabvAJj1PnS9pcd/A+YinS3a1pJuskHtLRAhXPqFUd
-         4t4UsJoC3DC4WyncIZeKhPKnFPfv61RlnEenAgDc=
+        b=MU0jWE7rw2dlbZBFEJeBNOoRwo7VP8MYxn7u5Dd+6/YiYPC8POBWPNgB6kzK9voB7
+         M6Gp81B8wggp/emduyeEg0ikMz3BMwEbVQnp9ZGwweQScXtKUjWtRCMI5bryjIV1WB
+         hkbWfjpZbZE1+ZhbKV/AuI5FX5M+vbIXMTFHyDxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Maydell <peter.maydell@linaro.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.15 092/290] of/kexec: Fix reading 32-bit "linux,initrd-{start,end}" values
+        patches@lists.linux.dev,
+        Andy Gospodarek <andrew.gospodarek@broadcom.com>,
+        Somnath Kotur <somnath.kotur@broadcom.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 036/159] bnxt_en: Simplify bnxt_xdp_buff_init()
 Date:   Tue, 10 Jan 2023 19:03:04 +0100
-Message-Id: <20230110180034.792413983@linuxfoundation.org>
+Message-Id: <20230110180019.461115293@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,67 +57,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit e553ad8d7957697385e81034bf76db3b2cb2cf27 upstream.
+[ Upstream commit bbfc17e50ba2ed18dfef46b1c433d50a58566bf1 ]
 
-"linux,initrd-start" and "linux,initrd-end" can be 32-bit values even on
-a 64-bit platform. Ideally, the size should be based on
-'#address-cells', but that has never been enforced in the kernel's FDT
-boot parsing code (early_init_dt_check_for_initrd()). Bootloader
-behavior is known to vary. For example, kexec always writes these as
-64-bit. The result of incorrectly reading 32-bit values is most likely
-the reserved memory for the original initrd will still be reserved
-for the new kernel. The original arm64 equivalent of this code failed to
-release the initrd reserved memory in *all* cases.
+bnxt_xdp_buff_init() does not modify the data_ptr or the len parameters,
+so no need to pass in the addresses of these parameters.
 
-Use of_read_number() to mirror the early_init_dt_check_for_initrd()
-code.
-
-Fixes: b30be4dc733e ("of: Add a common kexec FDT setup function")
-Cc: stable@vger.kernel.org
-Reported-by: Peter Maydell <peter.maydell@linaro.org>
-Link: https://lore.kernel.org/r/20221128202440.1411895-1-robh@kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b231c3f3414c ("bnxt: refactor bnxt_rx_xdp to separate xdp_init_buff/xdp_prepare_buff")
+Reviewed-by: Andy Gospodarek <andrew.gospodarek@broadcom.com>
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/kexec.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c     | 2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c | 6 +++---
+ drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/of/kexec.c
-+++ b/drivers/of/kexec.c
-@@ -284,7 +284,7 @@ void *of_kexec_alloc_and_setup_fdt(const
- 				   const char *cmdline, size_t extra_fdt_size)
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 9f8a6ce4b356..0166c99cb7c6 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -1922,7 +1922,7 @@ static int bnxt_rx_pkt(struct bnxt *bp, struct bnxt_cp_ring_info *cpr,
+ 	dma_addr = rx_buf->mapping;
+ 
+ 	if (bnxt_xdp_attached(bp, rxr)) {
+-		bnxt_xdp_buff_init(bp, rxr, cons, &data_ptr, &len, &xdp);
++		bnxt_xdp_buff_init(bp, rxr, cons, data_ptr, len, &xdp);
+ 		if (agg_bufs) {
+ 			u32 frag_len = bnxt_rx_agg_pages_xdp(bp, cpr, &xdp,
+ 							     cp_cons, agg_bufs,
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
+index c3065ec0a479..1847f191577d 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
+@@ -177,7 +177,7 @@ bool bnxt_xdp_attached(struct bnxt *bp, struct bnxt_rx_ring_info *rxr)
+ }
+ 
+ void bnxt_xdp_buff_init(struct bnxt *bp, struct bnxt_rx_ring_info *rxr,
+-			u16 cons, u8 **data_ptr, unsigned int *len,
++			u16 cons, u8 *data_ptr, unsigned int len,
+ 			struct xdp_buff *xdp)
  {
- 	void *fdt;
--	int ret, chosen_node;
-+	int ret, chosen_node, len;
- 	const void *prop;
- 	size_t fdt_size;
+ 	struct bnxt_sw_rx_bd *rx_buf;
+@@ -191,13 +191,13 @@ void bnxt_xdp_buff_init(struct bnxt *bp, struct bnxt_rx_ring_info *rxr,
+ 	offset = bp->rx_offset;
  
-@@ -327,19 +327,19 @@ void *of_kexec_alloc_and_setup_fdt(const
- 		goto out;
+ 	mapping = rx_buf->mapping - bp->rx_dma_offset;
+-	dma_sync_single_for_cpu(&pdev->dev, mapping + offset, *len, bp->rx_dir);
++	dma_sync_single_for_cpu(&pdev->dev, mapping + offset, len, bp->rx_dir);
  
- 	/* Did we boot using an initrd? */
--	prop = fdt_getprop(fdt, chosen_node, "linux,initrd-start", NULL);
-+	prop = fdt_getprop(fdt, chosen_node, "linux,initrd-start", &len);
- 	if (prop) {
- 		u64 tmp_start, tmp_end, tmp_size;
+ 	if (bp->xdp_has_frags)
+ 		buflen = BNXT_PAGE_MODE_BUF_SIZE + offset;
  
--		tmp_start = fdt64_to_cpu(*((const fdt64_t *) prop));
-+		tmp_start = of_read_number(prop, len / 4);
+ 	xdp_init_buff(xdp, buflen, &rxr->xdp_rxq);
+-	xdp_prepare_buff(xdp, *data_ptr - offset, offset, *len, false);
++	xdp_prepare_buff(xdp, data_ptr - offset, offset, len, false);
+ }
  
--		prop = fdt_getprop(fdt, chosen_node, "linux,initrd-end", NULL);
-+		prop = fdt_getprop(fdt, chosen_node, "linux,initrd-end", &len);
- 		if (!prop) {
- 			ret = -EINVAL;
- 			goto out;
- 		}
+ void bnxt_xdp_buff_frags_free(struct bnxt_rx_ring_info *rxr,
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
+index 505911ae095d..2bbdb8e7c506 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
+@@ -27,7 +27,7 @@ int bnxt_xdp_xmit(struct net_device *dev, int num_frames,
+ bool bnxt_xdp_attached(struct bnxt *bp, struct bnxt_rx_ring_info *rxr);
  
--		tmp_end = fdt64_to_cpu(*((const fdt64_t *) prop));
-+		tmp_end = of_read_number(prop, len / 4);
- 
- 		/*
- 		 * kexec reserves exact initrd size, while firmware may
+ void bnxt_xdp_buff_init(struct bnxt *bp, struct bnxt_rx_ring_info *rxr,
+-			u16 cons, u8 **data_ptr, unsigned int *len,
++			u16 cons, u8 *data_ptr, unsigned int len,
+ 			struct xdp_buff *xdp);
+ void bnxt_xdp_buff_frags_free(struct bnxt_rx_ring_info *rxr,
+ 			      struct xdp_buff *xdp);
+-- 
+2.35.1
+
 
 
