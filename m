@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C4CD664915
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9274C664871
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239009AbjAJSRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:17:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59098 "EHLO
+        id S232697AbjAJSLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239085AbjAJSQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:45 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FCC46D522
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:17 -0800 (PST)
+        with ESMTP id S239088AbjAJSKa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3A565B5
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6C9CDCE18D4
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:15:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C028C433D2;
-        Tue, 10 Jan 2023 18:15:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 886A4B81909
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E11BAC433EF;
+        Tue, 10 Jan 2023 18:09:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374513;
-        bh=/CFWjlEv1k5sF1WtWPeQYPJ2W/TyBqJHil37cYtaW3E=;
+        s=korg; t=1673374149;
+        bh=gY1a5ERSTIZgrNMRDuG2O2Et1lzql3dRj0Y0QDk1ce8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+vbW9THMToeSjM7iQuCjIIQ+mDeYNP9nja2hEhM7RAWiHNw9tRtii9TLx4galrkb
-         1JOK4A8JnwpdgjTlrbrHupKUtA/n46UegWDzTaLl6m0uhK9yOLwmlmuZ4c1Lk4k8vv
-         Ed6Y1D56QhmTBdvaDci2c+S2X01t0CEq/T5adGHg=
+        b=Tx/HC8AHdF/ExdKLCbdR7X5PaSo7Ua5EdZYcjxVX8/68QLqrl0bU3gRrJmapG5S2x
+         kai1QDLOx+DW2U2Bim12MlP4Mrtw9TT68X2jVKsTQRop9cEfvaOkc6osFb3Ih5f8fk
+         87WvDf+/OdXCmMxnCKHO7VYdryvfVbHzuMdUP/n0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Robin Cowley <robin.cowley@thehutgroup.com>,
-        Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 6.1 019/159] ice: xsk: do not use xdp_return_frame() on tx_buf->raw_buf
+        patches@lists.linux.dev, Jiguang Xiao <jiguang.xiao@windriver.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 063/148] net: amd-xgbe: add missed tasklet_kill
 Date:   Tue, 10 Jan 2023 19:02:47 +0100
-Message-Id: <20230110180018.922532324@linuxfoundation.org>
+Message-Id: <20230110180019.226757958@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,51 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Jiguang Xiao <jiguang.xiao@windriver.com>
 
-[ Upstream commit 53fc61be273a1e76dd5e356f91805dce00ff2d2c ]
+[ Upstream commit d530ece70f16f912e1d1bfeea694246ab78b0a4b ]
 
-Previously ice XDP xmit routine was changed in a way that it avoids
-xdp_buff->xdp_frame conversion as it is simply not needed for handling
-XDP_TX action and what is more it saves us CPU cycles. This routine is
-re-used on ZC driver to handle XDP_TX action.
+The driver does not call tasklet_kill in several places.
+Add the calls to fix it.
 
-Although for XDP_TX on Rx ZC xdp_buff that comes from xsk_buff_pool is
-converted to xdp_frame, xdp_frame itself is not stored inside
-ice_tx_buf, we only store raw data pointer. Casting this pointer to
-xdp_frame and calling against it xdp_return_frame in
-ice_clean_xdp_tx_buf() results in undefined behavior.
-
-To fix this, simply call page_frag_free() on tx_buf->raw_buf.
-Later intention is to remove the buff->frame conversion in order to
-simplify the codebase and improve XDP_TX performance on ZC.
-
-Fixes: 126cdfe1007a ("ice: xsk: Improve AF_XDP ZC Tx and use batching API")
-Reported-and-tested-by: Robin Cowley <robin.cowley@thehutgroup.com>
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Piotr Raczynski <piotr.raczynski@.intel.com>
-Link: https://lore.kernel.org/r/20221220175448.693999-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 85b85c853401 ("amd-xgbe: Re-issue interrupt if interrupt status not cleared")
+Signed-off-by: Jiguang Xiao <jiguang.xiao@windriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_xsk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-drv.c  | 3 +++
+ drivers/net/ethernet/amd/xgbe/xgbe-i2c.c  | 4 +++-
+ drivers/net/ethernet/amd/xgbe/xgbe-mdio.c | 4 +++-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index 056c904b83cc..79fa65d1cf20 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -772,7 +772,7 @@ int ice_clean_rx_irq_zc(struct ice_rx_ring *rx_ring, int budget)
- static void
- ice_clean_xdp_tx_buf(struct ice_tx_ring *xdp_ring, struct ice_tx_buf *tx_buf)
- {
--	xdp_return_frame((struct xdp_frame *)tx_buf->raw_buf);
-+	page_frag_free(tx_buf->raw_buf);
- 	xdp_ring->xdp_tx_active--;
- 	dma_unmap_single(xdp_ring->dev, dma_unmap_addr(tx_buf, dma),
- 			 dma_unmap_len(tx_buf, len), DMA_TO_DEVICE);
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+index f342bb853189..2ee2cd4a1e35 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+@@ -1064,6 +1064,9 @@ static void xgbe_free_irqs(struct xgbe_prv_data *pdata)
+ 
+ 	devm_free_irq(pdata->dev, pdata->dev_irq, pdata);
+ 
++	tasklet_kill(&pdata->tasklet_dev);
++	tasklet_kill(&pdata->tasklet_ecc);
++
+ 	if (pdata->vdata->ecc_support && (pdata->dev_irq != pdata->ecc_irq))
+ 		devm_free_irq(pdata->dev, pdata->ecc_irq, pdata);
+ 
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
+index 22d4fc547a0a..a9ccc4258ee5 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
+@@ -447,8 +447,10 @@ static void xgbe_i2c_stop(struct xgbe_prv_data *pdata)
+ 	xgbe_i2c_disable(pdata);
+ 	xgbe_i2c_clear_all_interrupts(pdata);
+ 
+-	if (pdata->dev_irq != pdata->i2c_irq)
++	if (pdata->dev_irq != pdata->i2c_irq) {
+ 		devm_free_irq(pdata->dev, pdata->i2c_irq, pdata);
++		tasklet_kill(&pdata->tasklet_i2c);
++	}
+ }
+ 
+ static int xgbe_i2c_start(struct xgbe_prv_data *pdata)
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+index 4e97b4869522..0c5c1b155683 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+@@ -1390,8 +1390,10 @@ static void xgbe_phy_stop(struct xgbe_prv_data *pdata)
+ 	/* Disable auto-negotiation */
+ 	xgbe_an_disable_all(pdata);
+ 
+-	if (pdata->dev_irq != pdata->an_irq)
++	if (pdata->dev_irq != pdata->an_irq) {
+ 		devm_free_irq(pdata->dev, pdata->an_irq, pdata);
++		tasklet_kill(&pdata->tasklet_an);
++	}
+ 
+ 	pdata->phy_if.phy_impl.stop(pdata);
+ 
 -- 
 2.35.1
 
