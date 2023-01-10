@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C560F6648A6
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:13:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA46566495F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235343AbjAJSNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:13:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54342 "EHLO
+        id S239243AbjAJSUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:20:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238877AbjAJSMt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F3A395E1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:22 -0800 (PST)
+        with ESMTP id S239308AbjAJSUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B8E7DEF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5178FB81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABFC1C433EF;
-        Tue, 10 Jan 2023 18:11:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB4566183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6186C433EF;
+        Tue, 10 Jan 2023 18:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374280;
-        bh=124vP880Sh+1mZ3HL7f14EB8racDxeisiaWDZsM5ejg=;
+        s=korg; t=1673374690;
+        bh=EQ1jRH5vIEAHNeX6uQDmxhMkhx15/XlqY/KvqTJPKcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TiRI1v1FfdiUhEhzL8KnLOW7em4kg1MzjeKbTHP7LjyH5gxJmHEyRn0XGSH7sFxdS
-         tsdzeKO3kLEllNsP3g6/cVAD37+nPpOimAQWflBO21TG8LYotQAUx5FFBSkLq/12cb
-         cPtl5fhziwjZaiCA/B4VanpwLbF6owWV0P8FNHLM=
+        b=vnSwSaV0pVmaouAnzmonayPg/bxHgX1jUOdTe7Oyo4Mycia8eZE0Z0al8rD8nvBJX
+         Yd3KWm/AJY800C/sMkFcChllZU6zi8ks4QJSsFt6ZGb7+Q+MYodcy/VS2ASQzYtTTh
+         /9vHW0fF3joqFTuK2FgTin/tfGdWuxvkJ3gRlJUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Kanchan Joshi <joshi.k@samsung.com>,
+        patches@lists.linux.dev, Shay Agroskin <shayagr@amazon.com>,
+        David Arinzon <darinzon@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 114/148] nvme: also return I/O command effects from nvme_command_effects
+Subject: [PATCH 6.1 070/159] net: ena: Use bitmask to indicate packet redirection
 Date:   Tue, 10 Jan 2023 19:03:38 +0100
-Message-Id: <20230110180020.800310039@linuxfoundation.org>
+Message-Id: <20230110180020.538657438@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +54,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: David Arinzon <darinzon@amazon.com>
 
-[ Upstream commit 831ed60c2aca2d7c517b2da22897a90224a97d27 ]
+[ Upstream commit 59811faa2c54dbcf44d575b5a8f6e7077da88dc2 ]
 
-To be able to use the Commands Supported and Effects Log for allowing
-unprivileged passtrough, it needs to be corretly reported for I/O
-commands as well.  Return the I/O command effects from
-nvme_command_effects, and also add a default list of effects for the
-NVM command set.  For other command sets, the Commands Supported and
-Effects log is required to be present already.
+Redirecting packets with XDP Redirect is done in two phases:
+1. A packet is passed by the driver to the kernel using
+   xdp_do_redirect().
+2. After finishing polling for new packets the driver lets the kernel
+   know that it can now process the redirected packet using
+   xdp_do_flush_map().
+   The packets' redirection is handled in the napi context of the
+   queue that called xdp_do_redirect()
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Kanchan Joshi <joshi.k@samsung.com>
+To avoid calling xdp_do_flush_map() each time the driver first checks
+whether any packets were redirected, using
+	xdp_flags |= xdp_verdict;
+and
+	if (xdp_flags & XDP_REDIRECT)
+	    xdp_do_flush_map()
+
+essentially treating XDP instructions as a bitmask, which isn't the case:
+    enum xdp_action {
+	    XDP_ABORTED = 0,
+	    XDP_DROP,
+	    XDP_PASS,
+	    XDP_TX,
+	    XDP_REDIRECT,
+    };
+
+Given the current possible values of xdp_action, the current design
+doesn't have a bug (since XDP_REDIRECT = 100b), but it is still
+flawed.
+
+This patch makes the driver use a bitmask instead, to avoid future
+issues.
+
+Fixes: a318c70ad152 ("net: ena: introduce XDP redirect implementation")
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Signed-off-by: David Arinzon <darinzon@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 32 ++++++++++++++++++++++++++------
- 1 file changed, 26 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 26 ++++++++++++--------
+ drivers/net/ethernet/amazon/ena/ena_netdev.h |  9 +++++++
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 3582a28a1dce..f06bae83e8ee 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1069,6 +1069,18 @@ static u32 nvme_known_admin_effects(u8 opcode)
- 	return 0;
- }
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index 69f2364b8468..821355c5db10 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -374,9 +374,9 @@ static int ena_xdp_xmit(struct net_device *dev, int n,
  
-+static u32 nvme_known_nvm_effects(u8 opcode)
-+{
-+	switch (opcode) {
-+	case nvme_cmd_write:
-+	case nvme_cmd_write_zeroes:
-+	case nvme_cmd_write_uncor:
-+		 return NVME_CMD_EFFECTS_LBCC;
-+	default:
-+		return 0;
-+	}
-+}
-+
- u32 nvme_command_effects(struct nvme_ctrl *ctrl, struct nvme_ns *ns, u8 opcode)
+ static int ena_xdp_execute(struct ena_ring *rx_ring, struct xdp_buff *xdp)
  {
- 	u32 effects = 0;
-@@ -1076,16 +1088,24 @@ u32 nvme_command_effects(struct nvme_ctrl *ctrl, struct nvme_ns *ns, u8 opcode)
- 	if (ns) {
- 		if (ns->head->effects)
- 			effects = le32_to_cpu(ns->head->effects->iocs[opcode]);
-+		if (ns->head->ids.csi == NVME_CAP_CSS_NVM)
-+			effects |= nvme_known_nvm_effects(opcode);
- 		if (effects & ~(NVME_CMD_EFFECTS_CSUPP | NVME_CMD_EFFECTS_LBCC))
- 			dev_warn_once(ctrl->device,
--				"IO command:%02x has unhandled effects:%08x\n",
-+				"IO command:%02x has unusual effects:%08x\n",
- 				opcode, effects);
--		return 0;
--	}
++	u32 verdict = ENA_XDP_PASS;
+ 	struct bpf_prog *xdp_prog;
+ 	struct ena_ring *xdp_ring;
+-	u32 verdict = XDP_PASS;
+ 	struct xdp_frame *xdpf;
+ 	u64 *xdp_stat;
  
--	if (ctrl->effects)
--		effects = le32_to_cpu(ctrl->effects->acs[opcode]);
--	effects |= nvme_known_admin_effects(opcode);
-+		/*
-+		 * NVME_CMD_EFFECTS_CSE_MASK causes a freeze all I/O queues,
-+		 * which would deadlock when done on an I/O command.  Note that
-+		 * We already warn about an unusual effect above.
-+		 */
-+		effects &= ~NVME_CMD_EFFECTS_CSE_MASK;
-+	} else {
-+		if (ctrl->effects)
-+			effects = le32_to_cpu(ctrl->effects->acs[opcode]);
-+		effects |= nvme_known_admin_effects(opcode);
-+	}
+@@ -393,7 +393,7 @@ static int ena_xdp_execute(struct ena_ring *rx_ring, struct xdp_buff *xdp)
+ 		if (unlikely(!xdpf)) {
+ 			trace_xdp_exception(rx_ring->netdev, xdp_prog, verdict);
+ 			xdp_stat = &rx_ring->rx_stats.xdp_aborted;
+-			verdict = XDP_ABORTED;
++			verdict = ENA_XDP_DROP;
+ 			break;
+ 		}
  
- 	return effects;
- }
+@@ -409,29 +409,35 @@ static int ena_xdp_execute(struct ena_ring *rx_ring, struct xdp_buff *xdp)
+ 
+ 		spin_unlock(&xdp_ring->xdp_tx_lock);
+ 		xdp_stat = &rx_ring->rx_stats.xdp_tx;
++		verdict = ENA_XDP_TX;
+ 		break;
+ 	case XDP_REDIRECT:
+ 		if (likely(!xdp_do_redirect(rx_ring->netdev, xdp, xdp_prog))) {
+ 			xdp_stat = &rx_ring->rx_stats.xdp_redirect;
++			verdict = ENA_XDP_REDIRECT;
+ 			break;
+ 		}
+ 		trace_xdp_exception(rx_ring->netdev, xdp_prog, verdict);
+ 		xdp_stat = &rx_ring->rx_stats.xdp_aborted;
+-		verdict = XDP_ABORTED;
++		verdict = ENA_XDP_DROP;
+ 		break;
+ 	case XDP_ABORTED:
+ 		trace_xdp_exception(rx_ring->netdev, xdp_prog, verdict);
+ 		xdp_stat = &rx_ring->rx_stats.xdp_aborted;
++		verdict = ENA_XDP_DROP;
+ 		break;
+ 	case XDP_DROP:
+ 		xdp_stat = &rx_ring->rx_stats.xdp_drop;
++		verdict = ENA_XDP_DROP;
+ 		break;
+ 	case XDP_PASS:
+ 		xdp_stat = &rx_ring->rx_stats.xdp_pass;
++		verdict = ENA_XDP_PASS;
+ 		break;
+ 	default:
+ 		bpf_warn_invalid_xdp_action(rx_ring->netdev, xdp_prog, verdict);
+ 		xdp_stat = &rx_ring->rx_stats.xdp_invalid;
++		verdict = ENA_XDP_DROP;
+ 	}
+ 
+ 	ena_increase_stat(xdp_stat, 1, &rx_ring->syncp);
+@@ -1621,12 +1627,12 @@ static int ena_xdp_handle_buff(struct ena_ring *rx_ring, struct xdp_buff *xdp)
+ 	 * we expect, then we simply drop it
+ 	 */
+ 	if (unlikely(rx_ring->ena_bufs[0].len > ENA_XDP_MAX_MTU))
+-		return XDP_DROP;
++		return ENA_XDP_DROP;
+ 
+ 	ret = ena_xdp_execute(rx_ring, xdp);
+ 
+ 	/* The xdp program might expand the headers */
+-	if (ret == XDP_PASS) {
++	if (ret == ENA_XDP_PASS) {
+ 		rx_info->page_offset = xdp->data - xdp->data_hard_start;
+ 		rx_ring->ena_bufs[0].len = xdp->data_end - xdp->data;
+ 	}
+@@ -1665,7 +1671,7 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
+ 	xdp_init_buff(&xdp, ENA_PAGE_SIZE, &rx_ring->xdp_rxq);
+ 
+ 	do {
+-		xdp_verdict = XDP_PASS;
++		xdp_verdict = ENA_XDP_PASS;
+ 		skb = NULL;
+ 		ena_rx_ctx.ena_bufs = rx_ring->ena_bufs;
+ 		ena_rx_ctx.max_bufs = rx_ring->sgl_size;
+@@ -1693,7 +1699,7 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
+ 			xdp_verdict = ena_xdp_handle_buff(rx_ring, &xdp);
+ 
+ 		/* allocate skb and fill it */
+-		if (xdp_verdict == XDP_PASS)
++		if (xdp_verdict == ENA_XDP_PASS)
+ 			skb = ena_rx_skb(rx_ring,
+ 					 rx_ring->ena_bufs,
+ 					 ena_rx_ctx.descs,
+@@ -1711,13 +1717,13 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
+ 				/* Packets was passed for transmission, unmap it
+ 				 * from RX side.
+ 				 */
+-				if (xdp_verdict == XDP_TX || xdp_verdict == XDP_REDIRECT) {
++				if (xdp_verdict & ENA_XDP_FORWARDED) {
+ 					ena_unmap_rx_buff(rx_ring,
+ 							  &rx_ring->rx_buffer_info[req_id]);
+ 					rx_ring->rx_buffer_info[req_id].page = NULL;
+ 				}
+ 			}
+-			if (xdp_verdict != XDP_PASS) {
++			if (xdp_verdict != ENA_XDP_PASS) {
+ 				xdp_flags |= xdp_verdict;
+ 				total_len += ena_rx_ctx.ena_bufs[0].len;
+ 				res_budget--;
+@@ -1763,7 +1769,7 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
+ 		ena_refill_rx_bufs(rx_ring, refill_required);
+ 	}
+ 
+-	if (xdp_flags & XDP_REDIRECT)
++	if (xdp_flags & ENA_XDP_REDIRECT)
+ 		xdp_do_flush_map();
+ 
+ 	return work_done;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.h b/drivers/net/ethernet/amazon/ena/ena_netdev.h
+index 1bdce99bf688..290ae9bf47ee 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.h
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.h
+@@ -409,6 +409,15 @@ enum ena_xdp_errors_t {
+ 	ENA_XDP_NO_ENOUGH_QUEUES,
+ };
+ 
++enum ENA_XDP_ACTIONS {
++	ENA_XDP_PASS		= 0,
++	ENA_XDP_TX		= BIT(0),
++	ENA_XDP_REDIRECT	= BIT(1),
++	ENA_XDP_DROP		= BIT(2)
++};
++
++#define ENA_XDP_FORWARDED (ENA_XDP_TX | ENA_XDP_REDIRECT)
++
+ static inline bool ena_xdp_present(struct ena_adapter *adapter)
+ {
+ 	return !!adapter->xdp_bpf_prog;
 -- 
 2.35.1
 
