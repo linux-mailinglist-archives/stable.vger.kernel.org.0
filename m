@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4744E664A07
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F84C664A04
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238962AbjAJS3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:29:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42158 "EHLO
+        id S234581AbjAJS3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:29:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239250AbjAJS2G (ORCPT
+        with ESMTP id S239263AbjAJS2G (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE68D2AD5
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:33 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C0E8BC05
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98D16B81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFC47C433EF;
-        Tue, 10 Jan 2023 18:23:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAE396183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D21CEC433D2;
+        Tue, 10 Jan 2023 18:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375011;
-        bh=N8HJ+T5jY+UZW58ZDvi7qE4zwhFcAun3bV5rgnrnhi0=;
+        s=korg; t=1673375014;
+        bh=KCXNKdNnGCvwv7UhPIhQEaaJqCNCvCLh8bS2TEuILeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RxdGn2Bh1kvonk5P4N6rrbComXyGq1et96AcDr5JmHuTkeoz/G5pJn82UESfyk349
-         nOtuTlVGc3Ptd9+tH3YhV8LvWQiCLnIEUGw2t0IHIYT4so8vblScN2hZTIZukk4ZkJ
-         v5LS5Gj2Pv44VcoA16YExiWdZn2xo5CVbTBGvOPc=
+        b=CeIgCYWKE7sEIpkOO9nsYAyI7czsF8s1oNSyAiynTsprLYs8CvikatUyccJW/Dck6
+         ypjUlduHP70WQqFqhYTXqz3R81T+nxn+tQdqWcX1uuoSGwIM8tGkeSh+0PGPUIzEAC
+         14knTjBWQp2c+rEvXX0+PLPuc/VvxITDnPy6tXh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.15 048/290] f2fs: allow to read node block after shutdown
-Date:   Tue, 10 Jan 2023 19:02:20 +0100
-Message-Id: <20230110180033.261361002@linuxfoundation.org>
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 049/290] mmc: vub300: fix warning - do not call blocking ops when !TASK_RUNNING
+Date:   Tue, 10 Jan 2023 19:02:21 +0100
+Message-Id: <20230110180033.291194209@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -52,33 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Deren Wu <deren.wu@mediatek.com>
 
-commit e6ecb142429183cef4835f31d4134050ae660032 upstream.
+commit 4a44cd249604e29e7b90ae796d7692f5773dd348 upstream.
 
-If block address is still alive, we should give a valid node block even after
-shutdown. Otherwise, we can see zero data when reading out a file.
+vub300_enable_sdio_irq() works with mutex and need TASK_RUNNING here.
+Ensure that we mark current as TASK_RUNNING for sleepable context.
 
+[   77.554641] do not call blocking ops when !TASK_RUNNING; state=1 set at [<ffffffff92a72c1d>] sdio_irq_thread+0x17d/0x5b0
+[   77.554652] WARNING: CPU: 2 PID: 1983 at kernel/sched/core.c:9813 __might_sleep+0x116/0x160
+[   77.554905] CPU: 2 PID: 1983 Comm: ksdioirqd/mmc1 Tainted: G           OE      6.1.0-rc5 #1
+[   77.554910] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, BIOS BECFL357.86A.0081.2020.0504.1834 05/04/2020
+[   77.554912] RIP: 0010:__might_sleep+0x116/0x160
+[   77.554920] RSP: 0018:ffff888107b7fdb8 EFLAGS: 00010282
+[   77.554923] RAX: 0000000000000000 RBX: ffff888118c1b740 RCX: 0000000000000000
+[   77.554926] RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffed1020f6ffa9
+[   77.554928] RBP: ffff888107b7fde0 R08: 0000000000000001 R09: ffffed1043ea60ba
+[   77.554930] R10: ffff88821f5305cb R11: ffffed1043ea60b9 R12: ffffffff93aa3a60
+[   77.554932] R13: 000000000000011b R14: 7fffffffffffffff R15: ffffffffc0558660
+[   77.554934] FS:  0000000000000000(0000) GS:ffff88821f500000(0000) knlGS:0000000000000000
+[   77.554937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   77.554939] CR2: 00007f8a44010d68 CR3: 000000024421a003 CR4: 00000000003706e0
+[   77.554942] Call Trace:
+[   77.554944]  <TASK>
+[   77.554952]  mutex_lock+0x78/0xf0
+[   77.554973]  vub300_enable_sdio_irq+0x103/0x3c0 [vub300]
+[   77.554981]  sdio_irq_thread+0x25c/0x5b0
+[   77.555006]  kthread+0x2b8/0x370
+[   77.555017]  ret_from_fork+0x1f/0x30
+[   77.555023]  </TASK>
+[   77.555025] ---[ end trace 0000000000000000 ]---
+
+Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
 Cc: stable@vger.kernel.org
-Fixes: 83a3bfdb5a8a ("f2fs: indicate shutdown f2fs to allow unmount successfully")
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lore.kernel.org/r/87dc45b122d26d63c80532976813c9365d7160b3.1670140888.git.deren.wu@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/node.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/mmc/host/vub300.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -1357,8 +1357,7 @@ static int read_node_page(struct page *p
- 		return err;
- 
- 	/* NEW_ADDR can be seen, after cp_error drops some dirty node pages */
--	if (unlikely(ni.blk_addr == NULL_ADDR || ni.blk_addr == NEW_ADDR) ||
--			is_sbi_flag_set(sbi, SBI_IS_SHUTDOWN)) {
-+	if (unlikely(ni.blk_addr == NULL_ADDR || ni.blk_addr == NEW_ADDR)) {
- 		ClearPageUptodate(page);
- 		return -ENOENT;
+--- a/drivers/mmc/host/vub300.c
++++ b/drivers/mmc/host/vub300.c
+@@ -2049,6 +2049,7 @@ static void vub300_enable_sdio_irq(struc
+ 		return;
+ 	kref_get(&vub300->kref);
+ 	if (enable) {
++		set_current_state(TASK_RUNNING);
+ 		mutex_lock(&vub300->irq_mutex);
+ 		if (vub300->irqs_queued) {
+ 			vub300->irqs_queued -= 1;
+@@ -2064,6 +2065,7 @@ static void vub300_enable_sdio_irq(struc
+ 			vub300_queue_poll_work(vub300, 0);
+ 		}
+ 		mutex_unlock(&vub300->irq_mutex);
++		set_current_state(TASK_INTERRUPTIBLE);
+ 	} else {
+ 		vub300->irq_enabled = 0;
  	}
 
 
