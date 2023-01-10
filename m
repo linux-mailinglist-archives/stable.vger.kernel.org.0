@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC3E46648C7
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 290B6664A5F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238788AbjAJSOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:14:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52640 "EHLO
+        id S238636AbjAJScf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239311AbjAJSOG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37592BCB3
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:34 -0800 (PST)
+        with ESMTP id S239352AbjAJScG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD3765B493
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6B4F6187F
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5DD7C433EF;
-        Tue, 10 Jan 2023 18:12:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8224DB81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0BBCC433D2;
+        Tue, 10 Jan 2023 18:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374353;
-        bh=Zm6jyk9Nd+W/6lpD/k39DtLbCitHTKO+Y+ZNCEpbcOc=;
+        s=korg; t=1673375230;
+        bh=jtBRg0qN1hf8VIQGcLgqzlTWHXsf1Orz0TBhX97ScsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fEjX8jkXHzPyKrmGxp5tBUsOx8KBnShYWhggT3Vnn61ZP3uEAwlZArhUcq0ABoix4
-         DOsKBc1Kk6C0Ohm/o34Hx4f+iYrywkNBw559CKWm9t/nGQRRsJodVzGcywYXcWEZad
-         ff31D+ob8cdardeVAswXUmMxCKJf9/zcsF/NcceE=
+        b=dDmo2HgBEfjiz/dSOvIH/eeSdC8AVUrQpQXQmE63TH3d+3wHJMzOXNlUlZVELIdFi
+         nzKsE5zF1VvbJi09cwZLys0g2a7NejxMCmnDlnbwXg/jxkf+MurhC/zlbezgJU6Yqn
+         HWX+NAw7grOfj+LiJXwgj38JY6cH8aSU2bn4EDw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 109/148] drm/amdkfd: Fix kfd_process_device_init_vm error handling
+        patches@lists.linux.dev, stable@kernel.org,
+        Jiaming Li <lijiaming30@huawei.com>,
+        Huaxin Lu <luhuaxin1@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.15 121/290] ima: Fix a potential NULL pointer access in ima_restore_measurement_list
 Date:   Tue, 10 Jan 2023 19:03:33 +0100
-Message-Id: <20230110180020.641321324@linuxfoundation.org>
+Message-Id: <20230110180035.972434770@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Huaxin Lu <luhuaxin1@huawei.com>
 
-[ Upstream commit 29d48b87db64b6697ddad007548e51d032081c59 ]
+commit 11220db412edae8dba58853238f53258268bdb88 upstream.
 
-Should only destroy the ib_mem and let process cleanup worker to free
-the outstanding BOs. Reset the pointer in pdd->qpd structure, to avoid
-NULL pointer access in process destroy worker.
+In restore_template_fmt, when kstrdup fails, a non-NULL value will still be
+returned, which causes a NULL pointer access in template_desc_init_fields.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000010
- Call Trace:
-  amdgpu_amdkfd_gpuvm_unmap_gtt_bo_from_kernel+0x46/0xb0 [amdgpu]
-  kfd_process_device_destroy_cwsr_dgpu+0x40/0x70 [amdgpu]
-  kfd_process_destroy_pdds+0x71/0x190 [amdgpu]
-  kfd_process_wq_release+0x2a2/0x3b0 [amdgpu]
-  process_one_work+0x2a1/0x600
-  worker_thread+0x39/0x3d0
-
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c7d09367702e ("ima: support restoring multiple template formats")
+Cc: stable@kernel.org
+Co-developed-by: Jiaming Li <lijiaming30@huawei.com>
+Signed-off-by: Jiaming Li <lijiaming30@huawei.com>
+Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_process.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ security/integrity/ima/ima_template.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_process.c b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-index 6c83a519b3a1..04678f9e214b 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-@@ -689,13 +689,13 @@ void kfd_process_destroy_wq(void)
- }
+--- a/security/integrity/ima/ima_template.c
++++ b/security/integrity/ima/ima_template.c
+@@ -336,8 +336,11 @@ static struct ima_template_desc *restore
  
- static void kfd_process_free_gpuvm(struct kgd_mem *mem,
--			struct kfd_process_device *pdd, void *kptr)
-+			struct kfd_process_device *pdd, void **kptr)
- {
- 	struct kfd_dev *dev = pdd->dev;
+ 	template_desc->name = "";
+ 	template_desc->fmt = kstrdup(template_name, GFP_KERNEL);
+-	if (!template_desc->fmt)
++	if (!template_desc->fmt) {
++		kfree(template_desc);
++		template_desc = NULL;
+ 		goto out;
++	}
  
--	if (kptr) {
-+	if (kptr && *kptr) {
- 		amdgpu_amdkfd_gpuvm_unmap_gtt_bo_from_kernel(mem);
--		kptr = NULL;
-+		*kptr = NULL;
- 	}
- 
- 	amdgpu_amdkfd_gpuvm_unmap_memory_from_gpu(dev->adev, mem, pdd->drm_priv);
-@@ -795,7 +795,7 @@ static void kfd_process_device_destroy_ib_mem(struct kfd_process_device *pdd)
- 	if (!qpd->ib_kaddr || !qpd->ib_base)
- 		return;
- 
--	kfd_process_free_gpuvm(qpd->ib_mem, pdd, qpd->ib_kaddr);
-+	kfd_process_free_gpuvm(qpd->ib_mem, pdd, &qpd->ib_kaddr);
- }
- 
- struct kfd_process *kfd_create_process(struct file *filep)
-@@ -1277,7 +1277,7 @@ static void kfd_process_device_destroy_cwsr_dgpu(struct kfd_process_device *pdd)
- 	if (!dev->cwsr_enabled || !qpd->cwsr_kaddr || !qpd->cwsr_base)
- 		return;
- 
--	kfd_process_free_gpuvm(qpd->cwsr_mem, pdd, qpd->cwsr_kaddr);
-+	kfd_process_free_gpuvm(qpd->cwsr_mem, pdd, &qpd->cwsr_kaddr);
- }
- 
- void kfd_process_set_trap_handler(struct qcm_process_device *qpd,
-@@ -1603,8 +1603,8 @@ int kfd_process_device_init_vm(struct kfd_process_device *pdd,
- 	return 0;
- 
- err_init_cwsr:
-+	kfd_process_device_destroy_ib_mem(pdd);
- err_reserve_ib_mem:
--	kfd_process_device_free_bos(pdd);
- 	pdd->drm_priv = NULL;
- 
- 	return ret;
--- 
-2.35.1
-
+ 	spin_lock(&template_list);
+ 	list_add_tail_rcu(&template_desc->list, &defined_templates);
 
 
