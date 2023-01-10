@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0FE8664907
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D31166648A1
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239074AbjAJSRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:17:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59328 "EHLO
+        id S238998AbjAJSM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234713AbjAJSQc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:32 -0500
+        with ESMTP id S239003AbjAJSMR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5532840859
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:14:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0F7A5FC5
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6E6761852
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBD13C433EF;
-        Tue, 10 Jan 2023 18:14:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 904956186E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4AEEC433D2;
+        Tue, 10 Jan 2023 18:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374495;
-        bh=I55RRaJo8CB8Gsjw4Snwb+ITZ5sv/GfIsVsT52D0O5E=;
+        s=korg; t=1673374267;
+        bh=D91RMQ0G/ES9Evykr0eugd3+aShZD2wcaUaHl9DnH6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EU9xNfLJfQ2+lGRmx9zBxX0EZ1SArAY0knEA7Z+/kYexPX9Pi4rlu31rUg32L0Cg3
-         O+5O2RmY8U6gPrZptlFkixjzE0dfl9jJGp0DXq3ibrDtNgiJpA7LwyukqUUrapWl5a
-         RLTswJW6znDvp76XNv1oeEmwiHFUXSTzH4RgVubQ=
+        b=gr+c77PGaKady5fn8uqsOfbk6fgJFh35gkOzkrSOMR+xz3QEkK3wxe9JiS7RBVas9
+         JROWiK1XtmEmW7AeBGrdMkGjPT2LM5sG3KT0qNN0mpH+GZma+rCJhqrChO3IRrzemr
+         U9yLKpTF4x6uqWeWgSURawlpFcz6eXUNDnMX795U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Shay Agroskin <shayagr@amazon.com>,
+        David Arinzon <darinzon@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 023/159] mptcp: fix lockdep false positive
+Subject: [PATCH 6.0 067/148] net: ena: Use bitmask to indicate packet redirection
 Date:   Tue, 10 Jan 2023 19:02:51 +0100
-Message-Id: <20230110180019.045496259@linuxfoundation.org>
+Message-Id: <20230110180019.348676490@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,158 +54,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: David Arinzon <darinzon@amazon.com>
 
-[ Upstream commit fec3adfd754ccc99a7230e8ab9f105b65fb07bcc ]
+[ Upstream commit 59811faa2c54dbcf44d575b5a8f6e7077da88dc2 ]
 
-MattB reported a lockdep splat in the mptcp listener code cleanup:
+Redirecting packets with XDP Redirect is done in two phases:
+1. A packet is passed by the driver to the kernel using
+   xdp_do_redirect().
+2. After finishing polling for new packets the driver lets the kernel
+   know that it can now process the redirected packet using
+   xdp_do_flush_map().
+   The packets' redirection is handled in the napi context of the
+   queue that called xdp_do_redirect()
 
- WARNING: possible circular locking dependency detected
- packetdrill/14278 is trying to acquire lock:
- ffff888017d868f0 ((work_completion)(&msk->work)){+.+.}-{0:0}, at: __flush_work (kernel/workqueue.c:3069)
+To avoid calling xdp_do_flush_map() each time the driver first checks
+whether any packets were redirected, using
+	xdp_flags |= xdp_verdict;
+and
+	if (xdp_flags & XDP_REDIRECT)
+	    xdp_do_flush_map()
 
- but task is already holding lock:
- ffff888017d84130 (sk_lock-AF_INET){+.+.}-{0:0}, at: mptcp_close (net/mptcp/protocol.c:2973)
+essentially treating XDP instructions as a bitmask, which isn't the case:
+    enum xdp_action {
+	    XDP_ABORTED = 0,
+	    XDP_DROP,
+	    XDP_PASS,
+	    XDP_TX,
+	    XDP_REDIRECT,
+    };
 
- which lock already depends on the new lock.
+Given the current possible values of xdp_action, the current design
+doesn't have a bug (since XDP_REDIRECT = 100b), but it is still
+flawed.
 
- the existing dependency chain (in reverse order) is:
+This patch makes the driver use a bitmask instead, to avoid future
+issues.
 
- -> #1 (sk_lock-AF_INET){+.+.}-{0:0}:
-        __lock_acquire (kernel/locking/lockdep.c:5055)
-        lock_acquire (kernel/locking/lockdep.c:466)
-        lock_sock_nested (net/core/sock.c:3463)
-        mptcp_worker (net/mptcp/protocol.c:2614)
-        process_one_work (kernel/workqueue.c:2294)
-        worker_thread (include/linux/list.h:292)
-        kthread (kernel/kthread.c:376)
-        ret_from_fork (arch/x86/entry/entry_64.S:312)
-
- -> #0 ((work_completion)(&msk->work)){+.+.}-{0:0}:
-        check_prev_add (kernel/locking/lockdep.c:3098)
-        validate_chain (kernel/locking/lockdep.c:3217)
-        __lock_acquire (kernel/locking/lockdep.c:5055)
-        lock_acquire (kernel/locking/lockdep.c:466)
-        __flush_work (kernel/workqueue.c:3070)
-        __cancel_work_timer (kernel/workqueue.c:3160)
-        mptcp_cancel_work (net/mptcp/protocol.c:2758)
-        mptcp_subflow_queue_clean (net/mptcp/subflow.c:1817)
-        __mptcp_close_ssk (net/mptcp/protocol.c:2363)
-        mptcp_destroy_common (net/mptcp/protocol.c:3170)
-        mptcp_destroy (include/net/sock.h:1495)
-        __mptcp_destroy_sock (net/mptcp/protocol.c:2886)
-        __mptcp_close (net/mptcp/protocol.c:2959)
-        mptcp_close (net/mptcp/protocol.c:2974)
-        inet_release (net/ipv4/af_inet.c:432)
-        __sock_release (net/socket.c:651)
-        sock_close (net/socket.c:1367)
-        __fput (fs/file_table.c:320)
-        task_work_run (kernel/task_work.c:181 (discriminator 1))
-        exit_to_user_mode_prepare (include/linux/resume_user_mode.h:49)
-        syscall_exit_to_user_mode (kernel/entry/common.c:130)
-        do_syscall_64 (arch/x86/entry/common.c:87)
-        entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
-
- other info that might help us debug this:
-
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock(sk_lock-AF_INET);
-                                lock((work_completion)(&msk->work));
-                                lock(sk_lock-AF_INET);
-   lock((work_completion)(&msk->work));
-
-  *** DEADLOCK ***
-
-The report is actually a false positive, since the only existing lock
-nesting is the msk socket lock acquired by the mptcp work.
-cancel_work_sync() is invoked without the relevant socket lock being
-held, but under a different (the msk listener) socket lock.
-
-We could silence the splat adding a per workqueue dynamic lockdep key,
-but that looks overkill. Instead just tell lockdep the msk socket lock
-is not held around cancel_work_sync().
-
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/322
-Fixes: 30e51b923e43 ("mptcp: fix unreleased socket in accept queue")
-Reported-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: a318c70ad152 ("net: ena: introduce XDP redirect implementation")
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Signed-off-by: David Arinzon <darinzon@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c |  2 +-
- net/mptcp/protocol.h |  2 +-
- net/mptcp/subflow.c  | 19 +++++++++++++++++--
- 3 files changed, 19 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 26 ++++++++++++--------
+ drivers/net/ethernet/amazon/ena/ena_netdev.h |  9 +++++++
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index e64ea2ca1c7a..e97465f0c667 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -2371,7 +2371,7 @@ static void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
- 		/* otherwise tcp will dispose of the ssk and subflow ctx */
- 		if (ssk->sk_state == TCP_LISTEN) {
- 			tcp_set_state(ssk, TCP_CLOSE);
--			mptcp_subflow_queue_clean(ssk);
-+			mptcp_subflow_queue_clean(sk, ssk);
- 			inet_csk_listen_stop(ssk);
- 		}
- 		__tcp_close(ssk, 0);
-diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index 380bddbc52d4..62e9ff237b6e 100644
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -614,7 +614,7 @@ void mptcp_close_ssk(struct sock *sk, struct sock *ssk,
- 		     struct mptcp_subflow_context *subflow);
- void __mptcp_subflow_send_ack(struct sock *ssk);
- void mptcp_subflow_reset(struct sock *ssk);
--void mptcp_subflow_queue_clean(struct sock *ssk);
-+void mptcp_subflow_queue_clean(struct sock *sk, struct sock *ssk);
- void mptcp_sock_graft(struct sock *sk, struct socket *parent);
- struct socket *__mptcp_nmpc_socket(const struct mptcp_sock *msk);
- bool __mptcp_close(struct sock *sk, long timeout);
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 613f515fedf0..9d3701fdb293 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -1733,7 +1733,7 @@ static void subflow_state_change(struct sock *sk)
- 	}
- }
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index 614f27f18164..a27a7963df76 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -374,9 +374,9 @@ static int ena_xdp_xmit(struct net_device *dev, int n,
  
--void mptcp_subflow_queue_clean(struct sock *listener_ssk)
-+void mptcp_subflow_queue_clean(struct sock *listener_sk, struct sock *listener_ssk)
+ static int ena_xdp_execute(struct ena_ring *rx_ring, struct xdp_buff *xdp)
  {
- 	struct request_sock_queue *queue = &inet_csk(listener_ssk)->icsk_accept_queue;
- 	struct mptcp_sock *msk, *next, *head = NULL;
-@@ -1782,8 +1782,23 @@ void mptcp_subflow_queue_clean(struct sock *listener_ssk)
++	u32 verdict = ENA_XDP_PASS;
+ 	struct bpf_prog *xdp_prog;
+ 	struct ena_ring *xdp_ring;
+-	u32 verdict = XDP_PASS;
+ 	struct xdp_frame *xdpf;
+ 	u64 *xdp_stat;
  
- 		do_cancel_work = __mptcp_close(sk, 0);
- 		release_sock(sk);
--		if (do_cancel_work)
-+		if (do_cancel_work) {
-+			/* lockdep will report a false positive ABBA deadlock
-+			 * between cancel_work_sync and the listener socket.
-+			 * The involved locks belong to different sockets WRT
-+			 * the existing AB chain.
-+			 * Using a per socket key is problematic as key
-+			 * deregistration requires process context and must be
-+			 * performed at socket disposal time, in atomic
-+			 * context.
-+			 * Just tell lockdep to consider the listener socket
-+			 * released here.
-+			 */
-+			mutex_release(&listener_sk->sk_lock.dep_map, _RET_IP_);
- 			mptcp_cancel_work(sk);
-+			mutex_acquire(&listener_sk->sk_lock.dep_map,
-+				      SINGLE_DEPTH_NESTING, 0, _RET_IP_);
-+		}
- 		sock_put(sk);
+@@ -393,7 +393,7 @@ static int ena_xdp_execute(struct ena_ring *rx_ring, struct xdp_buff *xdp)
+ 		if (unlikely(!xdpf)) {
+ 			trace_xdp_exception(rx_ring->netdev, xdp_prog, verdict);
+ 			xdp_stat = &rx_ring->rx_stats.xdp_aborted;
+-			verdict = XDP_ABORTED;
++			verdict = ENA_XDP_DROP;
+ 			break;
+ 		}
+ 
+@@ -409,29 +409,35 @@ static int ena_xdp_execute(struct ena_ring *rx_ring, struct xdp_buff *xdp)
+ 
+ 		spin_unlock(&xdp_ring->xdp_tx_lock);
+ 		xdp_stat = &rx_ring->rx_stats.xdp_tx;
++		verdict = ENA_XDP_TX;
+ 		break;
+ 	case XDP_REDIRECT:
+ 		if (likely(!xdp_do_redirect(rx_ring->netdev, xdp, xdp_prog))) {
+ 			xdp_stat = &rx_ring->rx_stats.xdp_redirect;
++			verdict = ENA_XDP_REDIRECT;
+ 			break;
+ 		}
+ 		trace_xdp_exception(rx_ring->netdev, xdp_prog, verdict);
+ 		xdp_stat = &rx_ring->rx_stats.xdp_aborted;
+-		verdict = XDP_ABORTED;
++		verdict = ENA_XDP_DROP;
+ 		break;
+ 	case XDP_ABORTED:
+ 		trace_xdp_exception(rx_ring->netdev, xdp_prog, verdict);
+ 		xdp_stat = &rx_ring->rx_stats.xdp_aborted;
++		verdict = ENA_XDP_DROP;
+ 		break;
+ 	case XDP_DROP:
+ 		xdp_stat = &rx_ring->rx_stats.xdp_drop;
++		verdict = ENA_XDP_DROP;
+ 		break;
+ 	case XDP_PASS:
+ 		xdp_stat = &rx_ring->rx_stats.xdp_pass;
++		verdict = ENA_XDP_PASS;
+ 		break;
+ 	default:
+ 		bpf_warn_invalid_xdp_action(rx_ring->netdev, xdp_prog, verdict);
+ 		xdp_stat = &rx_ring->rx_stats.xdp_invalid;
++		verdict = ENA_XDP_DROP;
  	}
  
+ 	ena_increase_stat(xdp_stat, 1, &rx_ring->syncp);
+@@ -1621,12 +1627,12 @@ static int ena_xdp_handle_buff(struct ena_ring *rx_ring, struct xdp_buff *xdp)
+ 	 * we expect, then we simply drop it
+ 	 */
+ 	if (unlikely(rx_ring->ena_bufs[0].len > ENA_XDP_MAX_MTU))
+-		return XDP_DROP;
++		return ENA_XDP_DROP;
+ 
+ 	ret = ena_xdp_execute(rx_ring, xdp);
+ 
+ 	/* The xdp program might expand the headers */
+-	if (ret == XDP_PASS) {
++	if (ret == ENA_XDP_PASS) {
+ 		rx_info->page_offset = xdp->data - xdp->data_hard_start;
+ 		rx_ring->ena_bufs[0].len = xdp->data_end - xdp->data;
+ 	}
+@@ -1665,7 +1671,7 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
+ 	xdp_init_buff(&xdp, ENA_PAGE_SIZE, &rx_ring->xdp_rxq);
+ 
+ 	do {
+-		xdp_verdict = XDP_PASS;
++		xdp_verdict = ENA_XDP_PASS;
+ 		skb = NULL;
+ 		ena_rx_ctx.ena_bufs = rx_ring->ena_bufs;
+ 		ena_rx_ctx.max_bufs = rx_ring->sgl_size;
+@@ -1693,7 +1699,7 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
+ 			xdp_verdict = ena_xdp_handle_buff(rx_ring, &xdp);
+ 
+ 		/* allocate skb and fill it */
+-		if (xdp_verdict == XDP_PASS)
++		if (xdp_verdict == ENA_XDP_PASS)
+ 			skb = ena_rx_skb(rx_ring,
+ 					 rx_ring->ena_bufs,
+ 					 ena_rx_ctx.descs,
+@@ -1711,13 +1717,13 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
+ 				/* Packets was passed for transmission, unmap it
+ 				 * from RX side.
+ 				 */
+-				if (xdp_verdict == XDP_TX || xdp_verdict == XDP_REDIRECT) {
++				if (xdp_verdict & ENA_XDP_FORWARDED) {
+ 					ena_unmap_rx_buff(rx_ring,
+ 							  &rx_ring->rx_buffer_info[req_id]);
+ 					rx_ring->rx_buffer_info[req_id].page = NULL;
+ 				}
+ 			}
+-			if (xdp_verdict != XDP_PASS) {
++			if (xdp_verdict != ENA_XDP_PASS) {
+ 				xdp_flags |= xdp_verdict;
+ 				total_len += ena_rx_ctx.ena_bufs[0].len;
+ 				res_budget--;
+@@ -1763,7 +1769,7 @@ static int ena_clean_rx_irq(struct ena_ring *rx_ring, struct napi_struct *napi,
+ 		ena_refill_rx_bufs(rx_ring, refill_required);
+ 	}
+ 
+-	if (xdp_flags & XDP_REDIRECT)
++	if (xdp_flags & ENA_XDP_REDIRECT)
+ 		xdp_do_flush_map();
+ 
+ 	return work_done;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.h b/drivers/net/ethernet/amazon/ena/ena_netdev.h
+index 1bdce99bf688..290ae9bf47ee 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.h
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.h
+@@ -409,6 +409,15 @@ enum ena_xdp_errors_t {
+ 	ENA_XDP_NO_ENOUGH_QUEUES,
+ };
+ 
++enum ENA_XDP_ACTIONS {
++	ENA_XDP_PASS		= 0,
++	ENA_XDP_TX		= BIT(0),
++	ENA_XDP_REDIRECT	= BIT(1),
++	ENA_XDP_DROP		= BIT(2)
++};
++
++#define ENA_XDP_FORWARDED (ENA_XDP_TX | ENA_XDP_REDIRECT)
++
+ static inline bool ena_xdp_present(struct ena_adapter *adapter)
+ {
+ 	return !!adapter->xdp_bpf_prog;
 -- 
 2.35.1
 
