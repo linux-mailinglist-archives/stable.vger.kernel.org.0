@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D1F4664900
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E299A66489F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239019AbjAJSQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:16:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58254 "EHLO
+        id S238927AbjAJSMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238996AbjAJSQU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF0C3564F7
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:14:44 -0800 (PST)
+        with ESMTP id S238938AbjAJSMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658411159
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98206B8189A
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270FCC433EF;
-        Tue, 10 Jan 2023 18:14:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E86FF6186D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0736FC433D2;
+        Tue, 10 Jan 2023 18:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374482;
-        bh=HBzTYwBDmQfzLFihmMEg+AkjyUyGPdXCxIFL+ftmSdk=;
+        s=korg; t=1673374264;
+        bh=aF9XGd847OBV9ASn/3QWJID57AOLr6pHJv2XGS0Veog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9ygYcess9kiAG7WmfidaBUdxR3/iU1N4JN68i2Sz4UokJzh0460N7Ldkhg65PSnf
-         GwJ3Uf7VMnD3c/rCIW7I6GzM3wjS5Esm8h6ol1OCSaQS8j5N3eAcvx6lCzyl+GcD5b
-         hME2eYc4BsN849+VLdwvspBXbBQ9qdTHbaxQ0LYk=
+        b=JOIP35hLxHoiR7GGeo0ROBVJwAEKHjIMAmeMivAf3zFdf6vmb1ihkwC/AHr2TgoR/
+         BFOU8VBhxw0+R6PYQu7hNjnwKQiw7cDzlsGiZ48GPpdeGS63T2oAcaRSZLtwWQPV7H
+         qBpZJmty6S9Y4LgjqMduTh0ZhSviQB6wEkVNhM/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com,
-        Cong Wang <cong.wang@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Carlo Caione <ccaione@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 032/159] net: sched: fix memory leak in tcindex_set_parms
+Subject: [PATCH 6.0 076/148] drm/meson: Reduce the FIFO lines held when AFBC is not used
 Date:   Tue, 10 Jan 2023 19:03:00 +0100
-Message-Id: <20230110180019.331973755@linuxfoundation.org>
+Message-Id: <20230110180019.627162866@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,148 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Carlo Caione <ccaione@baylibre.com>
 
-[ Upstream commit 399ab7fe0fa0d846881685fd4e57e9a8ef7559f7 ]
+[ Upstream commit 3b754ed6d1cd90017e66e5cc16f3923e4a952ffc ]
 
-Syzkaller reports a memory leak as follows:
-====================================
-BUG: memory leak
-unreferenced object 0xffff88810c287f00 (size 256):
-  comm "syz-executor105", pid 3600, jiffies 4294943292 (age 12.990s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff814cf9f0>] kmalloc_trace+0x20/0x90 mm/slab_common.c:1046
-    [<ffffffff839c9e07>] kmalloc include/linux/slab.h:576 [inline]
-    [<ffffffff839c9e07>] kmalloc_array include/linux/slab.h:627 [inline]
-    [<ffffffff839c9e07>] kcalloc include/linux/slab.h:659 [inline]
-    [<ffffffff839c9e07>] tcf_exts_init include/net/pkt_cls.h:250 [inline]
-    [<ffffffff839c9e07>] tcindex_set_parms+0xa7/0xbe0 net/sched/cls_tcindex.c:342
-    [<ffffffff839caa1f>] tcindex_change+0xdf/0x120 net/sched/cls_tcindex.c:553
-    [<ffffffff8394db62>] tc_new_tfilter+0x4f2/0x1100 net/sched/cls_api.c:2147
-    [<ffffffff8389e91c>] rtnetlink_rcv_msg+0x4dc/0x5d0 net/core/rtnetlink.c:6082
-    [<ffffffff839eba67>] netlink_rcv_skb+0x87/0x1d0 net/netlink/af_netlink.c:2540
-    [<ffffffff839eab87>] netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
-    [<ffffffff839eab87>] netlink_unicast+0x397/0x4c0 net/netlink/af_netlink.c:1345
-    [<ffffffff839eb046>] netlink_sendmsg+0x396/0x710 net/netlink/af_netlink.c:1921
-    [<ffffffff8383e796>] sock_sendmsg_nosec net/socket.c:714 [inline]
-    [<ffffffff8383e796>] sock_sendmsg+0x56/0x80 net/socket.c:734
-    [<ffffffff8383eb08>] ____sys_sendmsg+0x178/0x410 net/socket.c:2482
-    [<ffffffff83843678>] ___sys_sendmsg+0xa8/0x110 net/socket.c:2536
-    [<ffffffff838439c5>] __sys_sendmmsg+0x105/0x330 net/socket.c:2622
-    [<ffffffff83843c14>] __do_sys_sendmmsg net/socket.c:2651 [inline]
-    [<ffffffff83843c14>] __se_sys_sendmmsg net/socket.c:2648 [inline]
-    [<ffffffff83843c14>] __x64_sys_sendmmsg+0x24/0x30 net/socket.c:2648
-    [<ffffffff84605fd5>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff84605fd5>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff84800087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-====================================
+Having a bigger number of FIFO lines held after vsync is only useful to
+SoCs using AFBC to give time to the AFBC decoder to be reset, configured
+and enabled again.
 
-Kernel uses tcindex_change() to change an existing
-filter properties.
+For SoCs not using AFBC this, on the contrary, is causing on some
+displays issues and a few pixels vertical offset in the displayed image.
 
-Yet the problem is that, during the process of changing,
-if `old_r` is retrieved from `p->perfect`, then
-kernel uses tcindex_alloc_perfect_hash() to newly
-allocate filter results, uses tcindex_filter_result_init()
-to clear the old filter result, without destroying
-its tcf_exts structure, which triggers the above memory leak.
+Conditionally increase the number of lines held after vsync only for
+SoCs using AFBC, leaving the default value for all the others.
 
-To be more specific, there are only two source for the `old_r`,
-according to the tcindex_lookup(). `old_r` is retrieved from
-`p->perfect`, or `old_r` is retrieved from `p->h`.
-
-  * If `old_r` is retrieved from `p->perfect`, kernel uses
-tcindex_alloc_perfect_hash() to newly allocate the
-filter results. Then `r` is assigned with `cp->perfect + handle`,
-which is newly allocated. So condition `old_r && old_r != r` is
-true in this situation, and kernel uses tcindex_filter_result_init()
-to clear the old filter result, without destroying
-its tcf_exts structure
-
-  * If `old_r` is retrieved from `p->h`, then `p->perfect` is NULL
-according to the tcindex_lookup(). Considering that `cp->h`
-is directly copied from `p->h` and `p->perfect` is NULL,
-`r` is assigned with `tcindex_lookup(cp, handle)`, whose value
-should be the same as `old_r`, so condition `old_r && old_r != r`
-is false in this situation, kernel ignores using
-tcindex_filter_result_init() to clear the old filter result.
-
-So only when `old_r` is retrieved from `p->perfect` does kernel use
-tcindex_filter_result_init() to clear the old filter result, which
-triggers the above memory leak.
-
-Considering that there already exists a tc_filter_wq workqueue
-to destroy the old tcindex_data by tcindex_partial_destroy_work()
-at the end of tcindex_set_parms(), this patch solves
-this memory leak bug by removing this old filter result
-clearing part and delegating it to the tc_filter_wq workqueue.
-
-Note that this patch doesn't introduce any other issues. If
-`old_r` is retrieved from `p->perfect`, this patch just
-delegates old filter result clearing part to the
-tc_filter_wq workqueue; If `old_r` is retrieved from `p->h`,
-kernel doesn't reach the old filter result clearing part, so
-removing this part has no effect.
-
-[Thanks to the suggestion from Jakub Kicinski, Cong Wang, Paolo Abeni
-and Dmitry Vyukov]
-
-Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
-Link: https://lore.kernel.org/all/0000000000001de5c505ebc9ec59@google.com/
-Reported-by: syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com
-Tested-by: syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com
-Cc: Cong Wang <cong.wang@bytedance.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 24e0d4058eff ("drm/meson: hold 32 lines after vsync to give time for AFBC start")
+Signed-off-by: Carlo Caione <ccaione@baylibre.com>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Acked-by: Neil Armstrong <neil.armstrong@linaro.org>
+[narmstrong: added fixes tag]
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221216-afbc_s905x-v1-0-033bebf780d9@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_tcindex.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/meson/meson_viu.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index 1c9eeb98d826..4bdcbee4bec5 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -332,7 +332,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 		  struct tcindex_filter_result *r, struct nlattr **tb,
- 		  struct nlattr *est, u32 flags, struct netlink_ext_ack *extack)
- {
--	struct tcindex_filter_result new_filter_result, *old_r = r;
-+	struct tcindex_filter_result new_filter_result;
- 	struct tcindex_data *cp = NULL, *oldp;
- 	struct tcindex_filter *f = NULL; /* make gcc behave */
- 	struct tcf_result cr = {};
-@@ -401,7 +401,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 	err = tcindex_filter_result_init(&new_filter_result, cp, net);
- 	if (err < 0)
- 		goto errout_alloc;
--	if (old_r)
-+	if (r)
- 		cr = r->res;
+diff --git a/drivers/gpu/drm/meson/meson_viu.c b/drivers/gpu/drm/meson/meson_viu.c
+index d4b907889a21..cd399b0b7181 100644
+--- a/drivers/gpu/drm/meson/meson_viu.c
++++ b/drivers/gpu/drm/meson/meson_viu.c
+@@ -436,15 +436,14 @@ void meson_viu_init(struct meson_drm *priv)
  
- 	err = -EBUSY;
-@@ -478,14 +478,6 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 		tcf_bind_filter(tp, &cr, base);
- 	}
+ 	/* Initialize OSD1 fifo control register */
+ 	reg = VIU_OSD_DDR_PRIORITY_URGENT |
+-		VIU_OSD_HOLD_FIFO_LINES(31) |
+ 		VIU_OSD_FIFO_DEPTH_VAL(32) | /* fifo_depth_val: 32*8=256 */
+ 		VIU_OSD_WORDS_PER_BURST(4) | /* 4 words in 1 burst */
+ 		VIU_OSD_FIFO_LIMITS(2);      /* fifo_lim: 2*16=32 */
  
--	if (old_r && old_r != r) {
--		err = tcindex_filter_result_init(old_r, cp, net);
--		if (err < 0) {
--			kfree(f);
--			goto errout_alloc;
--		}
--	}
--
- 	oldp = p;
- 	r->res = cr;
- 	tcf_exts_change(&r->exts, &e);
+ 	if (meson_vpu_is_compatible(priv, VPU_COMPATIBLE_G12A))
+-		reg |= VIU_OSD_BURST_LENGTH_32;
++		reg |= (VIU_OSD_BURST_LENGTH_32 | VIU_OSD_HOLD_FIFO_LINES(31));
+ 	else
+-		reg |= VIU_OSD_BURST_LENGTH_64;
++		reg |= (VIU_OSD_BURST_LENGTH_64 | VIU_OSD_HOLD_FIFO_LINES(4));
+ 
+ 	writel_relaxed(reg, priv->io_base + _REG(VIU_OSD1_FIFO_CTRL_STAT));
+ 	writel_relaxed(reg, priv->io_base + _REG(VIU_OSD2_FIFO_CTRL_STAT));
 -- 
 2.35.1
 
