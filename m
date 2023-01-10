@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 612D0664944
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC74E6648A4
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:13:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239089AbjAJSUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:20:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58174 "EHLO
+        id S239051AbjAJSNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:13:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239234AbjAJSTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:19:54 -0500
+        with ESMTP id S239045AbjAJSMX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F11BEF24
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C914015723
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DD8561852
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2938C433F1;
-        Tue, 10 Jan 2023 18:17:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64DD86182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A730C433F0;
+        Tue, 10 Jan 2023 18:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374647;
-        bh=TbJShuApEJ00R3MELDpxXoGrBbRwqF37F6xGQfTNIxY=;
+        s=korg; t=1673374274;
+        bh=eTul3JhgtCBxB7GAR+jgLpBfGozJx5b7tq2cmV2RYkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVKhqbfG7xO+iMJvlaTYPVrvLZlLfDm2lNU53jnTT4ElEhTkoCG3zYPunch4ImdLH
-         ROpRQCaGDVIu1OKCFT6TWyiF1+Rg63wJttP5PFZLL21Fe05CnALf0C3OykJqp73k0D
-         JFRVeTZgUT9RMMqMNFwZWfArQTUZTe4/I85A8sx0=
+        b=u3L8lygNqtsjeVGfo+BeGVJfp0DwXaeE11/9caURhF6EyES2rFazIEhzLgBGSndgd
+         52/gqlQWK7Gafh0OkLGNTC2mib3v9enhW/thoma9nDAuUw3y2EmYO6kgxiqfKEj8P8
+         37aVlmADY8KO1ZFKkui6gKAdZLMb63HB3ynl0UQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Agroskin <shayagr@amazon.com>,
-        David Arinzon <darinzon@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 068/159] net: ena: Dont register memory info on XDP exchange
+Subject: [PATCH 6.0 112/148] io_uring: check for valid register opcode earlier
 Date:   Tue, 10 Jan 2023 19:03:36 +0100
-Message-Id: <20230110180020.462563955@linuxfoundation.org>
+Message-Id: <20230110180020.740551695@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Arinzon <darinzon@amazon.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 9c9e539956fa67efb8a65e32b72a853740b33445 ]
+[ Upstream commit 343190841a1f22b96996d9f8cfab902a4d1bfd0e ]
 
-Since the queues aren't destroyed when we only exchange XDP programs,
-there's no need to re-register them again.
+We only check the register opcode value inside the restricted ring
+section, move it into the main io_uring_register() function instead
+and check it up front.
 
-Fixes: 548c4940b9f1 ("net: ena: Implement XDP_TX action")
-Signed-off-by: Shay Agroskin <shayagr@amazon.com>
-Signed-off-by: David Arinzon <darinzon@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ io_uring/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 5a454b58498f..e313bb45319c 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -512,16 +512,18 @@ static void ena_xdp_exchange_program_rx_in_range(struct ena_adapter *adapter,
- 						 struct bpf_prog *prog,
- 						 int first, int count)
- {
-+	struct bpf_prog *old_bpf_prog;
- 	struct ena_ring *rx_ring;
- 	int i = 0;
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index b8a39be3bcb4..cfcf1d415521 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -3725,8 +3725,6 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 		return -EEXIST;
  
- 	for (i = first; i < count; i++) {
- 		rx_ring = &adapter->rx_ring[i];
--		xchg(&rx_ring->xdp_bpf_prog, prog);
--		if (prog) {
-+		old_bpf_prog = xchg(&rx_ring->xdp_bpf_prog, prog);
+ 	if (ctx->restricted) {
+-		if (opcode >= IORING_REGISTER_LAST)
+-			return -EINVAL;
+ 		opcode = array_index_nospec(opcode, IORING_REGISTER_LAST);
+ 		if (!test_bit(opcode, ctx->restrictions.register_op))
+ 			return -EACCES;
+@@ -3882,6 +3880,9 @@ SYSCALL_DEFINE4(io_uring_register, unsigned int, fd, unsigned int, opcode,
+ 	long ret = -EBADF;
+ 	struct fd f;
+ 
++	if (opcode >= IORING_REGISTER_LAST)
++		return -EINVAL;
 +
-+		if (!old_bpf_prog && prog) {
- 			ena_xdp_register_rxq_info(rx_ring);
- 			rx_ring->rx_headroom = XDP_PACKET_HEADROOM;
--		} else {
-+		} else if (old_bpf_prog && !prog) {
- 			ena_xdp_unregister_rxq_info(rx_ring);
- 			rx_ring->rx_headroom = NET_SKB_PAD;
- 		}
+ 	f = fdget(fd);
+ 	if (!f.file)
+ 		return -EBADF;
 -- 
 2.35.1
 
