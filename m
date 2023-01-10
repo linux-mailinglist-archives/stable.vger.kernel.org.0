@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05FB366483B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6336649C9
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:25:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235357AbjAJSKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:10:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48860 "EHLO
+        id S232917AbjAJSZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:25:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238735AbjAJSJs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:09:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12CEA8D5D7
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:17 -0800 (PST)
+        with ESMTP id S239263AbjAJSZU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:25:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E90DC8E9B7
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:22:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8FA3617EC
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4843C433D2;
-        Tue, 10 Jan 2023 18:07:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4251CCE18E1
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:22:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12435C433D2;
+        Tue, 10 Jan 2023 18:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374036;
-        bh=MazqOz3mBOgpLDVrM8IiQPoQnCER46oXA8YS7qQjh20=;
+        s=korg; t=1673374921;
+        bh=0IhtSvhxS8RcbfOi05vVlWB7B+WIY+PhEK1vF+2Iy/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZK7xGzfT3BbTSL7LzldCbzT8cIvk4UtP12saGUrD0ZPOLggWXnv3ZREl4Tl2yI1by
-         0yKRqFqwdS97PBA25aQ6PYivG+MNpPrGfA/OPf8B2GctOgjxRCeFtAH+JcYfscMddv
-         LiKlXsF6ZYj0SbqbdzxY9VkbGN1bhGQDVk8EnDkI=
+        b=MXOfuEw5uMG873PTd692gKR/a9QlyTtPppaKg/MFJGz8aupjKXjiZQnRvKQamxsEJ
+         k2fyXidYZtBz/3nCUbCxLdtSiYeHDdQru5tTBCiclw/E63DqcZlnkTvT1vclcrq3n0
+         T0EDRhtiqEz8NURN+L68ofhF4qgbWQm4Ogetvqe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev,
+        syzbot+9d67170b20e8f94351c8@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 007/148] perf probe: Fix to get the DW_AT_decl_file and DW_AT_call_file as unsinged data
+Subject: [PATCH 5.15 019/290] fs/ntfs3: Fix memory leak on ntfs_fill_super() error path
 Date:   Tue, 10 Jan 2023 19:01:51 +0100
-Message-Id: <20230110180017.405672421@linuxfoundation.org>
+Message-Id: <20230110180032.254622414@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,89 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit a9dfc46c67b52ad43b8e335e28f4cf8002c67793 ]
+[ Upstream commit 51e76a232f8c037f1d9e9922edc25b003d5f3414 ]
 
-DWARF version 5 standard Sec 2.14 says that
+syzbot reported kmemleak as below:
 
-  Any debugging information entry representing the declaration of an object,
-  module, subprogram or type may have DW_AT_decl_file, DW_AT_decl_line and
-  DW_AT_decl_column attributes, each of whose value is an unsigned integer
-  constant.
+BUG: memory leak
+unreferenced object 0xffff8880122f1540 (size 32):
+  comm "a.out", pid 6664, jiffies 4294939771 (age 25.500s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 ed ff ed ff 00 00 00 00  ................
+  backtrace:
+    [<ffffffff81b16052>] ntfs_init_fs_context+0x22/0x1c0
+    [<ffffffff8164aaa7>] alloc_fs_context+0x217/0x430
+    [<ffffffff81626dd4>] path_mount+0x704/0x1080
+    [<ffffffff81627e7c>] __x64_sys_mount+0x18c/0x1d0
+    [<ffffffff84593e14>] do_syscall_64+0x34/0xb0
+    [<ffffffff84600087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-So it should be an unsigned integer data. Also, even though the standard
-doesn't clearly say the DW_AT_call_file is signed or unsigned, the
-elfutils (eu-readelf) interprets it as unsigned integer data and it is
-natural to handle it as unsigned integer data as same as DW_AT_decl_file.
-This changes the DW_AT_call_file as unsigned integer data too.
+This patch fixes this issue by freeing mount options on error path of
+ntfs_fill_super().
 
-Fixes: 3f4460a28fb2f73d ("perf probe: Filter out redundant inline-instances")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Link: https://lore.kernel.org/r/166761727445.480106.3738447577082071942.stgit@devnote3
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: syzbot+9d67170b20e8f94351c8@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c | 21 ++++-----------------
- 1 file changed, 4 insertions(+), 17 deletions(-)
+ fs/ntfs3/super.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index a07efbadb775..623527edeac1 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -315,19 +315,6 @@ static int die_get_attr_udata(Dwarf_Die *tp_die, unsigned int attr_name,
- 	return 0;
- }
+diff --git a/fs/ntfs3/super.c b/fs/ntfs3/super.c
+index c321f621464b..4ff0d2c9507c 100644
+--- a/fs/ntfs3/super.c
++++ b/fs/ntfs3/super.c
+@@ -1276,6 +1276,7 @@ static int ntfs_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	 * Free resources here.
+ 	 * ntfs_fs_free will be called with fc->s_fs_info = NULL
+ 	 */
++	put_mount_options(sbi->options);
+ 	put_ntfs(sbi);
+ 	sb->s_fs_info = NULL;
  
--/* Get attribute and translate it as a sdata */
--static int die_get_attr_sdata(Dwarf_Die *tp_die, unsigned int attr_name,
--			      Dwarf_Sword *result)
--{
--	Dwarf_Attribute attr;
--
--	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
--	    dwarf_formsdata(&attr, result) != 0)
--		return -ENOENT;
--
--	return 0;
--}
--
- /**
-  * die_is_signed_type - Check whether a type DIE is signed or not
-  * @tp_die: a DIE of a type
-@@ -467,9 +454,9 @@ int die_get_data_member_location(Dwarf_Die *mb_die, Dwarf_Word *offs)
- /* Get the call file index number in CU DIE */
- static int die_get_call_fileno(Dwarf_Die *in_die)
- {
--	Dwarf_Sword idx;
-+	Dwarf_Word idx;
- 
--	if (die_get_attr_sdata(in_die, DW_AT_call_file, &idx) == 0)
-+	if (die_get_attr_udata(in_die, DW_AT_call_file, &idx) == 0)
- 		return (int)idx;
- 	else
- 		return -ENOENT;
-@@ -478,9 +465,9 @@ static int die_get_call_fileno(Dwarf_Die *in_die)
- /* Get the declared file index number in CU DIE */
- static int die_get_decl_fileno(Dwarf_Die *pdie)
- {
--	Dwarf_Sword idx;
-+	Dwarf_Word idx;
- 
--	if (die_get_attr_sdata(pdie, DW_AT_decl_file, &idx) == 0)
-+	if (die_get_attr_udata(pdie, DW_AT_decl_file, &idx) == 0)
- 		return (int)idx;
- 	else
- 		return -ENOENT;
 -- 
 2.35.1
 
