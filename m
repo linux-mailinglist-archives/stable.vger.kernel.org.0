@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72D826648EB
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49375664A26
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:31:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235453AbjAJSQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:16:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58584 "EHLO
+        id S235439AbjAJSay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:30:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238955AbjAJSPv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CB3514D0A
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:53 -0800 (PST)
+        with ESMTP id S239317AbjAJSaE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 459C5A7034
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EAE1C6184D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F215AC433EF;
-        Tue, 10 Jan 2023 18:13:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED7FFB818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44C8AC433D2;
+        Tue, 10 Jan 2023 18:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374432;
-        bh=lOYfb9yQ2IjAmeG9ihKbH9wFjVyodaJLuuv90tFB7cE=;
+        s=korg; t=1673375083;
+        bh=yaHBIuIAl34nhrTwnheacBJHnZjVUe1lU80y62L09dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3idxPWlJCt6K2pqfZvyDw429WsrcCH8p5vDsGCKtGkIAYSHHN5wV7GbfJDhsiTyG
-         Nlxr7/rFvZiEBSZdmJqtLRdtdGTos4snkdaJSDdJCTIUmxKc26cb+Tp+lkYojlo8Yg
-         nIUgLxGpWhZZbFjx21lDkF7SoFRuXYv8bk7QsgrQ=
+        b=d91RF2df0CZP+HXcjJ3Bb1gIphhXetXn4jUdBPbuQx+R+5UrAOxnYYb4ur3aVqiMO
+         s0KofYPoOdJ2ZC2P8AyAOs4W6pFveth0E3NFtlZODe6WdFNrva+Ryuu/yk3QGD6WND
+         oYZDsTUlRQZIER2bFjR6aFL5L5yjhA7x6UNwDAeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 016/159] netfilter: nf_tables: consolidate set description
-Date:   Tue, 10 Jan 2023 19:02:44 +0100
-Message-Id: <20230110180018.823509822@linuxfoundation.org>
+        patches@lists.linux.dev, Chanwoo Choi <cwchoi00@gmail.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Kant Fan <kant@allwinnertech.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>
+Subject: [PATCH 5.15 073/290] PM/devfreq: governor: Add a private governor_data for governor
+Date:   Tue, 10 Jan 2023 19:02:45 +0100
+Message-Id: <20230110180034.159980095@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,225 +54,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Kant Fan <kant@allwinnertech.com>
 
-[ Upstream commit bed4a63ea4ae77cfe5aae004ef87379f0655260a ]
+commit 5fdded8448924e3631d466eea499b11606c43640 upstream.
 
-Add the following fields to the set description:
+The member void *data in the structure devfreq can be overwrite
+by governor_userspace. For example:
+1. The device driver assigned the devfreq governor to simple_ondemand
+by the function devfreq_add_device() and init the devfreq member
+void *data to a pointer of a static structure devfreq_simple_ondemand_data
+by the function devfreq_add_device().
+2. The user changed the devfreq governor to userspace by the command
+"echo userspace > /sys/class/devfreq/.../governor".
+3. The governor userspace alloced a dynamic memory for the struct
+userspace_data and assigend the member void *data of devfreq to
+this memory by the function userspace_init().
+4. The user changed the devfreq governor back to simple_ondemand
+by the command "echo simple_ondemand > /sys/class/devfreq/.../governor".
+5. The governor userspace exited and assigned the member void *data
+in the structure devfreq to NULL by the function userspace_exit().
+6. The governor simple_ondemand fetched the static information of
+devfreq_simple_ondemand_data in the function
+devfreq_simple_ondemand_func() but the member void *data of devfreq was
+assigned to NULL by the function userspace_exit().
+7. The information of upthreshold and downdifferential is lost
+and the governor simple_ondemand can't work correctly.
 
-- key type
-- data type
-- object type
-- policy
-- gc_int: garbage collection interval)
-- timeout: element timeout
+The member void *data in the structure devfreq is designed for
+a static pointer used in a governor and inited by the function
+devfreq_add_device(). This patch add an element named governor_data
+in the devfreq structure which can be used by a governor(E.g userspace)
+who want to assign a private data to do some private things.
 
-This prepares for stricter set type checks on updates in a follow up
-patch.
-
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Stable-dep-of: f6594c372afd ("netfilter: nf_tables: perform type checking for existing sets")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ce26c5bb9569 ("PM / devfreq: Add basic governors")
+Cc: stable@vger.kernel.org # 5.10+
+Reviewed-by: Chanwoo Choi <cwchoi00@gmail.com>
+Acked-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+Signed-off-by: Kant Fan <kant@allwinnertech.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_tables.h | 12 +++++++
- net/netfilter/nf_tables_api.c     | 58 +++++++++++++++----------------
- 2 files changed, 40 insertions(+), 30 deletions(-)
+ drivers/devfreq/devfreq.c            |    6 ++----
+ drivers/devfreq/governor_userspace.c |   12 ++++++------
+ include/linux/devfreq.h              |    7 ++++---
+ 3 files changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index cdb7db9b0e25..ddcdde230747 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -311,17 +311,29 @@ struct nft_set_iter {
- /**
-  *	struct nft_set_desc - description of set elements
-  *
-+ *	@ktype: key type
-  *	@klen: key length
-+ *	@dtype: data type
-  *	@dlen: data length
-+ *	@objtype: object type
-+ *	@flags: flags
-  *	@size: number of set elements
-+ *	@policy: set policy
-+ *	@gc_int: garbage collector interval
-  *	@field_len: length of each field in concatenation, bytes
-  *	@field_count: number of concatenated fields in element
-  *	@expr: set must support for expressions
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -775,8 +775,7 @@ static void remove_sysfs_files(struct de
+  * @dev:	the device to add devfreq feature.
+  * @profile:	device-specific profile to run devfreq.
+  * @governor_name:	name of the policy to choose frequency.
+- * @data:	private data for the governor. The devfreq framework does not
+- *		touch this value.
++ * @data:	devfreq driver pass to governors, governor should not change it.
   */
- struct nft_set_desc {
-+	u32			ktype;
- 	unsigned int		klen;
-+	u32			dtype;
- 	unsigned int		dlen;
-+	u32			objtype;
- 	unsigned int		size;
-+	u32			policy;
-+	u32			gc_int;
-+	u64			timeout;
- 	u8			field_len[NFT_REG32_COUNT];
- 	u8			field_count;
- 	bool			expr;
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 7a09421f19e1..a31f8dc40646 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -3732,8 +3732,7 @@ static bool nft_set_ops_candidate(const struct nft_set_type *type, u32 flags)
- static const struct nft_set_ops *
- nft_select_set_ops(const struct nft_ctx *ctx,
- 		   const struct nlattr * const nla[],
--		   const struct nft_set_desc *desc,
--		   enum nft_set_policies policy)
-+		   const struct nft_set_desc *desc)
+ struct devfreq *devfreq_add_device(struct device *dev,
+ 				   struct devfreq_dev_profile *profile,
+@@ -1003,8 +1002,7 @@ static void devm_devfreq_dev_release(str
+  * @dev:	the device to add devfreq feature.
+  * @profile:	device-specific profile to run devfreq.
+  * @governor_name:	name of the policy to choose frequency.
+- * @data:	private data for the governor. The devfreq framework does not
+- *		touch this value.
++ * @data:	 devfreq driver pass to governors, governor should not change it.
+  *
+  * This function manages automatically the memory of devfreq device using device
+  * resource management and simplify the free operation for memory of devfreq
+--- a/drivers/devfreq/governor_userspace.c
++++ b/drivers/devfreq/governor_userspace.c
+@@ -21,7 +21,7 @@ struct userspace_data {
+ 
+ static int devfreq_userspace_func(struct devfreq *df, unsigned long *freq)
  {
- 	struct nftables_pernet *nft_net = nft_pernet(ctx->net);
- 	const struct nft_set_ops *ops, *bops;
-@@ -3762,7 +3761,7 @@ nft_select_set_ops(const struct nft_ctx *ctx,
- 		if (!ops->estimate(desc, flags, &est))
- 			continue;
+-	struct userspace_data *data = df->data;
++	struct userspace_data *data = df->governor_data;
  
--		switch (policy) {
-+		switch (desc->policy) {
- 		case NFT_SET_POL_PERFORMANCE:
- 			if (est.lookup < best.lookup)
- 				break;
-@@ -4344,7 +4343,6 @@ static int nf_tables_set_desc_parse(struct nft_set_desc *desc,
- static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 			    const struct nlattr * const nla[])
- {
--	u32 ktype, dtype, flags, policy, gc_int, objtype;
- 	struct netlink_ext_ack *extack = info->extack;
- 	u8 genmask = nft_genmask_next(info->net);
- 	u8 family = info->nfmsg->nfgen_family;
-@@ -4357,10 +4355,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 	struct nft_set *set;
- 	struct nft_ctx ctx;
- 	size_t alloc_size;
--	u64 timeout;
- 	char *name;
- 	int err, i;
- 	u16 udlen;
-+	u32 flags;
- 	u64 size;
+ 	if (data->valid)
+ 		*freq = data->user_frequency;
+@@ -40,7 +40,7 @@ static ssize_t set_freq_store(struct dev
+ 	int err = 0;
  
- 	if (nla[NFTA_SET_TABLE] == NULL ||
-@@ -4371,10 +4369,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	mutex_lock(&devfreq->lock);
+-	data = devfreq->data;
++	data = devfreq->governor_data;
  
- 	memset(&desc, 0, sizeof(desc));
+ 	sscanf(buf, "%lu", &wanted);
+ 	data->user_frequency = wanted;
+@@ -60,7 +60,7 @@ static ssize_t set_freq_show(struct devi
+ 	int err = 0;
  
--	ktype = NFT_DATA_VALUE;
-+	desc.ktype = NFT_DATA_VALUE;
- 	if (nla[NFTA_SET_KEY_TYPE] != NULL) {
--		ktype = ntohl(nla_get_be32(nla[NFTA_SET_KEY_TYPE]));
--		if ((ktype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK)
-+		desc.ktype = ntohl(nla_get_be32(nla[NFTA_SET_KEY_TYPE]));
-+		if ((desc.ktype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK)
- 			return -EINVAL;
+ 	mutex_lock(&devfreq->lock);
+-	data = devfreq->data;
++	data = devfreq->governor_data;
+ 
+ 	if (data->valid)
+ 		err = sprintf(buf, "%lu\n", data->user_frequency);
+@@ -91,7 +91,7 @@ static int userspace_init(struct devfreq
+ 		goto out;
  	}
+ 	data->valid = false;
+-	devfreq->data = data;
++	devfreq->governor_data = data;
  
-@@ -4399,17 +4397,17 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 			return -EOPNOTSUPP;
- 	}
+ 	err = sysfs_create_group(&devfreq->dev.kobj, &dev_attr_group);
+ out:
+@@ -107,8 +107,8 @@ static void userspace_exit(struct devfre
+ 	if (devfreq->dev.kobj.sd)
+ 		sysfs_remove_group(&devfreq->dev.kobj, &dev_attr_group);
  
--	dtype = 0;
-+	desc.dtype = 0;
- 	if (nla[NFTA_SET_DATA_TYPE] != NULL) {
- 		if (!(flags & NFT_SET_MAP))
- 			return -EINVAL;
+-	kfree(devfreq->data);
+-	devfreq->data = NULL;
++	kfree(devfreq->governor_data);
++	devfreq->governor_data = NULL;
+ }
  
--		dtype = ntohl(nla_get_be32(nla[NFTA_SET_DATA_TYPE]));
--		if ((dtype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK &&
--		    dtype != NFT_DATA_VERDICT)
-+		desc.dtype = ntohl(nla_get_be32(nla[NFTA_SET_DATA_TYPE]));
-+		if ((desc.dtype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK &&
-+		    desc.dtype != NFT_DATA_VERDICT)
- 			return -EINVAL;
+ static int devfreq_userspace_handler(struct devfreq *devfreq,
+--- a/include/linux/devfreq.h
++++ b/include/linux/devfreq.h
+@@ -149,8 +149,8 @@ struct devfreq_stats {
+  * @work:	delayed work for load monitoring.
+  * @previous_freq:	previously configured frequency value.
+  * @last_status:	devfreq user device info, performance statistics
+- * @data:	Private data of the governor. The devfreq framework does not
+- *		touch this.
++ * @data:	devfreq driver pass to governors, governor should not change it.
++ * @governor_data:	private data for governors, devfreq core doesn't touch it.
+  * @user_min_freq_req:	PM QoS minimum frequency request from user (via sysfs)
+  * @user_max_freq_req:	PM QoS maximum frequency request from user (via sysfs)
+  * @scaling_min_freq:	Limit minimum frequency requested by OPP interface
+@@ -187,7 +187,8 @@ struct devfreq {
+ 	unsigned long previous_freq;
+ 	struct devfreq_dev_status last_status;
  
--		if (dtype != NFT_DATA_VERDICT) {
-+		if (desc.dtype != NFT_DATA_VERDICT) {
- 			if (nla[NFTA_SET_DATA_LEN] == NULL)
- 				return -EINVAL;
- 			desc.dlen = ntohl(nla_get_be32(nla[NFTA_SET_DATA_LEN]));
-@@ -4424,34 +4422,34 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 		if (!(flags & NFT_SET_OBJECT))
- 			return -EINVAL;
+-	void *data; /* private data for governors */
++	void *data;
++	void *governor_data;
  
--		objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
--		if (objtype == NFT_OBJECT_UNSPEC ||
--		    objtype > NFT_OBJECT_MAX)
-+		desc.objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
-+		if (desc.objtype == NFT_OBJECT_UNSPEC ||
-+		    desc.objtype > NFT_OBJECT_MAX)
- 			return -EOPNOTSUPP;
- 	} else if (flags & NFT_SET_OBJECT)
- 		return -EINVAL;
- 	else
--		objtype = NFT_OBJECT_UNSPEC;
-+		desc.objtype = NFT_OBJECT_UNSPEC;
- 
--	timeout = 0;
-+	desc.timeout = 0;
- 	if (nla[NFTA_SET_TIMEOUT] != NULL) {
- 		if (!(flags & NFT_SET_TIMEOUT))
- 			return -EINVAL;
- 
--		err = nf_msecs_to_jiffies64(nla[NFTA_SET_TIMEOUT], &timeout);
-+		err = nf_msecs_to_jiffies64(nla[NFTA_SET_TIMEOUT], &desc.timeout);
- 		if (err)
- 			return err;
- 	}
--	gc_int = 0;
-+	desc.gc_int = 0;
- 	if (nla[NFTA_SET_GC_INTERVAL] != NULL) {
- 		if (!(flags & NFT_SET_TIMEOUT))
- 			return -EINVAL;
--		gc_int = ntohl(nla_get_be32(nla[NFTA_SET_GC_INTERVAL]));
-+		desc.gc_int = ntohl(nla_get_be32(nla[NFTA_SET_GC_INTERVAL]));
- 	}
- 
--	policy = NFT_SET_POL_PERFORMANCE;
-+	desc.policy = NFT_SET_POL_PERFORMANCE;
- 	if (nla[NFTA_SET_POLICY] != NULL)
--		policy = ntohl(nla_get_be32(nla[NFTA_SET_POLICY]));
-+		desc.policy = ntohl(nla_get_be32(nla[NFTA_SET_POLICY]));
- 
- 	if (nla[NFTA_SET_DESC] != NULL) {
- 		err = nf_tables_set_desc_parse(&desc, nla[NFTA_SET_DESC]);
-@@ -4496,7 +4494,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 	if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
- 		return -ENOENT;
- 
--	ops = nft_select_set_ops(&ctx, nla, &desc, policy);
-+	ops = nft_select_set_ops(&ctx, nla, &desc);
- 	if (IS_ERR(ops))
- 		return PTR_ERR(ops);
- 
-@@ -4536,18 +4534,18 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 	set->table = table;
- 	write_pnet(&set->net, net);
- 	set->ops = ops;
--	set->ktype = ktype;
-+	set->ktype = desc.ktype;
- 	set->klen = desc.klen;
--	set->dtype = dtype;
--	set->objtype = objtype;
-+	set->dtype = desc.dtype;
-+	set->objtype = desc.objtype;
- 	set->dlen = desc.dlen;
- 	set->flags = flags;
- 	set->size = desc.size;
--	set->policy = policy;
-+	set->policy = desc.policy;
- 	set->udlen = udlen;
- 	set->udata = udata;
--	set->timeout = timeout;
--	set->gc_int = gc_int;
-+	set->timeout = desc.timeout;
-+	set->gc_int = desc.gc_int;
- 
- 	set->field_count = desc.field_count;
- 	for (i = 0; i < desc.field_count; i++)
--- 
-2.35.1
-
+ 	struct dev_pm_qos_request user_min_freq_req;
+ 	struct dev_pm_qos_request user_max_freq_req;
 
 
