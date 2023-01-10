@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1BA666485B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91CDB664A12
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238899AbjAJSLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52796 "EHLO
+        id S238961AbjAJS30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:29:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238930AbjAJSKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6038715723
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:14 -0800 (PST)
+        with ESMTP id S239421AbjAJS2c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F32EE8BF06
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09E66B81905
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 621C4C433F2;
-        Tue, 10 Jan 2023 18:08:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F8B761846
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86BCCC433EF;
+        Tue, 10 Jan 2023 18:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374091;
-        bh=/CFWjlEv1k5sF1WtWPeQYPJ2W/TyBqJHil37cYtaW3E=;
+        s=korg; t=1673375057;
+        bh=3I7fmxbm/cx2u+JTRWhC6nJXk8u2W3w/nJcKD/U/wwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nzu3wNndz7IdbGNDe9eDWSrXnYxAHfwGOiS+Wo2/2uGl3GvAmT9lpAOvk0VZ9sGh
-         4HzsR3z7qJfEZowfA3IY8KfrRCvxl08b3Amq5epMGR0lr0q582qpYl7Dov4RK3lP4Z
-         +Do6aGx8reEmksnZnQ1VEW7WlT8tPqBEou0IOP68=
+        b=L9BDlCTF9U5f9cRJVNsxKQ94Y3TE61BP8hkeVzpGIS2eXqysfQ9Kt34gtFUCIltD6
+         wGwA4wgk3+aX/RTe9hd+to6z1Pk9xli/XKBCxji6+3ZMcdpvbMK+he8lRGRFYcSRWx
+         2B+OxVUQQyipw4mGv6BN4Jk8wbn4UahMB6u369Uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Robin Cowley <robin.cowley@thehutgroup.com>,
-        Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 6.0 019/148] ice: xsk: do not use xdp_return_frame() on tx_buf->raw_buf
-Date:   Tue, 10 Jan 2023 19:02:03 +0100
-Message-Id: <20230110180017.811590778@linuxfoundation.org>
+        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 032/290] powerpc/rtas: avoid device tree lookups in rtas_os_term()
+Date:   Tue, 10 Jan 2023 19:02:04 +0100
+Message-Id: <20230110180032.692680319@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,51 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit 53fc61be273a1e76dd5e356f91805dce00ff2d2c ]
+[ Upstream commit ed2213bfb192ab51f09f12e9b49b5d482c6493f3 ]
 
-Previously ice XDP xmit routine was changed in a way that it avoids
-xdp_buff->xdp_frame conversion as it is simply not needed for handling
-XDP_TX action and what is more it saves us CPU cycles. This routine is
-re-used on ZC driver to handle XDP_TX action.
+rtas_os_term() is called during panic. Its behavior depends on a couple
+of conditions in the /rtas node of the device tree, the traversal of
+which entails locking and local IRQ state changes. If the kernel panics
+while devtree_lock is held, rtas_os_term() as currently written could
+hang.
 
-Although for XDP_TX on Rx ZC xdp_buff that comes from xsk_buff_pool is
-converted to xdp_frame, xdp_frame itself is not stored inside
-ice_tx_buf, we only store raw data pointer. Casting this pointer to
-xdp_frame and calling against it xdp_return_frame in
-ice_clean_xdp_tx_buf() results in undefined behavior.
+Instead of discovering the relevant characteristics at panic time,
+cache them in file-static variables at boot. Note the lookup for
+"ibm,extended-os-term" is converted to of_property_read_bool() since it
+is a boolean property, not an RTAS function token.
 
-To fix this, simply call page_frag_free() on tx_buf->raw_buf.
-Later intention is to remove the buff->frame conversion in order to
-simplify the codebase and improve XDP_TX performance on ZC.
-
-Fixes: 126cdfe1007a ("ice: xsk: Improve AF_XDP ZC Tx and use batching API")
-Reported-and-tested-by: Robin Cowley <robin.cowley@thehutgroup.com>
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Piotr Raczynski <piotr.raczynski@.intel.com>
-Link: https://lore.kernel.org/r/20221220175448.693999-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+[mpe: Incorporate suggested change from Nick]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221118150751.469393-4-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_xsk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/rtas.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index 056c904b83cc..79fa65d1cf20 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -772,7 +772,7 @@ int ice_clean_rx_irq_zc(struct ice_rx_ring *rx_ring, int budget)
- static void
- ice_clean_xdp_tx_buf(struct ice_tx_ring *xdp_ring, struct ice_tx_buf *tx_buf)
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index 7834ce3aa7f1..4d8de49c9d4b 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -788,6 +788,7 @@ void __noreturn rtas_halt(void)
+ 
+ /* Must be in the RMO region, so we place it here */
+ static char rtas_os_term_buf[2048];
++static s32 ibm_os_term_token = RTAS_UNKNOWN_SERVICE;
+ 
+ void rtas_os_term(char *str)
  {
--	xdp_return_frame((struct xdp_frame *)tx_buf->raw_buf);
-+	page_frag_free(tx_buf->raw_buf);
- 	xdp_ring->xdp_tx_active--;
- 	dma_unmap_single(xdp_ring->dev, dma_unmap_addr(tx_buf, dma),
- 			 dma_unmap_len(tx_buf, len), DMA_TO_DEVICE);
+@@ -799,14 +800,13 @@ void rtas_os_term(char *str)
+ 	 * this property may terminate the partition which we want to avoid
+ 	 * since it interferes with panic_timeout.
+ 	 */
+-	if (RTAS_UNKNOWN_SERVICE == rtas_token("ibm,os-term") ||
+-	    RTAS_UNKNOWN_SERVICE == rtas_token("ibm,extended-os-term"))
++	if (ibm_os_term_token == RTAS_UNKNOWN_SERVICE)
+ 		return;
+ 
+ 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
+ 
+ 	do {
+-		status = rtas_call(rtas_token("ibm,os-term"), 1, 1, NULL,
++		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
+ 				   __pa(rtas_os_term_buf));
+ 	} while (rtas_busy_delay(status));
+ 
+@@ -1167,6 +1167,13 @@ void __init rtas_initialize(void)
+ 	no_entry = of_property_read_u32(rtas.dev, "linux,rtas-entry", &entry);
+ 	rtas.entry = no_entry ? rtas.base : entry;
+ 
++	/*
++	 * Discover these now to avoid device tree lookups in the
++	 * panic path.
++	 */
++	if (of_property_read_bool(rtas.dev, "ibm,extended-os-term"))
++		ibm_os_term_token = rtas_token("ibm,os-term");
++
+ 	/* If RTAS was found, allocate the RMO buffer for it and look for
+ 	 * the stop-self token if any
+ 	 */
 -- 
 2.35.1
 
