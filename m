@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE2556649CC
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:25:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 618F766482F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:10:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232589AbjAJSZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:25:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36588 "EHLO
+        id S238752AbjAJSKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:10:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239345AbjAJSYN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:24:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 461CA96127
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:45 -0800 (PST)
+        with ESMTP id S238801AbjAJSJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:09:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC366921D7
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:06:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F252EB818EF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DE4EC433D2;
-        Tue, 10 Jan 2023 18:21:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E72C361864
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:06:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F20F1C433EF;
+        Tue, 10 Jan 2023 18:06:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374900;
-        bh=nCe0w2OfQsR/q9KNDgRKLHhCsDkitZA8dwIwmG1R8ZU=;
+        s=korg; t=1673374004;
+        bh=MNSnkI6d27yEiX6A/sPeo2+ooVeTpGc/VdS6BYJXUBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=br1uohG3hakkd03OkmQBBWJ20eYDg4z9NvIJ/GZesXIYp16JNU9wsSdXO22zZGEeM
-         X+BCqHjUbYOCz15f8uCE04PkMty0QtW2y0xoK8KZddQdJjx6RkB1D4TcwTvYwnf+yQ
-         nnpeMYywvSTtUC21FuBO8AQqfDywbyVbpCkAXju4=
+        b=1sljHr4XG914QJ6oNczwhsWmgjBKEHpG1aRtvM46zTsL72he29HwZ+K/vANe8L0gn
+         TB2y+8NPtAvnKF9yJ/kEFAx1aRcQJg+h9bRe+/gbIDFP5a//B4xCiUZOI7UzpJO4NS
+         KDUslImcQfJcWyXgvZmDecL3MHXUmTq6DH6Bs/Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adam Vodopjan <grozzly@protonmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 012/290] ata: ahci: Fix PCS quirk application for suspend
-Date:   Tue, 10 Jan 2023 19:01:44 +0100
-Message-Id: <20230110180032.033480561@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Russell King (Oracle)" <linux@armlinux.org.uk>,
+        Jens Axboe <axboe@kernel.dk>, Hui Tang <tanghui20@huawei.com>
+Subject: [PATCH 6.0 001/148] ARM: renumber bits related to _TIF_WORK_MASK
+Date:   Tue, 10 Jan 2023 19:01:45 +0100
+Message-Id: <20230110180017.205530671@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,148 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Vodopjan <grozzly@protonmail.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 37e14e4f3715428b809e4df9a9958baa64c77d51 ]
+commit 191f8453fc99a537ea78b727acea739782378b0d upstream.
 
-Since kernel 5.3.4 my laptop (ICH8M controller) does not see Kingston
-SV300S37A60G SSD disk connected into a SATA connector on wake from
-suspend.  The problem was introduced in c312ef176399 ("libata/ahci: Drop
-PCS quirk for Denverton and beyond"): the quirk is not applied on wake
-from suspend as it originally was.
+We want to ensure that the mask related to calling do_work_pending()
+is within the first 16 bits. Move bits unrelated to that outside of
+that range, to avoid spuriously calling do_work_pending() when we don't
+need to.
 
-It is worth to mention the commit contained another bug: the quirk is
-not applied at all to controllers which require it. The fix commit
-09d6ac8dc51a ("libata/ahci: Fix PCS quirk application") landed in 5.3.8.
-So testing my patch anywhere between commits c312ef176399 and
-09d6ac8dc51a is pointless.
-
-Not all disks trigger the problem. For example nothing bad happens with
-Western Digital WD5000LPCX HDD.
-
-Test hardware:
-- Acer 5920G with ICH8M SATA controller
-- sda: some SATA HDD connnected into the DVD drive IDE port with a
-  SATA-IDE caddy. It is a boot disk
-- sdb: Kingston SV300S37A60G SSD connected into the only SATA port
-
-Sample "dmesg --notime | grep -E '^(sd |ata)'" output on wake:
-
-sd 0:0:0:0: [sda] Starting disk
-sd 2:0:0:0: [sdb] Starting disk
-ata4: SATA link down (SStatus 4 SControl 300)
-ata3: SATA link down (SStatus 4 SControl 300)
-ata1.00: ACPI cmd ef/03:0c:00:00:00:a0 (SET FEATURES) filtered out
-ata1.00: ACPI cmd ef/03:42:00:00:00:a0 (SET FEATURES) filtered out
-ata1: FORCE: cable set to 80c
-ata5: SATA link down (SStatus 0 SControl 300)
-ata3: SATA link down (SStatus 4 SControl 300)
-ata3: SATA link down (SStatus 4 SControl 300)
-ata3.00: disabled
-sd 2:0:0:0: rejecting I/O to offline device
-ata3.00: detaching (SCSI 2:0:0:0)
-sd 2:0:0:0: [sdb] Start/Stop Unit failed: Result: hostbyte=DID_NO_CONNECT
-	driverbyte=DRIVER_OK
-sd 2:0:0:0: [sdb] Synchronizing SCSI cache
-sd 2:0:0:0: [sdb] Synchronize Cache(10) failed: Result:
-	hostbyte=DID_BAD_TARGET driverbyte=DRIVER_OK
-sd 2:0:0:0: [sdb] Stopping disk
-sd 2:0:0:0: [sdb] Start/Stop Unit failed: Result: hostbyte=DID_BAD_TARGET
-	driverbyte=DRIVER_OK
-
-Commit c312ef176399 dropped ahci_pci_reset_controller() which internally
-calls ahci_reset_controller() and applies the PCS quirk if needed after
-that. It was called each time a reset was required instead of just
-ahci_reset_controller(). This patch puts the function back in place.
-
-Fixes: c312ef176399 ("libata/ahci: Drop PCS quirk for Denverton and beyond")
-Signed-off-by: Adam Vodopjan <grozzly@protonmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 32d59773da38 ("arm: add support for TIF_NOTIFY_SIGNAL")
+Reported-and-tested-by: Hui Tang <tanghui20@huawei.com>
+Suggested-by: Russell King (Oracle) <linux@armlinux.org.uk>
+Link: https://lore.kernel.org/lkml/7ecb8f3c-2aeb-a905-0d4a-aa768b9649b5@huawei.com/
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/ahci.c | 32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+ arch/arm/include/asm/thread_info.h |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index c1bf7117a9ff..149ee16fd022 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -83,6 +83,7 @@ enum board_ids {
- static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent);
- static void ahci_remove_one(struct pci_dev *dev);
- static void ahci_shutdown_one(struct pci_dev *dev);
-+static void ahci_intel_pcs_quirk(struct pci_dev *pdev, struct ahci_host_priv *hpriv);
- static int ahci_vt8251_hardreset(struct ata_link *link, unsigned int *class,
- 				 unsigned long deadline);
- static int ahci_avn_hardreset(struct ata_link *link, unsigned int *class,
-@@ -668,6 +669,25 @@ static void ahci_pci_save_initial_config(struct pci_dev *pdev,
- 	ahci_save_initial_config(&pdev->dev, hpriv);
- }
+--- a/arch/arm/include/asm/thread_info.h
++++ b/arch/arm/include/asm/thread_info.h
+@@ -128,15 +128,16 @@ extern int vfp_restore_user_hwstate(stru
+ #define TIF_NEED_RESCHED	1	/* rescheduling necessary */
+ #define TIF_NOTIFY_RESUME	2	/* callback before returning to user */
+ #define TIF_UPROBE		3	/* breakpointed or singlestepping */
+-#define TIF_SYSCALL_TRACE	4	/* syscall trace active */
+-#define TIF_SYSCALL_AUDIT	5	/* syscall auditing active */
+-#define TIF_SYSCALL_TRACEPOINT	6	/* syscall tracepoint instrumentation */
+-#define TIF_SECCOMP		7	/* seccomp syscall filtering active */
+-#define TIF_NOTIFY_SIGNAL	8	/* signal notifications exist */
++#define TIF_NOTIFY_SIGNAL	4	/* signal notifications exist */
  
-+static int ahci_pci_reset_controller(struct ata_host *host)
-+{
-+	struct pci_dev *pdev = to_pci_dev(host->dev);
-+	struct ahci_host_priv *hpriv = host->private_data;
-+	int rc;
+ #define TIF_USING_IWMMXT	17
+ #define TIF_MEMDIE		18	/* is terminating due to OOM killer */
+-#define TIF_RESTORE_SIGMASK	20
++#define TIF_RESTORE_SIGMASK	19
++#define TIF_SYSCALL_TRACE	20	/* syscall trace active */
++#define TIF_SYSCALL_AUDIT	21	/* syscall auditing active */
++#define TIF_SYSCALL_TRACEPOINT	22	/* syscall tracepoint instrumentation */
++#define TIF_SECCOMP		23	/* seccomp syscall filtering active */
 +
-+	rc = ahci_reset_controller(host);
-+	if (rc)
-+		return rc;
-+
-+	/*
-+	 * If platform firmware failed to enable ports, try to enable
-+	 * them here.
-+	 */
-+	ahci_intel_pcs_quirk(pdev, hpriv);
-+
-+	return 0;
-+}
-+
- static void ahci_pci_init_controller(struct ata_host *host)
- {
- 	struct ahci_host_priv *hpriv = host->private_data;
-@@ -869,7 +889,7 @@ static int ahci_pci_device_runtime_resume(struct device *dev)
- 	struct ata_host *host = pci_get_drvdata(pdev);
- 	int rc;
  
--	rc = ahci_reset_controller(host);
-+	rc = ahci_pci_reset_controller(host);
- 	if (rc)
- 		return rc;
- 	ahci_pci_init_controller(host);
-@@ -904,7 +924,7 @@ static int ahci_pci_device_resume(struct device *dev)
- 		ahci_mcp89_apple_enable(pdev);
- 
- 	if (pdev->dev.power.power_state.event == PM_EVENT_SUSPEND) {
--		rc = ahci_reset_controller(host);
-+		rc = ahci_pci_reset_controller(host);
- 		if (rc)
- 			return rc;
- 
-@@ -1789,12 +1809,6 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	/* save initial config */
- 	ahci_pci_save_initial_config(pdev, hpriv);
- 
--	/*
--	 * If platform firmware failed to enable ports, try to enable
--	 * them here.
--	 */
--	ahci_intel_pcs_quirk(pdev, hpriv);
--
- 	/* prepare host */
- 	if (hpriv->cap & HOST_CAP_NCQ) {
- 		pi.flags |= ATA_FLAG_NCQ;
-@@ -1904,7 +1918,7 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (rc)
- 		return rc;
- 
--	rc = ahci_reset_controller(host);
-+	rc = ahci_pci_reset_controller(host);
- 	if (rc)
- 		return rc;
- 
--- 
-2.35.1
-
+ #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
+ #define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
 
 
