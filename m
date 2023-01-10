@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B58D066499E
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECB69664B04
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239520AbjAJSXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:23:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35818 "EHLO
+        id S239390AbjAJSip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:38:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239311AbjAJSWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C9C58D2E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:12 -0800 (PST)
+        with ESMTP id S239416AbjAJSiG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C029B298
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC15261846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A9FC433D2;
-        Tue, 10 Jan 2023 18:20:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63024B81906
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E2FCC433EF;
+        Tue, 10 Jan 2023 18:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374811;
-        bh=OqJS7mdcDFWczlCp7zGtOy4ei+eCaRVuC/4bgPswZSc=;
+        s=korg; t=1673375594;
+        bh=A/ExnhSVHK7qignorG62La22hdVT0sMzzctwBDzImmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDpHqrG5mjMAX/LuZ2GUOaKDGE6tBDJjTqflGKCFvjsUZNDIwOcBbCaGzCK6jK+PY
-         oz6hQS9DzmbsVE+sk8aV2OH6irZ1UF0fyg/0nqkj3wavhxaN1uslNRsoS9+H2TtyZo
-         UGLCzLw6n02RB96QOlSNRO3u7LhkgnJ6iAr0WSfw=
+        b=s46YpNymQ0tnKcMEhF8TsuBVhYeugQTflKg8G2+BWfZBXwZRPgslX2Y8NPrdZMAQp
+         8CSeIuFXLxl6yTgBqavSQ++AySdXLRgZTjwnK2UpaYaL0VyXNI7znECSwBt+75/iBg
+         VckWnVWMIPb/vpkm2ppGfXoWVQVaOzaZFN3W+o9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@rivosinc.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.1 142/159] riscv, kprobes: Stricter c.jr/c.jalr decoding
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 198/290] btrfs: fix an error handling path in btrfs_defrag_leaves()
 Date:   Tue, 10 Jan 2023 19:04:50 +0100
-Message-Id: <20230110180022.970591715@linuxfoundation.org>
+Message-Id: <20230110180038.799192375@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn@rivosinc.com>
+[ Upstream commit db0a4a7b8e95f9312a59a67cbd5bc589f090e13d ]
 
-commit b2d473a6019ef9a54b0156ecdb2e0398c9fa6a24 upstream.
+All error handling paths end to 'out', except this memory allocation
+failure.
 
-In the compressed instruction extension, c.jr, c.jalr, c.mv, and c.add
-is encoded the following way (each instruction is 16b):
+This is spurious. So branch to the error handling path also in this case.
+It will add a call to:
 
----+-+-----------+-----------+--
-100 0 rs1[4:0]!=0       00000 10 : c.jr
-100 1 rs1[4:0]!=0       00000 10 : c.jalr
-100 0  rd[4:0]!=0 rs2[4:0]!=0 10 : c.mv
-100 1  rd[4:0]!=0 rs2[4:0]!=0 10 : c.add
+	memset(&root->defrag_progress, 0,
+	       sizeof(root->defrag_progress));
 
-The following logic is used to decode c.jr and c.jalr:
-
-  insn & 0xf007 == 0x8002 => instruction is an c.jr
-  insn & 0xf007 == 0x9002 => instruction is an c.jalr
-
-When 0xf007 is used to mask the instruction, c.mv can be incorrectly
-decoded as c.jr, and c.add as c.jalr.
-
-Correct the decoding by changing the mask from 0xf007 to 0xf07f.
-
-Fixes: c22b0bcb1dd0 ("riscv: Add kprobes supported")
-Signed-off-by: Björn Töpel <bjorn@rivosinc.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/r/20230102160748.1307289-1-bjorn@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6702ed490ca0 ("Btrfs: Add run time btree defrag, and an ioctl to force btree defrag")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/probes/simulate-insn.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/tree-defrag.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/riscv/kernel/probes/simulate-insn.h
-+++ b/arch/riscv/kernel/probes/simulate-insn.h
-@@ -31,9 +31,9 @@ __RISCV_INSN_FUNCS(fence,	0x7f, 0x0f);
- 	} while (0)
+diff --git a/fs/btrfs/tree-defrag.c b/fs/btrfs/tree-defrag.c
+index 7c45d960b53c..259a3b5f9303 100644
+--- a/fs/btrfs/tree-defrag.c
++++ b/fs/btrfs/tree-defrag.c
+@@ -39,8 +39,10 @@ int btrfs_defrag_leaves(struct btrfs_trans_handle *trans,
+ 		goto out;
  
- __RISCV_INSN_FUNCS(c_j,		0xe003, 0xa001);
--__RISCV_INSN_FUNCS(c_jr,	0xf007, 0x8002);
-+__RISCV_INSN_FUNCS(c_jr,	0xf07f, 0x8002);
- __RISCV_INSN_FUNCS(c_jal,	0xe003, 0x2001);
--__RISCV_INSN_FUNCS(c_jalr,	0xf007, 0x9002);
-+__RISCV_INSN_FUNCS(c_jalr,	0xf07f, 0x9002);
- __RISCV_INSN_FUNCS(c_beqz,	0xe003, 0xc001);
- __RISCV_INSN_FUNCS(c_bnez,	0xe003, 0xe001);
- __RISCV_INSN_FUNCS(c_ebreak,	0xffff, 0x9002);
+ 	path = btrfs_alloc_path();
+-	if (!path)
+-		return -ENOMEM;
++	if (!path) {
++		ret = -ENOMEM;
++		goto out;
++	}
+ 
+ 	level = btrfs_header_level(root->node);
+ 
+-- 
+2.35.1
+
 
 
