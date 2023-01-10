@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A605F664A1D
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:30:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 332E2664852
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239313AbjAJSaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:30:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43230 "EHLO
+        id S238845AbjAJSLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239324AbjAJS3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:29:44 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79271A4C75
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:32 -0800 (PST)
+        with ESMTP id S238866AbjAJSKJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B146EE5E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 984F7CE18D1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D4FAC433EF;
-        Tue, 10 Jan 2023 18:24:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C2F16182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FC5DC433D2;
+        Tue, 10 Jan 2023 18:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375068;
-        bh=P4KDS1+0IVrYWVKae1eSTEcsh8RQayNAI42PZ3RQB64=;
+        s=korg; t=1673374078;
+        bh=Vj/bRQ4ROumaivanE63tInVjiVtlLFOmjJZkvvriBI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G8oRXyOONwFrXlTdUNwtdZRyuxuHj73QWMvdrNHtZvozmEIfy14GDabUp13/q9bmr
-         Nn6fdMBsJoT7wMH/kPRhhBlEohfX26/kKlHTW2Mv2oHIQAku15sOzGq7yi2slfYB8h
-         vyggI26w/gwDO328kYoGiYdoLy0ZFY74bmqerQzE=
+        b=SNU5Z+lJywjOQ1IKd6QSGJh5WqxVFRLU+nUIccWNv2y1hxO4RjjDkt6L9ifzjDI98
+         V/8btnDf9TAMZ5yOnl4wMAD2MmGg6d96PFgleh/MjkoilZtSh4uPqXrSZTzjZAfo8e
+         hju97KtUnSEBzFq6mpVuaE8xYmK3llBwZK+Ojv/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Stefani <luca@osomprivacy.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.15 036/290] pstore: Properly assign mem_type property
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 024/148] bonding: fix lockdep splat in bond_miimon_commit()
 Date:   Tue, 10 Jan 2023 19:02:08 +0100
-Message-Id: <20230110180032.835424346@linuxfoundation.org>
+Message-Id: <20230110180017.972363621@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +58,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Stefani <luca@osomprivacy.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit beca3e311a49cd3c55a056096531737d7afa4361 upstream.
+[ Upstream commit 42c7ded0eeacd2ba5db599205c71c279dc715de7 ]
 
-If mem-type is specified in the device tree
-it would end up overriding the record_size
-field instead of populating mem_type.
+bond_miimon_commit() is run while RTNL is held, not RCU.
 
-As record_size is currently parsed after the
-improper assignment with default size 0 it
-continued to work as expected regardless of the
-value found in the device tree.
+WARNING: suspicious RCU usage
+6.1.0-syzkaller-09671-g89529367293c #0 Not tainted
+-----------------------------
+drivers/net/bonding/bond_main.c:2704 suspicious rcu_dereference_check() usage!
 
-Simply changing the target field of the struct
-is enough to get mem-type working as expected.
-
-Fixes: 9d843e8fafc7 ("pstore: Add mem_type property DT parsing support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Luca Stefani <luca@osomprivacy.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221222131049.286288-1-luca@osomprivacy.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e95cc44763a4 ("bonding: do failover when high prio link up")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Hangbin Liu <liuhangbin@gmail.com>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Link: https://lore.kernel.org/r/20221220130831.1480888-1-edumazet@google.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/ram.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/bonding/bond_main.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/pstore/ram.c
-+++ b/fs/pstore/ram.c
-@@ -670,7 +670,7 @@ static int ramoops_parse_dt(struct platf
- 		field = value;						\
- 	}
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 771f2a533d3f..7807113e0910 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2653,10 +2653,12 @@ static void bond_miimon_link_change(struct bonding *bond,
  
--	parse_u32("mem-type", pdata->record_size, pdata->mem_type);
-+	parse_u32("mem-type", pdata->mem_type, pdata->mem_type);
- 	parse_u32("record-size", pdata->record_size, 0);
- 	parse_u32("console-size", pdata->console_size, 0);
- 	parse_u32("ftrace-size", pdata->ftrace_size, 0);
+ static void bond_miimon_commit(struct bonding *bond)
+ {
+-	struct slave *slave, *primary;
++	struct slave *slave, *primary, *active;
+ 	bool do_failover = false;
+ 	struct list_head *iter;
+ 
++	ASSERT_RTNL();
++
+ 	bond_for_each_slave(bond, slave, iter) {
+ 		switch (slave->link_new_state) {
+ 		case BOND_LINK_NOCHANGE:
+@@ -2699,8 +2701,8 @@ static void bond_miimon_commit(struct bonding *bond)
+ 
+ 			bond_miimon_link_change(bond, slave, BOND_LINK_UP);
+ 
+-			if (!rcu_access_pointer(bond->curr_active_slave) || slave == primary ||
+-			    slave->prio > rcu_dereference(bond->curr_active_slave)->prio)
++			active = rtnl_dereference(bond->curr_active_slave);
++			if (!active || slave == primary || slave->prio > active->prio)
+ 				do_failover = true;
+ 
+ 			continue;
+-- 
+2.35.1
+
 
 
