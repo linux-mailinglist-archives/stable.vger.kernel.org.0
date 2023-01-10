@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2561366486C
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A013664A4A
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238663AbjAJSLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52882 "EHLO
+        id S232701AbjAJSb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:31:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239064AbjAJSKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95CA2726
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:58 -0800 (PST)
+        with ESMTP id S239316AbjAJSbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:00 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C492850E57
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 850A8B81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFA2C433EF;
-        Tue, 10 Jan 2023 18:08:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B3732CE18E6
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2817C433EF;
+        Tue, 10 Jan 2023 18:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374136;
-        bh=ADW6vxSQp5gVMV3Tl8XJJ9V0rEGhfOB0nyp/GyFp3zE=;
+        s=korg; t=1673375170;
+        bh=CRY/T8PsxHx6HYu6Q95DGO5VlQ3cyv5vVESvY3rFo/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zVQpdLgxYGqsI5bSynPuuHFl5nbn88ALd4J1v74wXuJU/C631VunZb1Y53U/N+dLG
-         cOAl0H4A7FCrBINvOolZK4jumWM/M4lat4dDSlWlwunVSiEfFHQQXx65HG/UFCJaaw
-         HgiQtAjeLDEjHXimhVUhzySt2VUnU1Z6I9GyNatY=
+        b=CQS2Jy3R5cDoi6myCPi7cvLKjZ8jVllqQHohibEkvXzxDae/u5sbgHqbnZQU9XHSS
+         EZTubUTsf4PZlG5H8LlpbM8eHsZ1C2NT9n6iLkmNoVeoild2WqV2DSjkvicq34kD2p
+         VcCw9B5vei5bSrSN/7YsVAM9SgF9u3p75u9Xtv/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adham Faris <afaris@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 058/148] net/mlx5e: Fix hw mtu initializing at XDP SQ allocation
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        kernel test robot <lkp@intel.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 070/290] ARM: ux500: do not directly dereference __iomem
 Date:   Tue, 10 Jan 2023 19:02:42 +0100
-Message-Id: <20230110180019.066705331@linuxfoundation.org>
+Message-Id: <20230110180034.056330657@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adham Faris <afaris@nvidia.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 1e267ab88dc44c48f556218f7b7f14c76f7aa066 ]
+commit 65b0e307a1a9193571db12910f382f84195a3d29 upstream.
 
-Current xdp xmit functions logic (mlx5e_xmit_xdp_frame_mpwqe or
-mlx5e_xmit_xdp_frame), validates xdp packet length by comparing it to
-hw mtu (configured at xdp sq allocation) before xmiting it. This check
-does not account for ethernet fcs length (calculated and filled by the
-nic). Hence, when we try sending packets with length > (hw-mtu -
-ethernet-fcs-size), the device port drops it and tx_errors_phy is
-incremented. Desired behavior is to catch these packets and drop them
-by the driver.
+Sparse reports that calling add_device_randomness() on `uid` is a
+violation of address spaces. And indeed the next usage uses readl()
+properly, but that was left out when passing it toadd_device_
+randomness(). So instead copy the whole thing to the stack first.
 
-Fix this behavior in XDP SQ allocation function (mlx5e_alloc_xdpsq) by
-subtracting ethernet FCS header size (4 Bytes) from current hw mtu
-value, since ethernet FCS is calculated and written to ethernet frames
-by the nic.
-
-Fixes: d8bec2b29a82 ("net/mlx5e: Support bpf_xdp_adjust_head()")
-Signed-off-by: Adham Faris <afaris@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4040d10a3d44 ("ARM: ux500: add DB serial number to entropy pool")
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/202210230819.loF90KDh-lkp@intel.com/
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20221108123755.207438-1-Jason@zx2c4.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/ux500/ux500-soc-id.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 6cf6a81775a8..5c16efb8be81 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -1146,7 +1146,7 @@ static int mlx5e_alloc_xdpsq(struct mlx5e_channel *c,
- 	sq->channel   = c;
- 	sq->uar_map   = mdev->mlx5e_res.hw_objs.bfreg.map;
- 	sq->min_inline_mode = params->tx_min_inline_mode;
--	sq->hw_mtu    = MLX5E_SW2HW_MTU(params, params->sw_mtu);
-+	sq->hw_mtu    = MLX5E_SW2HW_MTU(params, params->sw_mtu) - ETH_FCS_LEN;
- 	sq->xsk_pool  = xsk_pool;
+--- a/drivers/soc/ux500/ux500-soc-id.c
++++ b/drivers/soc/ux500/ux500-soc-id.c
+@@ -167,20 +167,18 @@ ATTRIBUTE_GROUPS(ux500_soc);
+ static const char *db8500_read_soc_id(struct device_node *backupram)
+ {
+ 	void __iomem *base;
+-	void __iomem *uid;
+ 	const char *retstr;
++	u32 uid[5];
  
- 	sq->stats = sq->xsk_pool ?
--- 
-2.35.1
-
+ 	base = of_iomap(backupram, 0);
+ 	if (!base)
+ 		return NULL;
+-	uid = base + 0x1fc0;
++	memcpy_fromio(uid, base + 0x1fc0, sizeof(uid));
+ 
+ 	/* Throw these device-specific numbers into the entropy pool */
+-	add_device_randomness(uid, 0x14);
++	add_device_randomness(uid, sizeof(uid));
+ 	retstr = kasprintf(GFP_KERNEL, "%08x%08x%08x%08x%08x",
+-			 readl((u32 *)uid+0),
+-			 readl((u32 *)uid+1), readl((u32 *)uid+2),
+-			 readl((u32 *)uid+3), readl((u32 *)uid+4));
++			   uid[0], uid[1], uid[2], uid[3], uid[4]);
+ 	iounmap(base);
+ 	return retstr;
+ }
 
 
