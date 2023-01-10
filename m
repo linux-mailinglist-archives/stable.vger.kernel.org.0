@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B07F8664986
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:22:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A70664984
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:22:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239248AbjAJSWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:22:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36034 "EHLO
+        id S239262AbjAJSWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:22:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239161AbjAJSV7 (ORCPT
+        with ESMTP id S239248AbjAJSV7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:21:59 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF019974BB
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38268F2AF
         for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1B3A7CE18E1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12651C4339C;
-        Tue, 10 Jan 2023 18:19:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CDFF61827
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A025C433F0;
+        Tue, 10 Jan 2023 18:19:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374763;
-        bh=uXNUUmRujpjDkmB6mUTkH1IVUpYaHyg06DL7P5ofADg=;
+        s=korg; t=1673374766;
+        bh=eOl1NMaMazQGbtIBH02ohkfluw1QFycUlov2MiDILG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HThV1/v4nFcTcbfLnqZx3+W1588epkB7Cg8vGsC/6NFJkqr1WQCGG0NynASwT22eR
-         CVAntAQP6HTtcYcXZKLuHIziihnQasDRk676JvgdWvDcLkgiSgfcBUrNDeKK1miVE1
-         3Td0vRqw1OohA2hms95NxQ5YeNP1tr+l2sNqSrC4=
+        b=mteXaNQ2qiykeOqyIpc1b/d3bdWJ/RJ3G9RubRYlOFc1CKgwNuEqbeGdM3xpewUQ6
+         KG3QSo3vSoeNXI/RfKCjFBApL2Om8Dcd8SAI3bkELbzO9M/d4/GWm3ALOo+geHy8st
+         EOPRdAMgrz0HvzvG09V4b0crnyLT1LkVgy1kXttg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Archana Patni <archana.patni@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 125/159] ASoC: SOF: Intel: pci-tgl: unblock S5 entry if DMA stop has failed"
-Date:   Tue, 10 Jan 2023 19:04:33 +0100
-Message-Id: <20230110180022.324313629@linuxfoundation.org>
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Baoquan He <bhe@redhat.com>, Vlastimil Babka <vbabka@suse.cz>,
+        stable@kernel.org
+Subject: [PATCH 6.1 126/159] x86/kexec: Fix double-free of elf header buffer
+Date:   Tue, 10 Jan 2023 19:04:34 +0100
+Message-Id: <20230110180022.359094859@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
 References: <20230110180018.288460217@linuxfoundation.org>
@@ -57,144 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 2aa2a5ead0ee0a358bf80a2984a641d1bf2adc2a ]
+commit d00dd2f2645dca04cf399d8fc692f3f69b6dd996 upstream.
 
-If system shutdown has not been completed cleanly, it is possible the
-DMA stream shutdown has not been done, or was not clean.
+After
 
-If this is the case, Intel TGL/ADL HDA platforms may fail to shutdown
-cleanly due to pending HDA DMA transactions. To avoid this, detect this
-scenario in the shutdown callback, and perform an additional controller
-reset. This has been tested to unblock S5 entry if this condition is
-hit.
+  b3e34a47f989 ("x86/kexec: fix memory leak of elf header buffer"),
 
-Co-developed-by: Archana Patni <archana.patni@intel.com>
-Signed-off-by: Archana Patni <archana.patni@intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20221209114529.3909192-2-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+freeing image->elf_headers in the error path of crash_load_segments()
+is not needed because kimage_file_post_load_cleanup() will take
+care of that later. And not clearing it could result in a double-free.
+
+Drop the superfluous vfree() call at the error path of
+crash_load_segments().
+
+Fixes: b3e34a47f989 ("x86/kexec: fix memory leak of elf header buffer")
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Acked-by: Baoquan He <bhe@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/20221122115122.13937-1-tiwai@suse.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/intel/hda-dsp.c | 72 +++++++++++++++++++++++++++++++++++
- sound/soc/sof/intel/hda.h     |  1 +
- sound/soc/sof/intel/tgl.c     |  2 +-
- 3 files changed, 74 insertions(+), 1 deletion(-)
+ arch/x86/kernel/crash.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/sound/soc/sof/intel/hda-dsp.c b/sound/soc/sof/intel/hda-dsp.c
-index 3c76f843454b..428aee8fd93b 100644
---- a/sound/soc/sof/intel/hda-dsp.c
-+++ b/sound/soc/sof/intel/hda-dsp.c
-@@ -903,6 +903,78 @@ int hda_dsp_suspend(struct snd_sof_dev *sdev, u32 target_state)
- 	return snd_sof_dsp_set_power_state(sdev, &target_dsp_state);
- }
- 
-+static unsigned int hda_dsp_check_for_dma_streams(struct snd_sof_dev *sdev)
-+{
-+	struct hdac_bus *bus = sof_to_bus(sdev);
-+	struct hdac_stream *s;
-+	unsigned int active_streams = 0;
-+	int sd_offset;
-+	u32 val;
-+
-+	list_for_each_entry(s, &bus->stream_list, list) {
-+		sd_offset = SOF_STREAM_SD_OFFSET(s);
-+		val = snd_sof_dsp_read(sdev, HDA_DSP_HDA_BAR,
-+				       sd_offset);
-+		if (val & SOF_HDA_SD_CTL_DMA_START)
-+			active_streams |= BIT(s->index);
-+	}
-+
-+	return active_streams;
-+}
-+
-+static int hda_dsp_s5_quirk(struct snd_sof_dev *sdev)
-+{
-+	int ret;
-+
-+	/*
-+	 * Do not assume a certain timing between the prior
-+	 * suspend flow, and running of this quirk function.
-+	 * This is needed if the controller was just put
-+	 * to reset before calling this function.
-+	 */
-+	usleep_range(500, 1000);
-+
-+	/*
-+	 * Take controller out of reset to flush DMA
-+	 * transactions.
-+	 */
-+	ret = hda_dsp_ctrl_link_reset(sdev, false);
-+	if (ret < 0)
-+		return ret;
-+
-+	usleep_range(500, 1000);
-+
-+	/* Restore state for shutdown, back to reset */
-+	ret = hda_dsp_ctrl_link_reset(sdev, true);
-+	if (ret < 0)
-+		return ret;
-+
-+	return ret;
-+}
-+
-+int hda_dsp_shutdown_dma_flush(struct snd_sof_dev *sdev)
-+{
-+	unsigned int active_streams;
-+	int ret, ret2;
-+
-+	/* check if DMA cleanup has been successful */
-+	active_streams = hda_dsp_check_for_dma_streams(sdev);
-+
-+	sdev->system_suspend_target = SOF_SUSPEND_S3;
-+	ret = snd_sof_suspend(sdev->dev);
-+
-+	if (active_streams) {
-+		dev_warn(sdev->dev,
-+			 "There were active DSP streams (%#x) at shutdown, trying to recover\n",
-+			 active_streams);
-+		ret2 = hda_dsp_s5_quirk(sdev);
-+		if (ret2 < 0)
-+			dev_err(sdev->dev, "shutdown recovery failed (%d)\n", ret2);
-+	}
-+
-+	return ret;
-+}
-+
- int hda_dsp_shutdown(struct snd_sof_dev *sdev)
- {
- 	sdev->system_suspend_target = SOF_SUSPEND_S3;
-diff --git a/sound/soc/sof/intel/hda.h b/sound/soc/sof/intel/hda.h
-index 2ab3c3840b92..9acd21901e68 100644
---- a/sound/soc/sof/intel/hda.h
-+++ b/sound/soc/sof/intel/hda.h
-@@ -581,6 +581,7 @@ int hda_dsp_resume(struct snd_sof_dev *sdev);
- int hda_dsp_runtime_suspend(struct snd_sof_dev *sdev);
- int hda_dsp_runtime_resume(struct snd_sof_dev *sdev);
- int hda_dsp_runtime_idle(struct snd_sof_dev *sdev);
-+int hda_dsp_shutdown_dma_flush(struct snd_sof_dev *sdev);
- int hda_dsp_shutdown(struct snd_sof_dev *sdev);
- int hda_dsp_set_hw_params_upon_resume(struct snd_sof_dev *sdev);
- void hda_dsp_dump(struct snd_sof_dev *sdev, u32 flags);
-diff --git a/sound/soc/sof/intel/tgl.c b/sound/soc/sof/intel/tgl.c
-index 9ae2890e9dac..8637fe102c87 100644
---- a/sound/soc/sof/intel/tgl.c
-+++ b/sound/soc/sof/intel/tgl.c
-@@ -60,7 +60,7 @@ int sof_tgl_ops_init(struct snd_sof_dev *sdev)
- 	memcpy(&sof_tgl_ops, &sof_hda_common_ops, sizeof(struct snd_sof_dsp_ops));
- 
- 	/* probe/remove/shutdown */
--	sof_tgl_ops.shutdown	= hda_dsp_shutdown;
-+	sof_tgl_ops.shutdown	= hda_dsp_shutdown_dma_flush;
- 
- 	if (sdev->pdata->ipc_type == SOF_IPC) {
- 		/* doorbell */
--- 
-2.35.1
-
+--- a/arch/x86/kernel/crash.c
++++ b/arch/x86/kernel/crash.c
+@@ -401,10 +401,8 @@ int crash_load_segments(struct kimage *i
+ 	kbuf.buf_align = ELF_CORE_HEADER_ALIGN;
+ 	kbuf.mem = KEXEC_BUF_MEM_UNKNOWN;
+ 	ret = kexec_add_buffer(&kbuf);
+-	if (ret) {
+-		vfree((void *)image->elf_headers);
++	if (ret)
+ 		return ret;
+-	}
+ 	image->elf_load_addr = kbuf.mem;
+ 	pr_debug("Loaded ELF headers at 0x%lx bufsz=0x%lx memsz=0x%lx\n",
+ 		 image->elf_load_addr, kbuf.bufsz, kbuf.memsz);
 
 
