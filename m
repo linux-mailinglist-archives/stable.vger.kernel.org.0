@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F7566493D
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:19:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBF97664A66
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239116AbjAJSTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:19:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58294 "EHLO
+        id S239332AbjAJScp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:32:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239137AbjAJSSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:18:47 -0500
+        with ESMTP id S239472AbjAJScR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF3A19085A
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCFC55B4B6
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A0D2B81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1636C433F0;
-        Tue, 10 Jan 2023 18:16:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 781C5B818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB7EDC433EF;
+        Tue, 10 Jan 2023 18:27:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374614;
-        bh=i81+vgyo5eoEMD33WPTo3oucR8Vtafk+UhU2oREnPhk=;
+        s=korg; t=1673375239;
+        bh=p5iYSV1K9TuhF1oOiAR0lCupnzhPDdYLUTw/w1bgos4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hKLvJ4N/EkJ2rxqvUDBV6l/65plWZAomtqNPEO0J83tDZFlNeRigROXbBGN/Kyuu9
-         01YjdZMeoQyZxs0qjrDGt2ygPtQ2+zH0KWyQdbq5Zb/ryTTEbzdAgrfd/kmUiUT1pX
-         EbooRGdvxOP5ZzPZUWnRDuJjnnY6Z7Vw2BHVinkA=
+        b=EugUrMITGnmZypTL/zevBcrICQP1L3R+mkNsOB6e9B7BIZKDdA00fCsP/irG8Izmk
+         iTcNl9Ss5Zg5eknI7mkMCd34WHoNzGNonAolkzDq7ohDvbEvpMIzb8F28b0RB+M5OE
+         7o0BDDusbFWKOkDViLwz+ycGo/u+Nq7ttfwChgBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nati Koler <nkoler@amazon.com>,
-        David Arinzon <darinzon@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 067/159] net: ena: Fix toeplitz initial hash value
-Date:   Tue, 10 Jan 2023 19:03:35 +0100
-Message-Id: <20230110180020.432392199@linuxfoundation.org>
+        patches@lists.linux.dev, Sascha Hauer <s.hauer@pengutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.15 124/290] PCI/sysfs: Fix double free in error path
+Date:   Tue, 10 Jan 2023 19:03:36 +0100
+Message-Id: <20230110180036.100073528@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Arinzon <darinzon@amazon.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 332b49ff637d6c1a75b971022a8b992cf3c57db1 ]
+commit aa382ffa705bea9931ec92b6f3c70e1fdb372195 upstream.
 
-On driver initialization, RSS hash initial value is set to zero,
-instead of the default value. This happens because we pass NULL as
-the RSS key parameter, which caused us to never initialize
-the RSS hash value.
+When pci_create_attr() fails, pci_remove_resource_files() is called which
+will iterate over the res_attr[_wc] arrays and frees every non NULL entry.
+To avoid a double free here set the array entry only after it's clear we
+successfully initialized it.
 
-This patch fixes it by making sure the initial value is set, no matter
-what the value of the RSS key is.
-
-Fixes: 91a65b7d3ed8 ("net: ena: fix potential crash when rxfh key is NULL")
-Signed-off-by: Nati Koler <nkoler@amazon.com>
-Signed-off-by: David Arinzon <darinzon@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b562ec8f74e4 ("PCI: Don't leak memory if sysfs_create_bin_file() fails")
+Link: https://lore.kernel.org/r/20221007070735.GX986@pengutronix.de/
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_com.c | 29 +++++++----------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ drivers/pci/pci-sysfs.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
-index 8c8b4c88c7de..451c3a1b6255 100644
---- a/drivers/net/ethernet/amazon/ena/ena_com.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_com.c
-@@ -2400,29 +2400,18 @@ int ena_com_fill_hash_function(struct ena_com_dev *ena_dev,
- 		return -EOPNOTSUPP;
- 	}
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -1179,11 +1179,9 @@ static int pci_create_attr(struct pci_de
  
--	switch (func) {
--	case ENA_ADMIN_TOEPLITZ:
--		if (key) {
--			if (key_len != sizeof(hash_key->key)) {
--				netdev_err(ena_dev->net_device,
--					   "key len (%u) doesn't equal the supported size (%zu)\n",
--					   key_len, sizeof(hash_key->key));
--				return -EINVAL;
--			}
--			memcpy(hash_key->key, key, key_len);
--			rss->hash_init_val = init_val;
--			hash_key->key_parts = key_len / sizeof(hash_key->key[0]);
-+	if ((func == ENA_ADMIN_TOEPLITZ) && key) {
-+		if (key_len != sizeof(hash_key->key)) {
-+			netdev_err(ena_dev->net_device,
-+				   "key len (%u) doesn't equal the supported size (%zu)\n",
-+				   key_len, sizeof(hash_key->key));
-+			return -EINVAL;
- 		}
--		break;
--	case ENA_ADMIN_CRC32:
--		rss->hash_init_val = init_val;
--		break;
--	default:
--		netdev_err(ena_dev->net_device, "Invalid hash function (%d)\n",
--			   func);
--		return -EINVAL;
-+		memcpy(hash_key->key, key, key_len);
-+		hash_key->key_parts = key_len / sizeof(hash_key->key[0]);
- 	}
+ 	sysfs_bin_attr_init(res_attr);
+ 	if (write_combine) {
+-		pdev->res_attr_wc[num] = res_attr;
+ 		sprintf(res_attr_name, "resource%d_wc", num);
+ 		res_attr->mmap = pci_mmap_resource_wc;
+ 	} else {
+-		pdev->res_attr[num] = res_attr;
+ 		sprintf(res_attr_name, "resource%d", num);
+ 		if (pci_resource_flags(pdev, num) & IORESOURCE_IO) {
+ 			res_attr->read = pci_read_resource_io;
+@@ -1201,10 +1199,17 @@ static int pci_create_attr(struct pci_de
+ 	res_attr->size = pci_resource_len(pdev, num);
+ 	res_attr->private = (void *)(unsigned long)num;
+ 	retval = sysfs_create_bin_file(&pdev->dev.kobj, res_attr);
+-	if (retval)
++	if (retval) {
+ 		kfree(res_attr);
++		return retval;
++	}
++
++	if (write_combine)
++		pdev->res_attr_wc[num] = res_attr;
++	else
++		pdev->res_attr[num] = res_attr;
  
-+	rss->hash_init_val = init_val;
- 	old_func = rss->hash_func;
- 	rss->hash_func = func;
- 	rc = ena_com_set_hash_function(ena_dev);
--- 
-2.35.1
-
+-	return retval;
++	return 0;
+ }
+ 
+ /**
 
 
