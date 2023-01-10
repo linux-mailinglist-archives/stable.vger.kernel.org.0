@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2C7664A92
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB7F66495D
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239498AbjAJSd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:33:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46594 "EHLO
+        id S239234AbjAJSUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:20:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239256AbjAJSck (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:40 -0500
+        with ESMTP id S239296AbjAJSUL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2258BF40
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D42C5327
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57523B81904
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9459CC433EF;
-        Tue, 10 Jan 2023 18:28:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C4D8B81901
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C65AAC433EF;
+        Tue, 10 Jan 2023 18:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375328;
-        bh=g3xGMHXnL/nk4mcfMKIAeY4gYbotIacJHSg6GNdmdTk=;
+        s=korg; t=1673374684;
+        bh=UhVSxDB8mlRNASuXSoIKfpbIr0iYPrzDQAP0zsN4nLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cXUd+jnzfS44z5SogPBwBRPf9hiD+Fnb7WHtY1MpyrjcB9FGpnhBkGNdvw3gie+Tq
-         LmRmV2CJ5ax9ZHTqlmLV/fANVfs803s4p5MlMBn50h4UyhKUw3ae5BgiUrgBrbKqY+
-         HMetOaJzA/vh1e1GMTatQb9/uC8KJQ1QfdUtkUmo=
+        b=ANvkcn8tToIQ3RIdmBeDPzATY60/Vc6WkSvFimprym+0df1GTYyUUvGcd4O7pPiLB
+         3WD+iiqaO5u/650DIWTYh5IJjykjS+gxkH93o3qwNi2e6X2FcmHca+3CrkdASmRCiK
+         EEO1HHpLfGtUcF+PD+hDjKdVMTQTQjz54SL+WPAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+98346927678ac3059c77@syzkaller.appspotmail.com,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.15 153/290] ext4: init quota for old.inode in ext4_rename
+        patches@lists.linux.dev, Thomas Richter <tmricht@linux.ibm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 097/159] perf lock contention: Fix core dump related to not finding the "__sched_text_end" symbol on s/390
 Date:   Tue, 10 Jan 2023 19:04:05 +0100
-Message-Id: <20230110180037.143894640@linuxfoundation.org>
+Message-Id: <20230110180021.376653907@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +58,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-commit fae381a3d79bb94aa2eb752170d47458d778b797 upstream.
+[ Upstream commit d8d85ce86dc82de4f88b821a78f533b9d5b22a45 ]
 
-Syzbot found the following issue:
-ext4_parse_param: s_want_extra_isize=128
-ext4_inode_info_init: s_want_extra_isize=32
-ext4_rename: old.inode=ffff88823869a2c8 old.dir=ffff888238699828 new.inode=ffff88823869d7e8 new.dir=ffff888238699828
-__ext4_mark_inode_dirty: inode=ffff888238699828 ea_isize=32 want_ea_size=128
-__ext4_mark_inode_dirty: inode=ffff88823869a2c8 ea_isize=32 want_ea_size=128
-ext4_xattr_block_set: inode=ffff88823869a2c8
-------------[ cut here ]------------
-WARNING: CPU: 13 PID: 2234 at fs/ext4/xattr.c:2070 ext4_xattr_block_set.cold+0x22/0x980
-Modules linked in:
-RIP: 0010:ext4_xattr_block_set.cold+0x22/0x980
-RSP: 0018:ffff888227d3f3b0 EFLAGS: 00010202
-RAX: 0000000000000001 RBX: ffff88823007a000 RCX: 0000000000000000
-RDX: 0000000000000a03 RSI: 0000000000000040 RDI: ffff888230078178
-RBP: 0000000000000000 R08: 000000000000002c R09: ffffed1075c7df8e
-R10: ffff8883ae3efc6b R11: ffffed1075c7df8d R12: 0000000000000000
-R13: ffff88823869a2c8 R14: ffff8881012e0460 R15: dffffc0000000000
-FS:  00007f350ac1f740(0000) GS:ffff8883ae200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f350a6ed6a0 CR3: 0000000237456000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- ? ext4_xattr_set_entry+0x3b7/0x2320
- ? ext4_xattr_block_set+0x0/0x2020
- ? ext4_xattr_set_entry+0x0/0x2320
- ? ext4_xattr_check_entries+0x77/0x310
- ? ext4_xattr_ibody_set+0x23b/0x340
- ext4_xattr_move_to_block+0x594/0x720
- ext4_expand_extra_isize_ea+0x59a/0x10f0
- __ext4_expand_extra_isize+0x278/0x3f0
- __ext4_mark_inode_dirty.cold+0x347/0x410
- ext4_rename+0xed3/0x174f
- vfs_rename+0x13a7/0x2510
- do_renameat2+0x55d/0x920
- __x64_sys_rename+0x7d/0xb0
- do_syscall_64+0x3b/0xa0
- entry_SYSCALL_64_after_hwframe+0x72/0xdc
+The test case perf lock contention dumps core on s390. Run the following
+commands:
 
-As 'ext4_rename' will modify 'old.inode' ctime and mark inode dirty,
-which may trigger expand 'extra_isize' and allocate block. If inode
-didn't init quota will lead to warning.  To solve above issue, init
-'old.inode' firstly in 'ext4_rename'.
+  # ./perf lock record -- ./perf bench sched messaging
+  # Running 'sched/messaging' benchmark:
+  # 20 sender and receiver processes per group
+  # 10 groups == 400 processes run
 
-Reported-by: syzbot+98346927678ac3059c77@syzkaller.appspotmail.com
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221107015335.2524319-1-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+      Total time: 2.799 [sec]
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.073 MB perf.data (100 samples) ]
+  #
+  # ./perf lock contention
+  Segmentation fault (core dumped)
+  #
+
+The function call stack is lengthy, here are the top 5 functions:
+
+  # gdb ./perf core.24048
+  GNU gdb (GDB) Fedora Linux 12.1-6.fc37
+  Core was generated by `./perf lock contention'.
+  Program terminated with signal SIGSEGV, Segmentation fault.
+  #0  0x00000000011dd25c in machine__is_lock_function (machine=0x3029e28, addr=1789230) at util/machine.c:3356
+         3356 machine->sched.text_end = kmap->unmap_ip(kmap, sym->start);
+
+ (gdb) where
+  #0  0x00000000011dd25c in machine__is_lock_function (machine=0x3029e28, addr=1789230) at util/machine.c:3356
+  #1  0x000000000109f244 in callchain_id (evsel=0x30313e0, sample=0x3ffea4f77d0) at builtin-lock.c:957
+  #2  0x000000000109e094 in get_key_by_aggr_mode (key=0x3ffea4f7290, addr=27758136, evsel=0x30313e0, sample=0x3ffea4f77d0) at builtin-lock.c:586
+  #3  0x000000000109f4d0 in report_lock_contention_begin_event (evsel=0x30313e0, sample=0x3ffea4f77d0) at builtin-lock.c:1004
+  #4  0x00000000010a00ae in evsel__process_contention_begin (evsel=0x30313e0, sample=0x3ffea4f77d0) at builtin-lock.c:1254
+  #5  0x00000000010a0e14 in process_sample_event (tool=0x3ffea4f8480, event=0x3ff85601ef8, sample=0x3ffea4f77d0, evsel=0x30313e0, machine=0x3029e28) at builtin-lock.c:1464
+  .....
+
+The issue is in function machine__is_lock_function() in file
+./util/machine.c lines 3355:
+
+   /* should not fail from here */
+   sym = machine__find_kernel_symbol_by_name(machine, "__sched_text_end", &kmap);
+   machine->sched.text_end = kmap->unmap_ip(kmap, sym->start)
+
+On s390 the symbol __sched_text_end is *NOT* in the symbol list and the
+resulting pointer sym is set to NULL. The sym->start is then a NULL pointer
+access and generates the core dump.
+
+The reason why __sched_text_end is not in the symbol list on s390 is
+simple:
+
+When the symbol list is created at perf start up with function calls
+
+  dso__load
+  +--> dso__load_vmlinux_path
+       +--> dso__load_vmlinux
+            +--> dso__load_sym
+	         +--> dso__load_sym_internal (reads kernel symbols)
+		 +--> symbols__fixup_end
+		 +--> symbols__fixup_duplicate
+
+The issue is in function symbols__fixup_duplicate(). It deletes all
+symbols with have the same address. On s390:
+
+  # nm -g  ~/linux/vmlinux| fgrep c68390
+  0000000000c68390 T __cpuidle_text_start
+  0000000000c68390 T __sched_text_end
+  #
+
+two symbols have identical addresses and __sched_text_end is considered
+duplicate (in ascending sort order) and removed from the symbol list.
+Therefore it is missing and an invalid pointer reference occurs.  The
+code checks for symbol __sched_text_start and when it exists assumes
+symbol __sched_text_end is also in the symbol table. However this is not
+the case on s390.
+
+Same situation exists for symbol __lock_text_start:
+
+0000000000c68770 T __cpuidle_text_end
+0000000000c68770 T __lock_text_start
+
+This symbol is also removed from the symbol table but used in function
+machine__is_lock_function().
+
+To fix this and keep duplicate symbols in the symbol table, set
+symbol_conf.allow_aliases to true. This prevents the removal of
+duplicate symbols in function symbols__fixup_duplicate().
+
+Output After:
+
+ # ./perf lock contention
+ contended total wait  max wait  avg wait    type   caller
+
+        48   124.39 ms 123.99 ms   2.59 ms rwsem:W unlink_anon_vmas+0x24a
+        47    83.68 ms  83.26 ms   1.78 ms rwsem:W free_pgtables+0x132
+         5    41.22 us  10.55 us   8.24 us rwsem:W free_pgtables+0x140
+         4    40.12 us  20.55 us  10.03 us rwsem:W copy_process+0x1ac8
+ #
+
+Fixes: 0d2997f750d1de39 ("perf lock: Look up callchain for the contended locks")
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221230102627.2410847-1-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c |    3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/builtin-lock.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3808,6 +3808,9 @@ static int ext4_rename(struct user_names
- 	retval = dquot_initialize(old.dir);
- 	if (retval)
- 		return retval;
-+	retval = dquot_initialize(old.inode);
-+	if (retval)
-+		return retval;
- 	retval = dquot_initialize(new.dir);
- 	if (retval)
- 		return retval;
+diff --git a/tools/perf/builtin-lock.c b/tools/perf/builtin-lock.c
+index 66520712a167..470106643ed5 100644
+--- a/tools/perf/builtin-lock.c
++++ b/tools/perf/builtin-lock.c
+@@ -1582,6 +1582,7 @@ static int __cmd_report(bool display_info)
+ 
+ 	/* for lock function check */
+ 	symbol_conf.sort_by_name = true;
++	symbol_conf.allow_aliases = true;
+ 	symbol__init(&session->header.env);
+ 
+ 	if (!perf_session__has_traces(session, "lock record"))
+@@ -1660,6 +1661,7 @@ static int __cmd_contention(int argc, const char **argv)
+ 
+ 	/* for lock function check */
+ 	symbol_conf.sort_by_name = true;
++	symbol_conf.allow_aliases = true;
+ 	symbol__init(&session->header.env);
+ 
+ 	if (use_bpf) {
+-- 
+2.35.1
+
 
 
