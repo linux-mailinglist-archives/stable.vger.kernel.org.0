@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF97664A66
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 612D0664944
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239332AbjAJScp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:32:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47372 "EHLO
+        id S239089AbjAJSUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:20:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239472AbjAJScR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCFC55B4B6
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:21 -0800 (PST)
+        with ESMTP id S239234AbjAJSTy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:19:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F11BEF24
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:17:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 781C5B818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB7EDC433EF;
-        Tue, 10 Jan 2023 18:27:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DD8561852
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:17:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2938C433F1;
+        Tue, 10 Jan 2023 18:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375239;
-        bh=p5iYSV1K9TuhF1oOiAR0lCupnzhPDdYLUTw/w1bgos4=;
+        s=korg; t=1673374647;
+        bh=TbJShuApEJ00R3MELDpxXoGrBbRwqF37F6xGQfTNIxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EugUrMITGnmZypTL/zevBcrICQP1L3R+mkNsOB6e9B7BIZKDdA00fCsP/irG8Izmk
-         iTcNl9Ss5Zg5eknI7mkMCd34WHoNzGNonAolkzDq7ohDvbEvpMIzb8F28b0RB+M5OE
-         7o0BDDusbFWKOkDViLwz+ycGo/u+Nq7ttfwChgBc=
+        b=hVKhqbfG7xO+iMJvlaTYPVrvLZlLfDm2lNU53jnTT4ElEhTkoCG3zYPunch4ImdLH
+         ROpRQCaGDVIu1OKCFT6TWyiF1+Rg63wJttP5PFZLL21Fe05CnALf0C3OykJqp73k0D
+         JFRVeTZgUT9RMMqMNFwZWfArQTUZTe4/I85A8sx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sascha Hauer <s.hauer@pengutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.15 124/290] PCI/sysfs: Fix double free in error path
+        patches@lists.linux.dev, Shay Agroskin <shayagr@amazon.com>,
+        David Arinzon <darinzon@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 068/159] net: ena: Dont register memory info on XDP exchange
 Date:   Tue, 10 Jan 2023 19:03:36 +0100
-Message-Id: <20230110180036.100073528@linuxfoundation.org>
+Message-Id: <20230110180020.462563955@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: David Arinzon <darinzon@amazon.com>
 
-commit aa382ffa705bea9931ec92b6f3c70e1fdb372195 upstream.
+[ Upstream commit 9c9e539956fa67efb8a65e32b72a853740b33445 ]
 
-When pci_create_attr() fails, pci_remove_resource_files() is called which
-will iterate over the res_attr[_wc] arrays and frees every non NULL entry.
-To avoid a double free here set the array entry only after it's clear we
-successfully initialized it.
+Since the queues aren't destroyed when we only exchange XDP programs,
+there's no need to re-register them again.
 
-Fixes: b562ec8f74e4 ("PCI: Don't leak memory if sysfs_create_bin_file() fails")
-Link: https://lore.kernel.org/r/20221007070735.GX986@pengutronix.de/
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 548c4940b9f1 ("net: ena: Implement XDP_TX action")
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Signed-off-by: David Arinzon <darinzon@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-sysfs.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -1179,11 +1179,9 @@ static int pci_create_attr(struct pci_de
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index 5a454b58498f..e313bb45319c 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -512,16 +512,18 @@ static void ena_xdp_exchange_program_rx_in_range(struct ena_adapter *adapter,
+ 						 struct bpf_prog *prog,
+ 						 int first, int count)
+ {
++	struct bpf_prog *old_bpf_prog;
+ 	struct ena_ring *rx_ring;
+ 	int i = 0;
  
- 	sysfs_bin_attr_init(res_attr);
- 	if (write_combine) {
--		pdev->res_attr_wc[num] = res_attr;
- 		sprintf(res_attr_name, "resource%d_wc", num);
- 		res_attr->mmap = pci_mmap_resource_wc;
- 	} else {
--		pdev->res_attr[num] = res_attr;
- 		sprintf(res_attr_name, "resource%d", num);
- 		if (pci_resource_flags(pdev, num) & IORESOURCE_IO) {
- 			res_attr->read = pci_read_resource_io;
-@@ -1201,10 +1199,17 @@ static int pci_create_attr(struct pci_de
- 	res_attr->size = pci_resource_len(pdev, num);
- 	res_attr->private = (void *)(unsigned long)num;
- 	retval = sysfs_create_bin_file(&pdev->dev.kobj, res_attr);
--	if (retval)
-+	if (retval) {
- 		kfree(res_attr);
-+		return retval;
-+	}
+ 	for (i = first; i < count; i++) {
+ 		rx_ring = &adapter->rx_ring[i];
+-		xchg(&rx_ring->xdp_bpf_prog, prog);
+-		if (prog) {
++		old_bpf_prog = xchg(&rx_ring->xdp_bpf_prog, prog);
 +
-+	if (write_combine)
-+		pdev->res_attr_wc[num] = res_attr;
-+	else
-+		pdev->res_attr[num] = res_attr;
- 
--	return retval;
-+	return 0;
- }
- 
- /**
++		if (!old_bpf_prog && prog) {
+ 			ena_xdp_register_rxq_info(rx_ring);
+ 			rx_ring->rx_headroom = XDP_PACKET_HEADROOM;
+-		} else {
++		} else if (old_bpf_prog && !prog) {
+ 			ena_xdp_unregister_rxq_info(rx_ring);
+ 			rx_ring->rx_headroom = NET_SKB_PAD;
+ 		}
+-- 
+2.35.1
+
 
 
