@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EC9E664867
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF738664A44
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238762AbjAJSL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48956 "EHLO
+        id S238707AbjAJSbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:31:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239058AbjAJSKT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61BB22630
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:48 -0800 (PST)
+        with ESMTP id S239466AbjAJSav (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EE0113CC8
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19197B81903
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F132C433EF;
-        Tue, 10 Jan 2023 18:08:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 35E13CE18D1
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A198C43392;
+        Tue, 10 Jan 2023 18:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374125;
-        bh=jlOmdAKue0/3cXv6Og/LCjEuJemHzG6rE8+SpD5P36E=;
+        s=korg; t=1673375158;
+        bh=YBDoitX4F0A6gQFe56jbY7V95X6BzrcqhBBjUQLDT/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMHRu+LD32RyhqnZD4pnpOag8JHPDGk38j4zkFRo0hjH111WJJmxMEBcFeh2/9uW2
-         d318p503ndRgViAl4+CBZN0OsXhREQB7XxpXIso9QBJejEFb3skLJzgZG7NvMfKDR5
-         8JRdTwksNfLb/02xZmnDcOm3DZcwOnh3S4BDUvJI=
+        b=Hkmp+KItiKF/TTlesXM0tJFoYHNKswa9Y9gzrnNS3dr1tIbFaL1ViWc3p4BPXxRIG
+         54T0CdSAS3o3SCCft+gCTsX+nIyuxydOgLcXLClNiMSmXb/tRIoDFcVvvi4K4jJh49
+         uK8qcjU5KWcOn4QBMdCTCM9+yG3iFiYrhRpZKqpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 054/148] net/mlx5: Fix RoCE setting at HCA level
+        patches@lists.linux.dev,
+        Alexander Antonov <alexander.antonov@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>
+Subject: [PATCH 5.15 066/290] perf/x86/intel/uncore: Clear attr_update properly
 Date:   Tue, 10 Jan 2023 19:02:38 +0100
-Message-Id: <20230110180018.938347997@linuxfoundation.org>
+Message-Id: <20230110180033.907907583@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,55 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Alexander Antonov <alexander.antonov@linux.intel.com>
 
-[ Upstream commit c4ad5f2bdad56265b23d3635494ecdb205431807 ]
+commit 6532783310e2b2f50dc13f46c49aa6546cb6e7a3 upstream.
 
-mlx5 PF can disable RoCE for its VFs and SFs. In such case RoCE is
-marked as unsupported on those VFs/SFs.
-The cited patch added an option for disable (and enable) RoCE at HCA
-level. However, that commit didn't check whether RoCE is supported on
-the HCA and enabled user to try and set RoCE to on.
-Fix it by checking whether the HCA supports RoCE.
+Current clear_attr_update procedure in pmu_set_mapping() sets attr_update
+field in NULL that is not correct because intel_uncore_type pmu types can
+contain several groups in attr_update field. For example, SPR platform
+already has uncore_alias_group to update and then UPI topology group will
+be added in next patches.
 
-Fixes: fbfa97b4d79f ("net/mlx5: Disable roce at HCA level")
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix current behavior and clear attr_update group related to mapping only.
+
+Fixes: bb42b3d39781 ("perf/x86/intel/uncore: Expose an Uncore unit to IIO PMON mapping")
+Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221117122833.3103580-4-alexander.antonov@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/devlink.c | 2 +-
- drivers/net/ethernet/mellanox/mlx5/core/main.c    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/uncore_snbep.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-index 9e4e8d551884..97e9ec44a759 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-@@ -468,7 +468,7 @@ static int mlx5_devlink_enable_roce_validate(struct devlink *devlink, u32 id,
- 	bool new_state = val.vbool;
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -3804,6 +3804,21 @@ static const struct attribute_group *skx
+ 	NULL,
+ };
  
- 	if (new_state && !MLX5_CAP_GEN(dev, roce) &&
--	    !MLX5_CAP_GEN(dev, roce_rw_supported)) {
-+	    !(MLX5_CAP_GEN(dev, roce_rw_supported) && MLX5_CAP_GEN_MAX(dev, roce))) {
- 		NL_SET_ERR_MSG_MOD(extack, "Device doesn't support RoCE");
- 		return -EOPNOTSUPP;
- 	}
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index dcc1e1b404e3..0a2f23a7082a 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -614,7 +614,7 @@ static int handle_hca_cap(struct mlx5_core_dev *dev, void *set_ctx)
- 		MLX5_SET(cmd_hca_cap, set_hca_cap, num_total_dynamic_vf_msix,
- 			 MLX5_CAP_GEN_MAX(dev, num_total_dynamic_vf_msix));
++static void pmu_clear_mapping_attr(const struct attribute_group **groups,
++				   struct attribute_group *ag)
++{
++	int i;
++
++	for (i = 0; groups[i]; i++) {
++		if (groups[i] == ag) {
++			for (i++; groups[i]; i++)
++				groups[i - 1] = groups[i];
++			groups[i - 1] = NULL;
++			break;
++		}
++	}
++}
++
+ static int
+ pmu_iio_set_mapping(struct intel_uncore_type *type, struct attribute_group *ag)
+ {
+@@ -3852,7 +3867,7 @@ clear_attrs:
+ clear_topology:
+ 	kfree(type->topology);
+ clear_attr_update:
+-	type->attr_update = NULL;
++	pmu_clear_mapping_attr(type->attr_update, ag);
+ 	return ret;
+ }
  
--	if (MLX5_CAP_GEN(dev, roce_rw_supported))
-+	if (MLX5_CAP_GEN(dev, roce_rw_supported) && MLX5_CAP_GEN_MAX(dev, roce))
- 		MLX5_SET(cmd_hca_cap, set_hca_cap, roce,
- 			 mlx5_is_roce_on(dev));
- 
--- 
-2.35.1
-
 
 
