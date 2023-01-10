@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEC21664B0D
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4A24664B1C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:39:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239484AbjAJSiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52370 "EHLO
+        id S239555AbjAJSiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:38:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239586AbjAJSiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:11 -0500
+        with ESMTP id S239477AbjAJSiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:38:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD74A2A8B
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 600CC10B3
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C38361864
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B769C433D2;
-        Tue, 10 Jan 2023 18:33:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F06C061846
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF6B1C433EF;
+        Tue, 10 Jan 2023 18:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375607;
-        bh=4C375NQ5RTVK1zod1GEXG210M/I4TQoHtkvSsIENhp8=;
+        s=korg; t=1673375610;
+        bh=pVdiIitNul5NXHt+7J2ZK1/ODbbM2U/unFVJGDXMS5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwEvleXmHOxdAwWw2Nx/IrpgKrIRFwL6m9eIHt+PJc3D6sej24wRUbG8UXBs2l8tQ
-         jFfjYbSitnV/pxSwoJ2nkWtKmm+p6f2lp5KFS8fi0HtMq9C/lN2mJPe4K0Gp0m4jWo
-         Li2xYcaIeaGx+SSyuaCyJzooS40nByaKYl+gzid0=
+        b=eIJKANqGWEMF/O8kUBmSlO1oNpJ0qjX3hTvWEBdeebJv5wnHJCsIy9fLBcz647yuM
+         SViHoGxpRsUpMARX+95DUQ4pCzOt2PTz+rnif5nf3FeZuT0aBNmaE6PeRdrn70S7fb
+         /4wYGzsg/hU3MEVW2VWs1JswmMbtmMko+WAUXqUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kyle Zeng <zengyhkyle@gmail.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
+        patches@lists.linux.dev,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 245/290] net: sched: cbq: dont intepret cls results when asked to drop
-Date:   Tue, 10 Jan 2023 19:05:37 +0100
-Message-Id: <20230110180040.475256634@linuxfoundation.org>
+Subject: [PATCH 5.15 246/290] net: sparx5: Fix reading of the MAC address
+Date:   Tue, 10 Jan 2023 19:05:38 +0100
+Message-Id: <20230110180040.505635718@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -54,145 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamal Hadi Salim <jhs@mojatatu.com>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-[ Upstream commit caa4b35b4317d5147b3ab0fbdc9c075c7d2e9c12 ]
+[ Upstream commit 588ab2dc25f60efeb516b4abedb6c551949cc185 ]
 
-If asked to drop a packet via TC_ACT_SHOT it is unsafe to assume that
-res.class contains a valid pointer
+There is an issue with the checking of the return value of
+'of_get_mac_address', which returns 0 on success and negative value on
+failure. The driver interpretated the result the opposite way. Therefore
+if there was a MAC address defined in the DT, then the driver was
+generating a random MAC address otherwise it would use address 0.
+Fix this by checking correctly the return value of 'of_get_mac_address'
 
-Sample splat reported by Kyle Zeng
-
-[    5.405624] 0: reclassify loop, rule prio 0, protocol 800
-[    5.406326] ==================================================================
-[    5.407240] BUG: KASAN: slab-out-of-bounds in cbq_enqueue+0x54b/0xea0
-[    5.407987] Read of size 1 at addr ffff88800e3122aa by task poc/299
-[    5.408731]
-[    5.408897] CPU: 0 PID: 299 Comm: poc Not tainted 5.10.155+ #15
-[    5.409516] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS 1.15.0-1 04/01/2014
-[    5.410439] Call Trace:
-[    5.410764]  dump_stack+0x87/0xcd
-[    5.411153]  print_address_description+0x7a/0x6b0
-[    5.411687]  ? vprintk_func+0xb9/0xc0
-[    5.411905]  ? printk+0x76/0x96
-[    5.412110]  ? cbq_enqueue+0x54b/0xea0
-[    5.412323]  kasan_report+0x17d/0x220
-[    5.412591]  ? cbq_enqueue+0x54b/0xea0
-[    5.412803]  __asan_report_load1_noabort+0x10/0x20
-[    5.413119]  cbq_enqueue+0x54b/0xea0
-[    5.413400]  ? __kasan_check_write+0x10/0x20
-[    5.413679]  __dev_queue_xmit+0x9c0/0x1db0
-[    5.413922]  dev_queue_xmit+0xc/0x10
-[    5.414136]  ip_finish_output2+0x8bc/0xcd0
-[    5.414436]  __ip_finish_output+0x472/0x7a0
-[    5.414692]  ip_finish_output+0x5c/0x190
-[    5.414940]  ip_output+0x2d8/0x3c0
-[    5.415150]  ? ip_mc_finish_output+0x320/0x320
-[    5.415429]  __ip_queue_xmit+0x753/0x1760
-[    5.415664]  ip_queue_xmit+0x47/0x60
-[    5.415874]  __tcp_transmit_skb+0x1ef9/0x34c0
-[    5.416129]  tcp_connect+0x1f5e/0x4cb0
-[    5.416347]  tcp_v4_connect+0xc8d/0x18c0
-[    5.416577]  __inet_stream_connect+0x1ae/0xb40
-[    5.416836]  ? local_bh_enable+0x11/0x20
-[    5.417066]  ? lock_sock_nested+0x175/0x1d0
-[    5.417309]  inet_stream_connect+0x5d/0x90
-[    5.417548]  ? __inet_stream_connect+0xb40/0xb40
-[    5.417817]  __sys_connect+0x260/0x2b0
-[    5.418037]  __x64_sys_connect+0x76/0x80
-[    5.418267]  do_syscall_64+0x31/0x50
-[    5.418477]  entry_SYSCALL_64_after_hwframe+0x61/0xc6
-[    5.418770] RIP: 0033:0x473bb7
-[    5.418952] Code: 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00
-00 00 90 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2a 00 00
-00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 18 89 54 24 0c 48 89 34
-24 89
-[    5.420046] RSP: 002b:00007fffd20eb0f8 EFLAGS: 00000246 ORIG_RAX:
-000000000000002a
-[    5.420472] RAX: ffffffffffffffda RBX: 00007fffd20eb578 RCX: 0000000000473bb7
-[    5.420872] RDX: 0000000000000010 RSI: 00007fffd20eb110 RDI: 0000000000000007
-[    5.421271] RBP: 00007fffd20eb150 R08: 0000000000000001 R09: 0000000000000004
-[    5.421671] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
-[    5.422071] R13: 00007fffd20eb568 R14: 00000000004fc740 R15: 0000000000000002
-[    5.422471]
-[    5.422562] Allocated by task 299:
-[    5.422782]  __kasan_kmalloc+0x12d/0x160
-[    5.423007]  kasan_kmalloc+0x5/0x10
-[    5.423208]  kmem_cache_alloc_trace+0x201/0x2e0
-[    5.423492]  tcf_proto_create+0x65/0x290
-[    5.423721]  tc_new_tfilter+0x137e/0x1830
-[    5.423957]  rtnetlink_rcv_msg+0x730/0x9f0
-[    5.424197]  netlink_rcv_skb+0x166/0x300
-[    5.424428]  rtnetlink_rcv+0x11/0x20
-[    5.424639]  netlink_unicast+0x673/0x860
-[    5.424870]  netlink_sendmsg+0x6af/0x9f0
-[    5.425100]  __sys_sendto+0x58d/0x5a0
-[    5.425315]  __x64_sys_sendto+0xda/0xf0
-[    5.425539]  do_syscall_64+0x31/0x50
-[    5.425764]  entry_SYSCALL_64_after_hwframe+0x61/0xc6
-[    5.426065]
-[    5.426157] The buggy address belongs to the object at ffff88800e312200
-[    5.426157]  which belongs to the cache kmalloc-128 of size 128
-[    5.426955] The buggy address is located 42 bytes to the right of
-[    5.426955]  128-byte region [ffff88800e312200, ffff88800e312280)
-[    5.427688] The buggy address belongs to the page:
-[    5.427992] page:000000009875fabc refcount:1 mapcount:0
-mapping:0000000000000000 index:0x0 pfn:0xe312
-[    5.428562] flags: 0x100000000000200(slab)
-[    5.428812] raw: 0100000000000200 dead000000000100 dead000000000122
-ffff888007843680
-[    5.429325] raw: 0000000000000000 0000000000100010 00000001ffffffff
-ffff88800e312401
-[    5.429875] page dumped because: kasan: bad access detected
-[    5.430214] page->mem_cgroup:ffff88800e312401
-[    5.430471]
-[    5.430564] Memory state around the buggy address:
-[    5.430846]  ffff88800e312180: fc fc fc fc fc fc fc fc fc fc fc fc
-fc fc fc fc
-[    5.431267]  ffff88800e312200: 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 fc
-[    5.431705] >ffff88800e312280: fc fc fc fc fc fc fc fc fc fc fc fc
-fc fc fc fc
-[    5.432123]                                   ^
-[    5.432391]  ffff88800e312300: 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 fc
-[    5.432810]  ffff88800e312380: fc fc fc fc fc fc fc fc fc fc fc fc
-fc fc fc fc
-[    5.433229] ==================================================================
-[    5.433648] Disabling lock debugging due to kernel taint
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Kyle Zeng <zengyhkyle@gmail.com>
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Fixes: b74ef9f9cb91 ("net: sparx5: Do not use mac_addr uninitialized in mchp_sparx5_probe()")
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_cbq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/microchip/sparx5/sparx5_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_cbq.c b/net/sched/sch_cbq.c
-index fd7e10567371..46b3dd71777d 100644
---- a/net/sched/sch_cbq.c
-+++ b/net/sched/sch_cbq.c
-@@ -231,6 +231,8 @@ cbq_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
- 		result = tcf_classify(skb, NULL, fl, &res, true);
- 		if (!fl || result < 0)
- 			goto fallback;
-+		if (result == TC_ACT_SHOT)
-+			return NULL;
+diff --git a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
+index 0463f20da17b..174d89ee6374 100644
+--- a/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
++++ b/drivers/net/ethernet/microchip/sparx5/sparx5_main.c
+@@ -779,7 +779,7 @@ static int mchp_sparx5_probe(struct platform_device *pdev)
+ 	if (err)
+ 		goto cleanup_config;
  
- 		cl = (void *)res.class;
- 		if (!cl) {
-@@ -251,8 +253,6 @@ cbq_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
- 		case TC_ACT_TRAP:
- 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
- 			fallthrough;
--		case TC_ACT_SHOT:
--			return NULL;
- 		case TC_ACT_RECLASSIFY:
- 			return cbq_reclassify(skb, cl);
- 		}
+-	if (!of_get_mac_address(np, sparx5->base_mac)) {
++	if (of_get_mac_address(np, sparx5->base_mac)) {
+ 		dev_info(sparx5->dev, "MAC addr was not set, use random MAC\n");
+ 		eth_random_addr(sparx5->base_mac);
+ 		sparx5->base_mac[5] = 0;
 -- 
 2.35.1
 
