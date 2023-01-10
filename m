@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43EE96648CD
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB5F4664974
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238923AbjAJSPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:15:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54660 "EHLO
+        id S239229AbjAJSVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:21:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239069AbjAJSOq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4693918B25
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:50 -0800 (PST)
+        with ESMTP id S239224AbjAJSVU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:21:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F75796132
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD8A9B81903
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D78A3C433D2;
-        Tue, 10 Jan 2023 18:12:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1DBC61846
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B234AC433EF;
+        Tue, 10 Jan 2023 18:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374367;
-        bh=cYrIxgrRHUpJln9EP7po+IDAjvE9X2NcKotwwqQ7jCU=;
+        s=korg; t=1673374743;
+        bh=1kWbMsaTYrYA+ClJ3yAOD06gUm4odCYDxQnfopTjvdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1OUGonmpGh1bLBHfdv3A11FIe/r4KH/0UsGmBhJIEINXq2ktkTPmYshjWzh3az2T
-         2RegZPLzqU/HcllMegWDP5Tet1I42tnhR5irZh3jd8gzqsSKcE52pSq6h4UNweVEkm
-         okMgNuKBptFWeLXR2d0eJYfnLJsLsvev23M1prYE=
+        b=gnioLaFwtHT7Og55b0cn0tgavo6K05pmds0MfSAerIbQ2zQmR4NZPD2MJb/Ogm/0Z
+         RnKD6byf6hrLt+b+GASRE5DEy3oM914A10HPhf2XQCmyPpC1IOCHPOZ9UVNvDGCPQt
+         u+ry1ohzxWZcgPRgh8/esW3Bhe7NAHlfTU9J34kU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, William Liu <will@willsroot.io>,
-        =?UTF-8?q?Hrvoje=20Mi=C5=A1eti=C4=87?= <misetichrvoje@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.0 145/148] ksmbd: check nt_len to be at least CIFS_ENCPWD_SIZE in ksmbd_decode_ntlmssp_auth_blob
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 101/159] drm/i915/gvt: fix double free bug in split_2MB_gtt_entry
 Date:   Tue, 10 Jan 2023 19:04:09 +0100
-Message-Id: <20230110180021.780871196@linuxfoundation.org>
+Message-Id: <20230110180021.498907346@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Liu <will@willsroot.io>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-commit 797805d81baa814f76cf7bdab35f86408a79d707 upstream.
+[ Upstream commit 4a61648af68f5ba4884f0e3b494ee1cabc4b6620 ]
 
-"nt_len - CIFS_ENCPWD_SIZE" is passed directly from
-ksmbd_decode_ntlmssp_auth_blob to ksmbd_auth_ntlmv2. Malicious requests
-can set nt_len to less than CIFS_ENCPWD_SIZE, which results in a negative
-number (or large unsigned value) used for a subsequent memcpy in
-ksmbd_auth_ntlvm2 and can cause a panic.
+If intel_gvt_dma_map_guest_page failed, it will call
+ppgtt_invalidate_spt, which will finally free the spt.
+But the caller function ppgtt_populate_spt_by_guest_entry
+does not notice that, it will free spt again in its error
+path.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org
-Signed-off-by: William Liu <will@willsroot.io>
-Signed-off-by: Hrvoje Mišetić <misetichrvoje@gmail.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by canceling the mapping of DMA address and freeing sub_spt.
+Besides, leave the handle of spt destroy to caller function instead
+of callee function when error occurs.
+
+Fixes: b901b252b6cf ("drm/i915/gvt: Add 2M huge gtt support")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20221229165641.1192455-1-zyytlz.wz@163.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/auth.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gvt/gtt.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/fs/ksmbd/auth.c
-+++ b/fs/ksmbd/auth.c
-@@ -322,7 +322,8 @@ int ksmbd_decode_ntlmssp_auth_blob(struc
- 	dn_off = le32_to_cpu(authblob->DomainName.BufferOffset);
- 	dn_len = le16_to_cpu(authblob->DomainName.Length);
+diff --git a/drivers/gpu/drm/i915/gvt/gtt.c b/drivers/gpu/drm/i915/gvt/gtt.c
+index ce0eb03709c3..80c60754a5c1 100644
+--- a/drivers/gpu/drm/i915/gvt/gtt.c
++++ b/drivers/gpu/drm/i915/gvt/gtt.c
+@@ -1214,10 +1214,8 @@ static int split_2MB_gtt_entry(struct intel_vgpu *vgpu,
+ 	for_each_shadow_entry(sub_spt, &sub_se, sub_index) {
+ 		ret = intel_gvt_dma_map_guest_page(vgpu, start_gfn + sub_index,
+ 						   PAGE_SIZE, &dma_addr);
+-		if (ret) {
+-			ppgtt_invalidate_spt(spt);
+-			return ret;
+-		}
++		if (ret)
++			goto err;
+ 		sub_se.val64 = se->val64;
  
--	if (blob_len < (u64)dn_off + dn_len || blob_len < (u64)nt_off + nt_len)
-+	if (blob_len < (u64)dn_off + dn_len || blob_len < (u64)nt_off + nt_len ||
-+	    nt_len < CIFS_ENCPWD_SIZE)
- 		return -EINVAL;
+ 		/* Copy the PAT field from PDE. */
+@@ -1236,6 +1234,17 @@ static int split_2MB_gtt_entry(struct intel_vgpu *vgpu,
+ 	ops->set_pfn(se, sub_spt->shadow_page.mfn);
+ 	ppgtt_set_shadow_entry(spt, se, index);
+ 	return 0;
++err:
++	/* Cancel the existing addess mappings of DMA addr. */
++	for_each_present_shadow_entry(sub_spt, &sub_se, sub_index) {
++		gvt_vdbg_mm("invalidate 4K entry\n");
++		ppgtt_invalidate_pte(sub_spt, &sub_se);
++	}
++	/* Release the new allocated spt. */
++	trace_spt_change(sub_spt->vgpu->id, "release", sub_spt,
++		sub_spt->guest_page.gfn, sub_spt->shadow_page.type);
++	ppgtt_free_spt(sub_spt);
++	return ret;
+ }
  
- 	/* TODO : use domain name that imported from configuration file */
+ static int split_64KB_gtt_entry(struct intel_vgpu *vgpu,
+-- 
+2.35.1
+
 
 
