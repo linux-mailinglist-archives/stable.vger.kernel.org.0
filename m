@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D7BC6649BD
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A394B6649BE
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239329AbjAJSYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:24:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37730 "EHLO
+        id S233231AbjAJSYS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:24:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239385AbjAJSXS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:18 -0500
+        with ESMTP id S239407AbjAJSXX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:23:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C6414E416
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C88474915D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3B1C6182C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C41C433F1;
-        Tue, 10 Jan 2023 18:21:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B908461827
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD6D2C433D2;
+        Tue, 10 Jan 2023 18:21:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374880;
-        bh=wGyhgb7U9PY0ekhVRi71tmHvknvpHKkja434Vir8Xro=;
+        s=korg; t=1673374883;
+        bh=2DIEZeLD4WYX5tp2259lupBeM1yAbgN0tSMgpFItQTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wr9uk+DeEg3uxZ7J/87b7Wtg5c4bP6vc6BGHcId5DxOsAb4v3DP3flS9KQ/SrXWXM
-         L3r9wxXjGFX2CGdKYSEA/54Jsozeqx152uKq67Oh0HCqrs+4ejBLO7VKNBRhj6lEa4
-         uSMwuSEXHPhBKIGRIIOxTbQkWDnBKD/kc3+/zvDM=
+        b=FuJKEti79770zq6f5XI1sFEWOjhGhZEHbESa+phL/5Fy0H1MLhbij47YLL8TgAEQO
+         s3AmpGkiAKEEKYpIDsnePCVf44UnwkwS+16uw8MsWm2l4PvJAxxlF9eM3FSjOVYsNx
+         RhQeDx/HxjUjvVR+vanb/m9oidK+S0lwbsKjyQZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Luigi Semenzato <semenzato@chromium.org>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Johannes Altmanninger <aclopte@gmail.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 6.1 138/159] tpm: Allow system suspend to continue when TPM suspend fails
-Date:   Tue, 10 Jan 2023 19:04:46 +0100
-Message-Id: <20230110180022.808719530@linuxfoundation.org>
+        patches@lists.linux.dev, Cindy Lu <lulu@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 6.1 139/159] vhost_vdpa: fix the crash in unmap a large memory
+Date:   Tue, 10 Jan 2023 19:04:47 +0100
+Message-Id: <20230110180022.841331378@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
 References: <20230110180018.288460217@linuxfoundation.org>
@@ -58,70 +52,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Cindy Lu <lulu@redhat.com>
 
-commit 1382999aa0548a171a272ca817f6c38e797c458c upstream.
+commit e794070af224ade46db368271896b2685ff4f96b upstream.
 
-TPM 1 is sometimes broken across system suspends, due to races or
-locking issues or something else that haven't been diagnosed or fixed
-yet, most likely having to do with concurrent reads from the TPM's
-hardware random number generator driver. These issues prevent the system
-from actually suspending, with errors like:
+While testing in vIOMMU, sometimes Guest will unmap very large memory,
+which will cause the crash. To fix this, add a new function
+vhost_vdpa_general_unmap(). This function will only unmap the memory
+that saved in iotlb.
 
-  tpm tpm0: A TPM error (28) occurred continue selftest
-  ...
-  tpm tpm0: A TPM error (28) occurred attempting get random
-  ...
-  tpm tpm0: Error (28) sending savestate before suspend
-  tpm_tis 00:08: PM: __pnp_bus_suspend(): tpm_pm_suspend+0x0/0x80 returns 28
-  tpm_tis 00:08: PM: dpm_run_callback(): pnp_bus_suspend+0x0/0x10 returns 28
-  tpm_tis 00:08: PM: failed to suspend: error 28
-  PM: Some devices failed to suspend, or early wake event detected
+Call Trace:
+[  647.820144] ------------[ cut here ]------------
+[  647.820848] kernel BUG at drivers/iommu/intel/iommu.c:1174!
+[  647.821486] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[  647.822082] CPU: 10 PID: 1181 Comm: qemu-system-x86 Not tainted 6.0.0-rc1home_lulu_2452_lulu7_vhost+ #62
+[  647.823139] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.15.0-29-g6a62e0cb0dfe-prebuilt.qem4
+[  647.824365] RIP: 0010:domain_unmap+0x48/0x110
+[  647.825424] Code: 48 89 fb 8d 4c f6 1e 39 c1 0f 4f c8 83 e9 0c 83 f9 3f 7f 18 48 89 e8 48 d3 e8 48 85 c0 75 59
+[  647.828064] RSP: 0018:ffffae5340c0bbf0 EFLAGS: 00010202
+[  647.828973] RAX: 0000000000000001 RBX: ffff921793d10540 RCX: 000000000000001b
+[  647.830083] RDX: 00000000080000ff RSI: 0000000000000001 RDI: ffff921793d10540
+[  647.831214] RBP: 0000000007fc0100 R08: ffffae5340c0bcd0 R09: 0000000000000003
+[  647.832388] R10: 0000007fc0100000 R11: 0000000000100000 R12: 00000000080000ff
+[  647.833668] R13: ffffae5340c0bcd0 R14: ffff921793d10590 R15: 0000008000100000
+[  647.834782] FS:  00007f772ec90640(0000) GS:ffff921ce7a80000(0000) knlGS:0000000000000000
+[  647.836004] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  647.836990] CR2: 00007f02c27a3a20 CR3: 0000000101b0c006 CR4: 0000000000372ee0
+[  647.838107] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  647.839283] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  647.840666] Call Trace:
+[  647.841437]  <TASK>
+[  647.842107]  intel_iommu_unmap_pages+0x93/0x140
+[  647.843112]  __iommu_unmap+0x91/0x1b0
+[  647.844003]  iommu_unmap+0x6a/0x95
+[  647.844885]  vhost_vdpa_unmap+0x1de/0x1f0 [vhost_vdpa]
+[  647.845985]  vhost_vdpa_process_iotlb_msg+0xf0/0x90b [vhost_vdpa]
+[  647.847235]  ? _raw_spin_unlock+0x15/0x30
+[  647.848181]  ? _copy_from_iter+0x8c/0x580
+[  647.849137]  vhost_chr_write_iter+0xb3/0x430 [vhost]
+[  647.850126]  vfs_write+0x1e4/0x3a0
+[  647.850897]  ksys_write+0x53/0xd0
+[  647.851688]  do_syscall_64+0x3a/0x90
+[  647.852508]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[  647.853457] RIP: 0033:0x7f7734ef9f4f
+[  647.854408] Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 29 76 f8 ff 48 8b 54 24 18 48 8b 74 24 10 41 89 c8
+[  647.857217] RSP: 002b:00007f772ec8f040 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
+[  647.858486] RAX: ffffffffffffffda RBX: 00000000fef00000 RCX: 00007f7734ef9f4f
+[  647.859713] RDX: 0000000000000048 RSI: 00007f772ec8f090 RDI: 0000000000000010
+[  647.860942] RBP: 00007f772ec8f1a0 R08: 0000000000000000 R09: 0000000000000000
+[  647.862206] R10: 0000000000000001 R11: 0000000000000293 R12: 0000000000000010
+[  647.863446] R13: 0000000000000002 R14: 0000000000000000 R15: ffffffff01100000
+[  647.864692]  </TASK>
+[  647.865458] Modules linked in: rpcsec_gss_krb5 auth_rpcgss nfsv4 dns_resolver nfs lockd grace fscache netfs v]
+[  647.874688] ---[ end trace 0000000000000000 ]---
 
-This issue was partially fixed by 23393c646142 ("char: tpm: Protect
-tpm_pm_suspend with locks"), in a last minute 6.1 commit that Linus took
-directly because the TPM maintainers weren't available. However, it
-seems like this just addresses the most common cases of the bug, rather
-than addressing it entirely. So there are more things to fix still,
-apparently.
-
-In lieu of actually fixing the underlying bug, just allow system suspend
-to continue, so that laptops still go to sleep fine. Later, this can be
-reverted when the real bug is fixed.
-
-Link: https://lore.kernel.org/lkml/7cbe96cf-e0b5-ba63-d1b4-f63d2e826efa@suse.cz/
-Cc: stable@vger.kernel.org # 6.1+
-Reported-by: Vlastimil Babka <vbabka@suse.cz>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Acked-by: Luigi Semenzato <semenzato@chromium.org>
-Cc: Peter Huewe <peterhuewe@gmx.de>
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Johannes Altmanninger <aclopte@gmail.com>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+Signed-off-by: Cindy Lu <lulu@redhat.com>
+Message-Id: <20221219073331.556140-1-lulu@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm-interface.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/vhost/vdpa.c |   46 ++++++++++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
-index d69905233aff..7e513b771832 100644
---- a/drivers/char/tpm/tpm-interface.c
-+++ b/drivers/char/tpm/tpm-interface.c
-@@ -412,7 +412,9 @@ int tpm_pm_suspend(struct device *dev)
- 	}
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -66,8 +66,8 @@ static DEFINE_IDA(vhost_vdpa_ida);
+ static dev_t vhost_vdpa_major;
  
- suspended:
--	return rc;
-+	if (rc)
-+		dev_err(dev, "Ignoring error %d while suspending\n", rc);
-+	return 0;
+ static void vhost_vdpa_iotlb_unmap(struct vhost_vdpa *v,
+-				   struct vhost_iotlb *iotlb,
+-				   u64 start, u64 last);
++				   struct vhost_iotlb *iotlb, u64 start,
++				   u64 last, u32 asid);
+ 
+ static inline u32 iotlb_to_asid(struct vhost_iotlb *iotlb)
+ {
+@@ -139,7 +139,7 @@ static int vhost_vdpa_remove_as(struct v
+ 		return -EINVAL;
+ 
+ 	hlist_del(&as->hash_link);
+-	vhost_vdpa_iotlb_unmap(v, &as->iotlb, 0ULL, 0ULL - 1);
++	vhost_vdpa_iotlb_unmap(v, &as->iotlb, 0ULL, 0ULL - 1, asid);
+ 	kfree(as);
+ 
+ 	return 0;
+@@ -687,10 +687,20 @@ static long vhost_vdpa_unlocked_ioctl(st
+ 	mutex_unlock(&d->mutex);
+ 	return r;
  }
- EXPORT_SYMBOL_GPL(tpm_pm_suspend);
++static void vhost_vdpa_general_unmap(struct vhost_vdpa *v,
++				     struct vhost_iotlb_map *map, u32 asid)
++{
++	struct vdpa_device *vdpa = v->vdpa;
++	const struct vdpa_config_ops *ops = vdpa->config;
++	if (ops->dma_map) {
++		ops->dma_unmap(vdpa, asid, map->start, map->size);
++	} else if (ops->set_map == NULL) {
++		iommu_unmap(v->domain, map->start, map->size);
++	}
++}
  
--- 
-2.39.0
-
+-static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v,
+-				struct vhost_iotlb *iotlb,
+-				u64 start, u64 last)
++static void vhost_vdpa_pa_unmap(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
++				u64 start, u64 last, u32 asid)
+ {
+ 	struct vhost_dev *dev = &v->vdev;
+ 	struct vhost_iotlb_map *map;
+@@ -707,13 +717,13 @@ static void vhost_vdpa_pa_unmap(struct v
+ 			unpin_user_page(page);
+ 		}
+ 		atomic64_sub(PFN_DOWN(map->size), &dev->mm->pinned_vm);
++		vhost_vdpa_general_unmap(v, map, asid);
+ 		vhost_iotlb_map_free(iotlb, map);
+ 	}
+ }
+ 
+-static void vhost_vdpa_va_unmap(struct vhost_vdpa *v,
+-				struct vhost_iotlb *iotlb,
+-				u64 start, u64 last)
++static void vhost_vdpa_va_unmap(struct vhost_vdpa *v, struct vhost_iotlb *iotlb,
++				u64 start, u64 last, u32 asid)
+ {
+ 	struct vhost_iotlb_map *map;
+ 	struct vdpa_map_file *map_file;
+@@ -722,20 +732,21 @@ static void vhost_vdpa_va_unmap(struct v
+ 		map_file = (struct vdpa_map_file *)map->opaque;
+ 		fput(map_file->file);
+ 		kfree(map_file);
++		vhost_vdpa_general_unmap(v, map, asid);
+ 		vhost_iotlb_map_free(iotlb, map);
+ 	}
+ }
+ 
+ static void vhost_vdpa_iotlb_unmap(struct vhost_vdpa *v,
+-				   struct vhost_iotlb *iotlb,
+-				   u64 start, u64 last)
++				   struct vhost_iotlb *iotlb, u64 start,
++				   u64 last, u32 asid)
+ {
+ 	struct vdpa_device *vdpa = v->vdpa;
+ 
+ 	if (vdpa->use_va)
+-		return vhost_vdpa_va_unmap(v, iotlb, start, last);
++		return vhost_vdpa_va_unmap(v, iotlb, start, last, asid);
+ 
+-	return vhost_vdpa_pa_unmap(v, iotlb, start, last);
++	return vhost_vdpa_pa_unmap(v, iotlb, start, last, asid);
+ }
+ 
+ static int perm_to_iommu_flags(u32 perm)
+@@ -802,17 +813,12 @@ static void vhost_vdpa_unmap(struct vhos
+ 	const struct vdpa_config_ops *ops = vdpa->config;
+ 	u32 asid = iotlb_to_asid(iotlb);
+ 
+-	vhost_vdpa_iotlb_unmap(v, iotlb, iova, iova + size - 1);
++	vhost_vdpa_iotlb_unmap(v, iotlb, iova, iova + size - 1, asid);
+ 
+-	if (ops->dma_map) {
+-		ops->dma_unmap(vdpa, asid, iova, size);
+-	} else if (ops->set_map) {
++	if (ops->set_map) {
+ 		if (!v->in_batch)
+ 			ops->set_map(vdpa, asid, iotlb);
+-	} else {
+-		iommu_unmap(v->domain, iova, size);
+ 	}
+-
+ 	/* If we are in the middle of batch processing, delay the free
+ 	 * of AS until BATCH_END.
+ 	 */
 
 
