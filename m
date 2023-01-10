@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3662E664A2C
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:31:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 273E0664908
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239306AbjAJSa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:30:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42394 "EHLO
+        id S239090AbjAJSRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:17:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239377AbjAJSa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D9AE52C6B
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:04 -0800 (PST)
+        with ESMTP id S239082AbjAJSQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F5E67193
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:15:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2404617C9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9D99C433EF;
-        Tue, 10 Jan 2023 18:25:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADF1AB81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0613CC433D2;
+        Tue, 10 Jan 2023 18:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375103;
-        bh=H1YgyaGAo+4E/x6dHWOtYbmCXhZmhrAlq31OIZN4sd0=;
+        s=korg; t=1673374498;
+        bh=oAEqRG+laijM8HelGJCJ5FW9c/X3/w7fZRFkFZdBw6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEkoqRlnJLZk0/s6DY71iaNJsfRYVFK3d+BBduvvuG5NBz6R8ljLr0nB6LAfTnwVd
-         5iu7j71K/YXndm1lAW06N6lG70cFLyedJryQRiq3rsOfd8URuTIvb3KdKkmldOXqes
-         br54qZp6NbOUtElPUrWzpvo+OvAE1m84zG2yr3h8=
+        b=kSHVp69UbX6QGMEtaqx54ipbfN32/Shk08F3074atbXodnHf4sDlfBsNW2sWT+QYX
+         r9hR3IkVm1pLisJbEgTROozpC1Wo95QZ7Zxusxuqo5ROLB/68jYRDdfKgTdxQzgrEc
+         yJWEV5Hq2hZTnvlFOzllY1qa+HKNnSCsP+qBzBc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 079/290] mptcp: mark ops structures as ro_after_init
-Date:   Tue, 10 Jan 2023 19:02:51 +0100
-Message-Id: <20230110180034.345013016@linuxfoundation.org>
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 024/159] netfilter: nf_tables: honor set timeout and garbage collection updates
+Date:   Tue, 10 Jan 2023 19:02:52 +0100
+Message-Id: <20230110180019.080840506@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +53,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 51fa7f8ebf0e25c7a9039fa3988a623d5f3855aa upstream.
+[ Upstream commit 123b99619cca94bdca0bf7bde9abe28f0a0dfe06 ]
 
-These structures are initialised from the init hooks, so we can't make
-them 'const'.  But no writes occur afterwards, so we can use ro_after_init.
+Set timeout and garbage collection interval updates are ignored on
+updates. Add transaction to update global set element timeout and
+garbage collection interval.
 
-Also, remove bogus EXPORT_SYMBOL, the only access comes from ip
-stack, not from kernel modules.
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Suggested-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/subflow.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ include/net/netfilter/nf_tables.h | 13 ++++++-
+ net/netfilter/nf_tables_api.c     | 63 ++++++++++++++++++++++---------
+ 2 files changed, 57 insertions(+), 19 deletions(-)
 
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -484,8 +484,7 @@ do_reset:
- }
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index ddcdde230747..1daededfa75e 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -592,7 +592,9 @@ void *nft_set_catchall_gc(const struct nft_set *set);
  
- struct request_sock_ops mptcp_subflow_request_sock_ops;
--EXPORT_SYMBOL_GPL(mptcp_subflow_request_sock_ops);
--static struct tcp_request_sock_ops subflow_request_sock_ipv4_ops;
-+static struct tcp_request_sock_ops subflow_request_sock_ipv4_ops __ro_after_init;
- 
- static int subflow_v4_conn_request(struct sock *sk, struct sk_buff *skb)
+ static inline unsigned long nft_set_gc_interval(const struct nft_set *set)
  {
-@@ -506,9 +505,9 @@ drop:
+-	return set->gc_int ? msecs_to_jiffies(set->gc_int) : HZ;
++	u32 gc_int = READ_ONCE(set->gc_int);
++
++	return gc_int ? msecs_to_jiffies(gc_int) : HZ;
  }
  
- #if IS_ENABLED(CONFIG_MPTCP_IPV6)
--static struct tcp_request_sock_ops subflow_request_sock_ipv6_ops;
--static struct inet_connection_sock_af_ops subflow_v6_specific;
--static struct inet_connection_sock_af_ops subflow_v6m_specific;
-+static struct tcp_request_sock_ops subflow_request_sock_ipv6_ops __ro_after_init;
-+static struct inet_connection_sock_af_ops subflow_v6_specific __ro_after_init;
-+static struct inet_connection_sock_af_ops subflow_v6m_specific __ro_after_init;
- static struct proto tcpv6_prot_override;
+ /**
+@@ -1563,6 +1565,9 @@ struct nft_trans_rule {
+ struct nft_trans_set {
+ 	struct nft_set			*set;
+ 	u32				set_id;
++	u32				gc_int;
++	u64				timeout;
++	bool				update;
+ 	bool				bound;
+ };
  
- static int subflow_v6_conn_request(struct sock *sk, struct sk_buff *skb)
-@@ -790,7 +789,7 @@ dispose_child:
- 	return child;
+@@ -1572,6 +1577,12 @@ struct nft_trans_set {
+ 	(((struct nft_trans_set *)trans->data)->set_id)
+ #define nft_trans_set_bound(trans)	\
+ 	(((struct nft_trans_set *)trans->data)->bound)
++#define nft_trans_set_update(trans)	\
++	(((struct nft_trans_set *)trans->data)->update)
++#define nft_trans_set_timeout(trans)	\
++	(((struct nft_trans_set *)trans->data)->timeout)
++#define nft_trans_set_gc_int(trans)	\
++	(((struct nft_trans_set *)trans->data)->gc_int)
+ 
+ struct nft_trans_chain {
+ 	bool				update;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 6e68cab474c2..3ba8c291fcaa 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -465,8 +465,9 @@ static int nft_delrule_by_chain(struct nft_ctx *ctx)
+ 	return 0;
  }
  
--static struct inet_connection_sock_af_ops subflow_specific;
-+static struct inet_connection_sock_af_ops subflow_specific __ro_after_init;
- static struct proto tcp_prot_override;
- 
- enum mapping_status {
-@@ -1327,7 +1326,7 @@ static void subflow_write_space(struct s
- 	mptcp_write_space(sk);
- }
- 
--static struct inet_connection_sock_af_ops *
-+static const struct inet_connection_sock_af_ops *
- subflow_default_af_ops(struct sock *sk)
+-static int nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
+-			     struct nft_set *set)
++static int __nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
++			       struct nft_set *set,
++			       const struct nft_set_desc *desc)
  {
- #if IS_ENABLED(CONFIG_MPTCP_IPV6)
-@@ -1342,7 +1341,7 @@ void mptcpv6_handle_mapped(struct sock *
+ 	struct nft_trans *trans;
+ 
+@@ -474,17 +475,28 @@ static int nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
+ 	if (trans == NULL)
+ 		return -ENOMEM;
+ 
+-	if (msg_type == NFT_MSG_NEWSET && ctx->nla[NFTA_SET_ID] != NULL) {
++	if (msg_type == NFT_MSG_NEWSET && ctx->nla[NFTA_SET_ID] && !desc) {
+ 		nft_trans_set_id(trans) =
+ 			ntohl(nla_get_be32(ctx->nla[NFTA_SET_ID]));
+ 		nft_activate_next(ctx->net, set);
+ 	}
+ 	nft_trans_set(trans) = set;
++	if (desc) {
++		nft_trans_set_update(trans) = true;
++		nft_trans_set_gc_int(trans) = desc->gc_int;
++		nft_trans_set_timeout(trans) = desc->timeout;
++	}
+ 	nft_trans_commit_list_add_tail(ctx->net, trans);
+ 
+ 	return 0;
+ }
+ 
++static int nft_trans_set_add(const struct nft_ctx *ctx, int msg_type,
++			     struct nft_set *set)
++{
++	return __nft_trans_set_add(ctx, msg_type, set, NULL);
++}
++
+ static int nft_delset(const struct nft_ctx *ctx, struct nft_set *set)
  {
- 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
- 	struct inet_connection_sock *icsk = inet_csk(sk);
--	struct inet_connection_sock_af_ops *target;
-+	const struct inet_connection_sock_af_ops *target;
+ 	int err;
+@@ -3996,8 +4008,10 @@ static int nf_tables_fill_set_concat(struct sk_buff *skb,
+ static int nf_tables_fill_set(struct sk_buff *skb, const struct nft_ctx *ctx,
+ 			      const struct nft_set *set, u16 event, u16 flags)
+ {
+-	struct nlmsghdr *nlh;
++	u64 timeout = READ_ONCE(set->timeout);
++	u32 gc_int = READ_ONCE(set->gc_int);
+ 	u32 portid = ctx->portid;
++	struct nlmsghdr *nlh;
+ 	struct nlattr *nest;
+ 	u32 seq = ctx->seq;
+ 	int i;
+@@ -4033,13 +4047,13 @@ static int nf_tables_fill_set(struct sk_buff *skb, const struct nft_ctx *ctx,
+ 	    nla_put_be32(skb, NFTA_SET_OBJ_TYPE, htonl(set->objtype)))
+ 		goto nla_put_failure;
  
- 	target = mapped ? &subflow_v6m_specific : subflow_default_af_ops(sk);
+-	if (set->timeout &&
++	if (timeout &&
+ 	    nla_put_be64(skb, NFTA_SET_TIMEOUT,
+-			 nf_jiffies64_to_msecs(set->timeout),
++			 nf_jiffies64_to_msecs(timeout),
+ 			 NFTA_SET_PAD))
+ 		goto nla_put_failure;
+-	if (set->gc_int &&
+-	    nla_put_be32(skb, NFTA_SET_GC_INTERVAL, htonl(set->gc_int)))
++	if (gc_int &&
++	    nla_put_be32(skb, NFTA_SET_GC_INTERVAL, htonl(gc_int)))
+ 		goto nla_put_failure;
  
+ 	if (set->policy != NFT_SET_POL_PERFORMANCE) {
+@@ -4584,7 +4598,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 		for (i = 0; i < num_exprs; i++)
+ 			nft_expr_destroy(&ctx, exprs[i]);
+ 
+-		return err;
++		if (err < 0)
++			return err;
++
++		return __nft_trans_set_add(&ctx, NFT_MSG_NEWSET, set, &desc);
+ 	}
+ 
+ 	if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
+@@ -6022,7 +6039,7 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 			return err;
+ 	} else if (set->flags & NFT_SET_TIMEOUT &&
+ 		   !(flags & NFT_SET_ELEM_INTERVAL_END)) {
+-		timeout = set->timeout;
++		timeout = READ_ONCE(set->timeout);
+ 	}
+ 
+ 	expiration = 0;
+@@ -6123,7 +6140,7 @@ static int nft_add_set_elem(struct nft_ctx *ctx, struct nft_set *set,
+ 		if (err < 0)
+ 			goto err_parse_key_end;
+ 
+-		if (timeout != set->timeout) {
++		if (timeout != READ_ONCE(set->timeout)) {
+ 			err = nft_set_ext_add(&tmpl, NFT_SET_EXT_TIMEOUT);
+ 			if (err < 0)
+ 				goto err_parse_key_end;
+@@ -9039,14 +9056,20 @@ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+ 				nft_flow_rule_destroy(nft_trans_flow_rule(trans));
+ 			break;
+ 		case NFT_MSG_NEWSET:
+-			nft_clear(net, nft_trans_set(trans));
+-			/* This avoids hitting -EBUSY when deleting the table
+-			 * from the transaction.
+-			 */
+-			if (nft_set_is_anonymous(nft_trans_set(trans)) &&
+-			    !list_empty(&nft_trans_set(trans)->bindings))
+-				trans->ctx.table->use--;
++			if (nft_trans_set_update(trans)) {
++				struct nft_set *set = nft_trans_set(trans);
+ 
++				WRITE_ONCE(set->timeout, nft_trans_set_timeout(trans));
++				WRITE_ONCE(set->gc_int, nft_trans_set_gc_int(trans));
++			} else {
++				nft_clear(net, nft_trans_set(trans));
++				/* This avoids hitting -EBUSY when deleting the table
++				 * from the transaction.
++				 */
++				if (nft_set_is_anonymous(nft_trans_set(trans)) &&
++				    !list_empty(&nft_trans_set(trans)->bindings))
++					trans->ctx.table->use--;
++			}
+ 			nf_tables_set_notify(&trans->ctx, nft_trans_set(trans),
+ 					     NFT_MSG_NEWSET, GFP_KERNEL);
+ 			nft_trans_destroy(trans);
+@@ -9268,6 +9291,10 @@ static int __nf_tables_abort(struct net *net, enum nfnl_abort_action action)
+ 			nft_trans_destroy(trans);
+ 			break;
+ 		case NFT_MSG_NEWSET:
++			if (nft_trans_set_update(trans)) {
++				nft_trans_destroy(trans);
++				break;
++			}
+ 			trans->ctx.table->use--;
+ 			if (nft_trans_set_bound(trans)) {
+ 				nft_trans_destroy(trans);
+-- 
+2.35.1
+
 
 
