@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C10C664B56
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C33EF664B55
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:42:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239119AbjAJSmY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:42:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53704 "EHLO
+        id S234304AbjAJSmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:42:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239699AbjAJSla (ORCPT
+        with ESMTP id S239697AbjAJSla (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:41:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A236D5EC39
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:35:12 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 849969612D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:35:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32C9161846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:35:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C80CC433EF;
-        Tue, 10 Jan 2023 18:35:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B93061864
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:35:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F29EC433D2;
+        Tue, 10 Jan 2023 18:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375711;
-        bh=crB9Rdh0h9jCxbbNJhNtCqjf7ifM9NLkH7Fa0seJnfE=;
+        s=korg; t=1673375715;
+        bh=J5I9JluBjtCKbXSKLrqvWXsHv8uYX3bcAC4MnfH991g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ib1xroE7zrjidvKebTsdia4MNoXMiO495qGB04Vq2EQVqbh0SxJiOsnOnEGEDizLc
-         7PP7o/xEGo8eVVAHZSn0iDsbluOo9j1WbxGrmLS5tmWFe4vwvdhLZi6wQPQwxwbS6F
-         B0NlK7K1GL6Y7n7jUwtN/FW+KXuU+wKROWzrSHBY=
+        b=o5WB6YoUSbWFkLtX8xtwzKJ3mEpXHkkie68t2yhskarC4wtLhpBV6m4p+ijnFWB5p
+         G5VLkwR/FoIJUEVLQaM1YUEdjkjE6S2Vl78khPAAZa6womuViacIL6B7sb7HW0NPyb
+         NfQT2I+5ekRNk5/+XeMqLqCJt5UHYCap/+3F83vY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        patches@lists.linux.dev, William Liu <will@willsroot.io>,
+        =?UTF-8?q?Hrvoje=20Mi=C5=A1eti=C4=87?= <misetichrvoje@gmail.com>,
         Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
-        zdi-disclosures@trendmicro.com
-Subject: [PATCH 5.15 278/290] ksmbd: fix infinite loop in ksmbd_conn_handler_loop()
-Date:   Tue, 10 Jan 2023 19:06:10 +0100
-Message-Id: <20230110180041.519170534@linuxfoundation.org>
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 279/290] ksmbd: check nt_len to be at least CIFS_ENCPWD_SIZE in ksmbd_decode_ntlmssp_auth_blob
+Date:   Tue, 10 Jan 2023 19:06:11 +0100
+Message-Id: <20230110180041.549885304@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -55,69 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: William Liu <will@willsroot.io>
 
-commit 83dcedd5540d4ac61376ddff5362f7d9f866a6ec upstream.
+commit 797805d81baa814f76cf7bdab35f86408a79d707 upstream.
 
-If kernel_recvmsg() return -EAGAIN in ksmbd_tcp_readv() and go round
-again, It will cause infinite loop issue. And all threads from next
-connections would be doing that. This patch add max retry count(2) to
-avoid it. kernel_recvmsg() will wait during 7sec timeout and try to
-retry two time if -EAGAIN is returned. And add flags of kvmalloc to
-__GFP_NOWARN and __GFP_NORETRY to disconnect immediately without
-retrying on memory alloation failure.
+"nt_len - CIFS_ENCPWD_SIZE" is passed directly from
+ksmbd_decode_ntlmssp_auth_blob to ksmbd_auth_ntlmv2. Malicious requests
+can set nt_len to less than CIFS_ENCPWD_SIZE, which results in a negative
+number (or large unsigned value) used for a subsequent memcpy in
+ksmbd_auth_ntlvm2 and can cause a panic.
 
-Fixes: 0626e6641f6b ("cifsd: add server handler for central processing and tranport layers")
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
 Cc: stable@vger.kernel.org
-Reported-by: zdi-disclosures@trendmicro.com # ZDI-CAN-18259
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: William Liu <will@willsroot.io>
+Signed-off-by: Hrvoje Mišetić <misetichrvoje@gmail.com>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/connection.c    |    7 +++++--
- fs/ksmbd/transport_tcp.c |    5 ++++-
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ fs/ksmbd/auth.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ksmbd/connection.c
-+++ b/fs/ksmbd/connection.c
-@@ -310,9 +310,12 @@ int ksmbd_conn_handler_loop(void *p)
+--- a/fs/ksmbd/auth.c
++++ b/fs/ksmbd/auth.c
+@@ -319,7 +319,8 @@ int ksmbd_decode_ntlmssp_auth_blob(struc
+ 	dn_off = le32_to_cpu(authblob->DomainName.BufferOffset);
+ 	dn_len = le16_to_cpu(authblob->DomainName.Length);
  
- 		/* 4 for rfc1002 length field */
- 		size = pdu_size + 4;
--		conn->request_buf = kvmalloc(size, GFP_KERNEL);
-+		conn->request_buf = kvmalloc(size,
-+					     GFP_KERNEL |
-+					     __GFP_NOWARN |
-+					     __GFP_NORETRY);
- 		if (!conn->request_buf)
--			continue;
-+			break;
+-	if (blob_len < (u64)dn_off + dn_len || blob_len < (u64)nt_off + nt_len)
++	if (blob_len < (u64)dn_off + dn_len || blob_len < (u64)nt_off + nt_len ||
++	    nt_len < CIFS_ENCPWD_SIZE)
+ 		return -EINVAL;
  
- 		memcpy(conn->request_buf, hdr_buf, sizeof(hdr_buf));
- 		if (!ksmbd_smb_request(conn))
---- a/fs/ksmbd/transport_tcp.c
-+++ b/fs/ksmbd/transport_tcp.c
-@@ -295,6 +295,7 @@ static int ksmbd_tcp_readv(struct tcp_tr
- 	struct msghdr ksmbd_msg;
- 	struct kvec *iov;
- 	struct ksmbd_conn *conn = KSMBD_TRANS(t)->conn;
-+	int max_retry = 2;
- 
- 	iov = get_conn_iovec(t, nr_segs);
- 	if (!iov)
-@@ -321,9 +322,11 @@ static int ksmbd_tcp_readv(struct tcp_tr
- 		} else if (conn->status == KSMBD_SESS_NEED_RECONNECT) {
- 			total_read = -EAGAIN;
- 			break;
--		} else if (length == -ERESTARTSYS || length == -EAGAIN) {
-+		} else if ((length == -ERESTARTSYS || length == -EAGAIN) &&
-+			   max_retry) {
- 			usleep_range(1000, 2000);
- 			length = 0;
-+			max_retry--;
- 			continue;
- 		} else if (length <= 0) {
- 			total_read = -EAGAIN;
+ 	/* TODO : use domain name that imported from configuration file */
 
 
