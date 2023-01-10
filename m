@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB53664A4D
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C3C36648F5
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235029AbjAJSb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:31:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43616 "EHLO
+        id S239057AbjAJSQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:16:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239334AbjAJSbI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D174FCD8
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:17 -0800 (PST)
+        with ESMTP id S239068AbjAJSP7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F15325
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:14:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C587617C9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E57BC433D2;
-        Tue, 10 Jan 2023 18:26:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A65CDB81901
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFEC6C433EF;
+        Tue, 10 Jan 2023 18:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375176;
-        bh=J3fX5e4y2THab1EuQpPnMsa/0H8Leg+fhzKfUtBMB5o=;
+        s=korg; t=1673374453;
+        bh=W+fVkrIcCCI/H2MCmJoxTubOjFUEnFRU2Lpyr+C2Ua0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nr04zYZNWkOOoo6A8rNbJL41GrWdz9Xa5lCetZsgdApjpTd5oDMmTyIYvrSIpOiXC
-         NKgXaQ2pVOx8x9RJdpBMs++TxjFeN4UiATo47Dg6cfyIKdruSPXkTlQGb6SXa4ncvn
-         25ZNs6FUQdlh8eRDDcW5QSyZWqjURB1gWzzi8pUs=
+        b=BtK0VSY+MZ3fnjeCadcitgmEpKOelFiWT0KohMB2luWyGG2bA0pqr6D43fOy0YERf
+         HRtUSHK9YLG++vHVC2hyrqh9W3GYbOoL98fCVgmXJagMWbN/Tq5CEZwYT6HyBIYLud
+         BexuZ63k2/XrUXT7QFSe05TCbua01evWDgfC6njc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "John Warthog9 Hawley (VMware)" <warthog9@eaglescrag.net>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5.15 062/290] kest.pl: Fix grub2 menu handling for rebooting
+        =?UTF-8?q?Joan=20Bruguera=20Mic=C3=B3?= <joanbrugueram@gmail.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.1 006/159] btrfs: fix off-by-one in delalloc search during lseek
 Date:   Tue, 10 Jan 2023 19:02:34 +0100
-Message-Id: <20230110180033.781084518@linuxfoundation.org>
+Message-Id: <20230110180018.502815680@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,123 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 26df05a8c1420ad3de314fdd407e7fc2058cc7aa upstream.
+commit 2f2e84ca60660402bd81d0859703567c59556e6a upstream.
 
-grub2 has submenus where to use grub-reboot, it requires:
+During lseek, when searching for delalloc in a range that represents a
+hole and that range has a length of 1 byte, we end up not doing the actual
+delalloc search in the inode's io tree, resulting in not correctly
+reporting the offset with data or a hole. This actually only happens when
+the start offset is 0 because with any other start offset we round it down
+by sector size.
 
-  grub-reboot X>Y
+Reproducer:
 
-where X is the main index and Y is the submenu. Thus if you have:
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt/sdc
 
-menuentry 'Debian GNU/Linux' --class debian --class gnu-linux ...
-	[...]
-}
-submenu 'Advanced options for Debian GNU/Linux' $menuentry_id_option ...
-        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64' --class debian --class gnu-linux ...
-                [...]
-        }
-        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64 (recovery mode)' --class debian --class gnu-linux ...
-		[...]
-        }
-        menuentry 'Debian GNU/Linux, with Linux test' --class debian --class gnu-linux ...
-                [...]
-        }
+  $ xfs_io -f -c "pwrite -q 0 1" /mnt/sdc/foo
 
-And wanted to boot to the "Linux test" kernel, you need to run:
+  $ xfs_io -c "seek -d 0" /mnt/sdc/foo
+  Whence   Result
+  DATA	   EOF
 
- # grub-reboot 1>2
+It should have reported an offset of 0 instead of EOF.
 
-As 1 is the second top menu (the submenu) and 2 is the third of the sub
-menu entries.
+Fix this by updating btrfs_find_delalloc_in_range() and count_range_bits()
+to deal with inclusive ranges properly. These functions are already
+supposed to work with inclusive end offsets, they just got it wrong in a
+couple places due to off-by-one mistakes.
 
-Have the grub.cfg parsing for grub2 handle such cases.
+A test case for fstests will be added later.
 
-Cc: stable@vger.kernel.org
-Fixes: a15ba91361d46 ("ktest: Add support for grub2")
-Reviewed-by: John 'Warthog9' Hawley (VMware) <warthog9@eaglescrag.net>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: Joan Bruguera Micó <joanbrugueram@gmail.com>
+Link: https://lore.kernel.org/linux-btrfs/20221223020509.457113-1-joanbrugueram@gmail.com/
+Fixes: b6e833567ea1 ("btrfs: make hole and data seeking a lot more efficient")
+CC: stable@vger.kernel.org # 6.1
+Tested-by: Joan Bruguera Micó <joanbrugueram@gmail.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/ktest/ktest.pl |   20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ fs/btrfs/extent-io-tree.c |    2 +-
+ fs/btrfs/file.c           |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -1963,7 +1963,7 @@ sub run_scp_mod {
+--- a/fs/btrfs/extent-io-tree.c
++++ b/fs/btrfs/extent-io-tree.c
+@@ -1507,7 +1507,7 @@ u64 count_range_bits(struct extent_io_tr
+ 	u64 last = 0;
+ 	int found = 0;
  
- sub _get_grub_index {
+-	if (WARN_ON(search_end <= cur_start))
++	if (WARN_ON(search_end < cur_start))
+ 		return 0;
  
--    my ($command, $target, $skip) = @_;
-+    my ($command, $target, $skip, $submenu) = @_;
+ 	spin_lock(&tree->lock);
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -3671,7 +3671,7 @@ bool btrfs_find_delalloc_in_range(struct
+ 	u64 prev_delalloc_end = 0;
+ 	bool ret = false;
  
-     return if (defined($grub_number) && defined($last_grub_menu) &&
- 	$last_grub_menu eq $grub_menu && defined($last_machine) &&
-@@ -1980,11 +1980,16 @@ sub _get_grub_index {
- 
-     my $found = 0;
- 
-+    my $submenu_number = 0;
-+
-     while (<IN>) {
- 	if (/$target/) {
- 	    $grub_number++;
- 	    $found = 1;
- 	    last;
-+	} elsif (defined($submenu) && /$submenu/) {
-+		$submenu_number++;
-+		$grub_number = -1;
- 	} elsif (/$skip/) {
- 	    $grub_number++;
- 	}
-@@ -1993,6 +1998,9 @@ sub _get_grub_index {
- 
-     dodie "Could not find '$grub_menu' through $command on $machine"
- 	if (!$found);
-+    if ($submenu_number > 0) {
-+	$grub_number = "$submenu_number>$grub_number";
-+    }
-     doprint "$grub_number\n";
-     $last_grub_menu = $grub_menu;
-     $last_machine = $machine;
-@@ -2003,6 +2011,7 @@ sub get_grub_index {
-     my $command;
-     my $target;
-     my $skip;
-+    my $submenu;
-     my $grub_menu_qt;
- 
-     if ($reboot_type !~ /^grub/) {
-@@ -2017,8 +2026,9 @@ sub get_grub_index {
- 	$skip = '^\s*title\s';
-     } elsif ($reboot_type eq "grub2") {
- 	$command = "cat $grub_file";
--	$target = '^menuentry.*' . $grub_menu_qt;
--	$skip = '^menuentry\s|^submenu\s';
-+	$target = '^\s*menuentry.*' . $grub_menu_qt;
-+	$skip = '^\s*menuentry';
-+	$submenu = '^\s*submenu\s';
-     } elsif ($reboot_type eq "grub2bls") {
- 	$command = $grub_bls_get;
- 	$target = '^title=.*' . $grub_menu_qt;
-@@ -2027,7 +2037,7 @@ sub get_grub_index {
- 	return;
-     }
- 
--    _get_grub_index($command, $target, $skip);
-+    _get_grub_index($command, $target, $skip, $submenu);
- }
- 
- sub wait_for_input {
-@@ -2090,7 +2100,7 @@ sub reboot_to {
-     if ($reboot_type eq "grub") {
- 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
-     } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
--	run_ssh "$grub_reboot $grub_number";
-+	run_ssh "$grub_reboot \"'$grub_number'\"";
-     } elsif ($reboot_type eq "syslinux") {
- 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
-     } elsif (defined $reboot_script) {
+-	while (cur_offset < end) {
++	while (cur_offset <= end) {
+ 		u64 delalloc_start;
+ 		u64 delalloc_end;
+ 		bool delalloc;
 
 
