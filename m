@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A86E664B67
+	by mail.lfdr.de (Postfix) with ESMTP id 131A1664B66
 	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:43:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239420AbjAJSmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:42:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54752 "EHLO
+        id S239597AbjAJSm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:42:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239635AbjAJSmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:42:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D4C1098
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:35:57 -0800 (PST)
+        with ESMTP id S239653AbjAJSmH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:42:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E6C639E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:36:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EFA661864
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:35:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B70B7C433EF;
-        Tue, 10 Jan 2023 18:35:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C68CA61865
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:35:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739B9C433EF;
+        Tue, 10 Jan 2023 18:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375756;
-        bh=sivQZ7fBkirVjV4uvmddVbqfmKT1DffMkbAStZfykFw=;
+        s=korg; t=1673375759;
+        bh=zyixeITa0MAXp7uZnaFI7xF7lLPKtNyRF61slFzk6zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmEkzi2lrKk+cmKfnuco5lQ1wXbW9p1G36vGFqpgIIqVuuNiT4mN8Bcv4dgDAclEs
-         XiEooktJRjZqnLLYJPVwNCIpp4H5hekJp1orOU85koLyrjEhzBglE8if1Sbc5J9wBi
-         rZukfKCNYB9GqjxxpfaAd839vAhX/dii8savt+fo=
+        b=cYy1tT4XQ1RbRZ0SZClKZQOycJc4zlR6GES6Cq0u9OtsbScDUfKD2a1H17Jau0hgM
+         bAnR0qmI58lyzfeh6Y5zaPEb6OU0Sdd7IPI2Qi0XQb64aIC7dDe7bCvvBbuN02fbCa
+         6AdKUGIQmTXJ2Sp6Up+mOPtPfUlbl8+4OJRnJaEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.15 271/290] thermal: int340x: Add missing attribute for data rate base
-Date:   Tue, 10 Jan 2023 19:06:03 +0100
-Message-Id: <20230110180041.306932515@linuxfoundation.org>
+        patches@lists.linux.dev, Ben Dooks <ben-linux@fluff.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.15 272/290] riscv: uaccess: fix type of 0 variable on error in get_user()
+Date:   Tue, 10 Jan 2023 19:06:04 +0100
+Message-Id: <20230110180041.338460780@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 References: <20230110180031.620810905@linuxfoundation.org>
@@ -53,56 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Ben Dooks <ben-linux@fluff.org>
 
-commit b878d3ba9bb41cddb73ba4b56e5552f0a638daca upstream.
+commit b9b916aee6715cd7f3318af6dc360c4729417b94 upstream.
 
-Commit 473be51142ad ("thermal: int340x: processor_thermal: Add RFIM
-driver")' added rfi_restriction_data_rate_base string, mmio details and
-documentation, but missed adding attribute to sysfs.
+If the get_user(x, ptr) has x as a pointer, then the setting
+of (x) = 0 is going to produce the following sparse warning,
+so fix this by forcing the type of 'x' when access_ok() fails.
 
-Add missing sysfs attribute.
+fs/aio.c:2073:21: warning: Using plain integer as NULL pointer
 
-Fixes: 473be51142ad ("thermal: int340x: processor_thermal: Add RFIM driver")
-Cc: 5.11+ <stable@vger.kernel.org> # v5.11+
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/r/20221229170545.718264-1-ben-linux@fluff.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/riscv/include/asm/uaccess.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
-+++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
-@@ -172,6 +172,7 @@ static const struct attribute_group fivr
- RFIM_SHOW(rfi_restriction_run_busy, 1)
- RFIM_SHOW(rfi_restriction_err_code, 1)
- RFIM_SHOW(rfi_restriction_data_rate, 1)
-+RFIM_SHOW(rfi_restriction_data_rate_base, 1)
- RFIM_SHOW(ddr_data_rate_point_0, 1)
- RFIM_SHOW(ddr_data_rate_point_1, 1)
- RFIM_SHOW(ddr_data_rate_point_2, 1)
-@@ -181,11 +182,13 @@ RFIM_SHOW(rfi_disable, 1)
- RFIM_STORE(rfi_restriction_run_busy, 1)
- RFIM_STORE(rfi_restriction_err_code, 1)
- RFIM_STORE(rfi_restriction_data_rate, 1)
-+RFIM_STORE(rfi_restriction_data_rate_base, 1)
- RFIM_STORE(rfi_disable, 1)
+--- a/arch/riscv/include/asm/uaccess.h
++++ b/arch/riscv/include/asm/uaccess.h
+@@ -216,7 +216,7 @@ do {								\
+ 	might_fault();						\
+ 	access_ok(__p, sizeof(*__p)) ?		\
+ 		__get_user((x), __p) :				\
+-		((x) = 0, -EFAULT);				\
++		((x) = (__force __typeof__(x))0, -EFAULT);	\
+ })
  
- static DEVICE_ATTR_RW(rfi_restriction_run_busy);
- static DEVICE_ATTR_RW(rfi_restriction_err_code);
- static DEVICE_ATTR_RW(rfi_restriction_data_rate);
-+static DEVICE_ATTR_RW(rfi_restriction_data_rate_base);
- static DEVICE_ATTR_RO(ddr_data_rate_point_0);
- static DEVICE_ATTR_RO(ddr_data_rate_point_1);
- static DEVICE_ATTR_RO(ddr_data_rate_point_2);
-@@ -248,6 +251,7 @@ static struct attribute *dvfs_attrs[] =
- 	&dev_attr_rfi_restriction_run_busy.attr,
- 	&dev_attr_rfi_restriction_err_code.attr,
- 	&dev_attr_rfi_restriction_data_rate.attr,
-+	&dev_attr_rfi_restriction_data_rate_base.attr,
- 	&dev_attr_ddr_data_rate_point_0.attr,
- 	&dev_attr_ddr_data_rate_point_1.attr,
- 	&dev_attr_ddr_data_rate_point_2.attr,
+ #define __put_user_asm(insn, x, ptr, err)			\
 
 
