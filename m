@@ -2,81 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ACD2664678
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 17:47:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC5266466C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 17:45:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234189AbjAJQro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 11:47:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59612 "EHLO
+        id S234456AbjAJQoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 11:44:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233763AbjAJQrP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 11:47:15 -0500
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE961DDE9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:46:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673369185; x=1704905185;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   in-reply-to;
-  bh=PkhBq/zvP+lRjp86ajagPkVnZzfkI+X9oK4GrUJ4TCI=;
-  b=naUQvHKl+ZQ252q6fXdQaUQYJ6Q4Az+fvzUgb+jgHDViGo/9THhqQRwH
-   t+qr+ozTbnHd4Y48C4Dsw49OSrQysUcXII2dWBBDZe7o6plL1ojllJS6V
-   9Pi8DWFvh7TPx9vZtpCXaacpad7Cg1EuS4BEjuH1/DSXmaak/S67qyKOm
-   MkUXFO0ka663Ojwa8tGJvYH8zgch1TkMSso5VYSdA4EKHFqfD/ulTdeYR
-   +IPguKEBIB7NsOan6rLUabMHt0BP3r45NMHfopBnBfWCN7Owo1+B1GK/d
-   O8YWaYMbE/lvGfBWQadSqzB7IDeQR7FJgTRDgCuhaD33G5a32HlkMe3XY
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="387649455"
-X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="387649455"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 08:43:00 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="687625635"
-X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="687625635"
-Received: from lkp-server02.sh.intel.com (HELO f1920e93ebb5) ([10.239.97.151])
-  by orsmga008.jf.intel.com with ESMTP; 10 Jan 2023 08:42:59 -0800
-Received: from kbuild by f1920e93ebb5 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pFHiE-0008D5-2P;
-        Tue, 10 Jan 2023 16:42:58 +0000
-Date:   Wed, 11 Jan 2023 00:42:09 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
-Subject: Re: [PATCH 5.10.y] io_uring: Fix unsigned 'res' comparison with zero
- in io_fixup_rw_res()
-Message-ID: <Y72VYW1FaqvbCYKm@d82c38c126d2>
+        with ESMTP id S233733AbjAJQop (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 11:44:45 -0500
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0492F8BF08
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:44:45 -0800 (PST)
+Received: by mail-lf1-x131.google.com with SMTP id f34so19356884lfv.10
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 08:44:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=JZWhn3safCoj73gyJNv7llgnh8yjRd4wZSAzSjVs0Mc=;
+        b=G4fKiY1GSJz4BMFlJGMIQ8IJ+V6RoKrvGgo4E7eINRfxVVyCEPPwtL4t+NFyZ3NVpP
+         pXD/jlY42w6Qm6ugJmoy2rRP7WCDl41E+tSVXNpp6Y0gSzLWKlEJV7DQ3pyUACYT53Fh
+         wfz4FW6Wxto2vZjVn3uPnQExGp3WC3v2LeiZ2eA2ODwZ6jRlAqxA9QMVNMuPxDy5Jmba
+         zKtfFS64roWvRzntgLLsAP1Iwcx02Zn09Q3BnimXqPJUnGfTcGaBCf3OwGE2kg84UX/b
+         dM6n7EO537qlLuMWCF1aAVwAXf8yLaGoB2uEwG8o3IRcnoyphfmT7JlH+X849IHhWt4s
+         vx6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JZWhn3safCoj73gyJNv7llgnh8yjRd4wZSAzSjVs0Mc=;
+        b=HGCu6LBEAD2zOL774q1nVIk3LpD5T2fkDTuioZWsbfC9VtmeMbGuyHBLWlM7bt47P6
+         qo84ERDk1gl4HHVrnDRma7BXpkFs3d3ybAM7J2sjyIVA4nApfTyDghwMdE69baYGb3o0
+         2mob1xcrYfPl2aM7gpj2L35IFL8fbIGiKaOVtVNf6e1sj8nSyoq4jMc7Up22Zy+29lKT
+         qV+RqBYUD9bLS28fZx9I0Zv9bXD66YfaB3LDsAuUK52s280piETxy74MMwnoA+wBEAB5
+         BcHZrRlbfz5cdzAlF12o7BFs5GTDIP1iTMfkApZdUFLviQGDFnhYFCX6OGNGX6GMLgSU
+         /lyw==
+X-Gm-Message-State: AFqh2kpTIHRl9mw0KhtkY9WfeN1EuSjqn/DBSjImFe1cd53gaQq18XnV
+        EMR0NTJJqt1IBUzTf9l0ZBy2sfngWAwerVEtBVtegg==
+X-Google-Smtp-Source: AMrXdXuO8ynBGgR/6ByzWxbV/fiR4CZywZvZlQgstlQDIZEo5PTA14Lag8TeZ03lPEGpYiDGfJaV+xjoSsxgJ/T4y+8=
+X-Received: by 2002:ac2:5e7c:0:b0:4c3:d803:4427 with SMTP id
+ a28-20020ac25e7c000000b004c3d8034427mr2897698lfr.170.1673369083178; Tue, 10
+ Jan 2023 08:44:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230110164044.755234-1-harshit.m.mogalapalli@oracle.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+References: <20230109160808.3618132-1-pgonda@google.com> <74745684-785e-71b2-288e-91fbcf1b555b@amd.com>
+In-Reply-To: <74745684-785e-71b2-288e-91fbcf1b555b@amd.com>
+From:   Peter Gonda <pgonda@google.com>
+Date:   Tue, 10 Jan 2023 09:44:31 -0700
+Message-ID: <CAMkAt6q_E-+VV=KOs9LbDzawirWR7M4xL2pCF9fR2kMuBuFM-A@mail.gmail.com>
+Subject: Re: [PATCH] KVM: sev: Fix int overflow in send|recieve_update_data ioctls
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     kvm@vger.kernel.org, Andy Nguyen <theflow@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+> >
+> > diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+> > index 273cba809328..9451de72f917 100644
+> > --- a/arch/x86/kvm/svm/sev.c
+> > +++ b/arch/x86/kvm/svm/sev.c
+> > @@ -1294,7 +1294,7 @@ static int sev_send_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
+> >
+> >       /* Check if we are crossing the page boundary */
+> >       offset = params.guest_uaddr & (PAGE_SIZE - 1);
+> > -     if ((params.guest_len + offset > PAGE_SIZE))
+> > +     if (params.guest_len > PAGE_SIZE || (params.guest_len + offset > PAGE_SIZE))
+>
+> I see the original if statement had double parentheses, which looks
+> strange. Should this if (and the one below) be:
+>
+>         if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
 
-Thanks for your patch.
-
-FYI: kernel test robot notices the stable kernel rule is not satisfied.
-
-Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-Subject: [PATCH 5.10.y] io_uring: Fix unsigned 'res' comparison with zero in io_fixup_rw_res()
-Link: https://lore.kernel.org/stable/20230110164044.755234-1-harshit.m.mogalapalli%40oracle.com
-
-The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
-
-
-
+Isn't the order of operations here: '+' and then '>'. So is the patch
+correct and matches the old conditional? I am fine adding additional
+() for clarity though.
