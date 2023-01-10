@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C5556649F7
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA4C0664854
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235055AbjAJS2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:28:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43786 "EHLO
+        id S238878AbjAJSLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239304AbjAJS1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:27:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 637F8633A7
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:00 -0800 (PST)
+        with ESMTP id S238877AbjAJSKJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8DAD3C3B8
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18C14B81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 487CDC433EF;
-        Tue, 10 Jan 2023 18:22:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 732D06182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 891A8C433D2;
+        Tue, 10 Jan 2023 18:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374977;
-        bh=a5YlWnWmTHLR+tA/IesIk1jVQD9pXdX3MKABXMyf6EM=;
+        s=korg; t=1673374083;
+        bh=/bYtOejn6zeDBzN38w3K9MlcsidKsdJhMo/a0+PqAOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1OJPG46VVnjPQGOzxFsVpM69FLcSUNPtJMnkXDXyo+86xb8LayahnyNFmrnFT2WCI
-         wiQaBDHaYbElsbWGOqP9T0MnZy3o0ZkCF/KOrrEv3S/QGJD3aYl5T9Oqx2Ow3kLou3
-         6EzD+wneXsEv4lXe2EHJXfh7NKVAKfSfzMOp9Cds=
+        b=MGrqRTh6Uapb6zSDUFnUlCFgm08okVQrgnO0g3m3ErhwOmqoBrjNIZdA8OHr7uXZE
+         1SoSeVsZ1pQpG7/8bsn7rfUe1e0/Dynynn7u8tzvh6QgnNcbIE5JdfCJIhKIrpVC2V
+         BG2RQ9l0e/JkXf4KrQqQQW11bkomKiJS9r+eac4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aditya Garg <gargaditya08@live.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 038/290] hfsplus: fix bug causing custom uid and gid being unable to be assigned with mount
+        patches@lists.linux.dev,
+        Magnus Karlsson <magnus.karlsson@gmail.com>,
+        Shawn Bohrer <sbohrer@cloudflare.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 026/148] veth: Fix race with AF_XDP exposing old or uninitialized descriptors
 Date:   Tue, 10 Jan 2023 19:02:10 +0100
-Message-Id: <20230110180032.896690089@linuxfoundation.org>
+Message-Id: <20230110180018.034405678@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Shawn Bohrer <sbohrer@cloudflare.com>
 
-commit 9f2b5debc07073e6dfdd774e3594d0224b991927 upstream.
+[ Upstream commit fa349e396e4886d742fd6501c599ec627ef1353b ]
 
-Despite specifying UID and GID in mount command, the specified UID and GID
-were not being assigned. This patch fixes this issue.
+When AF_XDP is used on on a veth interface the RX ring is updated in two
+steps.  veth_xdp_rcv() removes packet descriptors from the FILL ring
+fills them and places them in the RX ring updating the cached_prod
+pointer.  Later xdp_do_flush() syncs the RX ring prod pointer with the
+cached_prod pointer allowing user-space to see the recently filled in
+descriptors.  The rings are intended to be SPSC, however the existing
+order in veth_poll allows the xdp_do_flush() to run concurrently with
+another CPU creating a race condition that allows user-space to see old
+or uninitialized descriptors in the RX ring.  This bug has been observed
+in production systems.
 
-Link: https://lkml.kernel.org/r/C0264BF5-059C-45CF-B8DA-3A3BD2C803A2@live.com
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To summarize, we are expecting this ordering:
+
+CPU 0 __xsk_rcv_zc()
+CPU 0 __xsk_map_flush()
+CPU 2 __xsk_rcv_zc()
+CPU 2 __xsk_map_flush()
+
+But we are seeing this order:
+
+CPU 0 __xsk_rcv_zc()
+CPU 2 __xsk_rcv_zc()
+CPU 0 __xsk_map_flush()
+CPU 2 __xsk_map_flush()
+
+This occurs because we rely on NAPI to ensure that only one napi_poll
+handler is running at a time for the given veth receive queue.
+napi_schedule_prep() will prevent multiple instances from getting
+scheduled. However calling napi_complete_done() signals that this
+napi_poll is complete and allows subsequent calls to
+napi_schedule_prep() and __napi_schedule() to succeed in scheduling a
+concurrent napi_poll before the xdp_do_flush() has been called.  For the
+veth driver a concurrent call to napi_schedule_prep() and
+__napi_schedule() can occur on a different CPU because the veth xmit
+path can additionally schedule a napi_poll creating the race.
+
+The fix as suggested by Magnus Karlsson, is to simply move the
+xdp_do_flush() call before napi_complete_done().  This syncs the
+producer ring pointers before another instance of napi_poll can be
+scheduled on another CPU.  It will also slightly improve performance by
+moving the flush closer to when the descriptors were placed in the
+RX ring.
+
+Fixes: d1396004dd86 ("veth: Add XDP TX and REDIRECT")
+Suggested-by: Magnus Karlsson <magnus.karlsson@gmail.com>
+Signed-off-by: Shawn Bohrer <sbohrer@cloudflare.com>
+Link: https://lore.kernel.org/r/20221220185903.1105011-1-sbohrer@cloudflare.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/hfsplus_fs.h |    2 ++
- fs/hfsplus/inode.c      |    4 ++--
- fs/hfsplus/options.c    |    4 ++++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/veth.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/hfsplus/hfsplus_fs.h
-+++ b/fs/hfsplus/hfsplus_fs.h
-@@ -198,6 +198,8 @@ struct hfsplus_sb_info {
- #define HFSPLUS_SB_HFSX		3
- #define HFSPLUS_SB_CASEFOLD	4
- #define HFSPLUS_SB_NOBARRIER	5
-+#define HFSPLUS_SB_UID		6
-+#define HFSPLUS_SB_GID		7
+diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+index 466da01ba2e3..909427d99a59 100644
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -974,6 +974,9 @@ static int veth_poll(struct napi_struct *napi, int budget)
+ 	xdp_set_return_frame_no_direct();
+ 	done = veth_xdp_rcv(rq, budget, &bq, &stats);
  
- static inline struct hfsplus_sb_info *HFSPLUS_SB(struct super_block *sb)
- {
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -190,11 +190,11 @@ static void hfsplus_get_perms(struct ino
- 	mode = be16_to_cpu(perms->mode);
++	if (stats.xdp_redirect > 0)
++		xdp_do_flush();
++
+ 	if (done < budget && napi_complete_done(napi, done)) {
+ 		/* Write rx_notify_masked before reading ptr_ring */
+ 		smp_store_mb(rq->rx_notify_masked, false);
+@@ -987,8 +990,6 @@ static int veth_poll(struct napi_struct *napi, int budget)
  
- 	i_uid_write(inode, be32_to_cpu(perms->owner));
--	if (!i_uid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_UID, &sbi->flags)) || (!i_uid_read(inode) && !mode))
- 		inode->i_uid = sbi->uid;
+ 	if (stats.xdp_tx > 0)
+ 		veth_xdp_flush(rq, &bq);
+-	if (stats.xdp_redirect > 0)
+-		xdp_do_flush();
+ 	xdp_clear_return_frame_no_direct();
  
- 	i_gid_write(inode, be32_to_cpu(perms->group));
--	if (!i_gid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_GID, &sbi->flags)) || (!i_gid_read(inode) && !mode))
- 		inode->i_gid = sbi->gid;
- 
- 	if (dir) {
---- a/fs/hfsplus/options.c
-+++ b/fs/hfsplus/options.c
-@@ -140,6 +140,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!uid_valid(sbi->uid)) {
- 				pr_err("invalid uid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_UID, &sbi->flags);
- 			}
- 			break;
- 		case opt_gid:
-@@ -151,6 +153,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!gid_valid(sbi->gid)) {
- 				pr_err("invalid gid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_GID, &sbi->flags);
- 			}
- 			break;
- 		case opt_part:
+ 	return done;
+-- 
+2.35.1
+
 
 
