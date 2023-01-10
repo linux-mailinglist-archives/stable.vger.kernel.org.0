@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE43566484B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98BCC6649FF
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238750AbjAJSKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:10:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48950 "EHLO
+        id S238346AbjAJS3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:29:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239044AbjAJSKB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A10B2F4
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:40 -0800 (PST)
+        with ESMTP id S231928AbjAJS16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:27:58 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A31958D2E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE793B818E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E9C8C433F1;
-        Tue, 10 Jan 2023 18:07:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 868C8CE18DE
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56E33C433EF;
+        Tue, 10 Jan 2023 18:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374057;
-        bh=a7LAalaE5DCtNWMBi1DaxNqNMcDk+bGCwWyBJMrQpbs=;
+        s=korg; t=1673374989;
+        bh=V8JDEOHxZYVaGl2463GBfoBZjYbsHwH465h8fIzUM6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zs4XEVnnHRzPC/uTIcLFQaogEfU5g1Z+cQsJkDWCruEpIQkt9VJtIAPN/D3MEguXg
-         EhXqqp8HNOqv8L+k6tC67nyOnkH/lqlsLaIiLXj0lMAXK9P5uvkxNAQFvamVGFf2Oh
-         9dUY1BdNmx/jRhk87Mii8ygnWM+7M+gUuu0c1QV0=
+        b=KfpGtSxjXNf/vy7MLWI+IbvDnBumj1YtS7BA2vUrTGZ23vGmDNPwtIK1mNQYZJrTQ
+         1W3l7ymQMtHIt9uRzHuVl9hcl8swb6jRDup0H5Uqh+0wFi2lCBDg+kR2tS+u5FdmDG
+         ZB7cONlbuhm+XmAVkOw1d/+0Xa7oHdaCllN7Xcpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jian Shen <shenjian15@huawei.com>,
-        Hao Lan <lanhao@huawei.com>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 029/148] net: hns3: fix miss L3E checking for rx packet
-Date:   Tue, 10 Jan 2023 19:02:13 +0100
-Message-Id: <20230110180018.131753674@linuxfoundation.org>
+        patches@lists.linux.dev, Artem Egorkine <arteme@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 042/290] ALSA: line6: fix stack overflow in line6_midi_transmit
+Date:   Tue, 10 Jan 2023 19:02:14 +0100
+Message-Id: <20230110180033.042665821@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Artem Egorkine <arteme@gmail.com>
 
-[ Upstream commit 7d89b53cea1a702f97117fb4361523519bb1e52c ]
+commit b8800d324abb50160560c636bfafe2c81001b66c upstream.
 
-For device supports RXD advanced layout, the driver will
-return directly if the hardware finish the checksum
-calculate. It cause missing L3E checking for ip packets.
-Fixes it.
+Correctly calculate available space including the size of the chunk
+buffer. This fixes a buffer overflow when multiple MIDI sysex
+messages are sent to a PODxt device.
 
-Fixes: 1ddc028ac849 ("net: hns3: refactor out RX completion checksum")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Hao Lan <lanhao@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Artem Egorkine <arteme@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221225105728.1153989-2-arteme@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ sound/usb/line6/midi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 44d4265f109a..d5d7fae354e7 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -3813,18 +3813,16 @@ static int hns3_gro_complete(struct sk_buff *skb, u32 l234info)
- 	return 0;
- }
+--- a/sound/usb/line6/midi.c
++++ b/sound/usb/line6/midi.c
+@@ -44,7 +44,8 @@ static void line6_midi_transmit(struct s
+ 	int req, done;
  
--static bool hns3_checksum_complete(struct hns3_enet_ring *ring,
-+static void hns3_checksum_complete(struct hns3_enet_ring *ring,
- 				   struct sk_buff *skb, u32 ptype, u16 csum)
- {
- 	if (ptype == HNS3_INVALID_PTYPE ||
- 	    hns3_rx_ptype_tbl[ptype].ip_summed != CHECKSUM_COMPLETE)
--		return false;
-+		return;
+ 	for (;;) {
+-		req = min(line6_midibuf_bytes_free(mb), line6->max_packet_size);
++		req = min3(line6_midibuf_bytes_free(mb), line6->max_packet_size,
++			   LINE6_FALLBACK_MAXPACKETSIZE);
+ 		done = snd_rawmidi_transmit_peek(substream, chunk, req);
  
- 	hns3_ring_stats_update(ring, csum_complete);
- 	skb->ip_summed = CHECKSUM_COMPLETE;
- 	skb->csum = csum_unfold((__force __sum16)csum);
--
--	return true;
- }
- 
- static void hns3_rx_handle_csum(struct sk_buff *skb, u32 l234info,
-@@ -3884,8 +3882,7 @@ static void hns3_rx_checksum(struct hns3_enet_ring *ring, struct sk_buff *skb,
- 		ptype = hnae3_get_field(ol_info, HNS3_RXD_PTYPE_M,
- 					HNS3_RXD_PTYPE_S);
- 
--	if (hns3_checksum_complete(ring, skb, ptype, csum))
--		return;
-+	hns3_checksum_complete(ring, skb, ptype, csum);
- 
- 	/* check if hardware has done checksum */
- 	if (!(bd_base_info & BIT(HNS3_RXD_L3L4P_B)))
-@@ -3894,6 +3891,7 @@ static void hns3_rx_checksum(struct hns3_enet_ring *ring, struct sk_buff *skb,
- 	if (unlikely(l234info & (BIT(HNS3_RXD_L3E_B) | BIT(HNS3_RXD_L4E_B) |
- 				 BIT(HNS3_RXD_OL3E_B) |
- 				 BIT(HNS3_RXD_OL4E_B)))) {
-+		skb->ip_summed = CHECKSUM_NONE;
- 		hns3_ring_stats_update(ring, l3l4_csum_err);
- 
- 		return;
--- 
-2.35.1
-
+ 		if (done == 0)
 
 
