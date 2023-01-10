@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA1D6648DA
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C176664960
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:20:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235204AbjAJSPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:15:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53278 "EHLO
+        id S239251AbjAJSUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:20:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238869AbjAJSPP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:15 -0500
+        with ESMTP id S239302AbjAJSUL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45C301E3F8
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30788D6C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D68066182C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E394AC433F0;
-        Tue, 10 Jan 2023 18:13:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C10BB6182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4C24C433EF;
+        Tue, 10 Jan 2023 18:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374395;
-        bh=/RE/oCTyk+8Re2BuLJRIvYogNAwsGpHS5v7SCMwQlXw=;
+        s=korg; t=1673374687;
+        bh=E6w9vkkCRK30bshLdsRm41Ouwuoy/fR5khqMNRjI+eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qA3Xt8ebgl/Bl0RYiYmMa97uU7r17vDBfyOxF6ecypQ4fe0XlUls2UjDZ92NpPg6u
-         bkqCwLid1lz3s3e4yFT4gtvYewUzNKHuwOsEQ086jfFz9UCdEOxinI6oCOZVb+RGYt
-         wHMUIF67EWP5ADmT9kNBvk2UdRIPBnHFFC815Rbk=
+        b=k4+1DCc3SYwvLtp8Iealu0yvtYeBhEX1trrUxVH71efZnEoo1kqfoXrALZG/pqg+m
+         yHPRZvMMw29GguOhf8Qqta5NK7J93TxnbhLahE70HupXZDONo1d3ZJ2SG4ygKjDxJN
+         XkxnxIttvnfXjCZqfbsNxnqfsqaGWGGxlS/Wevg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Suwan Kim <suwan.kim027@gmail.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        patches@lists.linux.dev, Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 141/148] virtio_blk: Fix signedness bug in virtblk_prep_rq()
-Date:   Tue, 10 Jan 2023 19:04:05 +0100
-Message-Id: <20230110180021.653163787@linuxfoundation.org>
+Subject: [PATCH 6.1 098/159] perf stat: Fix handling of unsupported cgroup events when using BPF counters
+Date:   Tue, 10 Jan 2023 19:04:06 +0100
+Message-Id: <20230110180021.407967863@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,51 +58,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit a26116c1e74028914f281851488546c91cbae57d ]
+[ Upstream commit 2d656b0f81b22101db0447f890e39fdd736b745e ]
 
-The virtblk_map_data() function returns negative error codes, however, the
-'nents' field of vbr->sg_table is an unsigned int, which causes the error
-handling not to work correctly.
+When --for-each-cgroup option is used, it fails when any of events is
+not supported and exits immediately.  This is not how 'perf stat'
+handles unsupported events.
 
-Cc: stable@vger.kernel.org
-Fixes: 0e9911fa768f ("virtio-blk: support mq_ops->queue_rqs()")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Message-Id: <20221021204126.927603-1-rafaelmendsr@gmail.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Suwan Kim <suwan.kim027@gmail.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Let's ignore the failure and proceed with others so that the output is
+similar to when BPF counters are not used:
+
+Before:
+
+  $ sudo ./perf stat -a --bpf-counters -e L1-icache-loads,L1-dcache-loads --for-each-cgroup system.slice,user.slice sleep 1
+  Failed to open first cgroup events
+  $
+
+After it shows output similat to when --bpf-counters isn't specified:
+
+  $ sudo ./perf stat -a --bpf-counters -e L1-icache-loads,L1-dcache-loads --for-each-cgroup system.slice,user.slice sleep 1
+
+   Performance counter stats for 'system wide':
+
+     <not supported>      L1-icache-loads                  system.slice
+          29,892,418      L1-dcache-loads                  system.slice
+     <not supported>      L1-icache-loads                  user.slice
+          52,497,220      L1-dcache-loads                  user.slice
+  $
+
+Fixes: 944138f048f7d759 ("perf stat: Enable BPF counter with --for-each-cgroup")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/r/20230104064402.1551516-4-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/virtio_blk.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/perf/util/bpf_counter_cgroup.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index b3b1191281ea..53931fcef0d5 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -330,14 +330,16 @@ static blk_status_t virtblk_prep_rq(struct blk_mq_hw_ctx *hctx,
- 					struct virtblk_req *vbr)
- {
- 	blk_status_t status;
-+	int num;
+diff --git a/tools/perf/util/bpf_counter_cgroup.c b/tools/perf/util/bpf_counter_cgroup.c
+index 3c2df7522f6f..1c82377ed78b 100644
+--- a/tools/perf/util/bpf_counter_cgroup.c
++++ b/tools/perf/util/bpf_counter_cgroup.c
+@@ -116,27 +116,19 @@ static int bperf_load_program(struct evlist *evlist)
  
- 	status = virtblk_setup_cmd(vblk->vdev, req, vbr);
- 	if (unlikely(status))
- 		return status;
+ 			/* open single copy of the events w/o cgroup */
+ 			err = evsel__open_per_cpu(evsel, evsel->core.cpus, -1);
+-			if (err) {
+-				pr_err("Failed to open first cgroup events\n");
+-				goto out;
+-			}
++			if (err == 0)
++				evsel->supported = true;
  
--	vbr->sg_table.nents = virtblk_map_data(hctx, req, vbr);
--	if (unlikely(vbr->sg_table.nents < 0))
-+	num = virtblk_map_data(hctx, req, vbr);
-+	if (unlikely(num < 0))
- 		return virtblk_fail_to_queue(req, -ENOMEM);
-+	vbr->sg_table.nents = num;
+ 			map_fd = bpf_map__fd(skel->maps.events);
+ 			perf_cpu_map__for_each_cpu(cpu, j, evsel->core.cpus) {
+ 				int fd = FD(evsel, j);
+ 				__u32 idx = evsel->core.idx * total_cpus + cpu.cpu;
  
- 	blk_mq_start_request(req);
+-				err = bpf_map_update_elem(map_fd, &idx, &fd,
+-							  BPF_ANY);
+-				if (err < 0) {
+-					pr_err("Failed to update perf_event fd\n");
+-					goto out;
+-				}
++				bpf_map_update_elem(map_fd, &idx, &fd, BPF_ANY);
+ 			}
  
+ 			evsel->cgrp = leader_cgrp;
+ 		}
+-		evsel->supported = true;
+ 
+ 		if (evsel->cgrp == cgrp)
+ 			continue;
 -- 
 2.35.1
 
