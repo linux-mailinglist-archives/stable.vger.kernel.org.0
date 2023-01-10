@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F6C6648C8
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E26BD664A86
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231864AbjAJSPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:15:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52968 "EHLO
+        id S234991AbjAJSdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:33:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239041AbjAJSOn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4230B1900D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:47 -0800 (PST)
+        with ESMTP id S238814AbjAJSch (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53534E79
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E56CAB81909
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41732C433EF;
-        Tue, 10 Jan 2023 18:12:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F045CB81901
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44CF8C433D2;
+        Tue, 10 Jan 2023 18:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374364;
-        bh=Hcsc32datdJIw2r0yngOaym2xlbqVvOOHNwIVM7PqJc=;
+        s=korg; t=1673375315;
+        bh=klK8k98N1/aMAR8o70ZfvSD3KevfMpw7nLCKsWQzM/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTFrnoDFTquDR00bVI6ny0NgmqqqgtT2eNpiakNnNJQBlpw3ShZG6EfCHVWjXnzyw
-         hJMZUQKnKSQMsSqVU5XgkoM/tQewFfCiGNsKu7CybQCbZ1L3qGbdIavKwEwsZHhCgX
-         qo3ym6C+8fAd09cCa/PRWw9SEWcvoxx/6By+ovms=
+        b=IUQymJ2HoGqf+bcgQ9kqKzwK5XM0vzvCHpvCSLAfypUuj+W4sSDLWOmLOouQdWwwc
+         fU95ZwIE5a3UcNRIw9f/9ZGd+ogsEKbOoqhuIvaqfiAcoAgAuISKfEJtb2a8K2ZpLH
+         etC1w86sBJVxVgbVu4ZjuevL5KvCAEOb1BM3h+HU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andreas Rammhold <andreas@rammhold.de>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 6.0 136/148] of/fdt: run soc memory setup when early_init_dt_scan_memory fails
-Date:   Tue, 10 Jan 2023 19:04:00 +0100
-Message-Id: <20230110180021.490252631@linuxfoundation.org>
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Zhang Yi <yi.zhang@huawei.com>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.15 149/290] ext4: check and assert if marking an no_delete evicting inode dirty
+Date:   Tue, 10 Jan 2023 19:04:01 +0100
+Message-Id: <20230110180036.980717866@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,76 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Rammhold <andreas@rammhold.de>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-commit 2a12187d5853d9fd5102278cecef7dac7c8ce7ea upstream.
+commit 318cdc822c63b6e2befcfdc2088378ae6fa18def upstream.
 
-If memory has been found early_init_dt_scan_memory now returns 1. If
-it hasn't found any memory it will return 0, allowing other memory
-setup mechanisms to carry on.
+In ext4_evict_inode(), if we evicting an inode in the 'no_delete' path,
+it cannot be raced by another mark_inode_dirty(). If it happens,
+someone else may accidentally dirty it without holding inode refcount
+and probably cause use-after-free issues in the writeback procedure.
+It's indiscoverable and hard to debug, so add an WARN_ON_ONCE() to
+check and detect this issue in advance.
 
-Previously early_init_dt_scan_memory always returned 0 without
-distinguishing between any kind of memory setup being done or not. Any
-code path after the early_init_dt_scan memory call in the ramips
-plat_mem_setup code wouldn't be executed anymore. Making
-early_init_dt_scan_memory the only way to initialize the memory.
-
-Some boards, including my mt7621 based Cudy X6 board, depend on memory
-initialization being done via the soc_info.mem_detect function
-pointer. Those wouldn't be able to obtain memory and panic the kernel
-during early bootup with the message "early_init_dt_alloc_memory_arch:
-Failed to allocate 12416 bytes align=0x40".
-
-Fixes: 1f012283e936 ("of/fdt: Rework early_init_dt_scan_memory() to call directly")
-Cc: stable@vger.kernel.org
-Signed-off-by: Andreas Rammhold <andreas@rammhold.de>
-Link: https://lore.kernel.org/r/20221223112748.2935235-1-andreas@rammhold.de
-Signed-off-by: Rob Herring <robh@kernel.org>
+Suggested-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220629112647.4141034-2-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/ralink/of.c |    2 +-
- drivers/of/fdt.c      |    6 ++++--
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/mips/ralink/of.c
-+++ b/arch/mips/ralink/of.c
-@@ -64,7 +64,7 @@ void __init plat_mem_setup(void)
- 	dtb = get_fdt();
- 	__dt_setup_arch(dtb);
- 
--	if (!early_init_dt_scan_memory())
-+	if (early_init_dt_scan_memory())
- 		return;
- 
- 	if (soc_info.mem_detect)
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -1106,7 +1106,7 @@ u64 __init dt_mem_next_cell(int s, const
-  */
- int __init early_init_dt_scan_memory(void)
- {
--	int node;
-+	int node, found_memory = 0;
- 	const void *fdt = initial_boot_params;
- 
- 	fdt_for_each_subnode(node, fdt, 0) {
-@@ -1146,6 +1146,8 @@ int __init early_init_dt_scan_memory(voi
- 
- 			early_init_dt_add_memory_arch(base, size);
- 
-+			found_memory = 1;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -338,6 +338,12 @@ stop_handle:
+ 	ext4_xattr_inode_array_free(ea_inode_array);
+ 	return;
+ no_delete:
++	/*
++	 * Check out some where else accidentally dirty the evicting inode,
++	 * which may probably cause inode use-after-free issues later.
++	 */
++	WARN_ON_ONCE(!list_empty_careful(&inode->i_io_list));
 +
- 			if (!hotpluggable)
- 				continue;
- 
-@@ -1154,7 +1156,7 @@ int __init early_init_dt_scan_memory(voi
- 					base, base + size);
- 		}
- 	}
--	return 0;
-+	return found_memory;
- }
- 
- int __init early_init_dt_scan_chosen(char *cmdline)
+ 	if (!list_empty(&EXT4_I(inode)->i_fc_list))
+ 		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM, NULL);
+ 	ext4_clear_inode(inode);	/* We must guarantee clearing of inode... */
 
 
