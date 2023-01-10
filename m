@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4723D6649A8
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 416A3664AFA
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239210AbjAJSXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:23:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38294 "EHLO
+        id S239462AbjAJSiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:38:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239324AbjAJSWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:43 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514F963D0E
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:28 -0800 (PST)
+        with ESMTP id S239475AbjAJShq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499D68F2AD
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 83395CE18D9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E051DC433D2;
-        Tue, 10 Jan 2023 18:20:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA1C96183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECEAEC433EF;
+        Tue, 10 Jan 2023 18:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374824;
-        bh=hKYGC5H2oiLKLMRiQ9bbuBinHNDMMLRAg3FgR9iX3xs=;
+        s=korg; t=1673375576;
+        bh=ng9O9fpSSVoLEgWPtvn++eunOqaEEu7/eLOAJ0jFbsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AvXikujn4tnq3Fa2bWBPBrZDwN0EyhkhHHk+51B0NC/dnp+KTPix167Ykr3v/8+Iw
-         w7G07SYkB3u8OjmNTS1e2/46OovISrUVmNp4e7zCfcdmO1Rmi/WvHEEVWzlAzdgdbv
-         2/Pk8powm+gYKJy52QupoTOztV2YL8DDe63y7e4o=
+        b=iy36MGb5tCTnMvX8GXSttuEouBfKpZiPgK+A1eKioTFl8yXaOIbq4Cefgd2n+HxOc
+         wOfm1IwC+W6IZcikaHHnvmdMyrhBGUpe7s+Xy5WheciCr9i27+xrd9ki24J0wSvZOC
+         mN6wtffwi3kXRLTlJR6AhIAF6RU5FravgkMgG3X8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Wang, Zhi" <zhi.a.wang@intel.com>,
-        "He, Yu" <yu.he@intel.com>, Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Wang@vger.kernel.org, He@vger.kernel.org
-Subject: [PATCH 6.1 146/159] drm/i915/gvt: fix gvt debugfs destroy
+        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 202/290] netfilter: nf_tables: add function to create set stateful expressions
 Date:   Tue, 10 Jan 2023 19:04:54 +0100
-Message-Id: <20230110180023.145935449@linuxfoundation.org>
+Message-Id: <20230110180038.940569001@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,94 +52,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenyu Wang <zhenyuw@linux.intel.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit c4b850d1f448a901fbf4f7f36dec38c84009b489 upstream.
+[ Upstream commit a8fe4154fa5a1bae590b243ed60f871e5a5e1378 ]
 
-When gvt debug fs is destroyed, need to have a sane check if drm
-minor's debugfs root is still available or not, otherwise in case like
-device remove through unbinding, drm minor's debugfs directory has
-already been removed, then intel_gvt_debugfs_clean() would act upon
-dangling pointer like below oops.
+Add a helper function to allocate and initialize the stateful expressions
+that are defined in a set.
 
-i915 0000:00:02.0: Direct firmware load for i915/gvt/vid_0x8086_did_0x1926_rid_0x0a.golden_hw_state failed with error -2
-i915 0000:00:02.0: MDEV: Registered
-Console: switching to colour dummy device 80x25
-i915 0000:00:02.0: MDEV: Unregistering
-BUG: kernel NULL pointer dereference, address: 00000000000000a0
-PGD 0 P4D 0
-Oops: 0002 [#1] PREEMPT SMP PTI
-CPU: 2 PID: 2486 Comm: gfx-unbind.sh Tainted: G          I        6.1.0-rc8+ #15
-Hardware name: Dell Inc. XPS 13 9350/0JXC1H, BIOS 1.13.0 02/10/2020
-RIP: 0010:down_write+0x1f/0x90
-Code: 1d ff ff 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 53 48 89 fb e8 62 c0 ff ff bf 01 00 00 00 e8 28 5e 31 ff 31 c0 ba 01 00 00 00 <f0> 48 0f b1 13 75 33 65 48 8b 04 25 c0 bd 01 00 48 89 43 08 bf 01
-RSP: 0018:ffff9eb3036ffcc8 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 00000000000000a0 RCX: ffffff8100000000
-RDX: 0000000000000001 RSI: 0000000000000064 RDI: ffffffffa48787a8
-RBP: ffff9eb3036ffd30 R08: ffffeb1fc45a0608 R09: ffffeb1fc45a05c0
-R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff91acc33fa328 R14: ffff91acc033f080 R15: ffff91acced533e0
-FS:  00007f6947bba740(0000) GS:ffff91ae36d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000000000a0 CR3: 00000001133a2002 CR4: 00000000003706e0
-Call Trace:
- <TASK>
- simple_recursive_removal+0x9f/0x2a0
- ? start_creating.part.0+0x120/0x120
- ? _raw_spin_lock+0x13/0x40
- debugfs_remove+0x40/0x60
- intel_gvt_debugfs_clean+0x15/0x30 [kvmgt]
- intel_gvt_clean_device+0x49/0xe0 [kvmgt]
- intel_gvt_driver_remove+0x2f/0xb0
- i915_driver_remove+0xa4/0xf0
- i915_pci_remove+0x1a/0x30
- pci_device_remove+0x33/0xa0
- device_release_driver_internal+0x1b2/0x230
- unbind_store+0xe0/0x110
- kernfs_fop_write_iter+0x11b/0x1f0
- vfs_write+0x203/0x3d0
- ksys_write+0x63/0xe0
- do_syscall_64+0x37/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f6947cb5190
-Code: 40 00 48 8b 15 71 9c 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 80 3d 51 24 0e 00 00 74 17 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83 ec 28 48 89
-RSP: 002b:00007ffcbac45a28 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 000000000000000d RCX: 00007f6947cb5190
-RDX: 000000000000000d RSI: 0000555e35c866a0 RDI: 0000000000000001
-RBP: 0000555e35c866a0 R08: 0000000000000002 R09: 0000555e358cb97c
-R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000000001
-R13: 000000000000000d R14: 0000000000000000 R15: 0000555e358cb8e0
- </TASK>
-Modules linked in: kvmgt
-CR2: 00000000000000a0
----[ end trace 0000000000000000 ]---
+This patch allows to reuse this code from the set update path, to check
+that type of the update matches the existing set in the kernel.
 
-Cc: Wang, Zhi <zhi.a.wang@intel.com>
-Cc: He, Yu <yu.he@intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
-Fixes: bc7b0be316ae ("drm/i915/gvt: Add basic debugfs infrastructure")
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20221219140357.769557-1-zhenyuw@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Stable-dep-of: f6594c372afd ("netfilter: nf_tables: perform type checking for existing sets")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gvt/debugfs.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/netfilter/nf_tables_api.c | 106 ++++++++++++++++++++++------------
+ 1 file changed, 68 insertions(+), 38 deletions(-)
 
---- a/drivers/gpu/drm/i915/gvt/debugfs.c
-+++ b/drivers/gpu/drm/i915/gvt/debugfs.c
-@@ -199,6 +199,10 @@ void intel_gvt_debugfs_init(struct intel
-  */
- void intel_gvt_debugfs_clean(struct intel_gvt *gvt)
- {
--	debugfs_remove_recursive(gvt->debugfs_root);
--	gvt->debugfs_root = NULL;
-+	struct drm_minor *minor = gvt->gt->i915->drm.primary;
-+
-+	if (minor->debugfs_root) {
-+		debugfs_remove_recursive(gvt->debugfs_root);
-+		gvt->debugfs_root = NULL;
-+	}
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index dd19726a9ac9..f892a926fb58 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -4243,6 +4243,59 @@ static int nf_tables_set_desc_parse(struct nft_set_desc *desc,
+ 	return err;
  }
+ 
++static int nft_set_expr_alloc(struct nft_ctx *ctx, struct nft_set *set,
++			      const struct nlattr * const *nla,
++			      struct nft_expr **exprs, int *num_exprs,
++			      u32 flags)
++{
++	struct nft_expr *expr;
++	int err, i;
++
++	if (nla[NFTA_SET_EXPR]) {
++		expr = nft_set_elem_expr_alloc(ctx, set, nla[NFTA_SET_EXPR]);
++		if (IS_ERR(expr)) {
++			err = PTR_ERR(expr);
++			goto err_set_expr_alloc;
++		}
++		exprs[0] = expr;
++		(*num_exprs)++;
++	} else if (nla[NFTA_SET_EXPRESSIONS]) {
++		struct nlattr *tmp;
++		int left;
++
++		if (!(flags & NFT_SET_EXPR)) {
++			err = -EINVAL;
++			goto err_set_expr_alloc;
++		}
++		i = 0;
++		nla_for_each_nested(tmp, nla[NFTA_SET_EXPRESSIONS], left) {
++			if (i == NFT_SET_EXPR_MAX) {
++				err = -E2BIG;
++				goto err_set_expr_alloc;
++			}
++			if (nla_type(tmp) != NFTA_LIST_ELEM) {
++				err = -EINVAL;
++				goto err_set_expr_alloc;
++			}
++			expr = nft_set_elem_expr_alloc(ctx, set, tmp);
++			if (IS_ERR(expr)) {
++				err = PTR_ERR(expr);
++				goto err_set_expr_alloc;
++			}
++			exprs[i++] = expr;
++			(*num_exprs)++;
++		}
++	}
++
++	return 0;
++
++err_set_expr_alloc:
++	for (i = 0; i < *num_exprs; i++)
++		nft_expr_destroy(ctx, exprs[i]);
++
++	return err;
++}
++
+ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 			    const struct nlattr * const nla[])
+ {
+@@ -4250,7 +4303,6 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	u8 genmask = nft_genmask_next(info->net);
+ 	u8 family = info->nfmsg->nfgen_family;
+ 	const struct nft_set_ops *ops;
+-	struct nft_expr *expr = NULL;
+ 	struct net *net = info->net;
+ 	struct nft_set_desc desc;
+ 	struct nft_table *table;
+@@ -4258,6 +4310,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	struct nft_set *set;
+ 	struct nft_ctx ctx;
+ 	size_t alloc_size;
++	int num_exprs = 0;
+ 	char *name;
+ 	int err, i;
+ 	u16 udlen;
+@@ -4384,6 +4437,8 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 			return PTR_ERR(set);
+ 		}
+ 	} else {
++		struct nft_expr *exprs[NFT_SET_EXPR_MAX] = {};
++
+ 		if (info->nlh->nlmsg_flags & NLM_F_EXCL) {
+ 			NL_SET_BAD_ATTR(extack, nla[NFTA_SET_NAME]);
+ 			return -EEXIST;
+@@ -4391,6 +4446,13 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 		if (info->nlh->nlmsg_flags & NLM_F_REPLACE)
+ 			return -EOPNOTSUPP;
+ 
++		err = nft_set_expr_alloc(&ctx, set, nla, exprs, &num_exprs, flags);
++		if (err < 0)
++			return err;
++
++		for (i = 0; i < num_exprs; i++)
++			nft_expr_destroy(&ctx, exprs[i]);
++
+ 		return 0;
+ 	}
+ 
+@@ -4458,43 +4520,11 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	if (err < 0)
+ 		goto err_set_init;
+ 
+-	if (nla[NFTA_SET_EXPR]) {
+-		expr = nft_set_elem_expr_alloc(&ctx, set, nla[NFTA_SET_EXPR]);
+-		if (IS_ERR(expr)) {
+-			err = PTR_ERR(expr);
+-			goto err_set_expr_alloc;
+-		}
+-		set->exprs[0] = expr;
+-		set->num_exprs++;
+-	} else if (nla[NFTA_SET_EXPRESSIONS]) {
+-		struct nft_expr *expr;
+-		struct nlattr *tmp;
+-		int left;
+-
+-		if (!(flags & NFT_SET_EXPR)) {
+-			err = -EINVAL;
+-			goto err_set_expr_alloc;
+-		}
+-		i = 0;
+-		nla_for_each_nested(tmp, nla[NFTA_SET_EXPRESSIONS], left) {
+-			if (i == NFT_SET_EXPR_MAX) {
+-				err = -E2BIG;
+-				goto err_set_expr_alloc;
+-			}
+-			if (nla_type(tmp) != NFTA_LIST_ELEM) {
+-				err = -EINVAL;
+-				goto err_set_expr_alloc;
+-			}
+-			expr = nft_set_elem_expr_alloc(&ctx, set, tmp);
+-			if (IS_ERR(expr)) {
+-				err = PTR_ERR(expr);
+-				goto err_set_expr_alloc;
+-			}
+-			set->exprs[i++] = expr;
+-			set->num_exprs++;
+-		}
+-	}
++	err = nft_set_expr_alloc(&ctx, set, nla, set->exprs, &num_exprs, flags);
++	if (err < 0)
++		goto err_set_destroy;
+ 
++	set->num_exprs = num_exprs;
+ 	set->handle = nf_tables_alloc_handle(table);
+ 
+ 	err = nft_trans_set_add(&ctx, NFT_MSG_NEWSET, set);
+@@ -4508,7 +4538,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ err_set_expr_alloc:
+ 	for (i = 0; i < set->num_exprs; i++)
+ 		nft_expr_destroy(&ctx, set->exprs[i]);
+-
++err_set_destroy:
+ 	ops->destroy(set);
+ err_set_init:
+ 	kfree(set->name);
+-- 
+2.35.1
+
 
 
