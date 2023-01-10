@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C07216648E9
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2561366486C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235116AbjAJSQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:16:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53284 "EHLO
+        id S238663AbjAJSLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238840AbjAJSPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDBBBF67
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:49 -0800 (PST)
+        with ESMTP id S239064AbjAJSKV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95CA2726
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:08:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34572B81906
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 879FAC433EF;
-        Tue, 10 Jan 2023 18:13:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 850A8B81901
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:08:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFA2C433EF;
+        Tue, 10 Jan 2023 18:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374426;
-        bh=7CH8tDzzKIHZVnqu7GpV9Gl/OscIOcxbwrIV8sJjBVw=;
+        s=korg; t=1673374136;
+        bh=ADW6vxSQp5gVMV3Tl8XJJ9V0rEGhfOB0nyp/GyFp3zE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIJKVLKG8ItbwjUJDn3m1m1YsxPJnhMzCOQ7vkPSubBa3cleMqPO2zqW8D71cIVhN
-         KvuuHNufrGI9s/Ws3HsdZEk2XmZ7zONjAhm8usOH1+MTL+oy0NPJd7hzvR/6Rksi0z
-         Lp/h2cFllm2BlaIpEE6g4pD35furXk6GwmYRLHLk=
+        b=zVQpdLgxYGqsI5bSynPuuHFl5nbn88ALd4J1v74wXuJU/C631VunZb1Y53U/N+dLG
+         cOAl0H4A7FCrBINvOolZK4jumWM/M4lat4dDSlWlwunVSiEfFHQQXx65HG/UFCJaaw
+         HgiQtAjeLDEjHXimhVUhzySt2VUnU1Z6I9GyNatY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anand Parthasarathy <anpartha@meta.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Adham Faris <afaris@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 014/159] bpf: pull before calling skb_postpull_rcsum()
+Subject: [PATCH 6.0 058/148] net/mlx5e: Fix hw mtu initializing at XDP SQ allocation
 Date:   Tue, 10 Jan 2023 19:02:42 +0100
-Message-Id: <20230110180018.761704912@linuxfoundation.org>
+Message-Id: <20230110180019.066705331@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Adham Faris <afaris@nvidia.com>
 
-[ Upstream commit 54c3f1a81421f85e60ae2eaae7be3727a09916ee ]
+[ Upstream commit 1e267ab88dc44c48f556218f7b7f14c76f7aa066 ]
 
-Anand hit a BUG() when pulling off headers on egress to a SW tunnel.
-We get to skb_checksum_help() with an invalid checksum offset
-(commit d7ea0d9df2a6 ("net: remove two BUG() from skb_checksum_help()")
-converted those BUGs to WARN_ONs()).
-He points out oddness in how skb_postpull_rcsum() gets used.
-Indeed looks like we should pull before "postpull", otherwise
-the CHECKSUM_PARTIAL fixup from skb_postpull_rcsum() will not
-be able to do its job:
+Current xdp xmit functions logic (mlx5e_xmit_xdp_frame_mpwqe or
+mlx5e_xmit_xdp_frame), validates xdp packet length by comparing it to
+hw mtu (configured at xdp sq allocation) before xmiting it. This check
+does not account for ethernet fcs length (calculated and filled by the
+nic). Hence, when we try sending packets with length > (hw-mtu -
+ethernet-fcs-size), the device port drops it and tx_errors_phy is
+incremented. Desired behavior is to catch these packets and drop them
+by the driver.
 
-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-	    skb_checksum_start_offset(skb) < 0)
-		skb->ip_summed = CHECKSUM_NONE;
+Fix this behavior in XDP SQ allocation function (mlx5e_alloc_xdpsq) by
+subtracting ethernet FCS header size (4 Bytes) from current hw mtu
+value, since ethernet FCS is calculated and written to ethernet frames
+by the nic.
 
-Reported-by: Anand Parthasarathy <anpartha@meta.com>
-Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/20221220004701.402165-1-kuba@kernel.org
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Fixes: d8bec2b29a82 ("net/mlx5e: Support bpf_xdp_adjust_head()")
+Signed-off-by: Adham Faris <afaris@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index a368edd9057c..0c2666e041d3 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -3184,15 +3184,18 @@ static int bpf_skb_generic_push(struct sk_buff *skb, u32 off, u32 len)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 6cf6a81775a8..5c16efb8be81 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -1146,7 +1146,7 @@ static int mlx5e_alloc_xdpsq(struct mlx5e_channel *c,
+ 	sq->channel   = c;
+ 	sq->uar_map   = mdev->mlx5e_res.hw_objs.bfreg.map;
+ 	sq->min_inline_mode = params->tx_min_inline_mode;
+-	sq->hw_mtu    = MLX5E_SW2HW_MTU(params, params->sw_mtu);
++	sq->hw_mtu    = MLX5E_SW2HW_MTU(params, params->sw_mtu) - ETH_FCS_LEN;
+ 	sq->xsk_pool  = xsk_pool;
  
- static int bpf_skb_generic_pop(struct sk_buff *skb, u32 off, u32 len)
- {
-+	void *old_data;
-+
- 	/* skb_ensure_writable() is not needed here, as we're
- 	 * already working on an uncloned skb.
- 	 */
- 	if (unlikely(!pskb_may_pull(skb, off + len)))
- 		return -ENOMEM;
- 
--	skb_postpull_rcsum(skb, skb->data + off, len);
--	memmove(skb->data + len, skb->data, off);
-+	old_data = skb->data;
- 	__skb_pull(skb, len);
-+	skb_postpull_rcsum(skb, old_data + off, len);
-+	memmove(skb->data, old_data, off);
- 
- 	return 0;
- }
+ 	sq->stats = sq->xsk_pool ?
 -- 
 2.35.1
 
