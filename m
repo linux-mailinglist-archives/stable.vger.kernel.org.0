@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4747E664AF3
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4723D6649A8
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239382AbjAJSiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48340 "EHLO
+        id S239210AbjAJSXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239628AbjAJShY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F4C5B491
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:39 -0800 (PST)
+        with ESMTP id S239324AbjAJSWn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:43 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514F963D0E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B03161852
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97AACC433EF;
-        Tue, 10 Jan 2023 18:32:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 83395CE18D9
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E051DC433D2;
+        Tue, 10 Jan 2023 18:20:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375558;
-        bh=NuUtDbxuA3n3PBjoaCTEehvd5Xsx/FEgE/wkr6Y4rKc=;
+        s=korg; t=1673374824;
+        bh=hKYGC5H2oiLKLMRiQ9bbuBinHNDMMLRAg3FgR9iX3xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GPvpQ3ytGBQwmyX8OJlWIgeS/hLVSEE51IHidZf1Cx90k0AaM5qMgEIgsmkTTRelT
-         W4NUYI9oMMRMrkzTGV5cRRglacWeTfzoWqdo7vq3esUc+cLymxibBecPv8KgnB6Eyu
-         7mKL0ljeB2/qjHO2Zen+TUQlAL2lxGyBMsoAIPWc=
+        b=AvXikujn4tnq3Fa2bWBPBrZDwN0EyhkhHHk+51B0NC/dnp+KTPix167Ykr3v/8+Iw
+         w7G07SYkB3u8OjmNTS1e2/46OovISrUVmNp4e7zCfcdmO1Rmi/WvHEEVWzlAzdgdbv
+         2/Pk8powm+gYKJy52QupoTOztV2YL8DDe63y7e4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 201/290] netfilter: nf_tables: consolidate set description
-Date:   Tue, 10 Jan 2023 19:04:53 +0100
-Message-Id: <20230110180038.905078986@linuxfoundation.org>
+        patches@lists.linux.dev, "Wang, Zhi" <zhi.a.wang@intel.com>,
+        "He, Yu" <yu.he@intel.com>, Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Wang@vger.kernel.org, He@vger.kernel.org
+Subject: [PATCH 6.1 146/159] drm/i915/gvt: fix gvt debugfs destroy
+Date:   Tue, 10 Jan 2023 19:04:54 +0100
+Message-Id: <20230110180023.145935449@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,225 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Zhenyu Wang <zhenyuw@linux.intel.com>
 
-[ Upstream commit bed4a63ea4ae77cfe5aae004ef87379f0655260a ]
+commit c4b850d1f448a901fbf4f7f36dec38c84009b489 upstream.
 
-Add the following fields to the set description:
+When gvt debug fs is destroyed, need to have a sane check if drm
+minor's debugfs root is still available or not, otherwise in case like
+device remove through unbinding, drm minor's debugfs directory has
+already been removed, then intel_gvt_debugfs_clean() would act upon
+dangling pointer like below oops.
 
-- key type
-- data type
-- object type
-- policy
-- gc_int: garbage collection interval)
-- timeout: element timeout
+i915 0000:00:02.0: Direct firmware load for i915/gvt/vid_0x8086_did_0x1926_rid_0x0a.golden_hw_state failed with error -2
+i915 0000:00:02.0: MDEV: Registered
+Console: switching to colour dummy device 80x25
+i915 0000:00:02.0: MDEV: Unregistering
+BUG: kernel NULL pointer dereference, address: 00000000000000a0
+PGD 0 P4D 0
+Oops: 0002 [#1] PREEMPT SMP PTI
+CPU: 2 PID: 2486 Comm: gfx-unbind.sh Tainted: G          I        6.1.0-rc8+ #15
+Hardware name: Dell Inc. XPS 13 9350/0JXC1H, BIOS 1.13.0 02/10/2020
+RIP: 0010:down_write+0x1f/0x90
+Code: 1d ff ff 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 53 48 89 fb e8 62 c0 ff ff bf 01 00 00 00 e8 28 5e 31 ff 31 c0 ba 01 00 00 00 <f0> 48 0f b1 13 75 33 65 48 8b 04 25 c0 bd 01 00 48 89 43 08 bf 01
+RSP: 0018:ffff9eb3036ffcc8 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 00000000000000a0 RCX: ffffff8100000000
+RDX: 0000000000000001 RSI: 0000000000000064 RDI: ffffffffa48787a8
+RBP: ffff9eb3036ffd30 R08: ffffeb1fc45a0608 R09: ffffeb1fc45a05c0
+R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff91acc33fa328 R14: ffff91acc033f080 R15: ffff91acced533e0
+FS:  00007f6947bba740(0000) GS:ffff91ae36d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000000000a0 CR3: 00000001133a2002 CR4: 00000000003706e0
+Call Trace:
+ <TASK>
+ simple_recursive_removal+0x9f/0x2a0
+ ? start_creating.part.0+0x120/0x120
+ ? _raw_spin_lock+0x13/0x40
+ debugfs_remove+0x40/0x60
+ intel_gvt_debugfs_clean+0x15/0x30 [kvmgt]
+ intel_gvt_clean_device+0x49/0xe0 [kvmgt]
+ intel_gvt_driver_remove+0x2f/0xb0
+ i915_driver_remove+0xa4/0xf0
+ i915_pci_remove+0x1a/0x30
+ pci_device_remove+0x33/0xa0
+ device_release_driver_internal+0x1b2/0x230
+ unbind_store+0xe0/0x110
+ kernfs_fop_write_iter+0x11b/0x1f0
+ vfs_write+0x203/0x3d0
+ ksys_write+0x63/0xe0
+ do_syscall_64+0x37/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f6947cb5190
+Code: 40 00 48 8b 15 71 9c 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 80 3d 51 24 0e 00 00 74 17 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83 ec 28 48 89
+RSP: 002b:00007ffcbac45a28 EFLAGS: 00000202 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 000000000000000d RCX: 00007f6947cb5190
+RDX: 000000000000000d RSI: 0000555e35c866a0 RDI: 0000000000000001
+RBP: 0000555e35c866a0 R08: 0000000000000002 R09: 0000555e358cb97c
+R10: 0000000000000000 R11: 0000000000000202 R12: 0000000000000001
+R13: 000000000000000d R14: 0000000000000000 R15: 0000555e358cb8e0
+ </TASK>
+Modules linked in: kvmgt
+CR2: 00000000000000a0
+---[ end trace 0000000000000000 ]---
 
-This prepares for stricter set type checks on updates in a follow up
-patch.
-
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Stable-dep-of: f6594c372afd ("netfilter: nf_tables: perform type checking for existing sets")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Wang, Zhi <zhi.a.wang@intel.com>
+Cc: He, Yu <yu.he@intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Zhi Wang <zhi.a.wang@intel.com>
+Fixes: bc7b0be316ae ("drm/i915/gvt: Add basic debugfs infrastructure")
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20221219140357.769557-1-zhenyuw@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netfilter/nf_tables.h | 12 +++++++
- net/netfilter/nf_tables_api.c     | 58 +++++++++++++++----------------
- 2 files changed, 40 insertions(+), 30 deletions(-)
+ drivers/gpu/drm/i915/gvt/debugfs.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index 53746494eb84..5377dbfba120 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -283,17 +283,29 @@ struct nft_set_iter {
- /**
-  *	struct nft_set_desc - description of set elements
-  *
-+ *	@ktype: key type
-  *	@klen: key length
-+ *	@dtype: data type
-  *	@dlen: data length
-+ *	@objtype: object type
-+ *	@flags: flags
-  *	@size: number of set elements
-+ *	@policy: set policy
-+ *	@gc_int: garbage collector interval
-  *	@field_len: length of each field in concatenation, bytes
-  *	@field_count: number of concatenated fields in element
-  *	@expr: set must support for expressions
+--- a/drivers/gpu/drm/i915/gvt/debugfs.c
++++ b/drivers/gpu/drm/i915/gvt/debugfs.c
+@@ -199,6 +199,10 @@ void intel_gvt_debugfs_init(struct intel
   */
- struct nft_set_desc {
-+	u32			ktype;
- 	unsigned int		klen;
-+	u32			dtype;
- 	unsigned int		dlen;
-+	u32			objtype;
- 	unsigned int		size;
-+	u32			policy;
-+	u32			gc_int;
-+	u64			timeout;
- 	u8			field_len[NFT_REG32_COUNT];
- 	u8			field_count;
- 	bool			expr;
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 3fac57d66dda..dd19726a9ac9 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -3635,8 +3635,7 @@ static bool nft_set_ops_candidate(const struct nft_set_type *type, u32 flags)
- static const struct nft_set_ops *
- nft_select_set_ops(const struct nft_ctx *ctx,
- 		   const struct nlattr * const nla[],
--		   const struct nft_set_desc *desc,
--		   enum nft_set_policies policy)
-+		   const struct nft_set_desc *desc)
+ void intel_gvt_debugfs_clean(struct intel_gvt *gvt)
  {
- 	struct nftables_pernet *nft_net = nft_pernet(ctx->net);
- 	const struct nft_set_ops *ops, *bops;
-@@ -3665,7 +3664,7 @@ nft_select_set_ops(const struct nft_ctx *ctx,
- 		if (!ops->estimate(desc, flags, &est))
- 			continue;
- 
--		switch (policy) {
-+		switch (desc->policy) {
- 		case NFT_SET_POL_PERFORMANCE:
- 			if (est.lookup < best.lookup)
- 				break;
-@@ -4247,7 +4246,6 @@ static int nf_tables_set_desc_parse(struct nft_set_desc *desc,
- static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 			    const struct nlattr * const nla[])
- {
--	u32 ktype, dtype, flags, policy, gc_int, objtype;
- 	struct netlink_ext_ack *extack = info->extack;
- 	u8 genmask = nft_genmask_next(info->net);
- 	u8 family = info->nfmsg->nfgen_family;
-@@ -4260,10 +4258,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 	struct nft_set *set;
- 	struct nft_ctx ctx;
- 	size_t alloc_size;
--	u64 timeout;
- 	char *name;
- 	int err, i;
- 	u16 udlen;
-+	u32 flags;
- 	u64 size;
- 
- 	if (nla[NFTA_SET_TABLE] == NULL ||
-@@ -4274,10 +4272,10 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 
- 	memset(&desc, 0, sizeof(desc));
- 
--	ktype = NFT_DATA_VALUE;
-+	desc.ktype = NFT_DATA_VALUE;
- 	if (nla[NFTA_SET_KEY_TYPE] != NULL) {
--		ktype = ntohl(nla_get_be32(nla[NFTA_SET_KEY_TYPE]));
--		if ((ktype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK)
-+		desc.ktype = ntohl(nla_get_be32(nla[NFTA_SET_KEY_TYPE]));
-+		if ((desc.ktype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK)
- 			return -EINVAL;
- 	}
- 
-@@ -4302,17 +4300,17 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 			return -EOPNOTSUPP;
- 	}
- 
--	dtype = 0;
-+	desc.dtype = 0;
- 	if (nla[NFTA_SET_DATA_TYPE] != NULL) {
- 		if (!(flags & NFT_SET_MAP))
- 			return -EINVAL;
- 
--		dtype = ntohl(nla_get_be32(nla[NFTA_SET_DATA_TYPE]));
--		if ((dtype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK &&
--		    dtype != NFT_DATA_VERDICT)
-+		desc.dtype = ntohl(nla_get_be32(nla[NFTA_SET_DATA_TYPE]));
-+		if ((desc.dtype & NFT_DATA_RESERVED_MASK) == NFT_DATA_RESERVED_MASK &&
-+		    desc.dtype != NFT_DATA_VERDICT)
- 			return -EINVAL;
- 
--		if (dtype != NFT_DATA_VERDICT) {
-+		if (desc.dtype != NFT_DATA_VERDICT) {
- 			if (nla[NFTA_SET_DATA_LEN] == NULL)
- 				return -EINVAL;
- 			desc.dlen = ntohl(nla_get_be32(nla[NFTA_SET_DATA_LEN]));
-@@ -4327,34 +4325,34 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 		if (!(flags & NFT_SET_OBJECT))
- 			return -EINVAL;
- 
--		objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
--		if (objtype == NFT_OBJECT_UNSPEC ||
--		    objtype > NFT_OBJECT_MAX)
-+		desc.objtype = ntohl(nla_get_be32(nla[NFTA_SET_OBJ_TYPE]));
-+		if (desc.objtype == NFT_OBJECT_UNSPEC ||
-+		    desc.objtype > NFT_OBJECT_MAX)
- 			return -EOPNOTSUPP;
- 	} else if (flags & NFT_SET_OBJECT)
- 		return -EINVAL;
- 	else
--		objtype = NFT_OBJECT_UNSPEC;
-+		desc.objtype = NFT_OBJECT_UNSPEC;
- 
--	timeout = 0;
-+	desc.timeout = 0;
- 	if (nla[NFTA_SET_TIMEOUT] != NULL) {
- 		if (!(flags & NFT_SET_TIMEOUT))
- 			return -EINVAL;
- 
--		err = nf_msecs_to_jiffies64(nla[NFTA_SET_TIMEOUT], &timeout);
-+		err = nf_msecs_to_jiffies64(nla[NFTA_SET_TIMEOUT], &desc.timeout);
- 		if (err)
- 			return err;
- 	}
--	gc_int = 0;
-+	desc.gc_int = 0;
- 	if (nla[NFTA_SET_GC_INTERVAL] != NULL) {
- 		if (!(flags & NFT_SET_TIMEOUT))
- 			return -EINVAL;
--		gc_int = ntohl(nla_get_be32(nla[NFTA_SET_GC_INTERVAL]));
-+		desc.gc_int = ntohl(nla_get_be32(nla[NFTA_SET_GC_INTERVAL]));
- 	}
- 
--	policy = NFT_SET_POL_PERFORMANCE;
-+	desc.policy = NFT_SET_POL_PERFORMANCE;
- 	if (nla[NFTA_SET_POLICY] != NULL)
--		policy = ntohl(nla_get_be32(nla[NFTA_SET_POLICY]));
-+		desc.policy = ntohl(nla_get_be32(nla[NFTA_SET_POLICY]));
- 
- 	if (nla[NFTA_SET_DESC] != NULL) {
- 		err = nf_tables_set_desc_parse(&desc, nla[NFTA_SET_DESC]);
-@@ -4399,7 +4397,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 	if (!(info->nlh->nlmsg_flags & NLM_F_CREATE))
- 		return -ENOENT;
- 
--	ops = nft_select_set_ops(&ctx, nla, &desc, policy);
-+	ops = nft_select_set_ops(&ctx, nla, &desc);
- 	if (IS_ERR(ops))
- 		return PTR_ERR(ops);
- 
-@@ -4439,18 +4437,18 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
- 	set->table = table;
- 	write_pnet(&set->net, net);
- 	set->ops = ops;
--	set->ktype = ktype;
-+	set->ktype = desc.ktype;
- 	set->klen = desc.klen;
--	set->dtype = dtype;
--	set->objtype = objtype;
-+	set->dtype = desc.dtype;
-+	set->objtype = desc.objtype;
- 	set->dlen = desc.dlen;
- 	set->flags = flags;
- 	set->size = desc.size;
--	set->policy = policy;
-+	set->policy = desc.policy;
- 	set->udlen = udlen;
- 	set->udata = udata;
--	set->timeout = timeout;
--	set->gc_int = gc_int;
-+	set->timeout = desc.timeout;
-+	set->gc_int = desc.gc_int;
- 
- 	set->field_count = desc.field_count;
- 	for (i = 0; i < desc.field_count; i++)
--- 
-2.35.1
-
+-	debugfs_remove_recursive(gvt->debugfs_root);
+-	gvt->debugfs_root = NULL;
++	struct drm_minor *minor = gvt->gt->i915->drm.primary;
++
++	if (minor->debugfs_root) {
++		debugfs_remove_recursive(gvt->debugfs_root);
++		gvt->debugfs_root = NULL;
++	}
+ }
 
 
