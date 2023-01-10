@@ -2,78 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54CAE664750
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 18:22:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F143366474F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 18:22:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231241AbjAJRWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 12:22:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
+        id S233094AbjAJRWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 12:22:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233353AbjAJRVb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 12:21:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E423B58D03
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 09:20:23 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FE24B818DD
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 17:20:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FB52C433D2
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 17:20:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673371221;
-        bh=QCGCDJ1bLE98tPbSdgFPgDJmEogI/HFi/9mzKmWX6yI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=JDBsjiNoEzwSCaRRZy87U7oqNqM3cvBjWMaidhLI6IVo5NOjEOlhw2yQFlKdya98/
-         IINJoNyDaAqNj7zGIu7SapVlt7kyuxPtM0tv6CXYidNRDELOReyH8vUoPKRAHuN5CD
-         wzyHPbJsab2MLnFSPC1+iJ81/uxjtY+cJ5M2SPD/kCHVXSCz9Uf8ubV1ODUXExmT92
-         ZhDeXIO1uaFZIGPY4a1yvoI6HhWOKWuS30+JXME/PEqyx5R12ZKW/7bbKxrG36CDvj
-         95Dw9EUQFCcfIxisykxR/ap8TugAYENOMVEFBaIr04eVYIzVK/IvQAsrOLDs1e1AEB
-         wPYVj/Y2tbChw==
-Received: by mail-lf1-f45.google.com with SMTP id y25so19540351lfa.9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 09:20:21 -0800 (PST)
-X-Gm-Message-State: AFqh2krp6uC3aEtBUmD4W1z+41MJqhAcz9WsYWeOJxv5Uoj0cLWYKVly
-        OSjJBCvVP/Ru6Th99YQyoW9AYBe2kc4YatG+Q4U=
-X-Google-Smtp-Source: AMrXdXu0OVLiZs8J0UMCeZp8xyOcJWbEGiyEyXmJUm66uWp/RhUQzc0AOrT+Yf1vJ3gVZY+6DLgKGcOyTh4Q1scMd+Y=
-X-Received: by 2002:ac2:5e65:0:b0:4a2:740b:5b02 with SMTP id
- a5-20020ac25e65000000b004a2740b5b02mr2825301lfr.122.1673371219384; Tue, 10
- Jan 2023 09:20:19 -0800 (PST)
+        with ESMTP id S234774AbjAJRVi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 12:21:38 -0500
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 870871EAEC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 09:21:04 -0800 (PST)
+Received: by mail-lf1-x12f.google.com with SMTP id b3so19570112lfv.2
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 09:21:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=BiD9HDtY677v73zD/DAwV3gxXKXHJJtF5vodMznouXI=;
+        b=LtCcapEfaq7jnw+0fGg77tKfZIsc0Ia1/E/mVPvdvIeEfaUDocpq2qs66q6GPOw+JK
+         Pxve+JFGST72umFROmdvgPrsqTgozMzdSDcaFCaoI1HgN98eGnYmPwCErho77OzrCd0l
+         DLNCw3XmItwejeHB5US7WEj8eASOgmF6/aqG0U7Ua0YD0Moww9aHxy4rjyUyEuGrLljV
+         HW2zTdvTCyJ57N8jf8aGm4sEhw5g2bqc3PYf41lorsBz2Vn69tLFRehGj5nuHhYxNFGF
+         dfwiulkdAaoKjGof+vEdw0VtFxBzi3L3diD4231k+0gVkLoVA8PLU6bBwlDNdQGnujjB
+         vMUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BiD9HDtY677v73zD/DAwV3gxXKXHJJtF5vodMznouXI=;
+        b=MEb6U1ekmROzYw94SdDOoqPVw/HmkmQSA5MhENzFPuV6+rysYtYL6A8JZ4B6q+bIpW
+         398RxrUkcGl4q/JCpphA602Xr5+tZ5RhdLfuKUue4FqOeaIGee1kBAAQI5uUw2ith/69
+         08rdT8S55X753AAXptNTTpLDw+fmTOQb1WqIIBe3kxAQI/c6TFtS2l2y/ZFHc7Xs6ROs
+         ss8qVvtDPCVgPQqnUt6qHALp2eXQybnJdxh2ERXtiBf6WM8pOH9opg/7cJrzwKH6Uztl
+         nRTGn0E/b2OoIqeib+nwKWbU3MHFvO8rg+Ko+YilsTl5jui54UzPsfRYoCeFBn4KzQSp
+         gO6g==
+X-Gm-Message-State: AFqh2krtMA0lXO6WlcHcBIpNVglj3W5Ahn9FhtD4oTxHypZy0NNS/+3U
+        zwcMB6deYMq3rX2qdjZJr3pYCF6Zqn3zm4EhWOo2+Q==
+X-Google-Smtp-Source: AMrXdXvlEhCNddUYn/gUScAlB9NgzJOTwBVEkk8vjb8E2yu2dOexlTIBWM5iNW3SRH+747A4nRXGVYTTy+jvR2TDsAU=
+X-Received: by 2002:a05:6512:22d6:b0:4cb:3ff7:f24a with SMTP id
+ g22-20020a05651222d600b004cb3ff7f24amr1538148lfu.409.1673371262485; Tue, 10
+ Jan 2023 09:21:02 -0800 (PST)
 MIME-Version: 1.0
-References: <20230110160416.2590-1-Jason@zx2c4.com> <Y72YyXw5HcsbDac1@kroah.com>
- <CAHmME9r_tDXfnvdPfyQ+m_EB_nyNHs65NMueNHnk2u5Paqt3RQ@mail.gmail.com>
- <Y72bx/IyZ0zl6opA@kroah.com> <CAHmME9qx6KtsqWFrxohOtLwzesp-aJHWzRMk7aLcvN4eRsH=rQ@mail.gmail.com>
-In-Reply-To: <CAHmME9qx6KtsqWFrxohOtLwzesp-aJHWzRMk7aLcvN4eRsH=rQ@mail.gmail.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Tue, 10 Jan 2023 18:20:08 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXFFM4K6A58BPfDCDsCdzXPXJdDOn+NkJaTk81rDQRiRcw@mail.gmail.com>
-Message-ID: <CAMj1kXFFM4K6A58BPfDCDsCdzXPXJdDOn+NkJaTk81rDQRiRcw@mail.gmail.com>
-Subject: Re: [PATCH stable] efi: random: combine bootloader provided RNG seed
- with RNG protocol output
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org
+References: <20230109160808.3618132-1-pgonda@google.com> <74745684-785e-71b2-288e-91fbcf1b555b@amd.com>
+ <CAMkAt6q_E-+VV=KOs9LbDzawirWR7M4xL2pCF9fR2kMuBuFM-A@mail.gmail.com> <d6c2455c-aff5-a135-2610-53dd6b586b59@amd.com>
+In-Reply-To: <d6c2455c-aff5-a135-2610-53dd6b586b59@amd.com>
+From:   Peter Gonda <pgonda@google.com>
+Date:   Tue, 10 Jan 2023 10:20:50 -0700
+Message-ID: <CAMkAt6orqOCrOiy=kjBq=5jnP1CyM=cbaYYaVAZLDnqbRpgUCw@mail.gmail.com>
+Subject: Re: [PATCH] KVM: sev: Fix int overflow in send|recieve_update_data ioctls
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     kvm@vger.kernel.org, Andy Nguyen <theflow@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 10 Jan 2023 at 18:10, Jason A. Donenfeld <Jason@zx2c4.com> wrote:
+On Tue, Jan 10, 2023 at 10:16 AM Tom Lendacky <thomas.lendacky@amd.com> wrote:
 >
-> On Tue, Jan 10, 2023 at 6:09 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+> On 1/10/23 10:44, Peter Gonda wrote:
+> >>>
+> >>> diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+> >>> index 273cba809328..9451de72f917 100644
+> >>> --- a/arch/x86/kvm/svm/sev.c
+> >>> +++ b/arch/x86/kvm/svm/sev.c
+> >>> @@ -1294,7 +1294,7 @@ static int sev_send_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
+> >>>
+> >>>        /* Check if we are crossing the page boundary */
+> >>>        offset = params.guest_uaddr & (PAGE_SIZE - 1);
+> >>> -     if ((params.guest_len + offset > PAGE_SIZE))
+> >>> +     if (params.guest_len > PAGE_SIZE || (params.guest_len + offset > PAGE_SIZE))
+> >>
+> >> I see the original if statement had double parentheses, which looks
+> >> strange. Should this if (and the one below) be:
+> >>
+> >>          if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
 > >
-> > On Tue, Jan 10, 2023 at 05:57:21PM +0100, Jason A. Donenfeld wrote:
-> > > Thanks! IIRC, this applies to all current stable kernels (now that
-> > > you've sunsetted 4.9).
-> >
-> > It does not apply cleanly to 5.4.y or 4.19.y or 4.14.y so can you
-> > provide working backports for them?
+> > Isn't the order of operations here: '+' and then '>'. So is the patch
+> > correct and matches the old conditional? I am fine adding additional
 >
-> Oh, darn. I thought it would for some reason. Okay, lemme get cranking on that.
+> But what was the purpose of them in the old conditional? They weren't
+> necessary.
+>
+> But, yes, that order of operations is correct and those are both before
+> '||'. So the extra parentheses around the second condition check are still
+> strange then, right?
+>
+> Given that, then:
+>
+>         if (params.guest_len > PAGE_SIZE || params.guest_len + offset > PAGE_SIZE)
+>
+> > () for clarity though.
+>
+> I do like the look and clarity of the parentheses around the addition.
 
-Should we bother? Isn't v5.10 far enough back for this? This is not a
-bugfix after all.
+Sounds good to me. I'll update the V2 in a couple days to wait for any
+other comments.
+
+>
+> Thanks,
+> Tom
