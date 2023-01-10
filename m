@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE2DF6648F8
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32ACD664A3F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239099AbjAJSQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:16:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59304 "EHLO
+        id S239425AbjAJSbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:31:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234713AbjAJSQD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643C61D0CF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:14:24 -0800 (PST)
+        with ESMTP id S239441AbjAJSal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C97B05D432
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26538B81903
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F1E1C433EF;
-        Tue, 10 Jan 2023 18:14:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D550B81904
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81669C433EF;
+        Tue, 10 Jan 2023 18:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374461;
-        bh=MazqOz3mBOgpLDVrM8IiQPoQnCER46oXA8YS7qQjh20=;
+        s=korg; t=1673375144;
+        bh=EIZqDPd9fNOCBCswgpx07PnRiZiEE9xZ/S9dqsC6PNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKWPnq0c7TRkUYIveqntbzePfKEQXfBDg3hjw66V2d1tN6g/z3uhvh+RaAeoBqSYY
-         EhbTDPPLaqJCUKtJbGJW+BZ9i2g9c5zAHNh0l5VLBW4rFQIUksuohXamMpLtPfzRoI
-         VisRFcTw+lV9Lqp81QRO/wDohwZ1UrOGTFqfXSnY=
+        b=PfXJMXeeZBuADVrYIvfdEugS24vzAXZMF4FIFBH0lB5TNWnWqelLH1plkw+fIYCjS
+         OLBeXYH+R81oQk8KGcWWRw/atZoyoHvfRutzbWy/VlTt6Fo4DzNdLX0TF4Xpla6Jj2
+         tMtoiq+MZUNyqHtD2MaBMiC/hXBoyPZEUgTQG0j4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 009/159] perf probe: Fix to get the DW_AT_decl_file and DW_AT_call_file as unsinged data
+        patches@lists.linux.dev,
+        Alexander Antonov <alexander.antonov@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>
+Subject: [PATCH 5.15 065/290] perf/x86/intel/uncore: Disable I/O stacks to PMU mapping on ICX-D
 Date:   Tue, 10 Jan 2023 19:02:37 +0100
-Message-Id: <20230110180018.601535694@linuxfoundation.org>
+Message-Id: <20230110180033.876593847@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,91 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+From: Alexander Antonov <alexander.antonov@linux.intel.com>
 
-[ Upstream commit a9dfc46c67b52ad43b8e335e28f4cf8002c67793 ]
+commit efe062705d149b20a15498cb999a9edbb8241e6f upstream.
 
-DWARF version 5 standard Sec 2.14 says that
+Current implementation of I/O stacks to PMU mapping doesn't support ICX-D.
+Detect ICX-D system to disable mapping.
 
-  Any debugging information entry representing the declaration of an object,
-  module, subprogram or type may have DW_AT_decl_file, DW_AT_decl_line and
-  DW_AT_decl_column attributes, each of whose value is an unsigned integer
-  constant.
-
-So it should be an unsigned integer data. Also, even though the standard
-doesn't clearly say the DW_AT_call_file is signed or unsigned, the
-elfutils (eu-readelf) interprets it as unsigned integer data and it is
-natural to handle it as unsigned integer data as same as DW_AT_decl_file.
-This changes the DW_AT_call_file as unsigned integer data too.
-
-Fixes: 3f4460a28fb2f73d ("perf probe: Filter out redundant inline-instances")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
+Fixes: 10337e95e04c ("perf/x86/intel/uncore: Enable I/O stacks to IIO PMON mapping on ICX")
+Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
 Cc: stable@vger.kernel.org
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Link: https://lore.kernel.org/r/166761727445.480106.3738447577082071942.stgit@devnote3
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20221117122833.3103580-5-alexander.antonov@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/dwarf-aux.c | 21 ++++-----------------
- 1 file changed, 4 insertions(+), 17 deletions(-)
+ arch/x86/events/intel/uncore.h       |    1 +
+ arch/x86/events/intel/uncore_snbep.c |    5 +++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index a07efbadb775..623527edeac1 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -315,19 +315,6 @@ static int die_get_attr_udata(Dwarf_Die *tp_die, unsigned int attr_name,
- 	return 0;
+--- a/arch/x86/events/intel/uncore.h
++++ b/arch/x86/events/intel/uncore.h
+@@ -2,6 +2,7 @@
+ #include <linux/slab.h>
+ #include <linux/pci.h>
+ #include <asm/apicdef.h>
++#include <asm/intel-family.h>
+ #include <linux/io-64-nonatomic-lo-hi.h>
+ 
+ #include <linux/perf_event.h>
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -5144,6 +5144,11 @@ static int icx_iio_get_topology(struct i
+ 
+ static int icx_iio_set_mapping(struct intel_uncore_type *type)
+ {
++	/* Detect ICX-D system. This case is not supported */
++	if (boot_cpu_data.x86_model == INTEL_FAM6_ICELAKE_D) {
++		pmu_clear_mapping_attr(type->attr_update, &icx_iio_mapping_group);
++		return -EPERM;
++	}
+ 	return pmu_iio_set_mapping(type, &icx_iio_mapping_group);
  }
  
--/* Get attribute and translate it as a sdata */
--static int die_get_attr_sdata(Dwarf_Die *tp_die, unsigned int attr_name,
--			      Dwarf_Sword *result)
--{
--	Dwarf_Attribute attr;
--
--	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
--	    dwarf_formsdata(&attr, result) != 0)
--		return -ENOENT;
--
--	return 0;
--}
--
- /**
-  * die_is_signed_type - Check whether a type DIE is signed or not
-  * @tp_die: a DIE of a type
-@@ -467,9 +454,9 @@ int die_get_data_member_location(Dwarf_Die *mb_die, Dwarf_Word *offs)
- /* Get the call file index number in CU DIE */
- static int die_get_call_fileno(Dwarf_Die *in_die)
- {
--	Dwarf_Sword idx;
-+	Dwarf_Word idx;
- 
--	if (die_get_attr_sdata(in_die, DW_AT_call_file, &idx) == 0)
-+	if (die_get_attr_udata(in_die, DW_AT_call_file, &idx) == 0)
- 		return (int)idx;
- 	else
- 		return -ENOENT;
-@@ -478,9 +465,9 @@ static int die_get_call_fileno(Dwarf_Die *in_die)
- /* Get the declared file index number in CU DIE */
- static int die_get_decl_fileno(Dwarf_Die *pdie)
- {
--	Dwarf_Sword idx;
-+	Dwarf_Word idx;
- 
--	if (die_get_attr_sdata(pdie, DW_AT_decl_file, &idx) == 0)
-+	if (die_get_attr_udata(pdie, DW_AT_decl_file, &idx) == 0)
- 		return (int)idx;
- 	else
- 		return -ENOENT;
--- 
-2.35.1
-
 
 
