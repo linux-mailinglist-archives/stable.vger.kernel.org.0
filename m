@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 383E4664AFD
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 560BB6649AB
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239473AbjAJSiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:38:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48342 "EHLO
+        id S239218AbjAJSXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239503AbjAJSht (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DC498E9B9
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:33:03 -0800 (PST)
+        with ESMTP id S239326AbjAJSWo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6357A1D0C9
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E542E61866
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:33:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3702C433EF;
-        Tue, 10 Jan 2023 18:33:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0169861871
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 163F5C433EF;
+        Tue, 10 Jan 2023 18:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375582;
-        bh=HYXyHXdqUa4HxQZQeVe7B60xLLqKpBhVx6oSYUYuaF4=;
+        s=korg; t=1673374830;
+        bh=elF3XBcpOZsBxqzqMcH6ZbTeIlKMG5eGS+rqQ2+0j9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJ1gauCG5P8jVXIYZc8OKWmPjGdaTlIdW3ZjmsgPWgsoIZ2sh3JSYuLn0ZnMO8lsn
-         KlUVloFAgJiRk1e9voNix8Lb14BP+80LHnV2bv+XKWiTiksDVnNZLxW2wqQGFHHizm
-         8+6MAMHSzBSs0aEVyGt5nEK3xarc/im0KNMCvcR0=
+        b=DWTcY9tqLxl2Cn9Wq8DW49FFZA/uliA444mrDsTAidzD5QFKKa1UMW3q30zd5E8Mr
+         XfAtH4DsrpGxa8xeLa/mrlXLb+GV9lwPSihLYHWUj5Bp6Hmfr7WeQ4x69PWeK4ylLg
+         2Wfw8ka4xo5aqjSNOC/cmEbRnmAyDuFtM+PREHJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ronak Doshi <doshir@vmware.com>,
-        Peng Li <lpeng@vmware.com>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 204/290] vmxnet3: correctly report csum_level for encapsulated packet
+Subject: [PATCH 6.1 148/159] virtio-blk: use a helper to handle request queuing errors
 Date:   Tue, 10 Jan 2023 19:04:56 +0100
-Message-Id: <20230110180039.024236208@linuxfoundation.org>
+Message-Id: <20230110180023.213648044@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronak Doshi <doshir@vmware.com>
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-[ Upstream commit 3d8f2c4269d08f8793e946279dbdf5e972cc4911 ]
+[ Upstream commit 258896fcc786b4e7db238eba26f6dd080e0ff41e ]
 
-Commit dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload
-support") added support for encapsulation offload. However, the
-pathc did not report correctly the csum_level for encapsulated packet.
+Define a new helper function, virtblk_fail_to_queue(), to
+clean up the error handling code in virtio_queue_rq().
 
-This patch fixes this issue by reporting correct csum level for the
-encapsulated packet.
-
-Fixes: dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload support")
-Signed-off-by: Ronak Doshi <doshir@vmware.com>
-Acked-by: Peng Li <lpeng@vmware.com>
-Link: https://lore.kernel.org/r/20221220202556.24421-1-doshir@vmware.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Message-Id: <20221016034127.330942-2-dmitry.fomichev@wdc.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Stable-dep-of: a26116c1e740 ("virtio_blk: Fix signedness bug in virtblk_prep_rq()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vmxnet3/vmxnet3_drv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/block/virtio_blk.c | 29 ++++++++++++++++-------------
+ 1 file changed, 16 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
-index 21896e221300..b88092a6bc85 100644
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -1242,6 +1242,10 @@ vmxnet3_rx_csum(struct vmxnet3_adapter *adapter,
- 		    (le32_to_cpu(gdesc->dword[3]) &
- 		     VMXNET3_RCD_CSUM_OK) == VMXNET3_RCD_CSUM_OK) {
- 			skb->ip_summed = CHECKSUM_UNNECESSARY;
-+			if ((le32_to_cpu(gdesc->dword[0]) &
-+				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT))) {
-+				skb->csum_level = 1;
-+			}
- 			WARN_ON_ONCE(!(gdesc->rcd.tcp || gdesc->rcd.udp) &&
- 				     !(le32_to_cpu(gdesc->dword[0]) &
- 				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT)));
-@@ -1251,6 +1255,10 @@ vmxnet3_rx_csum(struct vmxnet3_adapter *adapter,
- 		} else if (gdesc->rcd.v6 && (le32_to_cpu(gdesc->dword[3]) &
- 					     (1 << VMXNET3_RCD_TUC_SHIFT))) {
- 			skb->ip_summed = CHECKSUM_UNNECESSARY;
-+			if ((le32_to_cpu(gdesc->dword[0]) &
-+				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT))) {
-+				skb->csum_level = 1;
-+			}
- 			WARN_ON_ONCE(!(gdesc->rcd.tcp || gdesc->rcd.udp) &&
- 				     !(le32_to_cpu(gdesc->dword[0]) &
- 				     (1UL << VMXNET3_RCD_HDR_INNER_SHIFT)));
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 19da5defd734..3efe3da5f8c2 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -315,6 +315,19 @@ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+ 		virtqueue_notify(vq->vq);
+ }
+ 
++static blk_status_t virtblk_fail_to_queue(struct request *req, int rc)
++{
++	virtblk_cleanup_cmd(req);
++	switch (rc) {
++	case -ENOSPC:
++		return BLK_STS_DEV_RESOURCE;
++	case -ENOMEM:
++		return BLK_STS_RESOURCE;
++	default:
++		return BLK_STS_IOERR;
++	}
++}
++
+ static blk_status_t virtblk_prep_rq(struct blk_mq_hw_ctx *hctx,
+ 					struct virtio_blk *vblk,
+ 					struct request *req,
+@@ -327,10 +340,8 @@ static blk_status_t virtblk_prep_rq(struct blk_mq_hw_ctx *hctx,
+ 		return status;
+ 
+ 	vbr->sg_table.nents = virtblk_map_data(hctx, req, vbr);
+-	if (unlikely(vbr->sg_table.nents < 0)) {
+-		virtblk_cleanup_cmd(req);
+-		return BLK_STS_RESOURCE;
+-	}
++	if (unlikely(vbr->sg_table.nents < 0))
++		return virtblk_fail_to_queue(req, -ENOMEM);
+ 
+ 	blk_mq_start_request(req);
+ 
+@@ -364,15 +375,7 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 			blk_mq_stop_hw_queue(hctx);
+ 		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+ 		virtblk_unmap_data(req, vbr);
+-		virtblk_cleanup_cmd(req);
+-		switch (err) {
+-		case -ENOSPC:
+-			return BLK_STS_DEV_RESOURCE;
+-		case -ENOMEM:
+-			return BLK_STS_RESOURCE;
+-		default:
+-			return BLK_STS_IOERR;
+-		}
++		return virtblk_fail_to_queue(req, err);
+ 	}
+ 
+ 	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
 -- 
 2.35.1
 
