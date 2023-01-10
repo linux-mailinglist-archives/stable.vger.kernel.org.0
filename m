@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4BB6664A05
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E16BC66487C
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237888AbjAJS3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:29:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43230 "EHLO
+        id S234218AbjAJSL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235304AbjAJS2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF383DAE
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:19 -0800 (PST)
+        with ESMTP id S238673AbjAJSKi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E38B7D0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 535906183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E82AC433F1;
-        Tue, 10 Jan 2023 18:23:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CC816187D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0DA8C433F0;
+        Tue, 10 Jan 2023 18:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374998;
-        bh=SZgJyDU0D50RFiseiQC8wcjz0NKvinToZxrfGDaXRCQ=;
+        s=korg; t=1673374178;
+        bh=DsLJ6L4A+XGZHFUWQ0IXTedkImRz8ApCZXUKcKsJTdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1JNB3ZrVVqrqjoV/DGSdTsoSNR/AXM/SroaaibI8Y5FJcHC3RICDS+t2KWOXJML9
-         Rjobgqb6rrCrxvVthzE7hTIKqPH62jh0Dqy0zAzLf2tyUNrb61cUzOZxMCw0sGOjBX
-         rQkYkKH6QuHORp550gCPJOk7uab4c9hc3NE2iOJE=
+        b=Yh9C/J5YQr8CYx6uMOZmRMYkKNzQl4VLjrOUcSAJvRY+CW5Lc5NucCKs1JmyvcapW
+         or+zXHON6eTNUdJ1U4FizPlXUGAxDnUP6XFbh5ekdBvZrRjxjV50aHvGELYArsLVaM
+         1pbI3HNoNrEyrj6kWtCGqr8RTUIbcY1LzJJQB6fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 5.15 045/290] md: fix a crash in mempool_free
-Date:   Tue, 10 Jan 2023 19:02:17 +0100
-Message-Id: <20230110180033.155052515@linuxfoundation.org>
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 034/148] nfc: Fix potential resource leaks
+Date:   Tue, 10 Jan 2023 19:02:18 +0100
+Message-Id: <20230110180018.303339986@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,109 +53,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 341097ee53573e06ab9fc675d96a052385b851fa upstream.
+[ Upstream commit df49908f3c52d211aea5e2a14a93bbe67a2cb3af ]
 
-There's a crash in mempool_free when running the lvm test
-shell/lvchange-rebuild-raid.sh.
+nfc_get_device() take reference for the device, add missing
+nfc_put_device() to release it when not need anymore.
+Also fix the style warnning by use error EOPNOTSUPP instead of
+ENOTSUPP.
 
-The reason for the crash is this:
-* super_written calls atomic_dec_and_test(&mddev->pending_writes) and
-  wake_up(&mddev->sb_wait). Then it calls rdev_dec_pending(rdev, mddev)
-  and bio_put(bio).
-* so, the process that waited on sb_wait and that is woken up is racing
-  with bio_put(bio).
-* if the process wins the race, it calls bioset_exit before bio_put(bio)
-  is executed.
-* bio_put(bio) attempts to free a bio into a destroyed bio set - causing
-  a crash in mempool_free.
-
-We fix this bug by moving bio_put before atomic_dec_and_test.
-
-We also move rdev_dec_pending before atomic_dec_and_test as suggested by
-Neil Brown.
-
-The function md_end_flush has a similar bug - we must call bio_put before
-we decrement the number of in-progress bios.
-
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 11557f0067 P4D 11557f0067 PUD 0
- Oops: 0002 [#1] PREEMPT SMP
- CPU: 0 PID: 73 Comm: kworker/0:1 Not tainted 6.1.0-rc3 #5
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
- Workqueue: kdelayd flush_expired_bios [dm_delay]
- RIP: 0010:mempool_free+0x47/0x80
- Code: 48 89 ef 5b 5d ff e0 f3 c3 48 89 f7 e8 32 45 3f 00 48 63 53 08 48 89 c6 3b 53 04 7d 2d 48 8b 43 10 8d 4a 01 48 89 df 89 4b 08 <48> 89 2c d0 e8 b0 45 3f 00 48 8d 7b 30 5b 5d 31 c9 ba 01 00 00 00
- RSP: 0018:ffff88910036bda8 EFLAGS: 00010093
- RAX: 0000000000000000 RBX: ffff8891037b65d8 RCX: 0000000000000001
- RDX: 0000000000000000 RSI: 0000000000000202 RDI: ffff8891037b65d8
- RBP: ffff8891447ba240 R08: 0000000000012908 R09: 00000000003d0900
- R10: 0000000000000000 R11: 0000000000173544 R12: ffff889101a14000
- R13: ffff8891562ac300 R14: ffff889102b41440 R15: ffffe8ffffa00d05
- FS:  0000000000000000(0000) GS:ffff88942fa00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000000 CR3: 0000001102e99000 CR4: 00000000000006b0
- Call Trace:
-  <TASK>
-  clone_endio+0xf4/0x1c0 [dm_mod]
-  clone_endio+0xf4/0x1c0 [dm_mod]
-  __submit_bio+0x76/0x120
-  submit_bio_noacct_nocheck+0xb6/0x2a0
-  flush_expired_bios+0x28/0x2f [dm_delay]
-  process_one_work+0x1b4/0x300
-  worker_thread+0x45/0x3e0
-  ? rescuer_thread+0x380/0x380
-  kthread+0xc2/0x100
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork+0x1f/0x30
-  </TASK>
- Modules linked in: brd dm_delay dm_raid dm_mod af_packet uvesafb cfbfillrect cfbimgblt cn cfbcopyarea fb font fbdev tun autofs4 binfmt_misc configfs ipv6 virtio_rng virtio_balloon rng_core virtio_net pcspkr net_failover failover qemu_fw_cfg button mousedev raid10 raid456 libcrc32c async_raid6_recov async_memcpy async_pq raid6_pq async_xor xor async_tx raid1 raid0 md_mod sd_mod t10_pi crc64_rocksoft crc64 virtio_scsi scsi_mod evdev psmouse bsg scsi_common [last unloaded: brd]
- CR2: 0000000000000000
- ---[ end trace 0000000000000000 ]---
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
+Fixes: 29e76924cf08 ("nfc: netlink: Add capability to reply to vendor_cmd with data")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/nfc/netlink.c | 52 ++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 14 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -526,13 +526,14 @@ static void md_end_flush(struct bio *bio
- 	struct md_rdev *rdev = bio->bi_private;
- 	struct mddev *mddev = rdev->mddev;
+diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
+index 7c62417ccfd7..32a08ae9ad11 100644
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1497,6 +1497,7 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
+ 	u32 dev_idx, se_idx;
+ 	u8 *apdu;
+ 	size_t apdu_len;
++	int rc;
  
-+	bio_put(bio);
+ 	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
+ 	    !info->attrs[NFC_ATTR_SE_INDEX] ||
+@@ -1510,25 +1511,37 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
+ 	if (!dev)
+ 		return -ENODEV;
+ 
+-	if (!dev->ops || !dev->ops->se_io)
+-		return -ENOTSUPP;
++	if (!dev->ops || !dev->ops->se_io) {
++		rc = -EOPNOTSUPP;
++		goto put_dev;
++	}
+ 
+ 	apdu_len = nla_len(info->attrs[NFC_ATTR_SE_APDU]);
+-	if (apdu_len == 0)
+-		return -EINVAL;
++	if (apdu_len == 0) {
++		rc = -EINVAL;
++		goto put_dev;
++	}
+ 
+ 	apdu = nla_data(info->attrs[NFC_ATTR_SE_APDU]);
+-	if (!apdu)
+-		return -EINVAL;
++	if (!apdu) {
++		rc = -EINVAL;
++		goto put_dev;
++	}
+ 
+ 	ctx = kzalloc(sizeof(struct se_io_ctx), GFP_KERNEL);
+-	if (!ctx)
+-		return -ENOMEM;
++	if (!ctx) {
++		rc = -ENOMEM;
++		goto put_dev;
++	}
+ 
+ 	ctx->dev_idx = dev_idx;
+ 	ctx->se_idx = se_idx;
+ 
+-	return nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
++	rc = nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
 +
- 	rdev_dec_pending(rdev, mddev);
++put_dev:
++	nfc_put_device(dev);
++	return rc;
+ }
  
- 	if (atomic_dec_and_test(&mddev->flush_pending)) {
- 		/* The pre-request flush has finished */
- 		queue_work(md_wq, &mddev->flush_work);
+ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+@@ -1551,14 +1564,21 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+ 	subcmd = nla_get_u32(info->attrs[NFC_ATTR_VENDOR_SUBCMD]);
+ 
+ 	dev = nfc_get_device(dev_idx);
+-	if (!dev || !dev->vendor_cmds || !dev->n_vendor_cmds)
++	if (!dev)
+ 		return -ENODEV;
+ 
++	if (!dev->vendor_cmds || !dev->n_vendor_cmds) {
++		err = -ENODEV;
++		goto put_dev;
++	}
++
+ 	if (info->attrs[NFC_ATTR_VENDOR_DATA]) {
+ 		data = nla_data(info->attrs[NFC_ATTR_VENDOR_DATA]);
+ 		data_len = nla_len(info->attrs[NFC_ATTR_VENDOR_DATA]);
+-		if (data_len == 0)
+-			return -EINVAL;
++		if (data_len == 0) {
++			err = -EINVAL;
++			goto put_dev;
++		}
+ 	} else {
+ 		data = NULL;
+ 		data_len = 0;
+@@ -1573,10 +1593,14 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+ 		dev->cur_cmd_info = info;
+ 		err = cmd->doit(dev, data, data_len);
+ 		dev->cur_cmd_info = NULL;
+-		return err;
++		goto put_dev;
  	}
--	bio_put(bio);
+ 
+-	return -EOPNOTSUPP;
++	err = -EOPNOTSUPP;
++
++put_dev:
++	nfc_put_device(dev);
++	return err;
  }
  
- static void md_submit_flush_data(struct work_struct *ws);
-@@ -935,10 +936,12 @@ static void super_written(struct bio *bi
- 	} else
- 		clear_bit(LastDev, &rdev->flags);
- 
-+	bio_put(bio);
-+
-+	rdev_dec_pending(rdev, mddev);
-+
- 	if (atomic_dec_and_test(&mddev->pending_writes))
- 		wake_up(&mddev->sb_wait);
--	rdev_dec_pending(rdev, mddev);
--	bio_put(bio);
- }
- 
- void md_super_write(struct mddev *mddev, struct md_rdev *rdev,
+ /* message building helper */
+-- 
+2.35.1
+
 
 
