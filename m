@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E85664A7F
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:33:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 793716648C3
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238983AbjAJSdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:33:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43822 "EHLO
+        id S235172AbjAJSOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:14:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234089AbjAJSca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:30 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E0B8D5DF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:28:08 -0800 (PST)
+        with ESMTP id S239069AbjAJSNI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:13:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AE93517EF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 32AE9CE18D1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:28:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27255C433EF;
-        Tue, 10 Jan 2023 18:28:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBD5E6184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F178C433D2;
+        Tue, 10 Jan 2023 18:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375285;
-        bh=plsvWqq3KzG6QZ2GE/koKpdD/gxOWAx0+3lyWXyqmyc=;
+        s=korg; t=1673374319;
+        bh=0qpt2WxXVJAOKL0pek8zJjOIL4XuD3ielMRG1ExgNK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q78Vgl+z3p1CdQxt1IpYQlMQ/Pk9P5AxIrCvTrIlnGNHxuSd8LUyPg4TC0kP/bPLy
-         pyK6LBgATaRhJxckQTJkNCNmoW7m46XjbG6m49eRgErv8Flkvwrf/IFQr8cEVkWg7+
-         drK+6MgKGPpE65mPpaugMdR28vsKBHxrZ2GJ5JL4=
+        b=rTE7cw2rUVI5GMkMuhr6LNGbfB4RH47DnJHW95J4y1RI2eWUAMfGheSabY9vI2FnQ
+         rWwZrD6CQpEgvVFy3xpJztaQ3lFK0zqOgTPeBRdm35fDw/xH2XZ+hG8Z/eBhvkvjoK
+         N1PZyAbUhon+0xyYa7CRfQujauqrDTwetE0aRF5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Baokun Li <libaokun1@huawei.com>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 140/290] ext4: add inode table check in __ext4_get_inode_loc to aovid possible infinite loop
+        patches@lists.linux.dev, Ronald Wahl <ronald.wahl@raritan.com>,
+        Christian Marangi <ansuelsmth@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 6.0 128/148] net: dsa: qca8k: fix wrong length value for mgmt eth packet
 Date:   Tue, 10 Jan 2023 19:03:52 +0100
-Message-Id: <20230110180036.679826818@linuxfoundation.org>
+Message-Id: <20230110180021.246783724@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +53,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Christian Marangi <ansuelsmth@gmail.com>
 
-commit eee22187b53611e173161e38f61de1c7ecbeb876 upstream.
+commit 9807ae69746196ee4bbffe7d22d22ab2b61c6ed0 upstream.
 
-In do_writepages, if the value returned by ext4_writepages is "-ENOMEM"
-and "wbc->sync_mode == WB_SYNC_ALL", retry until the condition is not met.
+The assumption that Documentation was right about how this value work was
+wrong. It was discovered that the length value of the mgmt header is in
+step of word size.
 
-In __ext4_get_inode_loc, if the bh returned by sb_getblk is NULL,
-the function returns -ENOMEM.
+As an example to process 4 byte of data the correct length to set is 2.
+To process 8 byte 4, 12 byte 6, 16 byte 8...
 
-In __getblk_slow, if the return value of grow_buffers is less than 0,
-the function returns NULL.
+Odd values will always return the next size on the ack packet.
+(length of 3 (6 byte) will always return 8 bytes of data)
 
-When the three processes are connected in series like the following stack,
-an infinite loop may occur:
+This means that a value of 15 (0xf) actually means reading/writing 32 bytes
+of data instead of 16 bytes. This behaviour is totally absent and not
+documented in the switch Documentation.
 
-do_writepages					<--- keep retrying
- ext4_writepages
-  mpage_map_and_submit_extent
-   mpage_map_one_extent
-    ext4_map_blocks
-     ext4_ext_map_blocks
-      ext4_ext_handle_unwritten_extents
-       ext4_ext_convert_to_initialized
-        ext4_split_extent
-         ext4_split_extent_at
-          __ext4_ext_dirty
-           __ext4_mark_inode_dirty
-            ext4_reserve_inode_write
-             ext4_get_inode_loc
-              __ext4_get_inode_loc		<--- return -ENOMEM
-               sb_getblk
-                __getblk_gfp
-                 __getblk_slow			<--- return NULL
-                  grow_buffers
-                   grow_dev_page		<--- return -ENXIO
-                    ret = (block < end_block) ? 1 : -ENXIO;
+In fact from Documentation the max value that mgmt eth can process is
+16 byte of data while in reality it can process 32 bytes at once.
 
-In this issue, bg_inode_table_hi is overwritten as an incorrect value.
-As a result, `block < end_block` cannot be met in grow_dev_page.
-Therefore, __ext4_get_inode_loc always returns '-ENOMEM' and do_writepages
-keeps retrying. As a result, the writeback process is in the D state due
-to an infinite loop.
+To handle this we always round up the length after deviding it for word
+size. We check if the result is odd and we round another time to align
+to what the switch will provide in the ack packet.
+The workaround for the length limit of 15 is still needed as the length
+reg max value is 0xf(15)
 
-Add a check on inode table block in the __ext4_get_inode_loc function by
-referring to ext4_read_inode_bitmap to avoid this infinite loop.
-
-Cc: stable@kernel.org
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220817132701.3015912-3-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reported-by: Ronald Wahl <ronald.wahl@raritan.com>
+Tested-by: Ronald Wahl <ronald.wahl@raritan.com>
+Fixes: 90386223f44e ("net: dsa: qca8k: add support for larger read/write size with mgmt Ethernet")
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+Cc: stable@vger.kernel.org # v5.18+
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/dsa/qca/qca8k-8xxx.c |   45 ++++++++++++++++++++++++++++++---------
+ 1 file changed, 35 insertions(+), 10 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4299,9 +4299,17 @@ static int __ext4_get_inode_loc(struct s
- 	inodes_per_block = EXT4_SB(sb)->s_inodes_per_block;
- 	inode_offset = ((ino - 1) %
- 			EXT4_INODES_PER_GROUP(sb));
--	block = ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block);
- 	iloc->offset = (inode_offset % inodes_per_block) * EXT4_INODE_SIZE(sb);
+--- a/drivers/net/dsa/qca/qca8k-8xxx.c
++++ b/drivers/net/dsa/qca/qca8k-8xxx.c
+@@ -111,7 +111,16 @@ static void qca8k_rw_reg_ack_handler(str
  
-+	block = ext4_inode_table(sb, gdp);
-+	if ((block <= le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block)) ||
-+	    (block >= ext4_blocks_count(EXT4_SB(sb)->s_es))) {
-+		ext4_error(sb, "Invalid inode table block %llu in "
-+			   "block_group %u", block, iloc->block_group);
-+		return -EFSCORRUPTED;
-+	}
-+	block += (inode_offset / inodes_per_block);
+ 	command = get_unaligned_le32(&mgmt_ethhdr->command);
+ 	cmd = FIELD_GET(QCA_HDR_MGMT_CMD, command);
 +
- 	bh = sb_getblk(sb, block);
- 	if (unlikely(!bh))
- 		return -ENOMEM;
+ 	len = FIELD_GET(QCA_HDR_MGMT_LENGTH, command);
++	/* Special case for len of 15 as this is the max value for len and needs to
++	 * be increased before converting it from word to dword.
++	 */
++	if (len == 15)
++		len++;
++
++	/* We can ignore odd value, we always round up them in the alloc function. */
++	len *= sizeof(u16);
+ 
+ 	/* Make sure the seq match the requested packet */
+ 	if (get_unaligned_le32(&mgmt_ethhdr->seq) == mgmt_eth_data->seq)
+@@ -158,17 +167,33 @@ static struct sk_buff *qca8k_alloc_mdio_
+ 	if (!skb)
+ 		return NULL;
+ 
+-	/* Max value for len reg is 15 (0xf) but the switch actually return 16 byte
+-	 * Actually for some reason the steps are:
+-	 * 0: nothing
+-	 * 1-4: first 4 byte
+-	 * 5-6: first 12 byte
+-	 * 7-15: all 16 byte
++	/* Hdr mgmt length value is in step of word size.
++	 * As an example to process 4 byte of data the correct length to set is 2.
++	 * To process 8 byte 4, 12 byte 6, 16 byte 8...
++	 *
++	 * Odd values will always return the next size on the ack packet.
++	 * (length of 3 (6 byte) will always return 8 bytes of data)
++	 *
++	 * This means that a value of 15 (0xf) actually means reading/writing 32 bytes
++	 * of data.
++	 *
++	 * To correctly calculate the length we devide the requested len by word and
++	 * round up.
++	 * On the ack function we can skip the odd check as we already handle the
++	 * case here.
+ 	 */
+-	if (len == 16)
+-		real_len = 15;
+-	else
+-		real_len = len;
++	real_len = DIV_ROUND_UP(len, sizeof(u16));
++
++	/* We check if the result len is odd and we round up another time to
++	 * the next size. (length of 3 will be increased to 4 as switch will always
++	 * return 8 bytes)
++	 */
++	if (real_len % sizeof(u16) != 0)
++		real_len++;
++
++	/* Max reg value is 0xf(15) but switch will always return the next size (32 byte) */
++	if (real_len == 16)
++		real_len--;
+ 
+ 	skb_reset_mac_header(skb);
+ 	skb_set_network_header(skb, skb->len);
 
 
