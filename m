@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C6F0664971
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 038CF664AD8
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239160AbjAJSVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:21:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36716 "EHLO
+        id S239470AbjAJSgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:36:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239275AbjAJSVL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:21:11 -0500
+        with ESMTP id S239556AbjAJSfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACC8F43A21
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E0550E4F;
+        Tue, 10 Jan 2023 10:31:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B078461852
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F081C433F1;
-        Tue, 10 Jan 2023 18:18:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B763661871;
+        Tue, 10 Jan 2023 18:31:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7A52C43396;
+        Tue, 10 Jan 2023 18:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374737;
-        bh=y/icNDZXDdmsEy5bNNxCN/zwTDWzbAK30ql5luf2wVg=;
+        s=korg; t=1673375486;
+        bh=/b0X2GzlIjVbb7cbPaNwsZN+/KWDEnhDlyS77vNRY7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CruTQTSlyG2xRbrci5GCbyREnbdr6TPvFs7xyFVps6TZyA1WfkdItumIMhELm6ijk
-         lBTfbFJatPxGPqXN+nqH70/f3lgDYLMloS9vtWEwl/jUPJrbNIDOqspsc1uchP5yTG
-         POES9nVWHOG3sjjvE6aK9c85levQmI6CGB6cy3Jc=
+        b=NDEWnbnv2J6exf7WH/TIiEqdikWDcjAgjzZQLRqq4SUsgNW97w9vNl+zjLBz8nlXW
+         /PFbSO6tr774u0/a1KB+iIKHNrkUx+a3NjAs+1j9vmKR+8BDnRuN2YDgdJ85y/L4Sy
+         wgFdRKUDPLL6UQxHHqQWCUwfTssSZdQgGCqKv4VA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yanjun Zhang <zhangyanjun@cestc.cn>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 117/159] nvme: fix multipath crash caused by flush request when blktrace is enabled
+        patches@lists.linux.dev,
+        "linux-ext4@vger.kernel.org,
+        syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com, Theodore Tso" 
+        <tytso@mit.edu>,
+        syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Theodore Ts'o <tytso@mit.edu>
+Subject: [PATCH 5.15 173/290] ext4: dont set up encryption key during jbd2 transaction
 Date:   Tue, 10 Jan 2023 19:04:25 +0100
-Message-Id: <20230110180022.027563918@linuxfoundation.org>
+Message-Id: <20230110180037.882717895@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,80 +57,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanjun Zhang <zhangyanjun@cestc.cn>
+From: Eric Biggers <ebiggers@kernel.org>
 
-[ Upstream commit 3659fb5ac29a5e6102bebe494ac789fd47fb78f4 ]
+From: Eric Biggers <ebiggers@google.com>
 
-The flush request initialized by blk_kick_flush has NULL bio,
-and it may be dealt with nvme_end_req during io completion.
-When blktrace is enabled, nvme_trace_bio_complete with multipath
-activated trying to access NULL pointer bio from flush request
-results in the following crash:
+commit 4c0d5778385cb3618ff26a561ce41de2b7d9de70 upstream.
 
-[ 2517.831677] BUG: kernel NULL pointer dereference, address: 000000000000001a
-[ 2517.835213] #PF: supervisor read access in kernel mode
-[ 2517.838724] #PF: error_code(0x0000) - not-present page
-[ 2517.842222] PGD 7b2d51067 P4D 0
-[ 2517.845684] Oops: 0000 [#1] SMP NOPTI
-[ 2517.849125] CPU: 2 PID: 732 Comm: kworker/2:1H Kdump: loaded Tainted: G S                5.15.67-0.cl9.x86_64 #1
-[ 2517.852723] Hardware name: XFUSION 2288H V6/BC13MBSBC, BIOS 1.13 07/27/2022
-[ 2517.856358] Workqueue: nvme_tcp_wq nvme_tcp_io_work [nvme_tcp]
-[ 2517.859993] RIP: 0010:blk_add_trace_bio_complete+0x6/0x30
-[ 2517.863628] Code: 1f 44 00 00 48 8b 46 08 31 c9 ba 04 00 10 00 48 8b 80 50 03 00 00 48 8b 78 50 e9 e5 fe ff ff 0f 1f 44 00 00 41 54 49 89 f4 55 <0f> b6 7a 1a 48 89 d5 e8 3e 1c 2b 00 48 89 ee 4c 89 e7 5d 89 c1 ba
-[ 2517.871269] RSP: 0018:ff7f6a008d9dbcd0 EFLAGS: 00010286
-[ 2517.875081] RAX: ff3d5b4be00b1d50 RBX: 0000000002040002 RCX: ff3d5b0a270f2000
-[ 2517.878966] RDX: 0000000000000000 RSI: ff3d5b0b021fb9f8 RDI: 0000000000000000
-[ 2517.882849] RBP: ff3d5b0b96a6fa00 R08: 0000000000000001 R09: 0000000000000000
-[ 2517.886718] R10: 000000000000000c R11: 000000000000000c R12: ff3d5b0b021fb9f8
-[ 2517.890575] R13: 0000000002000000 R14: ff3d5b0b021fb1b0 R15: 0000000000000018
-[ 2517.894434] FS:  0000000000000000(0000) GS:ff3d5b42bfc80000(0000) knlGS:0000000000000000
-[ 2517.898299] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2517.902157] CR2: 000000000000001a CR3: 00000004f023e005 CR4: 0000000000771ee0
-[ 2517.906053] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 2517.909930] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ 2517.913761] PKRU: 55555554
-[ 2517.917558] Call Trace:
-[ 2517.921294]  <TASK>
-[ 2517.924982]  nvme_complete_rq+0x1c3/0x1e0 [nvme_core]
-[ 2517.928715]  nvme_tcp_recv_pdu+0x4d7/0x540 [nvme_tcp]
-[ 2517.932442]  nvme_tcp_recv_skb+0x4f/0x240 [nvme_tcp]
-[ 2517.936137]  ? nvme_tcp_recv_pdu+0x540/0x540 [nvme_tcp]
-[ 2517.939830]  tcp_read_sock+0x9c/0x260
-[ 2517.943486]  nvme_tcp_try_recv+0x65/0xa0 [nvme_tcp]
-[ 2517.947173]  nvme_tcp_io_work+0x64/0x90 [nvme_tcp]
-[ 2517.950834]  process_one_work+0x1e8/0x390
-[ 2517.954473]  worker_thread+0x53/0x3c0
-[ 2517.958069]  ? process_one_work+0x390/0x390
-[ 2517.961655]  kthread+0x10c/0x130
-[ 2517.965211]  ? set_kthread_struct+0x40/0x40
-[ 2517.968760]  ret_from_fork+0x1f/0x30
-[ 2517.972285]  </TASK>
+Commit a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
+extended the scope of the transaction in ext4_unlink() too far, making
+it include the call to ext4_find_entry().  However, ext4_find_entry()
+can deadlock when called from within a transaction because it may need
+to set up the directory's encryption key.
 
-To avoid this situation, add a NULL check for req->bio before
-calling trace_block_bio_complete.
+Fix this by restoring the transaction to its original scope.
 
-Signed-off-by: Yanjun Zhang <zhangyanjun@cestc.cn>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com
+Fixes: a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221106224841.279231-3-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/nvme.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/ext4.h        |    4 ++--
+ fs/ext4/fast_commit.c |    2 +-
+ fs/ext4/namei.c       |   44 ++++++++++++++++++++++++--------------------
+ 3 files changed, 27 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 8a0db9e06dc6..cbda8a19409b 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -888,7 +888,7 @@ static inline void nvme_trace_bio_complete(struct request *req)
- {
- 	struct nvme_ns *ns = req->q->queuedata;
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -3647,8 +3647,8 @@ extern void ext4_initialize_dirent_tail(
+ 					unsigned int blocksize);
+ extern int ext4_handle_dirty_dirblock(handle_t *handle, struct inode *inode,
+ 				      struct buffer_head *bh);
+-extern int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
+-			 struct inode *inode);
++extern int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
++			 struct inode *inode, struct dentry *dentry);
+ extern int __ext4_link(struct inode *dir, struct inode *inode,
+ 		       struct dentry *dentry);
  
--	if (req->cmd_flags & REQ_NVME_MPATH)
-+	if ((req->cmd_flags & REQ_NVME_MPATH) && req->bio)
- 		trace_block_bio_complete(ns->head->disk->queue, req->bio);
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1330,7 +1330,7 @@ static int ext4_fc_replay_unlink(struct
+ 		return 0;
+ 	}
+ 
+-	ret = __ext4_unlink(NULL, old_parent, &entry, inode);
++	ret = __ext4_unlink(old_parent, &entry, inode, NULL);
+ 	/* -ENOENT ok coz it might not exist anymore. */
+ 	if (ret == -ENOENT)
+ 		ret = 0;
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3204,14 +3204,20 @@ end_rmdir:
+ 	return retval;
  }
  
--- 
-2.35.1
-
+-int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
+-		  struct inode *inode)
++int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
++		  struct inode *inode,
++		  struct dentry *dentry /* NULL during fast_commit recovery */)
+ {
+ 	int retval = -ENOENT;
+ 	struct buffer_head *bh;
+ 	struct ext4_dir_entry_2 *de;
++	handle_t *handle;
+ 	int skip_remove_dentry = 0;
+ 
++	/*
++	 * Keep this outside the transaction; it may have to set up the
++	 * directory's encryption key, which isn't GFP_NOFS-safe.
++	 */
+ 	bh = ext4_find_entry(dir, d_name, &de, NULL);
+ 	if (IS_ERR(bh))
+ 		return PTR_ERR(bh);
+@@ -3228,7 +3234,14 @@ int __ext4_unlink(handle_t *handle, stru
+ 		if (EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY)
+ 			skip_remove_dentry = 1;
+ 		else
+-			goto out;
++			goto out_bh;
++	}
++
++	handle = ext4_journal_start(dir, EXT4_HT_DIR,
++				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
++	if (IS_ERR(handle)) {
++		retval = PTR_ERR(handle);
++		goto out_bh;
+ 	}
+ 
+ 	if (IS_DIRSYNC(dir))
+@@ -3237,12 +3250,12 @@ int __ext4_unlink(handle_t *handle, stru
+ 	if (!skip_remove_dentry) {
+ 		retval = ext4_delete_entry(handle, dir, de, bh);
+ 		if (retval)
+-			goto out;
++			goto out_handle;
+ 		dir->i_ctime = dir->i_mtime = current_time(dir);
+ 		ext4_update_dx_flag(dir);
+ 		retval = ext4_mark_inode_dirty(handle, dir);
+ 		if (retval)
+-			goto out;
++			goto out_handle;
+ 	} else {
+ 		retval = 0;
+ 	}
+@@ -3255,15 +3268,17 @@ int __ext4_unlink(handle_t *handle, stru
+ 		ext4_orphan_add(handle, inode);
+ 	inode->i_ctime = current_time(inode);
+ 	retval = ext4_mark_inode_dirty(handle, inode);
+-
+-out:
++	if (dentry && !retval)
++		ext4_fc_track_unlink(handle, dentry);
++out_handle:
++	ext4_journal_stop(handle);
++out_bh:
+ 	brelse(bh);
+ 	return retval;
+ }
+ 
+ static int ext4_unlink(struct inode *dir, struct dentry *dentry)
+ {
+-	handle_t *handle;
+ 	int retval;
+ 
+ 	if (unlikely(ext4_forced_shutdown(EXT4_SB(dir->i_sb))))
+@@ -3281,16 +3296,7 @@ static int ext4_unlink(struct inode *dir
+ 	if (retval)
+ 		goto out_trace;
+ 
+-	handle = ext4_journal_start(dir, EXT4_HT_DIR,
+-				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
+-	if (IS_ERR(handle)) {
+-		retval = PTR_ERR(handle);
+-		goto out_trace;
+-	}
+-
+-	retval = __ext4_unlink(handle, dir, &dentry->d_name, d_inode(dentry));
+-	if (!retval)
+-		ext4_fc_track_unlink(handle, dentry);
++	retval = __ext4_unlink(dir, &dentry->d_name, d_inode(dentry), dentry);
+ #ifdef CONFIG_UNICODE
+ 	/* VFS negative dentries are incompatible with Encoding and
+ 	 * Case-insensitiveness. Eventually we'll want avoid
+@@ -3301,8 +3307,6 @@ static int ext4_unlink(struct inode *dir
+ 	if (IS_CASEFOLDED(dir))
+ 		d_invalidate(dentry);
+ #endif
+-	if (handle)
+-		ext4_journal_stop(handle);
+ 
+ out_trace:
+ 	trace_ext4_unlink_exit(dentry, retval);
 
 
