@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D41316649CF
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:25:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AECBE66483A
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234068AbjAJSZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:25:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36716 "EHLO
+        id S239117AbjAJSKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:10:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232239AbjAJSYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:24:32 -0500
+        with ESMTP id S234635AbjAJSJm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:09:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC8D9B2BF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:21:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B33BC8CD1F
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04E0861846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:21:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9A79C433EF;
-        Tue, 10 Jan 2023 18:21:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9582E6182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC51C433D2;
+        Tue, 10 Jan 2023 18:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374912;
-        bh=k4Jgyd+o+ldMVgw1pkF9QBKrn6tSRgTAG8OC9I5LSs4=;
+        s=korg; t=1673374031;
+        bh=P5RnGk+PCodDtv0xhmpQ0M+NtPgVtGzSb5j6g2zOY3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XiidkWNphKIEYP9JiYUBnR8NslgnpXipipBs+SgObJnNxojTIHzv1kq4Mne2umBgd
-         4suX86v2c5qTOi5ffXIZA7d1Y+sDriI2Pay846+2Zq2CAXJ+IIDrYY1V9BPu9eJOJR
-         c3qXfTj3+aI3efQzshJYbR5cVyrIVysO+epz2hLQ=
+        b=A5zXtaoOxDCkEvhagEqW50xUDko1D0Cxl8xGrGnnhyb2drkeChOd2dwsZUrSxHGzP
+         RG6qSAh8tSwEyzdUgdgOzl93gKkLiHVouqxfj6OwJSus9d10O4CXQ+wuqHVcITrl7I
+         EmD2DvB1wLi/fSXSKdK3lIxwjuQiacxVEMYYfoJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, edward lo <edward.lo@ambergroup.io>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 016/290] fs/ntfs3: Add overflow check for attribute size
-Date:   Tue, 10 Jan 2023 19:01:48 +0100
-Message-Id: <20230110180032.164601934@linuxfoundation.org>
+        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 6.0 005/148] usb: dwc3: gadget: Ignore End Transfer delay on teardown
+Date:   Tue, 10 Jan 2023 19:01:49 +0100
+Message-Id: <20230110180017.339439834@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,102 +51,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: edward lo <edward.lo@ambergroup.io>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit e19c6277652efba203af4ecd8eed4bd30a0054c9 ]
+commit c4e3ef5685393c5051b52cf1e94b8891d49793ab upstream.
 
-The offset addition could overflow and pass the used size check given an
-attribute with very large size (e.g., 0xffffff7f) while parsing MFT
-attributes. This could lead to out-of-bound memory R/W if we try to
-access the next attribute derived by Add2Ptr(attr, asize)
+If we delay sending End Transfer for Setup TRB to be prepared, we need
+to check if the End Transfer was in preparation for a driver
+teardown/soft-disconnect. In those cases, just send the End Transfer
+command without delay.
 
-[   32.963847] BUG: unable to handle page fault for address: ffff956a83c76067
-[   32.964301] #PF: supervisor read access in kernel mode
-[   32.964526] #PF: error_code(0x0000) - not-present page
-[   32.964893] PGD 4dc01067 P4D 4dc01067 PUD 0
-[   32.965316] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[   32.965727] CPU: 0 PID: 243 Comm: mount Not tainted 5.19.0+ #6
-[   32.966050] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[   32.966628] RIP: 0010:mi_enum_attr+0x44/0x110
-[   32.967239] Code: 89 f0 48 29 c8 48 89 c1 39 c7 0f 86 94 00 00 00 8b 56 04 83 fa 17 0f 86 88 00 00 00 89 d0 01 ca 48 01 f0 8d 4a 08 39 f9a
-[   32.968101] RSP: 0018:ffffba15c06a7c38 EFLAGS: 00000283
-[   32.968364] RAX: ffff956a83c76067 RBX: ffff956983c76050 RCX: 000000000000006f
-[   32.968651] RDX: 0000000000000067 RSI: ffff956983c760e8 RDI: 00000000000001c8
-[   32.968963] RBP: ffffba15c06a7c38 R08: 0000000000000064 R09: 00000000ffffff7f
-[   32.969249] R10: 0000000000000007 R11: ffff956983c760e8 R12: ffff95698225e000
-[   32.969870] R13: 0000000000000000 R14: ffffba15c06a7cd8 R15: ffff95698225e170
-[   32.970655] FS:  00007fdab8189e40(0000) GS:ffff9569fdc00000(0000) knlGS:0000000000000000
-[   32.971098] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   32.971378] CR2: ffff956a83c76067 CR3: 0000000002c58000 CR4: 00000000000006f0
-[   32.972098] Call Trace:
-[   32.972842]  <TASK>
-[   32.973341]  ni_enum_attr_ex+0xda/0xf0
-[   32.974087]  ntfs_iget5+0x1db/0xde0
-[   32.974386]  ? slab_post_alloc_hook+0x53/0x270
-[   32.974778]  ? ntfs_fill_super+0x4c7/0x12a0
-[   32.975115]  ntfs_fill_super+0x5d6/0x12a0
-[   32.975336]  get_tree_bdev+0x175/0x270
-[   32.975709]  ? put_ntfs+0x150/0x150
-[   32.975956]  ntfs_fs_get_tree+0x15/0x20
-[   32.976191]  vfs_get_tree+0x2a/0xc0
-[   32.976374]  ? capable+0x19/0x20
-[   32.976572]  path_mount+0x484/0xaa0
-[   32.977025]  ? putname+0x57/0x70
-[   32.977380]  do_mount+0x80/0xa0
-[   32.977555]  __x64_sys_mount+0x8b/0xe0
-[   32.978105]  do_syscall_64+0x3b/0x90
-[   32.978830]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[   32.979311] RIP: 0033:0x7fdab72e948a
-[   32.980015] Code: 48 8b 0d 11 fa 2a 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 a5 00 00 008
-[   32.981251] RSP: 002b:00007ffd15b87588 EFLAGS: 00000206 ORIG_RAX: 00000000000000a5
-[   32.981832] RAX: ffffffffffffffda RBX: 0000557de0aaf060 RCX: 00007fdab72e948a
-[   32.982234] RDX: 0000557de0aaf260 RSI: 0000557de0aaf2e0 RDI: 0000557de0ab7ce0
-[   32.982714] RBP: 0000000000000000 R08: 0000557de0aaf280 R09: 0000000000000020
-[   32.983046] R10: 00000000c0ed0000 R11: 0000000000000206 R12: 0000557de0ab7ce0
-[   32.983494] R13: 0000557de0aaf260 R14: 0000000000000000 R15: 00000000ffffffff
-[   32.984094]  </TASK>
-[   32.984352] Modules linked in:
-[   32.984753] CR2: ffff956a83c76067
-[   32.985911] ---[ end trace 0000000000000000 ]---
-[   32.986555] RIP: 0010:mi_enum_attr+0x44/0x110
-[   32.987217] Code: 89 f0 48 29 c8 48 89 c1 39 c7 0f 86 94 00 00 00 8b 56 04 83 fa 17 0f 86 88 00 00 00 89 d0 01 ca 48 01 f0 8d 4a 08 39 f9a
-[   32.988232] RSP: 0018:ffffba15c06a7c38 EFLAGS: 00000283
-[   32.988532] RAX: ffff956a83c76067 RBX: ffff956983c76050 RCX: 000000000000006f
-[   32.988916] RDX: 0000000000000067 RSI: ffff956983c760e8 RDI: 00000000000001c8
-[   32.989356] RBP: ffffba15c06a7c38 R08: 0000000000000064 R09: 00000000ffffff7f
-[   32.989994] R10: 0000000000000007 R11: ffff956983c760e8 R12: ffff95698225e000
-[   32.990415] R13: 0000000000000000 R14: ffffba15c06a7cd8 R15: ffff95698225e170
-[   32.991011] FS:  00007fdab8189e40(0000) GS:ffff9569fdc00000(0000) knlGS:0000000000000000
-[   32.991524] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   32.991936] CR2: ffff956a83c76067 CR3: 0000000002c58000 CR4: 00000000000006f0
+In the case of soft-disconnect, there's a very small chance the command
+may not go through immediately. But should it happen, the Setup TRB will
+be prepared during the polling of the controller halted state, allowing
+the command to go through then.
 
-This patch adds an overflow check
+In the case of disabling endpoint due to reconfiguration (e.g.
+set_interface(alt-setting) or usb reset), then it's driven by the host.
+Typically the host wouldn't immediately cancel the control request and
+send another control transfer to trigger the End Transfer command
+timeout.
 
-Signed-off-by: edward lo <edward.lo@ambergroup.io>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4db0fbb60136 ("usb: dwc3: gadget: Don't delay End Transfer on delayed_status")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/f1617a323e190b9cc408fb8b65456e32b5814113.1670546756.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs3/record.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/dwc3/gadget.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ntfs3/record.c b/fs/ntfs3/record.c
-index 861e35791506..30751fd618df 100644
---- a/fs/ntfs3/record.c
-+++ b/fs/ntfs3/record.c
-@@ -220,6 +220,11 @@ struct ATTRIB *mi_enum_attr(struct mft_inode *mi, struct ATTRIB *attr)
- 			return NULL;
- 		}
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1702,6 +1702,7 @@ static int __dwc3_stop_active_transfer(s
+ 	else if (!ret)
+ 		dep->flags |= DWC3_EP_END_TRANSFER_PENDING;
  
-+		if (off + asize < off) {
-+			/* overflow check */
-+			return NULL;
-+		}
++	dep->flags &= ~DWC3_EP_DELAY_STOP;
+ 	return ret;
+ }
+ 
+@@ -3701,8 +3702,10 @@ void dwc3_stop_active_transfer(struct dw
+ 	if (dep->number <= 1 && dwc->ep0state != EP0_DATA_PHASE)
+ 		return;
+ 
++	if (interrupt && (dep->flags & DWC3_EP_DELAY_STOP))
++		return;
 +
- 		attr = Add2Ptr(attr, asize);
- 		off += asize;
- 	}
--- 
-2.35.1
-
+ 	if (!(dep->flags & DWC3_EP_TRANSFER_STARTED) ||
+-	    (dep->flags & DWC3_EP_DELAY_STOP) ||
+ 	    (dep->flags & DWC3_EP_END_TRANSFER_PENDING))
+ 		return;
+ 
 
 
