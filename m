@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C970466486E
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF4836648EC
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238947AbjAJSLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:11:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52888 "EHLO
+        id S238869AbjAJSQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:16:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239069AbjAJSK1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:27 -0500
+        with ESMTP id S235293AbjAJSPy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:15:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15DD62DEA
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5691F1706F
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:13:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 985EE61874
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADBC8C433D2;
-        Tue, 10 Jan 2023 18:09:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3D4F6184D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:13:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA07CC433EF;
+        Tue, 10 Jan 2023 18:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374144;
-        bh=Hwurm5mbX+g2QRl/NLU/ieeaFZOAJILoCq5INb9cfmc=;
+        s=korg; t=1673374435;
+        bh=6R2knIInNLe4P0YMsTDWAA0pbRMNEWXFi8r7HIWyekw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWMCp6e3wft4nMpbMC1utwyigjLagcfqAhBCLYPvVnVqUh0x+lXKT3bEAUmQivQM3
-         2kmk/48w/H8+VpglTZ0IZHQwK4LQkOl/cFCF5h9ydsmzsfFu32De5EolgRuyoFDvQM
-         n7fwB3DLymZBs3LgEoG0Fr5c5/xk8fEFpl2ABgtk=
+        b=LrfXm1L9EMHHBIH/0vuCP66OAH8DdTOv61oAHeyOzuZgd6pPs+udSUAWN6O1QoVpg
+         qBaykPuC382XNxqypU7AHrk627ZwgCj0IE/qILvahuf37EqT2SIIkogsZS2psI2C15
+         2OmyY0NsbvM9bE/TCVYv1HlHAAPSbs3hTlsoV7o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hao Lan <lanhao@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 061/148] net: hns3: refactor function hclge_mbx_handler()
+Subject: [PATCH 6.1 017/159] netfilter: nf_tables: add function to create set stateful expressions
 Date:   Tue, 10 Jan 2023 19:02:45 +0100
-Message-Id: <20230110180019.157262646@linuxfoundation.org>
+Message-Id: <20230110180018.853048652@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,494 +52,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Lan <lanhao@huawei.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 09431ed8de874881e2d5d430042d718ae074d371 ]
+[ Upstream commit a8fe4154fa5a1bae590b243ed60f871e5a5e1378 ]
 
-Currently, the function hclge_mbx_handler() has too many switch-case
-statements, it makes this function too long. To improve code readability,
-refactor this function and use lookup table instead.
+Add a helper function to allocate and initialize the stateful expressions
+that are defined in a set.
 
-Signed-off-by: Hao Lan <lanhao@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: fec7352117fa ("net: hns3: refine the handling for VF heartbeat")
+This patch allows to reuse this code from the set update path, to check
+that type of the update matches the existing set in the kernel.
+
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Stable-dep-of: f6594c372afd ("netfilter: nf_tables: perform type checking for existing sets")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/hisilicon/hns3/hclge_mbx.h   |  11 +
- .../hisilicon/hns3/hns3pf/hclge_mbx.c         | 415 ++++++++++++------
- 2 files changed, 284 insertions(+), 142 deletions(-)
+ net/netfilter/nf_tables_api.c | 106 ++++++++++++++++++++++------------
+ 1 file changed, 68 insertions(+), 38 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
-index 7d4ae467f3ad..abcd7877f7d2 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
-@@ -233,6 +233,17 @@ struct hclgevf_mbx_arq_ring {
- 	__le16 msg_q[HCLGE_MBX_MAX_ARQ_MSG_NUM][HCLGE_MBX_MAX_ARQ_MSG_SIZE];
- };
- 
-+struct hclge_dev;
-+
-+#define HCLGE_MBX_OPCODE_MAX 256
-+struct hclge_mbx_ops_param {
-+	struct hclge_vport *vport;
-+	struct hclge_mbx_vf_to_pf_cmd *req;
-+	struct hclge_respond_to_vf_msg *resp_msg;
-+};
-+
-+typedef int (*hclge_mbx_ops_fn)(struct hclge_mbx_ops_param *param);
-+
- #define hclge_mbx_ring_ptr_move_crq(crq) \
- 	(crq->next_to_use = (crq->next_to_use + 1) % crq->desc_num)
- #define hclge_mbx_tail_ptr_move_arq(arq) \
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index e1012f7f9b73..a7b06c63143c 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -779,17 +779,284 @@ static void hclge_handle_vf_tbl(struct hclge_vport *vport,
- 	}
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index a31f8dc40646..9f35a249c2c3 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -4340,6 +4340,59 @@ static int nf_tables_set_desc_parse(struct nft_set_desc *desc,
+ 	return err;
  }
  
-+static int
-+hclge_mbx_map_ring_to_vector_handler(struct hclge_mbx_ops_param *param)
++static int nft_set_expr_alloc(struct nft_ctx *ctx, struct nft_set *set,
++			      const struct nlattr * const *nla,
++			      struct nft_expr **exprs, int *num_exprs,
++			      u32 flags)
 +{
-+	return hclge_map_unmap_ring_to_vf_vector(param->vport, true,
-+						 param->req);
-+}
++	struct nft_expr *expr;
++	int err, i;
 +
-+static int
-+hclge_mbx_unmap_ring_to_vector_handler(struct hclge_mbx_ops_param *param)
-+{
-+	return hclge_map_unmap_ring_to_vf_vector(param->vport, false,
-+						 param->req);
-+}
++	if (nla[NFTA_SET_EXPR]) {
++		expr = nft_set_elem_expr_alloc(ctx, set, nla[NFTA_SET_EXPR]);
++		if (IS_ERR(expr)) {
++			err = PTR_ERR(expr);
++			goto err_set_expr_alloc;
++		}
++		exprs[0] = expr;
++		(*num_exprs)++;
++	} else if (nla[NFTA_SET_EXPRESSIONS]) {
++		struct nlattr *tmp;
++		int left;
 +
-+static int
-+hclge_mbx_get_ring_vector_map_handler(struct hclge_mbx_ops_param *param)
-+{
-+	int ret;
-+
-+	ret = hclge_get_vf_ring_vector_map(param->vport, param->req,
-+					   param->resp_msg);
-+	if (ret)
-+		dev_err(&param->vport->back->pdev->dev,
-+			"PF fail(%d) to get VF ring vector map\n",
-+			ret);
-+	return ret;
-+}
-+
-+static int hclge_mbx_set_promisc_mode_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_set_vf_promisc_mode(param->vport, param->req);
-+	return 0;
-+}
-+
-+static int hclge_mbx_set_unicast_handler(struct hclge_mbx_ops_param *param)
-+{
-+	int ret;
-+
-+	ret = hclge_set_vf_uc_mac_addr(param->vport, param->req);
-+	if (ret)
-+		dev_err(&param->vport->back->pdev->dev,
-+			"PF fail(%d) to set VF UC MAC Addr\n",
-+			ret);
-+	return ret;
-+}
-+
-+static int hclge_mbx_set_multicast_handler(struct hclge_mbx_ops_param *param)
-+{
-+	int ret;
-+
-+	ret = hclge_set_vf_mc_mac_addr(param->vport, param->req);
-+	if (ret)
-+		dev_err(&param->vport->back->pdev->dev,
-+			"PF fail(%d) to set VF MC MAC Addr\n",
-+			ret);
-+	return ret;
-+}
-+
-+static int hclge_mbx_set_vlan_handler(struct hclge_mbx_ops_param *param)
-+{
-+	int ret;
-+
-+	ret = hclge_set_vf_vlan_cfg(param->vport, param->req, param->resp_msg);
-+	if (ret)
-+		dev_err(&param->vport->back->pdev->dev,
-+			"PF failed(%d) to config VF's VLAN\n",
-+			ret);
-+	return ret;
-+}
-+
-+static int hclge_mbx_set_alive_handler(struct hclge_mbx_ops_param *param)
-+{
-+	int ret;
-+
-+	ret = hclge_set_vf_alive(param->vport, param->req);
-+	if (ret)
-+		dev_err(&param->vport->back->pdev->dev,
-+			"PF failed(%d) to set VF's ALIVE\n",
-+			ret);
-+	return ret;
-+}
-+
-+static int hclge_mbx_get_qinfo_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_get_vf_queue_info(param->vport, param->resp_msg);
-+	return 0;
-+}
-+
-+static int hclge_mbx_get_qdepth_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_get_vf_queue_depth(param->vport, param->resp_msg);
-+	return 0;
-+}
-+
-+static int hclge_mbx_get_basic_info_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_get_basic_info(param->vport, param->resp_msg);
-+	return 0;
-+}
-+
-+static int hclge_mbx_get_link_status_handler(struct hclge_mbx_ops_param *param)
-+{
-+	int ret;
-+
-+	ret = hclge_push_vf_link_status(param->vport);
-+	if (ret)
-+		dev_err(&param->vport->back->pdev->dev,
-+			"failed to inform link stat to VF, ret = %d\n",
-+			ret);
-+	return ret;
-+}
-+
-+static int hclge_mbx_queue_reset_handler(struct hclge_mbx_ops_param *param)
-+{
-+	return hclge_mbx_reset_vf_queue(param->vport, param->req,
-+					param->resp_msg);
-+}
-+
-+static int hclge_mbx_reset_handler(struct hclge_mbx_ops_param *param)
-+{
-+	return hclge_reset_vf(param->vport);
-+}
-+
-+static int hclge_mbx_keep_alive_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_vf_keep_alive(param->vport);
-+	return 0;
-+}
-+
-+static int hclge_mbx_set_mtu_handler(struct hclge_mbx_ops_param *param)
-+{
-+	int ret;
-+
-+	ret = hclge_set_vf_mtu(param->vport, param->req);
-+	if (ret)
-+		dev_err(&param->vport->back->pdev->dev,
-+			"VF fail(%d) to set mtu\n", ret);
-+	return ret;
-+}
-+
-+static int hclge_mbx_get_qid_in_pf_handler(struct hclge_mbx_ops_param *param)
-+{
-+	return hclge_get_queue_id_in_pf(param->vport, param->req,
-+					param->resp_msg);
-+}
-+
-+static int hclge_mbx_get_rss_key_handler(struct hclge_mbx_ops_param *param)
-+{
-+	return hclge_get_rss_key(param->vport, param->req, param->resp_msg);
-+}
-+
-+static int hclge_mbx_get_link_mode_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_get_link_mode(param->vport, param->req);
-+	return 0;
-+}
-+
-+static int
-+hclge_mbx_get_vf_flr_status_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_rm_vport_all_mac_table(param->vport, false,
-+				     HCLGE_MAC_ADDR_UC);
-+	hclge_rm_vport_all_mac_table(param->vport, false,
-+				     HCLGE_MAC_ADDR_MC);
-+	hclge_rm_vport_all_vlan_table(param->vport, false);
-+	return 0;
-+}
-+
-+static int hclge_mbx_vf_uninit_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_rm_vport_all_mac_table(param->vport, true,
-+				     HCLGE_MAC_ADDR_UC);
-+	hclge_rm_vport_all_mac_table(param->vport, true,
-+				     HCLGE_MAC_ADDR_MC);
-+	hclge_rm_vport_all_vlan_table(param->vport, true);
-+	return 0;
-+}
-+
-+static int hclge_mbx_get_media_type_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_get_vf_media_type(param->vport, param->resp_msg);
-+	return 0;
-+}
-+
-+static int hclge_mbx_push_link_status_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_handle_link_change_event(param->vport->back, param->req);
-+	return 0;
-+}
-+
-+static int hclge_mbx_get_mac_addr_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_get_vf_mac_addr(param->vport, param->resp_msg);
-+	return 0;
-+}
-+
-+static int hclge_mbx_ncsi_error_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_handle_ncsi_error(param->vport->back);
-+	return 0;
-+}
-+
-+static int hclge_mbx_handle_vf_tbl_handler(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_handle_vf_tbl(param->vport, param->req);
-+	return 0;
-+}
-+
-+static const hclge_mbx_ops_fn hclge_mbx_ops_list[HCLGE_MBX_OPCODE_MAX] = {
-+	[HCLGE_MBX_RESET]   = hclge_mbx_reset_handler,
-+	[HCLGE_MBX_SET_UNICAST] = hclge_mbx_set_unicast_handler,
-+	[HCLGE_MBX_SET_MULTICAST] = hclge_mbx_set_multicast_handler,
-+	[HCLGE_MBX_SET_VLAN] = hclge_mbx_set_vlan_handler,
-+	[HCLGE_MBX_MAP_RING_TO_VECTOR] = hclge_mbx_map_ring_to_vector_handler,
-+	[HCLGE_MBX_UNMAP_RING_TO_VECTOR] = hclge_mbx_unmap_ring_to_vector_handler,
-+	[HCLGE_MBX_SET_PROMISC_MODE] = hclge_mbx_set_promisc_mode_handler,
-+	[HCLGE_MBX_GET_QINFO] = hclge_mbx_get_qinfo_handler,
-+	[HCLGE_MBX_GET_QDEPTH] = hclge_mbx_get_qdepth_handler,
-+	[HCLGE_MBX_GET_BASIC_INFO] = hclge_mbx_get_basic_info_handler,
-+	[HCLGE_MBX_GET_RSS_KEY] = hclge_mbx_get_rss_key_handler,
-+	[HCLGE_MBX_GET_MAC_ADDR] = hclge_mbx_get_mac_addr_handler,
-+	[HCLGE_MBX_GET_LINK_STATUS] = hclge_mbx_get_link_status_handler,
-+	[HCLGE_MBX_QUEUE_RESET] = hclge_mbx_queue_reset_handler,
-+	[HCLGE_MBX_KEEP_ALIVE] = hclge_mbx_keep_alive_handler,
-+	[HCLGE_MBX_SET_ALIVE] = hclge_mbx_set_alive_handler,
-+	[HCLGE_MBX_SET_MTU] = hclge_mbx_set_mtu_handler,
-+	[HCLGE_MBX_GET_QID_IN_PF] = hclge_mbx_get_qid_in_pf_handler,
-+	[HCLGE_MBX_GET_LINK_MODE] = hclge_mbx_get_link_mode_handler,
-+	[HCLGE_MBX_GET_MEDIA_TYPE] = hclge_mbx_get_media_type_handler,
-+	[HCLGE_MBX_VF_UNINIT] = hclge_mbx_vf_uninit_handler,
-+	[HCLGE_MBX_HANDLE_VF_TBL] = hclge_mbx_handle_vf_tbl_handler,
-+	[HCLGE_MBX_GET_RING_VECTOR_MAP] = hclge_mbx_get_ring_vector_map_handler,
-+	[HCLGE_MBX_GET_VF_FLR_STATUS] = hclge_mbx_get_vf_flr_status_handler,
-+	[HCLGE_MBX_PUSH_LINK_STATUS] = hclge_mbx_push_link_status_handler,
-+	[HCLGE_MBX_NCSI_ERROR] = hclge_mbx_ncsi_error_handler,
-+};
-+
-+static void hclge_mbx_request_handling(struct hclge_mbx_ops_param *param)
-+{
-+	hclge_mbx_ops_fn cmd_func = NULL;
-+	struct hclge_dev *hdev;
-+	int ret = 0;
-+
-+	hdev = param->vport->back;
-+	cmd_func = hclge_mbx_ops_list[param->req->msg.code];
-+	if (cmd_func)
-+		ret = cmd_func(param);
-+	else
-+		dev_err(&hdev->pdev->dev,
-+			"un-supported mailbox message, code = %u\n",
-+			param->req->msg.code);
-+
-+	/* PF driver should not reply IMP */
-+	if (hnae3_get_bit(param->req->mbx_need_resp, HCLGE_MBX_NEED_RESP_B) &&
-+	    param->req->msg.code < HCLGE_MBX_GET_VF_FLR_STATUS) {
-+		param->resp_msg->status = ret;
-+		if (time_is_before_jiffies(hdev->last_mbx_scheduled +
-+					   HCLGE_MBX_SCHED_TIMEOUT))
-+			dev_warn(&hdev->pdev->dev,
-+				 "resp vport%u mbx(%u,%u) late\n",
-+				 param->req->mbx_src_vfid,
-+				 param->req->msg.code,
-+				 param->req->msg.subcode);
-+
-+		hclge_gen_resp_to_vf(param->vport, param->req, param->resp_msg);
++		if (!(flags & NFT_SET_EXPR)) {
++			err = -EINVAL;
++			goto err_set_expr_alloc;
++		}
++		i = 0;
++		nla_for_each_nested(tmp, nla[NFTA_SET_EXPRESSIONS], left) {
++			if (i == NFT_SET_EXPR_MAX) {
++				err = -E2BIG;
++				goto err_set_expr_alloc;
++			}
++			if (nla_type(tmp) != NFTA_LIST_ELEM) {
++				err = -EINVAL;
++				goto err_set_expr_alloc;
++			}
++			expr = nft_set_elem_expr_alloc(ctx, set, tmp);
++			if (IS_ERR(expr)) {
++				err = PTR_ERR(expr);
++				goto err_set_expr_alloc;
++			}
++			exprs[i++] = expr;
++			(*num_exprs)++;
++		}
 +	}
++
++	return 0;
++
++err_set_expr_alloc:
++	for (i = 0; i < *num_exprs; i++)
++		nft_expr_destroy(ctx, exprs[i]);
++
++	return err;
 +}
 +
- void hclge_mbx_handler(struct hclge_dev *hdev)
+ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 			    const struct nlattr * const nla[])
  {
- 	struct hclge_comm_cmq_ring *crq = &hdev->hw.hw.cmq.crq;
- 	struct hclge_respond_to_vf_msg resp_msg;
- 	struct hclge_mbx_vf_to_pf_cmd *req;
--	struct hclge_vport *vport;
-+	struct hclge_mbx_ops_param param;
- 	struct hclge_desc *desc;
--	bool is_del = false;
- 	unsigned int flag;
--	int ret = 0;
- 
-+	param.resp_msg = &resp_msg;
- 	/* handle all the mailbox requests in the queue */
- 	while (!hclge_cmd_crq_empty(&hdev->hw)) {
- 		if (test_bit(HCLGE_COMM_STATE_CMD_DISABLE,
-@@ -814,152 +1081,16 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
- 			continue;
+@@ -4347,7 +4400,6 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	u8 genmask = nft_genmask_next(info->net);
+ 	u8 family = info->nfmsg->nfgen_family;
+ 	const struct nft_set_ops *ops;
+-	struct nft_expr *expr = NULL;
+ 	struct net *net = info->net;
+ 	struct nft_set_desc desc;
+ 	struct nft_table *table;
+@@ -4355,6 +4407,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	struct nft_set *set;
+ 	struct nft_ctx ctx;
+ 	size_t alloc_size;
++	int num_exprs = 0;
+ 	char *name;
+ 	int err, i;
+ 	u16 udlen;
+@@ -4481,6 +4534,8 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 			return PTR_ERR(set);
  		}
+ 	} else {
++		struct nft_expr *exprs[NFT_SET_EXPR_MAX] = {};
++
+ 		if (info->nlh->nlmsg_flags & NLM_F_EXCL) {
+ 			NL_SET_BAD_ATTR(extack, nla[NFTA_SET_NAME]);
+ 			return -EEXIST;
+@@ -4488,6 +4543,13 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 		if (info->nlh->nlmsg_flags & NLM_F_REPLACE)
+ 			return -EOPNOTSUPP;
  
--		vport = &hdev->vport[req->mbx_src_vfid];
--
- 		trace_hclge_pf_mbx_get(hdev, req);
- 
- 		/* clear the resp_msg before processing every mailbox message */
- 		memset(&resp_msg, 0, sizeof(resp_msg));
--
--		switch (req->msg.code) {
--		case HCLGE_MBX_MAP_RING_TO_VECTOR:
--			ret = hclge_map_unmap_ring_to_vf_vector(vport, true,
--								req);
--			break;
--		case HCLGE_MBX_UNMAP_RING_TO_VECTOR:
--			ret = hclge_map_unmap_ring_to_vf_vector(vport, false,
--								req);
--			break;
--		case HCLGE_MBX_GET_RING_VECTOR_MAP:
--			ret = hclge_get_vf_ring_vector_map(vport, req,
--							   &resp_msg);
--			if (ret)
--				dev_err(&hdev->pdev->dev,
--					"PF fail(%d) to get VF ring vector map\n",
--					ret);
--			break;
--		case HCLGE_MBX_SET_PROMISC_MODE:
--			hclge_set_vf_promisc_mode(vport, req);
--			break;
--		case HCLGE_MBX_SET_UNICAST:
--			ret = hclge_set_vf_uc_mac_addr(vport, req);
--			if (ret)
--				dev_err(&hdev->pdev->dev,
--					"PF fail(%d) to set VF UC MAC Addr\n",
--					ret);
--			break;
--		case HCLGE_MBX_SET_MULTICAST:
--			ret = hclge_set_vf_mc_mac_addr(vport, req);
--			if (ret)
--				dev_err(&hdev->pdev->dev,
--					"PF fail(%d) to set VF MC MAC Addr\n",
--					ret);
--			break;
--		case HCLGE_MBX_SET_VLAN:
--			ret = hclge_set_vf_vlan_cfg(vport, req, &resp_msg);
--			if (ret)
--				dev_err(&hdev->pdev->dev,
--					"PF failed(%d) to config VF's VLAN\n",
--					ret);
--			break;
--		case HCLGE_MBX_SET_ALIVE:
--			ret = hclge_set_vf_alive(vport, req);
--			if (ret)
--				dev_err(&hdev->pdev->dev,
--					"PF failed(%d) to set VF's ALIVE\n",
--					ret);
--			break;
--		case HCLGE_MBX_GET_QINFO:
--			hclge_get_vf_queue_info(vport, &resp_msg);
--			break;
--		case HCLGE_MBX_GET_QDEPTH:
--			hclge_get_vf_queue_depth(vport, &resp_msg);
--			break;
--		case HCLGE_MBX_GET_BASIC_INFO:
--			hclge_get_basic_info(vport, &resp_msg);
--			break;
--		case HCLGE_MBX_GET_LINK_STATUS:
--			ret = hclge_push_vf_link_status(vport);
--			if (ret)
--				dev_err(&hdev->pdev->dev,
--					"failed to inform link stat to VF, ret = %d\n",
--					ret);
--			break;
--		case HCLGE_MBX_QUEUE_RESET:
--			ret = hclge_mbx_reset_vf_queue(vport, req, &resp_msg);
--			break;
--		case HCLGE_MBX_RESET:
--			ret = hclge_reset_vf(vport);
--			break;
--		case HCLGE_MBX_KEEP_ALIVE:
--			hclge_vf_keep_alive(vport);
--			break;
--		case HCLGE_MBX_SET_MTU:
--			ret = hclge_set_vf_mtu(vport, req);
--			if (ret)
--				dev_err(&hdev->pdev->dev,
--					"VF fail(%d) to set mtu\n", ret);
--			break;
--		case HCLGE_MBX_GET_QID_IN_PF:
--			ret = hclge_get_queue_id_in_pf(vport, req, &resp_msg);
--			break;
--		case HCLGE_MBX_GET_RSS_KEY:
--			ret = hclge_get_rss_key(vport, req, &resp_msg);
--			break;
--		case HCLGE_MBX_GET_LINK_MODE:
--			hclge_get_link_mode(vport, req);
--			break;
--		case HCLGE_MBX_GET_VF_FLR_STATUS:
--		case HCLGE_MBX_VF_UNINIT:
--			is_del = req->msg.code == HCLGE_MBX_VF_UNINIT;
--			hclge_rm_vport_all_mac_table(vport, is_del,
--						     HCLGE_MAC_ADDR_UC);
--			hclge_rm_vport_all_mac_table(vport, is_del,
--						     HCLGE_MAC_ADDR_MC);
--			hclge_rm_vport_all_vlan_table(vport, is_del);
--			break;
--		case HCLGE_MBX_GET_MEDIA_TYPE:
--			hclge_get_vf_media_type(vport, &resp_msg);
--			break;
--		case HCLGE_MBX_PUSH_LINK_STATUS:
--			hclge_handle_link_change_event(hdev, req);
--			break;
--		case HCLGE_MBX_GET_MAC_ADDR:
--			hclge_get_vf_mac_addr(vport, &resp_msg);
--			break;
--		case HCLGE_MBX_NCSI_ERROR:
--			hclge_handle_ncsi_error(hdev);
--			break;
--		case HCLGE_MBX_HANDLE_VF_TBL:
--			hclge_handle_vf_tbl(vport, req);
--			break;
--		default:
--			dev_err(&hdev->pdev->dev,
--				"un-supported mailbox message, code = %u\n",
--				req->msg.code);
--			break;
--		}
--
--		/* PF driver should not reply IMP */
--		if (hnae3_get_bit(req->mbx_need_resp, HCLGE_MBX_NEED_RESP_B) &&
--		    req->msg.code < HCLGE_MBX_GET_VF_FLR_STATUS) {
--			resp_msg.status = ret;
--			if (time_is_before_jiffies(hdev->last_mbx_scheduled +
--						   HCLGE_MBX_SCHED_TIMEOUT))
--				dev_warn(&hdev->pdev->dev,
--					 "resp vport%u mbx(%u,%u) late\n",
--					 req->mbx_src_vfid,
--					 req->msg.code,
--					 req->msg.subcode);
--
--			hclge_gen_resp_to_vf(vport, req, &resp_msg);
--		}
-+		param.vport = &hdev->vport[req->mbx_src_vfid];
-+		param.req = req;
-+		hclge_mbx_request_handling(&param);
- 
- 		crq->desc[crq->next_to_use].flag = 0;
- 		hclge_mbx_ring_ptr_move_crq(crq);
--
--		/* reinitialize ret after complete the mbx message processing */
--		ret = 0;
++		err = nft_set_expr_alloc(&ctx, set, nla, exprs, &num_exprs, flags);
++		if (err < 0)
++			return err;
++
++		for (i = 0; i < num_exprs; i++)
++			nft_expr_destroy(&ctx, exprs[i]);
++
+ 		return 0;
  	}
  
- 	/* Write back CMDQ_RQ header pointer, M7 need this pointer */
+@@ -4555,43 +4617,11 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ 	if (err < 0)
+ 		goto err_set_init;
+ 
+-	if (nla[NFTA_SET_EXPR]) {
+-		expr = nft_set_elem_expr_alloc(&ctx, set, nla[NFTA_SET_EXPR]);
+-		if (IS_ERR(expr)) {
+-			err = PTR_ERR(expr);
+-			goto err_set_expr_alloc;
+-		}
+-		set->exprs[0] = expr;
+-		set->num_exprs++;
+-	} else if (nla[NFTA_SET_EXPRESSIONS]) {
+-		struct nft_expr *expr;
+-		struct nlattr *tmp;
+-		int left;
+-
+-		if (!(flags & NFT_SET_EXPR)) {
+-			err = -EINVAL;
+-			goto err_set_expr_alloc;
+-		}
+-		i = 0;
+-		nla_for_each_nested(tmp, nla[NFTA_SET_EXPRESSIONS], left) {
+-			if (i == NFT_SET_EXPR_MAX) {
+-				err = -E2BIG;
+-				goto err_set_expr_alloc;
+-			}
+-			if (nla_type(tmp) != NFTA_LIST_ELEM) {
+-				err = -EINVAL;
+-				goto err_set_expr_alloc;
+-			}
+-			expr = nft_set_elem_expr_alloc(&ctx, set, tmp);
+-			if (IS_ERR(expr)) {
+-				err = PTR_ERR(expr);
+-				goto err_set_expr_alloc;
+-			}
+-			set->exprs[i++] = expr;
+-			set->num_exprs++;
+-		}
+-	}
++	err = nft_set_expr_alloc(&ctx, set, nla, set->exprs, &num_exprs, flags);
++	if (err < 0)
++		goto err_set_destroy;
+ 
++	set->num_exprs = num_exprs;
+ 	set->handle = nf_tables_alloc_handle(table);
+ 
+ 	err = nft_trans_set_add(&ctx, NFT_MSG_NEWSET, set);
+@@ -4605,7 +4635,7 @@ static int nf_tables_newset(struct sk_buff *skb, const struct nfnl_info *info,
+ err_set_expr_alloc:
+ 	for (i = 0; i < set->num_exprs; i++)
+ 		nft_expr_destroy(&ctx, set->exprs[i]);
+-
++err_set_destroy:
+ 	ops->destroy(set);
+ err_set_init:
+ 	kfree(set->name);
 -- 
 2.35.1
 
