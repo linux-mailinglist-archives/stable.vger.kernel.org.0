@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63798664977
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58642664AB2
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:35:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239260AbjAJSVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:21:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35818 "EHLO
+        id S234721AbjAJSfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:35:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239262AbjAJSV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:21:27 -0500
+        with ESMTP id S239547AbjAJSeE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:34:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB17E4914F
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:19:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEA72983FB;
+        Tue, 10 Jan 2023 10:29:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69CE6B81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A11C2C433D2;
-        Tue, 10 Jan 2023 18:19:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2AFCB81907;
+        Tue, 10 Jan 2023 18:29:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D01E5C433EF;
+        Tue, 10 Jan 2023 18:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374746;
-        bh=UlT9AyQJrOphxL9D4sOxgWO6v1t53v9ZwcsYV1P4vc8=;
+        s=korg; t=1673375393;
+        bh=pTop5DvSRwBF6dtjgm805SKO454FLakZYCnuzkXRexk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfrkCOcotPXy1De1kSkUa0TED2mZzCrABQTW6IP3cW/9BaH2eLLQgNxYlgoYc5w6E
-         AfXqc8V7QHj/mStZ3OKxBJjOHIM/8FayMYA1ya52Zv9hTDI2ry7RER4x0aFB71aZ1L
-         XhM69w2TeRDO7dLgp5i+OpDdmfjE4BzJGn2oetYI=
+        b=UqpHlWOAsADLmL7RAixSJBGeon+KUSUJgrvyq1ojTp9Gdol6XiFiQDbiLGMGKw/Ub
+         5jAnAhM9MJ8lSFBdE/PCn0SjA9Kpl0jnNEurN1tqWtLhDcfuk+oKkDBBVFqMrXG8UU
+         v500OZd19wXTvURezP3KqgMRbWVmBVv+u1XDzKjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 119/159] drm/amd/display: Report to ACPI video if no panels were found
+        patches@lists.linux.dev,
+        "linux-ext4@vger.kernel.org, Theodore Tso" <tytso@mit.edu>,
+        Eric Biggers <ebiggers@google.com>,
+        Theodore Ts'o <tytso@mit.edu>
+Subject: [PATCH 5.15 175/290] ext4: fix unaligned memory access in ext4_fc_reserve_space()
 Date:   Tue, 10 Jan 2023 19:04:27 +0100
-Message-Id: <20230110180022.098786948@linuxfoundation.org>
+Message-Id: <20230110180037.961305159@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Eric Biggers <ebiggers@kernel.org>
 
-[ Upstream commit c573e240609ff781a0246c0c8c8351abd0475287 ]
+From: Eric Biggers <ebiggers@google.com>
 
-On desktop APUs amdgpu doesn't create a native backlight device
-as no eDP panels are found.  However if the BIOS has reported
-backlight control methods in the ACPI tables then an acpi_video0
-backlight device will be made 8 seconds after boot.
+commit 8415ce07ecf0cc25efdd5db264a7133716e503cf upstream.
 
-This has manifested in a power slider on a number of desktop APUs
-ranging from Ryzen 5000 through Ryzen 7000 on various motherboard
-manufacturers. To avoid this, report to the acpi video detection
-that the system does not have any panel connected in the native
-driver.
+As is done elsewhere in the file, build the struct ext4_fc_tl on the
+stack and memcpy() it into the buffer, rather than directly writing it
+to a potentially-unaligned location in the buffer.
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1783786
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221106224841.279231-6-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/ext4/fast_commit.c |   39 +++++++++++++++++++++------------------
+ 1 file changed, 21 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index c2c26fbea512..6f1cc5ce4c7a 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -4372,6 +4372,10 @@ static int amdgpu_dm_initialize_drm_device(struct amdgpu_device *adev)
- 		amdgpu_set_panel_orientation(&aconnector->base);
- 	}
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -604,6 +604,15 @@ static void ext4_fc_submit_bh(struct sup
  
-+	/* If we didn't find a panel, notify the acpi video detection */
-+	if (dm->adev->flags & AMD_IS_APU && dm->num_of_edps == 0)
-+		acpi_video_report_nolcd();
+ /* Ext4 commit path routines */
+ 
++/* memcpy to fc reserved space and update CRC */
++static void *ext4_fc_memcpy(struct super_block *sb, void *dst, const void *src,
++				int len, u32 *crc)
++{
++	if (crc)
++		*crc = ext4_chksum(EXT4_SB(sb), *crc, src, len);
++	return memcpy(dst, src, len);
++}
 +
- 	/* Software is initialized. Now we can register interrupt handlers. */
- 	switch (adev->asic_type) {
- #if defined(CONFIG_DRM_AMD_DC_SI)
--- 
-2.35.1
-
+ /* memzero and update CRC */
+ static void *ext4_fc_memzero(struct super_block *sb, void *dst, int len,
+ 				u32 *crc)
+@@ -629,12 +638,13 @@ static void *ext4_fc_memzero(struct supe
+  */
+ static u8 *ext4_fc_reserve_space(struct super_block *sb, int len, u32 *crc)
+ {
+-	struct ext4_fc_tl *tl;
++	struct ext4_fc_tl tl;
+ 	struct ext4_sb_info *sbi = EXT4_SB(sb);
+ 	struct buffer_head *bh;
+ 	int bsize = sbi->s_journal->j_blocksize;
+ 	int ret, off = sbi->s_fc_bytes % bsize;
+ 	int pad_len;
++	u8 *dst;
+ 
+ 	/*
+ 	 * After allocating len, we should have space at least for a 0 byte
+@@ -658,16 +668,18 @@ static u8 *ext4_fc_reserve_space(struct
+ 		return sbi->s_fc_bh->b_data + off;
+ 	}
+ 	/* Need to add PAD tag */
+-	tl = (struct ext4_fc_tl *)(sbi->s_fc_bh->b_data + off);
+-	tl->fc_tag = cpu_to_le16(EXT4_FC_TAG_PAD);
++	dst = sbi->s_fc_bh->b_data + off;
++	tl.fc_tag = cpu_to_le16(EXT4_FC_TAG_PAD);
+ 	pad_len = bsize - off - 1 - EXT4_FC_TAG_BASE_LEN;
+-	tl->fc_len = cpu_to_le16(pad_len);
+-	if (crc)
+-		*crc = ext4_chksum(sbi, *crc, tl, EXT4_FC_TAG_BASE_LEN);
+-	if (pad_len > 0)
+-		ext4_fc_memzero(sb, tl + 1, pad_len, crc);
++	tl.fc_len = cpu_to_le16(pad_len);
++	ext4_fc_memcpy(sb, dst, &tl, EXT4_FC_TAG_BASE_LEN, crc);
++	dst += EXT4_FC_TAG_BASE_LEN;
++	if (pad_len > 0) {
++		ext4_fc_memzero(sb, dst, pad_len, crc);
++		dst += pad_len;
++	}
+ 	/* Don't leak uninitialized memory in the unused last byte. */
+-	*((u8 *)(tl + 1) + pad_len) = 0;
++	*dst = 0;
+ 
+ 	ext4_fc_submit_bh(sb, false);
+ 
+@@ -679,15 +691,6 @@ static u8 *ext4_fc_reserve_space(struct
+ 	return sbi->s_fc_bh->b_data;
+ }
+ 
+-/* memcpy to fc reserved space and update CRC */
+-static void *ext4_fc_memcpy(struct super_block *sb, void *dst, const void *src,
+-				int len, u32 *crc)
+-{
+-	if (crc)
+-		*crc = ext4_chksum(EXT4_SB(sb), *crc, src, len);
+-	return memcpy(dst, src, len);
+-}
+-
+ /*
+  * Complete a fast commit by writing tail tag.
+  *
 
 
