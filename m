@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9CBA6649DA
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:26:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C300C664846
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234379AbjAJS01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:26:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38730 "EHLO
+        id S235104AbjAJSKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:10:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239382AbjAJSZj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:25:39 -0500
+        with ESMTP id S239025AbjAJSJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:09:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBC77974B7
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:22:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE6015FC8
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A42E9B81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:22:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2799C433EF;
-        Tue, 10 Jan 2023 18:22:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53E34B818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB655C433EF;
+        Tue, 10 Jan 2023 18:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374936;
-        bh=OsWpM7VMqAeoAF4eCneiyqb1FOaCm6d8gpiZhGJ7kpI=;
+        s=korg; t=1673374047;
+        bh=vpaTrvBJxnXvLYryMu2XfyB5YPqtWcLg50aPxfKu2Es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HmeLT4U/IkwMOIqavUiL7wGPwUR8jg9dOzMuaiwbCzkjI7bS6qv/VH4wUTQn4aJLN
-         bYrFcF0R3+RsHZtCxnqJMFwPsLNKJVr/qEBf30c1Ro8/kvL2/B3zUqTx8EDY0kMPsj
-         WOODDYVfOmaTsuDp7Bv7huPlPActBB3stZdRl9yE=
+        b=U6ENqH0A57IHtOK/HMboDAsLlDnGMZW7nHsGsx/s4D7fQTwrl/sXbX8699DpFmsLh
+         xhrEmnwpedZmJ7Ow6ixf4FXmgYaaVKGo+iDYh8xIUcS7t1+hwguba1RZSmalJzTqoW
+         hOvgmfHiopxdzl5NdISn6s78EmIqg6FNg1p12oxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Edward Lo <edward.lo@ambergroup.io>,
-        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        patches@lists.linux.dev, minoura makoto <minoura@valinux.co.jp>,
+        Hiroshi Shimamoto <h-shimamoto@nec.com>,
+        Trond Myklebust <trondmy@hammerspace.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/290] fs/ntfs3: Validate resident attribute name
+Subject: [PATCH 6.0 011/148] SUNRPC: ensure the matching upcall is in-flight upon downcall
 Date:   Tue, 10 Jan 2023 19:01:55 +0100
-Message-Id: <20230110180032.386496021@linuxfoundation.org>
+Message-Id: <20230110180017.539752192@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,171 +55,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Lo <edward.lo@ambergroup.io>
+From: minoura makoto <minoura@valinux.co.jp>
 
-[ Upstream commit 54e45702b648b7c0000e90b3e9b890e367e16ea8 ]
+[ Upstream commit b18cba09e374637a0a3759d856a6bca94c133952 ]
 
-Though we already have some sanity checks while enumerating attributes,
-resident attribute names aren't included. This patch checks the resident
-attribute names are in the valid ranges.
+Commit 9130b8dbc6ac ("SUNRPC: allow for upcalls for the same uid
+but different gss service") introduced `auth` argument to
+__gss_find_upcall(), but in gss_pipe_downcall() it was left as NULL
+since it (and auth->service) was not (yet) determined.
 
-[  259.209031] BUG: KASAN: slab-out-of-bounds in ni_create_attr_list+0x1e1/0x850
-[  259.210770] Write of size 426 at addr ffff88800632f2b2 by task exp/255
-[  259.211551]
-[  259.212035] CPU: 0 PID: 255 Comm: exp Not tainted 6.0.0-rc6 #37
-[  259.212955] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-[  259.214387] Call Trace:
-[  259.214640]  <TASK>
-[  259.214895]  dump_stack_lvl+0x49/0x63
-[  259.215284]  print_report.cold+0xf5/0x689
-[  259.215565]  ? kasan_poison+0x3c/0x50
-[  259.215778]  ? kasan_unpoison+0x28/0x60
-[  259.215991]  ? ni_create_attr_list+0x1e1/0x850
-[  259.216270]  kasan_report+0xa7/0x130
-[  259.216481]  ? ni_create_attr_list+0x1e1/0x850
-[  259.216719]  kasan_check_range+0x15a/0x1d0
-[  259.216939]  memcpy+0x3c/0x70
-[  259.217136]  ni_create_attr_list+0x1e1/0x850
-[  259.217945]  ? __rcu_read_unlock+0x5b/0x280
-[  259.218384]  ? ni_remove_attr+0x2e0/0x2e0
-[  259.218712]  ? kernel_text_address+0xcf/0xe0
-[  259.219064]  ? __kernel_text_address+0x12/0x40
-[  259.219434]  ? arch_stack_walk+0x9e/0xf0
-[  259.219668]  ? __this_cpu_preempt_check+0x13/0x20
-[  259.219904]  ? sysvec_apic_timer_interrupt+0x57/0xc0
-[  259.220140]  ? asm_sysvec_apic_timer_interrupt+0x1b/0x20
-[  259.220561]  ni_ins_attr_ext+0x52c/0x5c0
-[  259.220984]  ? ni_create_attr_list+0x850/0x850
-[  259.221532]  ? run_deallocate+0x120/0x120
-[  259.221972]  ? vfs_setxattr+0x128/0x300
-[  259.222688]  ? setxattr+0x126/0x140
-[  259.222921]  ? path_setxattr+0x164/0x180
-[  259.223431]  ? __x64_sys_setxattr+0x6d/0x80
-[  259.223828]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  259.224417]  ? mi_find_attr+0x3c/0xf0
-[  259.224772]  ni_insert_attr+0x1ba/0x420
-[  259.225216]  ? ni_ins_attr_ext+0x5c0/0x5c0
-[  259.225504]  ? ntfs_read_ea+0x119/0x450
-[  259.225775]  ni_insert_resident+0xc0/0x1c0
-[  259.226316]  ? ni_insert_nonresident+0x400/0x400
-[  259.227001]  ? __kasan_kmalloc+0x88/0xb0
-[  259.227468]  ? __kmalloc+0x192/0x320
-[  259.227773]  ntfs_set_ea+0x6bf/0xb30
-[  259.228216]  ? ftrace_graph_ret_addr+0x2a/0xb0
-[  259.228494]  ? entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  259.228838]  ? ntfs_read_ea+0x450/0x450
-[  259.229098]  ? is_bpf_text_address+0x24/0x40
-[  259.229418]  ? kernel_text_address+0xcf/0xe0
-[  259.229681]  ? __kernel_text_address+0x12/0x40
-[  259.229948]  ? unwind_get_return_address+0x3a/0x60
-[  259.230271]  ? write_profile+0x270/0x270
-[  259.230537]  ? arch_stack_walk+0x9e/0xf0
-[  259.230836]  ntfs_setxattr+0x114/0x5c0
-[  259.231099]  ? ntfs_set_acl_ex+0x2e0/0x2e0
-[  259.231529]  ? evm_protected_xattr_common+0x6d/0x100
-[  259.231817]  ? posix_xattr_acl+0x13/0x80
-[  259.232073]  ? evm_protect_xattr+0x1f7/0x440
-[  259.232351]  __vfs_setxattr+0xda/0x120
-[  259.232635]  ? xattr_resolve_name+0x180/0x180
-[  259.232912]  __vfs_setxattr_noperm+0x93/0x300
-[  259.233219]  __vfs_setxattr_locked+0x141/0x160
-[  259.233492]  ? kasan_poison+0x3c/0x50
-[  259.233744]  vfs_setxattr+0x128/0x300
-[  259.234002]  ? __vfs_setxattr_locked+0x160/0x160
-[  259.234837]  do_setxattr+0xb8/0x170
-[  259.235567]  ? vmemdup_user+0x53/0x90
-[  259.236212]  setxattr+0x126/0x140
-[  259.236491]  ? do_setxattr+0x170/0x170
-[  259.236791]  ? debug_smp_processor_id+0x17/0x20
-[  259.237232]  ? kasan_quarantine_put+0x57/0x180
-[  259.237605]  ? putname+0x80/0xa0
-[  259.237870]  ? __kasan_slab_free+0x11c/0x1b0
-[  259.238234]  ? putname+0x80/0xa0
-[  259.238500]  ? preempt_count_sub+0x18/0xc0
-[  259.238775]  ? __mnt_want_write+0xaa/0x100
-[  259.238990]  ? mnt_want_write+0x8b/0x150
-[  259.239290]  path_setxattr+0x164/0x180
-[  259.239605]  ? setxattr+0x140/0x140
-[  259.239849]  ? debug_smp_processor_id+0x17/0x20
-[  259.240174]  ? fpregs_assert_state_consistent+0x67/0x80
-[  259.240411]  __x64_sys_setxattr+0x6d/0x80
-[  259.240715]  do_syscall_64+0x3b/0x90
-[  259.240934]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  259.241697] RIP: 0033:0x7fc6b26e4469
-[  259.242647] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 088
-[  259.244512] RSP: 002b:00007ffc3c7841f8 EFLAGS: 00000217 ORIG_RAX: 00000000000000bc
-[  259.245086] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc6b26e4469
-[  259.246025] RDX: 00007ffc3c784380 RSI: 00007ffc3c7842e0 RDI: 00007ffc3c784238
-[  259.246961] RBP: 00007ffc3c788410 R08: 0000000000000001 R09: 00007ffc3c7884f8
-[  259.247775] R10: 000000000000007f R11: 0000000000000217 R12: 00000000004004e0
-[  259.248534] R13: 00007ffc3c7884f0 R14: 0000000000000000 R15: 0000000000000000
-[  259.249368]  </TASK>
-[  259.249644]
-[  259.249888] Allocated by task 255:
-[  259.250283]  kasan_save_stack+0x26/0x50
-[  259.250957]  __kasan_kmalloc+0x88/0xb0
-[  259.251826]  __kmalloc+0x192/0x320
-[  259.252745]  ni_create_attr_list+0x11e/0x850
-[  259.253298]  ni_ins_attr_ext+0x52c/0x5c0
-[  259.253685]  ni_insert_attr+0x1ba/0x420
-[  259.253974]  ni_insert_resident+0xc0/0x1c0
-[  259.254311]  ntfs_set_ea+0x6bf/0xb30
-[  259.254629]  ntfs_setxattr+0x114/0x5c0
-[  259.254859]  __vfs_setxattr+0xda/0x120
-[  259.255155]  __vfs_setxattr_noperm+0x93/0x300
-[  259.255445]  __vfs_setxattr_locked+0x141/0x160
-[  259.255862]  vfs_setxattr+0x128/0x300
-[  259.256251]  do_setxattr+0xb8/0x170
-[  259.256522]  setxattr+0x126/0x140
-[  259.256911]  path_setxattr+0x164/0x180
-[  259.257308]  __x64_sys_setxattr+0x6d/0x80
-[  259.257637]  do_syscall_64+0x3b/0x90
-[  259.257970]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[  259.258550]
-[  259.258772] The buggy address belongs to the object at ffff88800632f000
-[  259.258772]  which belongs to the cache kmalloc-1k of size 1024
-[  259.260190] The buggy address is located 690 bytes inside of
-[  259.260190]  1024-byte region [ffff88800632f000, ffff88800632f400)
-[  259.261412]
-[  259.261743] The buggy address belongs to the physical page:
-[  259.262354] page:0000000081e8cac9 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x632c
-[  259.263722] head:0000000081e8cac9 order:2 compound_mapcount:0 compound_pincount:0
-[  259.264284] flags: 0xfffffc0010200(slab|head|node=0|zone=1|lastcpupid=0x1fffff)
-[  259.265312] raw: 000fffffc0010200 ffffea0000060d00 dead000000000004 ffff888001041dc0
-[  259.265772] raw: 0000000000000000 0000000080080008 00000001ffffffff 0000000000000000
-[  259.266305] page dumped because: kasan: bad access detected
-[  259.266588]
-[  259.266728] Memory state around the buggy address:
-[  259.267225]  ffff88800632f300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[  259.267841]  ffff88800632f380: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[  259.269111] >ffff88800632f400: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  259.269626]                    ^
-[  259.270162]  ffff88800632f480: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[  259.270810]  ffff88800632f500: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+When multiple upcalls with the same uid and different service are
+ongoing, it could happen that __gss_find_upcall(), which returns the
+first match found in the pipe->in_downcall list, could not find the
+correct gss_msg corresponding to the downcall we are looking for.
+Moreover, it might return a msg which is not sent to rpc.gssd yet.
 
-Signed-off-by: Edward Lo <edward.lo@ambergroup.io>
-Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
+We could see mount.nfs process hung in D state with multiple mount.nfs
+are executed in parallel.  The call trace below is of CentOS 7.9
+kernel-3.10.0-1160.24.1.el7.x86_64 but we observed the same hang w/
+elrepo kernel-ml-6.0.7-1.el7.
+
+PID: 71258  TASK: ffff91ebd4be0000  CPU: 36  COMMAND: "mount.nfs"
+ #0 [ffff9203ca3234f8] __schedule at ffffffffa3b8899f
+ #1 [ffff9203ca323580] schedule at ffffffffa3b88eb9
+ #2 [ffff9203ca323590] gss_cred_init at ffffffffc0355818 [auth_rpcgss]
+ #3 [ffff9203ca323658] rpcauth_lookup_credcache at ffffffffc0421ebc
+[sunrpc]
+ #4 [ffff9203ca3236d8] gss_lookup_cred at ffffffffc0353633 [auth_rpcgss]
+ #5 [ffff9203ca3236e8] rpcauth_lookupcred at ffffffffc0421581 [sunrpc]
+ #6 [ffff9203ca323740] rpcauth_refreshcred at ffffffffc04223d3 [sunrpc]
+ #7 [ffff9203ca3237a0] call_refresh at ffffffffc04103dc [sunrpc]
+ #8 [ffff9203ca3237b8] __rpc_execute at ffffffffc041e1c9 [sunrpc]
+ #9 [ffff9203ca323820] rpc_execute at ffffffffc0420a48 [sunrpc]
+
+The scenario is like this. Let's say there are two upcalls for
+services A and B, A -> B in pipe->in_downcall, B -> A in pipe->pipe.
+
+When rpc.gssd reads pipe to get the upcall msg corresponding to
+service B from pipe->pipe and then writes the response, in
+gss_pipe_downcall the msg corresponding to service A will be picked
+because only uid is used to find the msg and it is before the one for
+B in pipe->in_downcall.  And the process waiting for the msg
+corresponding to service A will be woken up.
+
+Actual scheduing of that process might be after rpc.gssd processes the
+next msg.  In rpc_pipe_generic_upcall it clears msg->errno (for A).
+The process is scheduled to see gss_msg->ctx == NULL and
+gss_msg->msg.errno == 0, therefore it cannot break the loop in
+gss_create_upcall and is never woken up after that.
+
+This patch adds a simple check to ensure that a msg which is not
+sent to rpc.gssd yet is not chosen as the matching upcall upon
+receiving a downcall.
+
+Signed-off-by: minoura makoto <minoura@valinux.co.jp>
+Signed-off-by: Hiroshi Shimamoto <h-shimamoto@nec.com>
+Tested-by: Hiroshi Shimamoto <h-shimamoto@nec.com>
+Cc: Trond Myklebust <trondmy@hammerspace.com>
+Fixes: 9130b8dbc6ac ("SUNRPC: allow for upcalls for same uid but different gss service")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs3/record.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/linux/sunrpc/rpc_pipe_fs.h |  5 +++++
+ net/sunrpc/auth_gss/auth_gss.c     | 19 +++++++++++++++++--
+ 2 files changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ntfs3/record.c b/fs/ntfs3/record.c
-index 30751fd618df..fd342da398be 100644
---- a/fs/ntfs3/record.c
-+++ b/fs/ntfs3/record.c
-@@ -265,6 +265,11 @@ struct ATTRIB *mi_enum_attr(struct mft_inode *mi, struct ATTRIB *attr)
- 		if (t16 + t32 > asize)
- 			return NULL;
+diff --git a/include/linux/sunrpc/rpc_pipe_fs.h b/include/linux/sunrpc/rpc_pipe_fs.h
+index cd188a527d16..3b35b6f6533a 100644
+--- a/include/linux/sunrpc/rpc_pipe_fs.h
++++ b/include/linux/sunrpc/rpc_pipe_fs.h
+@@ -92,6 +92,11 @@ extern ssize_t rpc_pipe_generic_upcall(struct file *, struct rpc_pipe_msg *,
+ 				       char __user *, size_t);
+ extern int rpc_queue_upcall(struct rpc_pipe *, struct rpc_pipe_msg *);
  
-+		if (attr->name_len &&
-+		    le16_to_cpu(attr->name_off) + sizeof(short) * attr->name_len > t16) {
-+			return NULL;
-+		}
++/* returns true if the msg is in-flight, i.e., already eaten by the peer */
++static inline bool rpc_msg_is_inflight(const struct rpc_pipe_msg *msg) {
++	return (msg->copied != 0 && list_empty(&msg->list));
++}
 +
- 		return attr;
- 	}
+ struct rpc_clnt;
+ extern struct dentry *rpc_create_client_dir(struct dentry *, const char *, struct rpc_clnt *);
+ extern int rpc_remove_client_dir(struct rpc_clnt *);
+diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
+index 7bb247c51e2f..2d7b1e03110a 100644
+--- a/net/sunrpc/auth_gss/auth_gss.c
++++ b/net/sunrpc/auth_gss/auth_gss.c
+@@ -302,7 +302,7 @@ __gss_find_upcall(struct rpc_pipe *pipe, kuid_t uid, const struct gss_auth *auth
+ 	list_for_each_entry(pos, &pipe->in_downcall, list) {
+ 		if (!uid_eq(pos->uid, uid))
+ 			continue;
+-		if (auth && pos->auth->service != auth->service)
++		if (pos->auth->service != auth->service)
+ 			continue;
+ 		refcount_inc(&pos->count);
+ 		return pos;
+@@ -686,6 +686,21 @@ gss_create_upcall(struct gss_auth *gss_auth, struct gss_cred *gss_cred)
+ 	return err;
+ }
  
++static struct gss_upcall_msg *
++gss_find_downcall(struct rpc_pipe *pipe, kuid_t uid)
++{
++	struct gss_upcall_msg *pos;
++	list_for_each_entry(pos, &pipe->in_downcall, list) {
++		if (!uid_eq(pos->uid, uid))
++			continue;
++		if (!rpc_msg_is_inflight(&pos->msg))
++			continue;
++		refcount_inc(&pos->count);
++		return pos;
++	}
++	return NULL;
++}
++
+ #define MSG_BUF_MAXSIZE 1024
+ 
+ static ssize_t
+@@ -732,7 +747,7 @@ gss_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
+ 	err = -ENOENT;
+ 	/* Find a matching upcall */
+ 	spin_lock(&pipe->lock);
+-	gss_msg = __gss_find_upcall(pipe, uid, NULL);
++	gss_msg = gss_find_downcall(pipe, uid);
+ 	if (gss_msg == NULL) {
+ 		spin_unlock(&pipe->lock);
+ 		goto err_put_ctx;
 -- 
 2.35.1
 
