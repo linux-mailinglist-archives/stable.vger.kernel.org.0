@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90619664A56
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:32:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88EB8664922
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233840AbjAJSc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:32:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43678 "EHLO
+        id S239172AbjAJSSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:18:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239403AbjAJSbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:31:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C15BD97498
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:26:47 -0800 (PST)
+        with ESMTP id S239210AbjAJSRd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05BAFE0CC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C325E6184D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:26:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA6DDC433D2;
-        Tue, 10 Jan 2023 18:26:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 956FB61852
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2F27C433EF;
+        Tue, 10 Jan 2023 18:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375206;
-        bh=8aQTdZPbthd0oFASr0UjKiG1mwMMkeX332+n5g1948Q=;
+        s=korg; t=1673374567;
+        bh=WbSEZbiygLJ8vY925beSj9sKHvYADsjiC9HOcj6wBRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIyVmHRX8ZYhjBHXMnbgQQK8unkKD2xtEPew5+YbpEq+Pl8XuGAEv7QO1I0rJv5KK
-         2ZWVTGWlTJ26mvC/yz3GQswF6N6l4ajHi9no85kZDJ+Sd+ACjBGsXHiEHCucDXT4yC
-         W0eYDrRnH7/ZSYXYRxc0opO8QrWYILkwQsG+xPeU=
+        b=q+fSSBc0SGrMg1pwPikVd3kosW1G68vCUBnlttr1waaqEViQ4SS0V7GdT97U1vWRs
+         YSqz/74sJy1RU7cXNjNHDcule/6bsmJLYKicnyuIe941iKCQm+a416l8LdzsHEjN/5
+         qEBWz3PrB0xqMsqik7eVIl2klcNzQYz7/6GceAec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>, Song Liu <song@kernel.org>
-Subject: [PATCH 5.15 114/290] md/bitmap: Fix bitmap chunk size overflow issues
+        patches@lists.linux.dev, Chris Mi <cmi@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 058/159] net/mlx5e: CT: Fix ct debugfs folder name
 Date:   Tue, 10 Jan 2023 19:03:26 +0100
-Message-Id: <20230110180035.722557452@linuxfoundation.org>
+Message-Id: <20230110180020.161810785@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
+From: Chris Mi <cmi@nvidia.com>
 
-commit 4555211190798b6b6fa2c37667d175bf67945c78 upstream.
+[ Upstream commit 849190e3e4ccf452fbe2240eace30a9ca83fb8d2 ]
 
-- limit bitmap chunk size internal u64 variable to values not overflowing
-  the u32 bitmap superblock structure variable stored on persistent media
-- assign bitmap chunk size internal u64 variable from unsigned values to
-  avoid possible sign extension artifacts when assigning from a s32 value
+Need to use sprintf to build a string instead of sscanf. Otherwise
+dirname is null and both "ct_nic" and "ct_fdb" won't be created.
+But its redundant anyway as driver could be in switchdev mode but
+still add nic rules. So use "ct" as folder name.
 
-The bug has been there since at least kernel 4.0.
-Steps to reproduce it:
-1: mdadm -C /dev/mdx -l 1 --bitmap=internal --bitmap-chunk=256M -e 1.2
--n2 /dev/rnbd1 /dev/rnbd2
-2 resize member device rnbd1 and rnbd2 to 8 TB
-3 mdadm --grow /dev/mdx --size=max
-
-The bitmap_chunksize will overflow without patch.
-
-Cc: stable@vger.kernel.org
-
-Signed-off-by: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 77422a8f6f61 ("net/mlx5e: CT: Add ct driver counters")
+Signed-off-by: Chris Mi <cmi@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md-bitmap.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/drivers/md/md-bitmap.c
-+++ b/drivers/md/md-bitmap.c
-@@ -486,7 +486,7 @@ void md_bitmap_print_sb(struct bitmap *b
- 	sb = kmap_atomic(bitmap->storage.sb_page);
- 	pr_debug("%s: bitmap file superblock:\n", bmname(bitmap));
- 	pr_debug("         magic: %08x\n", le32_to_cpu(sb->magic));
--	pr_debug("       version: %d\n", le32_to_cpu(sb->version));
-+	pr_debug("       version: %u\n", le32_to_cpu(sb->version));
- 	pr_debug("          uuid: %08x.%08x.%08x.%08x\n",
- 		 le32_to_cpu(*(__le32 *)(sb->uuid+0)),
- 		 le32_to_cpu(*(__le32 *)(sb->uuid+4)),
-@@ -497,11 +497,11 @@ void md_bitmap_print_sb(struct bitmap *b
- 	pr_debug("events cleared: %llu\n",
- 		 (unsigned long long) le64_to_cpu(sb->events_cleared));
- 	pr_debug("         state: %08x\n", le32_to_cpu(sb->state));
--	pr_debug("     chunksize: %d B\n", le32_to_cpu(sb->chunksize));
--	pr_debug("  daemon sleep: %ds\n", le32_to_cpu(sb->daemon_sleep));
-+	pr_debug("     chunksize: %u B\n", le32_to_cpu(sb->chunksize));
-+	pr_debug("  daemon sleep: %us\n", le32_to_cpu(sb->daemon_sleep));
- 	pr_debug("     sync size: %llu KB\n",
- 		 (unsigned long long)le64_to_cpu(sb->sync_size)/2);
--	pr_debug("max write behind: %d\n", le32_to_cpu(sb->write_behind));
-+	pr_debug("max write behind: %u\n", le32_to_cpu(sb->write_behind));
- 	kunmap_atomic(sb);
- }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
+index 864ce0c393e6..f01f7dfdbcf8 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
+@@ -2080,14 +2080,9 @@ mlx5_tc_ct_init_check_support(struct mlx5e_priv *priv,
+ static void
+ mlx5_ct_tc_create_dbgfs(struct mlx5_tc_ct_priv *ct_priv)
+ {
+-	bool is_fdb = ct_priv->ns_type == MLX5_FLOW_NAMESPACE_FDB;
+ 	struct mlx5_tc_ct_debugfs *ct_dbgfs = &ct_priv->debugfs;
+-	char dirname[16] = {};
  
-@@ -2106,7 +2106,8 @@ int md_bitmap_resize(struct bitmap *bitm
- 			bytes = DIV_ROUND_UP(chunks, 8);
- 			if (!bitmap->mddev->bitmap_info.external)
- 				bytes += sizeof(bitmap_super_t);
--		} while (bytes > (space << 9));
-+		} while (bytes > (space << 9) && (chunkshift + BITMAP_BLOCK_SHIFT) <
-+			(BITS_PER_BYTE * sizeof(((bitmap_super_t *)0)->chunksize) - 1));
- 	} else
- 		chunkshift = ffz(~chunksize) - BITMAP_BLOCK_SHIFT;
- 
-@@ -2151,7 +2152,7 @@ int md_bitmap_resize(struct bitmap *bitm
- 	bitmap->counts.missing_pages = pages;
- 	bitmap->counts.chunkshift = chunkshift;
- 	bitmap->counts.chunks = chunks;
--	bitmap->mddev->bitmap_info.chunksize = 1 << (chunkshift +
-+	bitmap->mddev->bitmap_info.chunksize = 1UL << (chunkshift +
- 						     BITMAP_BLOCK_SHIFT);
- 
- 	blocks = min(old_counts.chunks << old_counts.chunkshift,
-@@ -2177,8 +2178,8 @@ int md_bitmap_resize(struct bitmap *bitm
- 				bitmap->counts.missing_pages = old_counts.pages;
- 				bitmap->counts.chunkshift = old_counts.chunkshift;
- 				bitmap->counts.chunks = old_counts.chunks;
--				bitmap->mddev->bitmap_info.chunksize = 1 << (old_counts.chunkshift +
--									     BITMAP_BLOCK_SHIFT);
-+				bitmap->mddev->bitmap_info.chunksize =
-+					1UL << (old_counts.chunkshift + BITMAP_BLOCK_SHIFT);
- 				blocks = old_counts.chunks << old_counts.chunkshift;
- 				pr_warn("Could not pre-allocate in-memory bitmap for cluster raid\n");
- 				break;
-@@ -2519,6 +2520,9 @@ chunksize_store(struct mddev *mddev, con
- 	if (csize < 512 ||
- 	    !is_power_of_2(csize))
- 		return -EINVAL;
-+	if (BITS_PER_LONG > 32 && csize >= (1ULL << (BITS_PER_BYTE *
-+		sizeof(((bitmap_super_t *)0)->chunksize))))
-+		return -EOVERFLOW;
- 	mddev->bitmap_info.chunksize = csize;
- 	return len;
- }
+-	if (sscanf(dirname, "ct_%s", is_fdb ? "fdb" : "nic") < 0)
+-		return;
+-
+-	ct_dbgfs->root = debugfs_create_dir(dirname, mlx5_debugfs_get_dev_root(ct_priv->dev));
++	ct_dbgfs->root = debugfs_create_dir("ct", mlx5_debugfs_get_dev_root(ct_priv->dev));
+ 	debugfs_create_atomic_t("offloaded", 0400, ct_dbgfs->root,
+ 				&ct_dbgfs->stats.offloaded);
+ 	debugfs_create_atomic_t("rx_dropped", 0400, ct_dbgfs->root,
+-- 
+2.35.1
+
 
 
