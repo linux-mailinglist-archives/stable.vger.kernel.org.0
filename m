@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DA8E664849
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6110A664A16
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:29:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238729AbjAJSKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:10:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48952 "EHLO
+        id S239222AbjAJS3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:29:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239038AbjAJSKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD4401A232
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:07:37 -0800 (PST)
+        with ESMTP id S239445AbjAJS2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAB0A9234A
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:24:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73AEEB81906
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:07:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9072C433D2;
-        Tue, 10 Jan 2023 18:07:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83A5261889
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:24:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 904B6C43398;
+        Tue, 10 Jan 2023 18:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374055;
-        bh=dxvRW6dFLhKgPgWUlDfu+Oq5yPu/CSlBU1d0/Ct9OvU=;
+        s=korg; t=1673375059;
+        bh=KnDS1BVOknLNuoQGhao08i9PIKGQwdQu69r5olA8MEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvR8vKnlnl8/2nbd6ESl2BqY6f+lWvK5Q/QUtXinxpbrTUKL3FYnQo9ZkgMucAimA
-         z44tMNUDWuMZ2/T2BL5X3PBbk6cel7wBl9d0gVERLkJb0vns0rvUIlFJhKCQKDwWHc
-         rnjgFybAG3rczYDI/EHKEHfFO5zDH77kT1qkE74I=
+        b=N1jSg2XDlf/T7bVqrAN8H3n0MuzsFY+XFDxztfSinC60EfI+m47Uunq7zqvBL1A5C
+         kSxotTO3JblVZ6HLz6gqYs90uvk66tP1IiQ65xkc6rS/rpyefm8QKmmeQcP+ebB29m
+         S5cgpKP/IyajxmqKTmZW7cVUXKuTbLSgV18VfrM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jianlin Shi <jishi@redhat.com>,
-        Antoine Tenart <atenart@kernel.org>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 020/148] net: vrf: determine the dst using the original ifindex for multicast
-Date:   Tue, 10 Jan 2023 19:02:04 +0100
-Message-Id: <20230110180017.842221790@linuxfoundation.org>
+Subject: [PATCH 5.15 033/290] powerpc/rtas: avoid scheduling in rtas_os_term()
+Date:   Tue, 10 Jan 2023 19:02:05 +0100
+Message-Id: <20230110180032.727494570@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit f2575c8f404911da83f25b688e12afcf4273e640 ]
+[ Upstream commit 6c606e57eecc37d6b36d732b1ff7e55b7dc32dd4 ]
 
-Multicast packets received on an interface bound to a VRF are marked as
-belonging to the VRF and the skb device is updated to point to the VRF
-device itself. This was fine even when a route was associated to a
-device as when performing a fib table lookup 'oif' in fib6_table_lookup
-(coming from 'skb->dev->ifindex' in ip6_route_input) was set to 0 when
-FLOWI_FLAG_SKIP_NH_OIF was set.
+It's unsafe to use rtas_busy_delay() to handle a busy status from
+the ibm,os-term RTAS function in rtas_os_term():
 
-With commit 40867d74c374 ("net: Add l3mdev index to flow struct and
-avoid oif reset for port devices") this is not longer true and multicast
-traffic is not received on the original interface.
+Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+BUG: sleeping function called from invalid context at arch/powerpc/kernel/rtas.c:618
+in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
+preempt_count: 2, expected: 0
+CPU: 7 PID: 1 Comm: swapper/0 Tainted: G      D            6.0.0-rc5-02182-gf8553a572277-dirty #9
+Call Trace:
+[c000000007b8f000] [c000000001337110] dump_stack_lvl+0xb4/0x110 (unreliable)
+[c000000007b8f040] [c0000000002440e4] __might_resched+0x394/0x3c0
+[c000000007b8f0e0] [c00000000004f680] rtas_busy_delay+0x120/0x1b0
+[c000000007b8f100] [c000000000052d04] rtas_os_term+0xb8/0xf4
+[c000000007b8f180] [c0000000001150fc] pseries_panic+0x50/0x68
+[c000000007b8f1f0] [c000000000036354] ppc_panic_platform_handler+0x34/0x50
+[c000000007b8f210] [c0000000002303c4] notifier_call_chain+0xd4/0x1c0
+[c000000007b8f2b0] [c0000000002306cc] atomic_notifier_call_chain+0xac/0x1c0
+[c000000007b8f2f0] [c0000000001d62b8] panic+0x228/0x4d0
+[c000000007b8f390] [c0000000001e573c] do_exit+0x140c/0x1420
+[c000000007b8f480] [c0000000001e586c] make_task_dead+0xdc/0x200
 
-Instead of adding back a similar check in fib6_table_lookup determine
-the dst using the original ifindex for multicast VRF traffic. To make
-things consistent across the function do the above for all strict
-packets, which was the logic before commit 6f12fa775530 ("vrf: mark skb
-for multicast or link-local as enslaved to VRF"). Note that reverting to
-this behavior should be fine as the change was about marking packets
-belonging to the VRF, not about their dst.
+Use rtas_busy_delay_time() instead, which signals without side effects
+whether to attempt the ibm,os-term RTAS call again.
 
-Fixes: 40867d74c374 ("net: Add l3mdev index to flow struct and avoid oif reset for port devices")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20221220171825.1172237-1-atenart@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221118150751.469393-5-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vrf.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/rtas.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index 5df7a0abc39d..f7f40e3fe9cc 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -1385,8 +1385,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index 4d8de49c9d4b..2dae702e7a5a 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -805,10 +805,15 @@ void rtas_os_term(char *str)
  
- 	/* loopback, multicast & non-ND link-local traffic; do not push through
- 	 * packet taps again. Reset pkt_type for upper layers to process skb.
--	 * For strict packets with a source LLA, determine the dst using the
--	 * original ifindex.
-+	 * For non-loopback strict packets, determine the dst using the original
-+	 * ifindex.
- 	 */
- 	if (skb->pkt_type == PACKET_LOOPBACK || (need_strict && !is_ndisc)) {
- 		skb->dev = vrf_dev;
-@@ -1395,7 +1395,7 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+ 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
  
- 		if (skb->pkt_type == PACKET_LOOPBACK)
- 			skb->pkt_type = PACKET_HOST;
--		else if (ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL)
-+		else
- 			vrf_ip6_input_dst(skb, vrf_dev, orig_iif);
++	/*
++	 * Keep calling as long as RTAS returns a "try again" status,
++	 * but don't use rtas_busy_delay(), which potentially
++	 * schedules.
++	 */
+ 	do {
+ 		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
+ 				   __pa(rtas_os_term_buf));
+-	} while (rtas_busy_delay(status));
++	} while (rtas_busy_delay_time(status));
  
- 		goto out;
+ 	if (status != 0)
+ 		printk(KERN_EMERG "ibm,os-term call failed %d\n", status);
 -- 
 2.35.1
 
