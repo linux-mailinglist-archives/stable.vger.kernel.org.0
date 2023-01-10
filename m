@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0F9E66489A
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3337A664924
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238889AbjAJSMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54296 "EHLO
+        id S239194AbjAJSSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:18:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238882AbjAJSMI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DC81900D
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:51 -0800 (PST)
+        with ESMTP id S239205AbjAJSRb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02B7865B6
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7A05B81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F90DC433D2;
-        Tue, 10 Jan 2023 18:10:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8D60B818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08CB6C433D2;
+        Tue, 10 Jan 2023 18:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374248;
-        bh=TeVUh8dUZgnT16RGC+nQBIRxsr3/6yXJ8gB2mW3y3bE=;
+        s=korg; t=1673374561;
+        bh=1vPwRMs2yjD0xjGBksJHtpbk0dkBM+7GvvZTraCV8AU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCvGt0ji/8q8EPnm4pE7eWZZ/UIhPvkAsxVsnFtamsIceHqfmZA09aLzsyr57+hCW
-         wM7MibMhrZVXF4mFIOk0Gn/P0D13OTyUkQbncie5GUmzc51jaArIrNWMEA5FxDWdLF
-         RU6mUTZ9AdRGcaLiXr6oIRbtftTm7/RZ9bOVZB7k=
+        b=lYpDFdnCvQn+9yvNoIJF9ZnsVpD7hPZWtb3ojEm4+9YkFPzCv1+pa4S/Q9pAU0ZUG
+         TszUUWLTBgwZ+UYDQ49BzS2QXl1dIurBNeQ8v0uFwtTT4FavE6fs1DgjrYToaSnwQq
+         xCiHlgFyaIIRAe+a8MZj/ft4fxQ6OCCuQYFJq3Z4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>, Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Dragos Tatulea <dtatulea@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 100/148] caif: fix memory leak in cfctrl_linkup_request()
+Subject: [PATCH 6.1 056/159] net/mlx5e: IPoIB, Dont allow CQE compression to be turned on by default
 Date:   Tue, 10 Jan 2023 19:03:24 +0100
-Message-Id: <20230110180020.363203265@linuxfoundation.org>
+Message-Id: <20230110180020.091877265@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Dragos Tatulea <dtatulea@nvidia.com>
 
-[ Upstream commit fe69230f05897b3de758427b574fc98025dfc907 ]
+[ Upstream commit b12d581e83e3ae1080c32ab83f123005bd89a840 ]
 
-When linktype is unknown or kzalloc failed in cfctrl_linkup_request(),
-pkt is not released. Add release process to error path.
+mlx5e_build_nic_params will turn CQE compression on if the hardware
+capability is enabled and the slow_pci_heuristic condition is detected.
+As IPoIB doesn't support CQE compression, make sure to disable the
+feature in the IPoIB profile init.
 
-Fixes: b482cd2053e3 ("net-caif: add CAIF core protocol stack")
-Fixes: 8d545c8f958f ("caif: Disconnect without waiting for response")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/20230104065146.1153009-1-shaozhengchao@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Please note that the feature is not exposed to the user for IPoIB
+interfaces, so it can't be subsequently turned on.
+
+Fixes: b797a684b0dd ("net/mlx5e: Enable CQE compression when PCI is slower than link")
+Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/caif/cfctrl.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/caif/cfctrl.c b/net/caif/cfctrl.c
-index 2809cbd6b7f7..d8cb4b2a076b 100644
---- a/net/caif/cfctrl.c
-+++ b/net/caif/cfctrl.c
-@@ -269,11 +269,15 @@ int cfctrl_linkup_request(struct cflayer *layer,
- 	default:
- 		pr_warn("Request setup of bad link type = %d\n",
- 			param->linktype);
-+		cfpkt_destroy(pkt);
- 		return -EINVAL;
- 	}
- 	req = kzalloc(sizeof(*req), GFP_KERNEL);
--	if (!req)
-+	if (!req) {
-+		cfpkt_destroy(pkt);
- 		return -ENOMEM;
-+	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+index 4e3a75496dd9..84f5352b0ce1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+@@ -71,6 +71,10 @@ static void mlx5i_build_nic_params(struct mlx5_core_dev *mdev,
+ 	params->packet_merge.type = MLX5E_PACKET_MERGE_NONE;
+ 	params->hard_mtu = MLX5_IB_GRH_BYTES + MLX5_IPOIB_HARD_LEN;
+ 	params->tunneled_offload_en = false;
 +
- 	req->client_layer = user_layer;
- 	req->cmd = CFCTRL_CMD_LINK_SETUP;
- 	req->param = *param;
++	/* CQE compression is not supported for IPoIB */
++	params->rx_cqe_compress_def = false;
++	MLX5E_SET_PFLAG(params, MLX5E_PFLAG_RX_CQE_COMPRESS, params->rx_cqe_compress_def);
+ }
+ 
+ /* Called directly after IPoIB netdevice was created to initialize SW structs */
 -- 
 2.35.1
 
