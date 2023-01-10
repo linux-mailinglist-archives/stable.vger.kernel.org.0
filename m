@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13833664AEB
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F806649AA
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239435AbjAJShl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:37:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47342 "EHLO
+        id S239242AbjAJSXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239560AbjAJShK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:37:10 -0500
+        with ESMTP id S239320AbjAJSWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8BD49748A
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:32:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA1926C0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53AC161864
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:32:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C448C433D2;
-        Tue, 10 Jan 2023 18:32:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F7F36182C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B017AC433D2;
+        Tue, 10 Jan 2023 18:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375524;
-        bh=C0QGxNGzypsXuB2ieAt69FcxXPFpclzfYsbQgmcvwTo=;
+        s=korg; t=1673374820;
+        bh=9yfrKjpoLfam7sqSxNdXGHK6ZdtMKk+di4SnzdkCxu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J0NhV/jdsuH2GgtXs6UHZVf9IMpGQ2rjArVCJ2DWf1RGpoB9ArLjQ1BFpaA+awlLT
-         hp4z26WRth6xM7QGxgnseC6sV1x+sq+b9WvuhJninEAS3CbHX2VswmeqLKVz0Ut2lW
-         k+VkDa429t1pPZmrlrSNRwFTqiIrD1CnuUPp7WnA=
+        b=tNkoFtwyN+NPUvDTxgiviQejlosdgXYUKcJbi2Cc/t2ack9eF9bDKZjZz+AARbcQ/
+         UMzkQMzUSka5ccgyUFhMGvZSV5ON3opqq8ovtyOXg1VPiL8v/e1Prje4u5GKFTPBgU
+         cPaZ8OYFSE4zDgc2iYd9igKAmQ+BfsvatCpZUbVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
-        Steven Price <steven.price@arm.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 200/290] drm/panfrost: Fix GEM handle creation ref-counting
-Date:   Tue, 10 Jan 2023 19:04:52 +0100
-Message-Id: <20230110180038.865121024@linuxfoundation.org>
+        patches@lists.linux.dev, Mukul Joshi <mukul.joshi@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 145/159] drm/amdkfd: Fix kernel warning during topology setup
+Date:   Tue, 10 Jan 2023 19:04:53 +0100
+Message-Id: <20230110180023.096589987@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,138 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Mukul Joshi <mukul.joshi@amd.com>
 
-[ Upstream commit 4217c6ac817451d5116687f3cc6286220dc43d49 ]
+commit cf97eb7e47d4671084c7e114c5d88a3d0540ecbd upstream.
 
-panfrost_gem_create_with_handle() previously returned a BO but with the
-only reference being from the handle, which user space could in theory
-guess and release, causing a use-after-free. Additionally if the call to
-panfrost_gem_mapping_get() in panfrost_ioctl_create_bo() failed then
-a(nother) reference on the BO was dropped.
+This patch fixes the following kernel warning seen during
+driver load by correctly initializing the p2plink attr before
+creating the sysfs file:
 
-The _create_with_handle() is a problematic pattern, so ditch it and
-instead create the handle in panfrost_ioctl_create_bo(). If the call to
-panfrost_gem_mapping_get() fails then this means that user space has
-indeed gone behind our back and freed the handle. In which case just
-return an error code.
+[  +0.002865] ------------[ cut here ]------------
+[  +0.002327] kobject: '(null)' (0000000056260cfb): is not initialized, yet kobject_put() is being called.
+[  +0.004780] WARNING: CPU: 32 PID: 1006 at lib/kobject.c:718 kobject_put+0xaa/0x1c0
+[  +0.001361] Call Trace:
+[  +0.001234]  <TASK>
+[  +0.001067]  kfd_remove_sysfs_node_entry+0x24a/0x2d0 [amdgpu]
+[  +0.003147]  kfd_topology_update_sysfs+0x3d/0x750 [amdgpu]
+[  +0.002890]  kfd_topology_add_device+0xbd7/0xc70 [amdgpu]
+[  +0.002844]  ? lock_release+0x13c/0x2e0
+[  +0.001936]  ? smu_cmn_send_smc_msg_with_param+0x1e8/0x2d0 [amdgpu]
+[  +0.003313]  ? amdgpu_dpm_get_mclk+0x54/0x60 [amdgpu]
+[  +0.002703]  kgd2kfd_device_init.cold+0x39f/0x4ed [amdgpu]
+[  +0.002930]  amdgpu_amdkfd_device_init+0x13d/0x1f0 [amdgpu]
+[  +0.002944]  amdgpu_device_init.cold+0x1464/0x17b4 [amdgpu]
+[  +0.002970]  ? pci_bus_read_config_word+0x43/0x80
+[  +0.002380]  amdgpu_driver_load_kms+0x15/0x100 [amdgpu]
+[  +0.002744]  amdgpu_pci_probe+0x147/0x370 [amdgpu]
+[  +0.002522]  local_pci_probe+0x40/0x80
+[  +0.001896]  work_for_cpu_fn+0x10/0x20
+[  +0.001892]  process_one_work+0x26e/0x5a0
+[  +0.002029]  worker_thread+0x1fd/0x3e0
+[  +0.001890]  ? process_one_work+0x5a0/0x5a0
+[  +0.002115]  kthread+0xea/0x110
+[  +0.001618]  ? kthread_complete_and_exit+0x20/0x20
+[  +0.002422]  ret_from_fork+0x1f/0x30
+[  +0.001808]  </TASK>
+[  +0.001103] irq event stamp: 59837
+[  +0.001718] hardirqs last  enabled at (59849): [<ffffffffb30fab12>] __up_console_sem+0x52/0x60
+[  +0.004414] hardirqs last disabled at (59860): [<ffffffffb30faaf7>] __up_console_sem+0x37/0x60
+[  +0.004414] softirqs last  enabled at (59654): [<ffffffffb307d9c7>] irq_exit_rcu+0xd7/0x130
+[  +0.004205] softirqs last disabled at (59649): [<ffffffffb307d9c7>] irq_exit_rcu+0xd7/0x130
+[  +0.004203] ---[ end trace 0000000000000000 ]---
 
-Reported-by: Rob Clark <robdclark@chromium.org>
-Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
-Signed-off-by: Steven Price <steven.price@arm.com>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221219140130.410578-1-steven.price@arm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0f28cca87e9a ("drm/amdkfd: Extend KFD device topology to surface peer-to-peer links")
+Signed-off-by: Mukul Joshi <mukul.joshi@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_drv.c | 27 ++++++++++++++++---------
- drivers/gpu/drm/panfrost/panfrost_gem.c | 16 +--------------
- drivers/gpu/drm/panfrost/panfrost_gem.h |  5 +----
- 3 files changed, 20 insertions(+), 28 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_topology.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-index e48e357ea4f1..4c271244092b 100644
---- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-@@ -82,6 +82,7 @@ static int panfrost_ioctl_create_bo(struct drm_device *dev, void *data,
- 	struct panfrost_gem_object *bo;
- 	struct drm_panfrost_create_bo *args = data;
- 	struct panfrost_gem_mapping *mapping;
-+	int ret;
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_topology.c
+@@ -801,7 +801,7 @@ static int kfd_build_sysfs_node_entry(st
  
- 	if (!args->size || args->pad ||
- 	    (args->flags & ~(PANFROST_BO_NOEXEC | PANFROST_BO_HEAP)))
-@@ -92,21 +93,29 @@ static int panfrost_ioctl_create_bo(struct drm_device *dev, void *data,
- 	    !(args->flags & PANFROST_BO_NOEXEC))
- 		return -EINVAL;
- 
--	bo = panfrost_gem_create_with_handle(file, dev, args->size, args->flags,
--					     &args->handle);
-+	bo = panfrost_gem_create(dev, args->size, args->flags);
- 	if (IS_ERR(bo))
- 		return PTR_ERR(bo);
- 
-+	ret = drm_gem_handle_create(file, &bo->base.base, &args->handle);
-+	if (ret)
-+		goto out;
-+
- 	mapping = panfrost_gem_mapping_get(bo, priv);
--	if (!mapping) {
--		drm_gem_object_put(&bo->base.base);
--		return -EINVAL;
-+	if (mapping) {
-+		args->offset = mapping->mmnode.start << PAGE_SHIFT;
-+		panfrost_gem_mapping_put(mapping);
-+	} else {
-+		/* This can only happen if the handle from
-+		 * drm_gem_handle_create() has already been guessed and freed
-+		 * by user space
-+		 */
-+		ret = -EINVAL;
- 	}
- 
--	args->offset = mapping->mmnode.start << PAGE_SHIFT;
--	panfrost_gem_mapping_put(mapping);
--
--	return 0;
-+out:
-+	drm_gem_object_put(&bo->base.base);
-+	return ret;
- }
- 
- /**
-diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-index 6d9bdb9180cb..55e3a68ed28a 100644
---- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-@@ -234,12 +234,8 @@ struct drm_gem_object *panfrost_gem_create_object(struct drm_device *dev, size_t
- }
- 
- struct panfrost_gem_object *
--panfrost_gem_create_with_handle(struct drm_file *file_priv,
--				struct drm_device *dev, size_t size,
--				u32 flags,
--				uint32_t *handle)
-+panfrost_gem_create(struct drm_device *dev, size_t size, u32 flags)
- {
--	int ret;
- 	struct drm_gem_shmem_object *shmem;
- 	struct panfrost_gem_object *bo;
- 
-@@ -255,16 +251,6 @@ panfrost_gem_create_with_handle(struct drm_file *file_priv,
- 	bo->noexec = !!(flags & PANFROST_BO_NOEXEC);
- 	bo->is_heap = !!(flags & PANFROST_BO_HEAP);
- 
--	/*
--	 * Allocate an id of idr table where the obj is registered
--	 * and handle has the id what user can see.
--	 */
--	ret = drm_gem_handle_create(file_priv, &shmem->base, handle);
--	/* drop reference from allocate - handle holds it now. */
--	drm_gem_object_put(&shmem->base);
--	if (ret)
--		return ERR_PTR(ret);
--
- 	return bo;
- }
- 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.h b/drivers/gpu/drm/panfrost/panfrost_gem.h
-index 8088d5fd8480..ad2877eeeccd 100644
---- a/drivers/gpu/drm/panfrost/panfrost_gem.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem.h
-@@ -69,10 +69,7 @@ panfrost_gem_prime_import_sg_table(struct drm_device *dev,
- 				   struct sg_table *sgt);
- 
- struct panfrost_gem_object *
--panfrost_gem_create_with_handle(struct drm_file *file_priv,
--				struct drm_device *dev, size_t size,
--				u32 flags,
--				uint32_t *handle);
-+panfrost_gem_create(struct drm_device *dev, size_t size, u32 flags);
- 
- int panfrost_gem_open(struct drm_gem_object *obj, struct drm_file *file_priv);
- void panfrost_gem_close(struct drm_gem_object *obj,
--- 
-2.35.1
-
+ 		p2plink->attr.name = "properties";
+ 		p2plink->attr.mode = KFD_SYSFS_FILE_MODE;
+-		sysfs_attr_init(&iolink->attr);
++		sysfs_attr_init(&p2plink->attr);
+ 		ret = sysfs_create_file(p2plink->kobj, &p2plink->attr);
+ 		if (ret < 0)
+ 			return ret;
 
 
