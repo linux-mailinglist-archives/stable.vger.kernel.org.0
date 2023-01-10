@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 107C6664ADD
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2703E66499F
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239500AbjAJSgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:36:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46856 "EHLO
+        id S238485AbjAJSXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:23:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239570AbjAJSfs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2EB850E46
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:31:32 -0800 (PST)
+        with ESMTP id S239315AbjAJSWi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 569C46338B
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92D686183C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87F99C433EF;
-        Tue, 10 Jan 2023 18:31:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E74C26183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 052BCC433D2;
+        Tue, 10 Jan 2023 18:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375492;
-        bh=6xsuzvb+bBD8H/eNq3YwVOjm7bVh1RahiHHpsCg7s9Q=;
+        s=korg; t=1673374814;
+        bh=8rnJlCwIYxnFWDcM4ROEXf3YBCxWGh6E9eh4mtDcy5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+aoMejN0Cx3dVkV5CwtBBnSStmT40nFyh5rUNYDQPe7EBXJrlEmd0GQGOZshhS1k
-         9jMmNQQlL8NqrR7QUGCnijymvftcJxJO/3rWgFyslrqQVj9IFp+/UnZsiZEyg0ZKQf
-         t6LTRu/0GWsEOIGM5dCCXhgwWrZVLI5Wi3OFjlv4=
+        b=Vi4DoB32d2pKZgCmJAdc8z02ZxrPbLoYZSj4fs7rM8uZasrLqqQqdkkTunA0RsQNp
+         pt/RjkJ9QhsNpmFRMtgOi7wtwOcop+Na0/YYRMyVEedLoaticBdBl6OexAUI0lpkGR
+         +4F+hgTkUozUCE/WElI/L/iVpl97j14LlaYt7AVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anand Parthasarathy <anpartha@meta.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 199/290] bpf: pull before calling skb_postpull_rcsum()
+        patches@lists.linux.dev, Andreas Rammhold <andreas@rammhold.de>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 6.1 143/159] of/fdt: run soc memory setup when early_init_dt_scan_memory fails
 Date:   Tue, 10 Jan 2023 19:04:51 +0100
-Message-Id: <20230110180038.834092825@linuxfoundation.org>
+Message-Id: <20230110180023.010953645@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +52,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Andreas Rammhold <andreas@rammhold.de>
 
-[ Upstream commit 54c3f1a81421f85e60ae2eaae7be3727a09916ee ]
+commit 2a12187d5853d9fd5102278cecef7dac7c8ce7ea upstream.
 
-Anand hit a BUG() when pulling off headers on egress to a SW tunnel.
-We get to skb_checksum_help() with an invalid checksum offset
-(commit d7ea0d9df2a6 ("net: remove two BUG() from skb_checksum_help()")
-converted those BUGs to WARN_ONs()).
-He points out oddness in how skb_postpull_rcsum() gets used.
-Indeed looks like we should pull before "postpull", otherwise
-the CHECKSUM_PARTIAL fixup from skb_postpull_rcsum() will not
-be able to do its job:
+If memory has been found early_init_dt_scan_memory now returns 1. If
+it hasn't found any memory it will return 0, allowing other memory
+setup mechanisms to carry on.
 
-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-	    skb_checksum_start_offset(skb) < 0)
-		skb->ip_summed = CHECKSUM_NONE;
+Previously early_init_dt_scan_memory always returned 0 without
+distinguishing between any kind of memory setup being done or not. Any
+code path after the early_init_dt_scan memory call in the ramips
+plat_mem_setup code wouldn't be executed anymore. Making
+early_init_dt_scan_memory the only way to initialize the memory.
 
-Reported-by: Anand Parthasarathy <anpartha@meta.com>
-Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/20221220004701.402165-1-kuba@kernel.org
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Some boards, including my mt7621 based Cudy X6 board, depend on memory
+initialization being done via the soc_info.mem_detect function
+pointer. Those wouldn't be able to obtain memory and panic the kernel
+during early bootup with the message "early_init_dt_alloc_memory_arch:
+Failed to allocate 12416 bytes align=0x40".
+
+Fixes: 1f012283e936 ("of/fdt: Rework early_init_dt_scan_memory() to call directly")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Rammhold <andreas@rammhold.de>
+Link: https://lore.kernel.org/r/20221223112748.2935235-1-andreas@rammhold.de
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/mips/ralink/of.c |    2 +-
+ drivers/of/fdt.c      |    6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 2da05622afbe..b2031148dd8b 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -3182,15 +3182,18 @@ static int bpf_skb_generic_push(struct sk_buff *skb, u32 off, u32 len)
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -64,7 +64,7 @@ void __init plat_mem_setup(void)
+ 	dtb = get_fdt();
+ 	__dt_setup_arch(dtb);
  
- static int bpf_skb_generic_pop(struct sk_buff *skb, u32 off, u32 len)
+-	if (!early_init_dt_scan_memory())
++	if (early_init_dt_scan_memory())
+ 		return;
+ 
+ 	if (soc_info.mem_detect)
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1099,7 +1099,7 @@ u64 __init dt_mem_next_cell(int s, const
+  */
+ int __init early_init_dt_scan_memory(void)
  {
-+	void *old_data;
+-	int node;
++	int node, found_memory = 0;
+ 	const void *fdt = initial_boot_params;
+ 
+ 	fdt_for_each_subnode(node, fdt, 0) {
+@@ -1139,6 +1139,8 @@ int __init early_init_dt_scan_memory(voi
+ 
+ 			early_init_dt_add_memory_arch(base, size);
+ 
++			found_memory = 1;
 +
- 	/* skb_ensure_writable() is not needed here, as we're
- 	 * already working on an uncloned skb.
- 	 */
- 	if (unlikely(!pskb_may_pull(skb, off + len)))
- 		return -ENOMEM;
+ 			if (!hotpluggable)
+ 				continue;
  
--	skb_postpull_rcsum(skb, skb->data + off, len);
--	memmove(skb->data + len, skb->data, off);
-+	old_data = skb->data;
- 	__skb_pull(skb, len);
-+	skb_postpull_rcsum(skb, old_data + off, len);
-+	memmove(skb->data, old_data, off);
- 
- 	return 0;
+@@ -1147,7 +1149,7 @@ int __init early_init_dt_scan_memory(voi
+ 					base, base + size);
+ 		}
+ 	}
+-	return 0;
++	return found_memory;
  }
--- 
-2.35.1
-
+ 
+ int __init early_init_dt_scan_chosen(char *cmdline)
 
 
