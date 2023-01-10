@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3445F6649B4
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62CCB664AE2
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239311AbjAJSX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:23:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35658 "EHLO
+        id S239403AbjAJShc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:37:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239367AbjAJSW5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C0E4103C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:56 -0800 (PST)
+        with ESMTP id S239439AbjAJSgU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:36:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 564B787F0E
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:31:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B624FB8189A
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DC81C433EF;
-        Tue, 10 Jan 2023 18:20:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02105B818FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38509C433EF;
+        Tue, 10 Jan 2023 18:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374853;
-        bh=cYrIxgrRHUpJln9EP7po+IDAjvE9X2NcKotwwqQ7jCU=;
+        s=korg; t=1673375503;
+        bh=wmeA+/15IfbFAiwM0k0873nBRbGrRizZY/H1BrAIg2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BB1x0x/ZREZiljZXPQ3ByVH2nqlYrI+TGqKPYWFtzzNuMwKeuOg59w6QbNM0eshBq
-         RZL4tQLLGe8Y92aEEeCazFobqrZJLD0q77k/9ozDAxOuLjykvpCcHdiJ7RADwHEsAp
-         c2SAQpWc44AE4XndFkVDSSYoLAMqf5agV3OGawvI=
+        b=AZ8aDMYv+8f/0Me27PM8/ojd3Rwij6biOnayndVgO5KhafpFQ7SPLVfd4wDLvgwF3
+         4/ezVS5XpU7Ua7Jvi43X74XMb/0zaoAdXLMD9/+HSfyKPNQtwqabfZ1iDAufRKkhxj
+         GmZL3tgs7WQ19n/PVwF4DuvVsdL01G0XPQ40Kg+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, William Liu <will@willsroot.io>,
-        =?UTF-8?q?Hrvoje=20Mi=C5=A1eti=C4=87?= <misetichrvoje@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.1 155/159] ksmbd: check nt_len to be at least CIFS_ENCPWD_SIZE in ksmbd_decode_ntlmssp_auth_blob
+        patches@lists.linux.dev, Jian Shen <shenjian15@huawei.com>,
+        Hao Lan <lanhao@huawei.com>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 211/290] net: hns3: fix miss L3E checking for rx packet
 Date:   Tue, 10 Jan 2023 19:05:03 +0100
-Message-Id: <20230110180023.484149449@linuxfoundation.org>
+Message-Id: <20230110180039.272769186@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Liu <will@willsroot.io>
+From: Jian Shen <shenjian15@huawei.com>
 
-commit 797805d81baa814f76cf7bdab35f86408a79d707 upstream.
+[ Upstream commit 7d89b53cea1a702f97117fb4361523519bb1e52c ]
 
-"nt_len - CIFS_ENCPWD_SIZE" is passed directly from
-ksmbd_decode_ntlmssp_auth_blob to ksmbd_auth_ntlmv2. Malicious requests
-can set nt_len to less than CIFS_ENCPWD_SIZE, which results in a negative
-number (or large unsigned value) used for a subsequent memcpy in
-ksmbd_auth_ntlvm2 and can cause a panic.
+For device supports RXD advanced layout, the driver will
+return directly if the hardware finish the checksum
+calculate. It cause missing L3E checking for ip packets.
+Fixes it.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org
-Signed-off-by: William Liu <will@willsroot.io>
-Signed-off-by: Hrvoje Mišetić <misetichrvoje@gmail.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1ddc028ac849 ("net: hns3: refactor out RX completion checksum")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Hao Lan <lanhao@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/auth.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/fs/ksmbd/auth.c
-+++ b/fs/ksmbd/auth.c
-@@ -322,7 +322,8 @@ int ksmbd_decode_ntlmssp_auth_blob(struc
- 	dn_off = le32_to_cpu(authblob->DomainName.BufferOffset);
- 	dn_len = le16_to_cpu(authblob->DomainName.Length);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index d06e2d0bae2e..822193b0d709 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -3667,18 +3667,16 @@ static int hns3_gro_complete(struct sk_buff *skb, u32 l234info)
+ 	return 0;
+ }
  
--	if (blob_len < (u64)dn_off + dn_len || blob_len < (u64)nt_off + nt_len)
-+	if (blob_len < (u64)dn_off + dn_len || blob_len < (u64)nt_off + nt_len ||
-+	    nt_len < CIFS_ENCPWD_SIZE)
- 		return -EINVAL;
+-static bool hns3_checksum_complete(struct hns3_enet_ring *ring,
++static void hns3_checksum_complete(struct hns3_enet_ring *ring,
+ 				   struct sk_buff *skb, u32 ptype, u16 csum)
+ {
+ 	if (ptype == HNS3_INVALID_PTYPE ||
+ 	    hns3_rx_ptype_tbl[ptype].ip_summed != CHECKSUM_COMPLETE)
+-		return false;
++		return;
  
- 	/* TODO : use domain name that imported from configuration file */
+ 	hns3_ring_stats_update(ring, csum_complete);
+ 	skb->ip_summed = CHECKSUM_COMPLETE;
+ 	skb->csum = csum_unfold((__force __sum16)csum);
+-
+-	return true;
+ }
+ 
+ static void hns3_rx_handle_csum(struct sk_buff *skb, u32 l234info,
+@@ -3738,8 +3736,7 @@ static void hns3_rx_checksum(struct hns3_enet_ring *ring, struct sk_buff *skb,
+ 		ptype = hnae3_get_field(ol_info, HNS3_RXD_PTYPE_M,
+ 					HNS3_RXD_PTYPE_S);
+ 
+-	if (hns3_checksum_complete(ring, skb, ptype, csum))
+-		return;
++	hns3_checksum_complete(ring, skb, ptype, csum);
+ 
+ 	/* check if hardware has done checksum */
+ 	if (!(bd_base_info & BIT(HNS3_RXD_L3L4P_B)))
+@@ -3748,6 +3745,7 @@ static void hns3_rx_checksum(struct hns3_enet_ring *ring, struct sk_buff *skb,
+ 	if (unlikely(l234info & (BIT(HNS3_RXD_L3E_B) | BIT(HNS3_RXD_L4E_B) |
+ 				 BIT(HNS3_RXD_OL3E_B) |
+ 				 BIT(HNS3_RXD_OL4E_B)))) {
++		skb->ip_summed = CHECKSUM_NONE;
+ 		hns3_ring_stats_update(ring, l3l4_csum_err);
+ 
+ 		return;
+-- 
+2.35.1
+
 
 
