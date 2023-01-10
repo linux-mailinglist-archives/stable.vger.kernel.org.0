@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 899D36649B5
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5B10664AE5
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:38:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239309AbjAJSX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:23:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
+        id S239418AbjAJShf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:37:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239369AbjAJSW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:22:59 -0500
+        with ESMTP id S239456AbjAJSgZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:36:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5CC2E1
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:20:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3BFD8D5E5
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:31:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15FEE61865
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:20:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C0A3C433EF;
-        Tue, 10 Jan 2023 18:20:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 308B761852
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C94C433D2;
+        Tue, 10 Jan 2023 18:31:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374856;
-        bh=pMyy/USbHxRYZdZu0xv9HNCGe3noCoPfJaLAAao0NFw=;
+        s=korg; t=1673375509;
+        bh=hoe1RCmQz79P0aXU40qFi8IHVezbn95IsYiYMh5Tw7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8W1INIg3OqoEzeBEza+4CnaoW2BKxn0qFIem/ZwH5cCuuGPUpaW3VVk5tO3qNhKg
-         I7gvb0uV8UoWNOA4t/nGnczHZkZu01EyiGoyuLHnWe3uRXki4/sUlpK2VF1/f5uMFE
-         qe4y3kpBriLsKxTCQxgr1WnaXBjCAZSnGWv78u5E=
+        b=DTbF+2uux22zAJ1Cgeye751J7ZdRJaeS2tF4aed/L7Ev8ryUZJJTsqjhYbjD3YTnS
+         ZC9+XKcjVOaJK3obVgExRBtRe3ydKOVTROfRvZhy0l5GNnAXFVhKyOQPBIGeXnnF0B
+         1LD7yWlw6Ez87BLShbNvPw/BeEyHfXcFfV1JrAuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 6.1 156/159] drm/i915/dsi: add support for ICL+ native MIPI GPIO sequence
-Date:   Tue, 10 Jan 2023 19:05:04 +0100
-Message-Id: <20230110180023.533192604@linuxfoundation.org>
+        syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com,
+        Cong Wang <cong.wang@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Hawkins Jiawei <yin31149@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 213/290] net: sched: fix memory leak in tcindex_set_parms
+Date:   Tue, 10 Jan 2023 19:05:05 +0100
+Message-Id: <20230110180039.344671429@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,202 +59,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Hawkins Jiawei <yin31149@gmail.com>
 
-commit 963bbdb32b47cfa67a449e715e1dcc525fbd01fc upstream.
+[ Upstream commit 399ab7fe0fa0d846881685fd4e57e9a8ef7559f7 ]
 
-Starting from ICL, the default for MIPI GPIO sequences seems to be using
-native GPIOs i.e. GPIOs available in the GPU. These native GPIOs reuse
-many pins that quite frankly seem scary to poke based on the VBT
-sequences. We pretty much have to trust that the board is configured
-such that the relevant HPD, PP_CONTROL and GPIO bits aren't used for
-anything else.
+Syzkaller reports a memory leak as follows:
+====================================
+BUG: memory leak
+unreferenced object 0xffff88810c287f00 (size 256):
+  comm "syz-executor105", pid 3600, jiffies 4294943292 (age 12.990s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff814cf9f0>] kmalloc_trace+0x20/0x90 mm/slab_common.c:1046
+    [<ffffffff839c9e07>] kmalloc include/linux/slab.h:576 [inline]
+    [<ffffffff839c9e07>] kmalloc_array include/linux/slab.h:627 [inline]
+    [<ffffffff839c9e07>] kcalloc include/linux/slab.h:659 [inline]
+    [<ffffffff839c9e07>] tcf_exts_init include/net/pkt_cls.h:250 [inline]
+    [<ffffffff839c9e07>] tcindex_set_parms+0xa7/0xbe0 net/sched/cls_tcindex.c:342
+    [<ffffffff839caa1f>] tcindex_change+0xdf/0x120 net/sched/cls_tcindex.c:553
+    [<ffffffff8394db62>] tc_new_tfilter+0x4f2/0x1100 net/sched/cls_api.c:2147
+    [<ffffffff8389e91c>] rtnetlink_rcv_msg+0x4dc/0x5d0 net/core/rtnetlink.c:6082
+    [<ffffffff839eba67>] netlink_rcv_skb+0x87/0x1d0 net/netlink/af_netlink.c:2540
+    [<ffffffff839eab87>] netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+    [<ffffffff839eab87>] netlink_unicast+0x397/0x4c0 net/netlink/af_netlink.c:1345
+    [<ffffffff839eb046>] netlink_sendmsg+0x396/0x710 net/netlink/af_netlink.c:1921
+    [<ffffffff8383e796>] sock_sendmsg_nosec net/socket.c:714 [inline]
+    [<ffffffff8383e796>] sock_sendmsg+0x56/0x80 net/socket.c:734
+    [<ffffffff8383eb08>] ____sys_sendmsg+0x178/0x410 net/socket.c:2482
+    [<ffffffff83843678>] ___sys_sendmsg+0xa8/0x110 net/socket.c:2536
+    [<ffffffff838439c5>] __sys_sendmmsg+0x105/0x330 net/socket.c:2622
+    [<ffffffff83843c14>] __do_sys_sendmmsg net/socket.c:2651 [inline]
+    [<ffffffff83843c14>] __se_sys_sendmmsg net/socket.c:2648 [inline]
+    [<ffffffff83843c14>] __x64_sys_sendmmsg+0x24/0x30 net/socket.c:2648
+    [<ffffffff84605fd5>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    [<ffffffff84605fd5>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+    [<ffffffff84800087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+====================================
 
-MIPI sequence v4 also adds a flag to fall back to non-native sequences.
+Kernel uses tcindex_change() to change an existing
+filter properties.
 
-v5:
-- Wrap SHOTPLUG_CTL_DDI modification in spin_lock() in icp_irq_handler()
-  too (Ville)
-- References instead of Closes issue 6131 because this does not fix everything
+Yet the problem is that, during the process of changing,
+if `old_r` is retrieved from `p->perfect`, then
+kernel uses tcindex_alloc_perfect_hash() to newly
+allocate filter results, uses tcindex_filter_result_init()
+to clear the old filter result, without destroying
+its tcf_exts structure, which triggers the above memory leak.
 
-v4:
-- Wrap SHOTPLUG_CTL_DDI modification in spin_lock_irq() (Ville)
+To be more specific, there are only two source for the `old_r`,
+according to the tcindex_lookup(). `old_r` is retrieved from
+`p->perfect`, or `old_r` is retrieved from `p->h`.
 
-v3:
-- Fix -Wbitwise-conditional-parentheses (kernel test robot <lkp@intel.com>)
+  * If `old_r` is retrieved from `p->perfect`, kernel uses
+tcindex_alloc_perfect_hash() to newly allocate the
+filter results. Then `r` is assigned with `cp->perfect + handle`,
+which is newly allocated. So condition `old_r && old_r != r` is
+true in this situation, and kernel uses tcindex_filter_result_init()
+to clear the old filter result, without destroying
+its tcf_exts structure
 
-v2:
-- Fix HPD pin output set (impacts GPIOs 0 and 5)
-- Fix GPIO data output direction set (impacts GPIOs 4 and 9)
-- Reduce register accesses to single intel_de_rwm()
+  * If `old_r` is retrieved from `p->h`, then `p->perfect` is NULL
+according to the tcindex_lookup(). Considering that `cp->h`
+is directly copied from `p->h` and `p->perfect` is NULL,
+`r` is assigned with `tcindex_lookup(cp, handle)`, whose value
+should be the same as `old_r`, so condition `old_r && old_r != r`
+is false in this situation, kernel ignores using
+tcindex_filter_result_init() to clear the old filter result.
 
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221219105955.4014451-1-jani.nikula@intel.com
-(cherry picked from commit f087cfe6fcff58044f7aa3b284965af47f472fb0)
-Cc: stable@vger.kernel.org # 6.1
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So only when `old_r` is retrieved from `p->perfect` does kernel use
+tcindex_filter_result_init() to clear the old filter result, which
+triggers the above memory leak.
+
+Considering that there already exists a tc_filter_wq workqueue
+to destroy the old tcindex_data by tcindex_partial_destroy_work()
+at the end of tcindex_set_parms(), this patch solves
+this memory leak bug by removing this old filter result
+clearing part and delegating it to the tc_filter_wq workqueue.
+
+Note that this patch doesn't introduce any other issues. If
+`old_r` is retrieved from `p->perfect`, this patch just
+delegates old filter result clearing part to the
+tc_filter_wq workqueue; If `old_r` is retrieved from `p->h`,
+kernel doesn't reach the old filter result clearing part, so
+removing this part has no effect.
+
+[Thanks to the suggestion from Jakub Kicinski, Cong Wang, Paolo Abeni
+and Dmitry Vyukov]
+
+Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
+Link: https://lore.kernel.org/all/0000000000001de5c505ebc9ec59@google.com/
+Reported-by: syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com
+Tested-by: syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com
+Cc: Cong Wang <cong.wang@bytedance.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_dsi_vbt.c |   94 ++++++++++++++++++++++++++-
- drivers/gpu/drm/i915/i915_irq.c              |    3 
- drivers/gpu/drm/i915/i915_reg.h              |    1 
- 3 files changed, 95 insertions(+), 3 deletions(-)
+ net/sched/cls_tcindex.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
-+++ b/drivers/gpu/drm/i915/display/intel_dsi_vbt.c
-@@ -41,9 +41,11 @@
- 
- #include "i915_drv.h"
- #include "i915_reg.h"
-+#include "intel_de.h"
- #include "intel_display_types.h"
- #include "intel_dsi.h"
- #include "intel_dsi_vbt.h"
-+#include "intel_gmbus_regs.h"
- #include "vlv_dsi.h"
- #include "vlv_dsi_regs.h"
- #include "vlv_sideband.h"
-@@ -377,6 +379,85 @@ static void icl_exec_gpio(struct intel_c
- 	drm_dbg_kms(&dev_priv->drm, "Skipping ICL GPIO element execution\n");
- }
- 
-+enum {
-+	MIPI_RESET_1 = 0,
-+	MIPI_AVDD_EN_1,
-+	MIPI_BKLT_EN_1,
-+	MIPI_AVEE_EN_1,
-+	MIPI_VIO_EN_1,
-+	MIPI_RESET_2,
-+	MIPI_AVDD_EN_2,
-+	MIPI_BKLT_EN_2,
-+	MIPI_AVEE_EN_2,
-+	MIPI_VIO_EN_2,
-+};
-+
-+static void icl_native_gpio_set_value(struct drm_i915_private *dev_priv,
-+				      int gpio, bool value)
-+{
-+	int index;
-+
-+	if (drm_WARN_ON(&dev_priv->drm, DISPLAY_VER(dev_priv) == 11 && gpio >= MIPI_RESET_2))
-+		return;
-+
-+	switch (gpio) {
-+	case MIPI_RESET_1:
-+	case MIPI_RESET_2:
-+		index = gpio == MIPI_RESET_1 ? HPD_PORT_A : HPD_PORT_B;
-+
-+		/*
-+		 * Disable HPD to set the pin to output, and set output
-+		 * value. The HPD pin should not be enabled for DSI anyway,
-+		 * assuming the board design and VBT are sane, and the pin isn't
-+		 * used by a non-DSI encoder.
-+		 *
-+		 * The locking protects against concurrent SHOTPLUG_CTL_DDI
-+		 * modifications in irq setup and handling.
-+		 */
-+		spin_lock_irq(&dev_priv->irq_lock);
-+		intel_de_rmw(dev_priv, SHOTPLUG_CTL_DDI,
-+			     SHOTPLUG_CTL_DDI_HPD_ENABLE(index) |
-+			     SHOTPLUG_CTL_DDI_HPD_OUTPUT_DATA(index),
-+			     value ? SHOTPLUG_CTL_DDI_HPD_OUTPUT_DATA(index) : 0);
-+		spin_unlock_irq(&dev_priv->irq_lock);
-+		break;
-+	case MIPI_AVDD_EN_1:
-+	case MIPI_AVDD_EN_2:
-+		index = gpio == MIPI_AVDD_EN_1 ? 0 : 1;
-+
-+		intel_de_rmw(dev_priv, PP_CONTROL(index), PANEL_POWER_ON,
-+			     value ? PANEL_POWER_ON : 0);
-+		break;
-+	case MIPI_BKLT_EN_1:
-+	case MIPI_BKLT_EN_2:
-+		index = gpio == MIPI_AVDD_EN_1 ? 0 : 1;
-+
-+		intel_de_rmw(dev_priv, PP_CONTROL(index), EDP_BLC_ENABLE,
-+			     value ? EDP_BLC_ENABLE : 0);
-+		break;
-+	case MIPI_AVEE_EN_1:
-+	case MIPI_AVEE_EN_2:
-+		index = gpio == MIPI_AVEE_EN_1 ? 1 : 2;
-+
-+		intel_de_rmw(dev_priv, GPIO(dev_priv, index),
-+			     GPIO_CLOCK_VAL_OUT,
-+			     GPIO_CLOCK_DIR_MASK | GPIO_CLOCK_DIR_OUT |
-+			     GPIO_CLOCK_VAL_MASK | (value ? GPIO_CLOCK_VAL_OUT : 0));
-+		break;
-+	case MIPI_VIO_EN_1:
-+	case MIPI_VIO_EN_2:
-+		index = gpio == MIPI_VIO_EN_1 ? 1 : 2;
-+
-+		intel_de_rmw(dev_priv, GPIO(dev_priv, index),
-+			     GPIO_DATA_VAL_OUT,
-+			     GPIO_DATA_DIR_MASK | GPIO_DATA_DIR_OUT |
-+			     GPIO_DATA_VAL_MASK | (value ? GPIO_DATA_VAL_OUT : 0));
-+		break;
-+	default:
-+		MISSING_CASE(gpio);
-+	}
-+}
-+
- static const u8 *mipi_exec_gpio(struct intel_dsi *intel_dsi, const u8 *data)
+diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
+index 742c7d49a958..8d1ef858db87 100644
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -332,7 +332,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 		  struct tcindex_filter_result *r, struct nlattr **tb,
+ 		  struct nlattr *est, u32 flags, struct netlink_ext_ack *extack)
  {
- 	struct drm_device *dev = intel_dsi->base.base.dev;
-@@ -384,8 +465,7 @@ static const u8 *mipi_exec_gpio(struct i
- 	struct intel_connector *connector = intel_dsi->attached_connector;
- 	u8 gpio_source, gpio_index = 0, gpio_number;
- 	bool value;
+-	struct tcindex_filter_result new_filter_result, *old_r = r;
++	struct tcindex_filter_result new_filter_result;
+ 	struct tcindex_data *cp = NULL, *oldp;
+ 	struct tcindex_filter *f = NULL; /* make gcc behave */
+ 	struct tcf_result cr = {};
+@@ -401,7 +401,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 	err = tcindex_filter_result_init(&new_filter_result, cp, net);
+ 	if (err < 0)
+ 		goto errout_alloc;
+-	if (old_r)
++	if (r)
+ 		cr = r->res;
+ 
+ 	err = -EBUSY;
+@@ -478,14 +478,6 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 		tcf_bind_filter(tp, &cr, base);
+ 	}
+ 
+-	if (old_r && old_r != r) {
+-		err = tcindex_filter_result_init(old_r, cp, net);
+-		if (err < 0) {
+-			kfree(f);
+-			goto errout_alloc;
+-		}
+-	}
 -
--	drm_dbg_kms(&dev_priv->drm, "\n");
-+	bool native = DISPLAY_VER(dev_priv) >= 11;
- 
- 	if (connector->panel.vbt.dsi.seq_version >= 3)
- 		gpio_index = *data++;
-@@ -398,10 +478,18 @@ static const u8 *mipi_exec_gpio(struct i
- 	else
- 		gpio_source = 0;
- 
-+	if (connector->panel.vbt.dsi.seq_version >= 4 && *data & BIT(1))
-+		native = false;
-+
- 	/* pull up/down */
- 	value = *data++ & 1;
- 
--	if (DISPLAY_VER(dev_priv) >= 11)
-+	drm_dbg_kms(&dev_priv->drm, "GPIO index %u, number %u, source %u, native %s, set to %s\n",
-+		    gpio_index, gpio_number, gpio_source, str_yes_no(native), str_on_off(value));
-+
-+	if (native)
-+		icl_native_gpio_set_value(dev_priv, gpio_number, value);
-+	else if (DISPLAY_VER(dev_priv) >= 11)
- 		icl_exec_gpio(connector, gpio_source, gpio_index, value);
- 	else if (IS_VALLEYVIEW(dev_priv))
- 		vlv_exec_gpio(connector, gpio_source, gpio_number, value);
---- a/drivers/gpu/drm/i915/i915_irq.c
-+++ b/drivers/gpu/drm/i915/i915_irq.c
-@@ -1981,8 +1981,11 @@ static void icp_irq_handler(struct drm_i
- 	if (ddi_hotplug_trigger) {
- 		u32 dig_hotplug_reg;
- 
-+		/* Locking due to DSI native GPIO sequences */
-+		spin_lock(&dev_priv->irq_lock);
- 		dig_hotplug_reg = intel_uncore_read(&dev_priv->uncore, SHOTPLUG_CTL_DDI);
- 		intel_uncore_write(&dev_priv->uncore, SHOTPLUG_CTL_DDI, dig_hotplug_reg);
-+		spin_unlock(&dev_priv->irq_lock);
- 
- 		intel_get_hpd_pins(dev_priv, &pin_mask, &long_mask,
- 				   ddi_hotplug_trigger, dig_hotplug_reg,
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -6035,6 +6035,7 @@
- 
- #define SHOTPLUG_CTL_DDI				_MMIO(0xc4030)
- #define   SHOTPLUG_CTL_DDI_HPD_ENABLE(hpd_pin)			(0x8 << (_HPD_PIN_DDI(hpd_pin) * 4))
-+#define   SHOTPLUG_CTL_DDI_HPD_OUTPUT_DATA(hpd_pin)		(0x4 << (_HPD_PIN_DDI(hpd_pin) * 4))
- #define   SHOTPLUG_CTL_DDI_HPD_STATUS_MASK(hpd_pin)		(0x3 << (_HPD_PIN_DDI(hpd_pin) * 4))
- #define   SHOTPLUG_CTL_DDI_HPD_NO_DETECT(hpd_pin)		(0x0 << (_HPD_PIN_DDI(hpd_pin) * 4))
- #define   SHOTPLUG_CTL_DDI_HPD_SHORT_DETECT(hpd_pin)		(0x1 << (_HPD_PIN_DDI(hpd_pin) * 4))
+ 	oldp = p;
+ 	r->res = cr;
+ 	tcf_exts_change(&r->exts, &e);
+-- 
+2.35.1
+
 
 
