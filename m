@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC7F6648CA
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:15:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD19D664923
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:18:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234875AbjAJSPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:15:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52594 "EHLO
+        id S239179AbjAJSSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:18:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235116AbjAJSOh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:14:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52DD68E9AA
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:12:44 -0800 (PST)
+        with ESMTP id S239209AbjAJSRd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:17:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505F9CE0D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:16:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE855B81906
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:12:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E913C433D2;
-        Tue, 10 Jan 2023 18:12:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA02E6183C
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:16:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD30EC433EF;
+        Tue, 10 Jan 2023 18:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374361;
-        bh=zlkQeW0j/joRxquS61ZaE9dXO4i0jwb0Iajw7tswj5A=;
+        s=korg; t=1673374564;
+        bh=rmRuFYKa0h6SkxPZASmZn4NIO5CdSaMT25ermC6vWXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNnRC3FGWLsZv5CeCex4U+hwzkjKPicvRa/1M4w3PsdRdej8vXglQ+8RsArGc0E/6
-         2PW8HMn3kJ72Azx7caeV8NLTWf/aub3k7rKHACMJO62eZt1qkcA256vSZ83bk5FfE5
-         3JCaCcPsNHpJoOblCGTk21RIvH5s+bBK3kBhoAQo=
+        b=p+Hg/sC9aQfwiBu7i87sJIGnwYEoJyHF52utPaGa/q+eWgOLQJxTx/qoPYRfwaq8S
+         hdtJgDYKzudNocv2d97GR0jxo+thl6SL68Po7W7+Ya/25LVYkG/rsLXBpDz7Y6o/VA
+         z+Q8JvlKoH9zgX1/dkRd0Tmels6M3onqskme6JWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        patches@lists.linux.dev, Tariq Toukan <tariqt@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 101/148] udf: Fix extension of the last extent in the file
+Subject: [PATCH 6.1 057/159] net/mlx5e: Fix RX reporter for XSK RQs
 Date:   Tue, 10 Jan 2023 19:03:25 +0100
-Message-Id: <20230110180020.394592601@linuxfoundation.org>
+Message-Id: <20230110180020.131864518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+References: <20230110180018.288460217@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-[ Upstream commit 83c7423d1eb6806d13c521d1002cc1a012111719 ]
+[ Upstream commit f8c18a5749cf917096f75dd59885b7a0fe9298ba ]
 
-When extending the last extent in the file within the last block, we
-wrongly computed the length of the last extent. This is mostly a
-cosmetical problem since the extent does not contain any data and the
-length will be fixed up by following operations but still.
+RX reporter mistakenly reads from the regular (inactive) RQ
+when XSK RQ is active. Fix it here.
 
-Fixes: 1f3868f06855 ("udf: Fix extending file within last block")
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 3db4c85cde7a ("net/mlx5e: xsk: Use queue indices starting from 0 for XSK queues")
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index b9a83820e1ad..3c380140515d 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -600,7 +600,7 @@ static void udf_do_extend_final_block(struct inode *inode,
- 	 */
- 	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
- 		return;
--	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
-+	added_bytes = new_elen - (last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
- 	last_ext->extLength += added_bytes;
- 	UDF_I(inode)->i_lenExtents += added_bytes;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
+index 5f6f95ad6888..1ae15b8536a8 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
+@@ -459,7 +459,11 @@ static int mlx5e_rx_reporter_diagnose(struct devlink_health_reporter *reporter,
+ 		goto unlock;
  
+ 	for (i = 0; i < priv->channels.num; i++) {
+-		struct mlx5e_rq *rq = &priv->channels.c[i]->rq;
++		struct mlx5e_channel *c = priv->channels.c[i];
++		struct mlx5e_rq *rq;
++
++		rq = test_bit(MLX5E_CHANNEL_STATE_XSK, c->state) ?
++			&c->xskrq : &c->rq;
+ 
+ 		err = mlx5e_rx_reporter_build_diagnose_output(rq, fmsg);
+ 		if (err)
 -- 
 2.35.1
 
