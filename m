@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA651664892
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B76664A7B
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:33:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235101AbjAJSMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53242 "EHLO
+        id S235193AbjAJSdO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:33:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238843AbjAJSL6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:11:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B46F0CE26
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:27 -0800 (PST)
+        with ESMTP id S239515AbjAJScY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:32:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F78C8D5F7
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:27:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66B16B81901
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDAC9C433EF;
-        Tue, 10 Jan 2023 18:10:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 507E4B81903
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:27:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C8B4C433D2;
+        Tue, 10 Jan 2023 18:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374225;
-        bh=SJvt6oRaSofw8z7ywbvPwYm8xg+OXJMpMj1FEiwaRyA=;
+        s=korg; t=1673375269;
+        bh=AIIe8Ged/CuIo0+OmKvgnzKmeBji8mpkBtsH1lhkHg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPZBV5KcFnFo1TND1KfPMTzIZIGySCpatsxyfKJ69VIn3uJPkySypCOhepSx0XcMx
-         0U3vmgOFgrB7cKpIFtHF9J5ipYgrJKXr2bszozTAx5LJS53my/P6qapGqAzsJW0y7V
-         iRU9k9iqFTpAtfgk1ZdKVQRmnI0vZajNfe4SK7+A=
+        b=l1JEIrHLhEa/S5SIYptv/76ADWDUtYO139IP4Jgt/XTqTaIqLyEA43IywWitqQ9xF
+         ybb7U+2mC33f5LPL3M8DnmzLa1KbKOLEe19n8xJjhJBVVcVnoGwZvymqmrOIhD1xnf
+         RLKHaVNHqUXNHcfmNIhimyy3qVvr6aI+nge4WnxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Richter <tmricht@linux.ibm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 092/148] perf lock contention: Fix core dump related to not finding the "__sched_text_end" symbol on s/390
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Yang Jihong <yangjihong1@huawei.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 104/290] tracing: Fix infinite loop in tracing_read_pipe on overflowed print_trace_line
 Date:   Tue, 10 Jan 2023 19:03:16 +0100
-Message-Id: <20230110180020.114555556@linuxfoundation.org>
+Message-Id: <20230110180035.334946510@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,142 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-[ Upstream commit d8d85ce86dc82de4f88b821a78f533b9d5b22a45 ]
+commit c1ac03af6ed45d05786c219d102f37eb44880f28 upstream.
 
-The test case perf lock contention dumps core on s390. Run the following
-commands:
+print_trace_line may overflow seq_file buffer. If the event is not
+consumed, the while loop keeps peeking this event, causing a infinite loop.
 
-  # ./perf lock record -- ./perf bench sched messaging
-  # Running 'sched/messaging' benchmark:
-  # 20 sender and receiver processes per group
-  # 10 groups == 400 processes run
+Link: https://lkml.kernel.org/r/20221129113009.182425-1-yangjihong1@huawei.com
 
-      Total time: 2.799 [sec]
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.073 MB perf.data (100 samples) ]
-  #
-  # ./perf lock contention
-  Segmentation fault (core dumped)
-  #
-
-The function call stack is lengthy, here are the top 5 functions:
-
-  # gdb ./perf core.24048
-  GNU gdb (GDB) Fedora Linux 12.1-6.fc37
-  Core was generated by `./perf lock contention'.
-  Program terminated with signal SIGSEGV, Segmentation fault.
-  #0  0x00000000011dd25c in machine__is_lock_function (machine=0x3029e28, addr=1789230) at util/machine.c:3356
-         3356 machine->sched.text_end = kmap->unmap_ip(kmap, sym->start);
-
- (gdb) where
-  #0  0x00000000011dd25c in machine__is_lock_function (machine=0x3029e28, addr=1789230) at util/machine.c:3356
-  #1  0x000000000109f244 in callchain_id (evsel=0x30313e0, sample=0x3ffea4f77d0) at builtin-lock.c:957
-  #2  0x000000000109e094 in get_key_by_aggr_mode (key=0x3ffea4f7290, addr=27758136, evsel=0x30313e0, sample=0x3ffea4f77d0) at builtin-lock.c:586
-  #3  0x000000000109f4d0 in report_lock_contention_begin_event (evsel=0x30313e0, sample=0x3ffea4f77d0) at builtin-lock.c:1004
-  #4  0x00000000010a00ae in evsel__process_contention_begin (evsel=0x30313e0, sample=0x3ffea4f77d0) at builtin-lock.c:1254
-  #5  0x00000000010a0e14 in process_sample_event (tool=0x3ffea4f8480, event=0x3ff85601ef8, sample=0x3ffea4f77d0, evsel=0x30313e0, machine=0x3029e28) at builtin-lock.c:1464
-  .....
-
-The issue is in function machine__is_lock_function() in file
-./util/machine.c lines 3355:
-
-   /* should not fail from here */
-   sym = machine__find_kernel_symbol_by_name(machine, "__sched_text_end", &kmap);
-   machine->sched.text_end = kmap->unmap_ip(kmap, sym->start)
-
-On s390 the symbol __sched_text_end is *NOT* in the symbol list and the
-resulting pointer sym is set to NULL. The sym->start is then a NULL pointer
-access and generates the core dump.
-
-The reason why __sched_text_end is not in the symbol list on s390 is
-simple:
-
-When the symbol list is created at perf start up with function calls
-
-  dso__load
-  +--> dso__load_vmlinux_path
-       +--> dso__load_vmlinux
-            +--> dso__load_sym
-	         +--> dso__load_sym_internal (reads kernel symbols)
-		 +--> symbols__fixup_end
-		 +--> symbols__fixup_duplicate
-
-The issue is in function symbols__fixup_duplicate(). It deletes all
-symbols with have the same address. On s390:
-
-  # nm -g  ~/linux/vmlinux| fgrep c68390
-  0000000000c68390 T __cpuidle_text_start
-  0000000000c68390 T __sched_text_end
-  #
-
-two symbols have identical addresses and __sched_text_end is considered
-duplicate (in ascending sort order) and removed from the symbol list.
-Therefore it is missing and an invalid pointer reference occurs.  The
-code checks for symbol __sched_text_start and when it exists assumes
-symbol __sched_text_end is also in the symbol table. However this is not
-the case on s390.
-
-Same situation exists for symbol __lock_text_start:
-
-0000000000c68770 T __cpuidle_text_end
-0000000000c68770 T __lock_text_start
-
-This symbol is also removed from the symbol table but used in function
-machine__is_lock_function().
-
-To fix this and keep duplicate symbols in the symbol table, set
-symbol_conf.allow_aliases to true. This prevents the removal of
-duplicate symbols in function symbols__fixup_duplicate().
-
-Output After:
-
- # ./perf lock contention
- contended total wait  max wait  avg wait    type   caller
-
-        48   124.39 ms 123.99 ms   2.59 ms rwsem:W unlink_anon_vmas+0x24a
-        47    83.68 ms  83.26 ms   1.78 ms rwsem:W free_pgtables+0x132
-         5    41.22 us  10.55 us   8.24 us rwsem:W free_pgtables+0x140
-         4    40.12 us  20.55 us  10.03 us rwsem:W copy_process+0x1ac8
- #
-
-Fixes: 0d2997f750d1de39 ("perf lock: Look up callchain for the contended locks")
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221230102627.2410847-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 088b1e427dbba ("ftrace: pipe fixes")
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-lock.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/trace/trace.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-lock.c b/tools/perf/builtin-lock.c
-index ea40ae52cd2c..2bc9231d86b6 100644
---- a/tools/perf/builtin-lock.c
-+++ b/tools/perf/builtin-lock.c
-@@ -1539,6 +1539,7 @@ static int __cmd_report(bool display_info)
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -6764,7 +6764,20 @@ waitagain:
  
- 	/* for lock function check */
- 	symbol_conf.sort_by_name = true;
-+	symbol_conf.allow_aliases = true;
- 	symbol__init(&session->header.env);
- 
- 	if (!perf_session__has_traces(session, "lock record"))
-@@ -1613,6 +1614,7 @@ static int __cmd_contention(int argc, const char **argv)
- 
- 	/* for lock function check */
- 	symbol_conf.sort_by_name = true;
-+	symbol_conf.allow_aliases = true;
- 	symbol__init(&session->header.env);
- 
- 	if (use_bpf) {
--- 
-2.35.1
-
+ 		ret = print_trace_line(iter);
+ 		if (ret == TRACE_TYPE_PARTIAL_LINE) {
+-			/* don't print partial lines */
++			/*
++			 * If one print_trace_line() fills entire trace_seq in one shot,
++			 * trace_seq_to_user() will returns -EBUSY because save_len == 0,
++			 * In this case, we need to consume it, otherwise, loop will peek
++			 * this event next time, resulting in an infinite loop.
++			 */
++			if (save_len == 0) {
++				iter->seq.full = 0;
++				trace_seq_puts(&iter->seq, "[LINE TOO BIG]\n");
++				trace_consume(iter);
++				break;
++			}
++
++			/* In other cases, don't print partial lines */
+ 			iter->seq.seq.len = save_len;
+ 			break;
+ 		}
 
 
