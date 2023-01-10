@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB0B664B44
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:40:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0F7666487A
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:11:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239347AbjAJSkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:40:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41372 "EHLO
+        id S238755AbjAJSL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:11:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239335AbjAJS2J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:28:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915BD13D7B
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:23:47 -0800 (PST)
+        with ESMTP id S239109AbjAJSKg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:10:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F47AFE8
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D9C561846
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:23:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34036C433F0;
-        Tue, 10 Jan 2023 18:23:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 200CDB818E0
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 785B9C433EF;
+        Tue, 10 Jan 2023 18:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375026;
-        bh=ixkTEoZYXLplN/kAqZ/0V186PgLAbaGyyxUyYO/bPD4=;
+        s=korg; t=1673374172;
+        bh=hheDl6dpJScVhrmPq2AAcUlVM0ti6E2A5kbDfg9FTRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k60r7b/WhffsKw5OCJxFAtI8TX9slZWhj5BUz2dJteumwC8eylHYO8YQQaUJ0zp5Y
-         7QQmva/LPegF82ktiXAgLjnKbK7wxnL+deXseoxyQMy28wcGtqjaBjh2wZjOTOuGIc
-         M/XgtpgTC6n7trSJinGJaQy56UlYYalms9zyo2b4=
+        b=H0VEpugw/SBifXPCMhq+z3k/PZ6gY44oa3UKOsNVc3aypvR1z5TiU4LWYsI+WgkpL
+         E9vz+ThMSukn3I3gzKrewv0r0pwyA0iNdCNnIjSAZHL2F6xXx3jBob3AcHPS5B/SzP
+         KzPAg77BLwE+u+YhKt0dRWlBaxVCUK1IN+/7es8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chuck Lever <chuck.lever@oracle.com>,
-        Jeff Layton <jlayton@kernel.org>
-Subject: [PATCH 5.15 053/290] SUNRPC: Dont leak netobj memory when gss_read_proxy_verf() fails
-Date:   Tue, 10 Jan 2023 19:02:25 +0100
-Message-Id: <20230110180033.447501605@linuxfoundation.org>
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 042/148] vhost/vsock: Fix error handling in vhost_vsock_init()
+Date:   Tue, 10 Jan 2023 19:02:26 +0100
+Message-Id: <20230110180018.554368086@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,46 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Yuan Can <yuancan@huawei.com>
 
-commit da522b5fe1a5f8b7c20a0023e87b52a150e53bf5 upstream.
+[ Upstream commit 7a4efe182ca61fb3e5307e69b261c57cbf434cd4 ]
 
-Fixes: 030d794bf498 ("SUNRPC: Use gssproxy upcall for server RPCGSS authentication.")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+A problem about modprobe vhost_vsock failed is triggered with the
+following log given:
+
+modprobe: ERROR: could not insert 'vhost_vsock': Device or resource busy
+
+The reason is that vhost_vsock_init() returns misc_register() directly
+without checking its return value, if misc_register() failed, it returns
+without calling vsock_core_unregister() on vhost_transport, resulting the
+vhost_vsock can never be installed later.
+A simple call graph is shown as below:
+
+ vhost_vsock_init()
+   vsock_core_register() # register vhost_transport
+   misc_register()
+     device_create_with_groups()
+       device_create_groups_vargs()
+         dev = kzalloc(...) # OOM happened
+   # return without unregister vhost_transport
+
+Fix by calling vsock_core_unregister() when misc_register() returns error.
+
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Message-Id: <20221108101705.45981-1-yuancan@huawei.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/svcauth_gss.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/vhost/vsock.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1162,18 +1162,23 @@ static int gss_read_proxy_verf(struct sv
- 		return res;
- 
- 	inlen = svc_getnl(argv);
--	if (inlen > (argv->iov_len + rqstp->rq_arg.page_len))
-+	if (inlen > (argv->iov_len + rqstp->rq_arg.page_len)) {
-+		kfree(in_handle->data);
- 		return SVC_DENIED;
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 5703775af129..10a7d23731fe 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -959,7 +959,14 @@ static int __init vhost_vsock_init(void)
+ 				  VSOCK_TRANSPORT_F_H2G);
+ 	if (ret < 0)
+ 		return ret;
+-	return misc_register(&vhost_vsock_misc);
++
++	ret = misc_register(&vhost_vsock_misc);
++	if (ret) {
++		vsock_core_unregister(&vhost_transport.transport);
++		return ret;
 +	}
++
++	return 0;
+ };
  
- 	pages = DIV_ROUND_UP(inlen, PAGE_SIZE);
- 	in_token->pages = kcalloc(pages, sizeof(struct page *), GFP_KERNEL);
--	if (!in_token->pages)
-+	if (!in_token->pages) {
-+		kfree(in_handle->data);
- 		return SVC_DENIED;
-+	}
- 	in_token->page_base = 0;
- 	in_token->page_len = inlen;
- 	for (i = 0; i < pages; i++) {
- 		in_token->pages[i] = alloc_page(GFP_KERNEL);
- 		if (!in_token->pages[i]) {
-+			kfree(in_handle->data);
- 			gss_free_in_token_pages(in_token);
- 			return SVC_DENIED;
- 		}
+ static void __exit vhost_vsock_exit(void)
+-- 
+2.35.1
+
 
 
