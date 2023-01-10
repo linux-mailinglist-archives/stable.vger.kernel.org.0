@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B746648BF
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:14:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EFA5664AA6
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:34:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235110AbjAJSOk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:14:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52934 "EHLO
+        id S235168AbjAJSeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:34:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234009AbjAJSND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:13:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C9697645
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:11:51 -0800 (PST)
+        with ESMTP id S239445AbjAJSdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:33:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B366633A7
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:29:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27199B818FB
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:11:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F329C433EF;
-        Tue, 10 Jan 2023 18:11:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D7C361864
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:29:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D4CDC433F2;
+        Tue, 10 Jan 2023 18:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374308;
-        bh=R11KfLR/mtPLWUd51U0iVynTDRA3SeN70ZC8NXe3XSk=;
+        s=korg; t=1673375374;
+        bh=QuTpqDaHpS8o8SloplrIfm3XWizvw1atJ7Rxe86lGBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIUDTyo7X9DxQz8mVYTYROtvo8LPOKWx91xzppNyVuq1/PSCk+E1h6OW9bk5OCj/J
-         l0YD4cenJHt6TaWM2mOfRfxNFDuOEzZOhsW79k2owNRaehRYMcWefF+A6lya4jBcEc
-         qS+dJpzWe/dBhylntdQj5N9sqrnkB54T61zx54OA=
+        b=lRJ5/8pJQCAZ70Rk3C1qME3unJ8CmLX/kORq9R1ZoUtIZajmKYp26lL1iTH2/6B92
+         udV8OViFp8MfBht4frsN91pO/elJU1YG2PYHO62FfM8KDyN2RK/Y9MY1C7Z8/6Xsv1
+         MpfN164iJI4lOSSAP3Hv0DP7d3j4Xlx1D3KIbC24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, it+linux-fbdev@molgen.mpg.de,
-        "Z. Liu" <liuzx@knownsec.com>, Rich Felker <dalias@libc.org>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 6.0 124/148] fbdev: matroxfb: G200eW: Increase max memory from 1 MB to 16 MB
+        patches@lists.linux.dev, Zack Rusin <zackr@vmware.com>,
+        Michael Banack <banackm@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>
+Subject: [PATCH 5.15 136/290] drm/vmwgfx: Validate the box size for the snooped cursor
 Date:   Tue, 10 Jan 2023 19:03:48 +0100
-Message-Id: <20230110180021.123194464@linuxfoundation.org>
+Message-Id: <20230110180036.543094567@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Menzel <pmenzel@molgen.mpg.de>
+From: Zack Rusin <zackr@vmware.com>
 
-commit f685dd7a8025f2554f73748cfdb8143a21fb92c7 upstream.
+commit 4cf949c7fafe21e085a4ee386bb2dade9067316e upstream.
 
-Commit 62d89a7d49af ("video: fbdev: matroxfb: set maxvram of vbG200eW to
-the same as vbG200 to avoid black screen") accidently decreases the
-maximum memory size for the Matrox G200eW (102b:0532) from 8 MB to 1 MB
-by missing one zero. This caused the driver initialization to fail with
-the messages below, as the minimum required VRAM size is 2 MB:
+Invalid userspace dma surface copies could potentially overflow
+the memcpy from the surface to the snooped image leading to crashes.
+To fix it the dimensions of the copybox have to be validated
+against the expected size of the snooped cursor.
 
-     [    9.436420] matroxfb: Matrox MGA-G200eW (PCI) detected
-     [    9.444502] matroxfb: cannot determine memory size
-     [    9.449316] matroxfb: probe of 0000:0a:03.0 failed with error -1
-
-So, add the missing 0 to make it the intended 16 MB. Successfully tested on
-the Dell PowerEdge R910/0KYD3D, BIOS 2.10.0 08/29/2013, that the warning is
-gone.
-
-While at it, add a leading 0 to the maxdisplayable entry, so it’s aligned
-properly. The value could probably also be increased from 8 MB to 16 MB, as
-the G200 uses the same values, but I have not checked any datasheet.
-
-Note, matroxfb is obsolete and superseded by the maintained DRM driver
-mga200, which is used by default on most systems where both drivers are
-available. Therefore, on most systems it was only a cosmetic issue.
-
-Fixes: 62d89a7d49af ("video: fbdev: matroxfb: set maxvram of vbG200eW to the same as vbG200 to avoid black screen")
-Link: https://lore.kernel.org/linux-fbdev/972999d3-b75d-5680-fcef-6e6905c52ac5@suse.de/T/#mb6953a9995ebd18acc8552f99d6db39787aec775
-Cc: it+linux-fbdev@molgen.mpg.de
-Cc: Z. Liu <liuzx@knownsec.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 2ac863719e51 ("vmwgfx: Snoop DMA transfers with non-covering sizes")
+Cc: <stable@vger.kernel.org> # v3.2+
+Reviewed-by: Michael Banack <banackm@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221026031936.1004280-1-zack@kde.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/matrox/matroxfb_base.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/matrox/matroxfb_base.c
-+++ b/drivers/video/fbdev/matrox/matroxfb_base.c
-@@ -1377,8 +1377,8 @@ static struct video_board vbG200 = {
- 	.lowlevel = &matrox_G100
- };
- static struct video_board vbG200eW = {
--	.maxvram = 0x100000,
--	.maxdisplayable = 0x800000,
-+	.maxvram = 0x1000000,
-+	.maxdisplayable = 0x0800000,
- 	.accelID = FB_ACCEL_MATROX_MGAG200,
- 	.lowlevel = &matrox_G100
- };
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+@@ -186,7 +186,8 @@ void vmw_kms_cursor_snoop(struct vmw_sur
+ 	if (cmd->dma.guest.ptr.offset % PAGE_SIZE ||
+ 	    box->x != 0    || box->y != 0    || box->z != 0    ||
+ 	    box->srcx != 0 || box->srcy != 0 || box->srcz != 0 ||
+-	    box->d != 1    || box_count != 1) {
++	    box->d != 1    || box_count != 1 ||
++	    box->w > 64 || box->h > 64) {
+ 		/* TODO handle none page aligned offsets */
+ 		/* TODO handle more dst & src != 0 */
+ 		/* TODO handle more then one copy */
 
 
