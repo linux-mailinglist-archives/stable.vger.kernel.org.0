@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B06664A3B
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:31:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F17E66487E
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239401AbjAJSbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:31:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
+        id S238871AbjAJSMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:12:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239358AbjAJSai (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB5BC564E3
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:33 -0800 (PST)
+        with ESMTP id S238884AbjAJSLB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:11:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A80AE083
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:09:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96601B818E0
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB961C433EF;
-        Tue, 10 Jan 2023 18:25:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2E456186D
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:09:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC73EC433D2;
+        Tue, 10 Jan 2023 18:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673375131;
-        bh=V8zPG/IfKobL5RDYEPT2r9W/On5PYTdz9V1zJrInIuo=;
+        s=korg; t=1673374183;
+        bh=r5jRDURQtmfPweQ/ycytf0tigCa7nBejWzgIABBu6O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4484zMQKRIHSaEj/IpGCAe1JERjpl+T8wdA0nr0vX1pXwuRHTwnXG/S7OSD3ouOG
-         9zhRQ/lYvGCh7Jvo1sFlx0qU2+mw/oX6ZZtDdU1iQS43gS7tUOUDfY6MoXiozEzC+J
-         ZCHxGfAImcUsUAlX1WEs6Qb4H3Z/VX5TXoETj+c8=
+        b=k4bkSEuCLjUQPfnZawD1OBz+rlMz4TWaJzZYjqSGS9T6kWONmWiEiQZsxfsjHddNK
+         zzGXcdHRqbPh1tTQjE/dj/k+4ayiJEtwZAl+1dZR21ABue9AhmfrnPIFPh7M2mN92f
+         QtA5jFgg5IAv3+9ILg9/cuCKeS8MreCa07udDaVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luo Meng <luomeng12@huawei.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.15 088/290] dm cache: Fix UAF in destroy()
-Date:   Tue, 10 Jan 2023 19:03:00 +0100
-Message-Id: <20230110180034.641552767@linuxfoundation.org>
+        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Jeff Layton <jlayton@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.0 077/148] filelock: new helper: vfs_inode_has_locks
+Date:   Tue, 10 Jan 2023 19:03:01 +0100
+Message-Id: <20230110180019.657028184@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
+References: <20230110180017.145591678@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Meng <luomeng12@huawei.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 6a459d8edbdbe7b24db42a5a9f21e6aa9e00c2aa upstream.
+[ Upstream commit ab1ddef98a715eddb65309ffa83267e4e84a571e ]
 
-Dm_cache also has the same UAF problem when dm_resume()
-and dm_destroy() are concurrent.
+Ceph has a need to know whether a particular inode has any locks set on
+it. It's currently tracking that by a num_locks field in its
+filp->private_data, but that's problematic as it tries to decrement this
+field when releasing locks and that can race with the file being torn
+down.
 
-Therefore, cancelling timer again in destroy().
+Add a new vfs_inode_has_locks helper that just returns whether any locks
+are currently held on the inode.
 
-Cc: stable@vger.kernel.org
-Fixes: c6b4fcbad044e ("dm: add cache target")
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Stable-dep-of: 461ab10ef7e6 ("ceph: switch to vfs_inode_has_locks() to fix file lock bug")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-cache-target.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/locks.c         | 23 +++++++++++++++++++++++
+ include/linux/fs.h |  6 ++++++
+ 2 files changed, 29 insertions(+)
 
---- a/drivers/md/dm-cache-target.c
-+++ b/drivers/md/dm-cache-target.c
-@@ -1895,6 +1895,7 @@ static void destroy(struct cache *cache)
- 	if (cache->prison)
- 		dm_bio_prison_destroy_v2(cache->prison);
+diff --git a/fs/locks.c b/fs/locks.c
+index 607f94a0e789..7dc129cc1a26 100644
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -2669,6 +2669,29 @@ int vfs_cancel_lock(struct file *filp, struct file_lock *fl)
+ }
+ EXPORT_SYMBOL_GPL(vfs_cancel_lock);
  
-+	cancel_delayed_work_sync(&cache->waker);
- 	if (cache->wq)
- 		destroy_workqueue(cache->wq);
++/**
++ * vfs_inode_has_locks - are any file locks held on @inode?
++ * @inode: inode to check for locks
++ *
++ * Return true if there are any FL_POSIX or FL_FLOCK locks currently
++ * set on @inode.
++ */
++bool vfs_inode_has_locks(struct inode *inode)
++{
++	struct file_lock_context *ctx;
++	bool ret;
++
++	ctx = smp_load_acquire(&inode->i_flctx);
++	if (!ctx)
++		return false;
++
++	spin_lock(&ctx->flc_lock);
++	ret = !list_empty(&ctx->flc_posix) || !list_empty(&ctx->flc_flock);
++	spin_unlock(&ctx->flc_lock);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(vfs_inode_has_locks);
++
+ #ifdef CONFIG_PROC_FS
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 8e79a761c56c..17a1a57adbe0 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1170,6 +1170,7 @@ extern int locks_delete_block(struct file_lock *);
+ extern int vfs_test_lock(struct file *, struct file_lock *);
+ extern int vfs_lock_file(struct file *, unsigned int, struct file_lock *, struct file_lock *);
+ extern int vfs_cancel_lock(struct file *filp, struct file_lock *fl);
++bool vfs_inode_has_locks(struct inode *inode);
+ extern int locks_lock_inode_wait(struct inode *inode, struct file_lock *fl);
+ extern int __break_lease(struct inode *inode, unsigned int flags, unsigned int type);
+ extern void lease_get_mtime(struct inode *, struct timespec64 *time);
+@@ -1284,6 +1285,11 @@ static inline int vfs_cancel_lock(struct file *filp, struct file_lock *fl)
+ 	return 0;
+ }
  
++static inline bool vfs_inode_has_locks(struct inode *inode)
++{
++	return false;
++}
++
+ static inline int locks_lock_inode_wait(struct inode *inode, struct file_lock *fl)
+ {
+ 	return -ENOLCK;
+-- 
+2.35.1
+
 
 
