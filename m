@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C64664904
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0FE8664907
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:17:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235420AbjAJSRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:17:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54584 "EHLO
+        id S239074AbjAJSRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:17:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239056AbjAJSQ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:28 -0500
+        with ESMTP id S234713AbjAJSQc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:16:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F7D5D439
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:14:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5532840859
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:14:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8447D61866
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 545FFC433D2;
-        Tue, 10 Jan 2023 18:14:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6E6761852
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBD13C433EF;
+        Tue, 10 Jan 2023 18:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374492;
-        bh=7puKql8xei2oFszh/eq9NjClQq/gAreW1RISkRW1aX4=;
+        s=korg; t=1673374495;
+        bh=I55RRaJo8CB8Gsjw4Snwb+ITZ5sv/GfIsVsT52D0O5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Md3C34qSt+RFMcke7z/yBT7ug5ZZ9tq0wXHhRkZTo5xWB753KxwBrCPtXuQkyoYav
-         RF6udt8ldSKls1jHmu4Lwbfg1QwK05l2NlFY5zjJ9Qjh6AeVvgAkCaaUBZ8gVsICsJ
-         nNckkZV86ZS/E8y1U/HRzIBY+LvFYEAEtuQdhb1M=
+        b=EU9xNfLJfQ2+lGRmx9zBxX0EZ1SArAY0knEA7Z+/kYexPX9Pi4rlu31rUg32L0Cg3
+         O+5O2RmY8U6gPrZptlFkixjzE0dfl9jJGp0DXq3ibrDtNgiJpA7LwyukqUUrapWl5a
+         RLTswJW6znDvp76XNv1oeEmwiHFUXSTzH4RgVubQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 022/159] mptcp: fix deadlock in fastopen error path
-Date:   Tue, 10 Jan 2023 19:02:50 +0100
-Message-Id: <20230110180019.014481729@linuxfoundation.org>
+Subject: [PATCH 6.1 023/159] mptcp: fix lockdep false positive
+Date:   Tue, 10 Jan 2023 19:02:51 +0100
+Message-Id: <20230110180019.045496259@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
 References: <20230110180018.288460217@linuxfoundation.org>
@@ -57,148 +58,156 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 7d803344fdc3e38079fabcf38b1e4cb6f8faa655 ]
+[ Upstream commit fec3adfd754ccc99a7230e8ab9f105b65fb07bcc ]
 
-MatM reported a deadlock at fastopening time:
+MattB reported a lockdep splat in the mptcp listener code cleanup:
 
-INFO: task syz-executor.0:11454 blocked for more than 143 seconds.
-      Tainted: G S                 6.1.0-rc5-03226-gdb0157db5153 #1
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:syz-executor.0  state:D stack:25104 pid:11454 ppid:424    flags:0x00004006
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5191 [inline]
- __schedule+0x5c2/0x1550 kernel/sched/core.c:6503
- schedule+0xe8/0x1c0 kernel/sched/core.c:6579
- __lock_sock+0x142/0x260 net/core/sock.c:2896
- lock_sock_nested+0xdb/0x100 net/core/sock.c:3466
- __mptcp_close_ssk+0x1a3/0x790 net/mptcp/protocol.c:2328
- mptcp_destroy_common+0x16a/0x650 net/mptcp/protocol.c:3171
- mptcp_disconnect+0xb8/0x450 net/mptcp/protocol.c:3019
- __inet_stream_connect+0x897/0xa40 net/ipv4/af_inet.c:720
- tcp_sendmsg_fastopen+0x3dd/0x740 net/ipv4/tcp.c:1200
- mptcp_sendmsg_fastopen net/mptcp/protocol.c:1682 [inline]
- mptcp_sendmsg+0x128a/0x1a50 net/mptcp/protocol.c:1721
- inet6_sendmsg+0x11f/0x150 net/ipv6/af_inet6.c:663
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg+0xf7/0x190 net/socket.c:734
- ____sys_sendmsg+0x336/0x970 net/socket.c:2476
- ___sys_sendmsg+0x122/0x1c0 net/socket.c:2530
- __sys_sendmmsg+0x18d/0x460 net/socket.c:2616
- __do_sys_sendmmsg net/socket.c:2645 [inline]
- __se_sys_sendmmsg net/socket.c:2642 [inline]
- __x64_sys_sendmmsg+0x9d/0x110 net/socket.c:2642
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f5920a75e7d
-RSP: 002b:00007f59201e8028 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
-RAX: ffffffffffffffda RBX: 00007f5920bb4f80 RCX: 00007f5920a75e7d
-RDX: 0000000000000001 RSI: 0000000020002940 RDI: 0000000000000005
-RBP: 00007f5920ae7593 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000020004050 R11: 0000000000000246 R12: 0000000000000000
-R13: 000000000000000b R14: 00007f5920bb4f80 R15: 00007f59201c8000
- </TASK>
+ WARNING: possible circular locking dependency detected
+ packetdrill/14278 is trying to acquire lock:
+ ffff888017d868f0 ((work_completion)(&msk->work)){+.+.}-{0:0}, at: __flush_work (kernel/workqueue.c:3069)
 
-In the error path, tcp_sendmsg_fastopen() ends-up calling
-mptcp_disconnect(), and the latter tries to close each
-subflow, acquiring the socket lock on each of them.
+ but task is already holding lock:
+ ffff888017d84130 (sk_lock-AF_INET){+.+.}-{0:0}, at: mptcp_close (net/mptcp/protocol.c:2973)
 
-At fastopen time, we have a single subflow, and such subflow
-socket lock is already held by the called, causing the deadlock.
+ which lock already depends on the new lock.
 
-We already track the 'fastopen in progress' status inside the msk
-socket. Use it to address the issue, making mptcp_disconnect() a
-no op when invoked from the fastopen (error) path and doing the
-relevant cleanup after releasing the subflow socket lock.
+ the existing dependency chain (in reverse order) is:
 
-While at the above, rename the fastopen status bit to something
-more meaningful.
+ -> #1 (sk_lock-AF_INET){+.+.}-{0:0}:
+        __lock_acquire (kernel/locking/lockdep.c:5055)
+        lock_acquire (kernel/locking/lockdep.c:466)
+        lock_sock_nested (net/core/sock.c:3463)
+        mptcp_worker (net/mptcp/protocol.c:2614)
+        process_one_work (kernel/workqueue.c:2294)
+        worker_thread (include/linux/list.h:292)
+        kthread (kernel/kthread.c:376)
+        ret_from_fork (arch/x86/entry/entry_64.S:312)
 
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/321
-Fixes: fa9e57468aa1 ("mptcp: fix abba deadlock on fastopen")
-Reported-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+ -> #0 ((work_completion)(&msk->work)){+.+.}-{0:0}:
+        check_prev_add (kernel/locking/lockdep.c:3098)
+        validate_chain (kernel/locking/lockdep.c:3217)
+        __lock_acquire (kernel/locking/lockdep.c:5055)
+        lock_acquire (kernel/locking/lockdep.c:466)
+        __flush_work (kernel/workqueue.c:3070)
+        __cancel_work_timer (kernel/workqueue.c:3160)
+        mptcp_cancel_work (net/mptcp/protocol.c:2758)
+        mptcp_subflow_queue_clean (net/mptcp/subflow.c:1817)
+        __mptcp_close_ssk (net/mptcp/protocol.c:2363)
+        mptcp_destroy_common (net/mptcp/protocol.c:3170)
+        mptcp_destroy (include/net/sock.h:1495)
+        __mptcp_destroy_sock (net/mptcp/protocol.c:2886)
+        __mptcp_close (net/mptcp/protocol.c:2959)
+        mptcp_close (net/mptcp/protocol.c:2974)
+        inet_release (net/ipv4/af_inet.c:432)
+        __sock_release (net/socket.c:651)
+        sock_close (net/socket.c:1367)
+        __fput (fs/file_table.c:320)
+        task_work_run (kernel/task_work.c:181 (discriminator 1))
+        exit_to_user_mode_prepare (include/linux/resume_user_mode.h:49)
+        syscall_exit_to_user_mode (kernel/entry/common.c:130)
+        do_syscall_64 (arch/x86/entry/common.c:87)
+        entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:120)
+
+ other info that might help us debug this:
+
+  Possible unsafe locking scenario:
+
+        CPU0                    CPU1
+        ----                    ----
+   lock(sk_lock-AF_INET);
+                                lock((work_completion)(&msk->work));
+                                lock(sk_lock-AF_INET);
+   lock((work_completion)(&msk->work));
+
+  *** DEADLOCK ***
+
+The report is actually a false positive, since the only existing lock
+nesting is the msk socket lock acquired by the mptcp work.
+cancel_work_sync() is invoked without the relevant socket lock being
+held, but under a different (the msk listener) socket lock.
+
+We could silence the splat adding a per workqueue dynamic lockdep key,
+but that looks overkill. Instead just tell lockdep the msk socket lock
+is not held around cancel_work_sync().
+
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/322
+Fixes: 30e51b923e43 ("mptcp: fix unreleased socket in accept queue")
+Reported-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 18 +++++++++++++++---
+ net/mptcp/protocol.c |  2 +-
  net/mptcp/protocol.h |  2 +-
- 2 files changed, 16 insertions(+), 4 deletions(-)
+ net/mptcp/subflow.c  | 19 +++++++++++++++++--
+ 3 files changed, 19 insertions(+), 4 deletions(-)
 
 diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index 1dbc62537259..e64ea2ca1c7a 100644
+index e64ea2ca1c7a..e97465f0c667 100644
 --- a/net/mptcp/protocol.c
 +++ b/net/mptcp/protocol.c
-@@ -1673,6 +1673,8 @@ static void mptcp_set_nospace(struct sock *sk)
- 	set_bit(MPTCP_NOSPACE, &mptcp_sk(sk)->flags);
- }
- 
-+static int mptcp_disconnect(struct sock *sk, int flags);
-+
- static int mptcp_sendmsg_fastopen(struct sock *sk, struct sock *ssk, struct msghdr *msg,
- 				  size_t len, int *copied_syn)
- {
-@@ -1683,9 +1685,9 @@ static int mptcp_sendmsg_fastopen(struct sock *sk, struct sock *ssk, struct msgh
- 	lock_sock(ssk);
- 	msg->msg_flags |= MSG_DONTWAIT;
- 	msk->connect_flags = O_NONBLOCK;
--	msk->is_sendmsg = 1;
-+	msk->fastopening = 1;
- 	ret = tcp_sendmsg_fastopen(ssk, msg, copied_syn, len, NULL);
--	msk->is_sendmsg = 0;
-+	msk->fastopening = 0;
- 	msg->msg_flags = saved_flags;
- 	release_sock(ssk);
- 
-@@ -1699,6 +1701,8 @@ static int mptcp_sendmsg_fastopen(struct sock *sk, struct sock *ssk, struct msgh
- 		 */
- 		if (ret && ret != -EINPROGRESS && ret != -ERESTARTSYS && ret != -EINTR)
- 			*copied_syn = 0;
-+	} else if (ret && ret != -EINPROGRESS) {
-+		mptcp_disconnect(sk, 0);
- 	}
- 
- 	return ret;
-@@ -3000,6 +3004,14 @@ static int mptcp_disconnect(struct sock *sk, int flags)
- {
- 	struct mptcp_sock *msk = mptcp_sk(sk);
- 
-+	/* We are on the fastopen error path. We can't call straight into the
-+	 * subflows cleanup code due to lock nesting (we are already under
-+	 * msk->firstsocket lock). Do nothing and leave the cleanup to the
-+	 * caller.
-+	 */
-+	if (msk->fastopening)
-+		return 0;
-+
- 	inet_sk_state_store(sk, TCP_CLOSE);
- 
- 	mptcp_stop_timer(sk);
-@@ -3566,7 +3578,7 @@ static int mptcp_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
- 	/* if reaching here via the fastopen/sendmsg path, the caller already
- 	 * acquired the subflow socket lock, too.
- 	 */
--	if (msk->is_sendmsg)
-+	if (msk->fastopening)
- 		err = __inet_stream_connect(ssock, uaddr, addr_len, msk->connect_flags, 1);
- 	else
- 		err = inet_stream_connect(ssock, uaddr, addr_len, msk->connect_flags);
+@@ -2371,7 +2371,7 @@ static void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
+ 		/* otherwise tcp will dispose of the ssk and subflow ctx */
+ 		if (ssk->sk_state == TCP_LISTEN) {
+ 			tcp_set_state(ssk, TCP_CLOSE);
+-			mptcp_subflow_queue_clean(ssk);
++			mptcp_subflow_queue_clean(sk, ssk);
+ 			inet_csk_listen_stop(ssk);
+ 		}
+ 		__tcp_close(ssk, 0);
 diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index 6a09ab99a12d..380bddbc52d4 100644
+index 380bddbc52d4..62e9ff237b6e 100644
 --- a/net/mptcp/protocol.h
 +++ b/net/mptcp/protocol.h
-@@ -286,7 +286,7 @@ struct mptcp_sock {
- 	u8		recvmsg_inq:1,
- 			cork:1,
- 			nodelay:1,
--			is_sendmsg:1;
-+			fastopening:1;
- 	int		connect_flags;
- 	struct work_struct work;
- 	struct sk_buff  *ooo_last_skb;
+@@ -614,7 +614,7 @@ void mptcp_close_ssk(struct sock *sk, struct sock *ssk,
+ 		     struct mptcp_subflow_context *subflow);
+ void __mptcp_subflow_send_ack(struct sock *ssk);
+ void mptcp_subflow_reset(struct sock *ssk);
+-void mptcp_subflow_queue_clean(struct sock *ssk);
++void mptcp_subflow_queue_clean(struct sock *sk, struct sock *ssk);
+ void mptcp_sock_graft(struct sock *sk, struct socket *parent);
+ struct socket *__mptcp_nmpc_socket(const struct mptcp_sock *msk);
+ bool __mptcp_close(struct sock *sk, long timeout);
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 613f515fedf0..9d3701fdb293 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -1733,7 +1733,7 @@ static void subflow_state_change(struct sock *sk)
+ 	}
+ }
+ 
+-void mptcp_subflow_queue_clean(struct sock *listener_ssk)
++void mptcp_subflow_queue_clean(struct sock *listener_sk, struct sock *listener_ssk)
+ {
+ 	struct request_sock_queue *queue = &inet_csk(listener_ssk)->icsk_accept_queue;
+ 	struct mptcp_sock *msk, *next, *head = NULL;
+@@ -1782,8 +1782,23 @@ void mptcp_subflow_queue_clean(struct sock *listener_ssk)
+ 
+ 		do_cancel_work = __mptcp_close(sk, 0);
+ 		release_sock(sk);
+-		if (do_cancel_work)
++		if (do_cancel_work) {
++			/* lockdep will report a false positive ABBA deadlock
++			 * between cancel_work_sync and the listener socket.
++			 * The involved locks belong to different sockets WRT
++			 * the existing AB chain.
++			 * Using a per socket key is problematic as key
++			 * deregistration requires process context and must be
++			 * performed at socket disposal time, in atomic
++			 * context.
++			 * Just tell lockdep to consider the listener socket
++			 * released here.
++			 */
++			mutex_release(&listener_sk->sk_lock.dep_map, _RET_IP_);
+ 			mptcp_cancel_work(sk);
++			mutex_acquire(&listener_sk->sk_lock.dep_map,
++				      SINGLE_DEPTH_NESTING, 0, _RET_IP_);
++		}
+ 		sock_put(sk);
+ 	}
+ 
 -- 
 2.35.1
 
