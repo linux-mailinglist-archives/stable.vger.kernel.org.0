@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2104A66489C
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:12:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21668664A36
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:31:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238939AbjAJSMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:12:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52640 "EHLO
+        id S239388AbjAJSb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:31:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238945AbjAJSMI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:12:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD98B4B
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:10:56 -0800 (PST)
+        with ESMTP id S239415AbjAJSae (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:30:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC17C983FF
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:25:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 284C4B81903
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:10:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B9A2C433EF;
-        Tue, 10 Jan 2023 18:10:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4847B61871
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:25:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 468F8C433D2;
+        Tue, 10 Jan 2023 18:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374253;
-        bh=thC99iqc/8t9+IXekia/KPOSELcf6K+vX6kIePZDpvw=;
+        s=korg; t=1673375119;
+        bh=cJOTbZrZvuG4JkBxT+Pqu2oTtiZKpW0DW80RISTmDYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZPN50vqDFkyil4OIc9Vu/b2RusXmCVAbgX9sPLxzSfNSQ5m3WxCff4h28WuH9L69i
-         FtrRHWDWYNa6n0QCcaDmT48JsYv5xz3cjrluHcG1M8/3ORIQdVGAVt/IxZvLYhH+vY
-         vc6N62dCqqgwyCNqSn1TUH/rfZA3S75E6ZpMrtcc=
+        b=jBx9B/mRf85eygh94jYlMxzUlwWqulsrpp/p8/uCB5dX/vwUhuRo37wWDKq5KSD7M
+         n5ALsXlc78WWS/rYn5t4mbgaLS6YWyfQQHO9VxJootdVdJfAppicRYhBnKUqXj76hZ
+         KThFB7Qtb/YmJ+kRvxIL4girZUHtsaxZPcw+YHg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
-        Patrisious Haddad <phaddad@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.0 072/148] RDMA/mlx5: Fix mlx5_ib_get_hw_stats when used for device
+        patches@lists.linux.dev, Luo Meng <luomeng12@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.15 084/290] dm thin: resume even if in FAIL mode
 Date:   Tue, 10 Jan 2023 19:02:56 +0100
-Message-Id: <20230110180019.497840840@linuxfoundation.org>
+Message-Id: <20230110180034.508278030@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180017.145591678@linuxfoundation.org>
-References: <20230110180017.145591678@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,112 +52,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Luo Meng <luomeng12@huawei.com>
 
-[ Upstream commit 38b50aa44495d5eb4218f0b82fc2da76505cec53 ]
+commit 19eb1650afeb1aa86151f61900e9e5f1de5d8d02 upstream.
 
-Currently, when mlx5_ib_get_hw_stats() is used for device (port_num = 0),
-there is a special handling in order to use the correct counters, but,
-port_num is being passed down the stack without any change.  Also, some
-functions assume that port_num >=1. As a result, the following oops can
-occur.
+If a thinpool set fail_io while suspending, resume will fail with:
+ device-mapper: resume ioctl on vg-thinpool  failed: Invalid argument
 
- BUG: unable to handle page fault for address: ffff89510294f1a8
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 0 P4D 0
- Oops: 0002 [#1] SMP
- CPU: 8 PID: 1382 Comm: devlink Tainted: G W          6.1.0-rc4_for_upstream_base_2022_11_10_16_12 #1
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
- RIP: 0010:_raw_spin_lock+0xc/0x20
- Call Trace:
-  <TASK>
-  mlx5_ib_get_native_port_mdev+0x73/0xe0 [mlx5_ib]
-  do_get_hw_stats.constprop.0+0x109/0x160 [mlx5_ib]
-  mlx5_ib_get_hw_stats+0xad/0x180 [mlx5_ib]
-  ib_setup_device_attrs+0xf0/0x290 [ib_core]
-  ib_register_device+0x3bb/0x510 [ib_core]
-  ? atomic_notifier_chain_register+0x67/0x80
-  __mlx5_ib_add+0x2b/0x80 [mlx5_ib]
-  mlx5r_probe+0xb8/0x150 [mlx5_ib]
-  ? auxiliary_match_id+0x6a/0x90
-  auxiliary_bus_probe+0x3c/0x70
-  ? driver_sysfs_add+0x6b/0x90
-  really_probe+0xcd/0x380
-  __driver_probe_device+0x80/0x170
-  driver_probe_device+0x1e/0x90
-  __device_attach_driver+0x7d/0x100
-  ? driver_allows_async_probing+0x60/0x60
-  ? driver_allows_async_probing+0x60/0x60
-  bus_for_each_drv+0x7b/0xc0
-  __device_attach+0xbc/0x200
-  bus_probe_device+0x87/0xa0
-  device_add+0x404/0x940
-  ? dev_set_name+0x53/0x70
-  __auxiliary_device_add+0x43/0x60
-  add_adev+0x99/0xe0 [mlx5_core]
-  mlx5_attach_device+0xc8/0x120 [mlx5_core]
-  mlx5_load_one_devl_locked+0xb2/0xe0 [mlx5_core]
-  devlink_reload+0x133/0x250
-  devlink_nl_cmd_reload+0x480/0x570
-  ? devlink_nl_pre_doit+0x44/0x2b0
-  genl_family_rcv_msg_doit.isra.0+0xc2/0x110
-  genl_rcv_msg+0x180/0x2b0
-  ? devlink_nl_cmd_region_read_dumpit+0x540/0x540
-  ? devlink_reload+0x250/0x250
-  ? devlink_put+0x50/0x50
-  ? genl_family_rcv_msg_doit.isra.0+0x110/0x110
-  netlink_rcv_skb+0x54/0x100
-  genl_rcv+0x24/0x40
-  netlink_unicast+0x1f6/0x2c0
-  netlink_sendmsg+0x237/0x490
-  sock_sendmsg+0x33/0x40
-  __sys_sendto+0x103/0x160
-  ? handle_mm_fault+0x10e/0x290
-  ? do_user_addr_fault+0x1c0/0x5f0
-  __x64_sys_sendto+0x25/0x30
-  do_syscall_64+0x3d/0x90
-  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+The thin-pool also can't be removed if an in-flight bio is in the
+deferred list.
 
-Fix it by setting port_num to 1 in order to get device status and remove
-unused variable.
+This can be easily reproduced using:
 
-Fixes: aac4492ef23a ("IB/mlx5: Update counter implementation for dual port RoCE")
-Link: https://lore.kernel.org/r/98b82994c3cd3fa593b8a75ed3f3901e208beb0f.1672231736.git.leonro@nvidia.com
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Patrisious Haddad <phaddad@nvidia.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  echo "offline" > /sys/block/sda/device/state
+  dd if=/dev/zero of=/dev/mapper/thin bs=4K count=1
+  dmsetup suspend /dev/mapper/pool
+  mkfs.ext4 /dev/mapper/thin
+  dmsetup resume /dev/mapper/pool
+
+The root cause is maybe_resize_data_dev() will check fail_io and return
+error before called dm_resume.
+
+Fix this by adding FAIL mode check at the end of pool_preresume().
+
+Cc: stable@vger.kernel.org
+Fixes: da105ed5fd7e ("dm thin metadata: introduce dm_pool_abort_metadata")
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/counters.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/md/dm-thin.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/counters.c b/drivers/infiniband/hw/mlx5/counters.c
-index 945758f39523..3e1272695d99 100644
---- a/drivers/infiniband/hw/mlx5/counters.c
-+++ b/drivers/infiniband/hw/mlx5/counters.c
-@@ -278,7 +278,6 @@ static int do_get_hw_stats(struct ib_device *ibdev,
- 	const struct mlx5_ib_counters *cnts = get_counters(dev, port_num - 1);
- 	struct mlx5_core_dev *mdev;
- 	int ret, num_counters;
--	u32 mdev_port_num;
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -3566,20 +3566,28 @@ static int pool_preresume(struct dm_targ
+ 	 */
+ 	r = bind_control_target(pool, ti);
+ 	if (r)
+-		return r;
++		goto out;
  
- 	if (!stats)
- 		return -EINVAL;
-@@ -299,8 +298,9 @@ static int do_get_hw_stats(struct ib_device *ibdev,
- 	}
+ 	r = maybe_resize_data_dev(ti, &need_commit1);
+ 	if (r)
+-		return r;
++		goto out;
  
- 	if (MLX5_CAP_GEN(dev->mdev, cc_query_allowed)) {
--		mdev = mlx5_ib_get_native_port_mdev(dev, port_num,
--						    &mdev_port_num);
-+		if (!port_num)
-+			port_num = 1;
-+		mdev = mlx5_ib_get_native_port_mdev(dev, port_num, NULL);
- 		if (!mdev) {
- 			/* If port is not affiliated yet, its in down state
- 			 * which doesn't have any counters yet, so it would be
--- 
-2.35.1
-
+ 	r = maybe_resize_metadata_dev(ti, &need_commit2);
+ 	if (r)
+-		return r;
++		goto out;
+ 
+ 	if (need_commit1 || need_commit2)
+ 		(void) commit(pool);
++out:
++	/*
++	 * When a thin-pool is PM_FAIL, it cannot be rebuilt if
++	 * bio is in deferred list. Therefore need to return 0
++	 * to allow pool_resume() to flush IO.
++	 */
++	if (r && get_pool_mode(pool) == PM_FAIL)
++		r = 0;
+ 
+-	return 0;
++	return r;
+ }
+ 
+ static void pool_suspend_active_thins(struct pool *pool)
 
 
