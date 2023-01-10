@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92A2866496E
-	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D8BD664AD6
+	for <lists+stable@lfdr.de>; Tue, 10 Jan 2023 19:36:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239265AbjAJSV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 13:21:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32780 "EHLO
+        id S239466AbjAJSgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 13:36:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239264AbjAJSU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:20:59 -0500
+        with ESMTP id S239509AbjAJSfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 13:35:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1518B4D48C
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:18:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0DA454DBC
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 10:31:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67E18B818FF
-        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:18:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B846AC433EF;
-        Tue, 10 Jan 2023 18:18:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 898DCB81905
+        for <stable@vger.kernel.org>; Tue, 10 Jan 2023 18:31:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4481C433EF;
+        Tue, 10 Jan 2023 18:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673374728;
-        bh=2au/8bzdU54fuOLPavMaj3vnB5+dwzQQIVuc7L2p3uk=;
+        s=korg; t=1673375477;
+        bh=QACbFCJd4t+Gb42iKf/qn3OgeQvXxzfYJCI8ir+8mZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vgbAPTQEAlt5Pic6fcxFIw/Q4Dfz9C1hwSNbVyhF9+wM4MGGPatH7icTgEwbxbuKS
-         ab99mBYBjTeC0ns7I4Tm9KNY8gzizJLL5BiWM4HCzf8V4RrQZJKk6z/yEMcWY8mRkQ
-         O079/+0lwlSLM/9LL8DOmPmlSS3qVQLdIOr895yY=
+        b=ageYkp2FPlRB9zUSi4st8+DC4q7EYH1nOK9wunQjQG2Hl3DcgHyjA9ef/35DQKwTx
+         +STFzpF6+cw5vfaWeuC7e1q97vAzC/3Z+y6j3MSLNvfS+Wwr9OmIv1kfXJ7Qc5aDeR
+         ey1/k/3H19nNqcrNinx1zZNpguLHLRjiFDq/U6no=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 114/159] drm/amdkfd: Fix kfd_process_device_init_vm error handling
+        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.15 170/290] ext4: factor out ext4_fc_get_tl()
 Date:   Tue, 10 Jan 2023 19:04:22 +0100
-Message-Id: <20230110180021.930227054@linuxfoundation.org>
+Message-Id: <20230110180037.781665298@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
+References: <20230110180031.620810905@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +53,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Eric Biggers <ebiggers@kernel.org>
 
-[ Upstream commit 29d48b87db64b6697ddad007548e51d032081c59 ]
+From: Ye Bin <yebin10@huawei.com>
 
-Should only destroy the ib_mem and let process cleanup worker to free
-the outstanding BOs. Reset the pointer in pdd->qpd structure, to avoid
-NULL pointer access in process destroy worker.
+commit dcc5827484d6e53ccda12334f8bbfafcc593ceda upstream.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000010
- Call Trace:
-  amdgpu_amdkfd_gpuvm_unmap_gtt_bo_from_kernel+0x46/0xb0 [amdgpu]
-  kfd_process_device_destroy_cwsr_dgpu+0x40/0x70 [amdgpu]
-  kfd_process_destroy_pdds+0x71/0x190 [amdgpu]
-  kfd_process_wq_release+0x2a2/0x3b0 [amdgpu]
-  process_one_work+0x2a1/0x600
-  worker_thread+0x39/0x3d0
+Factor out ext4_fc_get_tl() to fill 'tl' with host byte order.
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20220924075233.2315259-3-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_process.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/ext4/fast_commit.c |   46 +++++++++++++++++++++++++---------------------
+ 1 file changed, 25 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_process.c b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-index 951b63677248..9821fa9268d3 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-@@ -689,13 +689,13 @@ void kfd_process_destroy_wq(void)
- }
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1271,7 +1271,7 @@ struct dentry_info_args {
+ };
  
- static void kfd_process_free_gpuvm(struct kgd_mem *mem,
--			struct kfd_process_device *pdd, void *kptr)
-+			struct kfd_process_device *pdd, void **kptr)
+ static inline void tl_to_darg(struct dentry_info_args *darg,
+-			      struct  ext4_fc_tl *tl, u8 *val)
++			      struct ext4_fc_tl *tl, u8 *val)
  {
- 	struct kfd_dev *dev = pdd->dev;
+ 	struct ext4_fc_dentry_info fcd;
  
--	if (kptr) {
-+	if (kptr && *kptr) {
- 		amdgpu_amdkfd_gpuvm_unmap_gtt_bo_from_kernel(mem);
--		kptr = NULL;
-+		*kptr = NULL;
- 	}
- 
- 	amdgpu_amdkfd_gpuvm_unmap_memory_from_gpu(dev->adev, mem, pdd->drm_priv);
-@@ -795,7 +795,7 @@ static void kfd_process_device_destroy_ib_mem(struct kfd_process_device *pdd)
- 	if (!qpd->ib_kaddr || !qpd->ib_base)
- 		return;
- 
--	kfd_process_free_gpuvm(qpd->ib_mem, pdd, qpd->ib_kaddr);
-+	kfd_process_free_gpuvm(qpd->ib_mem, pdd, &qpd->ib_kaddr);
+@@ -1280,8 +1280,14 @@ static inline void tl_to_darg(struct den
+ 	darg->parent_ino = le32_to_cpu(fcd.fc_parent_ino);
+ 	darg->ino = le32_to_cpu(fcd.fc_ino);
+ 	darg->dname = val + offsetof(struct ext4_fc_dentry_info, fc_dname);
+-	darg->dname_len = le16_to_cpu(tl->fc_len) -
+-		sizeof(struct ext4_fc_dentry_info);
++	darg->dname_len = tl->fc_len - sizeof(struct ext4_fc_dentry_info);
++}
++
++static inline void ext4_fc_get_tl(struct ext4_fc_tl *tl, u8 *val)
++{
++	memcpy(tl, val, EXT4_FC_TAG_BASE_LEN);
++	tl->fc_len = le16_to_cpu(tl->fc_len);
++	tl->fc_tag = le16_to_cpu(tl->fc_tag);
  }
  
- struct kfd_process *kfd_create_process(struct file *filep)
-@@ -1277,7 +1277,7 @@ static void kfd_process_device_destroy_cwsr_dgpu(struct kfd_process_device *pdd)
- 	if (!dev->cwsr_enabled || !qpd->cwsr_kaddr || !qpd->cwsr_base)
- 		return;
+ /* Unlink replay function */
+@@ -1446,7 +1452,7 @@ static int ext4_fc_replay_inode(struct s
+ 	struct ext4_inode *raw_fc_inode;
+ 	struct inode *inode = NULL;
+ 	struct ext4_iloc iloc;
+-	int inode_len, ino, ret, tag = le16_to_cpu(tl->fc_tag);
++	int inode_len, ino, ret, tag = tl->fc_tag;
+ 	struct ext4_extent_header *eh;
  
--	kfd_process_free_gpuvm(qpd->cwsr_mem, pdd, qpd->cwsr_kaddr);
-+	kfd_process_free_gpuvm(qpd->cwsr_mem, pdd, &qpd->cwsr_kaddr);
- }
+ 	memcpy(&fc_inode, val, sizeof(fc_inode));
+@@ -1471,7 +1477,7 @@ static int ext4_fc_replay_inode(struct s
+ 	if (ret)
+ 		goto out;
  
- void kfd_process_set_trap_handler(struct qcm_process_device *qpd,
-@@ -1598,8 +1598,8 @@ int kfd_process_device_init_vm(struct kfd_process_device *pdd,
- 	return 0;
+-	inode_len = le16_to_cpu(tl->fc_len) - sizeof(struct ext4_fc_inode);
++	inode_len = tl->fc_len - sizeof(struct ext4_fc_inode);
+ 	raw_inode = ext4_raw_inode(&iloc);
  
- err_init_cwsr:
-+	kfd_process_device_destroy_ib_mem(pdd);
- err_reserve_ib_mem:
--	kfd_process_device_free_bos(pdd);
- 	pdd->drm_priv = NULL;
+ 	memcpy(raw_inode, raw_fc_inode, offsetof(struct ext4_inode, i_block));
+@@ -1958,12 +1964,12 @@ static int ext4_fc_replay_scan(journal_t
  
- 	return ret;
--- 
-2.35.1
-
+ 	state->fc_replay_expected_off++;
+ 	for (cur = start; cur < end;
+-	     cur = cur + EXT4_FC_TAG_BASE_LEN + le16_to_cpu(tl.fc_len)) {
+-		memcpy(&tl, cur, EXT4_FC_TAG_BASE_LEN);
++	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
++		ext4_fc_get_tl(&tl, cur);
+ 		val = cur + EXT4_FC_TAG_BASE_LEN;
+ 		ext4_debug("Scan phase, tag:%s, blk %lld\n",
+-			  tag2str(le16_to_cpu(tl.fc_tag)), bh->b_blocknr);
+-		switch (le16_to_cpu(tl.fc_tag)) {
++			   tag2str(tl.fc_tag), bh->b_blocknr);
++		switch (tl.fc_tag) {
+ 		case EXT4_FC_TAG_ADD_RANGE:
+ 			memcpy(&ext, val, sizeof(ext));
+ 			ex = (struct ext4_extent *)&ext.fc_ex;
+@@ -1983,7 +1989,7 @@ static int ext4_fc_replay_scan(journal_t
+ 		case EXT4_FC_TAG_PAD:
+ 			state->fc_cur_tag++;
+ 			state->fc_crc = ext4_chksum(sbi, state->fc_crc, cur,
+-				EXT4_FC_TAG_BASE_LEN + le16_to_cpu(tl.fc_len));
++				EXT4_FC_TAG_BASE_LEN + tl.fc_len);
+ 			break;
+ 		case EXT4_FC_TAG_TAIL:
+ 			state->fc_cur_tag++;
+@@ -2016,7 +2022,7 @@ static int ext4_fc_replay_scan(journal_t
+ 			}
+ 			state->fc_cur_tag++;
+ 			state->fc_crc = ext4_chksum(sbi, state->fc_crc, cur,
+-				EXT4_FC_TAG_BASE_LEN + le16_to_cpu(tl.fc_len));
++				EXT4_FC_TAG_BASE_LEN + tl.fc_len);
+ 			break;
+ 		default:
+ 			ret = state->fc_replay_num_tags ?
+@@ -2072,8 +2078,8 @@ static int ext4_fc_replay(journal_t *jou
+ 	end = (__u8 *)bh->b_data + journal->j_blocksize - 1;
+ 
+ 	for (cur = start; cur < end;
+-	     cur = cur + EXT4_FC_TAG_BASE_LEN + le16_to_cpu(tl.fc_len)) {
+-		memcpy(&tl, cur, EXT4_FC_TAG_BASE_LEN);
++	     cur = cur + EXT4_FC_TAG_BASE_LEN + tl.fc_len) {
++		ext4_fc_get_tl(&tl, cur);
+ 		val = cur + EXT4_FC_TAG_BASE_LEN;
+ 
+ 		if (state->fc_replay_num_tags == 0) {
+@@ -2081,10 +2087,9 @@ static int ext4_fc_replay(journal_t *jou
+ 			ext4_fc_set_bitmaps_and_counters(sb);
+ 			break;
+ 		}
+-		ext4_debug("Replay phase, tag:%s\n",
+-				tag2str(le16_to_cpu(tl.fc_tag)));
++		ext4_debug("Replay phase, tag:%s\n", tag2str(tl.fc_tag));
+ 		state->fc_replay_num_tags--;
+-		switch (le16_to_cpu(tl.fc_tag)) {
++		switch (tl.fc_tag) {
+ 		case EXT4_FC_TAG_LINK:
+ 			ret = ext4_fc_replay_link(sb, &tl, val);
+ 			break;
+@@ -2105,19 +2110,18 @@ static int ext4_fc_replay(journal_t *jou
+ 			break;
+ 		case EXT4_FC_TAG_PAD:
+ 			trace_ext4_fc_replay(sb, EXT4_FC_TAG_PAD, 0,
+-					     le16_to_cpu(tl.fc_len), 0);
++					     tl.fc_len, 0);
+ 			break;
+ 		case EXT4_FC_TAG_TAIL:
+-			trace_ext4_fc_replay(sb, EXT4_FC_TAG_TAIL, 0,
+-					     le16_to_cpu(tl.fc_len), 0);
++			trace_ext4_fc_replay(sb, EXT4_FC_TAG_TAIL,
++					     0, tl.fc_len, 0);
+ 			memcpy(&tail, val, sizeof(tail));
+ 			WARN_ON(le32_to_cpu(tail.fc_tid) != expected_tid);
+ 			break;
+ 		case EXT4_FC_TAG_HEAD:
+ 			break;
+ 		default:
+-			trace_ext4_fc_replay(sb, le16_to_cpu(tl.fc_tag), 0,
+-					     le16_to_cpu(tl.fc_len), 0);
++			trace_ext4_fc_replay(sb, tl.fc_tag, 0, tl.fc_len, 0);
+ 			ret = -ECANCELED;
+ 			break;
+ 		}
 
 
