@@ -2,117 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C4966656E
-	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 22:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2549D6665A0
+	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 22:29:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234403AbjAKVRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 16:17:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
+        id S234506AbjAKV3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 16:29:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232042AbjAKVRU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 16:17:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 445593F461;
-        Wed, 11 Jan 2023 13:17:09 -0800 (PST)
+        with ESMTP id S235157AbjAKV3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 16:29:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A53B06;
+        Wed, 11 Jan 2023 13:29:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C95BE61E74;
-        Wed, 11 Jan 2023 21:17:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6C7C433EF;
-        Wed, 11 Jan 2023 21:17:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673471828;
-        bh=QdcJvdniwrZcZmbcSbOer2XLC8w4zwY1Sh2DDpeRZBE=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Zg+MIILrTXGW8KxXp2z2qWP5oE2R0DpAQ3jqnA28F/gResrypj/V9XhV0VR9u/b3O
-         Af1MinfQ3x/0cEb549086NlK578BWsjX6RsNqBn6xjopdvLsyYNB+sSPxCmPdkEljT
-         LLj8JHWoYQ0Un2875tkjtOPiwSPwWV2gn+1EJwLEomTCRTSjNTEWhAqJbnON4xjrzw
-         NhdMmO6TJqlAYYngD0bVAMt3mVb5ybVbDT1jAoQba+Lt7uRLDQs9AzHOAv2KqARvtl
-         LIIG/kuN6tQ7kLJ7i67nqstwETWbiUU5cfLpTWUL1vlIdHKls4dMRdbZR5df0dRcjr
-         OPFj0rjs/99Sg==
-Received: by mail-lf1-f50.google.com with SMTP id d30so20576497lfv.8;
-        Wed, 11 Jan 2023 13:17:08 -0800 (PST)
-X-Gm-Message-State: AFqh2koals5/JoF0nM9UJXFhYPW+Pi1gViLwfe5GGMBH1lFlhHbsGIq5
-        z3X6XDgFLGDGIbOUi8xTcJvF3YZhNYi4meZ1aVU=
-X-Google-Smtp-Source: AMrXdXuBBSwcAiqP8KFCO40rWyFMOcfLVKYmvyMB5eDhDtB3rGI2GHTWeHyQTyXlKOPv/utmYODtcMD51fJraDPBYvw=
-X-Received: by 2002:a05:6512:3d93:b0:4b8:9001:a694 with SMTP id
- k19-20020a0565123d9300b004b89001a694mr3571126lfv.426.1673471826196; Wed, 11
- Jan 2023 13:17:06 -0800 (PST)
-MIME-Version: 1.0
-References: <20230111132734.1571990-1-ardb@kernel.org> <CAJZ5v0hZMGMBnYog1CwUfGe8WU9GHmNgdn3gJdwdpiz-V2J-Ow@mail.gmail.com>
-In-Reply-To: <CAJZ5v0hZMGMBnYog1CwUfGe8WU9GHmNgdn3gJdwdpiz-V2J-Ow@mail.gmail.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Wed, 11 Jan 2023 22:16:55 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXFyba7e3mVeV2F+g85+1coYJotK=PFpvia6gAD8j1=tog@mail.gmail.com>
-Message-ID: <CAMj1kXFyba7e3mVeV2F+g85+1coYJotK=PFpvia6gAD8j1=tog@mail.gmail.com>
-Subject: Re: [PATCH] ACPI: PRM: Check whether EFI runtime is available
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     linux-efi@vger.kernel.org, stable@vger.kernel.org,
-        Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8F1B61EDE;
+        Wed, 11 Jan 2023 21:29:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35654C433D2;
+        Wed, 11 Jan 2023 21:29:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1673472542;
+        bh=2Zj4Fl1Np9cMpLPAn6Rob3EsxJIMHQ6X0N+DD057Glo=;
+        h=Date:To:From:Subject:From;
+        b=HKShK6/oVoDRLCbFoms0G/yjJ6ppHfEZ9yY8yyRf3lfrxc9V2JA9PhIWxxDLY3+Sy
+         Jyc1/up8Am/Ng88eNPg+dB780ewN6mEi8Q/YquauLK9R/982xbUiNGVjGRCQuIGAEK
+         +hg8kDcVT6LbSK82QWHvw1mZTeaAoVRTLtK2/mjw=
+Date:   Wed, 11 Jan 2023 13:29:01 -0800
+To:     mm-commits@vger.kernel.org, zokeefe@google.com,
+        stable@vger.kernel.org, shy828301@gmail.com,
+        kirill.shutemov@linux.intel.com, david@redhat.com,
+        jannh@google.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-khugepaged-fix-anon_vma-race.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230111212902.35654C433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 11 Jan 2023 at 21:23, Rafael J. Wysocki <rafael@kernel.org> wrote:
->
-> On Wed, Jan 11, 2023 at 2:27 PM Ard Biesheuvel <ardb@kernel.org> wrote:
-> >
-> > The ACPI PRM address space handler calls efi_call_virt_pointer() to
-> > execute PRM firmware code, but doing so is only permitted when the EFI
-> > runtime environment is available. Otherwise, such calls are guaranteed
-> > to result in a crash, and must therefore be avoided.
-> >
-> > Cc: <stable@vger.kernel.org>
-> > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > Cc: Len Brown <lenb@kernel.org>
-> > Cc: linux-acpi@vger.kernel.org
-> > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> > ---
-> >  drivers/acpi/prmt.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> >
-> > diff --git a/drivers/acpi/prmt.c b/drivers/acpi/prmt.c
-> > index 998101cf16e47145..74f924077866ae69 100644
-> > --- a/drivers/acpi/prmt.c
-> > +++ b/drivers/acpi/prmt.c
-> > @@ -236,6 +236,11 @@ static acpi_status acpi_platformrt_space_handler(u32 function,
-> >         efi_status_t status;
-> >         struct prm_context_buffer context;
-> >
-> > +       if (!efi_enabled(EFI_RUNTIME_SERVICES)) {
-> > +               pr_err("PRM: EFI runtime services unavailable\n");
-> > +               return AE_NOT_IMPLEMENTED;
-> > +       }
-> > +
->
-> Does the check need to be made in the address space handler and if so, then why?
->
 
-Yes. efi_enabled(EFI_RUNTIME_SERVICES) will transition from true to
-false if an exception occurs while executing the firmware code.
+The patch titled
+     Subject: mm/khugepaged: fix ->anon_vma race
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-khugepaged-fix-anon_vma-race.patch
 
-Unlike the EFI variable runtime services, which are quite uniform,
-this PRM code will be vendor specific, and so the likelihood that it
-is buggy and only tested with Windows is much higher, and so I would
-like us to be more cautious here.
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-khugepaged-fix-anon_vma-race.patch
 
-> It looks like it would be better to prevent it from being installed if
-> EFI runtime services are not enabled in the first place, in
-> init_prmt().
->
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-We could add another check there as well, yes. And perhaps the one in
-the handler should we pr_warn_once() to prevent it from firing
-repeatedly.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-> >         /*
-> >          * The returned acpi_status will always be AE_OK. Error values will be
-> >          * saved in the first byte of the PRM message buffer to be used by ASL.
-> > --
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Jann Horn <jannh@google.com>
+Subject: mm/khugepaged: fix ->anon_vma race
+Date: Wed, 11 Jan 2023 14:33:51 +0100
+
+If an ->anon_vma is attached to the VMA, collapse_and_free_pmd() requires
+it to be locked.  retract_page_tables() bails out if an ->anon_vma is
+attached, but does this check before holding the mmap lock (as the comment
+above the check explains).
+
+If we racily merge an existing ->anon_vma (shared with a child process)
+from a neighboring VMA, subsequent rmap traversals on pages belonging to
+the child will be able to see the page tables that we are concurrently
+removing while assuming that nothing else can access them.
+
+Repeat the ->anon_vma check once we hold the mmap lock to ensure that
+there really is no concurrent page table access.
+
+Link: https://lkml.kernel.org/r/20230111133351.807024-1-jannh@google.com
+Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
+Signed-off-by: Jann Horn <jannh@google.com>
+Reported-by: Zach O'Keefe <zokeefe@google.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/khugepaged.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+--- a/mm/khugepaged.c~mm-khugepaged-fix-anon_vma-race
++++ a/mm/khugepaged.c
+@@ -1642,7 +1642,7 @@ static int retract_page_tables(struct ad
+ 		 * has higher cost too. It would also probably require locking
+ 		 * the anon_vma.
+ 		 */
+-		if (vma->anon_vma) {
++		if (READ_ONCE(vma->anon_vma)) {
+ 			result = SCAN_PAGE_ANON;
+ 			goto next;
+ 		}
+@@ -1671,6 +1671,18 @@ static int retract_page_tables(struct ad
+ 		if ((cc->is_khugepaged || is_target) &&
+ 		    mmap_write_trylock(mm)) {
+ 			/*
++			 * Re-check whether we have an ->anon_vma, because
++			 * collapse_and_free_pmd() requires that either no
++			 * ->anon_vma exists or the anon_vma is locked.
++			 * We already checked ->anon_vma above, but that check
++			 * is racy because ->anon_vma can be populated under the
++			 * mmap lock in read mode.
++			 */
++			if (vma->anon_vma) {
++				result = SCAN_PAGE_ANON;
++				goto unlock_next;
++			}
++			/*
+ 			 * When a vma is registered with uffd-wp, we can't
+ 			 * recycle the pmd pgtable because there can be pte
+ 			 * markers installed.  Skip it only, so the rest mm/vma
+_
+
+Patches currently in -mm which might be from jannh@google.com are
+
+mm-khugepaged-fix-anon_vma-race.patch
+
