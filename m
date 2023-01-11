@@ -2,97 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C6006661D2
-	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 18:30:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1536966630A
+	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 19:50:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239073AbjAKR36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 12:29:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56240 "EHLO
+        id S235035AbjAKSun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 13:50:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234534AbjAKR3c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 12:29:32 -0500
-Received: from mail-oa1-x31.google.com (mail-oa1-x31.google.com [IPv6:2001:4860:4864:20::31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A4E395E4
-        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 09:28:17 -0800 (PST)
-Received: by mail-oa1-x31.google.com with SMTP id 586e51a60fabf-15b9c93848dso7967290fac.1
-        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 09:28:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=u54AezqJjjpM+HGr4IJs9A+cPR+RvkDqVZbwor81vek=;
-        b=LAPsO9RurEB0r9THrmxm35xrP8vycJrtwQDDWQYt68C1TFRc9uKOfrPgCC0/xvGF/K
-         j4h41s9nRZDT44jVc9HBVh3hSFEE5elJV5BFIA+Ij4kAkkPPN94wMfQD9Op/QolgYM2q
-         wk1g+HG1Ti5OoEOb4bBIKwwWslh6Ypfeja68c=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=u54AezqJjjpM+HGr4IJs9A+cPR+RvkDqVZbwor81vek=;
-        b=ikJaejoDNnuh+uZSnVWGfswzzpbNyplbfJM/z3s5PVROXjJeKgkQjH+DwtokWx9CEr
-         r/AsnTG7yY1OZnRlBxpMc8ng1rcAeaqiDH50czJA9vTYPFlBNMco4V8kIou6x3Y+/y0z
-         0CLSpieEsW32aSG0V6YkKg2FOQZJ3S4jJCLylNByxFnu1D0Rkwp7ti0e+UQ125He1jSi
-         oDWjcr1okVLyrS/kpQrMi95PhDxkvtoj5ILaXThbIPCe3+NKa/q46C3tL/ecqkN6fDft
-         I0Yc/U39Genfs4+gv3+eZr1CEdpJfweM5j49rZBCP84017BZl9/R0whcwCw5W86g+s7N
-         rZ1g==
-X-Gm-Message-State: AFqh2kq5DUhOuQeMzoVWCpODwPKWQ6rWMUq4xN4RE4TR/WsVY+EK8FOa
-        Vphu4c/8cl8ylYpL94HYQx5mVQ==
-X-Google-Smtp-Source: AMrXdXux1df1fFmYjJ7Bb6xj79MJxEeW8UUn9KvAGsRK1VijyG5s4AkNRcRQyVoNAWocXDr3l5vyWQ==
-X-Received: by 2002:a05:6870:5b85:b0:14c:7959:8c2e with SMTP id em5-20020a0568705b8500b0014c79598c2emr1742032oab.2.1673458096651;
-        Wed, 11 Jan 2023 09:28:16 -0800 (PST)
-Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
-        by smtp.gmail.com with ESMTPSA id y9-20020a056871010900b00143065d3e99sm7638241oab.5.2023.01.11.09.28.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Jan 2023 09:28:16 -0800 (PST)
-Sender: Justin Forbes <jmforbes@linuxtx.org>
-Date:   Wed, 11 Jan 2023 11:28:14 -0600
-From:   Justin Forbes <jforbes@fedoraproject.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/159] 6.1.5-rc1 review
-Message-ID: <Y77xro03HZe/+DyP@fedora64.linuxtx.org>
-References: <20230110180018.288460217@linuxfoundation.org>
+        with ESMTP id S235650AbjAKSud (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 13:50:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C2C23D1D7;
+        Wed, 11 Jan 2023 10:50:33 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7F04B81CA3;
+        Wed, 11 Jan 2023 18:50:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BA2DC433D2;
+        Wed, 11 Jan 2023 18:50:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673463030;
+        bh=QasiENd9bQiKisFz/wSTOxxKyJP0Z+R/8glnxbreHwQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XKp+ITw5MV+TlFfz1DuMuORnI4jtZKlThYSGjDdQKpoaUvY15dmekatCk8TrqUk0K
+         wf1IBxtgvgcbst9AzFj3O9geFANe+G1FVFrpQfKBvXu8Tg89f2lI4pVR5f4eZBB/jv
+         9k+STM0m7SSzpuuslmNxrRtGuLtsbePH5zVCQYsvspa7g0kBrG4+Bs0217pKg7pECw
+         rXraBzAG741lR7+zYf6ZZAlyQQVirdUpq03ewSXLuwzT4gYQdVwX6ZF0nZjgUMAY8J
+         RC/BNyayVRNERte5BNKE9vrSh5za0ryHtFecCK+TX71Ax+avEIoo8vSfMADLZRxS1c
+         WNSfEng3sM9zA==
+Date:   Wed, 11 Jan 2023 10:50:28 -0800
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     Chao Yu <chao@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, stable@vger.kernel.org
+Subject: Re: [f2fs-dev] [PATCH v2] f2fs: retry to update the inode page given
+ EIO
+Message-ID: <Y78E9NpDxtvr2/Hs@google.com>
+References: <20230105233908.1030651-1-jaegeuk@kernel.org>
+ <Y74O+5SklijYqMU1@google.com>
+ <77b18266-69c4-c7f0-0eab-d2069a7b21d5@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+In-Reply-To: <77b18266-69c4-c7f0-0eab-d2069a7b21d5@kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 10, 2023 at 07:02:28PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.5 release.
-> There are 159 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 01/11, Chao Yu wrote:
+> On 2023/1/11 9:20, Jaegeuk Kim wrote:
+> > In f2fs_update_inode_page, f2fs_get_node_page handles EIO along with
+> > f2fs_handle_page_eio that stops checkpoint, if the disk couldn't be recovered.
+> > As a result, we don't need to stop checkpoint right away given single EIO.
 > 
-> Responses should be made by Thu, 12 Jan 2023 17:59:42 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.5-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> f2fs_handle_page_eio() only covers the case that EIO occurs on the same
+> page, should we cover the case EIO occurs on different pages?
 
-Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
-s390x, x86_64), and boot tested x86_64. No regressions noted.
+Which case are you looking at?
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+> 
+> Thanks,
+> 
+> > 
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Randall Huang <huangrandall@google.com>
+> > Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> > ---
+> > 
+> >   Change log from v1:
+> >    - fix a bug
+> > 
+> >   fs/f2fs/inode.c | 2 +-
+> >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+> > index ff6cf66ed46b..2ed7a621fdf1 100644
+> > --- a/fs/f2fs/inode.c
+> > +++ b/fs/f2fs/inode.c
+> > @@ -719,7 +719,7 @@ void f2fs_update_inode_page(struct inode *inode)
+> >   	if (IS_ERR(node_page)) {
+> >   		int err = PTR_ERR(node_page);
+> > -		if (err == -ENOMEM) {
+> > +		if (err == -ENOMEM || (err == -EIO && !f2fs_cp_error(sbi))) {
+> >   			cond_resched();
+> >   			goto retry;
+> >   		} else if (err != -ENOENT) {
