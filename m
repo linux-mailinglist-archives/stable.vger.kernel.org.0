@@ -2,72 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93BC9665787
-	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 10:34:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B88CF6658EB
+	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 11:23:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233903AbjAKJeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 04:34:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33198 "EHLO
+        id S238638AbjAKKXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 05:23:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238633AbjAKJdl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 04:33:41 -0500
-Received: from mail-ua1-x932.google.com (mail-ua1-x932.google.com [IPv6:2607:f8b0:4864:20::932])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0457B202D
-        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 01:31:52 -0800 (PST)
-Received: by mail-ua1-x932.google.com with SMTP id t8so3525427uaj.5
-        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 01:31:51 -0800 (PST)
+        with ESMTP id S232942AbjAKKWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 05:22:52 -0500
+Received: from mail-vk1-xa2a.google.com (mail-vk1-xa2a.google.com [IPv6:2607:f8b0:4864:20::a2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 599ED2724
+        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 02:22:51 -0800 (PST)
+Received: by mail-vk1-xa2a.google.com with SMTP id l3so3877409vkk.11
+        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 02:22:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XTP2rUiYwe1rmS+ZXiHAVTpmRxymjf33zMdbnWtxm3c=;
-        b=fOHPgZdqla9+x7CVSnI7vnlUCToKGmBGmds6ENRwAm2xT2AHTvoMP1OUt5Xn/eJhF5
-         Ydy/xVJHajj13gEgWSzKJIQxaFmC9OlM9FFdPleXSvBz5hSnDjk4iMhGg6jZZotnkQzY
-         SH8IAQML+rLYNh54U/lwDcN38VRsleFZbEgy6m0U0g1yCOpVTH+CzPD8Q8PLP6GeKInL
-         Q/SiLU6QhLNX0lZegJAi9TdUNRqF+QHmyEPapLnI9pmFq2DnFmtLi+ILd/LrFgBK3c+E
-         JupzXC8bpbMPm48CJuF2FD2+HvYu6tu38r4lGitG8EKfz+75NMYU9Q3C0O5YRVkzNNCZ
-         uiBg==
+        bh=crQRzo0V6enJtMUUgyrhl4TO8BU/SJ8Pr1U+6tIxHug=;
+        b=B2HRROX5xapQU16CPQFTPJZe1v3vBkQfPEOQ7ChbWKxzWBEiLbK0+wEoOWYsjoMMVO
+         r0OVYUaClCA4JwXmJBEck80TeV2QcIrMRn5W8NLa4viTM76e3rwdpN6xpBQ6KsPpCm6E
+         VBc4M+zTgWnLJQYcehosM7Y/i9Q8rx2rnjCj/ziP/VS7hqPzLUdlic6VCvIABCfnfXSd
+         8WyIxocvEHNDMbU3pE2NPoisZch3wNac8JbCYqld1LuIRdTSET7hBHcRUbDvr54W4Ho3
+         RcRXIJRLujaCNvdJkadgc14t8CIvdvo39OQuRyOdXzcegWtGWrh+b2Ub0fsnBwyMQIUo
+         nDAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XTP2rUiYwe1rmS+ZXiHAVTpmRxymjf33zMdbnWtxm3c=;
-        b=QUaAegsiKtU5hbBTWZZNd14OEO9AzSb+UIKUiTKT8Z5mjWNT8Wa1uUogRW3Rny1dwY
-         fua5iY7v0F6w4fcN/3kDwdAoGscPfHn/jx+MMp9lQog22IZGYphqWXBotqU/uHZxIk3Z
-         9R0ONA2MPgbfYvZhIQIYYEQqx+CCSabs9Nwla3k03n7Pdxcc0mYJNpTd909EuIu7/XNt
-         QALmx1MhyDvzMaKyL0DNbX0Wt+AN5yhGyfLNNorPfICFT8Tt7FxdThvQFNPiRXB0hXD5
-         IeYue3Bc9poqWH4HOmico1BfSPmnm7EI+GCZ5IpWn8tfuysnACTxsHMFWxZuGZQ+lldv
-         zkvQ==
-X-Gm-Message-State: AFqh2koQP2SwvgLe+PNFzESCHte3iW6oO7DKWtBOns8WCq3x7GopfXB/
-        EeYyvMhXw2+g4A8vvGc7UvWeIYWZgfc9hMH3MkDwlA==
-X-Google-Smtp-Source: AMrXdXvZXdBKR84rzG5TSzValtRxUvWzUkSKmNsG1h7eUfcQ6Yudzd07vISazX9RrBM//6p78kRPsu14axTlQvJZkeY=
-X-Received: by 2002:ab0:3102:0:b0:5a4:c264:fb05 with SMTP id
- e2-20020ab03102000000b005a4c264fb05mr4306720ual.22.1673429510872; Wed, 11 Jan
- 2023 01:31:50 -0800 (PST)
+        bh=crQRzo0V6enJtMUUgyrhl4TO8BU/SJ8Pr1U+6tIxHug=;
+        b=O4/9gYuXdSGH4QNR/E5wbvq+0o7hCya1iP6p/8K++YOyJ71KaiKJcUMSUV38N+Bvmq
+         r68Ef1cL4GLq0StiPniozbR3SJckvHWm6w3QKaK8SkL/85NcRFLzXrx8hPJcdSPMCXWH
+         1yAqRNtcdMiRnX0SAQPoYte5VL3t/vRn9juJCIa0YnFpK9nWVJZgsZeR2mbXvHJFUkgc
+         DipICeuSerPqYvDZ2pDvNNJ6u1YxGJCkf7JM86WNfFqxADKV+J6bqaYJvTQt2gNruHGv
+         FmCXpyyNXBXVI93tqeKR6JHtzaV6Tk5T9aExlF7wNYkuySxS8WkqKkQTy7hnGRNaO0jd
+         wC+w==
+X-Gm-Message-State: AFqh2krmLUJL+AOkNDkaya7MdmryX1py3LWeECNAq3NeSsTcU6SWnc44
+        +nM4Eo3mK7+t8azcSsizbLPhNuiB+uNh4d9M4uxbJw==
+X-Google-Smtp-Source: AMrXdXsAzmmdXeb2U3sdaaivmVhY5mbc99HYtUVWO05839xziS1XyIztI9bndQIhHrPLFQYPC5xWHYryXBIKm9JAadg=
+X-Received: by 2002:a1f:d904:0:b0:3d5:413f:ecd0 with SMTP id
+ q4-20020a1fd904000000b003d5413fecd0mr8564318vkg.20.1673432570234; Wed, 11 Jan
+ 2023 02:22:50 -0800 (PST)
 MIME-Version: 1.0
-References: <20230110180017.145591678@linuxfoundation.org> <CA+G9fYtpM7X15rY6g6asDxrjxDSfj5sDiP8P5Yb1TS3VVmjGNw@mail.gmail.com>
- <bd62bccb-6970-4cdb-ae23-792b5867705d@app.fastmail.com>
-In-Reply-To: <bd62bccb-6970-4cdb-ae23-792b5867705d@app.fastmail.com>
+References: <20230110180031.620810905@linuxfoundation.org>
+In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 11 Jan 2023 15:01:39 +0530
-Message-ID: <CA+G9fYsChy=HzEwkBVydPW4gJhDjkB87dY9FA833H2tZLfSh-w@mail.gmail.com>
-Subject: Re: [PATCH 6.0 000/148] 6.0.19-rc1 review
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        srw@sladewatkins.net, rwarsow@gmx.de,
-        Mark Brown <broonie@kernel.org>
+Date:   Wed, 11 Jan 2023 15:52:39 +0530
+Message-ID: <CA+G9fYuRNS+soY1RkOxsTO1punVpKJRn0uf263JgHGu1RsxHZg@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/290] 5.15.87-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -79,104 +71,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 11 Jan 2023 at 13:48, Arnd Bergmann <arnd@arndb.de> wrote:
+On Tue, 10 Jan 2023 at 23:53, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On Wed, Jan 11, 2023, at 07:16, Naresh Kamboju wrote:
-> > On Tue, 10 Jan 2023 at 23:36, Greg Kroah-Hartman <gregkh@linuxfoundatio=
-n.org> wrote:
-> >>
-> >
-> > Results from Linaro=E2=80=99s test farm.
-> > Regressions on arm64 Raspberry Pi 4 Model B.
-> >
-> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> >
-> > While running LTP controllers cgroup_fj_stress_blkio test cases
-> > the Insufficient stack space to handle exception! occurred and
-> > followed by kernel panic on arm64 Raspberry Pi 4 Model B with
-> > clang-15 built kernel Image.
-> >
-> > The full boot and test log attached to this email and build and
-> > Kconfig links provided in the bottom of this email.
-> >
-> > I will try to reproduce this reported issue and get back to you.
+> This is the start of the stable review cycle for the 5.15.87 release.
+> There are 290 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> I looked at the log between 6.0.18 and 6.0.19-rc1, but don't see
-> any arm64 or memory management patches that could result in this.
-> Do you know if 6.0.18 ran successful
-
-Yes, it ran successfully on 6.0.18.
-
-On the same kernel 6.0.19-rc1 built with gcc-12 did not find this panic.
-The reported issue is specific to clang-15 build.
-
-> > [ 2893.044339] Insufficient stack space to handle exception!
-> > [ 2893.044351] ESR: 0x0000000096000047 -- DABT (current EL)
-> > [ 2893.044360] FAR: 0xffff8000128180d0
-> > [ 2893.044364] Task stack:     [0xffff800012a18000..0xffff800012a1c000]
-> > [ 2893.044370] IRQ stack:      [0xffff80000a798000..0xffff80000a79c000]
-> > [ 2893.044375] Overflow stack: [0xffff0000f77c4310..0xffff0000f77c5310]
-> ...
-> > [ 2893.044413] pc : el1h_64_sync+0x0/0x68
-> > [ 2893.044430] lr : wp_page_copy+0xf8/0x90c
-> > [ 2893.044445] sp : ffff8000128180d0
-> ...
-> > [ 2893.044692]  el1h_64_sync+0x0/0x68
-> > [ 2893.044700]  do_wp_page+0x4a0/0x5c8
-> > [ 2893.044708]  handle_mm_fault+0x7fc/0x14dc
-> > [ 2893.044718]  do_page_fault+0x29c/0x450
-> > [ 2893.044727]  do_mem_abort+0x4c/0xf8
-> > [ 2893.044741]  el0_da+0x48/0xa8
-> > [ 2893.044750]  el0t_64_sync_handler+0xcc/0xf0
-> > [ 2893.044759]  el0t_64_sync+0x18c/0x190
+> Responses should be made by Thu, 12 Jan 2023 17:59:42 +0000.
+> Anything received after that time might be too late.
 >
-> It claims that the stack overflow happened in do_wp_page(),
-> but that has a really short call chain. It would be good
-> to have the source line for do_wp_page+0x4a0/0x5c8 and
-> wp_page_copy+0xf8/0x90c to see where exactly it was.
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.87-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
 >
+> thanks,
 >
-> > [ 2893.285975] WARNING: CPU: 2 PID: 315758 at kernel/sched/core.c:3119
-> > set_task_cpu+0x14c/0x208
-> ....
-> > [ 2893.286117] CPU: 2 PID: 315758 Comm: cgroup_fj_stres Not tainted
-> > [ 2893.286416]  arch_timer_handler_phys+0x44/0x54
-> > [ 2893.286427]  handle_percpu_devid_irq+0x90/0x220
-> > [ 2893.286439]  generic_handle_domain_irq+0x38/0x50
-> > [ 2893.286447]  gic_handle_irq+0x68/0xe8
-> > [ 2893.286455]  el1_interrupt+0x88/0xc8
-> > [ 2893.286464]  el1h_64_irq_handler+0x18/0x24
-> > [ 2893.286474]  el1h_64_irq+0x64/0x68
-> > [ 2893.286482]  panic+0x2d8/0x374
->
-> This is apparently a second unrelated bug -- it still processes timer
-> interrupts after calling panic() and this apparently fails because
-> the system is already unusable.
->
-> >   artifact-location:
-> > https://storage.tuxsuite.com/public/linaro/lkft/builds/2K9JDtix2mHMoYRj=
-NkBef3oR5JT
->
+> greg k-h
 
-Adding " / " at end works.
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2K9JDtix2mHMoYRjNkBe=
-f3oR5JT/
 
-> file not found. I tried to get the vmlinux file to look at the disassembl=
-y
-> but the artifacts appear to be gone already.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-System.map:
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2K9JDtix2mHMoYRjNkBe=
-f3oR5JT/System.map
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-vmlinux:
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2K9JDtix2mHMoYRjNkBe=
-f3oR5JT/vmlinux.xz
+## Build
+* kernel: 5.15.87-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: 5e4a8f5e829f10ba7300f2b854cebaed7ac88e73
+* git describe: v5.15.86-291-g5e4a8f5e829f
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.86-291-g5e4a8f5e829f
 
-Sorry for the trouble.
+## Test Regressions (compared to v5.15.86)
 
-- Naresh
+## Metric Regressions (compared to v5.15.86)
 
->
->      Arnd
+## Test Fixes (compared to v5.15.86)
+
+## Metric Fixes (compared to v5.15.86)
+
+## Test result summary
+total: 158884, pass: 133407, fail: 4419, skip: 20714, xfail: 344
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 151 total, 150 passed, 1 failed
+* arm64: 49 total, 47 passed, 2 failed
+* i386: 39 total, 35 passed, 4 failed
+* mips: 31 total, 29 passed, 2 failed
+* parisc: 8 total, 8 passed, 0 failed
+* powerpc: 34 total, 32 passed, 2 failed
+* riscv: 14 total, 14 passed, 0 failed
+* s390: 16 total, 14 passed, 2 failed
+* sh: 14 total, 12 passed, 2 failed
+* sparc: 8 total, 8 passed, 0 failed
+* x86_64: 42 total, 40 passed, 2 failed
+
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
