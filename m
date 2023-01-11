@@ -2,55 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E17665BE2
-	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 13:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A1F665BE7
+	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 13:59:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230062AbjAKM53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 07:57:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60272 "EHLO
+        id S231907AbjAKM7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 07:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229746AbjAKM51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 07:57:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 764CD1C4;
-        Wed, 11 Jan 2023 04:57:26 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ADE561A9C;
-        Wed, 11 Jan 2023 12:57:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3C0CC433EF;
-        Wed, 11 Jan 2023 12:57:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673441845;
-        bh=2Ok56WfZJaCSfZDKDQWYGdgKxRCuAs08e+mmKxHXkzQ=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=P99z6P9TEqBjn98Wr/1dWqSNvVmQ/MiFdfbD983uPUSRYD7y4/adFnXkKvBUzUQ8+
-         Eegqf1WofVKzJ8xD4FKg8yVvV9l1wi86QUvK73kxD8cYVUj1BN/YlSiWd4HcFf34dM
-         OjeqP6kw2bUJq4W3/8OKvUW3ugMnzJKeJ7JoE6Y8DRcqVHmbgyNaD0aCLUJH6nmpgC
-         1AvxO3/s5st572JmHmHv9d6II0N5Rwdi1d0zrC5OWlj5ZLFTeaZBO1pENzDaMItUcH
-         GvQjQoezGK6ogUFIGiIu/rDjoS1lsCkRKjVlWdAhmvJ5+dY8oulsrEgKiUVdN1Dnc1
-         yv4veRc//aJFw==
-Message-ID: <77b18266-69c4-c7f0-0eab-d2069a7b21d5@kernel.org>
-Date:   Wed, 11 Jan 2023 20:57:21 +0800
+        with ESMTP id S231602AbjAKM7B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 07:59:01 -0500
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C231C4;
+        Wed, 11 Jan 2023 04:58:59 -0800 (PST)
+Received: by mail-wm1-x332.google.com with SMTP id k26-20020a05600c1c9a00b003d972646a7dso14274813wms.5;
+        Wed, 11 Jan 2023 04:58:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=bmMcIUft4WbYyd1YhRNwUDrox+14DCGIc71j97XsCZc=;
+        b=jJYGjutRCIJ7bxY/mRz8HyQPYqMotaewXKqHE1baOqVh8HUMWW5gUwf1Kyz3EQLZo8
+         cUsJsvYqNqVe9NsATCX8xtbRkLCRzI8lRmSLX7IOgAEChR2MSeLcsPtT2Yz9+Cjde4lZ
+         Gkf5tt6R3QH+CbEJ8jHDC+pzRFP9L3ufPTUi+zSiQ4VOAbWgObw7hAkdU3HR8BMo5YqQ
+         Rd29B7RQQAWOKgB3URL0/aWcC8WKZRtruDllMNbbUWGTNHNR0f0n2LBBteNDqduHT/e0
+         S/i/7GmaakpvTofjUzy7w1ndeGBllLFrlpHPFS0Pofsuq1CoM3/jOfCw8z4YdwOpJr6E
+         FDOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bmMcIUft4WbYyd1YhRNwUDrox+14DCGIc71j97XsCZc=;
+        b=ufvGEUxLJ4QujoFbFp6FJ0ybwOr1ijlxhYN8fto6Slut6LY3BDpreaYtzgWWvYYS0f
+         0b3XonmJXZYWPfhL26G6wMWcw0zW3COc+/9Wuw8wDF+v8mWZ6lCeJe4AMqWLnXHwhUp1
+         JowM9YqQD3cJGJ9ssAN5nN5cM1fjBLIFb/S2gEfpgE1SnUCWj5RmE5TkQEyzoJgWMBK0
+         sYCzdQW06gqDAecNGOVT1iHJ2bc7PQHHeKaeVn2C6ZB7tLN/GoliivjFz+MA18b2uSMk
+         07QgmoqHz1gd+V36xSjcYV50sD0xtOePvSNramd6jxDa8Y9OTsRojDlEQq0hS6aruHNd
+         b2Ng==
+X-Gm-Message-State: AFqh2krSJqVn1BY3n+eXtHE5CQCHt4CIN4E9fiC0vCtLWTvev3IiLhRC
+        5enEI0V0jAtXI+bbID4lAfs=
+X-Google-Smtp-Source: AMrXdXve0ye9QtTUBMqF9HXnzpbarAwLO2ONitQ31GE8gMiYOnzrDPD95Gt5cJJ0b/L0iRueVm7Vrw==
+X-Received: by 2002:a05:600c:3550:b0:3d9:ed30:6a73 with SMTP id i16-20020a05600c355000b003d9ed306a73mr9392280wmq.9.1673441938343;
+        Wed, 11 Jan 2023 04:58:58 -0800 (PST)
+Received: from debian ([167.98.27.226])
+        by smtp.gmail.com with ESMTPSA id fc14-20020a05600c524e00b003a3442f1229sm26143990wmb.29.2023.01.11.04.58.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Jan 2023 04:58:58 -0800 (PST)
+Date:   Wed, 11 Jan 2023 12:58:56 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
+        rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/159] 6.1.5-rc1 review
+Message-ID: <Y76ykHsQcyusWNah@debian>
+References: <20230110180018.288460217@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [f2fs-dev] [PATCH v2] f2fs: retry to update the inode page given
- EIO
-To:     Jaegeuk Kim <jaegeuk@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     stable@vger.kernel.org
-References: <20230105233908.1030651-1-jaegeuk@kernel.org>
- <Y74O+5SklijYqMU1@google.com>
-Content-Language: en-US
-From:   Chao Yu <chao@kernel.org>
-In-Reply-To: <Y74O+5SklijYqMU1@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,38 +74,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023/1/11 9:20, Jaegeuk Kim wrote:
-> In f2fs_update_inode_page, f2fs_get_node_page handles EIO along with
-> f2fs_handle_page_eio that stops checkpoint, if the disk couldn't be recovered.
-> As a result, we don't need to stop checkpoint right away given single EIO.
+Hi Greg,
 
-f2fs_handle_page_eio() only covers the case that EIO occurs on the same
-page, should we cover the case EIO occurs on different pages?
+On Tue, Jan 10, 2023 at 07:02:28PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.5 release.
+> There are 159 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 12 Jan 2023 17:59:42 +0000.
+> Anything received after that time might be too late.
 
-Thanks,
+Build test (gcc version 12.2.1 20221127):
+mips: 52 configs -> no failure
+arm: 100 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+csky allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
 
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Randall Huang <huangrandall@google.com>
-> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-> ---
-> 
->   Change log from v1:
->    - fix a bug
-> 
->   fs/f2fs/inode.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-> index ff6cf66ed46b..2ed7a621fdf1 100644
-> --- a/fs/f2fs/inode.c
-> +++ b/fs/f2fs/inode.c
-> @@ -719,7 +719,7 @@ void f2fs_update_inode_page(struct inode *inode)
->   	if (IS_ERR(node_page)) {
->   		int err = PTR_ERR(node_page);
->   
-> -		if (err == -ENOMEM) {
-> +		if (err == -ENOMEM || (err == -EIO && !f2fs_cp_error(sbi))) {
->   			cond_resched();
->   			goto retry;
->   		} else if (err != -ENOENT) {
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+mips: Booted on ci20 board. No regression. [3]
+
+[1]. https://openqa.qa.codethink.co.uk/tests/2609
+[2]. https://openqa.qa.codethink.co.uk/tests/2610
+[3]. https://openqa.qa.codethink.co.uk/tests/2613
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+-- 
+Regards
+Sudip
