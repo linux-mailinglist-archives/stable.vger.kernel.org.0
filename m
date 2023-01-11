@@ -2,68 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA5C6663C2
-	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 20:29:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FCC56663CF
+	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 20:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230182AbjAKT3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 14:29:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40318 "EHLO
+        id S232716AbjAKThp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 14:37:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235492AbjAKT3e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 14:29:34 -0500
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEAC7DFDB;
-        Wed, 11 Jan 2023 11:29:33 -0800 (PST)
-Received: by mail-lf1-x136.google.com with SMTP id bu8so25070625lfb.4;
-        Wed, 11 Jan 2023 11:29:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:reply-to:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=nh+HWu2JgroWbtQ9Z9rpBoFsAPaIHouSCQ8ia9uxj5A=;
-        b=bnd73aiQkqW9SWCuYjanI6LTSYxdJUcUYM2p1bIl7Uov3SzLCCKDcnlDNjNu9vd/TG
-         SsAUx4/kkYktlnHiWcQUd8EoadD78NgZkrpcOOAh27jYVuGf+KVwO4IQg4vvHrb0SIdy
-         5tkigPSrlcCcc+tHMg/pm8W4pqT/5BevqB+1yLufe7hnXsFRvb/f9PGnkKLgMsUYqQFv
-         y918YZUTqQ0ZgruJlb9ulWP0XtleP9+YJeIZeBaSXFFBBm54e6uYRL58ZOWadkyVpeLE
-         dIOPffl4aN9J6UMWCsF1VJz2E+4a7fxzM7HJZAjvlPCEOwHA2uB8lDU/S3eBBpK6gcfY
-         hQQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:reply-to:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=nh+HWu2JgroWbtQ9Z9rpBoFsAPaIHouSCQ8ia9uxj5A=;
-        b=zg1gTLTKZSt9JTQnAIWXJY32Nb3nCPQsASzq7nUl3syXi0AFT9M9O9SQvOCHnZWcc4
-         JfmaVQppeWo15j0/2TMm1WxFlVLnydrrX90jp+Tlj42811+gNkhzKbYMwY6b6P7+2OCV
-         tFEqqNcOCmnwLQuDrMydV4b+zLZNK2ZTD3TFF1Rj6pelurFu5DERE4ZhrVP2UnmuLmlS
-         wf3lBGKLERsc/pibUhogf8Xyd+l87n5SbE8f7l6jM+BliN10hTXJANnEl9P1reTTJuPE
-         f1iPqM2i4t1rI6TeNugUPVbobpLiQBfd+u4p1xBFYz7p8nseY/02xU5qyPcIE6xAjCW7
-         ikBg==
-X-Gm-Message-State: AFqh2kpo3fMYKxs4UIebhus2fx7rllqbZmmEVw1tB6QJJWVsvZoLn1li
-        aR50AqVqEStT2hGSXWG8URQwyPJyqDaM3nsOYkBb6YY9
-X-Google-Smtp-Source: AMrXdXuDhAip91DCYumXLyACGXv2rUJdTZOyeROJDFlZjQpZOAbOlCcEn6ZG0Ii5xzfm0NNqoVWKAQebf9YVi5ESsKM=
-X-Received: by 2002:a05:6512:238b:b0:4b3:9d5f:e405 with SMTP id
- c11-20020a056512238b00b004b39d5fe405mr3519187lfv.428.1673465371935; Wed, 11
- Jan 2023 11:29:31 -0800 (PST)
+        with ESMTP id S229968AbjAKTho (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 14:37:44 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58117D2F2
+        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 11:37:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1673465822;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Mbvcywh2c3HfOh904vLvZFGHnaoqFL7ia6UfCCLzqBY=;
+        b=LOMe9cYs7cp9RL6SqZ7WY8RMmXwGeqhAu0kfY4gP6hTKdCB8tdpaa8vIJH99CJGLSkNy80
+        R8Ad9ZPapnSVIMQTMcEaELT+SM84VFfROGGhsM9XbkBmbeTDL2/6+zFPEtWeLTcq9+DtuW
+        Oxp+MjK/88lXxZqTovYS99FTNSTNAiU=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-595--m7sSMw6Ny66ClXGMpAN-g-1; Wed, 11 Jan 2023 14:36:55 -0500
+X-MC-Unique: -m7sSMw6Ny66ClXGMpAN-g-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4118C101A52E;
+        Wed, 11 Jan 2023 19:36:55 +0000 (UTC)
+Received: from segfault.boston.devel.redhat.com (segfault.boston.devel.redhat.com [10.19.60.26])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id EE47F1121314;
+        Wed, 11 Jan 2023 19:36:54 +0000 (UTC)
+From:   Jeff Moyer <jmoyer@redhat.com>
+To:     Seth Jenkins <sethjenkins@google.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Benjamin LaHaise <bcrl@kvack.org>,
+        linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+        linux-kernel@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Pavel Emelyanov <xemul@parallels.com>, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] aio: fix mremap after fork null-deref
+References: <20221104212519.538108-1-sethjenkins@google.com>
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+Date:   Wed, 11 Jan 2023 14:40:51 -0500
+In-Reply-To: <20221104212519.538108-1-sethjenkins@google.com> (Seth Jenkins's
+        message of "Fri, 4 Nov 2022 17:25:19 -0400")
+Message-ID: <x49tu0wlv0c.fsf@segfault.boston.devel.redhat.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-References: <CA+icZUUYrasObBwMQWae=+eAfUzvxc1Pk39QFz9=NXedWO41Vg@mail.gmail.com>
- <Y75E8Y7FPGjxL0xx@kroah.com>
-In-Reply-To: <Y75E8Y7FPGjxL0xx@kroah.com>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Wed, 11 Jan 2023 20:28:55 +0100
-Message-ID: <CA+icZUXJG+jgoQKdGvz7=kfAWRnpXgbF3SJOhO4GXH7PHp5FTA@mail.gmail.com>
-Subject: Re: Please, clear statement to what is next LTS linux-kernel
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, helpdesk@kernel.org,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Michael Larabel <Michael@michaellarabel.com>,
-        Konstantin Ryabitsev <konstantin@linuxfoundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,52 +66,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 11, 2023 at 6:11 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Jan 10, 2023 at 09:22:48PM +0100, Sedat Dilek wrote:
-> > Happy new 2023,
-> >
-> > I normally watch [1] for the next LTS linux-kernel which is for me an
-> > official site and for an official announcement.
-> >
-> > On the debian-kernel mailing list you read Linux 6.1 will be the
-> > official one for Debian-12 aka bookworm.
-> >
-> > I saw a phoronix article about EOL of Linux-4.9 [3] which points to [2].
-> >
-> > [2] says:
-> >
-> > After being prompted on the kernel mailing list, Linux stable
-> > maintainer Greg Kroah-Hartman commented:
-> > > I usually pick the "last kernel of the year", and based on the normal release cycle, yes, 6.1 will be that kernel.
-> > > But I can't promise anything until it is released, for obvious reasons.
-> >
-> > This is not a clear statement for me and was maybe at a point where
-> > 6.1 was not released.
-> >
-> > If you published a clear statement please point me to it.
-> > And if so, please update [1] accordingly.
-> > ( It dropped 4.9 from LTS list recently from [1] - guess Konstantin or
-> > someone from helpdesk did - so [1] is actively maintained. )
-> >
-> > Please, a clear statement.
->
-> Why exactly do you need a "clear statement"?  What will that change (or
-> not change) if it is made?
->
-> Please see this previous thread for what I need from others before I can
-> make such a thing:
->         https://lore.kernel.org/r/Y53BputYK+3djDME@kroah.com
->
-> Can you help answer those questions for your use case please?  That will
-> help us make our decision.
->
+Hi, Seth,
 
-You made a clear statement: There was NO decision made for a new LTS kernel.
-Stand: 11-Jan-2023 Linux 6.1 is NOT an LTS kernel.
+Seth Jenkins <sethjenkins@google.com> writes:
 
-Thanks.
+> Commit e4a0d3e720e7 ("aio: Make it possible to remap aio ring") introduced
+> a null-deref if mremap is called on an old aio mapping after fork as
+> mm->ioctx_table will be set to NULL.
+>
+> Fixes: e4a0d3e720e7 ("aio: Make it possible to remap aio ring")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Seth Jenkins <sethjenkins@google.com>
+> ---
+>  fs/aio.c | 20 +++++++++++---------
+>  1 file changed, 11 insertions(+), 9 deletions(-)
+>
+> diff --git a/fs/aio.c b/fs/aio.c
+> index 5b2ff20ad322..74eae7de7323 100644
+> --- a/fs/aio.c
+> +++ b/fs/aio.c
+> @@ -361,16 +361,18 @@ static int aio_ring_mremap(struct vm_area_struct *vma)
+>  	spin_lock(&mm->ioctx_lock);
+>  	rcu_read_lock();
+>  	table = rcu_dereference(mm->ioctx_table);
+> -	for (i = 0; i < table->nr; i++) {
+> -		struct kioctx *ctx;
+> -
+> -		ctx = rcu_dereference(table->table[i]);
+> -		if (ctx && ctx->aio_ring_file == file) {
+> -			if (!atomic_read(&ctx->dead)) {
+> -				ctx->user_id = ctx->mmap_base = vma->vm_start;
+> -				res = 0;
+> +	if (table) {
+> +		for (i = 0; i < table->nr; i++) {
+> +			struct kioctx *ctx;
+> +
+> +			ctx = rcu_dereference(table->table[i]);
+> +			if (ctx && ctx->aio_ring_file == file) {
+> +				if (!atomic_read(&ctx->dead)) {
+> +					ctx->user_id = ctx->mmap_base = vma->vm_start;
+> +					res = 0;
+> +				}
+> +				break;
+>  			}
+> -			break;
+>  		}
+>  	}
 
-Best regards,
--Sedat-
+I wonder if it would be better to not copy the ring mapping on fork.
+Something like the below?  I think that would be more in line with
+expectations (the ring isn't available in the child process).
+
+-Jeff
+
+diff --git a/fs/aio.c b/fs/aio.c
+index 562916d85cba..dbf3b0749cb4 100644
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -390,7 +390,7 @@ static const struct vm_operations_struct aio_ring_vm_ops = {
+ 
+ static int aio_ring_mmap(struct file *file, struct vm_area_struct *vma)
+ {
+-	vma->vm_flags |= VM_DONTEXPAND;
++	vma->vm_flags |= VM_DONTEXPAND|VM_DONTCOPY;
+ 	vma->vm_ops = &aio_ring_vm_ops;
+ 	return 0;
+ }
+
