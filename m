@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0607666326
-	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 19:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2B6666632B
+	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 19:56:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239278AbjAKSzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 13:55:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50022 "EHLO
+        id S239221AbjAKSz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 13:55:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239504AbjAKSzA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 13:55:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A92F33D9E9;
-        Wed, 11 Jan 2023 10:54:35 -0800 (PST)
+        with ESMTP id S239175AbjAKSza (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 13:55:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7727B36302;
+        Wed, 11 Jan 2023 10:55:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 456EE61DC0;
-        Wed, 11 Jan 2023 18:54:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2DAC433EF;
-        Wed, 11 Jan 2023 18:54:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2196EB81BB2;
+        Wed, 11 Jan 2023 18:55:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB788C433D2;
+        Wed, 11 Jan 2023 18:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673463274;
-        bh=jJXh1vAxyah+RSk36H0uasBBaBLj/+dpkHSkaO37ss0=;
+        s=k20201202; t=1673463326;
+        bh=1mtyVJ+eDRZasVR09aEPxUk1jiKct8AhwB7gd7YYPws=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CPUcBM+H6w5MPJ26lYG9gBLwDkP3/yBstxi6nW084sNA9M+uObOkEMSMq052ksKhW
-         +RntYatoGOjtYGlr6/VZV2wBdN+mQ0ly8Mu25vjDQZ5CnWm4V+sPqnvGz9ahZeFabe
-         n2s+1r5QLD64zsHld0AK8safrubs2YoS5jicfPq+Q7jvo5lR/Wmcu9YaFi0eIFvqsj
-         c7xSjyXVGKO/uLVLTuidVuqRe3q46F1ZG+EldZbdT0LP+m7coVckT4E/SFXg9aXwXi
-         T4EcJDonD5kIUR46WQGygIAMuXWVUa7shrKe9Bp0lNQD8s2bEqdhUNhZGmRa0BAhVD
-         Jvu5ZTsv/yFOg==
-Date:   Wed, 11 Jan 2023 10:54:32 -0800
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     stable@vger.kernel.org
-Subject: Re: [f2fs-dev] [PATCH v3] f2fs: retry to update the inode page given
- EIO
-Message-ID: <Y78F6KrTNFi0xBa/@google.com>
-References: <20230105233908.1030651-1-jaegeuk@kernel.org>
- <Y74O+5SklijYqMU1@google.com>
+        b=ew17GEygfBoFYf5RPBhZxgNbVtjvjXa0L4p8Cd1bpzbnfJRVXTDWc1wxSC1uiDy48
+         y/tCYcM8uj2tjx6sq38q4slatXPBCz7AAzT/ZfOj2yz5asxuB+LKSkQH8idv4PQpZA
+         yyuPoXsqdWOYm2XHIxFawliI6H4Lq/IL43lwE8YJ+fJdEKfuLiJ8Zs5tYr2TdlhVFe
+         4WC1B1RRSgoM/7t6XeI4Pkomgiyon1cMBVEJYi6J7fCdQ/uVN2qd8pJksGB7qi2Kvc
+         Q1l5R/M0Kuuw6T8Ny5qBG7w3nEemB+VN8vVU0ULK1Kpb4Qv/Oq2kWj0uVKlhdBMd67
+         M/T3SEOa8xKwA==
+Date:   Wed, 11 Jan 2023 18:55:21 +0000
+From:   Conor Dooley <conor@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/159] 6.1.5-rc1 review
+Message-ID: <Y78GGa5rNou1BWzL@spud>
+References: <20230110180018.288460217@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="u3prk4W3F/n3buwe"
 Content-Disposition: inline
-In-Reply-To: <Y74O+5SklijYqMU1@google.com>
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -54,48 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In f2fs_update_inode_page, f2fs_get_node_page handles EIO along with
-f2fs_handle_page_eio that stops checkpoint, if the disk couldn't be recovered.
-As a result, we don't need to stop checkpoint right away given single EIO.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Randall Huang <huangrandall@google.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
----
+--u3prk4W3F/n3buwe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- Change log from v2:
-  - set EIO to cover the case of data corruption given by buggy UFS driver
+On Tue, Jan 10, 2023 at 07:02:28PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.5 release.
+> There are 159 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Thu, 12 Jan 2023 17:59:42 +0000.
+> Anything received after that time might be too late.
+>=20
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.5-r=
+c1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git=
+ linux-6.1.y
+> and the diffstat can be found below.
 
- fs/f2fs/inode.c | 2 +-
- fs/f2fs/node.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
 
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index ff6cf66ed46b..2ed7a621fdf1 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -719,7 +719,7 @@ void f2fs_update_inode_page(struct inode *inode)
- 	if (IS_ERR(node_page)) {
- 		int err = PTR_ERR(node_page);
- 
--		if (err == -ENOMEM) {
-+		if (err == -ENOMEM || (err == -EIO && !f2fs_cp_error(sbi))) {
- 			cond_resched();
- 			goto retry;
- 		} else if (err != -ENOENT) {
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 558b318f7316..1629dc300c61 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -1455,7 +1455,7 @@ static struct page *__get_node_page(struct f2fs_sb_info *sbi, pgoff_t nid,
- 			  ofs_of_node(page), cpver_of_node(page),
- 			  next_blkaddr_of_node(page));
- 	set_sbi_flag(sbi, SBI_NEED_FSCK);
--	err = -EINVAL;
-+	err = -EIO;
- out_err:
- 	ClearPageUptodate(page);
- out_put_err:
--- 
-2.39.0.314.g84b9a713c41-goog
+Thanks,
+Conor.
 
+
+--u3prk4W3F/n3buwe
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCY78GGQAKCRB4tDGHoIJi
+0pmqAQCBSfGbB1tQfyciGu5GaWr7H7kYXGQwb3apMGAGzYgINAEAi37rovfiqPxS
+KKinZ8dsHd4p05sCzi9OdfxL9TwxfQY=
+=Itc6
+-----END PGP SIGNATURE-----
+
+--u3prk4W3F/n3buwe--
