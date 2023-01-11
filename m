@@ -2,136 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC6AB665F6F
-	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 16:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37056665FC7
+	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 16:54:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235656AbjAKPlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 10:41:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34460 "EHLO
+        id S231420AbjAKPxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 10:53:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234987AbjAKPli (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 10:41:38 -0500
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB62BA1
-        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 07:41:36 -0800 (PST)
-Received: by mail-wm1-x32b.google.com with SMTP id z8-20020a05600c220800b003d33b0bda11so2805145wml.0
-        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 07:41:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6J5rucn+hYvg3m1RRrffzZkT45tj6msLk6PzkRA+oVc=;
-        b=UVhq2xNFtKTEbVePhTQcD+DkCgbC/RTrE0C4YZitCzyqe4S737uZqLY3u5UyA5WYdh
-         DU1EQp1fcY/CsFWajQS4me7Fr87/4MjvTP/R0kLn9HFvOw1ZaYON/UzLgbPfAX349II2
-         SzM9iGgw+0+m+eT166Z18NC4dIm8W4gJUqyaU=
+        with ESMTP id S234422AbjAKPx2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 10:53:28 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19D742AC7
+        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 07:52:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1673452354;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=ryrrVULoscZ1riSGOM9SabdXBEw/UV56TVFRHhdk8Hk=;
+        b=OeG/wFkoFBUl7kBMrY3aX6Q7SHhR2FsIkPoFWljbStLgdBSGkYfQK/1Wb2RGYLOlqDf3cB
+        TcFL+f7PdeMRZAVErvKIiI51T+AtMUnou2ugOgp+7JrErtFNg7X/UEl5lUs0TMwHJlwkhC
+        7lHsgvHkvb5/zWJfTCdEyL0UClTMjdU=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-607-dQc5b7NQPHOw86vBgBYiaA-1; Wed, 11 Jan 2023 10:52:33 -0500
+X-MC-Unique: dQc5b7NQPHOw86vBgBYiaA-1
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-4ad7a1bd6f4so167436207b3.21
+        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 07:52:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6J5rucn+hYvg3m1RRrffzZkT45tj6msLk6PzkRA+oVc=;
-        b=R5WRRkzLBp9ANjB4FfhuoBzg2RZSn9aZENFgfV9FnZ1k6vFWPK8uDfFpT9M2/XhHCk
-         2Mz/jUPdXXMhlrT6GoloBiVs+pM1PzdhTQMLeL2lfu//V8Hu+PAfUaYiVwtGDe9POmBU
-         hoZ0fKD1E5ZMvD1WuIHP7ArfAZmCbAn/PyfD3lfVdDmr89Mou1G9mYm+zFbSEabEePy0
-         0VG7kULfEqOcVMxxc90l/yH2mtwJ0LBcgOrDEqHzSVBWZem7xF+PLNU2FHKxiKXdvJBP
-         gK5Tos54PllZVi2WQGdw64fuRoURrsWFoWtu95L4LBtXAd2sc5zmzh0jdYjBAUkDrmK4
-         HyeA==
-X-Gm-Message-State: AFqh2kqx12AkFRuCdntavtJzAJu7ZAE8JqqjAnXsu25r2zGJovvPv0Jv
-        5uMCfAQHekvkt05kazMN6uUv/g==
-X-Google-Smtp-Source: AMrXdXvBiLYhTqGktmEP4PMNp1JbLfml6xV45lGs5rGOwSwmCAckYzjJbZ16o4yMyZHtvwGJu10yJg==
-X-Received: by 2002:a05:600c:3b8f:b0:3d0:480b:ac53 with SMTP id n15-20020a05600c3b8f00b003d0480bac53mr55362290wms.12.1673451695486;
-        Wed, 11 Jan 2023 07:41:35 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id t9-20020a05600c198900b003d9e74dd9b2sm15936149wmq.9.2023.01.11.07.41.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Jan 2023 07:41:34 -0800 (PST)
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-To:     DRI Development <dri-devel@lists.freedesktop.org>
-Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Aaron Plattner <aplattner@nvidia.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Helge Deller <deller@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 11/11] video/aperture: Only remove sysfb on the default vga pci device
-Date:   Wed, 11 Jan 2023 16:41:12 +0100
-Message-Id: <20230111154112.90575-11-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230111154112.90575-1-daniel.vetter@ffwll.ch>
-References: <20230111154112.90575-1-daniel.vetter@ffwll.ch>
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ryrrVULoscZ1riSGOM9SabdXBEw/UV56TVFRHhdk8Hk=;
+        b=7WY8kvCo3ve7BawtxCuM+Ipf6pmH53oUQzHX892mVgnxje4hemzMXmLDviq8WUKMn3
+         1Jb4AeU76P8BHWLm5K5Enfg2hBZ1TvbKRDLAi9Slht7TSO/J2E2kx2+gn9ib+sqM8CLi
+         C95EhGNNMaFh8rNgaSGd7e/pBqn0Kx3/JLk9aF3i0QaXm/nCs3UVQz8XebhCXg0vyqdK
+         t+CCXIY9mmweLaIrHzsqQjDgyKkj/c5iny9vBkCNSobr6UxoxBKtZaORmA9pbxwEiilc
+         fQ7JhBb247twEMp0YNLu1azfEGvaxMj3HB+sA4hEMQ7VXD/L+LxGTXmTyyfSmTU29V8M
+         tqZg==
+X-Gm-Message-State: AFqh2kpChXpaXF3XWwp/7txxq1rOkyBVOI5x0/hrLBpnhNbXw7STzrfL
+        Dk5a4yOItIs2hM8HGO2rIdYRRweJdVQqsULVCUNPjC1Hc3xvM2EPZNYV4Q2jYiUN2QNk+e1HQTy
+        +X+i7wMu/+B5kTs/TqKsL8v1JzEH7ISJj
+X-Received: by 2002:a05:690c:fd5:b0:4a4:7135:9214 with SMTP id dg21-20020a05690c0fd500b004a471359214mr6355351ywb.378.1673452352788;
+        Wed, 11 Jan 2023 07:52:32 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXtStWXR+38RfXxzFTVMcf7hzA0i9hXKSpLyfi0CZB2+pYusTRUJDWvXhu+YWgsAtexBs1T/Ku+QZ43JZuHtbu8=
+X-Received: by 2002:a05:690c:fd5:b0:4a4:7135:9214 with SMTP id
+ dg21-20020a05690c0fd500b004a471359214mr6355349ywb.378.1673452352610; Wed, 11
+ Jan 2023 07:52:32 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+From:   Paul Holzinger <pholzing@redhat.com>
+Date:   Wed, 11 Jan 2023 16:52:21 +0100
+Message-ID: <CAFsF8vL4CGFzWMb38_XviiEgxoKX0GYup=JiUFXUOmagdk9CRg@mail.gmail.com>
+Subject: [Regression] 6.0.16-6.0.18 kernel no longer return EADDRINUSE from bind
+To:     stable@vger.kernel.org
+Cc:     regressions@lists.linux.dev, netdev@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This fixes a regression introduced by ee7a69aa38d8 ("fbdev: Disable
-sysfb device registration when removing conflicting FBs"), where we
-remove the sysfb when loading a driver for an unrelated pci device,
-resulting in the user loosing their efifb console or similar.
+Hi all,
 
-Note that in practice this only is a problem with the nvidia blob,
-because that's the only gpu driver people might install which does not
-come with an fbdev driver of it's own. For everyone else the real gpu
-driver will restor a working console.
+Since updating to 6.0.16 the bind() system call no longer fails with
+EADDRINUSE when the address is already in use.
+Instead bind() returns 1 in such a case, which is not a valid return
+value for this system call.
 
-Also note that in the referenced bug there's confusion that this same
-bug also happens on amdgpu. But that was just another amdgpu specific
-regression, which just happened to happen at roughly the same time and
-with the same user-observable symptons. That bug is fixed now, see
-https://bugzilla.kernel.org/show_bug.cgi?id=216331#c15
+It works with the 6.0.15 kernel and earlier, 6.1.4 and 6.2-rc3 also
+seem to work.
 
-For the above reasons the cc: stable is just notionally, this patch
-will need a backport and that's up to nvidia if they care enough.
+Fedora bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=2159066
 
-References: https://bugzilla.kernel.org/show_bug.cgi?id=216303#c28
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Aaron Plattner <aplattner@nvidia.com>
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: <stable@vger.kernel.org> # v5.19+ (if someone else does the backport)
----
- drivers/video/aperture.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+To reproduce you can just run `ncat -l 5000` two times, the second one
+should fail. However it just uses a random port instead.
 
-diff --git a/drivers/video/aperture.c b/drivers/video/aperture.c
-index ba565515480d..a1821d369bb1 100644
---- a/drivers/video/aperture.c
-+++ b/drivers/video/aperture.c
-@@ -321,15 +321,16 @@ int aperture_remove_conflicting_pci_devices(struct pci_dev *pdev, const char *na
- 
- 	primary = pdev == vga_default_device();
- 
-+	if (primary)
-+		sysfb_disable();
-+
- 	for (bar = 0; bar < PCI_STD_NUM_BARS; ++bar) {
- 		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
- 			continue;
- 
- 		base = pci_resource_start(pdev, bar);
- 		size = pci_resource_len(pdev, bar);
--		ret = aperture_remove_conflicting_devices(base, size, name);
--		if (ret)
--			return ret;
-+		aperture_detach_devices(base, size);
- 	}
- 
- 	if (!primary)
--- 
-2.39.0
+As far as I can tell this problem is caused by
+https://lore.kernel.org/stable/20221228144337.512799851@linuxfoundation.org/
+which did not backport commit 7a7160edf1bf properly.
+The line `int ret = -EADDRINUSE, port = snum, l3mdev;` is missing in
+net/ipv4/inet_connection_sock.c.
+This is the working 6.1 patch:
+https://lore.kernel.org/all/20221228144339.969733443@linuxfoundation.org/
+
+Best regards,
+Paul
 
