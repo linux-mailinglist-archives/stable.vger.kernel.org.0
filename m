@@ -2,112 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0521E665C2C
-	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 14:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 066EF665C8F
+	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 14:33:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230090AbjAKNLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 08:11:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39568 "EHLO
+        id S232793AbjAKNcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 08:32:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229837AbjAKNLL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 08:11:11 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4BD5E39;
-        Wed, 11 Jan 2023 05:11:06 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id z1-20020a17090a66c100b00226f05b9595so1992114pjl.0;
-        Wed, 11 Jan 2023 05:11:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=3dLTU612GzzdYO0SBcn0mWHahDid/oJBo4lw/MtY7L4=;
-        b=qy/BVm1tf8FZ63SJY/b2pakV6rmGnC461YGXlrlrpLu5lpjxURmUGpLrgCuxTWurZA
-         Kj+2wrIsUb4z+hY7xfqK2iHkKFhqeRazwUpJbDaXOXy0cDzrsUXFUQrMfOAVBHhztGDG
-         sEezuM5DMKR7ACDuLtmVjFnaT6znD68dXG0W2plmd1YzcbD2oc240APFE2TSTxtXI086
-         iJ3uMvKMdnyLT86GxLycjTpePCiInoZBPIT8rIyhtDY40lJlpZiuY53FZYxcppSpkACj
-         99acRmgyHgh6vBW5oiblkoQPJSsfznr0cwwIa8KHfQwJRqRUAf73T05mnoCYniedYwBH
-         BmmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3dLTU612GzzdYO0SBcn0mWHahDid/oJBo4lw/MtY7L4=;
-        b=5psE8ojPt00FBlYSFwX3JkK97eSc03S278i2QGuRTWeIFtCOyYREysCbmMiPC7M3vS
-         PfBVQvZSBjk4C4pooqv+1ryj/Di/yuvWVTR40+aY8+S7nKNDMhfTzPWtLpAuDRjtMJuu
-         XMiWn90GxYppi/O4hHFx+/W/3VejkEApJx0DgW4xZVZ8PXir6Hq5U+TJUVCGBTZSZVqA
-         BSsqLgV77GAbpZIlH7pLm91LTaQ9hu3T4BKRulQ+VUiRKQ917SWUZBO1vJbAvhrYfs1p
-         +GAQETOJRVYVfJ42rsbxM8DlUzBiV95/KfGR9wkBrxpVPO0HBAU1XOhNWsEpwmmhsGM3
-         VSTw==
-X-Gm-Message-State: AFqh2kozGT8hrhXPM+emDjFGe0ay8jqj15Jb3EFWadH+64XEgWmHEXUj
-        V2yZrN+u2vNIqZbR1OoR6YM=
-X-Google-Smtp-Source: AMrXdXsGt9UXnWwjfiM8jnODNUc64br6bVcMhKS3CHQj0aqozwPvvV3TwOUN+irM+vUVRCpvTz5kDQ==
-X-Received: by 2002:a17:902:a70c:b0:189:dcc3:e4a1 with SMTP id w12-20020a170902a70c00b00189dcc3e4a1mr72046537plq.9.1673442666181;
-        Wed, 11 Jan 2023 05:11:06 -0800 (PST)
-Received: from debian.me (subs02-180-214-232-16.three.co.id. [180.214.232.16])
-        by smtp.gmail.com with ESMTPSA id 3-20020a170902c10300b001930b189b32sm3339407pli.189.2023.01.11.05.11.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Jan 2023 05:11:05 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 23AEC105167; Wed, 11 Jan 2023 20:11:03 +0700 (WIB)
-Date:   Wed, 11 Jan 2023 20:11:03 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 000/290] 5.15.87-rc1 review
-Message-ID: <Y761ZzJz2J1rsDJ8@debian.me>
-References: <20230110180031.620810905@linuxfoundation.org>
+        with ESMTP id S232251AbjAKNcD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 08:32:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70DB41B9F5;
+        Wed, 11 Jan 2023 05:27:43 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EC71B81BDE;
+        Wed, 11 Jan 2023 13:27:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AE70C433EF;
+        Wed, 11 Jan 2023 13:27:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673443660;
+        bh=fGkN7Tcc9YTFcYUuxGh5EQduQh3KswjLvTWHPdFxYnc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=KiUfZjUWmfHq0/XQGiaPWbfPX/CSbW4q70PHlrmD1K7EQO4Mtbpc4LckwJjbGoHGG
+         JSWvvuW1uOpnGcMAH9ZQZfmaffW+PfwSWAN4NLdt+jetVAh8MD8rmFzkM6BZH6gPut
+         lBNca1hzxWXB479IgDhUA2S6m0McQKh2XIuq/vpWFJymk2ZUkk1qBBR2TUeBKzMojY
+         ZzupKzxTK0eK4P9Dmq4AgNRwtXeQOiOOFmscJY/HjS//h8GIrl3Zqvk0KGNjpNelkf
+         vIM3nyUwEvPhd3qjIGtlBpp+67pgu9set6fx9mNTtIcURb1WdjX8D4YCNMZ/bDRa+E
+         SSGe9BMwk2TqA==
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     linux-efi@vger.kernel.org
+Cc:     Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH] ACPI: PRM: Check whether EFI runtime is available
+Date:   Wed, 11 Jan 2023 14:27:34 +0100
+Message-Id: <20230111132734.1571990-1-ardb@kernel.org>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="9GWqeI4YfsIBwabG"
-Content-Disposition: inline
-In-Reply-To: <20230110180031.620810905@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1147; i=ardb@kernel.org; h=from:subject; bh=fGkN7Tcc9YTFcYUuxGh5EQduQh3KswjLvTWHPdFxYnc=; b=owEB7QES/pANAwAKAcNPIjmS2Y8kAcsmYgBjvrlFfo2LBgRZH0zU03llnibes9XBYoffyPOnpuFq vTkLh+KJAbMEAAEKAB0WIQT72WJ8QGnJQhU3VynDTyI5ktmPJAUCY765RQAKCRDDTyI5ktmPJOONC/ 4/vJv9xi6/BiB5c+xeG27gaIyf8QuOQcjjhyQcQ95m+a50rAZ12GyGXcNbvm2IOyKSPPLZEu5rrELC U0SvX5JT97vzJbr7LvViamn5rmxfZjoB+FufIfEMz5EhVNvnPfiIzzWCVLVMtNBEh7G5iBNJMgNcEX rmDcmQXFv1J+z7yOU8iBxx5SFkZvEkZM+lXgRzFc/O53Dbg5XA3zlAHKCSm0gVNZxEJeYhRZ2ZbxYy Ehvd2y9KYzt0Rfk7xbwQ0mbPDVv6FHP/0si6pK/M/QzkXN1Tqlebf1movMvQ2ix3cWIwkfo7BGeC9W b8kOdaDjXWskI4JAfFILDFhpI5seio3dtUloPTlgplZtkadrJe46d8Zdggv4drO1Wq8882WMaBkPZu BuzhIh8eBaMu3PMddJtJYwpdk40M2cMNHHjstKeJKEZEqU9DdUHBv1bR2PNvj9PhWi3ALqBqOPwZKI phhsfsgdR8vjDjyq8yaDAagSgvWLcgWyjN+PIIBkmN08o=
+X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The ACPI PRM address space handler calls efi_call_virt_pointer() to
+execute PRM firmware code, but doing so is only permitted when the EFI
+runtime environment is available. Otherwise, such calls are guaranteed
+to result in a crash, and must therefore be avoided.
 
---9GWqeI4YfsIBwabG
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Cc: <stable@vger.kernel.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Len Brown <lenb@kernel.org>
+Cc: linux-acpi@vger.kernel.org
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ drivers/acpi/prmt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-On Tue, Jan 10, 2023 at 07:01:32PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.87 release.
-> There are 290 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+diff --git a/drivers/acpi/prmt.c b/drivers/acpi/prmt.c
+index 998101cf16e47145..74f924077866ae69 100644
+--- a/drivers/acpi/prmt.c
++++ b/drivers/acpi/prmt.c
+@@ -236,6 +236,11 @@ static acpi_status acpi_platformrt_space_handler(u32 function,
+ 	efi_status_t status;
+ 	struct prm_context_buffer context;
+ 
++	if (!efi_enabled(EFI_RUNTIME_SERVICES)) {
++		pr_err("PRM: EFI runtime services unavailable\n");
++		return AE_NOT_IMPLEMENTED;
++	}
++
+ 	/*
+ 	 * The returned acpi_status will always be AE_OK. Error values will be
+ 	 * saved in the first byte of the PRM message buffer to be used by ASL.
+-- 
+2.39.0
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
-
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---9GWqeI4YfsIBwabG
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY761ZgAKCRD2uYlJVVFO
-o1ksAQD/CYn3eL/BO0YQtBlBXan/BawrgZjptbsHMBJ1HdXMwQEAsw6CNBKPzld7
-yNucgutMlfOpKl+2P4Wdyr8k1SgGEQU=
-=1/97
------END PGP SIGNATURE-----
-
---9GWqeI4YfsIBwabG--
