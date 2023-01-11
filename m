@@ -2,87 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 204C66651C5
-	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 03:30:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D11B6665279
+	for <lists+stable@lfdr.de>; Wed, 11 Jan 2023 04:45:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230144AbjAKCaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 Jan 2023 21:30:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42234 "EHLO
+        id S230489AbjAKDpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 Jan 2023 22:45:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235460AbjAKCaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 21:30:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE2B764C0;
-        Tue, 10 Jan 2023 18:30:17 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S229793AbjAKDpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 Jan 2023 22:45:33 -0500
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E6FA2B1;
+        Tue, 10 Jan 2023 19:45:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1673408732; x=1704944732;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=BUvk+JooDXJ4fqkO3tc2bcOgUJc5ZVpvc/wqa5I1FIg=;
+  b=XHhjy7pusW8BD3nUAg14tlE6S6eUiQRzYlWHJ46VO1GLhJhuvtw7CAFc
+   4cmpswNOkvXQozk9OAqqiVZ/E1HP2bfyQR9X0zbwZGg/cyH30GCYrYFeT
+   w2497x5USxkmnD35bfedtloM+46UPwhGx8Xibo+XlELn+rM/HiNq9O2Ug
+   xAvoAhrNZmxTA6hvOpgHvmwaSX6kmsFXSPEClHvUrRCzqsYnd5X2FhlME
+   XXmt3UYmSLvLtoHYfUd9DbqK9pHBo2AXPccbI5Z63kF8gpBEI/F506H2x
+   BxvvxuPzAo7zuIxioyWuh+ObamsI7tJ4koBLcrGn4tf6PQ31iLIeEgdBD
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="321012455"
+X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
+   d="scan'208";a="321012455"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 19:45:32 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10586"; a="689642271"
+X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
+   d="scan'208";a="689642271"
+Received: from linux.intel.com ([10.54.29.200])
+  by orsmga001.jf.intel.com with ESMTP; 10 Jan 2023 19:45:31 -0800
+Received: from linux.intel.com (noorazur1-iLBPG12.png.intel.com [10.88.229.87])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64D8761A00;
-        Wed, 11 Jan 2023 02:30:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C6F57C43392;
-        Wed, 11 Jan 2023 02:30:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673404216;
-        bh=u9ktnMWXk9Zh4CWSIRVRPnwIZeA0bgXcJJQEivAZoB8=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=XlJHFt5bs3ALN4uiBXH5ew/3HVRXxMKjW61wKmKVaELkDSPseq7gH1lUpImgE9kv0
-         /clMCKkOVHX3ExFkgaFvnwQPV8IaWyCt5d8y69o+uUyUm4WhZSUJb3fSniSqoEhMnY
-         +rVDxdm0uBBqo4ocgDVXui8SkwkUa7W/5ksxHbNkkydRP4z6WUTJrg+VvrGGx9RUxu
-         Qw8IFQ+kPRpJPzmncutoX/7hxK8MyW3oXshC43WXFDmoJkJSh4GuXll41XTOxV26P/
-         a75WM6dt8FQ5XqPyY+jo/bzglSSv4HZLwsALbN8t52sJXCyKK534HGV0/NtxHTWViH
-         nhuuiylDr1Rjw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A444BE21EE8;
-        Wed, 11 Jan 2023 02:30:16 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        by linux.intel.com (Postfix) with ESMTPS id 8EBFA5807C8;
+        Tue, 10 Jan 2023 19:45:27 -0800 (PST)
+Date:   Wed, 11 Jan 2023 11:32:03 +0800
+From:   Noor Azura Ahmad Tarmizi 
+        <noor.azura.ahmad.tarmizi@linux.intel.com>
+To:     Paolo Abeni <pabeni@redhat.com>
+Cc:     Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Tan Tee Min <tee.min.tan@intel.com>,
+        Looi Hong Aun <hong.aun.looi@intel.com>,
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH net 1/1] net: stmmac: add aux timestamps fifo clearance
+ wait
+Message-ID: <20230111033202.GA893@linux.intel.com>
+References: <20230109151546.26247-1-noor.azura.ahmad.tarmizi@intel.com>
+ <b87cdb13baab2a02be2fb3ffc54c581d097cbe7d.camel@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net: sched: disallow noqueue for qdisc classes
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167340421666.10258.1866242868170260870.git-patchwork-notify@kernel.org>
-Date:   Wed, 11 Jan 2023 02:30:16 +0000
-References: <20230109163906.706000-1-fred@cloudflare.com>
-In-Reply-To: <20230109163906.706000-1-fred@cloudflare.com>
-To:     Frederick Lawler <fred@cloudflare.com>
-Cc:     jhs@mojatatu.com, xiyou.wangcong@gmail.com, jiri@resnulli.us,
-        kuba@kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, zymon.heidrich@gmail.com,
-        phil@nwl.cc, netdev@vger.kernel.org, kernel-team@cloudflare.com,
-        stable@vger.kernel.org, jakub@cloudflare.com
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b87cdb13baab2a02be2fb3ffc54c581d097cbe7d.camel@redhat.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Mon,  9 Jan 2023 10:39:06 -0600 you wrote:
-> While experimenting with applying noqueue to a classful queue discipline,
-> we discovered a NULL pointer dereference in the __dev_queue_xmit()
-> path that generates a kernel OOPS:
+On Tue, Jan 10, 2023 at 11:27:47AM +0100, Paolo Abeni wrote:
+> On Mon, 2023-01-09 at 23:15 +0800, Noor Azura Ahmad Tarmizi wrote:
+> > Add timeout polling wait for auxiliary timestamps snapshot FIFO clear bit
+> > (ATSFC) to clear. This is to ensure no residue fifo value is being read
+> > erroneously.
+> > 
+> > Cc: <stable@vger.kernel.org> # 5.10.x
+> > Signed-off-by: Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>
 > 
->     # dev=enp0s5
->     # tc qdisc replace dev $dev root handle 1: htb default 1
->     # tc class add dev $dev parent 1: classid 1:1 htb rate 10mbit
->     # tc qdisc add dev $dev parent 1:1 handle 10: noqueue
->     # ping -I $dev -w 1 -c 1 1.1.1.1
+> Please post a new revision of this patch including a suitable 'Fixes'
+> tag, thanks!
 > 
-> [...]
+> Paolo
+>
 
-Here is the summary with links:
-  - [net] net: sched: disallow noqueue for qdisc classes
-    https://git.kernel.org/netdev/net/c/96398560f26a
+Ok Paolo, sorry i missed that out. Will send out v2 ASAP.
+Thanks!
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Azura
+ 
