@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D866675E9
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:27:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3626675ED
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:27:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231560AbjALO1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:27:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50256 "EHLO
+        id S237305AbjALO1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:27:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236602AbjALO02 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:26:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C91E5C933
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:17:28 -0800 (PST)
+        with ESMTP id S237133AbjALO0c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:26:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CFDA5C93F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:17:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D5B660AB3
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC730C433EF;
-        Thu, 12 Jan 2023 14:17:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C92C761F4A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:17:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC152C433D2;
+        Thu, 12 Jan 2023 14:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533047;
-        bh=oKRRmpD7NJoopaNVQFonj9Vd9dgzVasFqNRPrjZsb1o=;
+        s=korg; t=1673533050;
+        bh=JTmJWxzod1+anGvK4mCIgc0gcvpVwk+YAwhLoCTaMVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vXu8J41Us+SSPdIL+YUTqKDVydidgpdycppGb01uNvWBAZTGr9/rt+ppr+6s3lXkW
-         l05csy2skQV5T83s28MBeOqSlMTgKng1N6vXkN2l8I0tAo5ED71RqZxzXZY2F+RydD
-         uUUhVhABCy7D48AtAOz2NvBHOQHwQOG2ssRfRLdQ=
+        b=mNSmiXi+Dmc8pVcDOUN64+wzjXAwwVVtQbg5bCTj4jNgDFus8lYaFXnpltkHXqQRm
+         LjS8ZZzFKIQstqT58vBe9rul/v8roR9enq+vgdMNuLghxh1oTUseCbjF/jGudU4jqw
+         z2j/7c/4a1crear8tuvdVD7PzgWLX/aJG9yaSPRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, delisun <delisun@pateo.com.cn>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 353/783] serial: pl011: Do not clear RX FIFO & RX interrupt in unthrottle.
-Date:   Thu, 12 Jan 2023 14:51:09 +0100
-Message-Id: <20230112135540.687285292@linuxfoundation.org>
+Subject: [PATCH 5.10 354/783] serial: pch: Fix PCI device refcount leak in pch_request_dma()
+Date:   Thu, 12 Jan 2023 14:51:10 +0100
+Message-Id: <20230112135540.738988893@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,47 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: delisun <delisun@pateo.com.cn>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 032d5a71ed378ffc6a2d41a187d8488a4f9fe415 ]
+[ Upstream commit 8be3a7bf773700534a6e8f87f6ed2ed111254be5 ]
 
-Clearing the RX FIFO will cause data loss.
-Copy the pl011_enabl_interrupts implementation, and remove the clear
-interrupt and FIFO part of the code.
+As comment of pci_get_slot() says, it returns a pci_device with its
+refcount increased. The caller must decrement the reference count by
+calling pci_dev_put().
 
-Fixes: 211565b10099 ("serial: pl011: UPSTAT_AUTORTS requires .throttle/unthrottle")
-Signed-off-by: delisun <delisun@pateo.com.cn>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20221110020108.7700-1-delisun@pateo.com.cn
+Since 'dma_dev' is only used to filter the channel in filter(), we can
+call pci_dev_put() before exiting from pch_request_dma(). Add the
+missing pci_dev_put() for the normal and error path.
+
+Fixes: 3c6a483275f4 ("Serial: EG20T: add PCH_UART driver")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/20221122114559.27692-1-wangxiongfeng2@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/amba-pl011.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/tty/serial/pch_uart.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
-index 2f7373fc7bb7..348d4b2a391a 100644
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -1760,8 +1760,17 @@ static void pl011_enable_interrupts(struct uart_amba_port *uap)
- static void pl011_unthrottle_rx(struct uart_port *port)
- {
- 	struct uart_amba_port *uap = container_of(port, struct uart_amba_port, port);
-+	unsigned long flags;
+diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
+index 351ad0b02029..fa2061f1cf3d 100644
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -711,6 +711,7 @@ static void pch_request_dma(struct uart_port *port)
+ 	if (!chan) {
+ 		dev_err(priv->port.dev, "%s:dma_request_channel FAILS(Tx)\n",
+ 			__func__);
++		pci_dev_put(dma_dev);
+ 		return;
+ 	}
+ 	priv->chan_tx = chan;
+@@ -727,6 +728,7 @@ static void pch_request_dma(struct uart_port *port)
+ 			__func__);
+ 		dma_release_channel(priv->chan_tx);
+ 		priv->chan_tx = NULL;
++		pci_dev_put(dma_dev);
+ 		return;
+ 	}
  
--	pl011_enable_interrupts(uap);
-+	spin_lock_irqsave(&uap->port.lock, flags);
+@@ -734,6 +736,8 @@ static void pch_request_dma(struct uart_port *port)
+ 	priv->rx_buf_virt = dma_alloc_coherent(port->dev, port->fifosize,
+ 				    &priv->rx_buf_dma, GFP_KERNEL);
+ 	priv->chan_rx = chan;
 +
-+	uap->im = UART011_RTIM;
-+	if (!pl011_dma_rx_running(uap))
-+		uap->im |= UART011_RXIM;
-+
-+	pl011_write(uap->im, uap, REG_IMSC);
-+
-+	spin_unlock_irqrestore(&uap->port.lock, flags);
++	pci_dev_put(dma_dev);
  }
  
- static int pl011_startup(struct uart_port *port)
+ static void pch_dma_rx_complete(void *arg)
 -- 
 2.35.1
 
