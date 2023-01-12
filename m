@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA9266677C
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 01:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CF9C66677E
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 01:15:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235638AbjALAPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 19:15:32 -0500
+        id S230325AbjALAPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 19:15:33 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235088AbjALAPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 19:15:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 118C315F1F;
-        Wed, 11 Jan 2023 16:15:18 -0800 (PST)
+        with ESMTP id S234534AbjALAPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 19:15:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18F1330569;
+        Wed, 11 Jan 2023 16:15:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7481E61ED9;
-        Thu, 12 Jan 2023 00:15:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C345DC433EF;
-        Thu, 12 Jan 2023 00:15:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5338B81D81;
+        Thu, 12 Jan 2023 00:15:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E981C433D2;
+        Thu, 12 Jan 2023 00:15:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1673482516;
-        bh=5nDP95gB6is1Ij5llfcwKEyn1T45D/P4IbiXMIcoZZA=;
+        s=korg; t=1673482525;
+        bh=bGE+wkjAMzWQe9hEkU9h8NDHtDNdMNtxgGhqaT55++c=;
         h=Date:To:From:Subject:From;
-        b=nBTpN8OZqinOT7NeA0xa7ZGHr9DQP7/vlTOEoRxHLxrdDvhggRx5wRJMzNpHmjiu9
-         kRL5U+Nezz/ZcjTPh+DSsqhSieVTiL/q+rviaJGrwF5TjqRLYJFOPBTCFExe4PlwNZ
-         U9RabQNUPy+IbFPDUeY6xmRJgEN3cq+Zpx6Wtjr4=
-Date:   Wed, 11 Jan 2023 16:15:15 -0800
+        b=nJJGielTvayQScEosP5LpWn2H2N5RqUtwm7OCW/8x19hGivUSgr4Tg6o0IWNOT279
+         Cv7oO6Eqcc2ScNreu89tpYf16m8XosTQZyPiJqypVrbAS11rL3NWhNZWB2SZpODGgJ
+         MDDZXBXpWJujknETxVnE7DzxNhCp3fo4m/7GZ9nU=
+Date:   Wed, 11 Jan 2023 16:15:24 -0800
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        konishi.ryusuke@gmail.com, akpm@linux-foundation.org
+        mirsad.todorovac@alu.unizg.hr, adobriyan@gmail.com,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] nilfs2-fix-general-protection-fault-in-nilfs_btree_insert.patch removed from -mm tree
-Message-Id: <20230112001516.C345DC433EF@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] proc-fix-pie-proc-empty-vm-proc-pid-vm-tests.patch removed from -mm tree
+Message-Id: <20230112001525.5E981C433D2@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -45,113 +46,122 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: nilfs2: fix general protection fault in nilfs_btree_insert()
+     Subject: proc: fix PIE proc-empty-vm, proc-pid-vm tests
 has been removed from the -mm tree.  Its filename was
-     nilfs2-fix-general-protection-fault-in-nilfs_btree_insert.patch
+     proc-fix-pie-proc-empty-vm-proc-pid-vm-tests.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Subject: nilfs2: fix general protection fault in nilfs_btree_insert()
-Date: Thu, 5 Jan 2023 14:53:56 +0900
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: proc: fix PIE proc-empty-vm, proc-pid-vm tests
+Date: Fri, 6 Jan 2023 22:30:14 +0300
 
-If nilfs2 reads a corrupted disk image and tries to reads a b-tree node
-block by calling __nilfs_btree_get_block() against an invalid virtual
-block address, it returns -ENOENT because conversion of the virtual block
-address to a disk block address fails.  However, this return value is the
-same as the internal code that b-tree lookup routines return to indicate
-that the block being searched does not exist, so functions that operate on
-that b-tree may misbehave.
+vsyscall detection code uses direct call to the beginning of
+the vsyscall page:
 
-When nilfs_btree_insert() receives this spurious 'not found' code from
-nilfs_btree_do_lookup(), it misunderstands that the 'not found' check was
-successful and continues the insert operation using incomplete lookup path
-data, causing the following crash:
+	asm ("call %P0" :: "i" (0xffffffffff600000))
 
- general protection fault, probably for non-canonical address
- 0xdffffc0000000005: 0000 [#1] PREEMPT SMP KASAN
- KASAN: null-ptr-deref in range [0x0000000000000028-0x000000000000002f]
- ...
- RIP: 0010:nilfs_btree_get_nonroot_node fs/nilfs2/btree.c:418 [inline]
- RIP: 0010:nilfs_btree_prepare_insert fs/nilfs2/btree.c:1077 [inline]
- RIP: 0010:nilfs_btree_insert+0x6d3/0x1c10 fs/nilfs2/btree.c:1238
- Code: bc 24 80 00 00 00 4c 89 f8 48 c1 e8 03 42 80 3c 28 00 74 08 4c 89
- ff e8 4b 02 92 fe 4d 8b 3f 49 83 c7 28 4c 89 f8 48 c1 e8 03 <42> 80 3c
- 28 00 74 08 4c 89 ff e8 2e 02 92 fe 4d 8b 3f 49 83 c7 02
- ...
- Call Trace:
- <TASK>
-  nilfs_bmap_do_insert fs/nilfs2/bmap.c:121 [inline]
-  nilfs_bmap_insert+0x20d/0x360 fs/nilfs2/bmap.c:147
-  nilfs_get_block+0x414/0x8d0 fs/nilfs2/inode.c:101
-  __block_write_begin_int+0x54c/0x1a80 fs/buffer.c:1991
-  __block_write_begin fs/buffer.c:2041 [inline]
-  block_write_begin+0x93/0x1e0 fs/buffer.c:2102
-  nilfs_write_begin+0x9c/0x110 fs/nilfs2/inode.c:261
-  generic_perform_write+0x2e4/0x5e0 mm/filemap.c:3772
-  __generic_file_write_iter+0x176/0x400 mm/filemap.c:3900
-  generic_file_write_iter+0xab/0x310 mm/filemap.c:3932
-  call_write_iter include/linux/fs.h:2186 [inline]
-  new_sync_write fs/read_write.c:491 [inline]
-  vfs_write+0x7dc/0xc50 fs/read_write.c:584
-  ksys_write+0x177/0x2a0 fs/read_write.c:637
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- ...
- </TASK>
+It generates "call rel32" instruction but it is not relocated if binary
+is PIE, so binary segfaults into random userspace address and vsyscall
+page status is detected incorrectly.
 
-This patch fixes the root cause of this problem by replacing the error
-code that __nilfs_btree_get_block() returns on block address conversion
-failure from -ENOENT to another internal code -EINVAL which means that the
-b-tree metadata is corrupted.
+Do more direct:
 
-By returning -EINVAL, it propagates without glitches, and for all relevant
-b-tree operations, functions in the upper bmap layer output an error
-message indicating corrupted b-tree metadata via
-nilfs_bmap_convert_error(), and code -EIO will be eventually returned as
-it should be.
+	asm ("call *%rax")
 
-Link: https://lkml.kernel.org/r/000000000000bd89e205f0e38355@google.com
-Link: https://lkml.kernel.org/r/20230105055356.8811-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+ede796cecd5296353515@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+which doesn't do need any relocaltions.
+
+Mark g_vsyscall as volatile for a good measure, I didn't find instruction
+setting it to 0. Now the code is obviously correct:
+
+	xor	eax, eax
+	mov	rdi, rbp
+	mov	rsi, rbp
+	mov	DWORD PTR [rip+0x2d15], eax      # g_vsyscall = 0
+	mov	rax, 0xffffffffff600000
+	call	rax
+	mov	DWORD PTR [rip+0x2d02], 1        # g_vsyscall = 1
+	mov	eax, DWORD PTR ds:0xffffffffff600000
+	mov	DWORD PTR [rip+0x2cf1], 2        # g_vsyscall = 2
+	mov	edi, [rip+0x2ceb]                # exit(g_vsyscall)
+	call	exit
+
+Note: fixed proc-empty-vm test oopses 5.19.0-28-generic kernel
+	but this is separate story.
+
+Link: https://lkml.kernel.org/r/Y7h2xvzKLg36DSq8@p183
+Fixes: 5bc73bb3451b9 ("proc: test how it holds up with mapping'less process")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/nilfs2/btree.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ tools/testing/selftests/proc/proc-empty-vm.c |   12 +++++++-----
+ tools/testing/selftests/proc/proc-pid-vm.c   |    9 +++++----
+ 2 files changed, 12 insertions(+), 9 deletions(-)
 
---- a/fs/nilfs2/btree.c~nilfs2-fix-general-protection-fault-in-nilfs_btree_insert
-+++ a/fs/nilfs2/btree.c
-@@ -480,9 +480,18 @@ static int __nilfs_btree_get_block(const
- 	ret = nilfs_btnode_submit_block(btnc, ptr, 0, REQ_OP_READ, &bh,
- 					&submit_ptr);
- 	if (ret) {
--		if (ret != -EEXIST)
--			return ret;
--		goto out_check;
-+		if (likely(ret == -EEXIST))
-+			goto out_check;
-+		if (ret == -ENOENT) {
-+			/*
-+			 * Block address translation failed due to invalid
-+			 * value of 'ptr'.  In this case, return internal code
-+			 * -EINVAL (broken bmap) to notify bmap layer of fatal
-+			 * metadata corruption.
-+			 */
-+			ret = -EINVAL;
-+		}
-+		return ret;
- 	}
+--- a/tools/testing/selftests/proc/proc-empty-vm.c~proc-fix-pie-proc-empty-vm-proc-pid-vm-tests
++++ a/tools/testing/selftests/proc/proc-empty-vm.c
+@@ -25,6 +25,7 @@
+ #undef NDEBUG
+ #include <assert.h>
+ #include <errno.h>
++#include <stdint.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -41,7 +42,7 @@
+  * 1: vsyscall VMA is --xp		vsyscall=xonly
+  * 2: vsyscall VMA is r-xp		vsyscall=emulate
+  */
+-static int g_vsyscall;
++static volatile int g_vsyscall;
+ static const char *g_proc_pid_maps_vsyscall;
+ static const char *g_proc_pid_smaps_vsyscall;
  
- 	if (ra) {
+@@ -147,11 +148,12 @@ static void vsyscall(void)
+ 
+ 		g_vsyscall = 0;
+ 		/* gettimeofday(NULL, NULL); */
++		uint64_t rax = 0xffffffffff600000;
+ 		asm volatile (
+-			"call %P0"
+-			:
+-			: "i" (0xffffffffff600000), "D" (NULL), "S" (NULL)
+-			: "rax", "rcx", "r11"
++			"call *%[rax]"
++			: [rax] "+a" (rax)
++			: "D" (NULL), "S" (NULL)
++			: "rcx", "r11"
+ 		);
+ 
+ 		g_vsyscall = 1;
+--- a/tools/testing/selftests/proc/proc-pid-vm.c~proc-fix-pie-proc-empty-vm-proc-pid-vm-tests
++++ a/tools/testing/selftests/proc/proc-pid-vm.c
+@@ -257,11 +257,12 @@ static void vsyscall(void)
+ 
+ 		g_vsyscall = 0;
+ 		/* gettimeofday(NULL, NULL); */
++		uint64_t rax = 0xffffffffff600000;
+ 		asm volatile (
+-			"call %P0"
+-			:
+-			: "i" (0xffffffffff600000), "D" (NULL), "S" (NULL)
+-			: "rax", "rcx", "r11"
++			"call *%[rax]"
++			: [rax] "+a" (rax)
++			: "D" (NULL), "S" (NULL)
++			: "rcx", "r11"
+ 		);
+ 
+ 		g_vsyscall = 1;
 _
 
-Patches currently in -mm which might be from konishi.ryusuke@gmail.com are
+Patches currently in -mm which might be from adobriyan@gmail.com are
 
+proc-mark-proc-cmdline-as-permanent.patch
 
