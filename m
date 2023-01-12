@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F20667198
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 13:05:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 599456671A6
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 13:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232752AbjALMFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 07:05:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38912 "EHLO
+        id S231608AbjALMGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 07:06:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233241AbjALME3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 07:04:29 -0500
-Received: from exchange.fintech.ru (e10edge.fintech.ru [195.54.195.159])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 251D254D8B;
-        Thu, 12 Jan 2023 03:59:07 -0800 (PST)
-Received: from Ex16-01.fintech.ru (10.0.10.18) by exchange.fintech.ru
- (195.54.195.159) with Microsoft SMTP Server (TLS) id 14.3.498.0; Thu, 12 Jan
- 2023 14:59:05 +0300
-Received: from localhost (10.0.253.157) by Ex16-01.fintech.ru (10.0.10.18)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Thu, 12 Jan
- 2023 14:59:05 +0300
-From:   Nikita Zhandarovich <n.zhandarovich@fintech.ru>
-To:     <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Nikita Zhandarovich <n.zhandarovich@fintech.ru>,
-        Felix Fietkau <nbd@nbd.name>,
-        Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        <linux-wireless@vger.kernel.org>, <netdev@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        "Alexey Khoroshilov" <khoroshilov@ispras.ru>,
-        <lvc-project@linuxtesting.org>,
-        "Lorenzo Bianconi" <lorenzo@kernel.org>
-Subject: [PATCH 5.10 1/1] mt76: move mt76_init_tx_queue in common code
-Date:   Thu, 12 Jan 2023 03:58:50 -0800
-Message-ID: <20230112115850.9208-2-n.zhandarovich@fintech.ru>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230112115850.9208-1-n.zhandarovich@fintech.ru>
-References: <20230112115850.9208-1-n.zhandarovich@fintech.ru>
+        with ESMTP id S232346AbjALMGR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 07:06:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48F9F3AA9E;
+        Thu, 12 Jan 2023 04:01:01 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D12DB6201F;
+        Thu, 12 Jan 2023 12:01:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 856C5C433EF;
+        Thu, 12 Jan 2023 12:00:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1673524860;
+        bh=t/9k2Ihu/gDyXRAWkyMgtoaazFrxY2WxtbZ4chX3GMc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hIIfvtVS0mPLu1p6Wg2SqtuWS+8qck2l3AW4eMrHwpDSofgrNWgtyAnYvZQa083tP
+         ea4V0RgLs5l3XXGNcAnJtNj7x/M35pXUoE5Sy51K27JWAxC0OwfwfX2VPlzxPn9xjy
+         D0tMb0Vn4431BTZuJ1c+4oaFepN/kKBqOmLrrfG0=
+Date:   Thu, 12 Jan 2023 13:00:57 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Tom Saeger <tom.saeger@oracle.com>
+Cc:     stable@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: Re: [PATCH 5.15 5.10 5.4 v2] kbuild: fix Build ID if
+ CONFIG_MODVERSIONS
+Message-ID: <Y7/2ef+JWO6BXGfC@kroah.com>
+References: <3df32572ec7016e783d37e185f88495831671f5d.1671143628.git.tom.saeger@oracle.com>
+ <Y6M090tsVRIBNlNG@kroah.com>
+ <20221221205210.6oolnwkzqo2d6q5h@oracle.com>
+ <Y6Pyp+7Udn6x/UVg@kroah.com>
+ <20230109183615.zxe7o7fowdpeqlj3@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.0.253.157]
-X-ClientProxiedBy: Ex16-01.fintech.ru (10.0.10.18) To Ex16-01.fintech.ru
- (10.0.10.18)
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230109183615.zxe7o7fowdpeqlj3@oracle.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,306 +58,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+On Mon, Jan 09, 2023 at 12:36:15PM -0600, Tom Saeger wrote:
+> On Thu, Dec 22, 2022 at 07:01:11AM +0100, Greg Kroah-Hartman wrote:
+> > On Wed, Dec 21, 2022 at 02:52:10PM -0600, Tom Saeger wrote:
+> > > On Wed, Dec 21, 2022 at 05:31:51PM +0100, Greg Kroah-Hartman wrote:
+> > > > On Thu, Dec 15, 2022 at 04:18:18PM -0700, Tom Saeger wrote:
+> > > > > Backport of:
+> > > > > commit 0d362be5b142 ("Makefile: link with -z noexecstack --no-warn-rwx-segments")
+> > > > > breaks arm64 Build ID when CONFIG_MODVERSIONS=y for all kernels
+> > > > > from: commit e4484a495586 ("Merge tag 'kbuild-fixes-v5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild")
+> > > > > until: commit df202b452fe6 ("Merge tag 'kbuild-v5.19' of git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild")
+> > > > > 
+> > > > > Linus's tree doesn't have this issue since 0d362be5b142 was merged
+> > > > > after df202b452fe6 which included:
+> > > > > commit 7b4537199a4a ("kbuild: link symbol CRCs at final link, removing CONFIG_MODULE_REL_CRCS")
+> > > > 
+> > > > Why can't we add this one instead of a custom change?
+> > > 
+> > > I quickly abandoned that route - there are too many dependencies.
+> > 
+> > How many?  Why?  Whenever we add a "this is not upstream" patch, 90% of
+> > the time it is incorrect and causes problems (merge issues included.)
+> > So please please please let's try to keep in sync with what is in
+> > Linus's tree.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> Ok - I spent some time on this.
+> 
+> The haystack I searched:
+> 
+>   git rev-list --grep="masahiroy/linux-kbuild" v5.15..v5.19-rc1 | while read -r CID ; do git rev-list "${CID}^-" ; done | wc -l
+>   182
+> 
+> I have 54 of those 182 applied to 5.15.85, and this works in my
+> limited build testing (x86_64 gcc, arm64 gcc, arm64 clang).
+> 
+> Specifically:
+> 
+> 
+> cbfc9bf3223f genksyms: adjust the output format to modpost
+> e7c9c2630e59 kbuild: stop merging *.symversions
+> 1d788aa800c7 kbuild: link symbol CRCs at final link, removing CONFIG_MODULE_REL_CRCS
+> 8a01c770955b modpost: extract symbol versions from *.cmd files
+> a8ade6b33772 modpost: add sym_find_with_module() helper
+> a9639fe6b516 modpost: change the license of EXPORT_SYMBOL to bool type
+> 04804878f631 modpost: remove left-over cross_compile declaration
+> 3388b8af9698 kbuild: record symbol versions in *.cmd files
+> 4ff3946463a0 kbuild: generate a list of objects in vmlinux
+> 074617e2ad6a modpost: move *.mod.c generation to write_mod_c_files()
+> 81b78cb6e821 modpost: merge add_{intree_flag,retpoline,staging_flag} to add_header
+> 9df4f00b53b4 modpost: split new_symbol() to symbol allocation and hash table addition
+> 85728bcbc500 modpost: make sym_add_exported() always allocate a new symbol
+> 82aa2b4d30af modpost: make multiple export error
+> 6cc962f0a175 modpost: dump Module.symvers in the same order of modules.order
+> 39db82cea373 modpost: traverse the namespace_list in order
+> 45dc7b236dcb modpost: use doubly linked list for dump_lists
+> 2a322506403a modpost: traverse unresolved symbols in order
+> a85718443348 modpost: add sym_add_unresolved() helper
+> 5c44b0f89c82 modpost: traverse modules in order
+> a0b68f6655f2 modpost: import include/linux/list.h
+> ce9f4d32be4e modpost: change mod->gpl_compatible to bool type
+> f9fe36a515ca modpost: use bool type where appropriate
+> 46f6334d7055 modpost: move struct namespace_list to modpost.c
+> afa24c45af49 modpost: retrieve the module dependency and CRCs in check_exports()
+> a8f687dc3ac2 modpost: add a separate error for exported symbols without definition
+> f97f0e32b230 modpost: remove stale comment about sym_add_exported()
+> 0af2ad9d11c3 modpost: do not write out any file when error occurred
+> 09eac5681c02 modpost: use snprintf() instead of sprintf() for safety
+> ee07380110f2 kbuild: read *.mod to get objects passed to $(LD) or $(AR)
+> 97976e5c6d55 kbuild: make *.mod not depend on *.o
+> 0d4368c8da07 kbuild: get rid of duplication in *.mod files
+> 55f602f00903 kbuild: split the second line of *.mod into *.usyms
+> ea9730eb0788 kbuild: reuse real-search to simplify cmd_mod
+> 1eacf71f885a kbuild: make multi_depend work with targets in subdirectory
+> 19c2b5b6f769 kbuild: reuse suffix-search to refactor multi_depend
+> 75df07a9133d kbuild: refactor cmd_modversions_S
+> 53257fbea174 kbuild: refactor cmd_modversions_c
+> b6e50682c261 modpost: remove annoying namespace_from_kstrtabns()
+> 1002d8f060b0 modpost: remove redundant initializes for static variables
+> 921fbb7ab714 modpost: move export_from_secname() call to more relevant place
+> f49c0989e01b modpost: remove useless export_from_sec()
+> 7a98501a77db kbuild: do not remove empty *.symtypes explicitly
+> 500f1b31c16f kbuild: factor out genksyms command from cmd_gensymtypes_{c,S}
+> e04fcad29aa3 kallsyms: ignore all local labels prefixed by '.L'
+> 9e01f7ef15d2 kbuild: drop $(size_append) from cmd_zstd
+> 054133567480 kbuild: do not include include/config/auto.conf from shell scripts
+> 34d14831eecb kbuild: stop using config_filename in scripts/Makefile.modsign
+> 75155bda5498 kbuild: use more subdir- for visiting subdirectories while cleaning
+> 1a3f00cd3be8 kbuild: reuse $(cmd_objtool) for cmd_cc_lto_link_modules
+> 47704d10e997 kbuild: detect objtool update without using .SECONDEXPANSION
+> 7a89d034ccc6 kbuild: factor out OBJECT_FILES_NON_STANDARD check into a macro
+> 3cbbf4b9d188 kbuild: store the objtool command in *.cmd files
+> 467f0d0aa6b4 kbuild: rename __objtool_obj and reuse it for cmd_cc_lto_link_modules
+> 
+> There may be a few more patches post v5.19-rc1 for Fixes.
+> I haven't tried minimizing the 54.
+> 
+> Greg - is 54 too many?
 
-commit b671da33d1c5973f90f098ff66a91953691df582 upstream.
+Yes.
 
-Move mt76_init_tx_queue in mac80211.c since it is shared by all
-drivers.
+How about we just revert the original problem commit here to solve this
+mess?  Wouldn't that be easier overall?
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Nikita Zhandarovich <n.zhandarovich@fintech.ru>
----
- drivers/net/wireless/mediatek/mt76/mac80211.c | 21 ++++++++
- drivers/net/wireless/mediatek/mt76/mt76.h     |  4 ++
- .../net/wireless/mediatek/mt76/mt7603/dma.c   | 10 +---
- .../net/wireless/mediatek/mt76/mt7615/dma.c   | 50 +++++++------------
- .../net/wireless/mediatek/mt76/mt76x02_mmio.c | 10 +---
- .../net/wireless/mediatek/mt76/mt7915/dma.c   | 48 +++++-------------
- 6 files changed, 58 insertions(+), 85 deletions(-)
+thanks,
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mac80211.c b/drivers/net/wireless/mediatek/mt76/mac80211.c
-index 2bc1ef1cbfea..d48f09a3c539 100644
---- a/drivers/net/wireless/mediatek/mt76/mac80211.c
-+++ b/drivers/net/wireless/mediatek/mt76/mac80211.c
-@@ -1213,3 +1213,24 @@ int mt76_get_antenna(struct ieee80211_hw *hw, u32 *tx_ant, u32 *rx_ant)
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(mt76_get_antenna);
-+
-+int mt76_init_tx_queue(struct mt76_dev *dev, int qid, int idx,
-+		       int n_desc, int ring_base)
-+{
-+	struct mt76_queue *hwq;
-+	int err;
-+
-+	hwq = devm_kzalloc(dev->dev, sizeof(*hwq), GFP_KERNEL);
-+	if (!hwq)
-+		return -ENOMEM;
-+
-+	err = dev->queue_ops->alloc(dev, hwq, idx, n_desc, 0, ring_base);
-+	if (err < 0)
-+		return err;
-+
-+	hwq->qid = qid;
-+	dev->q_tx[qid] = hwq;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(mt76_init_tx_queue);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
-index 34b6d32ea1ec..63549a7806cb 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76.h
-@@ -134,6 +134,7 @@ struct mt76_queue {
- 
- 	u8 buf_offset;
- 	u8 hw_idx;
-+	u8 qid;
- 
- 	dma_addr_t desc_dma;
- 	struct sk_buff *rx_head;
-@@ -778,6 +779,9 @@ void mt76_seq_puts_array(struct seq_file *file, const char *str,
- int mt76_eeprom_init(struct mt76_dev *dev, int len);
- void mt76_eeprom_override(struct mt76_dev *dev);
- 
-+int mt76_init_tx_queue(struct mt76_dev *dev, int qid, int idx,
-+		       int n_desc, int ring_base);
-+
- static inline struct mt76_phy *
- mt76_dev_phy(struct mt76_dev *dev, bool phy_ext)
- {
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/dma.c b/drivers/net/wireless/mediatek/mt76/mt7603/dma.c
-index d60d00f6f6a0..05a5801646d7 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7603/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7603/dma.c
-@@ -7,19 +7,13 @@
- static int
- mt7603_init_tx_queue(struct mt7603_dev *dev, int qid, int idx, int n_desc)
- {
--	struct mt76_queue *hwq;
- 	int err;
- 
--	hwq = devm_kzalloc(dev->mt76.dev, sizeof(*hwq), GFP_KERNEL);
--	if (!hwq)
--		return -ENOMEM;
--
--	err = mt76_queue_alloc(dev, hwq, idx, n_desc, 0, MT_TX_RING_BASE);
-+	err = mt76_init_tx_queue(&dev->mt76, qid, idx, n_desc,
-+				 MT_TX_RING_BASE);
- 	if (err < 0)
- 		return err;
- 
--	dev->mt76.q_tx[qid] = hwq;
--
- 	mt7603_irq_enable(dev, MT_INT_TX_DONE(idx));
- 
- 	return 0;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/dma.c b/drivers/net/wireless/mediatek/mt76/mt7615/dma.c
-index bf8ae14121db..333254734ac5 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/dma.c
-@@ -11,25 +11,6 @@
- #include "../dma.h"
- #include "mac.h"
- 
--static int
--mt7615_init_tx_queue(struct mt7615_dev *dev, int qid, int idx, int n_desc)
--{
--	struct mt76_queue *hwq;
--	int err;
--
--	hwq = devm_kzalloc(dev->mt76.dev, sizeof(*hwq), GFP_KERNEL);
--	if (!hwq)
--		return -ENOMEM;
--
--	err = mt76_queue_alloc(dev, hwq, idx, n_desc, 0, MT_TX_RING_BASE);
--	if (err < 0)
--		return err;
--
--	dev->mt76.q_tx[qid] = hwq;
--
--	return 0;
--}
--
- static int
- mt7622_init_tx_queues_multi(struct mt7615_dev *dev)
- {
-@@ -43,20 +24,22 @@ mt7622_init_tx_queues_multi(struct mt7615_dev *dev)
- 	int i;
- 
- 	for (i = 0; i < ARRAY_SIZE(wmm_queue_map); i++) {
--		ret = mt7615_init_tx_queue(dev, i, wmm_queue_map[i],
--					   MT7615_TX_RING_SIZE / 2);
-+		ret = mt76_init_tx_queue(&dev->mt76, i, wmm_queue_map[i],
-+					 MT7615_TX_RING_SIZE / 2,
-+					 MT_TX_RING_BASE);
- 		if (ret)
- 			return ret;
- 	}
- 
--	ret = mt7615_init_tx_queue(dev, MT_TXQ_PSD,
--				   MT7622_TXQ_MGMT, MT7615_TX_MGMT_RING_SIZE);
-+	ret = mt76_init_tx_queue(&dev->mt76, MT_TXQ_PSD, MT7622_TXQ_MGMT,
-+				 MT7615_TX_MGMT_RING_SIZE,
-+				 MT_TX_RING_BASE);
- 	if (ret)
- 		return ret;
- 
--	ret = mt7615_init_tx_queue(dev, MT_TXQ_MCU,
--				   MT7622_TXQ_MCU, MT7615_TX_MCU_RING_SIZE);
--	return ret;
-+	return mt76_init_tx_queue(&dev->mt76, MT_TXQ_MCU, MT7622_TXQ_MCU,
-+				  MT7615_TX_MCU_RING_SIZE,
-+				  MT_TX_RING_BASE);
- }
- 
- static int
-@@ -64,25 +47,26 @@ mt7615_init_tx_queues(struct mt7615_dev *dev)
- {
- 	int ret, i;
- 
--	ret = mt7615_init_tx_queue(dev, MT_TXQ_FWDL,
--				   MT7615_TXQ_FWDL,
--				   MT7615_TX_FWDL_RING_SIZE);
-+	ret = mt76_init_tx_queue(&dev->mt76, MT_TXQ_FWDL, MT7615_TXQ_FWDL,
-+				 MT7615_TX_FWDL_RING_SIZE,
-+				 MT_TX_RING_BASE);
- 	if (ret)
- 		return ret;
- 
- 	if (!is_mt7615(&dev->mt76))
- 		return mt7622_init_tx_queues_multi(dev);
- 
--	ret = mt7615_init_tx_queue(dev, 0, 0, MT7615_TX_RING_SIZE);
-+	ret = mt76_init_tx_queue(&dev->mt76, 0, 0, MT7615_TX_RING_SIZE,
-+				 MT_TX_RING_BASE);
- 	if (ret)
- 		return ret;
- 
- 	for (i = 1; i < MT_TXQ_MCU; i++)
- 		dev->mt76.q_tx[i] = dev->mt76.q_tx[0];
- 
--	ret = mt7615_init_tx_queue(dev, MT_TXQ_MCU, MT7615_TXQ_MCU,
--				   MT7615_TX_MCU_RING_SIZE);
--	return 0;
-+	return mt76_init_tx_queue(&dev->mt76, MT_TXQ_MCU, MT7615_TXQ_MCU,
-+				  MT7615_TX_MCU_RING_SIZE,
-+				  MT_TX_RING_BASE);
- }
- 
- static int mt7615_poll_tx(struct napi_struct *napi, int budget)
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_mmio.c b/drivers/net/wireless/mediatek/mt76/mt76x02_mmio.c
-index 67911c021633..82f65fa1a39d 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x02_mmio.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x02_mmio.c
-@@ -106,19 +106,13 @@ EXPORT_SYMBOL_GPL(mt76x02e_init_beacon_config);
- static int
- mt76x02_init_tx_queue(struct mt76x02_dev *dev, int qid, int idx, int n_desc)
- {
--	struct mt76_queue *hwq;
- 	int err;
- 
--	hwq = devm_kzalloc(dev->mt76.dev, sizeof(*hwq), GFP_KERNEL);
--	if (!hwq)
--		return -ENOMEM;
--
--	err = mt76_queue_alloc(dev, hwq, idx, n_desc, 0, MT_TX_RING_BASE);
-+	err = mt76_init_tx_queue(&dev->mt76, qid, idx, n_desc,
-+				 MT_TX_RING_BASE);
- 	if (err < 0)
- 		return err;
- 
--	dev->mt76.q_tx[qid] = hwq;
--
- 	mt76x02_irq_enable(dev, MT_INT_TX_DONE(idx));
- 
- 	return 0;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/dma.c b/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
-index 33c42ecef2a4..7c9fe142ed41 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/dma.c
-@@ -6,41 +6,16 @@
- #include "mac.h"
- 
- static int
--mt7915_init_tx_queues(struct mt7915_dev *dev, int n_desc)
-+mt7915_init_tx_queues(struct mt7915_dev *dev, int idx, int n_desc)
- {
--	struct mt76_queue *hwq;
--	int err, i;
-+	int i, err;
- 
--	hwq = devm_kzalloc(dev->mt76.dev, sizeof(*hwq), GFP_KERNEL);
--	if (!hwq)
--		return -ENOMEM;
--
--	err = mt76_queue_alloc(dev, hwq, MT7915_TXQ_BAND0, n_desc, 0,
--			       MT_TX_RING_BASE);
-+	err = mt76_init_tx_queue(&dev->mt76, 0, idx, n_desc, MT_TX_RING_BASE);
- 	if (err < 0)
- 		return err;
- 
- 	for (i = 0; i < MT_TXQ_MCU; i++)
--		dev->mt76.q_tx[i] = hwq;
--
--	return 0;
--}
--
--static int
--mt7915_init_mcu_queue(struct mt7915_dev *dev, int qid, int idx, int n_desc)
--{
--	struct mt76_queue *hwq;
--	int err;
--
--	hwq = devm_kzalloc(dev->mt76.dev, sizeof(*hwq), GFP_KERNEL);
--	if (!hwq)
--		return -ENOMEM;
--
--	err = mt76_queue_alloc(dev, hwq, idx, n_desc, 0, MT_TX_RING_BASE);
--	if (err < 0)
--		return err;
--
--	dev->mt76.q_tx[qid] = hwq;
-+		dev->mt76.q_tx[i] = dev->mt76.q_tx[0];
- 
- 	return 0;
- }
-@@ -262,25 +237,26 @@ int mt7915_dma_init(struct mt7915_dev *dev)
- 	mt76_wr(dev, MT_WFDMA1_PRI_DLY_INT_CFG0, 0);
- 
- 	/* init tx queue */
--	ret = mt7915_init_tx_queues(dev, MT7915_TX_RING_SIZE);
-+	ret = mt7915_init_tx_queues(dev, MT7915_TXQ_BAND0,
-+				    MT7915_TX_RING_SIZE);
- 	if (ret)
- 		return ret;
- 
- 	/* command to WM */
--	ret = mt7915_init_mcu_queue(dev, MT_TXQ_MCU, MT7915_TXQ_MCU_WM,
--				    MT7915_TX_MCU_RING_SIZE);
-+	ret = mt76_init_tx_queue(&dev->mt76, MT_TXQ_MCU, MT7915_TXQ_MCU_WM,
-+				 MT7915_TX_MCU_RING_SIZE, MT_TX_RING_BASE);
- 	if (ret)
- 		return ret;
- 
- 	/* command to WA */
--	ret = mt7915_init_mcu_queue(dev, MT_TXQ_MCU_WA, MT7915_TXQ_MCU_WA,
--				    MT7915_TX_MCU_RING_SIZE);
-+	ret = mt76_init_tx_queue(&dev->mt76, MT_TXQ_MCU_WA, MT7915_TXQ_MCU_WA,
-+				 MT7915_TX_MCU_RING_SIZE, MT_TX_RING_BASE);
- 	if (ret)
- 		return ret;
- 
- 	/* firmware download */
--	ret = mt7915_init_mcu_queue(dev, MT_TXQ_FWDL, MT7915_TXQ_FWDL,
--				    MT7915_TX_FWDL_RING_SIZE);
-+	ret = mt76_init_tx_queue(&dev->mt76, MT_TXQ_FWDL, MT7915_TXQ_FWDL,
-+				 MT7915_TX_FWDL_RING_SIZE, MT_TX_RING_BASE);
- 	if (ret)
- 		return ret;
- 
--- 
-2.25.1
-
+greg k-h
