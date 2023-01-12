@@ -2,195 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF97E668424
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 21:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A10B7668457
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 21:52:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231793AbjALUm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 15:42:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49632 "EHLO
+        id S232609AbjALUwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 15:52:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235201AbjALUmG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 15:42:06 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A24FB76AC1
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 12:12:07 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 012FC3505B;
-        Thu, 12 Jan 2023 20:12:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1673554320; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Xar8pXmKetwoRnV4ZeNTqm/Qm8vEkDqxH/VsBrUwJNk=;
-        b=Z+QnjGBIIoGox++T8uxpUQvjwxAz6q1i5vREEJbrkwZPKoOy8ToZpO27py5ZoYo4/p/C+o
-        s3WY9Dc5j6Sk4gAKvKHJXAzgIx9YoRwsHm1ds4T5HJPwP8Hs/d5AbVHzRNTmfv1nb4uIFD
-        qOLMrP30AFQfX+YmjYRCKvEqijZfALU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1673554320;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Xar8pXmKetwoRnV4ZeNTqm/Qm8vEkDqxH/VsBrUwJNk=;
-        b=DD7Gn41GmJLkZ7NHm+O5eXrCtxRwkUWH0xOhxn/ovcpmvuLKpfTN0KrYt1kpfSYeGiN8su
-        HBv5WeoRW6mf+KBw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 51EAE1377D;
-        Thu, 12 Jan 2023 20:11:59 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id sDo0E49pwGMGKgAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Thu, 12 Jan 2023 20:11:59 +0000
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     alexander.deucher@amd.com, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
-        rodrigo.vivi@intel.com, tvrtko.ursulin@linux.intel.com,
-        bskeggs@redhat.com, kherbst@redhat.com, lyude@redhat.com,
-        evan.quan@amd.com, jose.souza@intel.com
-Cc:     amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, nouveau@lists.freedesktop.org,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Likun Gao <Likun.Gao@amd.com>,
-        Stanley Yang <Stanley.Yang@amd.com>,
-        "Tianci.Yin" <tianci.yin@amd.com>,
-        Xiaojian Du <Xiaojian.Du@amd.com>,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        YiPeng Chai <YiPeng.Chai@amd.com>,
-        Somalapuram Amaranath <Amaranath.Somalapuram@amd.com>,
-        Bokun Zhang <Bokun.Zhang@amd.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Solomon Chiu <solomon.chiu@amd.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?= <marek.olsak@amd.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org
-Subject: [PATCH v2 2/3] drm/fb-helper: Set framebuffer for vga-switcheroo clients
-Date:   Thu, 12 Jan 2023 21:11:55 +0100
-Message-Id: <20230112201156.26849-3-tzimmermann@suse.de>
+        with ESMTP id S234650AbjALUwd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 15:52:33 -0500
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2087.outbound.protection.outlook.com [40.107.243.87])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5E9F1ADAD
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 12:25:03 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=C34jOMLEfrmbYnjGJQYXtYXac/CWOwX/SEG3cw3LNy/SiH+zar/Kz9rjMKYp7pLz88bGl7xqRXtgNr7tO1g7PkUvIZyF1fTdjbE8923dZ361adJttG2rh72iEjXopwXTh/UXfRdTXRcWssoGdJzr4IvCvUir92rkR2X/smQ2vyYV6as0+okWL/KIL6p6a509LwaaspCuIfPobAuMH0M3QtOeVc9iGq9fJGFeg8XbCEXNgf7WdrtAiDOaqc5c5aLytb7PRlAhO2Bem3/JIilEbJbEsRa1wf0n5FJ/NehgfjcCGypZc1WPnqgrw48AQPV5iW9eAek3d9M3CUrJQjeEKg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=BqBPqYiQkqaUm4DJtdYiDd0fvSeJjsUDh09IVk6ROWw=;
+ b=WA0gQXTR583bKJ1U7ZlIwaLI3RHXyfBTbKHppXuBTS/Ehylar0JL4qB4ygDIT0kWuRlCtAVq8ev8jtKpStYOGhyCPeaFpOFJUuTS7LJv8FUYdy9h2uaBvsgJN8ej2nagUphXepW5FyzkYvICV8ZzuboozCiqD8K2t8VT3yutOl5Kw1OWSZK9AS/K6LAR2imCFbkfCjT53VzzMntmO4i55VZ4OFM5ONHFwIGrw3nWXBRry8yXVawxFtUxtIA8inF4Rtbzvur5f288sjuGYZyPkB8R221p06cgRGWM9r2vG0bzb7H6wNxFKK7nrZC4AhmfsuDFwc74Pch4L5QyjqIbtg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=linuxfoundation.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BqBPqYiQkqaUm4DJtdYiDd0fvSeJjsUDh09IVk6ROWw=;
+ b=GbflJ0PZpPKp0w4GgOV0BmhtAEEXZsEe/DaVLlq9CU+evRKq8I56Gx/yic4IxNiBqY6P9jWWImzycDv8+6mlXc0ZEjn9/wtBVYhShzO7Z50tEMJdsNZlc1dnXeEfQSNP9jCoW9A2cymZmx2+B3X+l3BYKh0Y76JxeqE02CuoL/8=
+Received: from BN8PR03CA0021.namprd03.prod.outlook.com (2603:10b6:408:94::34)
+ by PH8PR12MB6916.namprd12.prod.outlook.com (2603:10b6:510:1bd::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5986.18; Thu, 12 Jan
+ 2023 20:25:01 +0000
+Received: from BN8NAM11FT019.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:94:cafe::cf) by BN8PR03CA0021.outlook.office365.com
+ (2603:10b6:408:94::34) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.13 via Frontend
+ Transport; Thu, 12 Jan 2023 20:25:01 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ BN8NAM11FT019.mail.protection.outlook.com (10.13.176.158) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6002.13 via Frontend Transport; Thu, 12 Jan 2023 20:25:01 +0000
+Received: from tr4.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Thu, 12 Jan
+ 2023 14:24:59 -0600
+From:   Alex Deucher <alexander.deucher@amd.com>
+To:     <gregkh@linuxfoundation.org>, <stable@vger.kernel.org>
+CC:     Ao Zhong <hacc1225@gmail.com>, <daniel@octaforge.org>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH] drm/amd/display: move remaining FPU code to dml folder
+Date:   Thu, 12 Jan 2023 15:24:44 -0500
+Message-ID: <20230112202444.2008744-1-alexander.deucher@amd.com>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230112201156.26849-1-tzimmermann@suse.de>
-References: <20230112201156.26849-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT019:EE_|PH8PR12MB6916:EE_
+X-MS-Office365-Filtering-Correlation-Id: f460796a-7ff3-4ec1-76c8-08daf4db152c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: lLSdgmZrHirHiPgelh8UAzpDPV4Nvfq+l2RiITYKieDx3ISaK8NfCYj+inUZ/S78dvPU+FZzCTslHyc81QS708z4sPR7Ri7LF2t5trce9dGDZ5gQeuxAYUqw2ilFwFr3eFu4iWXDP6C+6IOssx8jxLFFJrLJ4jyUN9e+YZtNUEPC6FNPt9/NqryCWV9gHkzrtgnCEMNe1VE7SkvSSpaE6spCMSSf+EvJy7x9JnWYVw3M6WP1pUKOQ13pdtBv2z9lvC25WUt6UM9cCPhFTVGYQwe93hdVpYtnz7t6Wd8EJSAJckNp/ZEVBjJB6+2EFuaAKvPWAIwoM2b1ffZQGE1IrNArj5pTr2KKBgEHcn01wZ4rPnDnX1gmhInzPbCNBB0Bt7G0HKEleNuBH0PbKpFMEQVpfTgocwmL4c2a4vwkRvZ3hhiAXUr9mjF9WI32sWqUoVPbQ1FNW37Q/QX3muJI+SSgGjETDclX69HhG/VzoQd/PqTaGiNFg+amwrZMt7TT+RuNAXk6/PJBK4dlGWb0zCua2Wz7m81z+XPMSv74r41/LGMLrebKk6AgwX863xQEgkzFvR+aqK4ftMbxhEa2474maQxi0w1oyNjul5rUjCGyIIPYq4QCdEALG6l5KpRO2G0NwXsMBly0ua7OtR+dUHKU5N4vPDM4MbyxWJhR95wfCV2Yji7cayLVbvQywEhS
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(39860400002)(376002)(346002)(136003)(396003)(451199015)(40470700004)(36840700001)(46966006)(26005)(16526019)(40480700001)(478600001)(186003)(966005)(336012)(1076003)(70586007)(8676002)(2616005)(7696005)(6666004)(41300700001)(110136005)(316002)(54906003)(4326008)(47076005)(36860700001)(83380400001)(86362001)(82740400003)(81166007)(40460700003)(356005)(426003)(70206006)(82310400005)(36756003)(8936002)(5660300002)(2906002)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jan 2023 20:25:01.6128
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: f460796a-7ff3-4ec1-76c8-08daf4db152c
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT019.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB6916
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Set the framebuffer info for drivers that support VGA switcheroo. Only
-affects the amdgpu and nouveau drivers, which use VGA switcheroo and
-generic fbdev emulation. For other drivers, this does nothing.
+From: Ao Zhong <hacc1225@gmail.com>
 
-This fixes a potential regression in the console code. Both, amdgpu and
-nouveau, invoked vga_switcheroo_client_fb_set() from their internal fbdev
-code. But the call got lost when the drivers switched to the generic
-emulation.
+pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_luma = 0;
+pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_chroma = 0;
+these two operations in dcn32/dcn32_resource.c still need to use FPU,
+This will cause compilation to fail on ARM64 platforms because
+-mgeneral-regs-only is enabled by default to disable the hardware FPU.
+Therefore, imitate the dcn31_zero_pipe_dcc_fraction function in
+dml/dcn31/dcn31_fpu.c, declare the dcn32_zero_pipe_dcc_fraction function
+in dcn32_fpu.c, and move above two operations into this function.
 
-Fixes: 087451f372bf ("drm/amdgpu: use generic fb helpers instead of setting up AMD own's.")
-Fixes: 4a16dd9d18a0 ("drm/nouveau/kms: switch to drm fbdev helpers")
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Evan Quan <evan.quan@amd.com>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Hawking Zhang <Hawking.Zhang@amd.com>
-Cc: Likun Gao <Likun.Gao@amd.com>
-Cc: "Christian König" <christian.koenig@amd.com>
-Cc: Stanley Yang <Stanley.Yang@amd.com>
-Cc: "Tianci.Yin" <tianci.yin@amd.com>
-Cc: Xiaojian Du <Xiaojian.Du@amd.com>
-Cc: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Cc: YiPeng Chai <YiPeng.Chai@amd.com>
-Cc: Somalapuram Amaranath <Amaranath.Somalapuram@amd.com>
-Cc: Bokun Zhang <Bokun.Zhang@amd.com>
-Cc: Guchun Chen <guchun.chen@amd.com>
-Cc: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Cc: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Cc: Mario Limonciello <mario.limonciello@amd.com>
-Cc: Solomon Chiu <solomon.chiu@amd.com>
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: "Marek Olšák" <marek.olsak@amd.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: "Ville Syrjälä" <ville.syrjala@linux.intel.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: nouveau@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.17+
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2288
+Cc: daniel@octaforge.org
+Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Ao Zhong <hacc1225@gmail.com>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+(cherry picked from commit 58ddbecb14c792b7fe0d92ae5e25c9179d62ff25)
+Cc: stable@vger.kernel.org # 6.1.x
 ---
- drivers/gpu/drm/drm_fb_helper.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c | 5 +++--
+ drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c  | 8 ++++++++
+ drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.h  | 3 +++
+ 3 files changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 427631706128..5e445c61252d 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -30,7 +30,9 @@
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
+index 33ab6fdc3617..9919c39f7ea0 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
+@@ -1919,8 +1919,9 @@ int dcn32_populate_dml_pipes_from_context(
+ 		timing = &pipe->stream->timing;
  
- #include <linux/console.h>
-+#include <linux/pci.h>
- #include <linux/sysrq.h>
-+#include <linux/vga_switcheroo.h>
- 
- #include <drm/drm_atomic.h>
- #include <drm/drm_drv.h>
-@@ -1940,6 +1942,7 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
- 					 int preferred_bpp)
- {
- 	struct drm_client_dev *client = &fb_helper->client;
-+	struct drm_device *dev = fb_helper->dev;
- 	struct drm_fb_helper_surface_size sizes;
- 	int ret;
- 
-@@ -1961,6 +1964,11 @@ static int drm_fb_helper_single_fb_probe(struct drm_fb_helper *fb_helper,
- 		return ret;
- 
- 	strcpy(fb_helper->fb->comm, "[fbcon]");
-+
-+	/* Set the fb info for vgaswitcheroo clients. Does nothing otherwise. */
-+	if (dev_is_pci(dev->dev))
-+		vga_switcheroo_client_fb_set(to_pci_dev(dev->dev), fb_helper->info);
-+
- 	return 0;
+ 		pipes[pipe_cnt].pipe.src.gpuvm = true;
+-		pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_luma = 0;
+-		pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_chroma = 0;
++		DC_FP_START();
++		dcn32_zero_pipe_dcc_fraction(pipes, pipe_cnt);
++		DC_FP_END();
+ 		pipes[pipe_cnt].pipe.dest.vfront_porch = timing->v_front_porch;
+ 		pipes[pipe_cnt].pipe.src.gpuvm_min_page_size_kbytes = 256; // according to spreadsheet
+ 		pipes[pipe_cnt].pipe.src.unbounded_req_mode = false;
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+index d1bf49d207de..d90216d2fe3a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+@@ -2546,3 +2546,11 @@ void dcn32_update_bw_bounding_box_fpu(struct dc *dc, struct clk_bw_params *bw_pa
+ 	}
  }
  
++void dcn32_zero_pipe_dcc_fraction(display_e2e_pipe_params_st *pipes,
++				  int pipe_cnt)
++{
++	dc_assert_fp_enabled();
++
++	pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_luma = 0;
++	pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_chroma = 0;
++}
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.h b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.h
+index 3a3dc2ce4c73..ab010e7e840b 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.h
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.h
+@@ -73,4 +73,7 @@ int dcn32_find_dummy_latency_index_for_fw_based_mclk_switch(struct dc *dc,
+ 
+ void dcn32_patch_dpm_table(struct clk_bw_params *bw_params);
+ 
++void dcn32_zero_pipe_dcc_fraction(display_e2e_pipe_params_st *pipes,
++				  int pipe_cnt);
++
+ #endif
 -- 
 2.39.0
 
