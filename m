@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 102C1667660
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:31:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78A8066766D
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:31:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236655AbjALObN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:31:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50268 "EHLO
+        id S237697AbjALObn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:31:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236904AbjALOa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B5F5DE6C
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:22:09 -0800 (PST)
+        with ESMTP id S236821AbjALOa6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D51145E648
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:22:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B32A4B81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:22:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6A69C433D2;
-        Thu, 12 Jan 2023 14:22:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72C3561F4A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:22:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69C7DC433D2;
+        Thu, 12 Jan 2023 14:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533326;
-        bh=F9n7AZkWBkEHpuUdOvX6pL4BkYIT9fgyn8/4D80uZDk=;
+        s=korg; t=1673533359;
+        bh=piYsiKQhUDZbKt2SXX51ncrTS1o5Ezm+L0eGppOyJUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3UgyGKBq/6pkeBo6W10J9V+gc7te6zgVdvbElB0Hm6DYmB1QOPFV/iKC2sxHUZ8f
-         rx831XCTQ7JVsuIgqxqomlXZ7gL/buNGfCN86zwLEJNgK6QbZMUrhIOEPqnLuSoKws
-         S78ebG4AuxRqrBp2XqF+H/71e4fjwRk9wgyN9Uj8=
+        b=qVlp3z1o7R3/5Ybq7JDTE0bTtWMSqTLrVRvG6CX6eVJc1F0xbJlqp7KthCWXEqQqP
+         yictPaHM3ZuFVhNp1Uvynr9qlpFy9871lMm5OtwUtT61WFzVzq3pTjN7kMVurksr4U
+         e7NtT8REZt2SLu1BKkFlVaMXXMJyLdWdhAzK35Rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 435/783] powerpc/xmon: Fix -Wswitch-unreachable warning in bpt_cmds
-Date:   Thu, 12 Jan 2023 14:52:31 +0100
-Message-Id: <20230112135544.479667734@linuxfoundation.org>
+Subject: [PATCH 5.10 436/783] powerpc/xive: add missing iounmap() in error path in xive_spapr_populate_irq_data()
+Date:   Thu, 12 Jan 2023 14:52:32 +0100
+Message-Id: <20230112135544.511563057@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,54 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 1c4a4a4c8410be4a231a58b23e7a30923ff954ac ]
+[ Upstream commit 8b49670f3bb3f10cd4d5a6dca17f5a31b173ecdc ]
 
-When building with automatic stack variable initialization, GCC 12
-complains about variables defined outside of switch case statements.
-Move the variable into the case that uses it, which silences the warning:
+If remapping 'data->trig_page' fails, the 'data->eoi_mmio' need be unmapped
+before returning from xive_spapr_populate_irq_data().
 
-arch/powerpc/xmon/xmon.c: In function ‘bpt_cmds’:
-arch/powerpc/xmon/xmon.c:1529:13: warning: statement will never be executed [-Wswitch-unreachable]
- 1529 |         int mode;
-      |             ^~~~
-
-Fixes: 09b6c1129f89 ("powerpc/xmon: Fix compile error with PPC_8xx=y")
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
+Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/YySE6FHiOcbWWR+9@work
+Link: https://lore.kernel.org/r/20221017032333.1852406-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/xmon/xmon.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/powerpc/sysdev/xive/spapr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
-index c6a36b4045e8..2872b66d9fec 100644
---- a/arch/powerpc/xmon/xmon.c
-+++ b/arch/powerpc/xmon/xmon.c
-@@ -1433,9 +1433,9 @@ bpt_cmds(void)
- 	cmd = inchar();
+diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
+index 38e8b9896174..53cf14349d5e 100644
+--- a/arch/powerpc/sysdev/xive/spapr.c
++++ b/arch/powerpc/sysdev/xive/spapr.c
+@@ -425,6 +425,7 @@ static int xive_spapr_populate_irq_data(u32 hw_irq, struct xive_irq_data *data)
  
- 	switch (cmd) {
--	static const char badaddr[] = "Only kernel addresses are permitted for breakpoints\n";
--	int mode;
--	case 'd':	/* bd - hardware data breakpoint */
-+	case 'd': {	/* bd - hardware data breakpoint */
-+		static const char badaddr[] = "Only kernel addresses are permitted for breakpoints\n";
-+		int mode;
- 		if (xmon_is_ro) {
- 			printf(xmon_ro_msg);
- 			break;
-@@ -1468,6 +1468,7 @@ bpt_cmds(void)
- 
- 		force_enable_xmon();
- 		break;
-+	}
- 
- 	case 'i':	/* bi - hardware instr breakpoint */
- 		if (xmon_is_ro) {
+ 	data->trig_mmio = ioremap(data->trig_page, 1u << data->esb_shift);
+ 	if (!data->trig_mmio) {
++		iounmap(data->eoi_mmio);
+ 		pr_err("Failed to map trigger page for irq 0x%x\n", hw_irq);
+ 		return -ENOMEM;
+ 	}
 -- 
 2.35.1
 
