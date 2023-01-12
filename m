@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EEFF6677FA
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:51:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BCEA667806
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:51:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239897AbjALOv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:51:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43460 "EHLO
+        id S240039AbjALOvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:51:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239810AbjALOux (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:50:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9065313E27
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:37:41 -0800 (PST)
+        with ESMTP id S239913AbjALOvL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:51:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0625A14D0F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:38:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A5FDB81E73
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:37:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E079C433D2;
-        Thu, 12 Jan 2023 14:37:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9798D6203D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:38:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E773C433F0;
+        Thu, 12 Jan 2023 14:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534259;
-        bh=M4YGrA9lj/ziiGjsHxkLJtnBYijnOx8hpEY7Zt/+/Hw=;
+        s=korg; t=1673534292;
+        bh=crd+OrhRcgDaQwVOpHTmc7/lCfH1nGHqxhPpLmlQekU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lSiWi9soXHnEYbQjpjHln/7BcsrZoEDLXIRG5rHcUksa9M264G0BaZP3k/h4NZoO6
-         kM6XsL88HU6Yl4mwHeprCSVIANjhPN6jnQu4vjitaetHDAI3Z0cKPefVqXUtKOCbFA
-         +qcP9b3/CLPyVgFzUBB4RXeCwuQViW1ggEibqb0Q=
+        b=wys77MeCC3xAMcDJ7iCefU/OIh0uRZhGBBkREqWIW1JkWKTUl+M8ThA6vdWvRhx/4
+         qVp0kjD45VyXbPwFMZMF2JE07Xrh/nEWlEAgjGfIw/s9g7h8RznwwPJLb671HsOwwH
+         wdVgIbKp5LCfUL7Y+2fhlIw8kQK6Pi5s1VFmZFpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com,
-        Cong Wang <cong.wang@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Hawkins Jiawei <yin31149@gmail.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 731/783] net: sched: fix memory leak in tcindex_set_parms
-Date:   Thu, 12 Jan 2023 14:57:27 +0100
-Message-Id: <20230112135558.220332994@linuxfoundation.org>
+Subject: [PATCH 5.10 732/783] qlcnic: prevent ->dcb use-after-free on qlcnic_dcb_enable() failure
+Date:   Thu, 12 Jan 2023 14:57:28 +0100
+Message-Id: <20230112135558.274065229@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -59,148 +55,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawkins Jiawei <yin31149@gmail.com>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit 399ab7fe0fa0d846881685fd4e57e9a8ef7559f7 ]
+[ Upstream commit 13a7c8964afcd8ca43c0b6001ebb0127baa95362 ]
 
-Syzkaller reports a memory leak as follows:
-====================================
-BUG: memory leak
-unreferenced object 0xffff88810c287f00 (size 256):
-  comm "syz-executor105", pid 3600, jiffies 4294943292 (age 12.990s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff814cf9f0>] kmalloc_trace+0x20/0x90 mm/slab_common.c:1046
-    [<ffffffff839c9e07>] kmalloc include/linux/slab.h:576 [inline]
-    [<ffffffff839c9e07>] kmalloc_array include/linux/slab.h:627 [inline]
-    [<ffffffff839c9e07>] kcalloc include/linux/slab.h:659 [inline]
-    [<ffffffff839c9e07>] tcf_exts_init include/net/pkt_cls.h:250 [inline]
-    [<ffffffff839c9e07>] tcindex_set_parms+0xa7/0xbe0 net/sched/cls_tcindex.c:342
-    [<ffffffff839caa1f>] tcindex_change+0xdf/0x120 net/sched/cls_tcindex.c:553
-    [<ffffffff8394db62>] tc_new_tfilter+0x4f2/0x1100 net/sched/cls_api.c:2147
-    [<ffffffff8389e91c>] rtnetlink_rcv_msg+0x4dc/0x5d0 net/core/rtnetlink.c:6082
-    [<ffffffff839eba67>] netlink_rcv_skb+0x87/0x1d0 net/netlink/af_netlink.c:2540
-    [<ffffffff839eab87>] netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
-    [<ffffffff839eab87>] netlink_unicast+0x397/0x4c0 net/netlink/af_netlink.c:1345
-    [<ffffffff839eb046>] netlink_sendmsg+0x396/0x710 net/netlink/af_netlink.c:1921
-    [<ffffffff8383e796>] sock_sendmsg_nosec net/socket.c:714 [inline]
-    [<ffffffff8383e796>] sock_sendmsg+0x56/0x80 net/socket.c:734
-    [<ffffffff8383eb08>] ____sys_sendmsg+0x178/0x410 net/socket.c:2482
-    [<ffffffff83843678>] ___sys_sendmsg+0xa8/0x110 net/socket.c:2536
-    [<ffffffff838439c5>] __sys_sendmmsg+0x105/0x330 net/socket.c:2622
-    [<ffffffff83843c14>] __do_sys_sendmmsg net/socket.c:2651 [inline]
-    [<ffffffff83843c14>] __se_sys_sendmmsg net/socket.c:2648 [inline]
-    [<ffffffff83843c14>] __x64_sys_sendmmsg+0x24/0x30 net/socket.c:2648
-    [<ffffffff84605fd5>] do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    [<ffffffff84605fd5>] do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-    [<ffffffff84800087>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
-====================================
+adapter->dcb would get silently freed inside qlcnic_dcb_enable() in
+case qlcnic_dcb_attach() would return an error, which always happens
+under OOM conditions. This would lead to use-after-free because both
+of the existing callers invoke qlcnic_dcb_get_info() on the obtained
+pointer, which is potentially freed at that point.
 
-Kernel uses tcindex_change() to change an existing
-filter properties.
+Propagate errors from qlcnic_dcb_enable(), and instead free the dcb
+pointer at callsite using qlcnic_dcb_free(). This also removes the now
+unused qlcnic_clear_dcb_ops() helper, which was a simple wrapper around
+kfree() also causing memory leaks for partially initialized dcb.
 
-Yet the problem is that, during the process of changing,
-if `old_r` is retrieved from `p->perfect`, then
-kernel uses tcindex_alloc_perfect_hash() to newly
-allocate filter results, uses tcindex_filter_result_init()
-to clear the old filter result, without destroying
-its tcf_exts structure, which triggers the above memory leak.
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
 
-To be more specific, there are only two source for the `old_r`,
-according to the tcindex_lookup(). `old_r` is retrieved from
-`p->perfect`, or `old_r` is retrieved from `p->h`.
-
-  * If `old_r` is retrieved from `p->perfect`, kernel uses
-tcindex_alloc_perfect_hash() to newly allocate the
-filter results. Then `r` is assigned with `cp->perfect + handle`,
-which is newly allocated. So condition `old_r && old_r != r` is
-true in this situation, and kernel uses tcindex_filter_result_init()
-to clear the old filter result, without destroying
-its tcf_exts structure
-
-  * If `old_r` is retrieved from `p->h`, then `p->perfect` is NULL
-according to the tcindex_lookup(). Considering that `cp->h`
-is directly copied from `p->h` and `p->perfect` is NULL,
-`r` is assigned with `tcindex_lookup(cp, handle)`, whose value
-should be the same as `old_r`, so condition `old_r && old_r != r`
-is false in this situation, kernel ignores using
-tcindex_filter_result_init() to clear the old filter result.
-
-So only when `old_r` is retrieved from `p->perfect` does kernel use
-tcindex_filter_result_init() to clear the old filter result, which
-triggers the above memory leak.
-
-Considering that there already exists a tc_filter_wq workqueue
-to destroy the old tcindex_data by tcindex_partial_destroy_work()
-at the end of tcindex_set_parms(), this patch solves
-this memory leak bug by removing this old filter result
-clearing part and delegating it to the tc_filter_wq workqueue.
-
-Note that this patch doesn't introduce any other issues. If
-`old_r` is retrieved from `p->perfect`, this patch just
-delegates old filter result clearing part to the
-tc_filter_wq workqueue; If `old_r` is retrieved from `p->h`,
-kernel doesn't reach the old filter result clearing part, so
-removing this part has no effect.
-
-[Thanks to the suggestion from Jakub Kicinski, Cong Wang, Paolo Abeni
-and Dmitry Vyukov]
-
-Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
-Link: https://lore.kernel.org/all/0000000000001de5c505ebc9ec59@google.com/
-Reported-by: syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com
-Tested-by: syzbot+232ebdbd36706c965ebf@syzkaller.appspotmail.com
-Cc: Cong Wang <cong.wang@bytedance.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Hawkins Jiawei <yin31149@gmail.com>
+Fixes: 3c44bba1d270 ("qlcnic: Disable DCB operations from SR-IOV VFs")
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_tcindex.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c |  8 +++++++-
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h       | 10 ++--------
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c      |  8 +++++++-
+ 3 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index e9a8a2c86bbd..86250221d08d 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -332,7 +332,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 		  struct tcindex_filter_result *r, struct nlattr **tb,
- 		  struct nlattr *est, bool ovr, struct netlink_ext_ack *extack)
- {
--	struct tcindex_filter_result new_filter_result, *old_r = r;
-+	struct tcindex_filter_result new_filter_result;
- 	struct tcindex_data *cp = NULL, *oldp;
- 	struct tcindex_filter *f = NULL; /* make gcc behave */
- 	struct tcf_result cr = {};
-@@ -401,7 +401,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 	err = tcindex_filter_result_init(&new_filter_result, cp, net);
- 	if (err < 0)
- 		goto errout_alloc;
--	if (old_r)
-+	if (r)
- 		cr = r->res;
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+index d2c190732d3e..beeeec8516b8 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+@@ -2505,7 +2505,13 @@ int qlcnic_83xx_init(struct qlcnic_adapter *adapter, int pci_using_dac)
+ 		goto disable_mbx_intr;
  
- 	err = -EBUSY;
-@@ -478,14 +478,6 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 		tcf_bind_filter(tp, &cr, base);
- 	}
+ 	qlcnic_83xx_clear_function_resources(adapter);
+-	qlcnic_dcb_enable(adapter->dcb);
++
++	err = qlcnic_dcb_enable(adapter->dcb);
++	if (err) {
++		qlcnic_dcb_free(adapter->dcb);
++		goto disable_mbx_intr;
++	}
++
+ 	qlcnic_83xx_initialize_nic(adapter, 1);
+ 	qlcnic_dcb_get_info(adapter->dcb);
  
--	if (old_r && old_r != r) {
--		err = tcindex_filter_result_init(old_r, cp, net);
--		if (err < 0) {
--			kfree(f);
--			goto errout_alloc;
--		}
--	}
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+index 7519773eaca6..22afa2be85fd 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+@@ -41,11 +41,6 @@ struct qlcnic_dcb {
+ 	unsigned long			state;
+ };
+ 
+-static inline void qlcnic_clear_dcb_ops(struct qlcnic_dcb *dcb)
+-{
+-	kfree(dcb);
+-}
 -
- 	oldp = p;
- 	r->res = cr;
- 	tcf_exts_change(&r->exts, &e);
+ static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
+ {
+ 	if (dcb && dcb->ops->get_hw_capability)
+@@ -112,9 +107,8 @@ static inline void qlcnic_dcb_init_dcbnl_ops(struct qlcnic_dcb *dcb)
+ 		dcb->ops->init_dcbnl_ops(dcb);
+ }
+ 
+-static inline void qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
++static inline int qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
+ {
+-	if (dcb && qlcnic_dcb_attach(dcb))
+-		qlcnic_clear_dcb_ops(dcb);
++	return dcb ? qlcnic_dcb_attach(dcb) : 0;
+ }
+ #endif
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+index 27c07b2412f4..44b745293fd0 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+@@ -2622,7 +2622,13 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 			 "Device does not support MSI interrupts\n");
+ 
+ 	if (qlcnic_82xx_check(adapter)) {
+-		qlcnic_dcb_enable(adapter->dcb);
++		err = qlcnic_dcb_enable(adapter->dcb);
++		if (err) {
++			qlcnic_dcb_free(adapter->dcb);
++			dev_err(&pdev->dev, "Failed to enable DCB\n");
++			goto err_out_free_hw;
++		}
++
+ 		qlcnic_dcb_get_info(adapter->dcb);
+ 		err = qlcnic_setup_intr(adapter);
+ 
 -- 
 2.35.1
 
