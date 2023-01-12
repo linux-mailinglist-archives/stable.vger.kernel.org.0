@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9564F66763D
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF16366763E
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237578AbjALOaV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:30:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49674 "EHLO
+        id S237551AbjALOaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:30:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237613AbjALO3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B826C5D89A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:20:48 -0800 (PST)
+        with ESMTP id S234001AbjALO3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D441B5D8B0
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:20:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6532CB81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:20:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2D53C433EF;
-        Thu, 12 Jan 2023 14:20:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7109160A69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:20:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8207EC433D2;
+        Thu, 12 Jan 2023 14:20:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533246;
-        bh=GOKQsbHs1KOfOHRUs81yilyq6NH9R8Uny6ZOM4qYO7c=;
+        s=korg; t=1673533248;
+        bh=l3+fRu4LC2KPV7CkMKTo6xAGsJ36UzhJcGlNoWIbVRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTllh6gBQNVv1w72AZ6QXwFjPbf57lyXHRSa6/9YtYXipIjyhLUEjhHWPYJ4mU7Nz
-         AXXNwpiUF0HKoZrjyRs/ONK9vt/q22uCVKBQ4ZCU36oFjZjIBv09VlNImRE8fJs267
-         29Zcrgg8T+eRZyxJzkY23bHVp37MIxZEXniJfbyA=
+        b=Tzcmab2uH+4ScdPEq72Iq7etnq7uqDyDLMayLAs1YA/o/7e+zTSCB8xV2QN6JxrUs
+         ukZv6nbBsb78OuumtVpRj6ny79QwH46p2FMP49nyitMbFjIoil7+Z7mvYs7W9L36i8
+         eGTWr1au5E2lMwUoG5eE03w+CxeEB1VjcPhFlVOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
+        patches@lists.linux.dev, Mel Gorman <mgorman@techsingularity.net>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 417/783] rtc: rtc-cmos: Do not check ACPI_FADT_LOW_POWER_S0
-Date:   Thu, 12 Jan 2023 14:52:13 +0100
-Message-Id: <20230112135543.653246461@linuxfoundation.org>
+Subject: [PATCH 5.10 418/783] rtc: cmos: Fix event handler registration ordering issue
+Date:   Thu, 12 Jan 2023 14:52:14 +0100
+Message-Id: <20230112135543.701985863@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -57,54 +57,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 6492fed7d8c95f53b0b804ef541324d924d95d41 ]
+[ Upstream commit 4919d3eb2ec0ee364f7e3cf2d99646c1b224fae8 ]
 
-The ACPI_FADT_LOW_POWER_S0 flag merely means that it is better to
-use low-power S0 idle on the given platform than S3 (provided that
-the latter is supported) and it doesn't preclude using either of
-them (which of them will be used depends on the choices made by user
-space).
+Because acpi_install_fixed_event_handler() enables the event
+automatically on success, it is incorrect to call it before the
+handler routine passed to it is ready to handle events.
 
-For this reason, there is no benefit from checking that flag in
-use_acpi_alarm_quirks().
+Unfortunately, the rtc-cmos driver does exactly the incorrect thing
+by calling cmos_wake_setup(), which passes rtc_handler() to
+acpi_install_fixed_event_handler(), before cmos_do_probe(), because
+rtc_handler() uses dev_get_drvdata() to get to the cmos object
+pointer and the driver data pointer is only populated in
+cmos_do_probe().
 
-First off, it cannot be a bug to do S3 with use_acpi_alarm set,
-because S3 can be used on systems with ACPI_FADT_LOW_POWER_S0 and it
-must work if really supported, so the ACPI_FADT_LOW_POWER_S0 check is
-not needed to protect the S3-capable systems from failing.
+This leads to a NULL pointer dereference in rtc_handler() on boot
+if the RTC fixed event happens to be active at the init time.
 
-Second, suspend-to-idle can be carried out on a system with
-ACPI_FADT_LOW_POWER_S0 unset and it is expected to work, so if setting
-use_acpi_alarm is needed to handle that case correctly, it should be
-set regardless of the ACPI_FADT_LOW_POWER_S0 value.
+To address this issue, change the initialization ordering of the
+driver so that cmos_wake_setup() is always called after a successful
+cmos_do_probe() call.
 
-Accordingly, drop the ACPI_FADT_LOW_POWER_S0 check from
-use_acpi_alarm_quirks().
+While at it, change cmos_pnp_probe() to call cmos_do_probe() after
+the initial if () statement used for computing the IRQ argument to
+be passed to cmos_do_probe() which is cleaner than calling it in
+each branch of that if () (local variable "irq" can be of type int,
+because it is passed to that function as an argument of type int).
 
+Note that commit 6492fed7d8c9 ("rtc: rtc-cmos: Do not check
+ACPI_FADT_LOW_POWER_S0") caused this issue to affect a larger number
+of systems, because previously it only affected systems with
+ACPI_FADT_LOW_POWER_S0 set, but it is present regardless of that
+commit.
+
+Fixes: 6492fed7d8c9 ("rtc: rtc-cmos: Do not check ACPI_FADT_LOW_POWER_S0")
+Fixes: a474aaedac99 ("rtc-cmos: move wake setup from ACPI glue into RTC driver")
+Link: https://lore.kernel.org/linux-acpi/20221010141630.zfzi7mk7zvnmclzy@techsingularity.net/
+Reported-by: Mel Gorman <mgorman@techsingularity.net>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Tested-by: Mel Gorman <mgorman@techsingularity.net>
+Link: https://lore.kernel.org/r/5629262.DvuYhMxLoT@kreacher
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/12054246.O9o76ZdvQC@kreacher
 Stable-dep-of: 83ebb7b3036d ("rtc: cmos: Disable ACPI RTC event on removal")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/rtc/rtc-cmos.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index d4f6c4dd42c4..19bc1d8a5de5 100644
+index 19bc1d8a5de5..449818732acf 100644
 --- a/drivers/rtc/rtc-cmos.c
 +++ b/drivers/rtc/rtc-cmos.c
-@@ -1265,9 +1265,6 @@ static void use_acpi_alarm_quirks(void)
- 	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
- 		return;
+@@ -1357,10 +1357,10 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
  
--	if (!(acpi_gbl_FADT.flags & ACPI_FADT_LOW_POWER_S0))
--		return;
--
- 	if (!is_hpet_enabled())
- 		return;
+ static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
+ {
+-	cmos_wake_setup(&pnp->dev);
++	int irq, ret;
  
+ 	if (pnp_port_start(pnp, 0) == 0x70 && !pnp_irq_valid(pnp, 0)) {
+-		unsigned int irq = 0;
++		irq = 0;
+ #ifdef CONFIG_X86
+ 		/* Some machines contain a PNP entry for the RTC, but
+ 		 * don't define the IRQ. It should always be safe to
+@@ -1369,13 +1369,17 @@ static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
+ 		if (nr_legacy_irqs())
+ 			irq = RTC_IRQ;
+ #endif
+-		return cmos_do_probe(&pnp->dev,
+-				pnp_get_resource(pnp, IORESOURCE_IO, 0), irq);
+ 	} else {
+-		return cmos_do_probe(&pnp->dev,
+-				pnp_get_resource(pnp, IORESOURCE_IO, 0),
+-				pnp_irq(pnp, 0));
++		irq = pnp_irq(pnp, 0);
+ 	}
++
++	ret = cmos_do_probe(&pnp->dev, pnp_get_resource(pnp, IORESOURCE_IO, 0), irq);
++	if (ret)
++		return ret;
++
++	cmos_wake_setup(&pnp->dev);
++
++	return 0;
+ }
+ 
+ static void cmos_pnp_remove(struct pnp_dev *pnp)
+@@ -1459,10 +1463,9 @@ static inline void cmos_of_init(struct platform_device *pdev) {}
+ static int __init cmos_platform_probe(struct platform_device *pdev)
+ {
+ 	struct resource *resource;
+-	int irq;
++	int irq, ret;
+ 
+ 	cmos_of_init(pdev);
+-	cmos_wake_setup(&pdev->dev);
+ 
+ 	if (RTC_IOMAPPED)
+ 		resource = platform_get_resource(pdev, IORESOURCE_IO, 0);
+@@ -1472,7 +1475,13 @@ static int __init cmos_platform_probe(struct platform_device *pdev)
+ 	if (irq < 0)
+ 		irq = -1;
+ 
+-	return cmos_do_probe(&pdev->dev, resource, irq);
++	ret = cmos_do_probe(&pdev->dev, resource, irq);
++	if (ret)
++		return ret;
++
++	cmos_wake_setup(&pdev->dev);
++
++	return 0;
+ }
+ 
+ static int cmos_platform_remove(struct platform_device *pdev)
 -- 
 2.35.1
 
