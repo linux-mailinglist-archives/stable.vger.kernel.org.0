@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B9B667792
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:45:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3EB667794
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:45:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239994AbjALOpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:45:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36794 "EHLO
+        id S238809AbjALOpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:45:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239722AbjALOoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:44:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D5CC551C2
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:33:08 -0800 (PST)
+        with ESMTP id S239810AbjALOpB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:45:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B50159513
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:33:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE93D60A69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:33:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E4DAC433D2;
-        Thu, 12 Jan 2023 14:33:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E5F660A69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:33:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC631C433D2;
+        Thu, 12 Jan 2023 14:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533987;
-        bh=0k6GoiqdYDNY44XbJ/TtnNK5I1m5BomXwGRY1yrBVnA=;
+        s=korg; t=1673533990;
+        bh=xcsM62j+bHsgn4odKUvIbfGfGDIQN7UCZ73cFvGLs8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hj3r08aiUldmXwPUZiS+rLREad/f1cUcscidZE0Z5HDFGonX+yT70xqHJk+8W4JLe
-         VH+M5hQkncc8fz1CbvJCyYU2mKI9JmfqFvkTUReC0d06bv9NOGLJ7Vr57MXlJ3+kb2
-         qaScV30Uqfh17e1e+OreRxoqqTLsR6botAV0nO9I=
+        b=h9SThQDBVrCiyNHEpzrbakJvcUc4RpwRR7d28rCza5N6IbgXoEX26F8hZsAVQjLBb
+         VF1smo6SVGDaJXRSs1iUVujACMXpdubIVOVZB6fh24M/ev3CFYP6nDk77qWEKpZUph
+         5zUudRCGhTnwUMIWsAWREZ62aPxCAlR5zf2QqsOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Gong <gongwei833x@gmail.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        patches@lists.linux.dev, Sascha Hauer <s.hauer@pengutronix.de>,
         Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.10 657/783] PCI: Fix pci_device_is_present() for VFs by checking PF
-Date:   Thu, 12 Jan 2023 14:56:13 +0100
-Message-Id: <20230112135554.803951151@linuxfoundation.org>
+Subject: [PATCH 5.10 658/783] PCI/sysfs: Fix double free in error path
+Date:   Thu, 12 Jan 2023 14:56:14 +0100
+Message-Id: <20230112135554.855177196@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,59 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-commit 98b04dd0b4577894520493d96bc4623387767445 upstream.
+commit aa382ffa705bea9931ec92b6f3c70e1fdb372195 upstream.
 
-pci_device_is_present() previously didn't work for VFs because it reads the
-Vendor and Device ID, which are 0xffff for VFs, which looks like they
-aren't present.  Check the PF instead.
+When pci_create_attr() fails, pci_remove_resource_files() is called which
+will iterate over the res_attr[_wc] arrays and frees every non NULL entry.
+To avoid a double free here set the array entry only after it's clear we
+successfully initialized it.
 
-Wei Gong reported that if virtio I/O is in progress when the driver is
-unbound or "0" is written to /sys/.../sriov_numvfs, the virtio I/O
-operation hangs, which may result in output like this:
-
-  task:bash state:D stack:    0 pid: 1773 ppid:  1241 flags:0x00004002
-  Call Trace:
-   schedule+0x4f/0xc0
-   blk_mq_freeze_queue_wait+0x69/0xa0
-   blk_mq_freeze_queue+0x1b/0x20
-   blk_cleanup_queue+0x3d/0xd0
-   virtblk_remove+0x3c/0xb0 [virtio_blk]
-   virtio_dev_remove+0x4b/0x80
-   ...
-   device_unregister+0x1b/0x60
-   unregister_virtio_device+0x18/0x30
-   virtio_pci_remove+0x41/0x80
-   pci_device_remove+0x3e/0xb0
-
-This happened because pci_device_is_present(VF) returned "false" in
-virtio_pci_remove(), so it called virtio_break_device().  The broken vq
-meant that vring_interrupt() skipped the vq.callback() that would have
-completed the virtio I/O operation via virtblk_done().
-
-[bhelgaas: commit log, simplify to always use pci_physfn(), add stable tag]
-Link: https://lore.kernel.org/r/20221026060912.173250-1-mst@redhat.com
-Reported-by: Wei Gong <gongwei833x@gmail.com>
-Tested-by: Wei Gong <gongwei833x@gmail.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: b562ec8f74e4 ("PCI: Don't leak memory if sysfs_create_bin_file() fails")
+Link: https://lore.kernel.org/r/20221007070735.GX986@pengutronix.de/
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/pci-sysfs.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -6152,6 +6152,8 @@ bool pci_device_is_present(struct pci_de
- {
- 	u32 v;
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -1141,11 +1141,9 @@ static int pci_create_attr(struct pci_de
  
-+	/* Check PF if pdev is a VF, since VF Vendor/Device IDs are 0xffff */
-+	pdev = pci_physfn(pdev);
- 	if (pci_dev_is_disconnected(pdev))
- 		return false;
- 	return pci_bus_read_dev_vendor_id(pdev->bus, pdev->devfn, &v, 0);
+ 	sysfs_bin_attr_init(res_attr);
+ 	if (write_combine) {
+-		pdev->res_attr_wc[num] = res_attr;
+ 		sprintf(res_attr_name, "resource%d_wc", num);
+ 		res_attr->mmap = pci_mmap_resource_wc;
+ 	} else {
+-		pdev->res_attr[num] = res_attr;
+ 		sprintf(res_attr_name, "resource%d", num);
+ 		if (pci_resource_flags(pdev, num) & IORESOURCE_IO) {
+ 			res_attr->read = pci_read_resource_io;
+@@ -1161,10 +1159,17 @@ static int pci_create_attr(struct pci_de
+ 	res_attr->size = pci_resource_len(pdev, num);
+ 	res_attr->private = (void *)(unsigned long)num;
+ 	retval = sysfs_create_bin_file(&pdev->dev.kobj, res_attr);
+-	if (retval)
++	if (retval) {
+ 		kfree(res_attr);
++		return retval;
++	}
++
++	if (write_combine)
++		pdev->res_attr_wc[num] = res_attr;
++	else
++		pdev->res_attr[num] = res_attr;
+ 
+-	return retval;
++	return 0;
+ }
+ 
+ /**
 
 
