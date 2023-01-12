@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CFA66774F
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9F3F667752
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:42:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239398AbjALOlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:41:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36750 "EHLO
+        id S239876AbjALOmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:42:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239450AbjALOlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:41:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A09BC46
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:30:56 -0800 (PST)
+        with ESMTP id S238704AbjALOlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:41:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D641DD88
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:31:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDA9A62026
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:30:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE742C433D2;
-        Thu, 12 Jan 2023 14:30:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86D39B81E72
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:30:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8908C433D2;
+        Thu, 12 Jan 2023 14:30:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533855;
-        bh=ElH7abeN3VMb2QlXL88KTZ/TYWYmzKyL5+4uahvfH+g=;
+        s=korg; t=1673533858;
+        bh=x8me41N348hYbjwYMm5GojH45ZUnFvfBjbyZQRgZt1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqPgciFarE0F44VZPmif5/gLkOjxFASED81XXMUuk2NXqwV0cgsJmJY77VtkvdE4j
-         c+BE2GUurWnASsXomqJM611Q8RxaSWf3RlXsysiiaed5QgUN5TeqzPTyui3/24EZhg
-         HguClSWCwCriaGTd62OKhmXDEk3iaRUQi7s9lCNs=
+        b=tAXee1Zx2MGHsJ1d/hp1chqVTIFSX23ckN/ZJQZ8yFDEXXG0Q4cH29m6FEkNraARt
+         gjJd4JSloS1GM7xucPzEErCEi7r9w4f6D+bV5x8Sr/WOm2Lnht6K8yHMmUPTyI4lRa
+         7gxDXOFEs4bWl2N0ORw3jNmw2W+QEoIMQg+/pJA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Jason Yan <yanaijie@huawei.com>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.10 614/783] jbd2: use the correct print format
-Date:   Thu, 12 Jan 2023 14:55:30 +0100
-Message-Id: <20230112135552.724612878@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 5.10 615/783] arm64: dts: qcom: sdm845-db845c: correct SPI2 pins drive strength
+Date:   Thu, 12 Jan 2023 14:55:31 +0100
+Message-Id: <20230112135552.774078356@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,213 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@linux.alibaba.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit d87a7b4c77a997d5388566dd511ca8e6b8e8a0a8 upstream.
+commit 9905370560d9c29adc15f4937c5a0c0dac05f0b4 upstream.
 
-The print format error was found when using ftrace event:
-    <...>-1406 [000] .... 23599442.895823: jbd2_end_commit: dev 252,8 transaction -1866216965 sync 0 head -1866217368
-    <...>-1406 [000] .... 23599442.896299: jbd2_start_commit: dev 252,8 transaction -1866216964 sync 0
+The pin configuration (done with generic pin controller helpers and
+as expressed by bindings) requires children nodes with either:
+1. "pins" property and the actual configuration,
+2. another set of nodes with above point.
 
-Use the correct print format for transaction, head and tid.
+The qup_spi2_default pin configuration uses alreaady the second method
+with a "pinmux" child, so configure drive-strength similarly in
+"pinconf".  Otherwise the PIN drive strength would not be applied.
 
-Fixes: 879c5e6b7cb4 ('jbd2: convert instrumentation from markers to tracepoints')
-Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Link: https://lore.kernel.org/r/1665488024-95172-1-git-send-email-cuibixuan@linux.alibaba.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Fixes: 8d23a0040475 ("arm64: dts: qcom: db845c: add Low speed expansion i2c and spi nodes")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221010114417.29859-2-krzysztof.kozlowski@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/jbd2.h |   44 ++++++++++++++++++++++----------------------
- 1 file changed, 22 insertions(+), 22 deletions(-)
+ arch/arm64/boot/dts/qcom/sdm845-db845c.dts |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/trace/events/jbd2.h
-+++ b/include/trace/events/jbd2.h
-@@ -40,7 +40,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
- 	TP_STRUCT__entry(
- 		__field(	dev_t,	dev			)
- 		__field(	char,	sync_commit		  )
--		__field(	int,	transaction		  )
-+		__field(	tid_t,	transaction		  )
- 	),
+--- a/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
++++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+@@ -1045,7 +1045,10 @@
  
- 	TP_fast_assign(
-@@ -49,7 +49,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
- 		__entry->transaction	= commit_transaction->t_tid;
- 	),
+ /* PINCTRL - additions to nodes defined in sdm845.dtsi */
+ &qup_spi2_default {
+-	drive-strength = <16>;
++	pinconf {
++		pins = "gpio27", "gpio28", "gpio29", "gpio30";
++		drive-strength = <16>;
++	};
+ };
  
--	TP_printk("dev %d,%d transaction %d sync %d",
-+	TP_printk("dev %d,%d transaction %u sync %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev),
- 		  __entry->transaction, __entry->sync_commit)
- );
-@@ -97,8 +97,8 @@ TRACE_EVENT(jbd2_end_commit,
- 	TP_STRUCT__entry(
- 		__field(	dev_t,	dev			)
- 		__field(	char,	sync_commit		  )
--		__field(	int,	transaction		  )
--		__field(	int,	head		  	  )
-+		__field(	tid_t,	transaction		  )
-+		__field(	tid_t,	head		  	  )
- 	),
- 
- 	TP_fast_assign(
-@@ -108,7 +108,7 @@ TRACE_EVENT(jbd2_end_commit,
- 		__entry->head		= journal->j_tail_sequence;
- 	),
- 
--	TP_printk("dev %d,%d transaction %d sync %d head %d",
-+	TP_printk("dev %d,%d transaction %u sync %d head %u",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev),
- 		  __entry->transaction, __entry->sync_commit, __entry->head)
- );
-@@ -134,14 +134,14 @@ TRACE_EVENT(jbd2_submit_inode_data,
- );
- 
- DECLARE_EVENT_CLASS(jbd2_handle_start_class,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int requested_blocks),
- 
- 	TP_ARGS(dev, tid, type, line_no, requested_blocks),
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	 unsigned int,	type		)
- 		__field(	 unsigned int,	line_no		)
- 		__field(		  int,	requested_blocks)
-@@ -155,28 +155,28 @@ DECLARE_EVENT_CLASS(jbd2_handle_start_cl
- 		__entry->requested_blocks = requested_blocks;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu type %u line_no %u "
-+	TP_printk("dev %d,%d tid %u type %u line_no %u "
- 		  "requested_blocks %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  __entry->type, __entry->line_no, __entry->requested_blocks)
- );
- 
- DEFINE_EVENT(jbd2_handle_start_class, jbd2_handle_start,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int requested_blocks),
- 
- 	TP_ARGS(dev, tid, type, line_no, requested_blocks)
- );
- 
- DEFINE_EVENT(jbd2_handle_start_class, jbd2_handle_restart,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int requested_blocks),
- 
- 	TP_ARGS(dev, tid, type, line_no, requested_blocks)
- );
- 
- TRACE_EVENT(jbd2_handle_extend,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int buffer_credits,
- 		 int requested_blocks),
- 
-@@ -184,7 +184,7 @@ TRACE_EVENT(jbd2_handle_extend,
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	 unsigned int,	type		)
- 		__field(	 unsigned int,	line_no		)
- 		__field(		  int,	buffer_credits  )
-@@ -200,7 +200,7 @@ TRACE_EVENT(jbd2_handle_extend,
- 		__entry->requested_blocks = requested_blocks;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu type %u line_no %u "
-+	TP_printk("dev %d,%d tid %u type %u line_no %u "
- 		  "buffer_credits %d requested_blocks %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  __entry->type, __entry->line_no, __entry->buffer_credits,
-@@ -208,7 +208,7 @@ TRACE_EVENT(jbd2_handle_extend,
- );
- 
- TRACE_EVENT(jbd2_handle_stats,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int interval, int sync,
- 		 int requested_blocks, int dirtied_blocks),
- 
-@@ -217,7 +217,7 @@ TRACE_EVENT(jbd2_handle_stats,
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	 unsigned int,	type		)
- 		__field(	 unsigned int,	line_no		)
- 		__field(		  int,	interval	)
-@@ -237,7 +237,7 @@ TRACE_EVENT(jbd2_handle_stats,
- 		__entry->dirtied_blocks	  = dirtied_blocks;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu type %u line_no %u interval %d "
-+	TP_printk("dev %d,%d tid %u type %u line_no %u interval %d "
- 		  "sync %d requested_blocks %d dirtied_blocks %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  __entry->type, __entry->line_no, __entry->interval,
-@@ -246,14 +246,14 @@ TRACE_EVENT(jbd2_handle_stats,
- );
- 
- TRACE_EVENT(jbd2_run_stats,
--	TP_PROTO(dev_t dev, unsigned long tid,
-+	TP_PROTO(dev_t dev, tid_t tid,
- 		 struct transaction_run_stats_s *stats),
- 
- 	TP_ARGS(dev, tid, stats),
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	unsigned long,	wait		)
- 		__field(	unsigned long,	request_delay	)
- 		__field(	unsigned long,	running		)
-@@ -279,7 +279,7 @@ TRACE_EVENT(jbd2_run_stats,
- 		__entry->blocks_logged	= stats->rs_blocks_logged;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu wait %u request_delay %u running %u "
-+	TP_printk("dev %d,%d tid %u wait %u request_delay %u running %u "
- 		  "locked %u flushing %u logging %u handle_count %u "
- 		  "blocks %u blocks_logged %u",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
-@@ -294,14 +294,14 @@ TRACE_EVENT(jbd2_run_stats,
- );
- 
- TRACE_EVENT(jbd2_checkpoint_stats,
--	TP_PROTO(dev_t dev, unsigned long tid,
-+	TP_PROTO(dev_t dev, tid_t tid,
- 		 struct transaction_chp_stats_s *stats),
- 
- 	TP_ARGS(dev, tid, stats),
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	unsigned long,	chp_time	)
- 		__field(		__u32,	forced_to_close	)
- 		__field(		__u32,	written		)
-@@ -317,7 +317,7 @@ TRACE_EVENT(jbd2_checkpoint_stats,
- 		__entry->dropped	= stats->cs_dropped;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu chp_time %u forced_to_close %u "
-+	TP_printk("dev %d,%d tid %u chp_time %u forced_to_close %u "
- 		  "written %u dropped %u",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  jiffies_to_msecs(__entry->chp_time),
+ &qup_uart3_default{
 
 
