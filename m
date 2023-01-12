@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A256673BB
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:57:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D636677A3
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:46:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231202AbjALN5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 08:57:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52950 "EHLO
+        id S239954AbjALOqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:46:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231495AbjALN5E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:57:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92CB448CEE
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:01 -0800 (PST)
+        with ESMTP id S239811AbjALOpl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:45:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0978C59FAB
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:33:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 301A161F4A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2311DC433EF;
-        Thu, 12 Jan 2023 13:56:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99F4662036
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:33:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC83C433F0;
+        Thu, 12 Jan 2023 14:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673531820;
-        bh=H8t5L49o0g/XMciPO70pXGcB6byECZ2Psx0oSm9ps6w=;
+        s=korg; t=1673534032;
+        bh=YNvrCNDtdIYedqMdh7FZqLeDtkR3nCLOvOMuQBxGUU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZuO4rPeTPlFOSKW81D+8wXVX+I9HOv5OlyGjP9a56jQHgcYqXrGJkkx7Atcy3c8up
-         00BYfoTBc6LoncaivrWDrmIkiXUxpSN/CZ/ioJ8UbU/ra+dQ0TK2xXUeHzEM7RQlTF
-         e4tGd0vF//ZYDrPn67QbsLgbn3vwllu2vHwXda6E=
+        b=vQbMkpQ5ETbiWoUiWuQUR6+Ih88wzWhXRjkLq4kBE5iqgZk1ibMdPhWtIZEKHc27m
+         3BFAAG/Gb18yEhBzhrsbA9s9vjMyXmzn0jVNeo99v+lqiWICQlu41wRC33sV/ojmLw
+         /Ye1osWnHWCc9wASsKkmgQR4UP7wM5SVsw3Dpur8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 6.1 08/10] Revert "SUNRPC: Use RMW bitops in single-threaded hot paths"
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.10 673/783] ext4: add EXT4_IGET_BAD flag to prevent unexpected bad inode
 Date:   Thu, 12 Jan 2023 14:56:29 +0100
-Message-Id: <20230112135327.324829549@linuxfoundation.org>
+Message-Id: <20230112135555.537801787@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230112135326.981869724@linuxfoundation.org>
-References: <20230112135326.981869724@linuxfoundation.org>
+In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
+References: <20230112135524.143670746@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,159 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 7827c81f0248e3c2f40d438b020f3d222f002171 upstream.
+commit 63b1e9bccb71fe7d7e3ddc9877dbdc85e5d2d023 upstream.
 
-The premise that "Once an svc thread is scheduled and executing an
-RPC, no other processes will touch svc_rqst::rq_flags" is false.
-svc_xprt_enqueue() examines the RQ_BUSY flag in scheduled nfsd
-threads when determining which thread to wake up next.
+There are many places that will get unhappy (and crash) when ext4_iget()
+returns a bad inode. However, if iget the boot loader inode, allows a bad
+inode to be returned, because the inode may not be initialized. This
+mechanism can be used to bypass some checks and cause panic. To solve this
+problem, we add a special iget flag EXT4_IGET_BAD. Only with this flag
+we'd be returning bad inode from ext4_iget(), otherwise we always return
+the error code if the inode is bad inode.(suggested by Jan Kara)
 
-Found via KCSAN.
-
-Fixes: 28df0988815f ("SUNRPC: Use RMW bitops in single-threaded hot paths")
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221026042310.3839669-4-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4proc.c                       |    7 +++----
- fs/nfsd/nfs4xdr.c                        |    2 +-
- net/sunrpc/auth_gss/svcauth_gss.c        |    4 ++--
- net/sunrpc/svc.c                         |    6 +++---
- net/sunrpc/svc_xprt.c                    |    2 +-
- net/sunrpc/svcsock.c                     |    8 ++++----
- net/sunrpc/xprtrdma/svc_rdma_transport.c |    2 +-
- 7 files changed, 15 insertions(+), 16 deletions(-)
+ fs/ext4/ext4.h  |    3 ++-
+ fs/ext4/inode.c |    8 +++++++-
+ fs/ext4/ioctl.c |    3 ++-
+ 3 files changed, 11 insertions(+), 3 deletions(-)
 
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -928,7 +928,7 @@ nfsd4_read(struct svc_rqst *rqstp, struc
- 	 * the client wants us to do more in this compound:
- 	 */
- 	if (!nfsd4_last_compound_op(rqstp))
--		__clear_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
-+		clear_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -2842,7 +2842,8 @@ int do_journal_get_write_access(handle_t
+ typedef enum {
+ 	EXT4_IGET_NORMAL =	0,
+ 	EXT4_IGET_SPECIAL =	0x0001, /* OK to iget a system inode */
+-	EXT4_IGET_HANDLE = 	0x0002	/* Inode # is from a handle */
++	EXT4_IGET_HANDLE = 	0x0002,	/* Inode # is from a handle */
++	EXT4_IGET_BAD =		0x0004  /* Allow to iget a bad inode */
+ } ext4_iget_flags;
  
- 	/* check stateid */
- 	status = nfs4_preprocess_stateid_op(rqstp, cstate, &cstate->current_fh,
-@@ -2615,12 +2615,11 @@ nfsd4_proc_compound(struct svc_rqst *rqs
- 	cstate->minorversion = args->minorversion;
- 	fh_init(current_fh, NFS4_FHSIZE);
- 	fh_init(save_fh, NFS4_FHSIZE);
--
- 	/*
- 	 * Don't use the deferral mechanism for NFSv4; compounds make it
- 	 * too hard to avoid non-idempotency problems.
- 	 */
--	__clear_bit(RQ_USEDEFERRAL, &rqstp->rq_flags);
-+	clear_bit(RQ_USEDEFERRAL, &rqstp->rq_flags);
+ extern struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4969,8 +4969,14 @@ struct inode *__ext4_iget(struct super_b
+ 	if (IS_CASEFOLDED(inode) && !ext4_has_feature_casefold(inode->i_sb))
+ 		ext4_error_inode(inode, function, line, 0,
+ 				 "casefold flag without casefold feature");
+-	brelse(iloc.bh);
++	if (is_bad_inode(inode) && !(flags & EXT4_IGET_BAD)) {
++		ext4_error_inode(inode, function, line, 0,
++				 "bad inode without EXT4_IGET_BAD flag");
++		ret = -EUCLEAN;
++		goto bad_inode;
++	}
  
- 	/*
- 	 * According to RFC3010, this takes precedence over all other errors.
-@@ -2742,7 +2741,7 @@ encode_op:
- out:
- 	cstate->status = status;
- 	/* Reset deferral mechanism for RPC deferrals */
--	__set_bit(RQ_USEDEFERRAL, &rqstp->rq_flags);
-+	set_bit(RQ_USEDEFERRAL, &rqstp->rq_flags);
- 	return rpc_success;
- }
++	brelse(iloc.bh);
+ 	unlock_new_inode(inode);
+ 	return inode;
  
---- a/fs/nfsd/nfs4xdr.c
-+++ b/fs/nfsd/nfs4xdr.c
-@@ -2464,7 +2464,7 @@ nfsd4_decode_compound(struct nfsd4_compo
- 	argp->rqstp->rq_cachetype = cachethis ? RC_REPLBUFF : RC_NOCACHE;
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -121,7 +121,8 @@ static long swap_inode_boot_loader(struc
+ 	blkcnt_t blocks;
+ 	unsigned short bytes;
  
- 	if (readcount > 1 || max_reply > PAGE_SIZE - auth_slack)
--		__clear_bit(RQ_SPLICE_OK, &argp->rqstp->rq_flags);
-+		clear_bit(RQ_SPLICE_OK, &argp->rqstp->rq_flags);
- 
- 	return true;
- }
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -900,7 +900,7 @@ unwrap_integ_data(struct svc_rqst *rqstp
- 	 * rejecting the server-computed MIC in this somewhat rare case,
- 	 * do not use splice with the GSS integrity service.
- 	 */
--	__clear_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
-+	clear_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
- 
- 	/* Did we already verify the signature on the original pass through? */
- 	if (rqstp->rq_deferred)
-@@ -972,7 +972,7 @@ unwrap_priv_data(struct svc_rqst *rqstp,
- 	int pad, remaining_len, offset;
- 	u32 rseqno;
- 
--	__clear_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
-+	clear_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
- 
- 	priv_len = svc_getnl(&buf->head[0]);
- 	if (rqstp->rq_deferred) {
---- a/net/sunrpc/svc.c
-+++ b/net/sunrpc/svc.c
-@@ -1244,10 +1244,10 @@ svc_process_common(struct svc_rqst *rqst
- 		goto err_short_len;
- 
- 	/* Will be turned off by GSS integrity and privacy services */
--	__set_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
-+	set_bit(RQ_SPLICE_OK, &rqstp->rq_flags);
- 	/* Will be turned off only when NFSv4 Sessions are used */
--	__set_bit(RQ_USEDEFERRAL, &rqstp->rq_flags);
--	__clear_bit(RQ_DROPME, &rqstp->rq_flags);
-+	set_bit(RQ_USEDEFERRAL, &rqstp->rq_flags);
-+	clear_bit(RQ_DROPME, &rqstp->rq_flags);
- 
- 	svc_putu32(resv, rqstp->rq_xid);
- 
---- a/net/sunrpc/svc_xprt.c
-+++ b/net/sunrpc/svc_xprt.c
-@@ -1238,7 +1238,7 @@ static struct cache_deferred_req *svc_de
- 	trace_svc_defer(rqstp);
- 	svc_xprt_get(rqstp->rq_xprt);
- 	dr->xprt = rqstp->rq_xprt;
--	__set_bit(RQ_DROPME, &rqstp->rq_flags);
-+	set_bit(RQ_DROPME, &rqstp->rq_flags);
- 
- 	dr->handle.revisit = svc_revisit;
- 	return &dr->handle;
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -298,9 +298,9 @@ static void svc_sock_setbufsize(struct s
- static void svc_sock_secure_port(struct svc_rqst *rqstp)
- {
- 	if (svc_port_is_privileged(svc_addr(rqstp)))
--		__set_bit(RQ_SECURE, &rqstp->rq_flags);
-+		set_bit(RQ_SECURE, &rqstp->rq_flags);
- 	else
--		__clear_bit(RQ_SECURE, &rqstp->rq_flags);
-+		clear_bit(RQ_SECURE, &rqstp->rq_flags);
- }
- 
- /*
-@@ -1008,9 +1008,9 @@ static int svc_tcp_recvfrom(struct svc_r
- 	rqstp->rq_xprt_ctxt   = NULL;
- 	rqstp->rq_prot	      = IPPROTO_TCP;
- 	if (test_bit(XPT_LOCAL, &svsk->sk_xprt.xpt_flags))
--		__set_bit(RQ_LOCAL, &rqstp->rq_flags);
-+		set_bit(RQ_LOCAL, &rqstp->rq_flags);
- 	else
--		__clear_bit(RQ_LOCAL, &rqstp->rq_flags);
-+		clear_bit(RQ_LOCAL, &rqstp->rq_flags);
- 
- 	p = (__be32 *)rqstp->rq_arg.head[0].iov_base;
- 	calldir = p[1];
---- a/net/sunrpc/xprtrdma/svc_rdma_transport.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_transport.c
-@@ -602,7 +602,7 @@ static int svc_rdma_has_wspace(struct sv
- 
- static void svc_rdma_secure_port(struct svc_rqst *rqstp)
- {
--	__set_bit(RQ_SECURE, &rqstp->rq_flags);
-+	set_bit(RQ_SECURE, &rqstp->rq_flags);
- }
- 
- static void svc_rdma_kill_temp_xprt(struct svc_xprt *xprt)
+-	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO, EXT4_IGET_SPECIAL);
++	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO,
++			EXT4_IGET_SPECIAL | EXT4_IGET_BAD);
+ 	if (IS_ERR(inode_bl))
+ 		return PTR_ERR(inode_bl);
+ 	ei_bl = EXT4_I(inode_bl);
 
 
