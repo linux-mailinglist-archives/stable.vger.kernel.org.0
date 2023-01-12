@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6B966762A
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE17F66762D
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:29:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237504AbjALO3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:29:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48336 "EHLO
+        id S235889AbjALO3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:29:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237697AbjALO2q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:28:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FC134FD4D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:19:52 -0800 (PST)
+        with ESMTP id S236786AbjALO3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 760775471B
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:20:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 93857CE1E71
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:19:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62584C433F0;
-        Thu, 12 Jan 2023 14:19:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26965B81E6A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:20:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51CEBC433EF;
+        Thu, 12 Jan 2023 14:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533188;
-        bh=3ETE1U0t80NzKGVHPq8+nEs344UVsKftAmW+J3Y0ys8=;
+        s=korg; t=1673533200;
+        bh=gyBhnramqUSu241TTdP51oe9EGiewfLHa2i3Mmzwtak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZaTPcg0vQfhs9vryMsnrc/KaezxtxZof/axjXu/3mZ87L59u7VSDBmTT5ah29N4hj
-         JnFRdL2TqVXAadAfKr8TCQpUWJIBOu8wUa1ON1KavLtMfsAOMtRC71kqij0agEGBcy
-         4WlTzTAqpmWArUIKPvYKUQpettYWvZcHxqcquyqo=
+        b=g3toc57wUNF0vJtzHonVrhPcaCoKINUjI0sWclk0+GvJcGxFLZoboEnFdLwPgYOCD
+         9onka1V9w9Zcvr4a3hEyK2gPbs8eRoAGpfqkp75v3nwVMM7SIbop+9FpJjukKoIWMY
+         LJc7Vkocx0NYH/W3VG6qML9KpLanYCodL84R2NIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 371/783] iio: adis: stylistic changes
-Date:   Thu, 12 Jan 2023 14:51:27 +0100
-Message-Id: <20230112135541.538311196@linuxfoundation.org>
+Subject: [PATCH 5.10 372/783] iio:imu:adis: Move exports into IIO_ADISLIB namespace
+Date:   Thu, 12 Jan 2023 14:51:28 +0100
+Message-Id: <20230112135541.580676099@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,429 +56,252 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit c39010ea6ba13bdf0003bd353e1d4c663aaac0a8 ]
+[ Upstream commit 6c9304d6af122f9afea41885ad82ed627e9442a8 ]
 
-Minor stylistic changes to address checkptach complains when called with
-'--strict'.
+In order to avoid unneessary pollution of the global symbol namespace
+move the common/library functions into a specific namespace and import
+that into the various specific device drivers that use them.
 
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220122130905.99-3-nuno.sa@analog.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Song Bao Hua (Barry Song) <song.bao.hua@hisilicon.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220130205701.334592-9-jic23@kernel.org
 Stable-dep-of: 99c05e4283a1 ("iio: adis: add '__adis_enable_irq()' implementation")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/adis.c         | 47 +++++++++++++++++----------------
- drivers/iio/imu/adis_buffer.c  |  6 ++---
- drivers/iio/imu/adis_trigger.c |  3 +--
- include/linux/iio/imu/adis.h   | 48 ++++++++++++++++++----------------
- 4 files changed, 54 insertions(+), 50 deletions(-)
+ drivers/iio/accel/adis16201.c         |  1 +
+ drivers/iio/accel/adis16209.c         |  1 +
+ drivers/iio/gyro/adis16136.c          |  1 +
+ drivers/iio/gyro/adis16260.c          |  1 +
+ drivers/iio/imu/adis.c                | 20 ++++++++++----------
+ drivers/iio/imu/adis16400.c           |  1 +
+ drivers/iio/imu/adis16460.c           |  1 +
+ drivers/iio/imu/adis16475.c           |  1 +
+ drivers/iio/imu/adis16480.c           |  1 +
+ drivers/iio/imu/adis_buffer.c         |  4 ++--
+ drivers/iio/imu/adis_trigger.c        |  2 +-
+ drivers/staging/iio/accel/adis16203.c |  1 +
+ drivers/staging/iio/accel/adis16240.c |  1 +
+ 13 files changed, 23 insertions(+), 13 deletions(-)
 
+diff --git a/drivers/iio/accel/adis16201.c b/drivers/iio/accel/adis16201.c
+index 84bbdfd2f2ba..b4ae4f86da3e 100644
+--- a/drivers/iio/accel/adis16201.c
++++ b/drivers/iio/accel/adis16201.c
+@@ -304,3 +304,4 @@ MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
+ MODULE_DESCRIPTION("Analog Devices ADIS16201 Dual-Axis Digital Inclinometer and Accelerometer");
+ MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("spi:adis16201");
++MODULE_IMPORT_NS(IIO_ADISLIB);
+diff --git a/drivers/iio/accel/adis16209.c b/drivers/iio/accel/adis16209.c
+index 4a841aec6268..e6e465f397d9 100644
+--- a/drivers/iio/accel/adis16209.c
++++ b/drivers/iio/accel/adis16209.c
+@@ -314,3 +314,4 @@ MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
+ MODULE_DESCRIPTION("Analog Devices ADIS16209 Dual-Axis Digital Inclinometer and Accelerometer");
+ MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("spi:adis16209");
++MODULE_IMPORT_NS(IIO_ADISLIB);
+diff --git a/drivers/iio/gyro/adis16136.c b/drivers/iio/gyro/adis16136.c
+index a11ae9db0d11..74db8edb4283 100644
+--- a/drivers/iio/gyro/adis16136.c
++++ b/drivers/iio/gyro/adis16136.c
+@@ -599,3 +599,4 @@ module_spi_driver(adis16136_driver);
+ MODULE_AUTHOR("Lars-Peter Clausen <lars@metafoo.de>");
+ MODULE_DESCRIPTION("Analog Devices ADIS16133/ADIS16135/ADIS16136 gyroscope driver");
+ MODULE_LICENSE("GPL v2");
++MODULE_IMPORT_NS(IIO_ADISLIB);
+diff --git a/drivers/iio/gyro/adis16260.c b/drivers/iio/gyro/adis16260.c
+index e7c9a3e31c45..1e45d93de5b7 100644
+--- a/drivers/iio/gyro/adis16260.c
++++ b/drivers/iio/gyro/adis16260.c
+@@ -438,3 +438,4 @@ module_spi_driver(adis16260_driver);
+ MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
+ MODULE_DESCRIPTION("Analog Devices ADIS16260/5 Digital Gyroscope Sensor");
+ MODULE_LICENSE("GPL v2");
++MODULE_IMPORT_NS(IIO_ADISLIB);
 diff --git a/drivers/iio/imu/adis.c b/drivers/iio/imu/adis.c
-index 5fcf269e98a6..54d1084f13d0 100644
+index 54d1084f13d0..b0a426053c20 100644
 --- a/drivers/iio/imu/adis.c
 +++ b/drivers/iio/imu/adis.c
-@@ -34,8 +34,8 @@
-  * @value: The value to write to device (up to 4 bytes)
-  * @size: The size of the @value (in bytes)
-  */
--int __adis_write_reg(struct adis *adis, unsigned int reg,
--	unsigned int value, unsigned int size)
-+int __adis_write_reg(struct adis *adis, unsigned int reg, unsigned int value,
-+		     unsigned int size)
- {
- 	unsigned int page = reg / ADIS_PAGE_SIZE;
- 	int ret, i;
-@@ -118,7 +118,7 @@ int __adis_write_reg(struct adis *adis, unsigned int reg,
- 	ret = spi_sync(adis->spi, &msg);
- 	if (ret) {
- 		dev_err(&adis->spi->dev, "Failed to write register 0x%02X: %d\n",
--				reg, ret);
-+			reg, ret);
- 	} else {
- 		adis->current_page = page;
- 	}
-@@ -134,8 +134,8 @@ EXPORT_SYMBOL_GPL(__adis_write_reg);
-  * @val: The value read back from the device
-  * @size: The size of the @val buffer
-  */
--int __adis_read_reg(struct adis *adis, unsigned int reg,
--	unsigned int *val, unsigned int size)
-+int __adis_read_reg(struct adis *adis, unsigned int reg, unsigned int *val,
-+		    unsigned int size)
- {
- 	unsigned int page = reg / ADIS_PAGE_SIZE;
- 	struct spi_message msg;
-@@ -205,12 +205,12 @@ int __adis_read_reg(struct adis *adis, unsigned int reg,
- 	ret = spi_sync(adis->spi, &msg);
- 	if (ret) {
- 		dev_err(&adis->spi->dev, "Failed to read register 0x%02X: %d\n",
--				reg, ret);
-+			reg, ret);
- 		return ret;
--	} else {
--		adis->current_page = page;
- 	}
+@@ -125,7 +125,7 @@ int __adis_write_reg(struct adis *adis, unsigned int reg, unsigned int value,
  
-+	adis->current_page = page;
-+
- 	switch (size) {
- 	case 4:
- 		*val = get_unaligned_be32(adis->rx);
-@@ -251,13 +251,13 @@ EXPORT_SYMBOL_GPL(__adis_update_bits_base);
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(__adis_write_reg);
++EXPORT_SYMBOL_NS_GPL(__adis_write_reg, IIO_ADISLIB);
+ 
+ /**
+  * __adis_read_reg() - read N bytes from register (unlocked version)
+@@ -222,7 +222,7 @@ int __adis_read_reg(struct adis *adis, unsigned int reg, unsigned int *val,
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(__adis_read_reg);
++EXPORT_SYMBOL_NS_GPL(__adis_read_reg, IIO_ADISLIB);
+ /**
+  * __adis_update_bits_base() - ADIS Update bits function - Unlocked version
+  * @adis: The adis device
+@@ -247,7 +247,7 @@ int __adis_update_bits_base(struct adis *adis, unsigned int reg, const u32 mask,
+ 
+ 	return __adis_write_reg(adis, reg, __val, size);
+ }
+-EXPORT_SYMBOL_GPL(__adis_update_bits_base);
++EXPORT_SYMBOL_NS_GPL(__adis_update_bits_base, IIO_ADISLIB);
  
  #ifdef CONFIG_DEBUG_FS
  
--int adis_debugfs_reg_access(struct iio_dev *indio_dev,
--	unsigned int reg, unsigned int writeval, unsigned int *readval)
-+int adis_debugfs_reg_access(struct iio_dev *indio_dev, unsigned int reg,
-+			    unsigned int writeval, unsigned int *readval)
- {
- 	struct adis *adis = iio_device_get_drvdata(indio_dev);
+@@ -269,7 +269,7 @@ int adis_debugfs_reg_access(struct iio_dev *indio_dev, unsigned int reg,
  
- 	if (readval) {
--		uint16_t val16;
-+		u16 val16;
- 		int ret;
- 
- 		ret = adis_read_reg_16(adis, reg, &val16);
-@@ -265,9 +265,9 @@ int adis_debugfs_reg_access(struct iio_dev *indio_dev,
- 			*readval = val16;
- 
- 		return ret;
--	} else {
--		return adis_write_reg_16(adis, reg, writeval);
- 	}
-+
-+	return adis_write_reg_16(adis, reg, writeval);
+ 	return adis_write_reg_16(adis, reg, writeval);
  }
- EXPORT_SYMBOL(adis_debugfs_reg_access);
+-EXPORT_SYMBOL(adis_debugfs_reg_access);
++EXPORT_SYMBOL_NS(adis_debugfs_reg_access, IIO_ADISLIB);
  
-@@ -283,14 +283,16 @@ EXPORT_SYMBOL(adis_debugfs_reg_access);
- int adis_enable_irq(struct adis *adis, bool enable)
+ #endif
+ 
+@@ -318,7 +318,7 @@ int adis_enable_irq(struct adis *adis, bool enable)
+ 	mutex_unlock(&adis->state_lock);
+ 	return ret;
+ }
+-EXPORT_SYMBOL(adis_enable_irq);
++EXPORT_SYMBOL_NS(adis_enable_irq, IIO_ADISLIB);
+ 
+ /**
+  * __adis_check_status() - Check the device for error conditions (unlocked)
+@@ -350,7 +350,7 @@ int __adis_check_status(struct adis *adis)
+ 
+ 	return -EIO;
+ }
+-EXPORT_SYMBOL_GPL(__adis_check_status);
++EXPORT_SYMBOL_NS_GPL(__adis_check_status, IIO_ADISLIB);
+ 
+ /**
+  * __adis_reset() - Reset the device (unlocked version)
+@@ -374,7 +374,7 @@ int __adis_reset(struct adis *adis)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(__adis_reset);
++EXPORT_SYMBOL_NS_GPL(__adis_reset, IIO_ADIS_LIB);
+ 
+ static int adis_self_test(struct adis *adis)
  {
- 	int ret = 0;
--	uint16_t msc;
-+	u16 msc;
+@@ -465,7 +465,7 @@ int __adis_initial_startup(struct adis *adis)
  
- 	mutex_lock(&adis->state_lock);
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(__adis_initial_startup);
++EXPORT_SYMBOL_NS_GPL(__adis_initial_startup, IIO_ADISLIB);
  
- 	if (adis->data->enable_irq) {
- 		ret = adis->data->enable_irq(adis, enable);
- 		goto out_unlock;
--	} else if (adis->data->unmasked_drdy) {
-+	}
-+
-+	if (adis->data->unmasked_drdy) {
- 		if (enable)
- 			enable_irq(adis->spi->irq);
- 		else
-@@ -326,7 +328,7 @@ EXPORT_SYMBOL(adis_enable_irq);
-  */
- int __adis_check_status(struct adis *adis)
- {
--	uint16_t status;
-+	u16 status;
- 	int ret;
- 	int i;
+ /**
+  * adis_single_conversion() - Performs a single sample conversion
+@@ -513,7 +513,7 @@ int adis_single_conversion(struct iio_dev *indio_dev,
+ 	mutex_unlock(&adis->state_lock);
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(adis_single_conversion);
++EXPORT_SYMBOL_NS_GPL(adis_single_conversion, IIO_ADISLIB);
  
-@@ -362,7 +364,7 @@ int __adis_reset(struct adis *adis)
- 	const struct adis_timeout *timeouts = adis->data->timeouts;
+ /**
+  * adis_init() - Initialize adis device structure
+@@ -550,7 +550,7 @@ int adis_init(struct adis *adis, struct iio_dev *indio_dev,
  
- 	ret = __adis_write_reg_8(adis, adis->data->glob_cmd_reg,
--			ADIS_GLOB_CMD_SW_RESET);
-+				 ADIS_GLOB_CMD_SW_RESET);
- 	if (ret) {
- 		dev_err(&adis->spi->dev, "Failed to reset device: %d\n", ret);
- 		return ret;
-@@ -418,7 +420,7 @@ int __adis_initial_startup(struct adis *adis)
- {
- 	const struct adis_timeout *timeouts = adis->data->timeouts;
- 	struct gpio_desc *gpio;
--	uint16_t prod_id;
-+	u16 prod_id;
- 	int ret;
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(adis_init);
++EXPORT_SYMBOL_NS_GPL(adis_init, IIO_ADISLIB);
  
- 	/* check if the device has rst pin low */
-@@ -427,7 +429,7 @@ int __adis_initial_startup(struct adis *adis)
- 		return PTR_ERR(gpio);
- 
- 	if (gpio) {
--		msleep(10);
-+		usleep_range(10, 12);
- 		/* bring device out of reset */
- 		gpiod_set_value_cansleep(gpio, 0);
- 		msleep(timeouts->reset_ms);
-@@ -481,7 +483,8 @@ EXPORT_SYMBOL_GPL(__adis_initial_startup);
-  * a error bit in the channels raw value set error_mask to 0.
-  */
- int adis_single_conversion(struct iio_dev *indio_dev,
--	const struct iio_chan_spec *chan, unsigned int error_mask, int *val)
-+			   const struct iio_chan_spec *chan,
-+			   unsigned int error_mask, int *val)
- {
- 	struct adis *adis = iio_device_get_drvdata(indio_dev);
- 	unsigned int uval;
-@@ -490,7 +493,7 @@ int adis_single_conversion(struct iio_dev *indio_dev,
- 	mutex_lock(&adis->state_lock);
- 
- 	ret = __adis_read_reg(adis, chan->address, &uval,
--			chan->scan_type.storagebits / 8);
-+			      chan->scan_type.storagebits / 8);
- 	if (ret)
- 		goto err_unlock;
- 
-@@ -525,7 +528,7 @@ EXPORT_SYMBOL_GPL(adis_single_conversion);
-  * called.
-  */
- int adis_init(struct adis *adis, struct iio_dev *indio_dev,
--	struct spi_device *spi, const struct adis_data *data)
-+	      struct spi_device *spi, const struct adis_data *data)
- {
- 	if (!data || !data->timeouts) {
- 		dev_err(&spi->dev, "No config data or timeouts not defined!\n");
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Lars-Peter Clausen <lars@metafoo.de>");
+diff --git a/drivers/iio/imu/adis16400.c b/drivers/iio/imu/adis16400.c
+index 4aff16466da0..c5255116954a 100644
+--- a/drivers/iio/imu/adis16400.c
++++ b/drivers/iio/imu/adis16400.c
+@@ -1252,3 +1252,4 @@ module_spi_driver(adis16400_driver);
+ MODULE_AUTHOR("Manuel Stahl <manuel.stahl@iis.fraunhofer.de>");
+ MODULE_DESCRIPTION("Analog Devices ADIS16400/5 IMU SPI driver");
+ MODULE_LICENSE("GPL v2");
++MODULE_IMPORT_NS(IIO_ADISLIB);
+diff --git a/drivers/iio/imu/adis16460.c b/drivers/iio/imu/adis16460.c
+index 73bf45e859b8..a28143a19d3a 100644
+--- a/drivers/iio/imu/adis16460.c
++++ b/drivers/iio/imu/adis16460.c
+@@ -447,3 +447,4 @@ module_spi_driver(adis16460_driver);
+ MODULE_AUTHOR("Dragos Bogdan <dragos.bogdan@analog.com>");
+ MODULE_DESCRIPTION("Analog Devices ADIS16460 IMU driver");
+ MODULE_LICENSE("GPL");
++MODULE_IMPORT_NS(IIO_ADISLIB);
+diff --git a/drivers/iio/imu/adis16475.c b/drivers/iio/imu/adis16475.c
+index 8ab88ba4892c..aed1cf3bfa13 100644
+--- a/drivers/iio/imu/adis16475.c
++++ b/drivers/iio/imu/adis16475.c
+@@ -1324,3 +1324,4 @@ module_spi_driver(adis16475_driver);
+ MODULE_AUTHOR("Nuno Sa <nuno.sa@analog.com>");
+ MODULE_DESCRIPTION("Analog Devices ADIS16475 IMU driver");
+ MODULE_LICENSE("GPL");
++MODULE_IMPORT_NS(IIO_ADISLIB);
+diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
+index dfe86c589325..c6a3d9a04fce 100644
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -1340,3 +1340,4 @@ module_spi_driver(adis16480_driver);
+ MODULE_AUTHOR("Lars-Peter Clausen <lars@metafoo.de>");
+ MODULE_DESCRIPTION("Analog Devices ADIS16480 IMU driver");
+ MODULE_LICENSE("GPL v2");
++MODULE_IMPORT_NS(IIO_ADISLIB);
 diff --git a/drivers/iio/imu/adis_buffer.c b/drivers/iio/imu/adis_buffer.c
-index 175af154e443..7a7747617fca 100644
+index 7a7747617fca..7cc1145910f6 100644
 --- a/drivers/iio/imu/adis_buffer.c
 +++ b/drivers/iio/imu/adis_buffer.c
-@@ -20,7 +20,7 @@
- #include <linux/iio/imu/adis.h>
+@@ -120,7 +120,7 @@ int adis_update_scan_mode(struct iio_dev *indio_dev,
  
- static int adis_update_scan_mode_burst(struct iio_dev *indio_dev,
--	const unsigned long *scan_mask)
-+				       const unsigned long *scan_mask)
- {
- 	struct adis *adis = iio_device_get_drvdata(indio_dev);
- 	unsigned int burst_length, burst_max_length;
-@@ -63,7 +63,7 @@ static int adis_update_scan_mode_burst(struct iio_dev *indio_dev,
+ 	return 0;
  }
+-EXPORT_SYMBOL_GPL(adis_update_scan_mode);
++EXPORT_SYMBOL_NS_GPL(adis_update_scan_mode, IIO_ADISLIB);
  
- int adis_update_scan_mode(struct iio_dev *indio_dev,
--	const unsigned long *scan_mask)
-+			  const unsigned long *scan_mask)
+ static irqreturn_t adis_trigger_handler(int irq, void *p)
  {
- 	struct adis *adis = iio_device_get_drvdata(indio_dev);
- 	const struct iio_chan_spec *chan;
-@@ -149,7 +149,7 @@ static irqreturn_t adis_trigger_handler(int irq, void *p)
- 	}
- 
- 	iio_push_to_buffers_with_timestamp(indio_dev, adis->buffer,
--		pf->timestamp);
-+					   pf->timestamp);
- 
- 	iio_trigger_notify_done(indio_dev->trig);
+@@ -202,5 +202,5 @@ devm_adis_setup_buffer_and_trigger(struct adis *adis, struct iio_dev *indio_dev,
+ 	return devm_add_action_or_reset(&adis->spi->dev, adis_buffer_cleanup,
+ 					adis);
+ }
+-EXPORT_SYMBOL_GPL(devm_adis_setup_buffer_and_trigger);
++EXPORT_SYMBOL_NS_GPL(devm_adis_setup_buffer_and_trigger, IIO_ADISLIB);
  
 diff --git a/drivers/iio/imu/adis_trigger.c b/drivers/iio/imu/adis_trigger.c
-index 76b0488ef41b..e7f0ee3e7a07 100644
+index e7f0ee3e7a07..80adfa58e50c 100644
 --- a/drivers/iio/imu/adis_trigger.c
 +++ b/drivers/iio/imu/adis_trigger.c
-@@ -15,8 +15,7 @@
- #include <linux/iio/trigger.h>
- #include <linux/iio/imu/adis.h>
+@@ -92,5 +92,5 @@ int devm_adis_probe_trigger(struct adis *adis, struct iio_dev *indio_dev)
  
--static int adis_data_rdy_trigger_set_state(struct iio_trigger *trig,
--						bool state)
-+static int adis_data_rdy_trigger_set_state(struct iio_trigger *trig, bool state)
- {
- 	struct adis *adis = iio_trigger_get_drvdata(trig);
- 
-diff --git a/include/linux/iio/imu/adis.h b/include/linux/iio/imu/adis.h
-index 2ced0c88f481..1b66953573ee 100644
---- a/include/linux/iio/imu/adis.h
-+++ b/include/linux/iio/imu/adis.h
-@@ -32,6 +32,7 @@ struct adis_timeout {
- 	u16 sw_reset_ms;
- 	u16 self_test_ms;
- };
-+
- /**
-  * struct adis_data - ADIS chip variant specific data
-  * @read_delay: SPI delay for read operations in us
-@@ -45,7 +46,7 @@ struct adis_timeout {
-  * @self_test_mask: Bitmask of supported self-test operations
-  * @self_test_reg: Register address to request self test command
-  * @self_test_no_autoclear: True if device's self-test needs clear of ctrl reg
-- * @status_error_msgs: Array of error messgaes
-+ * @status_error_msgs: Array of error messages
-  * @status_error_mask: Bitmask of errors supported by the device
-  * @timeouts: Chip specific delays
-  * @enable_irq: Hook for ADIS devices that have a special IRQ enable/disable
-@@ -128,12 +129,12 @@ struct adis {
- 	unsigned long		irq_flag;
- 	void			*buffer;
- 
--	uint8_t			tx[10] ____cacheline_aligned;
--	uint8_t			rx[4];
-+	u8			tx[10] ____cacheline_aligned;
-+	u8			rx[4];
- };
- 
- int adis_init(struct adis *adis, struct iio_dev *indio_dev,
--	struct spi_device *spi, const struct adis_data *data);
-+	      struct spi_device *spi, const struct adis_data *data);
- int __adis_reset(struct adis *adis);
- 
- /**
-@@ -154,9 +155,9 @@ static inline int adis_reset(struct adis *adis)
+ 	return devm_iio_trigger_register(&adis->spi->dev, adis->trig);
  }
+-EXPORT_SYMBOL_GPL(devm_adis_probe_trigger);
++EXPORT_SYMBOL_NS_GPL(devm_adis_probe_trigger, IIO_ADISLIB);
  
- int __adis_write_reg(struct adis *adis, unsigned int reg,
--	unsigned int val, unsigned int size);
-+		     unsigned int val, unsigned int size);
- int __adis_read_reg(struct adis *adis, unsigned int reg,
--	unsigned int *val, unsigned int size);
-+		    unsigned int *val, unsigned int size);
- 
- /**
-  * __adis_write_reg_8() - Write single byte to a register (unlocked)
-@@ -165,7 +166,7 @@ int __adis_read_reg(struct adis *adis, unsigned int reg,
-  * @value: The value to write
-  */
- static inline int __adis_write_reg_8(struct adis *adis, unsigned int reg,
--	uint8_t val)
-+				     u8 val)
- {
- 	return __adis_write_reg(adis, reg, val, 1);
- }
-@@ -177,7 +178,7 @@ static inline int __adis_write_reg_8(struct adis *adis, unsigned int reg,
-  * @value: Value to be written
-  */
- static inline int __adis_write_reg_16(struct adis *adis, unsigned int reg,
--	uint16_t val)
-+				      u16 val)
- {
- 	return __adis_write_reg(adis, reg, val, 2);
- }
-@@ -189,7 +190,7 @@ static inline int __adis_write_reg_16(struct adis *adis, unsigned int reg,
-  * @value: Value to be written
-  */
- static inline int __adis_write_reg_32(struct adis *adis, unsigned int reg,
--	uint32_t val)
-+				      u32 val)
- {
- 	return __adis_write_reg(adis, reg, val, 4);
- }
-@@ -201,7 +202,7 @@ static inline int __adis_write_reg_32(struct adis *adis, unsigned int reg,
-  * @val: The value read back from the device
-  */
- static inline int __adis_read_reg_16(struct adis *adis, unsigned int reg,
--	uint16_t *val)
-+				     u16 *val)
- {
- 	unsigned int tmp;
- 	int ret;
-@@ -220,7 +221,7 @@ static inline int __adis_read_reg_16(struct adis *adis, unsigned int reg,
-  * @val: The value read back from the device
-  */
- static inline int __adis_read_reg_32(struct adis *adis, unsigned int reg,
--	uint32_t *val)
-+				     u32 *val)
- {
- 	unsigned int tmp;
- 	int ret;
-@@ -240,7 +241,7 @@ static inline int __adis_read_reg_32(struct adis *adis, unsigned int reg,
-  * @size: The size of the @value (in bytes)
-  */
- static inline int adis_write_reg(struct adis *adis, unsigned int reg,
--	unsigned int val, unsigned int size)
-+				 unsigned int val, unsigned int size)
- {
- 	int ret;
- 
-@@ -259,7 +260,7 @@ static inline int adis_write_reg(struct adis *adis, unsigned int reg,
-  * @size: The size of the @val buffer
-  */
- static int adis_read_reg(struct adis *adis, unsigned int reg,
--	unsigned int *val, unsigned int size)
-+			 unsigned int *val, unsigned int size)
- {
- 	int ret;
- 
-@@ -277,7 +278,7 @@ static int adis_read_reg(struct adis *adis, unsigned int reg,
-  * @value: The value to write
-  */
- static inline int adis_write_reg_8(struct adis *adis, unsigned int reg,
--	uint8_t val)
-+				   u8 val)
- {
- 	return adis_write_reg(adis, reg, val, 1);
- }
-@@ -289,7 +290,7 @@ static inline int adis_write_reg_8(struct adis *adis, unsigned int reg,
-  * @value: Value to be written
-  */
- static inline int adis_write_reg_16(struct adis *adis, unsigned int reg,
--	uint16_t val)
-+				    u16 val)
- {
- 	return adis_write_reg(adis, reg, val, 2);
- }
-@@ -301,7 +302,7 @@ static inline int adis_write_reg_16(struct adis *adis, unsigned int reg,
-  * @value: Value to be written
-  */
- static inline int adis_write_reg_32(struct adis *adis, unsigned int reg,
--	uint32_t val)
-+				    u32 val)
- {
- 	return adis_write_reg(adis, reg, val, 4);
- }
-@@ -313,7 +314,7 @@ static inline int adis_write_reg_32(struct adis *adis, unsigned int reg,
-  * @val: The value read back from the device
-  */
- static inline int adis_read_reg_16(struct adis *adis, unsigned int reg,
--	uint16_t *val)
-+				   u16 *val)
- {
- 	unsigned int tmp;
- 	int ret;
-@@ -332,7 +333,7 @@ static inline int adis_read_reg_16(struct adis *adis, unsigned int reg,
-  * @val: The value read back from the device
-  */
- static inline int adis_read_reg_32(struct adis *adis, unsigned int reg,
--	uint32_t *val)
-+				   u32 *val)
- {
- 	unsigned int tmp;
- 	int ret;
-@@ -431,8 +432,8 @@ static inline int adis_initial_startup(struct adis *adis)
- }
- 
- int adis_single_conversion(struct iio_dev *indio_dev,
--	const struct iio_chan_spec *chan, unsigned int error_mask,
--	int *val);
-+			   const struct iio_chan_spec *chan,
-+			   unsigned int error_mask, int *val);
- 
- #define ADIS_VOLTAGE_CHAN(addr, si, chan, name, info_all, bits) { \
- 	.type = IIO_VOLTAGE, \
-@@ -481,7 +482,7 @@ int adis_single_conversion(struct iio_dev *indio_dev,
- 	.modified = 1, \
- 	.channel2 = IIO_MOD_ ## mod, \
- 	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) | \
--		 info_sep, \
-+		 (info_sep), \
- 	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE), \
- 	.info_mask_shared_by_all = info_all, \
- 	.address = (addr), \
-@@ -515,7 +516,7 @@ devm_adis_setup_buffer_and_trigger(struct adis *adis, struct iio_dev *indio_dev,
- int devm_adis_probe_trigger(struct adis *adis, struct iio_dev *indio_dev);
- 
- int adis_update_scan_mode(struct iio_dev *indio_dev,
--	const unsigned long *scan_mask);
-+			  const unsigned long *scan_mask);
- 
- #else /* CONFIG_IIO_BUFFER */
- 
-@@ -539,7 +540,8 @@ static inline int devm_adis_probe_trigger(struct adis *adis,
- #ifdef CONFIG_DEBUG_FS
- 
- int adis_debugfs_reg_access(struct iio_dev *indio_dev,
--	unsigned int reg, unsigned int writeval, unsigned int *readval);
-+			    unsigned int reg, unsigned int writeval,
-+			    unsigned int *readval);
- 
- #else
- 
+diff --git a/drivers/staging/iio/accel/adis16203.c b/drivers/staging/iio/accel/adis16203.c
+index b68304da288b..7be44ff2c943 100644
+--- a/drivers/staging/iio/accel/adis16203.c
++++ b/drivers/staging/iio/accel/adis16203.c
+@@ -318,3 +318,4 @@ MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
+ MODULE_DESCRIPTION("Analog Devices ADIS16203 Programmable 360 Degrees Inclinometer");
+ MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("spi:adis16203");
++MODULE_IMPORT_NS(IIO_ADISLIB);
+diff --git a/drivers/staging/iio/accel/adis16240.c b/drivers/staging/iio/accel/adis16240.c
+index 5064adce5f58..dbbbf81207f9 100644
+--- a/drivers/staging/iio/accel/adis16240.c
++++ b/drivers/staging/iio/accel/adis16240.c
+@@ -445,3 +445,4 @@ MODULE_AUTHOR("Barry Song <21cnbao@gmail.com>");
+ MODULE_DESCRIPTION("Analog Devices Programmable Impact Sensor and Recorder");
+ MODULE_LICENSE("GPL v2");
+ MODULE_ALIAS("spi:adis16240");
++MODULE_IMPORT_NS(IIO_ADISLIB);
 -- 
 2.35.1
 
