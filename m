@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EADDB66763A
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD3066763B
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237467AbjALOaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:30:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48996 "EHLO
+        id S232930AbjALOaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:30:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232930AbjALO3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B205D8AA
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:20:39 -0800 (PST)
+        with ESMTP id S237441AbjALO3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 499D85D886
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:20:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C352B81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:20:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8DB7C433EF;
-        Thu, 12 Jan 2023 14:20:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAC8260A69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:20:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB88EC433EF;
+        Thu, 12 Jan 2023 14:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533237;
-        bh=iipozZfwKxuvFHMN2/LylZ200fRqCNZUPm8J4aIeik0=;
+        s=korg; t=1673533240;
+        bh=qvLxVIkTCA8qi3vJUP5FmTA1bykLuez+5lxE/sGG6pM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4qzTt2M2dLOlSpeycoXkMZo7dBfsvkkotOPuHynCamrojNRgBv4cWMW0ieoYAXRK
-         FeaAOdVFTNrCcSf9Nrc/2pBEqL1JBAycq5JXtaDK0l15SBywRwMmlNjiiEvLHWJfk7
-         fRHmHhUhX+dEY+rixxQCLS77bj84w/kD3theEti0=
+        b=qOId/rKu1R11tVdoePofGMSzkscFnsyPwYI92zn1RJ94s7LWlSGCv85YPLe5q3BbL
+         7IPAp2y3G06lE5OwNH00LW5gccC70SpH1ZCGW2MXDfLmQkriN1DhE5ammdAV0uFoFg
+         AQUxq/Sm80TMWSPqX5nSZbxX7/Fr4MIXK+zM6ar4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matt Redfearn <matt.redfearn@mips.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        =?UTF-8?q?Petr=20Van=C4=9Bk?= <arkamar@atlas.cz>,
+        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 414/783] include/uapi/linux/swab: Fix potentially missing __always_inline
-Date:   Thu, 12 Jan 2023 14:52:10 +0100
-Message-Id: <20230112135543.504734499@linuxfoundation.org>
+Subject: [PATCH 5.10 415/783] pwm: tegra: Improve required rate calculation
+Date:   Thu, 12 Jan 2023 14:52:11 +0100
+Message-Id: <20230112135543.552388480@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -56,59 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Redfearn <matt.redfearn@mips.com>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit defbab270d45e32b068e7e73c3567232d745c60f ]
+[ Upstream commit f271946117dde2ca8741b8138b347b2d68e6ad56 ]
 
-Commit bc27fb68aaad ("include/uapi/linux/byteorder, swab: force inlining
-of some byteswap operations") added __always_inline to swab functions
-and commit 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to
-userspace headers") added a definition of __always_inline for use in
-exported headers when the kernel's compiler.h is not available.
+For the case where dev_pm_opp_set_rate() is called to set the PWM clock
+rate, the requested rate is calculated as ...
 
-However, since swab.h does not include stddef.h, if the header soup does
-not indirectly include it, the definition of __always_inline is missing,
-resulting in a compilation failure, which was observed compiling the
-perf tool using exported headers containing this commit:
+ required_clk_rate = (NSEC_PER_SEC / period_ns) << PWM_DUTY_WIDTH;
 
-In file included from /usr/include/linux/byteorder/little_endian.h:12:0,
-                 from /usr/include/asm/byteorder.h:14,
-                 from tools/include/uapi/linux/perf_event.h:20,
-                 from perf.h:8,
-                 from builtin-bench.c:18:
-/usr/include/linux/swab.h:160:8: error: unknown type name `__always_inline'
- static __always_inline __u16 __swab16p(const __u16 *p)
+The above calculation may lead to rounding errors because the
+NSEC_PER_SEC is divided by 'period_ns' before applying the
+PWM_DUTY_WIDTH multiplication factor. For example, if the period is
+45334ns, the above calculation yields a rate of 5646848Hz instead of
+5646976Hz. Fix this by applying the multiplication factor before
+dividing and using the DIV_ROUND_UP macro which yields the expected
+result of 5646976Hz.
 
-Fix this by replacing the inclusion of linux/compiler.h with
-linux/stddef.h to ensure that we pick up that definition if required,
-without relying on it's indirect inclusion. compiler.h is then included
-indirectly, via stddef.h.
-
-Fixes: 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to userspace headers")
-Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Petr Vaněk <arkamar@atlas.cz>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 1d7796bdb63a ("pwm: tegra: Support dynamic clock frequency configuration")
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/swab.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-tegra.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/swab.h b/include/uapi/linux/swab.h
-index 7272f85d6d6a..3736f2fe1541 100644
---- a/include/uapi/linux/swab.h
-+++ b/include/uapi/linux/swab.h
-@@ -3,7 +3,7 @@
- #define _UAPI_LINUX_SWAB_H
+diff --git a/drivers/pwm/pwm-tegra.c b/drivers/pwm/pwm-tegra.c
+index 8c4e6657b61e..36cc1452cb7a 100644
+--- a/drivers/pwm/pwm-tegra.c
++++ b/drivers/pwm/pwm-tegra.c
+@@ -142,8 +142,8 @@ static int tegra_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+ 		 * source clock rate as required_clk_rate, PWM controller will
+ 		 * be able to configure the requested period.
+ 		 */
+-		required_clk_rate =
+-			(NSEC_PER_SEC / period_ns) << PWM_DUTY_WIDTH;
++		required_clk_rate = DIV_ROUND_UP_ULL(NSEC_PER_SEC << PWM_DUTY_WIDTH,
++						     period_ns);
  
- #include <linux/types.h>
--#include <linux/compiler.h>
-+#include <linux/stddef.h>
- #include <asm/bitsperlong.h>
- #include <asm/swab.h>
- 
+ 		err = clk_set_rate(pc->clk, required_clk_rate);
+ 		if (err < 0)
 -- 
 2.35.1
 
