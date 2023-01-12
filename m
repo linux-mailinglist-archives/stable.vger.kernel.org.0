@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99C13667650
+	by mail.lfdr.de (Postfix) with ESMTP id E5EAA667651
 	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237216AbjALOak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237205AbjALOak (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 12 Jan 2023 09:30:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48328 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237412AbjALOaF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:05 -0500
+        with ESMTP id S237253AbjALOaL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF1A58FA0
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 446635DE45
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12C7262030
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25F62C433D2;
-        Thu, 12 Jan 2023 14:21:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1700F61FCB
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22B18C433D2;
+        Thu, 12 Jan 2023 14:21:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533280;
-        bh=Bc1eUI1kKP9fjBGjAy5LJ4KOESeJp26YxdieRxUed4E=;
+        s=korg; t=1673533283;
+        bh=8Q+Cdh3Y1a7og7RPlpvQqbG6L3MIUPE64LOAVaz6VCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kAgqjPvFCZRed3sENnMtyqBYD7SRkda4YhQoJCvGpLIdI8N8kGpA+LMxWb7pTfwyW
-         zMm8HuHk9rKbDVx+iiCMWjVISoZN5siXDrJgCvlWyP3ObRGDv/ZNVtrJa26NRFiCJj
-         uO7eV01VXpS8kWOhOWXYaexVuYS2I7dGxEjM3IVM=
+        b=CCvFUty01GPOZP7rfwQcx4453gpxsbpDInaEuyKsmcd+isrBXto8uPhGBWtTbYjXS
+         09sod2sbhmaFWhze8Zj0Yh2Qo6YsGJdd34WTC4ODqONtECoWz71aWUPhQPMBZRBXqT
+         g6QEMG+CgMgr8i3ZplxOvMr6MajHXWXXyPAnRIPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 427/783] rtc: pcf85063: Fix reading alarm
-Date:   Thu, 12 Jan 2023 14:52:23 +0100
-Message-Id: <20230112135544.108224765@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 428/783] iommu/amd: Fix pci device refcount leak in ppr_notifier()
+Date:   Thu, 12 Jan 2023 14:52:24 +0100
+Message-Id: <20230112135544.149070029@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,44 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@ew.tq-group.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a6ceee26fd5ed9b5bd37322b1ca88e4548cee4a3 ]
+[ Upstream commit 6cf0981c2233f97d56938d9d61845383d6eb227c ]
 
-If the alarms are disabled the topmost bit (AEN_*) is set in the alarm
-registers. This is also interpreted in BCD number leading to this warning:
-rtc rtc0: invalid alarm value: 2022-09-21T80:80:80
+As comment of pci_get_domain_bus_and_slot() says, it returns
+a pci device with refcount increment, when finish using it,
+the caller must decrement the reference count by calling
+pci_dev_put(). So call it before returning from ppr_notifier()
+to avoid refcount leak.
 
-Fix this by masking alarm enabling and reserved bits.
-
-Fixes: 05cb3a56ee8c ("rtc: pcf85063: add alarm support")
-Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Link: https://lore.kernel.org/r/20220921074141.3903104-1-alexander.stein@ew.tq-group.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: daae2d25a477 ("iommu/amd: Don't copy GCR3 table root pointer")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221118093604.216371-1-yangyingliang@huawei.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf85063.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iommu/amd/iommu_v2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 62684ca3a665..d739b0c965aa 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -167,10 +167,10 @@ static int pcf85063_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/iommu/amd/iommu_v2.c b/drivers/iommu/amd/iommu_v2.c
+index fb61bdca4c2c..16776e3c6eab 100644
+--- a/drivers/iommu/amd/iommu_v2.c
++++ b/drivers/iommu/amd/iommu_v2.c
+@@ -587,6 +587,7 @@ static int ppr_notifier(struct notifier_block *nb, unsigned long e, void *data)
+ 	put_device_state(dev_state);
  
--	alrm->time.tm_sec = bcd2bin(buf[0]);
--	alrm->time.tm_min = bcd2bin(buf[1]);
--	alrm->time.tm_hour = bcd2bin(buf[2]);
--	alrm->time.tm_mday = bcd2bin(buf[3]);
-+	alrm->time.tm_sec = bcd2bin(buf[0] & 0x7f);
-+	alrm->time.tm_min = bcd2bin(buf[1] & 0x7f);
-+	alrm->time.tm_hour = bcd2bin(buf[2] & 0x3f);
-+	alrm->time.tm_mday = bcd2bin(buf[3] & 0x3f);
+ out:
++	pci_dev_put(pdev);
+ 	return ret;
+ }
  
- 	ret = regmap_read(pcf85063->regmap, PCF85063_REG_CTRL2, &val);
- 	if (ret)
 -- 
 2.35.1
 
