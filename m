@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D44A6677BB
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:47:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 781DC6677BC
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:47:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239908AbjALOrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:47:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38094 "EHLO
+        id S239920AbjALOrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:47:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239920AbjALOqu (ORCPT
+        with ESMTP id S239940AbjALOqu (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:46:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82B0F63D0D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:35:00 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0BBE63D3D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:35:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CD50B81E7A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:34:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50E9BC43392;
-        Thu, 12 Jan 2023 14:34:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ED1460A69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:35:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FFB4C433F0;
+        Thu, 12 Jan 2023 14:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534097;
-        bh=CZie6Zl/JvCNlAcACEu/WRTvzTyXKgEVE7jRIdiyDxU=;
+        s=korg; t=1673534100;
+        bh=0ckHcNfcbk8cGmccyHvX2f8fYcB2S+urZz46op+FBAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiNBZ9JeUKatmZbhP3v48QK1RBiC+6zX3e14I8SozrC+GKLu44XSK5O84uIMx1LHZ
-         DpoZ5XSFpRPtet084ldls2p+4aEYiewr0nq1FIHIMHMEph42/OS/BEfHpZ5uA4OhgS
-         BJMQqB3lko6aApsdKvIuBDs2ISx80Iq7+cuJRXZk=
+        b=EnpY2QfhDmFxjV3KEN/WkalIyYJIXiMBEYwLsSvD+4RSLCNQo0sN9IcbUV2cQe7L3
+         5nEcrtWxYMktmVQzaEctw/0ick/EUcAplwDRhuUH4rF1wsuYheYxYQ/XDKU57SCfU4
+         R8hSWUo6cwHFbsctcHv2V3LpngFUCTMdjlmN7elk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Borislav Petkov <bp@suse.de>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 693/783] btrfs: replace strncpy() with strscpy()
-Date:   Thu, 12 Jan 2023 14:56:49 +0100
-Message-Id: <20230112135556.434610093@linuxfoundation.org>
+Subject: [PATCH 5.10 694/783] x86/mce: Get rid of msr_ops
+Date:   Thu, 12 Jan 2023 14:56:50 +0100
+Message-Id: <20230112135556.485360670@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,61 +53,292 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 63d5429f68a3d4c4aa27e65a05196c17f86c41d6 ]
+From: Borislav Petkov <bp@suse.de>
 
-Using strncpy() on NUL-terminated strings are deprecated.  To avoid
-possible forming of non-terminated string strscpy() should be used.
+[ Upstream commit 8121b8f947be0033f567619be204639a50cad298 ]
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+Avoid having indirect calls and use a normal function which returns the
+proper MSR address based on ->smca setting.
 
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+No functional changes.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20210922165101.18951-4-bp@alien8.de
+Stable-dep-of: bc1b705b0eee ("x86/MCE/AMD: Clear DFR errors found in THR handler")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c      | 9 +++------
- fs/btrfs/rcu-string.h | 6 +++++-
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ arch/x86/kernel/cpu/mce/amd.c      | 10 ++--
+ arch/x86/kernel/cpu/mce/core.c     | 95 ++++++++++--------------------
+ arch/x86/kernel/cpu/mce/internal.h | 12 ++--
+ 3 files changed, 42 insertions(+), 75 deletions(-)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index a17076a05c4d..fc335b5e44df 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3401,13 +3401,10 @@ static long btrfs_ioctl_dev_info(struct btrfs_fs_info *fs_info,
- 	di_args->bytes_used = btrfs_device_get_bytes_used(dev);
- 	di_args->total_bytes = btrfs_device_get_total_bytes(dev);
- 	memcpy(di_args->uuid, dev->uuid, sizeof(di_args->uuid));
--	if (dev->name) {
--		strncpy(di_args->path, rcu_str_deref(dev->name),
--				sizeof(di_args->path) - 1);
--		di_args->path[sizeof(di_args->path) - 1] = 0;
--	} else {
-+	if (dev->name)
-+		strscpy(di_args->path, rcu_str_deref(dev->name), sizeof(di_args->path));
-+	else
- 		di_args->path[0] = '\0';
--	}
+diff --git a/arch/x86/kernel/cpu/mce/amd.c b/arch/x86/kernel/cpu/mce/amd.c
+index 09f7c652346a..34ebe1aea1c7 100644
+--- a/arch/x86/kernel/cpu/mce/amd.c
++++ b/arch/x86/kernel/cpu/mce/amd.c
+@@ -513,7 +513,7 @@ static u32 get_block_address(u32 current_addr, u32 low, u32 high,
+ 	/* Fall back to method we used for older processors: */
+ 	switch (block) {
+ 	case 0:
+-		addr = msr_ops.misc(bank);
++		addr = mca_msr_reg(bank, MCA_MISC);
+ 		break;
+ 	case 1:
+ 		offset = ((low & MASK_BLKPTR_LO) >> 21);
+@@ -965,8 +965,8 @@ static void log_error_deferred(unsigned int bank)
+ {
+ 	bool defrd;
  
- out:
- 	rcu_read_unlock();
-diff --git a/fs/btrfs/rcu-string.h b/fs/btrfs/rcu-string.h
-index 5c1a617eb25d..5c2b66d155ef 100644
---- a/fs/btrfs/rcu-string.h
-+++ b/fs/btrfs/rcu-string.h
-@@ -18,7 +18,11 @@ static inline struct rcu_string *rcu_string_strdup(const char *src, gfp_t mask)
- 					 (len * sizeof(char)), mask);
- 	if (!ret)
- 		return ret;
--	strncpy(ret->str, src, len);
-+	/* Warn if the source got unexpectedly truncated. */
-+	if (WARN_ON(strscpy(ret->str, src, len) < 0)) {
-+		kfree(ret);
-+		return NULL;
-+	}
- 	return ret;
+-	defrd = _log_error_bank(bank, msr_ops.status(bank),
+-					msr_ops.addr(bank), 0);
++	defrd = _log_error_bank(bank, mca_msr_reg(bank, MCA_STATUS),
++				mca_msr_reg(bank, MCA_ADDR), 0);
+ 
+ 	if (!mce_flags.smca)
+ 		return;
+@@ -996,7 +996,7 @@ static void amd_deferred_error_interrupt(void)
+ 
+ static void log_error_thresholding(unsigned int bank, u64 misc)
+ {
+-	_log_error_bank(bank, msr_ops.status(bank), msr_ops.addr(bank), misc);
++	_log_error_bank(bank, mca_msr_reg(bank, MCA_STATUS), mca_msr_reg(bank, MCA_ADDR), misc);
  }
  
+ static void log_and_reset_block(struct threshold_block *block)
+@@ -1384,7 +1384,7 @@ static int threshold_create_bank(struct threshold_bank **bp, unsigned int cpu,
+ 		}
+ 	}
+ 
+-	err = allocate_threshold_blocks(cpu, b, bank, 0, msr_ops.misc(bank));
++	err = allocate_threshold_blocks(cpu, b, bank, 0, mca_msr_reg(bank, MCA_MISC));
+ 	if (err)
+ 		goto out_kobj;
+ 
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index 5cf1a024408b..1906387a0faf 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -176,53 +176,27 @@ void mce_unregister_decode_chain(struct notifier_block *nb)
+ }
+ EXPORT_SYMBOL_GPL(mce_unregister_decode_chain);
+ 
+-static inline u32 ctl_reg(int bank)
++u32 mca_msr_reg(int bank, enum mca_msr reg)
+ {
+-	return MSR_IA32_MCx_CTL(bank);
+-}
+-
+-static inline u32 status_reg(int bank)
+-{
+-	return MSR_IA32_MCx_STATUS(bank);
+-}
+-
+-static inline u32 addr_reg(int bank)
+-{
+-	return MSR_IA32_MCx_ADDR(bank);
+-}
+-
+-static inline u32 misc_reg(int bank)
+-{
+-	return MSR_IA32_MCx_MISC(bank);
+-}
+-
+-static inline u32 smca_ctl_reg(int bank)
+-{
+-	return MSR_AMD64_SMCA_MCx_CTL(bank);
+-}
+-
+-static inline u32 smca_status_reg(int bank)
+-{
+-	return MSR_AMD64_SMCA_MCx_STATUS(bank);
+-}
++	if (mce_flags.smca) {
++		switch (reg) {
++		case MCA_CTL:	 return MSR_AMD64_SMCA_MCx_CTL(bank);
++		case MCA_ADDR:	 return MSR_AMD64_SMCA_MCx_ADDR(bank);
++		case MCA_MISC:	 return MSR_AMD64_SMCA_MCx_MISC(bank);
++		case MCA_STATUS: return MSR_AMD64_SMCA_MCx_STATUS(bank);
++		}
++	}
+ 
+-static inline u32 smca_addr_reg(int bank)
+-{
+-	return MSR_AMD64_SMCA_MCx_ADDR(bank);
+-}
++	switch (reg) {
++	case MCA_CTL:	 return MSR_IA32_MCx_CTL(bank);
++	case MCA_ADDR:	 return MSR_IA32_MCx_ADDR(bank);
++	case MCA_MISC:	 return MSR_IA32_MCx_MISC(bank);
++	case MCA_STATUS: return MSR_IA32_MCx_STATUS(bank);
++	}
+ 
+-static inline u32 smca_misc_reg(int bank)
+-{
+-	return MSR_AMD64_SMCA_MCx_MISC(bank);
++	return 0;
+ }
+ 
+-struct mca_msr_regs msr_ops = {
+-	.ctl	= ctl_reg,
+-	.status	= status_reg,
+-	.addr	= addr_reg,
+-	.misc	= misc_reg
+-};
+-
+ static void __print_mce(struct mce *m)
+ {
+ 	pr_emerg(HW_ERR "CPU %d: Machine Check%s: %Lx Bank %d: %016Lx\n",
+@@ -371,11 +345,11 @@ static int msr_to_offset(u32 msr)
+ 
+ 	if (msr == mca_cfg.rip_msr)
+ 		return offsetof(struct mce, ip);
+-	if (msr == msr_ops.status(bank))
++	if (msr == mca_msr_reg(bank, MCA_STATUS))
+ 		return offsetof(struct mce, status);
+-	if (msr == msr_ops.addr(bank))
++	if (msr == mca_msr_reg(bank, MCA_ADDR))
+ 		return offsetof(struct mce, addr);
+-	if (msr == msr_ops.misc(bank))
++	if (msr == mca_msr_reg(bank, MCA_MISC))
+ 		return offsetof(struct mce, misc);
+ 	if (msr == MSR_IA32_MCG_STATUS)
+ 		return offsetof(struct mce, mcgstatus);
+@@ -694,10 +668,10 @@ static struct notifier_block mce_default_nb = {
+ static noinstr void mce_read_aux(struct mce *m, int i)
+ {
+ 	if (m->status & MCI_STATUS_MISCV)
+-		m->misc = mce_rdmsrl(msr_ops.misc(i));
++		m->misc = mce_rdmsrl(mca_msr_reg(i, MCA_MISC));
+ 
+ 	if (m->status & MCI_STATUS_ADDRV) {
+-		m->addr = mce_rdmsrl(msr_ops.addr(i));
++		m->addr = mce_rdmsrl(mca_msr_reg(i, MCA_ADDR));
+ 
+ 		/*
+ 		 * Mask the reported address by the reported granularity.
+@@ -767,7 +741,7 @@ bool machine_check_poll(enum mcp_flags flags, mce_banks_t *b)
+ 		m.bank = i;
+ 
+ 		barrier();
+-		m.status = mce_rdmsrl(msr_ops.status(i));
++		m.status = mce_rdmsrl(mca_msr_reg(i, MCA_STATUS));
+ 
+ 		/* If this entry is not valid, ignore it */
+ 		if (!(m.status & MCI_STATUS_VAL))
+@@ -835,7 +809,7 @@ bool machine_check_poll(enum mcp_flags flags, mce_banks_t *b)
+ 		/*
+ 		 * Clear state for this bank.
+ 		 */
+-		mce_wrmsrl(msr_ops.status(i), 0);
++		mce_wrmsrl(mca_msr_reg(i, MCA_STATUS), 0);
+ 	}
+ 
+ 	/*
+@@ -860,7 +834,7 @@ static int mce_no_way_out(struct mce *m, char **msg, unsigned long *validp,
+ 	int i;
+ 
+ 	for (i = 0; i < this_cpu_read(mce_num_banks); i++) {
+-		m->status = mce_rdmsrl(msr_ops.status(i));
++		m->status = mce_rdmsrl(mca_msr_reg(i, MCA_STATUS));
+ 		if (!(m->status & MCI_STATUS_VAL))
+ 			continue;
+ 
+@@ -1149,7 +1123,7 @@ static void mce_clear_state(unsigned long *toclear)
+ 
+ 	for (i = 0; i < this_cpu_read(mce_num_banks); i++) {
+ 		if (test_bit(i, toclear))
+-			mce_wrmsrl(msr_ops.status(i), 0);
++			mce_wrmsrl(mca_msr_reg(i, MCA_STATUS), 0);
+ 	}
+ }
+ 
+@@ -1208,7 +1182,7 @@ static void __mc_scan_banks(struct mce *m, struct pt_regs *regs, struct mce *fin
+ 		m->addr = 0;
+ 		m->bank = i;
+ 
+-		m->status = mce_rdmsrl(msr_ops.status(i));
++		m->status = mce_rdmsrl(mca_msr_reg(i, MCA_STATUS));
+ 		if (!(m->status & MCI_STATUS_VAL))
+ 			continue;
+ 
+@@ -1704,8 +1678,8 @@ static void __mcheck_cpu_init_clear_banks(void)
+ 
+ 		if (!b->init)
+ 			continue;
+-		wrmsrl(msr_ops.ctl(i), b->ctl);
+-		wrmsrl(msr_ops.status(i), 0);
++		wrmsrl(mca_msr_reg(i, MCA_CTL), b->ctl);
++		wrmsrl(mca_msr_reg(i, MCA_STATUS), 0);
+ 	}
+ }
+ 
+@@ -1731,7 +1705,7 @@ static void __mcheck_cpu_check_banks(void)
+ 		if (!b->init)
+ 			continue;
+ 
+-		rdmsrl(msr_ops.ctl(i), msrval);
++		rdmsrl(mca_msr_reg(i, MCA_CTL), msrval);
+ 		b->init = !!msrval;
+ 	}
+ }
+@@ -1890,13 +1864,6 @@ static void __mcheck_cpu_init_early(struct cpuinfo_x86 *c)
+ 		mce_flags.succor	 = !!cpu_has(c, X86_FEATURE_SUCCOR);
+ 		mce_flags.smca		 = !!cpu_has(c, X86_FEATURE_SMCA);
+ 		mce_flags.amd_threshold	 = 1;
+-
+-		if (mce_flags.smca) {
+-			msr_ops.ctl	= smca_ctl_reg;
+-			msr_ops.status	= smca_status_reg;
+-			msr_ops.addr	= smca_addr_reg;
+-			msr_ops.misc	= smca_misc_reg;
+-		}
+ 	}
+ }
+ 
+@@ -2272,7 +2239,7 @@ static void mce_disable_error_reporting(void)
+ 		struct mce_bank *b = &mce_banks[i];
+ 
+ 		if (b->init)
+-			wrmsrl(msr_ops.ctl(i), 0);
++			wrmsrl(mca_msr_reg(i, MCA_CTL), 0);
+ 	}
+ 	return;
+ }
+@@ -2624,7 +2591,7 @@ static void mce_reenable_cpu(void)
+ 		struct mce_bank *b = &mce_banks[i];
+ 
+ 		if (b->init)
+-			wrmsrl(msr_ops.ctl(i), b->ctl);
++			wrmsrl(mca_msr_reg(i, MCA_CTL), b->ctl);
+ 	}
+ }
+ 
+diff --git a/arch/x86/kernel/cpu/mce/internal.h b/arch/x86/kernel/cpu/mce/internal.h
+index 88dcc79cfb07..3a485c0d5791 100644
+--- a/arch/x86/kernel/cpu/mce/internal.h
++++ b/arch/x86/kernel/cpu/mce/internal.h
+@@ -168,14 +168,14 @@ struct mce_vendor_flags {
+ 
+ extern struct mce_vendor_flags mce_flags;
+ 
+-struct mca_msr_regs {
+-	u32 (*ctl)	(int bank);
+-	u32 (*status)	(int bank);
+-	u32 (*addr)	(int bank);
+-	u32 (*misc)	(int bank);
++enum mca_msr {
++	MCA_CTL,
++	MCA_STATUS,
++	MCA_ADDR,
++	MCA_MISC,
+ };
+ 
+-extern struct mca_msr_regs msr_ops;
++u32 mca_msr_reg(int bank, enum mca_msr reg);
+ 
+ /* Decide whether to add MCE record to MCE event pool or filter it out. */
+ extern bool filter_mce(struct mce *m);
 -- 
 2.35.1
 
