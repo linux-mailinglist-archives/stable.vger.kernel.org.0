@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA58667269
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 13:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 215D4667270
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 13:42:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231438AbjALMlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 07:41:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
+        id S229705AbjALMmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 07:42:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230300AbjALMkd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 07:40:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60AAE4C72F;
-        Thu, 12 Jan 2023 04:40:19 -0800 (PST)
+        with ESMTP id S231852AbjALMmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 07:42:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB4A25F;
+        Thu, 12 Jan 2023 04:41:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15D25B81E5E;
-        Thu, 12 Jan 2023 12:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50DC2C433D2;
-        Thu, 12 Jan 2023 12:40:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 459B660A6D;
+        Thu, 12 Jan 2023 12:41:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06122C433D2;
+        Thu, 12 Jan 2023 12:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673527216;
-        bh=1vTTKC4pZ83wrwuLF4kJycHMKLoz5qbUojG35EY4I0c=;
+        s=korg; t=1673527311;
+        bh=5i96I7lJYPSdvRdopyQ24odQpyZbyCYnrM+K0gVY9aM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=En94d+OtKsnA6juqQBdQ2E8GT3xvBl0s9Wl1lzL22bc89mY68Ld1YDmZjXVr45nec
-         kw4ZT0cZ7WYG0ejGx1rT8lDIT07tBaUC9CZRJPgX9+y849uKcN6l5Fkc4SxFo99bW8
-         COQGkW7F0T2POvlg5cN6sTcqJcLRs1MGGfZuTyRQ=
-Date:   Thu, 12 Jan 2023 13:40:13 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     stable@vger.kernel.org, linux-ext4@vger.kernel.org
-Subject: Re: [PATCH 5.10 0/2] Selected ext4 fast-commit fixes for 5.10-stable
-Message-ID: <Y7//re91/JKP0Fdx@kroah.com>
-References: <20230107203713.158042-1-ebiggers@kernel.org>
+        b=Uacag1GKVlmDoTP1KpheK9tbXGq/5Dk3sUlnPY8+4T2ywSDJYhNbshU2HN66187zw
+         3Qk3bxVWJLTbWkCCc78A/PhhNObN88IgCNC5J+iaUcUXutu2Zsow6iXraRhCqKOlAr
+         0KcggReYtj0S/RdMtKfbQF63ClOP5wkLS35Tgp0E=
+Date:   Thu, 12 Jan 2023 13:41:48 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc:     Jiri Slaby <jirislaby@kernel.org>, Lukas Wunner <lukas@wunner.de>,
+        Dominique Martinet <dominique.martinet@atmark-techno.com>,
+        Daisuke Mizobuchi <mizo@atmark-techno.com>,
+        Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        linux-serial@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.15.y v2] serial: fixup backport of "serial: Deassert
+ Transmit Enable on probe in driver-specific way"
+Message-ID: <Y8AADD1b19FsTMRD@kroah.com>
+References: <20221220102316.1280393-1-linux@rasmusvillemoes.dk>
+ <20221222114414.1886632-1-linux@rasmusvillemoes.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230107203713.158042-1-ebiggers@kernel.org>
+In-Reply-To: <20221222114414.1886632-1-linux@rasmusvillemoes.dk>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -48,27 +54,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 07, 2023 at 12:37:11PM -0800, Eric Biggers wrote:
-> The recent ext4 fast-commit fixes with 'Cc stable' didn't apply to 5.10
-> due to conflicts.  Since the fast-commit support in 5.10 is rudimentary
-> and hard to backport fixes too, this series backports the two most
-> important fixes only.  Please apply to 5.10-stable.
+On Thu, Dec 22, 2022 at 12:44:14PM +0100, Rasmus Villemoes wrote:
+> When 7c7f9bc986e6 ("serial: Deassert Transmit Enable on probe in
+> driver-specific way") got backported to 5.15.y, there known as
+> b079d3775237, some hunks were accidentally left out.
 > 
-> Eric Biggers (2):
->   ext4: disable fast-commit of encrypted dir operations
->   ext4: don't set up encryption key during jbd2 transaction
+> In fsl_lpuart.c, this amounts to uart_remove_one_port() being called
+> in an error path despite uart_add_one_port() not having been called.
 > 
->  fs/ext4/ext4.h              |  4 ++--
->  fs/ext4/fast_commit.c       | 42 +++++++++++++++++++++--------------
->  fs/ext4/fast_commit.h       |  1 +
->  fs/ext4/namei.c             | 44 ++++++++++++++++++++-----------------
->  include/trace/events/ext4.h |  7 ++++--
->  5 files changed, 57 insertions(+), 41 deletions(-)
+> In serial_core.c, it is possible that the omission in
+> uart_suspend_port() is harmless, but the backport did have the
+> corresponding hunk in uart_resume_port(), it runs counter to the
+> original commit's intention of
 > 
-> -- 
-> 2.39.0
+>   Skip any invocation of ->set_mctrl() if RS485 is enabled.
 > 
+> and it's certainly better to be aligned with upstream.
+> 
+> Fixes: b079d3775237 ("serial: Deassert Transmit Enable on probe in driver-specific way")
+> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> ---
+> 
+> v2: Also amend uart_suspend_port(), update commit log accordingly.
 
-All now queued up, thanks.
+Now queued up, thanks.
 
 greg k-h
