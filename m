@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 489DD66740A
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:02:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F99866741A
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:02:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231667AbjALOCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:02:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55066 "EHLO
+        id S232258AbjALOCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:02:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233625AbjALOBz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:01:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE0C848808
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:01:54 -0800 (PST)
+        with ESMTP id S231433AbjALOC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:02:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7D425D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:02:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49A5E61F74
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:01:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EBE3C433EF;
-        Thu, 12 Jan 2023 14:01:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0D4A62030
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC8ADC433EF;
+        Thu, 12 Jan 2023 14:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532113;
-        bh=Zj9v1liHklHYKjP0Yes7cbUTORLjQ//yW9lHFa/qzgU=;
+        s=korg; t=1673532147;
+        bh=BrKv4vk3iargyZcVxIM/azmRhnOX0Z8349Os8BpAhyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qhJ3uc4kOCr1cTafggRQlyJgFIQsGKm2ZkBC0AYLBCu2x72lCqYtpt8WJjisg+H6F
-         Q7FPBxDLqW76GSEajJrHgop4VLQAfZd/iXe/gbna+smuOIRvfmFbACWmMXVvRQLL6X
-         /9EO4JWjQsNuITnr1vfZHbPMH5S8wwhrwYNfHCyc=
+        b=OUjekb3abo2Zqrrez894bflDEtenRwAL+qGRqR+JkrAZ0cT5gpvysbHInTrP1B195
+         fFwn0xhuIvxM3DSs928JCmOAFeix+edGfiOwsrTI3g8bwQjJQH6FEQnV4syc0x4cLn
+         AjZAzS0yv4mmFI7ilubE4TF2dr/gEcbCID3PNrJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Doug Brown <doug@schmorgal.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 039/783] ARM: mmp: fix timer_read delay
-Date:   Thu, 12 Jan 2023 14:45:55 +0100
-Message-Id: <20230112135525.954077524@linuxfoundation.org>
+        patches@lists.linux.dev, Brian Geffon <bgeffon@google.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 040/783] pstore: Avoid kcore oops by vmap()ing with VM_IOREMAP
+Date:   Thu, 12 Jan 2023 14:45:56 +0100
+Message-Id: <20230112135525.996608936@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -52,57 +56,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Brown <doug@schmorgal.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit e348b4014c31041e13ff370669ba3348c4d385e3 ]
+[ Upstream commit e6b842741b4f39007215fd7e545cb55aa3d358a2 ]
 
-timer_read() was using an empty 100-iteration loop to wait for the
-TMR_CVWR register to capture the latest timer counter value. The delay
-wasn't long enough. This resulted in CPU idle time being extremely
-underreported on PXA168 with CONFIG_NO_HZ_IDLE=y.
+An oops can be induced by running 'cat /proc/kcore > /dev/null' on
+devices using pstore with the ram backend because kmap_atomic() assumes
+lowmem pages are accessible with __va().
 
-Switch to the approach used in the vendor kernel, which implements the
-capture delay by reading TMR_CVWR a few times instead.
+ Unable to handle kernel paging request at virtual address ffffff807ff2b000
+ Mem abort info:
+ ESR = 0x96000006
+ EC = 0x25: DABT (current EL), IL = 32 bits
+ SET = 0, FnV = 0
+ EA = 0, S1PTW = 0
+ FSC = 0x06: level 2 translation fault
+ Data abort info:
+ ISV = 0, ISS = 0x00000006
+ CM = 0, WnR = 0
+ swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000081d87000
+ [ffffff807ff2b000] pgd=180000017fe18003, p4d=180000017fe18003, pud=180000017fe18003, pmd=0000000000000000
+ Internal error: Oops: 96000006 [#1] PREEMPT SMP
+ Modules linked in: dm_integrity
+ CPU: 7 PID: 21179 Comm: perf Not tainted 5.15.67-10882-ge4eb2eb988cd #1 baa443fb8e8477896a370b31a821eb2009f9bfba
+ Hardware name: Google Lazor (rev3 - 8) (DT)
+ pstate: a0400009 (NzCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+ pc : __memcpy+0x110/0x260
+ lr : vread+0x194/0x294
+ sp : ffffffc013ee39d0
+ x29: ffffffc013ee39f0 x28: 0000000000001000 x27: ffffff807ff2b000
+ x26: 0000000000001000 x25: ffffffc0085a2000 x24: ffffff802d4b3000
+ x23: ffffff80f8a60000 x22: ffffff802d4b3000 x21: ffffffc0085a2000
+ x20: ffffff8080b7bc68 x19: 0000000000001000 x18: 0000000000000000
+ x17: 0000000000000000 x16: 0000000000000000 x15: ffffffd3073f2e60
+ x14: ffffffffad588000 x13: 0000000000000000 x12: 0000000000000001
+ x11: 00000000000001a2 x10: 00680000fff2bf0b x9 : 03fffffff807ff2b
+ x8 : 0000000000000001 x7 : 0000000000000000 x6 : 0000000000000000
+ x5 : ffffff802d4b4000 x4 : ffffff807ff2c000 x3 : ffffffc013ee3a78
+ x2 : 0000000000001000 x1 : ffffff807ff2b000 x0 : ffffff802d4b3000
+ Call trace:
+ __memcpy+0x110/0x260
+ read_kcore+0x584/0x778
+ proc_reg_read+0xb4/0xe4
 
-Fixes: 49cbe78637eb ("[ARM] pxa: add base support for Marvell's PXA168 processor line")
-Signed-off-by: Doug Brown <doug@schmorgal.com>
-Link: https://lore.kernel.org/r/20221204005117.53452-3-doug@schmorgal.com
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+During early boot, memblock reserves the pages for the ramoops reserved
+memory node in DT that would otherwise be part of the direct lowmem
+mapping. Pstore's ram backend reuses those reserved pages to change the
+memory type (writeback or non-cached) by passing the pages to vmap()
+(see pfn_to_page() usage in persistent_ram_vmap() for more details) with
+specific flags. When read_kcore() starts iterating over the vmalloc
+region, it runs over the virtual address that vmap() returned for
+ramoops. In aligned_vread() the virtual address is passed to
+vmalloc_to_page() which returns the page struct for the reserved lowmem
+area. That lowmem page is passed to kmap_atomic(), which effectively
+calls page_to_virt() that assumes a lowmem page struct must be directly
+accessible with __va() and friends. These pages are mapped via vmap()
+though, and the lowmem mapping was never made, so accessing them via the
+lowmem virtual address oopses like above.
+
+Let's side-step this problem by passing VM_IOREMAP to vmap(). This will
+tell vread() to not include the ramoops region in the kcore. Instead the
+area will look like a bunch of zeros. The alternative is to teach kmap()
+about vmalloc areas that intersect with lowmem. Presumably such a change
+isn't a one-liner, and there isn't much interest in inspecting the
+ramoops region in kcore files anyway, so the most expedient route is
+taken for now.
+
+Cc: Brian Geffon <bgeffon@google.com>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 404a6043385d ("staging: android: persistent_ram: handle reserving and mapping memory")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221205233136.3420802-1-swboyd@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-mmp/time.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/pstore/ram_core.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-mmp/time.c b/arch/arm/mach-mmp/time.c
-index 41b2e8abc9e6..708816caf859 100644
---- a/arch/arm/mach-mmp/time.c
-+++ b/arch/arm/mach-mmp/time.c
-@@ -43,18 +43,21 @@
- static void __iomem *mmp_timer_base = TIMERS_VIRT_BASE;
+diff --git a/fs/pstore/ram_core.c b/fs/pstore/ram_core.c
+index aa8e0b65ff1a..184cb97c83bd 100644
+--- a/fs/pstore/ram_core.c
++++ b/fs/pstore/ram_core.c
+@@ -425,7 +425,11 @@ static void *persistent_ram_vmap(phys_addr_t start, size_t size,
+ 		phys_addr_t addr = page_start + i * PAGE_SIZE;
+ 		pages[i] = pfn_to_page(addr >> PAGE_SHIFT);
+ 	}
+-	vaddr = vmap(pages, page_count, VM_MAP, prot);
++	/*
++	 * VM_IOREMAP used here to bypass this region during vread()
++	 * and kmap_atomic() (i.e. kcore) to avoid __va() failures.
++	 */
++	vaddr = vmap(pages, page_count, VM_MAP | VM_IOREMAP, prot);
+ 	kfree(pages);
  
- /*
-- * FIXME: the timer needs some delay to stablize the counter capture
-+ * Read the timer through the CVWR register. Delay is required after requesting
-+ * a read. The CR register cannot be directly read due to metastability issues
-+ * documented in the PXA168 software manual.
-  */
- static inline uint32_t timer_read(void)
- {
--	int delay = 100;
-+	uint32_t val;
-+	int delay = 3;
- 
- 	__raw_writel(1, mmp_timer_base + TMR_CVWR(1));
- 
- 	while (delay--)
--		cpu_relax();
-+		val = __raw_readl(mmp_timer_base + TMR_CVWR(1));
- 
--	return __raw_readl(mmp_timer_base + TMR_CVWR(1));
-+	return val;
- }
- 
- static u64 notrace mmp_read_sched_clock(void)
+ 	/*
 -- 
 2.35.1
 
