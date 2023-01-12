@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F33C566780E
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:52:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 479A166780F
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:52:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240135AbjALOv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:51:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43446 "EHLO
+        id S239535AbjALOwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:52:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240087AbjALOvS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:51:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B203D1CFF7
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:38:26 -0800 (PST)
+        with ESMTP id S240088AbjALOvU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:51:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECD171CB26
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:38:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64ECBB81E69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:38:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2FB5C433EF;
-        Thu, 12 Jan 2023 14:38:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A71A62042
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:38:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CA47C433D2;
+        Thu, 12 Jan 2023 14:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534304;
-        bh=sEedI5jSoSi2M74h6RIk11KY7c9jCmK2hW2qv+b5deU=;
+        s=korg; t=1673534307;
+        bh=hN3guaYIXEqybB94lhygdS+xS9Bx+S+lt3n0V8w4uZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJkTJ1xSp2JKzU6ufZ+xAi0/gBW5KtANTSTt6Z23aj3VzJZ9RHQqcDWwapZITi2t3
-         qnC6kvmZVVHOo4gJKbKdCMKkpFP3U2pOJDHTKncC5A89R+o7c89GGi06hqFYVjHqYu
-         +Ng11mUNBDALC6XGODAzyV8k27F3LKVr7tcnXlZo=
+        b=u/XNuPqLPlcUI4i5GypDSBqI1Ucim1mUix94vzY89U1MtCPhHDdm5gT5jfk8oLkur
+         wfvswgmQmoyvJbkzzc3q9cLmS6Xcj2+7M878mVOHjEE26P3fYInn45u7ysQcvj0xGY
+         0OMbNa9ghzhGwcyr6+6bpb1RhsrXvvu84AXoBF40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 733/783] nfc: Fix potential resource leaks
-Date:   Thu, 12 Jan 2023 14:57:29 +0100
-Message-Id: <20230112135558.322256716@linuxfoundation.org>
+Subject: [PATCH 5.10 734/783] vhost/vsock: Fix error handling in vhost_vsock_init()
+Date:   Thu, 12 Jan 2023 14:57:30 +0100
+Message-Id: <20230112135558.364958577@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,125 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit df49908f3c52d211aea5e2a14a93bbe67a2cb3af ]
+[ Upstream commit 7a4efe182ca61fb3e5307e69b261c57cbf434cd4 ]
 
-nfc_get_device() take reference for the device, add missing
-nfc_put_device() to release it when not need anymore.
-Also fix the style warnning by use error EOPNOTSUPP instead of
-ENOTSUPP.
+A problem about modprobe vhost_vsock failed is triggered with the
+following log given:
 
-Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
-Fixes: 29e76924cf08 ("nfc: netlink: Add capability to reply to vendor_cmd with data")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+modprobe: ERROR: could not insert 'vhost_vsock': Device or resource busy
+
+The reason is that vhost_vsock_init() returns misc_register() directly
+without checking its return value, if misc_register() failed, it returns
+without calling vsock_core_unregister() on vhost_transport, resulting the
+vhost_vsock can never be installed later.
+A simple call graph is shown as below:
+
+ vhost_vsock_init()
+   vsock_core_register() # register vhost_transport
+   misc_register()
+     device_create_with_groups()
+       device_create_groups_vargs()
+         dev = kzalloc(...) # OOM happened
+   # return without unregister vhost_transport
+
+Fix by calling vsock_core_unregister() when misc_register() returns error.
+
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Message-Id: <20221108101705.45981-1-yuancan@huawei.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/netlink.c | 52 ++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 38 insertions(+), 14 deletions(-)
+ drivers/vhost/vsock.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index b8939ebaa6d3..610caea4feec 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1497,6 +1497,7 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	u32 dev_idx, se_idx;
- 	u8 *apdu;
- 	size_t apdu_len;
-+	int rc;
- 
- 	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
- 	    !info->attrs[NFC_ATTR_SE_INDEX] ||
-@@ -1510,25 +1511,37 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	if (!dev)
- 		return -ENODEV;
- 
--	if (!dev->ops || !dev->ops->se_io)
--		return -ENOTSUPP;
-+	if (!dev->ops || !dev->ops->se_io) {
-+		rc = -EOPNOTSUPP;
-+		goto put_dev;
-+	}
- 
- 	apdu_len = nla_len(info->attrs[NFC_ATTR_SE_APDU]);
--	if (apdu_len == 0)
--		return -EINVAL;
-+	if (apdu_len == 0) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
- 
- 	apdu = nla_data(info->attrs[NFC_ATTR_SE_APDU]);
--	if (!apdu)
--		return -EINVAL;
-+	if (!apdu) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
- 
- 	ctx = kzalloc(sizeof(struct se_io_ctx), GFP_KERNEL);
--	if (!ctx)
--		return -ENOMEM;
-+	if (!ctx) {
-+		rc = -ENOMEM;
-+		goto put_dev;
-+	}
- 
- 	ctx->dev_idx = dev_idx;
- 	ctx->se_idx = se_idx;
- 
--	return nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
-+	rc = nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index b0153617fe0e..7bce5f982e58 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -854,7 +854,14 @@ static int __init vhost_vsock_init(void)
+ 				  VSOCK_TRANSPORT_F_H2G);
+ 	if (ret < 0)
+ 		return ret;
+-	return misc_register(&vhost_vsock_misc);
 +
-+put_dev:
-+	nfc_put_device(dev);
-+	return rc;
- }
- 
- static int nfc_genl_vendor_cmd(struct sk_buff *skb,
-@@ -1551,14 +1564,21 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 	subcmd = nla_get_u32(info->attrs[NFC_ATTR_VENDOR_SUBCMD]);
- 
- 	dev = nfc_get_device(dev_idx);
--	if (!dev || !dev->vendor_cmds || !dev->n_vendor_cmds)
-+	if (!dev)
- 		return -ENODEV;
- 
-+	if (!dev->vendor_cmds || !dev->n_vendor_cmds) {
-+		err = -ENODEV;
-+		goto put_dev;
++	ret = misc_register(&vhost_vsock_misc);
++	if (ret) {
++		vsock_core_unregister(&vhost_transport.transport);
++		return ret;
 +	}
 +
- 	if (info->attrs[NFC_ATTR_VENDOR_DATA]) {
- 		data = nla_data(info->attrs[NFC_ATTR_VENDOR_DATA]);
- 		data_len = nla_len(info->attrs[NFC_ATTR_VENDOR_DATA]);
--		if (data_len == 0)
--			return -EINVAL;
-+		if (data_len == 0) {
-+			err = -EINVAL;
-+			goto put_dev;
-+		}
- 	} else {
- 		data = NULL;
- 		data_len = 0;
-@@ -1573,10 +1593,14 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 		dev->cur_cmd_info = info;
- 		err = cmd->doit(dev, data, data_len);
- 		dev->cur_cmd_info = NULL;
--		return err;
-+		goto put_dev;
- 	}
++	return 0;
+ };
  
--	return -EOPNOTSUPP;
-+	err = -EOPNOTSUPP;
-+
-+put_dev:
-+	nfc_put_device(dev);
-+	return err;
- }
- 
- /* message building helper */
+ static void __exit vhost_vsock_exit(void)
 -- 
 2.35.1
 
