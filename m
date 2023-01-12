@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A38B6673D7
+	by mail.lfdr.de (Postfix) with ESMTP id C48316673D8
 	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:00:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233645AbjALOAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:00:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54612 "EHLO
+        id S233810AbjALOAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:00:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233839AbjALN7x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:59:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4A7F53718
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:59:41 -0800 (PST)
+        with ESMTP id S233861AbjALN7y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:59:54 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0FC151320
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:59:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99894B81E69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:59:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA5BEC433D2;
-        Thu, 12 Jan 2023 13:59:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 35D10CE1E6E
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:59:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F1AC433D2;
+        Thu, 12 Jan 2023 13:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673531979;
-        bh=R7fpyjt+ir1+3xiVMVP44NfEJc077K/d4+o1yu2ctno=;
+        s=korg; t=1673531982;
+        bh=zzLuUU4rG14XyxJiFO/vJJ7P5Nwc3Mzom4Mh5RRjFyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9/kpIGfVOmigDR/b2khh6WWo43LEMduZ4/pp+Y88GQ0gT3NAPcr6rPMy+rgP9fkR
-         4kIw7dPlb+aoW88CNZjQfi7jdHq+pyDqin21lJ+YRSh1MsTb7NwHodv1I9fgt6M/UX
-         ZYNuq3QgNxl6+WQrzx1sFPrLuoHaAO0PfBXQt5dg=
+        b=TlxdKRSEotaToY7LZMV4LPePaICd+DomFb3UNAKnwuzjJWRKTgmJEiXEZl8cfxfrN
+         30unYd9vnXG5zntdDAu2/j7JvNOM5UKVmEYqyeqt5WqlIHmuMXbEb/6UQrk7s8C8rf
+         pxSzWaJWT2GPTUQxB8X+fcrcxXTQEPmfMneAE51I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 014/783] soc: qcom: apr: Add check for idr_alloc and of_property_read_string_index
-Date:   Thu, 12 Jan 2023 14:45:30 +0100
-Message-Id: <20230112135524.825719649@linuxfoundation.org>
+        patches@lists.linux.dev, Kory Maincent <kory.maincent@bootlin.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 015/783] arm: dts: spear600: Fix clcd interrupt
+Date:   Thu, 12 Jan 2023 14:45:31 +0100
+Message-Id: <20230112135524.877353520@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,60 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Kory Maincent <kory.maincent@bootlin.com>
 
-[ Upstream commit 6d7860f5750d73da2fa1a1f6c9405058a593fa32 ]
+[ Upstream commit 0336e2ce34e7a89832b6c214f924eb7bc58940be ]
 
-As idr_alloc() and of_property_read_string_index() can return negative
-numbers, it should be better to check the return value and deal with
-the exception.
-Therefore, it should be better to use goto statement to stop and return
-error.
+Interrupt 12 of the Interrupt controller belongs to the SMI controller,
+the right one for the display controller is the interrupt 13.
 
-Fixes: 6adba21eb434 ("soc: qcom: Add APR bus driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Bjorn Andersson <andersson@kernel.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221107014403.3606-1-jiasheng@iscas.ac.cn
+Fixes: 8113ba917dfa ("ARM: SPEAr: DT: Update device nodes")
+Signed-off-by: Kory Maincent <kory.maincent@bootlin.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/apr.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/spear600.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/apr.c b/drivers/soc/qcom/apr.c
-index 8fed91822cae..7063e0d42c5e 100644
---- a/drivers/soc/qcom/apr.c
-+++ b/drivers/soc/qcom/apr.c
-@@ -312,11 +312,19 @@ static int apr_add_device(struct device *dev, struct device_node *np,
- 	adev->dev.driver = NULL;
- 
- 	spin_lock(&apr->svcs_lock);
--	idr_alloc(&apr->svcs_idr, svc, svc_id, svc_id + 1, GFP_ATOMIC);
-+	ret = idr_alloc(&apr->svcs_idr, svc, svc_id, svc_id + 1, GFP_ATOMIC);
- 	spin_unlock(&apr->svcs_lock);
-+	if (ret < 0) {
-+		dev_err(dev, "idr_alloc failed: %d\n", ret);
-+		goto out;
-+	}
- 
--	of_property_read_string_index(np, "qcom,protection-domain",
--				      1, &adev->service_path);
-+	ret = of_property_read_string_index(np, "qcom,protection-domain",
-+					    1, &adev->service_path);
-+	if (ret < 0) {
-+		dev_err(dev, "Failed to read second value of qcom,protection-domain\n");
-+		goto out;
-+	}
- 
- 	dev_info(dev, "Adding APR dev: %s\n", dev_name(&adev->dev));
- 
-@@ -326,6 +334,7 @@ static int apr_add_device(struct device *dev, struct device_node *np,
- 		put_device(&adev->dev);
- 	}
- 
-+out:
- 	return ret;
- }
+diff --git a/arch/arm/boot/dts/spear600.dtsi b/arch/arm/boot/dts/spear600.dtsi
+index fd41243a0b2c..9d5a04a46b14 100644
+--- a/arch/arm/boot/dts/spear600.dtsi
++++ b/arch/arm/boot/dts/spear600.dtsi
+@@ -47,7 +47,7 @@ clcd: clcd@fc200000 {
+ 			compatible = "arm,pl110", "arm,primecell";
+ 			reg = <0xfc200000 0x1000>;
+ 			interrupt-parent = <&vic1>;
+-			interrupts = <12>;
++			interrupts = <13>;
+ 			status = "disabled";
+ 		};
  
 -- 
 2.35.1
