@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5B17667659
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:31:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA82766765B
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:31:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237336AbjALObC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:31:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52430 "EHLO
+        id S234001AbjALObG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:31:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237564AbjALOaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:20 -0500
+        with ESMTP id S237584AbjALOaV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E0253707
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D735DE43
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04F07B81E70
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2704FC433EF;
-        Thu, 12 Jan 2023 14:21:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA331B81E6D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E27C433EF;
+        Thu, 12 Jan 2023 14:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533304;
-        bh=tFxH6UYZsndDZlYfkFXDaE7jh3yhPbyMbJohujyBjPI=;
+        s=korg; t=1673533307;
+        bh=Q3y9vALH9h1rU+RebOmrtFuTgf/yZ+V4xxFKJAIgKHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=go5HUcu2Nm1Byse9lEEbQO9uT6N/A/cTbvXVawDReUnkOMBaQKmuUhiHN7jsZvdHt
-         ewwD4yOVaoj7LSX6JOaQC5c4j+SxkxYuUPuTbLpe7qFamQpbpQZo8Vc/gnbw8sW31U
-         sKamNYJqRWokTBUPs10K9xLS/Te+Mj035MvGuNSg=
+        b=IF3o6Gb+Fbd7uc5Z2AsYYzYliA2vi5+l10te7UGPX/zd0CsjGah+QDRsgFMnhkOzI
+         JhV9BtqEMXBVwtf9C3T/XJ/m7sEEffllyCybYm2oq6BvHh6WQu1yEH1LpJsVJ4bwJm
+         5SOqw0Nc0RGBvjKiNyX8u8RyWoe+L11eD4AjipmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ajay Kaher <akaher@vmware.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Makhalov <amakhalov@vmware.com>,
-        Jiri Olsa <jolsa@kernel.org>, Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Srivatsa S. Bhat" <srivatsab@vmware.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Vasavi Sirnapalli <vsirnapalli@vmware.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 405/783] perf symbol: correction while adjusting symbol
-Date:   Thu, 12 Jan 2023 14:52:01 +0100
-Message-Id: <20230112135543.086608520@linuxfoundation.org>
+Subject: [PATCH 5.10 406/783] HSI: omap_ssi_core: Fix error handling in ssi_init()
+Date:   Thu, 12 Jan 2023 14:52:02 +0100
+Message-Id: <20230112135543.138489589@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -62,74 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajay Kaher <akaher@vmware.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 6f520ce17920b3cdfbd2479b3ccf27f9706219d0 ]
+[ Upstream commit 3ffa9f713c39a213a08d9ff13ab983a8aa5d8b5d ]
 
-perf doesn't provide proper symbol information for specially crafted
-.debug files.
+The ssi_init() returns the platform_driver_register() directly without
+checking its return value, if platform_driver_register() failed, the
+ssi_pdriver is not unregistered.
+Fix by unregister ssi_pdriver when the last platform_driver_register()
+failed.
 
-Sometimes .debug file may not have similar program header as runtime
-ELF file. For example if we generate .debug file using objcopy
---only-keep-debug resulting file will not contain .text, .data and
-other runtime sections. That means corresponding program headers will
-have zero FileSiz and modified Offset.
-
-Example: program header of text section of libxxx.so:
-
-Type           Offset             VirtAddr           PhysAddr
-               FileSiz            MemSiz              Flags  Align
-LOAD        0x00000000003d3000 0x00000000003d3000 0x00000000003d3000
-            0x000000000055ae80 0x000000000055ae80  R E    0x1000
-
-Same program header after executing:
-objcopy --only-keep-debug libxxx.so libxxx.so.debug
-
-LOAD        0x0000000000001000 0x00000000003d3000 0x00000000003d3000
-            0x0000000000000000 0x000000000055ae80  R E    0x1000
-
-Offset and FileSiz have been changed.
-
-Following formula will not provide correct value, if program header
-taken from .debug file (syms_ss):
-
-    sym.st_value -= phdr.p_vaddr - phdr.p_offset;
-
-Correct program header information is located inside runtime ELF
-file (runtime_ss).
-
-Fixes: 2d86612aacb7805f ("perf symbol: Correct address for bss symbols")
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Makhalov <amakhalov@vmware.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Srivatsa S. Bhat <srivatsab@vmware.com>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Vasavi Sirnapalli <vsirnapalli@vmware.com>
-Link: http://lore.kernel.org/lkml/1669198696-50547-1-git-send-email-akaher@vmware.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 0fae198988b8 ("HSI: omap_ssi: built omap_ssi and omap_ssi_port into one module")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol-elf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hsi/controllers/omap_ssi_core.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index 3e423a920015..5221f272f85c 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1247,7 +1247,7 @@ int dso__load_sym(struct dso *dso, struct map *map, struct symsrc *syms_ss,
- 			   (!used_opd && syms_ss->adjust_symbols)) {
- 			GElf_Phdr phdr;
+diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
+index 052cf3e92dd6..26f2c3c01297 100644
+--- a/drivers/hsi/controllers/omap_ssi_core.c
++++ b/drivers/hsi/controllers/omap_ssi_core.c
+@@ -631,7 +631,13 @@ static int __init ssi_init(void) {
+ 	if (ret)
+ 		return ret;
  
--			if (elf_read_program_header(syms_ss->elf,
-+			if (elf_read_program_header(runtime_ss->elf,
- 						    (u64)sym.st_value, &phdr)) {
- 				pr_debug4("%s: failed to find program header for "
- 					   "symbol: %s st_value: %#" PRIx64 "\n",
+-	return platform_driver_register(&ssi_port_pdriver);
++	ret = platform_driver_register(&ssi_port_pdriver);
++	if (ret) {
++		platform_driver_unregister(&ssi_pdriver);
++		return ret;
++	}
++
++	return 0;
+ }
+ module_init(ssi_init);
+ 
 -- 
 2.35.1
 
