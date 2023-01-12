@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 746566673BF
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 307426677AF
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:46:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229938AbjALN5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 08:57:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53058 "EHLO
+        id S240024AbjALOqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:46:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230519AbjALN5T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:57:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C78E26472
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:18 -0800 (PST)
+        with ESMTP id S239711AbjALOqH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:46:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 125835F4A7
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:34:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63B476202B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69EBEC433D2;
-        Thu, 12 Jan 2023 13:57:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9263B81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:34:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEDFEC433F0;
+        Thu, 12 Jan 2023 14:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673531837;
-        bh=I27d5YDz+gwxAll49MWFYLb08TMklxJt4E0zjTcc6pM=;
+        s=korg; t=1673534065;
+        bh=8owLa3/ATTuA3Us4653WNRnhbj9DSLTiuYhFqc1X0E8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0r8vLirJ3Ku0+xSl9tIrq6vhHCKmdBciFjhf5i7H3wgzdpqPjE2V/fRPx/+i1qkO6
-         cNfy+qFV+B2ljicqx9VgTvV8dz1Djp+DaPr+qNs/osh/1XRO3j/fdQXIw7SUo+zt12
-         mDohPO2//QarbZdAn9SGy1k3OwiJLcffswG1oePw=
+        b=SvSnjxAoScpAvMcMBe6ffpC/UGUJuW6jNCPDoJyrT2YDKa4t+vnpNTT/qpRDaP7Kr
+         +I4RT843OsIuQz9sWdkY/N4hTWs4ByQKN2Yrfg3njiJQj0BmgHndUq3Wq/eONLyT30
+         TQmIOHhiS3GiVHTx0I6R16B/bINv0+AU+H1FWD2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kyle Huey <me@kylehuey.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 5.15 02/10] x86/fpu: Take task_struct* in copy_sigframe_from_user_to_xstate()
+        patches@lists.linux.dev, Eric Sandeen <sandeen@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.10 683/783] ext4: avoid BUG_ON when creating xattrs
 Date:   Thu, 12 Jan 2023 14:56:39 +0100
-Message-Id: <20230112135326.771928687@linuxfoundation.org>
+Message-Id: <20230112135555.985957532@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230112135326.689857506@linuxfoundation.org>
-References: <20230112135326.689857506@linuxfoundation.org>
+In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
+References: <20230112135524.143670746@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,59 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Huey <me@kylehuey.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 6a877d2450ace4f27c012519e5a1ae818f931983 upstream
+commit b40ebaf63851b3a401b0dc9263843538f64f5ce6 upstream.
 
-This will allow copy_sigframe_from_user_to_xstate() to grab the address of
-thread_struct's pkru value in a later patch.
+Commit fb0a387dcdcd ("ext4: limit block allocations for indirect-block
+files to < 2^32") added code to try to allocate xattr block with 32-bit
+block number for indirect block based files on the grounds that these
+files cannot use larger block numbers. It also added BUG_ON when
+allocated block could not fit into 32 bits. This is however bogus
+reasoning because xattr block is stored in inode->i_file_acl and
+inode->i_file_acl_hi and as such even indirect block based files can
+happily use full 48 bits for xattr block number. The proper handling
+seems to be there basically since 64-bit block number support was added.
+So remove the bogus limitation and BUG_ON.
 
-Signed-off-by: Kyle Huey <me@kylehuey.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lore.kernel.org/all/20221115230932.7126-2-khuey%40kylehuey.com
+Cc: Eric Sandeen <sandeen@redhat.com>
+Fixes: fb0a387dcdcd ("ext4: limit block allocations for indirect-block files to < 2^32")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221121130929.32031-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/fpu/xstate.h |    2 +-
- arch/x86/kernel/fpu/signal.c      |    2 +-
- arch/x86/kernel/fpu/xstate.c      |    4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ fs/ext4/xattr.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/arch/x86/include/asm/fpu/xstate.h
-+++ b/arch/x86/include/asm/fpu/xstate.h
-@@ -137,7 +137,7 @@ extern void __init update_regset_xstate_
- void *get_xsave_addr(struct xregs_state *xsave, int xfeature_nr);
- int xfeature_size(int xfeature_nr);
- int copy_uabi_from_kernel_to_xstate(struct xregs_state *xsave, const void *kbuf);
--int copy_sigframe_from_user_to_xstate(struct xregs_state *xsave, const void __user *ubuf);
-+int copy_sigframe_from_user_to_xstate(struct task_struct *tsk, const void __user *ubuf);
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2049,19 +2049,11 @@ inserted:
  
- void xsaves(struct xregs_state *xsave, u64 mask);
- void xrstors(struct xregs_state *xsave, u64 mask);
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -370,7 +370,7 @@ static int __fpu_restore_sig(void __user
- 	fpregs_unlock();
+ 			goal = ext4_group_first_block_no(sb,
+ 						EXT4_I(inode)->i_block_group);
+-
+-			/* non-extent files can't have physical blocks past 2^32 */
+-			if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
+-				goal = goal & EXT4_MAX_BLOCK_FILE_PHYS;
+-
+ 			block = ext4_new_meta_blocks(handle, inode, goal, 0,
+ 						     NULL, &error);
+ 			if (error)
+ 				goto cleanup;
  
- 	if (use_xsave() && !fx_only) {
--		ret = copy_sigframe_from_user_to_xstate(&fpu->state.xsave, buf_fx);
-+		ret = copy_sigframe_from_user_to_xstate(tsk, buf_fx);
- 		if (ret)
- 			return ret;
- 	} else {
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1169,10 +1169,10 @@ int copy_uabi_from_kernel_to_xstate(stru
-  * XSAVE[S] format and copy to the target thread. This is called from the
-  * sigreturn() and rt_sigreturn() system calls.
-  */
--int copy_sigframe_from_user_to_xstate(struct xregs_state *xsave,
-+int copy_sigframe_from_user_to_xstate(struct task_struct *tsk,
- 				      const void __user *ubuf)
- {
--	return copy_uabi_to_xstate(xsave, NULL, ubuf);
-+	return copy_uabi_to_xstate(&tsk->thread.fpu.state.xsave, NULL, ubuf);
- }
+-			if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
+-				BUG_ON(block > EXT4_MAX_BLOCK_FILE_PHYS);
+-
+ 			ea_idebug(inode, "creating block %llu",
+ 				  (unsigned long long)block);
  
- static bool validate_xsaves_xrstors(u64 mask)
 
 
