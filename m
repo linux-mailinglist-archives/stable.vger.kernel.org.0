@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DEE66675C5
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:24:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F1C86675C7
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:25:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237034AbjALOYy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:24:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45496 "EHLO
+        id S236842AbjALOY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:24:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236767AbjALOYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:24:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E2E52C69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:16:06 -0800 (PST)
+        with ESMTP id S236847AbjALOYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:24:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718A0551DC
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:16:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C37962030
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:16:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90B0FC433EF;
-        Thu, 12 Jan 2023 14:16:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18812B81E6D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:16:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71F4DC433D2;
+        Thu, 12 Jan 2023 14:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532965;
-        bh=+WB8CWgk8t1iNvOJK7KthbFFj9Frk7cmHenieULkru8=;
+        s=korg; t=1673532967;
+        bh=hr8dfGb7sFxPmP+8L9OLMpwHK1fp9KEgdfgknyvG/go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Py+N3l0STLW0JM2BvjgK8fCInACv9cgUl6iTuoNSPevYA2hSwsE5EsdDLRcSJChoo
-         7dcRmLgtsoki8Fh2zrfowNAVt57iZ6plIiRhUT0Ne+SqkgYtOz5rXecfjofUZ/dWq1
-         7ueR+p+fwP9C771gMchTW+JtDqUfuSptrmt4KzXE=
+        b=F1Ztwhu2NDfeKqJDKjH6U9vqAE0tlHGMydmvnBX3QlAtnvJOxP2N369v3er7WnY6Q
+         VS9BqkNUCsci0hdbdOs0rzdWC725MRZIlr41hR8716SFTp7tnVhU526CzWyRAcMERM
+         dlTb8H+JufEcS/mysOeYlT13M2LpTq+72UIX+aB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yonggil Song <yonggil.song@samsung.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev, Mark Zhang <markzhang@nvidia.com>,
+        Patrisious Haddad <phaddad@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 327/783] f2fs: avoid victim selection from previous victim section
-Date:   Thu, 12 Jan 2023 14:50:43 +0100
-Message-Id: <20230112135539.463752407@linuxfoundation.org>
+Subject: [PATCH 5.10 328/783] RDMA/nldev: Fix failure to send large messages
+Date:   Thu, 12 Jan 2023 14:50:44 +0100
+Message-Id: <20230112135539.512840158@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,46 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonggil Song <yonggil.song@samsung.com>
+From: Mark Zhang <markzhang@nvidia.com>
 
-[ Upstream commit e219aecfd4b766c4e878a3769057e9809f7fcadc ]
+[ Upstream commit fc8f93ad3e5485d45c992233c96acd902992dfc4 ]
 
-When f2fs chooses GC victim in large section & LFS mode,
-next_victim_seg[gc_type] is referenced first. After segment is freed,
-next_victim_seg[gc_type] has the next segment number.
-However, next_victim_seg[gc_type] still has the last segment number
-even after the last segment of section is freed. In this case, when f2fs
-chooses a victim for the next GC round, the last segment of previous victim
-section is chosen as a victim.
+Return "-EMSGSIZE" instead of "-EINVAL" when filling a QP entry, so that
+new SKBs will be allocated if there's not enough room in current SKB.
 
-Initialize next_victim_seg[gc_type] to NULL_SEGNO for the last segment in
-large section.
-
-Fixes: e3080b0120a1 ("f2fs: support subsectional garbage collection")
-Signed-off-by: Yonggil Song <yonggil.song@samsung.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 65959522f806 ("RDMA: Add support to dump resource tracker in RAW format")
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Patrisious Haddad <phaddad@nvidia.com>
+Link: https://lore.kernel.org/r/b5e9c62f6b8369acab5648b661bf539cbceeffdc.1669636336.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/nldev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index 5ac0b605335f..89156568a4fb 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1649,8 +1649,9 @@ static int do_garbage_collect(struct f2fs_sb_info *sbi,
- 				get_valid_blocks(sbi, segno, false) == 0)
- 			seg_freed++;
+diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
+index 78534340d282..f7f80707af4b 100644
+--- a/drivers/infiniband/core/nldev.c
++++ b/drivers/infiniband/core/nldev.c
+@@ -502,7 +502,7 @@ static int fill_res_qp_entry(struct sk_buff *msg, bool has_cap_net_admin,
  
--		if (__is_large_section(sbi) && segno + 1 < end_segno)
--			sbi->next_victim_seg[gc_type] = segno + 1;
-+		if (__is_large_section(sbi))
-+			sbi->next_victim_seg[gc_type] =
-+				(segno + 1 < end_segno) ? segno + 1 : NULL_SEGNO;
- skip:
- 		f2fs_put_page(sum_page, 0);
- 	}
+ 	/* In create_qp() port is not set yet */
+ 	if (qp->port && nla_put_u32(msg, RDMA_NLDEV_ATTR_PORT_INDEX, qp->port))
+-		return -EINVAL;
++		return -EMSGSIZE;
+ 
+ 	ret = nla_put_u32(msg, RDMA_NLDEV_ATTR_RES_LQPN, qp->qp_num);
+ 	if (ret)
 -- 
 2.35.1
 
