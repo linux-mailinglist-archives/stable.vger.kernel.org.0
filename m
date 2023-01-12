@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C96E667619
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:28:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF0C6667640
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229737AbjALO2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:28:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48512 "EHLO
+        id S234094AbjALOa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:30:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237175AbjALO15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:27:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B08F52C6E
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:18:56 -0800 (PST)
+        with ESMTP id S232971AbjALO16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:27:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27EA758305
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:18:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1486B81DB2
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:18:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E3A1C433EF;
-        Thu, 12 Jan 2023 14:18:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1EA5B81DB2
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:18:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16BD8C433D2;
+        Thu, 12 Jan 2023 14:18:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533133;
-        bh=rBurc719qreKJtfryobjI1i8Mmm+/tDZv21DfTcX+nM=;
+        s=korg; t=1673533136;
+        bh=2s8+8v+kwfXxbFXzf6BDPF3hKKV7A9BpshUDpveIOhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+bmrsgrMKYA7Yp9RpanTNKTyF5jRQzLvB18nqNKx85CJGx1eSblX3pEY2/F4e80B
-         CPSjl7p0T1q38rMACYi87kf704RwajYy/kADSIdV6ZXWrcNqzBrH4JK5gDzvlNFnZC
-         1agwV134zPcI0vz6cUhD8MccHgsfp4RvcLIibPk8=
+        b=MJY6rBfarAqGkhukFst3ZIbQx4TDLQaUabWPgo8wDrU88Jt6T3g6dJu+2mSsO04pY
+         WvfUXIQEn6MPnH1iQHYxkhhKZbfPPeRYqKSRZtEIiHSwgckLTOcgdYYZoYznSIy9Pp
+         UgHXbmNVcpxf1ypJT2uMqjQWZeasY4tuGmtjgPwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 381/783] chardev: fix error handling in cdev_device_add()
-Date:   Thu, 12 Jan 2023 14:51:37 +0100
-Message-Id: <20230112135541.954571269@linuxfoundation.org>
+        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 382/783] i2c: pxa-pci: fix missing pci_disable_device() on error in ce4100_i2c_probe
+Date:   Thu, 12 Jan 2023 14:51:38 +0100
+Message-Id: <20230112135542.004072856@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -52,52 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Hui Tang <tanghui20@huawei.com>
 
-[ Upstream commit 11fa7fefe3d8fac7da56bc9aa3dd5fb3081ca797 ]
+[ Upstream commit d78a167332e1ca8113268ed922c1212fd71b73ad ]
 
-While doing fault injection test, I got the following report:
+Using pcim_enable_device() to avoid missing pci_disable_device().
 
-------------[ cut here ]------------
-kobject: '(null)' (0000000039956980): is not initialized, yet kobject_put() is being called.
-WARNING: CPU: 3 PID: 6306 at kobject_put+0x23d/0x4e0
-CPU: 3 PID: 6306 Comm: 283 Tainted: G        W          6.1.0-rc2-00005-g307c1086d7c9 #1253
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-RIP: 0010:kobject_put+0x23d/0x4e0
-Call Trace:
- <TASK>
- cdev_device_add+0x15e/0x1b0
- __iio_device_register+0x13b4/0x1af0 [industrialio]
- __devm_iio_device_register+0x22/0x90 [industrialio]
- max517_probe+0x3d8/0x6b4 [max517]
- i2c_device_probe+0xa81/0xc00
-
-When device_add() is injected fault and returns error, if dev->devt is not set,
-cdev_add() is not called, cdev_del() is not needed. Fix this by checking dev->devt
-in error path.
-
-Fixes: 233ed09d7fda ("chardev: add helper function to register char devs with a struct device")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221202030237.520280-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7e94dd154e93 ("i2c-pxa2xx: Add PCI support for PXA I2C controller")
+Signed-off-by: Hui Tang <tanghui20@huawei.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/char_dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-pxa-pci.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/fs/char_dev.c b/fs/char_dev.c
-index ba0ded7842a7..3f667292608c 100644
---- a/fs/char_dev.c
-+++ b/fs/char_dev.c
-@@ -547,7 +547,7 @@ int cdev_device_add(struct cdev *cdev, struct device *dev)
+diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
+index f614cade432b..30e38bc8b6db 100644
+--- a/drivers/i2c/busses/i2c-pxa-pci.c
++++ b/drivers/i2c/busses/i2c-pxa-pci.c
+@@ -105,7 +105,7 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 	int i;
+ 	struct ce4100_devices *sds;
+ 
+-	ret = pci_enable_device_mem(dev);
++	ret = pcim_enable_device(dev);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -114,10 +114,8 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
+ 		return -EINVAL;
  	}
+ 	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
+-	if (!sds) {
+-		ret = -ENOMEM;
+-		goto err_mem;
+-	}
++	if (!sds)
++		return -ENOMEM;
  
- 	rc = device_add(dev);
--	if (rc)
-+	if (rc && dev->devt)
- 		cdev_del(cdev);
+ 	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++) {
+ 		sds->pdev[i] = add_i2c_device(dev, i);
+@@ -133,8 +131,6 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
  
- 	return rc;
+ err_dev_add:
+ 	kfree(sds);
+-err_mem:
+-	pci_disable_device(dev);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
