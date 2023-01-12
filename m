@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79F1166778B
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:45:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71A6A66778D
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239947AbjALOpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:45:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37766 "EHLO
+        id S239272AbjALOpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:45:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239943AbjALOo0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:44:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CCAD54737
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:32:55 -0800 (PST)
+        with ESMTP id S239933AbjALOod (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:44:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 238CF54DAD
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:33:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F20E86203B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:32:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EABA7C433F0;
-        Thu, 12 Jan 2023 14:32:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C224AB81E73
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:32:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02186C433F0;
+        Thu, 12 Jan 2023 14:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533974;
-        bh=aEeLNJ1YrcI5bLMv3AqZMONFgTd3o7bR3zux2ZojO5E=;
+        s=korg; t=1673533977;
+        bh=LpoWBYcZu/peatgJRbYWvrab0sBh8G4kO2UPUUcAM68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KpdfglxuD5GRRJqIK/WcKEwgaZBdQooPs2k5lQmTEdau3Dgf/75+LI7TXjEwRN2I0
-         YbNK0pSkHCuRHXcPyC7raGMIEys2NAbDxaQoujpyMgcYGE9fxTXrsAjqMuj/IprJS7
-         0sAhCDhOwtKrNfn3HtJqB+19YiVCZfJsMBElQTgM=
+        b=gjVri/NE03paHkd96GOfNKLVWyO+AN3dauMxQ3jud6chlE+JRZGMoP4g8Upe77Itb
+         WnNAShnoZ0MZ/PM/p470R0WdV37Bny/Lc8cGAl9pcFaUAQ5DH5lvOWrBnWrmaB9rdw
+         WenDWRomjsobCYRT51BK01b/yxIrz/AspqbI14Uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.10 653/783] ipmi: fix long wait in unload when IPMI disconnect
-Date:   Thu, 12 Jan 2023 14:56:09 +0100
-Message-Id: <20230112135554.607391451@linuxfoundation.org>
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 5.10 654/783] mtd: spi-nor: Check for zero erase size in spi_nor_find_best_erase_type()
+Date:   Thu, 12 Jan 2023 14:56:10 +0100
+Message-Id: <20230112135554.650895786@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,94 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-commit f6f1234d98cce69578bfac79df147a1f6660596c upstream.
+commit 2ebc336be08160debfe27f87660cf550d710f3e9 upstream.
 
-When fixing the problem mentioned in PATCH1, we also found
-the following problem:
+Erase can be zeroed in spi_nor_parse_4bait() or
+spi_nor_init_non_uniform_erase_map(). In practice it happened with
+mt25qu256a, which supports 4K, 32K, 64K erases with 3b address commands,
+but only 4K and 64K erase with 4b address commands.
 
-If the IPMI is disconnected and in the sending process, the
-uninstallation driver will be stuck for a long time.
-
-The main problem is that uninstalling the driver waits for curr_msg to
-be sent or HOSED. After stopping tasklet, the only place to trigger the
-timeout mechanism is the circular poll in shutdown_smi.
-
-The poll function delays 10us and calls smi_event_handler(smi_info,10).
-Smi_event_handler deducts 10us from kcs->ibf_timeout.
-
-But the poll func is followed by schedule_timeout_uninterruptible(1).
-The time consumed here is not counted in kcs->ibf_timeout.
-
-So when 10us is deducted from kcs->ibf_timeout, at least 1 jiffies has
-actually passed. The waiting time has increased by more than a
-hundredfold.
-
-Now instead of calling poll(). call smi_event_handler() directly and
-calculate the elapsed time.
-
-For verification, you can directly use ebpf to check the kcs->
-ibf_timeout for each call to kcs_event() when IPMI is disconnected.
-Decrement at normal rate before unloading. The decrement rate becomes
-very slow after unloading.
-
-  $ bpftrace -e 'kprobe:kcs_event {printf("kcs->ibftimeout : %d\n",
-      *(arg0+584));}'
-
-Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
-Message-Id: <20221007092617.87597-3-zhangyuchen.lcr@bytedance.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: dc92843159a7 ("mtd: spi-nor: fix erase_type array to indicate current map conf")
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211119081412.29732-1-alexander.sverdlin@nokia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_si_intf.c |   27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/mtd/spi-nor/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/char/ipmi/ipmi_si_intf.c
-+++ b/drivers/char/ipmi/ipmi_si_intf.c
-@@ -2160,6 +2160,20 @@ skip_fallback_noirq:
- }
- module_init(init_ipmi_si);
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -1220,6 +1220,8 @@ spi_nor_find_best_erase_type(const struc
+ 			continue;
  
-+static void wait_msg_processed(struct smi_info *smi_info)
-+{
-+	unsigned long jiffies_now;
-+	long time_diff;
-+
-+	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
-+		jiffies_now = jiffies;
-+		time_diff = (((long)jiffies_now - (long)smi_info->last_timeout_jiffies)
-+		     * SI_USEC_PER_JIFFY);
-+		smi_event_handler(smi_info, time_diff);
-+		schedule_timeout_uninterruptible(1);
-+	}
-+}
-+
- static void shutdown_smi(void *send_info)
- {
- 	struct smi_info *smi_info = send_info;
-@@ -2194,16 +2208,13 @@ static void shutdown_smi(void *send_info
- 	 * in the BMC.  Note that timers and CPU interrupts are off,
- 	 * so no need for locks.
- 	 */
--	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
--		poll(smi_info);
--		schedule_timeout_uninterruptible(1);
--	}
-+	wait_msg_processed(smi_info);
-+
- 	if (smi_info->handlers)
- 		disable_si_irq(smi_info);
--	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
--		poll(smi_info);
--		schedule_timeout_uninterruptible(1);
--	}
-+
-+	wait_msg_processed(smi_info);
-+
- 	if (smi_info->handlers)
- 		smi_info->handlers->cleanup(smi_info->si_sm);
+ 		erase = &map->erase_type[i];
++		if (!erase->size)
++			continue;
  
+ 		/* Alignment is not mandatory for overlaid regions */
+ 		if (region->offset & SNOR_OVERLAID_REGION &&
 
 
