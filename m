@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C79406673BD
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:57:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3F346677A6
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:46:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229809AbjALN5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 08:57:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53026 "EHLO
+        id S240019AbjALOqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:46:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbjALN5K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:57:10 -0500
+        with ESMTP id S239951AbjALOpv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:45:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AF5B6472
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B73065E66F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:34:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38F14B81E67
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 791D3C433D2;
-        Thu, 12 Jan 2023 13:57:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E336B8113E
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:33:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90025C433EF;
+        Thu, 12 Jan 2023 14:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673531826;
-        bh=Y7EGuV5nDIn9MMkRELJG7wn7Y89H0W8OT48fYQEPeKY=;
+        s=korg; t=1673534038;
+        bh=EKjSMOme4ie8V5RB1C8qlqpKkZQS6JiHqyQH/GgLbsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S1kvQs7hRhI2HyJoARgA0IdRNb/cxFTwJMlwCF67PMI6yY/1hTR0MIsHPhN/lEWNP
-         psfSn13GYOEB+/KCITI14pIm9Zf0oVaKkUrDzrysEc6sSfD3lnxWODvIuT+rSglRVl
-         5jBTWjud2+HoBoFJqos31Dt6gFCo8um0L1i1k4hA=
+        b=HNCiZP9NRHSlLH+esiWq82BAFSE2A0HT3lGKSVemjrEHJ3hI/IWDHZfaUCgobmuyj
+         7pPL5q7OxuRoK08vDO5f1D/PqDKSWrIkKBX6KcBR5EG6oP2tcFlZS+52G0KUerIKC0
+         CevdlCZcKdhg+5dax4AnlCwtmVZMRaGEOaZpFj0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frederick Lawler <fred@cloudflare.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 10/10] net: sched: disallow noqueue for qdisc classes
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.10 675/783] ext4: fix bug_on in __es_tree_search caused by bad quota inode
 Date:   Thu, 12 Jan 2023 14:56:31 +0100
-Message-Id: <20230112135327.411324794@linuxfoundation.org>
+Message-Id: <20230112135555.623080068@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230112135326.981869724@linuxfoundation.org>
-References: <20230112135326.981869724@linuxfoundation.org>
+In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
+References: <20230112135524.143670746@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,93 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederick Lawler <fred@cloudflare.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 96398560f26aa07e8f2969d73c8197e6a6d10407 upstream.
+commit d323877484765aaacbb2769b06e355c2041ed115 upstream.
 
-While experimenting with applying noqueue to a classful queue discipline,
-we discovered a NULL pointer dereference in the __dev_queue_xmit()
-path that generates a kernel OOPS:
+We got a issue as fllows:
+==================================================================
+ kernel BUG at fs/ext4/extents_status.c:202!
+ invalid opcode: 0000 [#1] PREEMPT SMP
+ CPU: 1 PID: 810 Comm: mount Not tainted 6.1.0-rc1-next-g9631525255e3 #352
+ RIP: 0010:__es_tree_search.isra.0+0xb8/0xe0
+ RSP: 0018:ffffc90001227900 EFLAGS: 00010202
+ RAX: 0000000000000000 RBX: 0000000077512a0f RCX: 0000000000000000
+ RDX: 0000000000000002 RSI: 0000000000002a10 RDI: ffff8881004cd0c8
+ RBP: ffff888177512ac8 R08: 47ffffffffffffff R09: 0000000000000001
+ R10: 0000000000000001 R11: 00000000000679af R12: 0000000000002a10
+ R13: ffff888177512d88 R14: 0000000077512a10 R15: 0000000000000000
+ FS: 00007f4bd76dbc40(0000)GS:ffff88842fd00000(0000)knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00005653bf993cf8 CR3: 000000017bfdf000 CR4: 00000000000006e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  <TASK>
+  ext4_es_cache_extent+0xe2/0x210
+  ext4_cache_extents+0xd2/0x110
+  ext4_find_extent+0x5d5/0x8c0
+  ext4_ext_map_blocks+0x9c/0x1d30
+  ext4_map_blocks+0x431/0xa50
+  ext4_getblk+0x82/0x340
+  ext4_bread+0x14/0x110
+  ext4_quota_read+0xf0/0x180
+  v2_read_header+0x24/0x90
+  v2_check_quota_file+0x2f/0xa0
+  dquot_load_quota_sb+0x26c/0x760
+  dquot_load_quota_inode+0xa5/0x190
+  ext4_enable_quotas+0x14c/0x300
+  __ext4_fill_super+0x31cc/0x32c0
+  ext4_fill_super+0x115/0x2d0
+  get_tree_bdev+0x1d2/0x360
+  ext4_get_tree+0x19/0x30
+  vfs_get_tree+0x26/0xe0
+  path_mount+0x81d/0xfc0
+  do_mount+0x8d/0xc0
+  __x64_sys_mount+0xc0/0x160
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  </TASK>
+==================================================================
 
-    # dev=enp0s5
-    # tc qdisc replace dev $dev root handle 1: htb default 1
-    # tc class add dev $dev parent 1: classid 1:1 htb rate 10mbit
-    # tc qdisc add dev $dev parent 1:1 handle 10: noqueue
-    # ping -I $dev -w 1 -c 1 1.1.1.1
+Above issue may happen as follows:
+-------------------------------------
+ext4_fill_super
+ ext4_orphan_cleanup
+  ext4_enable_quotas
+   ext4_quota_enable
+    ext4_iget --> get error inode <5>
+     ext4_ext_check_inode --> Wrong imode makes it escape inspection
+     make_bad_inode(inode) --> EXT4_BOOT_LOADER_INO set imode
+    dquot_load_quota_inode
+     vfs_setup_quota_inode --> check pass
+     dquot_load_quota_sb
+      v2_check_quota_file
+       v2_read_header
+        ext4_quota_read
+         ext4_bread
+          ext4_getblk
+           ext4_map_blocks
+            ext4_ext_map_blocks
+             ext4_find_extent
+              ext4_cache_extents
+               ext4_es_cache_extent
+                __es_tree_search.isra.0
+                 ext4_es_end --> Wrong extents trigger BUG_ON
 
-[    2.172856] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[    2.173217] #PF: supervisor instruction fetch in kernel mode
-...
-[    2.178451] Call Trace:
-[    2.178577]  <TASK>
-[    2.178686]  htb_enqueue+0x1c8/0x370
-[    2.178880]  dev_qdisc_enqueue+0x15/0x90
-[    2.179093]  __dev_queue_xmit+0x798/0xd00
-[    2.179305]  ? _raw_write_lock_bh+0xe/0x30
-[    2.179522]  ? __local_bh_enable_ip+0x32/0x70
-[    2.179759]  ? ___neigh_create+0x610/0x840
-[    2.179968]  ? eth_header+0x21/0xc0
-[    2.180144]  ip_finish_output2+0x15e/0x4f0
-[    2.180348]  ? dst_output+0x30/0x30
-[    2.180525]  ip_push_pending_frames+0x9d/0xb0
-[    2.180739]  raw_sendmsg+0x601/0xcb0
-[    2.180916]  ? _raw_spin_trylock+0xe/0x50
-[    2.181112]  ? _raw_spin_unlock_irqrestore+0x16/0x30
-[    2.181354]  ? get_page_from_freelist+0xcd6/0xdf0
-[    2.181594]  ? sock_sendmsg+0x56/0x60
-[    2.181781]  sock_sendmsg+0x56/0x60
-[    2.181958]  __sys_sendto+0xf7/0x160
-[    2.182139]  ? handle_mm_fault+0x6e/0x1d0
-[    2.182366]  ? do_user_addr_fault+0x1e1/0x660
-[    2.182627]  __x64_sys_sendto+0x1b/0x30
-[    2.182881]  do_syscall_64+0x38/0x90
-[    2.183085]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-...
-[    2.187402]  </TASK>
+In the above issue, s_usr_quota_inum is set to 5, but inode<5> contains
+incorrect imode and disordered extents. Because 5 is EXT4_BOOT_LOADER_INO,
+the ext4_ext_check_inode check in the ext4_iget function can be bypassed,
+finally, the extents that are not checked trigger the BUG_ON in the
+__es_tree_search function. To solve this issue, check whether the inode is
+bad_inode in vfs_setup_quota_inode().
 
-Previously in commit d66d6c3152e8 ("net: sched: register noqueue
-qdisc"), NULL was set for the noqueue discipline on noqueue init
-so that __dev_queue_xmit() falls through for the noqueue case. This
-also sets a bypass of the enqueue NULL check in the
-register_qdisc() function for the struct noqueue_disc_ops.
-
-Classful queue disciplines make it past the NULL check in
-__dev_queue_xmit() because the discipline is set to htb (in this case),
-and then in the call to __dev_xmit_skb(), it calls into htb_enqueue()
-which grabs a leaf node for a class and then calls qdisc_enqueue() by
-passing in a queue discipline which assumes ->enqueue() is not set to NULL.
-
-Fix this by not allowing classes to be assigned to the noqueue
-discipline. Linux TC Notes states that classes cannot be set to
-the noqueue discipline. [1] Let's enforce that here.
-
-Links:
-1. https://linux-tc-notes.sourceforge.net/tc/doc/sch_noqueue.txt
-
-Fixes: d66d6c3152e8 ("net: sched: register noqueue qdisc")
-Cc: stable@vger.kernel.org
-Signed-off-by: Frederick Lawler <fred@cloudflare.com>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/r/20230109163906.706000-1-fred@cloudflare.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221026042310.3839669-2-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_api.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/quota/dquot.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -1132,6 +1132,11 @@ skip:
- 			return -ENOENT;
- 		}
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -2319,6 +2319,8 @@ static int vfs_setup_quota_inode(struct
+ 	struct super_block *sb = inode->i_sb;
+ 	struct quota_info *dqopt = sb_dqopt(sb);
  
-+		if (new && new->ops == &noqueue_qdisc_ops) {
-+			NL_SET_ERR_MSG(extack, "Cannot assign noqueue to a class");
-+			return -EINVAL;
-+		}
-+
- 		err = cops->graft(parent, cl, new, &old, extack);
- 		if (err)
- 			return err;
++	if (is_bad_inode(inode))
++		return -EUCLEAN;
+ 	if (!S_ISREG(inode->i_mode))
+ 		return -EACCES;
+ 	if (IS_RDONLY(inode))
 
 
