@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 602CC667603
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:28:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEBE5667636
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:29:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237324AbjALO2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:28:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50998 "EHLO
+        id S232734AbjALO3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:29:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232579AbjALO1c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:27:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1C1A5CFA9
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:18:18 -0800 (PST)
+        with ESMTP id S232628AbjALO3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB28458D25
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:20:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BD0BB81E70
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:18:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B792CC433D2;
-        Thu, 12 Jan 2023 14:18:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 871CC61F4A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2269BC433D2;
+        Thu, 12 Jan 2023 14:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533096;
-        bh=kcQgg9ehBOzyXNlFza6/yPpkNfY3mOMvIREc/aWgUCM=;
+        s=korg; t=1673533219;
+        bh=l0YJsElX6GBt25o6kpVSuB7Iw5XqVWFcuYzU4gFsfsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFST435aZcPP8RpF08Q9nk00PG+aIU+nHLdTrnOMT+zz6Vu6NXMzv20Z+aJaUvTPg
-         Es4+RALxe6/Mx/2ckwGd+qI99EW4WqX+PuYbxr1Aua5JOaUZ1svLtfKWOkhA2cZ+2M
-         L87oYmiPPloe6Wsjss4wEF6/ZsegjLh91N5weNpY=
+        b=XGZHK5hskB/VtCOKbOx8204RVO4oggNKhkTX1ZCsSZQiXIMKD2js9jfbV9ltpVuQt
+         vvRZRNXj7ygUpHjTOBEmZgKPGExBg8Taob7J95vLwm0fPQtWyoOvuHE8MTur/jfy23
+         FfU5eMUoIVeUKRs9YlRBfbvkMlQj0wD7E60IfG5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cosmin Tanislav <cosmin.tanislav@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        patches@lists.linux.dev, Barry Song <song.bao.hua@hisilicon.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, dmitry.torokhov@gmail.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 367/783] iio: temperature: ltc2983: make bulk write buffer DMA-safe
-Date:   Thu, 12 Jan 2023 14:51:23 +0100
-Message-Id: <20230112135541.347139114@linuxfoundation.org>
+Subject: [PATCH 5.10 368/783] genirq: Add IRQF_NO_AUTOEN for request_irq/nmi()
+Date:   Thu, 12 Jan 2023 14:51:24 +0100
+Message-Id: <20230112135541.391994386@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,59 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cosmin Tanislav <cosmin.tanislav@analog.com>
+From: Barry Song <song.bao.hua@hisilicon.com>
 
-[ Upstream commit 5e0176213949724fbe9a8e4a39817edce337b8a0 ]
+[ Upstream commit cbe16f35bee6880becca6f20d2ebf6b457148552 ]
 
-regmap_bulk_write() does not guarantee implicit DMA-safety,
-even though the current implementation duplicates the given
-buffer. Do not rely on it.
+Many drivers don't want interrupts enabled automatically via request_irq().
+So they are handling this issue by either way of the below two:
 
-Fixes: f110f3188e56 ("iio: temperature: Add support for LTC2983")
-Signed-off-by: Cosmin Tanislav <cosmin.tanislav@analog.com>
-Link: https://lore.kernel.org/r/20221103130041.2153295-2-demonsingur@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+(1)
+  irq_set_status_flags(irq, IRQ_NOAUTOEN);
+  request_irq(dev, irq...);
+
+(2)
+  request_irq(dev, irq...);
+  disable_irq(irq);
+
+The code in the second way is silly and unsafe. In the small time gap
+between request_irq() and disable_irq(), interrupts can still come.
+
+The code in the first way is safe though it's subobtimal.
+
+Add a new IRQF_NO_AUTOEN flag which can be handed in by drivers to
+request_irq() and request_nmi(). It prevents the automatic enabling of the
+requested interrupt/nmi in the same safe way as #1 above. With that the
+various usage sites of #1 and #2 above can be simplified and corrected.
+
+Signed-off-by: Barry Song <song.bao.hua@hisilicon.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: dmitry.torokhov@gmail.com
+Link: https://lore.kernel.org/r/20210302224916.13980-2-song.bao.hua@hisilicon.com
+Stable-dep-of: 99c05e4283a1 ("iio: adis: add '__adis_enable_irq()' implementation")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/temperature/ltc2983.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/linux/interrupt.h |  4 ++++
+ kernel/irq/manage.c       | 11 +++++++++--
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/temperature/ltc2983.c b/drivers/iio/temperature/ltc2983.c
-index 8306daa77908..b2ae2d2c7eef 100644
---- a/drivers/iio/temperature/ltc2983.c
-+++ b/drivers/iio/temperature/ltc2983.c
-@@ -205,6 +205,7 @@ struct ltc2983_data {
- 	 * Holds the converted temperature
+diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+index ee8299eb1f52..0652b4858ba6 100644
+--- a/include/linux/interrupt.h
++++ b/include/linux/interrupt.h
+@@ -61,6 +61,9 @@
+  *                interrupt handler after suspending interrupts. For system
+  *                wakeup devices users need to implement wakeup detection in
+  *                their interrupt handlers.
++ * IRQF_NO_AUTOEN - Don't enable IRQ or NMI automatically when users request it.
++ *                Users will enable it explicitly by enable_irq() or enable_nmi()
++ *                later.
+  */
+ #define IRQF_SHARED		0x00000080
+ #define IRQF_PROBE_SHARED	0x00000100
+@@ -74,6 +77,7 @@
+ #define IRQF_NO_THREAD		0x00010000
+ #define IRQF_EARLY_RESUME	0x00020000
+ #define IRQF_COND_SUSPEND	0x00040000
++#define IRQF_NO_AUTOEN		0x00080000
+ 
+ #define IRQF_TIMER		(__IRQF_TIMER | IRQF_NO_SUSPEND | IRQF_NO_THREAD)
+ 
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index 3cb29835632f..437b073dc487 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -1667,7 +1667,8 @@ __setup_irq(unsigned int irq, struct irq_desc *desc, struct irqaction *new)
+ 			irqd_set(&desc->irq_data, IRQD_NO_BALANCING);
+ 		}
+ 
+-		if (irq_settings_can_autoenable(desc)) {
++		if (!(new->flags & IRQF_NO_AUTOEN) &&
++		    irq_settings_can_autoenable(desc)) {
+ 			irq_startup(desc, IRQ_RESEND, IRQ_START_COND);
+ 		} else {
+ 			/*
+@@ -2054,10 +2055,15 @@ int request_threaded_irq(unsigned int irq, irq_handler_t handler,
+ 	 * which interrupt is which (messes up the interrupt freeing
+ 	 * logic etc).
+ 	 *
++	 * Also shared interrupts do not go well with disabling auto enable.
++	 * The sharing interrupt might request it while it's still disabled
++	 * and then wait for interrupts forever.
++	 *
+ 	 * Also IRQF_COND_SUSPEND only makes sense for shared interrupts and
+ 	 * it cannot be set along with IRQF_NO_SUSPEND.
  	 */
- 	__be32 temp ____cacheline_aligned;
-+	__be32 chan_val;
- };
+ 	if (((irqflags & IRQF_SHARED) && !dev_id) ||
++	    ((irqflags & IRQF_SHARED) && (irqflags & IRQF_NO_AUTOEN)) ||
+ 	    (!(irqflags & IRQF_SHARED) && (irqflags & IRQF_COND_SUSPEND)) ||
+ 	    ((irqflags & IRQF_NO_SUSPEND) && (irqflags & IRQF_COND_SUSPEND)))
+ 		return -EINVAL;
+@@ -2213,7 +2219,8 @@ int request_nmi(unsigned int irq, irq_handler_t handler,
  
- struct ltc2983_sensor {
-@@ -309,19 +310,18 @@ static int __ltc2983_fault_handler(const struct ltc2983_data *st,
- 	return 0;
- }
+ 	desc = irq_to_desc(irq);
  
--static int __ltc2983_chan_assign_common(const struct ltc2983_data *st,
-+static int __ltc2983_chan_assign_common(struct ltc2983_data *st,
- 					const struct ltc2983_sensor *sensor,
- 					u32 chan_val)
- {
- 	u32 reg = LTC2983_CHAN_START_ADDR(sensor->chan);
--	__be32 __chan_val;
- 
- 	chan_val |= LTC2983_CHAN_TYPE(sensor->type);
- 	dev_dbg(&st->spi->dev, "Assign reg:0x%04X, val:0x%08X\n", reg,
- 		chan_val);
--	__chan_val = cpu_to_be32(chan_val);
--	return regmap_bulk_write(st->regmap, reg, &__chan_val,
--				 sizeof(__chan_val));
-+	st->chan_val = cpu_to_be32(chan_val);
-+	return regmap_bulk_write(st->regmap, reg, &st->chan_val,
-+				 sizeof(st->chan_val));
- }
- 
- static int __ltc2983_chan_custom_sensor_assign(struct ltc2983_data *st,
+-	if (!desc || irq_settings_can_autoenable(desc) ||
++	if (!desc || (irq_settings_can_autoenable(desc) &&
++	    !(irqflags & IRQF_NO_AUTOEN)) ||
+ 	    !irq_settings_can_request(desc) ||
+ 	    WARN_ON(irq_settings_is_per_cpu_devid(desc)) ||
+ 	    !irq_supports_nmi(desc))
 -- 
 2.35.1
 
