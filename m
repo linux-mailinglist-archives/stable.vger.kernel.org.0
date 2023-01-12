@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 434256675D6
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:26:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C91C6675D7
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236990AbjALO0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:26:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47868 "EHLO
+        id S236993AbjALO02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:26:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229915AbjALOZj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:25:39 -0500
+        with ESMTP id S231560AbjALOZl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:25:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E7CF5C1CE
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:16:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27A1D5C1E2
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:16:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0043B81DCC
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:16:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C21EC433D2;
-        Thu, 12 Jan 2023 14:16:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4BA2B81DB2
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:16:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22AC9C433EF;
+        Thu, 12 Jan 2023 14:16:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533007;
-        bh=RmiDtniIOZGkzK47RB09aJTqecnNbwloawVvrICQDaQ=;
+        s=korg; t=1673533010;
+        bh=FDnY9memHDK08dNNfY/561sVbx1C03QW5gMzHUsYe7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdD1AbtH1xh9oN+YD2/su7cV6VahLZvyVo2hQtBGJuz07bC9XHKI50uPcQ/azHdRF
-         as5j9l/te/klIgeP48Q/3EKOg6cJYmeJSJUCz1I/uX4vZ5c9I77j4KAIJlnl6adYfc
-         cyzyOiOz+O8zk3H0NScteYrQzQqOG5acYbvKGIR8=
+        b=Ez1UtZGURTkemtgDQGcqN0ldUV7zQtRBVNTcMCg3FDGhVf0I6VhKa/sIF3FUefKIb
+         TQIlRqJqvL2pc/1rqdkDWsQ3xovooGzqPq9QkY8ZEPLe6EgZmhi+ATnmvmvgWo7SQ1
+         w5aUrb82LlZyeXBy5rMtfTMwS4Cow+/TtBUkkkNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 308/783] RDMA/hfi: Decrease PCI device reference count in error path
-Date:   Thu, 12 Jan 2023 14:50:24 +0100
-Message-Id: <20230112135538.603424335@linuxfoundation.org>
+Subject: [PATCH 5.10 309/783] crypto: ccree - Make cc_debugfs_global_fini() available for module init function
+Date:   Thu, 12 Jan 2023 14:50:25 +0100
+Message-Id: <20230112135538.653050832@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,40 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 9b51d072da1d27e1193e84708201c48e385ad912 ]
+[ Upstream commit 8e96729fc26c8967db45a3fb7a60387619f77a22 ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev, and also decrease the reference count for the input parameter
-*from* if it is not NULL.
+ccree_init() calls cc_debugfs_global_fini(), the former is an init
+function and the latter an exit function though.
 
-If we break out the loop in node_affinity_init() with 'dev' not NULL, we
-need to call pci_dev_put() to decrease the reference count. Add missing
-pci_dev_put() in error path.
+A modular build emits:
 
-Fixes: c513de490f80 ("IB/hfi1: Invalid NUMA node information can cause a divide by zero")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221117131546.113280-1-wangxiongfeng2@huawei.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+	WARNING: modpost: drivers/crypto/ccree/ccree.o: section mismatch in reference: init_module (section: .init.text) -> cc_debugfs_global_fini (section: .exit.text)
+
+(with CONFIG_DEBUG_SECTION_MISMATCH=y).
+
+Fixes: 4f1c596df706 ("crypto: ccree - Remove debugfs when platform_driver_register failed")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/affinity.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/ccree/cc_debugfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/affinity.c b/drivers/infiniband/hw/hfi1/affinity.c
-index 04b1e8f021f6..d5a8d0173709 100644
---- a/drivers/infiniband/hw/hfi1/affinity.c
-+++ b/drivers/infiniband/hw/hfi1/affinity.c
-@@ -219,6 +219,8 @@ int node_affinity_init(void)
- 	for (node = 0; node < node_affinity.num_possible_nodes; node++)
- 		hfi1_per_node_cntr[node] = 1;
- 
-+	pci_dev_put(dev);
-+
- 	return 0;
+diff --git a/drivers/crypto/ccree/cc_debugfs.c b/drivers/crypto/ccree/cc_debugfs.c
+index 7083767602fc..8f008f024f8f 100644
+--- a/drivers/crypto/ccree/cc_debugfs.c
++++ b/drivers/crypto/ccree/cc_debugfs.c
+@@ -55,7 +55,7 @@ void __init cc_debugfs_global_init(void)
+ 	cc_debugfs_dir = debugfs_create_dir("ccree", NULL);
  }
  
+-void __exit cc_debugfs_global_fini(void)
++void cc_debugfs_global_fini(void)
+ {
+ 	debugfs_remove(cc_debugfs_dir);
+ }
 -- 
 2.35.1
 
