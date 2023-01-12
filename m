@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04A1766754E
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:20:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56C2F667529
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234490AbjALOUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:20:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43982 "EHLO
+        id S234805AbjALOTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:19:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231560AbjALOTk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:19:40 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5DAB53728
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:11:23 -0800 (PST)
+        with ESMTP id S235411AbjALORx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8DE85791F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:09:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5CFEFCE1E71
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:11:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18990C433EF;
-        Thu, 12 Jan 2023 14:11:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2D3FB81E67
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:09:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0EB1C433EF;
+        Thu, 12 Jan 2023 14:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532680;
-        bh=KWbypAibzVAGEhqZTljc3d/eK7Wu9lIMQwxlQBI9Xbg=;
+        s=korg; t=1673532586;
+        bh=HaGbFttjHtxaufg1ZWo33eccYnvnm3aK55UE5hHOgyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1PyNzGM6/ggVeQZ244B5Ak9kYVGY4urMCchm61PxBeBa4tZVX9BpUk7bmDlgc4jX
-         L9t7gY0YyqQWejQP/vLHYcAM3Aw35/6WFz82npLlj5FbqJz9M91Fv/OUy9vvuNJls+
-         D8/MHi7K/oaxoEAm5Y29r67l4xFKb28cyxImT5Cs=
+        b=KorlVfl+28drV/MfAUyLv/7hG08j2Nnou5WHrjK0VJsfXYbFsdcvuGvcMwtmE6h8k
+         BB2eZSJci4VpKgA86U8FTV3fwpNLMX/K/vDk3qD5LDckwluYzNcs/m1qnve+ejSRoM
+         XKGTbpqCCyoV8nq7oQnalYvr6DtQ+Df7Nq79l6/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 210/783] hsr: Synchronize sending frames to have always incremented outgoing seq nr.
-Date:   Thu, 12 Jan 2023 14:48:46 +0100
-Message-Id: <20230112135534.079964635@linuxfoundation.org>
+Subject: [PATCH 5.10 211/783] hsr: Synchronize sequence number updates.
+Date:   Thu, 12 Jan 2023 14:48:47 +0100
+Message-Id: <20230112135534.129749721@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -56,132 +56,97 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 06afd2c31d338fa762548580c1bf088703dd1e03 ]
+[ Upstream commit 5c7aa13210c3abdd34fd421f62347665ec6eb551 ]
 
-Sending frames via the hsr (master) device requires a sequence number
-which is tracked in hsr_priv::sequence_nr and protected by
-hsr_priv::seqnr_lock. Each time a new frame is sent, it will obtain a
-new id and then send it via the slave devices.
-Each time a packet is sent (via hsr_forward_do()) the sequence number is
-checked via hsr_register_frame_out() to ensure that a frame is not
-handled twice. This make sense for the receiving side to ensure that the
-frame is not injected into the stack twice after it has been received
-from both slave ports.
+hsr_register_frame_out() compares new sequence_nr vs the old one
+recorded in hsr_node::seq_out and if the new sequence_nr is higher then
+it will be written to hsr_node::seq_out as the new value.
 
-There is no locking to cover the sending path which means the following
-scenario is possible:
+This operation isn't locked so it is possible that two frames with the
+same sequence number arrive (via the two slave devices) and are fed to
+hsr_register_frame_out() at the same time. Both will pass the check and
+update the sequence counter later to the same value. As a result the
+content of the same packet is fed into the stack twice.
 
-  CPU0				CPU1
-  hsr_dev_xmit(skb1)		hsr_dev_xmit(skb2)
-   fill_frame_info()             fill_frame_info()
-    hsr_fill_frame_info()         hsr_fill_frame_info()
-     handle_std_frame()            handle_std_frame()
-      skb1's sequence_nr = 1
-                                    skb2's sequence_nr = 2
-   hsr_forward_do()              hsr_forward_do()
+This was noticed by running ping and observing DUP being reported from
+time to time.
 
-                                   hsr_register_frame_out(, 2)  // okay, send)
+Instead of using the hsr_priv::seqnr_lock for the whole receive path (as
+it is for sending in the master node) add an additional lock that is only
+used for sequence number checks and updates.
 
-    hsr_register_frame_out(, 1) // stop, lower seq duplicate
-
-Both skbs (or their struct hsr_frame_info) received an unique id.
-However since skb2 was sent before skb1, the higher sequence number was
-recorded in hsr_register_frame_out() and the late arriving skb1 was
-dropped and never sent.
-
-This scenario has been observed in a three node HSR setup, with node1 +
-node2 having ping and iperf running in parallel. From time to time ping
-reported a missing packet. Based on tracing that missing ping packet did
-not leave the system.
-
-It might be possible (didn't check) to drop the sequence number check on
-the sending side. But if the higher sequence number leaves on wire
-before the lower does and the destination receives them in that order
-and it will drop the packet with the lower sequence number and never
-inject into the stack.
-Therefore it seems the only way is to lock the whole path from obtaining
-the sequence number and sending via dev_queue_xmit() and assuming the
-packets leave on wire in the same order (and don't get reordered by the
-NIC).
-
-Cover the whole path for the master interface from obtaining the ID
-until after it has been forwarded via hsr_forward_skb() to ensure the
-skbs are sent to the NIC in the order of the assigned sequence numbers.
+Add a per-node lock that is used during sequence number reads and
+updates.
 
 Fixes: f421436a591d3 ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
 Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_device.c  | 12 +++++++-----
- net/hsr/hsr_forward.c |  3 +--
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ net/hsr/hsr_framereg.c | 9 ++++++++-
+ net/hsr/hsr_framereg.h | 2 ++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/net/hsr/hsr_device.c b/net/hsr/hsr_device.c
-index 037ad39564a4..84e6ef4f3525 100644
---- a/net/hsr/hsr_device.c
-+++ b/net/hsr/hsr_device.c
-@@ -219,7 +219,9 @@ static netdev_tx_t hsr_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 		skb->dev = master->dev;
- 		skb_reset_mac_header(skb);
- 		skb_reset_mac_len(skb);
-+		spin_lock_bh(&hsr->seqnr_lock);
- 		hsr_forward_skb(skb, master);
-+		spin_unlock_bh(&hsr->seqnr_lock);
- 	} else {
- 		atomic_long_inc(&dev->tx_dropped);
- 		dev_kfree_skb_any(skb);
-@@ -306,7 +308,6 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
- 		hsr_stag->sequence_nr = htons(hsr->sequence_nr);
- 		hsr->sequence_nr++;
+diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
+index 805f974923b9..20cb6b7dbc69 100644
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -159,6 +159,7 @@ static struct hsr_node *hsr_add_node(struct hsr_priv *hsr,
+ 		return NULL;
+ 
+ 	ether_addr_copy(new_node->macaddress_A, addr);
++	spin_lock_init(&new_node->seq_out_lock);
+ 
+ 	/* We are only interested in time diffs here, so use current jiffies
+ 	 * as initialization. (0 could trigger an spurious ring error warning).
+@@ -311,6 +312,7 @@ void hsr_handle_sup_frame(struct hsr_frame_info *frame)
+ 		goto done;
+ 
+ 	ether_addr_copy(node_real->macaddress_B, ethhdr->h_source);
++	spin_lock_bh(&node_real->seq_out_lock);
+ 	for (i = 0; i < HSR_PT_PORTS; i++) {
+ 		if (!node_curr->time_in_stale[i] &&
+ 		    time_after(node_curr->time_in[i], node_real->time_in[i])) {
+@@ -321,6 +323,7 @@ void hsr_handle_sup_frame(struct hsr_frame_info *frame)
+ 		if (seq_nr_after(node_curr->seq_out[i], node_real->seq_out[i]))
+ 			node_real->seq_out[i] = node_curr->seq_out[i];
  	}
--	spin_unlock_bh(&hsr->seqnr_lock);
++	spin_unlock_bh(&node_real->seq_out_lock);
+ 	node_real->addr_B_port = port_rcv->type;
  
- 	hsr_stag->HSR_TLV_type = type;
- 	/* TODO: Why 12 in HSRv0? */
-@@ -317,11 +318,13 @@ static void send_hsr_supervision_frame(struct hsr_port *master,
- 	hsr_sp = skb_put(skb, sizeof(struct hsr_sup_payload));
- 	ether_addr_copy(hsr_sp->macaddress_A, master->dev->dev_addr);
- 
--	if (skb_put_padto(skb, ETH_ZLEN))
-+	if (skb_put_padto(skb, ETH_ZLEN)) {
-+		spin_unlock_bh(&hsr->seqnr_lock);
- 		return;
+ 	spin_lock_bh(&hsr->list_lock);
+@@ -413,13 +416,17 @@ void hsr_register_frame_in(struct hsr_node *node, struct hsr_port *port,
+ int hsr_register_frame_out(struct hsr_port *port, struct hsr_node *node,
+ 			   u16 sequence_nr)
+ {
++	spin_lock_bh(&node->seq_out_lock);
+ 	if (seq_nr_before_or_eq(sequence_nr, node->seq_out[port->type]) &&
+ 	    time_is_after_jiffies(node->time_out[port->type] +
+-	    msecs_to_jiffies(HSR_ENTRY_FORGET_TIME)))
++	    msecs_to_jiffies(HSR_ENTRY_FORGET_TIME))) {
++		spin_unlock_bh(&node->seq_out_lock);
+ 		return 1;
 +	}
  
- 	hsr_forward_skb(skb, master);
--
-+	spin_unlock_bh(&hsr->seqnr_lock);
- 	return;
+ 	node->time_out[port->type] = jiffies;
+ 	node->seq_out[port->type] = sequence_nr;
++	spin_unlock_bh(&node->seq_out_lock);
+ 	return 0;
  }
  
-@@ -360,9 +363,8 @@ static void send_prp_supervision_frame(struct hsr_port *master,
- 		return;
- 	}
+diff --git a/net/hsr/hsr_framereg.h b/net/hsr/hsr_framereg.h
+index d9628e7a5f05..5a771cb3f032 100644
+--- a/net/hsr/hsr_framereg.h
++++ b/net/hsr/hsr_framereg.h
+@@ -69,6 +69,8 @@ void prp_update_san_info(struct hsr_node *node, bool is_sup);
  
--	spin_unlock_bh(&hsr->seqnr_lock);
--
- 	hsr_forward_skb(skb, master);
-+	spin_unlock_bh(&hsr->seqnr_lock);
- }
- 
- /* Announce (supervision frame) timer function
-diff --git a/net/hsr/hsr_forward.c b/net/hsr/hsr_forward.c
-index 142bed7f1fea..aec48e670fb6 100644
---- a/net/hsr/hsr_forward.c
-+++ b/net/hsr/hsr_forward.c
-@@ -446,10 +446,9 @@ static void handle_std_frame(struct sk_buff *skb,
- 		frame->is_from_san = true;
- 	} else {
- 		/* Sequence nr for the master node */
--		spin_lock_bh(&hsr->seqnr_lock);
-+		lockdep_assert_held(&hsr->seqnr_lock);
- 		frame->sequence_nr = hsr->sequence_nr;
- 		hsr->sequence_nr++;
--		spin_unlock_bh(&hsr->seqnr_lock);
- 	}
- }
- 
+ struct hsr_node {
+ 	struct list_head	mac_list;
++	/* Protect R/W access to seq_out */
++	spinlock_t		seq_out_lock;
+ 	unsigned char		macaddress_A[ETH_ALEN];
+ 	unsigned char		macaddress_B[ETH_ALEN];
+ 	/* Local slave through which AddrB frames are received from this node */
 -- 
 2.35.1
 
