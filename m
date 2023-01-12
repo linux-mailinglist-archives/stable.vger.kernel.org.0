@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD396673C1
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:57:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90E0B6673C4
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229899AbjALN53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 08:57:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53100 "EHLO
+        id S232988AbjALN5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 08:57:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231733AbjALN51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:57:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18E448CEE
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:26 -0800 (PST)
+        with ESMTP id S232484AbjALN5r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:57:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89F0517C3
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68466B81E69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9013DC433EF;
-        Thu, 12 Jan 2023 13:57:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42BF16202A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BCB7C433D2;
+        Thu, 12 Jan 2023 13:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673531844;
+        s=korg; t=1673531854;
         bh=vW1oJVo+2y6fr34fPRzOm9gsCuR9xrq4mH9jEIv8ylc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mI7VHjyWNZcjp3EtuWnEvh0YzUCZfpDaFWgNbRQOxPrZeR3cJ4hSCzTnNuEWrA7n9
-         z6R+8lEKhWuvGAuBdJpk+uS6EK56p2Tsd1LK7+n2ZMNm3vsUj3iA4Y+a899shRRlZP
-         ZpIVOMxVjPO7ooU+0boEGaxtykBNzqQAkF5GL2fU=
+        b=mTOOMBKlsecn226pq043jxud6dh4PTU3YKL2diMpnh1w+PbZiZ7gMRo/4xlBE6r3j
+         JSfKH77AsBiW4mRSWNRtOhya7HX6oBOq5FvyWd3hcDjdNig17HlkKCrWWG8ty9Pk/e
+         rP8Ti8OL29BERNZDwpPTM1pEGIpUe/SCASgHs9uI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -45,7 +45,8 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
