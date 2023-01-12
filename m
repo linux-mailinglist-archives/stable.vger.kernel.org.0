@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95EF9667500
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:17:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2FE0667502
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:17:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232964AbjALORG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:17:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41052 "EHLO
+        id S234784AbjALORK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:17:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235134AbjALOQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:16:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71BE15D69B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:08:09 -0800 (PST)
+        with ESMTP id S232702AbjALOQE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:16:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EEA955651
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:08:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C3386202D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:08:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3E02C433D2;
-        Thu, 12 Jan 2023 14:08:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D98DFB81E6F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:08:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 112F2C433EF;
+        Thu, 12 Jan 2023 14:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532488;
-        bh=qkI7DmXkaE99OO2+MK3ZWxqp3rSuk4puBRTsDLOe0sA=;
+        s=korg; t=1673532491;
+        bh=7dlYEejfLO2DfvSMIwAZfB+vWl629K8WIgd87EA3kKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TeEMkEjhPqcARpYgu08BKe+LmqltUJlw7kQC5H80p5KPL/klWONjg0sgr8hC2Wbya
-         qjHy9qyIg+6KJPztCT0hlJS3uVKjabLoLfNS9qn+/5Ek/pYUzAYRD9AvtWmCUUHv7s
-         arkEURzcOaORbRt9GfvwKLjWEhpBDSFtbiRSNVXo=
+        b=cgHpAkg9wrOpkMaUciLTQudwD6dDnGEKGKLN6w8wzVHU7eUqd9S1in0eEc+peiNrP
+         tOwSSyvj3pF80Ne/M8GKxzHXlemZQkuku8YvjFX09cyhUrdEBM4DqOHoN/6iAxL3to
+         pvZZcmxxqTnNwKL5DRezcy0O8hIUD7a6X2Coc7JU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Baisong Zhong <zhongbaisong@huawei.com>,
+        patches@lists.linux.dev, Alim Akhtar <alim.akhtar@samsung.com>,
+        Aakarsh Jain <aakarsh.jain@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 179/783] media: dvb-usb: az6027: fix null-ptr-deref in az6027_i2c_xfer()
-Date:   Thu, 12 Jan 2023 14:48:15 +0100
-Message-Id: <20230112135532.621971689@linuxfoundation.org>
+Subject: [PATCH 5.10 180/783] media: s5p-mfc: Add variant data for MFC v7 hardware for Exynos 3250 SoC
+Date:   Thu, 12 Jan 2023 14:48:16 +0100
+Message-Id: <20230112135532.674568913@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,62 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baisong Zhong <zhongbaisong@huawei.com>
+From: Aakarsh Jain <aakarsh.jain@samsung.com>
 
-[ Upstream commit 0ed554fd769a19ea8464bb83e9ac201002ef74ad ]
+[ Upstream commit f50ebe10f5d8092c37e2bd430c78e03bf38b1e20 ]
 
-Wei Chen reports a kernel bug as blew:
+Commit 5441e9dafdfc6dc40 ("[media] s5p-mfc: Core support for MFC v7")
+which adds mfc v7 support for Exynos3250 and use the same compatible
+string as used by Exynos5240 but both the IPs are a bit different in
+terms of IP clock.
+Add variant driver data based on the new compatible string
+"samsung,exynos3250-mfc" for Exynos3250 SoC.
 
-general protection fault, probably for non-canonical address
-KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
-...
-Call Trace:
-<TASK>
-__i2c_transfer+0x77e/0x1930 drivers/i2c/i2c-core-base.c:2109
-i2c_transfer+0x1d5/0x3d0 drivers/i2c/i2c-core-base.c:2170
-i2cdev_ioctl_rdwr+0x393/0x660 drivers/i2c/i2c-dev.c:297
-i2cdev_ioctl+0x75d/0x9f0 drivers/i2c/i2c-dev.c:458
-vfs_ioctl fs/ioctl.c:51 [inline]
-__do_sys_ioctl fs/ioctl.c:870 [inline]
-__se_sys_ioctl+0xfb/0x170 fs/ioctl.c:856
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7fd834a8bded
-
-In az6027_i2c_xfer(), if msg[i].addr is 0x99,
-a null-ptr-deref will caused when accessing msg[i].buf.
-For msg[i].len is 0 and msg[i].buf is null.
-
-Fix this by checking msg[i].len in az6027_i2c_xfer().
-
-Link: https://lore.kernel.org/lkml/CAO4mrfcPHB5aQJO=mpqV+p8mPLNg-Fok0gw8gZ=zemAfMGTzMg@mail.gmail.com/
-
-Link: https://lore.kernel.org/linux-media/20221120065918.2160782-1-zhongbaisong@huawei.com
-Fixes: 76f9a820c867 ("V4L/DVB: AZ6027: Initial import of the driver")
-Reported-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
+Suggested-by: Alim Akhtar <alim.akhtar@samsung.com>
+Fixes: 5441e9dafdfc ("[media] s5p-mfc: Core support for MFC v7")
+Signed-off-by: Aakarsh Jain <aakarsh.jain@samsung.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/az6027.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/platform/s5p-mfc/s5p_mfc.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/az6027.c b/drivers/media/usb/dvb-usb/az6027.c
-index 86788771175b..32b4ee65c280 100644
---- a/drivers/media/usb/dvb-usb/az6027.c
-+++ b/drivers/media/usb/dvb-usb/az6027.c
-@@ -975,6 +975,10 @@ static int az6027_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int n
- 		if (msg[i].addr == 0x99) {
- 			req = 0xBE;
- 			index = 0;
-+			if (msg[i].len < 1) {
-+				i = -EOPNOTSUPP;
-+				break;
-+			}
- 			value = msg[i].buf[0] & 0x00ff;
- 			length = 1;
- 			az6027_usb_out_op(d, req, value, index, data, length);
+diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
+index f336a9543273..6cbec3bbfce6 100644
+--- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
++++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
+@@ -1584,8 +1584,18 @@ static struct s5p_mfc_variant mfc_drvdata_v7 = {
+ 	.port_num	= MFC_NUM_PORTS_V7,
+ 	.buf_size	= &buf_size_v7,
+ 	.fw_name[0]     = "s5p-mfc-v7.fw",
+-	.clk_names	= {"mfc", "sclk_mfc"},
+-	.num_clocks	= 2,
++	.clk_names	= {"mfc"},
++	.num_clocks	= 1,
++};
++
++static struct s5p_mfc_variant mfc_drvdata_v7_3250 = {
++	.version        = MFC_VERSION_V7,
++	.version_bit    = MFC_V7_BIT,
++	.port_num       = MFC_NUM_PORTS_V7,
++	.buf_size       = &buf_size_v7,
++	.fw_name[0]     = "s5p-mfc-v7.fw",
++	.clk_names      = {"mfc", "sclk_mfc"},
++	.num_clocks     = 2,
+ };
+ 
+ static struct s5p_mfc_buf_size_v6 mfc_buf_size_v8 = {
+@@ -1655,6 +1665,9 @@ static const struct of_device_id exynos_mfc_match[] = {
+ 	}, {
+ 		.compatible = "samsung,mfc-v7",
+ 		.data = &mfc_drvdata_v7,
++	}, {
++		.compatible = "samsung,exynos3250-mfc",
++		.data = &mfc_drvdata_v7_3250,
+ 	}, {
+ 		.compatible = "samsung,mfc-v8",
+ 		.data = &mfc_drvdata_v8,
 -- 
 2.35.1
 
