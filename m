@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 831F76675BC
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8EAF6675CB
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:25:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236332AbjALOY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:24:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44820 "EHLO
+        id S236846AbjALOZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:25:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237125AbjALOXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:23:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B9D5AC43
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:15:45 -0800 (PST)
+        with ESMTP id S236968AbjALOYU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:24:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767965AC76
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:16:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B62546202B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:15:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3CC1C433D2;
-        Thu, 12 Jan 2023 14:15:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 432FEB81E6A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9425FC433EF;
+        Thu, 12 Jan 2023 14:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532944;
-        bh=+4Zvaa0MdZ8E7XuqalKiyLuNju0/wJug6N0636E/LTI=;
+        s=korg; t=1673532978;
+        bh=xz+TTkS0MPxBTZJga/N0pFjfGkaX2eFaiQmDqoEdAWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t17I9wd1FLB3hC/lESEIrZTwtOow8OjnhxoioxMtUrzzaix92zhdgkBNZ21l5JGWd
-         0QCPYzknQLGU+eH9GXUuJZFgftIseMgfCwBREInTSgIqSfEtYhGdiwq02vcm/sFlZh
-         YLhh4T9ao65Xra0IXkfiuk2HCEydO9bkEO6t56zk=
+        b=MvCtSlPBFua1IEWvr0l4ug7QM97XZcvQEfDBzRkNId2gM7qmejVdOLH/X6KpbCver
+         Kvu6wcbpf8kzH5CPjxl7q5gwNwpqzVqu20408H+fqBI365865GapooZ9woznIk7Cs3
+         1U+DZUWsWtJ1/yn74qIAj+BLePNpjmygVW5k0Aro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Weili Qian <qianweili@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 303/783] crypto: cryptd - Use request context instead of stack for sub-request
-Date:   Thu, 12 Jan 2023 14:50:19 +0100
-Message-Id: <20230112135538.377724640@linuxfoundation.org>
+Subject: [PATCH 5.10 304/783] crypto: hisilicon/qm - add missing pci_dev_put() in q_num_set()
+Date:   Thu, 12 Jan 2023 14:50:20 +0100
+Message-Id: <20230112135538.423664424@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -52,126 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 3a58c231172537f7b0e19d93ed33decd04f80eab ]
+[ Upstream commit cc7710d0d4ebc6998f04035cde4f32c5ddbe9d7f ]
 
-cryptd is buggy as it tries to use sync_skcipher without going
-through the proper sync_skcipher interface.  In fact it doesn't
-even need sync_skcipher since it's already a proper skcipher and
-can easily access the request context instead of using something
-off the stack.
+pci_get_device() will increase the reference count for the returned
+pci_dev. We need to use pci_dev_put() to decrease the reference count
+before q_num_set() returns.
 
-Fixes: 36b3875a97b8 ("crypto: cryptd - Remove VLA usage of skcipher")
+Fixes: c8b4b477079d ("crypto: hisilicon - add HiSilicon HPRE accelerator")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Reviewed-by: Weili Qian <qianweili@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/cryptd.c | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ drivers/crypto/hisilicon/qm.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/crypto/cryptd.c b/crypto/cryptd.c
-index 668095eca0fa..ca3a40fc7da9 100644
---- a/crypto/cryptd.c
-+++ b/crypto/cryptd.c
-@@ -68,11 +68,12 @@ struct aead_instance_ctx {
- 
- struct cryptd_skcipher_ctx {
- 	refcount_t refcnt;
--	struct crypto_sync_skcipher *child;
-+	struct crypto_skcipher *child;
- };
- 
- struct cryptd_skcipher_request_ctx {
- 	crypto_completion_t complete;
-+	struct skcipher_request req;
- };
- 
- struct cryptd_hash_ctx {
-@@ -227,13 +228,13 @@ static int cryptd_skcipher_setkey(struct crypto_skcipher *parent,
- 				  const u8 *key, unsigned int keylen)
+diff --git a/drivers/crypto/hisilicon/qm.h b/drivers/crypto/hisilicon/qm.h
+index 0420f4ce7197..aaad3d76dc04 100644
+--- a/drivers/crypto/hisilicon/qm.h
++++ b/drivers/crypto/hisilicon/qm.h
+@@ -289,14 +289,14 @@ struct hisi_qp {
+ static inline int q_num_set(const char *val, const struct kernel_param *kp,
+ 			    unsigned int device)
  {
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(parent);
--	struct crypto_sync_skcipher *child = ctx->child;
-+	struct crypto_skcipher *child = ctx->child;
+-	struct pci_dev *pdev = pci_get_device(PCI_VENDOR_ID_HUAWEI,
+-					      device, NULL);
++	struct pci_dev *pdev;
+ 	u32 n, q_num;
+ 	int ret;
  
--	crypto_sync_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
--	crypto_sync_skcipher_set_flags(child,
--				       crypto_skcipher_get_flags(parent) &
--					 CRYPTO_TFM_REQ_MASK);
--	return crypto_sync_skcipher_setkey(child, key, keylen);
-+	crypto_skcipher_clear_flags(child, CRYPTO_TFM_REQ_MASK);
-+	crypto_skcipher_set_flags(child,
-+				  crypto_skcipher_get_flags(parent) &
-+				  CRYPTO_TFM_REQ_MASK);
-+	return crypto_skcipher_setkey(child, key, keylen);
- }
+ 	if (!val)
+ 		return -EINVAL;
  
- static void cryptd_skcipher_complete(struct skcipher_request *req, int err)
-@@ -258,13 +259,13 @@ static void cryptd_skcipher_encrypt(struct crypto_async_request *base,
- 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
- 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
--	struct crypto_sync_skcipher *child = ctx->child;
--	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
-+	struct skcipher_request *subreq = &rctx->req;
-+	struct crypto_skcipher *child = ctx->child;
++	pdev = pci_get_device(PCI_VENDOR_ID_HUAWEI, device, NULL);
+ 	if (!pdev) {
+ 		q_num = min_t(u32, QM_QNUM_V1, QM_QNUM_V2);
+ 		pr_info("No device found currently, suppose queue number is %d\n",
+@@ -306,6 +306,8 @@ static inline int q_num_set(const char *val, const struct kernel_param *kp,
+ 			q_num = QM_QNUM_V1;
+ 		else
+ 			q_num = QM_QNUM_V2;
++
++		pci_dev_put(pdev);
+ 	}
  
- 	if (unlikely(err == -EINPROGRESS))
- 		goto out;
- 
--	skcipher_request_set_sync_tfm(subreq, child);
-+	skcipher_request_set_tfm(subreq, child);
- 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
- 				      NULL, NULL);
- 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
-@@ -286,13 +287,13 @@ static void cryptd_skcipher_decrypt(struct crypto_async_request *base,
- 	struct cryptd_skcipher_request_ctx *rctx = skcipher_request_ctx(req);
- 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
--	struct crypto_sync_skcipher *child = ctx->child;
--	SYNC_SKCIPHER_REQUEST_ON_STACK(subreq, child);
-+	struct skcipher_request *subreq = &rctx->req;
-+	struct crypto_skcipher *child = ctx->child;
- 
- 	if (unlikely(err == -EINPROGRESS))
- 		goto out;
- 
--	skcipher_request_set_sync_tfm(subreq, child);
-+	skcipher_request_set_tfm(subreq, child);
- 	skcipher_request_set_callback(subreq, CRYPTO_TFM_REQ_MAY_SLEEP,
- 				      NULL, NULL);
- 	skcipher_request_set_crypt(subreq, req->src, req->dst, req->cryptlen,
-@@ -343,9 +344,10 @@ static int cryptd_skcipher_init_tfm(struct crypto_skcipher *tfm)
- 	if (IS_ERR(cipher))
- 		return PTR_ERR(cipher);
- 
--	ctx->child = (struct crypto_sync_skcipher *)cipher;
-+	ctx->child = cipher;
- 	crypto_skcipher_set_reqsize(
--		tfm, sizeof(struct cryptd_skcipher_request_ctx));
-+		tfm, sizeof(struct cryptd_skcipher_request_ctx) +
-+		     crypto_skcipher_reqsize(cipher));
- 	return 0;
- }
- 
-@@ -353,7 +355,7 @@ static void cryptd_skcipher_exit_tfm(struct crypto_skcipher *tfm)
- {
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
- 
--	crypto_free_sync_skcipher(ctx->child);
-+	crypto_free_skcipher(ctx->child);
- }
- 
- static void cryptd_skcipher_free(struct skcipher_instance *inst)
-@@ -931,7 +933,7 @@ struct crypto_skcipher *cryptd_skcipher_child(struct cryptd_skcipher *tfm)
- {
- 	struct cryptd_skcipher_ctx *ctx = crypto_skcipher_ctx(&tfm->base);
- 
--	return &ctx->child->base;
-+	return ctx->child;
- }
- EXPORT_SYMBOL_GPL(cryptd_skcipher_child);
- 
+ 	ret = kstrtou32(val, 10, &n);
 -- 
 2.35.1
 
