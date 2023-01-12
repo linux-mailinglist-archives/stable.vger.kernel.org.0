@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 535C66677B2
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:47:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA4506673C6
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:58:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239989AbjALOq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:46:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39368 "EHLO
+        id S232484AbjALN6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 08:58:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239986AbjALOqe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:46:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 447AD5F909
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:34:38 -0800 (PST)
+        with ESMTP id S231495AbjALN5y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:57:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F9DB53287
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8C4462036
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D01D1C433D2;
-        Thu, 12 Jan 2023 14:34:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7A2CB81E68
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D492C433EF;
+        Thu, 12 Jan 2023 13:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534077;
-        bh=c21WVxDGzPrHxnTNpwIut25yw/u510kj410XBuMagIQ=;
+        s=korg; t=1673531860;
+        bh=R/FzZwGWEz4Uxqu8dr4LIIJiLMXchnBGGB0kUA2SZEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCVxmvxo6RtaLjSI7r/NFKIEenOD5dkjg+JAoLIyXY6e0P/gVRWRMW3oeyYTxXs1s
-         LTyJ6MfJNmnQsr43UUUU1oY/qIXe0EHC54cQOQqbMnpPWBEDKGVcWd+WUBx2lnepOK
-         mecuuPRjmR8K3ICWk3M0+bwHNcQVDhyWPpfeuq58=
+        b=NV5p8+7eCMclw8brVLAvrzO3D64kMCQt2Drf+5nqAxrNPzqPdnO9NPzEEU6bbkIFb
+         yWNCng4UUZ+m4JKb4/cvjiEMRtJxcsQTIDINbawouF7AN3Ws1/HnqEW8fqPIYprPBK
+         yeTnP8VEqbG71pAex+scGIQOr3i9Z2wu5Xm5vmkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.10 687/783] ext4: allocate extended attribute value in vmalloc area
+        patches@lists.linux.dev, Kyle Huey <me@kylehuey.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 5.15 06/10] x86/fpu: Emulate XRSTORs behavior if the xfeatures PKRU bit is not set
 Date:   Thu, 12 Jan 2023 14:56:43 +0100
-Message-Id: <20230112135556.163195192@linuxfoundation.org>
+Message-Id: <20230112135326.931667008@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
-References: <20230112135524.143670746@linuxfoundation.org>
+In-Reply-To: <20230112135326.689857506@linuxfoundation.org>
+References: <20230112135326.689857506@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Kyle Huey <me@kylehuey.com>
 
-commit cc12a6f25e07ed05d5825a1664b67a970842b2ca upstream.
+commit d7e5aceace514a2b1b3ca3dc44f93f1704766ca7 upstream
 
-Now, extended attribute value maximum length is 64K. The memory
-requested here does not need continuous physical addresses, so it is
-appropriate to use kvmalloc to request memory. At the same time, it
-can also cope with the situation that the extended attribute will
-become longer in the future.
+The hardware XRSTOR instruction resets the PKRU register to its hardware
+init value (namely 0) if the PKRU bit is not set in the xfeatures mask.
+Emulating that here restores the pre-5.14 behavior for PTRACE_SET_REGSET
+with NT_X86_XSTATE, and makes sigreturn (which still uses XRSTOR) and
+behave identically.
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221208023233.1231330-3-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Fixes: e84ba47e313d ("x86/fpu: Hook up PKRU into ptrace()")
+Signed-off-by: Kyle Huey <me@kylehuey.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lore.kernel.org/all/20221115230932.7126-6-khuey%40kylehuey.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/fpu/xstate.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2551,7 +2551,7 @@ static int ext4_xattr_move_to_block(hand
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -1168,7 +1168,8 @@ static int copy_uabi_to_xstate(struct xr
  
- 	is = kzalloc(sizeof(struct ext4_xattr_ibody_find), GFP_NOFS);
- 	bs = kzalloc(sizeof(struct ext4_xattr_block_find), GFP_NOFS);
--	buffer = kmalloc(value_size, GFP_NOFS);
-+	buffer = kvmalloc(value_size, GFP_NOFS);
- 	b_entry_name = kmalloc(entry->e_name_len + 1, GFP_NOFS);
- 	if (!is || !bs || !buffer || !b_entry_name) {
- 		error = -ENOMEM;
-@@ -2603,7 +2603,7 @@ static int ext4_xattr_move_to_block(hand
- 	error = 0;
- out:
- 	kfree(b_entry_name);
--	kfree(buffer);
-+	kvfree(buffer);
- 	if (is)
- 		brelse(is->iloc.bh);
- 	if (bs)
+ 		xpkru = __raw_xsave_addr(xsave, XFEATURE_PKRU);
+ 		*pkru = xpkru->pkru;
+-	}
++	} else
++		*pkru = 0;
+ 
+ 	/*
+ 	 * The state that came in from userspace was user-state only.
 
 
