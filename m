@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEF5F6677E9
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A16276677EA
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:51:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239965AbjALOvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:51:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
+        id S240072AbjALOvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:51:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239985AbjALOud (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:50:33 -0500
+        with ESMTP id S240038AbjALOug (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:50:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 931A512754
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:36:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1934D12767
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:37:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A47CB81E7A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:36:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68567C433D2;
-        Thu, 12 Jan 2023 14:36:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28F11B81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:37:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62968C433D2;
+        Thu, 12 Jan 2023 14:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534216;
-        bh=Shfy6ycz5FNY6zBfMHzYvGhyPKM2yjevEtqxojGZcqo=;
+        s=korg; t=1673534219;
+        bh=ZyZS115hb3PeZD+QWWIAkyD6eQxEvCphqh1RE6TrmAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0yhzT80YTJc3fsde4MIB0UJ8gKfJfayFgHHsjm4l8/r8y7RJWs85McBzr222UoS2p
-         UQbgAJJP+WDvao89dPdg5Sg432td6Rd+yMZ84S3wjNRd4k5Sjv3gVIrHdNOKaMkJi5
-         5W0xLPwel1m9v7hleguR8eLdQ3YZFZ6JVkiNLcGY=
+        b=eiSDwexcHKgq2ZP/N2W0e+UBoQjAOfiFBdTPI0/MUtfTOVgOP2NukpoIMGzbhmSLx
+         awi964D6SM6pa2XEt7A2H5AtKa3TAsfqrVolNXmk2710aT7h6mLDp/fX2K4eKVn+nB
+         hyLS50XpBEKy+T0q/0/k2tUzp6DNKGgvAKVQzLt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Chen Huang <chenhuang5@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 704/783] ravb: Fix "failed to switch device to config mode" message during unbind
-Date:   Thu, 12 Jan 2023 14:57:00 +0100
-Message-Id: <20230112135556.986063199@linuxfoundation.org>
+Subject: [PATCH 5.10 705/783] riscv/stacktrace: Fix stack output without ra on the stack top
+Date:   Thu, 12 Jan 2023 14:57:01 +0100
+Message-Id: <20230112135557.037549900@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,65 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Chen Huang <chenhuang5@huawei.com>
 
-[ Upstream commit c72a7e42592b2e18d862cf120876070947000d7a ]
+[ Upstream commit f766f77a74f5784d8d4d3c36b1900731f97d08d0 ]
 
-This patch fixes the error "ravb 11c20000.ethernet eth0: failed to switch
-device to config mode" during unbind.
+When a function doesn't have a callee, then it will not
+push ra into the stack, such as lkdtm_BUG() function,
 
-We are doing register access after pm_runtime_put_sync().
+addi	sp,sp,-16
+sd	s0,8(sp)
+addi	s0,sp,16
+ebreak
 
-We usually do cleanup in reverse order of init. Currently in
-remove(), the "pm_runtime_put_sync" is not in reverse order.
+The struct stackframe use {fp,ra} to get information from
+stack, if walk_stackframe() with pr_regs, we will obtain
+wrong value and bad stacktrace,
 
-Probe
-	reset_control_deassert(rstc);
-	pm_runtime_enable(&pdev->dev);
-	pm_runtime_get_sync(&pdev->dev);
+[<ffffffe00066c56c>] lkdtm_BUG+0x6/0x8
+---[ end trace 18da3fbdf08e25d5 ]---
 
-remove
-	pm_runtime_put_sync(&pdev->dev);
-	unregister_netdev(ndev);
-	..
-	ravb_mdio_release(priv);
-	pm_runtime_disable(&pdev->dev);
+Correct the next fp and pc, after that, full stacktrace
+shown as expects,
 
-Consider the call to unregister_netdev()
-unregister_netdev->unregister_netdevice_queue->rollback_registered_many
-that calls the below functions which access the registers after
-pm_runtime_put_sync()
- 1) ravb_get_stats
- 2) ravb_close
+[<ffffffe00066c56c>] lkdtm_BUG+0x6/0x8
+[<ffffffe0008b24a4>] lkdtm_do_action+0x14/0x1c
+[<ffffffe00066c372>] direct_entry+0xc0/0x10a
+[<ffffffe000439f86>] full_proxy_write+0x42/0x6a
+[<ffffffe000309626>] vfs_write+0x7e/0x214
+[<ffffffe00030992a>] ksys_write+0x98/0xc0
+[<ffffffe000309960>] sys_write+0xe/0x16
+[<ffffffe0002014bc>] ret_from_syscall+0x0/0x2
+---[ end trace 61917f3d9a9fadcd ]---
 
-Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
-Cc: stable@vger.kernel.org
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20221214105118.2495313-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Chen Huang <chenhuang5@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Stable-dep-of: 5c3022e4a616 ("riscv: stacktrace: Fixup ftrace_graph_ret_addr retp argument")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/kernel/stacktrace.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 9e7b85e178fd..9ec6d63691aa 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -2253,11 +2253,11 @@ static int ravb_remove(struct platform_device *pdev)
- 			  priv->desc_bat_dma);
- 	/* Set reset mode */
- 	ravb_write(ndev, CCC_OPC_RESET, CCC);
--	pm_runtime_put_sync(&pdev->dev);
- 	unregister_netdev(ndev);
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
- 	ravb_mdio_release(priv);
-+	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	free_netdev(ndev);
- 	platform_set_drvdata(pdev, NULL);
+diff --git a/arch/riscv/kernel/stacktrace.c b/arch/riscv/kernel/stacktrace.c
+index 595342910c3f..6cbde6b43fd2 100644
+--- a/arch/riscv/kernel/stacktrace.c
++++ b/arch/riscv/kernel/stacktrace.c
+@@ -57,9 +57,15 @@ void notrace walk_stackframe(struct task_struct *task, struct pt_regs *regs,
+ 		/* Unwind stack frame */
+ 		frame = (struct stackframe *)fp - 1;
+ 		sp = fp;
+-		fp = frame->fp;
+-		pc = ftrace_graph_ret_addr(current, NULL, frame->ra,
+-					   (unsigned long *)(fp - 8));
++		if (regs && (regs->epc == pc) && (frame->fp & 0x7)) {
++			fp = frame->ra;
++			pc = regs->ra;
++		} else {
++			fp = frame->fp;
++			pc = ftrace_graph_ret_addr(current, NULL, frame->ra,
++						   (unsigned long *)(fp - 8));
++		}
++
+ 	}
+ }
+ 
 -- 
 2.35.1
 
