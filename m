@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B8EF667709
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:39:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 670F8667745
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:41:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239589AbjALOjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:39:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57968 "EHLO
+        id S239719AbjALOlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:41:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239674AbjALOia (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:38:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F03061475
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:28:26 -0800 (PST)
+        with ESMTP id S239688AbjALOkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:40:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE785FE2
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:30:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78E77B81E78
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:28:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC30CC433F0;
-        Thu, 12 Jan 2023 14:28:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B643FB81E71
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16D8FC433EF;
+        Thu, 12 Jan 2023 14:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533704;
-        bh=p4kp86KIyUfMP+bB6fcVuZ4QnmRE18fuZ7/pMbiJ3dI=;
+        s=korg; t=1673533827;
+        bh=7E3nHgAfkm9oyDn+S4KQFsFdg0Z9uo2gyHjxdObYOYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s4aoI2YGfqotTWnp/3I1cviyUk7DYZi7SzizyRl3qMZvARVNzokx6ezyF9eIwqqR3
-         7yXBYdG9jkZh2iGWs2Hc+uDp3vd3UnS43jpni0Qbnrj0KxlgnrsNujtE+GJS4NAtXX
-         5F5SG2f8EOnWI2szWYe1zZGw81yvtvlE5T0yl7V8=
+        b=rgFGNGgQoEHVBj7mEJzQRrRVdGHKN6kLDZbgkGw95iWzhxoCQWG3guWdb/f/IqW5i
+         ODHBGNvues6EuIrQ6e7WyNcslHwmsQ9466F1WEP23b8nZpaM+Sn2Hl0hkTzb8GNCHV
+         /vYfBePHL6IeDd6qcQz6WfVopC1CuMW4ToYLHDCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Mahoney <jeffm@suse.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.10 563/783] reiserfs: Add missing calls to reiserfs_security_free()
-Date:   Thu, 12 Jan 2023 14:54:39 +0100
-Message-Id: <20230112135550.347483696@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.10 564/783] iio: adc: ad_sigma_delta: do not use internal iio_dev lock
+Date:   Thu, 12 Jan 2023 14:54:40 +0100
+Message-Id: <20230112135550.387443557@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,89 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-commit 572302af1258459e124437b8f3369357447afac7 upstream.
+commit 20228a1d5a55e7db0c6720840f2c7d2b48c55f69 upstream.
 
-Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
-during inode creation") defined reiserfs_security_free() to free the name
-and value of a security xattr allocated by the active LSM through
-security_old_inode_init_security(). However, this function is not called
-in the reiserfs code.
+Drop 'mlock' usage by making use of iio_device_claim_direct_mode().
+This change actually makes sure we cannot do a single conversion while
+buffering is enable. Note there was a potential race in the previous
+code since we were only acquiring the lock after checking if the bus is
+enabled.
 
-Thus, add a call to reiserfs_security_free() whenever
-reiserfs_security_init() is called, and initialize value to NULL, to avoid
-to call kfree() on an uninitialized pointer.
-
-Finally, remove the kfree() for the xattr name, as it is not allocated
-anymore.
-
-Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
-Cc: stable@vger.kernel.org
-Cc: Jeff Mahoney <jeffm@suse.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: af3008485ea0 ("iio:adc: Add common code for ADI Sigma Delta devices")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: <Stable@vger.kernel.org> #No rush as race is very old.
+Link: https://lore.kernel.org/r/20220920112821.975359-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/reiserfs/namei.c          |    4 ++++
- fs/reiserfs/xattr_security.c |    2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ad_sigma_delta.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/reiserfs/namei.c
-+++ b/fs/reiserfs/namei.c
-@@ -695,6 +695,7 @@ static int reiserfs_create(struct inode
+--- a/drivers/iio/adc/ad_sigma_delta.c
++++ b/drivers/iio/adc/ad_sigma_delta.c
+@@ -280,10 +280,10 @@ int ad_sigma_delta_single_conversion(str
+ 	unsigned int data_reg;
+ 	int ret = 0;
  
- out_failed:
- 	reiserfs_write_unlock(dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
+-	if (iio_buffer_enabled(indio_dev))
+-		return -EBUSY;
++	ret = iio_device_claim_direct_mode(indio_dev);
++	if (ret)
++		return ret;
  
-@@ -778,6 +779,7 @@ static int reiserfs_mknod(struct inode *
+-	mutex_lock(&indio_dev->mlock);
+ 	ad_sigma_delta_set_channel(sigma_delta, chan->address);
  
- out_failed:
- 	reiserfs_write_unlock(dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
+ 	spi_bus_lock(sigma_delta->spi->master);
+@@ -322,7 +322,7 @@ out:
+ 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
+ 	sigma_delta->bus_locked = false;
+ 	spi_bus_unlock(sigma_delta->spi->master);
+-	mutex_unlock(&indio_dev->mlock);
++	iio_device_release_direct_mode(indio_dev);
  
-@@ -876,6 +878,7 @@ static int reiserfs_mkdir(struct inode *
- 	retval = journal_end(&th);
- out_failed:
- 	reiserfs_write_unlock(dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
- 
-@@ -1191,6 +1194,7 @@ static int reiserfs_symlink(struct inode
- 	retval = journal_end(&th);
- out_failed:
- 	reiserfs_write_unlock(parent_dir->i_sb);
-+	reiserfs_security_free(&security);
- 	return retval;
- }
- 
---- a/fs/reiserfs/xattr_security.c
-+++ b/fs/reiserfs/xattr_security.c
-@@ -49,6 +49,7 @@ int reiserfs_security_init(struct inode
- 	int error;
- 
- 	sec->name = NULL;
-+	sec->value = NULL;
- 
- 	/* Don't add selinux attributes on xattrs - they'll never get used */
- 	if (IS_PRIVATE(dir))
-@@ -94,7 +95,6 @@ int reiserfs_security_write(struct reise
- 
- void reiserfs_security_free(struct reiserfs_security_handle *sec)
- {
--	kfree(sec->name);
- 	kfree(sec->value);
- 	sec->name = NULL;
- 	sec->value = NULL;
+ 	if (ret)
+ 		return ret;
 
 
