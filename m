@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79B1D6676EA
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:38:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A6736676EC
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:38:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238150AbjALOiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:38:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59572 "EHLO
+        id S239405AbjALOiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:38:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237476AbjALOhn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:37:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA0D81E3CB;
-        Thu, 12 Jan 2023 06:27:39 -0800 (PST)
+        with ESMTP id S239272AbjALOhq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:37:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2B955659
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:27:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63EFA60A69;
-        Thu, 12 Jan 2023 14:27:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C420C433EF;
-        Thu, 12 Jan 2023 14:27:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0899BB81E71
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:27:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32A76C433EF;
+        Thu, 12 Jan 2023 14:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533658;
-        bh=aUQxVDz3y30kaWOk7AXpRHyrMOSjZ8DJ+ldZR2Fp/4A=;
+        s=korg; t=1673533661;
+        bh=k58RRflD6JGFt7EF93aoHdhUah760czXjm3Zmz65dMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=offWMctgTgIzVvDnee89yAdvOxxbzPr1vRa/bS51DS3Al/BaH2g0oDT7jf6sNQ+L7
-         nW6ICyWKE90jLeQ+9N1aN8ID46Zeu9AJTxI4f2aAUg7Krxzg1eLdTe+Jy+lWgVkBpb
-         MkFRCZXSwNSAUVau16Dzl26StMiD76gMJO6xWe2o=
+        b=fgp2vIyLW8Y24DpxsyrXeVPTdAtokXhpsv0BHBhCKAJMNxTj3NCUUEJlpHrC4CcaS
+         ByM7sBJS9eQ4t2ydF3Pucx8TPNmJeaVqSaoOt9VJA7baFuF/K5T1m+1q04Ri48PhJ5
+         Yc924KV4tPGYIcZ+x6lG3N/Ip+4eLkawI5t/ih1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
+        patches@lists.linux.dev, Wei Wang <wvw@google.com>,
+        Midas Chien <midaschieh@google.com>,
+        Connor OBrien <connoro@google.com>,
         Kees Cook <keescook@chromium.org>,
-        Ping-Ke Shih <pkshih@realtek.com>,
+        Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>, kernel-team@android.com,
+        John Stultz <jstultz@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 550/783] LoadPin: Ignore the "contents" argument of the LSM hooks
-Date:   Thu, 12 Jan 2023 14:54:26 +0100
-Message-Id: <20230112135549.714910796@linuxfoundation.org>
+Subject: [PATCH 5.10 551/783] pstore: Switch pmsg_lock to an rt_mutex to avoid priority inversion
+Date:   Thu, 12 Jan 2023 14:54:27 +0100
+Message-Id: <20230112135549.764226566@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -57,83 +59,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: John Stultz <jstultz@google.com>
 
-[ Upstream commit 1a17e5b513ceebf21100027745b8731b4728edf7 ]
+[ Upstream commit 76d62f24db07f22ccf9bc18ca793c27d4ebef721 ]
 
-LoadPin only enforces the read-only origin of kernel file reads. Whether
-or not it was a partial read isn't important. Remove the overly
-conservative checks so that things like partial firmware reads will
-succeed (i.e. reading a firmware header).
+Wei Wang reported seeing priority inversion caused latencies
+caused by contention on pmsg_lock, and suggested it be switched
+to a rt_mutex.
 
-Fixes: 2039bda1fa8d ("LSM: Add "contents" flag to kernel_read_file hook")
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: linux-security-module@vger.kernel.org
+I was initially hesitant this would help, as the tasks in that
+trace all seemed to be SCHED_NORMAL, so the benefit would be
+limited to only nice boosting.
+
+However, another similar issue was raised where the priority
+inversion was seen did involve a blocked RT task so it is clear
+this would be helpful in that case.
+
+Cc: Wei Wang <wvw@google.com>
+Cc: Midas Chien<midaschieh@google.com>
+Cc: Connor O'Brien <connoro@google.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Anton Vorontsov <anton@enomsg.org>
+Cc: Colin Cross <ccross@android.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: kernel-team@android.com
+Fixes: 9d5438f462ab ("pstore: Add pmsg - user-space accessible pstore object")
+Reported-by: Wei Wang <wvw@google.com>
+Signed-off-by: John Stultz <jstultz@google.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Serge Hallyn <serge@hallyn.com>
-Tested-by: Ping-Ke Shih <pkshih@realtek.com>
-Link: https://lore.kernel.org/r/20221209195453.never.494-kees@kernel.org
+Link: https://lore.kernel.org/r/20221214231834.3711880-1-jstultz@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/loadpin/loadpin.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ fs/pstore/pmsg.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/security/loadpin/loadpin.c b/security/loadpin/loadpin.c
-index b12f7d986b1e..5fce105a372d 100644
---- a/security/loadpin/loadpin.c
-+++ b/security/loadpin/loadpin.c
-@@ -118,21 +118,11 @@ static void loadpin_sb_free_security(struct super_block *mnt_sb)
- 	}
+diff --git a/fs/pstore/pmsg.c b/fs/pstore/pmsg.c
+index d8542ec2f38c..18cf94b597e0 100644
+--- a/fs/pstore/pmsg.c
++++ b/fs/pstore/pmsg.c
+@@ -7,9 +7,10 @@
+ #include <linux/device.h>
+ #include <linux/fs.h>
+ #include <linux/uaccess.h>
++#include <linux/rtmutex.h>
+ #include "internal.h"
+ 
+-static DEFINE_MUTEX(pmsg_lock);
++static DEFINE_RT_MUTEX(pmsg_lock);
+ 
+ static ssize_t write_pmsg(struct file *file, const char __user *buf,
+ 			  size_t count, loff_t *ppos)
+@@ -28,9 +29,9 @@ static ssize_t write_pmsg(struct file *file, const char __user *buf,
+ 	if (!access_ok(buf, count))
+ 		return -EFAULT;
+ 
+-	mutex_lock(&pmsg_lock);
++	rt_mutex_lock(&pmsg_lock);
+ 	ret = psinfo->write_user(&record, buf);
+-	mutex_unlock(&pmsg_lock);
++	rt_mutex_unlock(&pmsg_lock);
+ 	return ret ? ret : count;
  }
  
--static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
--			     bool contents)
-+static int loadpin_check(struct file *file, enum kernel_read_file_id id)
- {
- 	struct super_block *load_root;
- 	const char *origin = kernel_read_file_id_str(id);
- 
--	/*
--	 * If we will not know that we'll be seeing the full contents
--	 * then we cannot trust a load will be complete and unchanged
--	 * off disk. Treat all contents=false hooks as if there were
--	 * no associated file struct.
--	 */
--	if (!contents)
--		file = NULL;
--
- 	/* If the file id is excluded, ignore the pinning. */
- 	if ((unsigned int)id < ARRAY_SIZE(ignore_read_file_id) &&
- 	    ignore_read_file_id[id]) {
-@@ -187,9 +177,25 @@ static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
- 	return 0;
- }
- 
-+static int loadpin_read_file(struct file *file, enum kernel_read_file_id id,
-+			     bool contents)
-+{
-+	/*
-+	 * LoadPin only cares about the _origin_ of a file, not its
-+	 * contents, so we can ignore the "are full contents available"
-+	 * argument here.
-+	 */
-+	return loadpin_check(file, id);
-+}
-+
- static int loadpin_load_data(enum kernel_load_data_id id, bool contents)
- {
--	return loadpin_read_file(NULL, (enum kernel_read_file_id) id, contents);
-+	/*
-+	 * LoadPin only cares about the _origin_ of a file, not its
-+	 * contents, so a NULL file is passed, and we can ignore the
-+	 * state of "contents".
-+	 */
-+	return loadpin_check(NULL, (enum kernel_read_file_id) id);
- }
- 
- static struct security_hook_list loadpin_hooks[] __lsm_ro_after_init = {
 -- 
 2.35.1
 
