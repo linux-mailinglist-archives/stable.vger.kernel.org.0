@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B417D667428
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:03:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAE3A66742A
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:03:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233481AbjALODO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:03:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57618 "EHLO
+        id S231636AbjALODR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:03:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232882AbjALODL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:03:11 -0500
+        with ESMTP id S232681AbjALODO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:03:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C960A517E3
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:03:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D29452747
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:03:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F12660AB3
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:03:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C859C433F0;
-        Thu, 12 Jan 2023 14:03:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE8E160AB3
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:03:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A52E1C433EF;
+        Thu, 12 Jan 2023 14:03:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532188;
-        bh=uaQ+qYUtXhiU3ulhCxS1+EIqD0j8K+pK55vv9dkEKa0=;
+        s=korg; t=1673532192;
+        bh=6aDG5N9phbf4PmTdJCcozVO2Sojnmjee8ijGsQ2pCnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kseJNGmV1LZhhihh7Y8bJhfL3BSI/otKMNMJMR8evSHK6YYAgoXYj/d3gcB7Bf81w
-         NG36JC51rQCGbwIGNNOZj+42g+KftpxvsFyLG1lB24wkvA/Oo7n25Fap1h5DIsbENp
-         cGML3FgtFianEK7Z/07M+qwk7mraDqzuro12Wspw=
+        b=s+pcttsaUGY8eInKYp6qm5G6nrJbw8tuiAdHFwplWiAoVLsNy11l43rY8XHH/Ffpa
+         3KzZhxVCkWIfoa6mDKJ4BL7CeKOqKb5fQJdkGGkFNxQoDoZRILN39/yJ57hUy5DMMt
+         HMJwILAeILh7sYGAQIzg/BOmKsbUAesNPXpLX4XA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 081/783] clocksource/drivers/sh_cmt: Access registers according to spec
-Date:   Thu, 12 Jan 2023 14:46:37 +0100
-Message-Id: <20230112135527.924232798@linuxfoundation.org>
+Subject: [PATCH 5.10 082/783] futex: Move to kernel/futex/
+Date:   Thu, 12 Jan 2023 14:46:38 +0100
+Message-Id: <20230112135527.975905878@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,193 +55,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 3f44f7156f59cae06e9160eafb5d8b2dfd09e639 ]
+[ Upstream commit 77e52ae35463521041906c510fe580d15663bb93 ]
 
-Documentation for most CMTs say that it takes two input clocks before
-changes propagate to the timer. This is especially relevant when the timer
-is stopped to change further settings.
+In preparation for splitup..
 
-Implement the delays according to the spec. To avoid unnecessary delays in
-atomic mode, also check if the to-be-written value actually differs.
-
-CMCNT is a bit special because testing showed that it requires 3 cycles to
-propagate, which affects all CMTs. Also, the WRFLAG needs to be checked
-before writing. This fixes "cannot clear CMCNT" messages which occur often
-on R-Car Gen4 SoCs, but only very rarely on older SoCs for some reason.
-
-Fixes: 81b3b2711072 ("clocksource: sh_cmt: Add support for multiple channels per device")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20221130210609.7718-1-wsa+renesas@sang-engineering.com
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: André Almeida <andrealmeid@collabora.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: André Almeida <andrealmeid@collabora.com>
+Link: https://lore.kernel.org/r/20210923171111.300673-2-andrealmeid@collabora.com
+Stable-dep-of: 90d758896787 ("futex: Resend potentially swallowed owner death notification")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/sh_cmt.c | 88 ++++++++++++++++++++++--------------
- 1 file changed, 55 insertions(+), 33 deletions(-)
+ MAINTAINERS                      | 2 +-
+ kernel/Makefile                  | 2 +-
+ kernel/futex/Makefile            | 3 +++
+ kernel/{futex.c => futex/core.c} | 2 +-
+ 4 files changed, 6 insertions(+), 3 deletions(-)
+ create mode 100644 kernel/futex/Makefile
+ rename kernel/{futex.c => futex/core.c} (99%)
 
-diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
-index 65a1e2416402..66e4872ab34f 100644
---- a/drivers/clocksource/sh_cmt.c
-+++ b/drivers/clocksource/sh_cmt.c
-@@ -13,6 +13,7 @@
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/ioport.h>
- #include <linux/irq.h>
- #include <linux/module.h>
-@@ -116,6 +117,7 @@ struct sh_cmt_device {
- 	void __iomem *mapbase;
- 	struct clk *clk;
- 	unsigned long rate;
-+	unsigned int reg_delay;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 4d10e79030a9..f6c6b403a1b7 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7280,7 +7280,7 @@ F:	Documentation/locking/*futex*
+ F:	include/asm-generic/futex.h
+ F:	include/linux/futex.h
+ F:	include/uapi/linux/futex.h
+-F:	kernel/futex.c
++F:	kernel/futex/*
+ F:	tools/perf/bench/futex*
+ F:	tools/testing/selftests/futex/
  
- 	raw_spinlock_t lock; /* Protect the shared start/stop register */
- 
-@@ -247,10 +249,17 @@ static inline u32 sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
- 
- static inline void sh_cmt_write_cmstr(struct sh_cmt_channel *ch, u32 value)
- {
--	if (ch->iostart)
--		ch->cmt->info->write_control(ch->iostart, 0, value);
--	else
--		ch->cmt->info->write_control(ch->cmt->mapbase, 0, value);
-+	u32 old_value = sh_cmt_read_cmstr(ch);
+diff --git a/kernel/Makefile b/kernel/Makefile
+index e7905bdf6e97..82e9c843617f 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -53,7 +53,7 @@ obj-$(CONFIG_FREEZER) += freezer.o
+ obj-$(CONFIG_PROFILING) += profile.o
+ obj-$(CONFIG_STACKTRACE) += stacktrace.o
+ obj-y += time/
+-obj-$(CONFIG_FUTEX) += futex.o
++obj-$(CONFIG_FUTEX) += futex/
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += smp.o
+ ifneq ($(CONFIG_SMP),y)
+diff --git a/kernel/futex/Makefile b/kernel/futex/Makefile
+new file mode 100644
+index 000000000000..b89ba3fba343
+--- /dev/null
++++ b/kernel/futex/Makefile
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: GPL-2.0
 +
-+	if (value != old_value) {
-+		if (ch->iostart) {
-+			ch->cmt->info->write_control(ch->iostart, 0, value);
-+			udelay(ch->cmt->reg_delay);
-+		} else {
-+			ch->cmt->info->write_control(ch->cmt->mapbase, 0, value);
-+			udelay(ch->cmt->reg_delay);
-+		}
-+	}
- }
++obj-y += core.o
+diff --git a/kernel/futex.c b/kernel/futex/core.c
+similarity index 99%
+rename from kernel/futex.c
+rename to kernel/futex/core.c
+index 98a6e1b80bfe..26ca79c47480 100644
+--- a/kernel/futex.c
++++ b/kernel/futex/core.c
+@@ -42,7 +42,7 @@
  
- static inline u32 sh_cmt_read_cmcsr(struct sh_cmt_channel *ch)
-@@ -260,7 +269,12 @@ static inline u32 sh_cmt_read_cmcsr(struct sh_cmt_channel *ch)
+ #include <asm/futex.h>
  
- static inline void sh_cmt_write_cmcsr(struct sh_cmt_channel *ch, u32 value)
- {
--	ch->cmt->info->write_control(ch->ioctrl, CMCSR, value);
-+	u32 old_value = sh_cmt_read_cmcsr(ch);
-+
-+	if (value != old_value) {
-+		ch->cmt->info->write_control(ch->ioctrl, CMCSR, value);
-+		udelay(ch->cmt->reg_delay);
-+	}
- }
+-#include "locking/rtmutex_common.h"
++#include "../locking/rtmutex_common.h"
  
- static inline u32 sh_cmt_read_cmcnt(struct sh_cmt_channel *ch)
-@@ -268,14 +282,33 @@ static inline u32 sh_cmt_read_cmcnt(struct sh_cmt_channel *ch)
- 	return ch->cmt->info->read_count(ch->ioctrl, CMCNT);
- }
- 
--static inline void sh_cmt_write_cmcnt(struct sh_cmt_channel *ch, u32 value)
-+static inline int sh_cmt_write_cmcnt(struct sh_cmt_channel *ch, u32 value)
- {
-+	/* Tests showed that we need to wait 3 clocks here */
-+	unsigned int cmcnt_delay = DIV_ROUND_UP(3 * ch->cmt->reg_delay, 2);
-+	u32 reg;
-+
-+	if (ch->cmt->info->model > SH_CMT_16BIT) {
-+		int ret = read_poll_timeout_atomic(sh_cmt_read_cmcsr, reg,
-+						   !(reg & SH_CMT32_CMCSR_WRFLG),
-+						   1, cmcnt_delay, false, ch);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
- 	ch->cmt->info->write_count(ch->ioctrl, CMCNT, value);
-+	udelay(cmcnt_delay);
-+	return 0;
- }
- 
- static inline void sh_cmt_write_cmcor(struct sh_cmt_channel *ch, u32 value)
- {
--	ch->cmt->info->write_count(ch->ioctrl, CMCOR, value);
-+	u32 old_value = ch->cmt->info->read_count(ch->ioctrl, CMCOR);
-+
-+	if (value != old_value) {
-+		ch->cmt->info->write_count(ch->ioctrl, CMCOR, value);
-+		udelay(ch->cmt->reg_delay);
-+	}
- }
- 
- static u32 sh_cmt_get_counter(struct sh_cmt_channel *ch, u32 *has_wrapped)
-@@ -319,7 +352,7 @@ static void sh_cmt_start_stop_ch(struct sh_cmt_channel *ch, int start)
- 
- static int sh_cmt_enable(struct sh_cmt_channel *ch)
- {
--	int k, ret;
-+	int ret;
- 
- 	pm_runtime_get_sync(&ch->cmt->pdev->dev);
- 	dev_pm_syscore_device(&ch->cmt->pdev->dev, true);
-@@ -347,26 +380,9 @@ static int sh_cmt_enable(struct sh_cmt_channel *ch)
- 	}
- 
- 	sh_cmt_write_cmcor(ch, 0xffffffff);
--	sh_cmt_write_cmcnt(ch, 0);
--
--	/*
--	 * According to the sh73a0 user's manual, as CMCNT can be operated
--	 * only by the RCLK (Pseudo 32 kHz), there's one restriction on
--	 * modifying CMCNT register; two RCLK cycles are necessary before
--	 * this register is either read or any modification of the value
--	 * it holds is reflected in the LSI's actual operation.
--	 *
--	 * While at it, we're supposed to clear out the CMCNT as of this
--	 * moment, so make sure it's processed properly here.  This will
--	 * take RCLKx2 at maximum.
--	 */
--	for (k = 0; k < 100; k++) {
--		if (!sh_cmt_read_cmcnt(ch))
--			break;
--		udelay(1);
--	}
-+	ret = sh_cmt_write_cmcnt(ch, 0);
- 
--	if (sh_cmt_read_cmcnt(ch)) {
-+	if (ret || sh_cmt_read_cmcnt(ch)) {
- 		dev_err(&ch->cmt->pdev->dev, "ch%u: cannot clear CMCNT\n",
- 			ch->index);
- 		ret = -ETIMEDOUT;
-@@ -976,8 +992,8 @@ MODULE_DEVICE_TABLE(of, sh_cmt_of_table);
- 
- static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
- {
--	unsigned int mask;
--	unsigned int i;
-+	unsigned int mask, i;
-+	unsigned long rate;
- 	int ret;
- 
- 	cmt->pdev = pdev;
-@@ -1013,10 +1029,16 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
- 	if (ret < 0)
- 		goto err_clk_unprepare;
- 
--	if (cmt->info->width == 16)
--		cmt->rate = clk_get_rate(cmt->clk) / 512;
--	else
--		cmt->rate = clk_get_rate(cmt->clk) / 8;
-+	rate = clk_get_rate(cmt->clk);
-+	if (!rate) {
-+		ret = -EINVAL;
-+		goto err_clk_disable;
-+	}
-+
-+	/* We shall wait 2 input clks after register writes */
-+	if (cmt->info->model >= SH_CMT_48BIT)
-+		cmt->reg_delay = DIV_ROUND_UP(2UL * USEC_PER_SEC, rate);
-+	cmt->rate = rate / (cmt->info->width == 16 ? 512 : 8);
- 
- 	/* Map the memory resource(s). */
- 	ret = sh_cmt_map_memory(cmt);
+ /*
+  * READ this before attempting to hack on futexes!
 -- 
 2.35.1
 
