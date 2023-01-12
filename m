@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B82216677C5
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD0AA6677D4
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240020AbjALOsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:48:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41898 "EHLO
+        id S239945AbjALOtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:49:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239528AbjALOrd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:47:33 -0500
+        with ESMTP id S240060AbjALOsq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:48:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF6063F5E
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:35:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A438E6417
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:36:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A89862038
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:35:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 461E8C433EF;
-        Thu, 12 Jan 2023 14:35:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 406ED62031
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:36:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32C2DC433D2;
+        Thu, 12 Jan 2023 14:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534127;
-        bh=qgRQMPUO1Uc+cH74o/UKEo8XOXmapK+SQ9IzDbHibi4=;
+        s=korg; t=1673534160;
+        bh=E197O7xsWe5SHEN6MKBjY0u10uLKWwpkAH016H4KgbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBAH3dB50YuYpdjOnnx32ooxpiNCbhzr6WbkAOTNEwZWoXrcS/tmx/wM2GyueZUY4
-         4xHii82tkmkQAxiWi3OHNIQ6sRl8r1Tts8EV6IEMMfkkWgJa33+DS/Zw2IRZYtWBV8
-         7M/sF7A86rdc0ck9n/LQFVekviQ3ArLcatiF6WWs=
+        b=KhCEt+BhMiyJie8j4mb362x+w07O5fjl9sjEJ9bCTwuwZNHFvTcFBYSl1wObMjvHO
+         BpAfxzWLqvK21c9CgvCDbmVW+ikjtVs0k1XnitvxdkghAiAXSdXMCnHsz/fkPt8b3X
+         yGm9IHJTIKrjmLIRXzeSt+dA8iwFdk694+QvMIg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Smitha T Murthy <smitha.t@samsung.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 697/783] media: s5p-mfc: Clear workbit to handle error condition
-Date:   Thu, 12 Jan 2023 14:56:53 +0100
-Message-Id: <20230112135556.631910047@linuxfoundation.org>
+Subject: [PATCH 5.10 698/783] media: s5p-mfc: Fix in register read and write for H264
+Date:   Thu, 12 Jan 2023 14:56:54 +0100
+Message-Id: <20230112135556.683053282@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -56,39 +56,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Smitha T Murthy <smitha.t@samsung.com>
 
-[ Upstream commit d3f3c2fe54e30b0636496d842ffbb5ad3a547f9b ]
+[ Upstream commit 06710cd5d2436135046898d7e4b9408c8bb99446 ]
 
-During error on CLOSE_INSTANCE command, ctx_work_bits was not getting
-cleared. During consequent mfc execution NULL pointer dereferencing of
-this context led to kernel panic. This patch fixes this issue by making
-sure to clear ctx_work_bits always.
+Few of the H264 encoder registers written were not getting reflected
+since the read values were not stored and getting overwritten.
 
-Fixes: 818cd91ab8c6 ("[media] s5p-mfc: Extract open/close MFC instance commands")
+Fixes: 6a9c6f681257 ("[media] s5p-mfc: Add variants to access mfc registers")
+
 Cc: stable@vger.kernel.org
 Cc: linux-fsd@tesla.com
 Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c b/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
-index da138c314963..58822ec5370e 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
-@@ -468,8 +468,10 @@ void s5p_mfc_close_mfc_inst(struct s5p_mfc_dev *dev, struct s5p_mfc_ctx *ctx)
- 	s5p_mfc_hw_call(dev->mfc_ops, try_run, dev);
- 	/* Wait until instance is returned or timeout occurred */
- 	if (s5p_mfc_wait_for_done_ctx(ctx,
--				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0))
-+				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0)){
-+		clear_work_bit_irqsave(ctx);
- 		mfc_err("Err returning instance\n");
-+	}
+diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c b/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
+index a1453053e31a..ef8169f6c428 100644
+--- a/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
++++ b/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
+@@ -1060,7 +1060,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 	}
  
- 	/* Free resources */
- 	s5p_mfc_hw_call(dev->mfc_ops, release_codec_buffers, ctx);
+ 	/* aspect ratio VUI */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 5);
+ 	reg |= ((p_h264->vui_sar & 0x1) << 5);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1083,7 +1083,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 
+ 	/* intra picture period for H.264 open GOP */
+ 	/* control */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 4);
+ 	reg |= ((p_h264->open_gop & 0x1) << 4);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1097,23 +1097,23 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 	}
+ 
+ 	/* 'WEIGHTED_BI_PREDICTION' for B is disable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x3 << 9);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* 'CONSTRAINED_INTRA_PRED_ENABLE' is disable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 14);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* ASO */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 6);
+ 	reg |= ((p_h264->aso & 0x1) << 6);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* hier qp enable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 8);
+ 	reg |= ((p_h264->open_gop & 0x1) << 8);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1134,7 +1134,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 	writel(reg, mfc_regs->e_h264_num_t_layer);
+ 
+ 	/* frame packing SEI generation */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 25);
+ 	reg |= ((p_h264->sei_frame_packing & 0x1) << 25);
+ 	writel(reg, mfc_regs->e_h264_options);
 -- 
 2.35.1
 
