@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A18E6673CC
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FD396673C1
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:57:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232650AbjALN6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 08:58:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53664 "EHLO
+        id S229899AbjALN53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 08:57:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229894AbjALN6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:58:10 -0500
+        with ESMTP id S231733AbjALN51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:57:27 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D43B8517EE
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18E448CEE
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91897B81E68
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA307C433EF;
-        Thu, 12 Jan 2023 13:57:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68466B81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9013DC433EF;
+        Thu, 12 Jan 2023 13:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673531875;
-        bh=/JlfAO5F8GQUXx9ZbY192XkACLPf3EhZ0v7/USpRT0I=;
+        s=korg; t=1673531844;
+        bh=vW1oJVo+2y6fr34fPRzOm9gsCuR9xrq4mH9jEIv8ylc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ecMl0QZ/fg15byoKm4SSbpIB+qIvWO6itWvHelD3Fu98y3bcLSY1hS4vpMitG7tTL
-         r+iuiglvKPm10L19Zn0LBVcXNZlRc+0n1EGF5E9NqZXi/BXQsjrENxkCOFXKahzXSJ
-         DR7FBjFkjtdtgW0IgZslg7jpSGTFBia2+G0CC1/w=
+        b=mI7VHjyWNZcjp3EtuWnEvh0YzUCZfpDaFWgNbRQOxPrZeR3cJ4hSCzTnNuEWrA7n9
+         z6R+8lEKhWuvGAuBdJpk+uS6EK56p2Tsd1LK7+n2ZMNm3vsUj3iA4Y+a899shRRlZP
+         ZpIVOMxVjPO7ooU+0boEGaxtykBNzqQAkF5GL2fU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Kyle Huey <me@kylehuey.com>,
         Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 5.15 03/10] x86/fpu: Add a pkru argument to copy_uabi_from_kernel_to_xstate().
-Date:   Thu, 12 Jan 2023 14:56:40 +0100
-Message-Id: <20230112135326.807828831@linuxfoundation.org>
+Subject: [PATCH 5.15 04/10] x86/fpu: Add a pkru argument to copy_uabi_to_xstate()
+Date:   Thu, 12 Jan 2023 14:56:41 +0100
+Message-Id: <20230112135326.849086713@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135326.689857506@linuxfoundation.org>
 References: <20230112135326.689857506@linuxfoundation.org>
@@ -54,54 +54,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kyle Huey <me@kylehuey.com>
 
-commit 1c813ce0305571e1b2e4cc4acca451da9e6ad18f upstream
+commit 2c87767c35ee9744f666ccec869d5fe742c3de0a upstream
 
-ptrace (through PTRACE_SETREGSET with NT_X86_XSTATE) ultimately calls
-copy_uabi_from_kernel_to_xstate(). In preparation for eventually handling
-PKRU in copy_uabi_to_xstate, pass in a pointer to the PKRU location.
+In preparation for adding PKRU handling code into copy_uabi_to_xstate(),
+add an argument that copy_uabi_from_kernel_to_xstate() can use to pass the
+canonical location of the PKRU value. For
+copy_sigframe_from_user_to_xstate() the kernel will actually restore the
+PKRU value from the fpstate, but pass in the thread_struct's pkru location
+anyways for consistency.
 
 Signed-off-by: Kyle Huey <me@kylehuey.com>
 Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lore.kernel.org/all/20221115230932.7126-3-khuey%40kylehuey.com
+Link: https://lore.kernel.org/all/20221115230932.7126-4-khuey%40kylehuey.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/fpu/xstate.h |    2 +-
- arch/x86/kernel/fpu/regset.c      |    2 +-
- arch/x86/kernel/fpu/xstate.c      |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kernel/fpu/xstate.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/include/asm/fpu/xstate.h
-+++ b/arch/x86/include/asm/fpu/xstate.h
-@@ -136,7 +136,7 @@ extern void __init update_regset_xstate_
- 
- void *get_xsave_addr(struct xregs_state *xsave, int xfeature_nr);
- int xfeature_size(int xfeature_nr);
--int copy_uabi_from_kernel_to_xstate(struct xregs_state *xsave, const void *kbuf);
-+int copy_uabi_from_kernel_to_xstate(struct xregs_state *xsave, const void *kbuf, u32 *pkru);
- int copy_sigframe_from_user_to_xstate(struct task_struct *tsk, const void __user *ubuf);
- 
- void xsaves(struct xregs_state *xsave, u64 mask);
---- a/arch/x86/kernel/fpu/regset.c
-+++ b/arch/x86/kernel/fpu/regset.c
-@@ -163,7 +163,7 @@ int xstateregs_set(struct task_struct *t
- 	}
- 
- 	fpu_force_restore(fpu);
--	ret = copy_uabi_from_kernel_to_xstate(&fpu->state.xsave, kbuf ?: tmpbuf);
-+	ret = copy_uabi_from_kernel_to_xstate(&fpu->state.xsave, kbuf ?: tmpbuf, &target->thread.pkru);
- 
- out:
- 	vfree(tmpbuf);
 --- a/arch/x86/kernel/fpu/xstate.c
 +++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1159,7 +1159,7 @@ static int copy_uabi_to_xstate(struct xr
-  * format and copy to the target thread. This is called from
-  * xstateregs_set().
-  */
--int copy_uabi_from_kernel_to_xstate(struct xregs_state *xsave, const void *kbuf)
-+int copy_uabi_from_kernel_to_xstate(struct xregs_state *xsave, const void *kbuf, u32 *pkru)
+@@ -1092,7 +1092,7 @@ static int copy_from_buffer(void *dst, u
+ 
+ 
+ static int copy_uabi_to_xstate(struct xregs_state *xsave, const void *kbuf,
+-			       const void __user *ubuf)
++			       const void __user *ubuf, u32 *pkru)
  {
- 	return copy_uabi_to_xstate(xsave, kbuf, NULL);
+ 	unsigned int offset, size;
+ 	struct xstate_header hdr;
+@@ -1161,7 +1161,7 @@ static int copy_uabi_to_xstate(struct xr
+  */
+ int copy_uabi_from_kernel_to_xstate(struct xregs_state *xsave, const void *kbuf, u32 *pkru)
+ {
+-	return copy_uabi_to_xstate(xsave, kbuf, NULL);
++	return copy_uabi_to_xstate(xsave, kbuf, NULL, pkru);
  }
+ 
+ /*
+@@ -1172,7 +1172,7 @@ int copy_uabi_from_kernel_to_xstate(stru
+ int copy_sigframe_from_user_to_xstate(struct task_struct *tsk,
+ 				      const void __user *ubuf)
+ {
+-	return copy_uabi_to_xstate(&tsk->thread.fpu.state.xsave, NULL, ubuf);
++	return copy_uabi_to_xstate(&tsk->thread.fpu.state.xsave, NULL, ubuf, &tsk->thread.pkru);
+ }
+ 
+ static bool validate_xsaves_xrstors(u64 mask)
 
 
