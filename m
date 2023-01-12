@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB956667819
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:52:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9685D66781A
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:52:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240102AbjALOw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:52:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43952 "EHLO
+        id S240139AbjALOwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:52:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239937AbjALOwI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:52:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F17479C8
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:38:59 -0800 (PST)
+        with ESMTP id S240026AbjALOwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:52:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76D9248588
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:39:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72DC8B81E31
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:38:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5567C433F0;
-        Thu, 12 Jan 2023 14:38:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EA146203B
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 050B8C433F0;
+        Thu, 12 Jan 2023 14:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534337;
-        bh=4TFhpm2V4ZAMjGAn09V6BopuWGa4bk0GnXI+NRDx0ZE=;
+        s=korg; t=1673534340;
+        bh=MaKBrD4rQWjXW097NC1+SusXTwLYynUUnDEQ1ulFFus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOE2A1JqJ5RNPcUSHQIvHDIp19eCAZf3U5DuTKwVKkmU1ylGGlhziqDiTNcqOmQrd
-         gvSz55rHM875WW7npCSL+80qZEXE7PQqYPPAkicek9Fjq5MZQX5iEeWmgc2grtr27u
-         kwKLL6lSreCP3I23RoUwmGfyW4j6z88Xoo9/ORU0=
+        b=BqiBw7IkrCS4Y5x8MOf+oVK0ykn5T7ALXKRiTYcoWxejNa8qdUnPNPrxTIyMtI2QQ
+         hWVAlrUxAlUFnGo9nkWDNEHYIHCB9d5nOoJoPrtYQtYyWkp2AG8Ye+TgOwaBpBU8tG
+         DUP7YL4EcgiaCUVJf3crT4jJzESm92MzEV7KzvcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 775/783] ext4: dont set up encryption key during jbd2 transaction
-Date:   Thu, 12 Jan 2023 14:58:11 +0100
-Message-Id: <20230112135600.312900072@linuxfoundation.org>
+        Indan Zupancic <Indan.Zupancic@mep-info.com>,
+        Dominique Martinet <dominique.martinet@atmark-techno.com>
+Subject: [PATCH 5.10 776/783] fsl_lpuart: Dont enable interrupts too early
+Date:   Thu, 12 Jan 2023 14:58:12 +0100
+Message-Id: <20230112135600.363788119@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,158 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Indan Zupancic <Indan.Zupancic@mep-info.com>
 
-commit 4c0d5778385cb3618ff26a561ce41de2b7d9de70 upstream.
+commit 401fb66a355eb0f22096cf26864324f8e63c7d78 upstream.
 
-Commit a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
-extended the scope of the transaction in ext4_unlink() too far, making
-it include the call to ext4_find_entry().  However, ext4_find_entry()
-can deadlock when called from within a transaction because it may need
-to set up the directory's encryption key.
+If an irq is pending when devm_request_irq() is called, the irq
+handler will cause a NULL pointer access because initialisation
+is not done yet.
 
-Fix this by restoring the transaction to its original scope.
-
-Reported-by: syzbot+1a748d0007eeac3ab079@syzkaller.appspotmail.com
-Fixes: a80f7fcf1867 ("ext4: fixup ext4_fc_track_* functions' signature")
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221106224841.279231-3-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 9d7ee0e28da59 ("tty: serial: lpuart: avoid report NULL interrupt")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Indan Zupancic <Indan.Zupancic@mep-info.com>
+Link: https://lore.kernel.org/r/20220505114750.45423-1-Indan.Zupancic@mep-info.com
+[5.10 did not have lpuart_global_reset or anything after
+uart_add_one_port(), so add the remove call in cleanup manually]
+Signed-off-by: Dominique Martinet <dominique.martinet@atmark-techno.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h        |    4 ++--
- fs/ext4/fast_commit.c |    2 +-
- fs/ext4/namei.c       |   44 ++++++++++++++++++++++++--------------------
- 3 files changed, 27 insertions(+), 23 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |   18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -3486,8 +3486,8 @@ extern int ext4_handle_dirty_dirblock(ha
- extern int ext4_ci_compare(const struct inode *parent,
- 			   const struct qstr *fname,
- 			   const struct qstr *entry, bool quick);
--extern int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
--			 struct inode *inode);
-+extern int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
-+			 struct inode *inode, struct dentry *dentry);
- extern int __ext4_link(struct inode *dir, struct inode *inode,
- 		       struct dentry *dentry);
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2586,6 +2586,7 @@ static int lpuart_probe(struct platform_
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct lpuart_port *sport;
+ 	struct resource *res;
++	irq_handler_t handler;
+ 	int ret;
  
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1300,7 +1300,7 @@ static int ext4_fc_replay_unlink(struct
- 		return 0;
- 	}
+ 	sport = devm_kzalloc(&pdev->dev, sizeof(*sport), GFP_KERNEL);
+@@ -2658,17 +2659,12 @@ static int lpuart_probe(struct platform_
  
--	ret = __ext4_unlink(NULL, old_parent, &entry, inode);
-+	ret = __ext4_unlink(old_parent, &entry, inode, NULL);
- 	/* -ENOENT ok coz it might not exist anymore. */
- 	if (ret == -ENOENT)
- 		ret = 0;
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -3244,14 +3244,20 @@ end_rmdir:
- 	return retval;
- }
- 
--int __ext4_unlink(handle_t *handle, struct inode *dir, const struct qstr *d_name,
--		  struct inode *inode)
-+int __ext4_unlink(struct inode *dir, const struct qstr *d_name,
-+		  struct inode *inode,
-+		  struct dentry *dentry /* NULL during fast_commit recovery */)
- {
- 	int retval = -ENOENT;
- 	struct buffer_head *bh;
- 	struct ext4_dir_entry_2 *de;
-+	handle_t *handle;
- 	int skip_remove_dentry = 0;
- 
-+	/*
-+	 * Keep this outside the transaction; it may have to set up the
-+	 * directory's encryption key, which isn't GFP_NOFS-safe.
-+	 */
- 	bh = ext4_find_entry(dir, d_name, &de, NULL);
- 	if (IS_ERR(bh))
- 		return PTR_ERR(bh);
-@@ -3268,7 +3274,14 @@ int __ext4_unlink(handle_t *handle, stru
- 		if (EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY)
- 			skip_remove_dentry = 1;
- 		else
--			goto out;
-+			goto out_bh;
-+	}
-+
-+	handle = ext4_journal_start(dir, EXT4_HT_DIR,
-+				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
-+	if (IS_ERR(handle)) {
-+		retval = PTR_ERR(handle);
-+		goto out_bh;
- 	}
- 
- 	if (IS_DIRSYNC(dir))
-@@ -3277,12 +3290,12 @@ int __ext4_unlink(handle_t *handle, stru
- 	if (!skip_remove_dentry) {
- 		retval = ext4_delete_entry(handle, dir, de, bh);
- 		if (retval)
--			goto out;
-+			goto out_handle;
- 		dir->i_ctime = dir->i_mtime = current_time(dir);
- 		ext4_update_dx_flag(dir);
- 		retval = ext4_mark_inode_dirty(handle, dir);
- 		if (retval)
--			goto out;
-+			goto out_handle;
+ 	if (lpuart_is_32(sport)) {
+ 		lpuart_reg.cons = LPUART32_CONSOLE;
+-		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart32_int, 0,
+-					DRIVER_NAME, sport);
++		handler = lpuart32_int;
  	} else {
- 		retval = 0;
+ 		lpuart_reg.cons = LPUART_CONSOLE;
+-		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart_int, 0,
+-					DRIVER_NAME, sport);
++		handler = lpuart_int;
  	}
-@@ -3295,15 +3308,17 @@ int __ext4_unlink(handle_t *handle, stru
- 		ext4_orphan_add(handle, inode);
- 	inode->i_ctime = current_time(inode);
- 	retval = ext4_mark_inode_dirty(handle, inode);
+ 
+-	if (ret)
+-		goto failed_irq_request;
 -
--out:
-+	if (dentry && !retval)
-+		ext4_fc_track_unlink(handle, dentry);
-+out_handle:
-+	ext4_journal_stop(handle);
-+out_bh:
- 	brelse(bh);
- 	return retval;
+ 	ret = uart_get_rs485_mode(&sport->port);
+ 	if (ret)
+ 		goto failed_get_rs485;
+@@ -2684,11 +2680,17 @@ static int lpuart_probe(struct platform_
+ 	if (ret)
+ 		goto failed_attach_port;
+ 
++	ret = devm_request_irq(&pdev->dev, sport->port.irq, handler, 0,
++				DRIVER_NAME, sport);
++	if (ret)
++		goto failed_irq_request;
++
+ 	return 0;
+ 
++failed_irq_request:
++	uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_get_rs485:
+ failed_attach_port:
+-failed_irq_request:
+ 	lpuart_disable_clks(sport);
+ 	return ret;
  }
- 
- static int ext4_unlink(struct inode *dir, struct dentry *dentry)
- {
--	handle_t *handle;
- 	int retval;
- 
- 	if (unlikely(ext4_forced_shutdown(EXT4_SB(dir->i_sb))))
-@@ -3321,16 +3336,7 @@ static int ext4_unlink(struct inode *dir
- 	if (retval)
- 		goto out_trace;
- 
--	handle = ext4_journal_start(dir, EXT4_HT_DIR,
--				    EXT4_DATA_TRANS_BLOCKS(dir->i_sb));
--	if (IS_ERR(handle)) {
--		retval = PTR_ERR(handle);
--		goto out_trace;
--	}
--
--	retval = __ext4_unlink(handle, dir, &dentry->d_name, d_inode(dentry));
--	if (!retval)
--		ext4_fc_track_unlink(handle, dentry);
-+	retval = __ext4_unlink(dir, &dentry->d_name, d_inode(dentry), dentry);
- #ifdef CONFIG_UNICODE
- 	/* VFS negative dentries are incompatible with Encoding and
- 	 * Case-insensitiveness. Eventually we'll want avoid
-@@ -3341,8 +3347,6 @@ static int ext4_unlink(struct inode *dir
- 	if (IS_CASEFOLDED(dir))
- 		d_invalidate(dentry);
- #endif
--	if (handle)
--		ext4_journal_stop(handle);
- 
- out_trace:
- 	trace_ext4_unlink_exit(dentry, retval);
 
 
