@@ -2,179 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F8E2667F6F
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 20:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61BCB668423
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 21:42:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240015AbjALTlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 14:41:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33144 "EHLO
+        id S229748AbjALUmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 15:42:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234531AbjALTkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 14:40:51 -0500
-Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [85.215.255.22])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E3E6E0CE;
-        Thu, 12 Jan 2023 11:32:01 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1673551875; cv=none;
-    d=strato.com; s=strato-dkim-0002;
-    b=GZ2T2djxT3FmtBmSLCXoavuBiLpkYAKU3T9oW2Xgyd5sRiluzeEh/TIEPCn2r42m9M
-    dwqSdDX6UyLNNBLP6ZvKdM17xYwNOFtJecdbSoK9nGVAxzDGDIdkGONKvY4HveS5qEj0
-    UyrbgOOW5MjavS46GqT5PTdDaod8tcqmNACRsetPimHj3yeVcY2a1kt5tnEURGdSiWbg
-    D1yLHbajQa0MQPlw+UxJUFBcWE8UUIFch7v9UoYKA+FN7fIJImdhSymvxU2dODzoAmR/
-    1aFohdqWjHHOBiazmRBMi99+h2Q3BUi5VkRB/5nzP6w9brgqK+rg2enCGk5mE4xoC3Zi
-    w12w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1673551875;
-    s=strato-dkim-0002; d=strato.com;
-    h=In-Reply-To:References:Cc:To:From:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=voXJ3+FVsOJeQocmOoD2w0EDxDMCn+AisNM+x8mge4w=;
-    b=HUvuOUDceJbfRAy2gDuwPisO3ZxzIpRq1p5+0T8agOVjUvnOwBHS7OQipfhhAiH94p
-    PqvfP+bOPwAbXE/Us2zyHXLMAOTLPXz2edTku8V+0yqpk8TvMxB9MHvKHfJLnY/5aBGG
-    pGNcs+I4g8ebiwOqmLaCt7U4sLgkDcS+KrcVKz9IJ81ZeM3SwsEdmhKoZMSJvSasiDYB
-    4r/yADUDY2nz8IEu5dpzEEN0Z55tbTCpzdzOj/iwfZh5vMJdtCHA4X+oRfZsM6C2FG/l
-    /babNqmjzFbhAbkydMIH1kQWONGl8y+t3AnBXtz0u2gWb7WlQH5itkgayISIKkfbMFP2
-    cajw==
-ARC-Authentication-Results: i=1; strato.com;
-    arc=none;
-    dkim=none
-X-RZG-CLASS-ID: mo00
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1673551875;
-    s=strato-dkim-0002; d=hartkopp.net;
-    h=In-Reply-To:References:Cc:To:From:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=voXJ3+FVsOJeQocmOoD2w0EDxDMCn+AisNM+x8mge4w=;
-    b=CC9+ZFq9Ndo7MzRv/6jIGOdcVX0V44Od/zZwg+omQ1POSz6gGyVlzSMOxPzeVDUPa/
-    h6rdVKk5GMxQdMELdf03damt2rGgm0J1oTgcfGHXgr43PqeTozxmkoQxk7+7haZbGzyh
-    3EntWiKNjq8BUqtNJpq1IKChRS772h+mN0Y4VcQ8Mnpy0bLun4pRSY0T3dIRg46l0bOq
-    8Fdxm59aOATvYXS9HqFLScKiEHCSmK8JRL1bzI23PTh7EO0PUtUicu9Kvdb+BA8Gof0o
-    445G11Swi1AGbZ4ZE1zGIgLa+rcxtKeLqryKZGLBd1HILX3xg5UQr/fvPedLbIaFNuNS
-    Toaw==
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1o3TMaFqTEVR5J8xpzl0="
-Received: from [192.168.60.87]
-    by smtp.strato.de (RZmta 48.6.2 DYNA|AUTH)
-    with ESMTPSA id ifa639z0CJVF4Oa
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Thu, 12 Jan 2023 20:31:15 +0100 (CET)
-Message-ID: <07af807f-14f6-c09a-78e3-ac9b52b0decc@hartkopp.net>
-Date:   Thu, 12 Jan 2023 20:31:09 +0100
+        with ESMTP id S232377AbjALUmD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 15:42:03 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A262176AC2
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 12:12:08 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 47CCD346B0;
+        Thu, 12 Jan 2023 20:11:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1673554319; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sGmxwmLUhAbC3mg2UjIGg7BdcCt6B/pF9fkmcMljNRM=;
+        b=2ByrP4EEG4M2rYT410/TDeKrrQ/HC4e3NC+lNTt6O6nvMflZDQPn0N72OEnpZ/4AlkLC3j
+        2/t/88wHQmGxgli6WFeXSEBrCdTlfblI6FywMRmdNgQVT+oNws2HnGnFmZxnLM7Ji1fIOF
+        O4suhoejtBNIPNURYKoLKkVN8ta0YuA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1673554319;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sGmxwmLUhAbC3mg2UjIGg7BdcCt6B/pF9fkmcMljNRM=;
+        b=PnhUYYZbxfmM+aIxMsK/gtXCJ7GJu8uGO+iAhrWoN/s1WXYz/0oYW8k3WysHjzBGBUyF7A
+        YP88VuOk2P2+jWBQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B110913585;
+        Thu, 12 Jan 2023 20:11:58 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id KNxxKo5pwGMGKgAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Thu, 12 Jan 2023 20:11:58 +0000
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     alexander.deucher@amd.com, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
+        rodrigo.vivi@intel.com, tvrtko.ursulin@linux.intel.com,
+        bskeggs@redhat.com, kherbst@redhat.com, lyude@redhat.com,
+        evan.quan@amd.com, jose.souza@intel.com
+Cc:     amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        intel-gfx@lists.freedesktop.org, nouveau@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Radhakrishna Sripada <radhakrishna.sripada@intel.com>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Ramalingam C <ramalingam.c@intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Julia Lawall <Julia.Lawall@inria.fr>, stable@vger.kernel.org
+Subject: [PATCH v2 1/3] drm/i915: Allow switching away via vga-switcheroo if uninitialized
+Date:   Thu, 12 Jan 2023 21:11:54 +0100
+Message-Id: <20230112201156.26849-2-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230112201156.26849-1-tzimmermann@suse.de>
+References: <20230112201156.26849-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH v2] can: isotp: handle wait_event_interruptible() return
- values
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     linux-can@vger.kernel.org, stable@vger.kernel.org
-References: <20230104164605.39666-1-socketcan@hartkopp.net>
- <20230105093226.alchrnm34s6tmfpp@pengutronix.de>
- <20bef3ed-47ef-8042-6b98-1f498b81962f@hartkopp.net>
- <20230106113731.irqfxdpn5ygae44e@pengutronix.de>
- <0e0e041b-8dd9-0764-3fd1-a426c99ec417@hartkopp.net>
-Content-Language: en-US
-In-Reply-To: <0e0e041b-8dd9-0764-3fd1-a426c99ec417@hartkopp.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I sent a V4 (recommended) so that you can pick V3/V4 at your will (see 
-explanation below)
+Always allow switching away via vga-switcheroo if the display is
+uninitalized. Instead prevent switching to i915 if the device has
+not been initialized.
 
-Thanks,
-Oliver
+This issue was introduced by commit 5df7bd130818 ("drm/i915: skip
+display initialization when there is no display") protected, which
+protects code paths from being executed on uninitialized devices.
+In the case of vga-switcheroo, we want to allow a switch away from
+i915's device. So run vga_switcheroo_process_delayed_switch() and
+test in the switcheroo callbacks if the i915 device is available.
 
-ps. open patches:
+Fixes: 5df7bd130818 ("drm/i915: skip display initialization when there is no display")
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Radhakrishna Sripada <radhakrishna.sripada@intel.com>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: "Ville Syrjälä" <ville.syrjala@linux.intel.com>
+Cc: Manasi Navare <manasi.d.navare@intel.com>
+Cc: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+Cc: Imre Deak <imre.deak@intel.com>
+Cc: "Jouni Högander" <jouni.hogander@intel.com>
+Cc: Uma Shankar <uma.shankar@intel.com>
+Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Cc: Ramalingam C <ramalingam.c@intel.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Andi Shyti <andi.shyti@linux.intel.com>
+Cc: Andrzej Hajda <andrzej.hajda@intel.com>
+Cc: "José Roberto de Souza" <jose.souza@intel.com>
+Cc: Julia Lawall <Julia.Lawall@inria.fr>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.14+
+---
+ drivers/gpu/drm/i915/i915_driver.c     | 3 +--
+ drivers/gpu/drm/i915/i915_switcheroo.c | 6 +++++-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-[PATCH can-next] can: isotp: check CAN address family in isotp_bind()
-https://lore.kernel.org/linux-can/20230104201844.13168-1-socketcan@hartkopp.net/T/#u
+diff --git a/drivers/gpu/drm/i915/i915_driver.c b/drivers/gpu/drm/i915/i915_driver.c
+index c1e427ba57ae..33e231b120c1 100644
+--- a/drivers/gpu/drm/i915/i915_driver.c
++++ b/drivers/gpu/drm/i915/i915_driver.c
+@@ -1075,8 +1075,7 @@ static void i915_driver_lastclose(struct drm_device *dev)
+ 
+ 	intel_fbdev_restore_mode(dev);
+ 
+-	if (HAS_DISPLAY(i915))
+-		vga_switcheroo_process_delayed_switch();
++	vga_switcheroo_process_delayed_switch();
+ }
+ 
+ static void i915_driver_postclose(struct drm_device *dev, struct drm_file *file)
+diff --git a/drivers/gpu/drm/i915/i915_switcheroo.c b/drivers/gpu/drm/i915/i915_switcheroo.c
+index 23777d500cdf..f45bd6b6cede 100644
+--- a/drivers/gpu/drm/i915/i915_switcheroo.c
++++ b/drivers/gpu/drm/i915/i915_switcheroo.c
+@@ -19,6 +19,10 @@ static void i915_switcheroo_set_state(struct pci_dev *pdev,
+ 		dev_err(&pdev->dev, "DRM not initialized, aborting switch.\n");
+ 		return;
+ 	}
++	if (!HAS_DISPLAY(i915)) {
++		dev_err(&pdev->dev, "Device state not initialized, aborting switch.\n");
++		return;
++	}
+ 
+ 	if (state == VGA_SWITCHEROO_ON) {
+ 		drm_info(&i915->drm, "switched on\n");
+@@ -44,7 +48,7 @@ static bool i915_switcheroo_can_switch(struct pci_dev *pdev)
+ 	 * locking inversion with the driver load path. And the access here is
+ 	 * completely racy anyway. So don't bother with locking for now.
+ 	 */
+-	return i915 && atomic_read(&i915->drm.open_count) == 0;
++	return i915 && HAS_DISPLAY(i915) && atomic_read(&i915->drm.open_count) == 0;
+ }
+ 
+ static const struct vga_switcheroo_client_ops i915_switcheroo_ops = {
+-- 
+2.39.0
 
-The below patch is needed to silence the Syzcaller
-https://syzkaller.appspot.com/bug?extid=5aed6c3aaba661f5b917
-
-[PATCH] can: isotp: split tx timer into transmission and timeout
-https://lore.kernel.org/linux-can/20230104145701.2422-1-socketcan@hartkopp.net/T/#u
-
-And the V4 patch.
-
-https://lore.kernel.org/linux-can/20230112192347.1944-1-socketcan@hartkopp.net/T/#u
-
-On 06.01.23 13:59, Oliver Hartkopp wrote:
-> 
-> 
-> On 06.01.23 12:37, Marc Kleine-Budde wrote:
->> On 05.01.2023 13:58:30, Oliver Hartkopp wrote:
->>>
->>>
->>> On 05.01.23 10:32, Marc Kleine-Budde wrote:
->>>> On 04.01.2023 17:46:05, Oliver Hartkopp wrote:
->>>>> When wait_event_interruptible() has been interrupted by a signal the
->>>>> tx.state value might not be ISOTP_IDLE. Force the state machines
->>>>> into idle state to inhibit the timer handlers to continue working.
->>>>>
->>>>> Cc: stable@vger.kernel.org # >= v5.15
->>>>> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
->>>>
->>>> Can you add a Fixes: tag?
->>>
->>> Yes. Sent out a V3.
->>>
->>> In fact I was not sure if it makes sense to apply the patch down to 
->>> Linux
->>> 5.10 as it might increase the possibility to trigger a WARN(1) in the
->>> isotp_tx_timer_handler().
->>>
->>> The patch is definitely helpful for the latest code including commit
->>> 4b7fe92c0690 ("can: isotp: add local echo tx processing for consecutive
->>> frames") introduced in Linux 5.18 and its fixes.
->>>
->>> I did some testing with very long ISOTP PDUs and killed the waiting
->>> isotp_release() with a Crtl-C.
->>>
->>> To prevent the WARN(1) we might also stick this patch to
->>>
->>> Fixes: 866337865f37 ("can: isotp: fix tx state handling for echo tx
->>> processing")
->>>
->>> What do you think about the WARN(1)?
->>
->> If this short patch avoids potential WARN()s it's stable material.
->>
-> 
-> It is the other way around. As written above this patch might increase 
-> the possibility to trigger a WARN(1).
-> 
-> With the patch:
-> 
-> https://lore.kernel.org/linux-can/20230104145701.2422-1-socketcan@hartkopp.net/T/#u
-> 
-> the WARN(1) is removed and this patch here makes the situation better.
-> 
-> Alternatively I could provide another patch for kernels < v6.0 which set 
-> the rx/tx states AND remove the WARN(1).
-> 
-> Back to your original question about the "Fixes:" tag, I would suggest 
-> to tag this patch similar to
-> 
-> https://lore.kernel.org/linux-can/20230104145701.2422-1-socketcan@hartkopp.net/T/#u
-> 
-> Namely:
-> 
-> Fixes: 866337865f37 ("can: isotp: fix tx state handling for echo tx 
-> processing")
-> Cc: stable@vger.kernel.org # >= v6.0
-> 
-> And later check whether I should remove the WARN(1) in older stable 
-> kernels.
-> 
-> Should I send a V4 with the new "Fixes: 866337865f37" tag?
-> 
-> Best regards,
-> Oliver
-> 
