@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AAC3667556
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:20:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C351667555
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:20:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234396AbjALOUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:20:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44194 "EHLO
+        id S236468AbjALOUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:20:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230324AbjALOTo (ORCPT
+        with ESMTP id S236446AbjALOTo (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:19:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC51F5D8BD
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:11:39 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCFDB5DE40
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:11:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B20762026
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:11:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5161CC433F0;
-        Thu, 12 Jan 2023 14:11:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 705586202D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:11:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 636ACC433D2;
+        Thu, 12 Jan 2023 14:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532698;
-        bh=rhCB+WaL4XZfaMPn3n25f3dMxAmtvJ2BFmgERi8/Aco=;
+        s=korg; t=1673532701;
+        bh=pF9927STBAh5+q5BUnPWn+RRGuWkL9EHOCcMKPeNSaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gl0lrIDB57B+bHUYadxFTttiqL+L5gXkdgZVAC+3ABEcnzwkfD58sxifK+SQCtBl4
-         ldbEAk9KMNUuaCiqlb2ls0brmb3VGhj+Qvej6jkN9jaomNv8O88exa+5c/sdafvNeZ
-         8Y7QmeX1yLOIBS+XnIWYPAky5/zevFeoA5rgMpcQ=
+        b=gkRDuRZRiIHBc2mb8/G35lK1lD+ASACTnMuHhYFFaktD++QH20lGqhwnb5TVwmWRC
+         uWKEglJ2Kz2lNSaSYbPOh+ng+z+okadFFDN5rWBoPxxnip87EOoj+3WpEDBhdBizrG
+         k+DiVdsDjm4CBS97LwmlpyrpP7AhTR5ONgz4GrlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev,
+        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Vishnu Dasa <vdasa@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 248/783] clk: socfpga: Fix memory leak in socfpga_gate_init()
-Date:   Thu, 12 Jan 2023 14:49:24 +0100
-Message-Id: <20230112135535.891530380@linuxfoundation.org>
+Subject: [PATCH 5.10 249/783] net: vmw_vsock: vmci: Check memcpy_from_msg()
+Date:   Thu, 12 Jan 2023 14:49:25 +0100
+Message-Id: <20230112135535.942546915@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,46 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Artem Chernyshev <artem.chernyshev@red-soft.ru>
 
-[ Upstream commit 0b8ba891ad4d1ef6bfa4c72efc83f9f9f855f68b ]
+[ Upstream commit 44aa5a6dba8283bfda28b1517af4de711c5652a4 ]
 
-Free @socfpga_clk and @ops on the error path to avoid memory leak issue.
+vmci_transport_dgram_enqueue() does not check the return value
+of memcpy_from_msg().  If memcpy_from_msg() fails, it is possible that
+uninitialized memory contents are sent unintentionally instead of user's
+message in the datagram to the destination.  Return with an error if
+memcpy_from_msg() fails.
 
-Fixes: a30a67be7b6e ("clk: socfpga: Don't have get_parent for single parent ops")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Link: https://lore.kernel.org/r/20221123031622.63171-1-xiujianfeng@huawei.com
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 0f7db23a07af ("vmci_transport: switch ->enqeue_dgram, ->enqueue_stream and ->dequeue_stream to msghdr")
+Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/socfpga/clk-gate.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/vmw_vsock/vmci_transport.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/socfpga/clk-gate.c b/drivers/clk/socfpga/clk-gate.c
-index 1ec9678d8cd3..ee2a2d284113 100644
---- a/drivers/clk/socfpga/clk-gate.c
-+++ b/drivers/clk/socfpga/clk-gate.c
-@@ -188,8 +188,10 @@ void __init socfpga_gate_init(struct device_node *node)
- 		return;
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index a9ca95a0fcdd..8c2856cbfecc 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -1713,7 +1713,11 @@ static int vmci_transport_dgram_enqueue(
+ 	if (!dg)
+ 		return -ENOMEM;
  
- 	ops = kmemdup(&gateclk_ops, sizeof(gateclk_ops), GFP_KERNEL);
--	if (WARN_ON(!ops))
-+	if (WARN_ON(!ops)) {
-+		kfree(socfpga_clk);
- 		return;
+-	memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
++	err = memcpy_from_msg(VMCI_DG_PAYLOAD(dg), msg, len);
++	if (err) {
++		kfree(dg);
++		return err;
 +	}
  
- 	rc = of_property_read_u32_array(node, "clk-gate", clk_gate, 2);
- 	if (rc)
-@@ -243,6 +245,7 @@ void __init socfpga_gate_init(struct device_node *node)
- 
- 	err = clk_hw_register(NULL, hw_clk);
- 	if (err) {
-+		kfree(ops);
- 		kfree(socfpga_clk);
- 		return;
- 	}
+ 	dg->dst = vmci_make_handle(remote_addr->svm_cid,
+ 				   remote_addr->svm_port);
 -- 
 2.35.1
 
