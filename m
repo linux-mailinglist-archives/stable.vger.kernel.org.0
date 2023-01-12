@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53FB566677D
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 01:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA9266677C
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 01:15:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235461AbjALAPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235638AbjALAPc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 11 Jan 2023 19:15:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49700 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235329AbjALAPR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 19:15:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C76E140AE;
-        Wed, 11 Jan 2023 16:15:14 -0800 (PST)
+        with ESMTP id S235088AbjALAPU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 19:15:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 118C315F1F;
+        Wed, 11 Jan 2023 16:15:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A9EF61F15;
-        Thu, 12 Jan 2023 00:15:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A582C433EF;
-        Thu, 12 Jan 2023 00:15:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7481E61ED9;
+        Thu, 12 Jan 2023 00:15:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C345DC433EF;
+        Thu, 12 Jan 2023 00:15:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1673482513;
-        bh=0nW8ef3WKNAoPZdcJFg8ZD/5PjJ/AvfCsX/kvuxnjiQ=;
+        s=korg; t=1673482516;
+        bh=5nDP95gB6is1Ij5llfcwKEyn1T45D/P4IbiXMIcoZZA=;
         h=Date:To:From:Subject:From;
-        b=pOGdYwwvsMyme3/LXkVYARjY+uWYcec+roY4jA1o5WMb+e03vY5HsNRySiQz4dhy/
-         w8evYhOvZHl9Ss68SM9hhjEErF2zCOLUiryl3ufidvhMYl9J+efjF+00ARY0YvlB2H
-         7jRYiDYPAfRulhb9x01xLsChfvIN913anfE+155o=
-Date:   Wed, 11 Jan 2023 16:15:12 -0800
+        b=nBTpN8OZqinOT7NeA0xa7ZGHr9DQP7/vlTOEoRxHLxrdDvhggRx5wRJMzNpHmjiu9
+         kRL5U+Nezz/ZcjTPh+DSsqhSieVTiL/q+rviaJGrwF5TjqRLYJFOPBTCFExe4PlwNZ
+         U9RabQNUPy+IbFPDUeY6xmRJgEN3cq+Zpx6Wtjr4=
+Date:   Wed, 11 Jan 2023 16:15:15 -0800
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        songmuchun@bytedance.com, nadav.amit@gmail.com,
-        mike.kravetz@oracle.com, jthoughton@google.com, david@redhat.com,
-        axelrasmussen@google.com, aarcange@redhat.com, peterx@redhat.com,
-        akpm@linux-foundation.org
+        konishi.ryusuke@gmail.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-hugetlb-pre-allocate-pgtable-pages-for-uffd-wr-protects.patch removed from -mm tree
-Message-Id: <20230112001513.5A582C433EF@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] nilfs2-fix-general-protection-fault-in-nilfs_btree_insert.patch removed from -mm tree
+Message-Id: <20230112001516.C345DC433EF@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -48,84 +45,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/hugetlb: pre-allocate pgtable pages for uffd wr-protects
+     Subject: nilfs2: fix general protection fault in nilfs_btree_insert()
 has been removed from the -mm tree.  Its filename was
-     mm-hugetlb-pre-allocate-pgtable-pages-for-uffd-wr-protects.patch
+     nilfs2-fix-general-protection-fault-in-nilfs_btree_insert.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/hugetlb: pre-allocate pgtable pages for uffd wr-protects
-Date: Wed, 4 Jan 2023 17:52:05 -0500
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Subject: nilfs2: fix general protection fault in nilfs_btree_insert()
+Date: Thu, 5 Jan 2023 14:53:56 +0900
 
-Userfaultfd-wp uses pte markers to mark wr-protected pages for both shmem
-and hugetlb.  Shmem has pre-allocation ready for markers, but hugetlb path
-was overlooked.
+If nilfs2 reads a corrupted disk image and tries to reads a b-tree node
+block by calling __nilfs_btree_get_block() against an invalid virtual
+block address, it returns -ENOENT because conversion of the virtual block
+address to a disk block address fails.  However, this return value is the
+same as the internal code that b-tree lookup routines return to indicate
+that the block being searched does not exist, so functions that operate on
+that b-tree may misbehave.
 
-Doing so by calling huge_pte_alloc() if the initial pgtable walk fails to
-find the huge ptep.  It's possible that huge_pte_alloc() can fail with
-high memory pressure, in that case stop the loop immediately and fail
-silently.  This is not the most ideal solution but it matches with what we
-do with shmem meanwhile it avoids the splat in dmesg.
+When nilfs_btree_insert() receives this spurious 'not found' code from
+nilfs_btree_do_lookup(), it misunderstands that the 'not found' check was
+successful and continues the insert operation using incomplete lookup path
+data, causing the following crash:
 
-Link: https://lkml.kernel.org/r/20230104225207.1066932-2-peterx@redhat.com
-Fixes: 60dfaad65aa9 ("mm/hugetlb: allow uffd wr-protect none ptes")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: James Houghton <jthoughton@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Acked-by: James Houghton <jthoughton@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.19+]
+ general protection fault, probably for non-canonical address
+ 0xdffffc0000000005: 0000 [#1] PREEMPT SMP KASAN
+ KASAN: null-ptr-deref in range [0x0000000000000028-0x000000000000002f]
+ ...
+ RIP: 0010:nilfs_btree_get_nonroot_node fs/nilfs2/btree.c:418 [inline]
+ RIP: 0010:nilfs_btree_prepare_insert fs/nilfs2/btree.c:1077 [inline]
+ RIP: 0010:nilfs_btree_insert+0x6d3/0x1c10 fs/nilfs2/btree.c:1238
+ Code: bc 24 80 00 00 00 4c 89 f8 48 c1 e8 03 42 80 3c 28 00 74 08 4c 89
+ ff e8 4b 02 92 fe 4d 8b 3f 49 83 c7 28 4c 89 f8 48 c1 e8 03 <42> 80 3c
+ 28 00 74 08 4c 89 ff e8 2e 02 92 fe 4d 8b 3f 49 83 c7 02
+ ...
+ Call Trace:
+ <TASK>
+  nilfs_bmap_do_insert fs/nilfs2/bmap.c:121 [inline]
+  nilfs_bmap_insert+0x20d/0x360 fs/nilfs2/bmap.c:147
+  nilfs_get_block+0x414/0x8d0 fs/nilfs2/inode.c:101
+  __block_write_begin_int+0x54c/0x1a80 fs/buffer.c:1991
+  __block_write_begin fs/buffer.c:2041 [inline]
+  block_write_begin+0x93/0x1e0 fs/buffer.c:2102
+  nilfs_write_begin+0x9c/0x110 fs/nilfs2/inode.c:261
+  generic_perform_write+0x2e4/0x5e0 mm/filemap.c:3772
+  __generic_file_write_iter+0x176/0x400 mm/filemap.c:3900
+  generic_file_write_iter+0xab/0x310 mm/filemap.c:3932
+  call_write_iter include/linux/fs.h:2186 [inline]
+  new_sync_write fs/read_write.c:491 [inline]
+  vfs_write+0x7dc/0xc50 fs/read_write.c:584
+  ksys_write+0x177/0x2a0 fs/read_write.c:637
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ ...
+ </TASK>
+
+This patch fixes the root cause of this problem by replacing the error
+code that __nilfs_btree_get_block() returns on block address conversion
+failure from -ENOENT to another internal code -EINVAL which means that the
+b-tree metadata is corrupted.
+
+By returning -EINVAL, it propagates without glitches, and for all relevant
+b-tree operations, functions in the upper bmap layer output an error
+message indicating corrupted b-tree metadata via
+nilfs_bmap_convert_error(), and code -EIO will be eventually returned as
+it should be.
+
+Link: https://lkml.kernel.org/r/000000000000bd89e205f0e38355@google.com
+Link: https://lkml.kernel.org/r/20230105055356.8811-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+ede796cecd5296353515@syzkaller.appspotmail.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/hugetlb.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ fs/nilfs2/btree.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/mm/hugetlb.c~mm-hugetlb-pre-allocate-pgtable-pages-for-uffd-wr-protects
-+++ a/mm/hugetlb.c
-@@ -6660,8 +6660,17 @@ unsigned long hugetlb_change_protection(
- 		spinlock_t *ptl;
- 		ptep = huge_pte_offset(mm, address, psize);
- 		if (!ptep) {
--			address |= last_addr_mask;
--			continue;
-+			if (!uffd_wp) {
-+				address |= last_addr_mask;
-+				continue;
-+			}
+--- a/fs/nilfs2/btree.c~nilfs2-fix-general-protection-fault-in-nilfs_btree_insert
++++ a/fs/nilfs2/btree.c
+@@ -480,9 +480,18 @@ static int __nilfs_btree_get_block(const
+ 	ret = nilfs_btnode_submit_block(btnc, ptr, 0, REQ_OP_READ, &bh,
+ 					&submit_ptr);
+ 	if (ret) {
+-		if (ret != -EEXIST)
+-			return ret;
+-		goto out_check;
++		if (likely(ret == -EEXIST))
++			goto out_check;
++		if (ret == -ENOENT) {
 +			/*
-+			 * Userfaultfd wr-protect requires pgtable
-+			 * pre-allocations to install pte markers.
++			 * Block address translation failed due to invalid
++			 * value of 'ptr'.  In this case, return internal code
++			 * -EINVAL (broken bmap) to notify bmap layer of fatal
++			 * metadata corruption.
 +			 */
-+			ptep = huge_pte_alloc(mm, vma, address, psize);
-+			if (!ptep)
-+				break;
- 		}
- 		ptl = huge_pte_lock(h, mm, ptep);
- 		if (huge_pmd_unshare(mm, vma, address, ptep)) {
++			ret = -EINVAL;
++		}
++		return ret;
+ 	}
+ 
+ 	if (ra) {
 _
 
-Patches currently in -mm which might be from peterx@redhat.com are
+Patches currently in -mm which might be from konishi.ryusuke@gmail.com are
 
-mm-uffd-fix-pte-marker-when-fork-without-fork-event.patch
-mm-fix-a-few-rare-cases-of-using-swapin-error-pte-marker.patch
-mm-uffd-always-wr-protect-pte-in-ptepmd_mkuffd_wp.patch
-mm-hugetlb-let-vma_offset_start-to-return-start.patch
-mm-hugetlb-dont-wait-for-migration-entry-during-follow-page.patch
-mm-hugetlb-document-huge_pte_offset-usage.patch
-mm-hugetlb-move-swap-entry-handling-into-vma-lock-when-faulted.patch
-mm-hugetlb-make-userfaultfd_huge_must_wait-safe-to-pmd-unshare.patch
-mm-hugetlb-make-hugetlb_follow_page_mask-safe-to-pmd-unshare.patch
-mm-hugetlb-make-follow_hugetlb_page-safe-to-pmd-unshare.patch
-mm-hugetlb-make-walk_hugetlb_range-safe-to-pmd-unshare.patch
-mm-hugetlb-introduce-hugetlb_walk.patch
-mm-mprotect-use-long-for-page-accountings-and-retval.patch
-mm-uffd-detect-pgtable-allocation-failures.patch
 
