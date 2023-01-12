@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10A1466761E
+	by mail.lfdr.de (Postfix) with ESMTP id 7DAC466761F
 	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236366AbjALO3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:29:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48794 "EHLO
+        id S236431AbjALO3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:29:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237273AbjALO2C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:28:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96D9358339
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:19:09 -0800 (PST)
+        with ESMTP id S237314AbjALO2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:28:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906D958820
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:19:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3582D60C01
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C033C433F1;
-        Thu, 12 Jan 2023 14:19:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E3BC60AB3
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 240E9C433EF;
+        Thu, 12 Jan 2023 14:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533148;
-        bh=eiyuaj8byxfRgAUFTJQGLTputhXg+4zE8p2pXqcnAvU=;
+        s=korg; t=1673533151;
+        bh=KIH72uI4TLQYi5JpgYDvWMGpctY769nbI78JnbEJASg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/jlpahZpngyEM84ln+G6KyFVn12CmtD2Lze1bvz12wv1RMcb6fS/HIbiJ+JE5OtP
-         aN+AVUWQVHiHRs3ppdr2R4blwr3163xrpNvdpSJxj5m7pxTGcyOezohGzsQKWOPJm3
-         5CMzESYbrwvqCYeSgiWyE1ZjVqe8sV62HZXK4efQ=
+        b=eVmy4Va3zZXGidlGosEUqO7pHMmXujuUFn5Cc1pCF7Ah2WZay7FuC1uqcKW5Qcm7F
+         G4pAlD5qR+iLRwtwMQgZ2HZ7xrHk6fabpf2KyoEFP2PEYGuOO4l5bOd0lacT6d+kxt
+         crtHNqZjJ3MAl+cyaWqLGIn1Qtb+FeL6byPMzMVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 386/783] gpiolib: Get rid of redundant else
-Date:   Thu, 12 Jan 2023 14:51:42 +0100
-Message-Id: <20230112135542.198228645@linuxfoundation.org>
+Subject: [PATCH 5.10 387/783] gpiolib: cdev: fix NULL-pointer dereferences
+Date:   Thu, 12 Jan 2023 14:51:43 +0100
+Message-Id: <20230112135542.242498464@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,189 +55,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 
-[ Upstream commit 1cef8b5019769d46725932eeace7a383bca97905 ]
+[ Upstream commit 533aae7c94dbc2b14301cfd68ae7e0e90f0c8438 ]
 
-In the snippets like the following
+There are several places where we can crash the kernel by requesting
+lines, unbinding the GPIO device, then calling any of the system calls
+relevant to the GPIO character device's annonymous file descriptors:
+ioctl(), read(), poll().
 
-	if (...)
-		return / goto / break / continue ...;
-	else
-		...
+While I observed it with the GPIO simulator, it will also happen for any
+of the GPIO devices that can be hot-unplugged - for instance any HID GPIO
+expander (e.g. CP2112).
 
-the 'else' is redundant. Get rid of it. In case of IOCTLs use
-switch-case pattern that seems the usual in such cases.
+This affects both v1 and v2 uAPI.
 
-While at it, clarify necessity of else in gpiod_direction_output()
-by attaching else if to the closing curly brace on a previous line.
+This fixes it partially by checking if gdev->chip is not NULL but it
+doesn't entirely remedy the situation as we still have a race condition
+in which another thread can remove the device after the check.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Stable-dep-of: 533aae7c94db ("gpiolib: cdev: fix NULL-pointer dereferences")
+Fixes: d7c51b47ac11 ("gpio: userspace ABI for reading/writing GPIO lines")
+Fixes: 3c0d9c635ae2 ("gpiolib: cdev: support GPIO_V2_GET_LINE_IOCTL and GPIO_V2_LINE_GET_VALUES_IOCTL")
+Fixes: aad955842d1c ("gpiolib: cdev: support GPIO_V2_GET_LINEINFO_IOCTL and GPIO_V2_GET_LINEINFO_WATCH_IOCTL")
+Fixes: a54756cb24ea ("gpiolib: cdev: support GPIO_V2_LINE_SET_CONFIG_IOCTL")
+Fixes: 7b8e00d98168 ("gpiolib: cdev: support GPIO_V2_LINE_SET_VALUES_IOCTL")
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-cdev.c | 66 ++++++++++++++++++++-----------------
- drivers/gpio/gpiolib.c      | 12 +++----
- 2 files changed, 40 insertions(+), 38 deletions(-)
+ drivers/gpio/gpiolib-cdev.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
 diff --git a/drivers/gpio/gpiolib-cdev.c b/drivers/gpio/gpiolib-cdev.c
-index 381cfa26a4a1..b51b4d7a611e 100644
+index b51b4d7a611e..40d0196d8bdc 100644
 --- a/drivers/gpio/gpiolib-cdev.c
 +++ b/drivers/gpio/gpiolib-cdev.c
-@@ -197,16 +197,15 @@ static long linehandle_ioctl(struct file *file, unsigned int cmd,
- 	void __user *ip = (void __user *)arg;
- 	struct gpiohandle_data ghd;
- 	DECLARE_BITMAP(vals, GPIOHANDLES_MAX);
--	int i;
-+	unsigned int i;
-+	int ret;
+@@ -200,6 +200,9 @@ static long linehandle_ioctl(struct file *file, unsigned int cmd,
+ 	unsigned int i;
+ 	int ret;
  
--	if (cmd == GPIOHANDLE_GET_LINE_VALUES_IOCTL) {
--		/* NOTE: It's ok to read values of output lines. */
--		int ret = gpiod_get_array_value_complex(false,
--							true,
--							lh->num_descs,
--							lh->descs,
--							NULL,
--							vals);
-+	switch (cmd) {
-+	case GPIOHANDLE_GET_LINE_VALUES_IOCTL:
-+		/* NOTE: It's okay to read values of output lines */
-+		ret = gpiod_get_array_value_complex(false, true,
-+						    lh->num_descs, lh->descs,
-+						    NULL, vals);
- 		if (ret)
- 			return ret;
- 
-@@ -218,7 +217,7 @@ static long linehandle_ioctl(struct file *file, unsigned int cmd,
- 			return -EFAULT;
- 
- 		return 0;
--	} else if (cmd == GPIOHANDLE_SET_LINE_VALUES_IOCTL) {
-+	case GPIOHANDLE_SET_LINE_VALUES_IOCTL:
- 		/*
- 		 * All line descriptors were created at once with the same
- 		 * flags so just check if the first one is really output.
-@@ -240,10 +239,11 @@ static long linehandle_ioctl(struct file *file, unsigned int cmd,
- 						     lh->descs,
- 						     NULL,
- 						     vals);
--	} else if (cmd == GPIOHANDLE_SET_CONFIG_IOCTL) {
-+	case GPIOHANDLE_SET_CONFIG_IOCTL:
- 		return linehandle_set_config(lh, ip);
-+	default:
-+		return -EINVAL;
- 	}
--	return -EINVAL;
- }
- 
- #ifdef CONFIG_COMPAT
-@@ -1165,14 +1165,16 @@ static long linereq_ioctl(struct file *file, unsigned int cmd,
++	if (!lh->gdev->chip)
++		return -ENODEV;
++
+ 	switch (cmd) {
+ 	case GPIOHANDLE_GET_LINE_VALUES_IOCTL:
+ 		/* NOTE: It's okay to read values of output lines */
+@@ -1165,6 +1168,9 @@ static long linereq_ioctl(struct file *file, unsigned int cmd,
  	struct linereq *lr = file->private_data;
  	void __user *ip = (void __user *)arg;
  
--	if (cmd == GPIO_V2_LINE_GET_VALUES_IOCTL)
-+	switch (cmd) {
-+	case GPIO_V2_LINE_GET_VALUES_IOCTL:
++	if (!lr->gdev->chip)
++		return -ENODEV;
++
+ 	switch (cmd) {
+ 	case GPIO_V2_LINE_GET_VALUES_IOCTL:
  		return linereq_get_values(lr, ip);
--	else if (cmd == GPIO_V2_LINE_SET_VALUES_IOCTL)
-+	case GPIO_V2_LINE_SET_VALUES_IOCTL:
- 		return linereq_set_values(lr, ip);
--	else if (cmd == GPIO_V2_LINE_SET_CONFIG_IOCTL)
-+	case GPIO_V2_LINE_SET_CONFIG_IOCTL:
- 		return linereq_set_config(lr, ip);
--
--	return -EINVAL;
-+	default:
-+		return -EINVAL;
-+	}
- }
+@@ -1191,6 +1197,9 @@ static __poll_t linereq_poll(struct file *file,
+ 	struct linereq *lr = file->private_data;
+ 	__poll_t events = 0;
  
- #ifdef CONFIG_COMPAT
-@@ -2095,28 +2097,30 @@ static long gpio_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		return -ENODEV;
++	if (!lr->gdev->chip)
++		return EPOLLHUP | EPOLLERR;
++
+ 	poll_wait(file, &lr->wait, wait);
  
- 	/* Fill in the struct and pass to userspace */
--	if (cmd == GPIO_GET_CHIPINFO_IOCTL) {
-+	switch (cmd) {
-+	case GPIO_GET_CHIPINFO_IOCTL:
- 		return chipinfo_get(cdev, ip);
- #ifdef CONFIG_GPIO_CDEV_V1
--	} else if (cmd == GPIO_GET_LINEHANDLE_IOCTL) {
-+	case GPIO_GET_LINEHANDLE_IOCTL:
- 		return linehandle_create(gdev, ip);
--	} else if (cmd == GPIO_GET_LINEEVENT_IOCTL) {
-+	case GPIO_GET_LINEEVENT_IOCTL:
- 		return lineevent_create(gdev, ip);
--	} else if (cmd == GPIO_GET_LINEINFO_IOCTL ||
--		   cmd == GPIO_GET_LINEINFO_WATCH_IOCTL) {
--		return lineinfo_get_v1(cdev, ip,
--				       cmd == GPIO_GET_LINEINFO_WATCH_IOCTL);
-+	case GPIO_GET_LINEINFO_IOCTL:
-+		return lineinfo_get_v1(cdev, ip, false);
-+	case GPIO_GET_LINEINFO_WATCH_IOCTL:
-+		return lineinfo_get_v1(cdev, ip, true);
- #endif /* CONFIG_GPIO_CDEV_V1 */
--	} else if (cmd == GPIO_V2_GET_LINEINFO_IOCTL ||
--		   cmd == GPIO_V2_GET_LINEINFO_WATCH_IOCTL) {
--		return lineinfo_get(cdev, ip,
--				    cmd == GPIO_V2_GET_LINEINFO_WATCH_IOCTL);
--	} else if (cmd == GPIO_V2_GET_LINE_IOCTL) {
-+	case GPIO_V2_GET_LINEINFO_IOCTL:
-+		return lineinfo_get(cdev, ip, false);
-+	case GPIO_V2_GET_LINEINFO_WATCH_IOCTL:
-+		return lineinfo_get(cdev, ip, true);
-+	case GPIO_V2_GET_LINE_IOCTL:
- 		return linereq_create(gdev, ip);
--	} else if (cmd == GPIO_GET_LINEINFO_UNWATCH_IOCTL) {
-+	case GPIO_GET_LINEINFO_UNWATCH_IOCTL:
- 		return lineinfo_unwatch(cdev, ip);
-+	default:
-+		return -EINVAL;
- 	}
--	return -EINVAL;
- }
+ 	if (!kfifo_is_empty_spinlocked_noirqsave(&lr->events,
+@@ -1210,6 +1219,9 @@ static ssize_t linereq_read(struct file *file,
+ 	ssize_t bytes_read = 0;
+ 	int ret;
  
- #ifdef CONFIG_COMPAT
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 59d8affad343..3e01a3ac652d 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -186,9 +186,8 @@ static int gpiochip_find_base(int ngpio)
- 		/* found a free space? */
- 		if (gdev->base + gdev->ngpio <= base)
- 			break;
--		else
--			/* nope, check the space right before the chip */
--			base = gdev->base - ngpio;
-+		/* nope, check the space right before the chip */
-+		base = gdev->base - ngpio;
- 	}
++	if (!lr->gdev->chip)
++		return -ENODEV;
++
+ 	if (count < sizeof(le))
+ 		return -EINVAL;
  
- 	if (gpio_is_valid(base)) {
-@@ -2481,8 +2480,7 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
- 			ret = gpiod_direction_input(desc);
- 			goto set_output_flag;
- 		}
--	}
--	else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags)) {
-+	} else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags)) {
- 		ret = gpio_set_config(desc, PIN_CONFIG_DRIVE_OPEN_SOURCE);
- 		if (!ret)
- 			goto set_output_value;
-@@ -2656,9 +2654,9 @@ static int gpiod_get_raw_value_commit(const struct gpio_desc *desc)
- static int gpio_chip_get_multiple(struct gpio_chip *gc,
- 				  unsigned long *mask, unsigned long *bits)
- {
--	if (gc->get_multiple) {
-+	if (gc->get_multiple)
- 		return gc->get_multiple(gc, mask, bits);
--	} else if (gc->get) {
-+	if (gc->get) {
- 		int i, value;
+@@ -1475,6 +1487,9 @@ static __poll_t lineevent_poll(struct file *file,
+ 	struct lineevent_state *le = file->private_data;
+ 	__poll_t events = 0;
  
- 		for_each_set_bit(i, mask, gc->ngpio) {
++	if (!le->gdev->chip)
++		return EPOLLHUP | EPOLLERR;
++
+ 	poll_wait(file, &le->wait, wait);
+ 
+ 	if (!kfifo_is_empty_spinlocked_noirqsave(&le->events, &le->wait.lock))
+@@ -1510,6 +1525,9 @@ static ssize_t lineevent_read(struct file *file,
+ 	ssize_t ge_size;
+ 	int ret;
+ 
++	if (!le->gdev->chip)
++		return -ENODEV;
++
+ 	/*
+ 	 * When compatible system call is being used the struct gpioevent_data,
+ 	 * in case of at least ia32, has different size due to the alignment
+@@ -1588,6 +1606,9 @@ static long lineevent_ioctl(struct file *file, unsigned int cmd,
+ 	void __user *ip = (void __user *)arg;
+ 	struct gpiohandle_data ghd;
+ 
++	if (!le->gdev->chip)
++		return -ENODEV;
++
+ 	/*
+ 	 * We can get the value for an event line but not set it,
+ 	 * because it is input by definition.
+@@ -2168,6 +2189,9 @@ static __poll_t lineinfo_watch_poll(struct file *file,
+ 	struct gpio_chardev_data *cdev = file->private_data;
+ 	__poll_t events = 0;
+ 
++	if (!cdev->gdev->chip)
++		return EPOLLHUP | EPOLLERR;
++
+ 	poll_wait(file, &cdev->wait, pollt);
+ 
+ 	if (!kfifo_is_empty_spinlocked_noirqsave(&cdev->events,
+@@ -2186,6 +2210,9 @@ static ssize_t lineinfo_watch_read(struct file *file, char __user *buf,
+ 	int ret;
+ 	size_t event_size;
+ 
++	if (!cdev->gdev->chip)
++		return -ENODEV;
++
+ #ifndef CONFIG_GPIO_CDEV_V1
+ 	event_size = sizeof(struct gpio_v2_line_info_changed);
+ 	if (count < event_size)
 -- 
 2.35.1
 
