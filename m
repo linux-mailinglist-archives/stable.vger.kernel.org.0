@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2AEB6677D7
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:49:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 087776677D8
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:49:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240028AbjALOtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:49:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42992 "EHLO
+        id S239636AbjALOth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:49:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240128AbjALOtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:49:04 -0500
+        with ESMTP id S239722AbjALOtN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:49:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71583657C
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:36:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C66C86542
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:36:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DB6CB81E7B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:36:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD2AAC433EF;
-        Thu, 12 Jan 2023 14:36:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88CFBB81E7C
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:36:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6722C433EF;
+        Thu, 12 Jan 2023 14:36:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534169;
-        bh=Vag92RXJI6he0o91t/U99K3v6dyWSkybJnmAdIakzvs=;
+        s=korg; t=1673534172;
+        bh=fmkFLYgsGwtQPV/2/JeJvz9nrpOPFZvbiBXFbjka3pM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIvuDw3aId70VPZ3Dc0h1HCCoNJ6L/UH2Pu8AT+yglvSAOlXqmD8UDmH7sv0hH1OJ
-         bvQ0dYnRnGPhVmelYPZP+449DiVwJTTSupSm8yD68PFSGGQO2UwdDs+U1Ja/D+O10d
-         IY5eHE3QefwajGNJeCz1w7IpKQYI77YqAUEj0h4g=
+        b=X2ncczSnbnbZj3Getc7xpR5X32b/fWHBNIET0hhqn2WMoRMNTKqBYMtzyMLodOvZA
+         rFHCGtH1WgR9sZ70SEiHIbU7vB46yPN3Aztp0ehYtoLEiszwOO1iFJTXM8Zw9KXP6C
+         bjlNIZa4CeK5GBrflwn+GJdofyXz55yeb/njI+Gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 718/783] mbcache: add functions to delete entry if unused
-Date:   Thu, 12 Jan 2023 14:57:14 +0100
-Message-Id: <20230112135557.657043150@linuxfoundation.org>
+Subject: [PATCH 5.10 719/783] ext4: remove EA inode entry from mbcache on inode eviction
+Date:   Thu, 12 Jan 2023 14:57:15 +0100
+Message-Id: <20230112135557.706996234@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,152 +54,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 3dc96bba65f53daa217f0a8f43edad145286a8f5 ]
+[ Upstream commit 6bc0d63dad7f9f54d381925ee855b402f652fa39 ]
 
-Add function mb_cache_entry_delete_or_get() to delete mbcache entry if
-it is unused and also add a function to wait for entry to become unused
-- mb_cache_entry_wait_unused(). We do not share code between the two
-deleting function as one of them will go away soon.
+Currently we remove EA inode from mbcache as soon as its xattr refcount
+drops to zero. However there can be pending attempts to reuse the inode
+and thus refcount handling code has to handle the situation when
+refcount increases from zero anyway. So save some work and just keep EA
+inode in mbcache until it is getting evicted. At that moment we are sure
+following iget() of EA inode will fail anyway (or wait for eviction to
+finish and load things from the disk again) and so removing mbcache
+entry at that moment is fine and simplifies the code a bit.
 
 CC: stable@vger.kernel.org
 Fixes: 82939d7999df ("ext4: convert to mbcache2")
 Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220712105436.32204-2-jack@suse.cz
+Link: https://lore.kernel.org/r/20220712105436.32204-3-jack@suse.cz
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Stable-dep-of: a44e84a9b776 ("ext4: fix deadlock due to mbcache entry corruption")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/mbcache.c            | 66 +++++++++++++++++++++++++++++++++++++++--
- include/linux/mbcache.h | 10 ++++++-
- 2 files changed, 73 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c |  2 ++
+ fs/ext4/xattr.c | 24 ++++++++----------------
+ fs/ext4/xattr.h |  1 +
+ 3 files changed, 11 insertions(+), 16 deletions(-)
 
-diff --git a/fs/mbcache.c b/fs/mbcache.c
-index cfc28129fb6f..2010bc80a3f2 100644
---- a/fs/mbcache.c
-+++ b/fs/mbcache.c
-@@ -11,7 +11,7 @@
- /*
-  * Mbcache is a simple key-value store. Keys need not be unique, however
-  * key-value pairs are expected to be unique (we use this fact in
-- * mb_cache_entry_delete()).
-+ * mb_cache_entry_delete_or_get()).
-  *
-  * Ext2 and ext4 use this cache for deduplication of extended attribute blocks.
-  * Ext4 also uses it for deduplication of xattr values stored in inodes.
-@@ -125,6 +125,19 @@ void __mb_cache_entry_free(struct mb_cache_entry *entry)
- }
- EXPORT_SYMBOL(__mb_cache_entry_free);
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 2d3004b3fc56..355343cf4609 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -179,6 +179,8 @@ void ext4_evict_inode(struct inode *inode)
  
-+/*
-+ * mb_cache_entry_wait_unused - wait to be the last user of the entry
-+ *
-+ * @entry - entry to work on
-+ *
-+ * Wait to be the last user of the entry.
-+ */
-+void mb_cache_entry_wait_unused(struct mb_cache_entry *entry)
+ 	trace_ext4_evict_inode(inode);
+ 
++	if (EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL)
++		ext4_evict_ea_inode(inode);
+ 	if (inode->i_nlink) {
+ 		/*
+ 		 * When journalling data dirty buffers are tracked only in the
+diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+index 0b682c92bfe9..0555f32f0fd4 100644
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -436,6 +436,14 @@ static int ext4_xattr_inode_iget(struct inode *parent, unsigned long ea_ino,
+ 	return err;
+ }
+ 
++/* Remove entry from mbcache when EA inode is getting evicted */
++void ext4_evict_ea_inode(struct inode *inode)
 +{
-+	wait_var_event(&entry->e_refcnt, atomic_read(&entry->e_refcnt) <= 3);
++	if (EA_INODE_CACHE(inode))
++		mb_cache_entry_delete(EA_INODE_CACHE(inode),
++			ext4_xattr_inode_get_hash(inode), inode->i_ino);
 +}
-+EXPORT_SYMBOL(mb_cache_entry_wait_unused);
 +
- static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
- 					   struct mb_cache_entry *entry,
- 					   u32 key)
-@@ -217,7 +230,7 @@ struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
- }
- EXPORT_SYMBOL(mb_cache_entry_get);
- 
--/* mb_cache_entry_delete - remove a cache entry
-+/* mb_cache_entry_delete - try to remove a cache entry
-  * @cache - cache we work with
-  * @key - key
-  * @value - value
-@@ -254,6 +267,55 @@ void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value)
- }
- EXPORT_SYMBOL(mb_cache_entry_delete);
- 
-+/* mb_cache_entry_delete_or_get - remove a cache entry if it has no users
-+ * @cache - cache we work with
-+ * @key - key
-+ * @value - value
-+ *
-+ * Remove entry from cache @cache with key @key and value @value. The removal
-+ * happens only if the entry is unused. The function returns NULL in case the
-+ * entry was successfully removed or there's no entry in cache. Otherwise the
-+ * function grabs reference of the entry that we failed to delete because it
-+ * still has users and return it.
-+ */
-+struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
-+						    u32 key, u64 value)
-+{
-+	struct hlist_bl_node *node;
-+	struct hlist_bl_head *head;
-+	struct mb_cache_entry *entry;
-+
-+	head = mb_cache_entry_head(cache, key);
-+	hlist_bl_lock(head);
-+	hlist_bl_for_each_entry(entry, node, head, e_hash_list) {
-+		if (entry->e_key == key && entry->e_value == value) {
-+			if (atomic_read(&entry->e_refcnt) > 2) {
-+				atomic_inc(&entry->e_refcnt);
-+				hlist_bl_unlock(head);
-+				return entry;
-+			}
-+			/* We keep hash list reference to keep entry alive */
-+			hlist_bl_del_init(&entry->e_hash_list);
-+			hlist_bl_unlock(head);
-+			spin_lock(&cache->c_list_lock);
-+			if (!list_empty(&entry->e_list)) {
-+				list_del_init(&entry->e_list);
-+				if (!WARN_ONCE(cache->c_entry_count == 0,
-+		"mbcache: attempt to decrement c_entry_count past zero"))
-+					cache->c_entry_count--;
-+				atomic_dec(&entry->e_refcnt);
-+			}
-+			spin_unlock(&cache->c_list_lock);
-+			mb_cache_entry_put(cache, entry);
-+			return NULL;
-+		}
-+	}
-+	hlist_bl_unlock(head);
-+
-+	return NULL;
-+}
-+EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
-+
- /* mb_cache_entry_touch - cache entry got used
-  * @cache - cache the entry belongs to
-  * @entry - entry that got used
-diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
-index 20f1e3ff6013..8eca7f25c432 100644
---- a/include/linux/mbcache.h
-+++ b/include/linux/mbcache.h
-@@ -30,15 +30,23 @@ void mb_cache_destroy(struct mb_cache *cache);
- int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
- 			  u64 value, bool reusable);
- void __mb_cache_entry_free(struct mb_cache_entry *entry);
-+void mb_cache_entry_wait_unused(struct mb_cache_entry *entry);
- static inline int mb_cache_entry_put(struct mb_cache *cache,
- 				     struct mb_cache_entry *entry)
+ static int
+ ext4_xattr_inode_verify_hashes(struct inode *ea_inode,
+ 			       struct ext4_xattr_entry *entry, void *buffer,
+@@ -972,10 +980,8 @@ int __ext4_xattr_set_credits(struct super_block *sb, struct inode *inode,
+ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
+ 				       int ref_change)
  {
--	if (!atomic_dec_and_test(&entry->e_refcnt))
-+	unsigned int cnt = atomic_dec_return(&entry->e_refcnt);
-+
-+	if (cnt > 0) {
-+		if (cnt <= 3)
-+			wake_up_var(&entry->e_refcnt);
- 		return 0;
-+	}
- 	__mb_cache_entry_free(entry);
- 	return 1;
- }
+-	struct mb_cache *ea_inode_cache = EA_INODE_CACHE(ea_inode);
+ 	struct ext4_iloc iloc;
+ 	s64 ref_count;
+-	u32 hash;
+ 	int ret;
  
-+struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
-+						    u32 key, u64 value);
- void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value);
- struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
- 					  u64 value);
+ 	inode_lock(ea_inode);
+@@ -998,14 +1004,6 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
+ 
+ 			set_nlink(ea_inode, 1);
+ 			ext4_orphan_del(handle, ea_inode);
+-
+-			if (ea_inode_cache) {
+-				hash = ext4_xattr_inode_get_hash(ea_inode);
+-				mb_cache_entry_create(ea_inode_cache,
+-						      GFP_NOFS, hash,
+-						      ea_inode->i_ino,
+-						      true /* reusable */);
+-			}
+ 		}
+ 	} else {
+ 		WARN_ONCE(ref_count < 0, "EA inode %lu ref_count=%lld",
+@@ -1018,12 +1016,6 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
+ 
+ 			clear_nlink(ea_inode);
+ 			ext4_orphan_add(handle, ea_inode);
+-
+-			if (ea_inode_cache) {
+-				hash = ext4_xattr_inode_get_hash(ea_inode);
+-				mb_cache_entry_delete(ea_inode_cache, hash,
+-						      ea_inode->i_ino);
+-			}
+ 		}
+ 	}
+ 
+diff --git a/fs/ext4/xattr.h b/fs/ext4/xattr.h
+index 87e5863bb493..b357872ab83b 100644
+--- a/fs/ext4/xattr.h
++++ b/fs/ext4/xattr.h
+@@ -191,6 +191,7 @@ extern void ext4_xattr_inode_array_free(struct ext4_xattr_inode_array *array);
+ 
+ extern int ext4_expand_extra_isize_ea(struct inode *inode, int new_extra_isize,
+ 			    struct ext4_inode *raw_inode, handle_t *handle);
++extern void ext4_evict_ea_inode(struct inode *inode);
+ 
+ extern const struct xattr_handler *ext4_xattr_handlers[];
+ 
 -- 
 2.35.1
 
