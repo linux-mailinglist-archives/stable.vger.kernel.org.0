@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7186675C2
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:24:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C48276675C3
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236518AbjALOYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:24:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45428 "EHLO
+        id S236690AbjALOYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:24:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235427AbjALOXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:23:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED61752C65
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:15:59 -0800 (PST)
+        with ESMTP id S234394AbjALOXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:23:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9955A5564B
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:16:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D93F60A69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:15:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8185EC433EF;
-        Thu, 12 Jan 2023 14:15:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 543B7B81E70
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:16:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93BB0C433EF;
+        Thu, 12 Jan 2023 14:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532959;
-        bh=xOSIsdrlsN8wvIdBL7ojX65T6doiYRzlcIhZ17Gdm40=;
+        s=korg; t=1673532962;
+        bh=7tjrtexhbe0WKUQ7WD6KNAke2CrM65Lr6tOpaswbjn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QVtFSgDTytspTBvlhokqFIlyBHosGf9yy4ne4F9S5xNNLqdnSV62vjgbA2L+vINoe
-         p5iK5v5R/xqWM+losAqQFKdiCEpGAgoZfQ+mAkMHitOyhcUDmz6i5cWy33+VVPrOUM
-         6nlIvZw0/jFgENOU2guap2PDDkg3sl0lTW139rY8=
+        b=vkdDFwmytF7immBm0pnx2Z3odmSWZY+SQ815vBSKjPA1X06s6+ag9jK09JZpxQEHn
+         PU1MGdWb71MJCQdtYInL3HqgqnEuqW2cFGbrGVpXnt/CiRlIlx2ha05cff6B4NQVlE
+         k9uWt0MGjuMQrIf442JVJJGbuqbQRYlp9MgYxuUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Narsimhulu Musini <nmusini@cisco.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 325/783] scsi: snic: Fix possible UAF in snic_tgt_create()
-Date:   Thu, 12 Jan 2023 14:50:41 +0100
-Message-Id: <20230112135539.382260517@linuxfoundation.org>
+Subject: [PATCH 5.10 326/783] RDMA/nldev: Add checks for nla_nest_start() in fill_stat_counter_qps()
+Date:   Thu, 12 Jan 2023 14:50:42 +0100
+Message-Id: <20230112135539.431041161@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,45 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit e118df492320176af94deec000ae034cc92be754 ]
+[ Upstream commit ea5ef136e215fdef35f14010bc51fcd6686e6922 ]
 
-Smatch reports a warning as follows:
+As the nla_nest_start() may fail with NULL returned, the return value needs
+to be checked.
 
-drivers/scsi/snic/snic_disc.c:307 snic_tgt_create() warn:
-  '&tgt->list' not removed from list
-
-If device_add() fails in snic_tgt_create(), tgt will be freed, but
-tgt->list will not be removed from snic->disc.tgt_list, then list traversal
-may cause UAF.
-
-Remove from snic->disc.tgt_list before free().
-
-Fixes: c8806b6c9e82 ("snic: driver for Cisco SCSI HBA")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221117035100.2944812-1-cuigaosheng1@huawei.com
-Acked-by: Narsimhulu Musini <nmusini@cisco.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: c4ffee7c9bdb ("RDMA/netlink: Implement counter dumpit calback")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Link: https://lore.kernel.org/r/20221126043410.85632-1-yuancan@huawei.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/snic/snic_disc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/core/nldev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/snic/snic_disc.c b/drivers/scsi/snic/snic_disc.c
-index e9ccfb97773f..7cf871323b2c 100644
---- a/drivers/scsi/snic/snic_disc.c
-+++ b/drivers/scsi/snic/snic_disc.c
-@@ -318,6 +318,9 @@ snic_tgt_create(struct snic *snic, struct snic_tgt_id *tgtid)
- 			      ret);
+diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
+index f7689bc10d14..78534340d282 100644
+--- a/drivers/infiniband/core/nldev.c
++++ b/drivers/infiniband/core/nldev.c
+@@ -754,6 +754,8 @@ static int fill_stat_counter_qps(struct sk_buff *msg,
+ 	int ret = 0;
  
- 		put_device(&snic->shost->shost_gendev);
-+		spin_lock_irqsave(snic->shost->host_lock, flags);
-+		list_del(&tgt->list);
-+		spin_unlock_irqrestore(snic->shost->host_lock, flags);
- 		kfree(tgt);
- 		tgt = NULL;
+ 	table_attr = nla_nest_start(msg, RDMA_NLDEV_ATTR_RES_QP);
++	if (!table_attr)
++		return -EMSGSIZE;
  
+ 	rt = &counter->device->res[RDMA_RESTRACK_QP];
+ 	xa_lock(&rt->xa);
 -- 
 2.35.1
 
