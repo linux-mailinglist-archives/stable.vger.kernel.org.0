@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD74E667686
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:32:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B19A667662
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:31:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238017AbjALOcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:32:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55176 "EHLO
+        id S236904AbjALObO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:31:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236749AbjALOb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:31:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C272454D8D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:23:44 -0800 (PST)
+        with ESMTP id S236600AbjALOa3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542E15DE75
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:22:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D4CE60C01
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:23:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0BE1C433EF;
-        Thu, 12 Jan 2023 14:23:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E586E60A69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:22:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE706C433D2;
+        Thu, 12 Jan 2023 14:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533423;
-        bh=eIyGQwYvZ3wNwvA2OOytTQrxnuJbIjeA7zqaBWARaxY=;
+        s=korg; t=1673533329;
+        bh=p7n9/xU1Ot38irwxC4ZEB4pbTK8NO4Ph/hGsftmnBa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5D/4oWMIRwHGzpw3AQocmVGDt+vmllxlJh9RNjuwhpseU2DZCBpd3t5FsuyTo/w8
-         b9RLXba4UMntCSmlRBx6DhYDSHabtk/3YEvNxrDJoZoCiz/xCJff6dP8AnF0qYSxek
-         PAZHl2/h4pXXLvCS8+LQIW2AMB0GpfA3YVraFlok=
+        b=gBxJh+f/zxKNdbYjquVmx6TD846AjNaCKnHRAcHldtGBylzNHB9kg0iEm0grf79Sd
+         Ff2y/MqNiLD0JO23/c6vxjOENXVDJ0sIzAUpsPjR/sl401Yq8VNIwmU3wNgnkgUoZL
+         L0RBtoyWYhpn43K0En9Ril2xi6pyxlNLMFNColq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 443/783] selftests/powerpc: Fix resource leaks
-Date:   Thu, 12 Jan 2023 14:52:39 +0100
-Message-Id: <20230112135544.807462360@linuxfoundation.org>
+        patches@lists.linux.dev, Jason Gunthorpe <jgg@nvidia.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 444/783] iommu/sun50i: Remove IOMMU_DOMAIN_IDENTITY
+Date:   Thu, 12 Jan 2023 14:52:40 +0100
+Message-Id: <20230112135544.843093915@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,49 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 8f4ab7da904ab7027ccd43ddb4f0094e932a5877 ]
+[ Upstream commit ef5bb8e7a7127218f826b9ccdf7508e7a339f4c2 ]
 
-In check_all_cpu_dscr_defaults, opendir() opens the directory stream.
-Add missing closedir() in the error path to release it.
+This driver treats IOMMU_DOMAIN_IDENTITY the same as UNMANAGED, which
+cannot possibly be correct.
 
-In check_cpu_dscr_default, open() creates an open file descriptor.
-Add missing close() in the error path to release it.
+UNMANAGED domains are required to start out blocking all DMAs. This seems
+to be what this driver does as it allocates a first level 'dt' for the IO
+page table that is 0 filled.
 
-Fixes: ebd5858c904b ("selftests/powerpc: Add test for all DSCR sysfs interfaces")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221205084429.570654-1-linmq006@gmail.com
+Thus UNMANAGED looks like a working IO page table, and so IDENTITY must be
+a mistake. Remove it.
+
+Fixes: 4100b8c229b3 ("iommu: Add Allwinner H6 IOMMU driver")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/0-v1-97f0adf27b5e+1f0-s50_identity_jgg@nvidia.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iommu/sun50i-iommu.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c b/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c
-index fbbdffdb2e5d..f20d1c166d1e 100644
---- a/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c
-+++ b/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c
-@@ -24,6 +24,7 @@ static int check_cpu_dscr_default(char *file, unsigned long val)
- 	rc = read(fd, buf, sizeof(buf));
- 	if (rc == -1) {
- 		perror("read() failed");
-+		close(fd);
- 		return 1;
- 	}
- 	close(fd);
-@@ -65,8 +66,10 @@ static int check_all_cpu_dscr_defaults(unsigned long val)
- 		if (access(file, F_OK))
- 			continue;
+diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
+index dc8ad35cbc4e..65aa30d55d3a 100644
+--- a/drivers/iommu/sun50i-iommu.c
++++ b/drivers/iommu/sun50i-iommu.c
+@@ -603,7 +603,6 @@ static struct iommu_domain *sun50i_iommu_domain_alloc(unsigned type)
+ 	struct sun50i_iommu_domain *sun50i_domain;
  
--		if (check_cpu_dscr_default(file, val))
-+		if (check_cpu_dscr_default(file, val)) {
-+			closedir(sysfs);
- 			return 1;
-+		}
- 	}
- 	closedir(sysfs);
- 	return 0;
+ 	if (type != IOMMU_DOMAIN_DMA &&
+-	    type != IOMMU_DOMAIN_IDENTITY &&
+ 	    type != IOMMU_DOMAIN_UNMANAGED)
+ 		return NULL;
+ 
 -- 
 2.35.1
 
