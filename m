@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCE06674E0
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:15:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E57976674DF
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:15:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235512AbjALOPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234726AbjALOPE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 12 Jan 2023 09:15:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37474 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234969AbjALOOj (ORCPT
+        with ESMTP id S235050AbjALOOj (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:14:39 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC95C551EB
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACA6F5C1E5
         for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:06:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7A3E0CE1E6C
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:06:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5034EC433EF;
-        Thu, 12 Jan 2023 14:06:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A17F62026
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:06:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46991C433EF;
+        Thu, 12 Jan 2023 14:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532399;
-        bh=kL86hwvl+mzpkaLMYMTawC1imvGiqqLPxqGU1sj4bfM=;
+        s=korg; t=1673532402;
+        bh=TAhR6hW8z6oZY73xgyuh8KyVSP1vitLHyfYO3q1MEFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CUJGxDbD35VvXvBpy3+mDqNBACmJ5djQzUPyorqJIcU4HX3J4HPeTkWpXgyqG1LMd
-         7doenipvjn8Z8r5NJJmvZY5GaKXKZVhuKwq8Z3K6oyMP9KHBQiQmfZIjfcZiZDG5VQ
-         OUfDX2Hbullelt+a80bastbA6z1NWT3kY5UicAPY=
+        b=17EFQTSq/X2x7Su6vnvu6b14Q/rdqmX18f9ThsBkwvDWTw3aT59iFqTGrniMw1zR7
+         uCaMoa/UX24iQ9ZWIhKrL+HmuyGAKX6Hf+y8lkvn9lXaiXe4TWSHy5HEK2+DTNyTCa
+         A2UK8yv0tdWqRAZvKG0bXR3THnnVzNt+RnwUS9BQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 150/783] amdgpu/pm: prevent array underflow in vega20_odn_edit_dpm_table()
-Date:   Thu, 12 Jan 2023 14:47:46 +0100
-Message-Id: <20230112135531.299340388@linuxfoundation.org>
+Subject: [PATCH 5.10 151/783] drm/fourcc: Add packed 10bit YUV 4:2:0 format
+Date:   Thu, 12 Jan 2023 14:47:47 +0100
+Message-Id: <20230112135531.342377685@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,36 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit d27252b5706e51188aed7647126e44dcf9e940c1 ]
+[ Upstream commit 006ea1b5822f9019bd722ffc6242bc0880879e3d ]
 
-In the PP_OD_EDIT_VDDC_CURVE case the "input_index" variable is capped at
-2 but not checked for negative values so it results in an out of bounds
-read.  This value comes from the user via sysfs.
+Adds a format that is 3 10bit YUV 4:2:0 samples packed into
+a 32bit word (with 2 spare bits).
 
-Fixes: d5bf26539494 ("drm/amd/powerplay: added vega20 overdrive support V3")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Supported on Broadcom BCM2711 chips.
+
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/r/20211215091739.135042-2-maxime@cerno.tech
+Stable-dep-of: b230555f3257 ("drm/fourcc: Fix vsub/hsub for Q410 and Q401")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_fourcc.c  |  3 +++
+ include/uapi/drm/drm_fourcc.h | 11 +++++++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c
-index 60cde0c52825..57a354a03e8a 100644
---- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega20_hwmgr.c
-@@ -2962,7 +2962,8 @@ static int vega20_odn_edit_dpm_table(struct pp_hwmgr *hwmgr,
- 			data->od8_settings.od8_settings_array;
- 	OverDriveTable_t *od_table =
- 			&(data->smc_state_table.overdrive_table);
--	int32_t input_index, input_clk, input_vol, i;
-+	int32_t input_clk, input_vol, i;
-+	uint32_t input_index;
- 	int od8_id;
- 	int ret;
+diff --git a/drivers/gpu/drm/drm_fourcc.c b/drivers/gpu/drm/drm_fourcc.c
+index 722c7ebe4e88..4d4b65a88bd1 100644
+--- a/drivers/gpu/drm/drm_fourcc.c
++++ b/drivers/gpu/drm/drm_fourcc.c
+@@ -286,6 +286,9 @@ const struct drm_format_info *__drm_format_info(u32 format)
+ 		  .num_planes = 3, .char_per_block = { 2, 2, 2 },
+ 		  .block_w = { 1, 1, 1 }, .block_h = { 1, 1, 1 }, .hsub = 0,
+ 		  .vsub = 0, .is_yuv = true },
++		{ .format = DRM_FORMAT_P030,            .depth = 0,  .num_planes = 2,
++		  .char_per_block = { 4, 8, 0 }, .block_w = { 3, 3, 0 }, .block_h = { 1, 1, 0 },
++		  .hsub = 2, .vsub = 2, .is_yuv = true},
+ 	};
  
+ 	unsigned int i;
+diff --git a/include/uapi/drm/drm_fourcc.h b/include/uapi/drm/drm_fourcc.h
+index 5498d7a6556a..dad9d3b4a97a 100644
+--- a/include/uapi/drm/drm_fourcc.h
++++ b/include/uapi/drm/drm_fourcc.h
+@@ -271,6 +271,13 @@ extern "C" {
+  */
+ #define DRM_FORMAT_P016		fourcc_code('P', '0', '1', '6') /* 2x2 subsampled Cr:Cb plane 16 bits per channel */
+ 
++/* 2 plane YCbCr420.
++ * 3 10 bit components and 2 padding bits packed into 4 bytes.
++ * index 0 = Y plane, [31:0] x:Y2:Y1:Y0 2:10:10:10 little endian
++ * index 1 = Cr:Cb plane, [63:0] x:Cr2:Cb2:Cr1:x:Cb1:Cr0:Cb0 [2:10:10:10:2:10:10:10] little endian
++ */
++#define DRM_FORMAT_P030		fourcc_code('P', '0', '3', '0') /* 2x2 subsampled Cr:Cb plane 10 bits per channel packed */
++
+ /* 3 plane non-subsampled (444) YCbCr
+  * 16 bits per component, but only 10 bits are used and 6 bits are padded
+  * index 0: Y plane, [15:0] Y:x [10:6] little endian
+@@ -777,6 +784,10 @@ drm_fourcc_canonicalize_nvidia_format_mod(__u64 modifier)
+  * and UV.  Some SAND-using hardware stores UV in a separate tiled
+  * image from Y to reduce the column height, which is not supported
+  * with these modifiers.
++ *
++ * The DRM_FORMAT_MOD_BROADCOM_SAND128_COL_HEIGHT modifier is also
++ * supported for DRM_FORMAT_P030 where the columns remain as 128 bytes
++ * wide, but as this is a 10 bpp format that translates to 96 pixels.
+  */
+ 
+ #define DRM_FORMAT_MOD_BROADCOM_SAND32_COL_HEIGHT(v) \
 -- 
 2.35.1
 
