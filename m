@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 911476677E4
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:50:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9FCB667814
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:52:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240001AbjALOuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:50:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41070 "EHLO
+        id S240113AbjALOwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:52:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240039AbjALOt6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:49:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81DCB1A076
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:36:43 -0800 (PST)
+        with ESMTP id S240126AbjALOvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:51:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF1B21D0C2
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:38:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E713F62030
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:36:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7C76C433D2;
-        Thu, 12 Jan 2023 14:36:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9EFA2B81E73
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:38:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAB45C433EF;
+        Thu, 12 Jan 2023 14:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534202;
-        bh=rjPdyl7KFXfPTEGq8LPt5qFP6UjBEH0qII2hKU0+EaU=;
+        s=korg; t=1673534322;
+        bh=6aSeGWTcl4Sbjn4pU5NkgqWHZUtaE5A1qSNjvcrgwXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5M9AchKxhAbG3m27bZP1/ZXBnEVGqdWJTpCgVyx+qzNq2FWfKjisT1Z4edpnyZsv
-         HSsfMLeyrogqyFeaW/G2ig57pnNc0vXYe2aZCgUwEN06WPbW/PDw90rQg7bboVHr0z
-         qDXV+CuPRPWZnoAGu4SJcWdvQApnC2ExTumIBCCs=
+        b=OthHlx6uFxGjL67ALw1PQ2Fv3hO5zWDcy1fev/flY+0Y9PQdZby65dk7BlmU4z8Rw
+         7d3PfbOro9oJVNLkaimxwecl8bhCnJCU86xcwjior+nROKb/LAre4bW37aovZOImgm
+         7Pi0liIepB2WAJc3VcUp9N2mga038Y7SrQuUuJCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Magnus Karlsson <magnus.karlsson@gmail.com>,
-        Shawn Bohrer <sbohrer@cloudflare.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 728/783] veth: Fix race with AF_XDP exposing old or uninitialized descriptors
-Date:   Thu, 12 Jan 2023 14:57:24 +0100
-Message-Id: <20230112135558.093500585@linuxfoundation.org>
+        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Wang Yugui <wangyugui@e16-tech.com>
+Subject: [PATCH 5.10 729/783] nfsd: shut down the NFSv4 state objects before the filecache
+Date:   Thu, 12 Jan 2023 14:57:25 +0100
+Message-Id: <20230112135558.136329754@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,86 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Bohrer <sbohrer@cloudflare.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit fa349e396e4886d742fd6501c599ec627ef1353b ]
+[ Upstream commit 789e1e10f214c00ca18fc6610824c5b9876ba5f2 ]
 
-When AF_XDP is used on on a veth interface the RX ring is updated in two
-steps.  veth_xdp_rcv() removes packet descriptors from the FILL ring
-fills them and places them in the RX ring updating the cached_prod
-pointer.  Later xdp_do_flush() syncs the RX ring prod pointer with the
-cached_prod pointer allowing user-space to see the recently filled in
-descriptors.  The rings are intended to be SPSC, however the existing
-order in veth_poll allows the xdp_do_flush() to run concurrently with
-another CPU creating a race condition that allows user-space to see old
-or uninitialized descriptors in the RX ring.  This bug has been observed
-in production systems.
+Currently, we shut down the filecache before trying to clean up the
+stateids that depend on it. This leads to the kernel trying to free an
+nfsd_file twice, and a refcount overput on the nf_mark.
 
-To summarize, we are expecting this ordering:
+Change the shutdown procedure to tear down all of the stateids prior
+to shutting down the filecache.
 
-CPU 0 __xsk_rcv_zc()
-CPU 0 __xsk_map_flush()
-CPU 2 __xsk_rcv_zc()
-CPU 2 __xsk_map_flush()
-
-But we are seeing this order:
-
-CPU 0 __xsk_rcv_zc()
-CPU 2 __xsk_rcv_zc()
-CPU 0 __xsk_map_flush()
-CPU 2 __xsk_map_flush()
-
-This occurs because we rely on NAPI to ensure that only one napi_poll
-handler is running at a time for the given veth receive queue.
-napi_schedule_prep() will prevent multiple instances from getting
-scheduled. However calling napi_complete_done() signals that this
-napi_poll is complete and allows subsequent calls to
-napi_schedule_prep() and __napi_schedule() to succeed in scheduling a
-concurrent napi_poll before the xdp_do_flush() has been called.  For the
-veth driver a concurrent call to napi_schedule_prep() and
-__napi_schedule() can occur on a different CPU because the veth xmit
-path can additionally schedule a napi_poll creating the race.
-
-The fix as suggested by Magnus Karlsson, is to simply move the
-xdp_do_flush() call before napi_complete_done().  This syncs the
-producer ring pointers before another instance of napi_poll can be
-scheduled on another CPU.  It will also slightly improve performance by
-moving the flush closer to when the descriptors were placed in the
-RX ring.
-
-Fixes: d1396004dd86 ("veth: Add XDP TX and REDIRECT")
-Suggested-by: Magnus Karlsson <magnus.karlsson@gmail.com>
-Signed-off-by: Shawn Bohrer <sbohrer@cloudflare.com>
-Link: https://lore.kernel.org/r/20221220185903.1105011-1-sbohrer@cloudflare.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reported-and-tested-by: Wang Yugui <wangyugui@e16-tech.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Fixes: 5e113224c17e ("nfsd: nfsd_file cache entries should be per net namespace")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/veth.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/nfsd/nfssvc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index 5be8ed910553..5aa23a036ed3 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -849,6 +849,9 @@ static int veth_poll(struct napi_struct *napi, int budget)
- 	xdp_set_return_frame_no_direct();
- 	done = veth_xdp_rcv(rq, budget, &bq, &stats);
+diff --git a/fs/nfsd/nfssvc.c b/fs/nfsd/nfssvc.c
+index 9323e30a7eaf..c7fffe1453bd 100644
+--- a/fs/nfsd/nfssvc.c
++++ b/fs/nfsd/nfssvc.c
+@@ -426,8 +426,8 @@ static void nfsd_shutdown_net(struct net *net)
+ {
+ 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
  
-+	if (stats.xdp_redirect > 0)
-+		xdp_do_flush();
-+
- 	if (done < budget && napi_complete_done(napi, done)) {
- 		/* Write rx_notify_masked before reading ptr_ring */
- 		smp_store_mb(rq->rx_notify_masked, false);
-@@ -862,8 +865,6 @@ static int veth_poll(struct napi_struct *napi, int budget)
- 
- 	if (stats.xdp_tx > 0)
- 		veth_xdp_flush(rq, &bq);
--	if (stats.xdp_redirect > 0)
--		xdp_do_flush();
- 	xdp_clear_return_frame_no_direct();
- 
- 	return done;
+-	nfsd_file_cache_shutdown_net(net);
+ 	nfs4_state_shutdown_net(net);
++	nfsd_file_cache_shutdown_net(net);
+ 	if (nn->lockd_up) {
+ 		lockd_down(net);
+ 		nn->lockd_up = false;
 -- 
 2.35.1
 
