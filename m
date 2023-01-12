@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CB8F6673C5
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AFB56677B3
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:47:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233571AbjALN5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 08:57:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53516 "EHLO
+        id S239986AbjALOq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:46:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232418AbjALN5u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:57:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB26652C4A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:38 -0800 (PST)
+        with ESMTP id S239825AbjALOqe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:46:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDDBA5F4BE
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:34:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26DAE62029
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ABCCC433EF;
-        Thu, 12 Jan 2023 13:57:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81610B81E78
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:34:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B1CC433D2;
+        Thu, 12 Jan 2023 14:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673531857;
-        bh=vT/dtpDRQLmM5czaxIGgeUBTJ8Z0QAPzGzWDGlwa+UI=;
+        s=korg; t=1673534074;
+        bh=LEiCftGMQPDYG+VgtU02BKIxwdQYHAZ//nc2YMQmMxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQtgIuNtwL6eD8NRwkRD09tMMFBSeb4BhXzoqigi5+gwG+kRe5IW/p2rX1DACErZX
-         vhTmZi1ITnetdTzwQlbyLABIzx5VKs1USyijf1+BdtasyGLDjkYqFnmLzY4AJ+5x09
-         WzCAXmlCiEGHzwk5KvTnk0xgfIIpadoNdeIqrH1M=
+        b=QSCkshtRB40E5w8gune0ibqktcvLgi1pfi1A5NnOVL3UMNulhOVrbz0tmjRZ4FyjS
+         Pdf7YtqTLtGsjpeaLqH+ANHHvNG/byp940L8NwDR1KJcOc7CJLC7oNCioBNNpi6A6x
+         0M8sNxho7xJ5gpeml19hBvB4dZlcV3mL4gSJAvG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kyle Huey <me@kylehuey.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>
-Subject: [PATCH 5.15 05/10] x86/fpu: Allow PKRU to be (once again) written by ptrace.
+        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
+        Jan Kara <jack@suse.cz>, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 686/783] ext4: avoid unaccounted block allocation when expanding inode
 Date:   Thu, 12 Jan 2023 14:56:42 +0100
-Message-Id: <20230112135326.889112336@linuxfoundation.org>
+Message-Id: <20230112135556.122089560@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230112135326.689857506@linuxfoundation.org>
-References: <20230112135326.689857506@linuxfoundation.org>
+In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
+References: <20230112135524.143670746@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,72 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Huey <me@kylehuey.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 4a804c4f8356393d6b5eff7600f07615d7869c13 upstream
+commit 8994d11395f8165b3deca1971946f549f0822630 upstream.
 
-Handle PKRU in copy_uabi_to_xstate() for the benefit of APIs that write
-the XSTATE such as PTRACE_SETREGSET with NT_X86_XSTATE.
+When expanding inode space in ext4_expand_extra_isize_ea() we may need
+to allocate external xattr block. If quota is not initialized for the
+inode, the block allocation will not be accounted into quota usage. Make
+sure the quota is initialized before we try to expand inode space.
 
-This restores the pre-5.14 behavior of ptrace. The regression can be seen
-by running gdb and executing `p $pkru`, `set $pkru = 42`, and `p $pkru`.
-On affected kernels (5.14+) the write to the PKRU register (which gdb
-performs through ptrace) is ignored.
-
-Fixes: e84ba47e313d ("x86/fpu: Hook up PKRU into ptrace()")
-Signed-off-by: Kyle Huey <me@kylehuey.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lore.kernel.org/all/20221115230932.7126-5-khuey%40kylehuey.com
+Reported-by: Pengfei Xu <pengfei.xu@intel.com>
+Link: https://lore.kernel.org/all/Y5BT+k6xWqthZc1P@xpf.sh.intel.com
+Signed-off-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20221207115937.26601-2-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/xstate.c |   30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ fs/ext4/inode.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1091,6 +1091,29 @@ static int copy_from_buffer(void *dst, u
- }
- 
- 
-+/**
-+ * copy_uabi_to_xstate - Copy a UABI format buffer to the kernel xstate
-+ * @fpstate:	The fpstate buffer to copy to
-+ * @kbuf:	The UABI format buffer, if it comes from the kernel
-+ * @ubuf:	The UABI format buffer, if it comes from userspace
-+ * @pkru:	The location to write the PKRU value to
-+ *
-+ * Converts from the UABI format into the kernel internal hardware
-+ * dependent format.
-+ *
-+ * This function ultimately has two different callers with distinct PKRU
-+ * behavior.
-+ * 1.	When called from sigreturn the PKRU register will be restored from
-+ *	@fpstate via an XRSTOR. Correctly copying the UABI format buffer to
-+ *	@fpstate is sufficient to cover this case, but the caller will also
-+ *	pass a pointer to the thread_struct's pkru field in @pkru and updating
-+ *	it is harmless.
-+ * 2.	When called from ptrace the PKRU register will be restored from the
-+ *	thread_struct's pkru field. A pointer to that is passed in @pkru.
-+ *	The kernel will restore it manually, so the XRSTOR behavior that resets
-+ *	the PKRU register to the hardware init value (0) if the corresponding
-+ *	xfeatures bit is not set is emulated here.
-+ */
- static int copy_uabi_to_xstate(struct xregs_state *xsave, const void *kbuf,
- 			       const void __user *ubuf, u32 *pkru)
- {
-@@ -1140,6 +1163,13 @@ static int copy_uabi_to_xstate(struct xr
- 		}
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5879,6 +5879,14 @@ static int __ext4_expand_extra_isize(str
+ 		return 0;
  	}
  
-+	if (hdr.xfeatures & XFEATURE_MASK_PKRU) {
-+		struct pkru_state *xpkru;
++	/*
++	 * We may need to allocate external xattr block so we need quotas
++	 * initialized. Here we can be called with various locks held so we
++	 * cannot affort to initialize quotas ourselves. So just bail.
++	 */
++	if (dquot_initialize_needed(inode))
++		return -EAGAIN;
 +
-+		xpkru = __raw_xsave_addr(xsave, XFEATURE_PKRU);
-+		*pkru = xpkru->pkru;
-+	}
-+
- 	/*
- 	 * The state that came in from userspace was user-state only.
- 	 * Mask all the user states out of 'xfeatures':
+ 	/* try to expand with EAs present */
+ 	error = ext4_expand_extra_isize_ea(inode, new_extra_isize,
+ 					   raw_inode, handle);
 
 
