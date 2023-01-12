@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 947E366782D
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:53:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CE99667832
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:53:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240249AbjALOxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:53:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43498 "EHLO
+        id S239996AbjALOxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:53:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240136AbjALOw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:52:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5309D5D418
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:39:39 -0800 (PST)
+        with ESMTP id S240069AbjALOxA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:53:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7960558827
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:39:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 056FBB81E75
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:39:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41E3BC433EF;
-        Thu, 12 Jan 2023 14:39:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2623AB81E84
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:39:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 552FDC433D2;
+        Thu, 12 Jan 2023 14:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534376;
-        bh=2t7uGqMTax23Dnuh0AhaQnvprCDG2EdO9Yh1YCMpxOA=;
+        s=korg; t=1673534379;
+        bh=pUQvjGqdJkWthjMcph/nbp4lFl8qybwy9Vgh2BmmZq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErmS4uY7uea0BF00vVvjuHl6GMdU6vAc788+Roh+EFXPtmsNlmmvSHzx2PHdOB6/T
-         kGL11l2APo9O2OMSDe1o7pJruRi+gYUqI9UrweBDLtaCJB+1DFOuo9Jbxw5dZr20Wu
-         cjf9256iE+vJaYuke4kr6TL9LkOdbFDCJezORfZo=
+        b=w9VikGtuACJa+NWegwTTcd35hff3dV5PkgbHEDjY3KfoECZByXbAc5VIpEb8ZycSS
+         EJ5294Vqppvov8b5HE6/QQnJ6CeXICvIgTQOS2HTkycY9rb1uHRFbfnuFPI6Eyh2yT
+         dlBO2gHhb/7/dM978/qkmAHJw9lC1AYIDZgIQjNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jan Kara <jack@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev,
+        syzbot+7bb7cd3595533513a9e7@syzkaller.appspotmail.com,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Matthew Wilcox <willy@infradead.org>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 768/783] hfs/hfsplus: use WARN_ON for sanity check
-Date:   Thu, 12 Jan 2023 14:58:04 +0100
-Message-Id: <20230112135559.970834277@linuxfoundation.org>
+Subject: [PATCH 5.10 769/783] hfs/hfsplus: avoid WARN_ON() for sanity check, use proper error handling
+Date:   Thu, 12 Jan 2023 14:58:05 +0100
+Message-Id: <20230112135600.020544323@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -56,118 +57,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 55d1cbbbb29e6656c662ee8f73ba1fc4777532eb upstream.
+commit cb7a95af78d29442b8294683eca4897544b8ef46 upstream.
 
-gcc warns about a couple of instances in which a sanity check exists but
-the author wasn't sure how to react to it failing, which makes it look
-like a possible bug:
+Commit 55d1cbbbb29e ("hfs/hfsplus: use WARN_ON for sanity check") fixed
+a build warning by turning a comment into a WARN_ON(), but it turns out
+that syzbot then complains because it can trigger said warning with a
+corrupted hfs image.
 
-  fs/hfsplus/inode.c: In function 'hfsplus_cat_read_inode':
-  fs/hfsplus/inode.c:503:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    503 |                         /* panic? */;
-        |                                     ^
-  fs/hfsplus/inode.c:524:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    524 |                         /* panic? */;
-        |                                     ^
-  fs/hfsplus/inode.c: In function 'hfsplus_cat_write_inode':
-  fs/hfsplus/inode.c:582:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    582 |                         /* panic? */;
-        |                                     ^
-  fs/hfsplus/inode.c:608:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    608 |                         /* panic? */;
-        |                                     ^
-  fs/hfs/inode.c: In function 'hfs_write_inode':
-  fs/hfs/inode.c:464:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    464 |                         /* panic? */;
-        |                                     ^
-  fs/hfs/inode.c:485:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    485 |                         /* panic? */;
-        |                                     ^
+The warning actually does warn about a bad situation, but we are much
+better off just handling it as the error it is.  So rather than warn
+about us doing bad things, stop doing the bad things and return -EIO.
 
-panic() is probably not the correct choice here, but a WARN_ON
-seems appropriate and avoids the compile-time warning.
+While at it, also fix a memory leak that was introduced by an earlier
+fix for a similar syzbot warning situation, and add a check for one case
+that historically wasn't handled at all (ie neither comment nor
+subsequent WARN_ON).
 
-Link: https://lkml.kernel.org/r/20210927102149.1809384-1-arnd@kernel.org
-Link: https://lore.kernel.org/all/20210322223249.2632268-1-arnd@kernel.org/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jan Kara <jack@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: syzbot+7bb7cd3595533513a9e7@syzkaller.appspotmail.com
+Fixes: 55d1cbbbb29e ("hfs/hfsplus: use WARN_ON for sanity check")
+Fixes: 8d824e69d9f3 ("hfs: fix OOB Read in __hfs_brec_find")
+Link: https://lore.kernel.org/lkml/000000000000dbce4e05f170f289@google.com/
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hfs/inode.c     |    6 ++----
- fs/hfsplus/inode.c |   12 ++++--------
- 2 files changed, 6 insertions(+), 12 deletions(-)
+ fs/hfs/inode.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
 --- a/fs/hfs/inode.c
 +++ b/fs/hfs/inode.c
-@@ -462,8 +462,7 @@ int hfs_write_inode(struct inode *inode,
+@@ -454,15 +454,16 @@ int hfs_write_inode(struct inode *inode,
+ 		/* panic? */
+ 		return -EIO;
+ 
++	res = -EIO;
+ 	if (HFS_I(main_inode)->cat_key.CName.len > HFS_NAMELEN)
+-		return -EIO;
++		goto out;
+ 	fd.search_key->cat = HFS_I(main_inode)->cat_key;
+ 	if (hfs_brec_find(&fd))
+-		/* panic? */
  		goto out;
  
  	if (S_ISDIR(main_inode->i_mode)) {
--		if (fd.entrylength < sizeof(struct hfs_cat_dir))
--			/* panic? */;
-+		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_dir));
+-		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_dir));
++		if (fd.entrylength < sizeof(struct hfs_cat_dir))
++			goto out;
  		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
  			   sizeof(struct hfs_cat_dir));
  		if (rec.type != HFS_CDR_DIR ||
-@@ -483,8 +482,7 @@ int hfs_write_inode(struct inode *inode,
+@@ -475,6 +476,8 @@ int hfs_write_inode(struct inode *inode,
+ 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
+ 			    sizeof(struct hfs_cat_dir));
+ 	} else if (HFS_IS_RSRC(inode)) {
++		if (fd.entrylength < sizeof(struct hfs_cat_file))
++			goto out;
+ 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
+ 			       sizeof(struct hfs_cat_file));
+ 		hfs_inode_write_fork(inode, rec.file.RExtRec,
+@@ -482,7 +485,8 @@ int hfs_write_inode(struct inode *inode,
  		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
  				sizeof(struct hfs_cat_file));
  	} else {
--		if (fd.entrylength < sizeof(struct hfs_cat_file))
--			/* panic? */;
-+		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_file));
+-		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_file));
++		if (fd.entrylength < sizeof(struct hfs_cat_file))
++			goto out;
  		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
  			   sizeof(struct hfs_cat_file));
  		if (rec.type != HFS_CDR_FIL ||
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -497,8 +497,7 @@ int hfsplus_cat_read_inode(struct inode
- 	if (type == HFSPLUS_FOLDER) {
- 		struct hfsplus_cat_folder *folder = &entry.folder;
+@@ -499,9 +503,10 @@ int hfs_write_inode(struct inode *inode,
+ 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
+ 			    sizeof(struct hfs_cat_file));
+ 	}
++	res = 0;
+ out:
+ 	hfs_find_exit(&fd);
+-	return 0;
++	return res;
+ }
  
--		if (fd->entrylength < sizeof(struct hfsplus_cat_folder))
--			/* panic? */;
-+		WARN_ON(fd->entrylength < sizeof(struct hfsplus_cat_folder));
- 		hfs_bnode_read(fd->bnode, &entry, fd->entryoffset,
- 					sizeof(struct hfsplus_cat_folder));
- 		hfsplus_get_perms(inode, &folder->permissions, 1);
-@@ -518,8 +517,7 @@ int hfsplus_cat_read_inode(struct inode
- 	} else if (type == HFSPLUS_FILE) {
- 		struct hfsplus_cat_file *file = &entry.file;
- 
--		if (fd->entrylength < sizeof(struct hfsplus_cat_file))
--			/* panic? */;
-+		WARN_ON(fd->entrylength < sizeof(struct hfsplus_cat_file));
- 		hfs_bnode_read(fd->bnode, &entry, fd->entryoffset,
- 					sizeof(struct hfsplus_cat_file));
- 
-@@ -576,8 +574,7 @@ int hfsplus_cat_write_inode(struct inode
- 	if (S_ISDIR(main_inode->i_mode)) {
- 		struct hfsplus_cat_folder *folder = &entry.folder;
- 
--		if (fd.entrylength < sizeof(struct hfsplus_cat_folder))
--			/* panic? */;
-+		WARN_ON(fd.entrylength < sizeof(struct hfsplus_cat_folder));
- 		hfs_bnode_read(fd.bnode, &entry, fd.entryoffset,
- 					sizeof(struct hfsplus_cat_folder));
- 		/* simple node checks? */
-@@ -602,8 +599,7 @@ int hfsplus_cat_write_inode(struct inode
- 	} else {
- 		struct hfsplus_cat_file *file = &entry.file;
- 
--		if (fd.entrylength < sizeof(struct hfsplus_cat_file))
--			/* panic? */;
-+		WARN_ON(fd.entrylength < sizeof(struct hfsplus_cat_file));
- 		hfs_bnode_read(fd.bnode, &entry, fd.entryoffset,
- 					sizeof(struct hfsplus_cat_file));
- 		hfsplus_inode_write_fork(inode, &file->data_fork);
+ static struct dentry *hfs_file_lookup(struct inode *dir, struct dentry *dentry,
 
 
