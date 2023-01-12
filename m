@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 852A46675A5
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:23:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A07C6675DA
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:26:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236158AbjALOXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:23:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45552 "EHLO
+        id S237021AbjALO0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:26:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235889AbjALOWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:22:55 -0500
+        with ESMTP id S237033AbjALOZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:25:49 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB75F54725
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:14:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB575C1E0
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:16:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 486C16202B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:14:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C352C433D2;
-        Thu, 12 Jan 2023 14:14:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8983362036
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:16:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83037C433D2;
+        Thu, 12 Jan 2023 14:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532865;
-        bh=l9HWFXL6iqJaCWp0n0E1sik/5WoiJBg7NENzeQiWgc8=;
+        s=korg; t=1673533017;
+        bh=tx0CpBE5hDC0enMfy+MRO98pfbbmnQ2jrEXd2n+NoVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2dSJD9s4QDL2c8MoC9cSFt+PyphkN7dUVgVggp28c+voEhRrZFW7JsChVfqW/JEax
-         c7W8V9+fP8O5RhEct0zwQQPl5E/C9nDMLbhDlm3YRap+aZjeFv/RIXvL67SKHy2pm8
-         ofGaIBv/oJ3EAvvbcJnf7zGi9Nq746n1LYSw7qOY=
+        b=ozj/gqq+1S5/1yAwkZzHtkWe6HaNMPEJrDx2tn/YVYKbOs0KIvf8OuAiI1Xjgc6GV
+         5eSOQkrm5nkbfoGP+kuy4j9672yITKzfbNxYDyD2ErsCzI//VNKa+oMX6g/+2H+Fvy
+         PqnKdchm2+dTpHPhLunKHntl6vCJ8LtXZXuBsTY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 300/783] RDMA/siw: Set defined status for work completion with undefined status
-Date:   Thu, 12 Jan 2023 14:50:16 +0100
-Message-Id: <20230112135538.248914645@linuxfoundation.org>
+Subject: [PATCH 5.10 301/783] scsi: scsi_debug: Fix a warning in resp_write_scat()
+Date:   Thu, 12 Jan 2023 14:50:17 +0100
+Message-Id: <20230112135538.288292440@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,49 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit 60da2d11fcbc043304910e4d2ca82f9bab953e63 ]
+[ Upstream commit 216e179724c1d9f57a8ababf8bd7aaabef67f01b ]
 
-A malicious user may write undefined values into memory mapped completion
-queue elements status or opcode. Undefined status or opcode values will
-result in out-of-bounds access to an array mapping siw internal
-representation of opcode and status to RDMA core representation when
-reaping CQ elements. While siw detects those undefined values, it did not
-correctly set completion status to a defined value, thus defeating the
-whole purpose of the check.
+As 'lbdof_blen' is coming from user, if the size in kzalloc() is >=
+MAX_ORDER then we hit a warning.
 
-This bug leads to the following Smatch static checker warning:
+Call trace:
 
-	drivers/infiniband/sw/siw/siw_cq.c:96 siw_reap_cqe()
-	error: buffer overflow 'map_cqe_status' 10 <= 21
+sg_ioctl
+ sg_ioctl_common
+   scsi_ioctl
+    sg_scsi_ioctl
+     blk_execute_rq
+      blk_mq_sched_insert_request
+       blk_mq_run_hw_queue
+        __blk_mq_delay_run_hw_queue
+         __blk_mq_run_hw_queue
+          blk_mq_sched_dispatch_requests
+           __blk_mq_sched_dispatch_requests
+            blk_mq_dispatch_rq_list
+             scsi_queue_rq
+              scsi_dispatch_cmd
+               scsi_debug_queuecommand
+                schedule_resp
+                 resp_write_scat
 
-Fixes: bdf1da5df9da ("RDMA/siw: Fix immediate work request flush to completion queue")
-Link: https://lore.kernel.org/r/20221115170747.1263298-1-bmt@zurich.ibm.com
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+If you try to allocate a memory larger than(>=) MAX_ORDER, then kmalloc()
+will definitely fail.  It creates a stack trace and messes up dmesg.  The
+user controls the size here so if they specify a too large size it will
+fail.
+
+Add __GFP_NOWARN in order to avoid too large allocation warning.  This is
+detected by static analysis using smatch.
+
+Fixes: 481b5e5c7949 ("scsi: scsi_debug: add resp_write_scat function")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20221111100526.1790533-1-harshit.m.mogalapalli@oracle.com
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_cq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_cq.c b/drivers/infiniband/sw/siw/siw_cq.c
-index acc7bcd538b5..403029de6b92 100644
---- a/drivers/infiniband/sw/siw/siw_cq.c
-+++ b/drivers/infiniband/sw/siw/siw_cq.c
-@@ -88,9 +88,9 @@ int siw_reap_cqe(struct siw_cq *cq, struct ib_wc *wc)
- 
- 			if (opcode >= SIW_NUM_OPCODES) {
- 				opcode = 0;
--				status = IB_WC_GENERAL_ERR;
-+				status = SIW_WC_GENERAL_ERR;
- 			} else if (status >= SIW_NUM_WC_STATUS) {
--				status = IB_WC_GENERAL_ERR;
-+				status = SIW_WC_GENERAL_ERR;
- 			}
- 			wc->opcode = map_wc_opcode[opcode];
- 			wc->status = map_cqe_status[status].ib;
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index cc20621bb49d..110d0e7f9413 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -3619,7 +3619,7 @@ static int resp_write_scat(struct scsi_cmnd *scp,
+ 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INVALID_FIELD_IN_CDB, 0);
+ 		return illegal_condition_result;
+ 	}
+-	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC);
++	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC | __GFP_NOWARN);
+ 	if (lrdp == NULL)
+ 		return SCSI_MLQUEUE_HOST_BUSY;
+ 	if (sdebug_verbose)
 -- 
 2.35.1
 
