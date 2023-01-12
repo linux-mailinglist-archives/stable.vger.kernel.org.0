@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9BB56677C3
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:48:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6B5B6673BA
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239811AbjALOsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:48:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40252 "EHLO
+        id S232024AbjALN5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 08:57:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239913AbjALOrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:47:23 -0500
+        with ESMTP id S232650AbjALN47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:56:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D4D63F50
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:35:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84A6C6472
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:56:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B911162026
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:35:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B661BC433EF;
-        Thu, 12 Jan 2023 14:35:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2143862029
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:56:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29ADBC433D2;
+        Thu, 12 Jan 2023 13:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534122;
-        bh=n4ktbHRAOycijrh7XLcJ8CtW2kCvNN7FxNOxNZ7SncA=;
+        s=korg; t=1673531817;
+        bh=exXC12YeHw3xmfqn0iAaKjjtLRqa/stXVjVuPraFu8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJgZ4+E2TG81CDZXKhY6yPXHC/wUCx//FMM450r6zqkbsEHwrtXxHZb+RFLcQAZ4t
-         9js+JpVD8DVH+xmySlhpHOHKyL+Gs6OMI1dLHTFE9MwfS3I2K37fyQvpxR8lsKo2dl
-         9IAOrQLaAEg08B17cRixsSzAvSwKoN3wQ8DeOWA8=
+        b=Bm0rltWzUEcK/i+mcSWyzHKZguy9F9i89mBMeMog5tZDnA3MTsx1jQLQWz0ecZ3rZ
+         mEKYi3RHoEk27SVfaX2mIj9zqAR+HiXfz9g/NwzPl3sGQweqRvI09EDIoLyCvNX4iW
+         JfUfCywdUm3BlSpz7XKFIr0GbfoQOsHAU6m/1DW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.10 672/783] ext4: fix undefined behavior in bit shift for ext4_check_flag_values
+        patches@lists.linux.dev, Kyle Huey <me@kylehuey.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 6.1 07/10] selftests/vm/pkeys: Add a regression test for setting PKRU through ptrace
 Date:   Thu, 12 Jan 2023 14:56:28 +0100
-Message-Id: <20230112135555.490953990@linuxfoundation.org>
+Message-Id: <20230112135327.286565304@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
-References: <20230112135524.143670746@linuxfoundation.org>
+In-Reply-To: <20230112135326.981869724@linuxfoundation.org>
+References: <20230112135326.981869724@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +52,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Kyle Huey <me@kylehuey.com>
 
-commit 3bf678a0f9c017c9ba7c581541dbc8453452a7ae upstream.
+commit 6ea25770b043c7997ab21d1ce95ba5de4d3d85d9 upstream.
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+This tests PTRACE_SETREGSET with NT_X86_XSTATE modifying PKRU directly and
+removing the PKRU bit from XSTATE_BV.
 
-UBSAN: shift-out-of-bounds in fs/ext4/ext4.h:591:2
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- ext4_init_fs+0x5a/0x277
- do_one_initcall+0x76/0x430
- kernel_init_freeable+0x3b3/0x422
- kernel_init+0x24/0x1e0
- ret_from_fork+0x1f/0x30
- </TASK>
-
-Fixes: 9a4c80194713 ("ext4: ensure Inode flags consistency are checked at build time")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221031055833.3966222-1-cuigaosheng1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Signed-off-by: Kyle Huey <me@kylehuey.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lore.kernel.org/all/20221115230932.7126-7-khuey%40kylehuey.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/vm/pkey-x86.h        |   12 ++
+ tools/testing/selftests/vm/protection_keys.c |  131 ++++++++++++++++++++++++++-
+ 2 files changed, 141 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -553,7 +553,7 @@ enum {
-  *
-  * It's not paranoia if the Murphy's Law really *is* out to get you.  :-)
-  */
--#define TEST_FLAG_VALUE(FLAG) (EXT4_##FLAG##_FL == (1 << EXT4_INODE_##FLAG))
-+#define TEST_FLAG_VALUE(FLAG) (EXT4_##FLAG##_FL == (1U << EXT4_INODE_##FLAG))
- #define CHECK_FLAG_VALUE(FLAG) BUILD_BUG_ON(!TEST_FLAG_VALUE(FLAG))
+--- a/tools/testing/selftests/vm/pkey-x86.h
++++ b/tools/testing/selftests/vm/pkey-x86.h
+@@ -104,6 +104,18 @@ static inline int cpu_has_pkeys(void)
+ 	return 1;
+ }
  
- static inline void ext4_check_flag_values(void)
++static inline int cpu_max_xsave_size(void)
++{
++	unsigned long XSTATE_CPUID = 0xd;
++	unsigned int eax;
++	unsigned int ebx;
++	unsigned int ecx;
++	unsigned int edx;
++
++	__cpuid_count(XSTATE_CPUID, 0, eax, ebx, ecx, edx);
++	return ecx;
++}
++
+ static inline u32 pkey_bit_position(int pkey)
+ {
+ 	return pkey * PKEY_BITS_PER_PKEY;
+--- a/tools/testing/selftests/vm/protection_keys.c
++++ b/tools/testing/selftests/vm/protection_keys.c
+@@ -18,12 +18,13 @@
+  *	do a plain mprotect() to a mprotect_pkey() area and make sure the pkey sticks
+  *
+  * Compile like this:
+- *	gcc      -o protection_keys    -O2 -g -std=gnu99 -pthread -Wall protection_keys.c -lrt -ldl -lm
+- *	gcc -m32 -o protection_keys_32 -O2 -g -std=gnu99 -pthread -Wall protection_keys.c -lrt -ldl -lm
++ *	gcc -mxsave      -o protection_keys    -O2 -g -std=gnu99 -pthread -Wall protection_keys.c -lrt -ldl -lm
++ *	gcc -mxsave -m32 -o protection_keys_32 -O2 -g -std=gnu99 -pthread -Wall protection_keys.c -lrt -ldl -lm
+  */
+ #define _GNU_SOURCE
+ #define __SANE_USERSPACE_TYPES__
+ #include <errno.h>
++#include <linux/elf.h>
+ #include <linux/futex.h>
+ #include <time.h>
+ #include <sys/time.h>
+@@ -1550,6 +1551,129 @@ void test_implicit_mprotect_exec_only_me
+ 	do_not_expect_pkey_fault("plain read on recently PROT_EXEC area");
+ }
+ 
++#if defined(__i386__) || defined(__x86_64__)
++void test_ptrace_modifies_pkru(int *ptr, u16 pkey)
++{
++	u32 new_pkru;
++	pid_t child;
++	int status, ret;
++	int pkey_offset = pkey_reg_xstate_offset();
++	size_t xsave_size = cpu_max_xsave_size();
++	void *xsave;
++	u32 *pkey_register;
++	u64 *xstate_bv;
++	struct iovec iov;
++
++	new_pkru = ~read_pkey_reg();
++	/* Don't make PROT_EXEC mappings inaccessible */
++	new_pkru &= ~3;
++
++	child = fork();
++	pkey_assert(child >= 0);
++	dprintf3("[%d] fork() ret: %d\n", getpid(), child);
++	if (!child) {
++		ptrace(PTRACE_TRACEME, 0, 0, 0);
++		/* Stop and allow the tracer to modify PKRU directly */
++		raise(SIGSTOP);
++
++		/*
++		 * need __read_pkey_reg() version so we do not do shadow_pkey_reg
++		 * checking
++		 */
++		if (__read_pkey_reg() != new_pkru)
++			exit(1);
++
++		/* Stop and allow the tracer to clear XSTATE_BV for PKRU */
++		raise(SIGSTOP);
++
++		if (__read_pkey_reg() != 0)
++			exit(1);
++
++		/* Stop and allow the tracer to examine PKRU */
++		raise(SIGSTOP);
++
++		exit(0);
++	}
++
++	pkey_assert(child == waitpid(child, &status, 0));
++	dprintf3("[%d] waitpid(%d) status: %x\n", getpid(), child, status);
++	pkey_assert(WIFSTOPPED(status) && WSTOPSIG(status) == SIGSTOP);
++
++	xsave = (void *)malloc(xsave_size);
++	pkey_assert(xsave > 0);
++
++	/* Modify the PKRU register directly */
++	iov.iov_base = xsave;
++	iov.iov_len = xsave_size;
++	ret = ptrace(PTRACE_GETREGSET, child, (void *)NT_X86_XSTATE, &iov);
++	pkey_assert(ret == 0);
++
++	pkey_register = (u32 *)(xsave + pkey_offset);
++	pkey_assert(*pkey_register == read_pkey_reg());
++
++	*pkey_register = new_pkru;
++
++	ret = ptrace(PTRACE_SETREGSET, child, (void *)NT_X86_XSTATE, &iov);
++	pkey_assert(ret == 0);
++
++	/* Test that the modification is visible in ptrace before any execution */
++	memset(xsave, 0xCC, xsave_size);
++	ret = ptrace(PTRACE_GETREGSET, child, (void *)NT_X86_XSTATE, &iov);
++	pkey_assert(ret == 0);
++	pkey_assert(*pkey_register == new_pkru);
++
++	/* Execute the tracee */
++	ret = ptrace(PTRACE_CONT, child, 0, 0);
++	pkey_assert(ret == 0);
++
++	/* Test that the tracee saw the PKRU value change */
++	pkey_assert(child == waitpid(child, &status, 0));
++	dprintf3("[%d] waitpid(%d) status: %x\n", getpid(), child, status);
++	pkey_assert(WIFSTOPPED(status) && WSTOPSIG(status) == SIGSTOP);
++
++	/* Test that the modification is visible in ptrace after execution */
++	memset(xsave, 0xCC, xsave_size);
++	ret = ptrace(PTRACE_GETREGSET, child, (void *)NT_X86_XSTATE, &iov);
++	pkey_assert(ret == 0);
++	pkey_assert(*pkey_register == new_pkru);
++
++	/* Clear the PKRU bit from XSTATE_BV */
++	xstate_bv = (u64 *)(xsave + 512);
++	*xstate_bv &= ~(1 << 9);
++
++	ret = ptrace(PTRACE_SETREGSET, child, (void *)NT_X86_XSTATE, &iov);
++	pkey_assert(ret == 0);
++
++	/* Test that the modification is visible in ptrace before any execution */
++	memset(xsave, 0xCC, xsave_size);
++	ret = ptrace(PTRACE_GETREGSET, child, (void *)NT_X86_XSTATE, &iov);
++	pkey_assert(ret == 0);
++	pkey_assert(*pkey_register == 0);
++
++	ret = ptrace(PTRACE_CONT, child, 0, 0);
++	pkey_assert(ret == 0);
++
++	/* Test that the tracee saw the PKRU value go to 0 */
++	pkey_assert(child == waitpid(child, &status, 0));
++	dprintf3("[%d] waitpid(%d) status: %x\n", getpid(), child, status);
++	pkey_assert(WIFSTOPPED(status) && WSTOPSIG(status) == SIGSTOP);
++
++	/* Test that the modification is visible in ptrace after execution */
++	memset(xsave, 0xCC, xsave_size);
++	ret = ptrace(PTRACE_GETREGSET, child, (void *)NT_X86_XSTATE, &iov);
++	pkey_assert(ret == 0);
++	pkey_assert(*pkey_register == 0);
++
++	ret = ptrace(PTRACE_CONT, child, 0, 0);
++	pkey_assert(ret == 0);
++	pkey_assert(child == waitpid(child, &status, 0));
++	dprintf3("[%d] waitpid(%d) status: %x\n", getpid(), child, status);
++	pkey_assert(WIFEXITED(status));
++	pkey_assert(WEXITSTATUS(status) == 0);
++	free(xsave);
++}
++#endif
++
+ void test_mprotect_pkey_on_unsupported_cpu(int *ptr, u16 pkey)
+ {
+ 	int size = PAGE_SIZE;
+@@ -1585,6 +1709,9 @@ void (*pkey_tests[])(int *ptr, u16 pkey)
+ 	test_pkey_syscalls_bad_args,
+ 	test_pkey_alloc_exhaust,
+ 	test_pkey_alloc_free_attach_pkey0,
++#if defined(__i386__) || defined(__x86_64__)
++	test_ptrace_modifies_pkru,
++#endif
+ };
+ 
+ void run_tests_once(void)
 
 
