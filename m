@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFCBB6677E7
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:50:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 461C86677E8
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:51:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239931AbjALOux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:50:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43450 "EHLO
+        id S240065AbjALOu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:50:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240060AbjALOuM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:50:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2F3392ED
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:36:51 -0800 (PST)
+        with ESMTP id S240071AbjALOuR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:50:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0BE120B4
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:36:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62A1E62026
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:36:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70FB2C433D2;
-        Thu, 12 Jan 2023 14:36:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AE8662037
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:36:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56270C433D2;
+        Thu, 12 Jan 2023 14:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534210;
-        bh=iqwrW3CgJQWwTSrpoF0EThayW2GbJHNbR7LwrhnWWlc=;
+        s=korg; t=1673534213;
+        bh=kjMTYuvImgGqVxRGl4RYX1kN/el3Z79nv0IS4eFNTbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJlcH32YOYVza3ioCd4SrEUQmdqatVGB8OJFfsXf1sd7fJkyoGmgT78Wcn4kGudcS
-         T9CtjpGqWRSbUdPnVSTAqlX+KF4ivd5Y+AokaT06I2Ey13hV2wiNClFtSn6DNRkJmL
-         Hybr8hzgaIFIuFRp90ioAxSdi9KijabADg+soFqU=
+        b=xAxi8A4TdwiPhY8OteVZgf2wAWD5HkRJoeryfCO6wDlDb0z1pEwy5WV17A7hs0bn1
+         uod3JYfE4RDwHqkTnNn6X3QvDyXS1dPzuP1RBE7O/VMUPOtITV+4x5Ltaf6DXrPqvQ
+         bXorB6oDlBMCbk3VzKK8f79JVK75QpZY2HFxAMD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Zijlstra <peterz@infradead.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        patches@lists.linux.dev,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 702/783] x86/kprobes: Fix optprobe optimization check with CONFIG_RETHUNK
-Date:   Thu, 12 Jan 2023 14:56:58 +0100
-Message-Id: <20230112135556.888596062@linuxfoundation.org>
+Subject: [PATCH 5.10 703/783] staging: media: tegra-video: fix device_node use after free
+Date:   Thu, 12 Jan 2023 14:56:59 +0100
+Message-Id: <20230112135556.933780883@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,87 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+From: Luca Ceresoli <luca.ceresoli@bootlin.com>
 
-[ Upstream commit 63dc6325ff41ee9e570bde705ac34a39c5dbeb44 ]
+[ Upstream commit c4d344163c3a7f90712525f931a6c016bbb35e18 ]
 
-Since the CONFIG_RETHUNK and CONFIG_SLS will use INT3 for stopping
-speculative execution after function return, kprobe jump optimization
-always fails on the functions with such INT3 inside the function body.
-(It already checks the INT3 padding between functions, but not inside
- the function)
+At probe time this code path is followed:
 
-To avoid this issue, as same as kprobes, check whether the INT3 comes
-from kgdb or not, and if so, stop decoding and make it fail. The other
-INT3 will come from CONFIG_RETHUNK/CONFIG_SLS and those can be
-treated as a one-byte instruction.
+ * tegra_csi_init
+   * tegra_csi_channels_alloc
+     * for_each_child_of_node(node, channel) -- iterates over channels
+       * automatically gets 'channel'
+         * tegra_csi_channel_alloc()
+           * saves into chan->of_node a pointer to the channel OF node
+       * automatically gets and puts 'channel'
+       * now the node saved in chan->of_node has refcount 0, can disappear
+   * tegra_csi_channels_init
+     * iterates over channels
+       * tegra_csi_channel_init -- uses chan->of_node
 
-Fixes: e463a09af2f0 ("x86: Add straight-line-speculation mitigation")
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+After that, chan->of_node keeps storing the node until the device is
+removed.
+
+of_node_get() the node and of_node_put() it during teardown to avoid any
+risk.
+
+Fixes: 1ebaeb09830f ("media: tegra-video: Add support for external sensor capture")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/167146051929.1374301.7419382929328081706.stgit@devnote3
+Cc: Sowjanya Komatineni <skomatineni@nvidia.com>
+Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kprobes/opt.c | 28 ++++++++--------------------
- 1 file changed, 8 insertions(+), 20 deletions(-)
+ drivers/staging/media/tegra-video/csi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/kprobes/opt.c b/arch/x86/kernel/kprobes/opt.c
-index 4299fc865732..3d6201492006 100644
---- a/arch/x86/kernel/kprobes/opt.c
-+++ b/arch/x86/kernel/kprobes/opt.c
-@@ -15,6 +15,7 @@
- #include <linux/extable.h>
- #include <linux/kdebug.h>
- #include <linux/kallsyms.h>
-+#include <linux/kgdb.h>
- #include <linux/ftrace.h>
- #include <linux/objtool.h>
- #include <linux/pgtable.h>
-@@ -272,19 +273,6 @@ static int insn_is_indirect_jump(struct insn *insn)
- 	return ret;
- }
+diff --git a/drivers/staging/media/tegra-video/csi.c b/drivers/staging/media/tegra-video/csi.c
+index edfdf6db457d..dc5d432a09e8 100644
+--- a/drivers/staging/media/tegra-video/csi.c
++++ b/drivers/staging/media/tegra-video/csi.c
+@@ -420,7 +420,7 @@ static int tegra_csi_channel_alloc(struct tegra_csi *csi,
+ 	chan->csi = csi;
+ 	chan->csi_port_num = port_num;
+ 	chan->numlanes = lanes;
+-	chan->of_node = node;
++	chan->of_node = of_node_get(node);
+ 	chan->numpads = num_pads;
+ 	if (num_pads & 0x2) {
+ 		chan->pads[0].flags = MEDIA_PAD_FL_SINK;
+@@ -621,6 +621,7 @@ static void tegra_csi_channels_cleanup(struct tegra_csi *csi)
+ 			media_entity_cleanup(&subdev->entity);
+ 		}
  
--static bool is_padding_int3(unsigned long addr, unsigned long eaddr)
--{
--	unsigned char ops;
--
--	for (; addr < eaddr; addr++) {
--		if (get_kernel_nofault(ops, (void *)addr) < 0 ||
--		    ops != INT3_INSN_OPCODE)
--			return false;
--	}
--
--	return true;
--}
--
- /* Decode whole function to ensure any instructions don't jump into target */
- static int can_optimize(unsigned long paddr)
- {
-@@ -327,15 +315,15 @@ static int can_optimize(unsigned long paddr)
- 		ret = insn_decode(&insn, (void *)recovered_insn, MAX_INSN_SIZE, INSN_MODE_KERN);
- 		if (ret < 0)
- 			return 0;
--
-+#ifdef CONFIG_KGDB
- 		/*
--		 * In the case of detecting unknown breakpoint, this could be
--		 * a padding INT3 between functions. Let's check that all the
--		 * rest of the bytes are also INT3.
-+		 * If there is a dynamically installed kgdb sw breakpoint,
-+		 * this function should not be probed.
- 		 */
--		if (insn.opcode.bytes[0] == INT3_INSN_OPCODE)
--			return is_padding_int3(addr, paddr - offset + size) ? 1 : 0;
--
-+		if (insn.opcode.bytes[0] == INT3_INSN_OPCODE &&
-+		    kgdb_has_hit_break(addr))
-+			return 0;
-+#endif
- 		/* Recover address */
- 		insn.kaddr = (void *)addr;
- 		insn.next_byte = (void *)(addr + insn.length);
++		of_node_put(chan->of_node);
+ 		list_del(&chan->list);
+ 		kfree(chan);
+ 	}
 -- 
 2.35.1
 
