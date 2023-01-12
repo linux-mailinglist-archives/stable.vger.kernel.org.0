@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB846673E5
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:00:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1FCC6673E6
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:00:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231197AbjALOAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:00:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54770 "EHLO
+        id S231469AbjALOAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:00:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233780AbjALOAJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:00:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 309AB52C43
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:00:08 -0800 (PST)
+        with ESMTP id S233625AbjALOAQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:00:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 635E952768
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:00:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8E066202A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:00:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF1F3C433D2;
-        Thu, 12 Jan 2023 14:00:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1CE08B81E6C
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:00:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7135AC433EF;
+        Thu, 12 Jan 2023 14:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532007;
-        bh=iS4injl9Yy5l+rBU0tTowHTG+HNydU2msdXgEPLOakQ=;
+        s=korg; t=1673532012;
+        bh=JPvQJx1L/9SNsj60LdR+FuYW0lIKhDtE50esaUICdV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JCCka4/hCCJit5ZMEVVhe+CksR7Y/KqqtpTFsRXWmCHy9b1skxM5EhMawUP7hH1RD
-         tdhAkK/1Ljn0/Evk3FdLjRMWiK2Y4D2Tz9hZurEJ6CwM+7ksTBqs1mpCLJxDMEiqiX
-         lxzevliMLJfjK8SZLt5DrCmW/unwKjS/XXk1gudM=
+        b=pXVfHpcWeU8MGR1ntv6yrxploUOtySDyzSWQWzubOAU9dx/aGC0lccigsamHyf4nl
+         BLSOsECJyVY3NYZC6KJx80oJVj0IfJE1oHX+16Z9h3PsNSnH9uamb+JK0oHRDqpzoY
+         aDZqRAvsQJPZ0NpDZXlUbP3ES5IeogljF/QuqYow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <angelogioacchino.delregno@collabora.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/783] arm64: dts: mt2712e: Fix unit_address_vs_reg warning for oscillators
-Date:   Thu, 12 Jan 2023 14:45:39 +0100
-Message-Id: <20230112135525.234796369@linuxfoundation.org>
+Subject: [PATCH 5.10 024/783] arm64: dts: mt2712e: Fix unit address for pinctrl node
+Date:   Thu, 12 Jan 2023 14:45:40 +0100
+Message-Id: <20230112135525.284102859@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -57,106 +57,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit e4495a0a8b3d84816c9a46edf3ce060bbf267475 ]
+[ Upstream commit 1d4516f53a611b362db7ba7a8889923d469f57e1 ]
 
-Rename the fixed-clock oscillators to remove the unit address.
+The unit address for the pinctrl node is (0x)1000b000 and not
+(0x)10005000, which is the syscfg_pctl_a address instead.
 
-This solves unit_address_vs_reg warnings.
+This fixes the following warning:
+arch/arm64/boot/dts/mediatek/mt2712e.dtsi:264.40-267.4: Warning
+(unique_unit_address): /syscfg_pctl_a@10005000: duplicate
+unit-address (also used in node /pinctrl@10005000)
 
-Fixes: 5d4839709c8e ("arm64: dts: mt2712: Add clock controller device nodes")
+Fixes: f0c64340b748 ("arm64: dts: mt2712: add pintcrl device node.")
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-4-angelogioacchino.delregno@collabora.com
+Link: https://lore.kernel.org/r/20221013152212.416661-5-angelogioacchino.delregno@collabora.com
 Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt2712e.dtsi | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt2712e.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
-index db17d0a4ed57..e0b26cd67eb3 100644
+index e0b26cd67eb3..cc3d1c99517d 100644
 --- a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
 +++ b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
-@@ -160,70 +160,70 @@ sys_clk: dummyclk {
- 		#clock-cells = <0>;
+@@ -266,7 +266,7 @@ syscfg_pctl_a: syscfg_pctl_a@10005000 {
+ 		reg = <0 0x10005000 0 0x1000>;
  	};
  
--	clk26m: oscillator@0 {
-+	clk26m: oscillator-26m {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <26000000>;
- 		clock-output-names = "clk26m";
- 	};
- 
--	clk32k: oscillator@1 {
-+	clk32k: oscillator-32k {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <32768>;
- 		clock-output-names = "clk32k";
- 	};
- 
--	clkfpc: oscillator@2 {
-+	clkfpc: oscillator-50m {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <50000000>;
- 		clock-output-names = "clkfpc";
- 	};
- 
--	clkaud_ext_i_0: oscillator@3 {
-+	clkaud_ext_i_0: oscillator-aud0 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <6500000>;
- 		clock-output-names = "clkaud_ext_i_0";
- 	};
- 
--	clkaud_ext_i_1: oscillator@4 {
-+	clkaud_ext_i_1: oscillator-aud1 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <196608000>;
- 		clock-output-names = "clkaud_ext_i_1";
- 	};
- 
--	clkaud_ext_i_2: oscillator@5 {
-+	clkaud_ext_i_2: oscillator-aud2 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <180633600>;
- 		clock-output-names = "clkaud_ext_i_2";
- 	};
- 
--	clki2si0_mck_i: oscillator@6 {
-+	clki2si0_mck_i: oscillator-i2s0 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <30000000>;
- 		clock-output-names = "clki2si0_mck_i";
- 	};
- 
--	clki2si1_mck_i: oscillator@7 {
-+	clki2si1_mck_i: oscillator-i2s1 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <30000000>;
- 		clock-output-names = "clki2si1_mck_i";
- 	};
- 
--	clki2si2_mck_i: oscillator@8 {
-+	clki2si2_mck_i: oscillator-i2s2 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <30000000>;
- 		clock-output-names = "clki2si2_mck_i";
- 	};
- 
--	clktdmin_mclk_i: oscillator@9 {
-+	clktdmin_mclk_i: oscillator-mclk {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <30000000>;
+-	pio: pinctrl@10005000 {
++	pio: pinctrl@1000b000 {
+ 		compatible = "mediatek,mt2712-pinctrl";
+ 		reg = <0 0x1000b000 0 0x1000>;
+ 		mediatek,pctl-regmap = <&syscfg_pctl_a>;
 -- 
 2.35.1
 
