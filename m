@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED0D266764C
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD8066764D
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237079AbjALOag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:30:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48540 "EHLO
+        id S236998AbjALOai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:30:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237313AbjALO3i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:38 -0500
+        with ESMTP id S236980AbjALO3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:45 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2820D5DE42
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63D825D893
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCE9FB81DB2
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F31EC433EF;
-        Thu, 12 Jan 2023 14:21:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C1CDB81E6D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 486B1C433EF;
+        Thu, 12 Jan 2023 14:21:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533271;
-        bh=R6BZH1IG3I6PmB+02bJmpBqt7e0T2lDSk/Ca6qsRC5A=;
+        s=korg; t=1673533274;
+        bh=kXM2YC74/Uuz4Vd4Y7hKGHZ588c+Ckaz/CyfxUjsPGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UzP7pMWDdnSwNe16Xt9fYknsBMiXoQe+dxBoxh8V8+Sawa3flyjnwjFi8sS+N/oRg
-         4Fh1REaK3yFV8PEsWXqzhe8KGCuman53ufXKKFxMmAvI/xqFpV1tQ7k4GoltdzZ6Iw
-         NU5oZ+FPhylfrD+bt9ilgOfCANmbOp/A08WNMqiI=
+        b=qkL/nK8Rs0GZe3OdbYM0Q2R8PxTOjHmhg61wSYGLB3Cixa+jYl4lacpeqzhtl4hdW
+         6QouKqYV1hMUh+HNk2Y3Ybc1rdLI5Q7gwRGk7lFCMX2zgudT3jznEdR5Urh2lqZgUr
+         Cr4jtrl1V3q8RQDP1qrpkycJuyeNDzh/6XB5rEpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 424/783] rtc: cmos: Rename ACPI-related functions
-Date:   Thu, 12 Jan 2023 14:52:20 +0100
-Message-Id: <20230112135543.978971513@linuxfoundation.org>
+Subject: [PATCH 5.10 425/783] rtc: cmos: Disable ACPI RTC event on removal
+Date:   Thu, 12 Jan 2023 14:52:21 +0100
+Message-Id: <20230112135544.016579342@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -58,83 +58,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit d13e9ad9f5146f066a5c5a1cc993d09e4fb21ead ]
+[ Upstream commit 83ebb7b3036d151ee39a4a752018665648fc3bd4 ]
 
-The names of rtc_wake_setup() and cmos_wake_setup() don't indicate
-that these functions are ACPI-related, which is the case, and the
-former doesn't really reflect the role of the function.
+Make cmos_do_remove() drop the ACPI RTC fixed event handler so as to
+prevent it from operating on stale data in case the event triggers
+after driver removal.
 
-Rename them to acpi_rtc_event_setup() and acpi_cmos_wake_setup(),
-respectively, to address this shortcoming.
-
-No intentional functional impact.
-
+Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Reviewed-by: Zhang Rui <rui.zhang@intel.com>
 Tested-by: Zhang Rui <rui.zhang@intel.com>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/3225614.44csPzL39Z@kreacher
+Link: https://lore.kernel.org/r/2224609.iZASKD2KPV@kreacher
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Stable-dep-of: 83ebb7b3036d ("rtc: cmos: Disable ACPI RTC event on removal")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-cmos.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 541cdae587eb..dd05c12dada8 100644
+index dd05c12dada8..7f560937bf7c 100644
 --- a/drivers/rtc/rtc-cmos.c
 +++ b/drivers/rtc/rtc-cmos.c
-@@ -790,7 +790,7 @@ static u32 rtc_handler(void *context)
- 	return ACPI_INTERRUPT_HANDLED;
+@@ -804,6 +804,14 @@ static void acpi_rtc_event_setup(struct device *dev)
+ 	acpi_disable_event(ACPI_EVENT_RTC, 0);
  }
  
--static void rtc_wake_setup(struct device *dev)
-+static void acpi_rtc_event_setup(struct device *dev)
++static void acpi_rtc_event_cleanup(void)
++{
++	if (acpi_disabled)
++		return;
++
++	acpi_remove_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler);
++}
++
+ static void rtc_wake_on(struct device *dev)
  {
- 	if (acpi_disabled)
- 		return;
-@@ -834,7 +834,7 @@ static void use_acpi_alarm_quirks(void)
- static inline void use_acpi_alarm_quirks(void) { }
- #endif
- 
--static void cmos_wake_setup(struct device *dev)
-+static void acpi_cmos_wake_setup(struct device *dev)
- {
- 	if (acpi_disabled)
- 		return;
-@@ -886,11 +886,11 @@ static void cmos_check_acpi_rtc_status(struct device *dev,
- 
- #else /* !CONFIG_ACPI */
- 
--static inline void rtc_wake_setup(struct device *dev)
-+static inline void acpi_rtc_event_setup(struct device *dev)
+ 	acpi_clear_event(ACPI_EVENT_RTC);
+@@ -890,6 +898,10 @@ static inline void acpi_rtc_event_setup(struct device *dev)
  {
  }
  
--static inline void cmos_wake_setup(struct device *dev)
-+static inline void acpi_cmos_wake_setup(struct device *dev)
++static inline void acpi_rtc_event_cleanup(void)
++{
++}
++
+ static inline void acpi_cmos_wake_setup(struct device *dev)
  {
  }
- 
-@@ -992,7 +992,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 			cmos_rtc.wake_off = info->wake_off;
- 		}
- 	} else {
--		cmos_wake_setup(dev);
-+		acpi_cmos_wake_setup(dev);
+@@ -1143,6 +1155,9 @@ static void cmos_do_remove(struct device *dev)
+ 			hpet_unregister_irq_handler(cmos_interrupt);
  	}
  
- 	if (cmos_rtc.day_alrm >= 128)
-@@ -1096,7 +1096,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 	 * the ACPI RTC fixed event.
- 	 */
- 	if (!info)
--		rtc_wake_setup(dev);
-+		acpi_rtc_event_setup(dev);
++	if (!dev_get_platdata(dev))
++		acpi_rtc_event_cleanup();
++
+ 	cmos->rtc = NULL;
  
- 	dev_info(dev, "%s%s, %d bytes nvram%s\n",
- 		 !is_valid_irq(rtc_irq) ? "no alarms" :
+ 	ports = cmos->iomem;
 -- 
 2.35.1
 
