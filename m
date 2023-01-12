@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1F3667551
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:20:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B6E667552
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:20:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232724AbjALOUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:20:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41654 "EHLO
+        id S232795AbjALOU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:20:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232795AbjALOTn (ORCPT
+        with ESMTP id S235285AbjALOTn (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:19:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24C3B5D8B5
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:11:32 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ADC45D8B3;
+        Thu, 12 Jan 2023 06:11:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1853B81E70
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:11:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D2B2C433F1;
-        Thu, 12 Jan 2023 14:11:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2534162030;
+        Thu, 12 Jan 2023 14:11:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15A89C433EF;
+        Thu, 12 Jan 2023 14:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532689;
-        bh=UBc0hF8DfhKPOqTyNXOkq1eqV2N4WgScwG+SqkW3ByA=;
+        s=korg; t=1673532692;
+        bh=hFHgEBJNfHtR9W/tpNOIplcWkQkfby8IZDga/jnLI0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uwBvZM6mXyaKu/2YsmbdewuAWGhAtN5fH3ZzaXmTue9JG5ZGdGRgRMYYynA1u+aVz
-         asytSlh3PxtKx4Hiw31CmtXt1bkNweqtn7auaGvl94/5RDnljoInKRDIfTzvZAWQC0
-         sALLVdfSnHUy0819Udt2wE/pvYXZ768sxct1dPVI=
+        b=JZO5D1Msqoyp27j2FCDpdYogNMJqoEJ8mR7zg/QFi8NEPCenm0kOGuQ64NBxFIE0Z
+         oVLRYDS4wXMPAeaLdFwb3J+iUarMt5/Nq8a9Pcu5Cxde1Lz7K6Ok33Jy1+ErAQrlSV
+         VqG7MPiP62kzKJ4vV7EvLfYKaMY/mAsCpM9JMMfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 245/783] blktrace: Fix output non-blktrace event when blk_classic option enabled
-Date:   Thu, 12 Jan 2023 14:49:21 +0100
-Message-Id: <20230112135535.754010613@linuxfoundation.org>
+        patches@lists.linux.dev, Dinh Nguyen <dinguyen@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>, linux-clk@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 246/783] clk: socfpga: clk-pll: Remove unused variable rc
+Date:   Thu, 12 Jan 2023 14:49:22 +0100
+Message-Id: <20230112135535.803381200@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -52,44 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit f596da3efaf4130ff61cd029558845808df9bf99 ]
+[ Upstream commit 75fddccbca32349570b2d53955982b4117fa5515 ]
 
-When the blk_classic option is enabled, non-blktrace events must be
-filtered out. Otherwise, events of other types are output in the blktrace
-classic format, which is unexpected.
+Fixes the following W=1 kernel build warning(s):
 
-The problem can be triggered in the following ways:
+ drivers/clk/socfpga/clk-pll.c: In function ‘__socfpga_pll_init’:
+ drivers/clk/socfpga/clk-pll.c:83:6: warning: variable ‘rc’ set but not used [-Wunused-but-set-variable]
 
-  # echo 1 > /sys/kernel/debug/tracing/options/blk_classic
-  # echo 1 > /sys/kernel/debug/tracing/events/enable
-  # echo blk > /sys/kernel/debug/tracing/current_tracer
-  # cat /sys/kernel/debug/tracing/trace_pipe
-
-Fixes: c71a89615411 ("blktrace: add ftrace plugin")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Link: https://lore.kernel.org/r/20221122040410.85113-1-yangjihong1@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Dinh Nguyen <dinguyen@kernel.org>
+Cc: Michael Turquette <mturquette@baylibre.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: linux-clk@vger.kernel.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20210120093040.1719407-8-lee.jones@linaro.org
+Acked-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Stable-dep-of: 0b8ba891ad4d ("clk: socfpga: Fix memory leak in socfpga_gate_init()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/socfpga/clk-pll.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 15a376f85e09..ab912cc60760 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -1592,7 +1592,8 @@ blk_trace_event_print_binary(struct trace_iterator *iter, int flags,
+diff --git a/drivers/clk/socfpga/clk-pll.c b/drivers/clk/socfpga/clk-pll.c
+index e5fb786843f3..3cf99df7d005 100644
+--- a/drivers/clk/socfpga/clk-pll.c
++++ b/drivers/clk/socfpga/clk-pll.c
+@@ -80,7 +80,6 @@ static __init struct clk *__socfpga_pll_init(struct device_node *node,
+ 	const char *parent_name[SOCFPGA_MAX_PARENTS];
+ 	struct clk_init_data init;
+ 	struct device_node *clkmgr_np;
+-	int rc;
  
- static enum print_line_t blk_tracer_print_line(struct trace_iterator *iter)
- {
--	if (!(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
-+	if ((iter->ent->type != TRACE_BLK) ||
-+	    !(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
- 		return TRACE_TYPE_UNHANDLED;
+ 	of_property_read_u32(node, "reg", &reg);
  
- 	return print_one_line(iter, true);
+@@ -111,7 +110,7 @@ static __init struct clk *__socfpga_pll_init(struct device_node *node,
+ 		kfree(pll_clk);
+ 		return NULL;
+ 	}
+-	rc = of_clk_add_provider(node, of_clk_src_simple_get, clk);
++	of_clk_add_provider(node, of_clk_src_simple_get, clk);
+ 	return clk;
+ }
+ 
 -- 
 2.35.1
 
