@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99987667514
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:17:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D90667515
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:17:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229767AbjALORs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:17:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40416 "EHLO
+        id S233461AbjALORv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:17:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230112AbjALORI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2CE75689A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:08:59 -0800 (PST)
+        with ESMTP id S235712AbjALORL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5947574E7
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:09:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6FF18B81E69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:08:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6AC4C433EF;
-        Thu, 12 Jan 2023 14:08:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79354B81E6B
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:09:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF4C8C433D2;
+        Thu, 12 Jan 2023 14:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532537;
-        bh=i4rnhyE7uiSP8WYB0C58Ssas7JOVNDZ12U0T1ZRyF9g=;
+        s=korg; t=1673532540;
+        bh=Mp1/T7PmqxzoioPX2+0xKJyLik9zZb3UDcFWWdSOBAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eigvhczh1phTdwH4A+5T1apMC7RnkN7/zwGltJ+0wRXuJLIjHXMhgFXyfUWOaXrxN
-         7eVy9gg78lzejae7zhTYuTAPDDWs+akMP4CYKR/fzPAn7NqI796oUs78o786gAoHwp
-         NR1L4sUhZs+frE5BYPTv4PFgEP1ma7MgijXdVJsc=
+        b=B7nR2Ait1q5cLdk9zQk3lPJs96KaP/aFd77wud1P0Dzp0soAPOWhJL762GV6kgxQr
+         F/8PLurMWFtOhzfUCs5qgC6yPPQQvHte8Assw0pxrjI839/qA4tVtf/AKvmk3UV9TO
+         /im+b+xbeWpv/PGNVUXgW9ldhsEZ/HjoD1BV+JGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Xiongfeng Wang <wangxiongfeng2@huawei.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 194/783] drm/radeon: Fix PCI device refcount leak in radeon_atrm_get_bios()
-Date:   Thu, 12 Jan 2023 14:48:30 +0100
-Message-Id: <20230112135533.311628531@linuxfoundation.org>
+Subject: [PATCH 5.10 195/783] drm/amdgpu: Fix PCI device refcount leak in amdgpu_atrm_get_bios()
+Date:   Thu, 12 Jan 2023 14:48:31 +0100
+Message-Id: <20230112135533.351757501@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -56,37 +56,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 725a521a18734f65de05b8d353b5bd0d3ca4c37a ]
+[ Upstream commit ca54639c7752edf1304d92ff4d0c049d4efc9ba0 ]
 
 As comment of pci_get_class() says, it returns a pci_device with its
 refcount increased and decreased the refcount for the input parameter
 @from if it is not NULL.
 
-If we break the loop in radeon_atrm_get_bios() with 'pdev' not NULL, we
+If we break the loop in amdgpu_atrm_get_bios() with 'pdev' not NULL, we
 need to call pci_dev_put() to decrease the refcount. Add the missing
 pci_dev_put() to avoid refcount leak.
 
-Fixes: d8ade3526b2a ("drm/radeon: handle non-VGA class pci devices with ATRM")
-Fixes: c61e2775873f ("drm/radeon: split ATRM support out from the ATPX handler (v3)")
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
 Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_bios.c | 1 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_bios.c b/drivers/gpu/drm/radeon/radeon_bios.c
-index 34d2cb929c06..0c94147f7625 100644
---- a/drivers/gpu/drm/radeon/radeon_bios.c
-+++ b/drivers/gpu/drm/radeon/radeon_bios.c
-@@ -227,6 +227,7 @@ static bool radeon_atrm_get_bios(struct radeon_device *rdev)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
+index 6333cada1e09..4b568ee93243 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
+@@ -313,6 +313,7 @@ static bool amdgpu_atrm_get_bios(struct amdgpu_device *adev)
  
  	if (!found)
  		return false;
 +	pci_dev_put(pdev);
  
- 	rdev->bios = kmalloc(size, GFP_KERNEL);
- 	if (!rdev->bios) {
+ 	adev->bios = kmalloc(size, GFP_KERNEL);
+ 	if (!adev->bios) {
 -- 
 2.35.1
 
