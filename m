@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15AC5667697
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:33:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 980B06676A2
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237601AbjALOdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:33:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56838 "EHLO
+        id S237183AbjALOdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:33:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237903AbjALOdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:33:01 -0500
+        with ESMTP id S238429AbjALOdV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:33:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2CCF5EC1A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:24:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B680551DC
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:24:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73B1AB81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:24:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B882DC433D2;
-        Thu, 12 Jan 2023 14:24:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E222B81E6D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:24:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A48C433F1;
+        Thu, 12 Jan 2023 14:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533463;
-        bh=NsKQ7cX8s43XnWuwFNk6M4yVAVwZYpw6eO3XxXVi0c8=;
+        s=korg; t=1673533496;
+        bh=4jd6ruqudRD1vVIEqiyuBp9dASpT91D9wpGVIY+UDhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgS9F1NaHEUwtIsLynv2r0vqpOllEscmh8RNZ4UDqydwBx4RRD1X18XVn9vHIWIWI
-         c++wXtN/Ox/LkWXPrMXo9TkA+8j8siGNcAGztTVgDBWnTIq5eT5SDGRL+e0WwyVLWe
-         a+LJ6P4+TdymKoTUW35D/LZLrZOa3ZnQIq/yCRGQ=
+        b=OSVMCbDUMWj6m5jyvjQi1tqXp/E5wqBtWRpt/w0iKSRe/+p1a1VvNHtc0K3BTVovz
+         9IQIqvIVQuozE4vw9FleAiFP9VIckcqxQjo3Iqq2lhr155RQB6V4JX4UWFdg5/6RRt
+         ACDTjtkh5PJ33GtdNAUXzi8w/z8/HcBJyK2gdW34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>,
         Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
         Naama Meir <naamax.meir@linux.intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 469/783] igc: Use strict cycles for Qbv scheduling
-Date:   Thu, 12 Jan 2023 14:53:05 +0100
-Message-Id: <20230112135545.966622241@linuxfoundation.org>
+Subject: [PATCH 5.10 470/783] igc: Add checking for basetime less than zero
+Date:   Thu, 12 Jan 2023 14:53:06 +0100
+Message-Id: <20230112135546.012627654@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -57,50 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
 
-[ Upstream commit d8f45be01dd9381065a3778a579385249ed011dc ]
+[ Upstream commit 3b61764fb49a6e147ac90d71dccdddc9d5508ba1 ]
 
-Configuring strict cycle mode in the controller forces more well
-behaved transmissions when taprio is offloaded.
+Using the tc qdisc command, the user can set basetime to any value.
+Checking should be done on the driver's side to prevent registering
+basetime values that are less than zero.
 
-When set this strict_cycle and strict_end, transmission is not
-enabled if the whole packet cannot be completed before end of
-the Qbv cycle.
-
-Fixes: 82faa9b79950 ("igc: Add support for ETF offloading")
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>
+Fixes: ec50a9d437f0 ("igc: Add support for taprio offloading")
 Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
 Tested-by: Naama Meir <naamax.meir@linux.intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_tsn.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_tsn.c b/drivers/net/ethernet/intel/igc/igc_tsn.c
-index 174103c4bea6..2d4db2a547b2 100644
---- a/drivers/net/ethernet/intel/igc/igc_tsn.c
-+++ b/drivers/net/ethernet/intel/igc/igc_tsn.c
-@@ -92,15 +92,8 @@ static int igc_tsn_enable_offload(struct igc_adapter *adapter)
- 		wr32(IGC_STQT(i), ring->start_time);
- 		wr32(IGC_ENDQT(i), ring->end_time);
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index f4082ea7beaa..45069dc0ccc6 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -4912,6 +4912,9 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
+ 		return 0;
+ 	}
  
--		if (adapter->base_time) {
--			/* If we have a base_time we are in "taprio"
--			 * mode and we need to be strict about the
--			 * cycles: only transmit a packet if it can be
--			 * completed during that cycle.
--			 */
--			txqctl |= IGC_TXQCTL_STRICT_CYCLE |
--				IGC_TXQCTL_STRICT_END;
--		}
-+		txqctl |= IGC_TXQCTL_STRICT_CYCLE |
-+			IGC_TXQCTL_STRICT_END;
++	if (qopt->base_time < 0)
++		return -ERANGE;
++
+ 	if (adapter->base_time)
+ 		return -EALREADY;
  
- 		if (ring->launchtime_enable)
- 			txqctl |= IGC_TXQCTL_QUEUE_MODE_LAUNCHT;
 -- 
 2.35.1
 
