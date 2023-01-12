@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 405AA66751C
+	by mail.lfdr.de (Postfix) with ESMTP id DAA6766751D
 	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:18:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236174AbjALOSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:18:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41044 "EHLO
+        id S236185AbjALOSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:18:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236002AbjALORm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:42 -0500
+        with ESMTP id S236017AbjALORn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:43 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B93205D6AA
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:09:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D46E25D6B4
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:09:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5592260110
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:09:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CF23C433EF;
-        Thu, 12 Jan 2023 14:09:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D42960110
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:09:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F2CAC433D2;
+        Thu, 12 Jan 2023 14:09:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532561;
-        bh=7qLmqE8QTVKMXtI49wmANbW9/uUd5pcOBlNAulz7ZJc=;
+        s=korg; t=1673532564;
+        bh=oFkbfZfnD/MxDdI72pwhqDmnxzIKwATrTx3tTVwoDV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/RrIsIvUv2jK9+IclnRLiw43cNJT0zWa8fF6OBdZSq4eL1YWdyDp33hw8vhgGvz0
-         AH2ZjElC80l+uj8Yno7OSWb8w485fVbz7KxBCZ3mP0aZmycySal9ZpU5ocjK/A06pp
-         kqPrEkbxms7wuwDGnIcMVoLw4B0PtqALsVHVnfOM=
+        b=mTYvjtqViX32gPCQhMQSs6WajAqSeT49asSwVw5UEcmkGnTTd/DkMd7xACeNm/tbs
+         kYI28jKuXW6oOU8fBp3ZNrNswt+NAN/Z7jD8p/K8gt6gARViP9tQ6uf9aHui6+O93p
+         s0h/kM/z237IY2u2zaAGFMXsDpuEUqo0gI7bVA90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 172/783] drbd: fix an invalid memory access caused by incorrect use of list iterator
-Date:   Thu, 12 Jan 2023 14:48:08 +0100
-Message-Id: <20230112135532.297254798@linuxfoundation.org>
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 173/783] ASoC: qcom: Add checks for devm_kcalloc
+Date:   Thu, 12 Jan 2023 14:48:09 +0100
+Message-Id: <20230112135532.338439920@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,57 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit ae4d37b5df749926891583d42a6801b5da11e3c1 ]
+[ Upstream commit 1bf5ee979076ceb121ee51c95197d890b1cee7f4 ]
 
-The bug is here:
-	idr_remove(&connection->peer_devices, vnr);
+As the devm_kcalloc may return NULL, the return value needs to be checked
+to avoid NULL poineter dereference.
 
-If the previous for_each_connection() don't exit early (no goto hit
-inside the loop), the iterator 'connection' after the loop will be a
-bogus pointer to an invalid structure object containing the HEAD
-(&resource->connections). As a result, the use of 'connection' above
-will lead to a invalid memory access (including a possible invalid free
-as idr_remove could call free_layer).
-
-The original intention should have been to remove all peer_devices,
-but the following lines have already done the work. So just remove
-this line and the unneeded label, to fix this bug.
-
-Cc: stable@vger.kernel.org
-Fixes: c06ece6ba6f1b ("drbd: Turn connection->volumes into connection->peer_devices")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Reviewed-by: Lars Ellenberg <lars.ellenberg@linbit.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 24caf8d9eb10 ("ASoC: qcom: lpass-sc7180: Add platform driver for lpass audio")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Link: https://lore.kernel.org/r/20221124140510.63468-1-yuancan@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ sound/soc/qcom/lpass-sc7180.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 51450f7c81af..420bdaf8c356 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -2819,7 +2819,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+diff --git a/sound/soc/qcom/lpass-sc7180.c b/sound/soc/qcom/lpass-sc7180.c
+index c647e627897a..cb4e9017cd77 100644
+--- a/sound/soc/qcom/lpass-sc7180.c
++++ b/sound/soc/qcom/lpass-sc7180.c
+@@ -129,6 +129,9 @@ static int sc7180_lpass_init(struct platform_device *pdev)
  
- 	if (init_submitter(device)) {
- 		err = ERR_NOMEM;
--		goto out_idr_remove_vol;
-+		goto out_idr_remove_from_resource;
- 	}
+ 	drvdata->clks = devm_kcalloc(dev, variant->num_clks,
+ 				     sizeof(*drvdata->clks), GFP_KERNEL);
++	if (!drvdata->clks)
++		return -ENOMEM;
++
+ 	drvdata->num_clks = variant->num_clks;
  
- 	add_disk(disk);
-@@ -2836,8 +2836,6 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
- 	drbd_debugfs_device_add(device);
- 	return NO_ERROR;
- 
--out_idr_remove_vol:
--	idr_remove(&connection->peer_devices, vnr);
- out_idr_remove_from_resource:
- 	for_each_connection_safe(connection, n, resource) {
- 		peer_device = idr_remove(&connection->peer_devices, vnr);
+ 	for (i = 0; i < drvdata->num_clks; i++)
 -- 
 2.35.1
 
