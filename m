@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ACD2667672
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:32:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C8E667673
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237393AbjALOb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:31:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55162 "EHLO
+        id S238035AbjALOcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:32:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238018AbjALObS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:31:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A40E240
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:22:57 -0800 (PST)
+        with ESMTP id S238052AbjALObU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:31:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D9259530
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:22:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F9E9B81DCC
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:22:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E4E6C433D2;
-        Thu, 12 Jan 2023 14:22:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBB2A62035
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:22:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA79EC433D2;
+        Thu, 12 Jan 2023 14:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533375;
-        bh=U3p1l0uvuumIupTf2Eh0Wc+HOPh3+9k/dv9xsFLziQo=;
+        s=korg; t=1673533378;
+        bh=/svUdjy+2Bu2DEreRcgZbU5kaBlZnKEoLdUFwLpB3b8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OsdB2bP46/E73ucoxIiHTqEKTh3fLJQlqwvnwZ9KpYP1ONQRiQ5S/DwlR87pZpdk
-         TuJ76QS7c8zQ6e8FV2YpEN/9xxz5QHnSwz5awlvysqBjy9nBmmCX4X9XCXCJ0Q8UV3
-         qZ7U6rYClPZ/3TBV9Q8yf/2wKfLmvj0QoQfaLfj4=
+        b=v3YU3BbA+t1SuX1KfvyWZYER+bw4DV+p3+DzfNpmf1GAZWcR7o2ug/fzxfkxzrBxh
+         Y/KVW55M+X9hZwk1rGYCtiU9DQD6mu7VJAIj/D7EYKrfXUYDNiLw+Q70tBap8KvzgJ
+         rKwxpoj27YYPd1ulrd7+y6M3i0HEW2ImoiiADIpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Raed Salem <raeds@nvidia.com>,
-        Emeel Hakim <ehakim@nvidia.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 458/783] net: macsec: fix net device access prior to holding a lock
-Date:   Thu, 12 Jan 2023 14:52:54 +0100
-Message-Id: <20230112135545.490678779@linuxfoundation.org>
+Subject: [PATCH 5.10 459/783] mISDN: hfcsusb: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
+Date:   Thu, 12 Jan 2023 14:52:55 +0100
+Message-Id: <20230112135545.532650145@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,94 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emeel Hakim <ehakim@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f3b4a00f0f62da252c598310698dfc82ef2f2e2e ]
+[ Upstream commit ddc9648db162eee556edd5222d2808fe33730203 ]
 
-Currently macsec offload selection update routine accesses
-the net device prior to holding the relevant lock.
-Fix by holding the lock prior to the device access.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: dcb780fb2795 ("net: macsec: add nla support for changing the offloading selection")
-Reviewed-by: Raed Salem <raeds@nvidia.com>
-Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
-Link: https://lore.kernel.org/r/20221211075532.28099-1-ehakim@nvidia.com
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+skb_queue_purge() is called under spin_lock_irqsave() in hfcusb_l2l1D(),
+kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
+to move the dch->squeue to a free queue, also enqueue the tx_skb and
+rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+
+In tx_iso_complete(), dev_kfree_skb() is called to consume the transmitted
+SKB, so replace it with dev_consume_skb_irq().
+
+Fixes: 69f52adb2d53 ("mISDN: Add HFC USB driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index eb029456b594..4fdb970e3482 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2584,7 +2584,7 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
- 	const struct macsec_ops *ops;
- 	struct macsec_context ctx;
- 	struct macsec_dev *macsec;
--	int ret;
-+	int ret = 0;
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index cd5642cef01f..e8b37bd5e34a 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -326,20 +326,24 @@ hfcusb_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
  
- 	if (!attrs[MACSEC_ATTR_IFINDEX])
- 		return -EINVAL;
-@@ -2597,28 +2597,36 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
- 					macsec_genl_offload_policy, NULL))
- 		return -EINVAL;
- 
-+	rtnl_lock();
+ 		if (hw->protocol == ISDN_P_NT_S0) {
++			struct sk_buff_head free_queue;
 +
- 	dev = get_dev_from_nl(genl_info_net(info), attrs);
--	if (IS_ERR(dev))
--		return PTR_ERR(dev);
-+	if (IS_ERR(dev)) {
-+		ret = PTR_ERR(dev);
-+		goto out;
-+	}
- 	macsec = macsec_priv(dev);
++			__skb_queue_head_init(&free_queue);
+ 			hfcsusb_ph_command(hw, HFC_L1_DEACTIVATE_NT);
+ 			spin_lock_irqsave(&hw->lock, flags);
+-			skb_queue_purge(&dch->squeue);
++			skb_queue_splice_init(&dch->squeue, &free_queue);
+ 			if (dch->tx_skb) {
+-				dev_kfree_skb(dch->tx_skb);
++				__skb_queue_tail(&free_queue, dch->tx_skb);
+ 				dch->tx_skb = NULL;
+ 			}
+ 			dch->tx_idx = 0;
+ 			if (dch->rx_skb) {
+-				dev_kfree_skb(dch->rx_skb);
++				__skb_queue_tail(&free_queue, dch->rx_skb);
+ 				dch->rx_skb = NULL;
+ 			}
+ 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+ 			spin_unlock_irqrestore(&hw->lock, flags);
++			__skb_queue_purge(&free_queue);
+ #ifdef FIXME
+ 			if (test_and_clear_bit(FLG_L1_BUSY, &dch->Flags))
+ 				dchannel_sched_event(&hc->dch, D_CLEARBUSY);
+@@ -1330,7 +1334,7 @@ tx_iso_complete(struct urb *urb)
+ 					printk("\n");
+ 				}
  
--	if (!tb_offload[MACSEC_OFFLOAD_ATTR_TYPE])
--		return -EINVAL;
-+	if (!tb_offload[MACSEC_OFFLOAD_ATTR_TYPE]) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
- 
- 	offload = nla_get_u8(tb_offload[MACSEC_OFFLOAD_ATTR_TYPE]);
- 	if (macsec->offload == offload)
--		return 0;
-+		goto out;
- 
- 	/* Check if the offloading mode is supported by the underlying layers */
- 	if (offload != MACSEC_OFFLOAD_OFF &&
--	    !macsec_check_offload(offload, macsec))
--		return -EOPNOTSUPP;
-+	    !macsec_check_offload(offload, macsec)) {
-+		ret = -EOPNOTSUPP;
-+		goto out;
-+	}
- 
- 	/* Check if the net device is busy. */
--	if (netif_running(dev))
--		return -EBUSY;
--
--	rtnl_lock();
-+	if (netif_running(dev)) {
-+		ret = -EBUSY;
-+		goto out;
-+	}
- 
- 	prev_offload = macsec->offload;
- 	macsec->offload = offload;
-@@ -2653,7 +2661,7 @@ static int macsec_upd_offload(struct sk_buff *skb, struct genl_info *info)
- 
- rollback:
- 	macsec->offload = prev_offload;
--
-+out:
- 	rtnl_unlock();
- 	return ret;
- }
+-				dev_kfree_skb(tx_skb);
++				dev_consume_skb_irq(tx_skb);
+ 				tx_skb = NULL;
+ 				if (fifo->dch && get_next_dframe(fifo->dch))
+ 					tx_skb = fifo->dch->tx_skb;
 -- 
 2.35.1
 
