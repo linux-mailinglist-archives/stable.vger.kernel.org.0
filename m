@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 978DC6676FE
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:39:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51C596676FC
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:38:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232492AbjALOi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:38:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59800 "EHLO
+        id S234931AbjALOiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:38:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238441AbjALOhy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:37:54 -0500
+        with ESMTP id S236797AbjALOhz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:37:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4987F564D2
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:27:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C1765BA0E
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:27:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F07BCB81E67
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:27:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23CC5C433F1;
-        Thu, 12 Jan 2023 14:27:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2906B81E71
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A64BC433D2;
+        Thu, 12 Jan 2023 14:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533673;
-        bh=TOmRZ6aZZrQ4hhnqJ+8SwiNIcgCrwrXQSE73dc0VpCc=;
+        s=korg; t=1673533676;
+        bh=dpmVpboLheGSJMPOzxzicSl0IiIsWK5IYGeDzphjmks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrikRMLqyrH1sDb+QUu2DqasWZYGVPKKYT2szF73+ZClzO0+ouaPITJy679JKqFHL
-         UBlf6qzQdaqTcob07NWen4Ggtv4JEkxPLX41C5HXzQAoNaR3dGeyDIGYMNbW1roj3i
-         VoOaEpuBcEW/+e6Namma+IMCmSTfxGrQsNMXlsAs=
+        b=tOieIvWqx3ezHw1zAQ/Mhne4QapFJJjR9FdP8E/dj37KCtWhVwA1wxTiEbfG1ZT/o
+         IN22Gy/TN1PbykxAmSLmyGtdpGh2pc3DO9ChmGdI4QHDaC62IE8jIxRRk27LVy1cWE
+         OCaPjmGm9QSzQodKYGSjtR+1XYh909ffWgI3J88I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Wang <wvw@google.com>,
-        Midas Chien <midaschieh@google.com>,
-        Connor OBrien <connoro@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Anton Vorontsov <anton@enomsg.org>,
-        Colin Cross <ccross@android.com>,
-        Tony Luck <tony.luck@intel.com>,
-        kernel test robot <lkp@intel.com>, kernel-team@android.com,
-        John Stultz <jstultz@google.com>,
+        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 554/783] pstore: Make sure CONFIG_PSTORE_PMSG selects CONFIG_RT_MUTEXES
-Date:   Thu, 12 Jan 2023 14:54:30 +0100
-Message-Id: <20230112135549.904718389@linuxfoundation.org>
+Subject: [PATCH 5.10 555/783] ima: Simplify ima_lsm_copy_rule
+Date:   Thu, 12 Jan 2023 14:54:31 +0100
+Message-Id: <20230112135549.954610694@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -60,51 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <jstultz@google.com>
+From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit 2f4fec5943407318b9523f01ce1f5d668c028332 ]
+[ Upstream commit d57378d3aa4d864d9e590482602068af1b20c0c5 ]
 
-In commit 76d62f24db07 ("pstore: Switch pmsg_lock to an rt_mutex
-to avoid priority inversion") I changed a lock to an rt_mutex.
+Currently ima_lsm_copy_rule() set the arg_p field of the source rule to
+NULL, so that the source rule could be freed afterward. It does not make
+sense for this behavior to be inside a "copy" function. So move it
+outside and let the caller handle this field.
 
-However, its possible that CONFIG_RT_MUTEXES is not enabled,
-which then results in a build failure, as the 0day bot detected:
-  https://lore.kernel.org/linux-mm/202212211244.TwzWZD3H-lkp@intel.com/
+ima_lsm_copy_rule() now produce a shallow copy of the original entry
+including args_p field. Meaning only the lsm.rule and the rule itself
+should be freed for the original rule. Thus, instead of calling
+ima_lsm_free_rule() which frees lsm.rule as well as args_p field, free
+the lsm.rule directly.
 
-Thus this patch changes CONFIG_PSTORE_PMSG to select
-CONFIG_RT_MUTEXES, which ensures the build will not fail.
-
-Cc: Wei Wang <wvw@google.com>
-Cc: Midas Chien<midaschieh@google.com>
-Cc: Connor O'Brien <connoro@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Anton Vorontsov <anton@enomsg.org>
-Cc: Colin Cross <ccross@android.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: kernel test robot <lkp@intel.com>
-Cc: kernel-team@android.com
-Fixes: 76d62f24db07 ("pstore: Switch pmsg_lock to an rt_mutex to avoid priority inversion")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: John Stultz <jstultz@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221221051855.15761-1-jstultz@google.com
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ security/integrity/ima/ima_policy.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/fs/pstore/Kconfig b/fs/pstore/Kconfig
-index 8efe60487b48..71dbe9a2533f 100644
---- a/fs/pstore/Kconfig
-+++ b/fs/pstore/Kconfig
-@@ -118,6 +118,7 @@ config PSTORE_CONSOLE
- config PSTORE_PMSG
- 	bool "Log user space messages"
- 	depends on PSTORE
-+	select RT_MUTEXES
- 	help
- 	  When the option is enabled, pstore will export a character
- 	  interface /dev/pmsg0 to log user space messages. On reboot
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index a83ce111cf50..96ecb7d25403 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -370,12 +370,6 @@ static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
+ 
+ 		nentry->lsm[i].type = entry->lsm[i].type;
+ 		nentry->lsm[i].args_p = entry->lsm[i].args_p;
+-		/*
+-		 * Remove the reference from entry so that the associated
+-		 * memory will not be freed during a later call to
+-		 * ima_lsm_free_rule(entry).
+-		 */
+-		entry->lsm[i].args_p = NULL;
+ 
+ 		ima_filter_rule_init(nentry->lsm[i].type, Audit_equal,
+ 				     nentry->lsm[i].args_p,
+@@ -389,6 +383,7 @@ static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
+ 
+ static int ima_lsm_update_rule(struct ima_rule_entry *entry)
+ {
++	int i;
+ 	struct ima_rule_entry *nentry;
+ 
+ 	nentry = ima_lsm_copy_rule(entry);
+@@ -403,7 +398,8 @@ static int ima_lsm_update_rule(struct ima_rule_entry *entry)
+ 	 * references and the entry itself. All other memory refrences will now
+ 	 * be owned by nentry.
+ 	 */
+-	ima_lsm_free_rule(entry);
++	for (i = 0; i < MAX_LSM_RULES; i++)
++		ima_filter_rule_free(entry->lsm[i].rule);
+ 	kfree(entry);
+ 
+ 	return 0;
 -- 
 2.35.1
 
