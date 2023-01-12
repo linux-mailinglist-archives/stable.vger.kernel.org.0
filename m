@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C5F667831
+	by mail.lfdr.de (Postfix) with ESMTP id 8E849667830
 	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240008AbjALOxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:53:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43502 "EHLO
+        id S238081AbjALOxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:53:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240140AbjALOw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:52:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9978F5328F
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:39:43 -0800 (PST)
+        with ESMTP id S240112AbjALOxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:53:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E7E548281
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:39:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3937A6203F
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:39:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C6FBC433EF;
-        Thu, 12 Jan 2023 14:39:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D45ACB81E31
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:39:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2734BC433D2;
+        Thu, 12 Jan 2023 14:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534382;
-        bh=5PSiAyXwH78FC2CxoOVvMpg4fqE65O7a2dLACCLpZVY=;
+        s=korg; t=1673534385;
+        bh=ySDeX7+pwcge0UVuMRBqC+2dWj5FsbYEiazND/UAFfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=waLtd8jETUfYn7x3D7/fOptShNk1THikbOSMM2TD50VFW4QW9ysA5G3f80EA7Jc64
-         pYQ/W/xP0Ajl6+/4J3fgU3WAI/mRoYVtz6ybLENcho1QGfF7fHFJ+O+cguhjKmK12B
-         bPVtYwgchFhLIVSEsEXyVG8FOKnDIqtGXG7S5xfw=
+        b=KXq7nwwGyv42cQKXw9BXppNSPsM5VdYYHeewg5i3OxEFqPXbzZJR67t6Ch3z2JMJm
+         JErRR67qVcTcsFsh4M35euEvLtnLrxx6mHsbai8JFdasQQSCg8Bl5mF3BBYd3wYV/F
+         1u654lIle0JhRYQxDhDP4GCq3xYY4H5mE6WDnswA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Mike Galbraith <efault@gmx.de>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 770/783] mbcache: Avoid nesting of cache->c_list_lock under bit locks
-Date:   Thu, 12 Jan 2023 14:58:06 +0100
-Message-Id: <20230112135600.070325208@linuxfoundation.org>
+        patches@lists.linux.dev, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.10 771/783] efi: random: combine bootloader provided RNG seed with RNG protocol output
+Date:   Thu, 12 Jan 2023 14:58:07 +0100
+Message-Id: <20230112135600.120845917@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,66 +52,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 5fc4cbd9fde5d4630494fd6ffc884148fb618087 upstream.
+commit 196dff2712ca5a2e651977bb2fe6b05474111a83 upstream.
 
-Commit 307af6c87937 ("mbcache: automatically delete entries from cache
-on freeing") started nesting cache->c_list_lock under the bit locks
-protecting hash buckets of the mbcache hash table in
-mb_cache_entry_create(). This causes problems for real-time kernels
-because there spinlocks are sleeping locks while bitlocks stay atomic.
-Luckily the nesting is easy to avoid by holding entry reference until
-the entry is added to the LRU list. This makes sure we cannot race with
-entry deletion.
+Instead of blindly creating the EFI random seed configuration table if
+the RNG protocol is implemented and works, check whether such a EFI
+configuration table was provided by an earlier boot stage and if so,
+concatenate the existing and the new seeds, leaving it up to the core
+code to mix it in and credit it the way it sees fit.
 
-Cc: stable@kernel.org
-Fixes: 307af6c87937 ("mbcache: automatically delete entries from cache on freeing")
-Reported-by: Mike Galbraith <efault@gmx.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220908091032.10513-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This can be used for, e.g., systemd-boot, to pass an additional seed to
+Linux in a way that can be consumed by the kernel very early. In that
+case, the following definitions should be used to pass the seed to the
+EFI stub:
+
+struct linux_efi_random_seed {
+      u32     size; // of the 'seed' array in bytes
+      u8      seed[];
+};
+
+The memory for the struct must be allocated as EFI_ACPI_RECLAIM_MEMORY
+pool memory, and the address of the struct in memory should be installed
+as a EFI configuration table using the following GUID:
+
+LINUX_EFI_RANDOM_SEED_TABLE_GUID        1ce1e5bc-7ceb-42f2-81e5-8aadf180f57b
+
+Note that doing so is safe even on kernels that were built without this
+patch applied, but the seed will simply be overwritten with a seed
+derived from the EFI RNG protocol, if available. The recommended seed
+size is 32 bytes, and seeds larger than 512 bytes are considered
+corrupted and ignored entirely.
+
+In order to preserve forward secrecy, seeds from previous bootloaders
+are memzero'd out, and in order to preserve memory, those older seeds
+are also freed from memory. Freeing from memory without first memzeroing
+is not safe to do, as it's possible that nothing else will ever
+overwrite those pages used by EFI.
+
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+[ardb: incorporate Jason's followup changes to extend the maximum seed
+       size on the consumer end, memzero() it and drop a needless printk]
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/mbcache.c |   17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/firmware/efi/efi.c             |    4 +--
+ drivers/firmware/efi/libstub/efistub.h |    2 +
+ drivers/firmware/efi/libstub/random.c  |   42 ++++++++++++++++++++++++++++-----
+ include/linux/efi.h                    |    2 -
+ 4 files changed, 40 insertions(+), 10 deletions(-)
 
---- a/fs/mbcache.c
-+++ b/fs/mbcache.c
-@@ -90,8 +90,14 @@ int mb_cache_entry_create(struct mb_cach
- 		return -ENOMEM;
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -590,7 +590,7 @@ int __init efi_config_parse_tables(const
  
- 	INIT_LIST_HEAD(&entry->e_list);
--	/* Initial hash reference */
--	atomic_set(&entry->e_refcnt, 1);
-+	/*
-+	 * We create entry with two references. One reference is kept by the
-+	 * hash table, the other reference is used to protect us from
-+	 * mb_cache_entry_delete_or_get() until the entry is fully setup. This
-+	 * avoids nesting of cache->c_list_lock into hash table bit locks which
-+	 * is problematic for RT.
+ 		seed = early_memremap(efi_rng_seed, sizeof(*seed));
+ 		if (seed != NULL) {
+-			size = min(seed->size, EFI_RANDOM_SEED_SIZE);
++			size = min_t(u32, seed->size, SZ_1K); // sanity check
+ 			early_memunmap(seed, sizeof(*seed));
+ 		} else {
+ 			pr_err("Could not map UEFI random seed!\n");
+@@ -599,8 +599,8 @@ int __init efi_config_parse_tables(const
+ 			seed = early_memremap(efi_rng_seed,
+ 					      sizeof(*seed) + size);
+ 			if (seed != NULL) {
+-				pr_notice("seeding entropy pool\n");
+ 				add_bootloader_randomness(seed->bits, size);
++				memzero_explicit(seed->bits, size);
+ 				early_memunmap(seed, sizeof(*seed) + size);
+ 			} else {
+ 				pr_err("Could not map UEFI random seed!\n");
+--- a/drivers/firmware/efi/libstub/efistub.h
++++ b/drivers/firmware/efi/libstub/efistub.h
+@@ -767,6 +767,8 @@ efi_status_t efi_get_random_bytes(unsign
+ efi_status_t efi_random_alloc(unsigned long size, unsigned long align,
+ 			      unsigned long *addr, unsigned long random_seed);
+ 
++efi_status_t efi_random_get_seed(void);
++
+ efi_status_t check_platform_features(void);
+ 
+ void *get_efi_config_table(efi_guid_t guid);
+--- a/drivers/firmware/efi/libstub/random.c
++++ b/drivers/firmware/efi/libstub/random.c
+@@ -67,8 +67,9 @@ efi_status_t efi_random_get_seed(void)
+ 	efi_guid_t rng_proto = EFI_RNG_PROTOCOL_GUID;
+ 	efi_guid_t rng_algo_raw = EFI_RNG_ALGORITHM_RAW;
+ 	efi_guid_t rng_table_guid = LINUX_EFI_RANDOM_SEED_TABLE_GUID;
++	struct linux_efi_random_seed *prev_seed, *seed = NULL;
++	int prev_seed_size = 0, seed_size = EFI_RANDOM_SEED_SIZE;
+ 	efi_rng_protocol_t *rng = NULL;
+-	struct linux_efi_random_seed *seed = NULL;
+ 	efi_status_t status;
+ 
+ 	status = efi_bs_call(locate_protocol, &rng_proto, NULL, (void **)&rng);
+@@ -76,18 +77,33 @@ efi_status_t efi_random_get_seed(void)
+ 		return status;
+ 
+ 	/*
++	 * Check whether a seed was provided by a prior boot stage. In that
++	 * case, instead of overwriting it, let's create a new buffer that can
++	 * hold both, and concatenate the existing and the new seeds.
++	 * Note that we should read the seed size with caution, in case the
++	 * table got corrupted in memory somehow.
 +	 */
-+	atomic_set(&entry->e_refcnt, 2);
- 	entry->e_key = key;
- 	entry->e_value = value;
- 	entry->e_flags = 0;
-@@ -107,15 +113,12 @@ int mb_cache_entry_create(struct mb_cach
- 		}
- 	}
- 	hlist_bl_add_head(&entry->e_hash_list, head);
--	/*
--	 * Add entry to LRU list before it can be found by
--	 * mb_cache_entry_delete() to avoid races
--	 */
-+	hlist_bl_unlock(head);
- 	spin_lock(&cache->c_list_lock);
- 	list_add_tail(&entry->e_list, &cache->c_list);
- 	cache->c_entry_count++;
- 	spin_unlock(&cache->c_list_lock);
--	hlist_bl_unlock(head);
-+	mb_cache_entry_put(cache, entry);
++	prev_seed = get_efi_config_table(LINUX_EFI_RANDOM_SEED_TABLE_GUID);
++	if (prev_seed && prev_seed->size <= 512U) {
++		prev_seed_size = prev_seed->size;
++		seed_size += prev_seed_size;
++	}
++
++	/*
+ 	 * Use EFI_ACPI_RECLAIM_MEMORY here so that it is guaranteed that the
+ 	 * allocation will survive a kexec reboot (although we refresh the seed
+ 	 * beforehand)
+ 	 */
+ 	status = efi_bs_call(allocate_pool, EFI_ACPI_RECLAIM_MEMORY,
+-			     sizeof(*seed) + EFI_RANDOM_SEED_SIZE,
++			     struct_size(seed, bits, seed_size),
+ 			     (void **)&seed);
+-	if (status != EFI_SUCCESS)
+-		return status;
++	if (status != EFI_SUCCESS) {
++		efi_warn("Failed to allocate memory for RNG seed.\n");
++		goto err_warn;
++	}
  
- 	return 0;
+ 	status = efi_call_proto(rng, get_rng, &rng_algo_raw,
+-				 EFI_RANDOM_SEED_SIZE, seed->bits);
++				EFI_RANDOM_SEED_SIZE, seed->bits);
+ 
+ 	if (status == EFI_UNSUPPORTED)
+ 		/*
+@@ -100,14 +116,28 @@ efi_status_t efi_random_get_seed(void)
+ 	if (status != EFI_SUCCESS)
+ 		goto err_freepool;
+ 
+-	seed->size = EFI_RANDOM_SEED_SIZE;
++	seed->size = seed_size;
++	if (prev_seed_size)
++		memcpy(seed->bits + EFI_RANDOM_SEED_SIZE, prev_seed->bits,
++		       prev_seed_size);
++
+ 	status = efi_bs_call(install_configuration_table, &rng_table_guid, seed);
+ 	if (status != EFI_SUCCESS)
+ 		goto err_freepool;
+ 
++	if (prev_seed_size) {
++		/* wipe and free the old seed if we managed to install the new one */
++		memzero_explicit(prev_seed->bits, prev_seed_size);
++		efi_bs_call(free_pool, prev_seed);
++	}
+ 	return EFI_SUCCESS;
+ 
+ err_freepool:
++	memzero_explicit(seed, struct_size(seed, bits, seed_size));
+ 	efi_bs_call(free_pool, seed);
++	efi_warn("Failed to obtain seed from EFI_RNG_PROTOCOL\n");
++err_warn:
++	if (prev_seed)
++		efi_warn("Retaining bootloader-supplied seed only");
+ 	return status;
  }
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -1108,8 +1108,6 @@ void efi_check_for_embedded_firmwares(vo
+ static inline void efi_check_for_embedded_firmwares(void) { }
+ #endif
+ 
+-efi_status_t efi_random_get_seed(void);
+-
+ void efi_retrieve_tpm2_eventlog(void);
+ 
+ /*
 
 
