@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5FA266766E
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:31:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42CE366766F
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:31:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237461AbjALObs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:31:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54106 "EHLO
+        id S238011AbjALObt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:31:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238014AbjALObF (ORCPT
+        with ESMTP id S232492AbjALObF (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:31:05 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A4305E65E
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54CF59504
         for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:22:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A710CCE1E73
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:22:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D3C1C433EF;
-        Thu, 12 Jan 2023 14:22:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6370662030
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:22:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A01C433EF;
+        Thu, 12 Jan 2023 14:22:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533362;
-        bh=/DgKjMxU6hyD45A9yhMhmgnNb9IqEgRUFdJDPpDlL/I=;
+        s=korg; t=1673533365;
+        bh=tQVn55w7Wt6/30PlQhMXILgvwoWt1zq4OzmwmApRs44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJMWFyj6qbSDHxX6GM7lMOHtU4v8+nM/YsqoeajdUMJXn7Rbmx0S4itRdq0Xq/hj8
-         b7UAju94jcmgdWQnhtb/IcW5iYPBV/wx0I5+hwHkKD6s5rFJHgoWnOb39s5R30rivr
-         qUcijYuP8EqzW7Nkc01+skfOWMGm6AyRWW+9JMBM=
+        b=hAXNs4M9gqV0MLfhPScgnhdsSSXaviTVmwha+5dyGsbcWcllFBfj1js0D3+rRROuw
+         osS5cwW31uzxo22/gcAPeIcqv8MB0sHIFNyHipLx9DI+qqDCnjTG2Z2nTONa4TQWyV
+         lZX793Xid1tVLy5gRHgVBg7rI0xDe2lRZcDKd0Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        patches@lists.linux.dev, Janne Terho <janne.terho@ouman.fi>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 454/783] rtc: pic32: Move devm_rtc_allocate_device earlier in pic32_rtc_probe()
-Date:   Thu, 12 Jan 2023 14:52:50 +0100
-Message-Id: <20230112135545.298841552@linuxfoundation.org>
+Subject: [PATCH 5.10 455/783] rtc: pcf85063: fix pcf85063_clkout_control
+Date:   Thu, 12 Jan 2023 14:52:51 +0100
+Message-Id: <20230112135545.339346649@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,49 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 90cd5c88830140c9fade92a8027e0fb2c6e4cc49 ]
+[ Upstream commit c2d12e85336f6d4172fb2bab5935027c446d7343 ]
 
-The pic32_rtc_enable(pdata, 0) and clk_disable_unprepare(pdata->clk)
-should be called in the error handling of devm_rtc_allocate_device(),
-so we should move devm_rtc_allocate_device earlier in pic32_rtc_probe()
-to fix it.
+pcf85063_clkout_control reads the wrong register but then update the
+correct one.
 
-Fixes: 6515e23b9fde ("rtc: pic32: convert to devm_rtc_allocate_device")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221123015953.1998521-1-cuigaosheng1@huawei.com
+Reported-by: Janne Terho <janne.terho@ouman.fi>
+Fixes: 8c229ab6048b ("rtc: pcf85063: Add pcf85063 clkout control to common clock framework")
+Link: https://lore.kernel.org/r/20221211223553.59955-1-alexandre.belloni@bootlin.com
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pic32.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-pcf85063.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pic32.c b/drivers/rtc/rtc-pic32.c
-index 2b6946744654..7be1ca1633fc 100644
---- a/drivers/rtc/rtc-pic32.c
-+++ b/drivers/rtc/rtc-pic32.c
-@@ -324,16 +324,16 @@ static int pic32_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index d739b0c965aa..449204d84c61 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -430,7 +430,7 @@ static int pcf85063_clkout_control(struct clk_hw *hw, bool enable)
+ 	unsigned int buf;
+ 	int ret;
  
- 	spin_lock_init(&pdata->alarm_lock);
- 
-+	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(pdata->rtc))
-+		return PTR_ERR(pdata->rtc);
-+
- 	clk_prepare_enable(pdata->clk);
- 
- 	pic32_rtc_enable(pdata, 1);
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
--	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
--	if (IS_ERR(pdata->rtc))
--		return PTR_ERR(pdata->rtc);
--
- 	pdata->rtc->ops = &pic32_rtcops;
- 	pdata->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
- 	pdata->rtc->range_max = RTC_TIMESTAMP_END_2099;
+-	ret = regmap_read(pcf85063->regmap, PCF85063_REG_OFFSET, &buf);
++	ret = regmap_read(pcf85063->regmap, PCF85063_REG_CTRL2, &buf);
+ 	if (ret < 0)
+ 		return ret;
+ 	buf &= PCF85063_REG_CLKO_F_MASK;
 -- 
 2.35.1
 
