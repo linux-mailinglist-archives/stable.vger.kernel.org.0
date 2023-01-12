@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85F666676D6
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:36:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB476676DD
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:37:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239423AbjALOgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:36:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59286 "EHLO
+        id S239209AbjALOhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:37:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239479AbjALOgT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:36:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE15120B4
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:26:43 -0800 (PST)
+        with ESMTP id S238528AbjALOgn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:36:43 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25D4912609
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:26:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F089C62037
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3B40C433F0;
-        Thu, 12 Jan 2023 14:26:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1F30DCE1E5F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:26:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEC5CC433F1;
+        Thu, 12 Jan 2023 14:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533601;
-        bh=3bQZms1Q/NfXwfpfOBcf1EJ0aE/Ph+tiVn3J1/hEl9c=;
+        s=korg; t=1673533604;
+        bh=1fqa4hwTzUpUc3qjpVotRIMcelCiIEWnjYcZFbHL+44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NLhAO60tEKRClPWoKpv0Z45dZjjHJ4Shofjz+59QWWp4gW4fOfbBMWD+yNKXO1yQG
-         66EDLA8LV0wT8AMbZCEz0veYAPDRmGHwvZXMwLYpFb6MZeWyLOSfhhKKz2BnshiT9W
-         LhMd7/j9Redf5Q0nMFsXuJ3/bPbeetL35OOsWIik=
+        b=naNJxDhElLQ8LZM/jit/xv6kRB00bGL+T8lVo3qcLU8713mkfqjdIDio8KhntV4Gv
+         2IEc6+ljVRMhjyiuK7boyi1Qu1wHNEwC1jVPDTYuieOqY9sH0E8IMIu8jieHyVEdar
+         5DRWRtFgtL30DS30FGLFop7afqm686wA8pKoomc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rui Zhang <zr.zhang@vivo.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 530/783] regulator: core: fix use_count leakage when handling boot-on
-Date:   Thu, 12 Jan 2023 14:54:06 +0100
-Message-Id: <20230112135548.787940562@linuxfoundation.org>
+Subject: [PATCH 5.10 531/783] mmc: f-sdh30: Add quirks for broken timeout clock capability
+Date:   Thu, 12 Jan 2023 14:54:07 +0100
+Message-Id: <20230112135548.842053914@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,57 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Zhang <zr.zhang@vivo.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 0591b14ce0398125439c759f889647369aa616a0 ]
+[ Upstream commit aae9d3a440736691b3c1cb09ae2c32c4f1ee2e67 ]
 
-I found a use_count leakage towards supply regulator of rdev with
-boot-on option.
+There is a case where the timeout clock is not supplied to the capability.
+Add a quirk for that.
 
-┌───────────────────┐           ┌───────────────────┐
-│  regulator_dev A  │           │  regulator_dev B  │
-│     (boot-on)     │           │     (boot-on)     │
-│    use_count=0    │◀──supply──│    use_count=1    │
-│                   │           │                   │
-└───────────────────┘           └───────────────────┘
-
-In case of rdev(A) configured with `regulator-boot-on', the use_count
-of supplying regulator(B) will increment inside
-regulator_enable(rdev->supply).
-
-Thus, B will acts like always-on, and further balanced
-regulator_enable/disable cannot actually disable it anymore.
-
-However, B was also configured with `regulator-boot-on', we wish it
-could be disabled afterwards.
-
-Signed-off-by: Rui Zhang <zr.zhang@vivo.com>
-Link: https://lore.kernel.org/r/20221201033806.2567812-1-zr.zhang@vivo.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Acked-by: Jassi Brar <jaswinder.singh@linaro.org>
+Link: https://lore.kernel.org/r/20221111081033.3813-7-hayashi.kunihiko@socionext.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci_f_sdh30.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 4472c31b9b00..df746ba5c1bc 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1428,7 +1428,13 @@ static int set_machine_constraints(struct regulator_dev *rdev)
- 		if (rdev->supply_name && !rdev->supply)
- 			return -EPROBE_DEFER;
+diff --git a/drivers/mmc/host/sdhci_f_sdh30.c b/drivers/mmc/host/sdhci_f_sdh30.c
+index 3f5977979cf2..6c4f43e11282 100644
+--- a/drivers/mmc/host/sdhci_f_sdh30.c
++++ b/drivers/mmc/host/sdhci_f_sdh30.c
+@@ -168,6 +168,9 @@ static int sdhci_f_sdh30_probe(struct platform_device *pdev)
+ 	if (reg & SDHCI_CAN_DO_8BIT)
+ 		priv->vendor_hs200 = F_SDH30_EMMC_HS200;
  
--		if (rdev->supply) {
-+		/* If supplying regulator has already been enabled,
-+		 * it's not intended to have use_count increment
-+		 * when rdev is only boot-on.
-+		 */
-+		if (rdev->supply &&
-+		    (rdev->constraints->always_on ||
-+		     !regulator_is_enabled(rdev->supply))) {
- 			ret = regulator_enable(rdev->supply);
- 			if (ret < 0) {
- 				_regulator_put(rdev->supply);
++	if (!(reg & SDHCI_TIMEOUT_CLK_MASK))
++		host->quirks |= SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK;
++
+ 	ret = sdhci_add_host(host);
+ 	if (ret)
+ 		goto err_add_host;
 -- 
 2.35.1
 
