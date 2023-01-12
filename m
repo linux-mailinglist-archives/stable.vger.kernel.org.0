@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A07C6675DA
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:26:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB8826675B0
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:24:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237021AbjALO0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:26:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
+        id S236563AbjALOX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:23:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237033AbjALOZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:25:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB575C1E0
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:16:57 -0800 (PST)
+        with ESMTP id S236813AbjALOXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:23:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B09B53280
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:14:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8983362036
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:16:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83037C433D2;
-        Thu, 12 Jan 2023 14:16:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42272B81E70
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90AE5C433EF;
+        Thu, 12 Jan 2023 14:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533017;
-        bh=tx0CpBE5hDC0enMfy+MRO98pfbbmnQ2jrEXd2n+NoVM=;
+        s=korg; t=1673532893;
+        bh=b9/2MdC4UKjbQyOqv8P4yjCZH9Uw1obnouFIL8SrZUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozj/gqq+1S5/1yAwkZzHtkWe6HaNMPEJrDx2tn/YVYKbOs0KIvf8OuAiI1Xjgc6GV
-         5eSOQkrm5nkbfoGP+kuy4j9672yITKzfbNxYDyD2ErsCzI//VNKa+oMX6g/+2H+Fvy
-         PqnKdchm2+dTpHPhLunKHntl6vCJ8LtXZXuBsTY0=
+        b=YqVtmVD9qz8sLcDigtSvxlYiZ6Tj/BY1Y0WokUmDob1vfWp+CRwyIOLtNxHUUabB8
+         dtd5cHaVJj5PWSCEImrtUsc24ct1Ty49O2I4vzKMtkN2VPP5brXLIXi4QrODxHX06k
+         ONND79bdLzyYczyvFkKitHRz0vbKsyfEibLa5/Nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 301/783] scsi: scsi_debug: Fix a warning in resp_write_scat()
-Date:   Thu, 12 Jan 2023 14:50:17 +0100
-Message-Id: <20230112135538.288292440@linuxfoundation.org>
+Subject: [PATCH 5.10 302/783] crypto: ccree - Remove debugfs when platform_driver_register failed
+Date:   Thu, 12 Jan 2023 14:50:18 +0100
+Message-Id: <20230112135538.328850757@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,64 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 216e179724c1d9f57a8ababf8bd7aaabef67f01b ]
+[ Upstream commit 4f1c596df706c9aca662b6c214fad84047ae2a97 ]
 
-As 'lbdof_blen' is coming from user, if the size in kzalloc() is >=
-MAX_ORDER then we hit a warning.
+When platform_driver_register failed, we need to remove debugfs,
+which will caused a resource leak, fix it.
 
-Call trace:
+Failed logs as follows:
+[   32.606488] debugfs: Directory 'ccree' with parent '/' already present!
 
-sg_ioctl
- sg_ioctl_common
-   scsi_ioctl
-    sg_scsi_ioctl
-     blk_execute_rq
-      blk_mq_sched_insert_request
-       blk_mq_run_hw_queue
-        __blk_mq_delay_run_hw_queue
-         __blk_mq_run_hw_queue
-          blk_mq_sched_dispatch_requests
-           __blk_mq_sched_dispatch_requests
-            blk_mq_dispatch_rq_list
-             scsi_queue_rq
-              scsi_dispatch_cmd
-               scsi_debug_queuecommand
-                schedule_resp
-                 resp_write_scat
-
-If you try to allocate a memory larger than(>=) MAX_ORDER, then kmalloc()
-will definitely fail.  It creates a stack trace and messes up dmesg.  The
-user controls the size here so if they specify a too large size it will
-fail.
-
-Add __GFP_NOWARN in order to avoid too large allocation warning.  This is
-detected by static analysis using smatch.
-
-Fixes: 481b5e5c7949 ("scsi: scsi_debug: add resp_write_scat function")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Link: https://lore.kernel.org/r/20221111100526.1790533-1-harshit.m.mogalapalli@oracle.com
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 4c3f97276e15 ("crypto: ccree - introduce CryptoCell driver")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/ccree/cc_driver.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index cc20621bb49d..110d0e7f9413 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -3619,7 +3619,7 @@ static int resp_write_scat(struct scsi_cmnd *scp,
- 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INVALID_FIELD_IN_CDB, 0);
- 		return illegal_condition_result;
- 	}
--	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC);
-+	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC | __GFP_NOWARN);
- 	if (lrdp == NULL)
- 		return SCSI_MLQUEUE_HOST_BUSY;
- 	if (sdebug_verbose)
+diff --git a/drivers/crypto/ccree/cc_driver.c b/drivers/crypto/ccree/cc_driver.c
+index 6f519d3e896c..7924693f58e0 100644
+--- a/drivers/crypto/ccree/cc_driver.c
++++ b/drivers/crypto/ccree/cc_driver.c
+@@ -614,9 +614,17 @@ static struct platform_driver ccree_driver = {
+ 
+ static int __init ccree_init(void)
+ {
++	int rc;
++
+ 	cc_debugfs_global_init();
+ 
+-	return platform_driver_register(&ccree_driver);
++	rc = platform_driver_register(&ccree_driver);
++	if (rc) {
++		cc_debugfs_global_fini();
++		return rc;
++	}
++
++	return 0;
+ }
+ module_init(ccree_init);
+ 
 -- 
 2.35.1
 
