@@ -2,41 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D145667692
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:33:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80433667693
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:33:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231466AbjALOdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:33:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55260 "EHLO
+        id S238158AbjALOdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:33:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238018AbjALOcx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:32:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDEA25E66D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:24:16 -0800 (PST)
+        with ESMTP id S237317AbjALOc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:32:56 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 810175A8A8
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:24:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 959F5B81DB2
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:24:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE65FC433D2;
-        Thu, 12 Jan 2023 14:24:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EE52DCE1E76
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF3BFC433EF;
+        Thu, 12 Jan 2023 14:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533454;
-        bh=GGH++P1BIAxQRI2nLwZUP/1q16Czvf47MMs+3TpiWu4=;
+        s=korg; t=1673533457;
+        bh=hp465M9wGjdwI3k7l0E7ijLFOCdkphTJgF78bjhCsLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sV70j0njSynIwbYhYY68dALTeW8kKpyETIs9wTd7QwV0x27ppp8537uLH0S68BU3G
-         koEj1GH/uYGN860yjChgtZzKvqOVgJCmm5ZSwic7evCKBk4rheInVyzuV2aIn3a8dS
-         DsHYJdUIz+07rnFhkJBb5xDpNlK+8M28R0Uxld/s=
+        b=AEYrF/MFog/nflNz5hYsiCX+t3xbWt8uIyfOl/3FxuNppxwargFv5fz8MI/LXnDhn
+         0X96lKu/f2kuRRDsieVeOfZ2lh1i14sru5p0TMEDEURcLsjRTYrGTp+zME1YHrlC+8
+         aKenUCtqV3UlYH9dCy32Of+LSfyN4KjDN6VNXjYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 484/783] arm64: make is_ttbrX_addr() noinstr-safe
-Date:   Thu, 12 Jan 2023 14:53:20 +0100
-Message-Id: <20230112135546.623935220@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>,
+        Fabio A M Martins <fabiomirmar@gmail.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 485/783] video: hyperv_fb: Avoid taking busy spinlock on panic path
+Date:   Thu, 12 Jan 2023 14:53:21 +0100
+Message-Id: <20230112135546.668491735@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,50 +62,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-[ Upstream commit d8c1d798a2e5091128c391c6dadcc9be334af3f5 ]
+[ Upstream commit 1d044ca035dc22df0d3b39e56f2881071d9118bd ]
 
-We use is_ttbr0_addr() in noinstr code, but as it's only marked as
-inline, it's theoretically possible for the compiler to place it
-out-of-line and instrument it, which would be problematic.
+The Hyper-V framebuffer code registers a panic notifier in order
+to try updating its fbdev if the kernel crashed. The notifier
+callback is straightforward, but it calls the vmbus_sendpacket()
+routine eventually, and such function takes a spinlock for the
+ring buffer operations.
 
-Mark is_ttbr0_addr() as __always_inline such that that can safely be
-used from noinstr code. For consistency, do the same to is_ttbr1_addr().
-Note that while is_ttbr1_addr() calls arch_kasan_reset_tag(), this is a
-macro (and its callees are either macros or __always_inline), so there
-is not a risk of transient instrumentation.
+Panic path runs in atomic context, with local interrupts and
+preemption disabled, and all secondary CPUs shutdown. That said,
+taking a spinlock might cause a lockup if a secondary CPU was
+disabled with such lock taken. Fix it here by checking if the
+ring buffer spinlock is busy on Hyper-V framebuffer panic notifier;
+if so, bail-out avoiding the potential lockup scenario.
 
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20221114144042.3001140-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Michael Kelley <mikelley@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Tested-by: Fabio A M Martins <fabiomirmar@gmail.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20220819221731.480795-10-gpiccoli@igalia.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/processor.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hv/ring_buffer.c        | 13 +++++++++++++
+ drivers/video/fbdev/hyperv_fb.c |  8 +++++++-
+ include/linux/hyperv.h          |  2 ++
+ 3 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index 7c546c3487c9..c628d8e3a403 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -230,13 +230,13 @@ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
- }
- #endif
- 
--static inline bool is_ttbr0_addr(unsigned long addr)
-+static __always_inline bool is_ttbr0_addr(unsigned long addr)
- {
- 	/* entry assembly clears tags for TTBR0 addrs */
- 	return addr < TASK_SIZE;
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 769851b6e74c..7ed6fad3fa8f 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -246,6 +246,19 @@ void hv_ringbuffer_cleanup(struct hv_ring_buffer_info *ring_info)
+ 	mutex_unlock(&ring_info->ring_buffer_mutex);
  }
  
--static inline bool is_ttbr1_addr(unsigned long addr)
-+static __always_inline bool is_ttbr1_addr(unsigned long addr)
++/*
++ * Check if the ring buffer spinlock is available to take or not; used on
++ * atomic contexts, like panic path (see the Hyper-V framebuffer driver).
++ */
++
++bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel)
++{
++	struct hv_ring_buffer_info *rinfo = &channel->outbound;
++
++	return spin_is_locked(&rinfo->ring_lock);
++}
++EXPORT_SYMBOL_GPL(hv_ringbuffer_spinlock_busy);
++
+ /* Write to the ring buffer. */
+ int hv_ringbuffer_write(struct vmbus_channel *channel,
+ 			const struct kvec *kv_list, u32 kv_count)
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index 40baa79f8046..f0a66a344d87 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -798,12 +798,18 @@ static void hvfb_ondemand_refresh_throttle(struct hvfb_par *par,
+ static int hvfb_on_panic(struct notifier_block *nb,
+ 			 unsigned long e, void *p)
  {
- 	/* TTBR1 addresses may have a tag if KASAN_SW_TAGS is in use */
- 	return arch_kasan_reset_tag(addr) >= PAGE_OFFSET;
++	struct hv_device *hdev;
+ 	struct hvfb_par *par;
+ 	struct fb_info *info;
+ 
+ 	par = container_of(nb, struct hvfb_par, hvfb_panic_nb);
+-	par->synchronous_fb = true;
+ 	info = par->info;
++	hdev = device_to_hv_device(info->device);
++
++	if (hv_ringbuffer_spinlock_busy(hdev->channel))
++		return NOTIFY_DONE;
++
++	par->synchronous_fb = true;
+ 	if (par->need_docopy)
+ 		hvfb_docopy(par, 0, dio_fb_size);
+ 	synthvid_update(info, 0, 0, INT_MAX, INT_MAX);
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 1ce131f29f3b..eada4d8d6587 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -1269,6 +1269,8 @@ struct hv_ring_buffer_debug_info {
+ int hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
+ 				struct hv_ring_buffer_debug_info *debug_info);
+ 
++bool hv_ringbuffer_spinlock_busy(struct vmbus_channel *channel);
++
+ /* Vmbus interface */
+ #define vmbus_driver_register(driver)	\
+ 	__vmbus_driver_register(driver, THIS_MODULE, KBUILD_MODNAME)
 -- 
 2.35.1
 
