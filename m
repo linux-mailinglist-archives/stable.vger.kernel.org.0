@@ -2,54 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B5EB6676F3
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:38:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 062EF6676FB
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:38:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238585AbjALOi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:38:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33084 "EHLO
+        id S238149AbjALOiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:38:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239479AbjALOhu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:37:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0C7855866
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:27:50 -0800 (PST)
+        with ESMTP id S238324AbjALOhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:37:52 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A6B321A4
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:27:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31781B81E73
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:27:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A187C433D2;
-        Thu, 12 Jan 2023 14:27:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 77FDBCE1E59
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:27:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67775C433EF;
+        Thu, 12 Jan 2023 14:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533667;
-        bh=7RdxT3Vxsqz+U4p64o5sqTMbWRMSFOTc/xaxmyfD9i4=;
+        s=korg; t=1673533670;
+        bh=ajIbsM6L983ki7D8tBTa5VlzTbjo8YeKKHj0cPHE0+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pX+hXl+uDFUH2ZE0PxMLUqYBSSHmRlAmgxobQBdP33XH1FNG8IJej4eq7m0gtuSNH
-         46+thb/6ZqdxbEGSgZO+YHIMcO7viYxlDmlPMnBpOiqtPXFiIypWCe60z7rICdgeAb
-         ljT4f4G9rvcwCRJZ9ASYrGmbcYql07O/E34kVys0=
+        b=aHEdJETv1lGV8rxNQyrqTvTRld/bm1UhcoP1fb3HdWqkr5QrB2H+VlJUl+R0/RxXY
+         lML6fgXPRTbdU8lSCVgtdU6YZ+WKIMuC6IXCOytkUnDNrBKZwDJIKtyTZjzMUXrfYI
+         MtxgsbAxzAKfShKU4i5RuPnIk2S00xBzsTBlClTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
-        Yang Jihong <yangjihong1@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Carsten Haitzler <carsten.haitzler@arm.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>, martin.lau@kernel.org,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@amd.com>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 552/783] perf debug: Set debug_peo_args and redirect_to_stderr variable to correct values in perf_quiet_option()
-Date:   Thu, 12 Jan 2023 14:54:28 +0100
-Message-Id: <20230112135549.815160021@linuxfoundation.org>
+        patches@lists.linux.dev, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        linux-afs@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 553/783] afs: Fix lost servers_outstanding count
+Date:   Thu, 12 Jan 2023 14:54:29 +0100
+Message-Id: <20230112135549.863739826@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -66,87 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 188ac720d364035008a54d249cf47b4cc100f819 ]
+[ Upstream commit 36f82c93ee0bd88f1c95a52537906b8178b537f1 ]
 
-When perf uses quiet mode, perf_quiet_option() sets the 'debug_peo_args'
-variable to -1, and display_attr() incorrectly determines the value of
-'debug_peo_args'.  As a result, unexpected information is displayed.
+The afs_fs_probe_dispatcher() work function is passed a count on
+net->servers_outstanding when it is scheduled (which may come via its
+timer).  This is passed back to the work_item, passed to the timer or
+dropped at the end of the dispatcher function.
 
-Before:
+But, at the top of the dispatcher function, there are two checks which
+skip the rest of the function: if the network namespace is being destroyed
+or if there are no fileservers to probe.  These two return paths, however,
+do not drop the count passed to the dispatcher, and so, sometimes, the
+destruction of a network namespace, such as induced by rmmod of the kafs
+module, may get stuck in afs_purge_servers(), waiting for
+net->servers_outstanding to become zero.
 
-  # perf record --quiet -- ls > /dev/null
-  ------------------------------------------------------------
-  perf_event_attr:
-    size                             128
-    { sample_period, sample_freq }   4000
-    sample_type                      IP|TID|TIME|PERIOD
-    read_format                      ID|LOST
-    disabled                         1
-    inherit                          1
-    mmap                             1
-    comm                             1
-    freq                             1
-    enable_on_exec                   1
-    task                             1
-    precise_ip                       3
-    sample_id_all                    1
-    exclude_guest                    1
-    mmap2                            1
-    comm_exec                        1
-    ksymbol                          1
-    bpf_event                        1
-  ------------------------------------------------------------
-  ...
+Fix this by adding the missing decrements in afs_fs_probe_dispatcher().
 
-After:
-  # perf record --quiet -- ls > /dev/null
-  #
-
-redirect_to_stderr is a similar problem.
-
-Fixes: f78eaef0e0493f60 ("perf tools: Allow to force redirect pr_debug to stderr.")
-Fixes: ccd26741f5e6bdf2 ("perf tool: Provide an option to print perf_event_open args and return value")
-Suggested-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Carsten Haitzler <carsten.haitzler@arm.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: martin.lau@kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Bangoria <ravi.bangoria@amd.com>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Link: https://lore.kernel.org/r/20221220035702.188413-2-yangjihong1@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: f6cbb368bcb0 ("afs: Actively poll fileservers to maintain NAT or firewall openings")
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Tested-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/167164544917.2072364.3759519569649459359.stgit@warthog.procyon.org.uk/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/debug.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/afs/fs_probe.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/debug.c b/tools/perf/util/debug.c
-index 0af163abaa62..854dd3d2d8de 100644
---- a/tools/perf/util/debug.c
-+++ b/tools/perf/util/debug.c
-@@ -207,6 +207,10 @@ int perf_quiet_option(void)
- 		opt++;
+diff --git a/fs/afs/fs_probe.c b/fs/afs/fs_probe.c
+index 04d42e49fc59..def80365fe79 100644
+--- a/fs/afs/fs_probe.c
++++ b/fs/afs/fs_probe.c
+@@ -360,12 +360,15 @@ void afs_fs_probe_dispatcher(struct work_struct *work)
+ 	unsigned long nowj, timer_at, poll_at;
+ 	bool first_pass = true, set_timer = false;
+ 
+-	if (!net->live)
++	if (!net->live) {
++		afs_dec_servers_outstanding(net);
+ 		return;
++	}
+ 
+ 	_enter("");
+ 
+ 	if (list_empty(&net->fs_probe_fast) && list_empty(&net->fs_probe_slow)) {
++		afs_dec_servers_outstanding(net);
+ 		_leave(" [none]");
+ 		return;
  	}
- 
-+	/* For debug variables that are used as bool types, set to 0. */
-+	redirect_to_stderr = 0;
-+	debug_peo_args = 0;
-+
- 	return 0;
- }
- 
 -- 
 2.35.1
 
