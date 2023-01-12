@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6524E667432
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:03:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EAC2667458
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232681AbjALOD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:03:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58270 "EHLO
+        id S233772AbjALOF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:05:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234347AbjALODm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:03:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFBC95328A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:03:37 -0800 (PST)
+        with ESMTP id S232138AbjALOFI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:05:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F9A754715
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:04:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5681862026
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:03:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 319FDC433EF;
-        Thu, 12 Jan 2023 14:03:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31648B81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:04:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 473A7C433D2;
+        Thu, 12 Jan 2023 14:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532216;
-        bh=2ONSy7Qz/S4ya/YPlKdd00Np+Ynz3y981BINXLYkj2E=;
+        s=korg; t=1673532249;
+        bh=lomZ4pZK6Ek1cuGNK35hkaOAos1qguTINJQwSxAZRrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1aABM7OVwP0L1WK/qh428i17TE9IAahaw4gYKscA96A0XjtWy33J1jMmpgYSTbe+8
-         40+Bfi0pKmSRbloc/Bi9t/U1S4MMNDyqMWOEYJIPAIY3xba02HgJ4dBFCjZn+4r9qt
-         sv1/Re9YiHY07YIcASADX72eJxBNDyAq646FuvAc=
+        b=1bOR12EOThXsDG4SEWGflL5DHcXLFdUL0Y+sCuNQgY4waiDygHBc85XllQZzSc3AD
+         EW8IxqYX5HzSi8Eag4pyWoax6zdMF6ZTNy2ugbkmSDsIFXNmA7ngHUdhqj+D0CRtgI
+         d50sJm7dV7tzk58KoOwAir4VErtC9G4xa3d6tyok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -43,9 +43,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Yicong Yang <yangyicong@hisilicon.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 071/783] libfs: add DEFINE_SIMPLE_ATTRIBUTE_SIGNED for signed value
-Date:   Thu, 12 Jan 2023 14:46:27 +0100
-Message-Id: <20230112135527.446060191@linuxfoundation.org>
+Subject: [PATCH 5.10 072/783] lib/notifier-error-inject: fix error when writing -errno to debugfs file
+Date:   Thu, 12 Jan 2023 14:46:28 +0100
+Message-Id: <20230112135527.495175241@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -64,27 +64,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Akinobu Mita <akinobu.mita@gmail.com>
 
-[ Upstream commit 2e41f274f9aa71cdcc69dc1f26a3f9304a651804 ]
-
-Patch series "fix error when writing negative value to simple attribute
-files".
+[ Upstream commit f883c3edd2c432a2931ec8773c70a570115a50fe ]
 
 The simple attribute files do not accept a negative value since the commit
 488dac0c9237 ("libfs: fix error cast of negative value in
-simple_attr_write()"), but some attribute files want to accept a negative
-value.
+simple_attr_write()").
 
-This patch (of 3):
+This restores the previous behaviour by using newly introduced
+DEFINE_SIMPLE_ATTRIBUTE_SIGNED instead of DEFINE_SIMPLE_ATTRIBUTE.
 
-The simple attribute files do not accept a negative value since the commit
-488dac0c9237 ("libfs: fix error cast of negative value in
-simple_attr_write()"), so we have to use a 64-bit value to write a
-negative value.
-
-This adds DEFINE_SIMPLE_ATTRIBUTE_SIGNED for a signed value.
-
-Link: https://lkml.kernel.org/r/20220919172418.45257-1-akinobu.mita@gmail.com
-Link: https://lkml.kernel.org/r/20220919172418.45257-2-akinobu.mita@gmail.com
+Link: https://lkml.kernel.org/r/20220919172418.45257-3-akinobu.mita@gmail.com
 Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
 Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
@@ -100,99 +89,22 @@ Cc: Yicong Yang <yangyicong@hisilicon.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/libfs.c         | 22 +++++++++++++++++++---
- include/linux/fs.h | 12 ++++++++++--
- 2 files changed, 29 insertions(+), 5 deletions(-)
+ lib/notifier-error-inject.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/libfs.c b/fs/libfs.c
-index 7124c2e8df2f..aa0fbd720409 100644
---- a/fs/libfs.c
-+++ b/fs/libfs.c
-@@ -955,8 +955,8 @@ ssize_t simple_attr_read(struct file *file, char __user *buf,
- EXPORT_SYMBOL_GPL(simple_attr_read);
- 
- /* interpret the buffer as a number to call the set function with */
--ssize_t simple_attr_write(struct file *file, const char __user *buf,
--			  size_t len, loff_t *ppos)
-+static ssize_t simple_attr_write_xsigned(struct file *file, const char __user *buf,
-+			  size_t len, loff_t *ppos, bool is_signed)
- {
- 	struct simple_attr *attr;
- 	unsigned long long val;
-@@ -977,7 +977,10 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
- 		goto out;
- 
- 	attr->set_buf[size] = '\0';
--	ret = kstrtoull(attr->set_buf, 0, &val);
-+	if (is_signed)
-+		ret = kstrtoll(attr->set_buf, 0, &val);
-+	else
-+		ret = kstrtoull(attr->set_buf, 0, &val);
- 	if (ret)
- 		goto out;
- 	ret = attr->set(attr->data, val);
-@@ -987,8 +990,21 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
- 	mutex_unlock(&attr->mutex);
- 	return ret;
- }
-+
-+ssize_t simple_attr_write(struct file *file, const char __user *buf,
-+			  size_t len, loff_t *ppos)
-+{
-+	return simple_attr_write_xsigned(file, buf, len, ppos, false);
-+}
- EXPORT_SYMBOL_GPL(simple_attr_write);
- 
-+ssize_t simple_attr_write_signed(struct file *file, const char __user *buf,
-+			  size_t len, loff_t *ppos)
-+{
-+	return simple_attr_write_xsigned(file, buf, len, ppos, true);
-+}
-+EXPORT_SYMBOL_GPL(simple_attr_write_signed);
-+
- /**
-  * generic_fh_to_dentry - generic helper for the fh_to_dentry export operation
-  * @sb:		filesystem to do the file handle conversion on
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index ebfc0b2b4969..9a477e537361 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -3345,7 +3345,7 @@ void simple_transaction_set(struct file *file, size_t n);
-  * All attributes contain a text representation of a numeric value
-  * that are accessed with the get() and set() functions.
-  */
--#define DEFINE_SIMPLE_ATTRIBUTE(__fops, __get, __set, __fmt)		\
-+#define DEFINE_SIMPLE_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, __is_signed)	\
- static int __fops ## _open(struct inode *inode, struct file *file)	\
- {									\
- 	__simple_attr_check_format(__fmt, 0ull);			\
-@@ -3356,10 +3356,16 @@ static const struct file_operations __fops = {				\
- 	.open	 = __fops ## _open,					\
- 	.release = simple_attr_release,					\
- 	.read	 = simple_attr_read,					\
--	.write	 = simple_attr_write,					\
-+	.write	 = (__is_signed) ? simple_attr_write_signed : simple_attr_write,	\
- 	.llseek	 = generic_file_llseek,					\
+diff --git a/lib/notifier-error-inject.c b/lib/notifier-error-inject.c
+index 21016b32d313..2b24ea6c9497 100644
+--- a/lib/notifier-error-inject.c
++++ b/lib/notifier-error-inject.c
+@@ -15,7 +15,7 @@ static int debugfs_errno_get(void *data, u64 *val)
+ 	return 0;
  }
  
-+#define DEFINE_SIMPLE_ATTRIBUTE(__fops, __get, __set, __fmt)		\
-+	DEFINE_SIMPLE_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, false)
-+
-+#define DEFINE_SIMPLE_ATTRIBUTE_SIGNED(__fops, __get, __set, __fmt)	\
-+	DEFINE_SIMPLE_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, true)
-+
- static inline __printf(1, 2)
- void __simple_attr_check_format(const char *fmt, ...)
- {
-@@ -3374,6 +3380,8 @@ ssize_t simple_attr_read(struct file *file, char __user *buf,
- 			 size_t len, loff_t *ppos);
- ssize_t simple_attr_write(struct file *file, const char __user *buf,
- 			  size_t len, loff_t *ppos);
-+ssize_t simple_attr_write_signed(struct file *file, const char __user *buf,
-+				 size_t len, loff_t *ppos);
+-DEFINE_SIMPLE_ATTRIBUTE(fops_errno, debugfs_errno_get, debugfs_errno_set,
++DEFINE_SIMPLE_ATTRIBUTE_SIGNED(fops_errno, debugfs_errno_get, debugfs_errno_set,
+ 			"%lld\n");
  
- struct ctl_table;
- int proc_nr_files(struct ctl_table *table, int write,
+ static struct dentry *debugfs_create_errno(const char *name, umode_t mode,
 -- 
 2.35.1
 
