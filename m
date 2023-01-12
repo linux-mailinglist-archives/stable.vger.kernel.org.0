@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 417596677A1
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:46:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC33667770
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:43:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239932AbjALOqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:46:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38028 "EHLO
+        id S238528AbjALOnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:43:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238664AbjALOp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:45:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B394C559F9
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:33:48 -0800 (PST)
+        with ESMTP id S238081AbjALOmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:42:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 993DD42601
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:32:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67798B81E69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:33:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B846AC433EF;
-        Thu, 12 Jan 2023 14:33:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2615162039
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:32:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16646C433A8;
+        Thu, 12 Jan 2023 14:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534026;
-        bh=SHBOkh6gYiAYE9krLX7aewZ50j2jMcjc1ogtAwU3EWQ=;
+        s=korg; t=1673533929;
+        bh=8yx7VHqOxfznkS4KtcOunc1wyZ2/AlyvqifprNDAnuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fYNTMoPBUFwmFkZpf+CC71hqcgYGGleEspdeTSlH7M1Mn7HQeIXJrcE0/alEU6myz
-         Cf04+NM33M9jm0F/cMu3M34ctvjHue2nlj9A2xQUgmOFfqUW1uD4mcUHhmtAFYTkkR
-         FwXwClAwX8gvGqtPP/3EvjSOAoJuYB1KjY+P6Yh8=
+        b=DO4OURWcIc4MGeVUo3na6aaqrB8o4cvNCveJlKghPM2EHrZ6pP/g7uwkmvNxv71X8
+         CS1waoyBMPaLTAL7Lmon+L9ez8pub/Mw0szlKTkPYZIAco8vfqhyu2ipOjmMvUVx7C
+         hNLRMAzLLnfacFNzmM1twXoz69Qm4HIXHwX3trNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Luo Meng <luomeng12@huawei.com>,
         Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.10 630/783] dm integrity: Fix UAF in dm_integrity_dtr()
-Date:   Thu, 12 Jan 2023 14:55:46 +0100
-Message-Id: <20230112135553.512094281@linuxfoundation.org>
+Subject: [PATCH 5.10 631/783] dm clone: Fix UAF in clone_dtr()
+Date:   Thu, 12 Jan 2023 14:55:47 +0100
+Message-Id: <20230112135553.559336345@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,32 +54,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luo Meng <luomeng12@huawei.com>
 
-commit f50cb2cbabd6c4a60add93d72451728f86e4791c upstream.
+commit e4b5957c6f749a501c464f92792f1c8e26b61a94 upstream.
 
-Dm_integrity also has the same UAF problem when dm_resume()
+Dm_clone also has the same UAF problem when dm_resume()
 and dm_destroy() are concurrent.
 
-Therefore, cancelling timer again in dm_integrity_dtr().
+Therefore, cancelling timer again in clone_dtr().
 
 Cc: stable@vger.kernel.org
-Fixes: 7eada909bfd7a ("dm: add integrity target")
+Fixes: 7431b7835f554 ("dm: add clone target")
 Signed-off-by: Luo Meng <luomeng12@huawei.com>
 Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-integrity.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm-clone-target.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -4388,6 +4388,8 @@ static void dm_integrity_dtr(struct dm_t
- 	BUG_ON(!RB_EMPTY_ROOT(&ic->in_progress));
- 	BUG_ON(!list_empty(&ic->wait_list));
+--- a/drivers/md/dm-clone-target.c
++++ b/drivers/md/dm-clone-target.c
+@@ -1966,6 +1966,7 @@ static void clone_dtr(struct dm_target *
  
-+	if (ic->mode == 'B')
-+		cancel_delayed_work_sync(&ic->bitmap_flush_work);
- 	if (ic->metadata_wq)
- 		destroy_workqueue(ic->metadata_wq);
- 	if (ic->wait_wq)
+ 	mempool_exit(&clone->hydration_pool);
+ 	dm_kcopyd_client_destroy(clone->kcopyd_client);
++	cancel_delayed_work_sync(&clone->waker);
+ 	destroy_workqueue(clone->wq);
+ 	hash_table_exit(clone);
+ 	dm_clone_metadata_close(clone->cmd);
 
 
