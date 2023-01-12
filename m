@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E3AC66754F
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:20:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A29F8667563
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:21:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236566AbjALOUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:20:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41632 "EHLO
+        id S235975AbjALOVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:21:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236441AbjALOTm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:19:42 -0500
+        with ESMTP id S236069AbjALOUD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:20:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A7845D8AF
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:11:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6AE58D3B
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:12:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAD3FB81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:11:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22F58C433EF;
-        Thu, 12 Jan 2023 14:11:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EBF5B81DCC
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:12:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15A04C433F0;
+        Thu, 12 Jan 2023 14:11:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532686;
-        bh=HKKAal8cEkvyVEn0qVeBHyyUFDXqTYyN55CxLs2gtAI=;
+        s=korg; t=1673532720;
+        bh=PNYxQ4gbJXH00k7LcULfpP5dn23lqv6yiGWcguIefYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sK3BV8CF3bPLbD9sC2gxZyKbyqBKE7U9eX+f90IjlyafBp1ZP/w7VZj53P/R3RebG
-         cD+XwhVtGiURTrKyE1Gb0WBEuoAVGP36zOjBNWiJmM4WaQJOyB7Yiq4WHx+QA5KaH6
-         DrhrF35SxNFhln8Ea8dsYgjYof7RnwB0pgHUYYOM=
+        b=NRp1Qpmo94VAZBOXeSYfe1Pa5dxfyH7PzWxgHgbUAtuMY9vZrwHgs4jJUgAYDQgI8
+         RQBp35o4DkBhplTm+R9cIFmrSgmQ49mtx1602qRimRyY3Ifr4jToyHDD4tygfooatM
+         dgkraKsd3hfcG7jMNgF+M776NhvtlpyvybVoJAsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Liang He <windhl@126.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 236/783] mmc: mmci: fix return value check of mmc_add_host()
-Date:   Thu, 12 Jan 2023 14:49:12 +0100
-Message-Id: <20230112135535.316861459@linuxfoundation.org>
+Subject: [PATCH 5.10 237/783] media: c8sectpfe: Add of_node_put() when breaking out of loop
+Date:   Thu, 12 Jan 2023 14:49:13 +0100
+Message-Id: <20230112135535.355704799@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,44 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit b38a20f29a49ae04d23750d104b25400b792b98c ]
+[ Upstream commit 63ff05a1ad242a5a0f897921c87b70d601bda59c ]
 
-mmc_add_host() may return error, if we ignore its return value,
-it will lead two issues:
-1. The memory that allocated in mmc_alloc_host() is leaked.
-2. In the remove() path, mmc_remove_host() will be called to
-   delete device, but it's not added yet, it will lead a kernel
-   crash because of null-ptr-deref in device_del().
+In configure_channels(), we should call of_node_put() when breaking
+out of for_each_child_of_node() which will automatically increase
+and decrease the refcount.
 
-So fix this by checking the return value and goto error path which
-will call mmc_free_host().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221109133539.3275664-1-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: c5f5d0f99794 ("[media] c8sectpfe: STiH407/10 Linux DVB demux support")
+Signed-off-by: Liang He <windhl@126.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
-index b5684e5d79e6..5d83c8e7bf5c 100644
---- a/drivers/mmc/host/mmci.c
-+++ b/drivers/mmc/host/mmci.c
-@@ -2191,7 +2191,9 @@ static int mmci_probe(struct amba_device *dev,
- 	pm_runtime_set_autosuspend_delay(&dev->dev, 50);
- 	pm_runtime_use_autosuspend(&dev->dev);
- 
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto clk_disable;
- 
- 	pm_runtime_put(&dev->dev);
- 	return 0;
+diff --git a/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c b/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c
+index dbe7788083a4..b7e0ec265b70 100644
+--- a/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c
++++ b/drivers/media/platform/sti/c8sectpfe/c8sectpfe-core.c
+@@ -937,6 +937,7 @@ static int configure_channels(struct c8sectpfei *fei)
+ 		if (ret) {
+ 			dev_err(fei->dev,
+ 				"configure_memdma_and_inputblock failed\n");
++			of_node_put(child);
+ 			goto err_unmap;
+ 		}
+ 		index++;
 -- 
 2.35.1
 
