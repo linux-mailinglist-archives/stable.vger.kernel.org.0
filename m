@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 363BB667523
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F63667524
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235650AbjALOSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:18:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40418 "EHLO
+        id S229454AbjALOTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:19:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235356AbjALORs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:48 -0500
+        with ESMTP id S235687AbjALORu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008FA568B5
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:09:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08DCE5792D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:09:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 917AF62026
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:09:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93AFEC433EF;
-        Thu, 12 Jan 2023 14:09:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99D9961FBB
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:09:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D1CEC433EF;
+        Thu, 12 Jan 2023 14:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532574;
-        bh=nkID0nSG5xkBE1Agv63SOigMV9VkPihSqoiA8PCO9gw=;
+        s=korg; t=1673532577;
+        bh=RR2UHHsj+2HZC9ieJ5lX+qEActtVD4nHhhZyupW3rLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBIm+6QZ//9OmrgCFbE6wjMLlzKyb+qq7F0ywAv1KUvcB/jaDmJdNAQ5poMfiTMp6
-         86TrYhh02JY9N9ZxdsQUyfgoj2oT1MfMvdO14EQ1jvpX+B+ELaBQgdyJE+ilZstQvj
-         z9q7gjWjS8Zwsm250znFGU8IIUU1rFIeVPi56zHE=
+        b=PHyswkAho2fLFhvadxPOVoACoAJ94ipPkbHf6l7LBnMGZUKgunzOe1BnPdU2UzRcV
+         ft59yAO6EdsPK4EgVpQM54V+VroTbcLt6EdmOnMZ56kIZizqS7Rnjo6Aq3kcYiR5ee
+         ym9Y+TfDpkQ8MQr+b/y3GWqSHUBc8/lm8N+3DuXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Abel Vesa <abel.vesa@linaro.org>,
+        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 176/783] clk: imx: replace osc_hdmi with dummy
-Date:   Thu, 12 Jan 2023 14:48:12 +0100
-Message-Id: <20230112135532.493952098@linuxfoundation.org>
+Subject: [PATCH 5.10 177/783] pinctrl: pinconf-generic: add missing of_node_put()
+Date:   Thu, 12 Jan 2023 14:48:13 +0100
+Message-Id: <20230112135532.532412751@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,68 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+From: ZhangPeng <zhangpeng362@huawei.com>
 
-[ Upstream commit e7fa365ff66f16772dc06b480cd78f858d10856b ]
+[ Upstream commit 5ead93289815a075d43c415e35c8beafafb801c9 ]
 
-There is no occurrence of the hdmi oscillator in the reference manual
-(document IMX8MNRM Rev 2, 07/2022). Further, if we consider the indexes
-76-81 and 134 of the "Clock Root" table of chapter 5 of the RM, there is
-no entry for the source select bits 101b, which is the setting referenced
-by "osc_hdmi".
-Fix by renaming "osc_hdmi" with "dummy", a clock which has already been
-used for missing source select bits.
+of_node_put() needs to be called when jumping out of the loop, since
+for_each_available_child_of_node() will increase the refcount of node.
 
-Tested on the BSH SystemMaster (SMM) S2 board.
-
-Fixes: 96d6392b54dbb ("clk: imx: Add support for i.MX8MN clock driver")
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Link: https://lore.kernel.org/r/20221117113637.1978703-3-dario.binacchi@amarulasolutions.com
+Fixes: c7289500e29d ("pinctrl: pinconf-generic: scan also referenced phandle node")
+Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
+Link: https://lore.kernel.org/r/20221125070156.3535855-1-zhangpeng362@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx8mn.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/pinctrl/pinconf-generic.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
-index db122d94db58..8a49e072d6e8 100644
---- a/drivers/clk/imx/clk-imx8mn.c
-+++ b/drivers/clk/imx/clk-imx8mn.c
-@@ -105,27 +105,27 @@ static const char * const imx8mn_disp_pixel_sels[] = {"osc_24m", "video_pll1_out
- 						      "sys_pll3_out", "clk_ext4", };
+diff --git a/drivers/pinctrl/pinconf-generic.c b/drivers/pinctrl/pinconf-generic.c
+index 42e27dba62e2..762abb0dfebb 100644
+--- a/drivers/pinctrl/pinconf-generic.c
++++ b/drivers/pinctrl/pinconf-generic.c
+@@ -393,8 +393,10 @@ int pinconf_generic_dt_node_to_map(struct pinctrl_dev *pctldev,
+ 	for_each_available_child_of_node(np_config, np) {
+ 		ret = pinconf_generic_dt_subnode_to_map(pctldev, np, map,
+ 					&reserved_maps, num_maps, type);
+-		if (ret < 0)
++		if (ret < 0) {
++			of_node_put(np);
+ 			goto exit;
++		}
+ 	}
+ 	return 0;
  
- static const char * const imx8mn_sai2_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
--						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
-+						"video_pll1_out", "sys_pll1_133m", "dummy",
- 						"clk_ext3", "clk_ext4", };
- 
- static const char * const imx8mn_sai3_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
--						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
-+						"video_pll1_out", "sys_pll1_133m", "dummy",
- 						"clk_ext3", "clk_ext4", };
- 
- static const char * const imx8mn_sai5_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
--						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
-+						"video_pll1_out", "sys_pll1_133m", "dummy",
- 						"clk_ext2", "clk_ext3", };
- 
- static const char * const imx8mn_sai6_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
--						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
-+						"video_pll1_out", "sys_pll1_133m", "dummy",
- 						"clk_ext3", "clk_ext4", };
- 
- static const char * const imx8mn_sai7_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
--						"video_pll1_out", "sys_pll1_133m", "osc_hdmi",
-+						"video_pll1_out", "sys_pll1_133m", "dummy",
- 						"clk_ext3", "clk_ext4", };
- 
- static const char * const imx8mn_spdif1_sels[] = {"osc_24m", "audio_pll1_out", "audio_pll2_out",
--						  "video_pll1_out", "sys_pll1_133m", "osc_hdmi",
-+						  "video_pll1_out", "sys_pll1_133m", "dummy",
- 						  "clk_ext2", "clk_ext3", };
- 
- static const char * const imx8mn_enet_ref_sels[] = {"osc_24m", "sys_pll2_125m", "sys_pll2_50m",
 -- 
 2.35.1
 
