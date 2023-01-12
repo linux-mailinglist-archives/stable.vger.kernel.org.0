@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65A546676CC
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:36:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 558EB6676C5
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:35:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236343AbjALOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:36:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55542 "EHLO
+        id S238199AbjALOfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:35:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238117AbjALOft (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:35:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE419597
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:26:21 -0800 (PST)
+        with ESMTP id S238281AbjALOfI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:35:08 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D4F63FE
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:26:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5D1660110
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:26:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBFB8C433EF;
-        Thu, 12 Jan 2023 14:26:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0D541CE1E5F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:26:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA5D5C433EF;
+        Thu, 12 Jan 2023 14:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533580;
-        bh=Z9/utPV3HyJ/YyA51QPQTpU/ZGH62v8J49esyzJm1UA=;
+        s=korg; t=1673533583;
+        bh=mvMMLmvxlfsWFgwEr+ZHtBmL6gLBDdJIqM9J7cHhbW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6NbF2pqJ05iwKToRQCs3MoDmwLUBIDcobvZiI3RLbH/tgVVkMUz7SD154B7N81AQ
-         x49peM8LkZXsJbpQ9aResWSvgjgM66iOlCfnyYZIQaNDtKVmPA8ABvDFXAN4T4kh9v
-         GhMdGC2XZg/cMIKigAFxQG339s3viADoSW5mjppk=
+        b=s/0n8ve3CCJBJjUKgzefo3Rt3PnicyPRw4/1hZlxM6xpu/P++6bz4c1DYNlSiWgLX
+         hRjuLD1ecy5gF0xrv6J5AyrkhKi0kBZtjpoIChorGmVk3P/wbyNxkqn44faOn7v6x5
+         WTvGy/aMVvyEK+c0uUnWx45VabrtXE8Qu4oXQJEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Maxim Korotkov <korotkov.maxim.s@gmail.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Yan Lei <yan_lei@dahuatech.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 524/783] ethtool: avoiding integer overflow in ethtool_phys_id()
-Date:   Thu, 12 Jan 2023 14:54:00 +0100
-Message-Id: <20230112135548.501344148@linuxfoundation.org>
+Subject: [PATCH 5.10 525/783] media: dvb-frontends: fix leak of memory fw
+Date:   Thu, 12 Jan 2023 14:54:01 +0100
+Message-Id: <20230112135548.552306583@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,41 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
+From: Yan Lei <yan_lei@dahuatech.com>
 
-[ Upstream commit 64a8f8f7127da228d59a39e2c5e75f86590f90b4 ]
+[ Upstream commit a15fe8d9f1bf460a804bcf18a890bfd2cf0d5caa ]
 
-The value of an arithmetic expression "n * id.data" is subject
-to possible overflow due to a failure to cast operands to a larger data
-type before performing arithmetic. Used macro for multiplication instead
-operator for avoiding overflow.
-
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Signed-off-by: Maxim Korotkov <korotkov.maxim.s@gmail.com>
-Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20221122122901.22294-1-korotkov.maxim.s@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/linux-media/20220410061925.4107-1-chinayanlei2002@163.com
+Signed-off-by: Yan Lei <yan_lei@dahuatech.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ethtool/ioctl.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/dvb-frontends/bcm3510.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
-index 80d2a00d3097..47c2dd4a9b9f 100644
---- a/net/ethtool/ioctl.c
-+++ b/net/ethtool/ioctl.c
-@@ -1966,7 +1966,8 @@ static int ethtool_phys_id(struct net_device *dev, void __user *useraddr)
- 	} else {
- 		/* Driver expects to be called at twice the frequency in rc */
- 		int n = rc * 2, interval = HZ / n;
--		u64 count = n * id.data, i = 0;
-+		u64 count = mul_u32_u32(n, id.data);
-+		u64 i = 0;
- 
- 		do {
- 			rtnl_lock();
+diff --git a/drivers/media/dvb-frontends/bcm3510.c b/drivers/media/dvb-frontends/bcm3510.c
+index da0ff7b44da4..68b92b4419cf 100644
+--- a/drivers/media/dvb-frontends/bcm3510.c
++++ b/drivers/media/dvb-frontends/bcm3510.c
+@@ -649,6 +649,7 @@ static int bcm3510_download_firmware(struct dvb_frontend* fe)
+ 		deb_info("firmware chunk, addr: 0x%04x, len: 0x%04x, total length: 0x%04zx\n",addr,len,fw->size);
+ 		if ((ret = bcm3510_write_ram(st,addr,&b[i+4],len)) < 0) {
+ 			err("firmware download failed: %d\n",ret);
++			release_firmware(fw);
+ 			return ret;
+ 		}
+ 		i += 4 + len;
 -- 
 2.35.1
 
