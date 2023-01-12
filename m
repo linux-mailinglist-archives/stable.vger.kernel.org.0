@@ -2,332 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 840A766724F
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 13:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20567667255
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 13:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229529AbjALMgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 07:36:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59712 "EHLO
+        id S229473AbjALMhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 07:37:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229730AbjALMgt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 07:36:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5621F6444
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 04:36:46 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2D1960A69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 12:36:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF587C433EF;
-        Thu, 12 Jan 2023 12:36:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673527005;
-        bh=snnzhRbFyFuzVv6RJ57coTLYMPhoISfB+4yqROe/WN0=;
-        h=Subject:To:Cc:From:Date:From;
-        b=nbiEnGLmdWvaj1dIURaeOAzoJEmgIVq0z6xg3xLVL6pe6yfwoPLtlXjA1z5qakKhA
-         bkNp0vtMy2JjA5h8D5+UKuUO6f2KegxSwKbv94iieX0QLD0EXcevDBXW7QIfIsRlB4
-         OTiCmOnWCKH+ndP9tGrxYmfbYTSLw43zDDZ5ZDbQ=
-Subject: FAILED: patch "[PATCH] nfsd: fix handling of cached open files in nfsd4_open" failed to apply to 6.1-stable tree
-To:     jlayton@kernel.org, chuck.lever@oracle.com, rubenv@drcmr.dk,
-        ssaner@redhat.com, torkil@drcmr.dk, trondmy@hammerspace.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 12 Jan 2023 13:36:42 +0100
-Message-ID: <167352700281120@kroah.com>
+        with ESMTP id S229680AbjALMhs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 07:37:48 -0500
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E987E3E85F;
+        Thu, 12 Jan 2023 04:37:45 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4Nt3ll6nC5z9v7J2;
+        Thu, 12 Jan 2023 20:29:55 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwD3fQkE_79jOUaOAA--.54221S2;
+        Thu, 12 Jan 2023 13:37:31 +0100 (CET)
+Message-ID: <a764acb285d0616c8608eaab8671ceb9c22cb390.camel@huaweicloud.com>
+Subject: Re: [PATCH v2] security: Restore passing final prot to
+ ima_file_mmap()
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     zohar@linux.ibm.com, jmorris@namei.org, serge@hallyn.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Thu, 12 Jan 2023 13:36:56 +0100
+In-Reply-To: <CAHC9VhSamRVpgrDrSuc2dsbbw3-pvjDi9BsFWoWssHkAD2W5vA@mail.gmail.com>
+References: <20221221141007.2579770-1-roberto.sassu@huaweicloud.com>
+         <CAHC9VhQUAuF-Fan72j7BOqOdLE=B=mJpJ_GpR5p5cUmXruYT=Q@mail.gmail.com>
+         <4b8688ee3d533d989196004d5f9f2c7eb4093f8b.camel@huaweicloud.com>
+         <CAHC9VhSamRVpgrDrSuc2dsbbw3-pvjDi9BsFWoWssHkAD2W5vA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwD3fQkE_79jOUaOAA--.54221S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxJF48Xr4rAr4Dtry5Ar1UJrb_yoW5tryDpa
+        y5ta4jkrs5XFySyrn2q3W3Ga4Fk39xKFy7Ww1DKry8uw1DXF12kr13JFWj9FykXrn5G34j
+        q3W29rW3C3Wqy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkFb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I
+        0E14v26r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+        6I80ewAv7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+        Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI
+        7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxV
+        Cjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY
+        6xIIjxv20xvE14v26r4j6ryUMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1lIxAIcV
+        CF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2
+        jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UQzVbUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAPBF1jj4OGmAADsm
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 2023-01-11 at 09:25 -0500, Paul Moore wrote:
+> On Wed, Jan 11, 2023 at 4:31 AM Roberto Sassu
+> <roberto.sassu@huaweicloud.com> wrote:
+> > On Fri, 2023-01-06 at 16:14 -0500, Paul Moore wrote:
+> > > On Wed, Dec 21, 2022 at 9:10 AM Roberto Sassu
+> > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > 
+> > > > Commit 98de59bfe4b2f ("take calculation of final prot in
+> > > > security_mmap_file() into a helper") moved the code to update prot with the
+> > > > actual protection flags to be granted to the requestor by the kernel to a
+> > > > helper called mmap_prot(). However, the patch didn't update the argument
+> > > > passed to ima_file_mmap(), making it receive the requested prot instead of
+> > > > the final computed prot.
+> > > > 
+> > > > A possible consequence is that files mmapped as executable might not be
+> > > > measured/appraised if PROT_EXEC is not requested but subsequently added in
+> > > > the final prot.
+> > > > 
+> > > > Replace prot with mmap_prot(file, prot) as the second argument of
+> > > > ima_file_mmap() to restore the original behavior.
+> > > > 
+> > > > Cc: stable@vger.kernel.org
+> > > > Fixes: 98de59bfe4b2 ("take calculation of final prot in security_mmap_file() into a helper")
+> > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > ---
+> > > >  security/security.c | 2 +-
+> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/security/security.c b/security/security.c
+> > > > index d1571900a8c7..0d2359d588a1 100644
+> > > > --- a/security/security.c
+> > > > +++ b/security/security.c
+> > > > @@ -1666,7 +1666,7 @@ int security_mmap_file(struct file *file, unsigned long prot,
+> > > >                                         mmap_prot(file, prot), flags);
+> > > >         if (ret)
+> > > >                 return ret;
+> > > > -       return ima_file_mmap(file, prot);
+> > > > +       return ima_file_mmap(file, mmap_prot(file, prot));
+> > > >  }
+> > > 
+> > > This seems like a reasonable fix, although as the original commit is
+> > > ~10 years old at this point I am a little concerned about the impact
+> > > this might have on IMA.  Mimi, what do you think?
 
-The patch below does not apply to the 6.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+As a user, I probably would like to know that my system is not
+measuring what it is supposed to measure. The rule:
 
-Possible dependencies:
+measure func=MMAP_CHECK mask=MAY_EXEC
 
-0b3a551fa58b ("nfsd: fix handling of cached open files in nfsd4_open codepath")
-ac3a2585f018 ("nfsd: rework refcounting in filecache")
-d7064eaf688c ("NFSD: Add an nfsd_file_fsync tracepoint")
-821411858988 ("nfsd: reorganize filecache.c")
-1f696e230ea5 ("nfsd: remove the pages_flushed statistic from filecache")
-4d1ea8455716 ("NFSD: Add an NFSD_FILE_GC flag to enable nfsd_file garbage collection")
-dcf3f80965ca ("NFSD: Revert "NFSD: NFSv4 CLOSE should release an nfsd_file immediately"")
-c252849082ff ("NFSD: Pass the target nfsd_file to nfsd_commit()")
+is looking for executable code mapped in memory. If it is requested by
+the application or the kernel, probably it does not make too much
+difference from the perspective of measurement goals.
 
-thanks,
+If we add a new policy keyword, existing policies would not be updated
+unless the system administrator notices it. If a remote attestation
+fails, the administrator has to look into it.
 
-greg k-h
+Maybe we can introduce a new hook called MMAP_CHECK_REQ, so that an
+administrator could change the policy to have the current behavior, if
+the administrator wishes so.
 
------------------- original commit in Linus's tree ------------------
+Roberto
 
-From 0b3a551fa58b4da941efeb209b3770868e2eddd7 Mon Sep 17 00:00:00 2001
-From: Jeff Layton <jlayton@kernel.org>
-Date: Thu, 5 Jan 2023 14:55:56 -0500
-Subject: [PATCH] nfsd: fix handling of cached open files in nfsd4_open
- codepath
-
-Commit fb70bf124b05 ("NFSD: Instantiate a struct file when creating a
-regular NFSv4 file") added the ability to cache an open fd over a
-compound. There are a couple of problems with the way this currently
-works:
-
-It's racy, as a newly-created nfsd_file can end up with its PENDING bit
-cleared while the nf is hashed, and the nf_file pointer is still zeroed
-out. Other tasks can find it in this state and they expect to see a
-valid nf_file, and can oops if nf_file is NULL.
-
-Also, there is no guarantee that we'll end up creating a new nfsd_file
-if one is already in the hash. If an extant entry is in the hash with a
-valid nf_file, nfs4_get_vfs_file will clobber its nf_file pointer with
-the value of op_file and the old nf_file will leak.
-
-Fix both issues by making a new nfsd_file_acquirei_opened variant that
-takes an optional file pointer. If one is present when this is called,
-we'll take a new reference to it instead of trying to open the file. If
-the nfsd_file already has a valid nf_file, we'll just ignore the
-optional file and pass the nfsd_file back as-is.
-
-Also rework the tracepoints a bit to allow for an "opened" variant and
-don't try to avoid counting acquisitions in the case where we already
-have a cached open file.
-
-Fixes: fb70bf124b05 ("NFSD: Instantiate a struct file when creating a regular NFSv4 file")
-Cc: Trond Myklebust <trondmy@hammerspace.com>
-Reported-by: Stanislav Saner <ssaner@redhat.com>
-Reported-and-Tested-by: Ruben Vestergaard <rubenv@drcmr.dk>
-Reported-and-Tested-by: Torkil Svensgaard <torkil@drcmr.dk>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-
-diff --git a/fs/nfsd/filecache.c b/fs/nfsd/filecache.c
-index 45b2c9e3f636..0ef070349014 100644
---- a/fs/nfsd/filecache.c
-+++ b/fs/nfsd/filecache.c
-@@ -1071,8 +1071,8 @@ nfsd_file_is_cached(struct inode *inode)
- 
- static __be32
- nfsd_file_do_acquire(struct svc_rqst *rqstp, struct svc_fh *fhp,
--		     unsigned int may_flags, struct nfsd_file **pnf,
--		     bool open, bool want_gc)
-+		     unsigned int may_flags, struct file *file,
-+		     struct nfsd_file **pnf, bool want_gc)
- {
- 	struct nfsd_file_lookup_key key = {
- 		.type	= NFSD_FILE_KEY_FULL,
-@@ -1147,8 +1147,7 @@ nfsd_file_do_acquire(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 	status = nfserrno(nfsd_open_break_lease(file_inode(nf->nf_file), may_flags));
- out:
- 	if (status == nfs_ok) {
--		if (open)
--			this_cpu_inc(nfsd_file_acquisitions);
-+		this_cpu_inc(nfsd_file_acquisitions);
- 		*pnf = nf;
- 	} else {
- 		if (refcount_dec_and_test(&nf->nf_ref))
-@@ -1158,20 +1157,23 @@ nfsd_file_do_acquire(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 
- out_status:
- 	put_cred(key.cred);
--	if (open)
--		trace_nfsd_file_acquire(rqstp, key.inode, may_flags, nf, status);
-+	trace_nfsd_file_acquire(rqstp, key.inode, may_flags, nf, status);
- 	return status;
- 
- open_file:
- 	trace_nfsd_file_alloc(nf);
- 	nf->nf_mark = nfsd_file_mark_find_or_create(nf, key.inode);
- 	if (nf->nf_mark) {
--		if (open) {
-+		if (file) {
-+			get_file(file);
-+			nf->nf_file = file;
-+			status = nfs_ok;
-+			trace_nfsd_file_opened(nf, status);
-+		} else {
- 			status = nfsd_open_verified(rqstp, fhp, may_flags,
- 						    &nf->nf_file);
- 			trace_nfsd_file_open(nf, status);
--		} else
--			status = nfs_ok;
-+		}
- 	} else
- 		status = nfserr_jukebox;
- 	/*
-@@ -1207,7 +1209,7 @@ __be32
- nfsd_file_acquire_gc(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 		     unsigned int may_flags, struct nfsd_file **pnf)
- {
--	return nfsd_file_do_acquire(rqstp, fhp, may_flags, pnf, true, true);
-+	return nfsd_file_do_acquire(rqstp, fhp, may_flags, NULL, pnf, true);
- }
- 
- /**
-@@ -1228,28 +1230,30 @@ __be32
- nfsd_file_acquire(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 		  unsigned int may_flags, struct nfsd_file **pnf)
- {
--	return nfsd_file_do_acquire(rqstp, fhp, may_flags, pnf, true, false);
-+	return nfsd_file_do_acquire(rqstp, fhp, may_flags, NULL, pnf, false);
- }
- 
- /**
-- * nfsd_file_create - Get a struct nfsd_file, do not open
-+ * nfsd_file_acquire_opened - Get a struct nfsd_file using existing open file
-  * @rqstp: the RPC transaction being executed
-  * @fhp: the NFS filehandle of the file just created
-  * @may_flags: NFSD_MAY_ settings for the file
-+ * @file: cached, already-open file (may be NULL)
-  * @pnf: OUT: new or found "struct nfsd_file" object
-  *
-- * The nfsd_file_object returned by this API is reference-counted
-- * but not garbage-collected. The object is released immediately
-- * one RCU grace period after the final nfsd_file_put().
-+ * Acquire a nfsd_file object that is not GC'ed. If one doesn't already exist,
-+ * and @file is non-NULL, use it to instantiate a new nfsd_file instead of
-+ * opening a new one.
-  *
-  * Returns nfs_ok and sets @pnf on success; otherwise an nfsstat in
-  * network byte order is returned.
-  */
- __be32
--nfsd_file_create(struct svc_rqst *rqstp, struct svc_fh *fhp,
--		 unsigned int may_flags, struct nfsd_file **pnf)
-+nfsd_file_acquire_opened(struct svc_rqst *rqstp, struct svc_fh *fhp,
-+			 unsigned int may_flags, struct file *file,
-+			 struct nfsd_file **pnf)
- {
--	return nfsd_file_do_acquire(rqstp, fhp, may_flags, pnf, false, false);
-+	return nfsd_file_do_acquire(rqstp, fhp, may_flags, file, pnf, false);
- }
- 
- /*
-diff --git a/fs/nfsd/filecache.h b/fs/nfsd/filecache.h
-index b7efb2c3ddb1..41516a4263ea 100644
---- a/fs/nfsd/filecache.h
-+++ b/fs/nfsd/filecache.h
-@@ -60,7 +60,8 @@ __be32 nfsd_file_acquire_gc(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 		  unsigned int may_flags, struct nfsd_file **nfp);
- __be32 nfsd_file_acquire(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 		  unsigned int may_flags, struct nfsd_file **nfp);
--__be32 nfsd_file_create(struct svc_rqst *rqstp, struct svc_fh *fhp,
--		  unsigned int may_flags, struct nfsd_file **nfp);
-+__be32 nfsd_file_acquire_opened(struct svc_rqst *rqstp, struct svc_fh *fhp,
-+		  unsigned int may_flags, struct file *file,
-+		  struct nfsd_file **nfp);
- int nfsd_file_cache_stats_show(struct seq_file *m, void *v);
- #endif /* _FS_NFSD_FILECACHE_H */
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index e1e85c21f12b..313f666d5357 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -5262,18 +5262,10 @@ static __be32 nfs4_get_vfs_file(struct svc_rqst *rqstp, struct nfs4_file *fp,
- 	if (!fp->fi_fds[oflag]) {
- 		spin_unlock(&fp->fi_lock);
- 
--		if (!open->op_filp) {
--			status = nfsd_file_acquire(rqstp, cur_fh, access, &nf);
--			if (status != nfs_ok)
--				goto out_put_access;
--		} else {
--			status = nfsd_file_create(rqstp, cur_fh, access, &nf);
--			if (status != nfs_ok)
--				goto out_put_access;
--			nf->nf_file = open->op_filp;
--			open->op_filp = NULL;
--			trace_nfsd_file_create(rqstp, access, nf);
--		}
-+		status = nfsd_file_acquire_opened(rqstp, cur_fh, access,
-+						  open->op_filp, &nf);
-+		if (status != nfs_ok)
-+			goto out_put_access;
- 
- 		spin_lock(&fp->fi_lock);
- 		if (!fp->fi_fds[oflag]) {
-diff --git a/fs/nfsd/trace.h b/fs/nfsd/trace.h
-index c852ae8eaf37..8f9c82d9e075 100644
---- a/fs/nfsd/trace.h
-+++ b/fs/nfsd/trace.h
-@@ -981,43 +981,6 @@ TRACE_EVENT(nfsd_file_acquire,
- 	)
- );
- 
--TRACE_EVENT(nfsd_file_create,
--	TP_PROTO(
--		const struct svc_rqst *rqstp,
--		unsigned int may_flags,
--		const struct nfsd_file *nf
--	),
--
--	TP_ARGS(rqstp, may_flags, nf),
--
--	TP_STRUCT__entry(
--		__field(const void *, nf_inode)
--		__field(const void *, nf_file)
--		__field(unsigned long, may_flags)
--		__field(unsigned long, nf_flags)
--		__field(unsigned long, nf_may)
--		__field(unsigned int, nf_ref)
--		__field(u32, xid)
--	),
--
--	TP_fast_assign(
--		__entry->nf_inode = nf->nf_inode;
--		__entry->nf_file = nf->nf_file;
--		__entry->may_flags = may_flags;
--		__entry->nf_flags = nf->nf_flags;
--		__entry->nf_may = nf->nf_may;
--		__entry->nf_ref = refcount_read(&nf->nf_ref);
--		__entry->xid = be32_to_cpu(rqstp->rq_xid);
--	),
--
--	TP_printk("xid=0x%x inode=%p may_flags=%s ref=%u nf_flags=%s nf_may=%s nf_file=%p",
--		__entry->xid, __entry->nf_inode,
--		show_nfsd_may_flags(__entry->may_flags),
--		__entry->nf_ref, show_nf_flags(__entry->nf_flags),
--		show_nfsd_may_flags(__entry->nf_may), __entry->nf_file
--	)
--);
--
- TRACE_EVENT(nfsd_file_insert_err,
- 	TP_PROTO(
- 		const struct svc_rqst *rqstp,
-@@ -1079,8 +1042,8 @@ TRACE_EVENT(nfsd_file_cons_err,
- 	)
- );
- 
--TRACE_EVENT(nfsd_file_open,
--	TP_PROTO(struct nfsd_file *nf, __be32 status),
-+DECLARE_EVENT_CLASS(nfsd_file_open_class,
-+	TP_PROTO(const struct nfsd_file *nf, __be32 status),
- 	TP_ARGS(nf, status),
- 	TP_STRUCT__entry(
- 		__field(void *, nf_inode)	/* cannot be dereferenced */
-@@ -1104,6 +1067,17 @@ TRACE_EVENT(nfsd_file_open,
- 		__entry->nf_file)
- )
- 
-+#define DEFINE_NFSD_FILE_OPEN_EVENT(name)					\
-+DEFINE_EVENT(nfsd_file_open_class, name,					\
-+	TP_PROTO(							\
-+		const struct nfsd_file *nf,				\
-+		__be32 status						\
-+	),								\
-+	TP_ARGS(nf, status))
-+
-+DEFINE_NFSD_FILE_OPEN_EVENT(nfsd_file_open);
-+DEFINE_NFSD_FILE_OPEN_EVENT(nfsd_file_opened);
-+
- TRACE_EVENT(nfsd_file_is_cached,
- 	TP_PROTO(
- 		const struct inode *inode,
+> > > Beyond that, my only other comment would be to only call mmap_prot()
+> > > once and cache the results in a local variable.  You could also fix up
+> > > some of the ugly indentation crimes in security_mmap_file() while you
+> > > are at it, e.g. something like this:
+> > 
+> > Hi Paul
+> > 
+> > thanks for the comments. With the patch set to move IMA and EVM to the
+> > LSM infrastructure we will be back to calling mmap_prot() only once,
+> > but I guess we could do anyway, as the patch (if accepted) would be
+> > likely backported to stable kernels.
+> 
+> I think there is value in fixing this now and keeping it separate from
+> the IMA-to-LSM work as they really are disjoint.
+> 
 
