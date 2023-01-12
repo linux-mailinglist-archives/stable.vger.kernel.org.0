@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE0CC667760
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D88E9667767
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:42:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239877AbjALOmc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:42:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33252 "EHLO
+        id S239716AbjALOmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:42:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238704AbjALOmM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:42:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB6533C3AE
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:31:41 -0800 (PST)
+        with ESMTP id S239720AbjALOmP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:42:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B24773C729
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:31:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66377B81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:31:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4B9AC433EF;
-        Thu, 12 Jan 2023 14:31:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F431B8113E
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:31:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBF2BC433D2;
+        Thu, 12 Jan 2023 14:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533899;
-        bh=PyIcpMYQGUMJldcFOaOEtetGcA/WfAG+Iz2VCHEzh4c=;
+        s=korg; t=1673533902;
+        bh=cJOTbZrZvuG4JkBxT+Pqu2oTtiZKpW0DW80RISTmDYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6M7bdumeRVF2gVLBlkSe1CNM3secISkqiyw/6VScZuge3RdWsfjJSVy4NTFBeiSy
-         ipcUvvf9+nHvFaOneKdwVmkM9bJB8Ix+KiTJcu30Er3R4pHDzrZsNDujDKfmxOrF0e
-         9jaBfnWppoW1LoheBLfKKb6TEZnz5+MTrFsJeIcA=
+        b=rUjRAm8O4GIOjW5McDABqkXsMtt8iz+f2VYcu3kJMD8swj84ac+m071CD6fGiAO9w
+         kmzmV9Tdm3Yut5GAknkjLBx1hW6SeYs3OI8YeyMTfxverXpe12GyeFbvnTQubfS095
+         hyjpXEAJxf0yS5Hprge3yArwo0qgpKxiKRZs7f0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Joe Thornber <ejt@redhat.com>,
+        patches@lists.linux.dev, Luo Meng <luomeng12@huawei.com>,
         Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.10 627/783] dm thin: Use last transactions pmd->root when commit failed
-Date:   Thu, 12 Jan 2023 14:55:43 +0100
-Message-Id: <20230112135553.377536361@linuxfoundation.org>
+Subject: [PATCH 5.10 628/783] dm thin: resume even if in FAIL mode
+Date:   Thu, 12 Jan 2023 14:55:44 +0100
+Message-Id: <20230112135553.412099544@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,84 +52,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Luo Meng <luomeng12@huawei.com>
 
-commit 7991dbff6849f67e823b7cc0c15e5a90b0549b9f upstream.
+commit 19eb1650afeb1aa86151f61900e9e5f1de5d8d02 upstream.
 
-Recently we found a softlock up problem in dm thin pool btree lookup
-code due to corrupted metadata:
+If a thinpool set fail_io while suspending, resume will fail with:
+ device-mapper: resume ioctl on vg-thinpool  failed: Invalid argument
 
- Kernel panic - not syncing: softlockup: hung tasks
- CPU: 7 PID: 2669225 Comm: kworker/u16:3
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
- Workqueue: dm-thin do_worker [dm_thin_pool]
- Call Trace:
-   <IRQ>
-   dump_stack+0x9c/0xd3
-   panic+0x35d/0x6b9
-   watchdog_timer_fn.cold+0x16/0x25
-   __run_hrtimer+0xa2/0x2d0
-   </IRQ>
-   RIP: 0010:__relink_lru+0x102/0x220 [dm_bufio]
-   __bufio_new+0x11f/0x4f0 [dm_bufio]
-   new_read+0xa3/0x1e0 [dm_bufio]
-   dm_bm_read_lock+0x33/0xd0 [dm_persistent_data]
-   ro_step+0x63/0x100 [dm_persistent_data]
-   btree_lookup_raw.constprop.0+0x44/0x220 [dm_persistent_data]
-   dm_btree_lookup+0x16f/0x210 [dm_persistent_data]
-   dm_thin_find_block+0x12c/0x210 [dm_thin_pool]
-   __process_bio_read_only+0xc5/0x400 [dm_thin_pool]
-   process_thin_deferred_bios+0x1a4/0x4a0 [dm_thin_pool]
-   process_one_work+0x3c5/0x730
+The thin-pool also can't be removed if an in-flight bio is in the
+deferred list.
 
-Following process may generate a broken btree mixed with fresh and
-stale btree nodes, which could get dm thin trapped in an infinite loop
-while looking up data block:
- Transaction 1: pmd->root = A, A->B->C   // One path in btree
-                pmd->root = X, X->Y->Z   // Copy-up
- Transaction 2: X,Z is updated on disk, Y write failed.
-                // Commit failed, dm thin becomes read-only.
-                process_bio_read_only
-		 dm_thin_find_block
-		  __find_block
-		   dm_btree_lookup(pmd->root)
-The pmd->root points to a broken btree, Y may contain stale node
-pointing to any block, for example X, which gets dm thin trapped into
-a dead loop while looking up Z.
+This can be easily reproduced using:
 
-Fix this by setting pmd->root in __open_metadata(), so that dm thin
-will use the last transaction's pmd->root if commit failed.
+  echo "offline" > /sys/block/sda/device/state
+  dd if=/dev/zero of=/dev/mapper/thin bs=4K count=1
+  dmsetup suspend /dev/mapper/pool
+  mkfs.ext4 /dev/mapper/thin
+  dmsetup resume /dev/mapper/pool
 
-Fetch a reproducer in [Link].
+The root cause is maybe_resize_data_dev() will check fail_io and return
+error before called dm_resume.
 
-Linke: https://bugzilla.kernel.org/show_bug.cgi?id=216790
+Fix this by adding FAIL mode check at the end of pool_preresume().
+
 Cc: stable@vger.kernel.org
-Fixes: 991d9fa02da0 ("dm: add thin provisioning target")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Acked-by: Joe Thornber <ejt@redhat.com>
+Fixes: da105ed5fd7e ("dm thin metadata: introduce dm_pool_abort_metadata")
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
 Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-thin-metadata.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/md/dm-thin.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -701,6 +701,15 @@ static int __open_metadata(struct dm_poo
- 		goto bad_cleanup_data_sm;
- 	}
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -3566,20 +3566,28 @@ static int pool_preresume(struct dm_targ
+ 	 */
+ 	r = bind_control_target(pool, ti);
+ 	if (r)
+-		return r;
++		goto out;
  
+ 	r = maybe_resize_data_dev(ti, &need_commit1);
+ 	if (r)
+-		return r;
++		goto out;
+ 
+ 	r = maybe_resize_metadata_dev(ti, &need_commit2);
+ 	if (r)
+-		return r;
++		goto out;
+ 
+ 	if (need_commit1 || need_commit2)
+ 		(void) commit(pool);
++out:
 +	/*
-+	 * For pool metadata opening process, root setting is redundant
-+	 * because it will be set again in __begin_transaction(). But dm
-+	 * pool aborting process really needs to get last transaction's
-+	 * root to avoid accessing broken btree.
++	 * When a thin-pool is PM_FAIL, it cannot be rebuilt if
++	 * bio is in deferred list. Therefore need to return 0
++	 * to allow pool_resume() to flush IO.
 +	 */
-+	pmd->root = le64_to_cpu(disk_super->data_mapping_root);
-+	pmd->details_root = le64_to_cpu(disk_super->device_details_root);
-+
- 	__setup_btree_details(pmd);
- 	dm_bm_unlock(sblock);
++	if (r && get_pool_mode(pool) == PM_FAIL)
++		r = 0;
  
+-	return 0;
++	return r;
+ }
+ 
+ static void pool_suspend_active_thins(struct pool *pool)
 
 
