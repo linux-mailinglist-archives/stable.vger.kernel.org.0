@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA016676B1
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:34:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7FD2667688
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:33:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237137AbjALOev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:34:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56838 "EHLO
+        id S237734AbjALOc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:32:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237476AbjALOds (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:33:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A9355F92F
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:25:30 -0800 (PST)
+        with ESMTP id S238082AbjALOcL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:32:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B26F54DB3
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:23:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A16B862031
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:25:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 920EDC433F0;
-        Thu, 12 Jan 2023 14:25:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35951B81DB2
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:23:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 743B1C433F2;
+        Thu, 12 Jan 2023 14:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533529;
-        bh=jdTnyOAe2rSjoF5u7f5LB7smfzp3TCs2Vx7z4q0pP+8=;
+        s=korg; t=1673533429;
+        bh=9flox7LMN2YB8O3DDNLESVmkbVc6CpQ8HZH+PNPGx5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDeGokauidwxj7vwAyeKBDh1WJ17QoG/l5oGKO112OBWnb7CWVuJIHOZwDb4lyp3L
-         rwMn5lSnWdN9CNN15WpTzaZsaDJ7enFc5gnzZS4q569BsudqwokRLRh6tWnL9OzZmh
-         e6KvY0ScRwWz8w1ZiiJmWy4GSGn1XM71OcooAdnA=
+        b=C633sBQjtLR8k+GjZFWyJ+bTkysa4l+JDsALrhbrkdNGq6sNpgGb5osgjuiuDftZw
+         DU/TzLDMhopOFa5yiNQRDoXA/xVrVAECc1KJhEJVPXgUEgSiMQ9/uOmceXnhS4bgHL
+         3oRSRMh1dPtZuhHxbe8flLLCJ/d4n91J7nq3jBbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>,
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Malli C <mallikarjuna.chilakala@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 467/783] net: add a helper to avoid issues with HW TX timestamping and SO_TXTIME
-Date:   Thu, 12 Jan 2023 14:53:03 +0100
-Message-Id: <20230112135545.882864248@linuxfoundation.org>
+Subject: [PATCH 5.10 468/783] igc: Enhance Qbv scheduling by using first flag bit
+Date:   Thu, 12 Jan 2023 14:53:04 +0100
+Message-Id: <20230112135545.933256108@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,105 +58,429 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <olteanv@gmail.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-[ Upstream commit 847cbfc014adafeac401e19e349b0fd524f201c3 ]
+[ Upstream commit db0b124f02ba68de6517ac303d431af220ccfe9f ]
 
-As explained in commit 29d98f54a4fe ("net: enetc: allow hardware
-timestamping on TX queues with tc-etf enabled"), hardware TX
-timestamping requires an skb with skb->tstamp = 0. When a packet is sent
-with SO_TXTIME, the skb->skb_mstamp_ns corrupts the value of skb->tstamp,
-so the drivers need to explicitly reset skb->tstamp to zero after
-consuming the TX time.
+The I225 hardware has a limitation that packets can only be scheduled
+in the [0, cycle-time] interval. So, scheduling a packet to the start
+of the next cycle doesn't usually work.
 
-Create a helper named skb_txtime_consumed() which does just that. All
-drivers which offload TC_SETUP_QDISC_ETF should implement it, and it
-would make it easier to assess during review whether they do the right
-thing in order to be compatible with hardware timestamping or not.
+To overcome this, we use the Transmit Descriptor first flag to indicates
+that a packet should be the first packet (from a queue) in a cycle
+according to the section 7.5.2.9.3.4 The First Packet on Each QBV Cycle
+in Intel Discrete I225/6 User Manual.
 
-Suggested-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: db0b124f02ba ("igc: Enhance Qbv scheduling by using first flag bit")
+But this only works if there was any packet from that queue during the
+current cycle, to avoid this issue, we issue an empty packet if that's
+not the case. Also require one more descriptor to be available, to take
+into account the empty packet that might be issued.
+
+Test Setup:
+
+Talker: Use l2_tai to generate the launchtime into packet load.
+
+Listener: Use timedump.c to compute the delta between packet arrival
+and LaunchTime packet payload.
+
+Test Result:
+
+Before:
+
+1666000610127300000,1666000610127300096,96,621273
+1666000610127400000,1666000610127400192,192,621274
+1666000610127500000,1666000610127500032,32,621275
+1666000610127600000,1666000610127600128,128,621276
+1666000610127700000,1666000610127700224,224,621277
+1666000610127800000,1666000610127800064,64,621278
+1666000610127900000,1666000610127900160,160,621279
+1666000610128000000,1666000610128000000,0,621280
+1666000610128100000,1666000610128100096,96,621281
+1666000610128200000,1666000610128200192,192,621282
+1666000610128300000,1666000610128300032,32,621283
+1666000610128400000,1666000610128301056,-98944,621284
+1666000610128500000,1666000610128302080,-197920,621285
+1666000610128600000,1666000610128302848,-297152,621286
+1666000610128700000,1666000610128303872,-396128,621287
+1666000610128800000,1666000610128304896,-495104,621288
+1666000610128900000,1666000610128305664,-594336,621289
+1666000610129000000,1666000610128306688,-693312,621290
+1666000610129100000,1666000610128307712,-792288,621291
+1666000610129200000,1666000610128308480,-891520,621292
+1666000610129300000,1666000610128309504,-990496,621293
+1666000610129400000,1666000610128310528,-1089472,621294
+1666000610129500000,1666000610128311296,-1188704,621295
+1666000610129600000,1666000610128312320,-1287680,621296
+1666000610129700000,1666000610128313344,-1386656,621297
+1666000610129800000,1666000610128314112,-1485888,621298
+1666000610129900000,1666000610128315136,-1584864,621299
+1666000610130000000,1666000610128316160,-1683840,621300
+1666000610130100000,1666000610128316928,-1783072,621301
+1666000610130200000,1666000610128317952,-1882048,621302
+1666000610130300000,1666000610128318976,-1981024,621303
+1666000610130400000,1666000610128319744,-2080256,621304
+1666000610130500000,1666000610128320768,-2179232,621305
+1666000610130600000,1666000610128321792,-2278208,621306
+1666000610130700000,1666000610128322816,-2377184,621307
+1666000610130800000,1666000610128323584,-2476416,621308
+1666000610130900000,1666000610128324608,-2575392,621309
+1666000610131000000,1666000610128325632,-2674368,621310
+1666000610131100000,1666000610128326400,-2773600,621311
+1666000610131200000,1666000610128327424,-2872576,621312
+1666000610131300000,1666000610128328448,-2971552,621313
+1666000610131400000,1666000610128329216,-3070784,621314
+1666000610131500000,1666000610131500032,32,621315
+1666000610131600000,1666000610131600128,128,621316
+1666000610131700000,1666000610131700224,224,621317
+
+After:
+
+1666073510646200000,1666073510646200064,64,2676462
+1666073510646300000,1666073510646300160,160,2676463
+1666073510646400000,1666073510646400256,256,2676464
+1666073510646500000,1666073510646500096,96,2676465
+1666073510646600000,1666073510646600192,192,2676466
+1666073510646700000,1666073510646700032,32,2676467
+1666073510646800000,1666073510646800128,128,2676468
+1666073510646900000,1666073510646900224,224,2676469
+1666073510647000000,1666073510647000064,64,2676470
+1666073510647100000,1666073510647100160,160,2676471
+1666073510647200000,1666073510647200256,256,2676472
+1666073510647300000,1666073510647300096,96,2676473
+1666073510647400000,1666073510647400192,192,2676474
+1666073510647500000,1666073510647500032,32,2676475
+1666073510647600000,1666073510647600128,128,2676476
+1666073510647700000,1666073510647700224,224,2676477
+1666073510647800000,1666073510647800064,64,2676478
+1666073510647900000,1666073510647900160,160,2676479
+1666073510648000000,1666073510648000000,0,2676480
+1666073510648100000,1666073510648100096,96,2676481
+1666073510648200000,1666073510648200192,192,2676482
+1666073510648300000,1666073510648300032,32,2676483
+1666073510648400000,1666073510648400128,128,2676484
+1666073510648500000,1666073510648500224,224,2676485
+1666073510648600000,1666073510648600064,64,2676486
+1666073510648700000,1666073510648700160,160,2676487
+1666073510648800000,1666073510648800000,0,2676488
+1666073510648900000,1666073510648900096,96,2676489
+1666073510649000000,1666073510649000192,192,2676490
+1666073510649100000,1666073510649100032,32,2676491
+1666073510649200000,1666073510649200128,128,2676492
+1666073510649300000,1666073510649300224,224,2676493
+1666073510649400000,1666073510649400064,64,2676494
+1666073510649500000,1666073510649500160,160,2676495
+1666073510649600000,1666073510649600000,0,2676496
+1666073510649700000,1666073510649700096,96,2676497
+1666073510649800000,1666073510649800192,192,2676498
+1666073510649900000,1666073510649900032,32,2676499
+1666073510650000000,1666073510650000128,128,2676500
+
+Fixes: 82faa9b79950 ("igc: Add support for ETF offloading")
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Co-developed-by: Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>
+Signed-off-by: Aravindhan Gunasekaran <aravindhan.gunasekaran@intel.com>
+Co-developed-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Signed-off-by: Malli C <mallikarjuna.chilakala@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c | 8 ++------
- drivers/net/ethernet/intel/igb/igb_main.c    | 2 +-
- drivers/net/ethernet/intel/igc/igc_main.c    | 2 +-
- include/net/pkt_sched.h                      | 9 +++++++++
- 4 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/igc/igc.h         |   2 +
+ drivers/net/ethernet/intel/igc/igc_defines.h |   2 +
+ drivers/net/ethernet/intel/igc/igc_main.c    | 176 ++++++++++++++++---
+ 3 files changed, 151 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index 975762ccb66f..5f9603d4c049 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -5,6 +5,7 @@
- #include <linux/tcp.h>
- #include <linux/udp.h>
- #include <linux/vmalloc.h>
-+#include <net/pkt_sched.h>
+diff --git a/drivers/net/ethernet/intel/igc/igc.h b/drivers/net/ethernet/intel/igc/igc.h
+index a97bf7a5f1d6..970dd878d8a7 100644
+--- a/drivers/net/ethernet/intel/igc/igc.h
++++ b/drivers/net/ethernet/intel/igc/igc.h
+@@ -87,6 +87,8 @@ struct igc_ring {
+ 	u8 queue_index;                 /* logical index of the ring*/
+ 	u8 reg_idx;                     /* physical index of the ring */
+ 	bool launchtime_enable;         /* true if LaunchTime is enabled */
++	ktime_t last_tx_cycle;          /* end of the cycle with a launchtime transmission */
++	ktime_t last_ff_cycle;          /* Last cycle with an active first flag */
  
- /* ENETC overhead: optional extension BD + 1 BD gap */
- #define ENETC_TXBDS_NEEDED(val)	((val) + 2)
-@@ -384,12 +385,7 @@ static void enetc_tstamp_tx(struct sk_buff *skb, u64 tstamp)
- 	if (skb_shinfo(skb)->tx_flags & SKBTX_IN_PROGRESS) {
- 		memset(&shhwtstamps, 0, sizeof(shhwtstamps));
- 		shhwtstamps.hwtstamp = ns_to_ktime(tstamp);
--		/* Ensure skb_mstamp_ns, which might have been populated with
--		 * the txtime, is not mistaken for a software timestamp,
--		 * because this will prevent the dispatch of our hardware
--		 * timestamp to the socket.
--		 */
--		skb->tstamp = ktime_set(0, 0);
-+		skb_txtime_consumed(skb);
- 		skb_tstamp_tx(skb, &shhwtstamps);
- 	}
- }
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index f24f1a8ec2fb..2646601c3487 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -5879,7 +5879,7 @@ static void igb_tx_ctxtdesc(struct igb_ring *tx_ring,
- 	 */
- 	if (tx_ring->launchtime_enable) {
- 		ts = ktime_to_timespec64(first->skb->tstamp);
--		first->skb->tstamp = ktime_set(0, 0);
-+		skb_txtime_consumed(first->skb);
- 		context_desc->seqnum_seed = cpu_to_le32(ts.tv_nsec / 32);
- 	} else {
- 		context_desc->seqnum_seed = 0;
+ 	u32 start_time;
+ 	u32 end_time;
+diff --git a/drivers/net/ethernet/intel/igc/igc_defines.h b/drivers/net/ethernet/intel/igc/igc_defines.h
+index 32f5fd684139..352b50d3881d 100644
+--- a/drivers/net/ethernet/intel/igc/igc_defines.h
++++ b/drivers/net/ethernet/intel/igc/igc_defines.h
+@@ -278,6 +278,8 @@
+ #define IGC_ADVTXD_L4LEN_SHIFT	8  /* Adv ctxt L4LEN shift */
+ #define IGC_ADVTXD_MSS_SHIFT	16 /* Adv ctxt MSS shift */
+ 
++#define IGC_ADVTXD_TSN_CNTX_FIRST	0x00000080
++
+ /* Transmit Control */
+ #define IGC_TCTL_EN		0x00000002 /* enable Tx */
+ #define IGC_TCTL_PSP		0x00000008 /* pad short packets */
 diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index f438cdf83e55..48192594d3d7 100644
+index 48192594d3d7..f4082ea7beaa 100644
 --- a/drivers/net/ethernet/intel/igc/igc_main.c
 +++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -946,7 +946,7 @@ static void igc_tx_ctxtdesc(struct igc_ring *tx_ring,
- 		struct igc_adapter *adapter = netdev_priv(tx_ring->netdev);
- 		ktime_t txtime = first->skb->tstamp;
+@@ -898,25 +898,118 @@ static int igc_write_mc_addr_list(struct net_device *netdev)
+ 	return netdev_mc_count(netdev);
+ }
  
--		first->skb->tstamp = ktime_set(0, 0);
-+		skb_txtime_consumed(first->skb);
- 		context_desc->launch_time = igc_tx_launchtime(adapter,
- 							      txtime);
- 	} else {
-diff --git a/include/net/pkt_sched.h b/include/net/pkt_sched.h
-index 7e58b4470570..50d5ffbad473 100644
---- a/include/net/pkt_sched.h
-+++ b/include/net/pkt_sched.h
-@@ -179,4 +179,13 @@ struct tc_taprio_qopt_offload *taprio_offload_get(struct tc_taprio_qopt_offload
- 						  *offload);
- void taprio_offload_free(struct tc_taprio_qopt_offload *offload);
+-static __le32 igc_tx_launchtime(struct igc_adapter *adapter, ktime_t txtime)
++static __le32 igc_tx_launchtime(struct igc_ring *ring, ktime_t txtime,
++				bool *first_flag, bool *insert_empty)
+ {
++	struct igc_adapter *adapter = netdev_priv(ring->netdev);
+ 	ktime_t cycle_time = adapter->cycle_time;
+ 	ktime_t base_time = adapter->base_time;
++	ktime_t now = ktime_get_clocktai();
++	ktime_t baset_est, end_of_cycle;
+ 	u32 launchtime;
++	s64 n;
  
-+/* Ensure skb_mstamp_ns, which might have been populated with the txtime, is
-+ * not mistaken for a software timestamp, because this will otherwise prevent
-+ * the dispatch of hardware timestamps to the socket.
-+ */
-+static inline void skb_txtime_consumed(struct sk_buff *skb)
+-	/* FIXME: when using ETF together with taprio, we may have a
+-	 * case where 'delta' is larger than the cycle_time, this may
+-	 * cause problems if we don't read the current value of
+-	 * IGC_BASET, as the value writen into the launchtime
+-	 * descriptor field may be misinterpreted.
++	n = div64_s64(ktime_sub_ns(now, base_time), cycle_time);
++
++	baset_est = ktime_add_ns(base_time, cycle_time * (n));
++	end_of_cycle = ktime_add_ns(baset_est, cycle_time);
++
++	if (ktime_compare(txtime, end_of_cycle) >= 0) {
++		if (baset_est != ring->last_ff_cycle) {
++			*first_flag = true;
++			ring->last_ff_cycle = baset_est;
++
++			if (ktime_compare(txtime, ring->last_tx_cycle) > 0)
++				*insert_empty = true;
++		}
++	}
++
++	/* Introducing a window at end of cycle on which packets
++	 * potentially not honor launchtime. Window of 5us chosen
++	 * considering software update the tail pointer and packets
++	 * are dma'ed to packet buffer.
+ 	 */
+-	div_s64_rem(ktime_sub_ns(txtime, base_time), cycle_time, &launchtime);
++	if ((ktime_sub_ns(end_of_cycle, now) < 5 * NSEC_PER_USEC))
++		netdev_warn(ring->netdev, "Packet with txtime=%llu may not be honoured\n",
++			    txtime);
++
++	ring->last_tx_cycle = end_of_cycle;
++
++	launchtime = ktime_sub_ns(txtime, baset_est);
++	if (launchtime > 0)
++		div_s64_rem(launchtime, cycle_time, &launchtime);
++	else
++		launchtime = 0;
+ 
+ 	return cpu_to_le32(launchtime);
+ }
+ 
++static int igc_init_empty_frame(struct igc_ring *ring,
++				struct igc_tx_buffer *buffer,
++				struct sk_buff *skb)
 +{
-+	skb->tstamp = ktime_set(0, 0);
++	unsigned int size;
++	dma_addr_t dma;
++
++	size = skb_headlen(skb);
++
++	dma = dma_map_single(ring->dev, skb->data, size, DMA_TO_DEVICE);
++	if (dma_mapping_error(ring->dev, dma)) {
++		netdev_err_once(ring->netdev, "Failed to map DMA for TX\n");
++		return -ENOMEM;
++	}
++
++	buffer->skb = skb;
++	buffer->protocol = 0;
++	buffer->bytecount = skb->len;
++	buffer->gso_segs = 1;
++	buffer->time_stamp = jiffies;
++	dma_unmap_len_set(buffer, len, skb->len);
++	dma_unmap_addr_set(buffer, dma, dma);
++
++	return 0;
 +}
 +
- #endif
++static int igc_init_tx_empty_descriptor(struct igc_ring *ring,
++					struct sk_buff *skb,
++					struct igc_tx_buffer *first)
++{
++	union igc_adv_tx_desc *desc;
++	u32 cmd_type, olinfo_status;
++	int err;
++
++	if (!igc_desc_unused(ring))
++		return -EBUSY;
++
++	err = igc_init_empty_frame(ring, first, skb);
++	if (err)
++		return err;
++
++	cmd_type = IGC_ADVTXD_DTYP_DATA | IGC_ADVTXD_DCMD_DEXT |
++		   IGC_ADVTXD_DCMD_IFCS | IGC_TXD_DCMD |
++		   first->bytecount;
++	olinfo_status = first->bytecount << IGC_ADVTXD_PAYLEN_SHIFT;
++
++	desc = IGC_TX_DESC(ring, ring->next_to_use);
++	desc->read.cmd_type_len = cpu_to_le32(cmd_type);
++	desc->read.olinfo_status = cpu_to_le32(olinfo_status);
++	desc->read.buffer_addr = cpu_to_le64(dma_unmap_addr(first, dma));
++
++	netdev_tx_sent_queue(txring_txq(ring), skb->len);
++
++	first->next_to_watch = desc;
++
++	ring->next_to_use++;
++	if (ring->next_to_use == ring->count)
++		ring->next_to_use = 0;
++
++	return 0;
++}
++
++#define IGC_EMPTY_FRAME_SIZE 60
++
+ static void igc_tx_ctxtdesc(struct igc_ring *tx_ring,
+-			    struct igc_tx_buffer *first,
++			    __le32 launch_time, bool first_flag,
+ 			    u32 vlan_macip_lens, u32 type_tucmd,
+ 			    u32 mss_l4len_idx)
+ {
+@@ -935,26 +1028,17 @@ static void igc_tx_ctxtdesc(struct igc_ring *tx_ring,
+ 	if (test_bit(IGC_RING_FLAG_TX_CTX_IDX, &tx_ring->flags))
+ 		mss_l4len_idx |= tx_ring->reg_idx << 4;
+ 
++	if (first_flag)
++		mss_l4len_idx |= IGC_ADVTXD_TSN_CNTX_FIRST;
++
+ 	context_desc->vlan_macip_lens	= cpu_to_le32(vlan_macip_lens);
+ 	context_desc->type_tucmd_mlhl	= cpu_to_le32(type_tucmd);
+ 	context_desc->mss_l4len_idx	= cpu_to_le32(mss_l4len_idx);
+-
+-	/* We assume there is always a valid Tx time available. Invalid times
+-	 * should have been handled by the upper layers.
+-	 */
+-	if (tx_ring->launchtime_enable) {
+-		struct igc_adapter *adapter = netdev_priv(tx_ring->netdev);
+-		ktime_t txtime = first->skb->tstamp;
+-
+-		skb_txtime_consumed(first->skb);
+-		context_desc->launch_time = igc_tx_launchtime(adapter,
+-							      txtime);
+-	} else {
+-		context_desc->launch_time = 0;
+-	}
++	context_desc->launch_time	= launch_time;
+ }
+ 
+-static void igc_tx_csum(struct igc_ring *tx_ring, struct igc_tx_buffer *first)
++static void igc_tx_csum(struct igc_ring *tx_ring, struct igc_tx_buffer *first,
++			__le32 launch_time, bool first_flag)
+ {
+ 	struct sk_buff *skb = first->skb;
+ 	u32 vlan_macip_lens = 0;
+@@ -994,7 +1078,8 @@ static void igc_tx_csum(struct igc_ring *tx_ring, struct igc_tx_buffer *first)
+ 	vlan_macip_lens |= skb_network_offset(skb) << IGC_ADVTXD_MACLEN_SHIFT;
+ 	vlan_macip_lens |= first->tx_flags & IGC_TX_FLAGS_VLAN_MASK;
+ 
+-	igc_tx_ctxtdesc(tx_ring, first, vlan_macip_lens, type_tucmd, 0);
++	igc_tx_ctxtdesc(tx_ring, launch_time, first_flag,
++			vlan_macip_lens, type_tucmd, 0);
+ }
+ 
+ static int __igc_maybe_stop_tx(struct igc_ring *tx_ring, const u16 size)
+@@ -1218,6 +1303,7 @@ static int igc_tx_map(struct igc_ring *tx_ring,
+ 
+ static int igc_tso(struct igc_ring *tx_ring,
+ 		   struct igc_tx_buffer *first,
++		   __le32 launch_time, bool first_flag,
+ 		   u8 *hdr_len)
+ {
+ 	u32 vlan_macip_lens, type_tucmd, mss_l4len_idx;
+@@ -1304,8 +1390,8 @@ static int igc_tso(struct igc_ring *tx_ring,
+ 	vlan_macip_lens |= (ip.hdr - skb->data) << IGC_ADVTXD_MACLEN_SHIFT;
+ 	vlan_macip_lens |= first->tx_flags & IGC_TX_FLAGS_VLAN_MASK;
+ 
+-	igc_tx_ctxtdesc(tx_ring, first, vlan_macip_lens,
+-			type_tucmd, mss_l4len_idx);
++	igc_tx_ctxtdesc(tx_ring, launch_time, first_flag,
++			vlan_macip_lens, type_tucmd, mss_l4len_idx);
+ 
+ 	return 1;
+ }
+@@ -1313,11 +1399,14 @@ static int igc_tso(struct igc_ring *tx_ring,
+ static netdev_tx_t igc_xmit_frame_ring(struct sk_buff *skb,
+ 				       struct igc_ring *tx_ring)
+ {
++	bool first_flag = false, insert_empty = false;
+ 	u16 count = TXD_USE_COUNT(skb_headlen(skb));
+ 	__be16 protocol = vlan_get_protocol(skb);
+ 	struct igc_tx_buffer *first;
++	__le32 launch_time = 0;
+ 	u32 tx_flags = 0;
+ 	unsigned short f;
++	ktime_t txtime;
+ 	u8 hdr_len = 0;
+ 	int tso = 0;
+ 
+@@ -1331,11 +1420,40 @@ static netdev_tx_t igc_xmit_frame_ring(struct sk_buff *skb,
+ 		count += TXD_USE_COUNT(skb_frag_size(
+ 						&skb_shinfo(skb)->frags[f]));
+ 
+-	if (igc_maybe_stop_tx(tx_ring, count + 3)) {
++	if (igc_maybe_stop_tx(tx_ring, count + 5)) {
+ 		/* this is a hard error */
+ 		return NETDEV_TX_BUSY;
+ 	}
+ 
++	if (!tx_ring->launchtime_enable)
++		goto done;
++
++	txtime = skb->tstamp;
++	skb->tstamp = ktime_set(0, 0);
++	launch_time = igc_tx_launchtime(tx_ring, txtime, &first_flag, &insert_empty);
++
++	if (insert_empty) {
++		struct igc_tx_buffer *empty_info;
++		struct sk_buff *empty;
++		void *data;
++
++		empty_info = &tx_ring->tx_buffer_info[tx_ring->next_to_use];
++		empty = alloc_skb(IGC_EMPTY_FRAME_SIZE, GFP_ATOMIC);
++		if (!empty)
++			goto done;
++
++		data = skb_put(empty, IGC_EMPTY_FRAME_SIZE);
++		memset(data, 0, IGC_EMPTY_FRAME_SIZE);
++
++		igc_tx_ctxtdesc(tx_ring, 0, false, 0, 0, 0);
++
++		if (igc_init_tx_empty_descriptor(tx_ring,
++						 empty,
++						 empty_info) < 0)
++			dev_kfree_skb_any(empty);
++	}
++
++done:
+ 	/* record the location of the first descriptor for this packet */
+ 	first = &tx_ring->tx_buffer_info[tx_ring->next_to_use];
+ 	first->skb = skb;
+@@ -1366,11 +1484,11 @@ static netdev_tx_t igc_xmit_frame_ring(struct sk_buff *skb,
+ 	first->tx_flags = tx_flags;
+ 	first->protocol = protocol;
+ 
+-	tso = igc_tso(tx_ring, first, &hdr_len);
++	tso = igc_tso(tx_ring, first, launch_time, first_flag, &hdr_len);
+ 	if (tso < 0)
+ 		goto out_drop;
+ 	else if (!tso)
+-		igc_tx_csum(tx_ring, first);
++		igc_tx_csum(tx_ring, first, launch_time, first_flag);
+ 
+ 	igc_tx_map(tx_ring, first, hdr_len);
+ 
 -- 
 2.35.1
 
