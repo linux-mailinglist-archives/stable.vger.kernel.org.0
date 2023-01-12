@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F346677A6
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:46:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92EEE6677A7
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:46:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240019AbjALOqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:46:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37120 "EHLO
+        id S239866AbjALOqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:46:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239951AbjALOpv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:45:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B73065E66F
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:34:00 -0800 (PST)
+        with ESMTP id S239963AbjALOpw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:45:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7A2E5E678
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:34:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E336B8113E
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90025C433EF;
-        Thu, 12 Jan 2023 14:33:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83A8C60AB3
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:34:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79CE4C433D2;
+        Thu, 12 Jan 2023 14:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534038;
-        bh=EKjSMOme4ie8V5RB1C8qlqpKkZQS6JiHqyQH/GgLbsY=;
+        s=korg; t=1673534041;
+        bh=YXsvVkbz4VetYhwqccxBJRYFNckHVXQjcLQThVKAgvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNCiZP9NRHSlLH+esiWq82BAFSE2A0HT3lGKSVemjrEHJ3hI/IWDHZfaUCgobmuyj
-         7pPL5q7OxuRoK08vDO5f1D/PqDKSWrIkKBX6KcBR5EG6oP2tcFlZS+52G0KUerIKC0
-         CevdlCZcKdhg+5dax4AnlCwtmVZMRaGEOaZpFj0M=
+        b=HyJ63M4PTEv9aLxotKfb8KIY6tjxERL62GNerd51av/nMIXAL5uFv3ajsr4VZm7RA
+         mEdJhJwZUH5TsIZi1bQ1xKVgrOq916ohuwRkl469AdgxyLipCXPbGZd7aza1r1EkHi
+         OAkRyR8i29Wb980CxlxPAPFRO7sjAlNB/c6wOZik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
+        patches@lists.linux.dev,
+        syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com,
+        Ye Bin <yebin10@huawei.com>, Eric Whitney <enwlinux@gmail.com>,
         Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.10 675/783] ext4: fix bug_on in __es_tree_search caused by bad quota inode
-Date:   Thu, 12 Jan 2023 14:56:31 +0100
-Message-Id: <20230112135555.623080068@linuxfoundation.org>
+Subject: [PATCH 5.10 676/783] ext4: fix reserved cluster accounting in __es_remove_extent()
+Date:   Thu, 12 Jan 2023 14:56:32 +0100
+Message-Id: <20230112135555.662769181@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,109 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit d323877484765aaacbb2769b06e355c2041ed115 upstream.
+commit 1da18e38cb97e9521e93d63034521a9649524f64 upstream.
 
-We got a issue as fllows:
-==================================================================
- kernel BUG at fs/ext4/extents_status.c:202!
- invalid opcode: 0000 [#1] PREEMPT SMP
- CPU: 1 PID: 810 Comm: mount Not tainted 6.1.0-rc1-next-g9631525255e3 #352
- RIP: 0010:__es_tree_search.isra.0+0xb8/0xe0
- RSP: 0018:ffffc90001227900 EFLAGS: 00010202
- RAX: 0000000000000000 RBX: 0000000077512a0f RCX: 0000000000000000
- RDX: 0000000000000002 RSI: 0000000000002a10 RDI: ffff8881004cd0c8
- RBP: ffff888177512ac8 R08: 47ffffffffffffff R09: 0000000000000001
- R10: 0000000000000001 R11: 00000000000679af R12: 0000000000002a10
- R13: ffff888177512d88 R14: 0000000077512a10 R15: 0000000000000000
- FS: 00007f4bd76dbc40(0000)GS:ffff88842fd00000(0000)knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00005653bf993cf8 CR3: 000000017bfdf000 CR4: 00000000000006e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  <TASK>
-  ext4_es_cache_extent+0xe2/0x210
-  ext4_cache_extents+0xd2/0x110
-  ext4_find_extent+0x5d5/0x8c0
-  ext4_ext_map_blocks+0x9c/0x1d30
-  ext4_map_blocks+0x431/0xa50
-  ext4_getblk+0x82/0x340
-  ext4_bread+0x14/0x110
-  ext4_quota_read+0xf0/0x180
-  v2_read_header+0x24/0x90
-  v2_check_quota_file+0x2f/0xa0
-  dquot_load_quota_sb+0x26c/0x760
-  dquot_load_quota_inode+0xa5/0x190
-  ext4_enable_quotas+0x14c/0x300
-  __ext4_fill_super+0x31cc/0x32c0
-  ext4_fill_super+0x115/0x2d0
-  get_tree_bdev+0x1d2/0x360
-  ext4_get_tree+0x19/0x30
-  vfs_get_tree+0x26/0xe0
-  path_mount+0x81d/0xfc0
-  do_mount+0x8d/0xc0
-  __x64_sys_mount+0xc0/0x160
-  do_syscall_64+0x35/0x80
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-  </TASK>
-==================================================================
+When bigalloc is enabled, reserved cluster accounting for delayed
+allocation is handled in extent_status.c.  With a corrupted file
+system, it's possible for this accounting to be incorrect,
+dsicovered by Syzbot:
 
-Above issue may happen as follows:
--------------------------------------
-ext4_fill_super
- ext4_orphan_cleanup
-  ext4_enable_quotas
-   ext4_quota_enable
-    ext4_iget --> get error inode <5>
-     ext4_ext_check_inode --> Wrong imode makes it escape inspection
-     make_bad_inode(inode) --> EXT4_BOOT_LOADER_INO set imode
-    dquot_load_quota_inode
-     vfs_setup_quota_inode --> check pass
-     dquot_load_quota_sb
-      v2_check_quota_file
-       v2_read_header
-        ext4_quota_read
-         ext4_bread
-          ext4_getblk
-           ext4_map_blocks
-            ext4_ext_map_blocks
-             ext4_find_extent
-              ext4_cache_extents
-               ext4_es_cache_extent
-                __es_tree_search.isra.0
-                 ext4_es_end --> Wrong extents trigger BUG_ON
+EXT4-fs error (device loop0): ext4_validate_block_bitmap:398: comm rep:
+	bg 0: block 5: invalid block bitmap
+EXT4-fs (loop0): Delayed block allocation failed for inode 18 at logical
+	offset 0 with max blocks 32 with error 28
+EXT4-fs (loop0): This should not happen!! Data will be lost
 
-In the above issue, s_usr_quota_inum is set to 5, but inode<5> contains
-incorrect imode and disordered extents. Because 5 is EXT4_BOOT_LOADER_INO,
-the ext4_ext_check_inode check in the ext4_iget function can be bypassed,
-finally, the extents that are not checked trigger the BUG_ON in the
-__es_tree_search function. To solve this issue, check whether the inode is
-bad_inode in vfs_setup_quota_inode().
+EXT4-fs (loop0): Total free blocks count 0
+EXT4-fs (loop0): Free/Dirty block details
+EXT4-fs (loop0): free_blocks=0
+EXT4-fs (loop0): dirty_blocks=32
+EXT4-fs (loop0): Block reservation details
+EXT4-fs (loop0): i_reserved_data_blocks=2
+EXT4-fs (loop0): Inode 18 (00000000845cd634):
+	i_reserved_data_blocks (1) not cleared!
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221026042310.3839669-2-libaokun1@huawei.com
+Above issue happens as follows:
+Assume:
+sbi->s_cluster_ratio = 16
+Step1:
+Insert delay block [0, 31] -> ei->i_reserved_data_blocks=2
+Step2:
+ext4_writepages
+  mpage_map_and_submit_extent -> return failed
+  mpage_release_unused_pages -> to release [0, 30]
+    ext4_es_remove_extent -> remove lblk=0 end=30
+      __es_remove_extent -> len1=0 len2=31-30=1
+ __es_remove_extent:
+ ...
+ if (len2 > 0) {
+  ...
+	  if (len1 > 0) {
+		  ...
+	  } else {
+		es->es_lblk = end + 1;
+		es->es_len = len2;
+		...
+	  }
+  	if (count_reserved)
+		count_rsvd(inode, lblk, ...);
+	goto out; -> will return but didn't calculate 'reserved'
+ ...
+Step3:
+ext4_destroy_inode -> trigger "i_reserved_data_blocks (1) not cleared!"
+
+To solve above issue if 'len2>0' call 'get_rsvd()' before goto out.
+
+Reported-by: syzbot+05a0f0ccab4a25626e38@syzkaller.appspotmail.com
+Fixes: 8fcc3a580651 ("ext4: rework reserved cluster accounting when invalidating pages")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Eric Whitney <enwlinux@gmail.com>
+Link: https://lore.kernel.org/r/20221208033426.1832460-2-yebin@huaweicloud.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/quota/dquot.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/ext4/extents_status.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -2319,6 +2319,8 @@ static int vfs_setup_quota_inode(struct
- 	struct super_block *sb = inode->i_sb;
- 	struct quota_info *dqopt = sb_dqopt(sb);
+--- a/fs/ext4/extents_status.c
++++ b/fs/ext4/extents_status.c
+@@ -1372,7 +1372,7 @@ retry:
+ 		if (count_reserved)
+ 			count_rsvd(inode, lblk, orig_es.es_len - len1 - len2,
+ 				   &orig_es, &rc);
+-		goto out;
++		goto out_get_reserved;
+ 	}
  
-+	if (is_bad_inode(inode))
-+		return -EUCLEAN;
- 	if (!S_ISREG(inode->i_mode))
- 		return -EACCES;
- 	if (IS_RDONLY(inode))
+ 	if (len1 > 0) {
+@@ -1414,6 +1414,7 @@ retry:
+ 		}
+ 	}
+ 
++out_get_reserved:
+ 	if (count_reserved)
+ 		*reserved = get_rsvd(inode, end, es, &rc);
+ out:
 
 
