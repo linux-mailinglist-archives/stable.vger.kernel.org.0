@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D023B66752C
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5468366752D
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234937AbjALOTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:19:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40624 "EHLO
+        id S235106AbjALOTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:19:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235136AbjALOSA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:18:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB6A252C71
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:10:01 -0800 (PST)
+        with ESMTP id S235762AbjALOSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:18:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46ECC58332
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:10:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 443E1CE1E6B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:10:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 137AAC433D2;
-        Thu, 12 Jan 2023 14:09:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCEA3B81E6C
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:10:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E58DC433EF;
+        Thu, 12 Jan 2023 14:10:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532598;
-        bh=6s1DubVKumRT8kawU7Q+an1rKQYEAy268tWyp3jY/7k=;
+        s=korg; t=1673532601;
+        bh=ThZW3CUWniG49xvZEqwbbBpeXAaltncHBOobnPDmPSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yWsxfZ5J9KkIYaPyMHNvHrT9rnzSqo6tXgNHIXwO5pOX4MPZrDWJ+VO3ARmsirlnM
-         2cviKpVQ5O2yVY2jXwBnWl3g0W++hTXwl+sqq6NLTQ4pakNibIt0/Cruzy0bfYs1Pu
-         EU3fjlw3fVhQ18s4nA5vFnZqfl+y8IkiKGjbON7Y=
+        b=pbzIEUgiN9d3JbraLnY6mvYO9lcPN4auvRBMitAEbN8ZOWVRbISdQj3pF8drFoK6C
+         57D5csx4bM78WhFRbni0IpXYWhXT/nbkxNXWMSYHBKx1IbktNm+wFwFhElKayDaBro
+         kIKYRNGywtRlI033hV+xfP71RIwm3R9sxHIaap3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 215/783] hwmon: (jc42) Restore the min/max/critical temperatures on resume
-Date:   Thu, 12 Jan 2023 14:48:51 +0100
-Message-Id: <20230112135534.318598012@linuxfoundation.org>
+Subject: [PATCH 5.10 216/783] bpf, sockmap: fix race in sock_map_free()
+Date:   Thu, 12 Jan 2023 14:48:52 +0100
+Message-Id: <20230112135534.361527500@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,81 +58,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 084ed144c448fd5bc8ed5a58247153fbbfd115c3 ]
+[ Upstream commit 0a182f8d607464911756b4dbef5d6cad8de22469 ]
 
-The JC42 compatible thermal sensor on Kingston KSM32ES8/16ME DIMMs
-(using Micron E-Die) is an ST Microelectronics STTS2004 (manufacturer
-0x104a, device 0x2201). It does not keep the previously programmed
-minimum, maximum and critical temperatures after system suspend and
-resume (which is a shutdown / startup cycle for the JC42 temperature
-sensor). This results in an alarm on system resume because the hardware
-default for these values is 0°C (so any environment temperature greater
-than 0°C will trigger the alarm).
+sock_map_free() calls release_sock(sk) without owning a reference
+on the socket. This can cause use-after-free as syzbot found [1]
 
-Example before system suspend:
-  jc42-i2c-0-1a
-  Adapter: SMBus PIIX4 adapter port 0 at 0b00
-  temp1:        +34.8°C  (low  =  +0.0°C)
-                         (high = +85.0°C, hyst = +85.0°C)
-                         (crit = +95.0°C, hyst = +95.0°C)
+Jakub Sitnicki already took care of a similar issue
+in sock_hash_free() in commit 75e68e5bf2c7 ("bpf, sockhash:
+Synchronize delete from bucket list on map free")
 
-Example after system resume (without this change):
-  jc42-i2c-0-1a
-  Adapter: SMBus PIIX4 adapter port 0 at 0b00
-  temp1:        +34.8°C  (low  =  +0.0°C)             ALARM (HIGH, CRIT)
-                         (high =  +0.0°C, hyst =  +0.0°C)
-                         (crit =  +0.0°C, hyst =  +0.0°C)
+[1]
+refcount_t: decrement hit 0; leaking memory.
+WARNING: CPU: 0 PID: 3785 at lib/refcount.c:31 refcount_warn_saturate+0x17c/0x1a0 lib/refcount.c:31
+Modules linked in:
+CPU: 0 PID: 3785 Comm: kworker/u4:6 Not tainted 6.1.0-rc7-syzkaller-00103-gef4d3ea40565 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+Workqueue: events_unbound bpf_map_free_deferred
+RIP: 0010:refcount_warn_saturate+0x17c/0x1a0 lib/refcount.c:31
+Code: 68 8b 31 c0 e8 75 71 15 fd 0f 0b e9 64 ff ff ff e8 d9 6e 4e fd c6 05 62 9c 3d 0a 01 48 c7 c7 80 bb 68 8b 31 c0 e8 54 71 15 fd <0f> 0b e9 43 ff ff ff 89 d9 80 e1 07 80 c1 03 38 c1 0f 8c a2 fe ff
+RSP: 0018:ffffc9000456fb60 EFLAGS: 00010246
+RAX: eae59bab72dcd700 RBX: 0000000000000004 RCX: ffff8880207057c0
+RDX: 0000000000000000 RSI: 0000000000000201 RDI: 0000000000000000
+RBP: 0000000000000004 R08: ffffffff816fdabd R09: fffff520008adee5
+R10: fffff520008adee5 R11: 1ffff920008adee4 R12: 0000000000000004
+R13: dffffc0000000000 R14: ffff88807b1c6c00 R15: 1ffff1100f638dcf
+FS: 0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b30c30000 CR3: 000000000d08e000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+__refcount_dec include/linux/refcount.h:344 [inline]
+refcount_dec include/linux/refcount.h:359 [inline]
+__sock_put include/net/sock.h:779 [inline]
+tcp_release_cb+0x2d0/0x360 net/ipv4/tcp_output.c:1092
+release_sock+0xaf/0x1c0 net/core/sock.c:3468
+sock_map_free+0x219/0x2c0 net/core/sock_map.c:356
+process_one_work+0x81c/0xd10 kernel/workqueue.c:2289
+worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
+kthread+0x266/0x300 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+</TASK>
 
-Apply the cached values from the JC42_REG_TEMP_UPPER,
-JC42_REG_TEMP_LOWER, JC42_REG_TEMP_CRITICAL and JC42_REG_SMBUS (where
-the SMBUS register is not related to this issue but a side-effect of
-using regcache_sync() during system resume with the previously
-cached/programmed values. This fixes the alarm due to the hardware
-defaults of 0°C because the previously applied limits (set by userspace)
-are re-applied on system resume.
-
-Fixes: 175c490c9e7f ("hwmon: (jc42) Add support for STTS2004 and AT30TSE004")
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20221023213157.11078-3-martin.blumenstingl@googlemail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 7e81a3530206 ("bpf: Sockmap, ensure sock lock held during tear down")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Jakub Sitnicki <jakub@cloudflare.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Song Liu <songliubraving@fb.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/r/20221202111640.2745533-1-edumazet@google.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/jc42.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/core/sock_map.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hwmon/jc42.c b/drivers/hwmon/jc42.c
-index 9a2a062eb7b8..5240bfdfcf2e 100644
---- a/drivers/hwmon/jc42.c
-+++ b/drivers/hwmon/jc42.c
-@@ -567,6 +567,10 @@ static int jc42_suspend(struct device *dev)
+diff --git a/net/core/sock_map.c b/net/core/sock_map.c
+index cbf4184fabc9..ee5d3f49b0b5 100644
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -358,11 +358,13 @@ static void sock_map_free(struct bpf_map *map)
  
- 	data->config |= JC42_CFG_SHUTDOWN;
- 	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
-+
-+	regcache_cache_only(data->regmap, true);
-+	regcache_mark_dirty(data->regmap);
-+
- 	return 0;
- }
+ 		sk = xchg(psk, NULL);
+ 		if (sk) {
++			sock_hold(sk);
+ 			lock_sock(sk);
+ 			rcu_read_lock();
+ 			sock_map_unref(sk, psk);
+ 			rcu_read_unlock();
+ 			release_sock(sk);
++			sock_put(sk);
+ 		}
+ 	}
  
-@@ -574,9 +578,13 @@ static int jc42_resume(struct device *dev)
- {
- 	struct jc42_data *data = dev_get_drvdata(dev);
- 
-+	regcache_cache_only(data->regmap, false);
-+
- 	data->config &= ~JC42_CFG_SHUTDOWN;
- 	regmap_write(data->regmap, JC42_REG_CONFIG, data->config);
--	return 0;
-+
-+	/* Restore cached register values to hardware */
-+	return regcache_sync(data->regmap);
- }
- 
- static const struct dev_pm_ops jc42_dev_pm_ops = {
 -- 
 2.35.1
 
