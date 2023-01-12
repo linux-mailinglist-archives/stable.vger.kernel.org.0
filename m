@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CED06673CA
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:58:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A02C46673CB
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:58:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230209AbjALN6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 08:58:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53514 "EHLO
+        id S230366AbjALN6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 08:58:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233678AbjALN6J (ORCPT
+        with ESMTP id S233680AbjALN6J (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:58:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A8751335
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:51 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39B2748CE6
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:57:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 857C8B81E67
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBD3EC433EF;
-        Thu, 12 Jan 2023 13:57:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA0166202A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:57:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C83C433F0;
+        Thu, 12 Jan 2023 13:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673531869;
-        bh=HZk4ACem8Go7022uSocZgWvDiuQ18L5+jIfHY0AMvEI=;
+        s=korg; t=1673531872;
+        bh=3+u11lPi/YASPJ8JjHPxHvsZ1Psr/k1W+uTTsEVTIzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wiBCU7DUz7jxA+kOcnloffL8byd70gCi3UMLWGTB9kSF93VRhp0g0t7PEKjHHINHS
-         DHYdbad02RqE9/B077Z+lugpXoyYTd9c8WEDS0BQji2k0rCL6YrKXNGEUVHnb//PAy
-         /8pHj8GFvV9xDEfdIzNg3hStJDAXidJf6csuHljw=
+        b=2Us2BcOc2vyix0PrKPQN34O2S1vGVvRnsJ4U7O1R3Py4ICYzvKTGR1LMQja0czKVw
+         dj7sSzMgRnkIz8shID2HgyI8PrgHWX/0VKqbdFdz8ExAe5GIc4vTFiE/ClUrZTshoW
+         JY3A9DJLMjbNvSgF3kdxEA8rIRrZNsaqhqEbtsdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frederick Lawler <fred@cloudflare.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        patches@lists.linux.dev, slipper <slipper.alive@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 09/10] net: sched: disallow noqueue for qdisc classes
-Date:   Thu, 12 Jan 2023 14:56:46 +0100
-Message-Id: <20230112135327.045084438@linuxfoundation.org>
+Subject: [PATCH 5.15 10/10] net/ulp: prevent ULP without clone op from entering the LISTEN status
+Date:   Thu, 12 Jan 2023 14:56:47 +0100
+Message-Id: <20230112135327.087488002@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135326.689857506@linuxfoundation.org>
 References: <20230112135326.689857506@linuxfoundation.org>
@@ -53,93 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederick Lawler <fred@cloudflare.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 96398560f26aa07e8f2969d73c8197e6a6d10407 upstream.
+commit 2c02d41d71f90a5168391b6a5f2954112ba2307c upstream.
 
-While experimenting with applying noqueue to a classful queue discipline,
-we discovered a NULL pointer dereference in the __dev_queue_xmit()
-path that generates a kernel OOPS:
+When an ULP-enabled socket enters the LISTEN status, the listener ULP data
+pointer is copied inside the child/accepted sockets by sk_clone_lock().
 
-    # dev=enp0s5
-    # tc qdisc replace dev $dev root handle 1: htb default 1
-    # tc class add dev $dev parent 1: classid 1:1 htb rate 10mbit
-    # tc qdisc add dev $dev parent 1:1 handle 10: noqueue
-    # ping -I $dev -w 1 -c 1 1.1.1.1
+The relevant ULP can take care of de-duplicating the context pointer via
+the clone() operation, but only MPTCP and SMC implement such op.
 
-[    2.172856] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[    2.173217] #PF: supervisor instruction fetch in kernel mode
-...
-[    2.178451] Call Trace:
-[    2.178577]  <TASK>
-[    2.178686]  htb_enqueue+0x1c8/0x370
-[    2.178880]  dev_qdisc_enqueue+0x15/0x90
-[    2.179093]  __dev_queue_xmit+0x798/0xd00
-[    2.179305]  ? _raw_write_lock_bh+0xe/0x30
-[    2.179522]  ? __local_bh_enable_ip+0x32/0x70
-[    2.179759]  ? ___neigh_create+0x610/0x840
-[    2.179968]  ? eth_header+0x21/0xc0
-[    2.180144]  ip_finish_output2+0x15e/0x4f0
-[    2.180348]  ? dst_output+0x30/0x30
-[    2.180525]  ip_push_pending_frames+0x9d/0xb0
-[    2.180739]  raw_sendmsg+0x601/0xcb0
-[    2.180916]  ? _raw_spin_trylock+0xe/0x50
-[    2.181112]  ? _raw_spin_unlock_irqrestore+0x16/0x30
-[    2.181354]  ? get_page_from_freelist+0xcd6/0xdf0
-[    2.181594]  ? sock_sendmsg+0x56/0x60
-[    2.181781]  sock_sendmsg+0x56/0x60
-[    2.181958]  __sys_sendto+0xf7/0x160
-[    2.182139]  ? handle_mm_fault+0x6e/0x1d0
-[    2.182366]  ? do_user_addr_fault+0x1e1/0x660
-[    2.182627]  __x64_sys_sendto+0x1b/0x30
-[    2.182881]  do_syscall_64+0x38/0x90
-[    2.183085]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-...
-[    2.187402]  </TASK>
+Other ULPs may end-up with a double-free at socket disposal time.
 
-Previously in commit d66d6c3152e8 ("net: sched: register noqueue
-qdisc"), NULL was set for the noqueue discipline on noqueue init
-so that __dev_queue_xmit() falls through for the noqueue case. This
-also sets a bypass of the enqueue NULL check in the
-register_qdisc() function for the struct noqueue_disc_ops.
+We can't simply clear the ULP data at clone time, as TLS replaces the
+socket ops with custom ones assuming a valid TLS ULP context is
+available.
 
-Classful queue disciplines make it past the NULL check in
-__dev_queue_xmit() because the discipline is set to htb (in this case),
-and then in the call to __dev_xmit_skb(), it calls into htb_enqueue()
-which grabs a leaf node for a class and then calls qdisc_enqueue() by
-passing in a queue discipline which assumes ->enqueue() is not set to NULL.
+Instead completely prevent clone-less ULP sockets from entering the
+LISTEN status.
 
-Fix this by not allowing classes to be assigned to the noqueue
-discipline. Linux TC Notes states that classes cannot be set to
-the noqueue discipline. [1] Let's enforce that here.
-
-Links:
-1. https://linux-tc-notes.sourceforge.net/tc/doc/sch_noqueue.txt
-
-Fixes: d66d6c3152e8 ("net: sched: register noqueue qdisc")
-Cc: stable@vger.kernel.org
-Signed-off-by: Frederick Lawler <fred@cloudflare.com>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/r/20230109163906.706000-1-fred@cloudflare.com
+Fixes: 734942cc4ea6 ("tcp: ULP infrastructure")
+Reported-by: slipper <slipper.alive@gmail.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/r/4b80c3d1dbe3d0ab072f80450c202d9bc88b4b03.1672740602.git.pabeni@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_api.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/ipv4/inet_connection_sock.c |   16 +++++++++++++++-
+ net/ipv4/tcp_ulp.c              |    4 ++++
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -1114,6 +1114,11 @@ skip:
- 			return -ENOENT;
- 		}
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -1040,11 +1040,25 @@ void inet_csk_prepare_forced_close(struc
+ }
+ EXPORT_SYMBOL(inet_csk_prepare_forced_close);
  
-+		if (new && new->ops == &noqueue_qdisc_ops) {
-+			NL_SET_ERR_MSG(extack, "Cannot assign noqueue to a class");
-+			return -EINVAL;
-+		}
++static int inet_ulp_can_listen(const struct sock *sk)
++{
++	const struct inet_connection_sock *icsk = inet_csk(sk);
 +
- 		err = cops->graft(parent, cl, new, &old, extack);
- 		if (err)
- 			return err;
++	if (icsk->icsk_ulp_ops && !icsk->icsk_ulp_ops->clone)
++		return -EINVAL;
++
++	return 0;
++}
++
+ int inet_csk_listen_start(struct sock *sk, int backlog)
+ {
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	struct inet_sock *inet = inet_sk(sk);
+-	int err = -EADDRINUSE;
++	int err;
++
++	err = inet_ulp_can_listen(sk);
++	if (unlikely(err))
++		return err;
+ 
+ 	reqsk_queue_alloc(&icsk->icsk_accept_queue);
+ 
+--- a/net/ipv4/tcp_ulp.c
++++ b/net/ipv4/tcp_ulp.c
+@@ -136,6 +136,10 @@ static int __tcp_set_ulp(struct sock *sk
+ 	if (icsk->icsk_ulp_ops)
+ 		goto out_err;
+ 
++	err = -EINVAL;
++	if (!ulp_ops->clone && sk->sk_state == TCP_LISTEN)
++		goto out_err;
++
+ 	err = ulp_ops->init(sk);
+ 	if (err)
+ 		goto out_err;
 
 
