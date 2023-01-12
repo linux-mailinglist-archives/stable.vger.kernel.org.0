@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0732667687
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 102C1667660
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:31:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238201AbjALOc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:32:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55698 "EHLO
+        id S236655AbjALObN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:31:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237303AbjALOcH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:32:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F38F544F7
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:23:50 -0800 (PST)
+        with ESMTP id S236904AbjALOa2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B5F5DE6C
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:22:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A5569CE1E6B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61BCFC433F2;
-        Thu, 12 Jan 2023 14:23:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B32A4B81E6D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:22:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6A69C433D2;
+        Thu, 12 Jan 2023 14:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533426;
-        bh=fErM/nS5AKdkuMKYzcjCzX7TJtUGZ6MN7lqqrlTbzco=;
+        s=korg; t=1673533326;
+        bh=F9n7AZkWBkEHpuUdOvX6pL4BkYIT9fgyn8/4D80uZDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTCqgyXki6Mkzm6p44q7ZQ5NIz0dZuqybDmB/2TRkVnKu665Mg/anC2gM6xVO42Ik
-         YD4QudNmdAvUfhbsgWxk0iWpy2NuJU3Wld850YpTjxbQmNZ7R79dBFEov5uxmCRvmT
-         uvpHPi5Vko8jigHXZpdpAJFau2Wq4T2HtdHgrlIk=
+        b=u3UgyGKBq/6pkeBo6W10J9V+gc7te6zgVdvbElB0Hm6DYmB1QOPFV/iKC2sxHUZ8f
+         rx831XCTQ7JVsuIgqxqomlXZ7gL/buNGfCN86zwLEJNgK6QbZMUrhIOEPqnLuSoKws
+         S78ebG4AuxRqrBp2XqF+H/71e4fjwRk9wgyN9Uj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 434/783] powerpc/xmon: Enable breakpoints on 8xx
-Date:   Thu, 12 Jan 2023 14:52:30 +0100
-Message-Id: <20230112135544.427000750@linuxfoundation.org>
+Subject: [PATCH 5.10 435/783] powerpc/xmon: Fix -Wswitch-unreachable warning in bpt_cmds
+Date:   Thu, 12 Jan 2023 14:52:31 +0100
+Message-Id: <20230112135544.479667734@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,60 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit 30662217885d7341161924acf1665924d7d37d64 ]
+[ Upstream commit 1c4a4a4c8410be4a231a58b23e7a30923ff954ac ]
 
-Since commit 4ad8622dc548 ("powerpc/8xx: Implement hw_breakpoint"),
-8xx has breakpoints so there is no reason to opt breakpoint logic
-out of xmon for the 8xx.
+When building with automatic stack variable initialization, GCC 12
+complains about variables defined outside of switch case statements.
+Move the variable into the case that uses it, which silences the warning:
 
-Fixes: 4ad8622dc548 ("powerpc/8xx: Implement hw_breakpoint")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+arch/powerpc/xmon/xmon.c: In function ‘bpt_cmds’:
+arch/powerpc/xmon/xmon.c:1529:13: warning: statement will never be executed [-Wswitch-unreachable]
+ 1529 |         int mode;
+      |             ^~~~
+
+Fixes: 09b6c1129f89 ("powerpc/xmon: Fix compile error with PPC_8xx=y")
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/b0607f1113d1558e73476bb06db0ee16d31a6e5b.1608716197.git.christophe.leroy@csgroup.eu
-Stable-dep-of: 1c4a4a4c8410 ("powerpc/xmon: Fix -Wswitch-unreachable warning in bpt_cmds")
+Link: https://lore.kernel.org/r/YySE6FHiOcbWWR+9@work
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/xmon/xmon.c | 4 ----
- 1 file changed, 4 deletions(-)
+ arch/powerpc/xmon/xmon.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
-index 5559edf36756..c6a36b4045e8 100644
+index c6a36b4045e8..2872b66d9fec 100644
 --- a/arch/powerpc/xmon/xmon.c
 +++ b/arch/powerpc/xmon/xmon.c
-@@ -1383,7 +1383,6 @@ static long check_bp_loc(unsigned long addr)
- 	return 1;
- }
- 
--#ifndef CONFIG_PPC_8xx
- static int find_free_data_bpt(void)
- {
- 	int i;
-@@ -1395,7 +1394,6 @@ static int find_free_data_bpt(void)
- 	printf("Couldn't find free breakpoint register\n");
- 	return -1;
- }
--#endif
- 
- static void print_data_bpts(void)
- {
-@@ -1435,7 +1433,6 @@ bpt_cmds(void)
+@@ -1433,9 +1433,9 @@ bpt_cmds(void)
  	cmd = inchar();
  
  	switch (cmd) {
--#ifndef CONFIG_PPC_8xx
- 	static const char badaddr[] = "Only kernel addresses are permitted for breakpoints\n";
- 	int mode;
- 	case 'd':	/* bd - hardware data breakpoint */
-@@ -1497,7 +1494,6 @@ bpt_cmds(void)
- 			force_enable_xmon();
- 		}
- 		break;
--#endif
+-	static const char badaddr[] = "Only kernel addresses are permitted for breakpoints\n";
+-	int mode;
+-	case 'd':	/* bd - hardware data breakpoint */
++	case 'd': {	/* bd - hardware data breakpoint */
++		static const char badaddr[] = "Only kernel addresses are permitted for breakpoints\n";
++		int mode;
+ 		if (xmon_is_ro) {
+ 			printf(xmon_ro_msg);
+ 			break;
+@@ -1468,6 +1468,7 @@ bpt_cmds(void)
  
- 	case 'c':
- 		if (!scanhex(&a)) {
+ 		force_enable_xmon();
+ 		break;
++	}
+ 
+ 	case 'i':	/* bi - hardware instr breakpoint */
+ 		if (xmon_is_ro) {
 -- 
 2.35.1
 
