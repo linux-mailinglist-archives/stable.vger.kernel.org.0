@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 825B26675B6
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 715806675B2
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236265AbjALOYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:24:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44288 "EHLO
+        id S235030AbjALOX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:23:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235937AbjALOXW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:23:22 -0500
+        with ESMTP id S236705AbjALOXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:23:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B0954DB3
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:15:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D120F54DB6
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:15:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8012060110
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:15:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01A4C433F1;
-        Thu, 12 Jan 2023 14:15:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C9C860110
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:15:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E10AC433D2;
+        Thu, 12 Jan 2023 14:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532904;
-        bh=Sck1jiQ1ISLGs/MFLItvs2QPzjiYZ2JzypvxCh4E4rE=;
+        s=korg; t=1673532909;
+        bh=GfQ9IhbqJZi6hN1otynwz6mnWtPBlALTI3LI4fjsnck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgw5htWE0+NZFeGSd2blyccUFO5fGR95eZjmSTyXP5/CaLOSaft9WrfmOBYzxV0J6
-         qu6MGO5TBLSRemvSTg8ECGx/Do1vfHnPjvuFdPlcaV772gRnED2LbYjCGXx9A4aDm/
-         XiwTTUnFuYpoWHtZB5gRIlyxnbngNjov8fcRae7o=
+        b=iXbjkzViE0xF2fxpY36zLpubTJqFDp5mZMNw7CIomhpgo0m2IfKsxd9/vF5yMmZe1
+         s54UwlSTZWjT1WaebW1UMeUhkcPpIFDMJiRnFsidohzLkiYFzK8xn+SG7vnlfB0k8o
+         VX7sSxyAaj0gqZGlk2Diwceu7gD3BnE7t7rZYAsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Zhang Yiqun <zhangyiqun@phytium.com.cn>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 312/783] scsi: hpsa: Fix possible memory leak in hpsa_init_one()
-Date:   Thu, 12 Jan 2023 14:50:28 +0100
-Message-Id: <20230112135538.805542973@linuxfoundation.org>
+Subject: [PATCH 5.10 313/783] crypto: tcrypt - Fix multibuffer skcipher speed test mem leak
+Date:   Thu, 12 Jan 2023 14:50:29 +0100
+Message-Id: <20230112135538.840817550@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,40 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Zhang Yiqun <zhangyiqun@phytium.com.cn>
 
-[ Upstream commit 9c9ff300e0de07475796495d86f449340d454a0c ]
+[ Upstream commit 1aa33fc8d4032227253ceb736f47c52b859d9683 ]
 
-The hpda_alloc_ctlr_info() allocates h and its field reply_map. However, in
-hpsa_init_one(), if alloc_percpu() failed, the hpsa_init_one() jumps to
-clean1 directly, which frees h and leaks the h->reply_map.
+In the past, the data for mb-skcipher test has been allocated
+twice, that means the first allcated memory area is without
+free, which may cause a potential memory leakage. So this
+patch is to remove one allocation to fix this error.
 
-Fix by calling hpda_free_ctlr_info() to release h->replay_map and h instead
-free h directly.
-
-Fixes: 8b834bff1b73 ("scsi: hpsa: fix selection of reply queue")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Link: https://lore.kernel.org/r/20221122015751.87284-1-yuancan@huawei.com
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: e161c5930c15 ("crypto: tcrypt - add multibuf skcipher...")
+Signed-off-by: Zhang Yiqun <zhangyiqun@phytium.com.cn>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/tcrypt.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index 8df70c92911d..cd78d77911cd 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -8904,7 +8904,7 @@ static int hpsa_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		destroy_workqueue(h->monitor_ctlr_wq);
- 		h->monitor_ctlr_wq = NULL;
- 	}
--	kfree(h);
-+	hpda_free_ctlr_info(h);
- 	return rc;
- }
+diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
+index 8609174e036e..7972d2784b3b 100644
+--- a/crypto/tcrypt.c
++++ b/crypto/tcrypt.c
+@@ -1282,15 +1282,6 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
+ 			goto out_free_tfm;
+ 		}
  
+-
+-	for (i = 0; i < num_mb; ++i)
+-		if (testmgr_alloc_buf(data[i].xbuf)) {
+-			while (i--)
+-				testmgr_free_buf(data[i].xbuf);
+-			goto out_free_tfm;
+-		}
+-
+-
+ 	for (i = 0; i < num_mb; ++i) {
+ 		data[i].req = skcipher_request_alloc(tfm, GFP_KERNEL);
+ 		if (!data[i].req) {
 -- 
 2.35.1
 
