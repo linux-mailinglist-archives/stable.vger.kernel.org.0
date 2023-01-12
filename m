@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C8F96677BF
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:47:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 934E36673B6
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:56:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239846AbjALOrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:47:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37642 "EHLO
+        id S229608AbjALN4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 08:56:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239778AbjALOrB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:47:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94869D65
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:35:12 -0800 (PST)
+        with ESMTP id S232484AbjALN4v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:56:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AC6D52764
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:56:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 320C1B81E69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:35:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78835C433EF;
-        Thu, 12 Jan 2023 14:35:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01C41B81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:56:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3607AC433EF;
+        Thu, 12 Jan 2023 13:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534109;
-        bh=8Tdc6QHAgWWqg73C/fRgj/uWm9YIdTA42wwNRsksXzs=;
+        s=korg; t=1673531805;
+        bh=AGAo3AR0flrq6xcytno6h8cvDIIgb0Zh3s5d693NTFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LN7EIjEDSRaLq1yLn7ghqsQ5199WpVnGnpSHG2tzDw0HmlMGVBSuLoDaUgAySIWe8
-         hvrb2SgI0B0kbAy7Ljqpnb9NOv2B47Hm6y42yVk9B0vo6yZ+pdTAImUmFkr5ip78Hx
-         wyamJ5UWsYsT1eYcs9F/QfsmkJ1V5YaKW+mIfit8=
+        b=zhqnNnQRqFJ9QCGwTwhvOXNsg2iu0USgotYSZ1YoSEcrcn/zrHoTdeSxnHZ3O92dq
+         zBfhv85rtm6K9AJ06n3EOLOn/rT0aQNh+ZbxYL6bj9a4fMxkOR20DAAiPvbqcrnVmr
+         j7QGKV51x7abDg+Hwxc4b4vl97nb+F4UUUTGZBA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 5.10 668/783] drm/ingenic: Fix missing platform_driver_unregister() call in ingenic_drm_init()
+        patches@lists.linux.dev, Kyle Huey <me@kylehuey.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH 6.1 03/10] x86/fpu: Add a pkru argument to copy_uabi_from_kernel_to_xstate().
 Date:   Thu, 12 Jan 2023 14:56:24 +0100
-Message-Id: <20230112135555.312589728@linuxfoundation.org>
+Message-Id: <20230112135327.105135466@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
-References: <20230112135524.143670746@linuxfoundation.org>
+In-Reply-To: <20230112135326.981869724@linuxfoundation.org>
+References: <20230112135326.981869724@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +52,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Kyle Huey <me@kylehuey.com>
 
-commit 47078311b8efebdefd5b3b2f87e2b02b14f49c66 upstream.
+commit 1c813ce0305571e1b2e4cc4acca451da9e6ad18f upstream.
 
-A problem about modprobe ingenic-drm failed is triggered with the following
-log given:
+Both KVM (through KVM_SET_XSTATE) and ptrace (through PTRACE_SETREGSET
+with NT_X86_XSTATE) ultimately call copy_uabi_from_kernel_to_xstate(),
+but the canonical locations for the current PKRU value for KVM guests
+and processes in a ptrace stop are different (in the kvm_vcpu_arch and
+the thread_state structs respectively).
 
- [  303.561088] Error: Driver 'ingenic-ipu' is already registered, aborting...
- modprobe: ERROR: could not insert 'ingenic_drm': Device or resource busy
+In preparation for eventually handling PKRU in
+copy_uabi_to_xstate, pass in a pointer to the PKRU location.
 
-The reason is that ingenic_drm_init() returns platform_driver_register()
-directly without checking its return value, if platform_driver_register()
-failed, it returns without unregistering ingenic_ipu_driver_ptr, resulting
-the ingenic-drm can never be installed later.
-A simple call graph is shown as below:
-
- ingenic_drm_init()
-   platform_driver_register() # ingenic_ipu_driver_ptr are registered
-   platform_driver_register()
-     driver_register()
-       bus_add_driver()
-         priv = kzalloc(...) # OOM happened
-   # return without unregister ingenic_ipu_driver_ptr
-
-Fixing this problem by checking the return value of
-platform_driver_register() and do platform_unregister_drivers() if
-error happened.
-
-Fixes: fc1acf317b01 ("drm/ingenic: Add support for the IPU")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221104064512.8569-1-yuancan@huawei.com
+Signed-off-by: Kyle Huey <me@kylehuey.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lore.kernel.org/all/20221115230932.7126-3-khuey%40kylehuey.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm-drv.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kernel/fpu/core.c   |    2 +-
+ arch/x86/kernel/fpu/regset.c |    2 +-
+ arch/x86/kernel/fpu/xstate.c |    2 +-
+ arch/x86/kernel/fpu/xstate.h |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-@@ -1120,7 +1120,11 @@ static int ingenic_drm_init(void)
- 			return err;
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -406,7 +406,7 @@ int fpu_copy_uabi_to_guest_fpstate(struc
+ 	if (ustate->xsave.header.xfeatures & ~xcr0)
+ 		return -EINVAL;
+ 
+-	ret = copy_uabi_from_kernel_to_xstate(kstate, ustate);
++	ret = copy_uabi_from_kernel_to_xstate(kstate, ustate, vpkru);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/arch/x86/kernel/fpu/regset.c
++++ b/arch/x86/kernel/fpu/regset.c
+@@ -167,7 +167,7 @@ int xstateregs_set(struct task_struct *t
  	}
  
--	return platform_driver_register(&ingenic_drm_driver);
-+	err = platform_driver_register(&ingenic_drm_driver);
-+	if (IS_ENABLED(CONFIG_DRM_INGENIC_IPU) && err)
-+		platform_driver_unregister(ingenic_ipu_driver_ptr);
-+
-+	return err;
+ 	fpu_force_restore(fpu);
+-	ret = copy_uabi_from_kernel_to_xstate(fpu->fpstate, kbuf ?: tmpbuf);
++	ret = copy_uabi_from_kernel_to_xstate(fpu->fpstate, kbuf ?: tmpbuf, &target->thread.pkru);
+ 
+ out:
+ 	vfree(tmpbuf);
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -1268,7 +1268,7 @@ static int copy_uabi_to_xstate(struct fp
+  * Convert from a ptrace standard-format kernel buffer to kernel XSAVE[S]
+  * format and copy to the target thread. Used by ptrace and KVM.
+  */
+-int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf)
++int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf, u32 *pkru)
+ {
+ 	return copy_uabi_to_xstate(fpstate, kbuf, NULL);
  }
- module_init(ingenic_drm_init);
+--- a/arch/x86/kernel/fpu/xstate.h
++++ b/arch/x86/kernel/fpu/xstate.h
+@@ -46,7 +46,7 @@ extern void __copy_xstate_to_uabi_buf(st
+ 				      u32 pkru_val, enum xstate_copy_mode copy_mode);
+ extern void copy_xstate_to_uabi_buf(struct membuf to, struct task_struct *tsk,
+ 				    enum xstate_copy_mode mode);
+-extern int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf);
++extern int copy_uabi_from_kernel_to_xstate(struct fpstate *fpstate, const void *kbuf, u32 *pkru);
+ extern int copy_sigframe_from_user_to_xstate(struct task_struct *tsk, const void __user *ubuf);
+ 
  
 
 
