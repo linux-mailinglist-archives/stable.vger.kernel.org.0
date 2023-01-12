@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB2F866758D
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:23:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85EDD667590
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:23:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236406AbjALOXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:23:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44192 "EHLO
+        id S236816AbjALOXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:23:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236476AbjALOWM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:22:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7293D59519
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:13:29 -0800 (PST)
+        with ESMTP id S236701AbjALOWQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:22:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CEAD59513
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:13:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD347B81DCC
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:13:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26E84C433EF;
-        Thu, 12 Jan 2023 14:13:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 230BAB81E6D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:13:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50FA5C433EF;
+        Thu, 12 Jan 2023 14:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532806;
-        bh=V66IeALkdl/dfJg5mV7f8ivYgHhJJ4IbCIczghglw1c=;
+        s=korg; t=1673532809;
+        bh=ZGSA8kW/mrCz/E4gyVLR07tgIRBIc5w1yoF4I7guByY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FyxBv3O/zy0V47Jfdc6xpKbOWBR4XQWHlF2A9ZB9eJQzTJNlZQQqD8i+2Fk1ACwaQ
-         3p1kdToZIBVSIQ891L6BYoinMeKFohNrkihEvK/ZAsUjlk08zp+3LY5GokIWrxidBO
-         OVgjCu2niFsX+XdgT3IMtOjL9/uy75gL4z23eodc=
+        b=mIKueeyDEcXR8BpX+oNyPk0Z0RLvtZge6egXOdiIjLg9FoNTy3mbNmKKunK9MKung
+         IX4tsoYIK3AtrcLpgU1CJNtl5YIqirIhJ7IVzmOf6eizglor8mVXMSiBuM61uiSqOm
+         W75fo2g88yCYWhF6yvAR+4C3CjDXxRfXk/bDvvzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        John Johansen <john.johansen@canonical.com>,
+        patches@lists.linux.dev, Vidya Sagar <vidyas@nvidia.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Jingoo Han <jingoohan1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 283/783] apparmor: Use pointer to struct aa_label for lbs_cred
-Date:   Thu, 12 Jan 2023 14:49:59 +0100
-Message-Id: <20230112135537.515322773@linuxfoundation.org>
+Subject: [PATCH 5.10 284/783] PCI: dwc: Fix n_fts[] array overrun
+Date:   Thu, 12 Jan 2023 14:50:00 +0100
+Message-Id: <20230112135537.564136195@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,39 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 37923d4321b1e38170086da2c117f78f2b0f49c6 ]
+[ Upstream commit 66110361281b2f7da0c8bd51eaf1f152f4236035 ]
 
-According to the implementations of cred_label() and set_cred_label(),
-we should use pointer to struct aa_label for lbs_cred instead of struct
-aa_task_ctx, this patch fixes it.
+commit aeaa0bfe89654 ("PCI: dwc: Move N_FTS setup to common setup")
+incorrectly uses pci->link_gen in deriving the index to the
+n_fts[] array also introducing the issue of accessing beyond the
+boundaries of array for greater than Gen-2 speeds. This change fixes
+that issue.
 
-Fixes: bbd3662a8348 ("Infrastructure management of the cred security blob")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Link: https://lore.kernel.org/r/20220926111923.22487-1-vidyas@nvidia.com
+Fixes: aeaa0bfe8965 ("PCI: dwc: Move N_FTS setup to common setup")
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Jingoo Han <jingoohan1@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/lsm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/dwc/pcie-designware.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index ffeaee5ed968..585edcc6814d 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1161,10 +1161,10 @@ static int apparmor_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- #endif
+diff --git a/drivers/pci/controller/dwc/pcie-designware.c b/drivers/pci/controller/dwc/pcie-designware.c
+index 2b74ff88c5c5..28945351da14 100644
+--- a/drivers/pci/controller/dwc/pcie-designware.c
++++ b/drivers/pci/controller/dwc/pcie-designware.c
+@@ -589,7 +589,7 @@ void dw_pcie_setup(struct dw_pcie *pci)
+ 	if (pci->n_fts[1]) {
+ 		val = dw_pcie_readl_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL);
+ 		val &= ~PORT_LOGIC_N_FTS_MASK;
+-		val |= pci->n_fts[pci->link_gen - 1];
++		val |= pci->n_fts[1];
+ 		dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, val);
+ 	}
  
- /*
-- * The cred blob is a pointer to, not an instance of, an aa_task_ctx.
-+ * The cred blob is a pointer to, not an instance of, an aa_label.
-  */
- struct lsm_blob_sizes apparmor_blob_sizes __lsm_ro_after_init = {
--	.lbs_cred = sizeof(struct aa_task_ctx *),
-+	.lbs_cred = sizeof(struct aa_label *),
- 	.lbs_file = sizeof(struct aa_file_ctx),
- 	.lbs_task = sizeof(struct aa_task_ctx),
- };
 -- 
 2.35.1
 
