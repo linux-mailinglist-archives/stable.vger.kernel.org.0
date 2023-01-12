@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF35D6675F9
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:27:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 447D86675FA
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:28:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237221AbjALO14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:27:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47902 "EHLO
+        id S236676AbjALO16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:27:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237125AbjALO1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:27:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D8B568B4
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:17:50 -0800 (PST)
+        with ESMTP id S236997AbjALO1L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:27:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2EB65373F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:17:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D552C60A69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:17:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8C57C433D2;
-        Thu, 12 Jan 2023 14:17:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8451B81DCC
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:17:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D94CAC433D2;
+        Thu, 12 Jan 2023 14:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533069;
-        bh=qc7xB+NqwBeDJyGysf5cVnCJvys9+4WQf2nl4XEY1pw=;
+        s=korg; t=1673533072;
+        bh=R6yTPwpBsO8+EctjvMjDDr9lv8BYBR5gIDh0hZvoGPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQ9V4YD2MzmIK85wZM2N4+2j9UxhKk/6/aXYZVW9I9WBfEcOrabII710Pmc7D8lpC
-         g9VkGJw9pFbwWKZGQv0Rd10yJ8kvwfGKhPagOcS1ZEPSE5c6XN0+X45lI0fJGzCxW1
-         Euxy+SXIR9ebQ9Gc7LdRtwHFiPUQ6WuRtDV/qh+E=
+        b=ROe7TTgaJcJuIRrEBblvLCKRKcDZdkoFdkYCuYXWrlchxCqLN7gCs8X5XS4AYURdz
+         4Nk0BJr/rUU0oZeNKHTwQcUzHIEyysch9ZHj3Jfik6d5WwMctgZtjwTciVtNKn4pxw
+         l/llk/xx7cvx7aDchvIBZbOtHi2ydeG2Gyfq6YXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 359/783] test_firmware: fix memory leak in test_firmware_init()
-Date:   Thu, 12 Jan 2023 14:51:15 +0100
-Message-Id: <20230112135540.980357617@linuxfoundation.org>
+Subject: [PATCH 5.10 360/783] misc: ocxl: fix possible name leak in ocxl_file_register_afu()
+Date:   Thu, 12 Jan 2023 14:51:16 +0100
+Message-Id: <20230112135541.029164281@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,52 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 7610615e8cdb3f6f5bbd9d8e7a5d8a63e3cabf2e ]
+[ Upstream commit a4cb1004aeed2ab893a058fad00a5b41a12c4691 ]
 
-When misc_register() failed in test_firmware_init(), the memory pointed
-by test_fw_config->name is not released. The memory leak information is
-as follows:
-unreferenced object 0xffff88810a34cb00 (size 32):
-  comm "insmod", pid 7952, jiffies 4294948236 (age 49.060s)
-  hex dump (first 32 bytes):
-    74 65 73 74 2d 66 69 72 6d 77 61 72 65 2e 62 69  test-firmware.bi
-    6e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  n...............
-  backtrace:
-    [<ffffffff81b21fcb>] __kmalloc_node_track_caller+0x4b/0xc0
-    [<ffffffff81affb96>] kstrndup+0x46/0xc0
-    [<ffffffffa0403a49>] __test_firmware_config_init+0x29/0x380 [test_firmware]
-    [<ffffffffa040f068>] 0xffffffffa040f068
-    [<ffffffff81002c41>] do_one_initcall+0x141/0x780
-    [<ffffffff816a72c3>] do_init_module+0x1c3/0x630
-    [<ffffffff816adb9e>] load_module+0x623e/0x76a0
-    [<ffffffff816af471>] __do_sys_finit_module+0x181/0x240
-    [<ffffffff89978f99>] do_syscall_64+0x39/0xb0
-    [<ffffffff89a0008b>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+If device_register() returns error in ocxl_file_register_afu(),
+the name allocated by dev_set_name() need be freed. As comment
+of device_register() says, it should use put_device() to give
+up the reference in the error path. So fix this by calling
+put_device(), then the name can be freed in kobject_cleanup(),
+and info is freed in info_release().
 
-Fixes: c92316bf8e94 ("test_firmware: add batched firmware tests")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20221119035721.18268-1-shaozhengchao@huawei.com
+Fixes: 75ca758adbaf ("ocxl: Create a clear delineation between ocxl backend & frontend")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221111145929.2429271-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_firmware.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/ocxl/file.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/lib/test_firmware.c b/lib/test_firmware.c
-index 2baa275a6ddf..76550d2e2edc 100644
---- a/lib/test_firmware.c
-+++ b/lib/test_firmware.c
-@@ -1114,6 +1114,7 @@ static int __init test_firmware_init(void)
+diff --git a/drivers/misc/ocxl/file.c b/drivers/misc/ocxl/file.c
+index e094809b54ff..524ded87964d 100644
+--- a/drivers/misc/ocxl/file.c
++++ b/drivers/misc/ocxl/file.c
+@@ -543,8 +543,11 @@ int ocxl_file_register_afu(struct ocxl_afu *afu)
+ 		goto err_put;
  
- 	rc = misc_register(&test_fw_misc_device);
- 	if (rc) {
-+		__test_firmware_config_free();
- 		kfree(test_fw_config);
- 		pr_err("could not register misc device: %d\n", rc);
- 		return rc;
+ 	rc = device_register(&info->dev);
+-	if (rc)
+-		goto err_put;
++	if (rc) {
++		free_minor(info);
++		put_device(&info->dev);
++		return rc;
++	}
+ 
+ 	rc = ocxl_sysfs_register_afu(info);
+ 	if (rc)
 -- 
 2.35.1
 
