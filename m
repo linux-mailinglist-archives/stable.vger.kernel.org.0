@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F05E9667599
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:23:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 082CA66759C
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:23:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235773AbjALOX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:23:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43482 "EHLO
+        id S236413AbjALOX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:23:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236541AbjALOWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:22:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D18D544E0
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:13:57 -0800 (PST)
+        with ESMTP id S236655AbjALOWY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:22:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8EA6544F5
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:13:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2A3FB81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:13:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BAADC433F0;
-        Thu, 12 Jan 2023 14:13:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54C5160AB3
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4734AC433D2;
+        Thu, 12 Jan 2023 14:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532834;
-        bh=pCORPEIUy+U3C3FxaD51CO7iJYUs2r8ouFMSLIiDc1w=;
+        s=korg; t=1673532837;
+        bh=cmF9Sc1hD38wMGifNvnaJpAUwtglWii4Eh5jbwNRspo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDqc2H6Gb6ZVHVYZHWG/lxWyZSJ3mnALFUL/Qf3vNh7+ILVml50Q9mAVlRrox71gi
-         7hp/DreuqVGRQ33QaH8zTvNzu6hKhVVb/8ZlPq9olvngouGv/772VUvmZIMgFidLUB
-         u06+MiQ2iUcQefVRiZCYeQ1cmMmY2IsAFomR6Z9U=
+        b=ODCFbKCK1P3z8bX4qXiwvoEL47xlKr6OK6U6U2d1pNX1hSDGCwPsdILMx6DZGHD3s
+         X/4JG3OmpotVhQI3YddnvQd6mJffiM3b/ECPq3lPRpR9B/IaQcCog0tWICZCmzhO+Y
+         690gINEw7D2uJqAlbrBIHMNDZRUr27b5BH4bJCPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Corentin Labbe <clabbe@baylibre.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 291/783] crypto: rockchip - add fallback for ahash
-Date:   Thu, 12 Jan 2023 14:50:07 +0100
-Message-Id: <20230112135537.834980673@linuxfoundation.org>
+Subject: [PATCH 5.10 292/783] crypto: rockchip - better handle cipher key
+Date:   Thu, 12 Jan 2023 14:50:08 +0100
+Message-Id: <20230112135537.870635498@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -56,9 +56,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 816600485cb597b3ff7d6806a95a78512839f775 ]
+[ Upstream commit d6b23ccef82816050c2fd458c9dabfa0e0af09b9 ]
 
-Adds a fallback for all case hardware cannot handle.
+The key should not be set in hardware too much in advance, this will
+fail it 2 TFM with different keys generate alternative requests.
+The key should be stored and used just before doing cipher operations.
 
 Fixes: ce0183cb6464b ("crypto: rockchip - switch to skcipher API")
 Reviewed-by: John Keeping <john@metanate.com>
@@ -66,72 +68,78 @@ Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/rockchip/rk3288_crypto_ahash.c | 38 +++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ drivers/crypto/rockchip/rk3288_crypto.h          |  1 +
+ drivers/crypto/rockchip/rk3288_crypto_skcipher.c | 10 +++++++---
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/rockchip/rk3288_crypto_ahash.c b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-index 9583310a69d5..f917adc4a608 100644
---- a/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-+++ b/drivers/crypto/rockchip/rk3288_crypto_ahash.c
-@@ -16,6 +16,40 @@
-  * so we put the fixed hash out when met zero message.
-  */
+diff --git a/drivers/crypto/rockchip/rk3288_crypto.h b/drivers/crypto/rockchip/rk3288_crypto.h
+index 027e28f60843..1eabf3952a03 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto.h
++++ b/drivers/crypto/rockchip/rk3288_crypto.h
+@@ -244,6 +244,7 @@ struct rk_ahash_rctx {
+ struct rk_cipher_ctx {
+ 	struct rk_crypto_info		*dev;
+ 	unsigned int			keylen;
++	u8				key[AES_MAX_KEY_SIZE];
+ 	u8				iv[AES_BLOCK_SIZE];
+ 	struct crypto_skcipher *fallback_tfm;
+ };
+diff --git a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
+index eac5bba66e25..1ef94f8db2c5 100644
+--- a/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
++++ b/drivers/crypto/rockchip/rk3288_crypto_skcipher.c
+@@ -95,7 +95,7 @@ static int rk_aes_setkey(struct crypto_skcipher *cipher,
+ 	    keylen != AES_KEYSIZE_256)
+ 		return -EINVAL;
+ 	ctx->keylen = keylen;
+-	memcpy_toio(ctx->dev->reg + RK_CRYPTO_AES_KEY_0, key, keylen);
++	memcpy(ctx->key, key, keylen);
  
-+static bool rk_ahash_need_fallback(struct ahash_request *req)
-+{
-+	struct scatterlist *sg;
-+
-+	sg = req->src;
-+	while (sg) {
-+		if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
-+			return true;
-+		}
-+		if (sg->length % 4) {
-+			return true;
-+		}
-+		sg = sg_next(sg);
-+	}
-+	return false;
-+}
-+
-+static int rk_ahash_digest_fb(struct ahash_request *areq)
-+{
-+	struct rk_ahash_rctx *rctx = ahash_request_ctx(areq);
-+	struct crypto_ahash *tfm = crypto_ahash_reqtfm(areq);
-+	struct rk_ahash_ctx *tfmctx = crypto_ahash_ctx(tfm);
-+
-+	ahash_request_set_tfm(&rctx->fallback_req, tfmctx->fallback_tfm);
-+	rctx->fallback_req.base.flags = areq->base.flags &
-+					CRYPTO_TFM_REQ_MAY_SLEEP;
-+
-+	rctx->fallback_req.nbytes = areq->nbytes;
-+	rctx->fallback_req.src = areq->src;
-+	rctx->fallback_req.result = areq->result;
-+
-+	return crypto_ahash_digest(&rctx->fallback_req);
-+}
-+
- static int zero_message_process(struct ahash_request *req)
- {
- 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
-@@ -167,6 +201,9 @@ static int rk_ahash_digest(struct ahash_request *req)
- 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(req->base.tfm);
- 	struct rk_crypto_info *dev = tctx->dev;
+ 	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
+ }
+@@ -111,7 +111,7 @@ static int rk_des_setkey(struct crypto_skcipher *cipher,
+ 		return err;
  
-+	if (rk_ahash_need_fallback(req))
-+		return rk_ahash_digest_fb(req);
-+
- 	if (!req->nbytes)
- 		return zero_message_process(req);
- 	else
-@@ -309,6 +346,7 @@ static void rk_cra_hash_exit(struct crypto_tfm *tfm)
- 	struct rk_ahash_ctx *tctx = crypto_tfm_ctx(tfm);
+ 	ctx->keylen = keylen;
+-	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
++	memcpy(ctx->key, key, keylen);
  
- 	free_page((unsigned long)tctx->dev->addr_vir);
-+	crypto_free_ahash(tctx->fallback_tfm);
+ 	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
+ }
+@@ -127,7 +127,8 @@ static int rk_tdes_setkey(struct crypto_skcipher *cipher,
+ 		return err;
+ 
+ 	ctx->keylen = keylen;
+-	memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, key, keylen);
++	memcpy(ctx->key, key, keylen);
++
+ 	return crypto_skcipher_setkey(ctx->fallback_tfm, key, keylen);
  }
  
- struct rk_crypto_tmp rk_ahash_sha1 = {
+@@ -283,6 +284,7 @@ static void rk_ablk_hw_init(struct rk_crypto_info *dev)
+ 			     RK_CRYPTO_TDES_BYTESWAP_IV;
+ 		CRYPTO_WRITE(dev, RK_CRYPTO_TDES_CTRL, rctx->mode);
+ 		memcpy_toio(dev->reg + RK_CRYPTO_TDES_IV_0, req->iv, ivsize);
++		memcpy_toio(ctx->dev->reg + RK_CRYPTO_TDES_KEY1_0, ctx->key, ctx->keylen);
+ 		conf_reg = RK_CRYPTO_DESSEL;
+ 	} else {
+ 		rctx->mode |= RK_CRYPTO_AES_FIFO_MODE |
+@@ -295,6 +297,7 @@ static void rk_ablk_hw_init(struct rk_crypto_info *dev)
+ 			rctx->mode |= RK_CRYPTO_AES_256BIT_key;
+ 		CRYPTO_WRITE(dev, RK_CRYPTO_AES_CTRL, rctx->mode);
+ 		memcpy_toio(dev->reg + RK_CRYPTO_AES_IV_0, req->iv, ivsize);
++		memcpy_toio(ctx->dev->reg + RK_CRYPTO_AES_KEY_0, ctx->key, ctx->keylen);
+ 	}
+ 	conf_reg |= RK_CRYPTO_BYTESWAP_BTFIFO |
+ 		    RK_CRYPTO_BYTESWAP_BRFIFO;
+@@ -484,6 +487,7 @@ static void rk_ablk_exit_tfm(struct crypto_skcipher *tfm)
+ {
+ 	struct rk_cipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+ 
++	memzero_explicit(ctx->key, ctx->keylen);
+ 	free_page((unsigned long)ctx->dev->addr_vir);
+ 	crypto_free_skcipher(ctx->fallback_tfm);
+ }
 -- 
 2.35.1
 
