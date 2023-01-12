@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 153F3667779
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:43:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5259C66777B
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:44:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239798AbjALOnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:43:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37764 "EHLO
+        id S239577AbjALOnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:43:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238486AbjALOnF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:43:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F7F05372E
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:32:28 -0800 (PST)
+        with ESMTP id S238133AbjALOnM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:43:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BE0625F6
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:32:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22DAA62038
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:32:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3446AC433D2;
-        Thu, 12 Jan 2023 14:32:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BA3062037
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:32:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 160A5C4339C;
+        Thu, 12 Jan 2023 14:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533947;
-        bh=V2+5Utq5rvpIASzoVumuev2HLEK4R4cNo7y/avz5NGE=;
+        s=korg; t=1673533950;
+        bh=W4U1vG3pQGq/DvHaGJXGYOvyc4ySAoRkjbdMnQ+Bou0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IiQ+VqL2/5LEoY5vGe3iQRECMtV95kt4rG/15ZUQDwM5pVJ7+2iHosqAp4pJvTbuH
-         Bn/IQZJjKRBTYvh3k7encYyDSBoeWjPz5POL4Gb2B2DMs1L6dr+z4c49nHwIvXEXx5
-         3fCBAl/QDpgPExG3wsSK0onnHQp9BNi26IxnL/Ac=
+        b=Vdm+myS5FnzlASM2twSQuWmQJ4Epsxec0FLy6N9v3Kyf87hnT/iDa5vJ5Znh6+wgo
+         uEv4B1ge49YnFl2pl0Za1IThTq1W1jxkFOZx/YOcB3b9CCqObfQOw0XxY4AE4ttsHF
+         GmK/orJw1pr55VdKGdmn589BLyH+aB7inH3lGeP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyunwoo Kim <imv4bel@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Subject: [PATCH 5.10 645/783] media: dvb-core: Fix UAF due to refcount races at releasing
-Date:   Thu, 12 Jan 2023 14:56:01 +0100
-Message-Id: <20230112135554.222679496@linuxfoundation.org>
+        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 646/783] cifs: fix confusing debug message
+Date:   Thu, 12 Jan 2023 14:56:02 +0100
+Message-Id: <20230112135554.272544561@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,69 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit fd3d91ab1c6ab0628fe642dd570b56302c30a792 upstream.
+commit a85ceafd41927e41a4103d228a993df7edd8823b upstream.
 
-The dvb-core tries to sync the releases of opened files at
-dvb_dmxdev_release() with two refcounts: dvbdev->users and
-dvr_dvbdev->users.  A problem is present in those two syncs: when yet
-another dvb_demux_open() is called during those sync waits,
-dvb_demux_open() continues to process even if the device is being
-closed.  This includes the increment of the former refcount, resulting
-in the leftover refcount after the sync of the latter refcount at
-dvb_dmxdev_release().  It ends up with use-after-free, since the
-function believes that all usages were gone and releases the
-resources.
+Since rc was initialised to -ENOMEM in cifs_get_smb_ses(), when an
+existing smb session was found, free_xid() would be called and then
+print
 
-This patch addresses the problem by adding the check of dmxdev->exit
-flag at dvb_demux_open(), just like dvb_dvr_open() already does.  With
-the exit flag check, the second call of dvb_demux_open() fails, hence
-the further corruption can be avoided.
+  CIFS: fs/cifs/connect.c: Existing tcp session with server found
+  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 44 with uid: 0
+  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
+  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 44) rc = -12
 
-Also for avoiding the races of the dmxdev->exit flag reference, this
-patch serializes the dmxdev->exit set up and the sync waits with the
-dmxdev->mutex lock at dvb_dmxdev_release().  Without the mutex lock,
-dvb_demux_open() (or dvb_dvr_open()) may run concurrently with
-dvb_dmxdev_release(), which allows to skip the exit flag check and
-continue the open process that is being closed.
+Fix this by initialising rc to 0 and then let free_xid() print this
+instead
 
-CVE-2022-41218 is assigned to those bugs above.
+  CIFS: fs/cifs/connect.c: Existing tcp session with server found
+  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 14 with uid: 0
+  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
+  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 14) rc = 0
 
-Reported-by: Hyunwoo Kim <imv4bel@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/20220908132754.30532-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dmxdev.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/cifs/connect.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/media/dvb-core/dmxdev.c
-+++ b/drivers/media/dvb-core/dmxdev.c
-@@ -800,6 +800,11 @@ static int dvb_demux_open(struct inode *
- 	if (mutex_lock_interruptible(&dmxdev->mutex))
- 		return -ERESTARTSYS;
- 
-+	if (dmxdev->exit) {
-+		mutex_unlock(&dmxdev->mutex);
-+		return -ENODEV;
-+	}
-+
- 	for (i = 0; i < dmxdev->filternum; i++)
- 		if (dmxdev->filter[i].state == DMXDEV_STATE_FREE)
- 			break;
-@@ -1458,7 +1463,10 @@ EXPORT_SYMBOL(dvb_dmxdev_init);
- 
- void dvb_dmxdev_release(struct dmxdev *dmxdev)
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3038,7 +3038,7 @@ cifs_set_cifscreds(struct smb_vol *vol _
+ struct cifs_ses *
+ cifs_get_smb_ses(struct TCP_Server_Info *server, struct smb_vol *volume_info)
  {
-+	mutex_lock(&dmxdev->mutex);
- 	dmxdev->exit = 1;
-+	mutex_unlock(&dmxdev->mutex);
+-	int rc = -ENOMEM;
++	int rc = 0;
+ 	unsigned int xid;
+ 	struct cifs_ses *ses;
+ 	struct sockaddr_in *addr = (struct sockaddr_in *)&server->dstaddr;
+@@ -3080,6 +3080,8 @@ cifs_get_smb_ses(struct TCP_Server_Info
+ 		return ses;
+ 	}
+ 
++	rc = -ENOMEM;
 +
- 	if (dmxdev->dvbdev->users > 1) {
- 		wait_event(dmxdev->dvbdev->wait_queue,
- 				dmxdev->dvbdev->users == 1);
+ 	cifs_dbg(FYI, "Existing smb sess not found\n");
+ 	ses = sesInfoAlloc();
+ 	if (ses == NULL)
 
 
