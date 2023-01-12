@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA3F667799
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:45:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D30A66779A
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:45:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239889AbjALOpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:45:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37058 "EHLO
+        id S239896AbjALOpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:45:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239881AbjALOpH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:45:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 270655951B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:33:23 -0800 (PST)
+        with ESMTP id S239897AbjALOpJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:45:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CA9E59FBD
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:33:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B51F660A69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:33:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8505C433EF;
-        Thu, 12 Jan 2023 14:33:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A0A1B8113E
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:33:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 883EEC433EF;
+        Thu, 12 Jan 2023 14:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534002;
-        bh=gZCMzfdMThBHQbXKBBF+0ZdSCnJNopEembYlEMLWY8Y=;
+        s=korg; t=1673534005;
+        bh=fJ+sT9wlDCZUKQrFX/kz9++CjBi0cQ//WVI+4TssWIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BFYqPCv/XC+sOeiOYbPrIqHZnrIeiAS5KKu+gLuM/bBGJ91XJrnqWbBv1i2LTFRa
-         QVgpUZkHCJB7tu4yZiGFjhU4JLeIAqaKBmJH7E0PzjT1F2mibqdCbOg223zv5IKk0P
-         vH4dCeWci//Zp8zqSgmbWf5IUlOU6bp/Zsvc6Lic=
+        b=dznSCwgLYblRv3VUiXBZvGmCAQ8RWF0QXSP0koMNcZ9eYm/XwxCEBBGDoS5cLJwse
+         l9iXt8qFFPtM6vnZpMd6BCMK+6MgjafqqtiJIQK1XFYBadD29f04ttbIy2a7Z5Bn4g
+         oeouDbiIJPW1JF3DS9E8XChbH6+hwim8H/HJjsao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kim Phillips <kim.phillips@amd.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.10 661/783] iommu/amd: Fix ivrs_acpihid cmdline parsing code
-Date:   Thu, 12 Jan 2023 14:56:17 +0100
-Message-Id: <20230112135554.984747294@linuxfoundation.org>
+        patches@lists.linux.dev, Maria Yu <quic_aiquny@quicinc.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 5.10 662/783] remoteproc: core: Do pm_relax when in RPROC_OFFLINE state
+Date:   Thu, 12 Jan 2023 14:56:18 +0100
+Message-Id: <20230112135555.032412975@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,45 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Maria Yu <quic_aiquny@quicinc.com>
 
-commit 5f18e9f8868c6d4eae71678e7ebd4977b7d8c8cf upstream.
+commit 11c7f9e3131ad14b27a957496088fa488b153a48 upstream.
 
-The second (UID) strcmp in acpi_dev_hid_uid_match considers
-"0" and "00" different, which can prevent device registration.
+Make sure that pm_relax() happens even when the remoteproc
+is stopped before the crash handler work is scheduled.
 
-Have the AMD IOMMU driver's ivrs_acpihid parsing code remove
-any leading zeroes to make the UID strcmp succeed.  Now users
-can safely specify "AMDxxxxx:00" or "AMDxxxxx:0" and expect
-the same behaviour.
-
-Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Cc: stable@vger.kernel.org
-Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20220919155638.391481-1-kim.phillips@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Maria Yu <quic_aiquny@quicinc.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: a781e5aa5911 ("remoteproc: core: Prevent system suspend during remoteproc recovery")
+Link: https://lore.kernel.org/r/20221206015957.2616-2-quic_aiquny@quicinc.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd/init.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/remoteproc/remoteproc_core.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -3126,6 +3126,13 @@ static int __init parse_ivrs_acpihid(cha
- 		return 1;
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -1741,12 +1741,18 @@ static void rproc_crash_handler_work(str
+ 
+ 	mutex_lock(&rproc->lock);
+ 
+-	if (rproc->state == RPROC_CRASHED || rproc->state == RPROC_OFFLINE) {
++	if (rproc->state == RPROC_CRASHED) {
+ 		/* handle only the first crash detected */
+ 		mutex_unlock(&rproc->lock);
+ 		return;
  	}
  
-+	/*
-+	 * Ignore leading zeroes after ':', so e.g., AMDI0095:00
-+	 * will match AMDI0095:0 in the second strcmp in acpi_dev_hid_uid_match
-+	 */
-+	while (*uid == '0' && *(uid + 1))
-+		uid++;
++	if (rproc->state == RPROC_OFFLINE) {
++		/* Don't recover if the remote processor was stopped */
++		mutex_unlock(&rproc->lock);
++		goto out;
++	}
 +
- 	i = early_acpihid_map_size++;
- 	memcpy(early_acpihid_map[i].hid, hid, strlen(hid));
- 	memcpy(early_acpihid_map[i].uid, uid, strlen(uid));
+ 	rproc->state = RPROC_CRASHED;
+ 	dev_err(dev, "handling crash #%u in %s\n", ++rproc->crash_cnt,
+ 		rproc->name);
+@@ -1756,6 +1762,7 @@ static void rproc_crash_handler_work(str
+ 	if (!rproc->recovery_disabled)
+ 		rproc_trigger_recovery(rproc);
+ 
++out:
+ 	pm_relax(rproc->dev.parent);
+ }
+ 
 
 
