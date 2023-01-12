@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BCB8667719
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:40:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC60766771A
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:40:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233728AbjALOj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:39:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33092 "EHLO
+        id S239695AbjALOkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:40:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239336AbjALOjY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:39:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4C895D68F
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:29:06 -0800 (PST)
+        with ESMTP id S239694AbjALOjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:39:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC26115812
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:29:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 829746202D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E796C433F0;
-        Thu, 12 Jan 2023 14:29:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A283B8113E
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:29:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88649C433EF;
+        Thu, 12 Jan 2023 14:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533745;
-        bh=MDoSzXVtTwsEULaVygo8hfDjSSlpwneZQiauIwiF8+Y=;
+        s=korg; t=1673533749;
+        bh=LuZn2RqzSXx3XOC4kUIZiZSn0tUE2XyN+LbOcrot9OI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aarS7JVFajPUReETvhDZGLScqwfnOVWNUGzAwj7pKAjv+Xo4eteiTcj15TrXO3wFX
-         Zehg13y1WkC0tH6GHpV7qzpfuXy/3eA58gF15PJbUf1mDuvGvpWzpYdR9C7OzhSEUL
-         QOcb/IHWgzp+G5CHO5h7vyqEZkI9DAsQoQwdkWFA=
+        b=fu57VfNoxY6wiyVfRb09ZbjnV3HCwC+LldVKPKYk42VUmSM4Yhzsapcg/octiQkCf
+         A+03PSgMG2896lkXKrH7Sp/9orupAX+jqWtWr7enVDj8+uRtjXlskxQVRe1glbDTgU
+         nUbt/2o/ZqgXj1Dx7rKqDIs2J3lwbl249+dQDC5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Kanchan Joshi <joshi.k@samsung.com>,
+        patches@lists.linux.dev,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 579/783] nvmet: dont defer passthrough commands with trivial effects to the workqueue
-Date:   Thu, 12 Jan 2023 14:54:55 +0100
-Message-Id: <20230112135551.089622789@linuxfoundation.org>
+Subject: [PATCH 5.10 580/783] objtool: Fix SEGFAULT
+Date:   Thu, 12 Jan 2023 14:54:56 +0100
+Message-Id: <20230112135551.136276978@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,52 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 2a459f6933e1c459bffb7cc73fd6c900edc714bd ]
+[ Upstream commit efb11fdb3e1a9f694fa12b70b21e69e55ec59c36 ]
 
-Mask out the "Command Supported" and "Logical Block Content Change" bits
-and only defer execution of commands that have non-trivial effects to
-the workqueue for synchronous execution.  This allows to execute admin
-commands asynchronously on controllers that provide a Command Supported
-and Effects log page, and will keep allowing to execute Write commands
-asynchronously once command effects on I/O commands are taken into
-account.
+find_insn() will return NULL in case of failure. Check insn in order
+to avoid a kernel Oops for NULL pointer dereference.
 
-Fixes: c1fef73f793b ("nvmet: add passthru code to process commands")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Kanchan Joshi <joshi.k@samsung.com>
+Tested-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Acked-by: Josh Poimboeuf <jpoimboe@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221114175754.1131267-9-sv@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/passthru.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ tools/objtool/check.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/passthru.c b/drivers/nvme/target/passthru.c
-index d24251ece502..f76d01028df0 100644
---- a/drivers/nvme/target/passthru.c
-+++ b/drivers/nvme/target/passthru.c
-@@ -259,14 +259,13 @@ static void nvmet_passthru_execute_cmd(struct nvmet_req *req)
- 	}
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 5d64b673da2d..700984e7f5ba 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -196,7 +196,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
+ 		return false;
  
- 	/*
--	 * If there are effects for the command we are about to execute, or
--	 * an end_req function we need to use nvme_execute_passthru_rq()
--	 * synchronously in a work item seeing the end_req function and
--	 * nvme_passthru_end() can't be called in the request done callback
--	 * which is typically in interrupt context.
-+	 * If a command needs post-execution fixups, or there are any
-+	 * non-trivial effects, make sure to execute the command synchronously
-+	 * in a workqueue so that nvme_passthru_end gets called.
- 	 */
- 	effects = nvme_command_effects(ctrl, ns, req->cmd->common.opcode);
--	if (req->p.use_workqueue || effects) {
-+	if (req->p.use_workqueue ||
-+	    (effects & ~(NVME_CMD_EFFECTS_CSUPP | NVME_CMD_EFFECTS_LBCC))) {
- 		INIT_WORK(&req->p.work, nvmet_passthru_execute_cmd_work);
- 		req->p.rq = rq;
- 		schedule_work(&req->p.work);
+ 	insn = find_insn(file, func->sec, func->offset);
+-	if (!insn->func)
++	if (!insn || !insn->func)
+ 		return false;
+ 
+ 	func_for_each_insn(file, func, insn) {
 -- 
 2.35.1
 
