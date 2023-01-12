@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72FC666781F
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:52:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B6A667822
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:53:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239937AbjALOwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:52:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42950 "EHLO
+        id S239985AbjALOxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:53:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238976AbjALOwa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:52:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51C7561463
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:39:16 -0800 (PST)
+        with ESMTP id S239996AbjALOwn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:52:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F8F065AD7
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:39:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF16F62036
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:39:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D46FCC433EF;
-        Thu, 12 Jan 2023 14:39:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D10862038
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:39:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DE52C433EF;
+        Thu, 12 Jan 2023 14:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534355;
-        bh=1gEc5gA9QuNlhA0i5mlB1JdBxiqX4qUl4oJgU/s6O4g=;
+        s=korg; t=1673534361;
+        bh=HZk4ACem8Go7022uSocZgWvDiuQ18L5+jIfHY0AMvEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUFYatKLKEFiKxb6DM+my1QcqWWyxqoGuZ7/DpEEPNCt4HERwvVf2QB56CRwB1e+0
-         KMTdFwQSQZdCYAunyPmiAMSDJNHRH3J595Fyvt76OuqH2WtAZI/kMg9X0HKLa+I1lq
-         li1fvPlxf093K2DGBB2qxP5nLvvI+qDpi6hbnu/w=
+        b=fd+sd+oB/uRRJbPCrua6NPsaLDE1FDQM62uHXUWq3zEG+GvifFGmgUTIMqYsuMiaO
+         q6nKH/34VXx5muedSNionD6KF0Zzlthj8AHIXOztTWUhqV9lRgMrUM1l+UAh7BVDS8
+         fKhFpUqVwsdhvWeSJj4D2cCqLTQJbkR9T5aClSdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        patches@lists.linux.dev, Frederick Lawler <fred@cloudflare.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 781/783] mptcp: use proper req destructor for IPv6
-Date:   Thu, 12 Jan 2023 14:58:17 +0100
-Message-Id: <20230112135600.611605452@linuxfoundation.org>
+Subject: [PATCH 5.10 782/783] net: sched: disallow noqueue for qdisc classes
+Date:   Thu, 12 Jan 2023 14:58:18 +0100
+Message-Id: <20230112135600.653492778@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,92 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mat Martineau <mathew.j.martineau@linux.intel.com>
+From: Frederick Lawler <fred@cloudflare.com>
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+commit 96398560f26aa07e8f2969d73c8197e6a6d10407 upstream.
 
-commit d3295fee3c756ece33ac0d935e172e68c0a4161b upstream.
+While experimenting with applying noqueue to a classful queue discipline,
+we discovered a NULL pointer dereference in the __dev_queue_xmit()
+path that generates a kernel OOPS:
 
-Before, only the destructor from TCP request sock in IPv4 was called
-even if the subflow was IPv6.
+    # dev=enp0s5
+    # tc qdisc replace dev $dev root handle 1: htb default 1
+    # tc class add dev $dev parent 1: classid 1:1 htb rate 10mbit
+    # tc qdisc add dev $dev parent 1:1 handle 10: noqueue
+    # ping -I $dev -w 1 -c 1 1.1.1.1
 
-It is important to use the right destructor to avoid memory leaks with
-some advanced IPv6 features, e.g. when the request socks contain
-specific IPv6 options.
+[    2.172856] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[    2.173217] #PF: supervisor instruction fetch in kernel mode
+...
+[    2.178451] Call Trace:
+[    2.178577]  <TASK>
+[    2.178686]  htb_enqueue+0x1c8/0x370
+[    2.178880]  dev_qdisc_enqueue+0x15/0x90
+[    2.179093]  __dev_queue_xmit+0x798/0xd00
+[    2.179305]  ? _raw_write_lock_bh+0xe/0x30
+[    2.179522]  ? __local_bh_enable_ip+0x32/0x70
+[    2.179759]  ? ___neigh_create+0x610/0x840
+[    2.179968]  ? eth_header+0x21/0xc0
+[    2.180144]  ip_finish_output2+0x15e/0x4f0
+[    2.180348]  ? dst_output+0x30/0x30
+[    2.180525]  ip_push_pending_frames+0x9d/0xb0
+[    2.180739]  raw_sendmsg+0x601/0xcb0
+[    2.180916]  ? _raw_spin_trylock+0xe/0x50
+[    2.181112]  ? _raw_spin_unlock_irqrestore+0x16/0x30
+[    2.181354]  ? get_page_from_freelist+0xcd6/0xdf0
+[    2.181594]  ? sock_sendmsg+0x56/0x60
+[    2.181781]  sock_sendmsg+0x56/0x60
+[    2.181958]  __sys_sendto+0xf7/0x160
+[    2.182139]  ? handle_mm_fault+0x6e/0x1d0
+[    2.182366]  ? do_user_addr_fault+0x1e1/0x660
+[    2.182627]  __x64_sys_sendto+0x1b/0x30
+[    2.182881]  do_syscall_64+0x38/0x90
+[    2.183085]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+...
+[    2.187402]  </TASK>
 
-Fixes: 79c0949e9a09 ("mptcp: Add key generation and token tree")
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Cc: stable@vger.kernel.org # 5.10
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Previously in commit d66d6c3152e8 ("net: sched: register noqueue
+qdisc"), NULL was set for the noqueue discipline on noqueue init
+so that __dev_queue_xmit() falls through for the noqueue case. This
+also sets a bypass of the enqueue NULL check in the
+register_qdisc() function for the struct noqueue_disc_ops.
+
+Classful queue disciplines make it past the NULL check in
+__dev_queue_xmit() because the discipline is set to htb (in this case),
+and then in the call to __dev_xmit_skb(), it calls into htb_enqueue()
+which grabs a leaf node for a class and then calls qdisc_enqueue() by
+passing in a queue discipline which assumes ->enqueue() is not set to NULL.
+
+Fix this by not allowing classes to be assigned to the noqueue
+discipline. Linux TC Notes states that classes cannot be set to
+the noqueue discipline. [1] Let's enforce that here.
+
+Links:
+1. https://linux-tc-notes.sourceforge.net/tc/doc/sch_noqueue.txt
+
+Fixes: d66d6c3152e8 ("net: sched: register noqueue qdisc")
+Cc: stable@vger.kernel.org
+Signed-off-by: Frederick Lawler <fred@cloudflare.com>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/r/20230109163906.706000-1-fred@cloudflare.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/subflow.c |   19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ net/sched/sch_api.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -40,7 +40,6 @@ static void subflow_req_destructor(struc
- 		sock_put((struct sock *)subflow_req->msk);
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1114,6 +1114,11 @@ skip:
+ 			return -ENOENT;
+ 		}
  
- 	mptcp_token_destroy_request(req);
--	tcp_request_sock_ops.destructor(req);
- }
- 
- static void subflow_generate_hmac(u64 key1, u64 key2, u32 nonce1, u32 nonce2,
-@@ -380,6 +379,12 @@ drop:
- 	return 0;
- }
- 
-+static void subflow_v4_req_destructor(struct request_sock *req)
-+{
-+	subflow_req_destructor(req);
-+	tcp_request_sock_ops.destructor(req);
-+}
++		if (new && new->ops == &noqueue_qdisc_ops) {
++			NL_SET_ERR_MSG(extack, "Cannot assign noqueue to a class");
++			return -EINVAL;
++		}
 +
- #if IS_ENABLED(CONFIG_MPTCP_IPV6)
- static struct request_sock_ops mptcp_subflow_v6_request_sock_ops __ro_after_init;
- static struct tcp_request_sock_ops subflow_request_sock_ipv6_ops __ro_after_init;
-@@ -410,6 +415,12 @@ drop:
- 	tcp_listendrop(sk);
- 	return 0; /* don't send reset */
- }
-+
-+static void subflow_v6_req_destructor(struct request_sock *req)
-+{
-+	subflow_req_destructor(req);
-+	tcp6_request_sock_ops.destructor(req);
-+}
- #endif
- 
- struct request_sock *mptcp_subflow_reqsk_alloc(const struct request_sock_ops *ops,
-@@ -1401,8 +1412,6 @@ static int subflow_ops_init(struct reque
- 	if (!subflow_ops->slab)
- 		return -ENOMEM;
- 
--	subflow_ops->destructor = subflow_req_destructor;
--
- 	return 0;
- }
- 
-@@ -1410,6 +1419,8 @@ void __init mptcp_subflow_init(void)
- {
- 	mptcp_subflow_v4_request_sock_ops = tcp_request_sock_ops;
- 	mptcp_subflow_v4_request_sock_ops.slab_name = "request_sock_subflow_v4";
-+	mptcp_subflow_v4_request_sock_ops.destructor = subflow_v4_req_destructor;
-+
- 	if (subflow_ops_init(&mptcp_subflow_v4_request_sock_ops) != 0)
- 		panic("MPTCP: failed to init subflow v4 request sock ops\n");
- 
-@@ -1431,6 +1442,8 @@ void __init mptcp_subflow_init(void)
- 
- 	mptcp_subflow_v6_request_sock_ops = tcp6_request_sock_ops;
- 	mptcp_subflow_v6_request_sock_ops.slab_name = "request_sock_subflow_v6";
-+	mptcp_subflow_v6_request_sock_ops.destructor = subflow_v6_req_destructor;
-+
- 	if (subflow_ops_init(&mptcp_subflow_v6_request_sock_ops) != 0)
- 		panic("MPTCP: failed to init subflow v6 request sock ops\n");
- 
+ 		err = cops->graft(parent, cl, new, &old, extack);
+ 		if (err)
+ 			return err;
 
 
