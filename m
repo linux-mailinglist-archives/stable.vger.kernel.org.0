@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0C34667420
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:02:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D1F8667421
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:03:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229597AbjALOC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:02:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57116 "EHLO
+        id S231403AbjALOC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:02:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231433AbjALOCv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:02:51 -0500
+        with ESMTP id S232932AbjALOCw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:02:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ABA8517FF
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:02:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2004149167
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:02:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 459EDB81DCC
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:02:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98CF2C433EF;
-        Thu, 12 Jan 2023 14:02:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6C7AB81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:02:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D54B8C433D2;
+        Thu, 12 Jan 2023 14:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532166;
-        bh=/ISWPuonWPka0QaZy1RwR0N1+NPhRwpWyGeeH+HpRe0=;
+        s=korg; t=1673532169;
+        bh=qY16RBtuxcD3RstD6hVr5F6RiT/+hNpK2zQhV3Y6A1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJ5Wh+32tnIiueuAvEGxhh7ZOlvljJoZ45ezl1QvVdaD+FYds4+4LZe+/FXXPbX9S
-         v9AwyVZz6TAXsA7HH0t6X7un4Snvxm+tUWkoJvrYdT2udIihMXAC/4UmxZSAvbnmj9
-         HqTHvqaRwkdkYe8H0CgpbWXSwJ4dsaUBFSjBVuoQ=
+        b=hbZ3PVvXDVbOmuxkvNF/Q3y44OuKIRSlTKYh+l1MlDGzPPBPhVHrZg+NoejIu2WAd
+         5AW7XxZ5OHhoF8pNrnzOOAmnYdQ9IyHjjza81wD1r9kKU8NakQJ7JnYYqPsB/6gYbJ
+         4n05hEwFJkO7vmxxizQzracvdMejPto7Wdu/yvmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/783] sched/uclamp: Fix relationship between uclamp and migration margin
-Date:   Thu, 12 Jan 2023 14:46:00 +0100
-Message-Id: <20230112135526.183759550@linuxfoundation.org>
+Subject: [PATCH 5.10 045/783] cpuidle: dt: Return the correct numbers of parsed idle states
+Date:   Thu, 12 Jan 2023 14:46:01 +0100
+Message-Id: <20230112135526.234548189@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,198 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 48d5e9daa8b767e75ed9421665b037a49ce4bc04 ]
+[ Upstream commit ee3c2c8ad6ba6785f14a60e4081d7c82e88162a2 ]
 
-fits_capacity() verifies that a util is within 20% margin of the
-capacity of a CPU, which is an attempt to speed up upmigration.
+While we correctly skips to initialize an idle state from a disabled idle
+state node in DT, the returned value from dt_init_idle_driver() don't get
+adjusted accordingly. Instead the number of found idle state nodes are
+returned, while the callers are expecting the number of successfully
+initialized idle states from DT.
 
-But when uclamp is used, this 20% margin is problematic because for
-example if a task is boosted to 1024, then it will not fit on any CPU
-according to fits_capacity() logic.
+This leads to cpuidle drivers unnecessarily continues to initialize their
+idle state specific data. Moreover, in the case when all idle states have
+been disabled in DT, we would end up registering a cpuidle driver, rather
+than relying on the default arch specific idle call.
 
-Or if a task is boosted to capacity_orig_of(medium_cpu). The task will
-end up on big instead on the desired medium CPU.
-
-Similar corner cases exist for uclamp and usage of capacity_of().
-Slightest irq pressure on biggest CPU for example will make a 1024
-boosted task look like it can't fit.
-
-What we really want is for uclamp comparisons to ignore the migration
-margin and capacity pressure, yet retain them for when checking the
-_actual_ util signal.
-
-For example, task p:
-
-	p->util_avg = 300
-	p->uclamp[UCLAMP_MIN] = 1024
-
-Will fit a big CPU. But
-
-	p->util_avg = 900
-	p->uclamp[UCLAMP_MIN] = 1024
-
-will not, this should trigger overutilized state because the big CPU is
-now *actually* being saturated.
-
-Similar reasoning applies to capping tasks with UCLAMP_MAX. For example:
-
-	p->util_avg = 1024
-	p->uclamp[UCLAMP_MAX] = capacity_orig_of(medium_cpu)
-
-Should fit the task on medium cpus without triggering overutilized
-state.
-
-Inlined comments expand more on desired behavior in more scenarios.
-
-Introduce new util_fits_cpu() function which encapsulates the new logic.
-The new function is not used anywhere yet, but will be used to update
-various users of fits_capacity() in later patches.
-
-Fixes: af24bde8df202 ("sched/uclamp: Add uclamp support to energy_compute()")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220804143609.515789-2-qais.yousef@arm.com
+Fixes: 9f14da345599 ("drivers: cpuidle: implement DT based idle states infrastructure")
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 123 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 123 insertions(+)
+ drivers/cpuidle/dt_idle_states.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 2d3ea0679207..c39d2fc3f994 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4074,6 +4074,129 @@ static inline void util_est_update(struct cfs_rq *cfs_rq,
- 	trace_sched_util_est_se_tp(&p->se);
+diff --git a/drivers/cpuidle/dt_idle_states.c b/drivers/cpuidle/dt_idle_states.c
+index 252f2a9686a6..448bc796b0b4 100644
+--- a/drivers/cpuidle/dt_idle_states.c
++++ b/drivers/cpuidle/dt_idle_states.c
+@@ -223,6 +223,6 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
+ 	 * also be 0 on platforms with missing DT idle states or legacy DT
+ 	 * configuration predating the DT idle states bindings.
+ 	 */
+-	return i;
++	return state_idx - start_idx;
  }
- 
-+static inline int util_fits_cpu(unsigned long util,
-+				unsigned long uclamp_min,
-+				unsigned long uclamp_max,
-+				int cpu)
-+{
-+	unsigned long capacity_orig, capacity_orig_thermal;
-+	unsigned long capacity = capacity_of(cpu);
-+	bool fits, uclamp_max_fits;
-+
-+	/*
-+	 * Check if the real util fits without any uclamp boost/cap applied.
-+	 */
-+	fits = fits_capacity(util, capacity);
-+
-+	if (!uclamp_is_used())
-+		return fits;
-+
-+	/*
-+	 * We must use capacity_orig_of() for comparing against uclamp_min and
-+	 * uclamp_max. We only care about capacity pressure (by using
-+	 * capacity_of()) for comparing against the real util.
-+	 *
-+	 * If a task is boosted to 1024 for example, we don't want a tiny
-+	 * pressure to skew the check whether it fits a CPU or not.
-+	 *
-+	 * Similarly if a task is capped to capacity_orig_of(little_cpu), it
-+	 * should fit a little cpu even if there's some pressure.
-+	 *
-+	 * Only exception is for thermal pressure since it has a direct impact
-+	 * on available OPP of the system.
-+	 *
-+	 * We honour it for uclamp_min only as a drop in performance level
-+	 * could result in not getting the requested minimum performance level.
-+	 *
-+	 * For uclamp_max, we can tolerate a drop in performance level as the
-+	 * goal is to cap the task. So it's okay if it's getting less.
-+	 *
-+	 * In case of capacity inversion, which is not handled yet, we should
-+	 * honour the inverted capacity for both uclamp_min and uclamp_max all
-+	 * the time.
-+	 */
-+	capacity_orig = capacity_orig_of(cpu);
-+	capacity_orig_thermal = capacity_orig - arch_scale_thermal_pressure(cpu);
-+
-+	/*
-+	 * We want to force a task to fit a cpu as implied by uclamp_max.
-+	 * But we do have some corner cases to cater for..
-+	 *
-+	 *
-+	 *                                 C=z
-+	 *   |                             ___
-+	 *   |                  C=y       |   |
-+	 *   |_ _ _ _ _ _ _ _ _ ___ _ _ _ | _ | _ _ _ _ _  uclamp_max
-+	 *   |      C=x        |   |      |   |
-+	 *   |      ___        |   |      |   |
-+	 *   |     |   |       |   |      |   |    (util somewhere in this region)
-+	 *   |     |   |       |   |      |   |
-+	 *   |     |   |       |   |      |   |
-+	 *   +----------------------------------------
-+	 *         cpu0        cpu1       cpu2
-+	 *
-+	 *   In the above example if a task is capped to a specific performance
-+	 *   point, y, then when:
-+	 *
-+	 *   * util = 80% of x then it does not fit on cpu0 and should migrate
-+	 *     to cpu1
-+	 *   * util = 80% of y then it is forced to fit on cpu1 to honour
-+	 *     uclamp_max request.
-+	 *
-+	 *   which is what we're enforcing here. A task always fits if
-+	 *   uclamp_max <= capacity_orig. But when uclamp_max > capacity_orig,
-+	 *   the normal upmigration rules should withhold still.
-+	 *
-+	 *   Only exception is when we are on max capacity, then we need to be
-+	 *   careful not to block overutilized state. This is so because:
-+	 *
-+	 *     1. There's no concept of capping at max_capacity! We can't go
-+	 *        beyond this performance level anyway.
-+	 *     2. The system is being saturated when we're operating near
-+	 *        max capacity, it doesn't make sense to block overutilized.
-+	 */
-+	uclamp_max_fits = (capacity_orig == SCHED_CAPACITY_SCALE) && (uclamp_max == SCHED_CAPACITY_SCALE);
-+	uclamp_max_fits = !uclamp_max_fits && (uclamp_max <= capacity_orig);
-+	fits = fits || uclamp_max_fits;
-+
-+	/*
-+	 *
-+	 *                                 C=z
-+	 *   |                             ___       (region a, capped, util >= uclamp_max)
-+	 *   |                  C=y       |   |
-+	 *   |_ _ _ _ _ _ _ _ _ ___ _ _ _ | _ | _ _ _ _ _ uclamp_max
-+	 *   |      C=x        |   |      |   |
-+	 *   |      ___        |   |      |   |      (region b, uclamp_min <= util <= uclamp_max)
-+	 *   |_ _ _|_ _|_ _ _ _| _ | _ _ _| _ | _ _ _ _ _ uclamp_min
-+	 *   |     |   |       |   |      |   |
-+	 *   |     |   |       |   |      |   |      (region c, boosted, util < uclamp_min)
-+	 *   +----------------------------------------
-+	 *         cpu0        cpu1       cpu2
-+	 *
-+	 * a) If util > uclamp_max, then we're capped, we don't care about
-+	 *    actual fitness value here. We only care if uclamp_max fits
-+	 *    capacity without taking margin/pressure into account.
-+	 *    See comment above.
-+	 *
-+	 * b) If uclamp_min <= util <= uclamp_max, then the normal
-+	 *    fits_capacity() rules apply. Except we need to ensure that we
-+	 *    enforce we remain within uclamp_max, see comment above.
-+	 *
-+	 * c) If util < uclamp_min, then we are boosted. Same as (b) but we
-+	 *    need to take into account the boosted value fits the CPU without
-+	 *    taking margin/pressure into account.
-+	 *
-+	 * Cases (a) and (b) are handled in the 'fits' variable already. We
-+	 * just need to consider an extra check for case (c) after ensuring we
-+	 * handle the case uclamp_min > uclamp_max.
-+	 */
-+	uclamp_min = min(uclamp_min, uclamp_max);
-+	if (util < uclamp_min && capacity_orig != SCHED_CAPACITY_SCALE)
-+		fits = fits && (uclamp_min <= capacity_orig_thermal);
-+
-+	return fits;
-+}
-+
- static inline int task_fits_capacity(struct task_struct *p,
- 				     unsigned long capacity)
- {
+ EXPORT_SYMBOL_GPL(dt_init_idle_driver);
 -- 
 2.35.1
 
