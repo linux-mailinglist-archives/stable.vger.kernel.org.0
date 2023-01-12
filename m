@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 446ED6673F3
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:01:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 266CF6673F5
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233128AbjALOBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:01:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54492 "EHLO
+        id S231209AbjALOBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:01:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234748AbjALOBI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:01:08 -0500
+        with ESMTP id S234765AbjALOBJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:01:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F936297
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:00:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223CC2002
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:00:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D045BB816DD
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:00:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38B1BC43396;
-        Thu, 12 Jan 2023 14:00:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1B17B81E6F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:00:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EA33C433EF;
+        Thu, 12 Jan 2023 14:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532051;
-        bh=Ij+OaGhY+QY3juU0I3MtVx1XsNjyXj6pw+T9Jld6ZKY=;
+        s=korg; t=1673532054;
+        bh=HUf9MG2SfcBunpcTtBkx/jnbFRtfDyIu7IDdNiW7qcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1bWYBeXARHkG7rQOsWMm/5pd6AQzLRnkLzlfPAqDDcP0MqbSQvgz5jFAiGcvIHP2
-         rlNuWDALyfNve4kF1UUTHBIP3X5OGXRRKjtV1gNg+xmSW1RjOpov2KoGP0aB9/vyqV
-         E1EG1xTXIjqOle8LtyZZjSq2bS7QJNDDzqi1wri4=
+        b=MtX35mcdRhbHVvVsgJRUF2QYhe+s+ulhUjyL6hqf7GcL/w6xC6igy/k5ai8xfEI2n
+         RYzwC+n5Wjtwqu1o84mY/wpQzkDng4yDuBSyIm6+YxFM3RsDZ5Kq1LYcjzL7tsyMZo
+         fO8bYpMODs3suS3VwBEpDoTsVLSseQZPm8SN6ccM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>,
         Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/783] ARM: dts: turris-omnia: Add ethernet aliases
-Date:   Thu, 12 Jan 2023 14:45:51 +0100
-Message-Id: <20230112135525.779391233@linuxfoundation.org>
+Subject: [PATCH 5.10 036/783] ARM: dts: turris-omnia: Add switch port 6 node
+Date:   Thu, 12 Jan 2023 14:45:52 +0100
+Message-Id: <20230112135525.819484674@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -56,36 +57,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit f1f3e530c59a7e8c5f06172f4c28b945a6b4bfb8 ]
+[ Upstream commit f87db2005f73876602211af0ee156817019b6bda ]
 
-This allows bootloader to correctly pass MAC addresses used by bootloader
-to individual interfaces into kernel device tree.
+Switch port 6 is connected to eth0, so add appropriate device tree node for it.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
 Fixes: 26ca8b52d6e1 ("ARM: dts: add support for Turris Omnia")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-385-turris-omnia.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/armada-385-turris-omnia.dts | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/armada-385-turris-omnia.dts b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-index 92e08486ec81..c0a026ac7be8 100644
+index c0a026ac7be8..320c759b4090 100644
 --- a/arch/arm/boot/dts/armada-385-turris-omnia.dts
 +++ b/arch/arm/boot/dts/armada-385-turris-omnia.dts
-@@ -22,6 +22,12 @@ chosen {
- 		stdout-path = &uart0;
- 	};
+@@ -297,7 +297,17 @@ fixed-link {
+ 				};
+ 			};
  
-+	aliases {
-+		ethernet0 = &eth0;
-+		ethernet1 = &eth1;
-+		ethernet2 = &eth2;
-+	};
+-			/* port 6 is connected to eth0 */
++			ports@6 {
++				reg = <6>;
++				label = "cpu";
++				ethernet = <&eth0>;
++				phy-mode = "rgmii-id";
 +
- 	memory {
- 		device_type = "memory";
- 		reg = <0x00000000 0x40000000>; /* 1024 MB */
++				fixed-link {
++					speed = <1000>;
++					full-duplex;
++				};
++			};
+ 		};
+ 	};
+ };
 -- 
 2.35.1
 
