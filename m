@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 473EB667463
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:06:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0222366746C
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229816AbjALOG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:06:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60660 "EHLO
+        id S233947AbjALOHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:07:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233461AbjALOF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:05:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE73551F9
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:04:23 -0800 (PST)
+        with ESMTP id S229815AbjALOGL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:06:11 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD2FF55650
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:04:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D51296202D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:04:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91936C433EF;
-        Thu, 12 Jan 2023 14:04:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0D904CE1E72
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:04:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1AA7C433EF;
+        Thu, 12 Jan 2023 14:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532262;
-        bh=PSQ73tTJ/7k1zSMam+lNFAS+gHeb6EXzsumrApcV9zE=;
+        s=korg; t=1673532265;
+        bh=XIrfHZBCHgZ9CYSwApyJA23GozXJH6pvMSd+72D2WQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLDSAbeI101ZwVC8NxRITtrdhCg+suvGxH9cHusf++5sAFYjJk+EnQyr6iSZg+DhC
-         JfAB7q0Jb1V/sykciQesHGVakeg0UkPn/FKDZn2kSjAwuc8xD/vbn2SeBr0NWbXjSH
-         vZfWMeEPYU6tBNFSwzyNPI07uW+/FWu1pbRNLlIw=
+        b=VJmYk0lCoserW8DsEQTffX8iOGtzuLw+ihEkL6CoSnSoQTczC6pmSyFq4V9yH/+sD
+         Kr9Zdyc7AsJC0cAhjsNinvyFa5ArCqArIYQODSaIKtr96LZrHgwlMvv2i+175ScVWn
+         Pvu4w+LlLFvyFwZqEpkSHyzdkqzN+S2hGqbkwr78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
-        Zhao Gongyi <zhaogongyi@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Oscar Salvador <osalvador@suse.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Yicong Yang <yangyicong@hisilicon.com>,
+        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Jun Piao <piaojun@huawei.com>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Mark Fasheh <mark@fasheh.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/783] debugfs: fix error when writing negative value to atomic_t debugfs file
-Date:   Thu, 12 Jan 2023 14:46:30 +0100
-Message-Id: <20230112135527.590540455@linuxfoundation.org>
+Subject: [PATCH 5.10 075/783] ocfs2: ocfs2_mount_volume does cleanup job before return error
+Date:   Thu, 12 Jan 2023 14:46:31 +0100
+Message-Id: <20230112135527.629803402@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -62,195 +59,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
 
-[ Upstream commit d472cf797c4e268613dbce5ec9b95d0bcae19ecb ]
+[ Upstream commit 0737e01de9c411e4db87dcedf4a9789d41b1c5c1 ]
 
-The simple attribute files do not accept a negative value since the commit
-488dac0c9237 ("libfs: fix error cast of negative value in
-simple_attr_write()"), so we have to use a 64-bit value to write a
-negative value for a debugfs file created by debugfs_create_atomic_t().
+After this patch, when error, ocfs2_fill_super doesn't take care to
+release resources which are allocated in ocfs2_mount_volume.
 
-This restores the previous behaviour by introducing
-DEFINE_DEBUGFS_ATTRIBUTE_SIGNED for a signed value.
-
-Link: https://lkml.kernel.org/r/20220919172418.45257-4-akinobu.mita@gmail.com
-Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Rafael J. Wysocki <rafael@kernel.org>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Wei Yongjun <weiyongjun1@huawei.com>
-Cc: Yicong Yang <yangyicong@hisilicon.com>
+Link: https://lkml.kernel.org/r/20220424130952.2436-5-heming.zhao@suse.com
+Signed-off-by: Heming Zhao <heming.zhao@suse.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Mark Fasheh <mark@fasheh.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Stable-dep-of: ce2fcf1516d6 ("ocfs2: fix memory leak in ocfs2_mount_volume()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../fault-injection/fault-injection.rst       | 10 +++----
- fs/debugfs/file.c                             | 28 +++++++++++++++----
- include/linux/debugfs.h                       | 19 +++++++++++--
- 3 files changed, 43 insertions(+), 14 deletions(-)
+ fs/ocfs2/super.c | 35 +++++++++++++++++++++++------------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/fault-injection/fault-injection.rst b/Documentation/fault-injection/fault-injection.rst
-index f47d05ed0d94..47de5006f645 100644
---- a/Documentation/fault-injection/fault-injection.rst
-+++ b/Documentation/fault-injection/fault-injection.rst
-@@ -79,9 +79,7 @@ configuration of fault-injection capabilities.
- - /sys/kernel/debug/fail*/times:
- 
- 	specifies how many times failures may happen at most. A value of -1
--	means "no limit". Note, though, that this file only accepts unsigned
--	values. So, if you want to specify -1, you better use 'printf' instead
--	of 'echo', e.g.: $ printf %#x -1 > times
-+	means "no limit".
- 
- - /sys/kernel/debug/fail*/space:
- 
-@@ -259,7 +257,7 @@ Application Examples
-     echo Y > /sys/kernel/debug/$FAILTYPE/task-filter
-     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
-     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
--    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
-+    echo -1 > /sys/kernel/debug/$FAILTYPE/times
-     echo 0 > /sys/kernel/debug/$FAILTYPE/space
-     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
-     echo 1 > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
-@@ -313,7 +311,7 @@ Application Examples
-     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
-     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
-     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
--    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
-+    echo -1 > /sys/kernel/debug/$FAILTYPE/times
-     echo 0 > /sys/kernel/debug/$FAILTYPE/space
-     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
-     echo 1 > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
-@@ -344,7 +342,7 @@ Application Examples
-     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
-     echo 100 > /sys/kernel/debug/$FAILTYPE/probability
-     echo 0 > /sys/kernel/debug/$FAILTYPE/interval
--    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
-+    echo -1 > /sys/kernel/debug/$FAILTYPE/times
-     echo 0 > /sys/kernel/debug/$FAILTYPE/space
-     echo 1 > /sys/kernel/debug/$FAILTYPE/verbose
- 
-diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
-index 96059af28f50..42bab9270e7d 100644
---- a/fs/debugfs/file.c
-+++ b/fs/debugfs/file.c
-@@ -378,8 +378,8 @@ ssize_t debugfs_attr_read(struct file *file, char __user *buf,
- }
- EXPORT_SYMBOL_GPL(debugfs_attr_read);
- 
--ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
--			 size_t len, loff_t *ppos)
-+static ssize_t debugfs_attr_write_xsigned(struct file *file, const char __user *buf,
-+			 size_t len, loff_t *ppos, bool is_signed)
+diff --git a/fs/ocfs2/super.c b/fs/ocfs2/super.c
+index c0e5f1bad499..ca0d6debae97 100644
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -1787,11 +1787,10 @@ static int ocfs2_get_sector(struct super_block *sb,
+ static int ocfs2_mount_volume(struct super_block *sb)
  {
- 	struct dentry *dentry = F_DENTRY(file);
- 	ssize_t ret;
-@@ -387,12 +387,28 @@ ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
- 	ret = debugfs_file_get(dentry);
- 	if (unlikely(ret))
- 		return ret;
--	ret = simple_attr_write(file, buf, len, ppos);
-+	if (is_signed)
-+		ret = simple_attr_write_signed(file, buf, len, ppos);
-+	else
-+		ret = simple_attr_write(file, buf, len, ppos);
- 	debugfs_file_put(dentry);
- 	return ret;
- }
-+
-+ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
-+			 size_t len, loff_t *ppos)
-+{
-+	return debugfs_attr_write_xsigned(file, buf, len, ppos, false);
-+}
- EXPORT_SYMBOL_GPL(debugfs_attr_write);
+ 	int status = 0;
+-	int unlock_super = 0;
+ 	struct ocfs2_super *osb = OCFS2_SB(sb);
  
-+ssize_t debugfs_attr_write_signed(struct file *file, const char __user *buf,
-+			 size_t len, loff_t *ppos)
-+{
-+	return debugfs_attr_write_xsigned(file, buf, len, ppos, true);
-+}
-+EXPORT_SYMBOL_GPL(debugfs_attr_write_signed);
-+
- static struct dentry *debugfs_create_mode_unsafe(const char *name, umode_t mode,
- 					struct dentry *parent, void *value,
- 					const struct file_operations *fops,
-@@ -748,11 +764,11 @@ static int debugfs_atomic_t_get(void *data, u64 *val)
- 	*val = atomic_read((atomic_t *)data);
- 	return 0;
- }
--DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t, debugfs_atomic_t_get,
-+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t, debugfs_atomic_t_get,
- 			debugfs_atomic_t_set, "%lld\n");
--DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t_ro, debugfs_atomic_t_get, NULL,
-+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t_ro, debugfs_atomic_t_get, NULL,
- 			"%lld\n");
--DEFINE_DEBUGFS_ATTRIBUTE(fops_atomic_t_wo, NULL, debugfs_atomic_t_set,
-+DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(fops_atomic_t_wo, NULL, debugfs_atomic_t_set,
- 			"%lld\n");
+ 	if (ocfs2_is_hard_readonly(osb))
+-		goto leave;
++		goto out;
  
- /**
-diff --git a/include/linux/debugfs.h b/include/linux/debugfs.h
-index 2357109a8901..9a87215b5526 100644
---- a/include/linux/debugfs.h
-+++ b/include/linux/debugfs.h
-@@ -45,7 +45,7 @@ struct debugfs_u32_array {
+ 	mutex_init(&osb->obs_trim_fs_mutex);
  
- extern struct dentry *arch_debugfs_dir;
+@@ -1801,44 +1800,56 @@ static int ocfs2_mount_volume(struct super_block *sb)
+ 		if (status == -EBADR && ocfs2_userspace_stack(osb))
+ 			mlog(ML_ERROR, "couldn't mount because cluster name on"
+ 			" disk does not match the running cluster name.\n");
+-		goto leave;
++		goto out;
+ 	}
  
--#define DEFINE_DEBUGFS_ATTRIBUTE(__fops, __get, __set, __fmt)		\
-+#define DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, __is_signed)	\
- static int __fops ## _open(struct inode *inode, struct file *file)	\
- {									\
- 	__simple_attr_check_format(__fmt, 0ull);			\
-@@ -56,10 +56,16 @@ static const struct file_operations __fops = {				\
- 	.open	 = __fops ## _open,					\
- 	.release = simple_attr_release,					\
- 	.read	 = debugfs_attr_read,					\
--	.write	 = debugfs_attr_write,					\
-+	.write	 = (__is_signed) ? debugfs_attr_write_signed : debugfs_attr_write,	\
- 	.llseek  = no_llseek,						\
- }
+ 	status = ocfs2_super_lock(osb, 1);
+ 	if (status < 0) {
+ 		mlog_errno(status);
+-		goto leave;
++		goto out_dlm;
+ 	}
+-	unlock_super = 1;
  
-+#define DEFINE_DEBUGFS_ATTRIBUTE(__fops, __get, __set, __fmt)		\
-+	DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, false)
-+
-+#define DEFINE_DEBUGFS_ATTRIBUTE_SIGNED(__fops, __get, __set, __fmt)	\
-+	DEFINE_DEBUGFS_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, true)
-+
- typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
+ 	/* This will load up the node map and add ourselves to it. */
+ 	status = ocfs2_find_slot(osb);
+ 	if (status < 0) {
+ 		mlog_errno(status);
+-		goto leave;
++		goto out_super_lock;
+ 	}
  
- #if defined(CONFIG_DEBUG_FS)
-@@ -102,6 +108,8 @@ ssize_t debugfs_attr_read(struct file *file, char __user *buf,
- 			size_t len, loff_t *ppos);
- ssize_t debugfs_attr_write(struct file *file, const char __user *buf,
- 			size_t len, loff_t *ppos);
-+ssize_t debugfs_attr_write_signed(struct file *file, const char __user *buf,
-+			size_t len, loff_t *ppos);
+ 	/* load all node-local system inodes */
+ 	status = ocfs2_init_local_system_inodes(osb);
+ 	if (status < 0) {
+ 		mlog_errno(status);
+-		goto leave;
++		goto out_super_lock;
+ 	}
  
- struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
-                 struct dentry *new_dir, const char *new_name);
-@@ -249,6 +257,13 @@ static inline ssize_t debugfs_attr_write(struct file *file,
- 	return -ENODEV;
+ 	status = ocfs2_check_volume(osb);
+ 	if (status < 0) {
+ 		mlog_errno(status);
+-		goto leave;
++		goto out_system_inodes;
+ 	}
+ 
+ 	status = ocfs2_truncate_log_init(osb);
+-	if (status < 0)
++	if (status < 0) {
+ 		mlog_errno(status);
++		goto out_system_inodes;
++	}
+ 
+-leave:
+-	if (unlock_super)
+-		ocfs2_super_unlock(osb, 1);
++	ocfs2_super_unlock(osb, 1);
++	return 0;
+ 
++out_system_inodes:
++	if (osb->local_alloc_state == OCFS2_LA_ENABLED)
++		ocfs2_shutdown_local_alloc(osb);
++	ocfs2_release_system_inodes(osb);
++	/* before journal shutdown, we should release slot_info */
++	ocfs2_free_slot_info(osb);
++	ocfs2_journal_shutdown(osb);
++out_super_lock:
++	ocfs2_super_unlock(osb, 1);
++out_dlm:
++	ocfs2_dlm_shutdown(osb, 0);
++out:
+ 	return status;
  }
  
-+static inline ssize_t debugfs_attr_write_signed(struct file *file,
-+					const char __user *buf,
-+					size_t len, loff_t *ppos)
-+{
-+	return -ENODEV;
-+}
-+
- static inline struct dentry *debugfs_rename(struct dentry *old_dir, struct dentry *old_dentry,
-                 struct dentry *new_dir, char *new_name)
- {
 -- 
 2.35.1
 
