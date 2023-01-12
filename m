@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 807686675D8
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:26:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF9A6675B5
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:24:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229903AbjALO0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:26:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48512 "EHLO
+        id S236806AbjALOYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:24:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236802AbjALOZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:25:49 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E85E5C1DA
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:16:57 -0800 (PST)
+        with ESMTP id S236265AbjALOXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:23:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5145A54730
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:15:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BE3F1CE1E74
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:16:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 660F3C433D2;
-        Thu, 12 Jan 2023 14:16:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E11226202D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2111C433EF;
+        Thu, 12 Jan 2023 14:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533014;
-        bh=FkL/gRwtYHPM20wQyKws5rG7peWoGXoe9EQZ10OhwgA=;
+        s=korg; t=1673532900;
+        bh=WLqjT7qGwNNTCzZ2YnBYgTIl4fCacTGkyHuwIP69kag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/fSi3HlSw3VmA1vKqhXmooJDF/p4LZDunswetc5z7IAJgOgsaAtDjfRlD1gQA8q4
-         IdTlzA4pQs1w367HftpzYyra8Pk5W+mMDKPdo6G2uZNIWSzLZZfubDyTQsCF1IVnrV
-         r6d2itKGOeEfvsQpTZqRTuSVni3wTARPaXW/0M04=
+        b=zZ8KTIUx36dMQ66b0HA1eFe5iWusYZzlbLdNRo9A5twAY+MkKMK5iy35c5t6ky+PW
+         CQnlDMvydgk3QTMSfsZpVFEOVLkK1xPwvSWPfDPX6pbnpqqn3D0AXZuGVlEHCdlQUV
+         x5XaLrOnFQi368Sc+vNXkniAfYdcH4ywCRjhhO3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 310/783] RDMA/hns: fix memory leak in hns_roce_alloc_mr()
-Date:   Thu, 12 Jan 2023 14:50:26 +0100
-Message-Id: <20230112135538.704790792@linuxfoundation.org>
+Subject: [PATCH 5.10 311/783] RDMA/rxe: Fix NULL-ptr-deref in rxe_qp_do_cleanup() when socket create failed
+Date:   Thu, 12 Jan 2023 14:50:27 +0100
+Message-Id: <20230112135538.751159464@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,39 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit a115aa00b18f7b8982b8f458149632caf64a862a ]
+[ Upstream commit f67376d801499f4fa0838c18c1efcad8840e550d ]
 
-When hns_roce_mr_enable() failed in hns_roce_alloc_mr(), mr_key is not
-released. Compiled test only.
+There is a null-ptr-deref when mount.cifs over rdma:
 
-Fixes: 9b2cf76c9f05 ("RDMA/hns: Optimize PBL buffer allocation process")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221119070834.48502-1-shaozhengchao@huawei.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+  BUG: KASAN: null-ptr-deref in rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
+  Read of size 8 at addr 0000000000000018 by task mount.cifs/3046
+
+  CPU: 2 PID: 3046 Comm: mount.cifs Not tainted 6.1.0-rc5+ #62
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc3
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   kasan_report+0xad/0x130
+   rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
+   execute_in_process_context+0x25/0x90
+   __rxe_cleanup+0x101/0x1d0 [rdma_rxe]
+   rxe_create_qp+0x16a/0x180 [rdma_rxe]
+   create_qp.part.0+0x27d/0x340
+   ib_create_qp_kernel+0x73/0x160
+   rdma_create_qp+0x100/0x230
+   _smbd_get_connection+0x752/0x20f0
+   smbd_get_connection+0x21/0x40
+   cifs_get_tcp_session+0x8ef/0xda0
+   mount_get_conns+0x60/0x750
+   cifs_mount+0x103/0xd00
+   cifs_smb3_do_mount+0x1dd/0xcb0
+   smb3_get_tree+0x1d5/0x300
+   vfs_get_tree+0x41/0xf0
+   path_mount+0x9b3/0xdd0
+   __x64_sys_mount+0x190/0x1d0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+The root cause of the issue is the socket create failed in
+rxe_qp_init_req().
+
+So move the reset rxe_qp_do_cleanup() after the NULL ptr check.
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20221122151437.1057671-1-zhangxiaoxu5@huawei.com
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_mr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_mr.c b/drivers/infiniband/hw/hns/hns_roce_mr.c
-index 6d7cc724862f..1c342a7bd7df 100644
---- a/drivers/infiniband/hw/hns/hns_roce_mr.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_mr.c
-@@ -456,10 +456,10 @@ struct ib_mr *hns_roce_alloc_mr(struct ib_pd *pd, enum ib_mr_type mr_type,
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 2e4b008f0387..99c1b3553e6e 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -812,12 +812,12 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
+ 		qp->resp.mr = NULL;
+ 	}
  
- 	return &mr->ibmr;
+-	if (qp_type(qp) == IB_QPT_RC)
+-		sk_dst_reset(qp->sk->sk);
+-
+ 	free_rd_atomic_resources(qp);
  
--err_key:
--	free_mr_key(hr_dev, mr);
- err_pbl:
- 	free_mr_pbl(hr_dev, mr);
-+err_key:
-+	free_mr_key(hr_dev, mr);
- err_free:
- 	kfree(mr);
- 	return ERR_PTR(ret);
+ 	if (qp->sk) {
++		if (qp_type(qp) == IB_QPT_RC)
++			sk_dst_reset(qp->sk->sk);
++
+ 		kernel_sock_shutdown(qp->sk, SHUT_RDWR);
+ 		sock_release(qp->sk);
+ 	}
 -- 
 2.35.1
 
