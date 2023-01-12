@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52897667817
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:52:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20170667818
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240034AbjALOwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:52:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43496 "EHLO
+        id S240049AbjALOwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:52:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240132AbjALOvq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:51:46 -0500
+        with ESMTP id S240053AbjALOvr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:51:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C4F43D90
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:38:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A5A44345
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:38:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC8156203B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:38:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C579FC433F0;
-        Thu, 12 Jan 2023 14:38:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA64C61FCB
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:38:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6BB8C433EF;
+        Thu, 12 Jan 2023 14:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534331;
-        bh=sRYnZgMzywyPMwPZ3e9LozZLRMyBIA64DQbsLWlzej4=;
+        s=korg; t=1673534334;
+        bh=Qn/uZgpFzYJ0Qli3MHI5Fo+1b7EZxpU0Fc79wEHaoDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAT0nmNEPThoVd2Nhg/C/KcmylXWCymqgr5xECmetphiP3f9N7L01+cvLZp24f8+e
-         bWyiceAv2B89STwhTLMlqTlasV/65uvyMEY28fOYGhD+gAKrB9tWQ6xB2JOov+WqCV
-         8Cpgjtdor5pEh/c86L7a/XNbFLM3GpEKODAYuBxg=
+        b=cHfiRCWk5xbt3kIfQ6R7KYFDDSQgfux2SV9iyOwUoklJvrnk/69pgGtb2DkMBHlKT
+         brsP3QzMd0xsiHOquTP8NJ8xWMWj+wRSd1jQcmYInZmhb+IqVyT5vOQg5APsVxtmhj
+         4OgDQaN1oboaXqchCZAC+pr7RAUlIFL0lQEhsLd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 773/783] parisc: Align parisc MADV_XXX constants with all other architectures
-Date:   Thu, 12 Jan 2023 14:58:09 +0100
-Message-Id: <20230112135600.210421194@linuxfoundation.org>
+        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 774/783] ext4: disable fast-commit of encrypted dir operations
+Date:   Thu, 12 Jan 2023 14:58:10 +0100
+Message-Id: <20230112135600.261724977@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -51,174 +52,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 71bdea6f798b425bc0003780b13e3fdecb16a010 upstream.
+commit 0fbcb5251fc81b58969b272c4fb7374a7b922e3e upstream.
 
-Adjust some MADV_XXX constants to be in sync what their values are on
-all other platforms. There is currently no reason to have an own
-numbering on parisc, but it requires workarounds in many userspace
-sources (e.g. glibc, qemu, ...) - which are often forgotten and thus
-introduce bugs and different behaviour on parisc.
+fast-commit of create, link, and unlink operations in encrypted
+directories is completely broken because the unencrypted filenames are
+being written to the fast-commit journal instead of the encrypted
+filenames.  These operations can't be replayed, as encryption keys
+aren't present at journal replay time.  It is also an information leak.
 
-A wrapper avoids an ABI breakage for existing userspace applications by
-translating any old values to the new ones, so this change allows us to
-move over all programs to the new ABI over time.
+Until if/when we can get this working properly, make encrypted directory
+operations ineligible for fast-commit.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+Note that fast-commit operations on encrypted regular files continue to
+be allowed, as they seem to work.
+
+Fixes: aa75f4d3daae ("ext4: main fast-commit commit path")
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221106224841.279231-2-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
+ fs/ext4/fast_commit.c       |   40 ++++++++++++++++++++++++----------------
+ fs/ext4/fast_commit.h       |    1 +
+ include/trace/events/ext4.h |    7 +++++--
+ 3 files changed, 30 insertions(+), 18 deletions(-)
 
----
- arch/parisc/include/uapi/asm/mman.h       |   23 +++++++++++------------
- arch/parisc/kernel/sys_parisc.c           |   27 +++++++++++++++++++++++++++
- arch/parisc/kernel/syscalls/syscall.tbl   |    2 +-
- tools/arch/parisc/include/uapi/asm/mman.h |   12 ++++++------
- tools/perf/bench/bench.h                  |   12 ------------
- 5 files changed, 45 insertions(+), 31 deletions(-)
-
---- a/arch/parisc/include/uapi/asm/mman.h
-+++ b/arch/parisc/include/uapi/asm/mman.h
-@@ -49,28 +49,27 @@
- #define MADV_DONTFORK	10		/* don't inherit across fork */
- #define MADV_DOFORK	11		/* do inherit across fork */
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -371,25 +371,33 @@ static int __track_dentry_update(struct
+ 	struct __track_dentry_update_args *dentry_update =
+ 		(struct __track_dentry_update_args *)arg;
+ 	struct dentry *dentry = dentry_update->dentry;
+-	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
++	struct inode *dir = dentry->d_parent->d_inode;
++	struct super_block *sb = inode->i_sb;
++	struct ext4_sb_info *sbi = EXT4_SB(sb);
  
--#define MADV_COLD	20		/* deactivate these pages */
--#define MADV_PAGEOUT	21		/* reclaim these pages */
--
--#define MADV_MERGEABLE   65		/* KSM may merge identical pages */
--#define MADV_UNMERGEABLE 66		/* KSM may not merge identical pages */
-+#define MADV_MERGEABLE   12		/* KSM may merge identical pages */
-+#define MADV_UNMERGEABLE 13		/* KSM may not merge identical pages */
- 
--#define MADV_HUGEPAGE	67		/* Worth backing with hugepages */
--#define MADV_NOHUGEPAGE	68		/* Not worth backing with hugepages */
-+#define MADV_HUGEPAGE	14		/* Worth backing with hugepages */
-+#define MADV_NOHUGEPAGE 15		/* Not worth backing with hugepages */
- 
--#define MADV_DONTDUMP   69		/* Explicity exclude from the core dump,
-+#define MADV_DONTDUMP   16		/* Explicity exclude from the core dump,
- 					   overrides the coredump filter bits */
--#define MADV_DODUMP	70		/* Clear the MADV_NODUMP flag */
-+#define MADV_DODUMP	17		/* Clear the MADV_NODUMP flag */
- 
--#define MADV_WIPEONFORK 71		/* Zero memory on fork, child only */
--#define MADV_KEEPONFORK 72		/* Undo MADV_WIPEONFORK */
-+#define MADV_WIPEONFORK 18		/* Zero memory on fork, child only */
-+#define MADV_KEEPONFORK 19		/* Undo MADV_WIPEONFORK */
+ 	mutex_unlock(&ei->i_fc_lock);
 +
-+#define MADV_COLD	20		/* deactivate these pages */
-+#define MADV_PAGEOUT	21		/* reclaim these pages */
- 
- #define MADV_HWPOISON     100		/* poison a page for testing */
- #define MADV_SOFT_OFFLINE 101		/* soft offline page for testing */
- 
- /* compatibility flags */
- #define MAP_FILE	0
--#define MAP_VARIABLE	0
- 
- #define PKEY_DISABLE_ACCESS	0x1
- #define PKEY_DISABLE_WRITE	0x2
---- a/arch/parisc/kernel/sys_parisc.c
-+++ b/arch/parisc/kernel/sys_parisc.c
-@@ -444,3 +444,30 @@ asmlinkage long parisc_inotify_init1(int
- 	flags = FIX_O_NONBLOCK(flags);
- 	return sys_inotify_init1(flags);
- }
-+
-+/*
-+ * madvise() wrapper
-+ *
-+ * Up to kernel v6.1 parisc has different values than all other
-+ * platforms for the MADV_xxx flags listed below.
-+ * To keep binary compatibility with existing userspace programs
-+ * translate the former values to the new values.
-+ *
-+ * XXX: Remove this wrapper in year 2025 (or later)
-+ */
-+
-+asmlinkage notrace long parisc_madvise(unsigned long start, size_t len_in, int behavior)
-+{
-+	switch (behavior) {
-+	case 65: behavior = MADV_MERGEABLE;	break;
-+	case 66: behavior = MADV_UNMERGEABLE;	break;
-+	case 67: behavior = MADV_HUGEPAGE;	break;
-+	case 68: behavior = MADV_NOHUGEPAGE;	break;
-+	case 69: behavior = MADV_DONTDUMP;	break;
-+	case 70: behavior = MADV_DODUMP;	break;
-+	case 71: behavior = MADV_WIPEONFORK;	break;
-+	case 72: behavior = MADV_KEEPONFORK;	break;
++	if (IS_ENCRYPTED(dir)) {
++		ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_ENCRYPTED_FILENAME);
++		mutex_lock(&ei->i_fc_lock);
++		return -EOPNOTSUPP;
 +	}
 +
-+	return sys_madvise(start, len_in, behavior);
-+}
---- a/arch/parisc/kernel/syscalls/syscall.tbl
-+++ b/arch/parisc/kernel/syscalls/syscall.tbl
-@@ -131,7 +131,7 @@
- 116	common	sysinfo			sys_sysinfo			compat_sys_sysinfo
- 117	common	shutdown		sys_shutdown
- 118	common	fsync			sys_fsync
--119	common	madvise			sys_madvise
-+119	common	madvise			parisc_madvise
- 120	common	clone			sys_clone_wrapper
- 121	common	setdomainname		sys_setdomainname
- 122	common	sendfile		sys_sendfile			compat_sys_sendfile
---- a/tools/arch/parisc/include/uapi/asm/mman.h
-+++ b/tools/arch/parisc/include/uapi/asm/mman.h
-@@ -1,20 +1,20 @@
- /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
- #ifndef TOOLS_ARCH_PARISC_UAPI_ASM_MMAN_FIX_H
- #define TOOLS_ARCH_PARISC_UAPI_ASM_MMAN_FIX_H
--#define MADV_DODUMP	70
-+#define MADV_DODUMP	17
- #define MADV_DOFORK	11
--#define MADV_DONTDUMP   69
-+#define MADV_DONTDUMP   16
- #define MADV_DONTFORK	10
- #define MADV_DONTNEED   4
- #define MADV_FREE	8
--#define MADV_HUGEPAGE	67
--#define MADV_MERGEABLE   65
--#define MADV_NOHUGEPAGE	68
-+#define MADV_HUGEPAGE	14
-+#define MADV_MERGEABLE  12
-+#define MADV_NOHUGEPAGE 15
- #define MADV_NORMAL     0
- #define MADV_RANDOM     1
- #define MADV_REMOVE	9
- #define MADV_SEQUENTIAL 2
--#define MADV_UNMERGEABLE 66
-+#define MADV_UNMERGEABLE 13
- #define MADV_WILLNEED   3
- #define MAP_ANONYMOUS	0x10
- #define MAP_DENYWRITE	0x0800
---- a/tools/perf/bench/bench.h
-+++ b/tools/perf/bench/bench.h
-@@ -10,25 +10,13 @@ extern struct timeval bench__start, benc
-  * The madvise transparent hugepage constants were added in glibc
-  * 2.13. For compatibility with older versions of glibc, define these
-  * tokens if they are not already defined.
-- *
-- * PA-RISC uses different madvise values from other architectures and
-- * needs to be special-cased.
-  */
--#ifdef __hppa__
--# ifndef MADV_HUGEPAGE
--#  define MADV_HUGEPAGE		67
--# endif
--# ifndef MADV_NOHUGEPAGE
--#  define MADV_NOHUGEPAGE	68
--# endif
--#else
- # ifndef MADV_HUGEPAGE
- #  define MADV_HUGEPAGE		14
- # endif
- # ifndef MADV_NOHUGEPAGE
- #  define MADV_NOHUGEPAGE	15
- # endif
--#endif
+ 	node = kmem_cache_alloc(ext4_fc_dentry_cachep, GFP_NOFS);
+ 	if (!node) {
+-		ext4_fc_mark_ineligible(inode->i_sb, EXT4_FC_REASON_NOMEM);
++		ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_NOMEM);
+ 		mutex_lock(&ei->i_fc_lock);
+ 		return -ENOMEM;
+ 	}
  
- int bench_numa(int argc, const char **argv);
- int bench_sched_messaging(int argc, const char **argv);
+ 	node->fcd_op = dentry_update->op;
+-	node->fcd_parent = dentry->d_parent->d_inode->i_ino;
++	node->fcd_parent = dir->i_ino;
+ 	node->fcd_ino = inode->i_ino;
+ 	if (dentry->d_name.len > DNAME_INLINE_LEN) {
+ 		node->fcd_name.name = kmalloc(dentry->d_name.len, GFP_NOFS);
+ 		if (!node->fcd_name.name) {
+ 			kmem_cache_free(ext4_fc_dentry_cachep, node);
+-			ext4_fc_mark_ineligible(inode->i_sb,
+-				EXT4_FC_REASON_NOMEM);
++			ext4_fc_mark_ineligible(sb, EXT4_FC_REASON_NOMEM);
+ 			mutex_lock(&ei->i_fc_lock);
+ 			return -ENOMEM;
+ 		}
+@@ -2142,17 +2150,17 @@ void ext4_fc_init(struct super_block *sb
+ 	journal->j_fc_cleanup_callback = ext4_fc_cleanup;
+ }
+ 
+-static const char *fc_ineligible_reasons[] = {
+-	"Extended attributes changed",
+-	"Cross rename",
+-	"Journal flag changed",
+-	"Insufficient memory",
+-	"Swap boot",
+-	"Resize",
+-	"Dir renamed",
+-	"Falloc range op",
+-	"Data journalling",
+-	"FC Commit Failed"
++static const char * const fc_ineligible_reasons[] = {
++	[EXT4_FC_REASON_XATTR] = "Extended attributes changed",
++	[EXT4_FC_REASON_CROSS_RENAME] = "Cross rename",
++	[EXT4_FC_REASON_JOURNAL_FLAG_CHANGE] = "Journal flag changed",
++	[EXT4_FC_REASON_NOMEM] = "Insufficient memory",
++	[EXT4_FC_REASON_SWAP_BOOT] = "Swap boot",
++	[EXT4_FC_REASON_RESIZE] = "Resize",
++	[EXT4_FC_REASON_RENAME_DIR] = "Dir renamed",
++	[EXT4_FC_REASON_FALLOC_RANGE] = "Falloc range op",
++	[EXT4_FC_REASON_INODE_JOURNAL_DATA] = "Data journalling",
++	[EXT4_FC_REASON_ENCRYPTED_FILENAME] = "Encrypted filename",
+ };
+ 
+ int ext4_fc_info_show(struct seq_file *seq, void *v)
+--- a/fs/ext4/fast_commit.h
++++ b/fs/ext4/fast_commit.h
+@@ -104,6 +104,7 @@ enum {
+ 	EXT4_FC_REASON_FALLOC_RANGE,
+ 	EXT4_FC_REASON_INODE_JOURNAL_DATA,
+ 	EXT4_FC_COMMIT_FAILED,
++	EXT4_FC_REASON_ENCRYPTED_FILENAME,
+ 	EXT4_FC_REASON_MAX
+ };
+ 
+--- a/include/trace/events/ext4.h
++++ b/include/trace/events/ext4.h
+@@ -104,6 +104,7 @@ TRACE_DEFINE_ENUM(EXT4_FC_REASON_RESIZE)
+ TRACE_DEFINE_ENUM(EXT4_FC_REASON_RENAME_DIR);
+ TRACE_DEFINE_ENUM(EXT4_FC_REASON_FALLOC_RANGE);
+ TRACE_DEFINE_ENUM(EXT4_FC_REASON_INODE_JOURNAL_DATA);
++TRACE_DEFINE_ENUM(EXT4_FC_REASON_ENCRYPTED_FILENAME);
+ TRACE_DEFINE_ENUM(EXT4_FC_REASON_MAX);
+ 
+ #define show_fc_reason(reason)						\
+@@ -116,7 +117,8 @@ TRACE_DEFINE_ENUM(EXT4_FC_REASON_MAX);
+ 		{ EXT4_FC_REASON_RESIZE,	"RESIZE"},		\
+ 		{ EXT4_FC_REASON_RENAME_DIR,	"RENAME_DIR"},		\
+ 		{ EXT4_FC_REASON_FALLOC_RANGE,	"FALLOC_RANGE"},	\
+-		{ EXT4_FC_REASON_INODE_JOURNAL_DATA,	"INODE_JOURNAL_DATA"})
++		{ EXT4_FC_REASON_INODE_JOURNAL_DATA,	"INODE_JOURNAL_DATA"}, \
++		{ EXT4_FC_REASON_ENCRYPTED_FILENAME,	"ENCRYPTED_FILENAME"})
+ 
+ TRACE_EVENT(ext4_other_inode_update_time,
+ 	TP_PROTO(struct inode *inode, ino_t orig_ino),
+@@ -2940,7 +2942,7 @@ TRACE_EVENT(ext4_fc_stats,
+ 	),
+ 
+ 	TP_printk("dev %d,%d fc ineligible reasons:\n"
+-		  "%s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u "
++		  "%s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u, %s:%u"
+ 		  "num_commits:%lu, ineligible: %lu, numblks: %lu",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev),
+ 		  FC_REASON_NAME_STAT(EXT4_FC_REASON_XATTR),
+@@ -2952,6 +2954,7 @@ TRACE_EVENT(ext4_fc_stats,
+ 		  FC_REASON_NAME_STAT(EXT4_FC_REASON_RENAME_DIR),
+ 		  FC_REASON_NAME_STAT(EXT4_FC_REASON_FALLOC_RANGE),
+ 		  FC_REASON_NAME_STAT(EXT4_FC_REASON_INODE_JOURNAL_DATA),
++		  FC_REASON_NAME_STAT(EXT4_FC_REASON_ENCRYPTED_FILENAME),
+ 		  __entry->fc_commits, __entry->fc_ineligible_commits,
+ 		  __entry->fc_numblks)
+ );
 
 
