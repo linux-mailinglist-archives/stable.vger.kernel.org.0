@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 636C26676C2
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:35:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED79F6676D4
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239256AbjALOfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:35:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54040 "EHLO
+        id S238488AbjALOgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:36:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238551AbjALOen (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:34:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30900EA6
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:26:06 -0800 (PST)
+        with ESMTP id S238714AbjALOgN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:36:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7DF11A28
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:26:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DADC560C1B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:26:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEF79C433EF;
-        Thu, 12 Jan 2023 14:26:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEEDB6203A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:26:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0F0DC433EF;
+        Thu, 12 Jan 2023 14:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533565;
-        bh=NCUk6bB7VPH3vQWVQfzyYHYNWWpQAY1rTqiNAogsDkw=;
+        s=korg; t=1673533598;
+        bh=z4GeaDspsSR9VcH57Drr7ZHFVuhV4eam1z3XfMGCKSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wn4DYyhkb3s4GJlgBD7ozK6H4ehcUuL86fkGQu+v3XWRICR+sjfEjA603SynsU6Q7
-         VMadIrYf7y0APXNsjlRKta0O2wuv1Tgmp2a6a+834RvTZzr9SI7sXYNDi+AEOgIFHt
-         CdGYnbiER8szmuQCVNUb9tW54liz6KDd0yi52H4A=
+        b=EFRO+TMgaAnlThwdQxjhx5CY1eT5obHOhClC7BrXQTeK8nWdlSFuiBS3Bw/UcOhEl
+         IN+JDYn8lIqBh69BAI62+ud59KPlQwx5JATt2BJUDZcK9rObBwAj1wdB231QJmdts3
+         a+wt0Q06gadiL1Gf0hg+WFOfcT9dhmdeePZ18CCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        gehao <gehao@kylinos.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Martin Liska <mliska@suse.cz>,
+        Ariel Elior <aelior@marvell.com>,
+        Manish Chopra <manishc@marvell.com>,
+        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 502/783] drm/amd/display: prevent memory leak
-Date:   Thu, 12 Jan 2023 14:53:38 +0100
-Message-Id: <20230112135547.478473714@linuxfoundation.org>
+Subject: [PATCH 5.10 503/783] qed (gcc13): use u16 for fid to be big enough
+Date:   Thu, 12 Jan 2023 14:53:39 +0100
+Message-Id: <20230112135547.532040781@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,71 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: gehao <gehao@kylinos.cn>
+From: Jiri Slaby (SUSE) <jirislaby@kernel.org>
 
-[ Upstream commit d232afb1f3417ae8194ccf19ad3a8360e70e104e ]
+[ Upstream commit 7d84118229bf7f7290438c85caa8e49de52d50c1 ]
 
-In dce6(0,1,4)_create_resource_pool and dce80_create_resource_pool
-the allocated memory should be released if construct pool fails.
+gcc 13 correctly reports overflow in qed_grc_dump_addr_range():
+In file included from drivers/net/ethernet/qlogic/qed/qed.h:23,
+                 from drivers/net/ethernet/qlogic/qed/qed_debug.c:10:
+drivers/net/ethernet/qlogic/qed/qed_debug.c: In function 'qed_grc_dump_addr_range':
+include/linux/qed/qed_if.h:1217:9: error: overflow in conversion from 'int' to 'u8' {aka 'unsigned char'} changes value from '(int)vf_id << 8 | 128' to '128' [-Werror=overflow]
 
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: gehao <gehao@kylinos.cn>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+We do:
+  u8 fid;
+  ...
+  fid = vf_id << 8 | 128;
+
+Since fid is 16bit (and the stored value above too), fid should be u16,
+not u8. Fix that.
+
+Cc: Martin Liska <mliska@suse.cz>
+Cc: Ariel Elior <aelior@marvell.com>
+Cc: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20221031114354.10398-1-jirislaby@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c | 3 +++
- drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c | 2 ++
- 2 files changed, 5 insertions(+)
+ drivers/net/ethernet/qlogic/qed/qed_debug.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c b/drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c
-index 5a5a9cb77acb..bcdd8a958fc0 100644
---- a/drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce60/dce60_resource.c
-@@ -1132,6 +1132,7 @@ struct resource_pool *dce60_create_resource_pool(
- 	if (dce60_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_debug.c b/drivers/net/ethernet/qlogic/qed/qed_debug.c
+index 6ab3e60d4928..4b4077cf2d26 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_debug.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_debug.c
+@@ -1796,9 +1796,10 @@ static u32 qed_grc_dump_addr_range(struct qed_hwfn *p_hwfn,
+ 				   u8 split_id)
+ {
+ 	struct dbg_tools_data *dev_data = &p_hwfn->dbg_info;
+-	u8 port_id = 0, pf_id = 0, vf_id = 0, fid = 0;
++	u8 port_id = 0, pf_id = 0, vf_id = 0;
+ 	bool read_using_dmae = false;
+ 	u32 thresh;
++	u16 fid;
  
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
- }
-@@ -1329,6 +1330,7 @@ struct resource_pool *dce61_create_resource_pool(
- 	if (dce61_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
- 
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
- }
-@@ -1522,6 +1524,7 @@ struct resource_pool *dce64_create_resource_pool(
- 	if (dce64_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
- 
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
- }
-diff --git a/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c b/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c
-index a19be9de2df7..2eefa07762ae 100644
---- a/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c
-@@ -1141,6 +1141,7 @@ struct resource_pool *dce80_create_resource_pool(
- 	if (dce80_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
- 
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
- }
-@@ -1338,6 +1339,7 @@ struct resource_pool *dce81_create_resource_pool(
- 	if (dce81_construct(num_virtual_links, dc, pool))
- 		return &pool->base;
- 
-+	kfree(pool);
- 	BREAK_TO_DEBUGGER();
- 	return NULL;
- }
+ 	if (!dump)
+ 		return len;
 -- 
 2.35.1
 
