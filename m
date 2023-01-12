@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB599667419
+	by mail.lfdr.de (Postfix) with ESMTP id 9EECA667418
 	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:02:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231921AbjALOCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:02:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56702 "EHLO
+        id S230430AbjALOC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:02:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230430AbjALOCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:02:21 -0500
+        with ESMTP id S232248AbjALOCY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:02:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E6A297
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:02:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C08BEBAD
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:02:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53E7FB81E6A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:02:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9684EC433D2;
-        Thu, 12 Jan 2023 14:02:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 726A5B81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:02:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B90E4C433EF;
+        Thu, 12 Jan 2023 14:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532138;
-        bh=UFJISgrawO83DHpFzBsjPmDPirZt+VynwMobDfXIqoM=;
+        s=korg; t=1673532141;
+        bh=Z7szx7nv9/ZhYqW5Xx7P07tPxKNPHxi/eckVveVCHTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCUTgEj80IzbGyFQjjQpRTJ3D32tiy69bzemjXwzD3PKXQHD/aX9oX1EgKvxXHyns
-         RT9C/qFeKVFS3a5zn1c4QuJUYBrv3P1OwcI31Dz9qRZfrcebpl5fmLgMgP6Qr2h8ok
-         mw9oSQ47/b7RDhFU5p0rZ2Q6UJBWm3u8EXB0aC4s=
+        b=Yd7U95U3CNk0OocSKKXcQe24neotwLS7rvwfALFct6l4S8N2OqTKhEpkTh0DrvKKN
+         FqQQ/NNGqPH4CDe4f/0R2hD4K8qQFD/w/dYjUiOifO3EfvgzMQdwnynSDSVarEpAz2
+         XzQjhj2Y3KYv4ZN2DIkyl+HBtjgXfG2oZ+WAKPtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/783] perf/x86/intel/uncore: Fix reference count leak in __uncore_imc_init_box()
-Date:   Thu, 12 Jan 2023 14:46:20 +0100
-Message-Id: <20230112135527.107281018@linuxfoundation.org>
+Subject: [PATCH 5.10 065/783] platform/chrome: cros_usbpd_notify: Fix error handling in cros_usbpd_notify_init()
+Date:   Thu, 12 Jan 2023 14:46:21 +0100
+Message-Id: <20230112135527.156403299@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,47 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 17b8d847b92d815d1638f0de154654081d66b281 ]
+[ Upstream commit 5a2d96623670155d94aca72c320c0ac27bdc6bd2 ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev, so tgl_uncore_get_mc_dev() will return a pci_dev with its
-reference count increased. We need to call pci_dev_put() to decrease the
-reference count before exiting from __uncore_imc_init_box(). Add
-pci_dev_put() for both normal and error path.
+The following WARNING message was given when rmmod cros_usbpd_notify:
 
-Fixes: fdb64822443e ("perf/x86: Add Intel Tiger Lake uncore support")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20221118063137.121512-5-wangxiongfeng2@huawei.com
+ Unexpected driver unregister!
+ WARNING: CPU: 0 PID: 253 at drivers/base/driver.c:270 driver_unregister+0x8a/0xb0
+ Modules linked in: cros_usbpd_notify(-)
+ CPU: 0 PID: 253 Comm: rmmod Not tainted 6.1.0-rc3 #24
+ ...
+ Call Trace:
+  <TASK>
+  cros_usbpd_notify_exit+0x11/0x1e [cros_usbpd_notify]
+  __x64_sys_delete_module+0x3c7/0x570
+  ? __ia32_sys_delete_module+0x570/0x570
+  ? lock_is_held_type+0xe3/0x140
+  ? syscall_enter_from_user_mode+0x17/0x50
+  ? rcu_read_lock_sched_held+0xa0/0xd0
+  ? syscall_enter_from_user_mode+0x1c/0x50
+  do_syscall_64+0x37/0x90
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0033:0x7f333fe9b1b7
+
+The reason is that the cros_usbpd_notify_init() does not check the return
+value of platform_driver_register(), and the cros_usbpd_notify can
+install successfully even if platform_driver_register() failed.
+
+Fix by checking the return value of platform_driver_register() and
+unregister cros_usbpd_notify_plat_driver when it failed.
+
+Fixes: ec2daf6e33f9 ("platform: chrome: Add cros-usbpd-notify driver")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Link: https://lore.kernel.org/r/20221117080823.77549-1-yuancan@huawei.com
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/chrome/cros_usbpd_notify.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
-index fa9289718147..a4c20e37bec2 100644
---- a/arch/x86/events/intel/uncore_snb.c
-+++ b/arch/x86/events/intel/uncore_snb.c
-@@ -1274,6 +1274,7 @@ static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
- 	/* MCHBAR is disabled */
- 	if (!(mch_bar & BIT(0))) {
- 		pr_warn("perf uncore: MCHBAR is disabled. Failed to map IMC free-running counters.\n");
-+		pci_dev_put(pdev);
- 		return;
- 	}
- 	mch_bar &= ~BIT(0);
-@@ -1287,6 +1288,8 @@ static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
- 	box->io_addr = ioremap(addr, type->mmio_map_size);
- 	if (!box->io_addr)
- 		pr_warn("perf uncore: Failed to ioremap for %s.\n", type->name);
-+
-+	pci_dev_put(pdev);
- }
+diff --git a/drivers/platform/chrome/cros_usbpd_notify.c b/drivers/platform/chrome/cros_usbpd_notify.c
+index 7f36142ab12a..19390147ac9d 100644
+--- a/drivers/platform/chrome/cros_usbpd_notify.c
++++ b/drivers/platform/chrome/cros_usbpd_notify.c
+@@ -284,7 +284,11 @@ static int __init cros_usbpd_notify_init(void)
+ 		return ret;
  
- static struct intel_uncore_ops tgl_uncore_imc_freerunning_ops = {
+ #ifdef CONFIG_ACPI
+-	platform_driver_register(&cros_usbpd_notify_acpi_driver);
++	ret = platform_driver_register(&cros_usbpd_notify_acpi_driver);
++	if (ret) {
++		platform_driver_unregister(&cros_usbpd_notify_plat_driver);
++		return ret;
++	}
+ #endif
+ 	return 0;
+ }
 -- 
 2.35.1
 
