@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA66F6676E8
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 525DB6676E9
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:38:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238271AbjALOiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:38:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32840 "EHLO
+        id S239124AbjALOiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:38:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239295AbjALOhe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:37:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5062F1DF00
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:27:34 -0800 (PST)
+        with ESMTP id S233728AbjALOhk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:37:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60B6D3219B
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:27:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1923B81DCC
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B141C433EF;
-        Thu, 12 Jan 2023 14:27:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13046B81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:27:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5283DC433D2;
+        Thu, 12 Jan 2023 14:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533651;
-        bh=c5ek1v5dLrDhnFVuWu8EarzwTdP/aikC4pRLpPab3PQ=;
+        s=korg; t=1673533655;
+        bh=KS2H0hxAJGtlGbFGyZqBwrQruZ8p6VyIPSqs+//DLps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=huJfYsgOBS1jw+jnCxfnfK9eihOP8CnMFp/L9jTG1pGodvYAaewlTWtoi/qSetfWa
-         Q+D1W+hNHuYlnrZi9f1XKucF2YxIDunIytldOWqzt/789xy/hy8PUJXYYv+BGE7ZQm
-         jIywC5pIgE0JbAi+LzV1ztxlkIRFQZAiQ44NCH9g=
+        b=jT8LtiOkCLyGKsDOVRFqt9TG3fQvQn5S7njupJbGEnZu2tZfk6XcoAdWFfVP+IB1S
+         K7lCjXVPk4EO3qSmv6JrywO/eA5i/2RSKRuip3XcMWvTgcARu/u+mdOVs6Bj84tAqT
+         VkSiliS2NpexatVYmWruQfRpRMGawcmdesjugvtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Jingjin <wangjingjin1@huawei.com>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 548/783] ASoC: rockchip: spdif: Add missing clk_disable_unprepare() in rk_spdif_runtime_resume()
-Date:   Thu, 12 Jan 2023 14:54:24 +0100
-Message-Id: <20230112135549.618416912@linuxfoundation.org>
+Subject: [PATCH 5.10 549/783] ASoC: rt5670: Remove unbalanced pm_runtime_put()
+Date:   Thu, 12 Jan 2023 14:54:25 +0100
+Message-Id: <20230112135549.667393164@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,34 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Jingjin <wangjingjin1@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 6d94d0090527b1763872275a7ccd44df7219b31e ]
+[ Upstream commit 6c900dcc3f7331a67ed29739d74524e428d137fb ]
 
-rk_spdif_runtime_resume() may have called clk_prepare_enable() before return
-from failed branches, add missing clk_disable_unprepare() in this case.
+For some reason rt5670_i2c_probe() does a pm_runtime_put() at the end
+of a successful probe. But it has never done a pm_runtime_get() leading
+to the following error being logged into dmesg:
 
-Fixes: f874b80e1571 ("ASoC: rockchip: Add rockchip SPDIF transceiver driver")
-Signed-off-by: Wang Jingjin <wangjingjin1@huawei.com>
-Link: https://lore.kernel.org/r/20221208063900.4180790-1-wangjingjin1@huawei.com
+ rt5670 i2c-10EC5640:00: Runtime PM usage count underflow!
+
+Fix this by removing the unnecessary pm_runtime_put().
+
+Fixes: 64e89e5f5548 ("ASoC: rt5670: Add runtime PM support")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221213123319.11285-1-hdegoede@redhat.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/rockchip/rockchip_spdif.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/rt5670.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/sound/soc/rockchip/rockchip_spdif.c b/sound/soc/rockchip/rockchip_spdif.c
-index 674810851fbc..ccddcd9926af 100644
---- a/sound/soc/rockchip/rockchip_spdif.c
-+++ b/sound/soc/rockchip/rockchip_spdif.c
-@@ -86,6 +86,7 @@ static int __maybe_unused rk_spdif_runtime_resume(struct device *dev)
+diff --git a/sound/soc/codecs/rt5670.c b/sound/soc/codecs/rt5670.c
+index 47ce074289ca..58227602053f 100644
+--- a/sound/soc/codecs/rt5670.c
++++ b/sound/soc/codecs/rt5670.c
+@@ -3192,8 +3192,6 @@ static int rt5670_i2c_probe(struct i2c_client *i2c,
+ 	if (ret < 0)
+ 		goto err;
  
- 	ret = clk_prepare_enable(spdif->hclk);
- 	if (ret) {
-+		clk_disable_unprepare(spdif->mclk);
- 		dev_err(spdif->dev, "hclk clock enable failed %d\n", ret);
- 		return ret;
- 	}
+-	pm_runtime_put(&i2c->dev);
+-
+ 	return 0;
+ err:
+ 	pm_runtime_disable(&i2c->dev);
 -- 
 2.35.1
 
