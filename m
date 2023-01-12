@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85EDD667590
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:23:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9E466758F
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:23:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236816AbjALOXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:23:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45636 "EHLO
+        id S235411AbjALOXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:23:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236701AbjALOWQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:22:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CEAD59513
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:13:32 -0800 (PST)
+        with ESMTP id S236273AbjALOWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:22:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D32EF4D484
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:13:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 230BAB81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:13:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50FA5C433EF;
-        Thu, 12 Jan 2023 14:13:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FA9360110
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:13:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6265EC433D2;
+        Thu, 12 Jan 2023 14:13:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532809;
-        bh=ZGSA8kW/mrCz/E4gyVLR07tgIRBIc5w1yoF4I7guByY=;
+        s=korg; t=1673532812;
+        bh=o6N6vlmoCFlblH0Da1UjDs2WBURMCs1ODf4GXNm/Ij8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mIKueeyDEcXR8BpX+oNyPk0Z0RLvtZge6egXOdiIjLg9FoNTy3mbNmKKunK9MKung
-         IX4tsoYIK3AtrcLpgU1CJNtl5YIqirIhJ7IVzmOf6eizglor8mVXMSiBuM61uiSqOm
-         W75fo2g88yCYWhF6yvAR+4C3CjDXxRfXk/bDvvzk=
+        b=1P4xbWM8x3DrfdXdPdffnupG7Of74DqcFqRZyGJbtJHvQgBGUu0pD47pFBP1XvGt5
+         mungcha0VwUMfzlri5MMR67B7k6zlQ50puay5vU9Ake5iUqL3lNhBP9ZCxRuaHC96Q
+         AAuvrdMfFSGUABuuZWeCGcaTbmLGtNY7XmsjTcl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vidya Sagar <vidyas@nvidia.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Jingoo Han <jingoohan1@gmail.com>,
+        patches@lists.linux.dev, Leon Romanovsky <leonro@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 284/783] PCI: dwc: Fix n_fts[] array overrun
-Date:   Thu, 12 Jan 2023 14:50:00 +0100
-Message-Id: <20230112135537.564136195@linuxfoundation.org>
+Subject: [PATCH 5.10 285/783] RDMA/core: Fix order of nldev_exit call
+Date:   Thu, 12 Jan 2023 14:50:01 +0100
+Message-Id: <20230112135537.605836633@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,40 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vidya Sagar <vidyas@nvidia.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 66110361281b2f7da0c8bd51eaf1f152f4236035 ]
+[ Upstream commit 4508d32ccced24c972bc4592104513e1ff8439b5 ]
 
-commit aeaa0bfe89654 ("PCI: dwc: Move N_FTS setup to common setup")
-incorrectly uses pci->link_gen in deriving the index to the
-n_fts[] array also introducing the issue of accessing beyond the
-boundaries of array for greater than Gen-2 speeds. This change fixes
-that issue.
+Create symmetrical exit flow by calling to nldev_exit() after
+call to rdma_nl_unregister(RDMA_NL_LS).
 
-Link: https://lore.kernel.org/r/20220926111923.22487-1-vidyas@nvidia.com
-Fixes: aeaa0bfe8965 ("PCI: dwc: Move N_FTS setup to common setup")
-Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-Signed-off-by: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Jingoo Han <jingoohan1@gmail.com>
+Fixes: 6c80b41abe22 ("RDMA/netlink: Add nldev initialization flows")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/64e676774a53a406f4cde265d5a4cfd6b8e97df9.1666683334.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-designware.c | 2 +-
+ drivers/infiniband/core/device.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-designware.c b/drivers/pci/controller/dwc/pcie-designware.c
-index 2b74ff88c5c5..28945351da14 100644
---- a/drivers/pci/controller/dwc/pcie-designware.c
-+++ b/drivers/pci/controller/dwc/pcie-designware.c
-@@ -589,7 +589,7 @@ void dw_pcie_setup(struct dw_pcie *pci)
- 	if (pci->n_fts[1]) {
- 		val = dw_pcie_readl_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL);
- 		val &= ~PORT_LOGIC_N_FTS_MASK;
--		val |= pci->n_fts[pci->link_gen - 1];
-+		val |= pci->n_fts[1];
- 		dw_pcie_writel_dbi(pci, PCIE_LINK_WIDTH_SPEED_CONTROL, val);
- 	}
- 
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index d91892ffe243..5b7abcf102fe 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -2793,8 +2793,8 @@ static int __init ib_core_init(void)
+ static void __exit ib_core_cleanup(void)
+ {
+ 	roce_gid_mgmt_cleanup();
+-	nldev_exit();
+ 	rdma_nl_unregister(RDMA_NL_LS);
++	nldev_exit();
+ 	unregister_pernet_device(&rdma_dev_net_ops);
+ 	unregister_blocking_lsm_notifier(&ibdev_lsm_nb);
+ 	ib_sa_cleanup();
 -- 
 2.35.1
 
