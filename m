@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C2F667529
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE095667528
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234805AbjALOTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:19:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41418 "EHLO
+        id S230478AbjALOTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:19:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235411AbjALORx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8DE85791F
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:09:48 -0800 (PST)
+        with ESMTP id S234912AbjALOR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64BBF5793F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:09:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2D3FB81E67
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:09:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0EB1C433EF;
-        Thu, 12 Jan 2023 14:09:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04EA361F74
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:09:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0771CC433EF;
+        Thu, 12 Jan 2023 14:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532586;
-        bh=HaGbFttjHtxaufg1ZWo33eccYnvnm3aK55UE5hHOgyg=;
+        s=korg; t=1673532589;
+        bh=F7rQJqs9lnoIXtTM4+2FUd2+85c5WYh38YDURi7koTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KorlVfl+28drV/MfAUyLv/7hG08j2Nnou5WHrjK0VJsfXYbFsdcvuGvcMwtmE6h8k
-         BB2eZSJci4VpKgA86U8FTV3fwpNLMX/K/vDk3qD5LDckwluYzNcs/m1qnve+ejSRoM
-         XKGTbpqCCyoV8nq7oQnalYvr6DtQ+Df7Nq79l6/8=
+        b=b/4h9QKqDLmLId1gvUrILREA6JvVERIE3Z9Fz3hvip8WY8DrPQOgDdE98uNsin2k5
+         2vLMY3V0Nor4D8isAU1rLwMWwaGgSeDgq2ceTsZe52UDehdNdmmxx4u7o45+i8jElg
+         qb3OqvhUp8qs/wLgr3LE47o4MpS1t2AMkJFTjR6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 211/783] hsr: Synchronize sequence number updates.
-Date:   Thu, 12 Jan 2023 14:48:47 +0100
-Message-Id: <20230112135534.129749721@linuxfoundation.org>
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 212/783] configfs: fix possible memory leak in configfs_create_dir()
+Date:   Thu, 12 Jan 2023 14:48:48 +0100
+Message-Id: <20230112135534.176117713@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,99 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 5c7aa13210c3abdd34fd421f62347665ec6eb551 ]
+[ Upstream commit c65234b283a65cfbfc94619655e820a5e55199eb ]
 
-hsr_register_frame_out() compares new sequence_nr vs the old one
-recorded in hsr_node::seq_out and if the new sequence_nr is higher then
-it will be written to hsr_node::seq_out as the new value.
+kmemleak reported memory leaks in configfs_create_dir():
 
-This operation isn't locked so it is possible that two frames with the
-same sequence number arrive (via the two slave devices) and are fed to
-hsr_register_frame_out() at the same time. Both will pass the check and
-update the sequence counter later to the same value. As a result the
-content of the same packet is fed into the stack twice.
+unreferenced object 0xffff888009f6af00 (size 192):
+  comm "modprobe", pid 3777, jiffies 4295537735 (age 233.784s)
+  backtrace:
+    kmem_cache_alloc (mm/slub.c:3250 mm/slub.c:3256 mm/slub.c:3263 mm/slub.c:3273)
+    new_fragment (./include/linux/slab.h:600 fs/configfs/dir.c:163)
+    configfs_register_subsystem (fs/configfs/dir.c:1857)
+    basic_write (drivers/hwtracing/stm/p_basic.c:14) stm_p_basic
+    do_one_initcall (init/main.c:1296)
+    do_init_module (kernel/module/main.c:2455)
+    ...
 
-This was noticed by running ping and observing DUP being reported from
-time to time.
+unreferenced object 0xffff888003ba7180 (size 96):
+  comm "modprobe", pid 3777, jiffies 4295537735 (age 233.784s)
+  backtrace:
+    kmem_cache_alloc (mm/slub.c:3250 mm/slub.c:3256 mm/slub.c:3263 mm/slub.c:3273)
+    configfs_new_dirent (./include/linux/slab.h:723 fs/configfs/dir.c:194)
+    configfs_make_dirent (fs/configfs/dir.c:248)
+    configfs_create_dir (fs/configfs/dir.c:296)
+    configfs_attach_group.isra.28 (fs/configfs/dir.c:816 fs/configfs/dir.c:852)
+    configfs_register_subsystem (fs/configfs/dir.c:1881)
+    basic_write (drivers/hwtracing/stm/p_basic.c:14) stm_p_basic
+    do_one_initcall (init/main.c:1296)
+    do_init_module (kernel/module/main.c:2455)
+    ...
 
-Instead of using the hsr_priv::seqnr_lock for the whole receive path (as
-it is for sending in the master node) add an additional lock that is only
-used for sequence number checks and updates.
+This is because the refcount is not correct in configfs_make_dirent().
+For normal stage, the refcount is changing as:
 
-Add a per-node lock that is used during sequence number reads and
-updates.
+configfs_register_subsystem()
+  configfs_create_dir()
+    configfs_make_dirent()
+      configfs_new_dirent() # set s_count = 1
+      dentry->d_fsdata = configfs_get(sd); # s_count = 2
+...
+configfs_unregister_subsystem()
+  configfs_remove_dir()
+    remove_dir()
+      configfs_remove_dirent() # s_count = 1
+    dput() ...
+      *dentry_unlink_inode()*
+        configfs_d_iput() # s_count = 0, release
 
-Fixes: f421436a591d3 ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+However, if we failed in configfs_create():
+
+configfs_register_subsystem()
+  configfs_create_dir()
+    configfs_make_dirent() # s_count = 2
+    ...
+    configfs_create() # fail
+    ->out_remove:
+    configfs_remove_dirent(dentry)
+      configfs_put(sd) # s_count = 1
+      return PTR_ERR(inode);
+
+There is no inode in the error path, so the configfs_d_iput() is lost
+and makes sd and fragment memory leaked.
+
+To fix this, when we failed in configfs_create(), manually call
+configfs_put(sd) to keep the refcount correct.
+
+Fixes: 7063fbf22611 ("[PATCH] configfs: User-driven configuration filesystem")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_framereg.c | 9 ++++++++-
- net/hsr/hsr_framereg.h | 2 ++
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ fs/configfs/dir.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
-index 805f974923b9..20cb6b7dbc69 100644
---- a/net/hsr/hsr_framereg.c
-+++ b/net/hsr/hsr_framereg.c
-@@ -159,6 +159,7 @@ static struct hsr_node *hsr_add_node(struct hsr_priv *hsr,
- 		return NULL;
- 
- 	ether_addr_copy(new_node->macaddress_A, addr);
-+	spin_lock_init(&new_node->seq_out_lock);
- 
- 	/* We are only interested in time diffs here, so use current jiffies
- 	 * as initialization. (0 could trigger an spurious ring error warning).
-@@ -311,6 +312,7 @@ void hsr_handle_sup_frame(struct hsr_frame_info *frame)
- 		goto done;
- 
- 	ether_addr_copy(node_real->macaddress_B, ethhdr->h_source);
-+	spin_lock_bh(&node_real->seq_out_lock);
- 	for (i = 0; i < HSR_PT_PORTS; i++) {
- 		if (!node_curr->time_in_stale[i] &&
- 		    time_after(node_curr->time_in[i], node_real->time_in[i])) {
-@@ -321,6 +323,7 @@ void hsr_handle_sup_frame(struct hsr_frame_info *frame)
- 		if (seq_nr_after(node_curr->seq_out[i], node_real->seq_out[i]))
- 			node_real->seq_out[i] = node_curr->seq_out[i];
- 	}
-+	spin_unlock_bh(&node_real->seq_out_lock);
- 	node_real->addr_B_port = port_rcv->type;
- 
- 	spin_lock_bh(&hsr->list_lock);
-@@ -413,13 +416,17 @@ void hsr_register_frame_in(struct hsr_node *node, struct hsr_port *port,
- int hsr_register_frame_out(struct hsr_port *port, struct hsr_node *node,
- 			   u16 sequence_nr)
- {
-+	spin_lock_bh(&node->seq_out_lock);
- 	if (seq_nr_before_or_eq(sequence_nr, node->seq_out[port->type]) &&
- 	    time_is_after_jiffies(node->time_out[port->type] +
--	    msecs_to_jiffies(HSR_ENTRY_FORGET_TIME)))
-+	    msecs_to_jiffies(HSR_ENTRY_FORGET_TIME))) {
-+		spin_unlock_bh(&node->seq_out_lock);
- 		return 1;
-+	}
- 
- 	node->time_out[port->type] = jiffies;
- 	node->seq_out[port->type] = sequence_nr;
-+	spin_unlock_bh(&node->seq_out_lock);
+diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
+index 5ad27e484014..12388ed4faa5 100644
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -317,6 +317,7 @@ static int configfs_create_dir(struct config_item *item, struct dentry *dentry,
  	return 0;
+ 
+ out_remove:
++	configfs_put(dentry->d_fsdata);
+ 	configfs_remove_dirent(dentry);
+ 	return PTR_ERR(inode);
  }
+@@ -383,6 +384,7 @@ int configfs_create_link(struct configfs_dirent *target, struct dentry *parent,
+ 	return 0;
  
-diff --git a/net/hsr/hsr_framereg.h b/net/hsr/hsr_framereg.h
-index d9628e7a5f05..5a771cb3f032 100644
---- a/net/hsr/hsr_framereg.h
-+++ b/net/hsr/hsr_framereg.h
-@@ -69,6 +69,8 @@ void prp_update_san_info(struct hsr_node *node, bool is_sup);
- 
- struct hsr_node {
- 	struct list_head	mac_list;
-+	/* Protect R/W access to seq_out */
-+	spinlock_t		seq_out_lock;
- 	unsigned char		macaddress_A[ETH_ALEN];
- 	unsigned char		macaddress_B[ETH_ALEN];
- 	/* Local slave through which AddrB frames are received from this node */
+ out_remove:
++	configfs_put(dentry->d_fsdata);
+ 	configfs_remove_dirent(dentry);
+ 	return PTR_ERR(inode);
+ }
 -- 
 2.35.1
 
