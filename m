@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 484C46674FD
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:16:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D1C6674D3
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:14:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232183AbjALOQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:16:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41634 "EHLO
+        id S233241AbjALOO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:14:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235510AbjALOQB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:16:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3995D68C
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:08:02 -0800 (PST)
+        with ESMTP id S235940AbjALONn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:13:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D095B17B
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:06:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9A98B81E69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:08:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16186C433EF;
-        Thu, 12 Jan 2023 14:07:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72D4A61FBB
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:06:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66AEAC433D2;
+        Thu, 12 Jan 2023 14:06:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532479;
-        bh=C7zSOxVWncV1jQ+W3PKDFJsLWUvmD7Grf3NtbQDWWqw=;
+        s=korg; t=1673532381;
+        bh=ClZwr9aJZmy9HaWO8W6t3ZjkIxFiNawZ/DFvyAckVb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CdtcfthG6a2xMxIUV+ZlFl3hdFWGpfTRBW23L8e2y6fz4OTvtPEebZPwtEaQkdt0D
-         Ni/oZkeui6xl65kYAPh5b/oA9w98xKzkeITIMIvjARSR8kztCKlmEOQiI/bcVL5ZoE
-         4WmI1wEndj8rHSME33AG3OjcKJcDeld10suwQ6Po=
+        b=QYdxQ7Nzf8OMbN3VBs7PR79XA4mTThNHhsjeAaikN6GZpMGIvTMWPMTGhBSHwWfJA
+         B0ULolUcsqwqhwKmHG4oLcLVPAprFpCkqvnocVfftia/Mv/x/vs8CoTXbV0EiYKeXq
+         zzklQv30Bgn7KVfQzYkarPgby+imWaxjBpuKmiiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 135/783] media: platform: exynos4-is: fix return value check in fimc_md_probe()
-Date:   Thu, 12 Jan 2023 14:47:31 +0100
-Message-Id: <20230112135530.583213499@linuxfoundation.org>
+Subject: [PATCH 5.10 136/783] bpf: propagate precision in ALU/ALU64 operations
+Date:   Thu, 12 Jan 2023 14:47:32 +0100
+Message-Id: <20230112135530.631283497@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,34 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit e38e42c078da4af962d322b97e726dcb2f184e3f ]
+[ Upstream commit a3b666bfa9c9edc05bca62a87abafe0936bd7f97 ]
 
-devm_pinctrl_get() may return ERR_PTR(-EPROBE_DEFER), add a minus sign
-to fix it.
+When processing ALU/ALU64 operations (apart from BPF_MOV, which is
+handled correctly already; and BPF_NEG and BPF_END are special and don't
+have source register), if destination register is already marked
+precise, this causes problem with potentially missing precision tracking
+for the source register. E.g., when we have r1 >>= r5 and r1 is marked
+precise, but r5 isn't, this will lead to r5 staying as imprecise. This
+is due to the precision backtracking logic stopping early when it sees
+r1 is already marked precise. If r1 wasn't precise, we'd keep
+backtracking and would add r5 to the set of registers that need to be
+marked precise. So there is a discrepancy here which can lead to invalid
+and incompatible states matched due to lack of precision marking on r5.
+If r1 wasn't precise, precision backtracking would correctly mark both
+r1 and r5 as precise.
 
-Fixes: 4163851f7b99 ("[media] s5p-fimc: Use pinctrl API for camera ports configuration")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+This is simple to fix, though. During the forward instruction simulation
+pass, for arithmetic operations of `scalar <op>= scalar` form (where
+<op> is ALU or ALU64 operations), if destination register is already
+precise, mark source register as precise. This applies only when both
+involved registers are SCALARs. `ptr += scalar` and `scalar += ptr`
+cases are already handled correctly.
+
+This does have (negative) effect on some selftest programs and few
+Cilium programs.  ~/baseline-tmp-results.csv are veristat results with
+this patch, while ~/baseline-results.csv is without it. See post
+scriptum for instructions on how to make Cilium programs testable with
+veristat. Correctness has a price.
+
+$ ./veristat -C -e file,prog,insns,states ~/baseline-results.csv ~/baseline-tmp-results.csv | grep -v '+0'
+File                     Program               Total insns (A)  Total insns (B)  Total insns (DIFF)  Total states (A)  Total states (B)  Total states (DIFF)
+-----------------------  --------------------  ---------------  ---------------  ------------------  ----------------  ----------------  -------------------
+bpf_cubic.bpf.linked1.o  bpf_cubic_cong_avoid              997             1700      +703 (+70.51%)                62                90        +28 (+45.16%)
+test_l4lb.bpf.linked1.o  balancer_ingress                 4559             5469      +910 (+19.96%)               118               126          +8 (+6.78%)
+-----------------------  --------------------  ---------------  ---------------  ------------------  ----------------  ----------------  -------------------
+
+$ ./veristat -C -e file,prog,verdict,insns,states ~/baseline-results-cilium.csv ~/baseline-tmp-results-cilium.csv | grep -v '+0'
+File           Program                         Total insns (A)  Total insns (B)  Total insns (DIFF)  Total states (A)  Total states (B)  Total states (DIFF)
+-------------  ------------------------------  ---------------  ---------------  ------------------  ----------------  ----------------  -------------------
+bpf_host.o     tail_nodeport_nat_ingress_ipv6             4448             5261      +813 (+18.28%)               234               247         +13 (+5.56%)
+bpf_host.o     tail_nodeport_nat_ipv6_egress              3396             3446        +50 (+1.47%)               201               203          +2 (+1.00%)
+bpf_lxc.o      tail_nodeport_nat_ingress_ipv6             4448             5261      +813 (+18.28%)               234               247         +13 (+5.56%)
+bpf_overlay.o  tail_nodeport_nat_ingress_ipv6             4448             5261      +813 (+18.28%)               234               247         +13 (+5.56%)
+bpf_xdp.o      tail_lb_ipv4                              71736            73442      +1706 (+2.38%)              4295              4370         +75 (+1.75%)
+-------------  ------------------------------  ---------------  ---------------  ------------------  ----------------  ----------------  -------------------
+
+P.S. To make Cilium ([0]) programs libbpf-compatible and thus
+veristat-loadable, apply changes from topmost commit in [1], which does
+minimal changes to Cilium source code, mostly around SEC() annotations
+and BPF map definitions.
+
+  [0] https://github.com/cilium/cilium/
+  [1] https://github.com/anakryiko/cilium/commits/libbpf-friendliness
+
+Fixes: b5dc0163d8fd ("bpf: precise scalar_value tracking")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/r/20221104163649.121784-2-andrii@kernel.org
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/media-dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/verifier.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
-index 8603c578f55f..a9ab2a28fc26 100644
---- a/drivers/media/platform/exynos4-is/media-dev.c
-+++ b/drivers/media/platform/exynos4-is/media-dev.c
-@@ -1470,7 +1470,7 @@ static int fimc_md_probe(struct platform_device *pdev)
- 	pinctrl = devm_pinctrl_get(dev);
- 	if (IS_ERR(pinctrl)) {
- 		ret = PTR_ERR(pinctrl);
--		if (ret != EPROBE_DEFER)
-+		if (ret != -EPROBE_DEFER)
- 			dev_err(dev, "Failed to get pinctrl: %d\n", ret);
- 		goto err_clk;
- 	}
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 4d62822f5502..30e0fa1bd83c 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -6992,6 +6992,11 @@ static int adjust_reg_min_max_vals(struct bpf_verifier_env *env,
+ 				return err;
+ 			return adjust_ptr_min_max_vals(env, insn,
+ 						       dst_reg, src_reg);
++		} else if (dst_reg->precise) {
++			/* if dst_reg is precise, src_reg should be precise as well */
++			err = mark_chain_precision(env, insn->src_reg);
++			if (err)
++				return err;
+ 		}
+ 	} else {
+ 		/* Pretend the src is a reg with a known value, since we only
 -- 
 2.35.1
 
