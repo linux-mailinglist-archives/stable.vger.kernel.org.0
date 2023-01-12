@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3112C66750E
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:17:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B83966750F
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:17:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234969AbjALORi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:17:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42214 "EHLO
+        id S235314AbjALORj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:17:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235285AbjALOQm (ORCPT
+        with ESMTP id S230324AbjALOQm (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:16:42 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B339559E7
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:08:42 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59003564D1
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:08:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BA75FCE1E6E
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:08:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A840FC433EF;
-        Thu, 12 Jan 2023 14:08:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3D2C62014
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:08:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCEB3C433D2;
+        Thu, 12 Jan 2023 14:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532519;
-        bh=X8TZl+MSqW3rq6Ccs9eufKaIkImcXi+ynf1ZnQYJOWE=;
+        s=korg; t=1673532522;
+        bh=FoxYHp9WbO8yNbj/wlK5JvWJiKXSe9+l6W+iEX6c9Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRiUuZnREnG9arbytDgIZmYaDoFA0/k98EyBKGmmQocdbS9udqjiiI8eVO7xxlH6n
-         PakeAWKMauJT+f4TtHyZl03HpaWue9W6jnk5R87DbMGmH3JemHd+RxMEyKK5NnEyNI
-         Hxa9Ej/OcGv59NO9OjAaf0URpfoiXf+e/01bMj+g=
+        b=V28Eth+enwg9AVfNkFIHeBHWVRZcwLw139tUcQrXgDAx0O0u2Xin+UWMiizYtpEpV
+         tyAAzodZyN6Zrw2m6n19p/q13u7XH3fXsoMaSdKkJk1+cr1pR2fpV0Z+2ZYtGW09yG
+         bt0okqPU4EIkmGD/0Coz8V39ICx1rtk8hv9QQrts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 188/783] NFS: Fix an Oops in nfs_d_automount()
-Date:   Thu, 12 Jan 2023 14:48:24 +0100
-Message-Id: <20230112135533.043507472@linuxfoundation.org>
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 189/783] ALSA: asihpi: fix missing pci_disable_device()
+Date:   Thu, 12 Jan 2023 14:48:25 +0100
+Message-Id: <20230112135533.091525732@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,34 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 35e3b6ae84935d0d7ff76cbdaa83411b0ad5e471 ]
+[ Upstream commit 9d86515c3d4c0564a0c31a2df87d735353a1971e ]
 
-When mounting from a NFSv4 referral, path->dentry can end up being a
-negative dentry, so derive the struct nfs_server from the dentry
-itself instead.
+pci_disable_device() need be called while module exiting, switch to use
+pcim_enable(), pci_disable_device() will be called in pcim_release().
 
-Fixes: 2b0143b5c986 ("VFS: normal filesystems (and lustre): d_inode() annotations")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 3285ea10e9b0 ("ALSA: asihpi - Interrelated HPI tidy up.")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Link: https://lore.kernel.org/r/20221126021429.3029562-1-liushixin2@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/namespace.c | 2 +-
+ sound/pci/asihpi/hpioctl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/namespace.c b/fs/nfs/namespace.c
-index 2bcbe38afe2e..1f03445b5cb4 100644
---- a/fs/nfs/namespace.c
-+++ b/fs/nfs/namespace.c
-@@ -147,7 +147,7 @@ struct vfsmount *nfs_d_automount(struct path *path)
- 	struct nfs_fs_context *ctx;
- 	struct fs_context *fc;
- 	struct vfsmount *mnt = ERR_PTR(-ENOMEM);
--	struct nfs_server *server = NFS_SERVER(d_inode(path->dentry));
-+	struct nfs_server *server = NFS_SB(path->dentry->d_sb);
- 	struct nfs_client *client = server->nfs_client;
- 	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
- 	int ret;
+diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
+index bb31b7fe867d..477a5b4b50bc 100644
+--- a/sound/pci/asihpi/hpioctl.c
++++ b/sound/pci/asihpi/hpioctl.c
+@@ -361,7 +361,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
+ 		pci_dev->device, pci_dev->subsystem_vendor,
+ 		pci_dev->subsystem_device, pci_dev->devfn);
+ 
+-	if (pci_enable_device(pci_dev) < 0) {
++	if (pcim_enable_device(pci_dev) < 0) {
+ 		dev_err(&pci_dev->dev,
+ 			"pci_enable_device failed, disabling device\n");
+ 		return -EIO;
 -- 
 2.35.1
 
