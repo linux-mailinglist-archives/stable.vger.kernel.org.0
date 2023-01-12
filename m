@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0813E66768E
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:33:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8A1667690
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:33:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237711AbjALOdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:33:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53468 "EHLO
+        id S237987AbjALOdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:33:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234931AbjALOcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:32:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE55551CD
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:24:09 -0800 (PST)
+        with ESMTP id S237719AbjALOcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:32:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0A85E0B1
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:24:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B575D60C01
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:24:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB54FC433EF;
-        Thu, 12 Jan 2023 14:24:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0735BCE1E76
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:24:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5F8BC433EF;
+        Thu, 12 Jan 2023 14:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533448;
-        bh=w2VH7BR6TdFoK2qaCSRHDnGx24GePt9+BKxsLt61T5A=;
+        s=korg; t=1673533451;
+        bh=xQSnoJUDlQ16f2L8CuWavgbI1e8D0xygcd69tyFUEqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6yw4agybHmyUkIEmMsKgDVow5PXy/ANydEiNsWYlJ4yaIxjT+bqC5ZiibFCdUKe2
-         eY4KwBLtNrsPXQKpYLXj5SeDUAPerTftNEwfPKMVLz1ZVrhWUGk3I8xuf+OtVfZspr
-         FVZnJTGBdeB4qigOKnPC9acbwyCE4O+vxDIxQros=
+        b=epzosUXGEWe67nNqzXhzY4JXisl/qV5fp0R1aeirCvX7hwkoBHUf6QVB9OuY+sDD8
+         6KyNfwmMaZczLYBUt7hnDsFg9ewU2SQRBMu5NMTErh3ymObPZcnwoN3Ets/MDwW9xh
+         ohCMV5Gy77+KpDpCFQeV3ysuTeWhQWp1R0fYF5jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Changheon Lee <darklight2357@icloud.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Zqiang <qiang1.zhang@intel.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 482/783] net: stream: purge sk_error_queue in sk_stream_kill_queues()
-Date:   Thu, 12 Jan 2023 14:53:18 +0100
-Message-Id: <20230112135546.547829699@linuxfoundation.org>
+Subject: [PATCH 5.10 483/783] rcu: Fix __this_cpu_read() lockdep warning in rcu_force_quiescent_state()
+Date:   Thu, 12 Jan 2023 14:53:19 +0100
+Message-Id: <20230112135546.582300852@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,67 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit e0c8bccd40fc1c19e1d246c39bcf79e357e1ada3 ]
+[ Upstream commit ceb1c8c9b8aa9199da46a0f29d2d5f08d9b44c15 ]
 
-Changheon Lee reported TCP socket leaks, with a nice repro.
+Running rcutorture with non-zero fqs_duration module parameter in a
+kernel built with CONFIG_PREEMPTION=y results in the following splat:
 
-It seems we leak TCP sockets with the following sequence:
+BUG: using __this_cpu_read() in preemptible [00000000]
+code: rcu_torture_fqs/398
+caller is __this_cpu_preempt_check+0x13/0x20
+CPU: 3 PID: 398 Comm: rcu_torture_fqs Not tainted 6.0.0-rc1-yoctodev-standard+
+Call Trace:
+<TASK>
+dump_stack_lvl+0x5b/0x86
+dump_stack+0x10/0x16
+check_preemption_disabled+0xe5/0xf0
+__this_cpu_preempt_check+0x13/0x20
+rcu_force_quiescent_state.part.0+0x1c/0x170
+rcu_force_quiescent_state+0x1e/0x30
+rcu_torture_fqs+0xca/0x160
+? rcu_torture_boost+0x430/0x430
+kthread+0x192/0x1d0
+? kthread_complete_and_exit+0x30/0x30
+ret_from_fork+0x22/0x30
+</TASK>
 
-1) SOF_TIMESTAMPING_TX_ACK is enabled on the socket.
+The problem is that rcu_force_quiescent_state() uses __this_cpu_read()
+in preemptible code instead of the proper raw_cpu_read().  This commit
+therefore changes __this_cpu_read() to raw_cpu_read().
 
-   Each ACK will cook an skb put in error queue, from __skb_tstamp_tx().
-   __skb_tstamp_tx() is using skb_clone(), unless
-   SOF_TIMESTAMPING_OPT_TSONLY was also requested.
-
-2) If the application is also using MSG_ZEROCOPY, then we put in the
-   error queue cloned skbs that had a struct ubuf_info attached to them.
-
-   Whenever an struct ubuf_info is allocated, sock_zerocopy_alloc()
-   does a sock_hold().
-
-   As long as the cloned skbs are still in sk_error_queue,
-   socket refcount is kept elevated.
-
-3) Application closes the socket, while error queue is not empty.
-
-Since tcp_close() no longer purges the socket error queue,
-we might end up with a TCP socket with at least one skb in
-error queue keeping the socket alive forever.
-
-This bug can be (ab)used to consume all kernel memory
-and freeze the host.
-
-We need to purge the error queue, with proper synchronization
-against concurrent writers.
-
-Fixes: 24bcbe1cc69f ("net: stream: don't purge sk_error_queue in sk_stream_kill_queues()")
-Reported-by: Changheon Lee <darklight2357@icloud.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/stream.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/rcu/tree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/stream.c b/net/core/stream.c
-index a61130504827..d7c5413d16d5 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -196,6 +196,12 @@ void sk_stream_kill_queues(struct sock *sk)
- 	/* First the read buffer. */
- 	__skb_queue_purge(&sk->sk_receive_queue);
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index b10d6bcea77d..3fe7c75c371b 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -2650,7 +2650,7 @@ void rcu_force_quiescent_state(void)
+ 	struct rcu_node *rnp_old = NULL;
  
-+	/* Next, the error queue.
-+	 * We need to use queue lock, because other threads might
-+	 * add packets to the queue without socket lock being held.
-+	 */
-+	skb_queue_purge(&sk->sk_error_queue);
-+
- 	/* Next, the write queue. */
- 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
- 
+ 	/* Funnel through hierarchy to reduce memory contention. */
+-	rnp = __this_cpu_read(rcu_data.mynode);
++	rnp = raw_cpu_read(rcu_data.mynode);
+ 	for (; rnp != NULL; rnp = rnp->parent) {
+ 		ret = (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) ||
+ 		       !raw_spin_trylock(&rnp->fqslock);
 -- 
 2.35.1
 
