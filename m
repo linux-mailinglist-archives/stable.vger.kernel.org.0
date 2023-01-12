@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 670F8667745
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE41667711
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:39:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239719AbjALOlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:41:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35636 "EHLO
+        id S237383AbjALOjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:39:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239688AbjALOkq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:40:46 -0500
+        with ESMTP id S239783AbjALOiv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:38:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE785FE2
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:30:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E526E58827
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:28:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B643FB81E71
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16D8FC433EF;
-        Thu, 12 Jan 2023 14:30:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C9FEB81E70
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:28:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80EA9C433F1;
+        Thu, 12 Jan 2023 14:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533827;
-        bh=7E3nHgAfkm9oyDn+S4KQFsFdg0Z9uo2gyHjxdObYOYQ=;
+        s=korg; t=1673533727;
+        bh=sab/sXztno/3zqSpsXMjLfQipiAEXgFC/BJX8Gr59uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rgFGNGgQoEHVBj7mEJzQRrRVdGHKN6kLDZbgkGw95iWzhxoCQWG3guWdb/f/IqW5i
-         ODHBGNvues6EuIrQ6e7WyNcslHwmsQ9466F1WEP23b8nZpaM+Sn2Hl0hkTzb8GNCHV
-         /vYfBePHL6IeDd6qcQz6WfVopC1CuMW4ToYLHDCk=
+        b=H0dWYkkCqeDyQvCzFtN5Bcooxb2lWGouyxl8Eg6ciJ7vCwo2KlBer5hbmf7VA9PrS
+         wWWYPdfMO3vANF+haaLQaOjWbJsThdmcUVjwzTqmYxM57JrPeBCeTuo6/8iWKESiW0
+         aBew6AyKlPPrCX2SQDZBUbByOL42T1hWkVD5JWW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.10 564/783] iio: adc: ad_sigma_delta: do not use internal iio_dev lock
-Date:   Thu, 12 Jan 2023 14:54:40 +0100
-Message-Id: <20230112135550.387443557@linuxfoundation.org>
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 565/783] iio: adc128s052: add proper .data members in adc128_of_match table
+Date:   Thu, 12 Jan 2023 14:54:41 +0100
+Message-Id: <20230112135550.423261680@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,51 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit 20228a1d5a55e7db0c6720840f2c7d2b48c55f69 upstream.
+commit e2af60f5900c6ade53477b494ffb54690eee11f5 upstream.
 
-Drop 'mlock' usage by making use of iio_device_claim_direct_mode().
-This change actually makes sure we cannot do a single conversion while
-buffering is enable. Note there was a potential race in the previous
-code since we were only acquiring the lock after checking if the bus is
-enabled.
+Prior to commit bd5d54e4d49d ("iio: adc128s052: add ACPI _HID
+AANT1280"), the driver unconditionally used spi_get_device_id() to get
+the index into the adc128_config array.
 
-Fixes: af3008485ea0 ("iio:adc: Add common code for ADI Sigma Delta devices")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: <Stable@vger.kernel.org> #No rush as race is very old.
-Link: https://lore.kernel.org/r/20220920112821.975359-2-nuno.sa@analog.com
+However, with that commit, OF-based boards now incorrectly treat all
+supported sensors as if they are an adc128s052, because all the .data
+members of the adc128_of_match table are implicitly 0. Our board,
+which has an adc122s021, thus exposes 8 channels whereas it really
+only has two.
+
+Fixes: bd5d54e4d49d ("iio: adc128s052: add ACPI _HID AANT1280")
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221115132324.1078169-1-linux@rasmusvillemoes.dk
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad_sigma_delta.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/adc/ti-adc128s052.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/iio/adc/ad_sigma_delta.c
-+++ b/drivers/iio/adc/ad_sigma_delta.c
-@@ -280,10 +280,10 @@ int ad_sigma_delta_single_conversion(str
- 	unsigned int data_reg;
- 	int ret = 0;
+--- a/drivers/iio/adc/ti-adc128s052.c
++++ b/drivers/iio/adc/ti-adc128s052.c
+@@ -193,13 +193,13 @@ static int adc128_remove(struct spi_devi
+ }
  
--	if (iio_buffer_enabled(indio_dev))
--		return -EBUSY;
-+	ret = iio_device_claim_direct_mode(indio_dev);
-+	if (ret)
-+		return ret;
- 
--	mutex_lock(&indio_dev->mlock);
- 	ad_sigma_delta_set_channel(sigma_delta, chan->address);
- 
- 	spi_bus_lock(sigma_delta->spi->master);
-@@ -322,7 +322,7 @@ out:
- 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
- 	sigma_delta->bus_locked = false;
- 	spi_bus_unlock(sigma_delta->spi->master);
--	mutex_unlock(&indio_dev->mlock);
-+	iio_device_release_direct_mode(indio_dev);
- 
- 	if (ret)
- 		return ret;
+ static const struct of_device_id adc128_of_match[] = {
+-	{ .compatible = "ti,adc128s052", },
+-	{ .compatible = "ti,adc122s021", },
+-	{ .compatible = "ti,adc122s051", },
+-	{ .compatible = "ti,adc122s101", },
+-	{ .compatible = "ti,adc124s021", },
+-	{ .compatible = "ti,adc124s051", },
+-	{ .compatible = "ti,adc124s101", },
++	{ .compatible = "ti,adc128s052", .data = (void*)0L, },
++	{ .compatible = "ti,adc122s021", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s051", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s101", .data = (void*)1L, },
++	{ .compatible = "ti,adc124s021", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s051", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s101", .data = (void*)2L, },
+ 	{ /* sentinel */ },
+ };
+ MODULE_DEVICE_TABLE(of, adc128_of_match);
 
 
