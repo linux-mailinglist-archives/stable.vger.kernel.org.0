@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06D69667801
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:51:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03FED667800
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:51:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240115AbjALOvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:51:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42950 "EHLO
+        id S239961AbjALOvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:51:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239946AbjALOvC (ORCPT
+        with ESMTP id S240013AbjALOvC (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:51:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5763F13F37
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:37:56 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1F6013F46
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:37:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 184D4B81E70
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD1CC433F1;
-        Thu, 12 Jan 2023 14:37:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F5FF6203C
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:37:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69E63C4339E;
+        Thu, 12 Jan 2023 14:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534273;
-        bh=kdLqsUXrfk98UtlspnrWQAq2559d5VmdOZ23+Wzw+ho=;
+        s=korg; t=1673534277;
+        bh=ZQgif84aLLyMaI49Is44k2DoyEMvc/Rfm+h3IyybCxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jRhkcO0f5zWlX5pnicMTPrw+fIMYDRShOlxqA6f6dFzHjYuwDlkCoh8HVyG+8XP/A
-         C8V8E+LyjUjyJCbGcAY76mkvhSTQPTiPreG2ftaB6rJYVTN7dFKd04mMzDlZX84Q//
-         3BetDj+3NGFYo/HjgxCwKp5GRl8lRjdtcmXL5d8I=
+        b=LncziVKdTC8MjaOOhTtxBYz1x9ZK5eFOS2WQBnvzpBXE4PByW5CDzG1ebxNrHkj5P
+         04id7kRQmgZwkH0YbCZ3d4rMP1oLnI0aq0cdAkpOO97wlR9pw5gELsKSz6+sJ/5LOp
+         d6X81U7awU2qqFW+Uq6NbzFVuwroXHg/s6f4wP3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        Jiri Pirko <jiri@nvidia.com>,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 753/783] drivers/net/bonding/bond_3ad: return when theres no aggregator
-Date:   Thu, 12 Jan 2023 14:57:49 +0100
-Message-Id: <20230112135559.269077175@linuxfoundation.org>
+Subject: [PATCH 5.10 754/783] usb: rndis_host: Secure rndis_query check against int overflow
+Date:   Thu, 12 Jan 2023 14:57:50 +0100
+Message-Id: <20230112135559.317708299@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,37 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-[ Upstream commit 9c807965483f42df1d053b7436eedd6cf28ece6f ]
+[ Upstream commit c7dd13805f8b8fc1ce3b6d40f6aff47e66b72ad2 ]
 
-Otherwise we would dereference a NULL aggregator pointer when calling
-__set_agg_ports_ready on the line below.
+Variables off and len typed as uint32 in rndis_query function
+are controlled by incoming RNDIS response message thus their
+value may be manipulated. Setting off to a unexpectetly large
+value will cause the sum with len and 8 to overflow and pass
+the implemented validation step. Consequently the response
+pointer will be referring to a location past the expected
+buffer boundaries allowing information leakage e.g. via
+RNDIS_OID_802_3_PERMANENT_ADDRESS OID.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Fixes: ddda08624013 ("USB: rndis_host, various cleanups")
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_3ad.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/usb/rndis_host.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
-index acb6ff0be5ff..320e5461853f 100644
---- a/drivers/net/bonding/bond_3ad.c
-+++ b/drivers/net/bonding/bond_3ad.c
-@@ -1520,6 +1520,7 @@ static void ad_port_selection_logic(struct port *port, bool *update_slave_arr)
- 			slave_err(bond->dev, port->slave->dev,
- 				  "Port %d did not find a suitable aggregator\n",
- 				  port->actor_port_number);
-+			return;
- 		}
- 	}
- 	/* if all aggregator's ports are READY_N == TRUE, set ready=TRUE
+diff --git a/drivers/net/usb/rndis_host.c b/drivers/net/usb/rndis_host.c
+index 1505fe3f87ed..1ff723e15d52 100644
+--- a/drivers/net/usb/rndis_host.c
++++ b/drivers/net/usb/rndis_host.c
+@@ -255,7 +255,8 @@ static int rndis_query(struct usbnet *dev, struct usb_interface *intf,
+ 
+ 	off = le32_to_cpu(u.get_c->offset);
+ 	len = le32_to_cpu(u.get_c->len);
+-	if (unlikely((8 + off + len) > CONTROL_BUFFER_SIZE))
++	if (unlikely((off > CONTROL_BUFFER_SIZE - 8) ||
++		     (len > CONTROL_BUFFER_SIZE - 8 - off)))
+ 		goto response_error;
+ 
+ 	if (*reply_len != -1 && len != *reply_len)
 -- 
 2.35.1
 
