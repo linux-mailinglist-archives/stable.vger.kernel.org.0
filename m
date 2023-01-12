@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CF6667652
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A65F7667653
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237441AbjALOam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237913AbjALOam (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 12 Jan 2023 09:30:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48996 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236870AbjALOaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B76E58D2B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:29 -0800 (PST)
+        with ESMTP id S237000AbjALOaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB0458F96
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0697CB81E6A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34CB1C433D2;
-        Thu, 12 Jan 2023 14:21:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 356F260C01
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46158C433D2;
+        Thu, 12 Jan 2023 14:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533286;
-        bh=ktuX8+BF2iMYWONt6KFRQzimjLaD2mX2w366/WV1G2c=;
+        s=korg; t=1673533289;
+        bh=50ow/X8mAdybbxLFGEt5Qy11Y+GlBtkQEH/rytZpPvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=baswzrGE17zLM3UPg0CQlVlU1GA5lpilph5lo6kC6hqUhcYc7wGIZxUm2WTtnnptL
-         2yi3tQsy4n0V3gSWQPwDQ3hiNNudFInT79lvmvbnWq1H0xh3nss7Reb5CdT13vRMMZ
-         A30VN8ltIDhDFEOXGjkeuK/bYDZaxYgJqP2nMVq4=
+        b=wzIkbfNlKjjWcvx23/ngAb+/vLBxRzcta5W5JJw9WaWrm9KzDlQ84BzTYoYua3uDx
+         U1Pr9VLL9ZnevG6RneCn5Cl9PIOOIUoNl/DTdd1ntGjdBa14dC1kR4pJM8hDQpvSIh
+         XZK0EkE2WXzOlTGFwRXVbcyOhwC/hL8LipojPaus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 429/783] iommu/fsl_pamu: Fix resource leak in fsl_pamu_probe()
-Date:   Thu, 12 Jan 2023 14:52:25 +0100
-Message-Id: <20230112135544.198370038@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 430/783] macintosh: fix possible memory leak in macio_add_one_device()
+Date:   Thu, 12 Jan 2023 14:52:26 +0100
+Message-Id: <20230112135544.248875397@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -52,34 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 73f5fc5f884ad0c5f7d57f66303af64f9f002526 ]
+[ Upstream commit 5ca86eae55a2f006e6c1edd2029b2cacb6979515 ]
 
-The fsl_pamu_probe() returns directly when create_csd() failed, leaving
-irq and memories unreleased.
-Fix by jumping to error if create_csd() returns error.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically. It
+needs to be freed when of_device_register() fails. Call put_device() to
+give up the reference that's taken in device_initialize(), so that it
+can be freed in kobject_cleanup() when the refcount hits 0.
 
-Fixes: 695093e38c3e ("iommu/fsl: Freescale PAMU driver and iommu implementation.")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Link: https://lore.kernel.org/r/20221121082022.19091-1-yuancan@huawei.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+macio device is freed in macio_release_dev(), so the kfree() can be
+removed.
+
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221104032551.1075335-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/fsl_pamu.c | 2 +-
+ drivers/macintosh/macio_asic.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/fsl_pamu.c b/drivers/iommu/fsl_pamu.c
-index b9a974d97831..25689bdf812e 100644
---- a/drivers/iommu/fsl_pamu.c
-+++ b/drivers/iommu/fsl_pamu.c
-@@ -1122,7 +1122,7 @@ static int fsl_pamu_probe(struct platform_device *pdev)
- 		ret = create_csd(ppaact_phys, mem_size, csd_port_id);
- 		if (ret) {
- 			dev_err(dev, "could not create coherence subdomain\n");
--			return ret;
-+			goto error;
- 		}
+diff --git a/drivers/macintosh/macio_asic.c b/drivers/macintosh/macio_asic.c
+index 49af60bdac92..7db2e23a5ac8 100644
+--- a/drivers/macintosh/macio_asic.c
++++ b/drivers/macintosh/macio_asic.c
+@@ -425,7 +425,7 @@ static struct macio_dev * macio_add_one_device(struct macio_chip *chip,
+ 	if (of_device_register(&dev->ofdev) != 0) {
+ 		printk(KERN_DEBUG"macio: device registration error for %s!\n",
+ 		       dev_name(&dev->ofdev.dev));
+-		kfree(dev);
++		put_device(&dev->ofdev.dev);
+ 		return NULL;
  	}
  
 -- 
