@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CD386675DB
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:26:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 448B46675EF
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236771AbjALO0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:26:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48054 "EHLO
+        id S236745AbjALO1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:27:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235397AbjALOZw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:25:52 -0500
+        with ESMTP id S237143AbjALO0k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:26:40 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 436D65C90D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:17:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD6165C1E5
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:17:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0613DB81DCC
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:17:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E8C2C433D2;
-        Thu, 12 Jan 2023 14:16:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B5D7B81E6D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:17:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE58FC433D2;
+        Thu, 12 Jan 2023 14:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533019;
-        bh=VD7ugWSrmawl/ONvNzl6HMD20kVsST2ZKwJ3ViXNhpc=;
+        s=korg; t=1673533053;
+        bh=PmFXWecuphzLQL/a/Q8T9AW6nA8rcnx1ptG09ywE4do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u7m7IXetQrc2A7yhhUR2t2TUuxtnXOiMyO/pnxTbImJ17gmY+F6izag4iywrCfLo7
-         GBxcHmtXmVd0VM/6by9z1UJ0bQ4omvM32cJhGHYCA2JBL41R3NMNbQ1XnhH7yJfrWX
-         iTDV75Wq36DvjCPbLa03RjW1g6fiqfbrO/uxAP5A=
+        b=YYHvUiz1UNsp6C/txrWVc6u1bwHstvvdG2MbmwPgfS4gNfX593FwRyZu0iKPT43bi
+         Rjxw31hTVmjidHznddjbLUoiLzSej0tEEufxgxu9nPNxU+1LAyFfwz8YSn1eog1jrn
+         f8+sxpFqLsVkjO9o3WfWM8R6G8u2mUJrKhFIfPbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Chengchang Tang <tangchengchang@huawei.com>,
-        Haoyue Xu <xuhaoyue1@hisilicon.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 336/783] RDMA/hns: Fix page size cap from firmware
-Date:   Thu, 12 Jan 2023 14:50:52 +0100
-Message-Id: <20230112135539.877245482@linuxfoundation.org>
+Subject: [PATCH 5.10 337/783] crypto: img-hash - Fix variable dereferenced before check hdev->req
+Date:   Thu, 12 Jan 2023 14:50:53 +0100
+Message-Id: <20230112135539.926646181@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,37 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengchang Tang <tangchengchang@huawei.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 99dc5a0712883d5d13b620d25b3759d429577bc8 ]
+[ Upstream commit 04ba54e5af8f8f0137b08cb51a0b3a2e1ea46c94 ]
 
-Add verification to make sure the roce page size cap is supported by the
-system page size.
+Smatch report warning as follows:
 
-Fixes: ba6bb7e97421 ("RDMA/hns: Add interfaces to get pf capabilities from firmware")
-Link: https://lore.kernel.org/r/20221126102911.2921820-5-xuhaoyue1@hisilicon.com
-Signed-off-by: Chengchang Tang <tangchengchang@huawei.com>
-Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+drivers/crypto/img-hash.c:366 img_hash_dma_task() warn: variable
+dereferenced before check 'hdev->req'
+
+Variable dereferenced should be done after check 'hdev->req',
+fix it.
+
+Fixes: d358f1abbf71 ("crypto: img-hash - Add Imagination Technologies hw hash accelerator")
+Fixes: 10badea259fa ("crypto: img-hash - Fix null pointer exception")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/crypto/img-hash.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 0f4ef4516868..76ed547b76ea 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -2166,6 +2166,9 @@ static int hns_roce_query_pf_caps(struct hns_roce_dev *hr_dev)
- 	calc_pg_sz(caps->num_idx_segs, caps->idx_entry_sz, caps->idx_hop_num,
- 		   1, &caps->idx_buf_pg_sz, &caps->idx_ba_pg_sz, HEM_TYPE_IDX);
+diff --git a/drivers/crypto/img-hash.c b/drivers/crypto/img-hash.c
+index 91f555ccbb31..cecae50d0f58 100644
+--- a/drivers/crypto/img-hash.c
++++ b/drivers/crypto/img-hash.c
+@@ -357,12 +357,16 @@ static int img_hash_dma_init(struct img_hash_dev *hdev)
+ static void img_hash_dma_task(unsigned long d)
+ {
+ 	struct img_hash_dev *hdev = (struct img_hash_dev *)d;
+-	struct img_hash_request_ctx *ctx = ahash_request_ctx(hdev->req);
++	struct img_hash_request_ctx *ctx;
+ 	u8 *addr;
+ 	size_t nbytes, bleft, wsend, len, tbc;
+ 	struct scatterlist tsg;
  
-+	if (!(caps->page_size_cap & PAGE_SIZE))
-+		caps->page_size_cap = HNS_ROCE_V2_PAGE_SIZE_SUPPORTED;
+-	if (!hdev->req || !ctx->sg)
++	if (!hdev->req)
++		return;
 +
- 	return 0;
- }
++	ctx = ahash_request_ctx(hdev->req);
++	if (!ctx->sg)
+ 		return;
  
+ 	addr = sg_virt(ctx->sg);
 -- 
 2.35.1
 
