@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D971667384
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 14:49:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 288BE66751A
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:18:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230140AbjALNtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 08:49:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47114 "EHLO
+        id S235227AbjALOSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:18:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233143AbjALNsy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 08:48:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14B6D48CCB
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 05:48:50 -0800 (PST)
+        with ESMTP id S233591AbjALORh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:17:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A675F5D6B9
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:09:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C213EB81E68
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 13:48:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C07AC433EF;
-        Thu, 12 Jan 2023 13:48:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 435D262026
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:09:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43055C433D2;
+        Thu, 12 Jan 2023 14:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673531327;
-        bh=BuA5gThr0b1KLSUyM6Q+JokImrw7JoAMiToT7O5Z1Cc=;
-        h=Subject:To:Cc:From:Date:From;
-        b=hETrdQHAPuy7uEyIqbgnm5JzxBdMeygcdILpPku2aalTZfyRlDrO4ipEdhi4r5k6B
-         53rvPI0KOq1tS25JhduqkDoo/nVfLTqvhGki8uevMCkrQI0qJGbG+33Lg6Y/MBI1+x
-         O4LyZDqacOLgkrMlgLefC+knMVMpLvXR+dFRRGq0=
-Subject: FAILED: patch "[PATCH] net/ulp: prevent ULP without clone op from entering the" failed to apply to 5.4-stable tree
-To:     pabeni@redhat.com, kuba@kernel.org, slipper.alive@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 12 Jan 2023 14:48:34 +0100
-Message-ID: <16735313141666@kroah.com>
+        s=korg; t=1673532555;
+        bh=pkxb+LhNGkSQEQFDthM1BykkvxGJojxZ477GB/uFzTM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=b6EvqNCQUvaHN3OgKkftmftPjHXcb+k//ucQ3cdmAgt2LHbfr40VvupI1lB4jZt5M
+         6QGNe5ZluIl9U6GRgQN8J2pIK6CYf4hacb2VDbTbFV4z01XZ/ImatBw8GFtz/nG+BL
+         sHXOQgHfPuHjPv/t2zxlspaKTpj7TFWHY+7319Xc=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 199/783] bpf, sockmap: Fix data loss caused by using apply_bytes on ingress redirect
+Date:   Thu, 12 Jan 2023 14:48:35 +0100
+Message-Id: <20230112135533.554268757@linuxfoundation.org>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
+References: <20230112135524.143670746@linuxfoundation.org>
+User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -46,96 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[ Upstream commit 9072931f020bfd907d6d89ee21ff1481cd78b407 ]
 
-Possible dependencies:
+Use apply_bytes on ingress redirect, when apply_bytes is less than
+the length of msg data, some data may be skipped and lost in
+bpf_tcp_ingress().
 
-2c02d41d71f9 ("net/ulp: prevent ULP without clone op from entering the LISTEN status")
-e276d62dcfde ("net/ulp: remove SOCK_SUPPORT_ZC from tls sockets")
-e7049395b1c3 ("dccp/tcp: Remove an unused argument in inet_csk_listen_start().")
-53632e111946 ("bpf: selftest: Use bpf_sk_storage in FENTRY/FEXIT/RAW_TP")
+If there is still data in the scatterlist that has not been consumed,
+we cannot move the msg iter.
 
-thanks,
+Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/1669718441-2654-4-git-send-email-yangpc@wangsu.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/ipv4/tcp_bpf.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 2c02d41d71f90a5168391b6a5f2954112ba2307c Mon Sep 17 00:00:00 2001
-From: Paolo Abeni <pabeni@redhat.com>
-Date: Tue, 3 Jan 2023 12:19:17 +0100
-Subject: [PATCH] net/ulp: prevent ULP without clone op from entering the
- LISTEN status
-
-When an ULP-enabled socket enters the LISTEN status, the listener ULP data
-pointer is copied inside the child/accepted sockets by sk_clone_lock().
-
-The relevant ULP can take care of de-duplicating the context pointer via
-the clone() operation, but only MPTCP and SMC implement such op.
-
-Other ULPs may end-up with a double-free at socket disposal time.
-
-We can't simply clear the ULP data at clone time, as TLS replaces the
-socket ops with custom ones assuming a valid TLS ULP context is
-available.
-
-Instead completely prevent clone-less ULP sockets from entering the
-LISTEN status.
-
-Fixes: 734942cc4ea6 ("tcp: ULP infrastructure")
-Reported-by: slipper <slipper.alive@gmail.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Link: https://lore.kernel.org/r/4b80c3d1dbe3d0ab072f80450c202d9bc88b4b03.1672740602.git.pabeni@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-index 848ffc3e0239..d1f837579398 100644
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -1200,12 +1200,26 @@ void inet_csk_prepare_forced_close(struct sock *sk)
- }
- EXPORT_SYMBOL(inet_csk_prepare_forced_close);
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 027f7f9256e1..6a1685461f89 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -125,8 +125,11 @@ static int bpf_tcp_ingress(struct sock *sk, struct sk_psock *psock,
+ 		tmp->sg.end = i;
+ 		if (apply) {
+ 			apply_bytes -= size;
+-			if (!apply_bytes)
++			if (!apply_bytes) {
++				if (sge->length)
++					sk_msg_iter_var_prev(i);
+ 				break;
++			}
+ 		}
+ 	} while (i != msg->sg.end);
  
-+static int inet_ulp_can_listen(const struct sock *sk)
-+{
-+	const struct inet_connection_sock *icsk = inet_csk(sk);
-+
-+	if (icsk->icsk_ulp_ops && !icsk->icsk_ulp_ops->clone)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
- int inet_csk_listen_start(struct sock *sk)
- {
- 	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct inet_sock *inet = inet_sk(sk);
- 	int err;
- 
-+	err = inet_ulp_can_listen(sk);
-+	if (unlikely(err))
-+		return err;
-+
- 	reqsk_queue_alloc(&icsk->icsk_accept_queue);
- 
- 	sk->sk_ack_backlog = 0;
-diff --git a/net/ipv4/tcp_ulp.c b/net/ipv4/tcp_ulp.c
-index 9ae50b1bd844..05b6077b9f2c 100644
---- a/net/ipv4/tcp_ulp.c
-+++ b/net/ipv4/tcp_ulp.c
-@@ -139,6 +139,10 @@ static int __tcp_set_ulp(struct sock *sk, const struct tcp_ulp_ops *ulp_ops)
- 	if (sk->sk_socket)
- 		clear_bit(SOCK_SUPPORT_ZC, &sk->sk_socket->flags);
- 
-+	err = -EINVAL;
-+	if (!ulp_ops->clone && sk->sk_state == TCP_LISTEN)
-+		goto out_err;
-+
- 	err = ulp_ops->init(sk);
- 	if (err)
- 		goto out_err;
+-- 
+2.35.1
+
+
 
