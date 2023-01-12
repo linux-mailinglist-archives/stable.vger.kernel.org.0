@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D651667542
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 614F0667584
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236477AbjALOTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:19:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41064 "EHLO
+        id S235957AbjALOWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:22:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230339AbjALOT2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:19:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0164BD62
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:11:04 -0800 (PST)
+        with ESMTP id S235965AbjALOWB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:22:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E5375373E
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:13:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E80F9B81DCC
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:11:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34733C433D2;
-        Thu, 12 Jan 2023 14:11:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF3A46202B
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA205C433EF;
+        Thu, 12 Jan 2023 14:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532661;
-        bh=kNE3Ff2m9fxKW/5EpwglTxVKAmKmMlvjtMJZWhmMJD4=;
+        s=korg; t=1673532785;
+        bh=jE7ncoo7Ws0ir7CKpx2m5W7ocyFMuFxOF1hgjvZUcMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aVs/AsgsDPbbUxarP2+aSbqMik+TlmMQ/vaQwhIrYWXlEXkIFkGAazjjiQIRvo+MB
-         BUTx6jjT/7FwNNSdMa8y7lJNwuQD9UG8kIpWh/4McN4W/PSZ4zAxkxOCzgDlsS4Iwv
-         XVYDxj5kvhzwZo8Yz5St+AHXGTWgYpqlQ12d+rUM=
+        b=1DkDfBKkYOTIC63R68ltMROb4Ce1UuQr8ca89fq68lrarTe3g53iZns5wmFoqSUtI
+         vz9dUynH64kcwLCofrviaG35POdgR44b1gmHEJmrNJPGw9V5wrkmAx+sT5H7WnAMwm
+         h/j6UU7Xq/uisnAaTiqb0fBnklLw50LoPR4W6iTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 234/783] mmc: via-sdmmc: fix return value check of mmc_add_host()
-Date:   Thu, 12 Jan 2023 14:49:10 +0100
-Message-Id: <20230112135535.218249391@linuxfoundation.org>
+Subject: [PATCH 5.10 235/783] mmc: wbsd: fix return value check of mmc_add_host()
+Date:   Thu, 12 Jan 2023 14:49:11 +0100
+Message-Id: <20230112135535.267502661@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,7 +55,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e4e46fb61e3bb4628170810d3f2b996b709b90d9 ]
+[ Upstream commit dc5b9b50fc9d1334407e316e6e29a5097ef833bd ]
 
 mmc_add_host() may return error, if we ignore its return value,
 it will lead two issues:
@@ -64,33 +64,42 @@ it will lead two issues:
    delete device, but it's not added yet, it will lead a kernel
    crash because of null-ptr-deref in device_del().
 
-Fix this by checking the return value and goto error path which
-will call mmc_free_host().
+So fix this by checking the return value and goto error path which
+will call mmc_free_host(), besides, other resources also need be
+released.
 
-Fixes: f0bf7f61b840 ("mmc: Add new via-sdmmc host controller driver")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221108130949.1067699-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20221109133237.3273558-1-yangyingliang@huawei.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/via-sdmmc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mmc/host/wbsd.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
-index f07c71db3caf..f6b525fb5c0e 100644
---- a/drivers/mmc/host/via-sdmmc.c
-+++ b/drivers/mmc/host/via-sdmmc.c
-@@ -1154,7 +1154,9 @@ static int via_sd_probe(struct pci_dev *pcidev,
- 	    pcidev->subsystem_device == 0x3891)
- 		sdhost->quirks = VIA_CRDR_QUIRK_300MS_PWRDELAY;
+diff --git a/drivers/mmc/host/wbsd.c b/drivers/mmc/host/wbsd.c
+index cd63ea865b77..f3090216e0dc 100644
+--- a/drivers/mmc/host/wbsd.c
++++ b/drivers/mmc/host/wbsd.c
+@@ -1703,7 +1703,17 @@ static int wbsd_init(struct device *dev, int base, int irq, int dma,
+ 	 */
+ 	wbsd_init_device(host);
  
 -	mmc_add_host(mmc);
 +	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto unmap;
++	if (ret) {
++		if (!pnp)
++			wbsd_chip_poweroff(host);
++
++		wbsd_release_resources(host);
++		wbsd_free_mmc(dev);
++
++		mmc_free_host(mmc);
++		return ret;
++	}
  
- 	return 0;
- 
+ 	pr_info("%s: W83L51xD", mmc_hostname(mmc));
+ 	if (host->chip_id != 0)
 -- 
 2.35.1
 
