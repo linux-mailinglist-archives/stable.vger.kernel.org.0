@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 536CF66752F
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C3AF667530
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:19:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235356AbjALOTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235415AbjALOTX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 12 Jan 2023 09:19:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41034 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235334AbjALOSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:18:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3996358820
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:10:10 -0800 (PST)
+        with ESMTP id S230324AbjALOSV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:18:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B899B5882D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:10:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC233B81E6B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:10:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA166C433F0;
-        Thu, 12 Jan 2023 14:10:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49C9961FBB
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:10:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C11C433EF;
+        Thu, 12 Jan 2023 14:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532607;
-        bh=ubAnc0ZCxNmJNm4glhdCyBOaacxvA6XoOMzOFAlwACI=;
+        s=korg; t=1673532610;
+        bh=fbWVa9ci0RLC33t2ZKKOzwVTSbwa3H88y693gAZBK7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpMHmp/YF7KJlaphrkS+zBrTYNgJ1UnTk4W5l9U0Xu297CVudc/zSFandldWd+0AU
-         kWvq3NtGEVhh4O2fsO3+0cYjLF/afy4VZGfL3pf8PTSPmTuoWds4K7c3xtknkcjgQ0
-         OHRMhGDpfxDxRy+EoeaSnBYIt4mv6ZRiPigmCXgc=
+        b=Eno7qsttEq8t8qO5eD4a6/rg7EyppJ7fHvODX2lZhOAtLg1gZyltmqdk70gyJdKhi
+         tjZmLSs2HT9lXT3LcuPhYGXBx4cJJEkBu4Iz8OGA7tIjLX+br1gMp78oI1lUoVPG2G
+         sfX7tQB8qstYxRcEI00My9Y+l5+W3O8XdALMThzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 218/783] media: saa7164: fix missing pci_disable_device()
-Date:   Thu, 12 Jan 2023 14:48:54 +0100
-Message-Id: <20230112135534.453462490@linuxfoundation.org>
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 219/783] ALSA: mts64: fix possible null-ptr-defer in snd_mts64_interrupt
+Date:   Thu, 12 Jan 2023 14:48:55 +0100
+Message-Id: <20230112135534.503976530@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,43 +52,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 57fb35d7542384cac8f198cd1c927540ad38b61a ]
+[ Upstream commit cf2ea3c86ad90d63d1c572b43e1ca9276b0357ad ]
 
-Add missing pci_disable_device() in the error path in saa7164_initdev().
+I got a null-ptr-defer error report when I do the following tests
+on the qemu platform:
 
-Fixes: 443c1228d505 ("V4L/DVB (12923): SAA7164: Add support for the NXP SAA7164 silicon")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+make defconfig and CONFIG_PARPORT=m, CONFIG_PARPORT_PC=m,
+CONFIG_SND_MTS64=m
+
+Then making test scripts:
+cat>test_mod1.sh<<EOF
+modprobe snd-mts64
+modprobe snd-mts64
+EOF
+
+Executing the script, perhaps several times, we will get a null-ptr-defer
+report, as follow:
+
+syzkaller:~# ./test_mod.sh
+snd_mts64: probe of snd_mts64.0 failed with error -5
+modprobe: ERROR: could not insert 'snd_mts64': No such device
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 0 P4D 0
+ Oops: 0002 [#1] PREEMPT SMP PTI
+ CPU: 0 PID: 205 Comm: modprobe Not tainted 6.1.0-rc8-00588-g76dcd734eca2 #6
+ Call Trace:
+  <IRQ>
+  snd_mts64_interrupt+0x24/0xa0 [snd_mts64]
+  parport_irq_handler+0x37/0x50 [parport]
+  __handle_irq_event_percpu+0x39/0x190
+  handle_irq_event_percpu+0xa/0x30
+  handle_irq_event+0x2f/0x50
+  handle_edge_irq+0x99/0x1b0
+  __common_interrupt+0x5d/0x100
+  common_interrupt+0xa0/0xc0
+  </IRQ>
+  <TASK>
+  asm_common_interrupt+0x22/0x40
+ RIP: 0010:_raw_write_unlock_irqrestore+0x11/0x30
+  parport_claim+0xbd/0x230 [parport]
+  snd_mts64_probe+0x14a/0x465 [snd_mts64]
+  platform_probe+0x3f/0xa0
+  really_probe+0x129/0x2c0
+  __driver_probe_device+0x6d/0xc0
+  driver_probe_device+0x1a/0xa0
+  __device_attach_driver+0x7a/0xb0
+  bus_for_each_drv+0x62/0xb0
+  __device_attach+0xe4/0x180
+  bus_probe_device+0x82/0xa0
+  device_add+0x550/0x920
+  platform_device_add+0x106/0x220
+  snd_mts64_attach+0x2e/0x80 [snd_mts64]
+  port_check+0x14/0x20 [parport]
+  bus_for_each_dev+0x6e/0xc0
+  __parport_register_driver+0x7c/0xb0 [parport]
+  snd_mts64_module_init+0x31/0x1000 [snd_mts64]
+  do_one_initcall+0x3c/0x1f0
+  do_init_module+0x46/0x1c6
+  load_module+0x1d8d/0x1e10
+  __do_sys_finit_module+0xa2/0xf0
+  do_syscall_64+0x37/0x90
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  </TASK>
+ Kernel panic - not syncing: Fatal exception in interrupt
+ Rebooting in 1 seconds..
+
+The mts wa not initialized during interrupt,  we add check for
+mts to fix this bug.
+
+Fixes: 68ab801e32bb ("[ALSA] Add snd-mts64 driver for ESI Miditerminal 4140")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lore.kernel.org/r/20221206061004.1222966-1-cuigaosheng1@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7164/saa7164-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/drivers/mts64.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/pci/saa7164/saa7164-core.c b/drivers/media/pci/saa7164/saa7164-core.c
-index 6c08b77bfd47..3cadfbe60fe6 100644
---- a/drivers/media/pci/saa7164/saa7164-core.c
-+++ b/drivers/media/pci/saa7164/saa7164-core.c
-@@ -1270,7 +1270,7 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
+diff --git a/sound/drivers/mts64.c b/sound/drivers/mts64.c
+index 9c708b693cb3..257314920e4d 100644
+--- a/sound/drivers/mts64.c
++++ b/sound/drivers/mts64.c
+@@ -816,6 +816,9 @@ static void snd_mts64_interrupt(void *private)
+ 	u8 status, data;
+ 	struct snd_rawmidi_substream *substream;
  
- 	if (saa7164_dev_setup(dev) < 0) {
- 		err = -EINVAL;
--		goto fail_free;
-+		goto fail_dev;
- 	}
- 
- 	/* print pci info */
-@@ -1438,6 +1438,8 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
- 
- fail_irq:
- 	saa7164_dev_unregister(dev);
-+fail_dev:
-+	pci_disable_device(pci_dev);
- fail_free:
- 	v4l2_device_unregister(&dev->v4l2_dev);
- 	kfree(dev);
++	if (!mts)
++		return;
++
+ 	spin_lock(&mts->lock);
+ 	ret = mts64_read(mts->pardev->port);
+ 	data = ret & 0x00ff;
 -- 
 2.35.1
 
