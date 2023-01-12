@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 734AE667639
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EADDB66763A
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237417AbjALOaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:30:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48328 "EHLO
+        id S237467AbjALOaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:30:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237447AbjALO3P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D268B5D884
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:20:36 -0800 (PST)
+        with ESMTP id S232930AbjALO3R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:29:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B205D8AA
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:20:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A735B81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:20:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99179C433F0;
-        Thu, 12 Jan 2023 14:20:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C352B81E6D
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:20:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8DB7C433EF;
+        Thu, 12 Jan 2023 14:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533234;
-        bh=QfecN/W1xWHTdKk7YmiCKb/CdqDCcyTjSsaAZqf7Xyc=;
+        s=korg; t=1673533237;
+        bh=iipozZfwKxuvFHMN2/LylZ200fRqCNZUPm8J4aIeik0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymtyXinJ4qSlW9u1qk18AY/R/EI2G0NBlNj7CEoDNXJAfFLkcLYCrJpPyXjjAK2Op
-         knNSSBwN1fh5k7OWuW1ioBWt3k2AQ8RX6CZ2h/H8V8tgLf72NnSHsSY4x5+1KzXwr/
-         V0mwuozXhNH7Oi5UTzKquqeoR/+nVNydBNIxDcwc=
+        b=b4qzTt2M2dLOlSpeycoXkMZo7dBfsvkkotOPuHynCamrojNRgBv4cWMW0ieoYAXRK
+         FeaAOdVFTNrCcSf9Nrc/2pBEqL1JBAycq5JXtaDK0l15SBywRwMmlNjiiEvLHWJfk7
+         fRHmHhUhX+dEY+rixxQCLS77bj84w/kD3theEti0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Cooper <alcooperx@gmail.com>,
-        Justin Chen <justinpopo6@gmail.com>,
+        patches@lists.linux.dev, Matt Redfearn <matt.redfearn@mips.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 413/783] phy: usb: s2 WoL wakeup_count not incremented for USB->Eth devices
-Date:   Thu, 12 Jan 2023 14:52:09 +0100
-Message-Id: <20230112135543.454563556@linuxfoundation.org>
+        Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        =?UTF-8?q?Petr=20Van=C4=9Bk?= <arkamar@atlas.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 414/783] include/uapi/linux/swab: Fix potentially missing __always_inline
+Date:   Thu, 12 Jan 2023 14:52:10 +0100
+Message-Id: <20230112135543.504734499@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,52 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Matt Redfearn <matt.redfearn@mips.com>
 
-[ Upstream commit f7fc5b7090372fc4dd7798c874635ca41b8ba733 ]
+[ Upstream commit defbab270d45e32b068e7e73c3567232d745c60f ]
 
-The PHY's "wakeup_count" is not incrementing when waking from
-WoL. The wakeup count can be found in sysfs at:
-/sys/bus/platform/devices/rdb/*.usb-phy/power/wakeup_count.
-The problem is that the system wakup event handler was being passed
-the wrong "device" by the PHY driver.
+Commit bc27fb68aaad ("include/uapi/linux/byteorder, swab: force inlining
+of some byteswap operations") added __always_inline to swab functions
+and commit 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to
+userspace headers") added a definition of __always_inline for use in
+exported headers when the kernel's compiler.h is not available.
 
-Fixes: f1c0db40a3ad ("phy: usb: Add "wake on" functionality")
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/1665005418-15807-3-git-send-email-justinpopo6@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+However, since swab.h does not include stddef.h, if the header soup does
+not indirectly include it, the definition of __always_inline is missing,
+resulting in a compilation failure, which was observed compiling the
+perf tool using exported headers containing this commit:
+
+In file included from /usr/include/linux/byteorder/little_endian.h:12:0,
+                 from /usr/include/asm/byteorder.h:14,
+                 from tools/include/uapi/linux/perf_event.h:20,
+                 from perf.h:8,
+                 from builtin-bench.c:18:
+/usr/include/linux/swab.h:160:8: error: unknown type name `__always_inline'
+ static __always_inline __u16 __swab16p(const __u16 *p)
+
+Fix this by replacing the inclusion of linux/compiler.h with
+linux/stddef.h to ensure that we pick up that definition if required,
+without relying on it's indirect inclusion. compiler.h is then included
+indirectly, via stddef.h.
+
+Fixes: 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to userspace headers")
+Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Petr Vaněk <arkamar@atlas.cz>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/broadcom/phy-brcm-usb.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/uapi/linux/swab.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/phy/broadcom/phy-brcm-usb.c b/drivers/phy/broadcom/phy-brcm-usb.c
-index b901a0d4e2a8..cd2240ea2c9a 100644
---- a/drivers/phy/broadcom/phy-brcm-usb.c
-+++ b/drivers/phy/broadcom/phy-brcm-usb.c
-@@ -101,9 +101,9 @@ static int brcm_pm_notifier(struct notifier_block *notifier,
+diff --git a/include/uapi/linux/swab.h b/include/uapi/linux/swab.h
+index 7272f85d6d6a..3736f2fe1541 100644
+--- a/include/uapi/linux/swab.h
++++ b/include/uapi/linux/swab.h
+@@ -3,7 +3,7 @@
+ #define _UAPI_LINUX_SWAB_H
  
- static irqreturn_t brcm_usb_phy_wake_isr(int irq, void *dev_id)
- {
--	struct phy *gphy = dev_id;
-+	struct device *dev = dev_id;
+ #include <linux/types.h>
+-#include <linux/compiler.h>
++#include <linux/stddef.h>
+ #include <asm/bitsperlong.h>
+ #include <asm/swab.h>
  
--	pm_wakeup_event(&gphy->dev, 0);
-+	pm_wakeup_event(dev, 0);
- 
- 	return IRQ_HANDLED;
- }
-@@ -437,7 +437,7 @@ static int brcm_usb_phy_dvr_init(struct platform_device *pdev,
- 	if (priv->wake_irq >= 0) {
- 		err = devm_request_irq(dev, priv->wake_irq,
- 				       brcm_usb_phy_wake_isr, 0,
--				       dev_name(dev), gphy);
-+				       dev_name(dev), dev);
- 		if (err < 0)
- 			return err;
- 		device_set_wakeup_capable(dev, 1);
 -- 
 2.35.1
 
