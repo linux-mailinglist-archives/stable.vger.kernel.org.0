@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A65F7667653
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F08D667656
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:30:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237913AbjALOam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:30:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48360 "EHLO
+        id S237531AbjALOar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:30:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237000AbjALOaQ (ORCPT
+        with ESMTP id S237483AbjALOaQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:30:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB0458F96
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:30 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B540958F87
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:21:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 356F260C01
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46158C433D2;
-        Thu, 12 Jan 2023 14:21:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0F48B81DB2
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:21:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37AFAC433D2;
+        Thu, 12 Jan 2023 14:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533289;
-        bh=50ow/X8mAdybbxLFGEt5Qy11Y+GlBtkQEH/rytZpPvk=;
+        s=korg; t=1673533295;
+        bh=iaHhf4jyQ6UpD9eH7qonXdE6Xa+4+4bfnh3agU2pf5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wzIkbfNlKjjWcvx23/ngAb+/vLBxRzcta5W5JJw9WaWrm9KzDlQ84BzTYoYua3uDx
-         U1Pr9VLL9ZnevG6RneCn5Cl9PIOOIUoNl/DTdd1ntGjdBa14dC1kR4pJM8hDQpvSIh
-         XZK0EkE2WXzOlTGFwRXVbcyOhwC/hL8LipojPaus=
+        b=WXUbR0ZpiCjhbqTM7WICADZGoOCA6p47mCLVF/fIp7TcPxfins2JRr3VMvKrhwmaK
+         yGG9mJ0V/FrWdLp7o6pIt3AGenqkiBLou82XQUeoGAeis8y4n4jy72no1TqWv444Zr
+         sT+a5U2Fng1MoWeWx3WllXFNvaM/tZPQIfz+qlno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Hacash Robot <hacashRobot@santino.com>,
+        Xie Shaowen <studentxswpy@163.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 430/783] macintosh: fix possible memory leak in macio_add_one_device()
-Date:   Thu, 12 Jan 2023 14:52:26 +0100
-Message-Id: <20230112135544.248875397@linuxfoundation.org>
+Subject: [PATCH 5.10 431/783] macintosh/macio-adb: check the return value of ioremap()
+Date:   Thu, 12 Jan 2023 14:52:27 +0100
+Message-Id: <20230112135544.299641415@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,41 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Xie Shaowen <studentxswpy@163.com>
 
-[ Upstream commit 5ca86eae55a2f006e6c1edd2029b2cacb6979515 ]
+[ Upstream commit dbaa3105736d4d73063ea0a3b01cd7fafce924e6 ]
 
-Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
-bus_id string array"), the name of device is allocated dynamically. It
-needs to be freed when of_device_register() fails. Call put_device() to
-give up the reference that's taken in device_initialize(), so that it
-can be freed in kobject_cleanup() when the refcount hits 0.
+The function ioremap() in macio_init() can fail, so its return value
+should be checked.
 
-macio device is freed in macio_release_dev(), so the kfree() can be
-removed.
-
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Fixes: 36874579dbf4c ("[PATCH] powerpc: macio-adb build fix")
+Reported-by: Hacash Robot <hacashRobot@santino.com>
+Signed-off-by: Xie Shaowen <studentxswpy@163.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221104032551.1075335-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20220802074148.3213659-1-studentxswpy@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/macio_asic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/macintosh/macio-adb.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/macintosh/macio_asic.c b/drivers/macintosh/macio_asic.c
-index 49af60bdac92..7db2e23a5ac8 100644
---- a/drivers/macintosh/macio_asic.c
-+++ b/drivers/macintosh/macio_asic.c
-@@ -425,7 +425,7 @@ static struct macio_dev * macio_add_one_device(struct macio_chip *chip,
- 	if (of_device_register(&dev->ofdev) != 0) {
- 		printk(KERN_DEBUG"macio: device registration error for %s!\n",
- 		       dev_name(&dev->ofdev.dev));
--		kfree(dev);
-+		put_device(&dev->ofdev.dev);
- 		return NULL;
+diff --git a/drivers/macintosh/macio-adb.c b/drivers/macintosh/macio-adb.c
+index d4759db002c6..defe65f51fa2 100644
+--- a/drivers/macintosh/macio-adb.c
++++ b/drivers/macintosh/macio-adb.c
+@@ -106,6 +106,10 @@ int macio_init(void)
+ 		return -ENXIO;
  	}
+ 	adb = ioremap(r.start, sizeof(struct adb_regs));
++	if (!adb) {
++		of_node_put(adbs);
++		return -ENOMEM;
++	}
  
+ 	out_8(&adb->ctrl.r, 0);
+ 	out_8(&adb->intr.r, 0);
 -- 
 2.35.1
 
