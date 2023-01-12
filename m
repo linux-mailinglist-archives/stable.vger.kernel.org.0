@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5957A6673E4
+	by mail.lfdr.de (Postfix) with ESMTP id AFB846673E5
 	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:00:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232984AbjALOAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:00:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54742 "EHLO
+        id S231197AbjALOAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:00:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233760AbjALOAH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:00:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C053852765
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:00:06 -0800 (PST)
+        with ESMTP id S233780AbjALOAJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:00:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 309AB52C43
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:00:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79D72B81E6A
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:00:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B75BAC43392;
-        Thu, 12 Jan 2023 14:00:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8E066202A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:00:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF1F3C433D2;
+        Thu, 12 Jan 2023 14:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532004;
-        bh=ZzWyc12PZdzI/D6RprHlP6hXWoY8hK1FX1clqxQoxPk=;
+        s=korg; t=1673532007;
+        bh=iS4injl9Yy5l+rBU0tTowHTG+HNydU2msdXgEPLOakQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C06CoCwX91/Zi09og/R1EhZg8n8UA9FvX3GIO7JtcF67ICEkGcN0oBYGLL9+3CuxK
-         Uh5Wu/0MQTTNJRLy3Re8uHaBw0MgGg5InH+3vg6nJbP4FpL175AFUwUINVCGNQNe0O
-         hB8qkg21iiC3CkcDSgrETttGE0mC6k/niODpVHiQ=
+        b=JCCka4/hCCJit5ZMEVVhe+CksR7Y/KqqtpTFsRXWmCHy9b1skxM5EhMawUP7hH1RD
+         tdhAkK/1Ljn0/Evk3FdLjRMWiK2Y4D2Tz9hZurEJ6CwM+7ksTBqs1mpCLJxDMEiqiX
+         lxzevliMLJfjK8SZLt5DrCmW/unwKjS/XXk1gudM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jayesh Choudhary <j-choudhary@ti.com>,
-        Nishanth Menon <nm@ti.com>,
-        Manorit Chawdhry <m-chawdhry@ti.com>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 022/783] arm64: dts: ti: k3-j721e-main: Drop dma-coherent in crypto node
-Date:   Thu, 12 Jan 2023 14:45:38 +0100
-Message-Id: <20230112135525.190564011@linuxfoundation.org>
+Subject: [PATCH 5.10 023/783] arm64: dts: mt2712e: Fix unit_address_vs_reg warning for oscillators
+Date:   Thu, 12 Jan 2023 14:45:39 +0100
+Message-Id: <20230112135525.234796369@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,34 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jayesh Choudhary <j-choudhary@ti.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 26c5012403f3f1fd3bf8f7d3389ee539ae5cc162 ]
+[ Upstream commit e4495a0a8b3d84816c9a46edf3ce060bbf267475 ]
 
-crypto driver itself is not dma-coherent. So drop it.
+Rename the fixed-clock oscillators to remove the unit address.
 
-Fixes: 8ebcaaae8017 ("arm64: dts: ti: k3-j721e-main: Add crypto accelerator node")
-Signed-off-by: Jayesh Choudhary <j-choudhary@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Reviewed-by: Manorit Chawdhry <m-chawdhry@ti.com>
-Link: https://lore.kernel.org/r/20221031152520.355653-3-j-choudhary@ti.com
+This solves unit_address_vs_reg warnings.
+
+Fixes: 5d4839709c8e ("arm64: dts: mt2712: Add clock controller device nodes")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-4-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/boot/dts/mediatek/mt2712e.dtsi | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 0350ddfe2c72..691d73f0f1e0 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -367,7 +367,6 @@ main_crypto: crypto@4e00000 {
- 		dmas = <&main_udmap 0xc000>, <&main_udmap 0x4000>,
- 				<&main_udmap 0x4001>;
- 		dma-names = "tx", "rx1", "rx2";
--		dma-coherent;
+diff --git a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+index db17d0a4ed57..e0b26cd67eb3 100644
+--- a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+@@ -160,70 +160,70 @@ sys_clk: dummyclk {
+ 		#clock-cells = <0>;
+ 	};
  
- 		rng: rng@4e10000 {
- 			compatible = "inside-secure,safexcel-eip76";
+-	clk26m: oscillator@0 {
++	clk26m: oscillator-26m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <26000000>;
+ 		clock-output-names = "clk26m";
+ 	};
+ 
+-	clk32k: oscillator@1 {
++	clk32k: oscillator-32k {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <32768>;
+ 		clock-output-names = "clk32k";
+ 	};
+ 
+-	clkfpc: oscillator@2 {
++	clkfpc: oscillator-50m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <50000000>;
+ 		clock-output-names = "clkfpc";
+ 	};
+ 
+-	clkaud_ext_i_0: oscillator@3 {
++	clkaud_ext_i_0: oscillator-aud0 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <6500000>;
+ 		clock-output-names = "clkaud_ext_i_0";
+ 	};
+ 
+-	clkaud_ext_i_1: oscillator@4 {
++	clkaud_ext_i_1: oscillator-aud1 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <196608000>;
+ 		clock-output-names = "clkaud_ext_i_1";
+ 	};
+ 
+-	clkaud_ext_i_2: oscillator@5 {
++	clkaud_ext_i_2: oscillator-aud2 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <180633600>;
+ 		clock-output-names = "clkaud_ext_i_2";
+ 	};
+ 
+-	clki2si0_mck_i: oscillator@6 {
++	clki2si0_mck_i: oscillator-i2s0 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
+ 		clock-output-names = "clki2si0_mck_i";
+ 	};
+ 
+-	clki2si1_mck_i: oscillator@7 {
++	clki2si1_mck_i: oscillator-i2s1 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
+ 		clock-output-names = "clki2si1_mck_i";
+ 	};
+ 
+-	clki2si2_mck_i: oscillator@8 {
++	clki2si2_mck_i: oscillator-i2s2 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
+ 		clock-output-names = "clki2si2_mck_i";
+ 	};
+ 
+-	clktdmin_mclk_i: oscillator@9 {
++	clktdmin_mclk_i: oscillator-mclk {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
 -- 
 2.35.1
 
