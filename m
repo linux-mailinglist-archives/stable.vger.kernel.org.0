@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5288066758E
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB2F866758D
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:23:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236476AbjALOXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:23:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
+        id S236406AbjALOXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:23:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236393AbjALOWM (ORCPT
+        with ESMTP id S236476AbjALOWM (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:22:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F5BC5274F
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:13:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7293D59519
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:13:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9D0FB81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:13:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8302C433EF;
-        Thu, 12 Jan 2023 14:13:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD347B81DCC
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:13:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26E84C433EF;
+        Thu, 12 Jan 2023 14:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532803;
-        bh=rFrDWIvBGbD9t20L/+Zu/wpprXz9Z0jNy2KGMg8ABLM=;
+        s=korg; t=1673532806;
+        bh=V66IeALkdl/dfJg5mV7f8ivYgHhJJ4IbCIczghglw1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gVBQ0kJA8RFgm+H9HQuq8s7NNlDrRO2w2ujPQ5vWenKHGYYDEb6KS1jN42n19sK8x
-         HHtcva6f0Ev9B5XWV97RcT2utGjKhJoLEtFDHA5Td4gJpwymqdw9NA6vi4SzidaD0r
-         kIj9UEoEqgYnYE1nA06BDbiz7RrxAHjxLntQ/He8=
+        b=FyxBv3O/zy0V47Jfdc6xpKbOWBR4XQWHlF2A9ZB9eJQzTJNlZQQqD8i+2Fk1ACwaQ
+         3p1kdToZIBVSIQ891L6BYoinMeKFohNrkihEvK/ZAsUjlk08zp+3LY5GokIWrxidBO
+         OVgjCu2niFsX+XdgT3IMtOjL9/uy75gL4z23eodc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mike Christie <michael.christie@oracle.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
-        John Garry <john.garry@huawei.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 282/783] scsi: core: Fix a race between scsi_done() and scsi_timeout()
-Date:   Thu, 12 Jan 2023 14:49:58 +0100
-Message-Id: <20230112135537.465387208@linuxfoundation.org>
+Subject: [PATCH 5.10 283/783] apparmor: Use pointer to struct aa_label for lbs_cred
+Date:   Thu, 12 Jan 2023 14:49:59 +0100
+Message-Id: <20230112135537.515322773@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -60,62 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 978b7922d3dca672b41bb4b8ce6c06ab77112741 ]
+[ Upstream commit 37923d4321b1e38170086da2c117f78f2b0f49c6 ]
 
-If there is a race between scsi_done() and scsi_timeout() and if
-scsi_timeout() loses the race, scsi_timeout() should not reset the request
-timer. Hence change the return value for this case from BLK_EH_RESET_TIMER
-into BLK_EH_DONE.
+According to the implementations of cred_label() and set_cred_label(),
+we should use pointer to struct aa_label for lbs_cred instead of struct
+aa_task_ctx, this patch fixes it.
 
-Although the block layer holds a reference on a request (req->ref) while
-calling a timeout handler, restarting the timer (blk_add_timer()) while a
-request is being completed is racy.
-
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Cc: Keith Busch <kbusch@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Hannes Reinecke <hare@suse.de>
-Reported-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 15f73f5b3e59 ("blk-mq: move failure injection out of blk_mq_complete_request")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20221018202958.1902564-2-bvanassche@acm.org
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: bbd3662a8348 ("Infrastructure management of the cred security blob")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_error.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ security/apparmor/lsm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_error.c b/drivers/scsi/scsi_error.c
-index f11f51e2465f..0c4bc42b55c2 100644
---- a/drivers/scsi/scsi_error.c
-+++ b/drivers/scsi/scsi_error.c
-@@ -306,19 +306,11 @@ enum blk_eh_timer_return scsi_times_out(struct request *req)
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index ffeaee5ed968..585edcc6814d 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1161,10 +1161,10 @@ static int apparmor_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ #endif
  
- 	if (rtn == BLK_EH_DONE) {
- 		/*
--		 * Set the command to complete first in order to prevent a real
--		 * completion from releasing the command while error handling
--		 * is using it. If the command was already completed, then the
--		 * lower level driver beat the timeout handler, and it is safe
--		 * to return without escalating error recovery.
--		 *
--		 * If timeout handling lost the race to a real completion, the
--		 * block layer may ignore that due to a fake timeout injection,
--		 * so return RESET_TIMER to allow error handling another shot
--		 * at this command.
-+		 * If scsi_done() has already set SCMD_STATE_COMPLETE, do not
-+		 * modify *scmd.
- 		 */
- 		if (test_and_set_bit(SCMD_STATE_COMPLETE, &scmd->state))
--			return BLK_EH_RESET_TIMER;
-+			return BLK_EH_DONE;
- 		if (scsi_abort_command(scmd) != SUCCESS) {
- 			set_host_byte(scmd, DID_TIME_OUT);
- 			scsi_eh_scmd_add(scmd);
+ /*
+- * The cred blob is a pointer to, not an instance of, an aa_task_ctx.
++ * The cred blob is a pointer to, not an instance of, an aa_label.
+  */
+ struct lsm_blob_sizes apparmor_blob_sizes __lsm_ro_after_init = {
+-	.lbs_cred = sizeof(struct aa_task_ctx *),
++	.lbs_cred = sizeof(struct aa_label *),
+ 	.lbs_file = sizeof(struct aa_file_ctx),
+ 	.lbs_task = sizeof(struct aa_task_ctx),
+ };
 -- 
 2.35.1
 
