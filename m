@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 439F7667412
+	by mail.lfdr.de (Postfix) with ESMTP id 988E2667413
 	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:02:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231728AbjALOCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:02:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
+        id S232853AbjALOCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:02:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232317AbjALOCJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:02:09 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B632CD
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:02:09 -0800 (PST)
+        with ESMTP id S231658AbjALOCM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:02:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6687BCD
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:02:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 75494CE1E70
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:02:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FF39C433F1;
-        Thu, 12 Jan 2023 14:02:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26E7EB81E6A
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:02:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B39EC433D2;
+        Thu, 12 Jan 2023 14:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532125;
-        bh=NwpmSBB8E6VbdEyBKNLEtjrA8uAaF0ZUtLvneo0GimE=;
+        s=korg; t=1673532128;
+        bh=t8m3T+EZ/xEk+79kVJq2PihNAhUla3Xvl81vEzOFnbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sgr69cU6kE+6AdSvipEKMtSTgOC3HqfzPgOT5GfdamfgNzhdb6wtI3ewM3t7xa3tb
-         ziz9WWaYKVDaRoPqLfJEQSn3tBtkKiVgTiOTwJcteLjn0y1GerhpN8/6+OwJd5OU2v
-         Au/Qr3phPg2gpJTHBC+CAvxIqe5n4TZrIoGzsJLI=
+        b=gET+AarS9CztUdKnKniYRmNHrvfsU2J9Fztigv3NVeZHpX5NY3tjnBcGxZfWdtLCz
+         Qzjv0zVLQy7dAnhB1/SjrSZ3S4KEbncVIBHFH8S43urkQxiBfAoLmRL0ViG7BRSC+Y
+         G2riEso0TKPRPc3R6Qk9TCfzjXEa1GDXMQjmy/V4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhao Gongyi <zhaogongyi@huawei.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/783] selftests/efivarfs: Add checking of the test return value
-Date:   Thu, 12 Jan 2023 14:46:16 +0100
-Message-Id: <20230112135526.931516895@linuxfoundation.org>
+Subject: [PATCH 5.10 061/783] PNP: fix name memory leak in pnp_alloc_dev()
+Date:   Thu, 12 Jan 2023 14:46:17 +0100
+Message-Id: <20230112135526.972695747@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,35 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Gongyi <zhaogongyi@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c93924267fe6f2b44af1849f714ae9cd8117a9cd ]
+[ Upstream commit 110d7b0325c55ff3620073ba4201845f59e22ebf ]
 
-Add checking of the test return value, otherwise it will report success
-forever for test_create_read().
+After commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+move dev_set_name() after pnp_add_id() to avoid memory leak.
 
-Fixes: dff6d2ae56d0 ("selftests/efivarfs: clean up test files from test_create*()")
-Signed-off-by: Zhao Gongyi <zhaogongyi@huawei.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/efivarfs/efivarfs.sh | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/pnp/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/efivarfs/efivarfs.sh b/tools/testing/selftests/efivarfs/efivarfs.sh
-index a90f394f9aa9..d374878cc0ba 100755
---- a/tools/testing/selftests/efivarfs/efivarfs.sh
-+++ b/tools/testing/selftests/efivarfs/efivarfs.sh
-@@ -87,6 +87,11 @@ test_create_read()
- {
- 	local file=$efivarfs_mount/$FUNCNAME-$test_guid
- 	./create-read $file
-+	if [ $? -ne 0 ]; then
-+		echo "create and read $file failed"
-+		file_cleanup $file
-+		exit 1
-+	fi
- 	file_cleanup $file
+diff --git a/drivers/pnp/core.c b/drivers/pnp/core.c
+index a50ab002e9e4..14bf75ba941d 100644
+--- a/drivers/pnp/core.c
++++ b/drivers/pnp/core.c
+@@ -160,14 +160,14 @@ struct pnp_dev *pnp_alloc_dev(struct pnp_protocol *protocol, int id,
+ 	dev->dev.coherent_dma_mask = dev->dma_mask;
+ 	dev->dev.release = &pnp_release_device;
+ 
+-	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
+-
+ 	dev_id = pnp_add_id(dev, pnpid);
+ 	if (!dev_id) {
+ 		kfree(dev);
+ 		return NULL;
+ 	}
+ 
++	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
++
+ 	return dev;
  }
  
 -- 
