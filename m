@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B9B266775F
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F474667768
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:42:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235427AbjALOmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:42:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35636 "EHLO
+        id S239720AbjALOmt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:42:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239816AbjALOmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:42:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFF04B9E
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:31:36 -0800 (PST)
+        with ESMTP id S239839AbjALOmU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:42:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC5D53D5C5
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:31:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C4206203B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:31:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 791D6C433F0;
-        Thu, 12 Jan 2023 14:31:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92172B81E71
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:31:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C092EC433F0;
+        Thu, 12 Jan 2023 14:31:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673533895;
-        bh=mmZSIWafq5VPbI9MeekxliG96surjcdwYxVt5Puuk2Q=;
+        s=korg; t=1673533908;
+        bh=SaNMoVGdocXBfJzYf9ayIABTAX+7q8SKgAY4tITswhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APdjC0YwWU9XAhxHucJAmb6K0svsHxxayWbtGZYeqmU6R5osREJERjKCmINNo1RJt
-         LZi2IAYGQVah+d7Cx5CmyhKEA+thKu8+Djv9SX7vL7aBEmmT/k9K94dF5zuWuhKuoa
-         9F6LvANSAw5C3Df2405QGaeMycvWh3KulI7mqOOc=
+        b=079sdfNfSSz75/tz0/mXGbzlTLI8p+ogzcck4Jnt6xqXxO5LRNHVjAVZdN6uBifF0
+         9njEVDHgMGOH8gQ2aKvPpdFfGqMMARi/XH6EWQ1enJkktfKJT1m0nE4OLMnRXuZcWM
+         BkPCUgtqjPmEDTwRmzu4rJZWOz4zfhY9wTXKWbSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.10 600/783] kcsan: Instrument memcpy/memset/memmove with newer Clang
-Date:   Thu, 12 Jan 2023 14:55:16 +0100
-Message-Id: <20230112135552.084039031@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 601/783] ASoC: Intel/SOF: use set_stream() instead of set_tdm_slots() for HDAudio
+Date:   Thu, 12 Jan 2023 14:55:17 +0100
+Message-Id: <20230112135552.126453573@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -52,93 +56,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit 7c201739beef1a586d806463f1465429cdce34c5 upstream.
+commit 636110411ca726f19ef8e87b0be51bb9a4cdef06 upstream.
 
-With Clang version 16+, -fsanitize=thread will turn
-memcpy/memset/memmove calls in instrumented functions into
-__tsan_memcpy/__tsan_memset/__tsan_memmove calls respectively.
+Overloading the tx_mask with a linear value is asking for trouble and
+only works because the codec_dai hw_params() is called before the
+cpu_dai hw_params().
 
-Add these functions to the core KCSAN runtime, so that we (a) catch data
-races with mem* functions, and (b) won't run into linker errors with
-such newer compilers.
+Move to the more generic set_stream() API to pass the hdac_stream
+information.
 
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-[ elver@google.com: adjust check_access() call for v5.15 and earlier. ]
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20211224021034.26635-6-yung-chuan.liao@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/kcsan/core.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ sound/soc/codecs/hdac_hda.c       |   22 +++++++++++-----------
+ sound/soc/intel/skylake/skl-pcm.c |    7 ++-----
+ sound/soc/sof/intel/hda-dai.c     |    7 ++-----
+ 3 files changed, 15 insertions(+), 21 deletions(-)
 
---- a/kernel/kcsan/core.c
-+++ b/kernel/kcsan/core.c
-@@ -9,10 +9,12 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
-+#include <linux/minmax.h>
- #include <linux/moduleparam.h>
- #include <linux/percpu.h>
- #include <linux/preempt.h>
- #include <linux/sched.h>
-+#include <linux/string.h>
- #include <linux/uaccess.h>
+--- a/sound/soc/codecs/hdac_hda.c
++++ b/sound/soc/codecs/hdac_hda.c
+@@ -46,9 +46,8 @@ static int hdac_hda_dai_hw_params(struct
+ 				  struct snd_soc_dai *dai);
+ static int hdac_hda_dai_hw_free(struct snd_pcm_substream *substream,
+ 				struct snd_soc_dai *dai);
+-static int hdac_hda_dai_set_tdm_slot(struct snd_soc_dai *dai,
+-				     unsigned int tx_mask, unsigned int rx_mask,
+-				     int slots, int slot_width);
++static int hdac_hda_dai_set_stream(struct snd_soc_dai *dai, void *stream,
++				   int direction);
+ static struct hda_pcm *snd_soc_find_pcm_from_dai(struct hdac_hda_priv *hda_pvt,
+ 						 struct snd_soc_dai *dai);
  
- #include "atomic.h"
-@@ -1045,3 +1047,51 @@ EXPORT_SYMBOL(__tsan_atomic_thread_fence
- void __tsan_atomic_signal_fence(int memorder);
- void __tsan_atomic_signal_fence(int memorder) { }
- EXPORT_SYMBOL(__tsan_atomic_signal_fence);
+@@ -58,7 +57,7 @@ static const struct snd_soc_dai_ops hdac
+ 	.prepare = hdac_hda_dai_prepare,
+ 	.hw_params = hdac_hda_dai_hw_params,
+ 	.hw_free = hdac_hda_dai_hw_free,
+-	.set_tdm_slot = hdac_hda_dai_set_tdm_slot,
++	.set_stream = hdac_hda_dai_set_stream,
+ };
+ 
+ static struct snd_soc_dai_driver hdac_hda_dais[] = {
+@@ -180,21 +179,22 @@ static struct snd_soc_dai_driver hdac_hd
+ 
+ };
+ 
+-static int hdac_hda_dai_set_tdm_slot(struct snd_soc_dai *dai,
+-				     unsigned int tx_mask, unsigned int rx_mask,
+-				     int slots, int slot_width)
++static int hdac_hda_dai_set_stream(struct snd_soc_dai *dai,
++				   void *stream, int direction)
+ {
+ 	struct snd_soc_component *component = dai->component;
+ 	struct hdac_hda_priv *hda_pvt;
+ 	struct hdac_hda_pcm *pcm;
++	struct hdac_stream *hstream;
 +
-+#ifdef __HAVE_ARCH_MEMSET
-+void *__tsan_memset(void *s, int c, size_t count);
-+noinline void *__tsan_memset(void *s, int c, size_t count)
-+{
-+	/*
-+	 * Instead of not setting up watchpoints where accessed size is greater
-+	 * than MAX_ENCODABLE_SIZE, truncate checked size to MAX_ENCODABLE_SIZE.
-+	 */
-+	size_t check_len = min_t(size_t, count, MAX_ENCODABLE_SIZE);
-+
-+	check_access(s, check_len, KCSAN_ACCESS_WRITE);
-+	return memset(s, c, count);
-+}
-+#else
-+void *__tsan_memset(void *s, int c, size_t count) __alias(memset);
-+#endif
-+EXPORT_SYMBOL(__tsan_memset);
-+
-+#ifdef __HAVE_ARCH_MEMMOVE
-+void *__tsan_memmove(void *dst, const void *src, size_t len);
-+noinline void *__tsan_memmove(void *dst, const void *src, size_t len)
-+{
-+	size_t check_len = min_t(size_t, len, MAX_ENCODABLE_SIZE);
-+
-+	check_access(dst, check_len, KCSAN_ACCESS_WRITE);
-+	check_access(src, check_len, 0);
-+	return memmove(dst, src, len);
-+}
-+#else
-+void *__tsan_memmove(void *dst, const void *src, size_t len) __alias(memmove);
-+#endif
-+EXPORT_SYMBOL(__tsan_memmove);
-+
-+#ifdef __HAVE_ARCH_MEMCPY
-+void *__tsan_memcpy(void *dst, const void *src, size_t len);
-+noinline void *__tsan_memcpy(void *dst, const void *src, size_t len)
-+{
-+	size_t check_len = min_t(size_t, len, MAX_ENCODABLE_SIZE);
-+
-+	check_access(dst, check_len, KCSAN_ACCESS_WRITE);
-+	check_access(src, check_len, 0);
-+	return memcpy(dst, src, len);
-+}
-+#else
-+void *__tsan_memcpy(void *dst, const void *src, size_t len) __alias(memcpy);
-+#endif
-+EXPORT_SYMBOL(__tsan_memcpy);
++	if (!stream)
++		return -EINVAL;
+ 
+ 	hda_pvt = snd_soc_component_get_drvdata(component);
+ 	pcm = &hda_pvt->pcm[dai->id];
++	hstream = (struct hdac_stream *)stream;
+ 
+-	if (tx_mask)
+-		pcm->stream_tag[SNDRV_PCM_STREAM_PLAYBACK] = tx_mask;
+-	else
+-		pcm->stream_tag[SNDRV_PCM_STREAM_CAPTURE] = rx_mask;
++	pcm->stream_tag[direction] = hstream->stream_tag;
+ 
+ 	return 0;
+ }
+--- a/sound/soc/intel/skylake/skl-pcm.c
++++ b/sound/soc/intel/skylake/skl-pcm.c
+@@ -563,11 +563,8 @@ static int skl_link_hw_params(struct snd
+ 
+ 	stream_tag = hdac_stream(link_dev)->stream_tag;
+ 
+-	/* set the stream tag in the codec dai dma params  */
+-	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-		snd_soc_dai_set_tdm_slot(codec_dai, stream_tag, 0, 0, 0);
+-	else
+-		snd_soc_dai_set_tdm_slot(codec_dai, 0, stream_tag, 0, 0);
++	/* set the hdac_stream in the codec dai */
++	snd_soc_dai_set_stream(codec_dai, hdac_stream(link_dev), substream->stream);
+ 
+ 	p_params.s_fmt = snd_pcm_format_width(params_format(params));
+ 	p_params.ch = params_channels(params);
+--- a/sound/soc/sof/intel/hda-dai.c
++++ b/sound/soc/sof/intel/hda-dai.c
+@@ -236,11 +236,8 @@ static int hda_link_hw_params(struct snd
+ 	if (!link)
+ 		return -EINVAL;
+ 
+-	/* set the stream tag in the codec dai dma params */
+-	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-		snd_soc_dai_set_tdm_slot(codec_dai, stream_tag, 0, 0, 0);
+-	else
+-		snd_soc_dai_set_tdm_slot(codec_dai, 0, stream_tag, 0, 0);
++	/* set the hdac_stream in the codec dai */
++	snd_soc_dai_set_stream(codec_dai, hdac_stream(link_dev), substream->stream);
+ 
+ 	p_params.s_fmt = snd_pcm_format_width(params_format(params));
+ 	p_params.ch = params_channels(params);
 
 
