@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEDFC667510
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A40F2667511
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233707AbjALORl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:17:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41016 "EHLO
+        id S232838AbjALORn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:17:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232838AbjALOQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:16:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A574564FD
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:08:48 -0800 (PST)
+        with ESMTP id S229454AbjALOQo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:16:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB96E564EB
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:08:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EEF6B81E6D
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:08:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E25E4C433D2;
-        Thu, 12 Jan 2023 14:08:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E1E5B81E6F
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:08:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4057C433EF;
+        Thu, 12 Jan 2023 14:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532525;
-        bh=TwVh0OfAbZsJJU5BzXM5TKXrd3O+eYxLULsPn07ixzU=;
+        s=korg; t=1673532528;
+        bh=zr2/AkJjqA/ZxbiTjStgY7uU22PB89iRQD0uHsBkZzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCzqdP/CdVoGBqAb+kabwAkYGfAtUX96DTwdiiRkMS5c2GePsdFj5Ue0B+VNxkrJR
-         /UUy1exL5lUqnRv8Knbs8dmln6aLqFfS3G3T3XBY+wfDLoVnyxPHTuTdI29Wap2LU2
-         1KzJ6U0fdbe55tVTpiWvY+1T/Qzt46Jh9FE/W77I=
+        b=Li7kJqonmdyV47aCBYLdf5400nXbBXNmzxhg8uZyJSL7cE4cwiB1fSL6Ge2IRBLl7
+         VddjlLlWAcO1cZDDyllrp8O0bqVmIyIBOoUigZqDpy7h70UeliIGA+OeNVF85XjYwm
+         MdSR5/SGbqMn1sUkJcD4ZarM/junGrbU7HNLxXnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Amol Jawale <amol.jawale@candelatech.com>,
-        Ben Greear <greearb@candelatech.com>,
-        Gregory Greenman <gregory.greenman@intel.com>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 190/783] wifi: iwlwifi: mvm: fix double free on tx path.
-Date:   Thu, 12 Jan 2023 14:48:26 +0100
-Message-Id: <20230112135533.140557654@linuxfoundation.org>
+Subject: [PATCH 5.10 191/783] ASoC: mediatek: mt8173: Fix debugfs registration for components
+Date:   Thu, 12 Jan 2023 14:48:27 +0100
+Message-Id: <20230112135533.189800903@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,213 +55,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Greear <greearb@candelatech.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 0473cbae2137b963bd0eaa74336131cb1d3bc6c3 ]
+[ Upstream commit 8c32984bc7da29828260ac514d5d4967f7e8f62d ]
 
-We see kernel crashes and lockups and KASAN errors related to ax210
-firmware crashes.  One of the KASAN dumps pointed at the tx path,
-and it appears there is indeed a way to double-free an skb.
+When registering the mt8173-afe-pcm driver, we are also adding two
+components: one is for the PCM DAIs and one is for the HDMI DAIs, but
+when debugfs is enabled, we're getting the following issue:
 
-If iwl_mvm_tx_skb_sta returns non-zero, then the 'skb' sent into the
-method will be freed.  But, in case where we build TSO skb buffer,
-the skb may also be freed in error case.  So, return 0 in that particular
-error case and do cleanup manually.
+[   17.279176] debugfs: Directory '11220000.audio-controller' with parent 'mtk-rt5650' already present!
+[   17.288345] debugfs: Directory '11220000.audio-controller' with parent 'mtk-rt5650' already present!
 
-BUG: KASAN: use-after-free in __list_del_entry_valid+0x12/0x90
-iwlwifi 0000:06:00.0: 0x00000000 | tsf hi
-Read of size 8 at addr ffff88813cfa4ba0 by task btserver/9650
+To overcome to that without any potentially big rewrite of this driver,
+similarly to what was done in mt8195-afe-pcm, add a debugfs_prefix to
+the components before actually adding them.
 
-CPU: 4 PID: 9650 Comm: btserver Tainted: G        W         5.19.8+ #5
-iwlwifi 0000:06:00.0: 0x00000000 | time gp1
-Hardware name: Default string Default string/SKYBAY, BIOS 5.12 02/19/2019
-Call Trace:
- <TASK>
- dump_stack_lvl+0x55/0x6d
- print_report.cold.12+0xf2/0x684
-iwlwifi 0000:06:00.0: 0x1D0915A8 | time gp2
- ? __list_del_entry_valid+0x12/0x90
- kasan_report+0x8b/0x180
-iwlwifi 0000:06:00.0: 0x00000001 | uCode revision type
- ? __list_del_entry_valid+0x12/0x90
- __list_del_entry_valid+0x12/0x90
-iwlwifi 0000:06:00.0: 0x00000048 | uCode version major
- tcp_update_skb_after_send+0x5d/0x170
- __tcp_transmit_skb+0xb61/0x15c0
-iwlwifi 0000:06:00.0: 0xDAA05125 | uCode version minor
- ? __tcp_select_window+0x490/0x490
-iwlwifi 0000:06:00.0: 0x00000420 | hw version
- ? trace_kmalloc_node+0x29/0xd0
- ? __kmalloc_node_track_caller+0x12a/0x260
- ? memset+0x1f/0x40
- ? __build_skb_around+0x125/0x150
- ? __alloc_skb+0x1d4/0x220
- ? skb_zerocopy_clone+0x55/0x230
-iwlwifi 0000:06:00.0: 0x00489002 | board version
- ? kmalloc_reserve+0x80/0x80
- ? rcu_read_lock_bh_held+0x60/0xb0
- tcp_write_xmit+0x3f1/0x24d0
-iwlwifi 0000:06:00.0: 0x034E001C | hcmd
- ? __check_object_size+0x180/0x350
-iwlwifi 0000:06:00.0: 0x24020000 | isr0
- tcp_sendmsg_locked+0x8a9/0x1520
-iwlwifi 0000:06:00.0: 0x01400000 | isr1
- ? tcp_sendpage+0x50/0x50
-iwlwifi 0000:06:00.0: 0x48F0000A | isr2
- ? lock_release+0xb9/0x400
- ? tcp_sendmsg+0x14/0x40
-iwlwifi 0000:06:00.0: 0x00C3080C | isr3
- ? lock_downgrade+0x390/0x390
- ? do_raw_spin_lock+0x114/0x1d0
-iwlwifi 0000:06:00.0: 0x00200000 | isr4
- ? rwlock_bug.part.2+0x50/0x50
-iwlwifi 0000:06:00.0: 0x034A001C | last cmd Id
- ? rwlock_bug.part.2+0x50/0x50
- ? lockdep_hardirqs_on_prepare+0xe/0x200
-iwlwifi 0000:06:00.0: 0x0000C2F0 | wait_event
- ? __local_bh_enable_ip+0x87/0xe0
- ? inet_send_prepare+0x220/0x220
-iwlwifi 0000:06:00.0: 0x000000C4 | l2p_control
- tcp_sendmsg+0x22/0x40
- sock_sendmsg+0x5f/0x70
-iwlwifi 0000:06:00.0: 0x00010034 | l2p_duration
- __sys_sendto+0x19d/0x250
-iwlwifi 0000:06:00.0: 0x00000007 | l2p_mhvalid
- ? __ia32_sys_getpeername+0x40/0x40
-iwlwifi 0000:06:00.0: 0x00000000 | l2p_addr_match
- ? rcu_read_lock_held_common+0x12/0x50
- ? rcu_read_lock_sched_held+0x5a/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? rcu_read_lock_sched_held+0x5a/0xd0
- ? rcu_read_lock_sched_held+0x5a/0xd0
- ? lock_release+0xb9/0x400
- ? lock_downgrade+0x390/0x390
- ? ktime_get+0x64/0x130
- ? ktime_get+0x8d/0x130
- ? rcu_read_lock_held_common+0x12/0x50
- ? rcu_read_lock_sched_held+0x5a/0xd0
- ? rcu_read_lock_held_common+0x12/0x50
- ? rcu_read_lock_sched_held+0x5a/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- __x64_sys_sendto+0x6f/0x80
- do_syscall_64+0x34/0xb0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7f1d126e4531
-Code: 00 00 00 00 0f 1f 44 00 00 f3 0f 1e fa 48 8d 05 35 80 0c 00 41 89 ca 8b 00 85 c0 75 1c 45 31 c9 45 31 c0 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 67 c3 66 0f 1f 44 00 00 55 48 83 ec 20 48 89
-RSP: 002b:00007ffe21a679d8 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-RAX: ffffffffffffffda RBX: 000000000000ffdc RCX: 00007f1d126e4531
-RDX: 0000000000010000 RSI: 000000000374acf0 RDI: 0000000000000014
-RBP: 00007ffe21a67ac0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000010
-R13: 0000000000000000 R14: 0000000000000001 R15: 0000000000000000
- </TASK>
-
-Allocated by task 9650:
- kasan_save_stack+0x1c/0x40
- __kasan_slab_alloc+0x6d/0x90
- kmem_cache_alloc_node+0xf3/0x2b0
- __alloc_skb+0x191/0x220
- tcp_stream_alloc_skb+0x3f/0x330
- tcp_sendmsg_locked+0x67c/0x1520
- tcp_sendmsg+0x22/0x40
- sock_sendmsg+0x5f/0x70
- __sys_sendto+0x19d/0x250
- __x64_sys_sendto+0x6f/0x80
- do_syscall_64+0x34/0xb0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Freed by task 9650:
- kasan_save_stack+0x1c/0x40
- kasan_set_track+0x21/0x30
- kasan_set_free_info+0x20/0x30
- __kasan_slab_free+0x102/0x170
- kmem_cache_free+0xc8/0x3e0
- iwl_mvm_mac_itxq_xmit+0x124/0x270 [iwlmvm]
- ieee80211_queue_skb+0x874/0xd10 [mac80211]
- ieee80211_xmit_fast+0xf80/0x1180 [mac80211]
- __ieee80211_subif_start_xmit+0x287/0x680 [mac80211]
- ieee80211_subif_start_xmit+0xcd/0x730 [mac80211]
- dev_hard_start_xmit+0xf6/0x420
- __dev_queue_xmit+0x165b/0x1b50
- ip_finish_output2+0x66e/0xfb0
- __ip_finish_output+0x487/0x6d0
- ip_output+0x11c/0x350
- __ip_queue_xmit+0x36b/0x9d0
- __tcp_transmit_skb+0xb35/0x15c0
- tcp_write_xmit+0x3f1/0x24d0
- tcp_sendmsg_locked+0x8a9/0x1520
- tcp_sendmsg+0x22/0x40
- sock_sendmsg+0x5f/0x70
- __sys_sendto+0x19d/0x250
- __x64_sys_sendto+0x6f/0x80
- do_syscall_64+0x34/0xb0
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-The buggy address belongs to the object at ffff88813cfa4b40
- which belongs to the cache skbuff_fclone_cache of size 472
-The buggy address is located 96 bytes inside of
- 472-byte region [ffff88813cfa4b40, ffff88813cfa4d18)
-
-The buggy address belongs to the physical page:
-page:ffffea0004f3e900 refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88813cfa6c40 pfn:0x13cfa4
-head:ffffea0004f3e900 order:2 compound_mapcount:0 compound_pincount:0
-flags: 0x5fff8000010200(slab|head|node=0|zone=2|lastcpupid=0x3fff)
-raw: 005fff8000010200 ffffea0004656b08 ffffea0008e8cf08 ffff8881081a5240
-raw: ffff88813cfa6c40 0000000000170015 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff88813cfa4a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88813cfa4b00: fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb fb
->ffff88813cfa4b80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                               ^
- ffff88813cfa4c00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88813cfa4c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-Fixes: 08f7d8b69aaf ("iwlwifi: mvm: bring back mvm GSO code")
-Link: https://lore.kernel.org/linux-wireless/20220928193057.16132-1-greearb@candelatech.com/
-Tested-by: Amol Jawale <amol.jawale@candelatech.com>
-Signed-off-by: Ben Greear <greearb@candelatech.com>
-Link: https://lore.kernel.org/r/20221123225313.21b1ee31d666.I3b3ba184433dd2a544d91eeeda29b467021824ae@changeid
-Signed-off-by: Gregory Greenman <gregory.greenman@intel.com>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20211111161108.502344-1-angelogioacchino.delregno@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Stable-dep-of: 4cbb264d4e91 ("ASoC: mediatek: mt8173: Enable IRQ when pdata is ready")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/tx.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ sound/soc/mediatek/mt8173/mt8173-afe-pcm.c | 51 ++++++++++++++++++----
+ 1 file changed, 43 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-index 7186e1dbbd6b..d310337b1625 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-@@ -1203,6 +1203,7 @@ int iwl_mvm_tx_skb_sta(struct iwl_mvm *mvm, struct sk_buff *skb,
- 	struct sk_buff_head mpdus_skbs;
- 	unsigned int payload_len;
- 	int ret;
-+	struct sk_buff *orig_skb = skb;
+diff --git a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
+index 7e7bda70d12e..a8c7617978a6 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
++++ b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
+@@ -1054,6 +1054,7 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	int irq_id;
+ 	struct mtk_base_afe *afe;
+ 	struct mt8173_afe_private *afe_priv;
++	struct snd_soc_component *comp_pcm, *comp_hdmi;
  
- 	if (WARN_ON_ONCE(!mvmsta))
- 		return -1;
-@@ -1235,8 +1236,17 @@ int iwl_mvm_tx_skb_sta(struct iwl_mvm *mvm, struct sk_buff *skb,
+ 	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(33));
+ 	if (ret)
+@@ -1142,23 +1143,55 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_pm_disable;
  
- 		ret = iwl_mvm_tx_mpdu(mvm, skb, &info, sta);
- 		if (ret) {
-+			/* Free skbs created as part of TSO logic that have not yet been dequeued */
- 			__skb_queue_purge(&mpdus_skbs);
--			return ret;
-+			/* skb here is not necessarily same as skb that entered this method,
-+			 * so free it explicitly.
-+			 */
-+			if (skb == orig_skb)
-+				ieee80211_free_txskb(mvm->hw, skb);
-+			else
-+				kfree_skb(skb);
-+			/* there was error, but we consumed skb one way or another, so return 0 */
-+			return 0;
- 		}
- 	}
+-	ret = devm_snd_soc_register_component(&pdev->dev,
+-					 &mt8173_afe_pcm_dai_component,
+-					 mt8173_afe_pcm_dais,
+-					 ARRAY_SIZE(mt8173_afe_pcm_dais));
++	comp_pcm = devm_kzalloc(&pdev->dev, sizeof(*comp_pcm), GFP_KERNEL);
++	if (!comp_pcm) {
++		ret = -ENOMEM;
++		goto err_pm_disable;
++	}
++
++	ret = snd_soc_component_initialize(comp_pcm,
++					   &mt8173_afe_pcm_dai_component,
++					   &pdev->dev);
+ 	if (ret)
+ 		goto err_pm_disable;
  
+-	ret = devm_snd_soc_register_component(&pdev->dev,
+-					 &mt8173_afe_hdmi_dai_component,
+-					 mt8173_afe_hdmi_dais,
+-					 ARRAY_SIZE(mt8173_afe_hdmi_dais));
++#ifdef CONFIG_DEBUG_FS
++	comp_pcm->debugfs_prefix = "pcm";
++#endif
++
++	ret = snd_soc_add_component(comp_pcm,
++				    mt8173_afe_pcm_dais,
++				    ARRAY_SIZE(mt8173_afe_pcm_dais));
++	if (ret)
++		goto err_pm_disable;
++
++	comp_hdmi = devm_kzalloc(&pdev->dev, sizeof(*comp_hdmi), GFP_KERNEL);
++	if (!comp_hdmi) {
++		ret = -ENOMEM;
++		goto err_pm_disable;
++	}
++
++	ret = snd_soc_component_initialize(comp_hdmi,
++					   &mt8173_afe_hdmi_dai_component,
++					   &pdev->dev);
+ 	if (ret)
+ 		goto err_pm_disable;
+ 
++#ifdef CONFIG_DEBUG_FS
++	comp_hdmi->debugfs_prefix = "hdmi";
++#endif
++
++	ret = snd_soc_add_component(comp_hdmi,
++				    mt8173_afe_hdmi_dais,
++				    ARRAY_SIZE(mt8173_afe_hdmi_dais));
++	if (ret)
++		goto err_cleanup_components;
++
+ 	dev_info(&pdev->dev, "MT8173 AFE driver initialized.\n");
+ 	return 0;
+ 
++err_cleanup_components:
++	snd_soc_unregister_component(&pdev->dev);
+ err_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+ 	return ret;
+@@ -1166,6 +1199,8 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+ 
+ static int mt8173_afe_pcm_dev_remove(struct platform_device *pdev)
+ {
++	snd_soc_unregister_component(&pdev->dev);
++
+ 	pm_runtime_disable(&pdev->dev);
+ 	if (!pm_runtime_status_suspended(&pdev->dev))
+ 		mt8173_afe_runtime_suspend(&pdev->dev);
 -- 
 2.35.1
 
