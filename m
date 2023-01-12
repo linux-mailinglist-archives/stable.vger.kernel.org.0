@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE3A66742A
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:03:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D2966742B
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231636AbjALODR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:03:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57630 "EHLO
+        id S232932AbjALODW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:03:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232681AbjALODO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:03:14 -0500
+        with ESMTP id S232971AbjALODU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:03:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D29452747
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:03:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 271A8517D6
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:03:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE8E160AB3
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:03:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A52E1C433EF;
-        Thu, 12 Jan 2023 14:03:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7F9360AB3
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:03:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 774C7C433EF;
+        Thu, 12 Jan 2023 14:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532192;
-        bh=6aDG5N9phbf4PmTdJCcozVO2Sojnmjee8ijGsQ2pCnU=;
+        s=korg; t=1673532198;
+        bh=SGhW7/Uss9YmRYEYKiCTJ34i81Ls5Lv558iWs2P7O7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+pcttsaUGY8eInKYp6qm5G6nrJbw8tuiAdHFwplWiAoVLsNy11l43rY8XHH/Ffpa
-         3KzZhxVCkWIfoa6mDKJ4BL7CeKOqKb5fQJdkGGkFNxQoDoZRILN39/yJ57hUy5DMMt
-         HMJwILAeILh7sYGAQIzg/BOmKsbUAesNPXpLX4XA=
+        b=Ypl3Xfr/oVx/nnf0jp9bzmaaGPNWjJqSxmtw4WU3/HZsl89fvL/tEznDh9etWVTvu
+         CELs8s8GHLG5Zrtex3G5UG05a8rEn7m9QtqDVZqThKQoFWgfLO7AcGTZZSzy7l04eo
+         UjetqXtqZ2uSOq7WCyq02A2ow9z3i8td8jGH9Ot8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        patches@lists.linux.dev, Alexey Izbyshev <izbyshev@ispras.ru>,
         Thomas Gleixner <tglx@linutronix.de>,
-        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 082/783] futex: Move to kernel/futex/
-Date:   Thu, 12 Jan 2023 14:46:38 +0100
-Message-Id: <20230112135527.975905878@linuxfoundation.org>
+Subject: [PATCH 5.10 083/783] futex: Resend potentially swallowed owner death notification
+Date:   Thu, 12 Jan 2023 14:46:39 +0100
+Message-Id: <20230112135528.010430082@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -55,80 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Alexey Izbyshev <izbyshev@ispras.ru>
 
-[ Upstream commit 77e52ae35463521041906c510fe580d15663bb93 ]
+[ Upstream commit 90d758896787048fa3d4209309d4800f3920e66f ]
 
-In preparation for splitup..
+Commit ca16d5bee598 ("futex: Prevent robust futex exit race") addressed
+two cases when tasks waiting on a robust non-PI futex remained blocked
+despite the futex not being owned anymore:
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: André Almeida <andrealmeid@collabora.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: André Almeida <andrealmeid@collabora.com>
-Link: https://lore.kernel.org/r/20210923171111.300673-2-andrealmeid@collabora.com
-Stable-dep-of: 90d758896787 ("futex: Resend potentially swallowed owner death notification")
+* if the owner died after writing zero to the futex word, but before
+  waking up a waiter
+
+* if a task waiting on the futex was woken up, but died before updating
+  the futex word (effectively swallowing the notification without acting
+  on it)
+
+In the second case, the task could be woken up either by the previous
+owner (after the futex word was reset to zero) or by the kernel (after
+the OWNER_DIED bit was set and the TID part of the futex word was reset
+to zero) if the previous owner died without the resetting the futex.
+
+Because the referenced commit wakes up a potential waiter only if the
+whole futex word is zero, the latter subcase remains unaddressed.
+
+Fix this by looking only at the TID part of the futex when deciding
+whether a wake up is needed.
+
+Fixes: ca16d5bee598 ("futex: Prevent robust futex exit race")
+Signed-off-by: Alexey Izbyshev <izbyshev@ispras.ru>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20221111215439.248185-1-izbyshev@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- MAINTAINERS                      | 2 +-
- kernel/Makefile                  | 2 +-
- kernel/futex/Makefile            | 3 +++
- kernel/{futex.c => futex/core.c} | 2 +-
- 4 files changed, 6 insertions(+), 3 deletions(-)
- create mode 100644 kernel/futex/Makefile
- rename kernel/{futex.c => futex/core.c} (99%)
+ kernel/futex/core.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 4d10e79030a9..f6c6b403a1b7 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7280,7 +7280,7 @@ F:	Documentation/locking/*futex*
- F:	include/asm-generic/futex.h
- F:	include/linux/futex.h
- F:	include/uapi/linux/futex.h
--F:	kernel/futex.c
-+F:	kernel/futex/*
- F:	tools/perf/bench/futex*
- F:	tools/testing/selftests/futex/
- 
-diff --git a/kernel/Makefile b/kernel/Makefile
-index e7905bdf6e97..82e9c843617f 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -53,7 +53,7 @@ obj-$(CONFIG_FREEZER) += freezer.o
- obj-$(CONFIG_PROFILING) += profile.o
- obj-$(CONFIG_STACKTRACE) += stacktrace.o
- obj-y += time/
--obj-$(CONFIG_FUTEX) += futex.o
-+obj-$(CONFIG_FUTEX) += futex/
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
- obj-$(CONFIG_SMP) += smp.o
- ifneq ($(CONFIG_SMP),y)
-diff --git a/kernel/futex/Makefile b/kernel/futex/Makefile
-new file mode 100644
-index 000000000000..b89ba3fba343
---- /dev/null
-+++ b/kernel/futex/Makefile
-@@ -0,0 +1,3 @@
-+# SPDX-License-Identifier: GPL-2.0
-+
-+obj-y += core.o
-diff --git a/kernel/futex.c b/kernel/futex/core.c
-similarity index 99%
-rename from kernel/futex.c
-rename to kernel/futex/core.c
-index 98a6e1b80bfe..26ca79c47480 100644
---- a/kernel/futex.c
+diff --git a/kernel/futex/core.c b/kernel/futex/core.c
+index 26ca79c47480..8dd0bc50ac36 100644
+--- a/kernel/futex/core.c
 +++ b/kernel/futex/core.c
-@@ -42,7 +42,7 @@
+@@ -3405,6 +3405,7 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
+ 			      bool pi, bool pending_op)
+ {
+ 	u32 uval, nval, mval;
++	pid_t owner;
+ 	int err;
  
- #include <asm/futex.h>
+ 	/* Futex address must be 32bit aligned */
+@@ -3426,6 +3427,10 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
+ 	 * 2. A woken up waiter is killed before it can acquire the
+ 	 *    futex in user space.
+ 	 *
++	 * In the second case, the wake up notification could be generated
++	 * by the unlock path in user space after setting the futex value
++	 * to zero or by the kernel after setting the OWNER_DIED bit below.
++	 *
+ 	 * In both cases the TID validation below prevents a wakeup of
+ 	 * potential waiters which can cause these waiters to block
+ 	 * forever.
+@@ -3434,24 +3439,27 @@ static int handle_futex_death(u32 __user *uaddr, struct task_struct *curr,
+ 	 *
+ 	 *	1) task->robust_list->list_op_pending != NULL
+ 	 *	   @pending_op == true
+-	 *	2) User space futex value == 0
++	 *	2) The owner part of user space futex value == 0
+ 	 *	3) Regular futex: @pi == false
+ 	 *
+ 	 * If these conditions are met, it is safe to attempt waking up a
+ 	 * potential waiter without touching the user space futex value and
+-	 * trying to set the OWNER_DIED bit. The user space futex value is
+-	 * uncontended and the rest of the user space mutex state is
+-	 * consistent, so a woken waiter will just take over the
+-	 * uncontended futex. Setting the OWNER_DIED bit would create
+-	 * inconsistent state and malfunction of the user space owner died
+-	 * handling.
+-	 */
+-	if (pending_op && !pi && !uval) {
++	 * trying to set the OWNER_DIED bit. If the futex value is zero,
++	 * the rest of the user space mutex state is consistent, so a woken
++	 * waiter will just take over the uncontended futex. Setting the
++	 * OWNER_DIED bit would create inconsistent state and malfunction
++	 * of the user space owner died handling. Otherwise, the OWNER_DIED
++	 * bit is already set, and the woken waiter is expected to deal with
++	 * this.
++	 */
++	owner = uval & FUTEX_TID_MASK;
++
++	if (pending_op && !pi && !owner) {
+ 		futex_wake(uaddr, 1, 1, FUTEX_BITSET_MATCH_ANY);
+ 		return 0;
+ 	}
  
--#include "locking/rtmutex_common.h"
-+#include "../locking/rtmutex_common.h"
+-	if ((uval & FUTEX_TID_MASK) != task_pid_vnr(curr))
++	if (owner != task_pid_vnr(curr))
+ 		return 0;
  
- /*
-  * READ this before attempting to hack on futexes!
+ 	/*
 -- 
 2.35.1
 
