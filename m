@@ -2,155 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 858D4666810
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 01:47:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 801686668A5
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 03:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233869AbjALAru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 Jan 2023 19:47:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38128 "EHLO
+        id S235778AbjALCFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 Jan 2023 21:05:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232976AbjALArt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 19:47:49 -0500
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92DC3FA3D
-        for <stable@vger.kernel.org>; Wed, 11 Jan 2023 16:47:48 -0800 (PST)
-Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30BN2DBA013594
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 00:47:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id; s=corp-2022-7-12;
- bh=snnt2Ht2cNaqdg+C0ROeeqxd5H9CLxW5+2tVqFhB2J0=;
- b=yjqX2egGN1ctmbegTa9S1YxAaNt2x+QZyaxBhjWSc4v+N7r794AdGvWSGUvQB/k+GVMt
- IF/cFRKThQJxCmCDAcG4KunWr4kmCIjMMEUGdE3IWIK5ZKX3zWPLEcY1m1VKq9OGgl0E
- ZQANZ4RRZJmnlimlWmv3mwxFGn/t/9nYRCQxKqmcfs8tAi6v5QA0xodWbuF7q/udSa1T
- +bkH46LOWNc+x6bDQQ0MUOmdASZCl9j8SqZfsCvNWieCyzr2uDWejebg6tAbq1s+W7Na
- l5VU1RtMGP2au2YGqfdH8wSx5PY7bthI5uJParQqH5DACWLjHTdsYXJZvPM3lLIbYScS zw== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3n185tc2fp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 00:47:48 +0000
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 30C0Mceb021910
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 00:47:47 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3n1k4phhfv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 00:47:46 +0000
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30C0lkh2014639
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 00:47:46 GMT
-Received: from viboo.us.oracle.com (dhcp-10-132-95-99.usdhcp.oraclecorp.com [10.132.95.99])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3n1k4phhfc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-        Thu, 12 Jan 2023 00:47:46 +0000
-From:   Rajan Shanmugavelu <rajan.shanmugavelu@oracle.com>
-To:     linux_uek_grp@oracle.com
-Cc:     stable@vger.kernel.org,
-        Rajan Shanmugavelu <rajan.shanmugavelu@oracle.com>
-Subject: [PATCH UEK4-U7] scsi: qla2xxx: Fix use after free in eh_abort path
-Date:   Wed, 11 Jan 2023 16:46:48 -0800
-Message-Id: <1673484408-16510-1-git-send-email-rajan.shanmugavelu@oracle.com>
-X-Mailer: git-send-email 1.8.3.1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-11_10,2023-01-11_03,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 phishscore=0 suspectscore=0
- malwarescore=0 mlxscore=0 bulkscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2301120001
-X-Proofpoint-ORIG-GUID: ueq7uB_qC_bVEvkUhkH1tB1fC7224k1b
-X-Proofpoint-GUID: ueq7uB_qC_bVEvkUhkH1tB1fC7224k1b
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S235511AbjALCFB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 Jan 2023 21:05:01 -0500
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EA1D1A832;
+        Wed, 11 Jan 2023 18:05:01 -0800 (PST)
+Received: by mail-pf1-x430.google.com with SMTP id x4so8641913pfj.1;
+        Wed, 11 Jan 2023 18:05:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=5g2uMGvAQ9S4h07gXUEIs/07hwwQtHkE2RiRVVv/MIU=;
+        b=hUwowIH50OyZvlhdjvmD2v5h9jayW2UkKoNo8+AWuMgNr9n0VKk3TAeml/7ofi1ncE
+         Ii8lo89oFy9DuHY8KXwXXyBjniKz1/rzzIV6zPVG+1bl5tQn8PBvKHfIzoNQKCvEC3xg
+         BSCi0jSVn290Kyzje3V6CAbsL+zLqjPMU1AfWrlO5Kg81V1tHfYc2WGTlGYGmod75C5C
+         CuzV2WL02Tv7JEja0RKZz5SAnI43cMkX7DdKvf3CmF+1q1o02to5tAVL/a3XEGy3sBzb
+         GYd4/XYwsM3LaDejrlsQe0tp0pHRawLt1ONQsoprKbt8FRS9eXgCP82vCgAR5jXmXWi1
+         8S5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5g2uMGvAQ9S4h07gXUEIs/07hwwQtHkE2RiRVVv/MIU=;
+        b=7lS0rs8p0DFW/yCeBmfo6At+6cBVjb0G9GD7tcZiwsAWAz58EWY/UsI9GQzwIuh7xb
+         qhe0PFu6M4RLTkYNOj8G04opNama/TFlrpYp6Yn+Vc+VxiBJc7eAZ+qMD+8FSYdttqLu
+         PWJYfIWKk+Sm5s/7u+ZGH9u49Byxgu/ysLiH2kuWBFOIMRJ3yXBUlAPpvGnw2jtd2jCd
+         pnF3wVdhmArQ7zcU4Hqt23WNHoCjFWSYpP8QNCFAWtgIsYn67ueU9pLt4SziPTKPLj9E
+         aHrK0x5P5MgHLhLNSxzlF7slkJvlQIVQeD8D6heA42w7EYjZxFVxWu4ca46apEqjhzMa
+         r83w==
+X-Gm-Message-State: AFqh2kqY/3Hh52gqj58hUlFhVm7Nel1Nt9iy172992vgXrPU+pUDMTBJ
+        YfRj5L1EELzzWmC26SQpR9+usOw5yc0=
+X-Google-Smtp-Source: AMrXdXujpyNgYfIuvMR1sPABQ4iHiN8Op4JoJf11GjEals2lMk8qhFHs1aqkVY3Tr46Qmj0ONhne+Q==
+X-Received: by 2002:aa7:8701:0:b0:583:319a:440b with SMTP id b1-20020aa78701000000b00583319a440bmr24517279pfo.24.1673489100730;
+        Wed, 11 Jan 2023 18:05:00 -0800 (PST)
+Received: from debian.me (subs03-180-214-233-89.three.co.id. [180.214.233.89])
+        by smtp.gmail.com with ESMTPSA id y12-20020aa78f2c000000b00581dd94be3asm10664666pfr.61.2023.01.11.18.04.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Jan 2023 18:04:59 -0800 (PST)
+Received: by debian.me (Postfix, from userid 1000)
+        id C868F101401; Thu, 12 Jan 2023 09:04:56 +0700 (WIB)
+Date:   Thu, 12 Jan 2023 09:04:56 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/159] 6.1.5-rc1 review
+Message-ID: <Y79qyJNeeOp1WFEI@debian.me>
+References: <20230110180018.288460217@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Ze+BUts3BFtX4u8t"
+Content-Disposition: inline
+In-Reply-To: <20230110180018.288460217@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
 
-In eh_abort path driver prematurely exits the call to upper layer. Check
-whether command is aborted / completed by firmware before exiting the call.
+--Ze+BUts3BFtX4u8t
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-9 [ffff8b1ebf803c00] page_fault at ffffffffb0389778
-  [exception RIP: qla2x00_status_entry+0x48d]
-  RIP: ffffffffc04fa62d  RSP: ffff8b1ebf803cb0  RFLAGS: 00010082
-  RAX: 00000000ffffffff  RBX: 00000000000e0000  RCX: 0000000000000000
-  RDX: 0000000000000000  RSI: 00000000000013d8  RDI: fffff3253db78440
-  RBP: ffff8b1ebf803dd0   R8: ffff8b1ebcd9b0c0   R9: 0000000000000000
-  R10: ffff8b1e38a30808  R11: 0000000000001000  R12: 00000000000003e9
-  R13: 0000000000000000  R14: ffff8b1ebcd9d740  R15: 0000000000000028
-  ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
-10 [ffff8b1ebf803cb0] enqueue_entity at ffffffffafce708f
-11 [ffff8b1ebf803d00] enqueue_task_fair at ffffffffafce7b88
-12 [ffff8b1ebf803dd8] qla24xx_process_response_queue at ffffffffc04fc9a6
-[qla2xxx]
-13 [ffff8b1ebf803e78] qla24xx_msix_rsp_q at ffffffffc04ff01b [qla2xxx]
-14 [ffff8b1ebf803eb0] __handle_irq_event_percpu at ffffffffafd50714
+On Tue, Jan 10, 2023 at 07:02:28PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.5 release.
+> There are 159 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+=20
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.2.0).
 
-Link: https://lore.kernel.org/r/20210908164622.19240-10-njavali@marvell.com
-Fixes: f45bca8c5052 ("scsi: qla2xxx: Fix double scsi_done for abort path")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Co-developed-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Co-developed-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-Orabug: 34970763
+--=20
+An old man doll... just what I always wanted! - Clara
 
-(cherry picked from commit 3d33b303d4f3b74a71bede5639ebba3cfd2a2b4d)
-Signed-off-by: Rajan Shanmugavelu <rajan.shanmugavelu@oracle.com>
----
- drivers/scsi/qla2xxx/qla_os.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+--Ze+BUts3BFtX4u8t
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 71d4e83..1973e53 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -1210,6 +1210,7 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
- 	uint32_t ratov_j;
- 	struct qla_qpair *qpair;
- 	unsigned long flags;
-+	int fast_fail_status = SUCCESS;
- 
- 	if (qla2x00_isp_reg_stat(ha)) {
- 		ql_log(ql_log_info, vha, 0x8042,
-@@ -1217,15 +1218,16 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
- 		return FAILED;
- 	}
- 
-+	/* Save any FAST_IO_FAIL value to return later if abort succeeds */
- 	ret = fc_block_scsi_eh(cmd);
- 	if (ret != 0)
--		return ret;
-+		fast_fail_status = ret;
- 
- 	sp = scsi_cmd_priv(cmd);
- 	qpair = sp->qpair;
- 
- 	if ((sp->fcport && sp->fcport->deleted) || !qpair)
--		return SUCCESS;
-+		return fast_fail_status != SUCCESS ? fast_fail_status : FAILED;
- 
- 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
- 	if (sp->completed) {
-@@ -1276,7 +1278,7 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
- 			    __func__, ha->r_a_tov/10);
- 			ret = FAILED;
- 		} else {
--			ret = SUCCESS;
-+			ret = fast_fail_status;
- 		}
- 		break;
- 	default:
--- 
-1.8.3.1
+-----BEGIN PGP SIGNATURE-----
 
+iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY79qwgAKCRD2uYlJVVFO
+o9gHAP91ceB+gU4YWNrniP4fjm2zh10jwDsaj1smTHxHDDOrIwEA+nz/+TCP3TrD
+SkMY/WSoV5tbZlWgLRHj/hjhyzVtSgY=
+=ftxh
+-----END PGP SIGNATURE-----
+
+--Ze+BUts3BFtX4u8t--
