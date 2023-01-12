@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B27DC667813
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:52:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 066B36677ED
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:51:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240013AbjALOwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:52:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43478 "EHLO
+        id S240056AbjALOvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:51:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240030AbjALOvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:51:40 -0500
+        with ESMTP id S231335AbjALOuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:50:40 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7CAB3E0DC
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:38:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11E3112AC0
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:37:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9314DB81E31
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:38:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9FCAC433EF;
-        Thu, 12 Jan 2023 14:38:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06835B81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:37:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 301DEC433D2;
+        Thu, 12 Jan 2023 14:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673534319;
-        bh=Mi8KTjiACr0OTCZSXvQvNzJMwcmueiJRIwek9QJqanQ=;
+        s=korg; t=1673534228;
+        bh=d4BGcs+M06Mf3CtZ0TPp7Mt4/qZhlU8bmRkaPF561f0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDSre5NJ/onaahgq2B4g9gbWJlnU/8yp8NLGgZGNwccUziT9uypIcGd6VaM2KdJ/n
-         nxOMJcI/DvqMR/k5Ui5JpEblYZljnIXECvBieEhAf8oVAmNCFIs4Fo/e8jggJwaNtd
-         Fj5U9LkvN2le1njnPA0wOk919VMFCWVjUL25dwZA=
+        b=Kc7iFHGiMDA/1ONyLyFqo2yIAid1XRszl9YTiSXkylHVApevJDFBFp6rAe9QPLsrT
+         +V0V1/BZIbkoG+bWx2gJ11Og8ejrtahkQnYhmX/sbk6Z0z0MXqW7ZWRIMrkqsrDU3P
+         IGVF1NRZcPLm02Deg5jX15rkOsASKJBvkGumrinA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
+        patches@lists.linux.dev, Dragos Tatulea <dtatulea@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 738/783] net/mlx5: Avoid recovery in probe flows
-Date:   Thu, 12 Jan 2023 14:57:34 +0100
-Message-Id: <20230112135558.565192338@linuxfoundation.org>
+Subject: [PATCH 5.10 739/783] net/mlx5e: IPoIB, Dont allow CQE compression to be turned on by default
+Date:   Thu, 12 Jan 2023 14:57:35 +0100
+Message-Id: <20230112135558.615248911@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,47 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Dragos Tatulea <dtatulea@nvidia.com>
 
-[ Upstream commit 9078e843efec530f279a155f262793c58b0746bd ]
+[ Upstream commit b12d581e83e3ae1080c32ab83f123005bd89a840 ]
 
-Currently, recovery is done without considering whether the device is
-still in probe flow.
-This may lead to recovery before device have finished probed
-successfully. e.g.: while mlx5_init_one() is running. Recovery flow is
-using functionality that is loaded only by mlx5_init_one(), and there
-is no point in running recovery without mlx5_init_one() finished
-successfully.
+mlx5e_build_nic_params will turn CQE compression on if the hardware
+capability is enabled and the slow_pci_heuristic condition is detected.
+As IPoIB doesn't support CQE compression, make sure to disable the
+feature in the IPoIB profile init.
 
-Fix it by waiting for probe flow to finish and checking whether the
-device is probed before trying to perform recovery.
+Please note that the feature is not exposed to the user for IPoIB
+interfaces, so it can't be subsequently turned on.
 
-Fixes: 51d138c2610a ("net/mlx5: Fix health error state handling")
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Fixes: b797a684b0dd ("net/mlx5e: Enable CQE compression when PCI is slower than link")
+Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/health.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/health.c b/drivers/net/ethernet/mellanox/mlx5/core/health.c
-index 0c32c485eb58..b21054514736 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
-@@ -618,6 +618,12 @@ static void mlx5_fw_fatal_reporter_err_work(struct work_struct *work)
- 	priv = container_of(health, struct mlx5_priv, health);
- 	dev = container_of(priv, struct mlx5_core_dev, priv);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+index 5c6a376aa62e..0e7fd200b426 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+@@ -69,6 +69,10 @@ static void mlx5i_build_nic_params(struct mlx5_core_dev *mdev,
+ 	params->lro_en = false;
+ 	params->hard_mtu = MLX5_IB_GRH_BYTES + MLX5_IPOIB_HARD_LEN;
+ 	params->tunneled_offload_en = false;
++
++	/* CQE compression is not supported for IPoIB */
++	params->rx_cqe_compress_def = false;
++	MLX5E_SET_PFLAG(params, MLX5E_PFLAG_RX_CQE_COMPRESS, params->rx_cqe_compress_def);
+ }
  
-+	mutex_lock(&dev->intf_state_mutex);
-+	if (test_bit(MLX5_DROP_NEW_HEALTH_WORK, &health->flags)) {
-+		mlx5_core_err(dev, "health works are not permitted at this stage\n");
-+		return;
-+	}
-+	mutex_unlock(&dev->intf_state_mutex);
- 	enter_error_state(dev, false);
- 	if (IS_ERR_OR_NULL(health->fw_fatal_reporter)) {
- 		if (mlx5_health_try_recover(dev))
+ /* Called directly after IPoIB netdevice was created to initialize SW structs */
 -- 
 2.35.1
 
