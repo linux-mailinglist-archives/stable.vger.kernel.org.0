@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90D526674F4
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:16:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 572BA6674F6
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:16:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235478AbjALOQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:16:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40430 "EHLO
+        id S230337AbjALOQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:16:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234571AbjALOPe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:15:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD2F4551EC
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:07:46 -0800 (PST)
+        with ESMTP id S235136AbjALOPg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:15:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F22355663
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:07:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87E41B816DD
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:07:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98279C433EF;
-        Thu, 12 Jan 2023 14:07:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D08CB62026
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D75B1C43392;
+        Thu, 12 Jan 2023 14:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532464;
-        bh=CtQHa6uWZCrAqgnxo3VDf0nO1TdERzE3LngC/1Y2CFs=;
+        s=korg; t=1673532467;
+        bh=ZyjTg/xiQw9dJWuHj55QeHTyLaqOuPbyeDlflUoRpdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGeFmpstPWlDKxeqtRelwhl9QpLrV835+v+8L9dxWXDXYfxNCM/5ZVYFRYO9xBThb
-         ydtCMrD8HSJoPsBkCnw2VDX7YFF5LcHPvp9MFYNh0zX37r3JP8pf5ZDThHBguqoyoc
-         JnA5R4BrjFbaY3dwvrk07PHh0F/bNDPQKcv6vRNU=
+        b=arEJ/fqsB146zfb+6asrArPmIsUgRT4NsZY00qddQVjxb4EUnMDO9RbRY6MrsZQXA
+         UPXdfxex4ulviyiRJ2Qt3s+FFh67+wrSYUIUjj8XUU3dp5tOwocNHUVeh12M66Uok0
+         ivZfhDR92oyfgPv6erZ06XEPMspdk0u3CWM3mdME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 140/783] mtd: Fix device name leak when register device failed in add_mtd_device()
-Date:   Thu, 12 Jan 2023 14:47:36 +0100
-Message-Id: <20230112135530.820374077@linuxfoundation.org>
+Subject: [PATCH 5.10 141/783] Input: joystick - fix Kconfig warning for JOYSTICK_ADC
+Date:   Thu, 12 Jan 2023 14:47:37 +0100
+Message-Id: <20230112135530.869919664@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,59 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 895d68a39481a75c680aa421546931fb11942fa6 ]
+[ Upstream commit 6100a19c4fcfe154dd32f8a8ef4e8c0b1f607c75 ]
 
-There is a kmemleak when register device failed:
-  unreferenced object 0xffff888101aab550 (size 8):
-    comm "insmod", pid 3922, jiffies 4295277753 (age 925.408s)
-    hex dump (first 8 bytes):
-      6d 74 64 30 00 88 ff ff                          mtd0....
-    backtrace:
-      [<00000000bde26724>] __kmalloc_node_track_caller+0x4e/0x150
-      [<000000003c32b416>] kvasprintf+0xb0/0x130
-      [<000000001f7a8f15>] kobject_set_name_vargs+0x2f/0xb0
-      [<000000006e781163>] dev_set_name+0xab/0xe0
-      [<00000000e30d0c78>] add_mtd_device+0x4bb/0x700
-      [<00000000f3d34de7>] mtd_device_parse_register+0x2ac/0x3f0
-      [<00000000c0d88488>] 0xffffffffa0238457
-      [<00000000b40d0922>] 0xffffffffa02a008f
-      [<0000000023d17b9d>] do_one_initcall+0x87/0x2a0
-      [<00000000770f6ca6>] do_init_module+0xdf/0x320
-      [<000000007b6768fe>] load_module+0x2f98/0x3330
-      [<00000000346bed5a>] __do_sys_finit_module+0x113/0x1b0
-      [<00000000674c2290>] do_syscall_64+0x35/0x80
-      [<000000004c6a8d97>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+Fix a Kconfig warning for JOYSTICK_ADC by also selecting
+IIO_BUFFER.
 
-If register device failed, should call put_device() to give up the
-reference.
+WARNING: unmet direct dependencies detected for IIO_BUFFER_CB
+  Depends on [n]: IIO [=y] && IIO_BUFFER [=n]
+  Selected by [y]:
+  - JOYSTICK_ADC [=y] && INPUT [=y] && INPUT_JOYSTICK [=y] && IIO [=y]
 
-Fixes: 1f24b5a8ecbb ("[MTD] driver model updates")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221022121352.2534682-1-zhangxiaoxu5@huawei.com
+Fixes: 2c2b364fddd5 ("Input: joystick - add ADC attached joystick driver.")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20221104201238.31628-1-rdunlap@infradead.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdcore.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/joystick/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index a5197a481902..b2d88ff90e93 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -667,8 +667,10 @@ int add_mtd_device(struct mtd_info *mtd)
- 	dev_set_drvdata(&mtd->dev, mtd);
- 	of_node_get(mtd_get_of_node(mtd));
- 	error = device_register(&mtd->dev);
--	if (error)
-+	if (error) {
-+		put_device(&mtd->dev);
- 		goto fail_added;
-+	}
- 
- 	/* Add the nvmem provider */
- 	error = mtd_nvmem_add(mtd);
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+index b080f0cfb068..d8ec5193a941 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -45,6 +45,7 @@ config JOYSTICK_A3D
+ config JOYSTICK_ADC
+ 	tristate "Simple joystick connected over ADC"
+ 	depends on IIO
++	select IIO_BUFFER
+ 	select IIO_BUFFER_CB
+ 	help
+ 	  Say Y here if you have a simple joystick connected over ADC.
 -- 
 2.35.1
 
