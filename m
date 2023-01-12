@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 087836674EF
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:16:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0B586674F3
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:16:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230497AbjALOQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:16:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40388 "EHLO
+        id S234339AbjALOQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:16:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235524AbjALOPY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:15:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DEFC5565B
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:07:29 -0800 (PST)
+        with ESMTP id S234394AbjALOPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:15:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D2A855644
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:07:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEA5860110
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E261EC433EF;
-        Thu, 12 Jan 2023 14:07:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48A74B81E69
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:07:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CE6BC433D2;
+        Thu, 12 Jan 2023 14:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532448;
-        bh=ZfuMTvaXR7vYufO7myoSwUdVrUQrGnWXh+hGe7/lD9M=;
+        s=korg; t=1673532461;
+        bh=W1LKCVn0PBOqt+2V60iYP5trZHeO5f7NMecwdQZPAEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3xs5KOl8GoIdinh6lZz+DeKz/cxJhpC+7+P9a7YdDPSviBNvIER0MRsFuT0ndeCm
-         o1bv9+3w1RwVcbOUqMZcQ0ZX9hXmFMTyQAhxjJxfWkmi+BhxOS9eb0F0YqLtcXjU4h
-         cCmqVM2TP+XnAz1IDwqD3Zl9obcVXFE1VUA0+3WE=
+        b=K9IfkZoam3YeVBJYnibap0fP2Fnw3RyM3vAtbjXngtGuHbj5981x1ou/Cs9/fBXio
+         cU6hI1iyuFgwl88fOzSfsSeZRxh6cieX9RMujXhiwiwFtXnNIw2Z0sJW6hZtLi1LEu
+         NNCGk/BMtxZCd8kPCpJ1XnnZmHBBBf3UYIj/BuOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 138/783] bpf: propagate precision across all frames, not just the last one
-Date:   Thu, 12 Jan 2023 14:47:34 +0100
-Message-Id: <20230112135530.721538711@linuxfoundation.org>
+Subject: [PATCH 5.10 139/783] clk: qcom: gcc-sm8250: Use retention mode for USB GDSCs
+Date:   Thu, 12 Jan 2023 14:47:35 +0100
+Message-Id: <20230112135530.770165544@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -53,158 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 529409ea92d590659be487ba0839710329bd8074 ]
+[ Upstream commit ac1c5a03d3772b1db25e8092f771aa33f6ae2f7e ]
 
-When equivalent completed state is found and it has additional precision
-restrictions, BPF verifier propagates precision to
-currently-being-verified state chain (i.e., including parent states) so
-that if some of the states in the chain are not yet completed, necessary
-precision restrictions are enforced.
+USB controllers on SM8250 doesn't work after coming back from suspend.
+This can be fixed by keeping the USB GDSCs in retention mode so that
+hardware can keep them ON and put into rentention mode once the parent
+domain goes to a low power state.
 
-Unfortunately, right now this happens only for the last frame (deepest
-active subprogram's frame), not all the frames. This can lead to
-incorrect matching of states due to missing precision marker. Currently
-this doesn't seem possible as BPF verifier forces everything to precise
-when validated BPF program has any subprograms. But with the next patch
-lifting this restriction, this becomes problematic.
-
-In fact, without this fix, we'll start getting failure in one of the
-existing test_verifier test cases:
-
-  #906/p precise: cross frame pruning FAIL
-  Unexpected success to load!
-  verification time 48 usec
-  stack depth 0+0
-  processed 26 insns (limit 1000000) max_states_per_insn 3 total_states 17 peak_states 17 mark_read 8
-
-This patch adds precision propagation across all frames.
-
-Fixes: a3ce685dd01a ("bpf: fix precision tracking")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/r/20221104163649.121784-3-andrii@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 3e5770921a88 ("clk: qcom: gcc: Add global clock controller driver for SM8250")
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221102091320.66007-1-manivannan.sadhasivam@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 71 ++++++++++++++++++++++++-------------------
- 1 file changed, 39 insertions(+), 32 deletions(-)
+ drivers/clk/qcom/gcc-sm8250.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 034eb3030ce9..232c93357b90 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2027,7 +2027,7 @@ static void mark_all_scalars_precise(struct bpf_verifier_env *env,
- 		}
- }
+diff --git a/drivers/clk/qcom/gcc-sm8250.c b/drivers/clk/qcom/gcc-sm8250.c
+index ab594a0f0c40..7ec11acc8298 100644
+--- a/drivers/clk/qcom/gcc-sm8250.c
++++ b/drivers/clk/qcom/gcc-sm8250.c
+@@ -3268,7 +3268,7 @@ static struct gdsc usb30_prim_gdsc = {
+ 	.pd = {
+ 		.name = "usb30_prim_gdsc",
+ 	},
+-	.pwrsts = PWRSTS_OFF_ON,
++	.pwrsts = PWRSTS_RET_ON,
+ };
  
--static int __mark_chain_precision(struct bpf_verifier_env *env, int regno,
-+static int __mark_chain_precision(struct bpf_verifier_env *env, int frame, int regno,
- 				  int spi)
- {
- 	struct bpf_verifier_state *st = env->cur_state;
-@@ -2044,7 +2044,7 @@ static int __mark_chain_precision(struct bpf_verifier_env *env, int regno,
- 	if (!env->bpf_capable)
- 		return 0;
+ static struct gdsc usb30_sec_gdsc = {
+@@ -3276,7 +3276,7 @@ static struct gdsc usb30_sec_gdsc = {
+ 	.pd = {
+ 		.name = "usb30_sec_gdsc",
+ 	},
+-	.pwrsts = PWRSTS_OFF_ON,
++	.pwrsts = PWRSTS_RET_ON,
+ };
  
--	func = st->frame[st->curframe];
-+	func = st->frame[frame];
- 	if (regno >= 0) {
- 		reg = &func->regs[regno];
- 		if (reg->type != SCALAR_VALUE) {
-@@ -2125,7 +2125,7 @@ static int __mark_chain_precision(struct bpf_verifier_env *env, int regno,
- 			break;
- 
- 		new_marks = false;
--		func = st->frame[st->curframe];
-+		func = st->frame[frame];
- 		bitmap_from_u64(mask, reg_mask);
- 		for_each_set_bit(i, mask, 32) {
- 			reg = &func->regs[i];
-@@ -2191,12 +2191,17 @@ static int __mark_chain_precision(struct bpf_verifier_env *env, int regno,
- 
- static int mark_chain_precision(struct bpf_verifier_env *env, int regno)
- {
--	return __mark_chain_precision(env, regno, -1);
-+	return __mark_chain_precision(env, env->cur_state->curframe, regno, -1);
- }
- 
--static int mark_chain_precision_stack(struct bpf_verifier_env *env, int spi)
-+static int mark_chain_precision_frame(struct bpf_verifier_env *env, int frame, int regno)
- {
--	return __mark_chain_precision(env, -1, spi);
-+	return __mark_chain_precision(env, frame, regno, -1);
-+}
-+
-+static int mark_chain_precision_stack_frame(struct bpf_verifier_env *env, int frame, int spi)
-+{
-+	return __mark_chain_precision(env, frame, -1, spi);
- }
- 
- static bool is_spillable_regtype(enum bpf_reg_type type)
-@@ -9483,34 +9488,36 @@ static int propagate_precision(struct bpf_verifier_env *env,
- {
- 	struct bpf_reg_state *state_reg;
- 	struct bpf_func_state *state;
--	int i, err = 0;
-+	int i, err = 0, fr;
- 
--	state = old->frame[old->curframe];
--	state_reg = state->regs;
--	for (i = 0; i < BPF_REG_FP; i++, state_reg++) {
--		if (state_reg->type != SCALAR_VALUE ||
--		    !state_reg->precise)
--			continue;
--		if (env->log.level & BPF_LOG_LEVEL2)
--			verbose(env, "propagating r%d\n", i);
--		err = mark_chain_precision(env, i);
--		if (err < 0)
--			return err;
--	}
-+	for (fr = old->curframe; fr >= 0; fr--) {
-+		state = old->frame[fr];
-+		state_reg = state->regs;
-+		for (i = 0; i < BPF_REG_FP; i++, state_reg++) {
-+			if (state_reg->type != SCALAR_VALUE ||
-+			    !state_reg->precise)
-+				continue;
-+			if (env->log.level & BPF_LOG_LEVEL2)
-+				verbose(env, "frame %d: propagating r%d\n", i, fr);
-+			err = mark_chain_precision_frame(env, fr, i);
-+			if (err < 0)
-+				return err;
-+		}
- 
--	for (i = 0; i < state->allocated_stack / BPF_REG_SIZE; i++) {
--		if (!is_spilled_reg(&state->stack[i]))
--			continue;
--		state_reg = &state->stack[i].spilled_ptr;
--		if (state_reg->type != SCALAR_VALUE ||
--		    !state_reg->precise)
--			continue;
--		if (env->log.level & BPF_LOG_LEVEL2)
--			verbose(env, "propagating fp%d\n",
--				(-i - 1) * BPF_REG_SIZE);
--		err = mark_chain_precision_stack(env, i);
--		if (err < 0)
--			return err;
-+		for (i = 0; i < state->allocated_stack / BPF_REG_SIZE; i++) {
-+			if (!is_spilled_reg(&state->stack[i]))
-+				continue;
-+			state_reg = &state->stack[i].spilled_ptr;
-+			if (state_reg->type != SCALAR_VALUE ||
-+			    !state_reg->precise)
-+				continue;
-+			if (env->log.level & BPF_LOG_LEVEL2)
-+				verbose(env, "frame %d: propagating fp%d\n",
-+					(-i - 1) * BPF_REG_SIZE, fr);
-+			err = mark_chain_precision_stack_frame(env, fr, i);
-+			if (err < 0)
-+				return err;
-+		}
- 	}
- 	return 0;
- }
+ static struct gdsc hlos1_vote_mmnoc_mmu_tbu_hf0_gdsc = {
 -- 
 2.35.1
 
