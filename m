@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1F8667421
-	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:03:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F8DF667422
+	for <lists+stable@lfdr.de>; Thu, 12 Jan 2023 15:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231403AbjALOC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 09:02:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57286 "EHLO
+        id S229813AbjALOC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 09:02:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232932AbjALOCw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:02:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2004149167
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:02:52 -0800 (PST)
+        with ESMTP id S231267AbjALOCy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 09:02:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADBAF6174
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 06:02:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6C7AB81E69
-        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:02:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D54B8C433D2;
-        Thu, 12 Jan 2023 14:02:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AFFA61F74
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 14:02:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5197BC433EF;
+        Thu, 12 Jan 2023 14:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673532169;
-        bh=qY16RBtuxcD3RstD6hVr5F6RiT/+hNpK2zQhV3Y6A1k=;
+        s=korg; t=1673532172;
+        bh=vNOX5CTowkEPEot9OLMSd2AJ/J3CXBga3HhFTdyCRBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbZ3PVvXDVbOmuxkvNF/Q3y44OuKIRSlTKYh+l1MlDGzPPBPhVHrZg+NoejIu2WAd
-         5AW7XxZ5OHhoF8pNrnzOOAmnYdQ9IyHjjza81wD1r9kKU8NakQJ7JnYYqPsB/6gYbJ
-         4n05hEwFJkO7vmxxizQzracvdMejPto7Wdu/yvmE=
+        b=C5bkGWtCTRJRCBvt7H3tT0GC0V2VrXNLhNyUWbJRddd3mpoX2VE1Jjhv4ALzBGdb8
+         lk+T/z5Ta1o1MM0Pe4KwugHsbRXNAwJ8cMXFVLDnHKVPvNwL4Yynmhl+62gwa6okEd
+         PDN5JHRAnpCRBXTUKLxxfXO+TBBY3fW58cB0nfdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/783] cpuidle: dt: Return the correct numbers of parsed idle states
-Date:   Thu, 12 Jan 2023 14:46:01 +0100
-Message-Id: <20230112135526.234548189@linuxfoundation.org>
+Subject: [PATCH 5.10 046/783] alpha: fix syscall entry in !AUDUT_SYSCALL case
+Date:   Thu, 12 Jan 2023 14:46:02 +0100
+Message-Id: <20230112135526.286544336@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230112135524.143670746@linuxfoundation.org>
 References: <20230112135524.143670746@linuxfoundation.org>
@@ -54,42 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit ee3c2c8ad6ba6785f14a60e4081d7c82e88162a2 ]
+[ Upstream commit f7b2431a6d22f7a91c567708e071dfcd6d66db14 ]
 
-While we correctly skips to initialize an idle state from a disabled idle
-state node in DT, the returned value from dt_init_idle_driver() don't get
-adjusted accordingly. Instead the number of found idle state nodes are
-returned, while the callers are expecting the number of successfully
-initialized idle states from DT.
+We only want to take the slow path if SYSCALL_TRACE or SYSCALL_AUDIT is
+set; on !AUDIT_SYSCALL configs the current tree hits it whenever _any_
+thread flag (including NEED_RESCHED, NOTIFY_SIGNAL, etc.) happens to
+be set.
 
-This leads to cpuidle drivers unnecessarily continues to initialize their
-idle state specific data. Moreover, in the case when all idle states have
-been disabled in DT, we would end up registering a cpuidle driver, rather
-than relying on the default arch specific idle call.
-
-Fixes: 9f14da345599 ("drivers: cpuidle: implement DT based idle states infrastructure")
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: a9302e843944 "alpha: Enable system-call auditing support"
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/dt_idle_states.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/alpha/kernel/entry.S | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpuidle/dt_idle_states.c b/drivers/cpuidle/dt_idle_states.c
-index 252f2a9686a6..448bc796b0b4 100644
---- a/drivers/cpuidle/dt_idle_states.c
-+++ b/drivers/cpuidle/dt_idle_states.c
-@@ -223,6 +223,6 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
- 	 * also be 0 on platforms with missing DT idle states or legacy DT
- 	 * configuration predating the DT idle states bindings.
- 	 */
--	return i;
-+	return state_idx - start_idx;
- }
- EXPORT_SYMBOL_GPL(dt_init_idle_driver);
+diff --git a/arch/alpha/kernel/entry.S b/arch/alpha/kernel/entry.S
+index 2e09248f8324..c27d01232799 100644
+--- a/arch/alpha/kernel/entry.S
++++ b/arch/alpha/kernel/entry.S
+@@ -469,8 +469,10 @@ entSys:
+ #ifdef CONFIG_AUDITSYSCALL
+ 	lda     $6, _TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT
+ 	and     $3, $6, $3
+-#endif
+ 	bne     $3, strace
++#else
++	blbs    $3, strace		/* check for SYSCALL_TRACE in disguise */
++#endif
+ 	beq	$4, 1f
+ 	ldq	$27, 0($5)
+ 1:	jsr	$26, ($27), sys_ni_syscall
 -- 
 2.35.1
 
