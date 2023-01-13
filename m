@@ -2,112 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C45F5668AC8
-	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 05:20:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0C0C668BB9
+	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 06:50:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235058AbjAMEUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 23:20:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
+        id S231680AbjAMFuB convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 13 Jan 2023 00:50:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230161AbjAMET6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 23:19:58 -0500
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B3B6535E;
-        Thu, 12 Jan 2023 20:15:25 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id w4-20020a17090ac98400b002186f5d7a4cso25833133pjt.0;
-        Thu, 12 Jan 2023 20:15:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=owGrdmD6M5GkWkPONhYAnjTsh6hbHgml7pZ6gSujKuw=;
-        b=EE/ouegsY6Ipuhx5f8V5bwezV4hjMFmr2EvwSqRrP79fiFqTnxPYmzKBpPu8s+1Ll8
-         lW0pcs833q5DjLgyoWDRuXhfi6ZSRuZKi8kZfIlqUSSoMSqmIft4mW6ygrKCm69iSwXL
-         PCUj81A+jXvKlxkOikMbvc8Ynq6EHHEmoy2MTaxMUoX+axArK402EZRKvs49WKPR62Hp
-         h7ZHk62lF/U4UZZ77c0BZKfNymRF8tN88H7vqP9hfWCSKwW0GzwIBQLum9C9Weh7hT3X
-         EGXe2qg6XZ+b6DFuprWdVKTGXWQgm3sGYSgsrpASKc8EJVYw0hUOumNFVAnrTKX5lpde
-         QvVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=owGrdmD6M5GkWkPONhYAnjTsh6hbHgml7pZ6gSujKuw=;
-        b=2QerWavxZC9H/XLfFuuUOcY+PmsrNDoU+YTz1YM8TmPQ5KtX1oUIH7Pd7DKkswq2ny
-         F+noCQy1ubec281cA+gBPXuMBYRJEIpxLvRXIXYH9ttu4RmoMV5ziIlam8BYv4636a0K
-         uoWg/u3n+LydbpscumDt7Gjau4WxJ1xHxQB9sUWYiIEViaOve18/HlkiJuBgQd+FvIzn
-         xS0n81AZCPk8Xu5mpOOpHZ6LucRXaDizNZJS4aQPYMYP1vjqYkY5bNKsUDuh08yZk3c+
-         IwJokSIUTSUR2GSA/w0ufQtsQDP7SgK6mTSIkDo39Z62UzezhWGZwICT7exsZozWV3YC
-         nTtw==
-X-Gm-Message-State: AFqh2koQs0wb54ZvQICz+PwHbEV/Ch/6HaiQgnjoF2Q4qx4VhuI9ERTx
-        bJH4L7zpAQREy+sbRDhF+Pk=
-X-Google-Smtp-Source: AMrXdXs2lDdkOntcs6E+HrRmEt8fujkeEJ2OP1c6TmntKOMz1NsdpbYm/P55TzkysVtlxQE1iAdBRg==
-X-Received: by 2002:a17:902:8b88:b0:192:b2d3:4fc8 with SMTP id ay8-20020a1709028b8800b00192b2d34fc8mr9136045plb.1.1673583324917;
-        Thu, 12 Jan 2023 20:15:24 -0800 (PST)
-Received: from debian.me (subs03-180-214-233-19.three.co.id. [180.214.233.19])
-        by smtp.gmail.com with ESMTPSA id cp12-20020a170902e78c00b0019276616eb0sm13024781plb.83.2023.01.12.20.15.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Jan 2023 20:15:24 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 221E7104A90; Fri, 13 Jan 2023 11:15:21 +0700 (WIB)
-Date:   Fri, 13 Jan 2023 11:15:20 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 00/10] 5.15.88-rc1 review
-Message-ID: <Y8Da2By1yzk/5rs9@debian.me>
-References: <20230112135326.689857506@linuxfoundation.org>
+        with ESMTP id S234415AbjAMFtK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 00:49:10 -0500
+X-Greylist: delayed 1100 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 12 Jan 2023 21:47:38 PST
+Received: from yudhisthira.itb.ac.id (yudhisthira.itb.ac.id [167.205.1.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B3768C80
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 21:47:37 -0800 (PST)
+X-ASG-Debug-ID: 1673587639-0ef5d76f4233ae0001-OJig3u
+Received: from mbox3.itb.ac.id (mbox3.itb.ac.id [167.205.59.29]) by yudhisthira.itb.ac.id with ESMTP id hVuaz5C3jAdRp4NW (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Fri, 13 Jan 2023 12:27:19 +0700 (WIB)
+X-Barracuda-Envelope-From: verasadarviana@gd.itb.ac.id
+X-Barracuda-Effective-Source-IP: mbox3.itb.ac.id[167.205.59.29]
+X-Barracuda-Apparent-Source-IP: 167.205.59.29
+Received: from localhost (localhost [127.0.0.1])
+        by mbox3.itb.ac.id (Postfix) with ESMTP id B4A0B801BDB02;
+        Fri, 13 Jan 2023 12:24:49 +0700 (WIB)
+Received: from mbox3.itb.ac.id ([127.0.0.1])
+        by localhost (mbox3.itb.ac.id [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id prCBM7XGPSE7; Fri, 13 Jan 2023 12:24:49 +0700 (WIB)
+Received: from localhost (localhost [127.0.0.1])
+        by mbox3.itb.ac.id (Postfix) with ESMTP id B9D8F801BDB0C;
+        Fri, 13 Jan 2023 12:24:48 +0700 (WIB)
+X-Virus-Scanned: amavisd-new at mbox3.itb.ac.id
+Received: from mbox3.itb.ac.id ([127.0.0.1])
+        by localhost (mbox3.itb.ac.id [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id CK3RAxfkxda4; Fri, 13 Jan 2023 12:24:48 +0700 (WIB)
+Received: from mbox3.itb.ac.id (localhost [127.0.0.1])
+        by mbox3.itb.ac.id (Postfix) with ESMTP id C1ECA801BD6BE;
+        Fri, 13 Jan 2023 12:24:46 +0700 (WIB)
+Date:   Fri, 13 Jan 2023 12:24:46 +0700 (WIB)
+From:   =?utf-8?B?0YHQuNGB0YLQtdC80L3QuNC5INCw0LTQvNGW0L3RltGB0YLRgNCw0YLQvtGA?= 
+        <verasadarviana@gd.itb.ac.id>
+Reply-To: sistemassadmins@mail2engineer.com
+Message-ID: <603604656.840501.1673587486463.JavaMail.zimbra@gd.itb.ac.id>
+Subject: 
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="v+IuJdQt9LwIUu9M"
-Content-Disposition: inline
-In-Reply-To: <20230112135326.689857506@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+X-Originating-IP: [223.225.83.36]
+X-Mailer: Zimbra 8.8.6_GA_1906 (zclient/8.8.6_GA_1906)
+Thread-Index: 7J/VgGxVS4Gyz5bpkfuL33feLVZUIg==
+Thread-Topic: 
+Content-Transfer-Encoding: 8BIT
+X-Barracuda-Connect: mbox3.itb.ac.id[167.205.59.29]
+X-Barracuda-Start-Time: 1673587639
+X-Barracuda-URL: https://167.205.1.122:443/cgi-mod/mark.cgi
+X-Barracuda-License: Expired
+X-Barracuda-BRTS-Status: 1
+X-Virus-Scanned: by bsmtpd at itb.ac.id
+X-Barracuda-Scan-Msg-Size: 1150
+X-Spam-Status: Yes, score=6.9 required=5.0 tests=BAYES_50,
+        FREEMAIL_FORGED_REPLYTO,MISSING_HEADERS,RCVD_IN_MSPIKE_H2,
+        RCVD_IN_VALIDITY_RPBL,REPLYTO_WITHOUT_TO_CC,SPF_HELO_NEUTRAL,
+        T_SPF_TEMPERROR,UPPERCASE_50_75 autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5001]
+        *  1.3 RCVD_IN_VALIDITY_RPBL RBL: Relay in Validity RPBL,
+        *      https://senderscore.org/blocklistlookup/
+        *      [167.205.1.122 listed in bl.score.senderscore.com]
+        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
+        *      [167.205.1.122 listed in wl.mailspike.net]
+        *  0.1 SPF_HELO_NEUTRAL SPF: HELO does not match SPF record (neutral)
+        *  1.0 MISSING_HEADERS Missing To: header
+        *  0.0 T_SPF_TEMPERROR SPF: test of record failed (temperror)
+        *  1.6 REPLYTO_WITHOUT_TO_CC No description available.
+        *  0.0 UPPERCASE_50_75 message body is 50-75% uppercase
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+увага;
 
---v+IuJdQt9LwIUu9M
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ваша електронна пошта перевищила обмеження пам'яті, яке становить 5 ГБ, визначене адміністратором, яке в даний час працює на 10,9 ГБ. Ви не зможете надсилати або отримувати нову пошту, доки не перевірите поштову скриньку "Вхідні". Щоб відновити справність поштової скриньки, надішліть такі відомості
+нижче:
 
-On Thu, Jan 12, 2023 at 02:56:37PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.88 release.
-> There are 10 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+Ім'я:
+Ім'я користувача:
+пароль:
+Підтвердження пароля:
+Адреса електронної пошти:
+телефон:
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+Якщо не вдається повторно перевірити повідомлення, ваша поштова скринька буде
+Вимкнуто!
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---v+IuJdQt9LwIUu9M
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY8Da0QAKCRD2uYlJVVFO
-o1XqAP9ODDgyzKJbSBYvnY3h+M8uXFioTwKcYYOWrKQJNo1zywD8DzaL64rLDIMS
-tYr5sI/wIdokXkcn6F2ci46+02TKbgE=
-=5AkB
------END PGP SIGNATURE-----
-
---v+IuJdQt9LwIUu9M--
+Приносимо вибачення за незручності.
+Код підтвердження: UA:@UA.WEB.ADMIN.WEBUR431MeP453.UA
+Технічна підтримка Пошти Системний адміністратор © 2023
