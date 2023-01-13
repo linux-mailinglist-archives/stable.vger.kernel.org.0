@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D3D66A41C
-	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 21:32:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C47866A421
+	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 21:34:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229813AbjAMUcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Jan 2023 15:32:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54530 "EHLO
+        id S229687AbjAMUeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Jan 2023 15:34:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229778AbjAMUcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 15:32:21 -0500
+        with ESMTP id S230111AbjAMUem (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 15:34:42 -0500
 Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA45D2F5
-        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 12:32:20 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id a184so17017040pfa.9
-        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 12:32:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 368AA857C5
+        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 12:34:38 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id s3so14503585pfd.12
+        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 12:34:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
         bh=3820rMwJqNt52s3q83p14PRLj+o8+7nJ6J1i9mH77lk=;
-        b=cdZzww5Urf+ol4TOJ6YM5LEj3sB6hk490f9e/0NADY9NUdHJFsvabc8Va6+91f5KH8
-         hJyJVnYO6bD68r7m13OT859Nl8ZhEhB4P/cFtEerS0lW5R3BsJcOoOGTCyMmTnxZTH33
-         bX53k9MgDJueoSEuPlSlrP/Zc+G0UoxI9bpi4=
+        b=kHBdSizysbruzyrKkLWKXWBkCLKtR0g+get6cr0XB7dcC1dX6/MwEjjvMmRO4iyoFb
+         x60UI9S9wGw1LbV4BoMrPTiNgbaT2IsxVoyRYqyDIr8h24XfJqtnfUu8kcoIMuus2xIL
+         eIVAhu9qkmj00Y6fmLtvQcx/HrlP0UaHYa+5M=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
         bh=3820rMwJqNt52s3q83p14PRLj+o8+7nJ6J1i9mH77lk=;
-        b=YNv+w0ucj6udrsUcpzz5m4kNlI1pGL/pP8/A9tNMuZWrlrQBlim3NVwFjdENsGqq2D
-         8a+GnekB27hMjJoob0h3aUdl1Zvhiu554jvxxR2rVHP2xQbFycFSoW45Ongnd0zSvxql
-         QJuPklcfoQ/aRvWdq8zkXv4/qpkHfVkKCEEFLI1eYTtI3BjpVmIsIzx7w61540YTyUYK
-         pJ1pa0DZ0yvIJl14M9jRYWymJCiCgOuEOF+FRuwKKBavYJye7PZCjLKYF3pgp5qgQ0l1
-         eWvjvUmR6Vr/G5ts+4lSn7WuCYg9JLD05pjEAzOcU4cjLAxlPLwj6/Esw0qbgIoo6tlL
-         ahGQ==
-X-Gm-Message-State: AFqh2kp0ywdImrnlMEVPOxSyu/ZH0PsencrgdTmXZ+8JxQqweMQgMSQh
-        iaPvJqF+QgpU+bQrDBs9YX10RA==
-X-Google-Smtp-Source: AMrXdXsuTG7BFAY0Qq/+oRg2kUdkXI4SHPZc+O1ZBOyCj9AeG3rifuNNnZqkcdymQ4qROIeoOPJSvg==
-X-Received: by 2002:a05:6a00:2997:b0:582:1f25:5b8 with SMTP id cj23-20020a056a00299700b005821f2505b8mr50699112pfb.19.1673641940260;
-        Fri, 13 Jan 2023 12:32:20 -0800 (PST)
+        b=vqDHJeAC7ggoO72QvPCsvPsC+TxDNU+qqR3hb+Bz38jGV1x/qsnUQq+Mdp8zAXS5yy
+         ABfUFLV3m1oW57gnkpsa+I2pYm+77qyRz6/tYPMD6txJGBrqso4OzrrnW2gmnic5nhWn
+         x61Hyj2a2AAKj42kYhqKWAdqwRvZwtg4ADsSlcxO3huaAlezxdgzJoF5oTVTD8KZkmt5
+         8CUU5ULfGxIwNro2/fi+X/fs9UR33DdLjdDtlQCOVhsiTKYHhOgQI0bI5+rEOo2ghI2p
+         dyAs9P94mzYAIwUFRl5ObUULppUr6UUdGV00x2OubX7IbkKT/soqAlboi70GrpVIJzdQ
+         8ZaA==
+X-Gm-Message-State: AFqh2koOQeQ2xgsQelhsAWyZMpe6EKv2yILSo043dI8MDcPh/yQ2cF83
+        XrjcWlL8LPB/Kj0GRaK9tcquBQ==
+X-Google-Smtp-Source: AMrXdXvm4hOrKF3ZKdX5w2dQ39nXVKb5Yx9Uv4IAYVf1Nn5SN0+TmbZZSgOhYMiE+xNBEaP8+ekV3w==
+X-Received: by 2002:a05:6a00:993:b0:581:c2d3:dc5e with SMTP id u19-20020a056a00099300b00581c2d3dc5emr70341647pfg.11.1673642077827;
+        Fri, 13 Jan 2023 12:34:37 -0800 (PST)
 Received: from localhost ([2620:15c:9d:2:bc37:510e:da6f:159f])
-        by smtp.gmail.com with UTF8SMTPSA id z8-20020aa79e48000000b0058bb79beefcsm1780802pfq.123.2023.01.13.12.32.19
+        by smtp.gmail.com with UTF8SMTPSA id w65-20020a623044000000b0056c349f5c70sm14085347pfw.79.2023.01.13.12.34.36
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 13 Jan 2023 12:32:19 -0800 (PST)
+        Fri, 13 Jan 2023 12:34:37 -0800 (PST)
 From:   Daniel Verkamp <dverkamp@chromium.org>
-To:     Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>
+To:     x86@kernel.org, Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@suse.de>
 Cc:     Jiri Slaby <jirislaby@kernel.org>, stable@vger.kernel.org,
         Daniel Verkamp <dverkamp@chromium.org>
 Subject: [PATCH] x86: combine memmove FSRM and ERMS alternatives
-Date:   Fri, 13 Jan 2023 12:32:17 -0800
-Message-Id: <20230113203217.1111227-1-dverkamp@chromium.org>
+Date:   Fri, 13 Jan 2023 12:34:27 -0800
+Message-Id: <20230113203427.1111689-1-dverkamp@chromium.org>
 X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
