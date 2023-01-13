@@ -2,244 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6F0E6697D3
-	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 13:58:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E798F6698C0
+	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 14:38:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241602AbjAMM6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Jan 2023 07:58:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37008 "EHLO
+        id S241762AbjAMNiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Jan 2023 08:38:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241721AbjAMM5I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 07:57:08 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F3BFA16584;
-        Fri, 13 Jan 2023 04:45:13 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B491CFEC;
-        Fri, 13 Jan 2023 04:45:55 -0800 (PST)
-Received: from FVFF77S0Q05N (unknown [10.57.46.126])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2C4BE3F587;
-        Fri, 13 Jan 2023 04:45:12 -0800 (PST)
-Date:   Fri, 13 Jan 2023 12:45:04 +0000
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Will Deacon <will@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
-        Thomas Gleixner <tglx@linotronix.de>, stable@vger.kernel.org,
-        Yogesh Lal <quic_ylal@quicinc.com>
-Subject: Re: [PATCH] clocksource/drivers/arm_arch_timer: Update sched_clock
- when non-boot CPUs need counter workaround
-Message-ID: <Y8FSUOC7k3ChMazG@FVFF77S0Q05N>
-References: <20230113111648.1977473-1-maz@kernel.org>
+        with ESMTP id S241410AbjAMNiG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 08:38:06 -0500
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [IPv6:2001:67c:2050:0:465::102])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D27B53C723
+        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 05:31:59 -0800 (PST)
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [10.196.197.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4Ntj4p4vgFz9sRG;
+        Fri, 13 Jan 2023 14:31:54 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+        t=1673616714;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=V7Nld5EJfMpaert1YqgOWHv//qfUsulktx6QLNZ9ITo=;
+        b=vD5fQKO50ymFVCHDMY0JuS+s3tV11whrhMV5VIma6gOfzcARJHfBfEOuCWuFLbfOHvKTn8
+        kLuW1c3SU8+yH6Fn4pFQAPd/OKAAXwIMW2zrGY4vr02nT7mhdyp8UtMFq2PZlB+JkdwpFg
+        jrRHKokABOC9/gOF78k84rIUzN1ygmhPgkQGjObsujRzITHr+FbLhrplUH2F8fHmO9SD3w
+        wfNptALv07cCbkmxvztvvXXZ/cvtZzvFZpSlRYpf5mKIFfPyZzYJj13JFKS1PTEXntK/aX
+        FK/wBbiagVWXXpQ72TePgwNrjygS4MSi1N4IORAc6Y5hIG7CxURxOZfLf2uUJw==
+Subject: Re: Kernel v6.0.18: Resume from hibernate fails, system hangs;
+ bisected
+To:     Linux regressions mailing list <regressions@lists.linux.dev>,
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
+References: <2d59ed2b-ba8f-6695-9764-fd3b109acd4c@mailbox.org>
+ <21fdd6fe-c8f8-2ab6-fb73-3a2883cb1679@leemhuis.info>
+From:   Rainer Fiebig <jrf@mailbox.org>
+Autocrypt: addr=jrf@mailbox.org; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <c0530440-9252-2704-9107-aa14afe2b4c9@mailbox.org>
+Date:   Fri, 13 Jan 2023 14:30:31 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230113111648.1977473-1-maz@kernel.org>
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <21fdd6fe-c8f8-2ab6-fb73-3a2883cb1679@leemhuis.info>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-MBO-RS-META: rh6ismk5wyea7a4ki3ukn9m3n6hzxyoj
+X-MBO-RS-ID: 82ddac08892d7a91968
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Marc,
-
-On Fri, Jan 13, 2023 at 11:16:48AM +0000, Marc Zyngier wrote:
-> When booting on a CPU that has a countertum on the counter read,
-> we use the arch_counter_get_cnt{v,p}ct_stable() backend which
-> applies the workaround.
+Am 13.01.23 um 10:20 schrieb Linux kernel regression tracking (Thorsten
+Leemhuis):
+> [ccing Alex and the regressions list]
 > 
-> However, we don't do the same thing when an affected CPU is
-> a secondary CPU, and we're stuck with the standard sched_clock()
-> backend that knows nothing about the workaround.
+> Hi, this is your Linux kernel regression tracker.
 > 
-> Fix it by always indirecting sched_clock(), making arch_timer_read_counter
-> a function instead of a function pointer. In turn, we update the
-> pointer (now private to the driver code) when detecting a new
-> workaround.
-
-Unfortunately, I don't think this is sufficient.
-
-I'm pretty sure secondary CPUs might call sched_clock() before getting to
-arch_counter_register(), so there'll be a window where this could go wrong.
-
-If we consider late onlining on a preemptible kernel we'll also have a race at
-runtime:
-
-| sched_clock() {
-| 	arch_timer_read_counter() {
-| 		// reads __arch_timer_read_counter == arch_counter_get_cntvct;
-| 		
-| 		arch_counter_get_cntvct() {
-| 			
-| 			< PREEMPTED >
-| 			< CPU requiring workaround onlined >
-| 			< RESCHEDULED on affected CPU >
-| 
-| 			MRS xN, CNTVCT_EL0	// reads junk here
-| 		}
-| 	}
-| }
-
-I think we need to reconsider the approach.
-
-Since the accessor is out-of-line anyway, we could use a static key *within*
-the accessor to handle that, e.g.
-
-| u64 arch_timer_get_cntvct(void)
-| {
-| 	u64 val = read_sysreg(cntvct_el0);
-| 	if (!static_branch_unlikely(use_timer_workaround))
-| 		return val;
-| 
-| 	// do stablisation workaround here
-| 	
-| 	return val;
-| }
-
-... and we'd need to transiently enable the workaround when beinging a CPU
-online in case it needs the workaround. We could use the static key inc / dec
-helpers from the CPU invoking the hotplug to manage that.
-
-With that, we should never perform the first read on an affected core without
-also deciding to perform the workaround.
-
-Does that make sound plausible?
-
-Thanks,
-Mark.
-
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Daniel Lezcano <daniel.lezcano@kernel.org>
-> Cc: Thomas Gleixner <tglx@linotronix.de>
-> Cc: stable@vger.kernel.org
-> Reported-by: Yogesh Lal <quic_ylal@quicinc.com>
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Fixes: 0ea415390cd3 ("clocksource/arm_arch_timer: Use arch_timer_read_counter to access stable counters")
-> Link: https://lore.kernel.org/r/ca4679a0-7f29-65f4-54b9-c575248192f1@quicinc.com
-> ---
->  drivers/clocksource/arm_arch_timer.c | 56 +++++++++++++++++-----------
->  include/clocksource/arm_arch_timer.h |  2 +-
->  2 files changed, 36 insertions(+), 22 deletions(-)
+> On 12.01.23 22:03, Rainer Fiebig wrote:
+>> Hi! Since kernel 6.0.18
 > 
-> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-> index e09d4427f604..5272db86bef5 100644
-> --- a/drivers/clocksource/arm_arch_timer.c
-> +++ b/drivers/clocksource/arm_arch_timer.c
-> @@ -217,7 +217,12 @@ static notrace u64 arch_counter_get_cntvct(void)
->   * to exist on arm64. arm doesn't use this before DT is probed so even
->   * if we don't have the cp15 accessors we won't have a problem.
->   */
-> -u64 (*arch_timer_read_counter)(void) __ro_after_init = arch_counter_get_cntvct;
-> +static u64 (*__arch_timer_read_counter)(void) __ro_after_init = arch_counter_get_cntvct;
-> +
-> +u64 arch_timer_read_counter(void)
-> +{
-> +	return __arch_timer_read_counter();
-
-Since the function pointer can be modified concurrently, we'll need to use 
-	return READ_ONCE(__arch_timer_read_counter)();
-
-SInce this could change dynamically, we
-> +}
->  EXPORT_SYMBOL_GPL(arch_timer_read_counter);
->  
->  static u64 arch_counter_read(struct clocksource *cs)
-> @@ -230,6 +235,28 @@ static u64 arch_counter_read_cc(const struct cyclecounter *cc)
->  	return arch_timer_read_counter();
->  }
->  
-> +static bool arch_timer_counter_has_wa(void);
-> +
-> +static u64 (*arch_counter_get_read_fn(void))(void)
-> +{
-> +	u64 (*rd)(void);
-> +
-> +	if ((IS_ENABLED(CONFIG_ARM64) && !is_hyp_mode_available()) ||
-> +	    arch_timer_uses_ppi == ARCH_TIMER_VIRT_PPI) {
-> +		if (arch_timer_counter_has_wa())
-> +			rd = arch_counter_get_cntvct_stable;
-> +		else
-> +			rd = arch_counter_get_cntvct;
-> +	} else {
-> +		if (arch_timer_counter_has_wa())
-> +			rd = arch_counter_get_cntpct_stable;
-> +		else
-> +			rd = arch_counter_get_cntpct;
-> +	}
-> +
-> +	return rd;
-> +}
-> +
->  static struct clocksource clocksource_counter = {
->  	.name	= "arch_sys_counter",
->  	.id	= CSID_ARM_ARCH_COUNTER,
-> @@ -571,8 +598,10 @@ void arch_timer_enable_workaround(const struct arch_timer_erratum_workaround *wa
->  			per_cpu(timer_unstable_counter_workaround, i) = wa;
->  	}
->  
-> -	if (wa->read_cntvct_el0 || wa->read_cntpct_el0)
-> -		atomic_set(&timer_unstable_counter_workaround_in_use, 1);
-> +	if (wa->read_cntvct_el0 || wa->read_cntpct_el0) {
-> +		__arch_timer_read_counter = arch_counter_get_read_fn();
-> +		atomic_set_release(&timer_unstable_counter_workaround_in_use, 1);
-> +	}
->  
->  	/*
->  	 * Don't use the vdso fastpath if errata require using the
-> @@ -641,7 +670,7 @@ static bool arch_timer_counter_has_wa(void)
->  #else
->  #define arch_timer_check_ool_workaround(t,a)		do { } while(0)
->  #define arch_timer_this_cpu_has_cntvct_wa()		({false;})
-> -#define arch_timer_counter_has_wa()			({false;})
-> +static bool arch_timer_counter_has_wa(void)		{ return false; }
->  #endif /* CONFIG_ARM_ARCH_TIMER_OOL_WORKAROUND */
->  
->  static __always_inline irqreturn_t timer_handler(const int access,
-> @@ -1079,25 +1108,10 @@ static void __init arch_counter_register(unsigned type)
->  
->  	/* Register the CP15 based counter if we have one */
->  	if (type & ARCH_TIMER_TYPE_CP15) {
-> -		u64 (*rd)(void);
-> -
-> -		if ((IS_ENABLED(CONFIG_ARM64) && !is_hyp_mode_available()) ||
-> -		    arch_timer_uses_ppi == ARCH_TIMER_VIRT_PPI) {
-> -			if (arch_timer_counter_has_wa())
-> -				rd = arch_counter_get_cntvct_stable;
-> -			else
-> -				rd = arch_counter_get_cntvct;
-> -		} else {
-> -			if (arch_timer_counter_has_wa())
-> -				rd = arch_counter_get_cntpct_stable;
-> -			else
-> -				rd = arch_counter_get_cntpct;
-> -		}
-> -
-> -		arch_timer_read_counter = rd;
-> +		__arch_timer_read_counter = arch_counter_get_read_fn();
->  		clocksource_counter.vdso_clock_mode = vdso_default;
->  	} else {
-> -		arch_timer_read_counter = arch_counter_get_cntvct_mem;
-> +		__arch_timer_read_counter = arch_counter_get_cntvct_mem;
->  	}
->  
->  	width = arch_counter_get_width();
-> diff --git a/include/clocksource/arm_arch_timer.h b/include/clocksource/arm_arch_timer.h
-> index 057c8964aefb..ec331b65ba23 100644
-> --- a/include/clocksource/arm_arch_timer.h
-> +++ b/include/clocksource/arm_arch_timer.h
-> @@ -85,7 +85,7 @@ struct arch_timer_mem {
->  #ifdef CONFIG_ARM_ARCH_TIMER
->  
->  extern u32 arch_timer_get_rate(void);
-> -extern u64 (*arch_timer_read_counter)(void);
-> +extern u64 arch_timer_read_counter(void);
->  extern struct arch_timer_kvm_info *arch_timer_get_kvm_info(void);
->  extern bool arch_timer_evtstrm_available(void);
->  
-> -- 
-> 2.34.1
+> Note, 6.0.y is now EOL, you should move to 6.1.y.
 > 
+>> resume from hibernate fails, the system hangs
+>> and a hard reset is necessary.  The CPU is a Ryzen 5600G, the system is
+>> Linux From Scratch-11.1.
+> 
+> FWIW, there is a report with a problems that looks somewhat similar here:
+> 
+> https://bugzilla.kernel.org/show_bug.cgi?id=216917
+> 
+> But the reporter doesn't care anymore, as 6.1 works.
+> 
+> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+Thanks for the info.  6.1.5 works here, too.
+
+I clung to 6.0 as I use VirtualBox-6.1.38 and according to the changelog
+it doesn't support linux-6.1.  VirtualBox-7.0.x supports linux-6.1 but
+doesn't start on my system - and I couldn't yet figure out why.
+
+But although the changelog for Virtual-Box 6.1.38 says otherwise, it
+*does* support kernel 6.1 which was a nice surprise on Friday 13th. ;)
+
+Rainer
