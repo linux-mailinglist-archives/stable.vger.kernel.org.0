@@ -2,94 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC383669D07
-	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 16:59:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E28ED669CEB
+	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 16:52:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229898AbjAMP7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Jan 2023 10:59:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47856 "EHLO
+        id S229483AbjAMPwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Jan 2023 10:52:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230341AbjAMP6S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 10:58:18 -0500
-X-Greylist: delayed 1438 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 13 Jan 2023 07:49:58 PST
-Received: from mail.dmbarone.com (mail.dmbarone.com [5.181.144.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A1D40C3F
-        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 07:49:58 -0800 (PST)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.dmbarone.com (Postfix) with ESMTP id 5A6FF2A4FA8;
-        Fri, 13 Jan 2023 15:25:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=dmbarone.com; s=mail;
-        t=1673623535; bh=QIjTgWBPcZMVeqZovj8WAOWgI9bu1lFe9hdim3iQkyQ=;
-        h=Subject:To:From:Date:Reply-To:From;
-        b=Zgzo75R3FXSUOZnZhs2yHSBIMp0dGM9Gz0n/iXQtLsnweBwukRaEAbo4pHpQi27H8
-         b4tvJtqKIWRL5nRbh6WATq0NA2k5NiJ3HNZN+Q/CKp6bRwURMpUPAUO4OBOnWApYIW
-         CdxLMGN79gqyH0S0kLSgRnNGr3xPo9X8aQEgNDBA=
-X-Virus-Scanned: Debian amavisd-new at ispdmbarone.kubeitalia.it
-Received: from mail.dmbarone.com ([127.0.0.1])
-        by localhost (ispdmbarone.kubeitalia.it [127.0.0.1]) (amavisd-new, port 10026)
-        with LMTP id G4oI8IBF-yu1; Fri, 13 Jan 2023 15:25:35 +0000 (UTC)
-Received: from [172.20.10.6] (unknown [129.205.124.225])
-        (Authenticated sender: admin@dmbarone.com)
-        by mail.dmbarone.com (Postfix) with ESMTPSA id 67C4F2A53D3;
-        Fri, 13 Jan 2023 15:25:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=dmbarone.com; s=mail;
-        t=1673623535; bh=QIjTgWBPcZMVeqZovj8WAOWgI9bu1lFe9hdim3iQkyQ=;
-        h=Subject:To:From:Date:Reply-To:From;
-        b=Zgzo75R3FXSUOZnZhs2yHSBIMp0dGM9Gz0n/iXQtLsnweBwukRaEAbo4pHpQi27H8
-         b4tvJtqKIWRL5nRbh6WATq0NA2k5NiJ3HNZN+Q/CKp6bRwURMpUPAUO4OBOnWApYIW
-         CdxLMGN79gqyH0S0kLSgRnNGr3xPo9X8aQEgNDBA=
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S230351AbjAMPui (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 10:50:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C62065AF0;
+        Fri, 13 Jan 2023 07:43:54 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2F3761FC3;
+        Fri, 13 Jan 2023 15:43:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD5D1C433F1;
+        Fri, 13 Jan 2023 15:43:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1673624633;
+        bh=RDtldCHhOU3Bo3pJibaZpOM4uT1+p0yui2PnCg+as8o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ONzkQ7gZ51JUMsLapq5pmDiXaYOsJLLKodE1n30W6DeD/hxkiGhdhnuDXGP90YlbB
+         JSI9yUyvBZb3c/HDy6J4IQU80Ff8wPYSMi+gmsG4rZWTUwkdOG3YqVNsK35QKS5SvD
+         /pVuMIR7QPeHSFYlgmpFIzfAUvBV3uYCbkPFXmZw=
+Date:   Fri, 13 Jan 2023 16:43:19 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        alsa-devel@alsa-project.org, Clement Lecigne <clecigne@google.com>
+Subject: Re: [PATCH 5.10.y] ALSA: pcm: Properly take rwsem lock in
+ ctl_elem_read_user/ctl_elem_write_user to prevent UAF
+Message-ID: <Y8F8F9MpNR4O8kbB@kroah.com>
+References: <20230113142639.4420-1-tiwai@suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: =?utf-8?q?Wohlt=C3=A4tigkeit!!?=
-To:     Recipients <admi@dmbarone.com>
-From:   <admi@dmbarone.com>
-Date:   Fri, 13 Jan 2023 16:25:32 +0100
-Reply-To: theresasteven225@gmail.com
-X-Antivirus: Avast (VPS 230113-2, 1/13/2023), Outbound message
-X-Antivirus-Status: Clean
-Message-Id: <20230113152535.5A6FF2A4FA8@mail.dmbarone.com>
-X-Spam-Status: Yes, score=7.3 required=5.0 tests=BAYES_99,BAYES_999,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_FORGED_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_SBL,
-        RCVD_IN_VALIDITY_RPBL,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
-        *      [score: 1.0000]
-        *  0.2 BAYES_999 BODY: Bayes spam probability is 99.9 to 100%
-        *      [score: 1.0000]
-        *  0.1 RCVD_IN_SBL RBL: Received via a relay in Spamhaus SBL
-        *      [129.205.124.225 listed in zen.spamhaus.org]
-        *  1.3 RCVD_IN_VALIDITY_RPBL RBL: Relay in Validity RPBL,
-        *      https://senderscore.org/blocklistlookup/
-        *      [5.181.144.66 listed in bl.score.senderscore.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [theresasteven225[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
-X-Spam-Level: *******
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230113142639.4420-1-tiwai@suse.de>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Eine Spende wurde an Sie get=E4tigt, antworten Sie f=FCr weitere Einzelheit=
-en.
+On Fri, Jan 13, 2023 at 03:26:39PM +0100, Takashi Iwai wrote:
+> From: Clement Lecigne <clecigne@google.com>
+> 
+> [ Note: this is a fix that works around the bug equivalently as the
+>   two upstream commits:
+>    1fa4445f9adf ("ALSA: control - introduce snd_ctl_notify_one() helper")
+>    56b88b50565c ("ALSA: pcm: Move rwsem lock inside snd_ctl_elem_read to prevent UAF")
+>   but in a simpler way to fit with older stable trees -- tiwai ]
 
-Gr=FC=DFe
-Theresia Steven
+Thanks for the backport, now queued up.
 
--- 
-This email has been checked for viruses by Avast antivirus software.
-www.avast.com
+greg k-h
