@@ -2,64 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7661A66A3D8
-	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 21:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D3D66A41C
+	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 21:32:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230227AbjAMUEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Jan 2023 15:04:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42578 "EHLO
+        id S229813AbjAMUcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Jan 2023 15:32:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229562AbjAMUEi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 15:04:38 -0500
-Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F5E483E0C
-        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 12:04:37 -0800 (PST)
-Received: by mail-lj1-x235.google.com with SMTP id p25so17368268ljn.12
-        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 12:04:37 -0800 (PST)
+        with ESMTP id S229778AbjAMUcV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 15:32:21 -0500
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA45D2F5
+        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 12:32:20 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id a184so17017040pfa.9
+        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 12:32:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=cc:to:subject:message-id:date:user-agent:from:references
-         :in-reply-to:mime-version:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=pn/bUQqTAlACXsw2QFf1F1nB2X4q2bNMOyvZ55+9yP4=;
-        b=Tr6VgupPvHBPkf9jtufKm+A27vFwaSYnsjcszGJP6IBI2qUNT2ZjMKC3evDBThaPTt
-         NDh+pJGetVKcZxgpqrN4Egt5C9/fbftrgp2NmGzf/XYJr+GEh2BJBZfb8Au84H7RN/iq
-         rNHLuEQVEZ/gODcLlT7B/nPWwOR/8Rw6AW/+s=
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=3820rMwJqNt52s3q83p14PRLj+o8+7nJ6J1i9mH77lk=;
+        b=cdZzww5Urf+ol4TOJ6YM5LEj3sB6hk490f9e/0NADY9NUdHJFsvabc8Va6+91f5KH8
+         hJyJVnYO6bD68r7m13OT859Nl8ZhEhB4P/cFtEerS0lW5R3BsJcOoOGTCyMmTnxZTH33
+         bX53k9MgDJueoSEuPlSlrP/Zc+G0UoxI9bpi4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:user-agent:from:references
-         :in-reply-to:mime-version:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pn/bUQqTAlACXsw2QFf1F1nB2X4q2bNMOyvZ55+9yP4=;
-        b=gljDbEPH+ZabJkmkfD5mATDuwGH15t/vR2wRBn9sIVNwDjXTvYyqZfsmoA4+N8Lm3f
-         k/1Tr1U4BAE/POgwNEzn+wI7mp459skJVjGeP0Yt/+XXMZdPUliWP42QkT4ZlobAgKWY
-         tzkNSa2GzaumbDeub0KLtcQyVghqgPIMa/lrELed5anQfDeFC4GS2V9bP7in9IawDylK
-         Y1SAwHKCHVIqNM9R+XTn5LtrUxhncru/K16uPpASBL3r5POFPpJxJ/MJfkvXu4MHomDd
-         x9AYbV2Wm1laf6v8vA2mRW92vxK8PhGX+/iwgpLPnkPI15ogWKC9ZkmyHG1Hvvg5sAwU
-         lVEA==
-X-Gm-Message-State: AFqh2kqKnNcNqODDjQXEF03AQivC8fMNEyLEZuo/csQ/8azzMNkgnYKC
-        Y41hh/o2CCIFjMWDWZ34qKBmHsLRGrDLsHqRVrWnSg==
-X-Google-Smtp-Source: AMrXdXuxNP3qxjyfKL7UUHKMWbAhG7+AZ5pGsKgsViDpwuAAelWCvLAprFzP+G20mze9LfyTHRB9PaqUYqRLWMQPSzo=
-X-Received: by 2002:a05:651c:332:b0:28b:62f7:5b6d with SMTP id
- b18-20020a05651c033200b0028b62f75b6dmr406063ljp.39.1673640275607; Fri, 13 Jan
- 2023 12:04:35 -0800 (PST)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Fri, 13 Jan 2023 14:04:35 -0600
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3820rMwJqNt52s3q83p14PRLj+o8+7nJ6J1i9mH77lk=;
+        b=YNv+w0ucj6udrsUcpzz5m4kNlI1pGL/pP8/A9tNMuZWrlrQBlim3NVwFjdENsGqq2D
+         8a+GnekB27hMjJoob0h3aUdl1Zvhiu554jvxxR2rVHP2xQbFycFSoW45Ongnd0zSvxql
+         QJuPklcfoQ/aRvWdq8zkXv4/qpkHfVkKCEEFLI1eYTtI3BjpVmIsIzx7w61540YTyUYK
+         pJ1pa0DZ0yvIJl14M9jRYWymJCiCgOuEOF+FRuwKKBavYJye7PZCjLKYF3pgp5qgQ0l1
+         eWvjvUmR6Vr/G5ts+4lSn7WuCYg9JLD05pjEAzOcU4cjLAxlPLwj6/Esw0qbgIoo6tlL
+         ahGQ==
+X-Gm-Message-State: AFqh2kp0ywdImrnlMEVPOxSyu/ZH0PsencrgdTmXZ+8JxQqweMQgMSQh
+        iaPvJqF+QgpU+bQrDBs9YX10RA==
+X-Google-Smtp-Source: AMrXdXsuTG7BFAY0Qq/+oRg2kUdkXI4SHPZc+O1ZBOyCj9AeG3rifuNNnZqkcdymQ4qROIeoOPJSvg==
+X-Received: by 2002:a05:6a00:2997:b0:582:1f25:5b8 with SMTP id cj23-20020a056a00299700b005821f2505b8mr50699112pfb.19.1673641940260;
+        Fri, 13 Jan 2023 12:32:20 -0800 (PST)
+Received: from localhost ([2620:15c:9d:2:bc37:510e:da6f:159f])
+        by smtp.gmail.com with UTF8SMTPSA id z8-20020aa79e48000000b0058bb79beefcsm1780802pfq.123.2023.01.13.12.32.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 13 Jan 2023 12:32:19 -0800 (PST)
+From:   Daniel Verkamp <dverkamp@chromium.org>
+To:     Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>
+Cc:     Jiri Slaby <jirislaby@kernel.org>, stable@vger.kernel.org,
+        Daniel Verkamp <dverkamp@chromium.org>
+Subject: [PATCH] x86: combine memmove FSRM and ERMS alternatives
+Date:   Fri, 13 Jan 2023 12:32:17 -0800
+Message-Id: <20230113203217.1111227-1-dverkamp@chromium.org>
+X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
 MIME-Version: 1.0
-In-Reply-To: <Y8ERv0712EfPJWtF@hovoldconsulting.com>
-References: <20230113005405.3992011-1-swboyd@chromium.org> <20230113005405.3992011-5-swboyd@chromium.org>
- <Y8ERv0712EfPJWtF@hovoldconsulting.com>
-From:   Stephen Boyd <swboyd@chromium.org>
-User-Agent: alot/0.10
-Date:   Fri, 13 Jan 2023 14:04:35 -0600
-Message-ID: <CAE-0n50bbUJGfdXLhD2FP6-dwZEn_AqyB-fCTxgnZ=YBUQdUAw@mail.gmail.com>
-Subject: Re: [PATCH 5.15.y 4/4] phy: qcom-qmp-combo: fix runtime suspend
-To:     Johan Hovold <johan@kernel.org>
-Cc:     stable@vger.kernel.org, Johan Hovold <johan+linaro@kernel.org>,
-        linux-kernel@vger.kernel.org, patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -69,23 +64,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Johan Hovold (2023-01-13 00:09:35)
-> On Thu, Jan 12, 2023 at 04:54:05PM -0800, Stephen Boyd wrote:
-> > diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
-> > index 9fda6d283f20..d928afe2ebba 100644
-> > --- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-> > +++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-> > @@ -4985,15 +4985,11 @@ static void qcom_qmp_phy_disable_autonomous_mode(struct qmp_phy *qphy)
-> >  static int __maybe_unused qcom_qmp_phy_runtime_suspend(struct device *dev)
-> >  {
-> >       struct qcom_qmp *qmp = dev_get_drvdata(dev);
-> > -     struct qmp_phy *qphy = qmp->phys[0];
-> > +     struct qmp_phy *qphy = qmp->usb_phy;
-> >       const struct qmp_phy_cfg *cfg = qphy->cfg;
-> >
-> >       dev_vdbg(dev, "Suspending QMP phy, mode:%d\n", qphy->mode);
->
-> So this doesn't work currently either as the usb_phy pointer is not set
-> for PCIe and UFS PHYs.
+The x86-64 memmove code has two ALTERNATIVE statements in a row, one to
+handle FSRM ("Fast Short REP MOVSB"), and one to handle ERMS ("Enhanced
+REP MOVSB"). If either of these features is present, the goal is to jump
+directly to a REP MOVSB; otherwise, some setup code that handles short
+lengths is executed. The first comparison of a sequence of specific
+small sizes is included in the first ALTERNATIVE, so it will be replaced
+by NOPs if FSRM is set, and then (assuming ERMS is also set) execution
+will fall through to the JMP to a REP MOVSB in the next ALTERNATIVE.
 
-Cool, setting usb_phy for pcie and ufs fixes this.
+The two ALTERNATIVE invocations can be combined into a single instance
+of ALTERNATIVE_2 to simplify and slightly shorten the code. If either
+FSRM or ERMS is set, the first instruction in the memmove_begin_forward
+path will be replaced with a jump to the REP MOVSB.
+
+This also prevents a problem when FSRM is set but ERMS is not; in this
+case, the previous code would have replaced both ALTERNATIVEs with NOPs
+and skipped the first check for sizes less than 0x20 bytes. This
+combination of CPU features is arguably a firmware bug, but this patch
+makes the function robust against this badness.
+
+Fixes: f444a5ff95dc ("x86/cpufeatures: Add support for fast short REP; MOVSB")
+Signed-off-by: Daniel Verkamp <dverkamp@chromium.org>
+---
+ arch/x86/lib/memmove_64.S | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/lib/memmove_64.S b/arch/x86/lib/memmove_64.S
+index 724bbf83eb5b..1fc36dbd3bdc 100644
+--- a/arch/x86/lib/memmove_64.S
++++ b/arch/x86/lib/memmove_64.S
+@@ -38,8 +38,10 @@ SYM_FUNC_START(__memmove)
+ 
+ 	/* FSRM implies ERMS => no length checks, do the copy directly */
+ .Lmemmove_begin_forward:
+-	ALTERNATIVE "cmp $0x20, %rdx; jb 1f", "", X86_FEATURE_FSRM
+-	ALTERNATIVE "", "jmp .Lmemmove_erms", X86_FEATURE_ERMS
++	ALTERNATIVE_2 \
++		"cmp $0x20, %rdx; jb 1f", \
++		"jmp .Lmemmove_erms", X86_FEATURE_FSRM, \
++		"jmp .Lmemmove_erms", X86_FEATURE_ERMS
+ 
+ 	/*
+ 	 * movsq instruction have many startup latency
+-- 
+2.39.0.314.g84b9a713c41-goog
+
