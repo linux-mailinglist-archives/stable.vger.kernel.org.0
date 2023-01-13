@@ -2,43 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04681669CF5
-	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 16:53:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF97669CFA
+	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 16:57:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230400AbjAMPxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 Jan 2023 10:53:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45502 "EHLO
+        id S230379AbjAMP5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 Jan 2023 10:57:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230323AbjAMPwJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 10:52:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3D7F8BAB8
-        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 07:45:16 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 879BBB82170
-        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 15:45:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 201EEC433EF;
-        Fri, 13 Jan 2023 15:45:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673624714;
-        bh=3iOYHGiKv3k8lUJgWCEysilG5M+el9pjpx/HSQzCFOM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=TR4dL8qcv4mTV6Oa8kG6/AxDOHRs60eoZE90MjDRTMBziapVzcGA9BgVIH6BM1RqO
-         qsIeEpLwt1n3xChVnuvWhk3iiTRTUJBC05UMD+5AXEyA+E8oDiIdUwIE97WH7fxDbG
-         anoKcSHhOQjCVLOZpUYyk7wfx8SzC44/2s7cHRgk=
-Subject: FAILED: patch "[PATCH] Revert "ALSA: usb-audio: Drop superfluous interface setup at" failed to apply to 6.1-stable tree
-To:     tiwai@suse.de, michael@ralston.id.au, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 13 Jan 2023 16:45:03 +0100
-Message-ID: <167362470314207@kroah.com>
+        with ESMTP id S230375AbjAMP53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 Jan 2023 10:57:29 -0500
+Received: from mail-vk1-xa34.google.com (mail-vk1-xa34.google.com [IPv6:2607:f8b0:4864:20::a34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AADA490865
+        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 07:48:51 -0800 (PST)
+Received: by mail-vk1-xa34.google.com with SMTP id t2so10382915vkk.9
+        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 07:48:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Sjh8dEOOgcZldDsl77ZYrTSvmKIK20XlFulb2zyWnx8=;
+        b=AnLIoVgFPahZ0SLfc3kLAeouXizP96+BR8eOix5vANkp8TTN33WkWOA3gIZbeyv8E+
+         2eDDPq8HwINGcLp5NgTCew3h2rNGay1NjICE409Gmq8CrJB60opLT6y9mQkoBVRgAFTj
+         8Mh/o9YN6QLF/y6Pqz2yWRAFwybSoFBUGLYLjpqYXqx1HBkSQ4vdhLVKqv1JJKiZFspI
+         lRfT5zmtvK6pt8Joca7p+DeAS7cOUooio7tlj0YQjxNWsXBD1id4TK3KLKcUOBA9H7u2
+         FpG6ncD0QMJ0BJnOvsiEP6FLxe0kQH0L7j4svxeg0T+fHsP03JoRkz02gad4TZ+rURGs
+         69WQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Sjh8dEOOgcZldDsl77ZYrTSvmKIK20XlFulb2zyWnx8=;
+        b=tcupN8g9niUjlm1bWNFIuFhvMcoXE1f6NAzyemhPTcASCidyqZb4+f9TlSm5q+FXkX
+         s5HpRq61Nn1GwJ95Uf6d0xGI+FcrRsPIS7gXY2DHW7rluySzn4u/Ko+x1wGhR482OqMD
+         5YNTgBIMPjlN8w0jmmoUgsKZ02crjPttZDU8yL+Rhqi0f/+gVncPNgQ9JJ7KhjpdW0NA
+         8zJ5QioYVIZiqSz4eOJhtHVIn+9n07IYUe4UhoqjePbWuFcAuYpJTd4NST9fAqBqfxj1
+         wCKXyKRNyfL8RBO4/gPsxj0YdIwg6lOySA3vc5lBucb7LCjQvz/Twt40Us8XFdha/Ls4
+         gbsw==
+X-Gm-Message-State: AFqh2kplffHgI5Vk9+iAzG1Q0oIPQkwboYr3/58aCKho4crz2Su+R1sI
+        kKGqvNCPWytnpePukd+lY0CVPHK16tepJrYsgkLggA==
+X-Google-Smtp-Source: AMrXdXsI3jUe1ZOmxcBuPFkKStLnmNlMx7lM3Z58HMQDqrP86jptXCPC06qiPeyDnCmvidNT/WWExc8wwMy3H1VFgZI=
+X-Received: by 2002:a1f:3215:0:b0:3d5:86ff:6638 with SMTP id
+ y21-20020a1f3215000000b003d586ff6638mr8205679vky.30.1673624930613; Fri, 13
+ Jan 2023 07:48:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20230110180017.145591678@linuxfoundation.org> <CA+G9fYtpM7X15rY6g6asDxrjxDSfj5sDiP8P5Yb1TS3VVmjGNw@mail.gmail.com>
+ <Y8ElS+jivE5FWvku@amd.ucw.cz>
+In-Reply-To: <Y8ElS+jivE5FWvku@amd.ucw.cz>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 13 Jan 2023 21:18:39 +0530
+Message-ID: <CA+G9fYv=ZcY5-hT7-RZmnhwyac3cf1DsG6WSeOSyHqSHSbALgw@mail.gmail.com>
+Subject: Re: [PATCH 6.0 000/148] 6.0.19-rc1 review
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+        Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,55 +72,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Pavel,
 
-The patch below does not apply to the 6.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Fri, 13 Jan 2023 at 15:03, Pavel Machek <pavel@denx.de> wrote:
+>
+> Hi!
 
-Possible dependencies:
+> Full log is 11MB. That's rather... big for an email. Please post such
+> stuff as a link or at least compress them...
 
-16f1f838442d ("Revert "ALSA: usb-audio: Drop superfluous interface setup at parsing"")
+Thanks for the comments,
+And i did in the next email with a trimmed version of log files.
 
-thanks,
+[ + attachment failed resending with trim version of log file. ]
 
-greg k-h
+In general practice, I do share links to log files, kconfigs and artifacts.
 
------------------- original commit in Linus's tree ------------------
-
-From 16f1f838442dc6430d32d51ddda347b8421ec34b Mon Sep 17 00:00:00 2001
-From: Takashi Iwai <tiwai@suse.de>
-Date: Wed, 4 Jan 2023 16:09:44 +0100
-Subject: [PATCH] Revert "ALSA: usb-audio: Drop superfluous interface setup at
- parsing"
-
-This reverts commit ac5e2fb425e1121ceef2b9d1b3ffccc195d55707.
-
-The commit caused a regression on Behringer UMC404HD (and likely
-others).  As the change was meant only as a minor optimization, it's
-better to revert it to address the regression.
-
-Reported-and-tested-by: Michael Ralston <michael@ralston.id.au>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com
-Link: https://lore.kernel.org/r/20230104150944.24918-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-
-diff --git a/sound/usb/stream.c b/sound/usb/stream.c
-index f75601ca2d52..f10f4e6d3fb8 100644
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -1222,6 +1222,12 @@ static int __snd_usb_parse_audio_interface(struct snd_usb_audio *chip,
- 			if (err < 0)
- 				return err;
- 		}
-+
-+		/* try to set the interface... */
-+		usb_set_interface(chip->dev, iface_no, 0);
-+		snd_usb_init_pitch(chip, fp);
-+		snd_usb_init_sample_rate(chip, fp, fp->rate_max);
-+		usb_set_interface(chip->dev, iface_no, altno);
- 	}
- 	return 0;
- }
-
+Thank you.
+Naresh Kamboju
