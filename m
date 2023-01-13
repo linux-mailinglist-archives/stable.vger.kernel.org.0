@@ -2,165 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 837E26687BD
-	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 00:08:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E487666880F
+	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 01:01:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232390AbjALXIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 18:08:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37420 "EHLO
+        id S231841AbjAMAB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 19:01:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230385AbjALXIT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 18:08:19 -0500
-X-Greylist: delayed 1999 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 12 Jan 2023 15:08:17 PST
-Received: from kanga.kvack.org (kanga.kvack.org [205.233.56.17])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0752BD91;
-        Thu, 12 Jan 2023 15:08:16 -0800 (PST)
-Received: by kanga.kvack.org (Postfix, from userid 63042)
-        id 798C58E0001; Thu, 12 Jan 2023 17:09:39 -0500 (EST)
-Date:   Thu, 12 Jan 2023 17:09:39 -0500
-From:   Benjamin LaHaise <bcrl@kvack.org>
-To:     Jeff Moyer <jmoyer@redhat.com>
-Cc:     Seth Jenkins <sethjenkins@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
-        linux-kernel@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Pavel Emelyanov <xemul@parallels.com>, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] aio: fix mremap after fork null-deref
-Message-ID: <20230112220939.GO19133@kvack.org>
-References: <20221104212519.538108-1-sethjenkins@google.com> <x49tu0wlv0c.fsf@segfault.boston.devel.redhat.com> <CALxfFW5d05H-nFuDdUDS4xVDKMgkV1vvEBAmw10h3-jMVb-PZw@mail.gmail.com> <x49ilhbl9qd.fsf@segfault.boston.devel.redhat.com>
-Mime-Version: 1.0
+        with ESMTP id S239077AbjAMABZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 19:01:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99BD111A06;
+        Thu, 12 Jan 2023 16:01:24 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C1F0B82036;
+        Fri, 13 Jan 2023 00:01:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D064EC433D2;
+        Fri, 13 Jan 2023 00:01:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673568082;
+        bh=TyMA7DoMSGx0SjncJKNHxuzQNLUrFJ8p4YaiwDyBuaY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gR85rp8zy7pV4cJt2OoeWvGaL29TLrpklndP+zww6sarfVli/SfqswZRdJID+fOCU
+         GQlZ7+xybWobxHvp+nVagnFMn3QCWDe1USlPnq9jI0xqIt5kmAinmYY+oJGCLY7f71
+         Y86vFIjDv8AVW51swoLI1z51GDEljI6z4bYdqq3/QDlB2+lxsQwytCAlFQb3kUcSc7
+         /IScmkPgtQ8xrmn8G5WtgmW/pGoMY7n/2faRqebwkQZbvmjnjzl9IAScg5Fiz+IiSj
+         kCB1LU1CUkq9rBdfVS3psckS7YVjmgs1+pFgnhasG0Rr7A7IyA59whfvdwkre12e+8
+         0BwjkL103gCQg==
+Date:   Thu, 12 Jan 2023 16:01:20 -0800
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     Chao Yu <chao@kernel.org>
+Cc:     linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, stable@vger.kernel.org
+Subject: Re: [f2fs-dev] [PATCH v2] f2fs: retry to update the inode page given
+ EIO
+Message-ID: <Y8CfUMsas4ZqVL0R@google.com>
+References: <20230105233908.1030651-1-jaegeuk@kernel.org>
+ <Y74O+5SklijYqMU1@google.com>
+ <77b18266-69c4-c7f0-0eab-d2069a7b21d5@kernel.org>
+ <Y78E9NpDxtvr2/Hs@google.com>
+ <bb9a9d1a-0d4c-b27e-e724-f99d5b8b4283@kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <x49ilhbl9qd.fsf@segfault.boston.devel.redhat.com>
-User-Agent: Mutt/1.4.2.2i
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+In-Reply-To: <bb9a9d1a-0d4c-b27e-e724-f99d5b8b4283@kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 12, 2023 at 04:32:42PM -0500, Jeff Moyer wrote:
-> The way things stand today, if you setup an io context in a process and
-> then fork a child, the child will be unable to use the aio system calls
-> to submit and reap I/Os.  This is because the ioctx_table was cleared
-> during fork, which means that lookup_ioctx() will not find the io
-> context.  However, the child still has access to the ring through the
-> memory mapping.  As a result, the child can reap I/O completions
-> directly from the ring.  That wasn't always the case.  The aio ring used
-> to be a MAP_PRIVATE mapping.  Commit 36bc08cc0170 ("fs/aio: Add support
-> to aio ring pages migration") changed it from a private to a shared
-> mapping, and I'm not sure why.  (That patch was included in v3.12, so
-> it's been this way for quite some time.)
-
-It is necessary to make migration work.  The pages have to be owned by
-the backing file and to map the backing file pages into the process
-without COW requires the mapping to be marked shared.  If they're COWed,
-events can be lost.  Migration is rare and ugly.
-
-> With the patch I proposed (flagging the ring buffer with VM_DONTCOPY),
-> the child process would still be unable to submit and reap I/Os via the
-> aio system calls.  What changes is that the child process would now be
-> unable to reap completions via the shared ring buffer.  In fact, because
-> the ring is no longer mapped in the child process, any attempt to access
-> that memory would result in a segmentation fault.  However, I would be
-> very surprised if the interface was being used in this way.
+On 01/12, Chao Yu wrote:
+> On 2023/1/12 2:50, Jaegeuk Kim wrote:
+> > On 01/11, Chao Yu wrote:
+> > > On 2023/1/11 9:20, Jaegeuk Kim wrote:
+> > > > In f2fs_update_inode_page, f2fs_get_node_page handles EIO along with
+> > > > f2fs_handle_page_eio that stops checkpoint, if the disk couldn't be recovered.
+> > > > As a result, we don't need to stop checkpoint right away given single EIO.
+> > > 
+> > > f2fs_handle_page_eio() only covers the case that EIO occurs on the same
+> > > page, should we cover the case EIO occurs on different pages?
+> > 
+> > Which case are you looking at?
 > 
-> > If we're okay with this change though, I think it makes sense.
+> - __get_node_page(PageA)		- __get_node_page(PageB)
+>  - f2fs_handle_page_eio
+>   - sbi->page_eio_ofs[type] = PageA->index
+> 					 - f2fs_handle_page_eio
+> 					  - sbi->page_eio_ofs[type] = PageB->index
 > 
-> My preference is to make the interface consistent.  I think setting
-> VM_DONTCOPY on the mapping is the right way forward.  I'd welcome other
-> opinions on whether the potential risk is worth it.
+> In such race case, it may has low probability to set CP_ERROR_FLAG as we expect?
 
-VM_DONTCOPY makes sense, but a SEGV is a pretty bad failure mode.  Any
-process reaping events in the child after fork() isn't going to be
-consistent in behaviour, and is able to see partial completion of an I/O
-and other inconsistencies, so they're going to be subtly broken at best.
+Do you see that case in products?
+I'm trying to avoid setting CP_ERROR_FLAG here.
 
-Unfortunately, we have no way of knowing if this behaviour is exercised
-anywhere without changing it and waiting for someone to holler.
-
-		-ben
-
-> Cheers,
-> Jeff
 > 
-> >
-> >
-> > On Wed, Jan 11, 2023 at 2:37 PM Jeff Moyer <jmoyer@redhat.com> wrote:
-> >>
-> >> Hi, Seth,
-> >>
-> >> Seth Jenkins <sethjenkins@google.com> writes:
-> >>
-> >> > Commit e4a0d3e720e7 ("aio: Make it possible to remap aio ring") introduced
-> >> > a null-deref if mremap is called on an old aio mapping after fork as
-> >> > mm->ioctx_table will be set to NULL.
-> >> >
-> >> > Fixes: e4a0d3e720e7 ("aio: Make it possible to remap aio ring")
-> >> > Cc: stable@vger.kernel.org
-> >> > Signed-off-by: Seth Jenkins <sethjenkins@google.com>
-> >> > ---
-> >> >  fs/aio.c | 20 +++++++++++---------
-> >> >  1 file changed, 11 insertions(+), 9 deletions(-)
-> >> >
-> >> > diff --git a/fs/aio.c b/fs/aio.c
-> >> > index 5b2ff20ad322..74eae7de7323 100644
-> >> > --- a/fs/aio.c
-> >> > +++ b/fs/aio.c
-> >> > @@ -361,16 +361,18 @@ static int aio_ring_mremap(struct vm_area_struct *vma)
-> >> >       spin_lock(&mm->ioctx_lock);
-> >> >       rcu_read_lock();
-> >> >       table = rcu_dereference(mm->ioctx_table);
-> >> > -     for (i = 0; i < table->nr; i++) {
-> >> > -             struct kioctx *ctx;
-> >> > -
-> >> > -             ctx = rcu_dereference(table->table[i]);
-> >> > -             if (ctx && ctx->aio_ring_file == file) {
-> >> > -                     if (!atomic_read(&ctx->dead)) {
-> >> > -                             ctx->user_id = ctx->mmap_base = vma->vm_start;
-> >> > -                             res = 0;
-> >> > +     if (table) {
-> >> > +             for (i = 0; i < table->nr; i++) {
-> >> > +                     struct kioctx *ctx;
-> >> > +
-> >> > +                     ctx = rcu_dereference(table->table[i]);
-> >> > +                     if (ctx && ctx->aio_ring_file == file) {
-> >> > +                             if (!atomic_read(&ctx->dead)) {
-> >> > +                                     ctx->user_id = ctx->mmap_base = vma->vm_start;
-> >> > +                                     res = 0;
-> >> > +                             }
-> >> > +                             break;
-> >> >                       }
-> >> > -                     break;
-> >> >               }
-> >> >       }
-> >>
-> >> I wonder if it would be better to not copy the ring mapping on fork.
-> >> Something like the below?  I think that would be more in line with
-> >> expectations (the ring isn't available in the child process).
-> >>
-> >> -Jeff
-> >>
-> >> diff --git a/fs/aio.c b/fs/aio.c
-> >> index 562916d85cba..dbf3b0749cb4 100644
-> >> --- a/fs/aio.c
-> >> +++ b/fs/aio.c
-> >> @@ -390,7 +390,7 @@ static const struct vm_operations_struct aio_ring_vm_ops = {
-> >>
-> >>  static int aio_ring_mmap(struct file *file, struct vm_area_struct *vma)
-> >>  {
-> >> -       vma->vm_flags |= VM_DONTEXPAND;
-> >> +       vma->vm_flags |= VM_DONTEXPAND|VM_DONTCOPY;
-> >>         vma->vm_ops = &aio_ring_vm_ops;
-> >>         return 0;
-> >>  }
-> >>
+> Thanks,
 > 
-> 
-
--- 
-"Thought is the essence of where you are now."
+> > 
+> > > 
+> > > Thanks,
+> > > 
+> > > > 
+> > > > Cc: stable@vger.kernel.org
+> > > > Signed-off-by: Randall Huang <huangrandall@google.com>
+> > > > Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> > > > ---
+> > > > 
+> > > >    Change log from v1:
+> > > >     - fix a bug
+> > > > 
+> > > >    fs/f2fs/inode.c | 2 +-
+> > > >    1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+> > > > index ff6cf66ed46b..2ed7a621fdf1 100644
+> > > > --- a/fs/f2fs/inode.c
+> > > > +++ b/fs/f2fs/inode.c
+> > > > @@ -719,7 +719,7 @@ void f2fs_update_inode_page(struct inode *inode)
+> > > >    	if (IS_ERR(node_page)) {
+> > > >    		int err = PTR_ERR(node_page);
+> > > > -		if (err == -ENOMEM) {
+> > > > +		if (err == -ENOMEM || (err == -EIO && !f2fs_cp_error(sbi))) {
+> > > >    			cond_resched();
+> > > >    			goto retry;
+> > > >    		} else if (err != -ENOENT) {
