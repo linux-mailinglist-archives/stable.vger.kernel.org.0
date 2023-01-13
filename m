@@ -2,129 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FA07668877
-	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 01:33:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73E306688BC
+	for <lists+stable@lfdr.de>; Fri, 13 Jan 2023 01:54:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232925AbjAMAdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 Jan 2023 19:33:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41442 "EHLO
+        id S238170AbjAMAyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 Jan 2023 19:54:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232730AbjAMAdj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 19:33:39 -0500
-Received: from mg.richtek.com (mg.richtek.com [220.130.44.152])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A31E061448;
-        Thu, 12 Jan 2023 16:33:32 -0800 (PST)
-X-MailGates: (flag:4,DYNAMIC,BADHELO,RELAY,NOHOST:PASS)(compute_score:DE
-        LIVER,40,3)
-Received: from 192.168.10.46
-        by mg.richtek.com with MailGates ESMTP Server V5.0(16491:0:AUTH_RELAY)
-        (envelope-from <cy_huang@richtek.com>); Fri, 13 Jan 2023 08:33:08 +0800 (CST)
-Received: from ex4.rt.l (192.168.10.47) by ex3.rt.l (192.168.10.46) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.20; Fri, 13 Jan
- 2023 08:33:08 +0800
-Received: from linuxcarl2.richtek.com (192.168.10.154) by ex4.rt.l
- (192.168.10.45) with Microsoft SMTP Server id 15.2.1118.20 via Frontend
- Transport; Fri, 13 Jan 2023 08:33:08 +0800
-Date:   Fri, 13 Jan 2023 08:33:07 +0800
-From:   ChiYuan Huang <cy_huang@richtek.com>
-To:     <linux@roeck-us.net>, <heikki.krogerus@linux.intel.com>,
-        <matthias.bgg@gmail.com>
-CC:     <gregkh@linuxfoundation.org>, <gene_chen@richtek.com>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH RESEND v2] usb: typec: tcpm: Fix altmode re-registration
- causes sysfs create fail
-Message-ID: <20230113003307.GA4232@linuxcarl2.richtek.com>
-References: <1673248790-15794-1-git-send-email-cy_huang@richtek.com>
+        with ESMTP id S232890AbjAMAyJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 Jan 2023 19:54:09 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2049E11C32
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 16:54:09 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id 17so21948477pll.0
+        for <stable@vger.kernel.org>; Thu, 12 Jan 2023 16:54:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xsayLyP7nh0k2HOHnHJ4pw0bqMbBUybwNSC5DyRKIC8=;
+        b=bMip9NCrJH3DnbTyVthFl9yIiF3j/16C2WV0j690Wq/w/Ow5h3S79FZMagva/XpF7e
+         tXprTN8l54WBgwPZqJBu+hiHHC+UWMy0S1sDG/zAi1P0y/InvPPN7uWHrPBB4hYIiGUO
+         0K5gjGa5AztHL5McB0FbEiUggdnsWQcrr3g/I=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xsayLyP7nh0k2HOHnHJ4pw0bqMbBUybwNSC5DyRKIC8=;
+        b=V/f6yyFE1r0IFu70B6VZaicLOwFw5dk6DYStf8gRhfh4Obzr+BNfzt7xn34ehOe4kg
+         VzsZQp4dwhWC/lwS71RKFrkJm4xK6hasfkiGhBG1Ge5MoWOkxxMJl1kdJiJHngO+OUzk
+         vAdyc6Nle6ZytSL+7a0amwlez+1OJDz9rIO3MQnyH0a3clBEuEP1i4X8uswKqPuzwTJK
+         IIIKWUNI9OkkPTdzMof6a1eLDAbw6Js4INwLB1GJCRgAIlMkYxYieQqRd2u4d/KLD/jB
+         UPs9tgWpKSEqX5bb9uRJasIsfDlC2MjS1780zocpeZTlr/SNEyR+JkOAaOICWVUSa5K1
+         D8vQ==
+X-Gm-Message-State: AFqh2kpyctfw2E4lMKEY1Qr5qC1fwam4klI+/xXTYaq7VwVOkTnKiZad
+        b4mJ3wAsd+aaaPXK09Z/1p2oRkTvxynrQQvD
+X-Google-Smtp-Source: AMrXdXsLH6UhWCasDyJvsSNInG39OEZLlwb5rDlmlSiORB314t+bQ4mWVdUfo0L9yrPzsFD0DI9lCw==
+X-Received: by 2002:a05:6a20:9591:b0:ad:7428:d326 with SMTP id iu17-20020a056a20959100b000ad7428d326mr100677310pzb.30.1673571248151;
+        Thu, 12 Jan 2023 16:54:08 -0800 (PST)
+Received: from smtp.gmail.com ([2620:15c:11a:201:4652:3752:b9b7:29f9])
+        by smtp.gmail.com with ESMTPSA id u11-20020a6540cb000000b0046ff3634a78sm10676614pgp.71.2023.01.12.16.54.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Jan 2023 16:54:07 -0800 (PST)
+From:   Stephen Boyd <swboyd@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, patches@lists.linux.dev,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15.y 0/4] phy: qcom-qmp-combo: Backport some stable fixes
+Date:   Thu, 12 Jan 2023 16:54:01 -0800
+Message-Id: <20230113005405.3992011-1-swboyd@chromium.org>
+X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <1673248790-15794-1-git-send-email-cy_huang@richtek.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 09, 2023 at 03:19:50PM +0800, cy_huang@richtek.com wrote:
-> From: ChiYuan Huang <cy_huang@richtek.com>
-> 
-> There's the altmode re-registeration issue after data role
-> swap (DR_SWAP).
-> 
-> Comparing to USBPD 2.0, in USBPD 3.0, it loose the limit that only DFP
-> can initiate the VDM command to get partner identity information.
-> 
-> For a USBPD 3.0 UFP device, it may already get the identity information
-> from its port partner before DR_SWAP. If DR_SWAP send or receive at the
-> mean time, 'send_discover' flag will be raised again. It causes discover
-> identify action restart while entering ready state. And after all
-> discover actions are done, the 'tcpm_register_altmodes' will be called.
-> If old altmode is not unregistered, this sysfs create fail can be found.
-> 
-> In 'DR_SWAP_CHANGE_DR' state case, only DFP will unregister altmodes.
-> For UFP, the original altmodes keep registered.
-> 
-> This patch fix the logic that after DR_SWAP, 'tcpm_unregister_altmodes'
-> must be called whatever the current data role is.
-> 
-> Reviewed-by: Macpaul Lin <macpaul.lin@mediatek.com>
-> Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together)
-> Reported-by: TommyYl Chen <tommyyl.chen@mediatek.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-> ---
-> Since v2:
-> - Correct the mail sent from Richtek.
-> - Add 'Reviewed-by' tag.
->
+After the qmp phy driver was split it looks like 5.15.y stable kernels
+aren't getting fixes like commit 7a7d86d14d07 ("phy: qcom-qmp-combo: fix
+broken power on") which is tagged for stable 5.10. Trogdor boards use
+the qmp phy on 5.15.y kernels, so I backported the fixes I could find
+that looked like we may possibly trip over at some point.
 
-Sorry, it seems I focus on the email testing and forget to attach the issue
-log in the v2 patch appendix.
+USB and DP work on my Trogdor.Lazor board with this set.
 
-If anyone check this issue. Please refer to the v1 patch link.
-https://lore.kernel.org/lkml/1671096096-20307-1-git-send-email-u0084500@gmail.com/
-Inside this, the issue log show how it happened.
+Johan Hovold (4):
+  phy: qcom-qmp-combo: disable runtime PM on unbind
+  phy: qcom-qmp-combo: fix memleak on probe deferral
+  phy: qcom-qmp-combo: fix broken power on
+  phy: qcom-qmp-combo: fix runtime suspend
 
-This can help better analyze this issue. 
+ drivers/phy/qualcomm/phy-qcom-qmp.c | 72 ++++++++++++++---------------
+ 1 file changed, 36 insertions(+), 36 deletions(-)
 
-ChiYuan Huang.
-> Hi, Greg:
-> 
->   Please check this one. I have strongly requested our MIS to remove the confidential string.
-> 
-> ChiYuan Huang.
-> ---
->  drivers/usb/typec/tcpm/tcpm.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-> index 904c7b4..59b366b 100644
-> --- a/drivers/usb/typec/tcpm/tcpm.c
-> +++ b/drivers/usb/typec/tcpm/tcpm.c
-> @@ -4594,14 +4594,13 @@ static void run_state_machine(struct tcpm_port *port)
->  		tcpm_set_state(port, ready_state(port), 0);
->  		break;
->  	case DR_SWAP_CHANGE_DR:
-> -		if (port->data_role == TYPEC_HOST) {
-> -			tcpm_unregister_altmodes(port);
-> +		tcpm_unregister_altmodes(port);
-> +		if (port->data_role == TYPEC_HOST)
->  			tcpm_set_roles(port, true, port->pwr_role,
->  				       TYPEC_DEVICE);
-> -		} else {
-> +		else
->  			tcpm_set_roles(port, true, port->pwr_role,
->  				       TYPEC_HOST);
-> -		}
->  		tcpm_ams_finish(port);
->  		tcpm_set_state(port, ready_state(port), 0);
->  		break;
-> -- 
-> 2.7.4
-> 
+Cc: Johan Hovold <johan+linaro@kernel.org>
+Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: Vinod Koul <vkoul@kernel.org>
+
+base-commit: d57287729e229188e7d07ef0117fe927664e08cb
+-- 
+https://chromeos.dev
+
