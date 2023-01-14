@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F37C166AAC0
-	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7500366AAC1
+	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:52:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230128AbjANJwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Jan 2023 04:52:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40456 "EHLO
+        id S230157AbjANJwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Jan 2023 04:52:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229950AbjANJwT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:52:19 -0500
+        with ESMTP id S230149AbjANJwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:52:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F39A2
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:52:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 196BC195
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:52:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8070F60A16
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:52:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F6D6C433EF;
-        Sat, 14 Jan 2023 09:52:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A82360A16
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FB3C433D2;
+        Sat, 14 Jan 2023 09:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673689936;
-        bh=cnouDGYVHZpjjqNPx4j4+oPi8fFYDyM97+qOM+Kt7xo=;
+        s=korg; t=1673689972;
+        bh=XaEu38HptOCD1d85OuHgUpC38b9bZpxXjEXsS4Tvapo=;
         h=Subject:To:Cc:From:Date:From;
-        b=BTxlt7JuJLa1KBFAGcS8CqOoR8lX65d1j6r/WzQZWddUthHDXWfJlgafGoGEvAjKp
-         k6Jb78P60wU0CzfmvdmD+yYkqRYUStWSaBtHhKCPYBt+Aj1HR3JHzPZUQNAsHewCvG
-         baAo9LOgB5K0zY8AKEFxyhXqGIZ58hrKDFZGua+I=
-Subject: FAILED: patch "[PATCH] io_uring: lock overflowing for IOPOLL" failed to apply to 5.10-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk
+        b=ogtDYSn4oCsfu01UPhRs4FbHk2iJEd1oxCFMCF+MTwPNZQFh//fc2Y+G19n7FR5o9
+         9n7RwsyUdRg5K9dl4j9pcpSEz3wY7PsZn6d46uJMtTSk9ZDtpPanp2pr3KepSq8+MG
+         4Bxv4CW2Gmw+Vnt8svSBQM5u5WCjNZRxpZ3CH1xI=
+Subject: FAILED: patch "[PATCH] arm64: cmpxchg_double*: hazard against entire exchange" failed to apply to 5.15-stable tree
+To:     mark.rutland@arm.com, arnd@arndb.de, boqun.feng@gmail.com,
+        catalin.marinas@arm.com, peterz@infradead.org,
+        steve.capper@arm.com, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 14 Jan 2023 10:51:58 +0100
-Message-ID: <167368991824090@kroah.com>
+Date:   Sat, 14 Jan 2023 10:52:48 +0100
+Message-ID: <167368996865243@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -47,33 +49,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-544d163d659d ("io_uring: lock overflowing for IOPOLL")
-a8cf95f93610 ("io_uring: fix overflow handling regression")
-fa18fa2272c7 ("io_uring: inline __io_req_complete_put()")
-f9d567c75ec2 ("io_uring: inline __io_req_complete_post()")
-52120f0fadcb ("io_uring: add allow_overflow to io_post_aux_cqe")
-e6130eba8a84 ("io_uring: add support for passing fixed file descriptors")
-253993210bd8 ("io_uring: introduce locking helpers for CQE posting")
-305bef988708 ("io_uring: hide eventfd assumptions in eventfd paths")
-d9dee4302a7c ("io_uring: remove ->flush_cqes optimisation")
-a830ffd28780 ("io_uring: move io_eventfd_signal()")
-9046c6415be6 ("io_uring: reshuffle io_uring/io_uring.h")
-d142c3ec8d16 ("io_uring: remove extra io_commit_cqring()")
-68494a65d0e2 ("io_uring: introduce io_req_cqe_overflow()")
-faf88dde060f ("io_uring: don't inline __io_get_cqe()")
-d245bca6375b ("io_uring: don't expose io_fill_cqe_aux()")
-aa1e90f64ee5 ("io_uring: move small helpers to headers")
-aa1e90f64ee5 ("io_uring: move small helpers to headers")
-aa1e90f64ee5 ("io_uring: move small helpers to headers")
-aa1e90f64ee5 ("io_uring: move small helpers to headers")
-aa1e90f64ee5 ("io_uring: move small helpers to headers")
+031af50045ea ("arm64: cmpxchg_double*: hazard against entire exchange variable")
+b2c3ccbd0011 ("arm64: atomics: remove LL/SC trampolines")
+8e6082e94aac ("arm64: atomics: format whitespace consistently")
 
 thanks,
 
@@ -81,56 +66,178 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 544d163d659d45a206d8929370d5a2984e546cb7 Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Thu, 12 Jan 2023 13:08:56 +0000
-Subject: [PATCH] io_uring: lock overflowing for IOPOLL
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 031af50045ea97ed4386eb3751ca2c134d0fc911 Mon Sep 17 00:00:00 2001
+From: Mark Rutland <mark.rutland@arm.com>
+Date: Wed, 4 Jan 2023 15:16:26 +0000
+Subject: [PATCH] arm64: cmpxchg_double*: hazard against entire exchange
+ variable
 
-syzbot reports an issue with overflow filling for IOPOLL:
+The inline assembly for arm64's cmpxchg_double*() implementations use a
++Q constraint to hazard against other accesses to the memory location
+being exchanged. However, the pointer passed to the constraint is a
+pointer to unsigned long, and thus the hazard only applies to the first
+8 bytes of the location.
 
-WARNING: CPU: 0 PID: 28 at io_uring/io_uring.c:734 io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
-CPU: 0 PID: 28 Comm: kworker/u4:1 Not tainted 6.2.0-rc3-syzkaller-16369-g358a161a6a9e #0
-Workqueue: events_unbound io_ring_exit_work
-Call trace:
- io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
- io_req_cqe_overflow+0x5c/0x70 io_uring/io_uring.c:773
- io_fill_cqe_req io_uring/io_uring.h:168 [inline]
- io_do_iopoll+0x474/0x62c io_uring/rw.c:1065
- io_iopoll_try_reap_events+0x6c/0x108 io_uring/io_uring.c:1513
- io_uring_try_cancel_requests+0x13c/0x258 io_uring/io_uring.c:3056
- io_ring_exit_work+0xec/0x390 io_uring/io_uring.c:2869
- process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
- worker_thread+0x340/0x610 kernel/workqueue.c:2436
- kthread+0x12c/0x158 kernel/kthread.c:376
- ret_from_fork+0x10/0x20 arch/arm64/kernel/entry.S:863
+GCC can take advantage of this, assuming that other portions of the
+location are unchanged, leading to a number of potential problems.
 
-There is no real problem for normal IOPOLL as flush is also called with
-uring_lock taken, but it's getting more complicated for IOPOLL|SQPOLL,
-for which __io_cqring_overflow_flush() happens from the CQ waiting path.
+This is similar to what we fixed back in commit:
 
-Reported-and-tested-by: syzbot+6805087452d72929404e@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  fee960bed5e857eb ("arm64: xchg: hazard against entire exchange variable")
 
-diff --git a/io_uring/rw.c b/io_uring/rw.c
-index 8227af2e1c0f..9c3ddd46a1ad 100644
---- a/io_uring/rw.c
-+++ b/io_uring/rw.c
-@@ -1062,7 +1062,11 @@ int io_do_iopoll(struct io_ring_ctx *ctx, bool force_nonspin)
- 			continue;
- 
- 		req->cqe.flags = io_put_kbuf(req, 0);
--		io_fill_cqe_req(req->ctx, req);
-+		if (unlikely(!__io_fill_cqe_req(ctx, req))) {
-+			spin_lock(&ctx->completion_lock);
-+			io_req_cqe_overflow(req);
-+			spin_unlock(&ctx->completion_lock);
-+		}
- 	}
- 
- 	if (unlikely(!nr_events))
+... but we forgot to adjust cmpxchg_double*() similarly at the same
+time.
+
+The same problem applies, as demonstrated with the following test:
+
+| struct big {
+|         u64 lo, hi;
+| } __aligned(128);
+|
+| unsigned long foo(struct big *b)
+| {
+|         u64 hi_old, hi_new;
+|
+|         hi_old = b->hi;
+|         cmpxchg_double_local(&b->lo, &b->hi, 0x12, 0x34, 0x56, 0x78);
+|         hi_new = b->hi;
+|
+|         return hi_old ^ hi_new;
+| }
+
+... which GCC 12.1.0 compiles as:
+
+| 0000000000000000 <foo>:
+|    0:   d503233f        paciasp
+|    4:   aa0003e4        mov     x4, x0
+|    8:   1400000e        b       40 <foo+0x40>
+|    c:   d2800240        mov     x0, #0x12                       // #18
+|   10:   d2800681        mov     x1, #0x34                       // #52
+|   14:   aa0003e5        mov     x5, x0
+|   18:   aa0103e6        mov     x6, x1
+|   1c:   d2800ac2        mov     x2, #0x56                       // #86
+|   20:   d2800f03        mov     x3, #0x78                       // #120
+|   24:   48207c82        casp    x0, x1, x2, x3, [x4]
+|   28:   ca050000        eor     x0, x0, x5
+|   2c:   ca060021        eor     x1, x1, x6
+|   30:   aa010000        orr     x0, x0, x1
+|   34:   d2800000        mov     x0, #0x0                        // #0    <--- BANG
+|   38:   d50323bf        autiasp
+|   3c:   d65f03c0        ret
+|   40:   d2800240        mov     x0, #0x12                       // #18
+|   44:   d2800681        mov     x1, #0x34                       // #52
+|   48:   d2800ac2        mov     x2, #0x56                       // #86
+|   4c:   d2800f03        mov     x3, #0x78                       // #120
+|   50:   f9800091        prfm    pstl1strm, [x4]
+|   54:   c87f1885        ldxp    x5, x6, [x4]
+|   58:   ca0000a5        eor     x5, x5, x0
+|   5c:   ca0100c6        eor     x6, x6, x1
+|   60:   aa0600a6        orr     x6, x5, x6
+|   64:   b5000066        cbnz    x6, 70 <foo+0x70>
+|   68:   c8250c82        stxp    w5, x2, x3, [x4]
+|   6c:   35ffff45        cbnz    w5, 54 <foo+0x54>
+|   70:   d2800000        mov     x0, #0x0                        // #0     <--- BANG
+|   74:   d50323bf        autiasp
+|   78:   d65f03c0        ret
+
+Notice that at the lines with "BANG" comments, GCC has assumed that the
+higher 8 bytes are unchanged by the cmpxchg_double() call, and that
+`hi_old ^ hi_new` can be reduced to a constant zero, for both LSE and
+LL/SC versions of cmpxchg_double().
+
+This patch fixes the issue by passing a pointer to __uint128_t into the
++Q constraint, ensuring that the compiler hazards against the entire 16
+bytes being modified.
+
+With this change, GCC 12.1.0 compiles the above test as:
+
+| 0000000000000000 <foo>:
+|    0:   f9400407        ldr     x7, [x0, #8]
+|    4:   d503233f        paciasp
+|    8:   aa0003e4        mov     x4, x0
+|    c:   1400000f        b       48 <foo+0x48>
+|   10:   d2800240        mov     x0, #0x12                       // #18
+|   14:   d2800681        mov     x1, #0x34                       // #52
+|   18:   aa0003e5        mov     x5, x0
+|   1c:   aa0103e6        mov     x6, x1
+|   20:   d2800ac2        mov     x2, #0x56                       // #86
+|   24:   d2800f03        mov     x3, #0x78                       // #120
+|   28:   48207c82        casp    x0, x1, x2, x3, [x4]
+|   2c:   ca050000        eor     x0, x0, x5
+|   30:   ca060021        eor     x1, x1, x6
+|   34:   aa010000        orr     x0, x0, x1
+|   38:   f9400480        ldr     x0, [x4, #8]
+|   3c:   d50323bf        autiasp
+|   40:   ca0000e0        eor     x0, x7, x0
+|   44:   d65f03c0        ret
+|   48:   d2800240        mov     x0, #0x12                       // #18
+|   4c:   d2800681        mov     x1, #0x34                       // #52
+|   50:   d2800ac2        mov     x2, #0x56                       // #86
+|   54:   d2800f03        mov     x3, #0x78                       // #120
+|   58:   f9800091        prfm    pstl1strm, [x4]
+|   5c:   c87f1885        ldxp    x5, x6, [x4]
+|   60:   ca0000a5        eor     x5, x5, x0
+|   64:   ca0100c6        eor     x6, x6, x1
+|   68:   aa0600a6        orr     x6, x5, x6
+|   6c:   b5000066        cbnz    x6, 78 <foo+0x78>
+|   70:   c8250c82        stxp    w5, x2, x3, [x4]
+|   74:   35ffff45        cbnz    w5, 5c <foo+0x5c>
+|   78:   f9400480        ldr     x0, [x4, #8]
+|   7c:   d50323bf        autiasp
+|   80:   ca0000e0        eor     x0, x7, x0
+|   84:   d65f03c0        ret
+
+... sampling the high 8 bytes before and after the cmpxchg, and
+performing an EOR, as we'd expect.
+
+For backporting, I've tested this atop linux-4.9.y with GCC 5.5.0. Note
+that linux-4.9.y is oldest currently supported stable release, and
+mandates GCC 5.1+. Unfortunately I couldn't get a GCC 5.1 binary to run
+on my machines due to library incompatibilities.
+
+I've also used a standalone test to check that we can use a __uint128_t
+pointer in a +Q constraint at least as far back as GCC 4.8.5 and LLVM
+3.9.1.
+
+Fixes: 5284e1b4bc8a ("arm64: xchg: Implement cmpxchg_double")
+Fixes: e9a4b795652f ("arm64: cmpxchg_dbl: patch in lse instructions when supported by the CPU")
+Reported-by: Boqun Feng <boqun.feng@gmail.com>
+Link: https://lore.kernel.org/lkml/Y6DEfQXymYVgL3oJ@boqun-archlinux/
+Reported-by: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/lkml/Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net/
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: stable@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20230104151626.3262137-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+
+diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
+index 0890e4f568fb..cbb3d961123b 100644
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -315,7 +315,7 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
+ 	"	cbnz	%w0, 1b\n"					\
+ 	"	" #mb "\n"						\
+ 	"2:"								\
+-	: "=&r" (tmp), "=&r" (ret), "+Q" (*(unsigned long *)ptr)	\
++	: "=&r" (tmp), "=&r" (ret), "+Q" (*(__uint128_t *)ptr)		\
+ 	: "r" (old1), "r" (old2), "r" (new1), "r" (new2)		\
+ 	: cl);								\
+ 									\
+diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
+index 52075e93de6c..a94d6dacc029 100644
+--- a/arch/arm64/include/asm/atomic_lse.h
++++ b/arch/arm64/include/asm/atomic_lse.h
+@@ -311,7 +311,7 @@ __lse__cmpxchg_double##name(unsigned long old1,				\
+ 	"	eor	%[old2], %[old2], %[oldval2]\n"			\
+ 	"	orr	%[old1], %[old1], %[old2]"			\
+ 	: [old1] "+&r" (x0), [old2] "+&r" (x1),				\
+-	  [v] "+Q" (*(unsigned long *)ptr)				\
++	  [v] "+Q" (*(__uint128_t *)ptr)				\
+ 	: [new1] "r" (x2), [new2] "r" (x3), [ptr] "r" (x4),		\
+ 	  [oldval1] "r" (oldval1), [oldval2] "r" (oldval2)		\
+ 	: cl);								\
 
