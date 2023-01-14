@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6D266AABE
-	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:52:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D3D866AABF
+	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbjANJwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Jan 2023 04:52:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40380 "EHLO
+        id S230163AbjANJwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Jan 2023 04:52:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230149AbjANJwD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:52:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CC66A2
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:52:02 -0800 (PST)
+        with ESMTP id S230140AbjANJwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:52:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65BE7195
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:52:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10A31B808C5
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:52:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24519C433D2;
-        Sat, 14 Jan 2023 09:51:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D905B80765
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:52:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 469E2C433EF;
+        Sat, 14 Jan 2023 09:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673689919;
-        bh=dgSY/ukZIPG3UynjeogY56fnlOwycgeb44ImjWPARwg=;
+        s=korg; t=1673689933;
+        bh=Xl+DEw8e4SnOB0rW5XYdqFUPaa5NUDlscAxnNTPrgvA=;
         h=Subject:To:Cc:From:Date:From;
-        b=HlWB9PJBbBthiST1OGkHAUFLCQ7pH7O63RlgkXCkznhy419vL68sKUwYOHQzc0x3Z
-         OfeLE8Wf1fenUBMg/9oZLry+4vVPT4i8GwPLT85ItxJxwnb05vxqPu5FZm5dOh1uiJ
-         pbZzstV/Y2hHhut8hl0OhGCzPKQJoKzcTFGLLjEc=
-Subject: FAILED: patch "[PATCH] io_uring: lock overflowing for IOPOLL" failed to apply to 6.1-stable tree
+        b=1zT87UP/PivKtGn6lAlVT4oCsEnqIL+Wj+raDBgyiRtL+1cHobS9uPzibEQJxQgMx
+         iu2O2tIlhzTvVX1qJ6ECH/lkjHfYM01+Z2i6rHL/8Ut/VtQ4Y1lItqaHo/5DUb92GT
+         McxKuCAUFWp6SkMurBhWrtQAFsEYvWvVkgeTjyJs=
+Subject: FAILED: patch "[PATCH] io_uring: lock overflowing for IOPOLL" failed to apply to 5.15-stable tree
 To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 14 Jan 2023 10:51:51 +0100
-Message-ID: <1673689911293@kroah.com>
+Date:   Sat, 14 Jan 2023 10:51:57 +0100
+Message-ID: <1673689917176116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,22 @@ Possible dependencies:
 a8cf95f93610 ("io_uring: fix overflow handling regression")
 fa18fa2272c7 ("io_uring: inline __io_req_complete_put()")
 f9d567c75ec2 ("io_uring: inline __io_req_complete_post()")
+52120f0fadcb ("io_uring: add allow_overflow to io_post_aux_cqe")
+e6130eba8a84 ("io_uring: add support for passing fixed file descriptors")
+253993210bd8 ("io_uring: introduce locking helpers for CQE posting")
+305bef988708 ("io_uring: hide eventfd assumptions in eventfd paths")
+d9dee4302a7c ("io_uring: remove ->flush_cqes optimisation")
+a830ffd28780 ("io_uring: move io_eventfd_signal()")
+9046c6415be6 ("io_uring: reshuffle io_uring/io_uring.h")
+d142c3ec8d16 ("io_uring: remove extra io_commit_cqring()")
+68494a65d0e2 ("io_uring: introduce io_req_cqe_overflow()")
+faf88dde060f ("io_uring: don't inline __io_get_cqe()")
+d245bca6375b ("io_uring: don't expose io_fill_cqe_aux()")
+aa1e90f64ee5 ("io_uring: move small helpers to headers")
+aa1e90f64ee5 ("io_uring: move small helpers to headers")
+aa1e90f64ee5 ("io_uring: move small helpers to headers")
+aa1e90f64ee5 ("io_uring: move small helpers to headers")
+aa1e90f64ee5 ("io_uring: move small helpers to headers")
 
 thanks,
 
