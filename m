@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1105B66AAB9
-	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:51:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E43F66AABA
+	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:51:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230107AbjANJvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Jan 2023 04:51:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39968 "EHLO
+        id S230150AbjANJvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Jan 2023 04:51:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230029AbjANJvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:51:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C553A2
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:51:05 -0800 (PST)
+        with ESMTP id S230149AbjANJvK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:51:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319D6A2
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:51:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B003560A1E
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:51:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD9ABC433D2;
-        Sat, 14 Jan 2023 09:51:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC61AB80765
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:51:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE8AC433EF;
+        Sat, 14 Jan 2023 09:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673689864;
-        bh=rM0AT/ex97h9L7IOXBZyq/1OS9UHEUB1CWwN0FsF5HA=;
+        s=korg; t=1673689867;
+        bh=m2y8UanX6a1EMQOf9hTpBBKC4MHJixrEAuhDOJPt8Dw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Gjs/FX/gGAWRC4hE4VBkXB2AZY1QkPYwAS07c4bB6ldg5G3KlwYrc+qUJ/5/y7Jak
-         882r27FqKrOXstTcrp8BfzNSBhGJbAeZMs/yG8e/v2jq81t2dGUy2FCv2qVHlJicpa
-         8Xx6k/IHi6k9vTDUvn783uUU0b63gPh3Iqo3yzlc=
-Subject: FAILED: patch "[PATCH] efi: fix NULL-deref in init error path" failed to apply to 5.15-stable tree
+        b=WOropF5N+tsQPS7XUqCrLZ6CZdGGHGqGajacT7nfMwLQSIjlHiqi1pvaOWs8M1u6/
+         tNiUluhH4ijgSD+eegigWtUQxaud0Oxv95sfvoWJJCj9BIQvAFQe3JiffkV9jiTHpP
+         zZPXfr0x5RMuO7oTAbxMXiSXceRgMvhmTJf9HgTo=
+Subject: FAILED: patch "[PATCH] efi: fix NULL-deref in init error path" failed to apply to 5.4-stable tree
 To:     johan+linaro@kernel.org, ardb@kernel.org, liheng40@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 14 Jan 2023 10:50:45 +0100
-Message-ID: <16736898454148@kroah.com>
+Date:   Sat, 14 Jan 2023 10:50:46 +0100
+Message-ID: <16736898461573@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,10 @@ Possible dependencies:
 1fff234de2b6 ("efi: x86: Move EFI runtime map sysfs code to arch/x86")
 8dfac4d8ad27 ("efi: runtime-maps: Clarify purpose and enable by default for kexec")
 4059ba656ce5 ("efi: memmap: Move EFI fake memmap support into x86 arch tree")
+d391c5827107 ("drivers/firmware: move x86 Generic System Framebuffers support")
+25519d683442 ("ima: generalize x86/EFI arch glue for other EFI architectures")
+88e9a5b7965c ("efi/fake_mem: arrange for a resource entry per efi_fake_mem instance")
+4d0a4388ccdd ("Merge branch 'efi/urgent' into efi/core, to pick up fixes")
 
 thanks,
 
