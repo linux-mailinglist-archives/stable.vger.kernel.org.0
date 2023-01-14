@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CE9F66AAAC
-	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:47:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08AEE66AAAD
+	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:48:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229894AbjANJrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Jan 2023 04:47:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38052 "EHLO
+        id S229884AbjANJsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Jan 2023 04:48:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229733AbjANJrk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:47:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE81A172F
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:47:39 -0800 (PST)
+        with ESMTP id S229574AbjANJsU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:48:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D59EF172F
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:48:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B18260018
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:47:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B896C433D2;
-        Sat, 14 Jan 2023 09:47:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4D552CE0949
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:48:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21EEFC433EF;
+        Sat, 14 Jan 2023 09:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673689659;
-        bh=9qZQfbwp813NC6QZFBGFdru4HxtIfDuGC/Rr687KmeE=;
+        s=korg; t=1673689696;
+        bh=/nfElhVSyWVOOrrsKqe6lmfPUGWY6kn1I9CJreL7Aak=;
         h=Subject:To:Cc:From:Date:From;
-        b=S3akpsHAbTFbd8zaU7FNta+nvghkXiLSOm/yvri2GLQtHG7ue76W1Zne5ostZCp2q
-         fTJxZgcaHnDT+jHWC7pDwBbWdOi0sfO9OP9R3aTO3LRPGg+qlcH+t5pB+80ozyZzHW
-         ag6MPZbL9XiMM8iK5QUisHlyG4sZOtgZrFxT37+4=
-Subject: FAILED: patch "[PATCH] KVM: x86: Do not return host topology information from" failed to apply to 4.14-stable tree
-To:     pbonzini@redhat.com
+        b=sYMlr5rNiXm/BY6j7cKNxo4GOVgIEGwG3BGNyMZWevCnU5U8j9UahSlZ841FF1S36
+         EW8Nz3neZBoIOWnDFGLaD/JzfKLZv7Dz109PGTZn+vHzROl4jylPeqs2kOHORrSl1u
+         J7X2Mfb0XN9iRn4Yu5OxeNYfdVw8ZX+RJSd81qXQ=
+Subject: FAILED: patch "[PATCH] KVM: arm64: Fix S1PTW handling on RO memslots" failed to apply to 4.19-stable tree
+To:     maz@kernel.org, ardb@kernel.org, oliver.upton@linux.dev
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 14 Jan 2023 10:47:26 +0100
-Message-ID: <167368964670252@kroah.com>
+Date:   Sat, 14 Jan 2023 10:48:13 +0100
+Message-ID: <16736896939065@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,17 +47,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-45e966fcca03 ("KVM: x86: Do not return host topology information from KVM_GET_SUPPORTED_CPUID")
-cde363ab7ca7 ("Documentation: KVM: add API issues section")
-ba7bb663f554 ("KVM: x86: Provide per VM capability for disabling PMU virtualization")
-4dfc4ec2b7f5 ("Merge branch 'kvm-ppc-cap-210' into kvm-next-5.18")
+406504c7b040 ("KVM: arm64: Fix S1PTW handling on RO memslots")
+c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
+16314874b12b ("Merge branch 'kvm-arm64/misc-5.9' into kvmarm-master/next")
 
 thanks,
 
@@ -65,115 +64,79 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 45e966fcca03ecdcccac7cb236e16eea38cc18af Mon Sep 17 00:00:00 2001
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Sat, 22 Oct 2022 04:17:53 -0400
-Subject: [PATCH] KVM: x86: Do not return host topology information from
- KVM_GET_SUPPORTED_CPUID
+From 406504c7b0405d74d74c15a667cd4c4620c3e7a9 Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Tue, 20 Dec 2022 14:03:52 +0000
+Subject: [PATCH] KVM: arm64: Fix S1PTW handling on RO memslots
 
-Passing the host topology to the guest is almost certainly wrong
-and will confuse the scheduler.  In addition, several fields of
-these CPUID leaves vary on each processor; it is simply impossible to
-return the right values from KVM_GET_SUPPORTED_CPUID in such a way that
-they can be passed to KVM_SET_CPUID2.
+A recent development on the EFI front has resulted in guests having
+their page tables baked in the firmware binary, and mapped into the
+IPA space as part of a read-only memslot. Not only is this legitimate,
+but it also results in added security, so thumbs up.
 
-The values that will most likely prevent confusion are all zeroes.
-Userspace will have to override it anyway if it wishes to present a
-specific topology to the guest.
+It is possible to take an S1PTW translation fault if the S1 PTs are
+unmapped at stage-2. However, KVM unconditionally treats S1PTW as a
+write to correctly handle hardware AF/DB updates to the S1 PTs.
+Furthermore, KVM injects an exception into the guest for S1PTW writes.
+In the aforementioned case this results in the guest taking an abort
+it won't recover from, as the S1 PTs mapping the vectors suffer from
+the same problem.
 
+So clearly our handling is... wrong.
+
+Instead, switch to a two-pronged approach:
+
+- On S1PTW translation fault, handle the fault as a read
+
+- On S1PTW permission fault, handle the fault as a write
+
+This is of no consequence to SW that *writes* to its PTs (the write
+will trigger a non-S1PTW fault), and SW that uses RO PTs will not
+use HW-assisted AF/DB anyway, as that'd be wrong.
+
+Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
+fault on S1PTW permission fault on instruction fetch") do we end-up
+with two back-to-back faults (page being evicted and faulted back).
+I don't think this is a case worth optimising for.
+
+Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
+Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Regression-tested-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index deb494f759ed..d8ea37dfddf4 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -8310,6 +8310,20 @@ CPU[EAX=1]:ECX[24] (TSC_DEADLINE) is not reported by ``KVM_GET_SUPPORTED_CPUID``
- It can be enabled if ``KVM_CAP_TSC_DEADLINE_TIMER`` is present and the kernel
- has enabled in-kernel emulation of the local APIC.
+diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
+index 9bdba47f7e14..0d40c48d8132 100644
+--- a/arch/arm64/include/asm/kvm_emulate.h
++++ b/arch/arm64/include/asm/kvm_emulate.h
+@@ -373,8 +373,26 @@ static __always_inline int kvm_vcpu_sys_get_rt(struct kvm_vcpu *vcpu)
  
-+CPU topology
-+~~~~~~~~~~~~
-+
-+Several CPUID values include topology information for the host CPU:
-+0x0b and 0x1f for Intel systems, 0x8000001e for AMD systems.  Different
-+versions of KVM return different values for this information and userspace
-+should not rely on it.  Currently they return all zeroes.
-+
-+If userspace wishes to set up a guest topology, it should be careful that
-+the values of these three leaves differ for each CPU.  In particular,
-+the APIC ID is found in EDX for all subleaves of 0x0b and 0x1f, and in EAX
-+for 0x8000001e; the latter also encodes the core id and node id in bits
-+7:0 of EBX and ECX respectively.
-+
- Obsolete ioctls and capabilities
- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index b14653b61470..596061c1610e 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -770,16 +770,22 @@ struct kvm_cpuid_array {
- 	int nent;
- };
- 
-+static struct kvm_cpuid_entry2 *get_next_cpuid(struct kvm_cpuid_array *array)
-+{
-+	if (array->nent >= array->maxnent)
-+		return NULL;
-+
-+	return &array->entries[array->nent++];
-+}
-+
- static struct kvm_cpuid_entry2 *do_host_cpuid(struct kvm_cpuid_array *array,
- 					      u32 function, u32 index)
+ static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
  {
--	struct kvm_cpuid_entry2 *entry;
-+	struct kvm_cpuid_entry2 *entry = get_next_cpuid(array);
+-	if (kvm_vcpu_abt_iss1tw(vcpu))
+-		return true;
++	if (kvm_vcpu_abt_iss1tw(vcpu)) {
++		/*
++		 * Only a permission fault on a S1PTW should be
++		 * considered as a write. Otherwise, page tables baked
++		 * in a read-only memslot will result in an exception
++		 * being delivered in the guest.
++		 *
++		 * The drawback is that we end-up faulting twice if the
++		 * guest is using any of HW AF/DB: a translation fault
++		 * to map the page containing the PT (read only at
++		 * first), then a permission fault to allow the flags
++		 * to be set.
++		 */
++		switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
++		case ESR_ELx_FSC_PERM:
++			return true;
++		default:
++			return false;
++		}
++	}
  
--	if (array->nent >= array->maxnent)
-+	if (!entry)
- 		return NULL;
- 
--	entry = &array->entries[array->nent++];
--
- 	memset(entry, 0, sizeof(*entry));
- 	entry->function = function;
- 	entry->index = index;
-@@ -956,22 +962,13 @@ static inline int __do_cpuid_func(struct kvm_cpuid_array *array, u32 function)
- 		entry->edx = edx.full;
- 		break;
- 	}
--	/*
--	 * Per Intel's SDM, the 0x1f is a superset of 0xb,
--	 * thus they can be handled by common code.
--	 */
- 	case 0x1f:
- 	case 0xb:
- 		/*
--		 * Populate entries until the level type (ECX[15:8]) of the
--		 * previous entry is zero.  Note, CPUID EAX.{0x1f,0xb}.0 is
--		 * the starting entry, filled by the primary do_host_cpuid().
-+		 * No topology; a valid topology is indicated by the presence
-+		 * of subleaf 1.
- 		 */
--		for (i = 1; entry->ecx & 0xff00; ++i) {
--			entry = do_host_cpuid(array, function, i);
--			if (!entry)
--				goto out;
--		}
-+		entry->eax = entry->ebx = entry->ecx = 0;
- 		break;
- 	case 0xd: {
- 		u64 permitted_xcr0 = kvm_caps.supported_xcr0 & xstate_get_guest_group_perm();
-@@ -1202,6 +1199,9 @@ static inline int __do_cpuid_func(struct kvm_cpuid_array *array, u32 function)
- 		entry->ebx = entry->ecx = entry->edx = 0;
- 		break;
- 	case 0x8000001e:
-+		/* Do not return host topology information.  */
-+		entry->eax = entry->ebx = entry->ecx = 0;
-+		entry->edx = 0; /* reserved */
- 		break;
- 	case 0x8000001F:
- 		if (!kvm_cpu_cap_has(X86_FEATURE_SEV)) {
+ 	if (kvm_vcpu_trap_is_iabt(vcpu))
+ 		return false;
 
