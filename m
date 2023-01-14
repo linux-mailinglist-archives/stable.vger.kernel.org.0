@@ -2,64 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A436C66A98D
-	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 07:06:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0211D66A986
+	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 07:00:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229492AbjANGGl convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 14 Jan 2023 01:06:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36952 "EHLO
+        id S229511AbjANGAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Jan 2023 01:00:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbjANGGj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 01:06:39 -0500
-X-Greylist: delayed 2462 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 13 Jan 2023 22:06:35 PST
-Received: from mail.eastware.eu (unknown [193.107.154.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C0B330D3
-        for <stable@vger.kernel.org>; Fri, 13 Jan 2023 22:06:35 -0800 (PST)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.eastware.eu (Postfix) with ESMTP id BD59E43BB1
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 08:16:25 +0300 (MSK)
-Received: from mail.eastware.eu ([127.0.0.1])
-        by localhost (mail.eastware.eu [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id P66ySmoNboe1 for <stable@vger.kernel.org>;
-        Sat, 14 Jan 2023 08:16:25 +0300 (MSK)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.eastware.eu (Postfix) with ESMTP id 7947F464ED
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 08:00:12 +0300 (MSK)
-X-Virus-Scanned: amavisd-new at mail.eastware.eu
-Received: from mail.eastware.eu ([127.0.0.1])
-        by localhost (mail.eastware.eu [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id penenbjtcgJh for <stable@vger.kernel.org>;
-        Sat, 14 Jan 2023 08:00:12 +0300 (MSK)
-Received: from [37.0.15.226] (unknown [192.168.100.254])
-        by mail.eastware.eu (Postfix) with ESMTP id 47DD512746
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 07:41:24 +0300 (MSK)
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S229533AbjANGAX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 01:00:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E21E4480;
+        Fri, 13 Jan 2023 22:00:21 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC17960B49;
+        Sat, 14 Jan 2023 06:00:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 17803C433F0;
+        Sat, 14 Jan 2023 06:00:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673676020;
+        bh=zSW9xNwnAPa+T+qNFUMkGIU7UVe2Fp1a6h9A6ybeOr8=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=Drb/dcmDy+h8yz/wQHF48cLelF9O+iSey/khNWeOEqpBAQhIr/wzC0JOkY9PCAulK
+         BmrQg2NdMBQRCwIyR/NIFWjyYPsIA+2GDUgxVyWTgKp4ANUuWwCK2HDW7WyKa6zlMO
+         UgHnyAqYSgto/AkmZRIDq/MMTKzezfWPZ51bRM1V1fjK69F73d6zbiLx/pM2rCGAs4
+         h4VctwzlJReFQpJVBexsBnE4r6p91MLZE3wtXAubate5ixs8IKsjrK2/q9U5Mi5igy
+         grXrqXkbWYqlPYfGmCdTLyTtgYT5Eu8E2fTa3g4FeE4iuph3X/kcyDJUd1tA+iCtNJ
+         jMT14vjp5ymlA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id F27FCC395C8;
+        Sat, 14 Jan 2023 06:00:19 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: START RECEIVING DAILY PROFITS
-To:     stable@vger.kernel.org
-From:   "Mrs Alissia Claire" <frye@josy.com>
-Date:   Fri, 13 Jan 2023 20:41:24 -0800
-Reply-To: Alissiaclaire@hotmail.com
-Message-Id: <20230114044124.47DD512746@mail.eastware.eu>
-X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_60,
-        FREEMAIL_FORGED_REPLYTO,KHOP_HELO_FCRDNS,SPF_HELO_NONE,SPF_NONE,
-        SUBJ_ALL_CAPS,T_HK_NAME_MR_MRS autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: ****
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 0/3] mptcp: userspace pm: create sockets for the right
+ family
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <167367601998.19323.13140716148478946794.git-patchwork-notify@kernel.org>
+Date:   Sat, 14 Jan 2023 06:00:19 +0000
+References: <20230112-upstream-net-20230112-netlink-v4-v6-v1-0-6a8363a221d2@tessares.net>
+In-Reply-To: <20230112-upstream-net-20230112-netlink-v4-v6-v1-0-6a8363a221d2@tessares.net>
+To:     Matthieu Baerts <matthieu.baerts@tessares.net>
+Cc:     davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        kishen.maloor@intel.com, fw@strlen.de, shuah@kernel.org,
+        netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        pabeni@redhat.com, mathew.j.martineau@linux.intel.com,
+        stable@vger.kernel.org
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Hello:
 
-Am Mrs Alissia Claire an investmnet Manager from Norway. I wish to solicit your interest in an investment project that is cutrrently ongoing in my company (CapitalThriveOrg); It is a short term investment with good returns.
+This series was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Simply reply for me to confirm the validity of your email so i shall give you comprehensive details about the project.
+On Thu, 12 Jan 2023 18:42:51 +0100 you wrote:
+> Before these patches, the Userspace Path Manager would allow the
+> creation of subflows with wrong families: taking the one of the MPTCP
+> socket instead of the provided ones and resulting in the creation of
+> subflows with likely not the right source and/or destination IPs. It
+> would also allow the creation of subflows between different families or
+> not respecting v4/v6-only socket attributes.
+> 
+> [...]
 
-Best reagrds.
-Alissia Claire
-Business Consultant
+Here is the summary with links:
+  - [net,1/3] mptcp: explicitly specify sock family at subflow creation time
+    https://git.kernel.org/netdev/net/c/6bc1fe7dd748
+  - [net,2/3] mptcp: netlink: respect v4/v6-only sockets
+    https://git.kernel.org/netdev/net/c/fb00ee4f3343
+  - [net,3/3] selftests: mptcp: userspace: validate v4-v6 subflows mix
+    https://git.kernel.org/netdev/net/c/4656d72c1efa
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
