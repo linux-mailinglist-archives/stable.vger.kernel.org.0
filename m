@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7797866AAA9
-	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:47:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4748666AAAA
+	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:47:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229792AbjANJre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Jan 2023 04:47:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38000 "EHLO
+        id S229500AbjANJri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Jan 2023 04:47:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229733AbjANJre (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:47:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA6CC4495
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:47:32 -0800 (PST)
+        with ESMTP id S229650AbjANJrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:47:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6E35172F
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:47:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 42A2CCE0949
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:47:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3C89C433D2;
-        Sat, 14 Jan 2023 09:47:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 522F4CE094C
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:47:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FA7EC433F1;
+        Sat, 14 Jan 2023 09:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673689649;
-        bh=U48xccqeNG3LhgpqVv4iI3Fr8kZWXJlK7685htyLKFk=;
+        s=korg; t=1673689652;
+        bh=+0HpV14OfAQF5ncfgNNpZV1j+RVuVYboNICQVEeQ9K8=;
         h=Subject:To:Cc:From:Date:From;
-        b=o5aosQ0hZ2/CDbcEjhYCml/7PPvFpevqscAFPuUrOinhRVZFJiyvSH84OY8r60I50
-         ZJDpYvKJPip7eqohE9lh6rk26FjwZn/L4UL+5LiBpA1Egi+hSiAzoEqckADYafupFF
-         CsUsA9nnApeZ5MDrAdcHWzPFsiGeIthimUa8aNzw=
-Subject: FAILED: patch "[PATCH] KVM: x86: Do not return host topology information from" failed to apply to 5.10-stable tree
+        b=hIFX1+x8xJzRb8SAD/rLLNtHss/12dfg6jdWMlm4g9zEnXpzum0yXGJR9SW+BvSvZ
+         5EsDAgiFky77aywAead6K4gox3AbfgvFDxLiYAnA5/PxFCc0oL7PEqplzgM1PDTsvm
+         tH+c9nBugS11B+EL6YR7KHV3EtB8dgSQVkls2iwE=
+Subject: FAILED: patch "[PATCH] KVM: x86: Do not return host topology information from" failed to apply to 5.4-stable tree
 To:     pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 14 Jan 2023 10:47:23 +0100
-Message-ID: <16736896434384@kroah.com>
+Date:   Sat, 14 Jan 2023 10:47:24 +0100
+Message-ID: <1673689644205196@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
