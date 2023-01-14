@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7744E66AACE
-	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:58:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8FD066AACF
+	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:58:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230173AbjANJ6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 Jan 2023 04:58:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41894 "EHLO
+        id S230207AbjANJ6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 Jan 2023 04:58:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230200AbjANJ6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:58:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DF7876A8
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:58:09 -0800 (PST)
+        with ESMTP id S229950AbjANJ6S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:58:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF31376A8
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:58:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EC3F604AD
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:58:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB2EC433EF;
-        Sat, 14 Jan 2023 09:58:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C09960010
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:58:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 741F3C433D2;
+        Sat, 14 Jan 2023 09:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673690288;
-        bh=uTxhOepnA2PfoVhByJwxZ4CKP2jsEubMoe8xgo3ZBko=;
+        s=korg; t=1673690296;
+        bh=NmiIR07nWrSCyd40h9QXKzS+9osUxLqHr/OUJ7MML4Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=kfEjhV0XDGuOiMe1IOEKBxfoSTXsLv3DFBt8RcPeTSqQO8xq13NGZTsKbXaK5GQ//
-         wJmyDAgqFMHkp0onDva3mYsWTxFfDMpWRLAhy9xCW/FM6kJ2ASqG7CmT3cvmP7cAKN
-         orx72orvwPc3UR1aLhO36CMIuCn8/yt+8+EZ/H+c=
-Subject: FAILED: patch "[PATCH] drm/virtio: Fix GEM handle creation UAF" failed to apply to 5.10-stable tree
+        b=Vm9R4yd+VIN/HXE89+0EW6Xk1J2UWQ7UU3WFMq2UVtZiRrS/ziX9lBWtUOxWO9ODZ
+         DmwGd8Iy0oP4yK8iAcXsMAW+oKFbWxK4drCx9h7XObqy3LYgBBEYb/KmqaBfzno5gh
+         ZByi7Ci2uZOOluIfkERQknGEXk7okCpVEyk5/t4I=
+Subject: FAILED: patch "[PATCH] drm/virtio: Fix GEM handle creation UAF" failed to apply to 4.19-stable tree
 To:     robdclark@chromium.org, dmitry.osipenko@collabora.com,
         olvaffe@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 14 Jan 2023 10:58:00 +0100
-Message-ID: <167369028021198@kroah.com>
+Date:   Sat, 14 Jan 2023 10:58:06 +0100
+Message-ID: <1673690286185234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,6 +61,9 @@ Possible dependencies:
 6076a9711dc5 ("drm/virtio: implement blob resources: probe for host visible region")
 6815cfe602d0 ("drm/virtio: implement blob resources: probe for the feature.")
 30172efbfb84 ("drm/virtio: blob prep: refactor getting pages and attaching backing")
+deb2464e4c6d ("drm/virtio: report uuid in debugfs")
+c84adb304c10 ("drm/virtio: Support virtgpu exported resources")
+0a19b068acc4 ("Merge tag 'drm-misc-next-2020-06-19' of git://anongit.freedesktop.org/drm/drm-misc into drm-next")
 
 thanks,
 
