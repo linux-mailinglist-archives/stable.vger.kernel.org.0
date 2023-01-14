@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEACF66AAAB
-	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:47:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CE9F66AAAC
+	for <lists+stable@lfdr.de>; Sat, 14 Jan 2023 10:47:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229515AbjANJrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229894AbjANJrm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 14 Jan 2023 04:47:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38054 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229650AbjANJrk (ORCPT
+        with ESMTP id S229733AbjANJrk (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 14 Jan 2023 04:47:40 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D7894495
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE81A172F
         for <stable@vger.kernel.org>; Sat, 14 Jan 2023 01:47:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 99956CE094E
-        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:47:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57B29C433EF;
-        Sat, 14 Jan 2023 09:47:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B18260018
+        for <stable@vger.kernel.org>; Sat, 14 Jan 2023 09:47:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B896C433D2;
+        Sat, 14 Jan 2023 09:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673689655;
-        bh=qolZeYmG1rJFi0fZ+jL/n6SEb2cgxG+o8Gi4mutIU/E=;
+        s=korg; t=1673689659;
+        bh=9qZQfbwp813NC6QZFBGFdru4HxtIfDuGC/Rr687KmeE=;
         h=Subject:To:Cc:From:Date:From;
-        b=NexF6IzNH1QPfYFduE2YpBrSZmV7p95IOEN2BFguMejxCvuHY1y72ALpqQCOcf5WB
-         QLEU8pb9PpNrqtG70jLu7m7ZqJIpcfKHvhJIV5oAGx/gwhyZ2DEUTXHpSJLUgFrc21
-         xvdAgJGVZF5rW6V5+r9c45OkOOtEYquS6cSS9Y1Q=
-Subject: FAILED: patch "[PATCH] KVM: x86: Do not return host topology information from" failed to apply to 4.19-stable tree
+        b=S3akpsHAbTFbd8zaU7FNta+nvghkXiLSOm/yvri2GLQtHG7ue76W1Zne5ostZCp2q
+         fTJxZgcaHnDT+jHWC7pDwBbWdOi0sfO9OP9R3aTO3LRPGg+qlcH+t5pB+80ozyZzHW
+         ag6MPZbL9XiMM8iK5QUisHlyG4sZOtgZrFxT37+4=
+Subject: FAILED: patch "[PATCH] KVM: x86: Do not return host topology information from" failed to apply to 4.14-stable tree
 To:     pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 14 Jan 2023 10:47:25 +0100
-Message-ID: <16736896454741@kroah.com>
+Date:   Sat, 14 Jan 2023 10:47:26 +0100
+Message-ID: <167368964670252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
