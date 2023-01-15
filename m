@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81AF166B16D
-	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 15:16:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D316F66B16E
+	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 15:16:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230095AbjAOOQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Jan 2023 09:16:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36392 "EHLO
+        id S231133AbjAOOQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Jan 2023 09:16:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230401AbjAOOQk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 09:16:40 -0500
+        with ESMTP id S230501AbjAOOQu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 09:16:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50767EC49
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 06:16:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68843EC4E
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 06:16:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D194260C8E
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 14:16:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7255C433EF;
-        Sun, 15 Jan 2023 14:16:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC39A60C8E
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 14:16:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E151CC433EF;
+        Sun, 15 Jan 2023 14:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673792197;
-        bh=NArUsMImVWlVdu/LE1YaWapzBvYmK4z7eujDqr/Z6IY=;
+        s=korg; t=1673792207;
+        bh=IUW89W2b02DflxoOIztQt3zDborPnB6N0IbC9Tc/23E=;
         h=Subject:To:Cc:From:Date:From;
-        b=NzpKflBcQaVBJCfNGMzlpBbgGpUOGNronksJCjX+/hzKcG5RGncOKGLJSuqRBUDLG
-         ZkeGHGzf3YuZxpxAXlTb3eRt0OcyQR50V3K9TFDgjhoo1+FS8KEwjLBmmb04+vYGos
-         uhdUARpwPkxlyvgweN6G0o7LZpiHU9vvM3mq+3Uo=
-Subject: FAILED: patch "[PATCH] powerpc/imc-pmu: Fix use of mutex in IRQs disabled section" failed to apply to 4.19-stable tree
+        b=nTOhJa1/KC0BF8MAP5GWRCCg+xhMmYRuiD9rm+pC+oeCZpbP4Cifdr9jgcp2yyg76
+         J1iyKnmy8Ia1d/r5NHqt4UgNzBMoiIm6fAyr28pGY1L1eUGvw05polfI+FcmLMHSuZ
+         2/KtTL6xFnDwQMKhwi/6SDszek7Vbp0vs39GnD5I=
+Subject: FAILED: patch "[PATCH] powerpc/imc-pmu: Fix use of mutex in IRQs disabled section" failed to apply to 4.14-stable tree
 To:     kjain@linux.ibm.com, mpe@ellerman.id.au, mpetlan@redhat.com,
         peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Jan 2023 15:16:29 +0100
-Message-ID: <1673792189253207@kroah.com>
+Date:   Sun, 15 Jan 2023 15:16:36 +0100
+Message-ID: <167379219639152@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,6 +61,7 @@ a36e8ba60b99 ("powerpc/perf: Implement a global lock to avoid races between trac
 72c69dcddce1 ("powerpc/perf: Trace imc events detection and cpuhotplug")
 dd50cf7cbc7b ("powerpc/perf: Rearrange setting of ldbar for thread-imc")
 4851f75098bc ("powerpc/perf: Declare static identifier a such")
+5e2d059b52e3 ("Merge tag 'powerpc-4.19-1' of git://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux")
 
 thanks,
 
