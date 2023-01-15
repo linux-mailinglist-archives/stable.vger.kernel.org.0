@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B825A66B183
-	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 15:30:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E6B166B184
+	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 15:30:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230462AbjAOOaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Jan 2023 09:30:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39316 "EHLO
+        id S230478AbjAOOaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Jan 2023 09:30:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230368AbjAOOap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 09:30:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85FB2B76A
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 06:30:44 -0800 (PST)
+        with ESMTP id S230368AbjAOOav (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 09:30:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2067CB76A
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 06:30:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29AD5B80B02
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 14:30:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36086C433D2;
-        Sun, 15 Jan 2023 14:30:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 642D8CE0B71
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 14:30:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B076DC433EF;
+        Sun, 15 Jan 2023 14:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673793041;
-        bh=jz2iSieTb8JBdbEYFks2XD80f4G3ApXGiO5yVq+npZM=;
+        s=korg; t=1673793046;
+        bh=awkCn+Wo2FfJg+WNHeAq0azD4BfcNssDP0JFyQSXdJg=;
         h=Subject:To:Cc:From:Date:From;
-        b=2MLv/nEJOAYCtGzLLjUOjX/2YlzjNcIaJVSJ+9Jvvq+1xSZXHOyQN1MrWOeWkODBl
-         MIEyfLqPfsjUTWsgjD6vKnaSiDCpjSlrwK7pFbI/hUFOgEriNX1X/Dcvg8KYrkwHne
-         aJFWWfTR6un0ocX5LHHnliX8rSFJ+7RIBH3P8Ex4=
-Subject: FAILED: patch "[PATCH] x86/resctrl: Fix task CLOSID/RMID update race" failed to apply to 5.10-stable tree
+        b=o3KSL31EUi73tKjZAvfcr2jfdYF90nVkCB+wrJTs1cb3k90IhSPuUeoNXhFzFL8Wx
+         u7iZcUmaGKLWAcF0fU9VfHqO+RFW9dAoHsLdcknzIC26BIyYjr1rlf5d6uTU53jprX
+         47ecgxh6efn6JqXdOMjIWrG61chdMFFOkblnmFFs=
+Subject: FAILED: patch "[PATCH] x86/resctrl: Fix task CLOSID/RMID update race" failed to apply to 5.4-stable tree
 To:     peternewman@google.com, babu.moger@amd.com, bp@alien8.de,
         reinette.chatre@intel.com, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Jan 2023 15:30:33 +0100
-Message-ID: <167379303346150@kroah.com>
+Date:   Sun, 15 Jan 2023 15:30:40 +0100
+Message-ID: <167379304016871@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,13 @@ Possible dependencies:
 fe1f0714385f ("x86/resctrl: Fix task CLOSID/RMID update race")
 e0ad6dc8969f ("x86/resctrl: Use task_curr() instead of task_struct->on_cpu to prevent unnecessary IPI")
 ae28d1aae48a ("x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR")
+758999246965 ("x86/resctrl: Add necessary kernfs_put() calls to prevent refcount leak")
+fd8d9db3559a ("x86/resctrl: Remove superfluous kernfs_get() calls to prevent refcount leak")
+91989c707884 ("task_work: cleanup notification modes")
+216578e55ac9 ("io_uring: fix REQ_F_COMP_LOCKED by killing it")
+4edf20f99902 ("io_uring: dig out COMP_LOCK from deep call chain")
+b1b74cfc1967 ("io_uring: don't unnecessarily clear F_LINK_TIMEOUT")
+6ad4bf6ea160 ("Merge tag 'io_uring-5.10-2020-10-12' of git://git.kernel.dk/linux-block")
 
 thanks,
 
