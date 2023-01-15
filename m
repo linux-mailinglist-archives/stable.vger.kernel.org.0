@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B11666B185
-	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 15:30:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA2C66B187
+	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 15:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230481AbjAOOay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Jan 2023 09:30:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39342 "EHLO
+        id S230368AbjAOObG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Jan 2023 09:31:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230368AbjAOOax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 09:30:53 -0500
+        with ESMTP id S230494AbjAOObF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 09:31:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B54B76A
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 06:30:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 381514C0B
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 06:31:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0372DB80B65
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 14:30:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B902C433EF;
-        Sun, 15 Jan 2023 14:30:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0C46B80B66
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 14:31:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24883C433EF;
+        Sun, 15 Jan 2023 14:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673793049;
-        bh=CoCm0Ul6X935DijE/iy0cBdw0gqNYJYrrgs9ntsJ9oU=;
+        s=korg; t=1673793061;
+        bh=OyvCG0ZcEVL8oeRsOspMU9NUJMfwfk3fo1IpBCQyYRs=;
         h=Subject:To:Cc:From:Date:From;
-        b=XccGBJ3RKzluP/XwJOUqwesa1btdzf90rHKGJTBqC3E1Vyjf540Mrc7X+goPNkPIF
-         Q+1Ag+kIYDZtFw+RAHeZonCY0lXI2OyP3rpo9wnLLSI8D1Vyy6JQ4ua3ygqo2hF3Kt
-         WRmO7olFny9WS7pRBZmcjrrAwjVEL45/lju9/Jrc=
-Subject: FAILED: patch "[PATCH] x86/resctrl: Fix task CLOSID/RMID update race" failed to apply to 4.19-stable tree
+        b=hfUCSPbZ7gvJ+ExizHboeta6vYO5oanqnNPyM0za+3Q0CccAwLNB0FwCm53UTdBVz
+         9CZsMtW+BUwbQMGxKyUVLGPOq0QwJpEsl9nrDPzqWLMbviIDKuMbih2Y1a0TKPXcwp
+         xgiRN8FNrD3VleVZHJKfG1bcec1tn2w8Zm2XWBi0=
+Subject: FAILED: patch "[PATCH] x86/resctrl: Fix task CLOSID/RMID update race" failed to apply to 4.14-stable tree
 To:     peternewman@google.com, babu.moger@amd.com, bp@alien8.de,
         reinette.chatre@intel.com, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Jan 2023 15:30:42 +0100
-Message-ID: <167379304210692@kroah.com>
+Date:   Sun, 15 Jan 2023 15:30:45 +0100
+Message-ID: <16737930455346@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
