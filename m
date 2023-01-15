@@ -2,164 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F399866AFF0
-	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 09:32:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7512A66B008
+	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 09:55:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbjAOIc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Jan 2023 03:32:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35816 "EHLO
+        id S229952AbjAOIzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Jan 2023 03:55:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229996AbjAOIc1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 03:32:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B058C14B
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 00:32:26 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB5D260C14
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 08:32:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A69C433D2;
-        Sun, 15 Jan 2023 08:32:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673771545;
-        bh=BTe+LSxGIeCggLvZV9KExOJSLdX6qoHHlcif6xX4VUk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uiEVyDknLYwyfzR8ISot0pzGXuJFELXHh6XFoln4jKjvxmfj+8yXLasi/B9hjQfuU
-         J2XpEbamrYiMdM0zcwcMDg9PWr0akW4N2bcZYQMvgnziU/AeoNv0g7WJGDflPiIHv7
-         ACrKKV8Vxi/2tm9iDFNvnbucHNo4r8+uqfOCAiBOSzACiPfvHu5wAsaDCUvpbGOKPY
-         aN6e8hl/iKJoaZImursMsoJq61YjshZrnycOCnZ9eqmAbNJe/uGjAV1trsNtmK/JZG
-         WyB4TAOOVoISf4+85ljE4yVS3FlvM4PnM9kR7T62WX8fuv04fqu56zyQAm+A8boFac
-         mUff7n4GW+oTg==
-Date:   Sun, 15 Jan 2023 10:32:13 +0200
-From:   Mike Rapoport <rppt@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     dev@aaront.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] mm: Always release pages to the buddy
- allocator in" failed to apply to 5.15-stable tree
-Message-ID: <Y8O6DR6ygBU6+nbe@kernel.org>
-References: <1673714753254212@kroah.com>
+        with ESMTP id S230009AbjAOIzk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 03:55:40 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B6D76AB
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 00:55:38 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id vm8so61581294ejc.2
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 00:55:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:sender
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=prWPhVnVFJki+pRqERFubMXJOExa5pQRkGt5Dtr4PRk=;
+        b=WH7SNYBaVH1TBQ9i0newLbrCh6GG57BhcMkMUyjIbDo9q4LDNBI1bod8p4zq5oZXKV
+         41ERpc9KIET9GBTQz7ABi+z8iwLzzCDuZDxqVKAvMIZcb5utSx2XRq25+ByDrUD30PFE
+         Qm+G4fD1gPG790COLDfn8urgXRJ5pYgAB/veuyJxhXM+0yU+Aik7chaNcoBE6B8MW/vq
+         gWxt3m8I0DneVuqPUMX+FGfqohQgPIjtid9OGm6wyK4bLEVhpvQYgCa6vXuSZxP+/dUH
+         pyU/ZxUtT16v6jNtQx3f6ZSxgERG/l+2jeMSD1TYfUzSBp8YtjeUTpxPlarrEX2jVEcb
+         EbmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:sender
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=prWPhVnVFJki+pRqERFubMXJOExa5pQRkGt5Dtr4PRk=;
+        b=g0WfVaUJdIN6NyG4UppDg0dLtv2sOIlLocfyY+GhpKVOzszsq63de0XlktgzfcVSjp
+         E2blVv/SXdX3qDZmKDpnHTM4S3eU0mmvThnwV9/cP6VUjt3KfaDBDWqnAqkoW0ePrOat
+         qVvWLwALhu79wQik5rPyna3feM2esKuxPo2xn/KvAjSHnq08nsqgIJ2W6+V5JYbCRG5v
+         li/5hzim+4ctB07Cq7xa+0dXRUW7+qdTGc/3KDqFBBpKonvXWyRQjZumUh8Cwa/P7rVo
+         P4x8YMG7JJhk04U17asi2UXwUMDtUgM7mBY9oCwFNqRwdFClnsxER5lJ9o8voZYKuzet
+         fphw==
+X-Gm-Message-State: AFqh2kr9dOmsNotE2EXQ/qjqFoKdDkW7hj+DsfgowB4GBlA2y1kzG0Ux
+        LpmfjjPKzjJuT+1JhNKqCl2lQucPPlI=
+X-Google-Smtp-Source: AMrXdXtTATwfDcNQWRzWphf/lTNxwZDsf4IVF/C4+0CbdRfW+XdA0OS3Q6Aoxfil+GPpG4UyDH2zNA==
+X-Received: by 2002:a17:907:9054:b0:86e:acae:9852 with SMTP id az20-20020a170907905400b0086eacae9852mr2400444ejc.35.1673772936998;
+        Sun, 15 Jan 2023 00:55:36 -0800 (PST)
+Received: from gmail.com (1F2EF7EB.nat.pool.telekom.hu. [31.46.247.235])
+        by smtp.gmail.com with ESMTPSA id ov38-20020a170906fc2600b0084d4733c428sm8027603ejb.88.2023.01.15.00.55.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 15 Jan 2023 00:55:35 -0800 (PST)
+Sender: Ingo Molnar <mingo.kernel.org@gmail.com>
+Date:   Sun, 15 Jan 2023 09:55:30 +0100
+From:   Ingo Molnar <mingo@kernel.org>
+To:     Waiman Long <longman@redhat.com>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        peterz@infradead.org, wangbiao3@xiaomi.com
+Subject: Re: FAILED: patch "[PATCH] sched/core: Fix use-after-free bug in
+ dup_user_cpus_ptr()" failed to apply to 6.1-stable tree
+Message-ID: <Y8O/go30PWPwLwIs@gmail.com>
+References: <167368999799102@kroah.com>
+ <fea9d850-4942-3457-0e14-573763e891a4@redhat.com>
+ <881dc653-a6b4-6fea-542d-e06d79d011e5@redhat.com>
+ <41a01c47-ebf6-49c5-45f0-5d03a2a3b805@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1673714753254212@kroah.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41a01c47-ebf6-49c5-45f0-5d03a2a3b805@redhat.com>
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 14, 2023 at 05:45:53PM +0100, gregkh@linuxfoundation.org wrote:
+
+* Waiman Long <longman@redhat.com> wrote:
+
 > 
-> The patch below does not apply to the 5.15-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
- 
-The patch below applies to 5.15, 5.10 and 5.4.
-As for 4.19 and 4.14, they still have bootmem/nobootmem so I'd rather
-wouldn't touch them.
-
-From c292bd7e64214fcc78b7c72a9ccd3973dd19b7fb Mon Sep 17 00:00:00 2001
-From: Aaron Thompson <dev@aaront.org>
-Date: Fri, 6 Jan 2023 22:22:44 +0000
-Subject: [PATCH] mm: Always release pages to the buddy allocator in
- memblock_free_late().
-
-If CONFIG_DEFERRED_STRUCT_PAGE_INIT is enabled, memblock_free_pages()
-only releases pages to the buddy allocator if they are not in the
-deferred range. This is correct for free pages (as defined by
-for_each_free_mem_pfn_range_in_zone()) because free pages in the
-deferred range will be initialized and released as part of the deferred
-init process. memblock_free_pages() is called by memblock_free_late(),
-which is used to free reserved ranges after memblock_free_all() has
-run. All pages in reserved ranges have been initialized at that point,
-and accordingly, those pages are not touched by the deferred init
-process. This means that currently, if the pages that
-memblock_free_late() intends to release are in the deferred range, they
-will never be released to the buddy allocator. They will forever be
-reserved.
-
-In addition, memblock_free_pages() calls kmsan_memblock_free_pages(),
-which is also correct for free pages but is not correct for reserved
-pages. KMSAN metadata for reserved pages is initialized by
-kmsan_init_shadow(), which runs shortly before memblock_free_all().
-
-For both of these reasons, memblock_free_pages() should only be called
-for free pages, and memblock_free_late() should call __free_pages_core()
-directly instead.
-
-One case where this issue can occur in the wild is EFI boot on
-x86_64. The x86 EFI code reserves all EFI boot services memory ranges
-via memblock_reserve() and frees them later via memblock_free_late()
-(efi_reserve_boot_services() and efi_free_boot_services(),
-respectively). If any of those ranges happens to fall within the
-deferred init range, the pages will not be released and that memory will
-be unavailable.
-
-For example, on an Amazon EC2 t3.micro VM (1 GB) booting via EFI:
-
-v6.2-rc2:
-  # grep -E 'Node|spanned|present|managed' /proc/zoneinfo
-  Node 0, zone      DMA
-          spanned  4095
-          present  3999
-          managed  3840
-  Node 0, zone    DMA32
-          spanned  246652
-          present  245868
-          managed  178867
-
-v6.2-rc2 + patch:
-  # grep -E 'Node|spanned|present|managed' /proc/zoneinfo
-  Node 0, zone      DMA
-          spanned  4095
-          present  3999
-          managed  3840
-  Node 0, zone    DMA32
-          spanned  246652
-          present  245868
-          managed  222816   # +43,949 pages
-
-Fixes: 3a80a7fa7989 ("mm: meminit: initialise a subset of struct pages if CONFIG_DEFERRED_STRUCT_PAGE_INIT is set")
-Signed-off-by: Aaron Thompson <dev@aaront.org>
-Link: https://lore.kernel.org/r/01010185892de53e-e379acfb-7044-4b24-b30a-e2657c1ba989-000000@us-west-2.amazonses.com
-Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
----
- mm/memblock.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
-diff --git a/mm/memblock.c b/mm/memblock.c
-index 2b7397781c99..838d59a74c65 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1615,7 +1615,13 @@ void __init __memblock_free_late(phys_addr_t base, phys_addr_t size)
- 	end = PFN_DOWN(base + size);
- 
- 	for (; cursor < end; cursor++) {
--		memblock_free_pages(pfn_to_page(cursor), cursor, 0);
-+		/*
-+		 * Reserved pages are always initialized by the end of
-+		 * memblock_free_all() (by memmap_init() and, if deferred
-+		 * initialization is enabled, memmap_init_reserved_pages()), so
-+		 * these pages can be released directly to the buddy allocator.
-+		 */
-+		__free_pages_core(pfn_to_page(cursor), 0);
- 		totalram_pages_inc();
- 	}
- }
--- 
-2.35.1
-
- 
-> thanks,
+> On 1/14/23 14:33, Waiman Long wrote:
+> > On 1/14/23 14:28, Waiman Long wrote:
+> > > On 1/14/23 04:53, gregkh@linuxfoundation.org wrote:
+> > > > The patch below does not apply to the 6.1-stable tree.
+> > > > If someone wants it applied there, or to any other stable or longterm
+> > > > tree, then please email the backport, including the original git commit
+> > > > id to <stable@vger.kernel.org>.
+> > > > 
+> > > > Possible dependencies:
+> > > > 
+> > > > 87ca4f9efbd7 ("sched/core: Fix use-after-free bug in
+> > > > dup_user_cpus_ptr()")
+> > > > 8f9ea86fdf99 ("sched: Always preserve the user requested cpumask")
+> > > > 713a2e21a513 ("sched: Introduce affinity_context")
+> > > > 
+> > > > thanks,
+> > > > 
+> > > > greg k-h
+> > > > 
+> > > > ------------------ original commit in Linus's tree ------------------
+> > > > 
+> > > >  From 87ca4f9efbd7cc649ff43b87970888f2812945b8 Mon Sep 17 00:00:00 2001
+> > > > From: Waiman Long <longman@redhat.com>
+> > > > Date: Fri, 30 Dec 2022 23:11:19 -0500
+> > > > Subject: [PATCH] sched/core: Fix use-after-free bug in
+> > > > dup_user_cpus_ptr()
+> > > > MIME-Version: 1.0
+> > > > Content-Type: text/plain; charset=UTF-8
+> > > > Content-Transfer-Encoding: 8bit
+> > > > 
+> > > > Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
+> > > > restricted on asymmetric systems"), the setting and clearing of
+> > > > user_cpus_ptr are done under pi_lock for arm64 architecture. However,
+> > > > dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
+> > > > protection. Since sched_setaffinity() can be invoked from another
+> > > > process, the process being modified may be undergoing fork() at
+> > > > the same time.  When racing with the clearing of user_cpus_ptr in
+> > > > __set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
+> > > > possibly double-free in arm64 kernel.
+> > > > 
+> > > > Commit 8f9ea86fdf99 ("sched: Always preserve the user requested
+> > > > cpumask") fixes this problem as user_cpus_ptr, once set, will never
+> > > > be cleared in a task's lifetime. However, this bug was re-introduced
+> > > > in commit 851a723e45d1 ("sched: Always clear user_cpus_ptr in
+> > > > do_set_cpus_allowed()") which allows the clearing of user_cpus_ptr in
+> > > > do_set_cpus_allowed(). This time, it will affect all arches.
+> > > > 
+> > > > Fix this bug by always clearing the user_cpus_ptr of the newly
+> > > > cloned/forked task before the copying process starts and check the
+> > > > user_cpus_ptr state of the source task under pi_lock.
+> > > > 
+> > > > Note to stable, this patch won't be applicable to stable releases.
+> > > > Just copy the new dup_user_cpus_ptr() function over.
+> > > 
+> > > I have a note here about what to do when backporting to stable. Just
+> > > copy the new function over will be fine.
+> > 
+> > That will be before the application of the subsequent patch which will
+> > modify it in a way for suitable for stable. I can send out a separate
+> > stable patch for that later today.
 > 
-> greg k-h
-> 
+> The attached patch will apply to linux-6.1.y as well as linux-5.15.y.
 
--- 
-Sincerely yours,
-Mike.
+Thanks!
+
+Acked-by: Ingo Molnar <mingo@kernel.org>
+
+
+	Ingo
