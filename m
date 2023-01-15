@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D316F66B16E
-	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 15:16:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B825A66B183
+	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 15:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbjAOOQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Jan 2023 09:16:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36414 "EHLO
+        id S230462AbjAOOaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Jan 2023 09:30:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230501AbjAOOQu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 09:16:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68843EC4E
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 06:16:48 -0800 (PST)
+        with ESMTP id S230368AbjAOOap (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 09:30:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85FB2B76A
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 06:30:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC39A60C8E
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 14:16:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E151CC433EF;
-        Sun, 15 Jan 2023 14:16:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29AD5B80B02
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 14:30:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36086C433D2;
+        Sun, 15 Jan 2023 14:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673792207;
-        bh=IUW89W2b02DflxoOIztQt3zDborPnB6N0IbC9Tc/23E=;
+        s=korg; t=1673793041;
+        bh=jz2iSieTb8JBdbEYFks2XD80f4G3ApXGiO5yVq+npZM=;
         h=Subject:To:Cc:From:Date:From;
-        b=nTOhJa1/KC0BF8MAP5GWRCCg+xhMmYRuiD9rm+pC+oeCZpbP4Cifdr9jgcp2yyg76
-         J1iyKnmy8Ia1d/r5NHqt4UgNzBMoiIm6fAyr28pGY1L1eUGvw05polfI+FcmLMHSuZ
-         2/KtTL6xFnDwQMKhwi/6SDszek7Vbp0vs39GnD5I=
-Subject: FAILED: patch "[PATCH] powerpc/imc-pmu: Fix use of mutex in IRQs disabled section" failed to apply to 4.14-stable tree
-To:     kjain@linux.ibm.com, mpe@ellerman.id.au, mpetlan@redhat.com,
-        peterz@infradead.org
+        b=2MLv/nEJOAYCtGzLLjUOjX/2YlzjNcIaJVSJ+9Jvvq+1xSZXHOyQN1MrWOeWkODBl
+         MIEyfLqPfsjUTWsgjD6vKnaSiDCpjSlrwK7pFbI/hUFOgEriNX1X/Dcvg8KYrkwHne
+         aJFWWfTR6un0ocX5LHHnliX8rSFJ+7RIBH3P8Ex4=
+Subject: FAILED: patch "[PATCH] x86/resctrl: Fix task CLOSID/RMID update race" failed to apply to 5.10-stable tree
+To:     peternewman@google.com, babu.moger@amd.com, bp@alien8.de,
+        reinette.chatre@intel.com, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 15 Jan 2023 15:16:36 +0100
-Message-ID: <167379219639152@kroah.com>
+Date:   Sun, 15 Jan 2023 15:30:33 +0100
+Message-ID: <167379303346150@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,20 +48,16 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-76d588dddc45 ("powerpc/imc-pmu: Fix use of mutex in IRQs disabled section")
-a36e8ba60b99 ("powerpc/perf: Implement a global lock to avoid races between trace, core and thread imc events.")
-012ae244845f ("powerpc/perf: Trace imc PMU functions")
-72c69dcddce1 ("powerpc/perf: Trace imc events detection and cpuhotplug")
-dd50cf7cbc7b ("powerpc/perf: Rearrange setting of ldbar for thread-imc")
-4851f75098bc ("powerpc/perf: Declare static identifier a such")
-5e2d059b52e3 ("Merge tag 'powerpc-4.19-1' of git://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux")
+fe1f0714385f ("x86/resctrl: Fix task CLOSID/RMID update race")
+e0ad6dc8969f ("x86/resctrl: Use task_curr() instead of task_struct->on_cpu to prevent unnecessary IPI")
+ae28d1aae48a ("x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR")
 
 thanks,
 
@@ -69,611 +65,107 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 76d588dddc459fefa1da96e0a081a397c5c8e216 Mon Sep 17 00:00:00 2001
-From: Kajol Jain <kjain@linux.ibm.com>
-Date: Fri, 6 Jan 2023 12:21:57 +0530
-Subject: [PATCH] powerpc/imc-pmu: Fix use of mutex in IRQs disabled section
+From fe1f0714385fbcf76b0cbceb02b7277d842014fc Mon Sep 17 00:00:00 2001
+From: Peter Newman <peternewman@google.com>
+Date: Tue, 20 Dec 2022 17:11:23 +0100
+Subject: [PATCH] x86/resctrl: Fix task CLOSID/RMID update race
 
-Current imc-pmu code triggers a WARNING with CONFIG_DEBUG_ATOMIC_SLEEP
-and CONFIG_PROVE_LOCKING enabled, while running a thread_imc event.
+When the user moves a running task to a new rdtgroup using the task's
+file interface or by deleting its rdtgroup, the resulting change in
+CLOSID/RMID must be immediately propagated to the PQR_ASSOC MSR on the
+task(s) CPUs.
 
-Command to trigger the warning:
-  # perf stat -e thread_imc/CPM_CS_FROM_L4_MEM_X_DPTEG/ sleep 5
+x86 allows reordering loads with prior stores, so if the task starts
+running between a task_curr() check that the CPU hoisted before the
+stores in the CLOSID/RMID update then it can start running with the old
+CLOSID/RMID until it is switched again because __rdtgroup_move_task()
+failed to determine that it needs to be interrupted to obtain the new
+CLOSID/RMID.
 
-   Performance counter stats for 'sleep 5':
+Refer to the diagram below:
 
-                   0      thread_imc/CPM_CS_FROM_L4_MEM_X_DPTEG/
+CPU 0                                   CPU 1
+-----                                   -----
+__rdtgroup_move_task():
+  curr <- t1->cpu->rq->curr
+                                        __schedule():
+                                          rq->curr <- t1
+                                        resctrl_sched_in():
+                                          t1->{closid,rmid} -> {1,1}
+  t1->{closid,rmid} <- {2,2}
+  if (curr == t1) // false
+   IPI(t1->cpu)
 
-         5.002117947 seconds time elapsed
+A similar race impacts rdt_move_group_tasks(), which updates tasks in a
+deleted rdtgroup.
 
-         0.000131000 seconds user
-         0.001063000 seconds sys
+In both cases, use smp_mb() to order the task_struct::{closid,rmid}
+stores before the loads in task_curr().  In particular, in the
+rdt_move_group_tasks() case, simply execute an smp_mb() on every
+iteration with a matching task.
 
-Below is snippet of the warning in dmesg:
+It is possible to use a single smp_mb() in rdt_move_group_tasks(), but
+this would require two passes and a means of remembering which
+task_structs were updated in the first loop. However, benchmarking
+results below showed too little performance impact in the simple
+approach to justify implementing the two-pass approach.
 
-  BUG: sleeping function called from invalid context at kernel/locking/mutex.c:580
-  in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 2869, name: perf-exec
-  preempt_count: 2, expected: 0
-  4 locks held by perf-exec/2869:
-   #0: c00000004325c540 (&sig->cred_guard_mutex){+.+.}-{3:3}, at: bprm_execve+0x64/0xa90
-   #1: c00000004325c5d8 (&sig->exec_update_lock){++++}-{3:3}, at: begin_new_exec+0x460/0xef0
-   #2: c0000003fa99d4e0 (&cpuctx_lock){-...}-{2:2}, at: perf_event_exec+0x290/0x510
-   #3: c000000017ab8418 (&ctx->lock){....}-{2:2}, at: perf_event_exec+0x29c/0x510
-  irq event stamp: 4806
-  hardirqs last  enabled at (4805): [<c000000000f65b94>] _raw_spin_unlock_irqrestore+0x94/0xd0
-  hardirqs last disabled at (4806): [<c0000000003fae44>] perf_event_exec+0x394/0x510
-  softirqs last  enabled at (0): [<c00000000013c404>] copy_process+0xc34/0x1ff0
-  softirqs last disabled at (0): [<0000000000000000>] 0x0
-  CPU: 36 PID: 2869 Comm: perf-exec Not tainted 6.2.0-rc2-00011-g1247637727f2 #61
-  Hardware name: 8375-42A POWER9 0x4e1202 opal:v7.0-16-g9b85f7d961 PowerNV
-  Call Trace:
-    dump_stack_lvl+0x98/0xe0 (unreliable)
-    __might_resched+0x2f8/0x310
-    __mutex_lock+0x6c/0x13f0
-    thread_imc_event_add+0xf4/0x1b0
-    event_sched_in+0xe0/0x210
-    merge_sched_in+0x1f0/0x600
-    visit_groups_merge.isra.92.constprop.166+0x2bc/0x6c0
-    ctx_flexible_sched_in+0xcc/0x140
-    ctx_sched_in+0x20c/0x2a0
-    ctx_resched+0x104/0x1c0
-    perf_event_exec+0x340/0x510
-    begin_new_exec+0x730/0xef0
-    load_elf_binary+0x3f8/0x1e10
-  ...
-  do not call blocking ops when !TASK_RUNNING; state=2001 set at [<00000000fd63e7cf>] do_nanosleep+0x60/0x1a0
-  WARNING: CPU: 36 PID: 2869 at kernel/sched/core.c:9912 __might_sleep+0x9c/0xb0
-  CPU: 36 PID: 2869 Comm: sleep Tainted: G        W          6.2.0-rc2-00011-g1247637727f2 #61
-  Hardware name: 8375-42A POWER9 0x4e1202 opal:v7.0-16-g9b85f7d961 PowerNV
-  NIP:  c000000000194a1c LR: c000000000194a18 CTR: c000000000a78670
-  REGS: c00000004d2134e0 TRAP: 0700   Tainted: G        W           (6.2.0-rc2-00011-g1247637727f2)
-  MSR:  9000000000021033 <SF,HV,ME,IR,DR,RI,LE>  CR: 48002824  XER: 00000000
-  CFAR: c00000000013fb64 IRQMASK: 1
+Times below were collected using `perf stat` to measure the time to
+remove a group containing a 1600-task, parallel workload.
 
-The above warning triggered because the current imc-pmu code uses mutex
-lock in interrupt disabled sections. The function mutex_lock()
-internally calls __might_resched(), which will check if IRQs are
-disabled and in case IRQs are disabled, it will trigger the warning.
+CPU: Intel(R) Xeon(R) Platinum P-8136 CPU @ 2.00GHz (112 threads)
 
-Fix the issue by changing the mutex lock to spinlock.
+  # mkdir /sys/fs/resctrl/test
+  # echo $$ > /sys/fs/resctrl/test/tasks
+  # perf bench sched messaging -g 40 -l 100000
 
-Fixes: 8f95faaac56c ("powerpc/powernv: Detect and create IMC device")
-Reported-by: Michael Petlan <mpetlan@redhat.com>
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-[mpe: Fix comments, trim oops in change log, add reported-by tags]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230106065157.182648-1-kjain@linux.ibm.com
+task-clock time ranges collected using:
 
-diff --git a/arch/powerpc/include/asm/imc-pmu.h b/arch/powerpc/include/asm/imc-pmu.h
-index 4f897993b710..699a88584ae1 100644
---- a/arch/powerpc/include/asm/imc-pmu.h
-+++ b/arch/powerpc/include/asm/imc-pmu.h
-@@ -137,7 +137,7 @@ struct imc_pmu {
-  * are inited.
-  */
- struct imc_pmu_ref {
--	struct mutex lock;
-+	spinlock_t lock;
- 	unsigned int id;
- 	int refc;
- };
-diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
-index d517aba94d1b..100e97daf76b 100644
---- a/arch/powerpc/perf/imc-pmu.c
-+++ b/arch/powerpc/perf/imc-pmu.c
-@@ -14,6 +14,7 @@
- #include <asm/cputhreads.h>
- #include <asm/smp.h>
- #include <linux/string.h>
-+#include <linux/spinlock.h>
- 
- /* Nest IMC data structures and variables */
- 
-@@ -21,7 +22,7 @@
-  * Used to avoid races in counting the nest-pmu units during hotplug
-  * register and unregister
-  */
--static DEFINE_MUTEX(nest_init_lock);
-+static DEFINE_SPINLOCK(nest_init_lock);
- static DEFINE_PER_CPU(struct imc_pmu_ref *, local_nest_imc_refc);
- static struct imc_pmu **per_nest_pmu_arr;
- static cpumask_t nest_imc_cpumask;
-@@ -50,7 +51,7 @@ static int trace_imc_mem_size;
-  * core and trace-imc
-  */
- static struct imc_pmu_ref imc_global_refc = {
--	.lock = __MUTEX_INITIALIZER(imc_global_refc.lock),
-+	.lock = __SPIN_LOCK_INITIALIZER(imc_global_refc.lock),
- 	.id = 0,
- 	.refc = 0,
- };
-@@ -400,7 +401,7 @@ static int ppc_nest_imc_cpu_offline(unsigned int cpu)
- 				       get_hard_smp_processor_id(cpu));
- 		/*
- 		 * If this is the last cpu in this chip then, skip the reference
--		 * count mutex lock and make the reference count on this chip zero.
-+		 * count lock and make the reference count on this chip zero.
- 		 */
- 		ref = get_nest_pmu_ref(cpu);
- 		if (!ref)
-@@ -462,15 +463,15 @@ static void nest_imc_counters_release(struct perf_event *event)
+  # perf stat rmdir /sys/fs/resctrl/test
+
+Baseline:                     1.54 - 1.60 ms
+smp_mb() every matching task: 1.57 - 1.67 ms
+
+  [ bp: Massage commit message. ]
+
+Fixes: ae28d1aae48a ("x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR")
+Fixes: 0efc89be9471 ("x86/intel_rdt: Update task closid immediately on CPU in rmdir and unmount")
+Signed-off-by: Peter Newman <peternewman@google.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Reviewed-by: Babu Moger <babu.moger@amd.com>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/20221220161123.432120-1-peternewman@google.com
+
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index e5a48f05e787..5993da21d822 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -580,8 +580,10 @@ static int __rdtgroup_move_task(struct task_struct *tsk,
  	/*
- 	 * See if we need to disable the nest PMU.
- 	 * If no events are currently in use, then we have to take a
--	 * mutex to ensure that we don't race with another task doing
-+	 * lock to ensure that we don't race with another task doing
- 	 * enable or disable the nest counters.
+ 	 * Ensure the task's closid and rmid are written before determining if
+ 	 * the task is current that will decide if it will be interrupted.
++	 * This pairs with the full barrier between the rq->curr update and
++	 * resctrl_sched_in() during context switch.
  	 */
- 	ref = get_nest_pmu_ref(event->cpu);
- 	if (!ref)
- 		return;
- 
--	/* Take the mutex lock for this node and then decrement the reference count */
--	mutex_lock(&ref->lock);
-+	/* Take the lock for this node and then decrement the reference count */
-+	spin_lock(&ref->lock);
- 	if (ref->refc == 0) {
- 		/*
- 		 * The scenario where this is true is, when perf session is
-@@ -482,7 +483,7 @@ static void nest_imc_counters_release(struct perf_event *event)
- 		 * an OPAL call to disable the engine in that node.
- 		 *
- 		 */
--		mutex_unlock(&ref->lock);
-+		spin_unlock(&ref->lock);
- 		return;
- 	}
- 	ref->refc--;
-@@ -490,7 +491,7 @@ static void nest_imc_counters_release(struct perf_event *event)
- 		rc = opal_imc_counters_stop(OPAL_IMC_COUNTERS_NEST,
- 					    get_hard_smp_processor_id(event->cpu));
- 		if (rc) {
--			mutex_unlock(&ref->lock);
-+			spin_unlock(&ref->lock);
- 			pr_err("nest-imc: Unable to stop the counters for core %d\n", node_id);
- 			return;
- 		}
-@@ -498,7 +499,7 @@ static void nest_imc_counters_release(struct perf_event *event)
- 		WARN(1, "nest-imc: Invalid event reference count\n");
- 		ref->refc = 0;
- 	}
--	mutex_unlock(&ref->lock);
-+	spin_unlock(&ref->lock);
- }
- 
- static int nest_imc_event_init(struct perf_event *event)
-@@ -557,26 +558,25 @@ static int nest_imc_event_init(struct perf_event *event)
+-	barrier();
++	smp_mb();
  
  	/*
- 	 * Get the imc_pmu_ref struct for this node.
--	 * Take the mutex lock and then increment the count of nest pmu events
--	 * inited.
-+	 * Take the lock and then increment the count of nest pmu events inited.
- 	 */
- 	ref = get_nest_pmu_ref(event->cpu);
- 	if (!ref)
- 		return -EINVAL;
+ 	 * By now, the task's closid and rmid are set. If the task is current
+@@ -2401,6 +2403,14 @@ static void rdt_move_group_tasks(struct rdtgroup *from, struct rdtgroup *to,
+ 			WRITE_ONCE(t->closid, to->closid);
+ 			WRITE_ONCE(t->rmid, to->mon.rmid);
  
--	mutex_lock(&ref->lock);
-+	spin_lock(&ref->lock);
- 	if (ref->refc == 0) {
- 		rc = opal_imc_counters_start(OPAL_IMC_COUNTERS_NEST,
- 					     get_hard_smp_processor_id(event->cpu));
- 		if (rc) {
--			mutex_unlock(&ref->lock);
-+			spin_unlock(&ref->lock);
- 			pr_err("nest-imc: Unable to start the counters for node %d\n",
- 									node_id);
- 			return rc;
- 		}
- 	}
- 	++ref->refc;
--	mutex_unlock(&ref->lock);
-+	spin_unlock(&ref->lock);
- 
- 	event->destroy = nest_imc_counters_release;
- 	return 0;
-@@ -612,9 +612,8 @@ static int core_imc_mem_init(int cpu, int size)
- 		return -ENOMEM;
- 	mem_info->vbase = page_address(page);
- 
--	/* Init the mutex */
- 	core_imc_refc[core_id].id = core_id;
--	mutex_init(&core_imc_refc[core_id].lock);
-+	spin_lock_init(&core_imc_refc[core_id].lock);
- 
- 	rc = opal_imc_counters_init(OPAL_IMC_COUNTERS_CORE,
- 				__pa((void *)mem_info->vbase),
-@@ -703,9 +702,8 @@ static int ppc_core_imc_cpu_offline(unsigned int cpu)
- 		perf_pmu_migrate_context(&core_imc_pmu->pmu, cpu, ncpu);
- 	} else {
- 		/*
--		 * If this is the last cpu in this core then, skip taking refernce
--		 * count mutex lock for this core and directly zero "refc" for
--		 * this core.
-+		 * If this is the last cpu in this core then skip taking reference
-+		 * count lock for this core and directly zero "refc" for this core.
- 		 */
- 		opal_imc_counters_stop(OPAL_IMC_COUNTERS_CORE,
- 				       get_hard_smp_processor_id(cpu));
-@@ -720,11 +718,11 @@ static int ppc_core_imc_cpu_offline(unsigned int cpu)
- 		 * last cpu in this core and core-imc event running
- 		 * in this cpu.
- 		 */
--		mutex_lock(&imc_global_refc.lock);
-+		spin_lock(&imc_global_refc.lock);
- 		if (imc_global_refc.id == IMC_DOMAIN_CORE)
- 			imc_global_refc.refc--;
- 
--		mutex_unlock(&imc_global_refc.lock);
-+		spin_unlock(&imc_global_refc.lock);
- 	}
- 	return 0;
- }
-@@ -739,7 +737,7 @@ static int core_imc_pmu_cpumask_init(void)
- 
- static void reset_global_refc(struct perf_event *event)
- {
--		mutex_lock(&imc_global_refc.lock);
-+		spin_lock(&imc_global_refc.lock);
- 		imc_global_refc.refc--;
- 
- 		/*
-@@ -751,7 +749,7 @@ static void reset_global_refc(struct perf_event *event)
- 			imc_global_refc.refc = 0;
- 			imc_global_refc.id = 0;
- 		}
--		mutex_unlock(&imc_global_refc.lock);
-+		spin_unlock(&imc_global_refc.lock);
- }
- 
- static void core_imc_counters_release(struct perf_event *event)
-@@ -764,17 +762,17 @@ static void core_imc_counters_release(struct perf_event *event)
- 	/*
- 	 * See if we need to disable the IMC PMU.
- 	 * If no events are currently in use, then we have to take a
--	 * mutex to ensure that we don't race with another task doing
-+	 * lock to ensure that we don't race with another task doing
- 	 * enable or disable the core counters.
- 	 */
- 	core_id = event->cpu / threads_per_core;
- 
--	/* Take the mutex lock and decrement the refernce count for this core */
-+	/* Take the lock and decrement the refernce count for this core */
- 	ref = &core_imc_refc[core_id];
- 	if (!ref)
- 		return;
- 
--	mutex_lock(&ref->lock);
-+	spin_lock(&ref->lock);
- 	if (ref->refc == 0) {
- 		/*
- 		 * The scenario where this is true is, when perf session is
-@@ -786,7 +784,7 @@ static void core_imc_counters_release(struct perf_event *event)
- 		 * an OPAL call to disable the engine in that core.
- 		 *
- 		 */
--		mutex_unlock(&ref->lock);
-+		spin_unlock(&ref->lock);
- 		return;
- 	}
- 	ref->refc--;
-@@ -794,7 +792,7 @@ static void core_imc_counters_release(struct perf_event *event)
- 		rc = opal_imc_counters_stop(OPAL_IMC_COUNTERS_CORE,
- 					    get_hard_smp_processor_id(event->cpu));
- 		if (rc) {
--			mutex_unlock(&ref->lock);
-+			spin_unlock(&ref->lock);
- 			pr_err("IMC: Unable to stop the counters for core %d\n", core_id);
- 			return;
- 		}
-@@ -802,7 +800,7 @@ static void core_imc_counters_release(struct perf_event *event)
- 		WARN(1, "core-imc: Invalid event reference count\n");
- 		ref->refc = 0;
- 	}
--	mutex_unlock(&ref->lock);
-+	spin_unlock(&ref->lock);
- 
- 	reset_global_refc(event);
- }
-@@ -840,7 +838,6 @@ static int core_imc_event_init(struct perf_event *event)
- 	if ((!pcmi->vbase))
- 		return -ENODEV;
- 
--	/* Get the core_imc mutex for this core */
- 	ref = &core_imc_refc[core_id];
- 	if (!ref)
- 		return -EINVAL;
-@@ -848,22 +845,22 @@ static int core_imc_event_init(struct perf_event *event)
- 	/*
- 	 * Core pmu units are enabled only when it is used.
- 	 * See if this is triggered for the first time.
--	 * If yes, take the mutex lock and enable the core counters.
-+	 * If yes, take the lock and enable the core counters.
- 	 * If not, just increment the count in core_imc_refc struct.
- 	 */
--	mutex_lock(&ref->lock);
-+	spin_lock(&ref->lock);
- 	if (ref->refc == 0) {
- 		rc = opal_imc_counters_start(OPAL_IMC_COUNTERS_CORE,
- 					     get_hard_smp_processor_id(event->cpu));
- 		if (rc) {
--			mutex_unlock(&ref->lock);
-+			spin_unlock(&ref->lock);
- 			pr_err("core-imc: Unable to start the counters for core %d\n",
- 									core_id);
- 			return rc;
- 		}
- 	}
- 	++ref->refc;
--	mutex_unlock(&ref->lock);
-+	spin_unlock(&ref->lock);
- 
- 	/*
- 	 * Since the system can run either in accumulation or trace-mode
-@@ -874,7 +871,7 @@ static int core_imc_event_init(struct perf_event *event)
- 	 * to know whether any other trace/thread imc
- 	 * events are running.
- 	 */
--	mutex_lock(&imc_global_refc.lock);
-+	spin_lock(&imc_global_refc.lock);
- 	if (imc_global_refc.id == 0 || imc_global_refc.id == IMC_DOMAIN_CORE) {
- 		/*
- 		 * No other trace/thread imc events are running in
-@@ -883,10 +880,10 @@ static int core_imc_event_init(struct perf_event *event)
- 		imc_global_refc.id = IMC_DOMAIN_CORE;
- 		imc_global_refc.refc++;
- 	} else {
--		mutex_unlock(&imc_global_refc.lock);
-+		spin_unlock(&imc_global_refc.lock);
- 		return -EBUSY;
- 	}
--	mutex_unlock(&imc_global_refc.lock);
-+	spin_unlock(&imc_global_refc.lock);
- 
- 	event->hw.event_base = (u64)pcmi->vbase + (config & IMC_EVENT_OFFSET_MASK);
- 	event->destroy = core_imc_counters_release;
-@@ -958,10 +955,10 @@ static int ppc_thread_imc_cpu_offline(unsigned int cpu)
- 	mtspr(SPRN_LDBAR, (mfspr(SPRN_LDBAR) & (~(1UL << 63))));
- 
- 	/* Reduce the refc if thread-imc event running on this cpu */
--	mutex_lock(&imc_global_refc.lock);
-+	spin_lock(&imc_global_refc.lock);
- 	if (imc_global_refc.id == IMC_DOMAIN_THREAD)
- 		imc_global_refc.refc--;
--	mutex_unlock(&imc_global_refc.lock);
-+	spin_unlock(&imc_global_refc.lock);
- 
- 	return 0;
- }
-@@ -1001,7 +998,7 @@ static int thread_imc_event_init(struct perf_event *event)
- 	if (!target)
- 		return -EINVAL;
- 
--	mutex_lock(&imc_global_refc.lock);
-+	spin_lock(&imc_global_refc.lock);
- 	/*
- 	 * Check if any other trace/core imc events are running in the
- 	 * system, if not set the global id to thread-imc.
-@@ -1010,10 +1007,10 @@ static int thread_imc_event_init(struct perf_event *event)
- 		imc_global_refc.id = IMC_DOMAIN_THREAD;
- 		imc_global_refc.refc++;
- 	} else {
--		mutex_unlock(&imc_global_refc.lock);
-+		spin_unlock(&imc_global_refc.lock);
- 		return -EBUSY;
- 	}
--	mutex_unlock(&imc_global_refc.lock);
-+	spin_unlock(&imc_global_refc.lock);
- 
- 	event->pmu->task_ctx_nr = perf_sw_context;
- 	event->destroy = reset_global_refc;
-@@ -1135,25 +1132,25 @@ static int thread_imc_event_add(struct perf_event *event, int flags)
- 	/*
- 	 * imc pmus are enabled only when it is used.
- 	 * See if this is triggered for the first time.
--	 * If yes, take the mutex lock and enable the counters.
-+	 * If yes, take the lock and enable the counters.
- 	 * If not, just increment the count in ref count struct.
- 	 */
- 	ref = &core_imc_refc[core_id];
- 	if (!ref)
- 		return -EINVAL;
- 
--	mutex_lock(&ref->lock);
-+	spin_lock(&ref->lock);
- 	if (ref->refc == 0) {
- 		if (opal_imc_counters_start(OPAL_IMC_COUNTERS_CORE,
- 		    get_hard_smp_processor_id(smp_processor_id()))) {
--			mutex_unlock(&ref->lock);
-+			spin_unlock(&ref->lock);
- 			pr_err("thread-imc: Unable to start the counter\
- 				for core %d\n", core_id);
- 			return -EINVAL;
- 		}
- 	}
- 	++ref->refc;
--	mutex_unlock(&ref->lock);
-+	spin_unlock(&ref->lock);
- 	return 0;
- }
- 
-@@ -1170,12 +1167,12 @@ static void thread_imc_event_del(struct perf_event *event, int flags)
- 		return;
- 	}
- 
--	mutex_lock(&ref->lock);
-+	spin_lock(&ref->lock);
- 	ref->refc--;
- 	if (ref->refc == 0) {
- 		if (opal_imc_counters_stop(OPAL_IMC_COUNTERS_CORE,
- 		    get_hard_smp_processor_id(smp_processor_id()))) {
--			mutex_unlock(&ref->lock);
-+			spin_unlock(&ref->lock);
- 			pr_err("thread-imc: Unable to stop the counters\
- 				for core %d\n", core_id);
- 			return;
-@@ -1183,7 +1180,7 @@ static void thread_imc_event_del(struct perf_event *event, int flags)
- 	} else if (ref->refc < 0) {
- 		ref->refc = 0;
- 	}
--	mutex_unlock(&ref->lock);
-+	spin_unlock(&ref->lock);
- 
- 	/* Set bit 0 of LDBAR to zero, to stop posting updates to memory */
- 	mtspr(SPRN_LDBAR, (mfspr(SPRN_LDBAR) & (~(1UL << 63))));
-@@ -1224,9 +1221,8 @@ static int trace_imc_mem_alloc(int cpu_id, int size)
- 		}
- 	}
- 
--	/* Init the mutex, if not already */
- 	trace_imc_refc[core_id].id = core_id;
--	mutex_init(&trace_imc_refc[core_id].lock);
-+	spin_lock_init(&trace_imc_refc[core_id].lock);
- 
- 	mtspr(SPRN_LDBAR, 0);
- 	return 0;
-@@ -1246,10 +1242,10 @@ static int ppc_trace_imc_cpu_offline(unsigned int cpu)
- 	 * Reduce the refc if any trace-imc event running
- 	 * on this cpu.
- 	 */
--	mutex_lock(&imc_global_refc.lock);
-+	spin_lock(&imc_global_refc.lock);
- 	if (imc_global_refc.id == IMC_DOMAIN_TRACE)
- 		imc_global_refc.refc--;
--	mutex_unlock(&imc_global_refc.lock);
-+	spin_unlock(&imc_global_refc.lock);
- 
- 	return 0;
- }
-@@ -1371,17 +1367,17 @@ static int trace_imc_event_add(struct perf_event *event, int flags)
- 	}
- 
- 	mtspr(SPRN_LDBAR, ldbar_value);
--	mutex_lock(&ref->lock);
-+	spin_lock(&ref->lock);
- 	if (ref->refc == 0) {
- 		if (opal_imc_counters_start(OPAL_IMC_COUNTERS_TRACE,
- 				get_hard_smp_processor_id(smp_processor_id()))) {
--			mutex_unlock(&ref->lock);
-+			spin_unlock(&ref->lock);
- 			pr_err("trace-imc: Unable to start the counters for core %d\n", core_id);
- 			return -EINVAL;
- 		}
- 	}
- 	++ref->refc;
--	mutex_unlock(&ref->lock);
-+	spin_unlock(&ref->lock);
- 	return 0;
- }
- 
-@@ -1414,19 +1410,19 @@ static void trace_imc_event_del(struct perf_event *event, int flags)
- 		return;
- 	}
- 
--	mutex_lock(&ref->lock);
-+	spin_lock(&ref->lock);
- 	ref->refc--;
- 	if (ref->refc == 0) {
- 		if (opal_imc_counters_stop(OPAL_IMC_COUNTERS_TRACE,
- 				get_hard_smp_processor_id(smp_processor_id()))) {
--			mutex_unlock(&ref->lock);
-+			spin_unlock(&ref->lock);
- 			pr_err("trace-imc: Unable to stop the counters for core %d\n", core_id);
- 			return;
- 		}
- 	} else if (ref->refc < 0) {
- 		ref->refc = 0;
- 	}
--	mutex_unlock(&ref->lock);
-+	spin_unlock(&ref->lock);
- 
- 	trace_imc_event_stop(event, flags);
- }
-@@ -1448,7 +1444,7 @@ static int trace_imc_event_init(struct perf_event *event)
- 	 * no other thread is running any core/thread imc
- 	 * events
- 	 */
--	mutex_lock(&imc_global_refc.lock);
-+	spin_lock(&imc_global_refc.lock);
- 	if (imc_global_refc.id == 0 || imc_global_refc.id == IMC_DOMAIN_TRACE) {
- 		/*
- 		 * No core/thread imc events are running in the
-@@ -1457,10 +1453,10 @@ static int trace_imc_event_init(struct perf_event *event)
- 		imc_global_refc.id = IMC_DOMAIN_TRACE;
- 		imc_global_refc.refc++;
- 	} else {
--		mutex_unlock(&imc_global_refc.lock);
-+		spin_unlock(&imc_global_refc.lock);
- 		return -EBUSY;
- 	}
--	mutex_unlock(&imc_global_refc.lock);
-+	spin_unlock(&imc_global_refc.lock);
- 
- 	event->hw.idx = -1;
- 
-@@ -1533,10 +1529,10 @@ static int init_nest_pmu_ref(void)
- 	i = 0;
- 	for_each_node(nid) {
- 		/*
--		 * Mutex lock to avoid races while tracking the number of
-+		 * Take the lock to avoid races while tracking the number of
- 		 * sessions using the chip's nest pmu units.
- 		 */
--		mutex_init(&nest_imc_refc[i].lock);
-+		spin_lock_init(&nest_imc_refc[i].lock);
- 
- 		/*
- 		 * Loop to init the "id" with the node_id. Variable "i" initialized to
-@@ -1633,7 +1629,7 @@ static void imc_common_mem_free(struct imc_pmu *pmu_ptr)
- static void imc_common_cpuhp_mem_free(struct imc_pmu *pmu_ptr)
- {
- 	if (pmu_ptr->domain == IMC_DOMAIN_NEST) {
--		mutex_lock(&nest_init_lock);
-+		spin_lock(&nest_init_lock);
- 		if (nest_pmus == 1) {
- 			cpuhp_remove_state(CPUHP_AP_PERF_POWERPC_NEST_IMC_ONLINE);
- 			kfree(nest_imc_refc);
-@@ -1643,7 +1639,7 @@ static void imc_common_cpuhp_mem_free(struct imc_pmu *pmu_ptr)
- 
- 		if (nest_pmus > 0)
- 			nest_pmus--;
--		mutex_unlock(&nest_init_lock);
-+		spin_unlock(&nest_init_lock);
- 	}
- 
- 	/* Free core_imc memory */
-@@ -1800,11 +1796,11 @@ int init_imc_pmu(struct device_node *parent, struct imc_pmu *pmu_ptr, int pmu_id
- 		* rest. To handle the cpuhotplug callback unregister, we track
- 		* the number of nest pmus in "nest_pmus".
- 		*/
--		mutex_lock(&nest_init_lock);
-+		spin_lock(&nest_init_lock);
- 		if (nest_pmus == 0) {
- 			ret = init_nest_pmu_ref();
- 			if (ret) {
--				mutex_unlock(&nest_init_lock);
-+				spin_unlock(&nest_init_lock);
- 				kfree(per_nest_pmu_arr);
- 				per_nest_pmu_arr = NULL;
- 				goto err_free_mem;
-@@ -1812,7 +1808,7 @@ int init_imc_pmu(struct device_node *parent, struct imc_pmu *pmu_ptr, int pmu_id
- 			/* Register for cpu hotplug notification. */
- 			ret = nest_pmu_cpumask_init();
- 			if (ret) {
--				mutex_unlock(&nest_init_lock);
-+				spin_unlock(&nest_init_lock);
- 				kfree(nest_imc_refc);
- 				kfree(per_nest_pmu_arr);
- 				per_nest_pmu_arr = NULL;
-@@ -1820,7 +1816,7 @@ int init_imc_pmu(struct device_node *parent, struct imc_pmu *pmu_ptr, int pmu_id
- 			}
- 		}
- 		nest_pmus++;
--		mutex_unlock(&nest_init_lock);
-+		spin_unlock(&nest_init_lock);
- 		break;
- 	case IMC_DOMAIN_CORE:
- 		ret = core_imc_pmu_cpumask_init();
++			/*
++			 * Order the closid/rmid stores above before the loads
++			 * in task_curr(). This pairs with the full barrier
++			 * between the rq->curr update and resctrl_sched_in()
++			 * during context switch.
++			 */
++			smp_mb();
++
+ 			/*
+ 			 * If the task is on a CPU, set the CPU in the mask.
+ 			 * The detection is inaccurate as tasks might move or
 
