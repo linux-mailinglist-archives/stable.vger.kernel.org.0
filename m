@@ -2,120 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B301066B3B9
-	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 20:53:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 497D866B3BC
+	for <lists+stable@lfdr.de>; Sun, 15 Jan 2023 20:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231557AbjAOTxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 Jan 2023 14:53:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50150 "EHLO
+        id S231546AbjAOT63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 Jan 2023 14:58:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231154AbjAOTxn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 14:53:43 -0500
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2EE81285A
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 11:53:41 -0800 (PST)
-Received: by mail-lf1-x134.google.com with SMTP id cf42so40137166lfb.1
-        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 11:53:41 -0800 (PST)
+        with ESMTP id S231496AbjAOT62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 Jan 2023 14:58:28 -0500
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 439B712F00
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 11:58:27 -0800 (PST)
+Received: by mail-pl1-x62a.google.com with SMTP id c6so28347762pls.4
+        for <stable@vger.kernel.org>; Sun, 15 Jan 2023 11:58:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=R/ejN6HxLTHHDXLF7+I38WOnnbW5uVWnufthnnCTFuY=;
-        b=gJXRrElF7CiEw/HJ7DCcdwlFm3XWRSxYa8sKfkIb9+V0MoViSAFA+306myH0vk/15c
-         zBGBVGKhahU/++SGNTqpnYFQbxxbmc+sqkpiosHZBAAwJG5UIvJT/aF5Ux4S5mqtg6S0
-         ZggM3N/QjJlD7QKLe/5YqC2iOdAaCLpRqjcaMDw6bOtMm8h2EvMAXzH70Ft9bvV3ehju
-         XDXqLyLJx4XAxJhOhs5prBTT6htMu3QHGSJ1vM7umoBXiJQM5nXNT10WyNxcmExZ1Cp0
-         VOLsjA90BqVL0OBTjN4z83mCG9YWp6bTgm569VlU8H7wlrPdJRIe4vbRMcV3SISqNq8N
-         kBwA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=5MfGPaaftG+9Dy+/wG9Z91sKFFYex2y4e6IN+PyXu8Y=;
+        b=Vby+XSRSFjkW2RJOoGTtRy8wSlekH1+blsWKjGJTLr4MaIbQxElMMGbVUPrByeK+EJ
+         Q7lgkNa9mOoYhr18BNgpBhOWmeiNexqtbGfxvczoRO0PpVxnDu8jm7iNdk9TpLYLM+vO
+         zJPdI279mFvSsN88KyhR3Y+jJocpcva6DE8+mctTQ2yGNBBWonvPEKF9BP3PPmNScu2E
+         mkqkxKtj12FTWjs+L0ropMY4aBwcGzmQZeeCXRzGmpaeTmgvGr8HshxZBOOEOuoKLPeW
+         Xi3Z27ty1D29OBUuXAz/jyZ8e0Pcqdk8bv9bRTlqWWdMU+6mBc/1OSdIOpwvYYGRzbzx
+         RDJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=R/ejN6HxLTHHDXLF7+I38WOnnbW5uVWnufthnnCTFuY=;
-        b=q7qUDfTNw8+PNe1aOW4nVihvOlVatrxoF3oeEr4P3lIaXpXmc+jQ35MlQgZMrRg1/j
-         j60lrZjq1KF4CeDkeiuLYWkI1dZR0IiFDrA1FBFxO4qOkN81QbJBg9htN6o479EtmEUn
-         K+lua4hKzPE2OeNlHa6n9LEyJ16XCrZ1nY5OWwm7a6XQQVLdiFwUaSBRop1ySItUPK1L
-         GOzzahXYQ9hKq6QI+4z+eGklpHbRHEfRz8GI33R3X+dqwRhuDhMHJKADYQB6jsH0ashZ
-         WTZyJy+bWd2pBA2ksiPt7roWhPduzmJ0re8jOT93UNxmakQ7kpOX5KG13BTgn55by2c3
-         cuhA==
-X-Gm-Message-State: AFqh2kokoABw75bMMxU83TEIabm448sOapuyiNzOOPt5ONxnCRmRx3Ft
-        o1lZnc6Ex+MaKqOQXY6B3+a2WQ==
-X-Google-Smtp-Source: AMrXdXs8LtiGYJSIP5FOeFhtEK/WNqj7cUyCysUFLbo6kBFA6IQivfX45L/d2pXz58lsSMynXmkDzw==
-X-Received: by 2002:a05:6512:224f:b0:4cc:586b:1834 with SMTP id i15-20020a056512224f00b004cc586b1834mr12702690lfu.45.1673812420160;
-        Sun, 15 Jan 2023 11:53:40 -0800 (PST)
-Received: from localhost.localdomain (c-05d8225c.014-348-6c756e10.bbcust.telenor.se. [92.34.216.5])
-        by smtp.gmail.com with ESMTPSA id r12-20020ac252ac000000b004aab0ca795csm4780439lfm.211.2023.01.15.11.53.38
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5MfGPaaftG+9Dy+/wG9Z91sKFFYex2y4e6IN+PyXu8Y=;
+        b=ayrZDntok6QW+qhr282BwArr8JYQeSmL3C1ZR05llrhLQkmvyjciZVcvPEBDmJFv3L
+         3k9Auyf3sYXfXaXqRzlDyd6PO1BODcqt4j6CdkPyeCe2i0YiHmOswYmNCKv72rtLBNai
+         IxHq81ce5zrLxr5xJc96l9PiK1hLaVAb28pyHbh5BQDZToRwr2Bic5++v8gG3Uo7fKyq
+         KGP1Bn5fRx+r8TQawghlRw9kywZFqCTZFM4IUFtkZjAsXYhxC22P467DOkcSSf36BzCS
+         7seUlTxlLlxp3ZLkupakYgLn6gayTarwp6+Nnk/ERfiyvisPBtIpYEStsbX5DQFVQY4n
+         aTaA==
+X-Gm-Message-State: AFqh2kqr7jxWC4A4tjxXydalbqs6s3G39x8+MLZg7sBZxaLsn83jQO5L
+        wsCjDmNafUqpgoTWBsGxNkuPsSU/evCiwDZTim18Sg==
+X-Google-Smtp-Source: AMrXdXuSgmRkjkfMn9qSbbYIb+brVlGy+GwhIpqEmGmCfRFMiAkLfMumF3a3e/3+0A0grBB3XnLoNg==
+X-Received: by 2002:a17:902:6b89:b0:18f:6cb:1730 with SMTP id p9-20020a1709026b8900b0018f06cb1730mr84862747plk.26.1673812706511;
+        Sun, 15 Jan 2023 11:58:26 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s7-20020a170902b18700b0019335832ee9sm13424600plr.179.2023.01.15.11.58.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Jan 2023 11:53:39 -0800 (PST)
-From:   Linus Walleij <linus.walleij@linaro.org>
-To:     u-boot@lists.denx.de, Tom Rini <trini@konsulko.com>
-Cc:     Anand Gore <anand.gore@broadcom.com>,
-        William Zhang <william.zhang@broadcom.com>,
-        Kursad Oney <kursad.oney@broadcom.com>,
-        Joel Peshkin <joel.peshkin@broadcom.com>,
-        Philippe Reynes <philippe.reynes@softathome.com>,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, stable@vger.kernel.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 07/14] mtd: rawnand: brcmnand: fix hamming oob layout
-Date:   Sun, 15 Jan 2023 20:53:05 +0100
-Message-Id: <20230115195312.1477845-8-linus.walleij@linaro.org>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230115195312.1477845-1-linus.walleij@linaro.org>
-References: <20230115195312.1477845-1-linus.walleij@linaro.org>
+        Sun, 15 Jan 2023 11:58:26 -0800 (PST)
+Message-ID: <63c45ae2.170a0220.16f9f.5f6f@mx.google.com>
+Date:   Sun, 15 Jan 2023 11:58:26 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.15.87-58-g5043470dbadb
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.15 baseline: 124 runs,
+ 2 regressions (v5.15.87-58-g5043470dbadb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+stable-rc/queue/5.15 baseline: 124 runs, 2 regressions (v5.15.87-58-g504347=
+0dbadb)
 
-First 2 bytes are used in large-page nand.
+Regressions Summary
+-------------------
 
-Fixes: ef5eeea6e911 ("mtd: nand: brcm: switch to mtd_ooblayout_ops")
-Cc: stable@vger.kernel.org
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200512075733.745374-2-noltari@gmail.com
-[Ported to U-Boot from the Linux kernel]
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/mtd/nand/raw/brcmnand/brcmnand.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+platform           | arch  | lab         | compiler | defconfig | regressio=
+ns
+-------------------+-------+-------------+----------+-----------+----------=
+--
+kontron-pitx-imx8m | arm64 | lab-kontron | gcc-10   | defconfig | 2        =
+  =
 
-diff --git a/drivers/mtd/nand/raw/brcmnand/brcmnand.c b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-index fdc1fc6c1043..7cb6f2651250 100644
---- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-@@ -1059,11 +1059,14 @@ static int brcmnand_hamming_ooblayout_free(struct mtd_info *mtd, int section,
- 		if (!section) {
- 			/*
- 			 * Small-page NAND use byte 6 for BBI while large-page
--			 * NAND use byte 0.
-+			 * NAND use bytes 0 and 1.
- 			 */
--			if (cfg->page_size > 512)
--				oobregion->offset++;
--			oobregion->length--;
-+			if (cfg->page_size > 512) {
-+				oobregion->offset += 2;
-+				oobregion->length -= 2;
-+			} else {
-+				oobregion->length--;
-+			}
- 		}
- 	}
- 
--- 
-2.39.0
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.87-58-g5043470dbadb/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.87-58-g5043470dbadb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5043470dbadb2e721d21f473e968c6340995e9f6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab         | compiler | defconfig | regressio=
+ns
+-------------------+-------+-------------+----------+-----------+----------=
+--
+kontron-pitx-imx8m | arm64 | lab-kontron | gcc-10   | defconfig | 2        =
+  =
+
+
+  Details:     https://kernelci.org/test/plan/id/63c42876b54961773c1d39f1
+
+  Results:     50 PASS, 2 FAIL, 1 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.87-=
+58-g5043470dbadb/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-i=
+mx8m.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.87-=
+58-g5043470dbadb/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-i=
+mx8m.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230109.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63c42876b54961773c1d39f4
+        new failure (last pass: v5.15.87-52-g49b2bfa5a39b)
+
+    2023-01-15T16:22:50.807311  / # #
+    2023-01-15T16:22:50.909409  export SHELL=3D/bin/sh
+    2023-01-15T16:22:50.910052  #
+    2023-01-15T16:22:51.012232  / # export SHELL=3D/bin/sh. /lava-247326/en=
+vironment
+    2023-01-15T16:22:51.012794  =
+
+    2023-01-15T16:22:51.114204  / # . /lava-247326/environment/lava-247326/=
+bin/lava-test-runner /lava-247326/1
+    2023-01-15T16:22:51.114763  =
+
+    2023-01-15T16:22:51.119731  / # /lava-247326/bin/lava-test-runner /lava=
+-247326/1
+    2023-01-15T16:22:51.181075  + export 'TESTRUN_ID=3D1_bootrr'
+    2023-01-15T16:22:51.181395  + cd /l<8>[   12.195149] <LAVA_SIGNAL_START=
+RUN 1_bootrr 247326_1.5.2.4.5> =
+
+    ... (10 line(s) more)  =
+
+
+  * baseline.bootrr.dwc3-usb1-probed: https://kernelci.org/test/case/id/63c=
+42876b54961773c1d3a04
+        new failure (last pass: v5.15.87-52-g49b2bfa5a39b)
+
+    2023-01-15T16:22:53.504114  /lava-247326/1/../bin/lava-test-case
+    2023-01-15T16:22:53.504377  <8>[   14.612752] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwc3-usb1-probed RESULT=3Dfail>
+    2023-01-15T16:22:53.504525  /lava-247326/1/../bin/lava-test-case   =
+
+ =20
