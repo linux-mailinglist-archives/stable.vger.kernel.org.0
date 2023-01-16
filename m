@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DB1866CA00
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:58:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1348E66C784
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233823AbjAPQ6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:58:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50858 "EHLO
+        id S233280AbjAPQbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:31:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234090AbjAPQ5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66DE8367C5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:51 -0800 (PST)
+        with ESMTP id S233272AbjAPQaz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64C5D244AF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:19:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03DB361050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1784FC433F1;
-        Mon, 16 Jan 2023 16:40:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15A15B8105F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6631CC433EF;
+        Mon, 16 Jan 2023 16:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887250;
-        bh=1WwnH1dCxYplpChRteElxxx0MqCVuufsw9h2avIfFHI=;
+        s=korg; t=1673885950;
+        bh=wByV7T4846QB3zGIo5wH2q+RBJTpEl7k//NVRMdWRXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDy01Qcw5dajf5W4WqOuR5KnynrDJxXk+kG5VQmzqEU74Tv93zF3PO+7S9ImnMAp4
-         beXfYbO07+j9STOYYteBHuOPgmjeqFfM552IIY8wGjE/6cLvx5qSiUyMPxQvgESuiR
-         rNqdTOHqclMIB/yc7CcmJ8kemTPOiVUrroLz8y28=
+        b=ulIc3vsb0RExTiJryCXLb+BG5BSApAziguKBpLsuWaYTaCEzMQFgPRx+Aar31gbVi
+         pPPaXYBjkZBJ0ukdALceqN3Nx/d7jVTPKBEWq1FBRbB90/1vwUKadrhQLSNs9UP8Kd
+         Jw/quS+Qf66XX6eMCY9GtUPfcpGm2nH/xtjWAALo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Dongdong Zhang <zhangdongdong1@oppo.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/521] PM: runtime: Improve path in rpm_idle() when no callback
-Date:   Mon, 16 Jan 2023 16:45:32 +0100
-Message-Id: <20230116154850.342844367@linuxfoundation.org>
+Subject: [PATCH 5.4 245/658] f2fs: fix normal discard process
+Date:   Mon, 16 Jan 2023 16:45:33 +0100
+Message-Id: <20230116154920.772332986@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Dongdong Zhang <zhangdongdong1@oppo.com>
 
-[ Upstream commit 5a2bd1b1c64e1ac5627db3767ac465f18606315c ]
+[ Upstream commit b5f1a218ae5e4339130d6e733f0e63d623e09a2c ]
 
-When pm_runtime_no_callbacks() has been called for a struct device to set
-the dev->power.no_callbacks flag for it, it enables rpm_idle() to take a
-slightly quicker path by assuming that a ->runtime_idle() callback would
-have returned 0 to indicate success.
+In the DPOLICY_BG mode, there is a conflict between
+the two conditions "i + 1 < dpolicy->granularity" and
+"i < DEFAULT_DISCARD_GRANULARITY". If i = 15, the first
+condition is false, it will enter the second condition
+and dispatch all small granularity discards in function
+ __issue_discard_cmd_orderly. The restrictive effect
+of the first condition to small discards will be
+invalidated. These two conditions should align.
 
-A device that does not have the dev->power.no_callbacks flag set for it,
-may still be missing a corresponding ->runtime_idle() callback, in which
-case the slower path in rpm_idle() is taken. Let's improve the behaviour
-for this case, by aligning code to the quicker path.
-
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Stable-dep-of: bc80c2e438dc ("PM: runtime: Do not call __rpm_callback() from rpm_idle()")
+Fixes: 20ee4382322c ("f2fs: issue small discard by LBA order")
+Signed-off-by: Dongdong Zhang <zhangdongdong1@oppo.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/power/runtime.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/f2fs/segment.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
-index eaae4adf9ce4..8a018e6d7976 100644
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -403,7 +403,10 @@ static int rpm_idle(struct device *dev, int rpmflags)
- 	/* Pending requests need to be canceled. */
- 	dev->power.request = RPM_REQ_NONE;
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 7759323bd775..e43b57755a7f 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -1486,7 +1486,7 @@ static int __issue_discard_cmd(struct f2fs_sb_info *sbi,
+ 		if (i + 1 < dpolicy->granularity)
+ 			break;
  
--	if (dev->power.no_callbacks)
-+	callback = RPM_GET_CALLBACK(dev, runtime_idle);
-+
-+	/* If no callback assume success. */
-+	if (!callback || dev->power.no_callbacks)
- 		goto out;
+-		if (i < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
++		if (i + 1 < DEFAULT_DISCARD_GRANULARITY && dpolicy->ordered)
+ 			return __issue_discard_cmd_orderly(sbi, dpolicy);
  
- 	/* Carry out an asynchronous or a synchronous idle notification. */
-@@ -419,10 +422,7 @@ static int rpm_idle(struct device *dev, int rpmflags)
- 
- 	dev->power.idle_notification = true;
- 
--	callback = RPM_GET_CALLBACK(dev, runtime_idle);
--
--	if (callback)
--		retval = __rpm_callback(callback, dev);
-+	retval = __rpm_callback(callback, dev);
- 
- 	dev->power.idle_notification = false;
- 	wake_up_all(&dev->power.wait_queue);
+ 		pend_list = &dcc->pend_list[i];
 -- 
 2.35.1
 
