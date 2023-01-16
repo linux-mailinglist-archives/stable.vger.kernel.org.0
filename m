@@ -2,53 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF24066C529
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:02:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 807AC66C5CD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:10:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232213AbjAPQCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:02:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44058 "EHLO
+        id S232659AbjAPQKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:10:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232066AbjAPQBs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:01:48 -0500
+        with ESMTP id S232664AbjAPQKB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:10:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C0ED23C50
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B362887C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D20561047
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A9F2C433EF;
-        Mon, 16 Jan 2023 16:01:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89E8061042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE6CC433F0;
+        Mon, 16 Jan 2023 16:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884906;
-        bh=7ngtpNpRdyuMIe9jf8cRtnaBAiVtorvis9hHf1pqhiw=;
+        s=korg; t=1673885192;
+        bh=OX3De3K0dnmZshj/eNmoMtnOpR/9vSvZiJHpikNXOrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/dYQD4jrsa/OldTO84qW1CBBFZeuPn4cdppxwVXixScK8BjkZPaSyRKEIimFDKBA
-         B+arq/2I1wK27rRoHFaX8cTXHM9aujaCRPAnlPxdrBkxwYFDqXouI/Fs5fDmRtrYQ5
-         deyXqBbIAP9bcRQhIRU1A0F2Hff+3f2xGfZNccFk=
+        b=yXY+WxhEV4Oo6bHxUkea4pIMyqvG8i9SSDJjvRySxn+TufOF8xgU2S+Gk5DcCgxtJ
+         D+k7wIqQwEuJJoGhRcWIalTXSjiOJIPOLuRKYcCZVOUJg+IIyTwqaZZbX4mijxEdaV
+         ljvUjQVOtzyh/u2Q8HEW16y1Bg7d7iTEvWv2NkIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ravi Bangoria <ravi.bangoria@amd.com>,
-        James Clark <james.clark@arm.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        patches@lists.linux.dev,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Li Jun <jun.li@nxp.com>, Abel Vesa <abel.vesa@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 167/183] perf kmem: Support field "node" in evsel__process_alloc_event() coping with recent tracepoint restructuring
+Subject: [PATCH 5.10 23/64] clk: imx: imx8mp: add shared clk gate for usb suspend clk
 Date:   Mon, 16 Jan 2023 16:51:30 +0100
-Message-Id: <20230116154810.345729215@linuxfoundation.org>
+Message-Id: <20230116154744.410818986@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,108 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Li Jun <jun.li@nxp.com>
 
-[ Upstream commit dce088ab0d51ae3b14fb2bd608e9c649aadfe5dc ]
+[ Upstream commit ed1f4ccfe947a3e1018a3bd7325134574c7ff9b3 ]
 
-Commit 11e9734bcb6a7361 ("mm/slab_common: unify NUMA and UMA version of
-tracepoints") adds the field "node" into the tracepoints 'kmalloc' and
-'kmem_cache_alloc', so this patch modifies the event process function to
-support the field "node".
+32K usb suspend clock gate is shared with usb_root_clk, this
+shared clock gate was initially defined only for usb suspend
+clock, usb suspend clk is kept on while system is active or
+system sleep with usb wakeup enabled, so usb root clock is
+fine with this situation; with the commit cf7f3f4fa9e5
+("clk: imx8mp: fix usb_root_clk parent"), this clock gate is
+changed to be for usb root clock, but usb root clock will
+be off while usb is suspended, so usb suspend clock will be
+gated too, this cause some usb functionalities will not work,
+so define this clock to be a shared clock gate to conform with
+the real HW status.
 
-If field "node" is detected by checking function evsel__field(), it
-stats the cross allocation.
-
-When the "node" value is NUMA_NO_NODE (-1), it means the memory can be
-allocated from any memory node, in this case, we don't account it as a
-cross allocation.
-
-Fixes: 11e9734bcb6a7361 ("mm/slab_common: unify NUMA and UMA version of tracepoints")
-Reported-by: Ravi Bangoria <ravi.bangoria@amd.com>
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Link: https://lore.kernel.org/r/20230108062400.250690-2-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 9c140d9926761 ("clk: imx: Add support for i.MX8MP clock driver")
+Cc: stable@vger.kernel.org # v5.19+
+Tested-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Link: https://lore.kernel.org/r/1664549663-20364-2-git-send-email-jun.li@nxp.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-kmem.c | 36 ++++++++++++++++++++++++------------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+ drivers/clk/imx/clk-imx8mp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-kmem.c b/tools/perf/builtin-kmem.c
-index 63c759edb8bc..40dd52acc48a 100644
---- a/tools/perf/builtin-kmem.c
-+++ b/tools/perf/builtin-kmem.c
-@@ -26,6 +26,7 @@
- #include "util/string2.h"
+diff --git a/drivers/clk/imx/clk-imx8mp.c b/drivers/clk/imx/clk-imx8mp.c
+index 187044b98bde..72592e35836b 100644
+--- a/drivers/clk/imx/clk-imx8mp.c
++++ b/drivers/clk/imx/clk-imx8mp.c
+@@ -17,6 +17,7 @@
  
- #include <linux/kernel.h>
-+#include <linux/numa.h>
- #include <linux/rbtree.h>
- #include <linux/string.h>
- #include <linux/zalloc.h>
-@@ -184,22 +185,33 @@ static int evsel__process_alloc_event(struct evsel *evsel, struct perf_sample *s
- 	total_allocated += bytes_alloc;
+ static u32 share_count_nand;
+ static u32 share_count_media;
++static u32 share_count_usb;
  
- 	nr_allocs++;
--	return 0;
--}
- 
--static int evsel__process_alloc_node_event(struct evsel *evsel, struct perf_sample *sample)
--{
--	int ret = evsel__process_alloc_event(evsel, sample);
-+	/*
-+	 * Commit 11e9734bcb6a ("mm/slab_common: unify NUMA and UMA
-+	 * version of tracepoints") adds the field "node" into the
-+	 * tracepoints 'kmalloc' and 'kmem_cache_alloc'.
-+	 *
-+	 * The legacy tracepoints 'kmalloc_node' and 'kmem_cache_alloc_node'
-+	 * also contain the field "node".
-+	 *
-+	 * If the tracepoint contains the field "node" the tool stats the
-+	 * cross allocation.
-+	 */
-+	if (evsel__field(evsel, "node")) {
-+		int node1, node2;
- 
--	if (!ret) {
--		int node1 = cpu__get_node((struct perf_cpu){.cpu = sample->cpu}),
--		    node2 = evsel__intval(evsel, sample, "node");
-+		node1 = cpu__get_node((struct perf_cpu){.cpu = sample->cpu});
-+		node2 = evsel__intval(evsel, sample, "node");
- 
--		if (node1 != node2)
-+		/*
-+		 * If the field "node" is NUMA_NO_NODE (-1), we don't take it
-+		 * as a cross allocation.
-+		 */
-+		if ((node2 != NUMA_NO_NODE) && (node1 != node2))
- 			nr_cross_allocs++;
- 	}
- 
--	return ret;
-+	return 0;
- }
- 
- static int ptr_cmp(void *, void *);
-@@ -1368,8 +1380,8 @@ static int __cmd_kmem(struct perf_session *session)
- 		/* slab allocator */
- 		{ "kmem:kmalloc",		evsel__process_alloc_event, },
- 		{ "kmem:kmem_cache_alloc",	evsel__process_alloc_event, },
--		{ "kmem:kmalloc_node",		evsel__process_alloc_node_event, },
--		{ "kmem:kmem_cache_alloc_node", evsel__process_alloc_node_event, },
-+		{ "kmem:kmalloc_node",		evsel__process_alloc_event, },
-+		{ "kmem:kmem_cache_alloc_node", evsel__process_alloc_event, },
- 		{ "kmem:kfree",			evsel__process_free_event, },
- 		{ "kmem:kmem_cache_free",	evsel__process_free_event, },
- 		/* page allocator */
+ static const char * const pll_ref_sels[] = { "osc_24m", "dummy", "dummy", "dummy", };
+ static const char * const audio_pll1_bypass_sels[] = {"audio_pll1", "audio_pll1_ref_sel", };
+@@ -706,7 +707,8 @@ static int imx8mp_clocks_probe(struct platform_device *pdev)
+ 	hws[IMX8MP_CLK_UART2_ROOT] = imx_clk_hw_gate4("uart2_root_clk", "uart2", ccm_base + 0x44a0, 0);
+ 	hws[IMX8MP_CLK_UART3_ROOT] = imx_clk_hw_gate4("uart3_root_clk", "uart3", ccm_base + 0x44b0, 0);
+ 	hws[IMX8MP_CLK_UART4_ROOT] = imx_clk_hw_gate4("uart4_root_clk", "uart4", ccm_base + 0x44c0, 0);
+-	hws[IMX8MP_CLK_USB_ROOT] = imx_clk_hw_gate4("usb_root_clk", "hsio_axi", ccm_base + 0x44d0, 0);
++	hws[IMX8MP_CLK_USB_ROOT] = imx_clk_hw_gate2_shared2("usb_root_clk", "hsio_axi", ccm_base + 0x44d0, 0, &share_count_usb);
++	hws[IMX8MP_CLK_USB_SUSP] = imx_clk_hw_gate2_shared2("usb_suspend_clk", "osc_32k", ccm_base + 0x44d0, 0, &share_count_usb);
+ 	hws[IMX8MP_CLK_USB_PHY_ROOT] = imx_clk_hw_gate4("usb_phy_root_clk", "usb_phy_ref", ccm_base + 0x44f0, 0);
+ 	hws[IMX8MP_CLK_USDHC1_ROOT] = imx_clk_hw_gate4("usdhc1_root_clk", "usdhc1", ccm_base + 0x4510, 0);
+ 	hws[IMX8MP_CLK_USDHC2_ROOT] = imx_clk_hw_gate4("usdhc2_root_clk", "usdhc2", ccm_base + 0x4520, 0);
 -- 
 2.35.1
 
