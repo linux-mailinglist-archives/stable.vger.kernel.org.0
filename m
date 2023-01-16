@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5899E66C752
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA68966C9E3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:57:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233105AbjAPQ3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43066 "EHLO
+        id S234071AbjAPQ5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:57:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233168AbjAPQ3d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB822ED67
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:50 -0800 (PST)
+        with ESMTP id S234059AbjAPQ4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36CFD23108
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7CA76104E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA5B3C433D2;
-        Mon, 16 Jan 2023 16:17:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94EE56105A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A97DBC433D2;
+        Mon, 16 Jan 2023 16:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885869;
-        bh=qMI16NqUCFo4CvrFoXRLiUmoRr86cGc9+xjw0aTitY4=;
+        s=korg; t=1673887196;
+        bh=fkOHRz18g8+K6OE9uQoeoZHEV50ropEvWm3m3vnf/dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9iPpZcfYO+MpdfUXJQakD8szMNZsnHSKWiaePsIbDeD0fgFG1X6ybSGj9wK6uQ3W
-         Fwhk+x6fiJVmgyLHDioaAF4LrjignjTUmMuDrQVqjCHBWDh0SQ1/kzDs8u/TjRac3q
-         R+peGLkDkSfbna7i8gWPEECV+amRXu2P4OtQHLfw=
+        b=msP46iTHD9RI8sf6wrzXCdgadZDxl0444082cSZ9rpKWL5owT44WoxTfAlmgj17cK
+         p8r3/pbsADUT4eW04fOKHZmeZ2DpCIrdaki/dXtpavSw+NrBKUqSPY/t4DQo1Ua4BR
+         xWo8AVgdfJAXhFIoOMEoFGC8EwNJ6hcfPrRF/4Wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yongqiang Liu <liuyongqiang13@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 214/658] net: defxx: Fix missing err handling in dfx_init()
+Subject: [PATCH 4.19 040/521] pstore/ram: Fix error return code in ramoops_probe()
 Date:   Mon, 16 Jan 2023 16:45:02 +0100
-Message-Id: <20230116154919.250431653@linuxfoundation.org>
+Message-Id: <20230116154849.082205421@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongqiang Liu <liuyongqiang13@huawei.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit ae18dcdff0f8d7e84cd3fd9f496518b5e72d185d ]
+[ Upstream commit e1fce564900f8734edf15b87f028c57e14f6e28d ]
 
-When eisa_driver_register() or tc_register_driver() failed,
-the modprobe defxx would fail with some err log as follows:
+In the if (dev_of_node(dev) && !pdata) path, the "err" may be assigned a
+value of 0, so the error return code -EINVAL may be incorrectly set
+to 0. To fix set valid return code before calling to goto.
 
- Error: Driver 'defxx' is already registered, aborting...
-
-Fix this issue by adding err hanling in dfx_init().
-
-Fixes: e89a2cfb7d7b5 ("[TC] defxx: TURBOchannel support")
-Signed-off-by: Yongqiang Liu <liuyongqiang13@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 35da60941e44 ("pstore/ram: add Device Tree bindings")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/1669969374-46582-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/fddi/defxx.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ fs/pstore/ram.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/fddi/defxx.c b/drivers/net/fddi/defxx.c
-index c866f58dab70..28bf530cb005 100644
---- a/drivers/net/fddi/defxx.c
-+++ b/drivers/net/fddi/defxx.c
-@@ -3844,10 +3844,24 @@ static int dfx_init(void)
- 	int status;
+diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
+index bafbab2dd039..33294dee7d7f 100644
+--- a/fs/pstore/ram.c
++++ b/fs/pstore/ram.c
+@@ -753,6 +753,7 @@ static int ramoops_probe(struct platform_device *pdev)
+ 	/* Make sure we didn't get bogus platform data pointer. */
+ 	if (!pdata) {
+ 		pr_err("NULL platform data\n");
++		err = -EINVAL;
+ 		goto fail_out;
+ 	}
  
- 	status = pci_register_driver(&dfx_pci_driver);
--	if (!status)
--		status = eisa_driver_register(&dfx_eisa_driver);
--	if (!status)
--		status = tc_register_driver(&dfx_tc_driver);
-+	if (status)
-+		goto err_pci_register;
-+
-+	status = eisa_driver_register(&dfx_eisa_driver);
-+	if (status)
-+		goto err_eisa_register;
-+
-+	status = tc_register_driver(&dfx_tc_driver);
-+	if (status)
-+		goto err_tc_register;
-+
-+	return 0;
-+
-+err_tc_register:
-+	eisa_driver_unregister(&dfx_eisa_driver);
-+err_eisa_register:
-+	pci_unregister_driver(&dfx_pci_driver);
-+err_pci_register:
- 	return status;
- }
+@@ -760,6 +761,7 @@ static int ramoops_probe(struct platform_device *pdev)
+ 			!pdata->ftrace_size && !pdata->pmsg_size)) {
+ 		pr_err("The memory size and the record/console size must be "
+ 			"non-zero\n");
++		err = -EINVAL;
+ 		goto fail_out;
+ 	}
  
 -- 
 2.35.1
