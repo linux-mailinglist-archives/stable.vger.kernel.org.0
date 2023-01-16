@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59EBC66CB39
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B2B466CCD4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234338AbjAPRL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:11:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36712 "EHLO
+        id S234754AbjAPR3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229741AbjAPRLb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 229693D0AD
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:43 -0800 (PST)
+        with ESMTP id S234771AbjAPR3L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4B3229E27
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:06:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D14961037
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74641C433EF;
-        Mon, 16 Jan 2023 16:51:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5190561085
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64E4DC433EF;
+        Mon, 16 Jan 2023 17:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887902;
-        bh=V4Wc+ag6ZBSxK/gsAMFtBzi+fvW7brfP0yj43Qrg0qQ=;
+        s=korg; t=1673888791;
+        bh=hQ7GpAy/mjpIrjA1bbSg29vpmXbFcFR0yWlUvvVrdII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WhzKMegdO1bOX+P2W7Qz5x+opRUqEPwt0kRee9Qm7tXnA/8d+OnPm6QnbqYniRQXA
-         TMFPz3WR9e0ujuaNbqz/hieJiSKVtJM7Kzbd7v4h38UNXl65ZxjYqgNsLFeTbsohUu
-         2bkNBrapEy02CZGB60PASFpu/dSsVh16heIp6FR4=
+        b=v7WAta3Rym/6ff5zt7zwl4xUG7DhtQQzoJmuLlf5Y4HlmiXDnjoJUN/JGs/3EyGR6
+         X668JQiesDlLJ6s2GaVR3l8RBB8dBnxfYuKkK5ygrAD4x7vBUoO0S+QyP2cfC7YQNm
+         C46Wr9eZO5ZcpSG/YP6qfSVzn4QAxE0E2NvRL2Qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 324/521] hamradio: baycom_epp: Fix return type of baycom_send_packet()
+Subject: [PATCH 4.14 113/338] media: coda: Add check for dcoda_iram_alloc
 Date:   Mon, 16 Jan 2023 16:49:46 +0100
-Message-Id: <20230116154901.643433753@linuxfoundation.org>
+Message-Id: <20230116154825.766503483@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit c5733e5b15d91ab679646ec3149e192996a27d5d ]
+[ Upstream commit 6b8082238fb8bb20f67e46388123e67a5bbc558d ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+As the coda_iram_alloc may return NULL pointer,
+it should be better to check the return value
+in order to avoid NULL poineter dereference,
+same as the others.
 
-  drivers/net/hamradio/baycom_epp.c:1119:25: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit      = baycom_send_packet,
-                                ^~~~~~~~~~~~~~~~~~
-  1 error generated.
-
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of baycom_send_packet()
-to match the prototype's to resolve the warning and CFI failure.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102160610.1186145-1-nathan@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b313bcc9a467 ("[media] coda: simplify IRAM setup")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/baycom_epp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/coda/coda-bit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/hamradio/baycom_epp.c b/drivers/net/hamradio/baycom_epp.c
-index 1e62d00732f2..787eaf3f4f13 100644
---- a/drivers/net/hamradio/baycom_epp.c
-+++ b/drivers/net/hamradio/baycom_epp.c
-@@ -772,7 +772,7 @@ static void epp_bh(struct work_struct *work)
-  * ===================== network driver interface =========================
-  */
+diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
+index d538cd49a3ba..7a96b53bcf6b 100644
+--- a/drivers/media/platform/coda/coda-bit.c
++++ b/drivers/media/platform/coda/coda-bit.c
+@@ -637,7 +637,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+ 		/* Only H.264BP and H.263P3 are considered */
+ 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w64);
+ 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w64);
+-		if (!iram_info->buf_dbk_c_use)
++		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
+ 			goto out;
+ 		iram_info->axi_sram_use |= dbk_bits;
  
--static int baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct baycom_state *bc = netdev_priv(dev);
+@@ -661,7 +661,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+ 
+ 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w128);
+ 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w128);
+-		if (!iram_info->buf_dbk_c_use)
++		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
+ 			goto out;
+ 		iram_info->axi_sram_use |= dbk_bits;
  
 -- 
 2.35.1
