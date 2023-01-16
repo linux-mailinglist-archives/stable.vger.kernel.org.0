@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB2366C1D6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:15:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F6266C1E1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:15:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232478AbjAPOPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:15:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39266 "EHLO
+        id S232500AbjAPOP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:15:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232752AbjAPOOc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:14:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA0582ED6F;
+        with ESMTP id S232764AbjAPOOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:14:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4459E2FCC4;
         Mon, 16 Jan 2023 06:05:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6F41B80F9E;
-        Mon, 16 Jan 2023 14:05:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED55C43392;
-        Mon, 16 Jan 2023 14:05:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 298BD60FE6;
+        Mon, 16 Jan 2023 14:05:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5DB8C433F2;
+        Mon, 16 Jan 2023 14:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877936;
-        bh=yc5OYjMqNcPoUPNOcHjmUyy1SW2ocbOgpitqHAhQQrc=;
+        s=k20201202; t=1673877937;
+        bh=wE8uk0FU4UXeaQkN4P+yBE4HMzTbuMhO9JXJf/AJ0IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aODN7lTzhhNBPHx0mrjxEIk/YzzpP1l2FzujXpJrMVFdCxjbIDC51x7SjWizxLaKq
-         5XQZs5UQF2omHaXjM+9RVB/ofxvtT6fCJK5ElipFfOBbAIRiNltLAk9lfJqf77TB9F
-         dyOhchbzwJhtBZk0L0ylWGIt0clvyyOJ3w/qifCtuc0eR4rrkqvPV9Tr8ztNQW9lTS
-         twRw4yxmMW47K0ygIDgfJdkCKXSzeQtJUWVI4zI8YUN5CjT6OCM4tTm+xch1ZXI18H
-         BXHC928SQhQyZeoaIxPAat/f7DdWL+MvpWHTOnL6UrUzN0aiQzeYX04ZjzSZmS4J93
-         LT07Gdva5qdtg==
+        b=bRDrRO7kmGjf4IOMKj2OyynOlJlIyqwRjdJe86PpvzYhFz4c8hVOaMSuCwZDDS4NY
+         XIsjEk1heckL6VAIZuXSyTm2gNZVKgw64zf3lft9JL9E6ocB+2j9PRoimmfKjB3U2j
+         9YLgYhKr8yuFftj4aNDWgJn15DYu+xhAxGJg1rdfnoe31akScCfc4twgyY4hCJzire
+         wQnzBYhOaqI3ZS1kRS7syb++hxBkqRGnGfe3TzQaZ9WSrtrxIZ5z4UwHoVGnFMAh97
+         aSojZrQusYVod67o69Y9pqRovCtu4B7+axj4xqcrLLr0mRse2FM424H/1h3qyBCdgk
+         zufmdeNLgP/FA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Shengjiu Wang <shengjiu.wang@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, Xiubo.Lee@gmail.com,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        alsa-devel@alsa-project.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 08/16] ASoC: fsl-asoc-card: Fix naming of AC'97 CODEC widgets
-Date:   Mon, 16 Jan 2023 09:05:11 -0500
-Message-Id: <20230116140520.116257-8-sashal@kernel.org>
+Cc:     Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 09/16] spi: spidev: fix a race condition when accessing spidev->spi
+Date:   Mon, 16 Jan 2023 09:05:12 -0500
+Message-Id: <20230116140520.116257-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140520.116257-1-sashal@kernel.org>
 References: <20230116140520.116257-1-sashal@kernel.org>
@@ -57,40 +55,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 
-[ Upstream commit 242fc66ae6e1e2b8519daacc7590a73cd0e8a6e4 ]
+[ Upstream commit a720416d94634068951773cb9e9d6f1b73769e5b ]
 
-The fsl-asoc-card AC'97 support currently tries to route to Playback and
-Capture widgets provided by the AC'97 CODEC. This doesn't work since the
-generic AC'97 driver registers with an "AC97" at the front of the stream
-and hence widget names, update to reflect reality. It's not clear to me
-if or how this ever worked.
+There's a spinlock in place that is taken in file_operations callbacks
+whenever we check if spidev->spi is still alive (not null). It's also
+taken when spidev->spi is set to NULL in remove().
 
-Acked-by: Shengjiu Wang <shengjiu.wang@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20230106-asoc-udoo-probe-v1-2-a5d7469d4f67@kernel.org
+This however doesn't protect the code against driver unbind event while
+one of the syscalls is still in progress. To that end we need a lock taken
+continuously as long as we may still access spidev->spi. As both the file
+ops and the remove callback are never called from interrupt context, we
+can replace the spinlock with a mutex.
+
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Link: https://lore.kernel.org/r/20230106100719.196243-1-brgl@bgdev.pl
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl-asoc-card.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spidev.c | 34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl-asoc-card.c b/sound/soc/fsl/fsl-asoc-card.c
-index d78eb9f9d24c..db663e7d17a4 100644
---- a/sound/soc/fsl/fsl-asoc-card.c
-+++ b/sound/soc/fsl/fsl-asoc-card.c
-@@ -112,8 +112,8 @@ static const struct snd_soc_dapm_route audio_map[] = {
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index be503a0e6ef7..a360dabdcb8b 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -66,7 +66,7 @@ static DECLARE_BITMAP(minors, N_SPI_MINORS);
  
- static const struct snd_soc_dapm_route audio_map_ac97[] = {
- 	/* 1st half -- Normal DAPM routes */
--	{"Playback",  NULL, "CPU AC97 Playback"},
--	{"CPU AC97 Capture",  NULL, "Capture"},
-+	{"AC97 Playback",  NULL, "CPU AC97 Playback"},
-+	{"CPU AC97 Capture",  NULL, "AC97 Capture"},
- 	/* 2nd half -- ASRC DAPM routes */
- 	{"CPU AC97 Playback",  NULL, "ASRC-Playback"},
- 	{"ASRC-Capture",  NULL, "CPU AC97 Capture"},
+ struct spidev_data {
+ 	dev_t			devt;
+-	spinlock_t		spi_lock;
++	struct mutex		spi_lock;
+ 	struct spi_device	*spi;
+ 	struct list_head	device_entry;
+ 
+@@ -93,9 +93,8 @@ spidev_sync(struct spidev_data *spidev, struct spi_message *message)
+ 	int status;
+ 	struct spi_device *spi;
+ 
+-	spin_lock_irq(&spidev->spi_lock);
++	mutex_lock(&spidev->spi_lock);
+ 	spi = spidev->spi;
+-	spin_unlock_irq(&spidev->spi_lock);
+ 
+ 	if (spi == NULL)
+ 		status = -ESHUTDOWN;
+@@ -105,6 +104,7 @@ spidev_sync(struct spidev_data *spidev, struct spi_message *message)
+ 	if (status == 0)
+ 		status = message->actual_length;
+ 
++	mutex_unlock(&spidev->spi_lock);
+ 	return status;
+ }
+ 
+@@ -355,12 +355,12 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 	 * we issue this ioctl.
+ 	 */
+ 	spidev = filp->private_data;
+-	spin_lock_irq(&spidev->spi_lock);
++	mutex_lock(&spidev->spi_lock);
+ 	spi = spi_dev_get(spidev->spi);
+-	spin_unlock_irq(&spidev->spi_lock);
+-
+-	if (spi == NULL)
++	if (spi == NULL) {
++		mutex_unlock(&spidev->spi_lock);
+ 		return -ESHUTDOWN;
++	}
+ 
+ 	/* use the buffer lock here for triple duty:
+ 	 *  - prevent I/O (from us) so calling spi_setup() is safe;
+@@ -485,6 +485,7 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 
+ 	mutex_unlock(&spidev->buf_lock);
+ 	spi_dev_put(spi);
++	mutex_unlock(&spidev->spi_lock);
+ 	return retval;
+ }
+ 
+@@ -506,12 +507,12 @@ spidev_compat_ioc_message(struct file *filp, unsigned int cmd,
+ 	 * we issue this ioctl.
+ 	 */
+ 	spidev = filp->private_data;
+-	spin_lock_irq(&spidev->spi_lock);
++	mutex_lock(&spidev->spi_lock);
+ 	spi = spi_dev_get(spidev->spi);
+-	spin_unlock_irq(&spidev->spi_lock);
+-
+-	if (spi == NULL)
++	if (spi == NULL) {
++		mutex_unlock(&spidev->spi_lock);
+ 		return -ESHUTDOWN;
++	}
+ 
+ 	/* SPI_IOC_MESSAGE needs the buffer locked "normally" */
+ 	mutex_lock(&spidev->buf_lock);
+@@ -538,6 +539,7 @@ spidev_compat_ioc_message(struct file *filp, unsigned int cmd,
+ done:
+ 	mutex_unlock(&spidev->buf_lock);
+ 	spi_dev_put(spi);
++	mutex_unlock(&spidev->spi_lock);
+ 	return retval;
+ }
+ 
+@@ -616,10 +618,10 @@ static int spidev_release(struct inode *inode, struct file *filp)
+ 	spidev = filp->private_data;
+ 	filp->private_data = NULL;
+ 
+-	spin_lock_irq(&spidev->spi_lock);
++	mutex_lock(&spidev->spi_lock);
+ 	/* ... after we unbound from the underlying device? */
+ 	dofree = (spidev->spi == NULL);
+-	spin_unlock_irq(&spidev->spi_lock);
++	mutex_unlock(&spidev->spi_lock);
+ 
+ 	/* last close? */
+ 	spidev->users--;
+@@ -746,7 +748,7 @@ static int spidev_probe(struct spi_device *spi)
+ 
+ 	/* Initialize the driver data */
+ 	spidev->spi = spi;
+-	spin_lock_init(&spidev->spi_lock);
++	mutex_init(&spidev->spi_lock);
+ 	mutex_init(&spidev->buf_lock);
+ 
+ 	INIT_LIST_HEAD(&spidev->device_entry);
+@@ -791,9 +793,9 @@ static int spidev_remove(struct spi_device *spi)
+ 	/* prevent new opens */
+ 	mutex_lock(&device_list_lock);
+ 	/* make sure ops on existing fds can abort cleanly */
+-	spin_lock_irq(&spidev->spi_lock);
++	mutex_lock(&spidev->spi_lock);
+ 	spidev->spi = NULL;
+-	spin_unlock_irq(&spidev->spi_lock);
++	mutex_unlock(&spidev->spi_lock);
+ 
+ 	list_del(&spidev->device_entry);
+ 	device_destroy(spidev_class, spidev->devt);
 -- 
 2.35.1
 
