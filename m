@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABCCE66C090
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:02:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 516EE66C095
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231627AbjAPOCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:02:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44324 "EHLO
+        id S231636AbjAPOCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:02:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231544AbjAPOCQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:02:16 -0500
+        with ESMTP id S231561AbjAPOCR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:02:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED2A62201C;
-        Mon, 16 Jan 2023 06:02:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210B22197F;
+        Mon, 16 Jan 2023 06:02:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AD8460FCC;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A64A160FD4;
+        Mon, 16 Jan 2023 14:02:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6646AC433D2;
         Mon, 16 Jan 2023 14:02:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 125DEC433F1;
-        Mon, 16 Jan 2023 14:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877728;
-        bh=m72/lmeDWoeurM8J6PdzApB0o2AteNM4N6zXSwPK74Y=;
+        s=k20201202; t=1673877730;
+        bh=f34HDFU9G8sG6cn3BHd0SbGmATKQkq6IuNGYsC/EV6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DphgzQp2SLZCQAh5VbCQYAdaRuui+anOrKlOwHtUS/Oo5NJgxHFx4NIY/UC58smV4
-         QywUQVb1Rm7Lya8IjN+QDTIgwlIOB+EAwXKK3xyn1UNbzRgN+CmPEk+4WAPPytUJgQ
-         qM8YhfJCDnewPVVlw+j2it4B4M+LWG71PKTAvdYZLbt9nyx07B0MwgIownKmKOG1Gu
-         4pjtF9a1x1a4/aYIZ+f2NH+shZ6J/RnEorq9l6Lx/32oR+VX/9nplLsc8VLSXvP2iV
-         7FjvSN0bCou1gVILNj42G7ZIZQ79lprProNNyBaZ5rjfdMhjoRXNHKxd2Kyq0FIt45
-         COmLIEWWtKTRQ==
+        b=ELQoGZKHIBbMHadwieqyVgzPjOBhc9owifa+SSTA7el7bcCrnrZCjpPGyQvb8RZQw
+         C069r23UC8v5kQiYzuwycAP/y4i5mdREbnWhgGMkbzYmo1rheVL/pOz4/nT6pW2GVb
+         IcHOo82171IBlu7+kRdAQpyyrs8yRFnuH05+2LdNGm9t3HLEYeh9zWAO8GFskKpSlu
+         3f4po8UhpQ9/iEeNM3xASLspaCOmwltVDiGLH3b2akLp8queoTz8h1idnvL3RR8qHi
+         v1nVdZmvr3601OuUT0xyaZChrtKCkAnWPV6D6f0zZYlRjMVIzEfAVbB3RQ/NqiRiaq
+         MK1F3oL+0h/LA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Witold Sadowski <wsadowski@marvell.com>,
-        Chandrakala Chavva <cchavva@marvell.com>,
-        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 06/53] spi: cadence: Fix busy cycles calculation
-Date:   Mon, 16 Jan 2023 09:01:06 -0500
-Message-Id: <20230116140154.114951-6-sashal@kernel.org>
+Cc:     Pierre Gondois <pierre.gondois@arm.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 07/53] cpufreq: CPPC: Add u64 casts to avoid overflowing
+Date:   Mon, 16 Jan 2023 09:01:07 -0500
+Message-Id: <20230116140154.114951-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140154.114951-1-sashal@kernel.org>
 References: <20230116140154.114951-1-sashal@kernel.org>
@@ -57,42 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Witold Sadowski <wsadowski@marvell.com>
+From: Pierre Gondois <pierre.gondois@arm.com>
 
-[ Upstream commit e8bb8f19e73a1e855e54788f8673b9b49e46b5cd ]
+[ Upstream commit f5f94b9c8b805d87ff185caf9779c3a4d07819e3 ]
 
-If xSPI is in x2/x4/x8 mode to calculate busy
-cycles, busy bits count must be divided by the number
-of lanes.
-If opcommand is using 8 busy bits, but SPI is
-in x4 mode, there will be only 2 busy cycles.
+The fields of the _CPC object are unsigned 32-bits values.
+To avoid overflows while using _CPC's values, add 'u64' casts.
 
-Signed-off-by: Witold Sadowski <wsadowski@marvell.com>
-Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
-Reviewed-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Link: https://lore.kernel.org/r/20221219144254.20883-2-wsadowski@marvell.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-cadence-xspi.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/cpufreq/cppc_cpufreq.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-cadence-xspi.c b/drivers/spi/spi-cadence-xspi.c
-index 9e187f9c6c95..d28b8bd5b70b 100644
---- a/drivers/spi/spi-cadence-xspi.c
-+++ b/drivers/spi/spi-cadence-xspi.c
-@@ -177,7 +177,10 @@
- #define CDNS_XSPI_CMD_FLD_DSEQ_CMD_3(op) ( \
- 	FIELD_PREP(CDNS_XSPI_CMD_DSEQ_R3_DCNT_H, \
- 		((op)->data.nbytes >> 16) & 0xffff) | \
--	FIELD_PREP(CDNS_XSPI_CMD_DSEQ_R3_NUM_OF_DUMMY, (op)->dummy.nbytes * 8))
-+	FIELD_PREP(CDNS_XSPI_CMD_DSEQ_R3_NUM_OF_DUMMY, \
-+		  (op)->dummy.buswidth != 0 ? \
-+		  (((op)->dummy.nbytes * 8) / (op)->dummy.buswidth) : \
-+		  0))
+diff --git a/drivers/cpufreq/cppc_cpufreq.c b/drivers/cpufreq/cppc_cpufreq.c
+index 432dfb4e8027..022e3555407c 100644
+--- a/drivers/cpufreq/cppc_cpufreq.c
++++ b/drivers/cpufreq/cppc_cpufreq.c
+@@ -487,7 +487,8 @@ static unsigned int get_perf_level_count(struct cpufreq_policy *policy)
+ 	cpu_data = policy->driver_data;
+ 	perf_caps = &cpu_data->perf_caps;
+ 	max_cap = arch_scale_cpu_capacity(cpu);
+-	min_cap = div_u64(max_cap * perf_caps->lowest_perf, perf_caps->highest_perf);
++	min_cap = div_u64((u64)max_cap * perf_caps->lowest_perf,
++			  perf_caps->highest_perf);
+ 	if ((min_cap == 0) || (max_cap < min_cap))
+ 		return 0;
+ 	return 1 + max_cap / CPPC_EM_CAP_STEP - min_cap / CPPC_EM_CAP_STEP;
+@@ -519,10 +520,10 @@ static int cppc_get_cpu_power(struct device *cpu_dev,
+ 	cpu_data = policy->driver_data;
+ 	perf_caps = &cpu_data->perf_caps;
+ 	max_cap = arch_scale_cpu_capacity(cpu_dev->id);
+-	min_cap = div_u64(max_cap * perf_caps->lowest_perf,
+-			perf_caps->highest_perf);
+-
+-	perf_step = CPPC_EM_CAP_STEP * perf_caps->highest_perf / max_cap;
++	min_cap = div_u64((u64)max_cap * perf_caps->lowest_perf,
++			  perf_caps->highest_perf);
++	perf_step = div_u64((u64)CPPC_EM_CAP_STEP * perf_caps->highest_perf,
++			    max_cap);
+ 	min_step = min_cap / CPPC_EM_CAP_STEP;
+ 	max_step = max_cap / CPPC_EM_CAP_STEP;
  
- #define CDNS_XSPI_CMD_FLD_DSEQ_CMD_4(op, chipsel) ( \
- 	FIELD_PREP(CDNS_XSPI_CMD_DSEQ_R4_BANK, chipsel) | \
 -- 
 2.35.1
 
