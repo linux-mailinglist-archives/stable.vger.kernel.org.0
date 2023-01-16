@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5997666C762
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:30:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7DEC66C9CE
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233174AbjAPQaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:30:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48492 "EHLO
+        id S234070AbjAPQ4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:56:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233257AbjAPQ3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:48 -0500
+        with ESMTP id S233938AbjAPQ4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57FD52F78D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971883454F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3DDEB81063
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E473C433F0;
-        Mon, 16 Jan 2023 16:18:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B52DB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7434C433EF;
+        Mon, 16 Jan 2023 16:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885895;
-        bh=0EZBU+jOBINJ0C8XPYvrDQPUPrSKxPhyN/rlJQXE8hI=;
+        s=korg; t=1673887151;
+        bh=8zJ5pzlA+oZpw8XVqbTiysT/8NFeQ4SvSyLDjZ9Q0MA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q8MPkbZ45pMzioNCqLYsf3FE/EoLaniYa4Jz2lEp6rn6Cd9mRMRLM3PcMsS0sEYd3
-         +yVDoko3PogMQi8+JpmHCaTM1u3VRFNxEXfo5rkB2B7rLCsENhu6ErqhxDfq/C6475
-         YWCbkHifcPYsgtaiCVoQJHFo5iQodKa9GFXudfDs=
+        b=k+ZdeJ0XnhHaqMhg7roi7wwxRSbdKtfnEBsHUZ5DbNoBtELLrQ+Zj2CvOLcm7rXeC
+         1SetT+xyQzo3SBw+O8frX7J9WeAV+rQECBgNtABPZWvfESfr9wvosMN9o9Ep2sWTCF
+         HjNop3t/qX+Ih69lsgQUqu5vL+EyaniP7IQ4aWLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 185/658] xprtrdma: Fix regbuf data not freed in rpcrdma_req_create()
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.19 011/521] udf: Discard preallocation before extending file with a hole
 Date:   Mon, 16 Jan 2023 16:44:33 +0100
-Message-Id: <20230116154917.918263147@linuxfoundation.org>
+Message-Id: <20230116154847.776199701@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +51,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 9181f40fb2952fd59ecb75e7158620c9c669eee3 ]
+commit 16d0556568148bdcaa45d077cac9f8f7077cf70a upstream.
 
-If rdma receive buffer allocate failed, should call rpcrdma_regbuf_free()
-to free the send buffer, otherwise, the buffer data will be leaked.
+When extending file with a hole, we tried to preserve existing
+preallocation for the file. However that is not very useful and
+complicates code because the previous extent may need to be rounded to
+block boundary as well (which we forgot to do thus causing data
+corruption for sequence like:
 
-Fixes: bb93a1ae2bf4 ("xprtrdma: Allocate req's regbufs at xprt create time")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+xfs_io -f -c "pwrite 0x75e63 11008" -c "truncate 0x7b24b" \
+  -c "truncate 0xabaa3" -c "pwrite 0xac70b 22954" \
+  -c "pwrite 0x93a43 11358" -c "pwrite 0xb8e65 52211" file
+
+with 512-byte block size. Just discard preallocation before extending
+file to simplify things and also fix this data corruption.
+
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/xprtrdma/verbs.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/udf/inode.c |   46 ++++++++++++++++++----------------------------
+ 1 file changed, 18 insertions(+), 28 deletions(-)
 
-diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-index 0f4d39fdb48f..e13115bbe719 100644
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -1037,6 +1037,7 @@ struct rpcrdma_req *rpcrdma_req_create(struct rpcrdma_xprt *r_xprt, size_t size,
- 	kfree(req->rl_sendbuf);
- out3:
- 	kfree(req->rl_rdmabuf);
-+	rpcrdma_regbuf_free(req->rl_sendbuf);
- out2:
- 	kfree(req);
- out1:
--- 
-2.35.1
-
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -434,6 +434,12 @@ static int udf_get_block(struct inode *i
+ 		iinfo->i_next_alloc_goal++;
+ 	}
+ 
++	/*
++	 * Block beyond EOF and prealloc extents? Just discard preallocation
++	 * as it is not useful and complicates things.
++	 */
++	if (((loff_t)block) << inode->i_blkbits > iinfo->i_lenExtents)
++		udf_discard_prealloc(inode);
+ 	udf_clear_extent_cache(inode);
+ 	phys = inode_getblk(inode, block, &err, &new);
+ 	if (!phys)
+@@ -483,8 +489,6 @@ static int udf_do_extend_file(struct ino
+ 	uint32_t add;
+ 	int count = 0, fake = !(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+ 	struct super_block *sb = inode->i_sb;
+-	struct kernel_lb_addr prealloc_loc = {};
+-	uint32_t prealloc_len = 0;
+ 	struct udf_inode_info *iinfo;
+ 	int err;
+ 
+@@ -505,19 +509,6 @@ static int udf_do_extend_file(struct ino
+ 			~(sb->s_blocksize - 1);
+ 	}
+ 
+-	/* Last extent are just preallocated blocks? */
+-	if ((last_ext->extLength & UDF_EXTENT_FLAG_MASK) ==
+-						EXT_NOT_RECORDED_ALLOCATED) {
+-		/* Save the extent so that we can reattach it to the end */
+-		prealloc_loc = last_ext->extLocation;
+-		prealloc_len = last_ext->extLength;
+-		/* Mark the extent as a hole */
+-		last_ext->extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
+-			(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+-		last_ext->extLocation.logicalBlockNum = 0;
+-		last_ext->extLocation.partitionReferenceNum = 0;
+-	}
+-
+ 	/* Can we merge with the previous extent? */
+ 	if ((last_ext->extLength & UDF_EXTENT_FLAG_MASK) ==
+ 					EXT_NOT_RECORDED_NOT_ALLOCATED) {
+@@ -545,7 +536,7 @@ static int udf_do_extend_file(struct ino
+ 		 * more extents, we may need to enter possible following
+ 		 * empty indirect extent.
+ 		 */
+-		if (new_block_bytes || prealloc_len)
++		if (new_block_bytes)
+ 			udf_next_aext(inode, last_pos, &tmploc, &tmplen, 0);
+ 	}
+ 
+@@ -579,17 +570,6 @@ static int udf_do_extend_file(struct ino
+ 	}
+ 
+ out:
+-	/* Do we have some preallocated blocks saved? */
+-	if (prealloc_len) {
+-		err = udf_add_aext(inode, last_pos, &prealloc_loc,
+-				   prealloc_len, 1);
+-		if (err)
+-			return err;
+-		last_ext->extLocation = prealloc_loc;
+-		last_ext->extLength = prealloc_len;
+-		count++;
+-	}
+-
+ 	/* last_pos should point to the last written extent... */
+ 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
+ 		last_pos->offset -= sizeof(struct short_ad);
+@@ -642,8 +622,17 @@ static int udf_extend_file(struct inode
+ 	else
+ 		BUG();
+ 
++	/*
++	 * When creating hole in file, just don't bother with preserving
++	 * preallocation. It likely won't be very useful anyway.
++	 */
++	udf_discard_prealloc(inode);
++
+ 	etype = inode_bmap(inode, first_block, &epos, &eloc, &elen, &offset);
+ 	within_final_block = (etype != -1);
++	/* We don't expect extents past EOF... */
++	WARN_ON_ONCE(etype != -1 &&
++		     elen > ((loff_t)offset + 1) << inode->i_blkbits);
+ 
+ 	if ((!epos.bh && epos.offset == udf_file_entry_alloc_offset(inode)) ||
+ 	    (epos.bh && epos.offset == sizeof(struct allocExtDesc))) {
+@@ -772,10 +761,11 @@ static sector_t inode_getblk(struct inod
+ 		goto out_free;
+ 	}
+ 
+-	/* Are we beyond EOF? */
++	/* Are we beyond EOF and preallocated extent? */
+ 	if (etype == -1) {
+ 		int ret;
+ 		loff_t hole_len;
++
+ 		isBeyondEOF = true;
+ 		if (count) {
+ 			if (c)
 
 
