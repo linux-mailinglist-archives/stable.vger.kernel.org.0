@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0983666C933
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A9B466C5C7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:10:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233496AbjAPQq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:46:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38566 "EHLO
+        id S232665AbjAPQKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:10:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233714AbjAPQqQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35531301BD
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:14 -0800 (PST)
+        with ESMTP id S232591AbjAPQJi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:09:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B4327983
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA88CB8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43E93C433F1;
-        Mon, 16 Jan 2023 16:34:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB435B81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27730C433EF;
+        Mon, 16 Jan 2023 16:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886851;
-        bh=vx3afFf7OWBvUZ/qmQOxNjs5jwaUzthKlK0JAsJ/m/E=;
+        s=korg; t=1673885181;
+        bh=tqTk3jP1YJgZQD46LsfCn0y/LtXwCKSluOQzkblax88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A95TAvRW+d00Fw3mdCZnOoXpOczQbOp5TaChgFGeVaM4XBK9QKjiF7ki7HaCrBiSj
-         oda1OXsC83kZlykYt5xBnE8AcEUCc8/r9d+4oK/Ktm8ctDOWq+dxFdhiKfM+noRgFS
-         jp4HgGsexbW3QOLDgX4AXvkLOFyJMq9BDXvbz43A=
+        b=E9Nwp72x3BrIorq+ebsJjtwGxe8FXwWM29pRV+7UlbsHzABGOtRqEnElhtgCwXKl8
+         CfZR7T3z2xfvvP9xtyUgUnAru4WCy6vH2hgxq0QmL0K9z39w/RlQpi9Tp+h4YSy+zp
+         POCq5IHIrV+j8nBMAzlFa/gQ2ONNjEHjEzv3EiHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 587/658] udf: Fix extension of the last extent in the file
+        patches@lists.linux.dev,
+        Brian Norris <computersforpeace@gmail.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 08/64] ASoC: qcom: lpass-cpu: Fix fallback SD line index handling
 Date:   Mon, 16 Jan 2023 16:51:15 +0100
-Message-Id: <20230116154936.347945003@linuxfoundation.org>
+Message-Id: <20230116154743.954514710@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Brian Norris <computersforpeace@gmail.com>
 
-[ Upstream commit 83c7423d1eb6806d13c521d1002cc1a012111719 ]
+commit 000bca8d706d1bf7cca01af75787247c5a2fdedf upstream.
 
-When extending the last extent in the file within the last block, we
-wrongly computed the length of the last extent. This is mostly a
-cosmetical problem since the extent does not contain any data and the
-length will be fixed up by following operations but still.
+These indices should reference the ID placed within the dai_driver
+array, not the indices of the array itself.
 
-Fixes: 1f3868f06855 ("udf: Fix extending file within last block")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This fixes commit 4ff028f6c108 ("ASoC: qcom: lpass-cpu: Make I2S SD
+lines configurable"), which among others, broke IPQ8064 audio
+(sound/soc/qcom/lpass-ipq806x.c) because it uses ID 4 but we'd stop
+initializing the mi2s_playback_sd_mode and mi2s_capture_sd_mode arrays
+at ID 0.
+
+Fixes: 4ff028f6c108 ("ASoC: qcom: lpass-cpu: Make I2S SD lines configurable")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Brian Norris <computersforpeace@gmail.com>
+Reviewed-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20221231061545.2110253-1-computersforpeace@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/qcom/lpass-cpu.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index f6bbf395ce07..37a6bbd5a19c 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -602,7 +602,7 @@ static void udf_do_extend_final_block(struct inode *inode,
- 	 */
- 	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
- 		return;
--	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
-+	added_bytes = new_elen - (last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
- 	last_ext->extLength += added_bytes;
- 	UDF_I(inode)->i_lenExtents += added_bytes;
+--- a/sound/soc/qcom/lpass-cpu.c
++++ b/sound/soc/qcom/lpass-cpu.c
+@@ -816,10 +816,11 @@ static void of_lpass_cpu_parse_dai_data(
+ 					struct lpass_data *data)
+ {
+ 	struct device_node *node;
+-	int ret, id;
++	int ret, i, id;
  
--- 
-2.35.1
-
+ 	/* Allow all channels by default for backwards compatibility */
+-	for (id = 0; id < data->variant->num_dai; id++) {
++	for (i = 0; i < data->variant->num_dai; i++) {
++		id = data->variant->dai_driver[i].id;
+ 		data->mi2s_playback_sd_mode[id] = LPAIF_I2SCTL_MODE_8CH;
+ 		data->mi2s_capture_sd_mode[id] = LPAIF_I2SCTL_MODE_8CH;
+ 	}
 
 
