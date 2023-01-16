@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B50A566CD83
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F7766CD84
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235025AbjAPRg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:36:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58836 "EHLO
+        id S234907AbjAPRg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:36:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234907AbjAPRgY (ORCPT
+        with ESMTP id S234769AbjAPRgY (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6F303C2A8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:56 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA363C2BC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78B6AB8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB0DCC433D2;
-        Mon, 16 Jan 2023 17:12:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BDB561086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D251C433EF;
+        Mon, 16 Jan 2023 17:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889174;
-        bh=/KF+WP5RUEUOoUdlomR06lfg4t1tbn8JP3OkX2Du+mU=;
+        s=korg; t=1673889176;
+        bh=MsT/chIFBEO21DWmyipZYl+zbSazjOpQTU+blLdbFfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NSp2rEoJck49omoT4qkS2R8cYBe76iUUHHuHgJ+DY03zXw4myqUiw7BLkWZZ05oei
-         MG1LBN5m3eViiGnhDbzMbM8rW2gszEjyLo38CTlChTtKcy5IXC5RSVFtCe+lTebixk
-         +boWiZ7tQRcD4Zb8FE1vAI6deHGh55PPX0nBOj88=
+        b=xavQzxJkFzeOPR1mezoONWVkK1bjpCEhllDCtsd3rBzLq/XkhM43ZIq4P1X4ar1X5
+         prJUiKuoHRAolKnz7NdxuTTSjsvQiLNwGqfFChRjcv/WPT2iqYbsZ4gAVBCatMhtgC
+         1Tg42SUObSNvWhML2Eib2PotYPMAfrt/jH30g4L8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.14 287/338] cifs: fix confusing debug message
-Date:   Mon, 16 Jan 2023 16:52:40 +0100
-Message-Id: <20230116154833.573527973@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Jiaming Li <lijiaming30@huawei.com>,
+        Huaxin Lu <luhuaxin1@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 4.14 288/338] ima: Fix a potential NULL pointer access in ima_restore_measurement_list
+Date:   Mon, 16 Jan 2023 16:52:41 +0100
+Message-Id: <20230116154833.620435665@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -52,54 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Huaxin Lu <luhuaxin1@huawei.com>
 
-commit a85ceafd41927e41a4103d228a993df7edd8823b upstream.
+commit 11220db412edae8dba58853238f53258268bdb88 upstream.
 
-Since rc was initialised to -ENOMEM in cifs_get_smb_ses(), when an
-existing smb session was found, free_xid() would be called and then
-print
+In restore_template_fmt, when kstrdup fails, a non-NULL value will still be
+returned, which causes a NULL pointer access in template_desc_init_fields.
 
-  CIFS: fs/cifs/connect.c: Existing tcp session with server found
-  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 44 with uid: 0
-  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
-  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 44) rc = -12
-
-Fix this by initialising rc to 0 and then let free_xid() print this
-instead
-
-  CIFS: fs/cifs/connect.c: Existing tcp session with server found
-  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 14 with uid: 0
-  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
-  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 14) rc = 0
-
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: c7d09367702e ("ima: support restoring multiple template formats")
+Cc: stable@kernel.org
+Co-developed-by: Jiaming Li <lijiaming30@huawei.com>
+Signed-off-by: Jiaming Li <lijiaming30@huawei.com>
+Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/connect.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ security/integrity/ima/ima_template.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2693,7 +2693,7 @@ cifs_set_cifscreds(struct smb_vol *vol _
- static struct cifs_ses *
- cifs_get_smb_ses(struct TCP_Server_Info *server, struct smb_vol *volume_info)
- {
--	int rc = -ENOMEM;
-+	int rc = 0;
- 	unsigned int xid;
- 	struct cifs_ses *ses;
- 	struct sockaddr_in *addr = (struct sockaddr_in *)&server->dstaddr;
-@@ -2735,6 +2735,8 @@ cifs_get_smb_ses(struct TCP_Server_Info
- 		return ses;
- 	}
+--- a/security/integrity/ima/ima_template.c
++++ b/security/integrity/ima/ima_template.c
+@@ -266,8 +266,11 @@ static struct ima_template_desc *restore
  
-+	rc = -ENOMEM;
-+
- 	cifs_dbg(FYI, "Existing smb sess not found\n");
- 	ses = sesInfoAlloc();
- 	if (ses == NULL)
+ 	template_desc->name = "";
+ 	template_desc->fmt = kstrdup(template_name, GFP_KERNEL);
+-	if (!template_desc->fmt)
++	if (!template_desc->fmt) {
++		kfree(template_desc);
++		template_desc = NULL;
+ 		goto out;
++	}
+ 
+ 	spin_lock(&template_list);
+ 	list_add_tail_rcu(&template_desc->list, &defined_templates);
 
 
