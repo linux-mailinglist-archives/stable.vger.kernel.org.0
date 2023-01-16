@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4BE466C81E
+	by mail.lfdr.de (Postfix) with ESMTP id 238DC66C81D
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233536AbjAPQgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233381AbjAPQgd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Jan 2023 11:36:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52644 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233511AbjAPQgH (ORCPT
+        with ESMTP id S233512AbjAPQgH (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:36:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D60C2B0A2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:34 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD762B0BC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43B9FB8107A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99E51C433EF;
-        Mon, 16 Jan 2023 16:24:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5874261058
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6769AC433EF;
+        Mon, 16 Jan 2023 16:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886272;
-        bh=ySGjcKMG+4IFCEuDi1FhhCS9CQLTHk4jVbLmKtd9nks=;
+        s=korg; t=1673886274;
+        bh=5/GWCvg68pqHSM2KIEYJH4RM6nqbnS32vC17YCnO9qU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKe9GImNvV3gZ2/OIaWow7pv/FlC1jREdl9emUbUBi2S5DZEfxjNd60kR6qiICwnM
-         GGyY89eL7l+UteuVxokOJr26FpGS51beY5kjdYx0x+CDhLKARk/bR0K1aU/UceYiwJ
-         enYRMb0YG2mouzybdfJA7fNc1nzLTny5FPfPsaZw=
+        b=lN/muC1FEitkLbyNQXL46Jqvq0jjD30nmyf/aD0QplK0DA2ieVeK/Zfzf1Nje/L2l
+         55pe9OYB+4UWMLmun2ZKvAu7BVPnSMn8RzOfKaiybYd+RpjSnbCgCxCZ1A6M4sCvNw
+         5ZUb46AIkVxSdqS2QQIsakkTnM6EJgHyDW1E1hnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 367/658] powerpc/pseries/eeh: use correct API for error log size
-Date:   Mon, 16 Jan 2023 16:47:35 +0100
-Message-Id: <20230116154926.377282762@linuxfoundation.org>
+Subject: [PATCH 5.4 368/658] rtc: st-lpc: Add missing clk_disable_unprepare in st_rtc_probe()
+Date:   Mon, 16 Jan 2023 16:47:36 +0100
+Message-Id: <20230116154926.416771758@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,47 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 9aafbfa5f57a4b75bafd3bed0191e8429c5fa618 ]
+[ Upstream commit 5fb733d7bd6949e90028efdce8bd528c6ab7cf1e ]
 
-rtas-error-log-max is not the name of an RTAS function, so rtas_token()
-is not the appropriate API for retrieving its value. We already have
-rtas_get_error_log_max() which returns a sensible value if the property
-is absent for any reason, so use that instead.
+The clk_disable_unprepare() should be called in the error handling
+of clk_get_rate(), fix it.
 
-Fixes: 8d633291b4fc ("powerpc/eeh: pseries platform EEH error log retrieval")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-[mpe: Drop no-longer possible error handling as noticed by ajd]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221118150751.469393-6-nathanl@linux.ibm.com
+Fixes: b5b2bdfc2893 ("rtc: st: Add new driver for ST's LPC RTC")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lore.kernel.org/r/20221123014805.1993052-1-cuigaosheng1@huawei.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/eeh_pseries.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/rtc/rtc-st-lpc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/platforms/pseries/eeh_pseries.c b/arch/powerpc/platforms/pseries/eeh_pseries.c
-index 7e36c617282f..33c1dd7ee432 100644
---- a/arch/powerpc/platforms/pseries/eeh_pseries.c
-+++ b/arch/powerpc/platforms/pseries/eeh_pseries.c
-@@ -868,16 +868,7 @@ static int __init eeh_pseries_init(void)
+diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+index 49474a31c66d..27261b020f8d 100644
+--- a/drivers/rtc/rtc-st-lpc.c
++++ b/drivers/rtc/rtc-st-lpc.c
+@@ -241,6 +241,7 @@ static int st_rtc_probe(struct platform_device *pdev)
+ 
+ 	rtc->clkrate = clk_get_rate(rtc->clk);
+ 	if (!rtc->clkrate) {
++		clk_disable_unprepare(rtc->clk);
+ 		dev_err(&pdev->dev, "Unable to fetch clock rate\n");
+ 		return -EINVAL;
  	}
- 
- 	/* Initialize error log size */
--	eeh_error_buf_size = rtas_token("rtas-error-log-max");
--	if (eeh_error_buf_size == RTAS_UNKNOWN_SERVICE) {
--		pr_info("%s: unknown EEH error log size\n",
--			__func__);
--		eeh_error_buf_size = 1024;
--	} else if (eeh_error_buf_size > RTAS_ERROR_LOG_MAX) {
--		pr_info("%s: EEH error log size %d exceeds the maximal %d\n",
--			__func__, eeh_error_buf_size, RTAS_ERROR_LOG_MAX);
--		eeh_error_buf_size = RTAS_ERROR_LOG_MAX;
--	}
-+	eeh_error_buf_size = rtas_get_error_log_max();
- 
- 	/* Set EEH probe mode */
- 	eeh_add_flag(EEH_PROBE_MODE_DEVTREE | EEH_ENABLE_IO_FOR_LOG);
 -- 
 2.35.1
 
