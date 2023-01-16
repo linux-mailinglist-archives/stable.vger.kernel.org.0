@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97F3666CD6E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33BEA66CBE3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:19:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234838AbjAPRgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:36:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
+        id S234565AbjAPRTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:19:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234769AbjAPRf6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52C1D3B3E8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:05 -0800 (PST)
+        with ESMTP id S234313AbjAPRTW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:19:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A1B2CFD0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:58:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4BA86108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0408FC433EF;
-        Mon, 16 Jan 2023 17:12:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F691B8108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB49CC433EF;
+        Mon, 16 Jan 2023 16:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889124;
-        bh=R5vC2z2D3RtDn7rkXPKL1h1NguocK1kbknCA9omBTY0=;
+        s=korg; t=1673888306;
+        bh=uioeIRNv3gz/wnm13kQ1MEbYzTcaEKm+K6LLWmx3RP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=egC/5Fm2oibzTd1zUqXurlZZFvnKG9RyySmuWy4+B9sokoKH4MVQpq+uAkF9Z4DRT
-         qREdrJOu+8p9nEH0q9tloG/5d1MeWFR9R8HoELwrYqgyeXgL60A+11V6RmInWeaVKQ
-         CrUh31LAf/qgBiAHcj7ebCABghAalejweNWv4gHM=
+        b=nBIKXPdVu16gXqXCMo8Y6KzkBMf/DPUEz25Tu1DuK+RJIZyM6pDO+1VX7HnYXR2AK
+         D26d2J7A23pPCuUeYiuqM+4qAcADfr6sbsw2kzBscwnZda41NtKYavrafHbV60JZd3
+         LBalApJLObYQ6yY/xU8Ym4Sxcu48r+mBUiZXbZpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Artem Egorkine <arteme@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 267/338] ALSA: line6: fix stack overflow in line6_midi_transmit
+        patches@lists.linux.dev, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 478/521] ALSA: hda/realtek - Enable the headset of Acer N50-600 with ALC662
 Date:   Mon, 16 Jan 2023 16:52:20 +0100
-Message-Id: <20230116154832.738591677@linuxfoundation.org>
+Message-Id: <20230116154908.575975858@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Egorkine <arteme@gmail.com>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit b8800d324abb50160560c636bfafe2c81001b66c upstream.
+[ Upstream commit a124458a127ccd7629e20cd7bae3e1f758ed32aa ]
 
-Correctly calculate available space including the size of the chunk
-buffer. This fixes a buffer overflow when multiple MIDI sysex
-messages are sent to a PODxt device.
+A headset on the desktop like Acer N50-600 does not work, until quirk
+ALC662_FIXUP_ACER_NITRO_HEADSET_MODE is applied.
 
-Signed-off-by: Artem Egorkine <arteme@gmail.com>
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221225105728.1153989-2-arteme@gmail.com
+Link: https://lore.kernel.org/r/20200317082806.73194-3-jian-hong@endlessm.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 4bf5bf54476d ("ALSA: hda/realtek: Add quirk for Lenovo TianYi510Pro-14IOB")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/line6/midi.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/sound/usb/line6/midi.c
-+++ b/sound/usb/line6/midi.c
-@@ -48,7 +48,8 @@ static void line6_midi_transmit(struct s
- 	int req, done;
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 024a7e473e11..bb0917b9e68f 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8648,6 +8648,7 @@ enum {
+ 	ALC669_FIXUP_ACER_ASPIRE_ETHOS_HEADSET,
+ 	ALC671_FIXUP_HP_HEADSET_MIC2,
+ 	ALC662_FIXUP_ACER_X2660G_HEADSET_MODE,
++	ALC662_FIXUP_ACER_NITRO_HEADSET_MODE,
+ };
  
- 	for (;;) {
--		req = min(line6_midibuf_bytes_free(mb), line6->max_packet_size);
-+		req = min3(line6_midibuf_bytes_free(mb), line6->max_packet_size,
-+			   LINE6_FALLBACK_MAXPACKETSIZE);
- 		done = snd_rawmidi_transmit_peek(substream, chunk, req);
+ static const struct hda_fixup alc662_fixups[] = {
+@@ -9014,6 +9015,16 @@ static const struct hda_fixup alc662_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC662_FIXUP_USI_FUNC
+ 	},
++	[ALC662_FIXUP_ACER_NITRO_HEADSET_MODE] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x1a, 0x01a11140 }, /* use as headset mic, without its own jack detect */
++			{ 0x1b, 0x0221144f },
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC662_FIXUP_USI_FUNC
++	},
+ };
  
- 		if (done == 0)
+ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+@@ -9025,6 +9036,7 @@ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1025, 0x0349, "eMachines eM250", ALC662_FIXUP_INV_DMIC),
+ 	SND_PCI_QUIRK(0x1025, 0x034a, "Gateway LT27", ALC662_FIXUP_INV_DMIC),
+ 	SND_PCI_QUIRK(0x1025, 0x038b, "Acer Aspire 8943G", ALC662_FIXUP_ASPIRE),
++	SND_PCI_QUIRK(0x1025, 0x123c, "Acer Nitro N50-600", ALC662_FIXUP_ACER_NITRO_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x1025, 0x124e, "Acer 2660G", ALC662_FIXUP_ACER_X2660G_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x1028, 0x05d8, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x05db, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+-- 
+2.35.1
+
 
 
