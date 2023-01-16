@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EED4766C6CA
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:25:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B3466C6CE
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:25:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233125AbjAPQZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:25:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
+        id S233112AbjAPQZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:25:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233049AbjAPQYp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:24:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C16C241C0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:13:27 -0800 (PST)
+        with ESMTP id S233077AbjAPQYr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:24:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED2512B293
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:13:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD69661047
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:13:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF441C433EF;
-        Mon, 16 Jan 2023 16:13:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8784660FDF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:13:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C84DC433D2;
+        Mon, 16 Jan 2023 16:13:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885606;
-        bh=4ACBcbDJ6Ctcg/srlEdFd2WrfFh78XgoTZQLLlxPVTQ=;
+        s=korg; t=1673885609;
+        bh=+uu0PwB9lsmN4vCpKbduM73AybgmqwhJPD1L8xcPIfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7o0nzEFhUDXNv5qB7cy58c23JIeZ7O0e5bMAcCPFBeZCf6o3Kj21RAvu31Fs/c1q
-         gDDUYXewhQQtbG64MFv2rxywW/L70AUEDhE6rfJg6z/MWeSdhlCGquU5Id6o7FTIGk
-         woyVKoLdz8djek/uvkFMuQ31zXNypkosxNK9v2wY=
+        b=HXfSBcVgEu0sAD6Xh8ayVBBarsLN0Vu8yvOnG89fqyXDhTgH1Bw+gE1yQY+4nhpHU
+         NP1Vko7yC55sYA3P5PvEHRZEZVCoIA8wZJHLMHWRYHSEcI5pNibtkI5Na4M20o6jpG
+         nXKz7dSEr37rIkP5SnKzXbFWHdfwlXW6ZWVlKIzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 115/658] spi: Update reference to struct spi_controller
-Date:   Mon, 16 Jan 2023 16:43:23 +0100
-Message-Id: <20230116154914.763547200@linuxfoundation.org>
+Subject: [PATCH 5.4 116/658] drm/panel/panel-sitronix-st7701: Remove panel on DSI attach failure
+Date:   Mon, 16 Jan 2023 16:43:24 +0100
+Message-Id: <20230116154914.804274188@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -54,37 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit bf585ccee22faf469d82727cf375868105b362f7 ]
+[ Upstream commit c62102165dd79284d42383d2f7ed17301bd8e629 ]
 
-struct spi_master has been renamed to struct spi_controller. Update the
-reference in spi.rst to make it clickable again.
+In case mipi_dsi_attach() fails, call drm_panel_remove() to
+avoid memory leak.
 
-Fixes: 8caab75fd2c2 ("spi: Generalize SPI "master" to "controller"")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Link: https://lore.kernel.org/r/20221101173252.1069294-1-j.neuschaefer@gmx.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 849b2e3ff969 ("drm/panel: Add Sitronix ST7701 panel driver")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221014231106.468063-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/spi.rst | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panel/panel-sitronix-st7701.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/driver-api/spi.rst b/Documentation/driver-api/spi.rst
-index f64cb666498a..f28887045049 100644
---- a/Documentation/driver-api/spi.rst
-+++ b/Documentation/driver-api/spi.rst
-@@ -25,8 +25,8 @@ hardware, which may be as simple as a set of GPIO pins or as complex as
- a pair of FIFOs connected to dual DMA engines on the other side of the
- SPI shift register (maximizing throughput). Such drivers bridge between
- whatever bus they sit on (often the platform bus) and SPI, and expose
--the SPI side of their device as a :c:type:`struct spi_master
--<spi_master>`. SPI devices are children of that master,
-+the SPI side of their device as a :c:type:`struct spi_controller
-+<spi_controller>`. SPI devices are children of that master,
- represented as a :c:type:`struct spi_device <spi_device>` and
- manufactured from :c:type:`struct spi_board_info
- <spi_board_info>` descriptors which are usually provided by
+diff --git a/drivers/gpu/drm/panel/panel-sitronix-st7701.c b/drivers/gpu/drm/panel/panel-sitronix-st7701.c
+index 09c5d9a6f9fa..638f605acb2d 100644
+--- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c
+@@ -392,7 +392,15 @@ static int st7701_dsi_probe(struct mipi_dsi_device *dsi)
+ 	st7701->dsi = dsi;
+ 	st7701->desc = desc;
+ 
+-	return mipi_dsi_attach(dsi);
++	ret = mipi_dsi_attach(dsi);
++	if (ret)
++		goto err_attach;
++
++	return 0;
++
++err_attach:
++	drm_panel_remove(&st7701->panel);
++	return ret;
+ }
+ 
+ static int st7701_dsi_remove(struct mipi_dsi_device *dsi)
 -- 
 2.35.1
 
