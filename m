@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C68F566C575
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF24066C529
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232365AbjAPQGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:06:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45074 "EHLO
+        id S232213AbjAPQCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:02:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232403AbjAPQGH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C05D23DB0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:04:15 -0800 (PST)
+        with ESMTP id S232066AbjAPQBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:01:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C0ED23C50
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3C7AB80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:04:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 391B1C433EF;
-        Mon, 16 Jan 2023 16:04:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D20561047
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A9F2C433EF;
+        Mon, 16 Jan 2023 16:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885052;
-        bh=M2c1ip4ndVcF/bloUlUSapu1NgYjxtJvczY+b3gM5yU=;
+        s=korg; t=1673884906;
+        bh=7ngtpNpRdyuMIe9jf8cRtnaBAiVtorvis9hHf1pqhiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCqYr2d2QzetuK9N+kHnVBBWdavAumuH8NIcZcqs1P4/nz/EMYHgCxQlA9sTWswwx
-         L+KNVdVqZGwQzgfeO/60KWeI3edLZ/s5F6D8gRjJPO89jaJGyW/JAMzY8SlGPQClab
-         bWItF6SH3VedB53nFyFzjbZvGm7oLeNVkKQIKDxg=
+        b=l/dYQD4jrsa/OldTO84qW1CBBFZeuPn4cdppxwVXixScK8BjkZPaSyRKEIimFDKBA
+         B+arq/2I1wK27rRoHFaX8cTXHM9aujaCRPAnlPxdrBkxwYFDqXouI/Fs5fDmRtrYQ5
+         deyXqBbIAP9bcRQhIRU1A0F2Hff+3f2xGfZNccFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        Florian Westphal <fw@strlen.de>,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        patches@lists.linux.dev, Ravi Bangoria <ravi.bangoria@amd.com>,
+        James Clark <james.clark@arm.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 56/86] af_unix: selftest: Fix the size of the parameter to connect()
+Subject: [PATCH 6.1 167/183] perf kmem: Support field "node" in evsel__process_alloc_event() coping with recent tracepoint restructuring
 Date:   Mon, 16 Jan 2023 16:51:30 +0100
-Message-Id: <20230116154749.364889243@linuxfoundation.org>
+Message-Id: <20230116154810.345729215@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,56 +62,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 7d6ceeb1875cc08dc3d1e558e191434d94840cd5 ]
+[ Upstream commit dce088ab0d51ae3b14fb2bd608e9c649aadfe5dc ]
 
-Adjust size parameter in connect() to match the type of the parameter, to
-fix "No such file or directory" error in selftests/net/af_unix/
-test_oob_unix.c:127.
+Commit 11e9734bcb6a7361 ("mm/slab_common: unify NUMA and UMA version of
+tracepoints") adds the field "node" into the tracepoints 'kmalloc' and
+'kmem_cache_alloc', so this patch modifies the event process function to
+support the field "node".
 
-The existing code happens to work provided that the autogenerated pathname
-is shorter than sizeof (struct sockaddr), which is why it hasn't been
-noticed earlier.
+If field "node" is detected by checking function evsel__field(), it
+stats the cross allocation.
 
-Visible from the trace excerpt:
+When the "node" value is NUMA_NO_NODE (-1), it means the memory can be
+allocated from any memory node, in this case, we don't account it as a
+cross allocation.
 
-bind(3, {sa_family=AF_UNIX, sun_path="unix_oob_453059"}, 110) = 0
-clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa6a6577a10) = 453060
-[pid <child>] connect(6, {sa_family=AF_UNIX, sun_path="unix_oob_45305"}, 16) = -1 ENOENT (No such file or directory)
-
-BUG: The filename is trimmed to sizeof (struct sockaddr).
-
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-Cc: Florian Westphal <fw@strlen.de>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Fixes: 314001f0bf92 ("af_unix: Add OOB support")
-Signed-off-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 11e9734bcb6a7361 ("mm/slab_common: unify NUMA and UMA version of tracepoints")
+Reported-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Link: https://lore.kernel.org/r/20230108062400.250690-2-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/af_unix/test_unix_oob.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/builtin-kmem.c | 36 ++++++++++++++++++++++++------------
+ 1 file changed, 24 insertions(+), 12 deletions(-)
 
-diff --git a/tools/testing/selftests/net/af_unix/test_unix_oob.c b/tools/testing/selftests/net/af_unix/test_unix_oob.c
-index b57e91e1c3f2..532459a15067 100644
---- a/tools/testing/selftests/net/af_unix/test_unix_oob.c
-+++ b/tools/testing/selftests/net/af_unix/test_unix_oob.c
-@@ -124,7 +124,7 @@ void producer(struct sockaddr_un *consumer_addr)
+diff --git a/tools/perf/builtin-kmem.c b/tools/perf/builtin-kmem.c
+index 63c759edb8bc..40dd52acc48a 100644
+--- a/tools/perf/builtin-kmem.c
++++ b/tools/perf/builtin-kmem.c
+@@ -26,6 +26,7 @@
+ #include "util/string2.h"
  
- 	wait_for_signal(pipefd[0]);
- 	if (connect(cfd, (struct sockaddr *)consumer_addr,
--		     sizeof(struct sockaddr)) != 0) {
-+		     sizeof(*consumer_addr)) != 0) {
- 		perror("Connect failed");
- 		kill(0, SIGTERM);
- 		exit(1);
+ #include <linux/kernel.h>
++#include <linux/numa.h>
+ #include <linux/rbtree.h>
+ #include <linux/string.h>
+ #include <linux/zalloc.h>
+@@ -184,22 +185,33 @@ static int evsel__process_alloc_event(struct evsel *evsel, struct perf_sample *s
+ 	total_allocated += bytes_alloc;
+ 
+ 	nr_allocs++;
+-	return 0;
+-}
+ 
+-static int evsel__process_alloc_node_event(struct evsel *evsel, struct perf_sample *sample)
+-{
+-	int ret = evsel__process_alloc_event(evsel, sample);
++	/*
++	 * Commit 11e9734bcb6a ("mm/slab_common: unify NUMA and UMA
++	 * version of tracepoints") adds the field "node" into the
++	 * tracepoints 'kmalloc' and 'kmem_cache_alloc'.
++	 *
++	 * The legacy tracepoints 'kmalloc_node' and 'kmem_cache_alloc_node'
++	 * also contain the field "node".
++	 *
++	 * If the tracepoint contains the field "node" the tool stats the
++	 * cross allocation.
++	 */
++	if (evsel__field(evsel, "node")) {
++		int node1, node2;
+ 
+-	if (!ret) {
+-		int node1 = cpu__get_node((struct perf_cpu){.cpu = sample->cpu}),
+-		    node2 = evsel__intval(evsel, sample, "node");
++		node1 = cpu__get_node((struct perf_cpu){.cpu = sample->cpu});
++		node2 = evsel__intval(evsel, sample, "node");
+ 
+-		if (node1 != node2)
++		/*
++		 * If the field "node" is NUMA_NO_NODE (-1), we don't take it
++		 * as a cross allocation.
++		 */
++		if ((node2 != NUMA_NO_NODE) && (node1 != node2))
+ 			nr_cross_allocs++;
+ 	}
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int ptr_cmp(void *, void *);
+@@ -1368,8 +1380,8 @@ static int __cmd_kmem(struct perf_session *session)
+ 		/* slab allocator */
+ 		{ "kmem:kmalloc",		evsel__process_alloc_event, },
+ 		{ "kmem:kmem_cache_alloc",	evsel__process_alloc_event, },
+-		{ "kmem:kmalloc_node",		evsel__process_alloc_node_event, },
+-		{ "kmem:kmem_cache_alloc_node", evsel__process_alloc_node_event, },
++		{ "kmem:kmalloc_node",		evsel__process_alloc_event, },
++		{ "kmem:kmem_cache_alloc_node", evsel__process_alloc_event, },
+ 		{ "kmem:kfree",			evsel__process_free_event, },
+ 		{ "kmem:kmem_cache_free",	evsel__process_free_event, },
+ 		/* page allocator */
 -- 
 2.35.1
 
