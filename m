@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F1366C79F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86BA966CA19
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233270AbjAPQc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:32:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
+        id S234113AbjAPQ7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:59:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233259AbjAPQc0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:32:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 059383B0C8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:19 -0800 (PST)
+        with ESMTP id S234220AbjAPQ6q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:58:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D633436B17
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99347B8107A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB1CC433EF;
-        Mon, 16 Jan 2023 16:20:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D49461050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA96C433EF;
+        Mon, 16 Jan 2023 16:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886017;
-        bh=DlI1AWso2wIgUA2+Y8rXov/jCYMjfT11oF+3ee79YOc=;
+        s=korg; t=1673887300;
+        bh=JqfA0O+X2XBZDhZg+p5elc6buO1bmVDwiTEnZHPdLRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SeVFnauKJ6Ygjbmky5HuPfL52oX16owanOGNH+zYmJwBCiNtiNrd1af8i5dJoQCgN
-         +Vx08B81tW1lSUOpzI1C+vzU2QrPZ+jmtxeNjkL3NrbYJdP7tMMBcMnKkb8+N+lxjy
-         4WdQE96+GoC14DE2gA//f8NjCeGaF3r3+qoEgDxE=
+        b=zB0eLjFyU2TE5Z1FjlZPiVkeWFSXBqdc3zjqLmvtTygDi8yf4ApwGN0BnQ66Vn6gO
+         KecGLZiLuEhz0PvN/O59yezrrmHg0aP8Gw013VABDxRL+VmUbj7AurrjYd3LIM8UAf
+         9Xaiv4fneO5BRP/dX8k9bQYIlSCfyASqNoISIv6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 270/658] crypto: img-hash - Fix variable dereferenced before check hdev->req
+Subject: [PATCH 4.19 096/521] media: vivid: fix compose size exceed boundary
 Date:   Mon, 16 Jan 2023 16:45:58 +0100
-Message-Id: <20230116154921.928819149@linuxfoundation.org>
+Message-Id: <20230116154851.520360080@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 04ba54e5af8f8f0137b08cb51a0b3a2e1ea46c94 ]
+[ Upstream commit 94a7ad9283464b75b12516c5512541d467cefcf8 ]
 
-Smatch report warning as follows:
+syzkaller found a bug:
 
-drivers/crypto/img-hash.c:366 img_hash_dma_task() warn: variable
-dereferenced before check 'hdev->req'
+ BUG: unable to handle page fault for address: ffffc9000a3b1000
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 100000067 P4D 100000067 PUD 10015f067 PMD 1121ca067 PTE 0
+ Oops: 0002 [#1] PREEMPT SMP
+ CPU: 0 PID: 23489 Comm: vivid-000-vid-c Not tainted 6.1.0-rc1+ #512
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+ RIP: 0010:memcpy_erms+0x6/0x10
+[...]
+ Call Trace:
+  <TASK>
+  ? tpg_fill_plane_buffer+0x856/0x15b0
+  vivid_fillbuff+0x8ac/0x1110
+  vivid_thread_vid_cap_tick+0x361/0xc90
+  vivid_thread_vid_cap+0x21a/0x3a0
+  kthread+0x143/0x180
+  ret_from_fork+0x1f/0x30
+  </TASK>
 
-Variable dereferenced should be done after check 'hdev->req',
-fix it.
+This is because we forget to check boundary after adjust compose->height
+int V4L2_SEL_TGT_CROP case. Add v4l2_rect_map_inside() to fix this problem
+for this case.
 
-Fixes: d358f1abbf71 ("crypto: img-hash - Add Imagination Technologies hw hash accelerator")
-Fixes: 10badea259fa ("crypto: img-hash - Fix null pointer exception")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: ef834f7836ec ("[media] vivid: add the video capture and output parts")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/img-hash.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/media/platform/vivid/vivid-vid-cap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/img-hash.c b/drivers/crypto/img-hash.c
-index fe4cc8babe1c..17cc44f14e5c 100644
---- a/drivers/crypto/img-hash.c
-+++ b/drivers/crypto/img-hash.c
-@@ -356,12 +356,16 @@ static int img_hash_dma_init(struct img_hash_dev *hdev)
- static void img_hash_dma_task(unsigned long d)
- {
- 	struct img_hash_dev *hdev = (struct img_hash_dev *)d;
--	struct img_hash_request_ctx *ctx = ahash_request_ctx(hdev->req);
-+	struct img_hash_request_ctx *ctx;
- 	u8 *addr;
- 	size_t nbytes, bleft, wsend, len, tbc;
- 	struct scatterlist tsg;
- 
--	if (!hdev->req || !ctx->sg)
-+	if (!hdev->req)
-+		return;
-+
-+	ctx = ahash_request_ctx(hdev->req);
-+	if (!ctx->sg)
- 		return;
- 
- 	addr = sg_virt(ctx->sg);
+diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
+index 48f2c9c96fc9..ded48b7ad774 100644
+--- a/drivers/media/platform/vivid/vivid-vid-cap.c
++++ b/drivers/media/platform/vivid/vivid-vid-cap.c
+@@ -923,6 +923,7 @@ int vivid_vid_cap_s_selection(struct file *file, void *fh, struct v4l2_selection
+ 			if (dev->has_compose_cap) {
+ 				v4l2_rect_set_min_size(compose, &min_rect);
+ 				v4l2_rect_set_max_size(compose, &max_rect);
++				v4l2_rect_map_inside(compose, &fmt);
+ 			}
+ 			dev->fmt_cap_rect = fmt;
+ 			tpg_s_buf_height(&dev->tpg, fmt.height);
 -- 
 2.35.1
 
