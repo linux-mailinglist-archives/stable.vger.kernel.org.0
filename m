@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D62266C95E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEB7B66C58D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:07:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233835AbjAPQt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:49:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39856 "EHLO
+        id S232427AbjAPQH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:07:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233967AbjAPQsf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:48:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 699A9302BE
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:50 -0800 (PST)
+        with ESMTP id S232433AbjAPQGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CF03265B6
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2417CB81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 725C7C433D2;
-        Mon, 16 Jan 2023 16:35:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C01E60C1B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3339C433EF;
+        Mon, 16 Jan 2023 16:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886947;
-        bh=Pbir8vl/RLwXHarvuo9OOB/LtcPSiVtcdLDDndWzy54=;
+        s=korg; t=1673885105;
+        bh=0hGH4B2VkM+NL14BNPHk5RYrQY+T4BeucIqjS8scYjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twvy4/Ec67UG922+XsBJId01/xTOQQ1m6/iVMUdrmMBBQN+dL79r524Wc4kE7RJi/
-         ABxUjCAw939ocB3HlA4uMST82T83udFr+ZRA/6mF9+i3vZb/MoEbHugqV8WJRP6U63
-         8zm+yTBV8UImtLArB34PvuL3wy3kza0B7bgiL4I4=
+        b=OjgtvMVzUkTT8CoCDoAKsOfp8HQoSIxy8MRFUSZDpsLmUuTPAgYeecxIuNVSgiggS
+         qSP5v8WQeImVKnz2nm6C0JGvlMFN2RmmcS3JrTAK3nVVE6L7q325zHkdmkUrDI/T3K
+         nK3huzFWJhnZz1cGJJmLkUk6hM8EnTrF/jeZ7Z+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Jason Yan <yanaijie@huawei.com>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 623/658] jbd2: use the correct print format
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 77/86] arm64: atomics: format whitespace consistently
 Date:   Mon, 16 Jan 2023 16:51:51 +0100
-Message-Id: <20230116154937.991514558@linuxfoundation.org>
+Message-Id: <20230116154750.242917278@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,200 +56,274 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@linux.alibaba.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit d87a7b4c77a997d5388566dd511ca8e6b8e8a0a8 ]
+[ Upstream commit 8e6082e94aac6d0338883b5953631b662a5a9188 ]
 
-The print format error was found when using ftrace event:
-    <...>-1406 [000] .... 23599442.895823: jbd2_end_commit: dev 252,8 transaction -1866216965 sync 0 head -1866217368
-    <...>-1406 [000] .... 23599442.896299: jbd2_start_commit: dev 252,8 transaction -1866216964 sync 0
+The code for the atomic ops is formatted inconsistently, and while this
+is not a functional problem it is rather distracting when working on
+them.
 
-Use the correct print format for transaction, head and tid.
+Some have ops have consistent indentation, e.g.
 
-Fixes: 879c5e6b7cb4 ('jbd2: convert instrumentation from markers to tracepoints')
-Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Link: https://lore.kernel.org/r/1665488024-95172-1-git-send-email-cuibixuan@linux.alibaba.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+| #define ATOMIC_OP_ADD_RETURN(name, mb, cl...)                           \
+| static inline int __lse_atomic_add_return##name(int i, atomic_t *v)     \
+| {                                                                       \
+|         u32 tmp;                                                        \
+|                                                                         \
+|         asm volatile(                                                   \
+|         __LSE_PREAMBLE                                                  \
+|         "       ldadd" #mb "    %w[i], %w[tmp], %[v]\n"                 \
+|         "       add     %w[i], %w[i], %w[tmp]"                          \
+|         : [i] "+r" (i), [v] "+Q" (v->counter), [tmp] "=&r" (tmp)        \
+|         : "r" (v)                                                       \
+|         : cl);                                                          \
+|                                                                         \
+|         return i;                                                       \
+| }
+
+While others have negative indentation for some lines, and/or have
+misaligned trailing backslashes, e.g.
+
+| static inline void __lse_atomic_##op(int i, atomic_t *v)                        \
+| {                                                                       \
+|         asm volatile(                                                   \
+|         __LSE_PREAMBLE                                                  \
+| "       " #asm_op "     %w[i], %[v]\n"                                  \
+|         : [i] "+r" (i), [v] "+Q" (v->counter)                           \
+|         : "r" (v));                                                     \
+| }
+
+This patch makes the indentation consistent and also aligns the trailing
+backslashes. This makes the code easier to read for those (like myself)
+who are easily distracted by these inconsistencies.
+
+This is intended as a cleanup.
+There should be no functional change as a result of this patch.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Will Deacon <will@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20211210151410.2782645-2-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Stable-dep-of: 031af50045ea ("arm64: cmpxchg_double*: hazard against entire exchange variable")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/jbd2.h | 40 ++++++++++++++++++-------------------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ arch/arm64/include/asm/atomic_ll_sc.h | 86 +++++++++++++--------------
+ arch/arm64/include/asm/atomic_lse.h   | 14 ++---
+ 2 files changed, 50 insertions(+), 50 deletions(-)
 
-diff --git a/include/trace/events/jbd2.h b/include/trace/events/jbd2.h
-index 2310b259329f..c9fb7b987a3a 100644
---- a/include/trace/events/jbd2.h
-+++ b/include/trace/events/jbd2.h
-@@ -40,7 +40,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
- 	TP_STRUCT__entry(
- 		__field(	dev_t,	dev			)
- 		__field(	char,	sync_commit		  )
--		__field(	int,	transaction		  )
-+		__field(	tid_t,	transaction		  )
- 	),
+diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
+index 13869b76b58c..fe0db8d416fb 100644
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -44,11 +44,11 @@ __ll_sc_atomic_##op(int i, atomic_t *v)					\
+ 									\
+ 	asm volatile("// atomic_" #op "\n"				\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %2\n"					\
+-"1:	ldxr	%w0, %2\n"						\
+-"	" #asm_op "	%w0, %w0, %w3\n"				\
+-"	stxr	%w1, %w0, %2\n"						\
+-"	cbnz	%w1, 1b\n")						\
++	"	prfm	pstl1strm, %2\n"				\
++	"1:	ldxr	%w0, %2\n"					\
++	"	" #asm_op "	%w0, %w0, %w3\n"			\
++	"	stxr	%w1, %w0, %2\n"					\
++	"	cbnz	%w1, 1b\n")					\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i));				\
+ }
+@@ -62,12 +62,12 @@ __ll_sc_atomic_##op##_return##name(int i, atomic_t *v)			\
+ 									\
+ 	asm volatile("// atomic_" #op "_return" #name "\n"		\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %2\n"					\
+-"1:	ld" #acq "xr	%w0, %2\n"					\
+-"	" #asm_op "	%w0, %w0, %w3\n"				\
+-"	st" #rel "xr	%w1, %w0, %2\n"					\
+-"	cbnz	%w1, 1b\n"						\
+-"	" #mb )								\
++	"	prfm	pstl1strm, %2\n"				\
++	"1:	ld" #acq "xr	%w0, %2\n"				\
++	"	" #asm_op "	%w0, %w0, %w3\n"			\
++	"	st" #rel "xr	%w1, %w0, %2\n"				\
++	"	cbnz	%w1, 1b\n"					\
++	"	" #mb )							\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -84,12 +84,12 @@ __ll_sc_atomic_fetch_##op##name(int i, atomic_t *v)			\
+ 									\
+ 	asm volatile("// atomic_fetch_" #op #name "\n"			\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %3\n"					\
+-"1:	ld" #acq "xr	%w0, %3\n"					\
+-"	" #asm_op "	%w1, %w0, %w4\n"				\
+-"	st" #rel "xr	%w2, %w1, %3\n"					\
+-"	cbnz	%w2, 1b\n"						\
+-"	" #mb )								\
++	"	prfm	pstl1strm, %3\n"				\
++	"1:	ld" #acq "xr	%w0, %3\n"				\
++	"	" #asm_op "	%w1, %w0, %w4\n"			\
++	"	st" #rel "xr	%w2, %w1, %3\n"				\
++	"	cbnz	%w2, 1b\n"					\
++	"	" #mb )							\
+ 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -143,11 +143,11 @@ __ll_sc_atomic64_##op(s64 i, atomic64_t *v)				\
+ 									\
+ 	asm volatile("// atomic64_" #op "\n"				\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %2\n"					\
+-"1:	ldxr	%0, %2\n"						\
+-"	" #asm_op "	%0, %0, %3\n"					\
+-"	stxr	%w1, %0, %2\n"						\
+-"	cbnz	%w1, 1b")						\
++	"	prfm	pstl1strm, %2\n"				\
++	"1:	ldxr	%0, %2\n"					\
++	"	" #asm_op "	%0, %0, %3\n"				\
++	"	stxr	%w1, %0, %2\n"					\
++	"	cbnz	%w1, 1b")					\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i));				\
+ }
+@@ -161,12 +161,12 @@ __ll_sc_atomic64_##op##_return##name(s64 i, atomic64_t *v)		\
+ 									\
+ 	asm volatile("// atomic64_" #op "_return" #name "\n"		\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %2\n"					\
+-"1:	ld" #acq "xr	%0, %2\n"					\
+-"	" #asm_op "	%0, %0, %3\n"					\
+-"	st" #rel "xr	%w1, %0, %2\n"					\
+-"	cbnz	%w1, 1b\n"						\
+-"	" #mb )								\
++	"	prfm	pstl1strm, %2\n"				\
++	"1:	ld" #acq "xr	%0, %2\n"				\
++	"	" #asm_op "	%0, %0, %3\n"				\
++	"	st" #rel "xr	%w1, %0, %2\n"				\
++	"	cbnz	%w1, 1b\n"					\
++	"	" #mb )							\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -176,19 +176,19 @@ __ll_sc_atomic64_##op##_return##name(s64 i, atomic64_t *v)		\
  
- 	TP_fast_assign(
-@@ -49,7 +49,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
- 		__entry->transaction	= commit_transaction->t_tid;
- 	),
+ #define ATOMIC64_FETCH_OP(name, mb, acq, rel, cl, op, asm_op, constraint)\
+ static inline long							\
+-__ll_sc_atomic64_fetch_##op##name(s64 i, atomic64_t *v)		\
++__ll_sc_atomic64_fetch_##op##name(s64 i, atomic64_t *v)			\
+ {									\
+ 	s64 result, val;						\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile("// atomic64_fetch_" #op #name "\n"		\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %3\n"					\
+-"1:	ld" #acq "xr	%0, %3\n"					\
+-"	" #asm_op "	%1, %0, %4\n"					\
+-"	st" #rel "xr	%w2, %1, %3\n"					\
+-"	cbnz	%w2, 1b\n"						\
+-"	" #mb )								\
++	"	prfm	pstl1strm, %3\n"				\
++	"1:	ld" #acq "xr	%0, %3\n"				\
++	"	" #asm_op "	%1, %0, %4\n"				\
++	"	st" #rel "xr	%w2, %1, %3\n"				\
++	"	cbnz	%w2, 1b\n"					\
++	"	" #mb )							\
+ 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -241,14 +241,14 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
  
--	TP_printk("dev %d,%d transaction %d sync %d",
-+	TP_printk("dev %d,%d transaction %u sync %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev),
- 		  __entry->transaction, __entry->sync_commit)
- );
-@@ -97,8 +97,8 @@ TRACE_EVENT(jbd2_end_commit,
- 	TP_STRUCT__entry(
- 		__field(	dev_t,	dev			)
- 		__field(	char,	sync_commit		  )
--		__field(	int,	transaction		  )
--		__field(	int,	head		  	  )
-+		__field(	tid_t,	transaction		  )
-+		__field(	tid_t,	head		  	  )
- 	),
+ 	asm volatile("// atomic64_dec_if_positive\n"
+ 	__LL_SC_FALLBACK(
+-"	prfm	pstl1strm, %2\n"
+-"1:	ldxr	%0, %2\n"
+-"	subs	%0, %0, #1\n"
+-"	b.lt	2f\n"
+-"	stlxr	%w1, %0, %2\n"
+-"	cbnz	%w1, 1b\n"
+-"	dmb	ish\n"
+-"2:")
++	"	prfm	pstl1strm, %2\n"
++	"1:	ldxr	%0, %2\n"
++	"	subs	%0, %0, #1\n"
++	"	b.lt	2f\n"
++	"	stlxr	%w1, %0, %2\n"
++	"	cbnz	%w1, 1b\n"
++	"	dmb	ish\n"
++	"2:")
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)
+ 	:
+ 	: "cc", "memory");
+diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
+index da3280f639cd..ab661375835e 100644
+--- a/arch/arm64/include/asm/atomic_lse.h
++++ b/arch/arm64/include/asm/atomic_lse.h
+@@ -11,11 +11,11 @@
+ #define __ASM_ATOMIC_LSE_H
  
- 	TP_fast_assign(
-@@ -108,7 +108,7 @@ TRACE_EVENT(jbd2_end_commit,
- 		__entry->head		= journal->j_tail_sequence;
- 	),
+ #define ATOMIC_OP(op, asm_op)						\
+-static inline void __lse_atomic_##op(int i, atomic_t *v)			\
++static inline void __lse_atomic_##op(int i, atomic_t *v)		\
+ {									\
+ 	asm volatile(							\
+ 	__LSE_PREAMBLE							\
+-"	" #asm_op "	%w[i], %[v]\n"					\
++	"	" #asm_op "	%w[i], %[v]\n"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v));							\
+ }
+@@ -32,7 +32,7 @@ static inline int __lse_atomic_fetch_##op##name(int i, atomic_t *v)	\
+ {									\
+ 	asm volatile(							\
+ 	__LSE_PREAMBLE							\
+-"	" #asm_op #mb "	%w[i], %w[i], %[v]"				\
++	"	" #asm_op #mb "	%w[i], %w[i], %[v]"			\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v)							\
+ 	: cl);								\
+@@ -130,7 +130,7 @@ static inline int __lse_atomic_sub_return##name(int i, atomic_t *v)	\
+ 	"	add	%w[i], %w[i], %w[tmp]"				\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter), [tmp] "=&r" (tmp)	\
+ 	: "r" (v)							\
+-	: cl);							\
++	: cl);								\
+ 									\
+ 	return i;							\
+ }
+@@ -168,7 +168,7 @@ static inline void __lse_atomic64_##op(s64 i, atomic64_t *v)		\
+ {									\
+ 	asm volatile(							\
+ 	__LSE_PREAMBLE							\
+-"	" #asm_op "	%[i], %[v]\n"					\
++	"	" #asm_op "	%[i], %[v]\n"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v));							\
+ }
+@@ -185,7 +185,7 @@ static inline long __lse_atomic64_fetch_##op##name(s64 i, atomic64_t *v)\
+ {									\
+ 	asm volatile(							\
+ 	__LSE_PREAMBLE							\
+-"	" #asm_op #mb "	%[i], %[i], %[v]"				\
++	"	" #asm_op #mb "	%[i], %[i], %[v]"			\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v)							\
+ 	: cl);								\
+@@ -272,7 +272,7 @@ static inline void __lse_atomic64_sub(s64 i, atomic64_t *v)
+ }
  
--	TP_printk("dev %d,%d transaction %d sync %d head %d",
-+	TP_printk("dev %d,%d transaction %u sync %d head %u",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev),
- 		  __entry->transaction, __entry->sync_commit, __entry->head)
- );
-@@ -134,14 +134,14 @@ TRACE_EVENT(jbd2_submit_inode_data,
- );
- 
- TRACE_EVENT(jbd2_handle_start,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int requested_blocks),
- 
- 	TP_ARGS(dev, tid, type, line_no, requested_blocks),
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	 unsigned int,	type		)
- 		__field(	 unsigned int,	line_no		)
- 		__field(		  int,	requested_blocks)
-@@ -155,14 +155,14 @@ TRACE_EVENT(jbd2_handle_start,
- 		__entry->requested_blocks = requested_blocks;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu type %u line_no %u "
-+	TP_printk("dev %d,%d tid %u type %u line_no %u "
- 		  "requested_blocks %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  __entry->type, __entry->line_no, __entry->requested_blocks)
- );
- 
- TRACE_EVENT(jbd2_handle_extend,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int buffer_credits,
- 		 int requested_blocks),
- 
-@@ -170,7 +170,7 @@ TRACE_EVENT(jbd2_handle_extend,
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	 unsigned int,	type		)
- 		__field(	 unsigned int,	line_no		)
- 		__field(		  int,	buffer_credits  )
-@@ -186,7 +186,7 @@ TRACE_EVENT(jbd2_handle_extend,
- 		__entry->requested_blocks = requested_blocks;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu type %u line_no %u "
-+	TP_printk("dev %d,%d tid %u type %u line_no %u "
- 		  "buffer_credits %d requested_blocks %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  __entry->type, __entry->line_no, __entry->buffer_credits,
-@@ -194,7 +194,7 @@ TRACE_EVENT(jbd2_handle_extend,
- );
- 
- TRACE_EVENT(jbd2_handle_stats,
--	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
-+	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
- 		 unsigned int line_no, int interval, int sync,
- 		 int requested_blocks, int dirtied_blocks),
- 
-@@ -203,7 +203,7 @@ TRACE_EVENT(jbd2_handle_stats,
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	 unsigned int,	type		)
- 		__field(	 unsigned int,	line_no		)
- 		__field(		  int,	interval	)
-@@ -223,7 +223,7 @@ TRACE_EVENT(jbd2_handle_stats,
- 		__entry->dirtied_blocks	  = dirtied_blocks;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu type %u line_no %u interval %d "
-+	TP_printk("dev %d,%d tid %u type %u line_no %u interval %d "
- 		  "sync %d requested_blocks %d dirtied_blocks %d",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  __entry->type, __entry->line_no, __entry->interval,
-@@ -232,14 +232,14 @@ TRACE_EVENT(jbd2_handle_stats,
- );
- 
- TRACE_EVENT(jbd2_run_stats,
--	TP_PROTO(dev_t dev, unsigned long tid,
-+	TP_PROTO(dev_t dev, tid_t tid,
- 		 struct transaction_run_stats_s *stats),
- 
- 	TP_ARGS(dev, tid, stats),
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	unsigned long,	wait		)
- 		__field(	unsigned long,	request_delay	)
- 		__field(	unsigned long,	running		)
-@@ -265,7 +265,7 @@ TRACE_EVENT(jbd2_run_stats,
- 		__entry->blocks_logged	= stats->rs_blocks_logged;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu wait %u request_delay %u running %u "
-+	TP_printk("dev %d,%d tid %u wait %u request_delay %u running %u "
- 		  "locked %u flushing %u logging %u handle_count %u "
- 		  "blocks %u blocks_logged %u",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
-@@ -280,14 +280,14 @@ TRACE_EVENT(jbd2_run_stats,
- );
- 
- TRACE_EVENT(jbd2_checkpoint_stats,
--	TP_PROTO(dev_t dev, unsigned long tid,
-+	TP_PROTO(dev_t dev, tid_t tid,
- 		 struct transaction_chp_stats_s *stats),
- 
- 	TP_ARGS(dev, tid, stats),
- 
- 	TP_STRUCT__entry(
- 		__field(		dev_t,	dev		)
--		__field(	unsigned long,	tid		)
-+		__field(		tid_t,	tid		)
- 		__field(	unsigned long,	chp_time	)
- 		__field(		__u32,	forced_to_close	)
- 		__field(		__u32,	written		)
-@@ -303,7 +303,7 @@ TRACE_EVENT(jbd2_checkpoint_stats,
- 		__entry->dropped	= stats->cs_dropped;
- 	),
- 
--	TP_printk("dev %d,%d tid %lu chp_time %u forced_to_close %u "
-+	TP_printk("dev %d,%d tid %u chp_time %u forced_to_close %u "
- 		  "written %u dropped %u",
- 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
- 		  jiffies_to_msecs(__entry->chp_time),
+ #define ATOMIC64_OP_SUB_RETURN(name, mb, cl...)				\
+-static inline long __lse_atomic64_sub_return##name(s64 i, atomic64_t *v)	\
++static inline long __lse_atomic64_sub_return##name(s64 i, atomic64_t *v)\
+ {									\
+ 	unsigned long tmp;						\
+ 									\
 -- 
 2.35.1
 
