@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C16B866CACB
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:07:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A8B66CACA
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:07:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234220AbjAPRHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:07:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60246 "EHLO
+        id S233679AbjAPRHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:07:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234234AbjAPRH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:07:29 -0500
+        with ESMTP id S234123AbjAPRH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:07:27 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F249442D3
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4E3529E3A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DEB3B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9867C433F1;
-        Mon, 16 Jan 2023 16:47:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34108B8109E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81102C433F0;
+        Mon, 16 Jan 2023 16:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887676;
-        bh=Q47DhHufZjz2yw8LsqEMABxE3v4eeNVt/zGIx7XhVF0=;
+        s=korg; t=1673887678;
+        bh=kCSbU/WXbEcN7zzbpxVHttZZYBUzc3PiP6ADFwywilw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dPLmrAPkpwRfnv0WW/pEA5cUmgIZ61QELB4p/RqkqbPoLcXb/2qFjQ+wIZ3M+sgYe
-         fC6HRl35NubcD+0wnkR+Z0yLbeBM+5k+v04vQzjiSwsH8BoaHfeQu0QniEQuBgYJ2l
-         PzqI9pCaCN0p0w3iec5rxaoTG0MuL4+YV4WUK95Q=
+        b=PXwB9rpWilcp68PxHp2iuUGvWC38Wv2uGwPtaMzeWczp2vNJX6jsSmzLJm5Z6oV27
+         WnCDQn5ec5lCWnJhh1nrp4BUicNqtHwS0FV0ML1ItXDdbpgSuT9Nmtm4YuFJfJQuDE
+         lE45o/qAZSGfIOhZ+r8aBASe/xsf+GaSTSgRSyo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Johannes Thumshirn <jth@kernel.org>,
+        patches@lists.linux.dev, Johannes Thumshirn <jth@kernel.org>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 240/521] drivers: mcb: fix resource leak in mcb_probe()
-Date:   Mon, 16 Jan 2023 16:48:22 +0100
-Message-Id: <20230116154857.877152127@linuxfoundation.org>
+Subject: [PATCH 4.19 241/521] mcb: mcb-parse: fix error handing in chameleon_parse_gdd()
+Date:   Mon, 16 Jan 2023 16:48:23 +0100
+Message-Id: <20230116154857.929341859@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d7237462561fcd224fa687c56ccb68629f50fc0d ]
+[ Upstream commit 728ac3389296caf68638628c987aeae6c8851e2d ]
 
-When probe hook function failed in mcb_probe(), it doesn't put the device.
-Compiled test only.
+If mcb_device_register() returns error in chameleon_parse_gdd(), the refcount
+of bus and device name are leaked. Fix this by calling put_device() to give up
+the reference, so they can be released in mcb_release_dev() and kobject_cleanup().
 
-Fixes: 7bc364097a89 ("mcb: Acquire reference to device in probe")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Fixes: 3764e82e5150 ("drivers: Introduce MEN Chameleon Bus")
+Reviewed-by: Johannes Thumshirn <jth@kernel.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Link: https://lore.kernel.org/r/9f87de36bfb85158b506cb78c6fc9db3f6a3bad1.1669624063.git.johannes.thumshirn@wdc.com
+Link: https://lore.kernel.org/r/ebfb06e39b19272f0197fa9136b5e4b6f34ad732.1669624063.git.johannes.thumshirn@wdc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mcb/mcb-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mcb/mcb-parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mcb/mcb-core.c b/drivers/mcb/mcb-core.c
-index 118d27ee31c2..7fd32b0183dc 100644
---- a/drivers/mcb/mcb-core.c
-+++ b/drivers/mcb/mcb-core.c
-@@ -74,8 +74,10 @@ static int mcb_probe(struct device *dev)
+diff --git a/drivers/mcb/mcb-parse.c b/drivers/mcb/mcb-parse.c
+index 7369bda3442f..3636349648b4 100644
+--- a/drivers/mcb/mcb-parse.c
++++ b/drivers/mcb/mcb-parse.c
+@@ -107,7 +107,7 @@ static int chameleon_parse_gdd(struct mcb_bus *bus,
+ 	return 0;
  
- 	get_device(dev);
- 	ret = mdrv->probe(mdev, found_id);
--	if (ret)
-+	if (ret) {
- 		module_put(carrier_mod);
-+		put_device(dev);
-+	}
+ err:
+-	mcb_free_dev(mdev);
++	put_device(&mdev->dev);
  
  	return ret;
  }
