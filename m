@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F235766CBF7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:20:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42E7166CD82
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234577AbjAPRUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:20:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45484 "EHLO
+        id S235003AbjAPRgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:36:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234511AbjAPRUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:20:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1275A582B9
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:59:14 -0800 (PST)
+        with ESMTP id S234885AbjAPRgX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97C813C2BA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A12FE60F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:59:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4DF1C433EF;
-        Mon, 16 Jan 2023 16:59:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2806E60F63
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F38FC433EF;
+        Mon, 16 Jan 2023 17:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888353;
-        bh=leWpB3c8HCf7NOhJaP3JD7F15OvyfjIR5TVD0Qfx0Yk=;
+        s=korg; t=1673889171;
+        bh=tCpOsjqepW1XHpVi6rBzMHP1fuLUsN5cGFbvVNLxd7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ObVnGv4JVl7o/TgZCJSLAn2LOpf0TwHQ+qONssucmREwKJeqZ4Wpyc9r5dqUFF6mq
-         RIzUuBmDVmWD7bpFhrqkznumeXIs4+heniKa1USP+FSh2SmEHbkw4xBZ4e6h2FdSUV
-         PTEo5QS+79VR91pAvfu5J87lhpcb8Z8uBFByhDh4=
+        b=Txczgz74Hh66xJZvW3mTOKHUsM/8FLmopwHcmUHA1IM1gR2NYTXQ9sp7rg1xLCv/d
+         yOUD1eTRQHeEzlmS0LXbqessDpiKlxxJ7yws8bmsDIf1mCHVxmDEOGg7A4K4tM0xri
+         ulExDkMa1HUW+GLOrEgCriQEKwfgSy1aofu/YIhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 497/521] ext4: add new pending reservation mechanism
+        patches@lists.linux.dev, Hyunwoo Kim <imv4bel@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Subject: [PATCH 4.14 286/338] media: dvb-core: Fix UAF due to refcount races at releasing
 Date:   Mon, 16 Jan 2023 16:52:39 +0100
-Message-Id: <20230116154909.417097432@linuxfoundation.org>
+Message-Id: <20230116154833.531481454@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,351 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 1dc0aa46e74a3366e12f426b7caaca477853e9c3 ]
+commit fd3d91ab1c6ab0628fe642dd570b56302c30a792 upstream.
 
-Add new pending reservation mechanism to help manage reserved cluster
-accounting.  Its primary function is to avoid the need to read extents
-from the disk when invalidating pages as a result of a truncate, punch
-hole, or collapse range operation.
+The dvb-core tries to sync the releases of opened files at
+dvb_dmxdev_release() with two refcounts: dvbdev->users and
+dvr_dvbdev->users.  A problem is present in those two syncs: when yet
+another dvb_demux_open() is called during those sync waits,
+dvb_demux_open() continues to process even if the device is being
+closed.  This includes the increment of the former refcount, resulting
+in the leftover refcount after the sync of the latter refcount at
+dvb_dmxdev_release().  It ends up with use-after-free, since the
+function believes that all usages were gone and releases the
+resources.
 
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Stable-dep-of: 131294c35ed6 ("ext4: fix delayed allocation bug in ext4_clu_mapped for bigalloc + inline")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch addresses the problem by adding the check of dmxdev->exit
+flag at dvb_demux_open(), just like dvb_dvr_open() already does.  With
+the exit flag check, the second call of dvb_demux_open() fails, hence
+the further corruption can be avoided.
+
+Also for avoiding the races of the dmxdev->exit flag reference, this
+patch serializes the dmxdev->exit set up and the sync waits with the
+dmxdev->mutex lock at dvb_dmxdev_release().  Without the mutex lock,
+dvb_demux_open() (or dvb_dvr_open()) may run concurrently with
+dvb_dmxdev_release(), which allows to skip the exit flag check and
+continue the open process that is being closed.
+
+CVE-2022-41218 is assigned to those bugs above.
+
+Reported-by: Hyunwoo Kim <imv4bel@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/20220908132754.30532-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h           |   3 +
- fs/ext4/extents_status.c | 187 +++++++++++++++++++++++++++++++++++++++
- fs/ext4/extents_status.h |  51 +++++++++++
- fs/ext4/super.c          |   8 ++
- 4 files changed, 249 insertions(+)
+ drivers/media/dvb-core/dmxdev.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 24bbfbf9a5aa..e914a0df209f 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1041,6 +1041,9 @@ struct ext4_inode_info {
- 	ext4_lblk_t i_da_metadata_calc_last_lblock;
- 	int i_da_metadata_calc_len;
+--- a/drivers/media/dvb-core/dmxdev.c
++++ b/drivers/media/dvb-core/dmxdev.c
+@@ -738,6 +738,11 @@ static int dvb_demux_open(struct inode *
+ 	if (mutex_lock_interruptible(&dmxdev->mutex))
+ 		return -ERESTARTSYS;
  
-+	/* pending cluster reservations for bigalloc file systems */
-+	struct ext4_pending_tree i_pending_tree;
-+
- 	/* on-disk additional length */
- 	__u16 i_extra_isize;
- 
-diff --git a/fs/ext4/extents_status.c b/fs/ext4/extents_status.c
-index e7503a3a3299..90e473084fd4 100644
---- a/fs/ext4/extents_status.c
-+++ b/fs/ext4/extents_status.c
-@@ -142,6 +142,7 @@
-  */
- 
- static struct kmem_cache *ext4_es_cachep;
-+static struct kmem_cache *ext4_pending_cachep;
- 
- static int __es_insert_extent(struct inode *inode, struct extent_status *newes);
- static int __es_remove_extent(struct inode *inode, ext4_lblk_t lblk,
-@@ -1363,3 +1364,189 @@ static int es_reclaim_extents(struct ext4_inode_info *ei, int *nr_to_scan)
- 	ei->i_es_tree.cache_es = NULL;
- 	return nr_shrunk;
- }
-+
-+#ifdef ES_DEBUG__
-+static void ext4_print_pending_tree(struct inode *inode)
-+{
-+	struct ext4_pending_tree *tree;
-+	struct rb_node *node;
-+	struct pending_reservation *pr;
-+
-+	printk(KERN_DEBUG "pending reservations for inode %lu:", inode->i_ino);
-+	tree = &EXT4_I(inode)->i_pending_tree;
-+	node = rb_first(&tree->root);
-+	while (node) {
-+		pr = rb_entry(node, struct pending_reservation, rb_node);
-+		printk(KERN_DEBUG " %u", pr->lclu);
-+		node = rb_next(node);
-+	}
-+	printk(KERN_DEBUG "\n");
-+}
-+#else
-+#define ext4_print_pending_tree(inode)
-+#endif
-+
-+int __init ext4_init_pending(void)
-+{
-+	ext4_pending_cachep = kmem_cache_create("ext4_pending_reservation",
-+					   sizeof(struct pending_reservation),
-+					   0, (SLAB_RECLAIM_ACCOUNT), NULL);
-+	if (ext4_pending_cachep == NULL)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+void ext4_exit_pending(void)
-+{
-+	kmem_cache_destroy(ext4_pending_cachep);
-+}
-+
-+void ext4_init_pending_tree(struct ext4_pending_tree *tree)
-+{
-+	tree->root = RB_ROOT;
-+}
-+
-+/*
-+ * __get_pending - retrieve a pointer to a pending reservation
-+ *
-+ * @inode - file containing the pending cluster reservation
-+ * @lclu - logical cluster of interest
-+ *
-+ * Returns a pointer to a pending reservation if it's a member of
-+ * the set, and NULL if not.  Must be called holding i_es_lock.
-+ */
-+static struct pending_reservation *__get_pending(struct inode *inode,
-+						 ext4_lblk_t lclu)
-+{
-+	struct ext4_pending_tree *tree;
-+	struct rb_node *node;
-+	struct pending_reservation *pr = NULL;
-+
-+	tree = &EXT4_I(inode)->i_pending_tree;
-+	node = (&tree->root)->rb_node;
-+
-+	while (node) {
-+		pr = rb_entry(node, struct pending_reservation, rb_node);
-+		if (lclu < pr->lclu)
-+			node = node->rb_left;
-+		else if (lclu > pr->lclu)
-+			node = node->rb_right;
-+		else if (lclu == pr->lclu)
-+			return pr;
-+	}
-+	return NULL;
-+}
-+
-+/*
-+ * __insert_pending - adds a pending cluster reservation to the set of
-+ *                    pending reservations
-+ *
-+ * @inode - file containing the cluster
-+ * @lblk - logical block in the cluster to be added
-+ *
-+ * Returns 0 on successful insertion and -ENOMEM on failure.  If the
-+ * pending reservation is already in the set, returns successfully.
-+ */
-+static int __insert_pending(struct inode *inode, ext4_lblk_t lblk)
-+{
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
-+	struct ext4_pending_tree *tree = &EXT4_I(inode)->i_pending_tree;
-+	struct rb_node **p = &tree->root.rb_node;
-+	struct rb_node *parent = NULL;
-+	struct pending_reservation *pr;
-+	ext4_lblk_t lclu;
-+	int ret = 0;
-+
-+	lclu = EXT4_B2C(sbi, lblk);
-+	/* search to find parent for insertion */
-+	while (*p) {
-+		parent = *p;
-+		pr = rb_entry(parent, struct pending_reservation, rb_node);
-+
-+		if (lclu < pr->lclu) {
-+			p = &(*p)->rb_left;
-+		} else if (lclu > pr->lclu) {
-+			p = &(*p)->rb_right;
-+		} else {
-+			/* pending reservation already inserted */
-+			goto out;
-+		}
++	if (dmxdev->exit) {
++		mutex_unlock(&dmxdev->mutex);
++		return -ENODEV;
 +	}
 +
-+	pr = kmem_cache_alloc(ext4_pending_cachep, GFP_ATOMIC);
-+	if (pr == NULL) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	pr->lclu = lclu;
-+
-+	rb_link_node(&pr->rb_node, parent, p);
-+	rb_insert_color(&pr->rb_node, &tree->root);
-+
-+out:
-+	return ret;
-+}
-+
-+/*
-+ * __remove_pending - removes a pending cluster reservation from the set
-+ *                    of pending reservations
-+ *
-+ * @inode - file containing the cluster
-+ * @lblk - logical block in the pending cluster reservation to be removed
-+ *
-+ * Returns successfully if pending reservation is not a member of the set.
-+ */
-+static void __remove_pending(struct inode *inode, ext4_lblk_t lblk)
-+{
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
-+	struct pending_reservation *pr;
-+	struct ext4_pending_tree *tree;
-+
-+	pr = __get_pending(inode, EXT4_B2C(sbi, lblk));
-+	if (pr != NULL) {
-+		tree = &EXT4_I(inode)->i_pending_tree;
-+		rb_erase(&pr->rb_node, &tree->root);
-+		kmem_cache_free(ext4_pending_cachep, pr);
-+	}
-+}
-+
-+/*
-+ * ext4_remove_pending - removes a pending cluster reservation from the set
-+ *                       of pending reservations
-+ *
-+ * @inode - file containing the cluster
-+ * @lblk - logical block in the pending cluster reservation to be removed
-+ *
-+ * Locking for external use of __remove_pending.
-+ */
-+void ext4_remove_pending(struct inode *inode, ext4_lblk_t lblk)
-+{
-+	struct ext4_inode_info *ei = EXT4_I(inode);
-+
-+	write_lock(&ei->i_es_lock);
-+	__remove_pending(inode, lblk);
-+	write_unlock(&ei->i_es_lock);
-+}
-+
-+/*
-+ * ext4_is_pending - determine whether a cluster has a pending reservation
-+ *                   on it
-+ *
-+ * @inode - file containing the cluster
-+ * @lblk - logical block in the cluster
-+ *
-+ * Returns true if there's a pending reservation for the cluster in the
-+ * set of pending reservations, and false if not.
-+ */
-+bool ext4_is_pending(struct inode *inode, ext4_lblk_t lblk)
-+{
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
-+	struct ext4_inode_info *ei = EXT4_I(inode);
-+	bool ret;
-+
-+	read_lock(&ei->i_es_lock);
-+	ret = (bool)(__get_pending(inode, EXT4_B2C(sbi, lblk)) != NULL);
-+	read_unlock(&ei->i_es_lock);
-+
-+	return ret;
-+}
-diff --git a/fs/ext4/extents_status.h b/fs/ext4/extents_status.h
-index df9628c3ec3b..379b7171c67c 100644
---- a/fs/ext4/extents_status.h
-+++ b/fs/ext4/extents_status.h
-@@ -78,6 +78,51 @@ struct ext4_es_stats {
- 	struct percpu_counter es_stats_shk_cnt;
- };
+ 	for (i = 0; i < dmxdev->filternum; i++)
+ 		if (dmxdev->filter[i].state == DMXDEV_STATE_FREE)
+ 			break;
+@@ -1253,7 +1258,10 @@ EXPORT_SYMBOL(dvb_dmxdev_init);
  
-+/*
-+ * Pending cluster reservations for bigalloc file systems
-+ *
-+ * A cluster with a pending reservation is a logical cluster shared by at
-+ * least one extent in the extents status tree with delayed and unwritten
-+ * status and at least one other written or unwritten extent.  The
-+ * reservation is said to be pending because a cluster reservation would
-+ * have to be taken in the event all blocks in the cluster shared with
-+ * written or unwritten extents were deleted while the delayed and
-+ * unwritten blocks remained.
-+ *
-+ * The set of pending cluster reservations is an auxiliary data structure
-+ * used with the extents status tree to implement reserved cluster/block
-+ * accounting for bigalloc file systems.  The set is kept in memory and
-+ * records all pending cluster reservations.
-+ *
-+ * Its primary function is to avoid the need to read extents from the
-+ * disk when invalidating pages as a result of a truncate, punch hole, or
-+ * collapse range operation.  Page invalidation requires a decrease in the
-+ * reserved cluster count if it results in the removal of all delayed
-+ * and unwritten extents (blocks) from a cluster that is not shared with a
-+ * written or unwritten extent, and no decrease otherwise.  Determining
-+ * whether the cluster is shared can be done by searching for a pending
-+ * reservation on it.
-+ *
-+ * Secondarily, it provides a potentially faster method for determining
-+ * whether the reserved cluster count should be increased when a physical
-+ * cluster is deallocated as a result of a truncate, punch hole, or
-+ * collapse range operation.  The necessary information is also present
-+ * in the extents status tree, but might be more rapidly accessed in
-+ * the pending reservation set in many cases due to smaller size.
-+ *
-+ * The pending cluster reservation set is implemented as a red-black tree
-+ * with the goal of minimizing per page search time overhead.
-+ */
+ void dvb_dmxdev_release(struct dmxdev *dmxdev)
+ {
++	mutex_lock(&dmxdev->mutex);
+ 	dmxdev->exit = 1;
++	mutex_unlock(&dmxdev->mutex);
 +
-+struct pending_reservation {
-+	struct rb_node rb_node;
-+	ext4_lblk_t lclu;
-+};
-+
-+struct ext4_pending_tree {
-+	struct rb_root root;
-+};
-+
- extern int __init ext4_init_es(void);
- extern void ext4_exit_es(void);
- extern void ext4_es_init_tree(struct ext4_es_tree *tree);
-@@ -182,4 +227,10 @@ extern void ext4_es_unregister_shrinker(struct ext4_sb_info *sbi);
- 
- extern int ext4_seq_es_shrinker_info_show(struct seq_file *seq, void *v);
- 
-+extern int __init ext4_init_pending(void);
-+extern void ext4_exit_pending(void);
-+extern void ext4_init_pending_tree(struct ext4_pending_tree *tree);
-+extern void ext4_remove_pending(struct inode *inode, ext4_lblk_t lblk);
-+extern bool ext4_is_pending(struct inode *inode, ext4_lblk_t lblk);
-+
- #endif /* _EXT4_EXTENTS_STATUS_H */
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index e54a5be15636..73a431b6e720 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1095,6 +1095,7 @@ static struct inode *ext4_alloc_inode(struct super_block *sb)
- 	ei->i_da_metadata_calc_len = 0;
- 	ei->i_da_metadata_calc_last_lblock = 0;
- 	spin_lock_init(&(ei->i_block_reservation_lock));
-+	ext4_init_pending_tree(&ei->i_pending_tree);
- #ifdef CONFIG_QUOTA
- 	ei->i_reserved_quota = 0;
- 	memset(&ei->i_dquot, 0, sizeof(ei->i_dquot));
-@@ -6189,6 +6190,10 @@ static int __init ext4_init_fs(void)
- 	if (err)
- 		return err;
- 
-+	err = ext4_init_pending();
-+	if (err)
-+		goto out6;
-+
- 	err = ext4_init_pageio();
- 	if (err)
- 		goto out5;
-@@ -6227,6 +6232,8 @@ static int __init ext4_init_fs(void)
- out4:
- 	ext4_exit_pageio();
- out5:
-+	ext4_exit_pending();
-+out6:
- 	ext4_exit_es();
- 
- 	return err;
-@@ -6244,6 +6251,7 @@ static void __exit ext4_exit_fs(void)
- 	ext4_exit_system_zone();
- 	ext4_exit_pageio();
- 	ext4_exit_es();
-+	ext4_exit_pending();
- }
- 
- MODULE_AUTHOR("Remy Card, Stephen Tweedie, Andrew Morton, Andreas Dilger, Theodore Ts'o and others");
--- 
-2.35.1
-
+ 	if (dmxdev->dvbdev->users > 1) {
+ 		wait_event(dmxdev->dvbdev->wait_queue,
+ 				dmxdev->dvbdev->users == 1);
 
 
