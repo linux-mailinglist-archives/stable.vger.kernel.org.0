@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DC1666C51D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D67EF66C5DE
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231939AbjAPQBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:01:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43752 "EHLO
+        id S232598AbjAPQLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:11:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231966AbjAPQBZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:01:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122D91CAC1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:23 -0800 (PST)
+        with ESMTP id S232530AbjAPQKa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:10:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10ABB2A143
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25D896102D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3911EC433D2;
-        Mon, 16 Jan 2023 16:01:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C066EB81065
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 207FDC433D2;
+        Mon, 16 Jan 2023 16:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884882;
-        bh=cMzVHi6y81arKg8yTwml2AJUiL/SRH1fF4NxImU0KTE=;
+        s=korg; t=1673885215;
+        bh=ca/884h1XqBxmIeeq7O99mIBfacr4tCARFCwPmw3ebU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xElkhIHhzqfTwoUuDlWqEiSk3CZQsCZv7wKSSZetuG7E7WdRMfwsyDOCyRNmcIBOl
-         +XQF4PtdI2XFinT5TrFeWMuuRf3fz0iFR9y2cHcsuDILS6a1khs02M20wg8rphrFcF
-         DiVzZnAEW5oIl3fMOOpGOWGZZDiKvznTUzhpeW0I=
+        b=lpKlYF1j1GbKKsY9dmh09LcCVw8qdxsW7jh6MOKPmzInUTnHO6HbftNF1cAqqQTD3
+         0Gi62C6oJHueAa+O/tGFizynoVf5jjEx/qXMT75O2NRFr48gKh8jEuPmbnB7zQkY2k
+         rF+AtRAThRb8eWNR/HpkNpEbxNA70IdyDeLXVckw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        syzbot+6805087452d72929404e@syzkaller.appspotmail.com
-Subject: [PATCH 6.1 176/183] io_uring: lock overflowing for IOPOLL
+        patches@lists.linux.dev,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Ferry Toth <ftoth@exalondelft.nl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 32/64] usb: ulpi: defer ulpi_register on ulpi_read_id timeout
 Date:   Mon, 16 Jan 2023 16:51:39 +0100
-Message-Id: <20230116154810.730325486@linuxfoundation.org>
+Message-Id: <20230116154744.689460305@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Ferry Toth <ftoth@exalondelft.nl>
 
-commit 544d163d659d45a206d8929370d5a2984e546cb7 upstream.
+[ Upstream commit 8a7b31d545d3a15f0e6f5984ae16f0ca4fd76aac ]
 
-syzbot reports an issue with overflow filling for IOPOLL:
+Since commit 0f0101719138 ("usb: dwc3: Don't switch OTG -> peripheral
+if extcon is present") Dual Role support on Intel Merrifield platform
+broke due to rearranging the call to dwc3_get_extcon().
 
-WARNING: CPU: 0 PID: 28 at io_uring/io_uring.c:734 io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
-CPU: 0 PID: 28 Comm: kworker/u4:1 Not tainted 6.2.0-rc3-syzkaller-16369-g358a161a6a9e #0
-Workqueue: events_unbound io_ring_exit_work
-Call trace:
- io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
- io_req_cqe_overflow+0x5c/0x70 io_uring/io_uring.c:773
- io_fill_cqe_req io_uring/io_uring.h:168 [inline]
- io_do_iopoll+0x474/0x62c io_uring/rw.c:1065
- io_iopoll_try_reap_events+0x6c/0x108 io_uring/io_uring.c:1513
- io_uring_try_cancel_requests+0x13c/0x258 io_uring/io_uring.c:3056
- io_ring_exit_work+0xec/0x390 io_uring/io_uring.c:2869
- process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
- worker_thread+0x340/0x610 kernel/workqueue.c:2436
- kthread+0x12c/0x158 kernel/kthread.c:376
- ret_from_fork+0x10/0x20 arch/arm64/kernel/entry.S:863
+It appears to be caused by ulpi_read_id() on the first test write failing
+with -ETIMEDOUT. Currently ulpi_read_id() expects to discover the phy via
+DT when the test write fails and returns 0 in that case, even if DT does not
+provide the phy. As a result usb probe completes without phy.
 
-There is no real problem for normal IOPOLL as flush is also called with
-uring_lock taken, but it's getting more complicated for IOPOLL|SQPOLL,
-for which __io_cqring_overflow_flush() happens from the CQ waiting path.
+Make ulpi_read_id() return -ETIMEDOUT to its user if the first test write
+fails. The user should then handle it appropriately. A follow up patch
+will make dwc3_core_init() set -EPROBE_DEFER in this case and bail out.
 
-Reported-and-tested-by: syzbot+6805087452d72929404e@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
+Cc: stable@vger.kernel.org
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
+Link: https://lore.kernel.org/r/20221205201527.13525-2-ftoth@exalondelft.nl
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/rw.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/common/ulpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/io_uring/rw.c b/io_uring/rw.c
-index bb47cc4da713..6223472095d2 100644
---- a/io_uring/rw.c
-+++ b/io_uring/rw.c
-@@ -1055,7 +1055,11 @@ int io_do_iopoll(struct io_ring_ctx *ctx, bool force_nonspin)
- 			continue;
+diff --git a/drivers/usb/common/ulpi.c b/drivers/usb/common/ulpi.c
+index 3c705f1bead8..1f077f2ea40f 100644
+--- a/drivers/usb/common/ulpi.c
++++ b/drivers/usb/common/ulpi.c
+@@ -208,7 +208,7 @@ static int ulpi_read_id(struct ulpi *ulpi)
+ 	/* Test the interface */
+ 	ret = ulpi_write(ulpi, ULPI_SCRATCH, 0xaa);
+ 	if (ret < 0)
+-		goto err;
++		return ret;
  
- 		req->cqe.flags = io_put_kbuf(req, 0);
--		__io_fill_cqe_req(req->ctx, req);
-+		if (unlikely(!__io_fill_cqe_req(ctx, req))) {
-+			spin_lock(&ctx->completion_lock);
-+			io_req_cqe_overflow(req);
-+			spin_unlock(&ctx->completion_lock);
-+		}
- 	}
- 
- 	if (unlikely(!nr_events))
+ 	ret = ulpi_read(ulpi, ULPI_SCRATCH);
+ 	if (ret < 0)
 -- 
 2.35.1
 
