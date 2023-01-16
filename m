@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BAF166CC55
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C41666CAC9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234636AbjAPRZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47644 "EHLO
+        id S232879AbjAPRHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:07:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234680AbjAPRYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:18 -0500
+        with ESMTP id S234119AbjAPRHY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:07:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EA07402CB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E677D40BF8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7B8661055
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC09CC433D2;
-        Mon, 16 Jan 2023 17:01:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1025C61086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22CCEC433D2;
+        Mon, 16 Jan 2023 16:48:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888501;
-        bh=xBogSYZwY6T/4XVTdjf/gt4heMHGxXGKNKzpTeuALXM=;
+        s=korg; t=1673887681;
+        bh=bdUd0jJz8TzKLTNhUP4X/1O/nvogaSqkKYzgCxU67zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g0afW6sAxhenxg7hkL/KwJlyDCGiXIu2KvSVT08ZuODGdPtpDgfk5dpg6wxPGad6h
-         OhfOppo7Ah78hGgGHxCm9LNd41DnoDOScBrbzEjHHxoaOFclzrlENnC7qnpgoV+Vz5
-         GrynYzJNQMboNcu5xg/mVsKg2DYEgjec1luhxdjk=
+        b=MetU7Qpr4HO90khSm6CkGcUkmep7rx+VJNljQEY81WDHmHELXYP9qb8KIoNqhhdN3
+         F3GOyL0geOQsvk1dSZxvsAzXutOXzMTxFj9q5154AQvIG8bNOgXeiUn8wTG4BExQ9k
+         TBDxysm7kh5MXYLcK31TiIDH6Q4+yn4wFDs5pPbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 030/338] ARM: dts: armada-370: Fix assigned-addresses for every PCIe Root Port
-Date:   Mon, 16 Jan 2023 16:48:23 +0100
-Message-Id: <20230116154822.087804809@linuxfoundation.org>
+Subject: [PATCH 4.19 242/521] chardev: fix error handling in cdev_device_add()
+Date:   Mon, 16 Jan 2023 16:48:24 +0100
+Message-Id: <20230116154857.973741580@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d9208b0fa2e803d16b28d91bf1d46b7ee9ea13c6 ]
+[ Upstream commit 11fa7fefe3d8fac7da56bc9aa3dd5fb3081ca797 ]
 
-BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
-(PCI-to-PCI bridge) should match BDF in address part in that DT node name
-as specified resource belongs to Marvell PCIe Root Port itself.
+While doing fault injection test, I got the following report:
 
-Fixes: a09a0b7c6ff1 ("arm: mvebu: add PCIe Device Tree informations for Armada 370")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+------------[ cut here ]------------
+kobject: '(null)' (0000000039956980): is not initialized, yet kobject_put() is being called.
+WARNING: CPU: 3 PID: 6306 at kobject_put+0x23d/0x4e0
+CPU: 3 PID: 6306 Comm: 283 Tainted: G        W          6.1.0-rc2-00005-g307c1086d7c9 #1253
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:kobject_put+0x23d/0x4e0
+Call Trace:
+ <TASK>
+ cdev_device_add+0x15e/0x1b0
+ __iio_device_register+0x13b4/0x1af0 [industrialio]
+ __devm_iio_device_register+0x22/0x90 [industrialio]
+ max517_probe+0x3d8/0x6b4 [max517]
+ i2c_device_probe+0xa81/0xc00
+
+When device_add() is injected fault and returns error, if dev->devt is not set,
+cdev_add() is not called, cdev_del() is not needed. Fix this by checking dev->devt
+in error path.
+
+Fixes: 233ed09d7fda ("chardev: add helper function to register char devs with a struct device")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221202030237.520280-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-370.dtsi | 2 +-
+ fs/char_dev.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/armada-370.dtsi b/arch/arm/boot/dts/armada-370.dtsi
-index b1cf5a26f3c2..7a4d308a56f4 100644
---- a/arch/arm/boot/dts/armada-370.dtsi
-+++ b/arch/arm/boot/dts/armada-370.dtsi
-@@ -111,7 +111,7 @@ pcie0: pcie@1,0 {
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index 5fffd5050fb7..2c3d519b21c2 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -553,7 +553,7 @@ int cdev_device_add(struct cdev *cdev, struct device *dev)
+ 	}
  
- 			pcie2: pcie@2,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82002800 0 0x80000 0 0x2000>;
-+				assigned-addresses = <0x82001000 0 0x80000 0 0x2000>;
- 				reg = <0x1000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
+ 	rc = device_add(dev);
+-	if (rc)
++	if (rc && dev->devt)
+ 		cdev_del(cdev);
+ 
+ 	return rc;
 -- 
 2.35.1
 
