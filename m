@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 029C466C766
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFE8266C9DF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:57:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233296AbjAPQae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:30:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47494 "EHLO
+        id S233401AbjAPQ5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:57:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233081AbjAPQaC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1104338B7B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:26 -0800 (PST)
+        with ESMTP id S233947AbjAPQ4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D28E935253
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B595CB81065
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1059BC433D2;
-        Mon, 16 Jan 2023 16:18:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 288356108F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 410C1C43392;
+        Mon, 16 Jan 2023 16:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885903;
-        bh=i9lp36iIsay55Ai+4i7uN2B+0UdMf+jyEx4iPVQyD3s=;
+        s=korg; t=1673887185;
+        bh=y0RYymWES8yUMcNcK7hAJ9L88eMOJbo1s8jKpVj8TTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AiAgYu9yD3x4YAZIRcYlZ+sCausKnAeXz36bso+ueiGlzsMYrtE1PonQ8zRcCnPbj
-         O3rXJw6k82NGtlFANaUeYScT8HSRTaKe87niP8c28Y6eDx7t1KjMOyyDJRepkTvSSz
-         turs4Kl7HCjxSQBjIT3t2ICfWwNDLGbh9uDfuvDQ=
+        b=xQrsgEwaIrz7JefHhW98ph9aH2nNdz12Bv85MypAN1HlOckjjKEHqCEEWoyAxQ9uX
+         DBf500qHt6IRTHguS6/bgthbnhIS2eJB7n+HZM12MpPpFl71SQvzg23aueLmFse9o8
+         B6BFL6vPYPCim7S23AtjDyjBfoBJ4bi5SovMyJXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 228/658] net: amd-xgbe: Check only the minimum speed for active/passive cables
+Subject: [PATCH 4.19 054/521] PNP: fix name memory leak in pnp_alloc_dev()
 Date:   Mon, 16 Jan 2023 16:45:16 +0100
-Message-Id: <20230116154919.945981537@linuxfoundation.org>
+Message-Id: <20230116154849.668412267@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f8ab263d4d48e6dab752029bf562f20a2ee630ed ]
+[ Upstream commit 110d7b0325c55ff3620073ba4201845f59e22ebf ]
 
-There are cables that exist that can support speeds in excess of 10GbE.
-The driver, however, restricts the EEPROM advertised nominal bitrate to
-a specific range, which can prevent usage of cables that can support,
-for example, up to 25GbE.
+After commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+move dev_set_name() after pnp_add_id() to avoid memory leak.
 
-Rather than checking that an active or passive cable supports a specific
-range, only check for a minimum supported speed.
-
-Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 14 ++------------
- 1 file changed, 2 insertions(+), 12 deletions(-)
+ drivers/pnp/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index 2cd5fd95af03..0a15c617c702 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -236,10 +236,7 @@ enum xgbe_sfp_speed {
+diff --git a/drivers/pnp/core.c b/drivers/pnp/core.c
+index 3bf18d718975..131b925b820d 100644
+--- a/drivers/pnp/core.c
++++ b/drivers/pnp/core.c
+@@ -160,14 +160,14 @@ struct pnp_dev *pnp_alloc_dev(struct pnp_protocol *protocol, int id,
+ 	dev->dev.coherent_dma_mask = dev->dma_mask;
+ 	dev->dev.release = &pnp_release_device;
  
- #define XGBE_SFP_BASE_BR			12
- #define XGBE_SFP_BASE_BR_1GBE_MIN		0x0a
--#define XGBE_SFP_BASE_BR_1GBE_MAX		0x0d
- #define XGBE_SFP_BASE_BR_10GBE_MIN		0x64
--#define XGBE_SFP_BASE_BR_10GBE_MAX		0x68
--#define XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX	0x78
- 
- #define XGBE_SFP_BASE_CU_CABLE_LEN		18
- 
-@@ -826,29 +823,22 @@ static void xgbe_phy_sfp_phy_settings(struct xgbe_prv_data *pdata)
- static bool xgbe_phy_sfp_bit_rate(struct xgbe_sfp_eeprom *sfp_eeprom,
- 				  enum xgbe_sfp_speed sfp_speed)
- {
--	u8 *sfp_base, min, max;
-+	u8 *sfp_base, min;
- 
- 	sfp_base = sfp_eeprom->base;
- 
- 	switch (sfp_speed) {
- 	case XGBE_SFP_SPEED_1000:
- 		min = XGBE_SFP_BASE_BR_1GBE_MIN;
--		max = XGBE_SFP_BASE_BR_1GBE_MAX;
- 		break;
- 	case XGBE_SFP_SPEED_10000:
- 		min = XGBE_SFP_BASE_BR_10GBE_MIN;
--		if (memcmp(&sfp_eeprom->base[XGBE_SFP_BASE_VENDOR_NAME],
--			   XGBE_MOLEX_VENDOR, XGBE_SFP_BASE_VENDOR_NAME_LEN) == 0)
--			max = XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX;
--		else
--			max = XGBE_SFP_BASE_BR_10GBE_MAX;
- 		break;
- 	default:
- 		return false;
+-	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
+-
+ 	dev_id = pnp_add_id(dev, pnpid);
+ 	if (!dev_id) {
+ 		kfree(dev);
+ 		return NULL;
  	}
  
--	return ((sfp_base[XGBE_SFP_BASE_BR] >= min) &&
--		(sfp_base[XGBE_SFP_BASE_BR] <= max));
-+	return sfp_base[XGBE_SFP_BASE_BR] >= min;
++	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
++
+ 	return dev;
  }
  
- static void xgbe_phy_free_phy_device(struct xgbe_prv_data *pdata)
 -- 
 2.35.1
 
