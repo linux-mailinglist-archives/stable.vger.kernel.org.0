@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AE5E66C747
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32EE466C753
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233230AbjAPQ3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46374 "EHLO
+        id S233192AbjAPQ3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:29:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233237AbjAPQ3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAB4E2CFC5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:23 -0800 (PST)
+        with ESMTP id S233204AbjAPQ3g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 892412DE62
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 674BC61031
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A0F4C433F2;
-        Mon, 16 Jan 2023 16:17:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C15BB81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA26C433F0;
+        Mon, 16 Jan 2023 16:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885842;
-        bh=iJrSFCoscfLs78iBUZ5kGzTPyKriwc2qqI5wV1UNaKI=;
+        s=korg; t=1673885871;
+        bh=PMDO9hUbwriCNY3n7r/6S8oszdRH27p/kgm2I35DTOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eC5f/AR3Dg8BEui39KeHOkfh87aiau3MtsCFAFV3dCz1SSdZV86ZztCFHOTFL6Ve6
-         EflyNRKcr1vKsC0jd6zUMtZVjnFe/VGkW82GCm+HmWeom6CawfPWOmkLuIJCDnRzeS
-         AHZGpUNpLumjqs8TFszyIJKDmMwjxYrRzUnq5ACk=
+        b=C3a6ppyZeaKDL46dCCajAALIeJDAREM+Vzo69tYB90FGn82GLFXthC869XmpFj/Rb
+         Kx3pXV2W7IKq490T83e4VDAyI+z7gy6eCThTlA0JcqZY8U9cEffk2CoPgTiJmGTy2u
+         hEmcct8SHxTAyTqrEDHYxTuQ3ARAs2XMHseBX2zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 187/658] NFSv4.x: Fail client initialisation if state manager thread cant run
-Date:   Mon, 16 Jan 2023 16:44:35 +0100
-Message-Id: <20230116154918.018088964@linuxfoundation.org>
+Subject: [PATCH 5.4 188/658] mmc: alcor: fix return value check of mmc_add_host()
+Date:   Mon, 16 Jan 2023 16:44:36 +0100
+Message-Id: <20230116154918.059135519@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,35 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b4e4f66901658fae0614dea5bf91062a5387eda7 ]
+[ Upstream commit e93d1468f429475a753d6baa79b853b7ee5ef8c0 ]
 
-If the state manager thread fails to start, then we should just mark the
-client initialisation as failed so that other processes or threads don't
-get stuck in nfs_wait_client_init_complete().
+mmc_add_host() may return error, if we ignore its return value, the memory
+that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
+crash because of deleting not added device in the remove path.
 
-Reported-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Fixes: 4697bd5e9419 ("NFSv4: Fix a race in the net namespace mount notification")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+So fix this by checking the return value and calling mmc_free_host() in the
+error path.
+
+Fixes: c5413ad815a6 ("mmc: add new Alcor Micro Cardreader SD/MMC driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221101063023.1664968-2-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/alcor.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index c60b3a1f6d2b..2ee30ffeb6b9 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -1224,6 +1224,8 @@ void nfs4_schedule_state_manager(struct nfs_client *clp)
- 	if (IS_ERR(task)) {
- 		printk(KERN_ERR "%s: kthread_run: %ld\n",
- 			__func__, PTR_ERR(task));
-+		if (!nfs_client_init_is_complete(clp))
-+			nfs_mark_client_ready(clp, PTR_ERR(task));
- 		nfs4_clear_state_manager_bit(clp);
- 		nfs_put_client(clp);
- 		module_put(THIS_MODULE);
+diff --git a/drivers/mmc/host/alcor.c b/drivers/mmc/host/alcor.c
+index 026ca9194ce5..a8ec2e6fefa8 100644
+--- a/drivers/mmc/host/alcor.c
++++ b/drivers/mmc/host/alcor.c
+@@ -1114,7 +1114,10 @@ static int alcor_pci_sdmmc_drv_probe(struct platform_device *pdev)
+ 	alcor_hw_init(host);
+ 
+ 	dev_set_drvdata(&pdev->dev, host);
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto free_host;
++
+ 	return 0;
+ 
+ free_host:
 -- 
 2.35.1
 
