@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A958A66CBC8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:17:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2F5966CD4F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234545AbjAPRRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:17:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39606 "EHLO
+        id S234956AbjAPRft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:35:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234530AbjAPRQq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:16:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 964723FF30
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:22 -0800 (PST)
+        with ESMTP id S234955AbjAPRew (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03CAA10413
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C023B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0582C433EF;
-        Mon, 16 Jan 2023 16:57:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E18A6108F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FCB6C433EF;
+        Mon, 16 Jan 2023 17:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888240;
-        bh=bQyGDY0+wNNdaQGADLuLWvDY0O+WAI4ihphzlo6DL+o=;
+        s=korg; t=1673889058;
+        bh=1fXw6PcYdInX4Nm7rj3luK2/XN9nXHIR1RetC55iRxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HC6WbLczHBUktsqM7+e4rRwZ0lt4tzjjinhbz3CWVmgJw5J/hv7lhaYAbPY2yHxlk
-         dthHljUqECTtd6jwStSqyvjefA5syA8O5sxtFcLolztUSmWeK5WOODgHJ3mEcwQURp
-         gXR53nm1O1G8e/akOZrTqm0RxIuI3GaRkEyJzvzg=
+        b=c6XegBVjopwiQUeC1KYajj7QwzmQQXekYMmKfFRyxW3q7GRC7wPE19cznHXf3IN8E
+         zaaHe3Gt045w9EZ7QQLajtRva2GbGUPyHBZ42N8xyw2WKk7sVYk2JPOJioVL9qfJMw
+         Tjqw7qWT2g56xW63V3Ky0YsU6VHEFLbK7OrvhN4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 452/521] udf: Fix extension of the last extent in the file
+        patches@lists.linux.dev,
+        Mazin Al Haddad <mazinalhaddad05@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+f66dd31987e6740657be@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 241/338] media: dvb-usb: fix memory leak in dvb_usb_adapter_init()
 Date:   Mon, 16 Jan 2023 16:51:54 +0100
-Message-Id: <20230116154907.339355534@linuxfoundation.org>
+Message-Id: <20230116154831.563008119@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +55,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Mazin Al Haddad <mazinalhaddad05@gmail.com>
 
-[ Upstream commit 83c7423d1eb6806d13c521d1002cc1a012111719 ]
+[ Upstream commit 94d90fb06b94a90c176270d38861bcba34ce377d ]
 
-When extending the last extent in the file within the last block, we
-wrongly computed the length of the last extent. This is mostly a
-cosmetical problem since the extent does not contain any data and the
-length will be fixed up by following operations but still.
+Syzbot reports a memory leak in "dvb_usb_adapter_init()".
+The leak is due to not accounting for and freeing current iteration's
+adapter->priv in case of an error. Currently if an error occurs,
+it will exit before incrementing "num_adapters_initalized",
+which is used as a reference counter to free all adap->priv
+in "dvb_usb_adapter_exit()". There are multiple error paths that
+can exit from before incrementing the counter. Including the
+error handling paths for "dvb_usb_adapter_stream_init()",
+"dvb_usb_adapter_dvb_init()" and "dvb_usb_adapter_frontend_init()"
+within "dvb_usb_adapter_init()".
 
-Fixes: 1f3868f06855 ("udf: Fix extending file within last block")
-Signed-off-by: Jan Kara <jack@suse.cz>
+This means that in case of an error in any of these functions the
+current iteration is not accounted for and the current iteration's
+adap->priv is not freed.
+
+Fix this by freeing the current iteration's adap->priv in the
+"stream_init_err:" label in the error path. The rest of the
+(accounted for) adap->priv objects are freed in dvb_usb_adapter_exit()
+as expected using the num_adapters_initalized variable.
+
+Syzbot report:
+
+BUG: memory leak
+unreferenced object 0xffff8881172f1a00 (size 512):
+  comm "kworker/0:2", pid 139, jiffies 4294994873 (age 10.960s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+backtrace:
+    [<ffffffff844af012>] dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:75 [inline]
+    [<ffffffff844af012>] dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
+    [<ffffffff844af012>] dvb_usb_device_init.cold+0x4e5/0x79e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
+    [<ffffffff830db21d>] dib0700_probe+0x8d/0x1b0 drivers/media/usb/dvb-usb/dib0700_core.c:883
+    [<ffffffff82d3fdc7>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff8274ab37>] call_driver_probe drivers/base/dd.c:542 [inline]
+    [<ffffffff8274ab37>] really_probe.part.0+0xe7/0x310 drivers/base/dd.c:621
+    [<ffffffff8274ae6c>] really_probe drivers/base/dd.c:583 [inline]
+    [<ffffffff8274ae6c>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:752
+    [<ffffffff8274af6a>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:782
+    [<ffffffff8274b786>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:899
+    [<ffffffff82747c87>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff8274b352>] __device_attach+0x122/0x260 drivers/base/dd.c:970
+    [<ffffffff827498f6>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
+    [<ffffffff82745cdb>] device_add+0x5fb/0xdf0 drivers/base/core.c:3405
+    [<ffffffff82d3d202>] usb_set_configuration+0x8f2/0xb80 drivers/usb/core/message.c:2170
+    [<ffffffff82d4dbfc>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<ffffffff82d3f49c>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<ffffffff8274ab37>] call_driver_probe drivers/base/dd.c:542 [inline]
+    [<ffffffff8274ab37>] really_probe.part.0+0xe7/0x310 drivers/base/dd.c:621
+    [<ffffffff8274ae6c>] really_probe drivers/base/dd.c:583 [inline]
+    [<ffffffff8274ae6c>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:752
+
+Link: https://syzkaller.appspot.com/bug?extid=f66dd31987e6740657be
+Reported-and-tested-by: syzbot+f66dd31987e6740657be@syzkaller.appspotmail.com
+
+Link: https://lore.kernel.org/linux-media/20220824012152.539788-1-mazinalhaddad05@gmail.com
+Signed-off-by: Mazin Al Haddad <mazinalhaddad05@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/dvb-usb-init.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index 8ff8cd0d2801..55a86120e756 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -595,7 +595,7 @@ static void udf_do_extend_final_block(struct inode *inode,
- 	 */
- 	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
- 		return;
--	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
-+	added_bytes = new_elen - (last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
- 	last_ext->extLength += added_bytes;
- 	UDF_I(inode)->i_lenExtents += added_bytes;
+diff --git a/drivers/media/usb/dvb-usb/dvb-usb-init.c b/drivers/media/usb/dvb-usb/dvb-usb-init.c
+index 690c1e06fbfa..28077f3c9edf 100644
+--- a/drivers/media/usb/dvb-usb/dvb-usb-init.c
++++ b/drivers/media/usb/dvb-usb/dvb-usb-init.c
+@@ -84,7 +84,7 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
+ 
+ 		ret = dvb_usb_adapter_stream_init(adap);
+ 		if (ret)
+-			return ret;
++			goto stream_init_err;
+ 
+ 		ret = dvb_usb_adapter_dvb_init(adap, adapter_nrs);
+ 		if (ret)
+@@ -117,6 +117,8 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
+ 	dvb_usb_adapter_dvb_exit(adap);
+ dvb_init_err:
+ 	dvb_usb_adapter_stream_exit(adap);
++stream_init_err:
++	kfree(adap->priv);
+ 	return ret;
+ }
  
 -- 
 2.35.1
