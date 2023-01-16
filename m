@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D39466C60F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 537A966C97D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:50:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232708AbjAPQOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:14:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59550 "EHLO
+        id S233986AbjAPQuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:50:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232860AbjAPQNV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:13:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C5A2B633
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:08:00 -0800 (PST)
+        with ESMTP id S233923AbjAPQtk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18FCE23DAE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32E85B81085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D7B1C433EF;
-        Mon, 16 Jan 2023 16:07:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F6E261058
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB50C433F2;
+        Mon, 16 Jan 2023 16:36:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885277;
-        bh=tvsS9YRoXocBA7Ps6OFhobScpHoRh7AjELgpYeXiXbo=;
+        s=korg; t=1673886982;
+        bh=3kxkkP2sI8X+p+wWn5He7TTs4Cdki1DVWwPMBK0W8KY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vZzwwGox9X03XXKsKkmA1Z8lJNlvkiVMmFH+Sn/7URyvKK+MkhIk8w5JloI1rKmYy
-         HJlaQKGiI+BoE3Bp52RYRr54SQ0zcMbposIeFCz9dujilHJ2PJ5hyig+7o9901BQQ1
-         rQ8b3Z1Cr0O+r8VfM/aFsyHl40ZFyMUCL5HfzdUo=
+        b=i1ICBx7LfSy0C6F/2zaadBEGyzLwZpkFr/yxNZRu2mRBRAadU0fkVgXU2IMH95eN3
+         jPEtR4oq24AiMsfepYElVnEv8T/JrnPRj4ZkUa0x4fNYh5AmGUB6irerMD99DcQH5Z
+         VuWfnJvqMF9g/9zPhLiVU1n3ghL4b+SZ/1SOnJbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Newman <peternewman@google.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Babu Moger <babu.moger@amd.com>, stable@kernel.org,
+        patches@lists.linux.dev, Jon Maloy <jon.maloy@ericsson.com>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 56/64] x86/resctrl: Fix task CLOSID/RMID update race
+Subject: [PATCH 5.4 635/658] tipc: eliminate checking netns if node established
 Date:   Mon, 16 Jan 2023 16:52:03 +0100
-Message-Id: <20230116154745.511604307@linuxfoundation.org>
+Message-Id: <20230116154938.538566611@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,112 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Newman <peternewman@google.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-[ Upstream commit fe1f0714385fbcf76b0cbceb02b7277d842014fc ]
+[ Upstream commit d408bef4bfa60bac665b6e7239269570039a968b ]
 
-When the user moves a running task to a new rdtgroup using the task's
-file interface or by deleting its rdtgroup, the resulting change in
-CLOSID/RMID must be immediately propagated to the PQR_ASSOC MSR on the
-task(s) CPUs.
+Currently, we scan over all network namespaces at each received
+discovery message in order to check if the sending peer might be
+present in a host local namespaces.
 
-x86 allows reordering loads with prior stores, so if the task starts
-running between a task_curr() check that the CPU hoisted before the
-stores in the CLOSID/RMID update then it can start running with the old
-CLOSID/RMID until it is switched again because __rdtgroup_move_task()
-failed to determine that it needs to be interrupted to obtain the new
-CLOSID/RMID.
+This is unnecessary since we can assume that a peer will not change its
+location during an established session.
 
-Refer to the diagram below:
+We now improve the condition for this testing so that we don't perform
+any redundant scans.
 
-CPU 0                                   CPU 1
------                                   -----
-__rdtgroup_move_task():
-  curr <- t1->cpu->rq->curr
-                                        __schedule():
-                                          rq->curr <- t1
-                                        resctrl_sched_in():
-                                          t1->{closid,rmid} -> {1,1}
-  t1->{closid,rmid} <- {2,2}
-  if (curr == t1) // false
-   IPI(t1->cpu)
-
-A similar race impacts rdt_move_group_tasks(), which updates tasks in a
-deleted rdtgroup.
-
-In both cases, use smp_mb() to order the task_struct::{closid,rmid}
-stores before the loads in task_curr().  In particular, in the
-rdt_move_group_tasks() case, simply execute an smp_mb() on every
-iteration with a matching task.
-
-It is possible to use a single smp_mb() in rdt_move_group_tasks(), but
-this would require two passes and a means of remembering which
-task_structs were updated in the first loop. However, benchmarking
-results below showed too little performance impact in the simple
-approach to justify implementing the two-pass approach.
-
-Times below were collected using `perf stat` to measure the time to
-remove a group containing a 1600-task, parallel workload.
-
-CPU: Intel(R) Xeon(R) Platinum P-8136 CPU @ 2.00GHz (112 threads)
-
-  # mkdir /sys/fs/resctrl/test
-  # echo $$ > /sys/fs/resctrl/test/tasks
-  # perf bench sched messaging -g 40 -l 100000
-
-task-clock time ranges collected using:
-
-  # perf stat rmdir /sys/fs/resctrl/test
-
-Baseline:                     1.54 - 1.60 ms
-smp_mb() every matching task: 1.57 - 1.67 ms
-
-  [ bp: Massage commit message. ]
-
-Fixes: ae28d1aae48a ("x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR")
-Fixes: 0efc89be9471 ("x86/intel_rdt: Update task closid immediately on CPU in rmdir and unmount")
-Signed-off-by: Peter Newman <peternewman@google.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Babu Moger <babu.moger@amd.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/20221220161123.432120-1-peternewman@google.com
+Fixes: f73b12812a3d ("tipc: improve throughput between nodes in netns")
+Acked-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: c244c092f1ed ("tipc: fix unexpected link reset due to discovery messages")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ net/tipc/node.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index f2ad3c117426..ff26de11b3f1 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -577,8 +577,10 @@ static int __rdtgroup_move_task(struct task_struct *tsk,
- 	/*
- 	 * Ensure the task's closid and rmid are written before determining if
- 	 * the task is current that will decide if it will be interrupted.
-+	 * This pairs with the full barrier between the rq->curr update and
-+	 * resctrl_sched_in() during context switch.
- 	 */
--	barrier();
-+	smp_mb();
+diff --git a/net/tipc/node.c b/net/tipc/node.c
+index 3136e2a777fd..81fe8d051ba4 100644
+--- a/net/tipc/node.c
++++ b/net/tipc/node.c
+@@ -472,10 +472,6 @@ static struct tipc_node *tipc_node_create(struct net *net, u32 addr,
+ 				 tipc_bc_sndlink(net),
+ 				 &n->bc_entry.link)) {
+ 		pr_warn("Broadcast rcv link creation failed, no memory\n");
+-		if (n->peer_net) {
+-			n->peer_net = NULL;
+-			n->peer_hash_mix = 0;
+-		}
+ 		kfree(n);
+ 		n = NULL;
+ 		goto exit;
+@@ -1068,6 +1064,9 @@ void tipc_node_check_dest(struct net *net, u32 addr,
+ 	if (sign_match && addr_match && link_up) {
+ 		/* All is fine. Do nothing. */
+ 		reset = false;
++		/* Peer node is not a container/local namespace */
++		if (!n->peer_hash_mix)
++			n->peer_hash_mix = hash_mixes;
+ 	} else if (sign_match && addr_match && !link_up) {
+ 		/* Respond. The link will come up in due time */
+ 		*respond = true;
+@@ -1393,11 +1392,8 @@ static void node_lost_contact(struct tipc_node *n,
  
- 	/*
- 	 * By now, the task's closid and rmid are set. If the task is current
-@@ -2313,6 +2315,14 @@ static void rdt_move_group_tasks(struct rdtgroup *from, struct rdtgroup *to,
- 			t->closid = to->closid;
- 			t->rmid = to->mon.rmid;
- 
-+			/*
-+			 * Order the closid/rmid stores above before the loads
-+			 * in task_curr(). This pairs with the full barrier
-+			 * between the rq->curr update and resctrl_sched_in()
-+			 * during context switch.
-+			 */
-+			smp_mb();
-+
- 			/*
- 			 * If the task is on a CPU, set the CPU in the mask.
- 			 * The detection is inaccurate as tasks might move or
+ 	/* Notify publications from this node */
+ 	n->action_flags |= TIPC_NOTIFY_NODE_DOWN;
+-
+-	if (n->peer_net) {
+-		n->peer_net = NULL;
+-		n->peer_hash_mix = 0;
+-	}
++	n->peer_net = NULL;
++	n->peer_hash_mix = 0;
+ 	/* Notify sockets connected to node */
+ 	list_for_each_entry_safe(conn, safe, conns, list) {
+ 		skb = tipc_msg_create(TIPC_CRITICAL_IMPORTANCE, TIPC_CONN_MSG,
 -- 
 2.35.1
 
