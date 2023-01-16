@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A5966CCBA
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3A3366CB37
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234800AbjAPR3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:29:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52598 "EHLO
+        id S234350AbjAPRLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:11:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234810AbjAPR2f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21881298F2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:35 -0800 (PST)
+        with ESMTP id S234284AbjAPRLV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C4D646722
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B246561050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2BE5C433D2;
-        Mon, 16 Jan 2023 17:05:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49BFBB810A6
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B06EC433F1;
+        Mon, 16 Jan 2023 16:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888734;
-        bh=BXDb7N30DFn8P3JOb6t4XlLdndPL6/7vfpHifr0z/nk=;
+        s=korg; t=1673887895;
+        bh=v3rsYLW/Hkn9ggyyLGYMgSr/niGDYjo7G5oPRDwWYgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pp8P5/JPbnrgf1shkab8GC6nELsd7/12Vh1LCmoBF9Pusx06RIxkroAnj6UFXPhth
-         9FtdXla6pnyLVYnTreI8AOj1Sv3pEH+E2tBsGY3NkRd2Ql/4NrWsLpOSqSTXgEtSZq
-         yGy4PFAjkVnjIaS8FOKqh6vSphCgTgvtrsZUDEWA=
+        b=xbiJbT+Z4nnFpEnhWton+6CGqytcUIIKUNmoNznHkh+DrDYyDSyvgXldfm5NJSTqy
+         P3u48UwCt3wS4lObYwW9UxDgTGS3ByV4nHi3MkLWI5Ecc440a8A352kZBt38u3Higg
+         Yl5xfa4XIiD3+PIsC4PC8qYG6Sc0yDLmjHp3iaPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        syzbot+f635e86ec3fa0a37e019@syzkaller.appspotmail.com,
+        Stanislav Fomichev <sdf@google.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 111/338] mmc: mmci: fix return value check of mmc_add_host()
+Subject: [PATCH 4.19 322/521] bpf: make sure skb->len != 0 when redirecting to a tunneling device
 Date:   Mon, 16 Jan 2023 16:49:44 +0100
-Message-Id: <20230116154825.694987973@linuxfoundation.org>
+Message-Id: <20230116154901.547846044@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit b38a20f29a49ae04d23750d104b25400b792b98c ]
+[ Upstream commit 07ec7b502800ba9f7b8b15cb01dd6556bb41aaca ]
 
-mmc_add_host() may return error, if we ignore its return value,
-it will lead two issues:
-1. The memory that allocated in mmc_alloc_host() is leaked.
-2. In the remove() path, mmc_remove_host() will be called to
-   delete device, but it's not added yet, it will lead a kernel
-   crash because of null-ptr-deref in device_del().
+syzkaller managed to trigger another case where skb->len == 0
+when we enter __dev_queue_xmit:
 
-So fix this by checking the return value and goto error path which
-will call mmc_free_host().
+WARNING: CPU: 0 PID: 2470 at include/linux/skbuff.h:2576 skb_assert_len include/linux/skbuff.h:2576 [inline]
+WARNING: CPU: 0 PID: 2470 at include/linux/skbuff.h:2576 __dev_queue_xmit+0x2069/0x35e0 net/core/dev.c:4295
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221109133539.3275664-1-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Call Trace:
+ dev_queue_xmit+0x17/0x20 net/core/dev.c:4406
+ __bpf_tx_skb net/core/filter.c:2115 [inline]
+ __bpf_redirect_no_mac net/core/filter.c:2140 [inline]
+ __bpf_redirect+0x5fb/0xda0 net/core/filter.c:2163
+ ____bpf_clone_redirect net/core/filter.c:2447 [inline]
+ bpf_clone_redirect+0x247/0x390 net/core/filter.c:2419
+ bpf_prog_48159a89cb4a9a16+0x59/0x5e
+ bpf_dispatcher_nop_func include/linux/bpf.h:897 [inline]
+ __bpf_prog_run include/linux/filter.h:596 [inline]
+ bpf_prog_run include/linux/filter.h:603 [inline]
+ bpf_test_run+0x46c/0x890 net/bpf/test_run.c:402
+ bpf_prog_test_run_skb+0xbdc/0x14c0 net/bpf/test_run.c:1170
+ bpf_prog_test_run+0x345/0x3c0 kernel/bpf/syscall.c:3648
+ __sys_bpf+0x43a/0x6c0 kernel/bpf/syscall.c:5005
+ __do_sys_bpf kernel/bpf/syscall.c:5091 [inline]
+ __se_sys_bpf kernel/bpf/syscall.c:5089 [inline]
+ __x64_sys_bpf+0x7c/0x90 kernel/bpf/syscall.c:5089
+ do_syscall_64+0x54/0x70 arch/x86/entry/common.c:48
+ entry_SYSCALL_64_after_hwframe+0x61/0xc6
+
+The reproducer doesn't really reproduce outside of syzkaller
+environment, so I'm taking a guess here. It looks like we
+do generate correct ETH_HLEN-sized packet, but we redirect
+the packet to the tunneling device. Before we do so, we
+__skb_pull l2 header and arrive again at skb->len == 0.
+Doesn't seem like we can do anything better than having
+an explicit check after __skb_pull?
+
+Cc: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+f635e86ec3fa0a37e019@syzkaller.appspotmail.com
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20221027225537.353077-1-sdf@google.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/filter.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
-index 77f18729ee96..0a9ba34c5603 100644
---- a/drivers/mmc/host/mmci.c
-+++ b/drivers/mmc/host/mmci.c
-@@ -1792,7 +1792,9 @@ static int mmci_probe(struct amba_device *dev,
- 	pm_runtime_set_autosuspend_delay(&dev->dev, 50);
- 	pm_runtime_use_autosuspend(&dev->dev);
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 5129e89f52bb..aa2e7baa13c4 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2025,6 +2025,10 @@ static int __bpf_redirect_no_mac(struct sk_buff *skb, struct net_device *dev,
  
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto clk_disable;
+ 	if (mlen) {
+ 		__skb_pull(skb, mlen);
++		if (unlikely(!skb->len)) {
++			kfree_skb(skb);
++			return -ERANGE;
++		}
  
- 	pm_runtime_put(&dev->dev);
- 	return 0;
+ 		/* At ingress, the mac header has already been pulled once.
+ 		 * At egress, skb_pospull_rcsum has to be done in case that
 -- 
 2.35.1
 
