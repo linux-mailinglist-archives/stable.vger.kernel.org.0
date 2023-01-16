@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CC166CD6C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 865A766CBE2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:19:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235000AbjAPRgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:36:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56274 "EHLO
+        id S234566AbjAPRTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:19:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234805AbjAPRf4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:56 -0500
+        with ESMTP id S234567AbjAPRTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:19:19 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D7439B98
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1998F2CC74
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:58:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 703FDB81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F5AC433EF;
-        Mon, 16 Jan 2023 17:11:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C63BBB80E95
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:58:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C7F0C433EF;
+        Mon, 16 Jan 2023 16:58:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889119;
-        bh=cJ3MifBsaIxSaUz+UrZJ4VeQBPgGRgAmhY7z4xrrGoQ=;
+        s=korg; t=1673888303;
+        bh=pkc3/pYeap73gdwbwh8uw9wC+prxCa443T0/SP7EDIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hvt0m64Ysa76mafbWApnHar3Dan92gUqDgZSxv/z+/uoNW7ho++XDw+8faF239Yt1
-         2oNmMDIcRshCo+ZFD64pFbpYItxlReawGCEv+JdEwqP51XHoBPWjnGuUQ77t79tvmu
-         ZdCYUDruPQCNEJYjndTcCd3sep18IaBZFp7xjoYc=
+        b=fHh4EEXbf8nYONFrz4jkr8vWKn4CRf+k4OR4COUmluFDGYaGqkucgmPcm6CNxHgg/
+         YfsJrjoMAHorTp09BJhanc9kB4NTO0FSCMor9ng/pW/TQVCEFdFKTYqjixHD0KYwA3
+         Z1A5al/BEAIi9B9XpRDo0ulC5DtkkgKpa+atZPpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aditya Garg <gargaditya08@live.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 265/338] hfsplus: fix bug causing custom uid and gid being unable to be assigned with mount
-Date:   Mon, 16 Jan 2023 16:52:18 +0100
-Message-Id: <20230116154832.636714974@linuxfoundation.org>
+        patches@lists.linux.dev, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 477/521] ALSA: hda/realtek - Enable headset mic of Acer X2660G with ALC662
+Date:   Mon, 16 Jan 2023 16:52:19 +0100
+Message-Id: <20230116154908.522954302@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit 9f2b5debc07073e6dfdd774e3594d0224b991927 upstream.
+[ Upstream commit d858c706bdca97698752bd26b60c21ec07ef04f2 ]
 
-Despite specifying UID and GID in mount command, the specified UID and GID
-were not being assigned. This patch fixes this issue.
+The Acer desktop X2660G with ALC662 can't detect the headset microphone
+until ALC662_FIXUP_ACER_X2660G_HEADSET_MODE quirk applied.
 
-Link: https://lkml.kernel.org/r/C0264BF5-059C-45CF-B8DA-3A3BD2C803A2@live.com
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200317082806.73194-2-jian-hong@endlessm.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Stable-dep-of: 4bf5bf54476d ("ALSA: hda/realtek: Add quirk for Lenovo TianYi510Pro-14IOB")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/hfsplus_fs.h |    2 ++
- fs/hfsplus/inode.c      |    4 ++--
- fs/hfsplus/options.c    |    4 ++++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/fs/hfsplus/hfsplus_fs.h
-+++ b/fs/hfsplus/hfsplus_fs.h
-@@ -199,6 +199,8 @@ struct hfsplus_sb_info {
- #define HFSPLUS_SB_HFSX		3
- #define HFSPLUS_SB_CASEFOLD	4
- #define HFSPLUS_SB_NOBARRIER	5
-+#define HFSPLUS_SB_UID		6
-+#define HFSPLUS_SB_GID		7
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 375493d3807f..024a7e473e11 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8647,6 +8647,7 @@ enum {
+ 	ALC669_FIXUP_ACER_ASPIRE_ETHOS_SUBWOOFER,
+ 	ALC669_FIXUP_ACER_ASPIRE_ETHOS_HEADSET,
+ 	ALC671_FIXUP_HP_HEADSET_MIC2,
++	ALC662_FIXUP_ACER_X2660G_HEADSET_MODE,
+ };
  
- static inline struct hfsplus_sb_info *HFSPLUS_SB(struct super_block *sb)
- {
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -188,11 +188,11 @@ static void hfsplus_get_perms(struct ino
- 	mode = be16_to_cpu(perms->mode);
+ static const struct hda_fixup alc662_fixups[] = {
+@@ -9004,6 +9005,15 @@ static const struct hda_fixup alc662_fixups[] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc671_fixup_hp_headset_mic2,
+ 	},
++	[ALC662_FIXUP_ACER_X2660G_HEADSET_MODE] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x1a, 0x02a1113c }, /* use as headset mic, without its own jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC662_FIXUP_USI_FUNC
++	},
+ };
  
- 	i_uid_write(inode, be32_to_cpu(perms->owner));
--	if (!i_uid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_UID, &sbi->flags)) || (!i_uid_read(inode) && !mode))
- 		inode->i_uid = sbi->uid;
- 
- 	i_gid_write(inode, be32_to_cpu(perms->group));
--	if (!i_gid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_GID, &sbi->flags)) || (!i_gid_read(inode) && !mode))
- 		inode->i_gid = sbi->gid;
- 
- 	if (dir) {
---- a/fs/hfsplus/options.c
-+++ b/fs/hfsplus/options.c
-@@ -140,6 +140,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!uid_valid(sbi->uid)) {
- 				pr_err("invalid uid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_UID, &sbi->flags);
- 			}
- 			break;
- 		case opt_gid:
-@@ -151,6 +153,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!gid_valid(sbi->gid)) {
- 				pr_err("invalid gid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_GID, &sbi->flags);
- 			}
- 			break;
- 		case opt_part:
+ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+@@ -9015,6 +9025,7 @@ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1025, 0x0349, "eMachines eM250", ALC662_FIXUP_INV_DMIC),
+ 	SND_PCI_QUIRK(0x1025, 0x034a, "Gateway LT27", ALC662_FIXUP_INV_DMIC),
+ 	SND_PCI_QUIRK(0x1025, 0x038b, "Acer Aspire 8943G", ALC662_FIXUP_ASPIRE),
++	SND_PCI_QUIRK(0x1025, 0x124e, "Acer 2660G", ALC662_FIXUP_ACER_X2660G_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x1028, 0x05d8, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x05db, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x05fe, "Dell XPS 15", ALC668_FIXUP_DELL_XPS13),
+-- 
+2.35.1
+
 
 
