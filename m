@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D12E366CB26
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E62FA66CCA2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234300AbjAPRLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:11:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33906 "EHLO
+        id S234783AbjAPR20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:28:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234241AbjAPRKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:10:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5197126BC
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:50:56 -0800 (PST)
+        with ESMTP id S234623AbjAPR1y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:27:54 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB7341B6C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E547861050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:50:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07926C433EF;
-        Mon, 16 Jan 2023 16:50:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AA0CCCE1230
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 946EBC433EF;
+        Mon, 16 Jan 2023 17:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887855;
-        bh=YeiEnBgefAVDPlgEJZNzbFQutHMM+49j9vYXx74iP94=;
+        s=korg; t=1673888681;
+        bh=Ei/SPJrNQCrfJnf5oTItQXr9VMdxc+5cWGkIXnMumMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1GN0VVHtDpRHmJ/SQoqZnf9bawaETf4YHS+a41mbXC5sAJrv5cUm4IgrCqSXeVPg
-         DJ9ZhFEPc1Auo5Slgm8JC9sGoPzTjX1rz56wNuZzkXQAZITPl/RY0hUAaUHKpvKi8O
-         vDpR1XgGFciEnq1xjTM7PO2O93RI3wqmdBdSVnU4=
+        b=TZVaZNIlgE/5ocbF9CSK+8+OLMXVh1b+WLLCR9RmGvHsZq4NzeaMiWrCAatzm9pgm
+         +tN1xfEHjrJLLu+qYrCG6bIqwIBgpLAgmKpJfQ08rmEGNtrAPHsAfijlzCY/K2bzuy
+         zAbB25ugx54LOcJncJyyVGNhRlxUOSDbzh44r2Nk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 308/521] myri10ge: Fix an error handling path in myri10ge_probe()
-Date:   Mon, 16 Jan 2023 16:49:30 +0100
-Message-Id: <20230116154900.886012054@linuxfoundation.org>
+Subject: [PATCH 4.14 098/338] regulator: core: fix module refcount leak in set_supply()
+Date:   Mon, 16 Jan 2023 16:49:31 +0100
+Message-Id: <20230116154825.173375741@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d83b950d44d2982c0e62e3d81b0f35ab09431008 ]
+[ Upstream commit da46ee19cbd8344d6860816b4827a7ce95764867 ]
 
-Some memory allocated in myri10ge_probe_slices() is not released in the
-error handling path of myri10ge_probe().
+If create_regulator() fails in set_supply(), the module refcount
+needs be put to keep refcount balanced.
 
-Add the corresponding kfree(), as already done in the remove function.
-
-Fixes: 0dcffac1a329 ("myri10ge: add multislices support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e2c09ae7a74d ("regulator: core: Increase refcount for regulator supply's module")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221201122706.4055992-2-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 1 +
+ drivers/regulator/core.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-index 3bc570c46f81..8296b0aa42a9 100644
---- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-+++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-@@ -3960,6 +3960,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	myri10ge_free_slices(mgp);
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index d6cd8e6e69cf..871d657a161f 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1164,6 +1164,7 @@ static int set_supply(struct regulator_dev *rdev,
  
- abort_with_firmware:
-+	kfree(mgp->msix_vectors);
- 	myri10ge_dummy_rdma(mgp, 0);
- 
- abort_with_ioremap:
+ 	rdev->supply = create_regulator(supply_rdev, &rdev->dev, "SUPPLY");
+ 	if (rdev->supply == NULL) {
++		module_put(supply_rdev->owner);
+ 		err = -ENOMEM;
+ 		return err;
+ 	}
 -- 
 2.35.1
 
