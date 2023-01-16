@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA31766C70F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6316D66C710
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233151AbjAPQ1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:27:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41842 "EHLO
+        id S233100AbjAPQ1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:27:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233100AbjAPQ1K (ORCPT
+        with ESMTP id S233136AbjAPQ1K (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 166FE27D6E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:39 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC2042BF2A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4A5E60FDF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B64FBC433D2;
-        Mon, 16 Jan 2023 16:15:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A07F60FDF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 603A3C433EF;
+        Mon, 16 Jan 2023 16:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885738;
-        bh=4ZxKZasQcdYyW62R6n8Q4C2YNvwkAHjbpiBKmcpW050=;
+        s=korg; t=1673885740;
+        bh=xATigPByZ3OFEK3Y91x8KUozUK0qdlWGzMS2GhuJU1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvo8eXdjX0eZ8kyCnaLemtycQXHRNIvc4eI8Z/sEEWSAO2E6mwprT+LYHu+FVt5cu
-         hFKdBvwFaIyCnKOJQ9EuurNsWpwyF0wExEmYuJDnckuLKQF+wNB/EAGD+4I/th+Uw9
-         A38p3RR8bxntWIdHDH0aDkImiloorY4Rm49sWZVU=
+        b=F2E4c620TqVQicDyerWhux8/HDmnQz6CFYYkS3bWmbFoTqsHY2xLIcW04yYTvfEqI
+         RSBmFFZrayXpqI8z48QVjwwgj2uIPTA0gk6x74OK6UjkwIdlsjCK33AHBjXvMAbjBK
+         7HsBxfBAjUdTL14tBbqC+9sch3t/oW6Cja3lmBI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 166/658] ASoC: mediatek: mt8173: Enable IRQ when pdata is ready
-Date:   Mon, 16 Jan 2023 16:44:14 +0100
-Message-Id: <20230116154917.063676166@linuxfoundation.org>
+Subject: [PATCH 5.4 167/658] drm/radeon: Fix PCI device refcount leak in radeon_atrm_get_bios()
+Date:   Mon, 16 Jan 2023 16:44:15 +0100
+Message-Id: <20230116154917.118159941@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,69 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 4cbb264d4e9136acab2c8fd39e39ab1b1402b84b ]
+[ Upstream commit 725a521a18734f65de05b8d353b5bd0d3ca4c37a ]
 
-If the device does not come straight from reset, we might receive an IRQ
-before we are ready to handle it.
+As comment of pci_get_class() says, it returns a pci_device with its
+refcount increased and decreased the refcount for the input parameter
+@from if it is not NULL.
 
-Fixes:
+If we break the loop in radeon_atrm_get_bios() with 'pdev' not NULL, we
+need to call pci_dev_put() to decrease the refcount. Add the missing
+pci_dev_put() to avoid refcount leak.
 
-[    2.334737] Unable to handle kernel read from unreadable memory at virtual address 00000000000001e4
-[    2.522601] Call trace:
-[    2.525040]  regmap_read+0x1c/0x80
-[    2.528434]  mt8173_afe_irq_handler+0x40/0xf0
-...
-[    2.598921]  start_kernel+0x338/0x42c
-
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Fixes: ee0bcaff109f ("ASoC: mediatek: Add AFE platform driver")
-Link: https://lore.kernel.org/r/20221128-mt8173-afe-v1-0-70728221628f@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d8ade3526b2a ("drm/radeon: handle non-VGA class pci devices with ATRM")
+Fixes: c61e2775873f ("drm/radeon: split ATRM support out from the ATPX handler (v3)")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-afe-pcm.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/radeon/radeon_bios.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
-index 0ee29255e731..f3dbd8164b86 100644
---- a/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-afe-pcm.c
-@@ -1073,16 +1073,6 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/radeon/radeon_bios.c b/drivers/gpu/drm/radeon/radeon_bios.c
+index 89939f0daefb..8c8e13ec3cd6 100644
+--- a/drivers/gpu/drm/radeon/radeon_bios.c
++++ b/drivers/gpu/drm/radeon/radeon_bios.c
+@@ -227,6 +227,7 @@ static bool radeon_atrm_get_bios(struct radeon_device *rdev)
  
- 	afe->dev = &pdev->dev;
+ 	if (!found)
+ 		return false;
++	pci_dev_put(pdev);
  
--	irq_id = platform_get_irq(pdev, 0);
--	if (irq_id <= 0)
--		return irq_id < 0 ? irq_id : -ENXIO;
--	ret = devm_request_irq(afe->dev, irq_id, mt8173_afe_irq_handler,
--			       0, "Afe_ISR_Handle", (void *)afe);
--	if (ret) {
--		dev_err(afe->dev, "could not request_irq\n");
--		return ret;
--	}
--
- 	afe->base_addr = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(afe->base_addr))
- 		return PTR_ERR(afe->base_addr);
-@@ -1158,6 +1148,16 @@ static int mt8173_afe_pcm_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_pm_disable;
- 
-+	irq_id = platform_get_irq(pdev, 0);
-+	if (irq_id <= 0)
-+		return irq_id < 0 ? irq_id : -ENXIO;
-+	ret = devm_request_irq(afe->dev, irq_id, mt8173_afe_irq_handler,
-+			       0, "Afe_ISR_Handle", (void *)afe);
-+	if (ret) {
-+		dev_err(afe->dev, "could not request_irq\n");
-+		goto err_pm_disable;
-+	}
-+
- 	dev_info(&pdev->dev, "MT8173 AFE driver initialized.\n");
- 	return 0;
- 
+ 	rdev->bios = kmalloc(size, GFP_KERNEL);
+ 	if (!rdev->bios) {
 -- 
 2.35.1
 
