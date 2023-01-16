@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12FF466C465
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:54:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6511C66C8B0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:42:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231243AbjAPPyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:54:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37056 "EHLO
+        id S233600AbjAPQl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:41:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231258AbjAPPyg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:36 -0500
+        with ESMTP id S233338AbjAPQlN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:41:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ADEE1E5C3
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E59CC36FD1
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:29:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC43460FD4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11305C433EF;
-        Mon, 16 Jan 2023 15:54:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A78E6104F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:29:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F347C433EF;
+        Mon, 16 Jan 2023 16:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884466;
-        bh=YyxkO1pYMvvA13eR4M7qAWrhHZtz4EOrEZKzxH9AmWg=;
+        s=korg; t=1673886572;
+        bh=L5ZrilAx5jf6RcAS90Y8P9B0ybULVQKJV3TNiqw/meM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fRT0J2PH1F+5IlmwmfSzBMQcH7K9vjG+OgxmjYa4CVWjxUo6HRDa1X9x7iSLTbs5L
-         a+nI3vLojA0PFfN7feVT7nJvYrRYlw9qV96K0MQ7eMjN8bKnP/QDLdhM5LQR1hEh9H
-         d01j3OwtlEwXdGGXNw/FWdJrWTP+6HqX3IShsiAA=
+        b=p5Asd0oQe+M5DJUH3uv+F4/vVBow8lkmTKG8oJMsprc6FbwEMgo7/i5wHgL3tpZJc
+         UPv7VDGzupJICDIC5B11ReiNifE1kaDIxIOPAxiI8Ated9RfNyWq+2Jjh6Jo2AQADV
+         QbYqFtsCoune0Zm6srDfc+QYuC/4d5f5JeegFFLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 017/183] net: stmmac: add aux timestamps fifo clearance wait
+        syzbot+fce48a3dd3368645bd6c@syzkaller.appspotmail.com,
+        Lin Ma <linma@zju.edu.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 452/658] media: dvbdev: fix refcnt bug
 Date:   Mon, 16 Jan 2023 16:49:00 +0100
-Message-Id: <20230116154804.134384027@linuxfoundation.org>
+Message-Id: <20230116154930.164685780@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit ae9dcb91c6069e20b3b9505d79cbc89fd6e086f5 upstream.
+commit 3a664569b71b0a52be5ffb9fb87cc4f83d29bd71 upstream.
 
-Add timeout polling wait for auxiliary timestamps snapshot FIFO clear bit
-(ATSFC) to clear. This is to ensure no residue fifo value is being read
-erroneously.
+Previous commit initialize the dvbdev->ref before the template copy,
+which will overwrite the reference and cause refcnt bug.
 
-Fixes: f4da56529da6 ("net: stmmac: Add support for external trigger timestamping")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Signed-off-by: Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>
-Link: https://lore.kernel.org/r/20230111050200.2130-1-noor.azura.ahmad.tarmizi@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 0 PID: 1 at lib/refcount.c:25 refcount_warn_saturate+0x17c/0x1f0 lib/refcount.c:25
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 6.1.0-rc6-next-20221128-syzkaller #0
+...
+RIP: 0010:refcount_warn_saturate+0x17c/0x1f0 lib/refcount.c:25
+RSP: 0000:ffffc900000678d0 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff88813ff58000 RSI: ffffffff81660e7c RDI: fffff5200000cf0c
+RBP: ffff888022a45010 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000080000000 R11: 0000000000000000 R12: 0000000000000001
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000001
+FS:  0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffff88823ffff000 CR3: 000000000c48e000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __refcount_add include/linux/refcount.h:199 [inline]
+ __refcount_inc include/linux/refcount.h:250 [inline]
+ refcount_inc include/linux/refcount.h:267 [inline]
+ kref_get include/linux/kref.h:45 [inline]
+ dvb_device_get drivers/media/dvb-core/dvbdev.c:585 [inline]
+ dvb_register_device+0xe83/0x16e0 drivers/media/dvb-core/dvbdev.c:517
+...
+
+Just place the kref_init at correct position.
+
+Reported-by: syzbot+fce48a3dd3368645bd6c@syzkaller.appspotmail.com
+Fixes: 0fc044b2b5e2 ("media: dvbdev: adopts refcnt to avoid UAF")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/dvb-core/dvbdev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-@@ -219,7 +219,10 @@ static int stmmac_enable(struct ptp_cloc
- 		}
- 		writel(acr_value, ptpaddr + PTP_ACR);
- 		mutex_unlock(&priv->aux_ts_lock);
--		ret = 0;
-+		/* wait for auxts fifo clear to finish */
-+		ret = readl_poll_timeout(ptpaddr + PTP_ACR, acr_value,
-+					 !(acr_value & PTP_ACR_ATSFC),
-+					 10, 10000);
- 		break;
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -490,8 +490,8 @@ int dvb_register_device(struct dvb_adapt
+ 		return -ENOMEM;
+ 	}
  
- 	default:
+-	kref_init(&dvbdev->ref);
+ 	memcpy(dvbdev, template, sizeof(struct dvb_device));
++	kref_init(&dvbdev->ref);
+ 	dvbdev->type = type;
+ 	dvbdev->id = id;
+ 	dvbdev->adapter = adap;
 
 
