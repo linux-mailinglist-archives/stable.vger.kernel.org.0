@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E23B566C54C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF89666C91A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232129AbjAPQEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:04:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45094 "EHLO
+        id S233843AbjAPQqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:46:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232070AbjAPQEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6389225E30
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:47 -0800 (PST)
+        with ESMTP id S233833AbjAPQpp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B312F10A81
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3A1E6101F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 175BFC433F0;
-        Mon, 16 Jan 2023 16:02:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75367B81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFB0C433EF;
+        Mon, 16 Jan 2023 16:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884966;
-        bh=GAbqLjdWsCdt1AdXLXdZ51n+BLF7ZCis3sBIiyuUapY=;
+        s=korg; t=1673886807;
+        bh=DYELTYjFGZWqOKoFLg/pWsh1tI7xVMG436nzATlN6YM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6d/1xR+/EVXn2rt0jW9yBlx0A2iR/sUMr8evRPGPVuwdT+htUflaDb80fwFbiuSu
-         q1HvecaZjI4m5QYxV63QusYuUgyrfUjL1fWXV8sBFj+UDQWcMA1KwBuQDNBio/OzJn
-         NC06dwRmAxoDMyqU0bwx6b3J3WguoEQh8UPn1kbo=
+        b=G9Li21d6vQPCRsmQb88tlm1ZbSdG2voeWkWu2WpBCHeVS2TJQF73RbHU5gCiKgX0E
+         oxHJRIRuMrELRcszb0ZqHNVSWtntBEt4Eg0SeLhEwSDKjHinoQG/VjE2GDRBUIspg/
+         T+n1Sqdd19NYN01gXSA4UUSWt/NtWgAlUO8j5Wjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>
-Subject: [PATCH 5.15 23/86] dt-bindings: msm: dsi-controller-main: Fix operating-points-v2 constraint
+        patches@lists.linux.dev, Anand Parthasarathy <anpartha@meta.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 569/658] bpf: pull before calling skb_postpull_rcsum()
 Date:   Mon, 16 Jan 2023 16:50:57 +0100
-Message-Id: <20230116154748.068351301@linuxfoundation.org>
+Message-Id: <20230116154935.536538538@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit cdf64343f91a1225e9e3d4ce4261962cd41b4ddd upstream.
+[ Upstream commit 54c3f1a81421f85e60ae2eaae7be3727a09916ee ]
 
-The existing msm8916.dtsi does not depend on nor require operating points.
+Anand hit a BUG() when pulling off headers on egress to a SW tunnel.
+We get to skb_checksum_help() with an invalid checksum offset
+(commit d7ea0d9df2a6 ("net: remove two BUG() from skb_checksum_help()")
+converted those BUGs to WARN_ONs()).
+He points out oddness in how skb_postpull_rcsum() gets used.
+Indeed looks like we should pull before "postpull", otherwise
+the CHECKSUM_PARTIAL fixup from skb_postpull_rcsum() will not
+be able to do its job:
 
-Fixes: 4dbe55c97741 ("dt-bindings: msm: dsi: add yaml schemas for DSI bindings")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/515940/
-Link: https://lore.kernel.org/r/20221223021025.1646636-2-bryan.odonoghue@linaro.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+	    skb_checksum_start_offset(skb) < 0)
+		skb->ip_summed = CHECKSUM_NONE;
+
+Reported-by: Anand Parthasarathy <anpartha@meta.com>
+Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20221220004701.402165-1-kuba@kernel.org
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml |    1 -
- 1 file changed, 1 deletion(-)
+ net/core/filter.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
-+++ b/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
-@@ -136,7 +136,6 @@ required:
-   - assigned-clocks
-   - assigned-clock-parents
-   - power-domains
--  - operating-points-v2
-   - ports
+diff --git a/net/core/filter.c b/net/core/filter.c
+index ec4f7e68b21a..71fcb4e7edae 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2795,15 +2795,18 @@ static int bpf_skb_generic_push(struct sk_buff *skb, u32 off, u32 len)
  
- additionalProperties: false
+ static int bpf_skb_generic_pop(struct sk_buff *skb, u32 off, u32 len)
+ {
++	void *old_data;
++
+ 	/* skb_ensure_writable() is not needed here, as we're
+ 	 * already working on an uncloned skb.
+ 	 */
+ 	if (unlikely(!pskb_may_pull(skb, off + len)))
+ 		return -ENOMEM;
+ 
+-	skb_postpull_rcsum(skb, skb->data + off, len);
+-	memmove(skb->data + len, skb->data, off);
++	old_data = skb->data;
+ 	__skb_pull(skb, len);
++	skb_postpull_rcsum(skb, old_data + off, len);
++	memmove(skb->data, old_data, off);
+ 
+ 	return 0;
+ }
+-- 
+2.35.1
+
 
 
