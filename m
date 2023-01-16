@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 419AA66C873
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:39:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6C766C45E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:54:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233651AbjAPQjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:39:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54190 "EHLO
+        id S229489AbjAPPyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:54:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233616AbjAPQjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:39:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19CB034569
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:39 -0800 (PST)
+        with ESMTP id S230125AbjAPPyL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628E51D908
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEE15B81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19BCEC433EF;
-        Mon, 16 Jan 2023 16:27:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9E9BB81058
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C484C433F0;
+        Mon, 16 Jan 2023 15:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886456;
-        bh=6H2eIo0nO7m8zwKFzcZHzBExTOYRC49AvJa7aFnJYtU=;
+        s=korg; t=1673884447;
+        bh=qoviJeQPkw9s+/+m31yAATR9iBNueS7boa7BdmifG5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1uXmkXNLFR6mOUJ8FtqvB4p8xKjnP3xzxuOKRW3bD1YkRd3InVgrdEflEJ275wHmf
-         ctn5lsMT4jK8PsReCfmANvLfmk0FNzPBxsKw0yXseCH8gaXiyNX/UbZjKBMWvRUWdK
-         lPrxGFQSFBEE/1TKFTLP3CH7m8E+jQrtnXCDzXVg=
+        b=LqtO24i3IHbHdg42GOijpkPP0QlX2fcnhDBHg6/HklBHFEHKZXQ1j1FUztkCaHlRM
+         i6PW2cEY/4wdnExRVTNZz7uAZcpj0pEjJ3dzN4UNCIV1nkLBLOO3rhntmTPDnkPaMQ
+         FEuLux+w5rR8CDiRNbw640ZqtK00zl1uKZGTZmGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Jingjin <wangjingjin1@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 437/658] ASoC: rockchip: spdif: Add missing clk_disable_unprepare() in rk_spdif_runtime_resume()
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
+        Michael Ralston <michael@ralston.id.au>
+Subject: [PATCH 6.1 002/183] Revert "ALSA: usb-audio: Drop superfluous interface setup at parsing"
 Date:   Mon, 16 Jan 2023 16:48:45 +0100
-Message-Id: <20230116154929.550865661@linuxfoundation.org>
+Message-Id: <20230116154803.444059968@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Jingjin <wangjingjin1@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6d94d0090527b1763872275a7ccd44df7219b31e ]
+commit 16f1f838442dc6430d32d51ddda347b8421ec34b upstream.
 
-rk_spdif_runtime_resume() may have called clk_prepare_enable() before return
-from failed branches, add missing clk_disable_unprepare() in this case.
+This reverts commit ac5e2fb425e1121ceef2b9d1b3ffccc195d55707.
 
-Fixes: f874b80e1571 ("ASoC: rockchip: Add rockchip SPDIF transceiver driver")
-Signed-off-by: Wang Jingjin <wangjingjin1@huawei.com>
-Link: https://lore.kernel.org/r/20221208063900.4180790-1-wangjingjin1@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The commit caused a regression on Behringer UMC404HD (and likely
+others).  As the change was meant only as a minor optimization, it's
+better to revert it to address the regression.
+
+Reported-and-tested-by: Michael Ralston <michael@ralston.id.au>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAC2975JXkS1A5Tj9b02G_sy25ZWN-ys+tc9wmkoS=qPgKCogSg@mail.gmail.com
+Link: https://lore.kernel.org/r/20230104150944.24918-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/rockchip/rockchip_spdif.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/stream.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/sound/soc/rockchip/rockchip_spdif.c b/sound/soc/rockchip/rockchip_spdif.c
-index 6635145a26c4..b2b4e5b7739a 100644
---- a/sound/soc/rockchip/rockchip_spdif.c
-+++ b/sound/soc/rockchip/rockchip_spdif.c
-@@ -86,6 +86,7 @@ static int __maybe_unused rk_spdif_runtime_resume(struct device *dev)
- 
- 	ret = clk_prepare_enable(spdif->hclk);
- 	if (ret) {
-+		clk_disable_unprepare(spdif->mclk);
- 		dev_err(spdif->dev, "hclk clock enable failed %d\n", ret);
- 		return ret;
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -1222,6 +1222,12 @@ static int __snd_usb_parse_audio_interfa
+ 			if (err < 0)
+ 				return err;
+ 		}
++
++		/* try to set the interface... */
++		usb_set_interface(chip->dev, iface_no, 0);
++		snd_usb_init_pitch(chip, fp);
++		snd_usb_init_sample_rate(chip, fp, fp->rate_max);
++		usb_set_interface(chip->dev, iface_no, altno);
  	}
--- 
-2.35.1
-
+ 	return 0;
+ }
 
 
