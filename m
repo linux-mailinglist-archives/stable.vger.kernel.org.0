@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D46866CBA5
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4651466CD26
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234471AbjAPRPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41676 "EHLO
+        id S234932AbjAPReE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232958AbjAPRPQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D66C027D47
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:05 -0800 (PST)
+        with ESMTP id S234955AbjAPRdj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68E425D136
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8899EB8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0751C433D2;
-        Mon, 16 Jan 2023 16:56:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0905061086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BEF2C433EF;
+        Mon, 16 Jan 2023 17:09:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888163;
-        bh=4ET0kpNVHBbpQ+0r44lPHUyImsApIz/cgWCGaTSX52g=;
+        s=korg; t=1673888982;
+        bh=kSQ82LOpfR3lGJ056C1tQTmq3jlGZTqq0nRtaS5AyPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XErjMLp/4BJ4Uiwx11G8RchcCsuwZj2LCRwU7VPXok5MLfPTnaVp3aSUzh8eELAMR
-         IkAJvBF0bpIXkB45ViBQ/6wmvqSSS1Of5Ac/OiMHV1K/vGyWmHqn/qAHWQh+jlsB4b
-         WRi5moFsNfc5ZeytpHLLgS0UBRDbSEH+k7q5Nt4c=
+        b=IDNYy8AB2lGEn3ik8UX1f++Ls1slXlV4Tl4kYQySFDZ1N/oPJ71/YYrf61wNfGUzZ
+         gOb/gvmfdg3Ocbbrh2ryZBS+hwksc6vNBrDJpjCd9RMPcTmu2/kn5SF3mPBQ3xX/9N
+         hAIING8ftWDAHpym6lU5SzKpKUHR/IVlP63swpWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>, Song Liu <song@kernel.org>
-Subject: [PATCH 4.19 394/521] md/bitmap: Fix bitmap chunk size overflow issues
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 183/338] fbdev: via: Fix error in via_core_init()
 Date:   Mon, 16 Jan 2023 16:50:56 +0100
-Message-Id: <20230116154904.721232682@linuxfoundation.org>
+Message-Id: <20230116154828.912037773@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,99 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-commit 4555211190798b6b6fa2c37667d175bf67945c78 upstream.
+[ Upstream commit 5886b130de953cfb8826f7771ec8640a79934a7f ]
 
-- limit bitmap chunk size internal u64 variable to values not overflowing
-  the u32 bitmap superblock structure variable stored on persistent media
-- assign bitmap chunk size internal u64 variable from unsigned values to
-  avoid possible sign extension artifacts when assigning from a s32 value
+via_core_init() won't exit the driver when pci_register_driver() failed.
+Exit the viafb-i2c and the viafb-gpio in failed path to prevent error.
 
-The bug has been there since at least kernel 4.0.
-Steps to reproduce it:
-1: mdadm -C /dev/mdx -l 1 --bitmap=internal --bitmap-chunk=256M -e 1.2
--n2 /dev/rnbd1 /dev/rnbd2
-2 resize member device rnbd1 and rnbd2 to 8 TB
-3 mdadm --grow /dev/mdx --size=max
+VIA Graphics Integration Chipset framebuffer 2.4 initializing
+Error: Driver 'viafb-i2c' is already registered, aborting...
+Error: Driver 'viafb-gpio' is already registered, aborting...
 
-The bitmap_chunksize will overflow without patch.
-
-Cc: stable@vger.kernel.org
-
-Signed-off-by: Florian-Ewald Mueller <florian-ewald.mueller@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7582eb9be85f ("viafb: Turn GPIO and i2c into proper platform devices")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md-bitmap.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/video/fbdev/via/via-core.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/md/md-bitmap.c
-+++ b/drivers/md/md-bitmap.c
-@@ -488,7 +488,7 @@ void md_bitmap_print_sb(struct bitmap *b
- 	sb = kmap_atomic(bitmap->storage.sb_page);
- 	pr_debug("%s: bitmap file superblock:\n", bmname(bitmap));
- 	pr_debug("         magic: %08x\n", le32_to_cpu(sb->magic));
--	pr_debug("       version: %d\n", le32_to_cpu(sb->version));
-+	pr_debug("       version: %u\n", le32_to_cpu(sb->version));
- 	pr_debug("          uuid: %08x.%08x.%08x.%08x\n",
- 		 le32_to_cpu(*(__u32 *)(sb->uuid+0)),
- 		 le32_to_cpu(*(__u32 *)(sb->uuid+4)),
-@@ -499,11 +499,11 @@ void md_bitmap_print_sb(struct bitmap *b
- 	pr_debug("events cleared: %llu\n",
- 		 (unsigned long long) le64_to_cpu(sb->events_cleared));
- 	pr_debug("         state: %08x\n", le32_to_cpu(sb->state));
--	pr_debug("     chunksize: %d B\n", le32_to_cpu(sb->chunksize));
--	pr_debug("  daemon sleep: %ds\n", le32_to_cpu(sb->daemon_sleep));
-+	pr_debug("     chunksize: %u B\n", le32_to_cpu(sb->chunksize));
-+	pr_debug("  daemon sleep: %us\n", le32_to_cpu(sb->daemon_sleep));
- 	pr_debug("     sync size: %llu KB\n",
- 		 (unsigned long long)le64_to_cpu(sb->sync_size)/2);
--	pr_debug("max write behind: %d\n", le32_to_cpu(sb->write_behind));
-+	pr_debug("max write behind: %u\n", le32_to_cpu(sb->write_behind));
- 	kunmap_atomic(sb);
+diff --git a/drivers/video/fbdev/via/via-core.c b/drivers/video/fbdev/via/via-core.c
+index 77774d8abf94..e327ed308504 100644
+--- a/drivers/video/fbdev/via/via-core.c
++++ b/drivers/video/fbdev/via/via-core.c
+@@ -775,7 +775,14 @@ static int __init via_core_init(void)
+ 		return ret;
+ 	viafb_i2c_init();
+ 	viafb_gpio_init();
+-	return pci_register_driver(&via_driver);
++	ret = pci_register_driver(&via_driver);
++	if (ret) {
++		viafb_gpio_exit();
++		viafb_i2c_exit();
++		return ret;
++	}
++
++	return 0;
  }
  
-@@ -2101,7 +2101,8 @@ int md_bitmap_resize(struct bitmap *bitm
- 			bytes = DIV_ROUND_UP(chunks, 8);
- 			if (!bitmap->mddev->bitmap_info.external)
- 				bytes += sizeof(bitmap_super_t);
--		} while (bytes > (space << 9));
-+		} while (bytes > (space << 9) && (chunkshift + BITMAP_BLOCK_SHIFT) <
-+			(BITS_PER_BYTE * sizeof(((bitmap_super_t *)0)->chunksize) - 1));
- 	} else
- 		chunkshift = ffz(~chunksize) - BITMAP_BLOCK_SHIFT;
- 
-@@ -2146,7 +2147,7 @@ int md_bitmap_resize(struct bitmap *bitm
- 	bitmap->counts.missing_pages = pages;
- 	bitmap->counts.chunkshift = chunkshift;
- 	bitmap->counts.chunks = chunks;
--	bitmap->mddev->bitmap_info.chunksize = 1 << (chunkshift +
-+	bitmap->mddev->bitmap_info.chunksize = 1UL << (chunkshift +
- 						     BITMAP_BLOCK_SHIFT);
- 
- 	blocks = min(old_counts.chunks << old_counts.chunkshift,
-@@ -2172,8 +2173,8 @@ int md_bitmap_resize(struct bitmap *bitm
- 				bitmap->counts.missing_pages = old_counts.pages;
- 				bitmap->counts.chunkshift = old_counts.chunkshift;
- 				bitmap->counts.chunks = old_counts.chunks;
--				bitmap->mddev->bitmap_info.chunksize = 1 << (old_counts.chunkshift +
--									     BITMAP_BLOCK_SHIFT);
-+				bitmap->mddev->bitmap_info.chunksize =
-+					1UL << (old_counts.chunkshift + BITMAP_BLOCK_SHIFT);
- 				blocks = old_counts.chunks << old_counts.chunkshift;
- 				pr_warn("Could not pre-allocate in-memory bitmap for cluster raid\n");
- 				break;
-@@ -2499,6 +2500,9 @@ chunksize_store(struct mddev *mddev, con
- 	if (csize < 512 ||
- 	    !is_power_of_2(csize))
- 		return -EINVAL;
-+	if (BITS_PER_LONG > 32 && csize >= (1ULL << (BITS_PER_BYTE *
-+		sizeof(((bitmap_super_t *)0)->chunksize))))
-+		return -EOVERFLOW;
- 	mddev->bitmap_info.chunksize = csize;
- 	return len;
- }
+ static void __exit via_core_exit(void)
+-- 
+2.35.1
+
 
 
