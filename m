@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB7766C8EF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F1F66C4CF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233824AbjAPQog (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:44:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38172 "EHLO
+        id S231612AbjAPP62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:58:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233938AbjAPQoG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:44:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9622E3E636
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:45 -0800 (PST)
+        with ESMTP id S231621AbjAPP6Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:58:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 776E11EFC3
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:58:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6D6361057
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E98F7C43392;
-        Mon, 16 Jan 2023 16:31:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31D52B81059
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:58:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E1F4C433F0;
+        Mon, 16 Jan 2023 15:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886704;
-        bh=6kRdAaeMvZmWYpplSFs7v512gNvYZh1FB4LyxqGWJD4=;
+        s=korg; t=1673884701;
+        bh=BKwOAFixErNxkmXKHNFXK5ucVZvLV32oQIErh8iJcPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJlOWDK/Z7xCZoCv0o6ILp836xjDMU+ZZisuP/7sJp2RGitCf/EbBR5jtf6p9gbS5
-         D/oVz/vt6HOn5zAg5XK5NwF367GKT5V+0yYc/oLkQbrKgs9oXDHJFELw54EkfO4UWC
-         TR9t8knsChqErpGy+gPGcRnEGQ9AoWl43Tf5WnF0=
+        b=Bb37ipmEY3gCmBsTLCZ0S0ZTyN/9jn+0J53+yuW8HV5d2dYk11l5Bo6+an37p3Ud6
+         SiUt0kQnxxC6hBpKzZCnR5OPtn85Lfd7vsErQbQy+KtwoCgmNDd0uudNISmnk1Vr5s
+         ITm2nGw7VP++Lat/EV0WRu2cdmGUiBcJu++fg26U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.4 513/658] ipmi: fix use after free in _ipmi_destroy_user()
+        patches@lists.linux.dev, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 078/183] drm/amd/pm: enable GPO dynamic control support for SMU13.0.7
 Date:   Mon, 16 Jan 2023 16:50:01 +0100
-Message-Id: <20230116154932.982806891@linuxfoundation.org>
+Message-Id: <20230116154806.719789032@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,43 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Evan Quan <evan.quan@amd.com>
 
-commit a92ce570c81dc0feaeb12a429b4bc65686d17967 upstream.
+[ Upstream commit 62b9f835a6c60171845642afec4ce4b44865f10f ]
 
-The intf_free() function frees the "intf" pointer so we cannot
-dereference it again on the next line.
+To better support UMD pstate profilings, the GPO feature needs
+to be switched on/off accordingly.
 
-Fixes: cbb79863fc31 ("ipmi: Don't allow device module unload when in use")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Message-Id: <Y3M8xa1drZv4CToE@kili>
-Cc: <stable@vger.kernel.org> # 5.5+
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.0.x
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -1298,6 +1298,7 @@ static void _ipmi_destroy_user(struct ip
- 	unsigned long    flags;
- 	struct cmd_rcvr  *rcvr;
- 	struct cmd_rcvr  *rcvrs = NULL;
-+	struct module    *owner;
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+index 31deec2ce4b3..eea06939e7da 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_7_ppt.c
+@@ -123,6 +123,7 @@ static struct cmn2asic_msg_mapping smu_v13_0_7_message_map[SMU_MSG_MAX_COUNT] =
+ 	MSG_MAP(SetMGpuFanBoostLimitRpm,	PPSMC_MSG_SetMGpuFanBoostLimitRpm,     0),
+ 	MSG_MAP(DFCstateControl,		PPSMC_MSG_SetExternalClientDfCstateAllow, 0),
+ 	MSG_MAP(ArmD3,				PPSMC_MSG_ArmD3,                       0),
++	MSG_MAP(AllowGpo,			PPSMC_MSG_SetGpoAllow,           0),
+ };
  
- 	if (!acquire_ipmi_user(user, &i)) {
- 		/*
-@@ -1358,8 +1359,9 @@ static void _ipmi_destroy_user(struct ip
- 		kfree(rcvr);
- 	}
+ static struct cmn2asic_mapping smu_v13_0_7_clk_map[SMU_CLK_COUNT] = {
+@@ -1712,6 +1713,7 @@ static const struct pptable_funcs smu_v13_0_7_ppt_funcs = {
+ 	.mode1_reset = smu_v13_0_mode1_reset,
+ 	.set_mp1_state = smu_v13_0_7_set_mp1_state,
+ 	.set_df_cstate = smu_v13_0_7_set_df_cstate,
++	.gpo_control = smu_v13_0_gpo_control,
+ };
  
-+	owner = intf->owner;
- 	kref_put(&intf->refcount, intf_free);
--	module_put(intf->owner);
-+	module_put(owner);
- }
- 
- int ipmi_destroy_user(struct ipmi_user *user)
+ void smu_v13_0_7_set_ppt_funcs(struct smu_context *smu)
+-- 
+2.35.1
+
 
 
