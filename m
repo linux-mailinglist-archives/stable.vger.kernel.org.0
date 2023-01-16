@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E62FA66CCA2
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B19566CB29
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234783AbjAPR20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:28:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50130 "EHLO
+        id S234332AbjAPRLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:11:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234623AbjAPR1y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:27:54 -0500
+        with ESMTP id S234264AbjAPRKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:10:47 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB7341B6C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 312FAF773
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AA0CCCE1230
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 946EBC433EF;
-        Mon, 16 Jan 2023 17:04:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9A86CCE129B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:50:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95ED5C433D2;
+        Mon, 16 Jan 2023 16:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888681;
-        bh=Ei/SPJrNQCrfJnf5oTItQXr9VMdxc+5cWGkIXnMumMg=;
+        s=korg; t=1673887857;
+        bh=S3MQFwveuVz5ZkHkoVJ02DlX//UdDpcJZPds+tpAUwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZVaZNIlgE/5ocbF9CSK+8+OLMXVh1b+WLLCR9RmGvHsZq4NzeaMiWrCAatzm9pgm
-         +tN1xfEHjrJLLu+qYrCG6bIqwIBgpLAgmKpJfQ08rmEGNtrAPHsAfijlzCY/K2bzuy
-         zAbB25ugx54LOcJncJyyVGNhRlxUOSDbzh44r2Nk=
+        b=iNuTyFRLRU2uj3Mys6PMbg+v41mOC3Mu4rdW3qpU5wWdKdfQ0U66R9aZoCSjsbk7q
+         GEMeSDDvWI837BpHBq8no+clfYDBEvppI1j6UZu29N11sEzvmYkjI5zVINU6wrFXP4
+         Rly5ZqYwRf+J6UCEgniOVd8RXpM0xD8dFcEI65/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Changheon Lee <darklight2357@icloud.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 098/338] regulator: core: fix module refcount leak in set_supply()
+Subject: [PATCH 4.19 309/521] net: stream: purge sk_error_queue in sk_stream_kill_queues()
 Date:   Mon, 16 Jan 2023 16:49:31 +0100
-Message-Id: <20230116154825.173375741@linuxfoundation.org>
+Message-Id: <20230116154900.933246283@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit da46ee19cbd8344d6860816b4827a7ce95764867 ]
+[ Upstream commit e0c8bccd40fc1c19e1d246c39bcf79e357e1ada3 ]
 
-If create_regulator() fails in set_supply(), the module refcount
-needs be put to keep refcount balanced.
+Changheon Lee reported TCP socket leaks, with a nice repro.
 
-Fixes: e2c09ae7a74d ("regulator: core: Increase refcount for regulator supply's module")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221201122706.4055992-2-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+It seems we leak TCP sockets with the following sequence:
+
+1) SOF_TIMESTAMPING_TX_ACK is enabled on the socket.
+
+   Each ACK will cook an skb put in error queue, from __skb_tstamp_tx().
+   __skb_tstamp_tx() is using skb_clone(), unless
+   SOF_TIMESTAMPING_OPT_TSONLY was also requested.
+
+2) If the application is also using MSG_ZEROCOPY, then we put in the
+   error queue cloned skbs that had a struct ubuf_info attached to them.
+
+   Whenever an struct ubuf_info is allocated, sock_zerocopy_alloc()
+   does a sock_hold().
+
+   As long as the cloned skbs are still in sk_error_queue,
+   socket refcount is kept elevated.
+
+3) Application closes the socket, while error queue is not empty.
+
+Since tcp_close() no longer purges the socket error queue,
+we might end up with a TCP socket with at least one skb in
+error queue keeping the socket alive forever.
+
+This bug can be (ab)used to consume all kernel memory
+and freeze the host.
+
+We need to purge the error queue, with proper synchronization
+against concurrent writers.
+
+Fixes: 24bcbe1cc69f ("net: stream: don't purge sk_error_queue in sk_stream_kill_queues()")
+Reported-by: Changheon Lee <darklight2357@icloud.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/stream.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index d6cd8e6e69cf..871d657a161f 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1164,6 +1164,7 @@ static int set_supply(struct regulator_dev *rdev,
+diff --git a/net/core/stream.c b/net/core/stream.c
+index 7b411a91a81c..58755528d39e 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -196,6 +196,12 @@ void sk_stream_kill_queues(struct sock *sk)
+ 	/* First the read buffer. */
+ 	__skb_queue_purge(&sk->sk_receive_queue);
  
- 	rdev->supply = create_regulator(supply_rdev, &rdev->dev, "SUPPLY");
- 	if (rdev->supply == NULL) {
-+		module_put(supply_rdev->owner);
- 		err = -ENOMEM;
- 		return err;
- 	}
++	/* Next, the error queue.
++	 * We need to use queue lock, because other threads might
++	 * add packets to the queue without socket lock being held.
++	 */
++	skb_queue_purge(&sk->sk_error_queue);
++
+ 	/* Next, the write queue. */
+ 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
+ 
 -- 
 2.35.1
 
