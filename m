@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E10066C4FF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0983666C933
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231671AbjAPQAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42236 "EHLO
+        id S233496AbjAPQq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:46:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231470AbjAPQAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C41B2365A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:22 -0800 (PST)
+        with ESMTP id S233714AbjAPQqQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35531301BD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA21FB8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517C6C433EF;
-        Mon, 16 Jan 2023 16:00:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA88CB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43E93C433F1;
+        Mon, 16 Jan 2023 16:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884819;
-        bh=aSEBMnxHvBcjCoXrgvE0g1i6rLKSgIVzO1kOPFFit8o=;
+        s=korg; t=1673886851;
+        bh=vx3afFf7OWBvUZ/qmQOxNjs5jwaUzthKlK0JAsJ/m/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O8MxzPxszQlP2z6ngcm30nJo2K0iC8vnNbEU/z5MsyJ5o3uZHIjzmcRLrycDr+Wcc
-         CkUstZZphcrR6GiFt795xyynBqf5XEnIqpPpy7pgp7ydrtWY0XMVUEr074OfTDCKou
-         2Q9TEya6XHMLCxQeXIVqTpm+VV7zc7/N6GqPfH9E=
+        b=A95TAvRW+d00Fw3mdCZnOoXpOczQbOp5TaChgFGeVaM4XBK9QKjiF7ki7HaCrBiSj
+         oda1OXsC83kZlykYt5xBnE8AcEUCc8/r9d+4oK/Ktm8ctDOWq+dxFdhiKfM+noRgFS
+         jp4HgGsexbW3QOLDgX4AXvkLOFyJMq9BDXvbz43A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Moshe Shemesh <moshe@nvidia.com>,
-        Shay Drory <shayd@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 152/183] net/mlx5: Fix command stats access after free
+Subject: [PATCH 5.4 587/658] udf: Fix extension of the last extent in the file
 Date:   Mon, 16 Jan 2023 16:51:15 +0100
-Message-Id: <20230116154809.748920597@linuxfoundation.org>
+Message-Id: <20230116154936.347945003@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,106 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit da2e552b469a0cd130ff70a88ccc4139da428a65 ]
+[ Upstream commit 83c7423d1eb6806d13c521d1002cc1a012111719 ]
 
-Command may fail while driver is reloading and can't accept FW commands
-till command interface is reinitialized. Such command failure is being
-logged to command stats. This results in NULL pointer access as command
-stats structure is being freed and reallocated during mlx5 devlink
-reload (see kernel log below).
+When extending the last extent in the file within the last block, we
+wrongly computed the length of the last extent. This is mostly a
+cosmetical problem since the extent does not contain any data and the
+length will be fixed up by following operations but still.
 
-Fix it by making command stats statically allocated on driver probe.
-
-Kernel log:
-[ 2394.808802] BUG: unable to handle kernel paging request at 000000000002a9c0
-[ 2394.810610] PGD 0 P4D 0
-[ 2394.811811] Oops: 0002 [#1] SMP NOPTI
-...
-[ 2394.815482] RIP: 0010:native_queued_spin_lock_slowpath+0x183/0x1d0
-...
-[ 2394.829505] Call Trace:
-[ 2394.830667]  _raw_spin_lock_irq+0x23/0x26
-[ 2394.831858]  cmd_status_err+0x55/0x110 [mlx5_core]
-[ 2394.833020]  mlx5_access_reg+0xe7/0x150 [mlx5_core]
-[ 2394.834175]  mlx5_query_port_ptys+0x78/0xa0 [mlx5_core]
-[ 2394.835337]  mlx5e_ethtool_get_link_ksettings+0x74/0x590 [mlx5_core]
-[ 2394.836454]  ? kmem_cache_alloc_trace+0x140/0x1c0
-[ 2394.837562]  __rh_call_get_link_ksettings+0x33/0x100
-[ 2394.838663]  ? __rtnl_unlock+0x25/0x50
-[ 2394.839755]  __ethtool_get_link_ksettings+0x72/0x150
-[ 2394.840862]  duplex_show+0x6e/0xc0
-[ 2394.841963]  dev_attr_show+0x1c/0x40
-[ 2394.843048]  sysfs_kf_seq_show+0x9b/0x100
-[ 2394.844123]  seq_read+0x153/0x410
-[ 2394.845187]  vfs_read+0x91/0x140
-[ 2394.846226]  ksys_read+0x4f/0xb0
-[ 2394.847234]  do_syscall_64+0x5b/0x1a0
-[ 2394.848228]  entry_SYSCALL_64_after_hwframe+0x65/0xca
-
-Fixes: 34f46ae0d4b3 ("net/mlx5: Add command failures data to debugfs")
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Shay Drory <shayd@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 1f3868f06855 ("udf: Fix extending file within last block")
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 13 ++-----------
- include/linux/mlx5/driver.h                   |  2 +-
- 2 files changed, 3 insertions(+), 12 deletions(-)
+ fs/udf/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-index e7a894ba5c3e..723891eb86ee 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -2177,15 +2177,9 @@ int mlx5_cmd_init(struct mlx5_core_dev *dev)
- 		return -EINVAL;
- 	}
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index f6bbf395ce07..37a6bbd5a19c 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -602,7 +602,7 @@ static void udf_do_extend_final_block(struct inode *inode,
+ 	 */
+ 	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
+ 		return;
+-	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
++	added_bytes = new_elen - (last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+ 	last_ext->extLength += added_bytes;
+ 	UDF_I(inode)->i_lenExtents += added_bytes;
  
--	cmd->stats = kvcalloc(MLX5_CMD_OP_MAX, sizeof(*cmd->stats), GFP_KERNEL);
--	if (!cmd->stats)
--		return -ENOMEM;
--
- 	cmd->pool = dma_pool_create("mlx5_cmd", mlx5_core_dma_dev(dev), size, align, 0);
--	if (!cmd->pool) {
--		err = -ENOMEM;
--		goto dma_pool_err;
--	}
-+	if (!cmd->pool)
-+		return -ENOMEM;
- 
- 	err = alloc_cmd_page(dev, cmd);
- 	if (err)
-@@ -2269,8 +2263,6 @@ int mlx5_cmd_init(struct mlx5_core_dev *dev)
- 
- err_free_pool:
- 	dma_pool_destroy(cmd->pool);
--dma_pool_err:
--	kvfree(cmd->stats);
- 	return err;
- }
- 
-@@ -2283,7 +2275,6 @@ void mlx5_cmd_cleanup(struct mlx5_core_dev *dev)
- 	destroy_msg_cache(dev);
- 	free_cmd_page(dev, cmd);
- 	dma_pool_destroy(cmd->pool);
--	kvfree(cmd->stats);
- }
- 
- void mlx5_cmd_set_state(struct mlx5_core_dev *dev,
-diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
-index 06cbad166225..ad55470a9fb9 100644
---- a/include/linux/mlx5/driver.h
-+++ b/include/linux/mlx5/driver.h
-@@ -315,7 +315,7 @@ struct mlx5_cmd {
- 	struct mlx5_cmd_debug dbg;
- 	struct cmd_msg_cache cache[MLX5_NUM_COMMAND_CACHES];
- 	int checksum_disabled;
--	struct mlx5_cmd_stats *stats;
-+	struct mlx5_cmd_stats stats[MLX5_CMD_OP_MAX];
- };
- 
- struct mlx5_cmd_mailbox {
 -- 
 2.35.1
 
