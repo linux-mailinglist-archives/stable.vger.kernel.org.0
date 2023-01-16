@@ -2,44 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBBBE66CCD7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8F6766CB42
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234810AbjAPR3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:29:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52616 "EHLO
+        id S234074AbjAPRMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:12:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234791AbjAPR3S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:18 -0500
+        with ESMTP id S234245AbjAPRLm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25AD038E99
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:06:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 186F749037;
+        Mon, 16 Jan 2023 08:52:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0BC860F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7A69C433EF;
-        Mon, 16 Jan 2023 17:06:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A644461018;
+        Mon, 16 Jan 2023 16:52:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 912F8C433EF;
+        Mon, 16 Jan 2023 16:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888802;
-        bh=G5WkIFBvv5Ss4kjUcZ7g+dDsbUqTeesvkSvd4dJF4Ng=;
+        s=korg; t=1673887924;
+        bh=iSqDLD6V+EXFHPEBmFJh4zIKI9zQjbomE3YIKznsP8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rn+0YMRmuIWaKR4CoYrGB1thBBjnK5o9uy0tSQZVl+hSXUurAEuVG4yJD0INmX/0A
-         36BU7Whqq2cla9iCfCRvrEBIQzLRiXWEx2b7k7AyqkKne2HTFbm2fx4UemmP4d7VtA
-         h71zDhYWiufs5PoiJsM+y6QKKHDiiAmVT1eetF7k=
+        b=xYEYsn5RcZvwF926sON9mU8NtHH0CSTiIWZkHfkWwGr6s5l4nAxXAH8kqgMQSVT4m
+         5mm2tUgRmBjjr22VY4XQW4tqkTAlGYdsUAtpsEIuKYAKrAwdlSAmj7S3fDiLcGYMDj
+         jln7QbJHqcBbVnhCsdo2iZFKjbpDXyeFa+lZp+Gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 114/338] media: coda: Add check for kmalloc
-Date:   Mon, 16 Jan 2023 16:49:47 +0100
-Message-Id: <20230116154825.816877379@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 4.19 326/521] igb: Do not free q_vector unless new one was allocated
+Date:   Mon, 16 Jan 2023 16:49:48 +0100
+Message-Id: <20230116154901.743823137@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +63,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 6e5e5defdb8b0186312c2f855ace175aee6daf9b ]
+[ Upstream commit 0668716506ca66f90d395f36ccdaebc3e0e84801 ]
 
-As the kmalloc may return NULL pointer,
-it should be better to check the return value
-in order to avoid NULL poineter dereference,
-same as the others.
+Avoid potential use-after-free condition under memory pressure. If the
+kzalloc() fails, q_vector will be freed but left in the original
+adapter->q_vector[v_idx] array position.
 
-Fixes: cb1d3a336371 ("[media] coda: add CODA7541 JPEG support")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Cc: Tony Nguyen <anthony.l.nguyen@intel.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: intel-wired-lan@lists.osuosl.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 7a96b53bcf6b..e21cf732a86e 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -865,10 +865,16 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 3d2dd15859cb..87f98170ac93 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -1211,8 +1211,12 @@ static int igb_alloc_q_vector(struct igb_adapter *adapter,
+ 	if (!q_vector) {
+ 		q_vector = kzalloc(size, GFP_KERNEL);
+ 	} else if (size > ksize(q_vector)) {
+-		kfree_rcu(q_vector, rcu);
+-		q_vector = kzalloc(size, GFP_KERNEL);
++		struct igb_q_vector *new_q_vector;
++
++		new_q_vector = kzalloc(size, GFP_KERNEL);
++		if (new_q_vector)
++			kfree_rcu(q_vector, rcu);
++		q_vector = new_q_vector;
+ 	} else {
+ 		memset(q_vector, 0, size);
  	}
- 
- 	if (dst_fourcc == V4L2_PIX_FMT_JPEG) {
--		if (!ctx->params.jpeg_qmat_tab[0])
-+		if (!ctx->params.jpeg_qmat_tab[0]) {
- 			ctx->params.jpeg_qmat_tab[0] = kmalloc(64, GFP_KERNEL);
--		if (!ctx->params.jpeg_qmat_tab[1])
-+			if (!ctx->params.jpeg_qmat_tab[0])
-+				return -ENOMEM;
-+		}
-+		if (!ctx->params.jpeg_qmat_tab[1]) {
- 			ctx->params.jpeg_qmat_tab[1] = kmalloc(64, GFP_KERNEL);
-+			if (!ctx->params.jpeg_qmat_tab[1])
-+				return -ENOMEM;
-+		}
- 		coda_set_jpeg_compression_quality(ctx, ctx->params.jpeg_quality);
- 	}
- 
 -- 
 2.35.1
 
