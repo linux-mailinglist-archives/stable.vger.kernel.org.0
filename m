@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E11366C47D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BB7066C87A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:39:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231506AbjAPPzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:55:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37816 "EHLO
+        id S233617AbjAPQjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:39:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231135AbjAPPzU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:20 -0500
+        with ESMTP id S233628AbjAPQjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:39:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1BB9234C6
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49AAD46AA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62A5561037
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 796FEC433EF;
-        Mon, 16 Jan 2023 15:55:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D437461049
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5888C433EF;
+        Mon, 16 Jan 2023 16:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884513;
-        bh=/xurSwePBhInU3fUm/N7e3Q59ErIcs75CcyG05ZTjQE=;
+        s=korg; t=1673886472;
+        bh=yQgQV6EQzj5Zc6dCTZCcvKiZmNReBtsja3RbuktkojA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qBIteLCX7B/JAAFWIkg6Hj4TJkZUu4XljnCGUVVi4IJmvCnJPgiPnctAlRI7UGvql
-         i2KninqX1EAXgVTBGHSeOuvK9xbyuDQxwQTK3qVQvtXxn09Wcu3LYvk3PRh/DwVWPM
-         K9rila2FhNM6gtFy3JPYso3TRMxCDjubCUJ51DNo=
+        b=xC995JcMFaCC9DDWe5kfE5GzyYHVjilqK2OT3huYSpwufXRu3JCr5w7zzlLoCp+wC
+         xa0yN41PzIXNeI6FBtyJYBbxojcomR6Um1wWoN+xIn5q347tcErQUVJJABbRge35kn
+         Q5jUjEx0VJI/EBmjX/sE4a7bUtPKuF10IZaOgnjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.1 007/183] KVM: x86: Do not return host topology information from KVM_GET_SUPPORTED_CPUID
+        patches@lists.linux.dev, Edward Pacman <edward@edward-p.xyz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 442/658] ALSA: hda/realtek: Add quirk for Lenovo TianYi510Pro-14IOB
 Date:   Mon, 16 Jan 2023 16:48:50 +0100
-Message-Id: <20230116154803.683444886@linuxfoundation.org>
+Message-Id: <20230116154929.740928446@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,115 +52,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Edward Pacman <edward@edward-p.xyz>
 
-commit 45e966fcca03ecdcccac7cb236e16eea38cc18af upstream.
+commit 4bf5bf54476dffe60e6b6d8d539f67309ff599e2 upstream.
 
-Passing the host topology to the guest is almost certainly wrong
-and will confuse the scheduler.  In addition, several fields of
-these CPUID leaves vary on each processor; it is simply impossible to
-return the right values from KVM_GET_SUPPORTED_CPUID in such a way that
-they can be passed to KVM_SET_CPUID2.
+Lenovo TianYi510Pro-14IOB (17aa:3742)
+require quirk for enabling headset-mic
 
-The values that will most likely prevent confusion are all zeroes.
-Userspace will have to override it anyway if it wishes to present a
-specific topology to the guest.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Edward Pacman <edward@edward-p.xyz>
+Cc: <stable@vger.kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216756
+Link: https://lore.kernel.org/r/20221207133218.18989-1-edward@edward-p.xyz
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/virt/kvm/api.rst |   14 ++++++++++++++
- arch/x86/kvm/cpuid.c           |   32 ++++++++++++++++----------------
- 2 files changed, 30 insertions(+), 16 deletions(-)
+ sound/pci/hda/patch_realtek.c |   27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -8248,6 +8248,20 @@ CPU[EAX=1]:ECX[24] (TSC_DEADLINE) is not
- It can be enabled if ``KVM_CAP_TSC_DEADLINE_TIMER`` is present and the kernel
- has enabled in-kernel emulation of the local APIC.
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9777,6 +9777,17 @@ static void alc897_fixup_lenovo_headset_
+ 	}
+ }
  
-+CPU topology
-+~~~~~~~~~~~~
-+
-+Several CPUID values include topology information for the host CPU:
-+0x0b and 0x1f for Intel systems, 0x8000001e for AMD systems.  Different
-+versions of KVM return different values for this information and userspace
-+should not rely on it.  Currently they return all zeroes.
-+
-+If userspace wishes to set up a guest topology, it should be careful that
-+the values of these three leaves differ for each CPU.  In particular,
-+the APIC ID is found in EDX for all subleaves of 0x0b and 0x1f, and in EAX
-+for 0x8000001e; the latter also encodes the core id and node id in bits
-+7:0 of EBX and ECX respectively.
-+
- Obsolete ioctls and capabilities
- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -759,16 +759,22 @@ struct kvm_cpuid_array {
- 	int nent;
- };
- 
-+static struct kvm_cpuid_entry2 *get_next_cpuid(struct kvm_cpuid_array *array)
++static void alc897_fixup_lenovo_headset_mode(struct hda_codec *codec,
++				     const struct hda_fixup *fix, int action)
 +{
-+	if (array->nent >= array->maxnent)
-+		return NULL;
++	struct alc_spec *spec = codec->spec;
 +
-+	return &array->entries[array->nent++];
++	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
++		spec->parse_flags |= HDA_PINCFG_HEADSET_MIC;
++		spec->gen.hp_automute_hook = alc897_hp_automute_hook;
++	}
 +}
 +
- static struct kvm_cpuid_entry2 *do_host_cpuid(struct kvm_cpuid_array *array,
- 					      u32 function, u32 index)
- {
--	struct kvm_cpuid_entry2 *entry;
-+	struct kvm_cpuid_entry2 *entry = get_next_cpuid(array);
+ static const struct coef_fw alc668_coefs[] = {
+ 	WRITE_COEF(0x01, 0xbebe), WRITE_COEF(0x02, 0xaaaa), WRITE_COEF(0x03,    0x0),
+ 	WRITE_COEF(0x04, 0x0180), WRITE_COEF(0x06,    0x0), WRITE_COEF(0x07, 0x0f80),
+@@ -9860,6 +9871,8 @@ enum {
+ 	ALC897_FIXUP_LENOVO_HEADSET_MIC,
+ 	ALC897_FIXUP_HEADSET_MIC_PIN,
+ 	ALC897_FIXUP_HP_HSMIC_VERB,
++	ALC897_FIXUP_LENOVO_HEADSET_MODE,
++	ALC897_FIXUP_HEADSET_MIC_PIN2,
+ };
  
--	if (array->nent >= array->maxnent)
-+	if (!entry)
- 		return NULL;
+ static const struct hda_fixup alc662_fixups[] = {
+@@ -10286,6 +10299,19 @@ static const struct hda_fixup alc662_fix
+ 			{ }
+ 		},
+ 	},
++	[ALC897_FIXUP_LENOVO_HEADSET_MODE] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc897_fixup_lenovo_headset_mode,
++	},
++	[ALC897_FIXUP_HEADSET_MIC_PIN2] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x1a, 0x01a11140 }, /* use as headset mic, without its own jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC897_FIXUP_LENOVO_HEADSET_MODE
++	},
+ };
  
--	entry = &array->entries[array->nent++];
--
- 	memset(entry, 0, sizeof(*entry));
- 	entry->function = function;
- 	entry->index = index;
-@@ -945,22 +951,13 @@ static inline int __do_cpuid_func(struct
- 		entry->edx = edx.full;
- 		break;
- 	}
--	/*
--	 * Per Intel's SDM, the 0x1f is a superset of 0xb,
--	 * thus they can be handled by common code.
--	 */
- 	case 0x1f:
- 	case 0xb:
- 		/*
--		 * Populate entries until the level type (ECX[15:8]) of the
--		 * previous entry is zero.  Note, CPUID EAX.{0x1f,0xb}.0 is
--		 * the starting entry, filled by the primary do_host_cpuid().
-+		 * No topology; a valid topology is indicated by the presence
-+		 * of subleaf 1.
- 		 */
--		for (i = 1; entry->ecx & 0xff00; ++i) {
--			entry = do_host_cpuid(array, function, i);
--			if (!entry)
--				goto out;
--		}
-+		entry->eax = entry->ebx = entry->ecx = 0;
- 		break;
- 	case 0xd: {
- 		u64 permitted_xcr0 = kvm_caps.supported_xcr0 & xstate_get_guest_group_perm();
-@@ -1193,6 +1190,9 @@ static inline int __do_cpuid_func(struct
- 		entry->ebx = entry->ecx = entry->edx = 0;
- 		break;
- 	case 0x8000001e:
-+		/* Do not return host topology information.  */
-+		entry->eax = entry->ebx = entry->ecx = 0;
-+		entry->edx = 0; /* reserved */
- 		break;
- 	case 0x8000001F:
- 		if (!kvm_cpu_cap_has(X86_FEATURE_SEV)) {
+ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+@@ -10338,6 +10364,7 @@ static const struct snd_pci_quirk alc662
+ 	SND_PCI_QUIRK(0x17aa, 0x32cb, "Lenovo ThinkCentre M70", ALC897_FIXUP_HEADSET_MIC_PIN),
+ 	SND_PCI_QUIRK(0x17aa, 0x32cf, "Lenovo ThinkCentre M950", ALC897_FIXUP_HEADSET_MIC_PIN),
+ 	SND_PCI_QUIRK(0x17aa, 0x32f7, "Lenovo ThinkCentre M90", ALC897_FIXUP_HEADSET_MIC_PIN),
++	SND_PCI_QUIRK(0x17aa, 0x3742, "Lenovo TianYi510Pro-14IOB", ALC897_FIXUP_HEADSET_MIC_PIN2),
+ 	SND_PCI_QUIRK(0x17aa, 0x38af, "Lenovo Ideapad Y550P", ALC662_FIXUP_IDEAPAD),
+ 	SND_PCI_QUIRK(0x17aa, 0x3a0d, "Lenovo Ideapad Y550", ALC662_FIXUP_IDEAPAD),
+ 	SND_PCI_QUIRK(0x1849, 0x5892, "ASRock B150M", ALC892_FIXUP_ASROCK_MOBO),
 
 
