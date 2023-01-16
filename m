@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8865166C7DD
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:35:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C9266CA4A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233397AbjAPQfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:35:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
+        id S234060AbjAPRBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:01:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233329AbjAPQem (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8D912A146
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:22:33 -0800 (PST)
+        with ESMTP id S233961AbjAPRBD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:01:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3500B5A360
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:43:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AB10B80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:22:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E3CC433EF;
-        Mon, 16 Jan 2023 16:22:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DBF0CB81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:43:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F781C433EF;
+        Mon, 16 Jan 2023 16:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886151;
-        bh=GOt+Z1h6ceJbqeibsjezMoycy1SDXanBKQ7jvyzuhf0=;
+        s=korg; t=1673887407;
+        bh=0kXwMbSk4TsFadYGIKLEPb7evQzpT9GyIsXDrwmABvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lj2EXN/hV3z4dcvobO5GDE7IzYtJhIaWhwdy8+2qYogtr5wBbxwmKLdCiZh76eWUS
-         4v/MV8qQTkGNAl17dU3mc8+T1g0tLPE6MSNRjaKxvARNDu8sDvqVSRXH90k/JtNwuo
-         iah+2WOLIXDKK8rSeWMmzb74ZJzkrn3XRolEq38k=
+        b=XxshulXlKoVB/nZ3omV12KhHu6jc2yzDk9bBO7dh4p2psh8GYP9zuyHX6XBut4qgx
+         1qoAoERrhBkyRsl4PaYEdWBonR4M8kvdWdHf5LyVIwwpzE/yLUwau7lLRDCyI4a54x
+         FvTCXfQdRZu89lsl2Osz1G9QYUrV9gzZW6L3QsS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 282/658] staging: vme_user: Fix possible UAF in tsi148_dma_list_add
+Subject: [PATCH 4.19 108/521] media: solo6x10: fix possible memory leak in solo_sysfs_init()
 Date:   Mon, 16 Jan 2023 16:46:10 +0100
-Message-Id: <20230116154922.486266949@linuxfoundation.org>
+Message-Id: <20230116154852.090471275@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 357057ee55d3c99a5de5abe8150f7bca04f8e53b ]
+[ Upstream commit 7f5866dd96d95b74e439f6ee17b8abd8195179fb ]
 
-Smatch report warning as follows:
+If device_register() returns error in solo_sysfs_init(), the
+name allocated by dev_set_name() need be freed. As comment of
+device_register() says, it should use put_device() to give up
+the reference in the error path. So fix this by calling
+put_device(), then the name can be freed in kobject_cleanup().
 
-drivers/staging/vme_user/vme_tsi148.c:1757 tsi148_dma_list_add() warn:
-  '&entry->list' not removed from list
-
-In tsi148_dma_list_add(), the error path "goto err_dma" will not
-remove entry->list from list->entries, but entry will be freed,
-then list traversal may cause UAF.
-
-Fix by removeing it from list->entries before free().
-
-Fixes: b2383c90a9d6 ("vme: tsi148: fix first DMA item mapping")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221117035914.2954454-1-cuigaosheng1@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: dcae5dacbce5 ("[media] solo6x10: sync to latest code from Bluecherry's git repo")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vme/bridges/vme_tsi148.c | 1 +
+ drivers/media/pci/solo6x10/solo6x10-core.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/vme/bridges/vme_tsi148.c b/drivers/vme/bridges/vme_tsi148.c
-index 7e079d39bd76..f2da16bf1439 100644
---- a/drivers/vme/bridges/vme_tsi148.c
-+++ b/drivers/vme/bridges/vme_tsi148.c
-@@ -1771,6 +1771,7 @@ static int tsi148_dma_list_add(struct vme_dma_list *list,
- 	return 0;
+diff --git a/drivers/media/pci/solo6x10/solo6x10-core.c b/drivers/media/pci/solo6x10/solo6x10-core.c
+index 19ffd2ed3cc7..d3bca099b78b 100644
+--- a/drivers/media/pci/solo6x10/solo6x10-core.c
++++ b/drivers/media/pci/solo6x10/solo6x10-core.c
+@@ -429,6 +429,7 @@ static int solo_sysfs_init(struct solo_dev *solo_dev)
+ 		     solo_dev->nr_chans);
  
- err_dma:
-+	list_del(&entry->list);
- err_dest:
- err_source:
- err_align:
+ 	if (device_register(dev)) {
++		put_device(dev);
+ 		dev->parent = NULL;
+ 		return -ENOMEM;
+ 	}
 -- 
 2.35.1
 
