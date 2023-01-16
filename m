@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A83E266C893
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:40:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7180B66C472
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233701AbjAPQkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:40:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33028 "EHLO
+        id S231285AbjAPPzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:55:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233542AbjAPQkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E6B1367ED
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:28:32 -0800 (PST)
+        with ESMTP id S231290AbjAPPyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8938A1CF78
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6AA5B8107A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:28:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B8C9C433D2;
-        Mon, 16 Jan 2023 16:28:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1718A61038
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28455C433D2;
+        Mon, 16 Jan 2023 15:54:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886509;
-        bh=66wqCw2cqksrKT00fufHQltWomr3SnDks9QpMQStgQ0=;
+        s=korg; t=1673884487;
+        bh=Elvi/4xK+IBeYkudi6r2bXnKG26kmdbni9txCnkhKGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAVRbf9a9EMYj5jQdmKeY7L9sfqFWs8v2RB5c9gZSzo9xI1wtD3HshevUd4qPVic/
-         +AeujuDGV+xj5KBY3ypBGBA+17fC6Qowwxb1l2ARUEZjiJ27sCX1jrrpvGmHsoZdkG
-         sBc9XamkWxHXGWROHSNyHcnAmMUTBb7MxmlWnIg0=
+        b=tKvJLzVXy+P5FvPuckqxVwU+Cnd7E9FV/gOf/6e4fVaQMpzgW0i4+qQc7b80UNEKV
+         HGEmY+XOKgdHiFKZB0o9KH8gEQU1yPufKxDlM4T3N/84qzr7DnPHf4/VpNr9d74jSY
+         kaYcpTdDymWJsq+1x28S/+1/26pCnWuxbA0X7IV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Revanth Rajashekar <revanth.rajashekar@intel.com>,
-        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 458/658] nvme: resync include/linux/nvme.h with nvmecli
-Date:   Mon, 16 Jan 2023 16:49:06 +0100
-Message-Id: <20230116154930.454219574@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 6.1 024/183] s390/cpum_sf: add READ_ONCE() semantics to compare and swap loops
+Date:   Mon, 16 Jan 2023 16:49:07 +0100
+Message-Id: <20230116154804.405916747@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,175 +55,345 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Revanth Rajashekar <revanth.rajashekar@intel.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 48c9e85b23464a7d1e3ebd70b79cc3a2d97d3222 ]
+commit 82d3edb50a11bf3c5ef63294d5358ba230181413 upstream.
 
-Update enumerations and structures in include/linux/nvme.h
-to resync with the nvmecli.
+The current cmpxchg_double() loops within the perf hw sampling code do not
+have READ_ONCE() semantics to read the old value from memory. This allows
+the compiler to generate code which reads the "old" value several times
+from memory, which again allows for inconsistencies.
 
-All the updates are mentioned in the ratified NVMe 1.4 spec
-https://nvmexpress.org/wp-content/uploads/NVM-Express-1_4-2019.06.10-Ratified.pdf
+For example:
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Revanth Rajashekar <revanth.rajashekar@intel.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 685e6311637e ("nvme: fix the NVME_CMD_EFFECTS_CSE_MASK definition")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+        /* Reset trailer (using compare-double-and-swap) */
+        do {
+                te_flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
+                te_flags |= SDB_TE_ALERT_REQ_MASK;
+        } while (!cmpxchg_double(&te->flags, &te->overflow,
+                 te->flags, te->overflow,
+                 te_flags, 0ULL));
+
+The compiler could generate code where te->flags used within the
+cmpxchg_double() call may be refetched from memory and which is not
+necessarily identical to the previous read version which was used to
+generate te_flags. Which in turn means that an incorrect update could
+happen.
+
+Fix this by adding READ_ONCE() semantics to all cmpxchg_double()
+loops. Given that READ_ONCE() cannot generate code on s390 which atomically
+reads 16 bytes, use a private compare-and-swap-double implementation to
+achieve that.
+
+Also replace cmpxchg_double() with the private implementation to be able to
+re-use the old value within the loops.
+
+As a side effect this converts the whole code to only use bit fields
+to read and modify bits within the hws trailer header.
+
+Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Acked-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+Reviewed-by: Thomas Richter <tmricht@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/linux-s390/Y71QJBhNTIatvxUT@osiris/T/#ma14e2a5f7aa8ed4b94b6f9576799b3ad9c60f333
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/nvme.h | 53 +++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 50 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/cpu_mf.h  |   31 +++++-------
+ arch/s390/kernel/perf_cpum_sf.c |  101 ++++++++++++++++++++++++----------------
+ 2 files changed, 77 insertions(+), 55 deletions(-)
 
-diff --git a/include/linux/nvme.h b/include/linux/nvme.h
-index a260cd754f28..3eca4f7d8510 100644
---- a/include/linux/nvme.h
-+++ b/include/linux/nvme.h
-@@ -107,8 +107,22 @@ enum {
- 	NVME_REG_AQA	= 0x0024,	/* Admin Queue Attributes */
- 	NVME_REG_ASQ	= 0x0028,	/* Admin SQ Base Address */
- 	NVME_REG_ACQ	= 0x0030,	/* Admin CQ Base Address */
--	NVME_REG_CMBLOC = 0x0038,	/* Controller Memory Buffer Location */
-+	NVME_REG_CMBLOC	= 0x0038,	/* Controller Memory Buffer Location */
- 	NVME_REG_CMBSZ	= 0x003c,	/* Controller Memory Buffer Size */
-+	NVME_REG_BPINFO	= 0x0040,	/* Boot Partition Information */
-+	NVME_REG_BPRSEL	= 0x0044,	/* Boot Partition Read Select */
-+	NVME_REG_BPMBL	= 0x0048,	/* Boot Partition Memory Buffer
-+					 * Location
-+					 */
-+	NVME_REG_PMRCAP	= 0x0e00,	/* Persistent Memory Capabilities */
-+	NVME_REG_PMRCTL	= 0x0e04,	/* Persistent Memory Region Control */
-+	NVME_REG_PMRSTS	= 0x0e08,	/* Persistent Memory Region Status */
-+	NVME_REG_PMREBS	= 0x0e0c,	/* Persistent Memory Region Elasticity
-+					 * Buffer Size
-+					 */
-+	NVME_REG_PMRSWTP = 0x0e10,	/* Persistent Memory Region Sustained
-+					 * Write Throughput
-+					 */
- 	NVME_REG_DBS	= 0x1000,	/* SQ 0 Tail Doorbell */
- };
+--- a/arch/s390/include/asm/cpu_mf.h
++++ b/arch/s390/include/asm/cpu_mf.h
+@@ -131,19 +131,21 @@ struct hws_combined_entry {
+ 	struct hws_diag_entry	diag;	/* Diagnostic-sampling data entry */
+ } __packed;
  
-@@ -295,6 +309,14 @@ enum {
- 	NVME_CTRL_OACS_DIRECTIVES		= 1 << 5,
- 	NVME_CTRL_OACS_DBBUF_SUPP		= 1 << 8,
- 	NVME_CTRL_LPA_CMD_EFFECTS_LOG		= 1 << 1,
-+	NVME_CTRL_CTRATT_128_ID			= 1 << 0,
-+	NVME_CTRL_CTRATT_NON_OP_PSP		= 1 << 1,
-+	NVME_CTRL_CTRATT_NVM_SETS		= 1 << 2,
-+	NVME_CTRL_CTRATT_READ_RECV_LVLS		= 1 << 3,
-+	NVME_CTRL_CTRATT_ENDURANCE_GROUPS	= 1 << 4,
-+	NVME_CTRL_CTRATT_PREDICTABLE_LAT	= 1 << 5,
-+	NVME_CTRL_CTRATT_NAMESPACE_GRANULARITY	= 1 << 7,
-+	NVME_CTRL_CTRATT_UUID_LIST		= 1 << 9,
- };
- 
- struct nvme_lbaf {
-@@ -352,6 +374,9 @@ enum {
- 	NVME_ID_CNS_NS_PRESENT		= 0x11,
- 	NVME_ID_CNS_CTRL_NS_LIST	= 0x12,
- 	NVME_ID_CNS_CTRL_LIST		= 0x13,
-+	NVME_ID_CNS_SCNDRY_CTRL_LIST	= 0x15,
-+	NVME_ID_CNS_NS_GRANULARITY	= 0x16,
-+	NVME_ID_CNS_UUID_LIST		= 0x17,
- };
- 
- enum {
-@@ -409,7 +434,8 @@ struct nvme_smart_log {
- 	__u8			avail_spare;
- 	__u8			spare_thresh;
- 	__u8			percent_used;
--	__u8			rsvd6[26];
-+	__u8			endu_grp_crit_warn_sumry;
-+	__u8			rsvd7[25];
- 	__u8			data_units_read[16];
- 	__u8			data_units_written[16];
- 	__u8			host_reads[16];
-@@ -423,7 +449,11 @@ struct nvme_smart_log {
- 	__le32			warning_temp_time;
- 	__le32			critical_comp_time;
- 	__le16			temp_sensor[8];
--	__u8			rsvd216[296];
-+	__le32			thm_temp1_trans_count;
-+	__le32			thm_temp2_trans_count;
-+	__le32			thm_temp1_total_time;
-+	__le32			thm_temp2_total_time;
-+	__u8			rsvd232[280];
- };
- 
- struct nvme_fw_slot_info_log {
-@@ -440,6 +470,7 @@ enum {
- 	NVME_CMD_EFFECTS_NIC		= 1 << 3,
- 	NVME_CMD_EFFECTS_CCC		= 1 << 4,
- 	NVME_CMD_EFFECTS_CSE_MASK	= 3 << 16,
-+	NVME_CMD_EFFECTS_UUID_SEL	= 1 << 19,
- };
- 
- struct nvme_effects_log {
-@@ -563,6 +594,7 @@ enum nvme_opcode {
- 	nvme_cmd_compare	= 0x05,
- 	nvme_cmd_write_zeroes	= 0x08,
- 	nvme_cmd_dsm		= 0x09,
-+	nvme_cmd_verify		= 0x0c,
- 	nvme_cmd_resv_register	= 0x0d,
- 	nvme_cmd_resv_report	= 0x0e,
- 	nvme_cmd_resv_acquire	= 0x11,
-@@ -806,10 +838,14 @@ enum nvme_admin_opcode {
- 	nvme_admin_ns_mgmt		= 0x0d,
- 	nvme_admin_activate_fw		= 0x10,
- 	nvme_admin_download_fw		= 0x11,
-+	nvme_admin_dev_self_test	= 0x14,
- 	nvme_admin_ns_attach		= 0x15,
- 	nvme_admin_keep_alive		= 0x18,
- 	nvme_admin_directive_send	= 0x19,
- 	nvme_admin_directive_recv	= 0x1a,
-+	nvme_admin_virtual_mgmt		= 0x1c,
-+	nvme_admin_nvme_mi_send		= 0x1d,
-+	nvme_admin_nvme_mi_recv		= 0x1e,
- 	nvme_admin_dbbuf		= 0x7C,
- 	nvme_admin_format_nvm		= 0x80,
- 	nvme_admin_security_send	= 0x81,
-@@ -873,6 +909,7 @@ enum {
- 	NVME_FEAT_PLM_CONFIG	= 0x13,
- 	NVME_FEAT_PLM_WINDOW	= 0x14,
- 	NVME_FEAT_HOST_BEHAVIOR	= 0x16,
-+	NVME_FEAT_SANITIZE	= 0x17,
- 	NVME_FEAT_SW_PROGRESS	= 0x80,
- 	NVME_FEAT_HOST_ID	= 0x81,
- 	NVME_FEAT_RESV_MASK	= 0x82,
-@@ -883,6 +920,10 @@ enum {
- 	NVME_LOG_FW_SLOT	= 0x03,
- 	NVME_LOG_CHANGED_NS	= 0x04,
- 	NVME_LOG_CMD_EFFECTS	= 0x05,
-+	NVME_LOG_DEVICE_SELF_TEST = 0x06,
-+	NVME_LOG_TELEMETRY_HOST = 0x07,
-+	NVME_LOG_TELEMETRY_CTRL = 0x08,
-+	NVME_LOG_ENDURANCE_GROUP = 0x09,
- 	NVME_LOG_ANA		= 0x0c,
- 	NVME_LOG_DISC		= 0x70,
- 	NVME_LOG_RESERVATION	= 0x80,
-@@ -1290,7 +1331,11 @@ enum {
- 	NVME_SC_SGL_INVALID_OFFSET	= 0x16,
- 	NVME_SC_SGL_INVALID_SUBTYPE	= 0x17,
- 
-+	NVME_SC_SANITIZE_FAILED		= 0x1C,
-+	NVME_SC_SANITIZE_IN_PROGRESS	= 0x1D,
+-struct hws_trailer_entry {
+-	union {
+-		struct {
+-			unsigned int f:1;	/* 0 - Block Full Indicator   */
+-			unsigned int a:1;	/* 1 - Alert request control  */
+-			unsigned int t:1;	/* 2 - Timestamp format	      */
+-			unsigned int :29;	/* 3 - 31: Reserved	      */
+-			unsigned int bsdes:16;	/* 32-47: size of basic SDE   */
+-			unsigned int dsdes:16;	/* 48-63: size of diagnostic SDE */
+-		};
+-		unsigned long long flags;	/* 0 - 63: All indicators     */
++union hws_trailer_header {
++	struct {
++		unsigned int f:1;	/* 0 - Block Full Indicator   */
++		unsigned int a:1;	/* 1 - Alert request control  */
++		unsigned int t:1;	/* 2 - Timestamp format	      */
++		unsigned int :29;	/* 3 - 31: Reserved	      */
++		unsigned int bsdes:16;	/* 32-47: size of basic SDE   */
++		unsigned int dsdes:16;	/* 48-63: size of diagnostic SDE */
++		unsigned long long overflow; /* 64 - Overflow Count   */
+ 	};
+-	unsigned long long overflow;	 /* 64 - sample Overflow count	      */
++	__uint128_t val;
++};
 +
- 	NVME_SC_NS_WRITE_PROTECTED	= 0x20,
-+	NVME_SC_CMD_INTERRUPTED		= 0x21,
++struct hws_trailer_entry {
++	union hws_trailer_header header; /* 0 - 15 Flags + Overflow Count     */
+ 	unsigned char timestamp[16];	 /* 16 - 31 timestamp		      */
+ 	unsigned long long reserved1;	 /* 32 -Reserved		      */
+ 	unsigned long long reserved2;	 /*				      */
+@@ -290,14 +292,11 @@ static inline unsigned long sample_rate_
+ 	return USEC_PER_SEC * qsi->cpu_speed / rate;
+ }
  
- 	NVME_SC_LBA_RANGE		= 0x80,
- 	NVME_SC_CAP_EXCEEDED		= 0x81,
-@@ -1328,6 +1373,8 @@ enum {
- 	NVME_SC_NS_NOT_ATTACHED		= 0x11a,
- 	NVME_SC_THIN_PROV_NOT_SUPP	= 0x11b,
- 	NVME_SC_CTRL_LIST_INVALID	= 0x11c,
-+	NVME_SC_BP_WRITE_PROHIBITED	= 0x11e,
-+	NVME_SC_PMR_SAN_PROHIBITED	= 0x123,
+-#define SDB_TE_ALERT_REQ_MASK	0x4000000000000000UL
+-#define SDB_TE_BUFFER_FULL_MASK 0x8000000000000000UL
+-
+ /* Return TOD timestamp contained in an trailer entry */
+ static inline unsigned long long trailer_timestamp(struct hws_trailer_entry *te)
+ {
+ 	/* TOD in STCKE format */
+-	if (te->t)
++	if (te->header.t)
+ 		return *((unsigned long long *) &te->timestamp[1]);
+ 
+ 	/* TOD in STCK format */
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -163,14 +163,15 @@ static void free_sampling_buffer(struct
+ 
+ static int alloc_sample_data_block(unsigned long *sdbt, gfp_t gfp_flags)
+ {
+-	unsigned long sdb, *trailer;
++	struct hws_trailer_entry *te;
++	unsigned long sdb;
+ 
+ 	/* Allocate and initialize sample-data-block */
+ 	sdb = get_zeroed_page(gfp_flags);
+ 	if (!sdb)
+ 		return -ENOMEM;
+-	trailer = trailer_entry_ptr(sdb);
+-	*trailer = SDB_TE_ALERT_REQ_MASK;
++	te = (struct hws_trailer_entry *)trailer_entry_ptr(sdb);
++	te->header.a = 1;
+ 
+ 	/* Link SDB into the sample-data-block-table */
+ 	*sdbt = sdb;
+@@ -1206,7 +1207,7 @@ static void hw_collect_samples(struct pe
+ 					    "%s: Found unknown"
+ 					    " sampling data entry: te->f %i"
+ 					    " basic.def %#4x (%p)\n", __func__,
+-					    te->f, sample->def, sample);
++					    te->header.f, sample->def, sample);
+ 			/* Sample slot is not yet written or other record.
+ 			 *
+ 			 * This condition can occur if the buffer was reused
+@@ -1217,7 +1218,7 @@ static void hw_collect_samples(struct pe
+ 			 * that are not full.  Stop processing if the first
+ 			 * invalid format was detected.
+ 			 */
+-			if (!te->f)
++			if (!te->header.f)
+ 				break;
+ 		}
+ 
+@@ -1227,6 +1228,16 @@ static void hw_collect_samples(struct pe
+ 	}
+ }
+ 
++static inline __uint128_t __cdsg(__uint128_t *ptr, __uint128_t old, __uint128_t new)
++{
++	asm volatile(
++		"	cdsg	%[old],%[new],%[ptr]\n"
++		: [old] "+d" (old), [ptr] "+QS" (*ptr)
++		: [new] "d" (new)
++		: "memory", "cc");
++	return old;
++}
++
+ /* hw_perf_event_update() - Process sampling buffer
+  * @event:	The perf event
+  * @flush_all:	Flag to also flush partially filled sample-data-blocks
+@@ -1243,10 +1254,11 @@ static void hw_collect_samples(struct pe
+  */
+ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ {
++	unsigned long long event_overflow, sampl_overflow, num_sdb;
++	union hws_trailer_header old, prev, new;
+ 	struct hw_perf_event *hwc = &event->hw;
+ 	struct hws_trailer_entry *te;
+ 	unsigned long *sdbt;
+-	unsigned long long event_overflow, sampl_overflow, num_sdb, te_flags;
+ 	int done;
  
  	/*
- 	 * I/O Command Set Specific - NVM commands:
--- 
-2.35.1
-
+@@ -1266,25 +1278,25 @@ static void hw_perf_event_update(struct
+ 		te = (struct hws_trailer_entry *) trailer_entry_ptr(*sdbt);
+ 
+ 		/* Leave loop if no more work to do (block full indicator) */
+-		if (!te->f) {
++		if (!te->header.f) {
+ 			done = 1;
+ 			if (!flush_all)
+ 				break;
+ 		}
+ 
+ 		/* Check the sample overflow count */
+-		if (te->overflow)
++		if (te->header.overflow)
+ 			/* Account sample overflows and, if a particular limit
+ 			 * is reached, extend the sampling buffer.
+ 			 * For details, see sfb_account_overflows().
+ 			 */
+-			sampl_overflow += te->overflow;
++			sampl_overflow += te->header.overflow;
+ 
+ 		/* Timestamps are valid for full sample-data-blocks only */
+ 		debug_sprintf_event(sfdbg, 6, "%s: sdbt %#lx "
+ 				    "overflow %llu timestamp %#llx\n",
+-				    __func__, (unsigned long)sdbt, te->overflow,
+-				    (te->f) ? trailer_timestamp(te) : 0ULL);
++				    __func__, (unsigned long)sdbt, te->header.overflow,
++				    (te->header.f) ? trailer_timestamp(te) : 0ULL);
+ 
+ 		/* Collect all samples from a single sample-data-block and
+ 		 * flag if an (perf) event overflow happened.  If so, the PMU
+@@ -1294,12 +1306,16 @@ static void hw_perf_event_update(struct
+ 		num_sdb++;
+ 
+ 		/* Reset trailer (using compare-double-and-swap) */
++		/* READ_ONCE() 16 byte header */
++		prev.val = __cdsg(&te->header.val, 0, 0);
+ 		do {
+-			te_flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
+-			te_flags |= SDB_TE_ALERT_REQ_MASK;
+-		} while (!cmpxchg_double(&te->flags, &te->overflow,
+-					 te->flags, te->overflow,
+-					 te_flags, 0ULL));
++			old.val = prev.val;
++			new.val = prev.val;
++			new.f = 0;
++			new.a = 1;
++			new.overflow = 0;
++			prev.val = __cdsg(&te->header.val, old.val, new.val);
++		} while (prev.val != old.val);
+ 
+ 		/* Advance to next sample-data-block */
+ 		sdbt++;
+@@ -1384,7 +1400,7 @@ static void aux_output_end(struct perf_o
+ 	range_scan = AUX_SDB_NUM_ALERT(aux);
+ 	for (i = 0, idx = aux->head; i < range_scan; i++, idx++) {
+ 		te = aux_sdb_trailer(aux, idx);
+-		if (!(te->flags & SDB_TE_BUFFER_FULL_MASK))
++		if (!te->header.f)
+ 			break;
+ 	}
+ 	/* i is num of SDBs which are full */
+@@ -1392,7 +1408,7 @@ static void aux_output_end(struct perf_o
+ 
+ 	/* Remove alert indicators in the buffer */
+ 	te = aux_sdb_trailer(aux, aux->alert_mark);
+-	te->flags &= ~SDB_TE_ALERT_REQ_MASK;
++	te->header.a = 0;
+ 
+ 	debug_sprintf_event(sfdbg, 6, "%s: SDBs %ld range %ld head %ld\n",
+ 			    __func__, i, range_scan, aux->head);
+@@ -1437,9 +1453,9 @@ static int aux_output_begin(struct perf_
+ 		idx = aux->empty_mark + 1;
+ 		for (i = 0; i < range_scan; i++, idx++) {
+ 			te = aux_sdb_trailer(aux, idx);
+-			te->flags &= ~(SDB_TE_BUFFER_FULL_MASK |
+-				       SDB_TE_ALERT_REQ_MASK);
+-			te->overflow = 0;
++			te->header.f = 0;
++			te->header.a = 0;
++			te->header.overflow = 0;
+ 		}
+ 		/* Save the position of empty SDBs */
+ 		aux->empty_mark = aux->head + range - 1;
+@@ -1448,7 +1464,7 @@ static int aux_output_begin(struct perf_
+ 	/* Set alert indicator */
+ 	aux->alert_mark = aux->head + range/2 - 1;
+ 	te = aux_sdb_trailer(aux, aux->alert_mark);
+-	te->flags = te->flags | SDB_TE_ALERT_REQ_MASK;
++	te->header.a = 1;
+ 
+ 	/* Reset hardware buffer head */
+ 	head = AUX_SDB_INDEX(aux, aux->head);
+@@ -1475,14 +1491,17 @@ static int aux_output_begin(struct perf_
+ static bool aux_set_alert(struct aux_buffer *aux, unsigned long alert_index,
+ 			  unsigned long long *overflow)
+ {
+-	unsigned long long orig_overflow, orig_flags, new_flags;
++	union hws_trailer_header old, prev, new;
+ 	struct hws_trailer_entry *te;
+ 
+ 	te = aux_sdb_trailer(aux, alert_index);
++	/* READ_ONCE() 16 byte header */
++	prev.val = __cdsg(&te->header.val, 0, 0);
+ 	do {
+-		orig_flags = te->flags;
+-		*overflow = orig_overflow = te->overflow;
+-		if (orig_flags & SDB_TE_BUFFER_FULL_MASK) {
++		old.val = prev.val;
++		new.val = prev.val;
++		*overflow = old.overflow;
++		if (old.f) {
+ 			/*
+ 			 * SDB is already set by hardware.
+ 			 * Abort and try to set somewhere
+@@ -1490,10 +1509,10 @@ static bool aux_set_alert(struct aux_buf
+ 			 */
+ 			return false;
+ 		}
+-		new_flags = orig_flags | SDB_TE_ALERT_REQ_MASK;
+-	} while (!cmpxchg_double(&te->flags, &te->overflow,
+-				 orig_flags, orig_overflow,
+-				 new_flags, 0ULL));
++		new.a = 1;
++		new.overflow = 0;
++		prev.val = __cdsg(&te->header.val, old.val, new.val);
++	} while (prev.val != old.val);
+ 	return true;
+ }
+ 
+@@ -1522,8 +1541,9 @@ static bool aux_set_alert(struct aux_buf
+ static bool aux_reset_buffer(struct aux_buffer *aux, unsigned long range,
+ 			     unsigned long long *overflow)
+ {
+-	unsigned long long orig_overflow, orig_flags, new_flags;
+ 	unsigned long i, range_scan, idx, idx_old;
++	union hws_trailer_header old, prev, new;
++	unsigned long long orig_overflow;
+ 	struct hws_trailer_entry *te;
+ 
+ 	debug_sprintf_event(sfdbg, 6, "%s: range %ld head %ld alert %ld "
+@@ -1554,17 +1574,20 @@ static bool aux_reset_buffer(struct aux_
+ 	idx_old = idx = aux->empty_mark + 1;
+ 	for (i = 0; i < range_scan; i++, idx++) {
+ 		te = aux_sdb_trailer(aux, idx);
++		/* READ_ONCE() 16 byte header */
++		prev.val = __cdsg(&te->header.val, 0, 0);
+ 		do {
+-			orig_flags = te->flags;
+-			orig_overflow = te->overflow;
+-			new_flags = orig_flags & ~SDB_TE_BUFFER_FULL_MASK;
++			old.val = prev.val;
++			new.val = prev.val;
++			orig_overflow = old.overflow;
++			new.f = 0;
++			new.overflow = 0;
+ 			if (idx == aux->alert_mark)
+-				new_flags |= SDB_TE_ALERT_REQ_MASK;
++				new.a = 1;
+ 			else
+-				new_flags &= ~SDB_TE_ALERT_REQ_MASK;
+-		} while (!cmpxchg_double(&te->flags, &te->overflow,
+-					 orig_flags, orig_overflow,
+-					 new_flags, 0ULL));
++				new.a = 0;
++			prev.val = __cdsg(&te->header.val, old.val, new.val);
++		} while (prev.val != old.val);
+ 		*overflow += orig_overflow;
+ 	}
+ 
 
 
