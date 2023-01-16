@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9453466C72A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57D7566C9C9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233084AbjAPQ2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:28:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46406 "EHLO
+        id S233793AbjAPQ4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:56:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233209AbjAPQ2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F29922D156
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:30 -0800 (PST)
+        with ESMTP id S233752AbjAPQ4A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D92241FE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F1E561040
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5808C433D2;
-        Mon, 16 Jan 2023 16:16:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8728B8107D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 454D1C433D2;
+        Mon, 16 Jan 2023 16:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885790;
-        bh=+Xr1Vl/TCGZ4vWfM3tTvUdD07+0yWcJ7bfN2algaO0g=;
+        s=korg; t=1673887140;
+        bh=gu+wLE+8cOeZcvx24suZrXhrTOWykx3Z34Buf3NMmuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9/7GZuVypF/uZ7gR5t8WFPX6MbdZU2+UR2eQvRxGH7OrHuF2zDnHEt/0mNhPHj4a
-         BsYWRwYQg4EVrnfromvNWELwWlSFAhmnpvpYI7sOYi1spWCfDCxIG6/n769FJwJ5wX
-         BHnkdr0D+2jY0UOwculf73IpfopbKjX6nl211kT0=
+        b=reK7JF7fic1wVu4L7i/uZzkCwuilta6lgjZudNiXp/1xbvwbgNFGjyNQO4RN0qLB0
+         dkn7vM9GeAdjZMnFUmW/SqZBPYtlwfhP4SegmiryNZzXixYm9lhug1eXPKsv/Azbvn
+         go1wsKmkHskN5uLWo00AIXNRwOhgX54lIqDtN4t0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 183/658] media: saa7164: fix missing pci_disable_device()
+        patches@lists.linux.dev,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 009/521] ASoC: ops: Correct bounds check for second channel on SX controls
 Date:   Mon, 16 Jan 2023 16:44:31 +0100
-Message-Id: <20230116154917.816296156@linuxfoundation.org>
+Message-Id: <20230116154847.675088772@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 57fb35d7542384cac8f198cd1c927540ad38b61a ]
+commit f33bcc506050f89433a52a3052054d4ebd37b1c1 upstream.
 
-Add missing pci_disable_device() in the error path in saa7164_initdev().
+Currently the check against the max value for the control is being
+applied after the value has had the minimum applied and been masked. But
+the max value simply indicates the number of volume levels on an SX
+control, and as such should just be applied on the raw value.
 
-Fixes: 443c1228d505 ("V4L/DVB (12923): SAA7164: Add support for the NXP SAA7164 silicon")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 97eea946b939 ("ASoC: ops: Check bounds for second channel in snd_soc_put_volsw_sx()")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221125162348.1288005-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/saa7164/saa7164-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/soc-ops.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/saa7164/saa7164-core.c b/drivers/media/pci/saa7164/saa7164-core.c
-index 9ae04e18e6c6..59b039b953bb 100644
---- a/drivers/media/pci/saa7164/saa7164-core.c
-+++ b/drivers/media/pci/saa7164/saa7164-core.c
-@@ -1227,7 +1227,7 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -458,14 +458,15 @@ int snd_soc_put_volsw_sx(struct snd_kcon
+ 		return err;
  
- 	if (saa7164_dev_setup(dev) < 0) {
- 		err = -EINVAL;
--		goto fail_free;
-+		goto fail_dev;
- 	}
+ 	if (snd_soc_volsw_is_stereo(mc)) {
+-		val_mask = mask << rshift;
+-		val2 = (ucontrol->value.integer.value[1] + min) & mask;
++		val2 = ucontrol->value.integer.value[1];
  
- 	/* print pci info */
-@@ -1395,6 +1395,8 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
+ 		if (mc->platform_max && val2 > mc->platform_max)
+ 			return -EINVAL;
+ 		if (val2 > max)
+ 			return -EINVAL;
  
- fail_irq:
- 	saa7164_dev_unregister(dev);
-+fail_dev:
-+	pci_disable_device(pci_dev);
- fail_free:
- 	v4l2_device_unregister(&dev->v4l2_dev);
- 	kfree(dev);
--- 
-2.35.1
-
++		val_mask = mask << rshift;
++		val2 = (val2 + min) & mask;
+ 		val2 = val2 << rshift;
+ 
+ 		err = snd_soc_component_update_bits(component, reg2, val_mask,
 
 
