@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8633066CBA7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD80966CD28
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230272AbjAPRPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41744 "EHLO
+        id S234854AbjAPReL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234467AbjAPRPR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C4DD2A98A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:09 -0800 (PST)
+        with ESMTP id S234838AbjAPRdo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A54D33B64D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01AB961042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B44DC433F0;
-        Mon, 16 Jan 2023 16:56:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42B3361086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B7AC433EF;
+        Mon, 16 Jan 2023 17:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888168;
-        bh=MsT/chIFBEO21DWmyipZYl+zbSazjOpQTU+blLdbFfQ=;
+        s=korg; t=1673888987;
+        bh=HLo7MG3Ktut3qX2NhsnLxeVq2ENHynRJhwAX68w5pvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M4fse+AARpXydovh0PwBUbuSiYgYwvjGriDE1tCOps7CBxx38XM9xpv3IF+0PGde4
-         k0igpsh2nfbQi5VusbhsBaaqnbcldAQhzNrGNlb76Po8AAhtWqBTRQNyADL/ivGXvo
-         tQYCOdtfSuaDn/UP8/yae/c39zrcZXSj7flxgn/U=
+        b=2FvGToHrOvNR+gfcVzdm81daoKXYIvGC2AaaY+KYw2GKvhg99OvkE/tLeEfy8Udxb
+         An6yeRcl2U9ebFyKUgutTk8R4hrwvL/2lkl3C6AGECnLu7tDEJpkFTrzTUr5d4oRMg
+         cRKuWHpoxJtOgYg5WCJKLgtUFWffCJkhI24x7u60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Jiaming Li <lijiaming30@huawei.com>,
-        Huaxin Lu <luhuaxin1@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.19 396/521] ima: Fix a potential NULL pointer access in ima_restore_measurement_list
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 185/338] fbdev: uvesafb: Fixes an error handling path in uvesafb_probe()
 Date:   Mon, 16 Jan 2023 16:50:58 +0100
-Message-Id: <20230116154904.798861134@linuxfoundation.org>
+Message-Id: <20230116154828.999119137@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huaxin Lu <luhuaxin1@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 11220db412edae8dba58853238f53258268bdb88 upstream.
+[ Upstream commit a94371040712031ba129c7e9d8ff04a06a2f8207 ]
 
-In restore_template_fmt, when kstrdup fails, a non-NULL value will still be
-returned, which causes a NULL pointer access in template_desc_init_fields.
+If an error occurs after a successful uvesafb_init_mtrr() call, it must be
+undone by a corresponding arch_phys_wc_del() call, as already done in the
+remove function.
 
-Fixes: c7d09367702e ("ima: support restoring multiple template formats")
-Cc: stable@kernel.org
-Co-developed-by: Jiaming Li <lijiaming30@huawei.com>
-Signed-off-by: Jiaming Li <lijiaming30@huawei.com>
-Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This has been added in the remove function in commit 63e28a7a5ffc
+("uvesafb: Clean up MTRR code")
+
+Fixes: 8bdb3a2d7df4 ("uvesafb: the driver core")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_template.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/uvesafb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/security/integrity/ima/ima_template.c
-+++ b/security/integrity/ima/ima_template.c
-@@ -266,8 +266,11 @@ static struct ima_template_desc *restore
- 
- 	template_desc->name = "";
- 	template_desc->fmt = kstrdup(template_name, GFP_KERNEL);
--	if (!template_desc->fmt)
-+	if (!template_desc->fmt) {
-+		kfree(template_desc);
-+		template_desc = NULL;
- 		goto out;
-+	}
- 
- 	spin_lock(&template_list);
- 	list_add_tail_rcu(&template_desc->list, &defined_templates);
+diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
+index c592ca513115..ee86c62e3672 100644
+--- a/drivers/video/fbdev/uvesafb.c
++++ b/drivers/video/fbdev/uvesafb.c
+@@ -1754,6 +1754,7 @@ static int uvesafb_probe(struct platform_device *dev)
+ out_unmap:
+ 	iounmap(info->screen_base);
+ out_mem:
++	arch_phys_wc_del(par->mtrr_handle);
+ 	release_mem_region(info->fix.smem_start, info->fix.smem_len);
+ out_reg:
+ 	release_region(0x3c0, 32);
+-- 
+2.35.1
+
 
 
