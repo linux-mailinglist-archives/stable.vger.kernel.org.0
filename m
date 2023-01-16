@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E09F66CC29
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:22:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C3C66CD9C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234597AbjAPRWt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:22:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45502 "EHLO
+        id S235054AbjAPRhr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:37:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234598AbjAPRW2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:22:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 339CE36FC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:00:12 -0800 (PST)
+        with ESMTP id S234999AbjAPRhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:12 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B85BD46720
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6EF5B8109E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:00:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE1FC433EF;
-        Mon, 16 Jan 2023 17:00:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3430DCE1285
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C5BC433D2;
+        Mon, 16 Jan 2023 17:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888409;
-        bh=Wsf48FTnFoc6MfWnMI1l+i377NIbwRaFcVgn8hx4Vtw=;
+        s=korg; t=1673889234;
+        bh=ZfmykpwAoNzEuy5u7TG7Uv8Os7sFrJIRWmMX1RBXSeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wqX9OApy4F8E+bKXdSpGU0EnBKE9S6pbqoQj5OKNoQehnQV2OECwWAyHO0QRB2BPw
-         TW+hzRpuBIlMBkt3x2FwOlWOSpc9tX8U7TW91saCUOJPtIc2SSAxupQc3u4w2Kc/vU
-         rbfUkrkj45ZFs4giNAZaIYuwbwydH0ZSvY4POWdk=
+        b=GloqmfbusMEGEmulQ3Kt5mQD1zUGGSVkgR/2JHqEOLwbMZTxpNr4iW2eWDZUs8Emp
+         jRdMHVrLQAisoaq3ho951AqNgUTRMpg/DJtUusR+KdjE4GtMkPs43nZgUev0CUP9W6
+         MpA1oOmUc840SBvMszQkxznI7Owf2SnD/DpIUIpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Ferry Toth <ftoth@exalondelft.nl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 490/521] usb: ulpi: defer ulpi_register on ulpi_read_id timeout
+        patches@lists.linux.dev, Luo Meng <luomeng12@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.14 279/338] dm thin: Fix UAF in run_timer_softirq()
 Date:   Mon, 16 Jan 2023 16:52:32 +0100
-Message-Id: <20230116154909.095775191@linuxfoundation.org>
+Message-Id: <20230116154833.248985920@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Luo Meng <luomeng12@huawei.com>
 
-[ Upstream commit 8a7b31d545d3a15f0e6f5984ae16f0ca4fd76aac ]
+commit 88430ebcbc0ec637b710b947738839848c20feff upstream.
 
-Since commit 0f0101719138 ("usb: dwc3: Don't switch OTG -> peripheral
-if extcon is present") Dual Role support on Intel Merrifield platform
-broke due to rearranging the call to dwc3_get_extcon().
+When dm_resume() and dm_destroy() are concurrent, it will
+lead to UAF, as follows:
 
-It appears to be caused by ulpi_read_id() on the first test write failing
-with -ETIMEDOUT. Currently ulpi_read_id() expects to discover the phy via
-DT when the test write fails and returns 0 in that case, even if DT does not
-provide the phy. As a result usb probe completes without phy.
+ BUG: KASAN: use-after-free in __run_timers+0x173/0x710
+ Write of size 8 at addr ffff88816d9490f0 by task swapper/0/0
+<snip>
+ Call Trace:
+  <IRQ>
+  dump_stack_lvl+0x73/0x9f
+  print_report.cold+0x132/0xaa2
+  _raw_spin_lock_irqsave+0xcd/0x160
+  __run_timers+0x173/0x710
+  kasan_report+0xad/0x110
+  __run_timers+0x173/0x710
+  __asan_store8+0x9c/0x140
+  __run_timers+0x173/0x710
+  call_timer_fn+0x310/0x310
+  pvclock_clocksource_read+0xfa/0x250
+  kvm_clock_read+0x2c/0x70
+  kvm_clock_get_cycles+0xd/0x20
+  ktime_get+0x5c/0x110
+  lapic_next_event+0x38/0x50
+  clockevents_program_event+0xf1/0x1e0
+  run_timer_softirq+0x49/0x90
+  __do_softirq+0x16e/0x62c
+  __irq_exit_rcu+0x1fa/0x270
+  irq_exit_rcu+0x12/0x20
+  sysvec_apic_timer_interrupt+0x8e/0xc0
 
-Make ulpi_read_id() return -ETIMEDOUT to its user if the first test write
-fails. The user should then handle it appropriately. A follow up patch
-will make dwc3_core_init() set -EPROBE_DEFER in this case and bail out.
+One of the concurrency UAF can be shown as below:
 
-Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
+        use                                  free
+do_resume                           |
+  __find_device_hash_cell           |
+    dm_get                          |
+      atomic_inc(&md->holders)      |
+                                    | dm_destroy
+                                    |   __dm_destroy
+                                    |     if (!dm_suspended_md(md))
+                                    |     atomic_read(&md->holders)
+                                    |     msleep(1)
+  dm_resume                         |
+    __dm_resume                     |
+      dm_table_resume_targets       |
+        pool_resume                 |
+          do_waker  #add delay work |
+  dm_put                            |
+    atomic_dec(&md->holders)        |
+                                    |     dm_table_destroy
+                                    |       pool_dtr
+                                    |         __pool_dec
+                                    |           __pool_destroy
+                                    |             destroy_workqueue
+                                    |             kfree(pool) # free pool
+        time out
+__do_softirq
+  run_timer_softirq # pool has already been freed
+
+This can be easily reproduced using:
+  1. create thin-pool
+  2. dmsetup suspend pool
+  3. dmsetup resume pool
+  4. dmsetup remove_all # Concurrent with 3
+
+The root cause of this UAF bug is that dm_resume() adds timer after
+dm_destroy() skips cancelling the timer because of suspend status.
+After timeout, it will call run_timer_softirq(), however pool has
+already been freed. The concurrency UAF bug will happen.
+
+Therefore, cancelling timer again in __pool_destroy().
+
 Cc: stable@vger.kernel.org
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Link: https://lore.kernel.org/r/20221205201527.13525-2-ftoth@exalondelft.nl
+Fixes: 991d9fa02da0d ("dm: add thin provisioning target")
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/common/ulpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-thin.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/common/ulpi.c b/drivers/usb/common/ulpi.c
-index c42c152bbc33..94700c1d2f6e 100644
---- a/drivers/usb/common/ulpi.c
-+++ b/drivers/usb/common/ulpi.c
-@@ -207,7 +207,7 @@ static int ulpi_read_id(struct ulpi *ulpi)
- 	/* Test the interface */
- 	ret = ulpi_write(ulpi, ULPI_SCRATCH, 0xaa);
- 	if (ret < 0)
--		goto err;
-+		return ret;
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -2932,6 +2932,8 @@ static void __pool_destroy(struct pool *
+ 	dm_bio_prison_destroy(pool->prison);
+ 	dm_kcopyd_client_destroy(pool->copier);
  
- 	ret = ulpi_read(ulpi, ULPI_SCRATCH);
- 	if (ret < 0)
--- 
-2.35.1
-
++	cancel_delayed_work_sync(&pool->waker);
++	cancel_delayed_work_sync(&pool->no_space_timeout);
+ 	if (pool->wq)
+ 		destroy_workqueue(pool->wq);
+ 
 
 
