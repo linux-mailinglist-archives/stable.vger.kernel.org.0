@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0635D66CCEC
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31F2466CCED
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234699AbjAPRbB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:31:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52588 "EHLO
+        id S234797AbjAPRbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:31:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234850AbjAPRaZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:30:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1EE33A879
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:37 -0800 (PST)
+        with ESMTP id S234788AbjAPRaf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:30:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852FE3B0F0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F0AC60F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 915BBC433F0;
-        Mon, 16 Jan 2023 17:07:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 255F061077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36FDBC433EF;
+        Mon, 16 Jan 2023 17:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888856;
-        bh=rIhEumZRG5HRZ/YeNEY2VLMWYpEt89+Q9cowJ5ubhMY=;
+        s=korg; t=1673888859;
+        bh=k798aAGTWGH5F9/JfnxOVI9+auXIhGyUof5pIM0eN6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syEptfOGQsSI3f9NUHuh5ptMk5Fxw96JsuP4rwusmcbbKxiTIUWwlt8k/riiIoRWC
-         1C3RZi/znGhYJGtotaLWjGG5Ioj0VjDrzMuk20sd/YTPDWhzfgDzMk+R4kqN/Pp8+o
-         tpA5nipGzO6h0/yeSWEOurWkZVEFEX3ArEbPywJU=
+        b=ML2lWmgqmkllgIkkq3td4hm2Ka5Equvdz+w2LeZ5gwSCPJ0F4PnT7QC1j1xjUyuit
+         gi+SoNrrVcVzMvAbJ7Zzz2/2ZP+J0G6Tba0VwLlHr66duvRyQmEy0zXPyMWfXIY9Zm
+         KcUmZjw+RCrNZSL1LrHKjlDFTjPDz+oMnUUomKeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 165/338] serial: pch: Fix PCI device refcount leak in pch_request_dma()
-Date:   Mon, 16 Jan 2023 16:50:38 +0100
-Message-Id: <20230116154828.080065855@linuxfoundation.org>
+Subject: [PATCH 4.14 166/338] serial: sunsab: Fix error handling in sunsab_init()
+Date:   Mon, 16 Jan 2023 16:50:39 +0100
+Message-Id: <20230116154828.125104401@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,56 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 8be3a7bf773700534a6e8f87f6ed2ed111254be5 ]
+[ Upstream commit 1a6ec673fb627c26e2267ca0a03849f91dbd9b40 ]
 
-As comment of pci_get_slot() says, it returns a pci_device with its
-refcount increased. The caller must decrement the reference count by
-calling pci_dev_put().
+The sunsab_init() returns the platform_driver_register() directly without
+checking its return value, if platform_driver_register() failed, the
+allocated sunsab_ports is leaked.
+Fix by free sunsab_ports and set it to NULL when platform_driver_register()
+failed.
 
-Since 'dma_dev' is only used to filter the channel in filter(), we can
-call pci_dev_put() before exiting from pch_request_dma(). Add the
-missing pci_dev_put() for the normal and error path.
-
-Fixes: 3c6a483275f4 ("Serial: EG20T: add PCH_UART driver")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221122114559.27692-1-wangxiongfeng2@huawei.com
+Fixes: c4d37215a824 ("[SERIAL] sunsab: Convert to of_driver framework.")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Link: https://lore.kernel.org/r/20221123061212.52593-1-yuancan@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/pch_uart.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/serial/sunsab.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
-index 15ddcbd1f9d2..472cbd851188 100644
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -748,6 +748,7 @@ static void pch_request_dma(struct uart_port *port)
- 	if (!chan) {
- 		dev_err(priv->port.dev, "%s:dma_request_channel FAILS(Tx)\n",
- 			__func__);
-+		pci_dev_put(dma_dev);
- 		return;
- 	}
- 	priv->chan_tx = chan;
-@@ -764,6 +765,7 @@ static void pch_request_dma(struct uart_port *port)
- 			__func__);
- 		dma_release_channel(priv->chan_tx);
- 		priv->chan_tx = NULL;
-+		pci_dev_put(dma_dev);
- 		return;
+diff --git a/drivers/tty/serial/sunsab.c b/drivers/tty/serial/sunsab.c
+index 653a076d89d3..96ba6854a508 100644
+--- a/drivers/tty/serial/sunsab.c
++++ b/drivers/tty/serial/sunsab.c
+@@ -1138,7 +1138,13 @@ static int __init sunsab_init(void)
+ 		}
  	}
  
-@@ -771,6 +773,8 @@ static void pch_request_dma(struct uart_port *port)
- 	priv->rx_buf_virt = dma_alloc_coherent(port->dev, port->fifosize,
- 				    &priv->rx_buf_dma, GFP_KERNEL);
- 	priv->chan_rx = chan;
+-	return platform_driver_register(&sab_driver);
++	err = platform_driver_register(&sab_driver);
++	if (err) {
++		kfree(sunsab_ports);
++		sunsab_ports = NULL;
++	}
 +
-+	pci_dev_put(dma_dev);
++	return err;
  }
  
- static void pch_dma_rx_complete(void *arg)
+ static void __exit sunsab_exit(void)
 -- 
 2.35.1
 
