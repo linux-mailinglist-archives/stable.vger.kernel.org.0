@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CAE66CB62
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:14:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5902D66CCBD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234292AbjAPROi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:14:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38104 "EHLO
+        id S234814AbjAPR3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234383AbjAPRND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AB2B4B1BC
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:23 -0800 (PST)
+        with ESMTP id S234824AbjAPR2g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA38825E1B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7CC5B81091
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1253AC433D2;
-        Mon, 16 Jan 2023 16:53:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 776DC61058
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D819C433EF;
+        Mon, 16 Jan 2023 17:05:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888000;
-        bh=uT0YmWr4/lUhW267+4TnSWcFDE4Uny0pj1pF42wAsS4=;
+        s=korg; t=1673888741;
+        bh=K8zezOMpViSo+fJcGBQzMiZLvczaR+LD8KAAKPyUtdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlweZkZCGorfNsqj54XJZqpR+7U9QJni2lYjxw8r9kJ0gMJ1WdAwzBKwrHzP23lF5
-         civ2oCo0WnShLtrxiWNjpHvvC+ot1mWlUaFM2j9L8qhL60WJfhmEgkcGogsLiX25vs
-         T9hNfzlG+sSVL4tAmp3oB7Iasndf2ltRw5Hcr4MM=
+        b=kQKjpd9QwqTbPdcTBZPSw+neu2jqBA2VCQ+ZUWrOmDsVe9Ha2hdO472ZCBELyL0RK
+         G2HQtji1ANQFwLImBD9TBE3Hf2fq8da39+VBFk0JrVK37VKfvDiOaxG/vPIiebfE+D
+         J8IPZUFA9/0s8t5D8CxJaRHUwxy/XWnLdsDZ/L2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiang Li <jiang.li@ugreen.com>,
-        Song Liu <song@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 333/521] md/raid1: stop mdx_raid1 thread when raid1 array run failed
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 122/338] ethernet: s2io: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Mon, 16 Jan 2023 16:49:55 +0100
-Message-Id: <20230116154902.074015362@linuxfoundation.org>
+Message-Id: <20230116154826.171128772@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,69 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiang Li <jiang.li@ugreen.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b611ad14006e5be2170d9e8e611bf49dff288911 ]
+[ Upstream commit 6cee96e09df54ae17784c0f38a49e0ed8229b825 ]
 
-fail run raid1 array when we assemble array with the inactive disk only,
-but the mdx_raid1 thread were not stop, Even if the associated resources
-have been released. it will caused a NULL dereference when we do poweroff.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-This causes the following Oops:
-    [  287.587787] BUG: kernel NULL pointer dereference, address: 0000000000000070
-    [  287.594762] #PF: supervisor read access in kernel mode
-    [  287.599912] #PF: error_code(0x0000) - not-present page
-    [  287.605061] PGD 0 P4D 0
-    [  287.607612] Oops: 0000 [#1] SMP NOPTI
-    [  287.611287] CPU: 3 PID: 5265 Comm: md0_raid1 Tainted: G     U            5.10.146 #0
-    [  287.619029] Hardware name: xxxxxxx/To be filled by O.E.M, BIOS 5.19 06/16/2022
-    [  287.626775] RIP: 0010:md_check_recovery+0x57/0x500 [md_mod]
-    [  287.632357] Code: fe 01 00 00 48 83 bb 10 03 00 00 00 74 08 48 89 ......
-    [  287.651118] RSP: 0018:ffffc90000433d78 EFLAGS: 00010202
-    [  287.656347] RAX: 0000000000000000 RBX: ffff888105986800 RCX: 0000000000000000
-    [  287.663491] RDX: ffffc90000433bb0 RSI: 00000000ffffefff RDI: ffff888105986800
-    [  287.670634] RBP: ffffc90000433da0 R08: 0000000000000000 R09: c0000000ffffefff
-    [  287.677771] R10: 0000000000000001 R11: ffffc90000433ba8 R12: ffff888105986800
-    [  287.684907] R13: 0000000000000000 R14: fffffffffffffe00 R15: ffff888100b6b500
-    [  287.692052] FS:  0000000000000000(0000) GS:ffff888277f80000(0000) knlGS:0000000000000000
-    [  287.700149] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    [  287.705897] CR2: 0000000000000070 CR3: 000000000320a000 CR4: 0000000000350ee0
-    [  287.713033] Call Trace:
-    [  287.715498]  raid1d+0x6c/0xbbb [raid1]
-    [  287.719256]  ? __schedule+0x1ff/0x760
-    [  287.722930]  ? schedule+0x3b/0xb0
-    [  287.726260]  ? schedule_timeout+0x1ed/0x290
-    [  287.730456]  ? __switch_to+0x11f/0x400
-    [  287.734219]  md_thread+0xe9/0x140 [md_mod]
-    [  287.738328]  ? md_thread+0xe9/0x140 [md_mod]
-    [  287.742601]  ? wait_woken+0x80/0x80
-    [  287.746097]  ? md_register_thread+0xe0/0xe0 [md_mod]
-    [  287.751064]  kthread+0x11a/0x140
-    [  287.754300]  ? kthread_park+0x90/0x90
-    [  287.757974]  ret_from_fork+0x1f/0x30
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
 
-In fact, when raid1 array run fail, we need to do
-md_unregister_thread() before raid1_free().
+In this case, dev_kfree_skb() is called in free_tx_buffers() to drop
+the SKBs in tx buffers, when the card is down, so replace it with
+dev_kfree_skb_irq() here.
 
-Signed-off-by: Jiang Li <jiang.li@ugreen.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/neterion/s2io.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 876d3e1339d1..0f8b1fb3d051 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -3110,6 +3110,7 @@ static int raid1_run(struct mddev *mddev)
- 	 * RAID1 needs at least one disk in active
- 	 */
- 	if (conf->raid_disks - mddev->degraded < 1) {
-+		md_unregister_thread(&conf->thread);
- 		ret = -EINVAL;
- 		goto abort;
- 	}
+diff --git a/drivers/net/ethernet/neterion/s2io.c b/drivers/net/ethernet/neterion/s2io.c
+index 94aabf280768..cb8094de89d1 100644
+--- a/drivers/net/ethernet/neterion/s2io.c
++++ b/drivers/net/ethernet/neterion/s2io.c
+@@ -2381,7 +2381,7 @@ static void free_tx_buffers(struct s2io_nic *nic)
+ 			skb = s2io_txdl_getskb(&mac_control->fifos[i], txdp, j);
+ 			if (skb) {
+ 				swstats->mem_freed += skb->truesize;
+-				dev_kfree_skb(skb);
++				dev_kfree_skb_irq(skb);
+ 				cnt++;
+ 			}
+ 		}
 -- 
 2.35.1
 
