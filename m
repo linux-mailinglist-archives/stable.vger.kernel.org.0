@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8FA66C981
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:50:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBFF366C60E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233923AbjAPQud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:50:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
+        id S232274AbjAPQOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:14:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233949AbjAPQto (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D7230E87
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:28 -0800 (PST)
+        with ESMTP id S232926AbjAPQNn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:13:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B082B603
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:08:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9AE561058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0722C433F0;
-        Mon, 16 Jan 2023 16:36:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68C1FB81065
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:08:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F08C433D2;
+        Mon, 16 Jan 2023 16:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886987;
-        bh=hEDrL6Lr7op66JtXnerMS3HUjVwW1PABPp2Aw/s/3pE=;
+        s=korg; t=1673885283;
+        bh=TtNFbmbyQMUY1UNLJxHpRslj2iQ4Az+lw7EjSohj+50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHmPzjlJa4Jy1oCXTeA7qNT9vb7rY2q4K/Ae4xFM1rWBAj4dIxSkEl4nuLe1WTdzP
-         hKrPsPfkJWZh7OzhMo8f4GUSiw8K2z+rz3TmBUZXbzZroLu3ItmNHpqFnedwISI3mR
-         K03wOWrWLWgs4vCJWJZFu/dP2STtAqhzkuD66cc0=
+        b=yNG0EEIlHMyplAcEgGq65sUdhdH2ogHTgmL3oMoXmTQQH/MU2MFUNFXAd/5Mr9cd9
+         WvD3AiOk+iK9deQOQm5i2Dyzx/L/uK2lHErVib7t0nPXQ9fUeoowKxilKQMiaq8S+F
+         Q+jAAYAQVdnnNxRsEtcgYxr9+3zqglAi2V58Fbsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 637/658] hvc/xen: lock console list traversal
+Subject: [PATCH 5.10 58/64] arm64: atomics: remove LL/SC trampolines
 Date:   Mon, 16 Jan 2023 16:52:05 +0100
-Message-Id: <20230116154938.638142050@linuxfoundation.org>
+Message-Id: <20230116154745.592511839@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,181 +54,272 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit c0dccad87cf68fc6012aec7567e354353097ec1a ]
+[ Upstream commit b2c3ccbd0011bb3b51d0fec24cb3a5812b1ec8ea ]
 
-The currently lockless access to the xen console list in
-vtermno_to_xencons() is incorrect, as additions and removals from the
-list can happen anytime, and as such the traversal of the list to get
-the private console data for a given termno needs to happen with the
-lock held.  Note users that modify the list already do so with the
-lock taken.
+When CONFIG_ARM64_LSE_ATOMICS=y, each use of an LL/SC atomic results in
+a fragment of code being generated in a subsection without a clear
+association with its caller. A trampoline in the caller branches to the
+LL/SC atomic with with a direct branch, and the atomic directly branches
+back into its trampoline.
 
-Adjust current lock takers to use the _irq{save,restore} helpers,
-since the context in which vtermno_to_xencons() is called can have
-interrupts disabled.  Use the _irq{save,restore} set of helpers to
-switch the current callers to disable interrupts in the locked region.
-I haven't checked if existing users could instead use the _irq
-variant, as I think it's safer to use _irq{save,restore} upfront.
+This breaks backtracing, as any PC within the out-of-line fragment will
+be symbolized as an offset from the nearest prior symbol (which may not
+be the function using the atomic), and since the atomic returns with a
+direct branch, the caller's PC may be missing from the backtrace.
 
-While there switch from using list_for_each_entry_safe to
-list_for_each_entry: the current entry cursor won't be removed as
-part of the code in the loop body, so using the _safe variant is
-pointless.
+For example, with secondary_start_kernel() hacked to contain
+atomic_inc(NULL), the resulting exception can be reported as being taken
+from cpus_are_stuck_in_kernel():
 
-Fixes: 02e19f9c7cac ('hvc_xen: implement multiconsole support')
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20221130163611.14686-1-roger.pau@citrix.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+| Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+| Mem abort info:
+|   ESR = 0x0000000096000004
+|   EC = 0x25: DABT (current EL), IL = 32 bits
+|   SET = 0, FnV = 0
+|   EA = 0, S1PTW = 0
+|   FSC = 0x04: level 0 translation fault
+| Data abort info:
+|   ISV = 0, ISS = 0x00000004
+|   CM = 0, WnR = 0
+| [0000000000000000] user address but active_mm is swapper
+| Internal error: Oops: 96000004 [#1] PREEMPT SMP
+| Modules linked in:
+| CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.19.0-11219-geb555cb5b794-dirty #3
+| Hardware name: linux,dummy-virt (DT)
+| pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+| pc : cpus_are_stuck_in_kernel+0xa4/0x120
+| lr : secondary_start_kernel+0x164/0x170
+| sp : ffff80000a4cbe90
+| x29: ffff80000a4cbe90 x28: 0000000000000000 x27: 0000000000000000
+| x26: 0000000000000000 x25: 0000000000000000 x24: 0000000000000000
+| x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000000
+| x20: 0000000000000001 x19: 0000000000000001 x18: 0000000000000008
+| x17: 3030383832343030 x16: 3030303030307830 x15: ffff80000a4cbab0
+| x14: 0000000000000001 x13: 5d31666130663133 x12: 3478305b20313030
+| x11: 3030303030303078 x10: 3020726f73736563 x9 : 726f737365636f72
+| x8 : ffff800009ff2ef0 x7 : 0000000000000003 x6 : 0000000000000000
+| x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000100
+| x2 : 0000000000000000 x1 : ffff0000029bd880 x0 : 0000000000000000
+| Call trace:
+|  cpus_are_stuck_in_kernel+0xa4/0x120
+|  __secondary_switched+0xb0/0xb4
+| Code: 35ffffa3 17fffc6c d53cd040 f9800011 (885f7c01)
+| ---[ end trace 0000000000000000 ]---
+
+This is confusing and hinders debugging, and will be problematic for
+CONFIG_LIVEPATCH as these cases cannot be unwound reliably.
+
+This is very similar to recent issues with out-of-line exception fixups,
+which were removed in commits:
+
+  35d67794b8828333 ("arm64: lib: __arch_clear_user(): fold fixups into body")
+  4012e0e22739eef9 ("arm64: lib: __arch_copy_from_user(): fold fixups into body")
+  139f9ab73d60cf76 ("arm64: lib: __arch_copy_to_user(): fold fixups into body")
+
+When the trampolines were introduced in commit:
+
+  addfc38672c73efd ("arm64: atomics: avoid out-of-line ll/sc atomics")
+
+The rationale was to improve icache performance by grouping the LL/SC
+atomics together. This has never been measured, and this theoretical
+benefit is outweighed by other factors:
+
+* As the subsections are collapsed into sections at object file
+  granularity, these are spread out throughout the kernel and can share
+  cachelines with unrelated code regardless.
+
+* GCC 12.1.0 has been observed to place the trampoline out-of-line in
+  specialised __ll_sc_*() functions, introducing more branching than was
+  intended.
+
+* Removing the trampolines has been observed to shrink a defconfig
+  kernel Image by 64KiB when building with GCC 12.1.0.
+
+This patch removes the LL/SC trampolines, meaning that the LL/SC atomics
+will be inlined into their callers (or placed in out-of line functions
+using regular BL/RET pairs). When CONFIG_ARM64_LSE_ATOMICS=y, the LL/SC
+atomics are always called in an unlikely branch, and will be placed in a
+cold portion of the function, so this should have minimal impact to the
+hot paths.
+
+Other than the improved backtracing, there should be no functional
+change as a result of this patch.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220817155914.3975112-2-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Stable-dep-of: 031af50045ea ("arm64: cmpxchg_double*: hazard against entire exchange variable")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvc_xen.c | 46 ++++++++++++++++++++++++---------------
- 1 file changed, 29 insertions(+), 17 deletions(-)
+ arch/arm64/include/asm/atomic_ll_sc.h | 40 ++++++---------------------
+ 1 file changed, 9 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvc_xen.c b/drivers/tty/hvc/hvc_xen.c
-index 2d2d04c07140..7dd11b62a196 100644
---- a/drivers/tty/hvc/hvc_xen.c
-+++ b/drivers/tty/hvc/hvc_xen.c
-@@ -52,17 +52,22 @@ static DEFINE_SPINLOCK(xencons_lock);
+diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
+index fe0db8d416fb..906e2d8c254c 100644
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -12,19 +12,6 @@
  
- static struct xencons_info *vtermno_to_xencons(int vtermno)
- {
--	struct xencons_info *entry, *n, *ret = NULL;
-+	struct xencons_info *entry, *ret = NULL;
-+	unsigned long flags;
+ #include <linux/stringify.h>
  
--	if (list_empty(&xenconsoles))
--			return NULL;
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	if (list_empty(&xenconsoles)) {
-+		spin_unlock_irqrestore(&xencons_lock, flags);
-+		return NULL;
-+	}
- 
--	list_for_each_entry_safe(entry, n, &xenconsoles, list) {
-+	list_for_each_entry(entry, &xenconsoles, list) {
- 		if (entry->vtermno == vtermno) {
- 			ret  = entry;
- 			break;
- 		}
- 	}
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return ret;
+-#ifdef CONFIG_ARM64_LSE_ATOMICS
+-#define __LL_SC_FALLBACK(asm_ops)					\
+-"	b	3f\n"							\
+-"	.subsection	1\n"						\
+-"3:\n"									\
+-asm_ops "\n"								\
+-"	b	4f\n"							\
+-"	.previous\n"							\
+-"4:\n"
+-#else
+-#define __LL_SC_FALLBACK(asm_ops) asm_ops
+-#endif
+-
+ #ifndef CONFIG_CC_HAS_K_CONSTRAINT
+ #define K
+ #endif
+@@ -43,12 +30,11 @@ __ll_sc_atomic_##op(int i, atomic_t *v)					\
+ 	int result;							\
+ 									\
+ 	asm volatile("// atomic_" #op "\n"				\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ldxr	%w0, %2\n"					\
+ 	"	" #asm_op "	%w0, %w0, %w3\n"			\
+ 	"	stxr	%w1, %w0, %2\n"					\
+-	"	cbnz	%w1, 1b\n")					\
++	"	cbnz	%w1, 1b\n"					\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i));				\
  }
-@@ -223,7 +228,7 @@ static int xen_hvm_console_init(void)
- {
- 	int r;
- 	uint64_t v = 0;
--	unsigned long gfn;
-+	unsigned long gfn, flags;
- 	struct xencons_info *info;
- 
- 	if (!xen_hvm_domain())
-@@ -258,9 +263,9 @@ static int xen_hvm_console_init(void)
- 		goto err;
- 	info->vtermno = HVC_COOKIE;
- 
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_add_tail(&info->list, &xenconsoles);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- err:
-@@ -283,6 +288,7 @@ static int xencons_info_pv_init(struct xencons_info *info, int vtermno)
- static int xen_pv_console_init(void)
- {
- 	struct xencons_info *info;
-+	unsigned long flags;
- 
- 	if (!xen_pv_domain())
- 		return -ENODEV;
-@@ -299,9 +305,9 @@ static int xen_pv_console_init(void)
- 		/* already configured */
- 		return 0;
- 	}
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	xencons_info_pv_init(info, HVC_COOKIE);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
+@@ -61,13 +47,12 @@ __ll_sc_atomic_##op##_return##name(int i, atomic_t *v)			\
+ 	int result;							\
+ 									\
+ 	asm volatile("// atomic_" #op "_return" #name "\n"		\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ld" #acq "xr	%w0, %2\n"				\
+ 	"	" #asm_op "	%w0, %w0, %w3\n"			\
+ 	"	st" #rel "xr	%w1, %w0, %2\n"				\
+ 	"	cbnz	%w1, 1b\n"					\
+-	"	" #mb )							\
++	"	" #mb							\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -83,13 +68,12 @@ __ll_sc_atomic_fetch_##op##name(int i, atomic_t *v)			\
+ 	int val, result;						\
+ 									\
+ 	asm volatile("// atomic_fetch_" #op #name "\n"			\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %3\n"				\
+ 	"1:	ld" #acq "xr	%w0, %3\n"				\
+ 	"	" #asm_op "	%w1, %w0, %w4\n"			\
+ 	"	st" #rel "xr	%w2, %w1, %3\n"				\
+ 	"	cbnz	%w2, 1b\n"					\
+-	"	" #mb )							\
++	"	" #mb							\
+ 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -142,12 +126,11 @@ __ll_sc_atomic64_##op(s64 i, atomic64_t *v)				\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile("// atomic64_" #op "\n"				\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ldxr	%0, %2\n"					\
+ 	"	" #asm_op "	%0, %0, %3\n"				\
+ 	"	stxr	%w1, %0, %2\n"					\
+-	"	cbnz	%w1, 1b")					\
++	"	cbnz	%w1, 1b"					\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i));				\
  }
-@@ -309,6 +315,7 @@ static int xen_pv_console_init(void)
- static int xen_initial_domain_console_init(void)
- {
- 	struct xencons_info *info;
-+	unsigned long flags;
+@@ -160,13 +143,12 @@ __ll_sc_atomic64_##op##_return##name(s64 i, atomic64_t *v)		\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile("// atomic64_" #op "_return" #name "\n"		\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ld" #acq "xr	%0, %2\n"				\
+ 	"	" #asm_op "	%0, %0, %3\n"				\
+ 	"	st" #rel "xr	%w1, %0, %2\n"				\
+ 	"	cbnz	%w1, 1b\n"					\
+-	"	" #mb )							\
++	"	" #mb							\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -182,13 +164,12 @@ __ll_sc_atomic64_fetch_##op##name(s64 i, atomic64_t *v)			\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile("// atomic64_fetch_" #op #name "\n"		\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %3\n"				\
+ 	"1:	ld" #acq "xr	%0, %3\n"				\
+ 	"	" #asm_op "	%1, %0, %4\n"				\
+ 	"	st" #rel "xr	%w2, %1, %3\n"				\
+ 	"	cbnz	%w2, 1b\n"					\
+-	"	" #mb )							\
++	"	" #mb							\
+ 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -240,7 +221,6 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
+ 	unsigned long tmp;
  
- 	if (!xen_initial_domain())
- 		return -ENODEV;
-@@ -323,9 +330,9 @@ static int xen_initial_domain_console_init(void)
- 	info->irq = bind_virq_to_irq(VIRQ_CONSOLE, 0, false);
- 	info->vtermno = HVC_COOKIE;
- 
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_add_tail(&info->list, &xenconsoles);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- }
-@@ -380,10 +387,12 @@ static void xencons_free(struct xencons_info *info)
- 
- static int xen_console_remove(struct xencons_info *info)
- {
-+	unsigned long flags;
-+
- 	xencons_disconnect_backend(info);
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_del(&info->list);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 	if (info->xbdev != NULL)
- 		xencons_free(info);
- 	else {
-@@ -464,6 +473,7 @@ static int xencons_probe(struct xenbus_device *dev,
- {
- 	int ret, devid;
- 	struct xencons_info *info;
-+	unsigned long flags;
- 
- 	devid = dev->nodename[strlen(dev->nodename) - 1] - '0';
- 	if (devid == 0)
-@@ -482,9 +492,9 @@ static int xencons_probe(struct xenbus_device *dev,
- 	ret = xencons_connect_backend(dev, info);
- 	if (ret < 0)
- 		goto error;
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_add_tail(&info->list, &xenconsoles);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- 
-@@ -583,10 +593,12 @@ static int __init xen_hvc_init(void)
- 
- 	info->hvc = hvc_alloc(HVC_COOKIE, info->irq, ops, 256);
- 	if (IS_ERR(info->hvc)) {
-+		unsigned long flags;
-+
- 		r = PTR_ERR(info->hvc);
--		spin_lock(&xencons_lock);
-+		spin_lock_irqsave(&xencons_lock, flags);
- 		list_del(&info->list);
--		spin_unlock(&xencons_lock);
-+		spin_unlock_irqrestore(&xencons_lock, flags);
- 		if (info->irq)
- 			unbind_from_irqhandler(info->irq, NULL);
- 		kfree(info);
+ 	asm volatile("// atomic64_dec_if_positive\n"
+-	__LL_SC_FALLBACK(
+ 	"	prfm	pstl1strm, %2\n"
+ 	"1:	ldxr	%0, %2\n"
+ 	"	subs	%0, %0, #1\n"
+@@ -248,7 +228,7 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
+ 	"	stlxr	%w1, %0, %2\n"
+ 	"	cbnz	%w1, 1b\n"
+ 	"	dmb	ish\n"
+-	"2:")
++	"2:"
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)
+ 	:
+ 	: "cc", "memory");
+@@ -274,7 +254,6 @@ __ll_sc__cmpxchg_case_##name##sz(volatile void *ptr,			\
+ 		old = (u##sz)old;					\
+ 									\
+ 	asm volatile(							\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %[v]\n"				\
+ 	"1:	ld" #acq "xr" #sfx "\t%" #w "[oldval], %[v]\n"		\
+ 	"	eor	%" #w "[tmp], %" #w "[oldval], %" #w "[old]\n"	\
+@@ -282,7 +261,7 @@ __ll_sc__cmpxchg_case_##name##sz(volatile void *ptr,			\
+ 	"	st" #rel "xr" #sfx "\t%w[tmp], %" #w "[new], %[v]\n"	\
+ 	"	cbnz	%w[tmp], 1b\n"					\
+ 	"	" #mb "\n"						\
+-	"2:")								\
++	"2:"								\
+ 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
+ 	  [v] "+Q" (*(u##sz *)ptr)					\
+ 	: [old] __stringify(constraint) "r" (old), [new] "r" (new)	\
+@@ -326,7 +305,6 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
+ 	unsigned long tmp, ret;						\
+ 									\
+ 	asm volatile("// __cmpxchg_double" #name "\n"			\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ldxp	%0, %1, %2\n"					\
+ 	"	eor	%0, %0, %3\n"					\
+@@ -336,7 +314,7 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
+ 	"	st" #rel "xp	%w0, %5, %6, %2\n"			\
+ 	"	cbnz	%w0, 1b\n"					\
+ 	"	" #mb "\n"						\
+-	"2:")								\
++	"2:"								\
+ 	: "=&r" (tmp), "=&r" (ret), "+Q" (*(unsigned long *)ptr)	\
+ 	: "r" (old1), "r" (old2), "r" (new1), "r" (new2)		\
+ 	: cl);								\
 -- 
 2.35.1
 
