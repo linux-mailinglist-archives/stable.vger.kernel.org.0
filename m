@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D0F66CB4A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05FE266CCC5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234261AbjAPRMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:12:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33894 "EHLO
+        id S234696AbjAPR3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233741AbjAPRLx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E42413253C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:52:20 -0800 (PST)
+        with ESMTP id S234694AbjAPR2o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 486162685F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:06:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 835DF61018
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:52:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99375C433EF;
-        Mon, 16 Jan 2023 16:52:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D736061058
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E63C3C433D2;
+        Mon, 16 Jan 2023 17:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887940;
-        bh=Vaw4EEXmo40+9seVpBMKzonAjaJA+euMkrqiM7BYGDo=;
+        s=korg; t=1673888760;
+        bh=iY1G377zcaodaKKRs5m7W+YcfsKTO00UgPL2UoDwmcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eY3i0OGTDItmmdxeh8RFc+HAhmGlGS5nZ1QAnjYed03FzIDZpdzkXGH1lnl7Fjced
-         7n3QgjHafEtr97ltyF2n8kd5q9RkghmnwvNsWne3CmC1BpFLSCaQCHdgPxgu4YRFjm
-         hueHIJNUvVobGlUSeyn33Mahxf5IcCSeT7SmRx9I=
+        b=BUb84ZJdROnxwZMBD41M/5HpfSd/3ht77ls67ldGebISdtSxnHh9fG1bOe3CX/7SI
+         W5qBWzr3Rd4epY5T+SnNVphE0TyUbXu2QbWrFOdr9BLTlTVNgwsF7UvT1wu4PaM1r3
+         7AnxP5IpFhGE2bH81ry5r9fdLV28YaqMMSIvuHjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rui Zhang <zr.zhang@vivo.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 340/521] regulator: core: fix use_count leakage when handling boot-on
+Subject: [PATCH 4.14 129/338] hamradio: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Mon, 16 Jan 2023 16:50:02 +0100
-Message-Id: <20230116154902.391206645@linuxfoundation.org>
+Message-Id: <20230116154826.465644318@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Zhang <zr.zhang@vivo.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 0591b14ce0398125439c759f889647369aa616a0 ]
+[ Upstream commit 3727f742915f04f6fc550b80cf406999bd4e90d0 ]
 
-I found a use_count leakage towards supply regulator of rdev with
-boot-on option.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-┌───────────────────┐           ┌───────────────────┐
-│  regulator_dev A  │           │  regulator_dev B  │
-│     (boot-on)     │           │     (boot-on)     │
-│    use_count=0    │◀──supply──│    use_count=1    │
-│                   │           │                   │
-└───────────────────┘           └───────────────────┘
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
 
-In case of rdev(A) configured with `regulator-boot-on', the use_count
-of supplying regulator(B) will increment inside
-regulator_enable(rdev->supply).
+In scc_discard_buffers(), dev_kfree_skb() is called to discard the SKBs,
+so replace it with dev_kfree_skb_irq().
 
-Thus, B will acts like always-on, and further balanced
-regulator_enable/disable cannot actually disable it anymore.
+In scc_net_tx(), dev_kfree_skb() is called to drop the SKB that exceed
+queue length, so replace it with dev_kfree_skb_irq().
 
-However, B was also configured with `regulator-boot-on', we wish it
-could be disabled afterwards.
-
-Signed-off-by: Rui Zhang <zr.zhang@vivo.com>
-Link: https://lore.kernel.org/r/20221201033806.2567812-1-zr.zhang@vivo.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/hamradio/scc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 9cf438a37eeb..11656b383674 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1197,7 +1197,13 @@ static int set_machine_constraints(struct regulator_dev *rdev)
- 		if (rdev->supply_name && !rdev->supply)
- 			return -EPROBE_DEFER;
+diff --git a/drivers/net/hamradio/scc.c b/drivers/net/hamradio/scc.c
+index 295f267b73ea..dd7b6caee4a7 100644
+--- a/drivers/net/hamradio/scc.c
++++ b/drivers/net/hamradio/scc.c
+@@ -299,12 +299,12 @@ static inline void scc_discard_buffers(struct scc_channel *scc)
+ 	spin_lock_irqsave(&scc->lock, flags);	
+ 	if (scc->tx_buff != NULL)
+ 	{
+-		dev_kfree_skb(scc->tx_buff);
++		dev_kfree_skb_irq(scc->tx_buff);
+ 		scc->tx_buff = NULL;
+ 	}
+ 	
+ 	while (!skb_queue_empty(&scc->tx_queue))
+-		dev_kfree_skb(skb_dequeue(&scc->tx_queue));
++		dev_kfree_skb_irq(skb_dequeue(&scc->tx_queue));
  
--		if (rdev->supply) {
-+		/* If supplying regulator has already been enabled,
-+		 * it's not intended to have use_count increment
-+		 * when rdev is only boot-on.
-+		 */
-+		if (rdev->supply &&
-+		    (rdev->constraints->always_on ||
-+		     !regulator_is_enabled(rdev->supply))) {
- 			ret = regulator_enable(rdev->supply);
- 			if (ret < 0) {
- 				_regulator_put(rdev->supply);
+ 	spin_unlock_irqrestore(&scc->lock, flags);
+ }
+@@ -1666,7 +1666,7 @@ static netdev_tx_t scc_net_tx(struct sk_buff *skb, struct net_device *dev)
+ 	if (skb_queue_len(&scc->tx_queue) > scc->dev->tx_queue_len) {
+ 		struct sk_buff *skb_del;
+ 		skb_del = skb_dequeue(&scc->tx_queue);
+-		dev_kfree_skb(skb_del);
++		dev_kfree_skb_irq(skb_del);
+ 	}
+ 	skb_queue_tail(&scc->tx_queue, skb);
+ 	netif_trans_update(dev);
 -- 
 2.35.1
 
