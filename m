@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A3B266C72B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E42666C9AA
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:54:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233094AbjAPQ2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:28:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41890 "EHLO
+        id S233753AbjAPQyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:54:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233007AbjAPQ2I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 286B136B2F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:23 -0800 (PST)
+        with ESMTP id S233823AbjAPQyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:54:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07BB153FB7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6EBB61041
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6E5FC433D2;
-        Mon, 16 Jan 2023 16:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43F3B6106E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58867C433F0;
+        Mon, 16 Jan 2023 16:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885782;
-        bh=iQbpAhiKOrFyEtUs6r3HKl9qv4t0ZiBrKLR8S7SDHKM=;
+        s=korg; t=1673887082;
+        bh=NvZsQhBEVa9BvcAEIzlPEstT1Xf5Bin7iI2soNcdTvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bWs65lm/d4mcuVcPgzFy7JNKHOJQGnm9MXFPzUxOY39ySKc0h46C+0ES8HbUWk4QH
-         k0aXfvrfC7s/tf0XLCBhccwcjNNBbYy6bMd+7gA4/FNiuF7B+nfHiIQNeFitalZbpU
-         TwyJ/4enKUYMtNn6R0TVSLl0uqJJ8CehOpsAzUwo=
+        b=MiIbEKlEdzUf9rdYOrx64Uv8LPbST1FA6GL4UjELLgXOC0GLLCkpRrt/u+TxfKvk7
+         uCtRRnZMbfun+ggIPjuNkQqapu21KAZZ26dfZ0V8vg44LNwetLtFDBScip7oWSEOG9
+         3wFJl/9PrztM0GOF5eL2Fi821U6+c4TfR6aYWzzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Heiko Schocher <hs@denx.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 181/658] regulator: core: fix resource leak in regulator_register()
+Subject: [PATCH 4.19 007/521] can: sja1000: fix size of OCR_MODE_MASK define
 Date:   Mon, 16 Jan 2023 16:44:29 +0100
-Message-Id: <20230116154917.723055909@linuxfoundation.org>
+Message-Id: <20230116154847.594826539@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Heiko Schocher <hs@denx.de>
 
-[ Upstream commit ba62319a42c50e6254e98b3f316464fac8e77968 ]
+[ Upstream commit 26e8f6a75248247982458e8237b98c9fb2ffcf9d ]
 
-I got some resource leak reports while doing fault injection test:
+bitfield mode in ocr register has only 2 bits not 3, so correct
+the OCR_MODE_MASK define.
 
-  OF: ERROR: memory leak, expected refcount 1 instead of 100,
-  of_node_get()/of_node_put() unbalanced - destroy cset entry:
-  attach overlay node /i2c/pmic@64/regulators/buck1
-
-unreferenced object 0xffff88810deea000 (size 512):
-  comm "490-i2c-rt5190a", pid 253, jiffies 4294859840 (age 5061.046s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff a0 1e 00 a1 ff ff ff ff  ................
-  backtrace:
-    [<00000000d78541e2>] kmalloc_trace+0x21/0x110
-    [<00000000b343d153>] device_private_init+0x32/0xd0
-    [<00000000be1f0c70>] device_add+0xb2d/0x1030
-    [<00000000e3e6344d>] regulator_register+0xaf2/0x12a0
-    [<00000000e2f5e754>] devm_regulator_register+0x57/0xb0
-    [<000000008b898197>] rt5190a_probe+0x52a/0x861 [rt5190a_regulator]
-
-unreferenced object 0xffff88810b617b80 (size 32):
-  comm "490-i2c-rt5190a", pid 253, jiffies 4294859904 (age 5060.983s)
-  hex dump (first 32 bytes):
-    72 65 67 75 6c 61 74 6f 72 2e 32 38 36 38 2d 53  regulator.2868-S
-    55 50 50 4c 59 00 ff ff 29 00 00 00 2b 00 00 00  UPPLY...)...+...
-  backtrace:
-    [<000000009da9280d>] __kmalloc_node_track_caller+0x44/0x1b0
-    [<0000000025c6a4e5>] kstrdup+0x3a/0x70
-    [<00000000790efb69>] create_regulator+0xc0/0x4e0
-    [<0000000005ed203a>] regulator_resolve_supply+0x2d4/0x440
-    [<0000000045796214>] regulator_register+0x10b3/0x12a0
-    [<00000000e2f5e754>] devm_regulator_register+0x57/0xb0
-    [<000000008b898197>] rt5190a_probe+0x52a/0x861 [rt5190a_regulator]
-
-After calling regulator_resolve_supply(), the 'rdev->supply' is set
-by set_supply(), after this set, in the error path, the resources
-need be released, so call regulator_put() to avoid the leaks.
-
-Fixes: aea6cb99703e ("regulator: resolve supply after creating regulator")
-Fixes: 8a866d527ac0 ("regulator: core: Resolve supply name earlier to prevent double-init")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221202025111.496402-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Heiko Schocher <hs@denx.de>
+Link: https://lore.kernel.org/all/20221123071636.2407823-1-hs@denx.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/can/platform/sja1000.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 3f2a18536fce..5dd17a341577 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5268,6 +5268,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
- 	regulator_remove_coupling(rdev);
- 	mutex_unlock(&regulator_list_mutex);
- wash:
-+	regulator_put(rdev->supply);
- 	kfree(rdev->coupling_desc.coupled_rdevs);
- 	mutex_lock(&regulator_list_mutex);
- 	regulator_ena_gpio_free(rdev);
+diff --git a/include/linux/can/platform/sja1000.h b/include/linux/can/platform/sja1000.h
+index 5755ae5a4712..6a869682c120 100644
+--- a/include/linux/can/platform/sja1000.h
++++ b/include/linux/can/platform/sja1000.h
+@@ -14,7 +14,7 @@
+ #define OCR_MODE_TEST     0x01
+ #define OCR_MODE_NORMAL   0x02
+ #define OCR_MODE_CLOCK    0x03
+-#define OCR_MODE_MASK     0x07
++#define OCR_MODE_MASK     0x03
+ #define OCR_TX0_INVERT    0x04
+ #define OCR_TX0_PULLDOWN  0x08
+ #define OCR_TX0_PULLUP    0x10
 -- 
 2.35.1
 
