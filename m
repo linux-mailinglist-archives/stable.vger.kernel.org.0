@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C2366C814
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A72A66C816
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233085AbjAPQgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:36:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52136 "EHLO
+        id S233403AbjAPQgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:36:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233328AbjAPQf4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:35:56 -0500
+        with ESMTP id S233469AbjAPQgB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:36:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 423B730EB8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E124A31E0B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3DF460FE0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D920CC433EF;
-        Mon, 16 Jan 2023 16:24:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6219A61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A5FC433EF;
+        Mon, 16 Jan 2023 16:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886248;
-        bh=olQIEdNEtO096hKVgYo6H64hQRZjSZv9sq+jVQepkgs=;
+        s=korg; t=1673886250;
+        bh=m7Cs7PtQTDJ9azT61YVLPH9M3zV/gyDEGAiUie6ovp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqLNmfKkUHQWas8lAaPiUJBVsbsqstoStyUPGn24qM4U/baA4iA4y5O63KnX+wyo2
-         /SRrWsyWBR/7ZpWHNYhFjhM92iaT8rWfk6d7ScjvNYGpMCly3oYBgn2zPvnjxKWRpk
-         3YrEnug33/Nlq+SI/OWyIdlBdkQJUc/Zn9KAF8Ag=
+        b=VTWBWoVic215z/KBFVrOrn/dfIA2ZtDeONEe8l4ivjOyQRST7y0Td1XktD4RD5pw1
+         Zs9ZAJEwifVmTROnCKQYYvIuyQZYJdK3UDxjDfmvGGiE4Cd0Xoey/Rzq4q3EgHTzP9
+         3RYEwrEAwXdl1PppeQJLmisKzRP/F/2fywapRSDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev,
+        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 359/658] selftests/powerpc: Fix resource leaks
-Date:   Mon, 16 Jan 2023 16:47:27 +0100
-Message-Id: <20230116154926.009969627@linuxfoundation.org>
+Subject: [PATCH 5.4 360/658] pwm: sifive: Call pwm_sifive_update_clock() while mutex is held
+Date:   Mon, 16 Jan 2023 16:47:28 +0100
+Message-Id: <20230116154926.054900962@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,49 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 8f4ab7da904ab7027ccd43ddb4f0094e932a5877 ]
+[ Upstream commit 45558b3abb87eeb2cedb8a59cb2699c120b5102a ]
 
-In check_all_cpu_dscr_defaults, opendir() opens the directory stream.
-Add missing closedir() in the error path to release it.
+As was documented in commit 0f02f491b786 ("pwm: sifive: Reduce time the
+controller lock is held") a caller of pwm_sifive_update_clock() must
+hold the mutex. So fix pwm_sifive_clock_notifier() to grab the lock.
 
-In check_cpu_dscr_default, open() creates an open file descriptor.
-Add missing close() in the error path to release it.
+While this necessity was only documented later, the race exists since
+the driver was introduced.
 
-Fixes: ebd5858c904b ("selftests/powerpc: Add test for all DSCR sysfs interfaces")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221205084429.570654-1-linmq006@gmail.com
+Fixes: 9e37a53eb051 ("pwm: sifive: Add a driver for SiFive SoC PWM")
+Reported-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Reviewed-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
+Link: https://lore.kernel.org/r/20221018061656.1428111-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c | 5 ++++-
+ drivers/pwm/pwm-sifive.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c b/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c
-index 02f6b4efde14..e54d7a4089ea 100644
---- a/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c
-+++ b/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c
-@@ -24,6 +24,7 @@ static int check_cpu_dscr_default(char *file, unsigned long val)
- 	rc = read(fd, buf, sizeof(buf));
- 	if (rc == -1) {
- 		perror("read() failed");
-+		close(fd);
- 		return 1;
- 	}
- 	close(fd);
-@@ -65,8 +66,10 @@ static int check_all_cpu_dscr_defaults(unsigned long val)
- 		if (access(file, F_OK))
- 			continue;
+diff --git a/drivers/pwm/pwm-sifive.c b/drivers/pwm/pwm-sifive.c
+index cc63f9baa481..538297ef8255 100644
+--- a/drivers/pwm/pwm-sifive.c
++++ b/drivers/pwm/pwm-sifive.c
+@@ -221,8 +221,11 @@ static int pwm_sifive_clock_notifier(struct notifier_block *nb,
+ 	struct pwm_sifive_ddata *ddata =
+ 		container_of(nb, struct pwm_sifive_ddata, notifier);
  
--		if (check_cpu_dscr_default(file, val))
-+		if (check_cpu_dscr_default(file, val)) {
-+			closedir(sysfs);
- 			return 1;
-+		}
- 	}
- 	closedir(sysfs);
- 	return 0;
+-	if (event == POST_RATE_CHANGE)
++	if (event == POST_RATE_CHANGE) {
++		mutex_lock(&ddata->lock);
+ 		pwm_sifive_update_clock(ddata, ndata->new_rate);
++		mutex_unlock(&ddata->lock);
++	}
+ 
+ 	return NOTIFY_OK;
+ }
 -- 
 2.35.1
 
