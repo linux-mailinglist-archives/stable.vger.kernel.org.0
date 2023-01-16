@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 701AC66C80A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 838B166CA5B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:02:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233384AbjAPQgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:36:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
+        id S231276AbjAPRCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:02:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233389AbjAPQft (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:35:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3624B24120
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:23:55 -0800 (PST)
+        with ESMTP id S233932AbjAPRBz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:01:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 510AE172B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:43:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDA9EB81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:23:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42C4EC433D2;
-        Mon, 16 Jan 2023 16:23:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11939B81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:43:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70BF9C433EF;
+        Mon, 16 Jan 2023 16:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886232;
-        bh=GAGUnKKWX1nlo2k6OREsiKcA8VrHE9RIjKIcAklBXm0=;
+        s=korg; t=1673887433;
+        bh=JrgkIW+NRqfBOhsPQd0xYF/yf/Nca+AdB7FiPixL77U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIN+crl8ywRZQN5fXDCzk8kTIVpNfffukUYDTSpf4K8qfjySK+HLr1WVQ6zCUKrGY
-         bWytyCrVPLFVI6zFHPjeM16eVOQUdwHp7XKTVKMBdOmsOgpW84h9mydTFg+0q6Nq73
-         opyRjj7QBMDw2h67+de+noqpMNb8X+yiyMKyD0GU=
+        b=kJL3l/FV0qInkFm2tm2g2xamQ0OfjIae2P/W5XWY6ASn9f4nkadx74fQWJus0u5hJ
+         wDAY9fiHLXpzuT3T1YdxksZqNrqTAzlIuRK1MDfLRP/7Gt6ru8tUPtgSrOf+Ee8pA+
+         vtwMB+fvFkLTk55DFFDzPfs0Cpo++G7NowJNqQlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 322/658] HSI: omap_ssi_core: fix possible memory leak in ssi_probe()
+Subject: [PATCH 4.19 148/521] media: coda: Add check for dcoda_iram_alloc
 Date:   Mon, 16 Jan 2023 16:46:50 +0100
-Message-Id: <20230116154924.291872628@linuxfoundation.org>
+Message-Id: <20230116154853.890771890@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 1aff514e1d2bd47854dbbdf867970b9d463d4c57 ]
+[ Upstream commit 6b8082238fb8bb20f67e46388123e67a5bbc558d ]
 
-If ssi_add_controller() returns error, it should call hsi_put_controller()
-to give up the reference that was set in hsi_alloc_controller(), so that
-it can call hsi_controller_release() to free controller and ports that
-allocated in hsi_alloc_controller().
+As the coda_iram_alloc may return NULL pointer,
+it should be better to check the return value
+in order to avoid NULL poineter dereference,
+same as the others.
 
-Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: b313bcc9a467 ("[media] coda: simplify IRAM setup")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/controllers/omap_ssi_core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/coda/coda-bit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
-index 8b8d25c7dc50..aca80357ccaa 100644
---- a/drivers/hsi/controllers/omap_ssi_core.c
-+++ b/drivers/hsi/controllers/omap_ssi_core.c
-@@ -502,8 +502,10 @@ static int ssi_probe(struct platform_device *pd)
- 	platform_set_drvdata(pd, ssi);
+diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
+index c3eaddced721..57b62076b1ba 100644
+--- a/drivers/media/platform/coda/coda-bit.c
++++ b/drivers/media/platform/coda/coda-bit.c
+@@ -670,7 +670,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
+ 		/* Only H.264BP and H.263P3 are considered */
+ 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w64);
+ 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w64);
+-		if (!iram_info->buf_dbk_c_use)
++		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
+ 			goto out;
+ 		iram_info->axi_sram_use |= dbk_bits;
  
- 	err = ssi_add_controller(ssi, pd);
--	if (err < 0)
-+	if (err < 0) {
-+		hsi_put_controller(ssi);
- 		goto out1;
-+	}
+@@ -694,7 +694,7 @@ static void coda_setup_iram(struct coda_ctx *ctx)
  
- 	pm_runtime_enable(&pd->dev);
+ 		iram_info->buf_dbk_y_use = coda_iram_alloc(iram_info, w128);
+ 		iram_info->buf_dbk_c_use = coda_iram_alloc(iram_info, w128);
+-		if (!iram_info->buf_dbk_c_use)
++		if (!iram_info->buf_dbk_y_use || !iram_info->buf_dbk_c_use)
+ 			goto out;
+ 		iram_info->axi_sram_use |= dbk_bits;
  
 -- 
 2.35.1
