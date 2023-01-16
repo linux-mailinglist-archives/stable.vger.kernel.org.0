@@ -2,80 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3FE66BB33
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 11:06:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B615966BCB2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 12:19:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229988AbjAPKG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 05:06:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51454 "EHLO
+        id S229655AbjAPLTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 06:19:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229992AbjAPKGD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 05:06:03 -0500
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFCD1C32C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 02:05:39 -0800 (PST)
-Received: by mail-io1-f72.google.com with SMTP id d24-20020a5d9bd8000000b006ee2ddf6d77so17325300ion.6
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 02:05:39 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=HHBorJxtb8OOdvReJ/cspDu7cb80E+hJP4zqgvf9eJU=;
-        b=Ca7zuz3Jc6qSUnGjvY7isCUkDLZp4a43bTrYSuMokO7490wJizSPVwjRLnRWwKAt0w
-         yvbaxWdU2+FSbJXYqoOXSU+9UxSOA4FCsxVNkQYW+sVtniOYeTCM/W/tC8P9BRbdHLQ3
-         BnNUB8G+c2N6z0lviG3EYn+kjjdiPrjpnd/1bWcBWUNQsKxXdBnOVlZvYSexzxsW/Ka+
-         KT/crww7xQzMLq2St/3Xc7ZQihZ/uWMogSDj6WkGoaj/xxkgt9fCDp1FV7Z0yMok1Bim
-         cdZPWJ6RY3bUIoR8IvOvBubAF4ZF3Xy+X0nnnyXJWXww0QYVKLKBR6QZZmw2GuckfV/D
-         CWHA==
-X-Gm-Message-State: AFqh2kqnya+bCHNnwoiUlMx16k8FjGovCGclEdHvcU0MZmNiqMB0naIl
-        3Zd/9r3R0edNwH4sTsqBEYHlgV/kikyCOAInIgqWs304i3r4
-X-Google-Smtp-Source: AMrXdXuMP+pXnU29vioyn5DTxncoDXWP/ebGCT1OI1VyV4CErkZ7/qWNWt3CVaWvm9lE1o9ahTrKqTXpaELpCWNw9DQog1XK4YTq
+        with ESMTP id S229989AbjAPLSb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 06:18:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 137B71E9EA;
+        Mon, 16 Jan 2023 03:18:29 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC9DBB80E58;
+        Mon, 16 Jan 2023 11:18:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D77E2C433EF;
+        Mon, 16 Jan 2023 11:18:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673867907;
+        bh=8PrYbyCiD04eZZG/0z88bf7npnuEKHo0T6laY8odGoM=;
+        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
+        b=OMsr+rFvO5dK7DgWTkloeRlOGNefEOoyAHywNsjkIs41BXdOKoCSID0G8lc2IZOTI
+         /tcmgfrqKZ8YybX5//WcG5XOYgLMMa5IT2W36gYlNaBI7OEK1k9vt6XKP033HIQYaF
+         cIBm/eRSw1Ol4r+0rVhI+uyNsVqgvdaO0/MAzs63Pj+Kzrhj3C35uovBFoliJyengS
+         FdZDrFC4dd+fhFNPibTKLL2k1JCUI3loFFWkm2/HfE3Zyjbp+XKIIDBi4B6unha/NQ
+         /y5FntAW/gPXxc4OpV9NkvhP5k9sl6SxcHNFmbqbIDReTMGt0zAMLB/+Lw19zM5Z/k
+         33ibAJVjRy/FA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Received: by 2002:a02:cc28:0:b0:3a1:50fe:b95f with SMTP id
- o8-20020a02cc28000000b003a150feb95fmr803468jap.57.1673863538798; Mon, 16 Jan
- 2023 02:05:38 -0800 (PST)
-Date:   Mon, 16 Jan 2023 02:05:38 -0800
-In-Reply-To: <000000000000b960c00594598949@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000a1f99705f25eb92f@google.com>
-Subject: Re: KASAN: use-after-free Read in tc_chain_fill_node
-From:   syzbot <syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com>
-To:     davem@davemloft.net, gregkh@linuxfoundation.org, jiri@mellanox.com,
-        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
-        stable-commits@vger.kernel.org, stable@vger.kernel.org,
-        syzkaller-lts-bugs@googlegroups.com, vladbu@mellanox.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2] brcmfmac: Prefer DT board type over DMI board type
+From:   Kalle Valo <kvalo@kernel.org>
+In-Reply-To: <20230106131905.81854-1-iivanov@suse.de>
+References: <20230106131905.81854-1-iivanov@suse.de>
+To:     "Ivan T. Ivanov" <iivanov@suse.de>
+Cc:     aspriel@gmail.com, marcan@marcan.st, franky.lin@broadcom.com,
+        hante.meuleman@broadcom.com, rmk+kernel@armlinux.org.uk,
+        stefan.wahren@i2se.com, pbrobinson@gmail.com,
+        jforbes@fedoraproject.org, davem@davemloft.net,
+        devicetree@vger.kernel.org, edumazet@google.com,
+        krzysztof.kozlowski+dt@linaro.org, kuba@kernel.org,
+        pabeni@redhat.com, robh+dt@kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        SHA-cyfmac-dev-list@infineon.com,
+        "Ivan T. Ivanov" <iivanov@suse.de>, stable@vger.kernel.org
+User-Agent: pwcli/0.1.1-git (https://github.com/kvalo/pwcli/) Python/3.7.3
+Message-ID: <167386788710.4736.8327846687234426691.kvalo@kernel.org>
+Date:   Mon, 16 Jan 2023 11:18:22 +0000 (UTC)
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This bug is marked as fixed by commit:
-net: core: netlink: add helper refcount dec and lock function
-net: sched: add helper function to take reference to Qdisc
-net: sched: extend Qdisc with rcu
-net: sched: rename qdisc_destroy() to qdisc_put()
-net: sched: use Qdisc rcu API instead of relying on rtnl lock
+"Ivan T. Ivanov" <iivanov@suse.de> wrote:
 
-But I can't find it in the tested trees[1] for more than 90 days.
-Is it a correct commit? Please update it by replying:
+> The introduction of support for Apple board types inadvertently changed
+> the precedence order, causing hybrid SMBIOS+DT platforms to look up the
+> firmware using the DMI information instead of the device tree compatible
+> to generate the board type. Revert back to the old behavior,
+> as affected platforms use firmwares named after the DT compatible.
+> 
+> Fixes: 7682de8b3351 ("wifi: brcmfmac: of: Fetch Apple properties")
+> 
+> [1] https://bugzilla.opensuse.org/show_bug.cgi?id=1206697#c13
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
+> Reviewed-by: Hector Martin <marcan@marcan.st>
+> Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+> Tested-by: Peter Robinson <pbrobinson@gmail.com>
 
-#syz fix: exact-commit-title
+Dave applied this directly to net tree:
 
-Until then the bug is still considered open and new crashes with
-the same signature are ignored.
+https://git.kernel.org/linus/a5a36720c3f6
 
-Kernel: Linux 4.19
-Dashboard link: https://syzkaller.appspot.com/bug?extid=5f229e48cccc804062c0
+-- 
+https://patchwork.kernel.org/project/linux-wireless/patch/20230106131905.81854-1-iivanov@suse.de/
 
----
-[1] I expect the commit to be present in:
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
 
-1. linux-4.19.y branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
