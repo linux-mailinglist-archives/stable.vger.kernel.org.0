@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA8B66C91C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16B6366C550
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:04:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233628AbjAPQqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:46:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39550 "EHLO
+        id S232153AbjAPQEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:04:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233501AbjAPQpq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D429E1206D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:34 -0800 (PST)
+        with ESMTP id S232194AbjAPQEN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F36265A1
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 933C2B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3E31C433D2;
-        Mon, 16 Jan 2023 16:33:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 388A061041
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 505A1C433D2;
+        Mon, 16 Jan 2023 16:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886812;
-        bh=LkrStC3BvfII31PkvZOr/l71clBRH+OsrCdDiJaLta4=;
+        s=korg; t=1673884971;
+        bh=ZK1nF/Foc3xxLp9jLW/GdAuUB+MZENCiIKqG7oDrbcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nk/RgDyXXAWYILeLcxTn2JAiMhsrxFeN20xm+Chj9zRVLB48Mr4sqyGF1DGpQeK8A
-         x93qhW3Wpb/YEEIwjhZ3NtMaSZbG9Li5keYqIAOH2KEhY+Njtq9fmtP8zeNtot5GAi
-         VktBfEMzFnzJiX+78c4QOQFgRxPGvKOfQndME08o=
+        b=Er8UjbjWW/nk+8CiSY88FFVv0eDKyjUF3sguKQUUduL2hezz/j5oj00SbC8OiJjzl
+         48w0msZe3HrSf2xlHvKexnzXB6Apu0gCYGyvAKcZAfQ7PowZ/oPl1iMjtumsXUjM0S
+         vwO+9DHcnuXXnBNfk1yRe2cC/YJN4AExjTZnKbZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jie Wang <wangjie125@huawei.com>,
-        Hao Lan <lanhao@huawei.com>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 571/658] net: hns3: add interrupts re-initialization while doing VF FLR
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 5.15 25/86] dt-bindings: msm: dsi-controller-main: Fix power-domain constraint
 Date:   Mon, 16 Jan 2023 16:50:59 +0100
-Message-Id: <20230116154935.630390009@linuxfoundation.org>
+Message-Id: <20230116154748.158190757@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Wang <wangjie125@huawei.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 09e6b30eeb254f1818a008cace3547159e908dfd ]
+commit a6f033938beb31f893302a93f83ec0b6460c6cac upstream.
 
-Currently keep alive message between PF and VF may be lost and the VF is
-unalive in PF. So the VF will not do reset during PF FLR reset process.
-This would make the allocated interrupt resources of VF invalid and VF
-would't receive or respond to PF any more.
+power-domain is required for the sc7180 dispcc GDSC but not every qcom SoC
+has a similar dependency for example the apq8064.
 
-So this patch adds VF interrupts re-initialization during VF FLR for VF
-recovery in above cases.
+Most Qcom SoC's using mdss-dsi-ctrl seem to have the ability to
+power-collapse the MDP without collapsing DSI.
 
-Fixes: 862d969a3a4d ("net: hns3: do VF's pci re-initialization while PF doing FLR")
-Signed-off-by: Jie Wang <wangjie125@huawei.com>
-Signed-off-by: Hao Lan <lanhao@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For example the qcom vendor kernel commit for apq8084, msm8226, msm8916,
+msm8974.
+
+https://review.carbonrom.org/plugins/gitiles/CarbonROM/android_kernel_oneplus_msm8994/+/7b5c011a770daa2811778937ed646237a28a8694
+
+"ARM: dts: msm: add mdss gdsc supply to dsi controller device
+
+ It is possible for the DSI controller to be active when MDP is
+ power collapsed. DSI controller needs to have it's own vote for
+ mdss gdsc to ensure that gdsc remains on in such cases."
+
+This however doesn't appear to be the case for the apq8064 so we shouldn't
+be marking power-domain as required in yaml checks.
+
+Fixes: 4dbe55c97741 ("dt-bindings: msm: dsi: add yaml schemas for DSI bindings")
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/515958/
+Link: https://lore.kernel.org/r/20221223021025.1646636-3-bryan.odonoghue@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 403c1b9cf6ab..48956c30d2ee 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2592,7 +2592,8 @@ static int hclgevf_pci_reset(struct hclgevf_dev *hdev)
- 	struct pci_dev *pdev = hdev->pdev;
- 	int ret = 0;
+--- a/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
++++ b/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
+@@ -135,7 +135,6 @@ required:
+   - phy-names
+   - assigned-clocks
+   - assigned-clock-parents
+-  - power-domains
+   - ports
  
--	if (hdev->reset_type == HNAE3_VF_FULL_RESET &&
-+	if ((hdev->reset_type == HNAE3_VF_FULL_RESET ||
-+	     hdev->reset_type == HNAE3_FLR_RESET) &&
- 	    test_bit(HCLGEVF_STATE_IRQ_INITED, &hdev->state)) {
- 		hclgevf_misc_irq_uninit(hdev);
- 		hclgevf_uninit_msi(hdev);
--- 
-2.35.1
-
+ additionalProperties: false
 
 
