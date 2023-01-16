@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E588A66CC53
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8219766CAC5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:07:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234658AbjAPRZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46264 "EHLO
+        id S233608AbjAPRH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234675AbjAPRYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1818B402C8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:37 -0800 (PST)
+        with ESMTP id S234237AbjAPRGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:06:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 866953A5B9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:47:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A973D61085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEEB8C433EF;
-        Mon, 16 Jan 2023 17:01:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DE3361037
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44FFBC433EF;
+        Mon, 16 Jan 2023 16:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888496;
-        bh=blyfxqLSv5GZeaCEmRMoaZLV2VTBXrIYjdiSqc+hSis=;
+        s=korg; t=1673887673;
+        bh=Bzwnc8OCkWjBLY+z6WS25xi9oj63tmSbP5tzDi7MBYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJ+VOBzejAI5AgG4XTzScT9fu10PgwRVp+2kqz/u3yxjKcnHnVI5D3EscdKPfwdFy
-         Y0D6g0i8B0neRC3r3vDzeGOarIbTCzE34bxkmZ6YqgaDNXpr6TYqBRNVFdP8qnowrR
-         SKy7JQNfSoN7OPpgcLyZ/NVDIXWZnlKZskLsKMl4=
+        b=p0ZCRfm6KBF7lNHFWEq4uuNMPo24V/H7fQOL9cHdEIywio0PsoKdBkHz0xf3ELbHC
+         mzg/qrJWi+xLPDvQx9o4Tfnc/AQKyMwtcWC6ZyBFYj3uJqW+SyIbJW8KjO+BuYKfas
+         HgwCP4FHjti6en/AJxkCm/0X+4o20JElVD3v51Ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        John Keeping <john@metanate.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 028/338] arm64: dts: mediatek: mt6797: Fix 26M oscillator unit name
+Subject: [PATCH 4.19 239/521] usb: gadget: f_hid: fix refcount leak on error path
 Date:   Mon, 16 Jan 2023 16:48:21 +0100
-Message-Id: <20230116154821.986637559@linuxfoundation.org>
+Message-Id: <20230116154857.824506089@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: John Keeping <john@metanate.com>
 
-[ Upstream commit 5f535cc583759c9c60d4cc9b8d221762e2d75387 ]
+[ Upstream commit 70a3288a7586526315105c699b687d78cd32559a ]
 
-Update its unit name to oscillator-26m and remove the unneeded unit
-address to fix a unit_address_vs_reg warning.
+When failing to allocate report_desc, opts->refcnt has already been
+incremented so it needs to be decremented to avoid leaving the options
+structure permanently locked.
 
-Fixes: 464c510f60c6 ("arm64: dts: mediatek: add mt6797 support")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-9-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 21a9476a7ba8 ("usb: gadget: hid: add configfs support")
+Tested-by: Lee Jones <lee@kernel.org>
+Reviewed-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Reviewed-by: Lee Jones <lee@kernel.org>
+Signed-off-by: John Keeping <john@metanate.com>
+Link: https://lore.kernel.org/r/20221122123523.3068034-3-john@metanate.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt6797.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_hid.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt6797.dtsi b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
-index 4beaa71107d7..ebe1b5343966 100644
---- a/arch/arm64/boot/dts/mediatek/mt6797.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
-@@ -101,7 +101,7 @@ cpu9: cpu@201 {
- 		};
- 	};
- 
--	clk26m: oscillator@0 {
-+	clk26m: oscillator-26m {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <26000000>;
+diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
+index 2aaa3ea74e5a..ea877cba0763 100644
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -1298,6 +1298,7 @@ static struct usb_function *hidg_alloc(struct usb_function_instance *fi)
+ 						 GFP_KERNEL);
+ 		if (!hidg->report_desc) {
+ 			put_device(&hidg->dev);
++			--opts->refcnt;
+ 			mutex_unlock(&opts->lock);
+ 			return ERR_PTR(-ENOMEM);
+ 		}
 -- 
 2.35.1
 
