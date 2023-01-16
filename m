@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 299D566CD1E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B27F166CB81
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234867AbjAPRdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:33:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54898 "EHLO
+        id S234434AbjAPRPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234852AbjAPRdU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888A342DE0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:27 -0800 (PST)
+        with ESMTP id S234511AbjAPRO2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBA04C0E9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F2EC6CE1285
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2833C433D2;
-        Mon, 16 Jan 2023 17:09:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3E35B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 238E3C433EF;
+        Mon, 16 Jan 2023 16:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888964;
-        bh=NDHke4IRLcRGerzFBwPfQFbL21mjrkjKWhA/QzJkolk=;
+        s=korg; t=1673888092;
+        bh=sDwQr0Wn1l01rcLgMrwtjowdjVfEvBNikKRTBJ+29/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zFiSvekNVFfAK1CGGHW5+xBNmGj7jPJxOd718RDguveBbdCUSM/4K9x1epM4F7W9o
-         dI7G2sJ8tehjHrYAmOdb6A0aSFjnlImNKxiwdw+QP096vnCO4thqZLJdyEV5O7JVqv
-         FJ81I6biwCp9Qbvg2Xx805rO7wW6/r4TNn5Dui1U=
+        b=sxbnC7k8AKbbG3Ne+dhPAnsA54Jdrx2LxOh45F/6F/12gMlPPbvJG3Rhv9ePDST/N
+         I1Bq0LM/EAHa2VfXDE91APRz1f+he7Q9u87WJZupnp8Zt9XiXVfpQkVF8Xta5YkIX/
+         OU3kunFC7P9WWxoWJw9Q5FmoXMhGK6G3E72cSFAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheyu Ma <zheyuma97@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 179/338] i2c: ismt: Fix an out-of-bounds bug in ismt_access()
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.19 390/521] ARM: 9256/1: NWFPE: avoid compiler-generated __aeabi_uldivmod
 Date:   Mon, 16 Jan 2023 16:50:52 +0100
-Message-Id: <20230116154828.710432159@linuxfoundation.org>
+Message-Id: <20230116154904.560456487@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,54 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 39244cc754829bf707dccd12e2ce37510f5b1f8d ]
+commit 3220022038b9a3845eea762af85f1c5694b9f861 upstream.
 
-When the driver does not check the data from the user, the variable
-'data->block[0]' may be very large to cause an out-of-bounds bug.
+clang-15's ability to elide loops completely became more aggressive when
+it can deduce how a variable is being updated in a loop. Counting down
+one variable by an increment of another can be replaced by a modulo
+operation.
 
-The following log can reveal it:
+For 64b variables on 32b ARM EABI targets, this can result in the
+compiler generating calls to __aeabi_uldivmod, which it does for a do
+while loop in float64_rem().
 
-[   33.995542] i2c i2c-1: ioctl, cmd=0x720, arg=0x7ffcb3dc3a20
-[   33.995978] ismt_smbus 0000:00:05.0: I2C_SMBUS_BLOCK_DATA:  WRITE
-[   33.996475] ==================================================================
-[   33.996995] BUG: KASAN: out-of-bounds in ismt_access.cold+0x374/0x214b
-[   33.997473] Read of size 18446744073709551615 at addr ffff88810efcfdb1 by task ismt_poc/485
-[   33.999450] Call Trace:
-[   34.001849]  memcpy+0x20/0x60
-[   34.002077]  ismt_access.cold+0x374/0x214b
-[   34.003382]  __i2c_smbus_xfer+0x44f/0xfb0
-[   34.004007]  i2c_smbus_xfer+0x10a/0x390
-[   34.004291]  i2cdev_ioctl_smbus+0x2c8/0x710
-[   34.005196]  i2cdev_ioctl+0x5ec/0x74c
+For the kernel, we'd generally prefer that developers not open code 64b
+division via binary / operators and instead use the more explicit
+helpers from div64.h. On arm-linux-gnuabi targets, failure to do so can
+result in linkage failures due to undefined references to
+__aeabi_uldivmod().
 
-Fix this bug by checking the size of 'data->block[0]' first.
+While developers can avoid open coding divisions on 64b variables, the
+compiler doesn't know that the Linux kernel has a partial implementation
+of a compiler runtime (--rtlib) to enforce this convention.
 
-Fixes: 13f35ac14cd0 ("i2c: Adding support for Intel iSMT SMBus 2.0 host controller")
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It's also undecidable for the compiler whether the code in question
+would be faster to execute the loop vs elide it and do the 64b division.
+
+While I actively avoid using the internal -mllvm command line flags, I
+think we get better code than using barrier() here, which will force
+reloads+spills in the loop for all toolchains.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1666
+
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-ismt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/nwfpe/Makefile |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index b51adffa4841..e689c7acea62 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -495,6 +495,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 		if (read_write == I2C_SMBUS_WRITE) {
- 			/* Block Write */
- 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  WRITE\n");
-+			if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
-+				return -EINVAL;
+--- a/arch/arm/nwfpe/Makefile
++++ b/arch/arm/nwfpe/Makefile
+@@ -11,3 +11,9 @@ nwfpe-y				+= fpa11.o fpa11_cpdo.o fpa11
+ 				   entry.o
+ 
+ nwfpe-$(CONFIG_FPE_NWFPE_XP)	+= extended_cpdo.o
 +
- 			dma_size = data->block[0] + 1;
- 			dma_direction = DMA_TO_DEVICE;
- 			desc->wr_len_cmd = dma_size;
--- 
-2.35.1
-
++# Try really hard to avoid generating calls to __aeabi_uldivmod() from
++# float64_rem() due to loop elision.
++ifdef CONFIG_CC_IS_CLANG
++CFLAGS_softfloat.o	+= -mllvm -replexitval=never
++endif
 
 
