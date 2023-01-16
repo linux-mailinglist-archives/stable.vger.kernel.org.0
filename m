@@ -2,183 +2,247 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40B0766C080
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12A1466C085
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231645AbjAPOAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:00:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39872 "EHLO
+        id S229940AbjAPOCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:02:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230312AbjAPOA0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:00:26 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA71D21A16;
-        Mon, 16 Jan 2023 06:00:04 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S229925AbjAPOCA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:02:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEC1F3C3A;
+        Mon, 16 Jan 2023 06:01:59 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id A16613765F;
-        Mon, 16 Jan 2023 14:00:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1673877603; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=z97s89bx2ilPOW9UqwgUScH5OfS1ybbn2p0m+3QWpCU=;
-        b=XWq7RGyfYnE0B+M0Wv2lkFIM7N6yXS4lZd16Jlcv464CBESPPCxOOSjg45mv82oukVoFsH
-        JvMSPIU1U3d3aOZtKuRode0Tmq0sb5l3lykGk8z0ISEzZ1mjAemF5avshQJ2zutG4C6PF/
-        gZ5BxmN7+hN9mZrqhmFtf/rp0ZzMcGw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1673877603;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=z97s89bx2ilPOW9UqwgUScH5OfS1ybbn2p0m+3QWpCU=;
-        b=Rc2krZfWcSlw2BqRt9aOe+ckPIlATBAlcERNETTAUfGGDhzHhcO2QinpDpuG7UVmprkb2f
-        lnJZWtKtjULKegCw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 72B14138FE;
-        Mon, 16 Jan 2023 14:00:03 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id gx9PG2NYxWNFUgAAMHmgww
-        (envelope-from <vbabka@suse.cz>); Mon, 16 Jan 2023 14:00:03 +0000
-Message-ID: <af2e5a17-514b-8759-2464-7ebb384a17ba@suse.cz>
-Date:   Mon, 16 Jan 2023 15:00:03 +0100
+        by ams.source.kernel.org (Postfix) with ESMTPS id 925F0B80F3B;
+        Mon, 16 Jan 2023 14:01:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03537C433EF;
+        Mon, 16 Jan 2023 14:01:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673877717;
+        bh=BSAcwLMTx/yE34ezcXKU8xlUBDvyc4IpIZkamS7Taak=;
+        h=From:To:Cc:Subject:Date:From;
+        b=cUAfqa6PnwKhrWvpJKNDoYH/sMf7q5l+pl8cP/pXHKoM82E6RL+mn1ZlHDv4DbfOT
+         NQ3+9olfJvncoZd53ymTJhronarZ2RufjpkhFehXv/dtphzDGwoHAGP/bnvkU9ad6V
+         hKaq2ggwLYWSBXayLBJeon/ROFE9v/BAlMyK8WbFCQs2z76yhblpPg4fXr8EoReWIE
+         b9efVA6zepOCTxzx2WJ/OoLqOCvxrKauBTF69XtdNFEfJctdDlqazxC4fznxbc8+6P
+         tsHvO5PrEE2IrAYJKJxPCRqVKjc+GeiIgOD4YqVXZgugrrvaxoKzY6Sn1Q2E5O94dS
+         MGPDsnd7S26jQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Wenchao Hao <haowenchao@huawei.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Wu Bo <wubo40@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, lduncan@suse.com,
+        cleech@redhat.com, jejb@linux.ibm.com, open-iscsi@googlegroups.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 01/53] scsi: iscsi: Fix multiple iSCSI session unbind events sent to userspace
+Date:   Mon, 16 Jan 2023 09:01:01 -0500
+Message-Id: <20230116140154.114951-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [PATCH v2] tpm: Allow system suspend to continue when TPM suspend
- fails
-Content-Language: en-US
-To:     Jarkko Sakkinen <jarkko@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jan Dabros <jsd@semihalf.com>,
-        regressions@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Johannes Altmanninger <aclopte@gmail.com>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-References: <Y7dPV5BK6jk1KvX+@zx2c4.com>
- <20230106030156.3258307-1-Jason@zx2c4.com> <Y8U4kwTPpMet13Ks@kernel.org>
-From:   Vlastimil Babka <vbabka@suse.cz>
-In-Reply-To: <Y8U4kwTPpMet13Ks@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_SOFTFAIL autolearn=ham autolearn_force=no
-        version=3.4.6
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/16/23 12:44, Jarkko Sakkinen wrote:
-> On Fri, Jan 06, 2023 at 04:01:56AM +0100, Jason A. Donenfeld wrote:
->> TPM 1 is sometimes broken across system suspends, due to races or
->> locking issues or something else that haven't been diagnosed or fixed
->> yet, most likely having to do with concurrent reads from the TPM's
->> hardware random number generator driver. These issues prevent the system
->> from actually suspending, with errors like:
->> 
->>   tpm tpm0: A TPM error (28) occurred continue selftest
->>   ...
-> 
-> <REMOVE>
-> 
->>   tpm tpm0: A TPM error (28) occurred attempting get random
->>   ...
->>   tpm tpm0: Error (28) sending savestate before suspend
->>   tpm_tis 00:08: PM: __pnp_bus_suspend(): tpm_pm_suspend+0x0/0x80 returns 28
->>   tpm_tis 00:08: PM: dpm_run_callback(): pnp_bus_suspend+0x0/0x10 returns 28
->>   tpm_tis 00:08: PM: failed to suspend: error 28
->>   PM: Some devices failed to suspend, or early wake event detected
-> 
-> </REMOVE>
-> 
-> Unrelated to thix particular fix.
+From: Wenchao Hao <haowenchao@huawei.com>
 
-Not sure I understand.
-AFAIK this is not a proper fix, but a workaround for when laptop suspend no
-longer works because TPM fails to suspend. The error messages quoted above
-are very much related to the problem of suspend not working, and this patch
-did work as advertised at least for me. I see errors but they don't prevent
-suspend anymore:
+[ Upstream commit a3be19b91ea7121d388084e8c07f5b1b982eb40c ]
 
-https://lore.kernel.org/all/58d7a42c-9e6b-ab2a-617f-d5e373bf63cb@suse.cz/
+It was observed that the kernel would potentially send
+ISCSI_KEVENT_UNBIND_SESSION multiple times. Introduce 'target_state' in
+iscsi_cls_session() to make sure session will send only one unbind session
+event.
 
->> This issue was partially fixed by 23393c646142 ("char: tpm: Protect
->> tpm_pm_suspend with locks"), in a last minute 6.1 commit that Linus took
->> directly because the TPM maintainers weren't available. However, it
->> seems like this just addresses the most common cases of the bug, rather
->> than addressing it entirely. So there are more things to fix still,
->> apparently.
->> 
->> In lieu of actually fixing the underlying bug, just allow system suspend
->> to continue, so that laptops still go to sleep fine. Later, this can be
->> reverted when the real bug is fixed.
->> 
->> Link: https://lore.kernel.org/lkml/7cbe96cf-e0b5-ba63-d1b4-f63d2e826efa@suse.cz/
->> Cc: stable@vger.kernel.org # 6.1+
->> Reported-by: Vlastimil Babka <vbabka@suse.cz>
->> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
->> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
->> ---
->> This is basically untested and I haven't worked out if there are any
->> awful implications of letting the system sleep when TPM suspend fails.
->> Maybe some PCRs get cleared and that will make everything explode on
->> resume? Maybe it doesn't matter? Somebody well versed in TPMology should
->> probably [n]ack this approach.
->> 
->>  drivers/char/tpm/tpm-interface.c | 5 ++++-
->>  1 file changed, 4 insertions(+), 1 deletion(-)
->> 
->> diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interface.c
->> index d69905233aff..6df9067ef7f9 100644
->> --- a/drivers/char/tpm/tpm-interface.c
->> +++ b/drivers/char/tpm/tpm-interface.c
->> @@ -412,7 +412,10 @@ int tpm_pm_suspend(struct device *dev)
->>  	}
->>  
->>  suspended:
->> -	return rc;
->> +	if (rc)
->> +		pr_err("Unable to suspend tpm-%d (error %d), but continuing system suspend\n",
->> +		       chip->dev_num, rc);
->> +	return 0;
->>  }
->>  EXPORT_SYMBOL_GPL(tpm_pm_suspend);
->>  
->> -- 
->> 2.39.0
->> 
-> 
-> This tpm_tis local issue, nothing to do with tpm_pm_suspend(). Executing
-> the selftest as part of wake up, is TPM 1.2 dTPM specific requirement, and
-> the call is located in tpm_tis_resume() [*].
-> 
-> [*] https://lore.kernel.org/lkml/Y8U1QxA4GYvPWDky@kernel.org/
+This introduces a regression wrt. the issue fixed in commit 13e60d3ba287
+("scsi: iscsi: Report unbind session event when the target has been
+removed"). If iscsid dies for any reason after sending an unbind session to
+kernel, once iscsid is restarted, the kernel's ISCSI_KEVENT_UNBIND_SESSION
+event is lost and userspace is then unable to logout. However, the session
+is actually in invalid state (its target_id is INVALID) so iscsid should
+not sync this session during restart.
 
-Yes the changelog at the top does say "due to races or locking issues or
-something else that haven't been diagnosed or fixed yet"
+Consequently we need to check the session's target state during iscsid
+restart.  If session is in unbound state, do not sync this session and
+perform session teardown. This is OK because once a session is unbound, we
+can not recover it any more (mainly because its target id is INVALID).
 
-I don't know what causes the TPM to start returning error 28 on resume and
-never recover from it. But it didn't happen before hwrng started using the
-TPM. Before that, it was probably just the selftest ever doing anything with
-the TPM, and on its own I don't recall it ever (before 6.1) failing and
-preventing further suspend/resume.
+Signed-off-by: Wenchao Hao <haowenchao@huawei.com>
+Link: https://lore.kernel.org/r/20221126010752.231917-1-haowenchao@huawei.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Wu Bo <wubo40@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/scsi/scsi_transport_iscsi.c | 50 ++++++++++++++++++++++++++---
+ include/scsi/scsi_transport_iscsi.h |  9 ++++++
+ 2 files changed, 54 insertions(+), 5 deletions(-)
 
-> BR, Jarkko
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index f473c002fa4d..bf834e72595a 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -1677,6 +1677,13 @@ static const char *iscsi_session_state_name(int state)
+ 	return name;
+ }
+ 
++static char *iscsi_session_target_state_name[] = {
++	[ISCSI_SESSION_TARGET_UNBOUND]   = "UNBOUND",
++	[ISCSI_SESSION_TARGET_ALLOCATED] = "ALLOCATED",
++	[ISCSI_SESSION_TARGET_SCANNED]   = "SCANNED",
++	[ISCSI_SESSION_TARGET_UNBINDING] = "UNBINDING",
++};
++
+ int iscsi_session_chkready(struct iscsi_cls_session *session)
+ {
+ 	int err;
+@@ -1786,9 +1793,13 @@ static int iscsi_user_scan_session(struct device *dev, void *data)
+ 		if ((scan_data->channel == SCAN_WILD_CARD ||
+ 		     scan_data->channel == 0) &&
+ 		    (scan_data->id == SCAN_WILD_CARD ||
+-		     scan_data->id == id))
++		     scan_data->id == id)) {
+ 			scsi_scan_target(&session->dev, 0, id,
+ 					 scan_data->lun, scan_data->rescan);
++			spin_lock_irqsave(&session->lock, flags);
++			session->target_state = ISCSI_SESSION_TARGET_SCANNED;
++			spin_unlock_irqrestore(&session->lock, flags);
++		}
+ 	}
+ 
+ user_scan_exit:
+@@ -1961,31 +1972,41 @@ static void __iscsi_unbind_session(struct work_struct *work)
+ 	struct iscsi_cls_host *ihost = shost->shost_data;
+ 	unsigned long flags;
+ 	unsigned int target_id;
++	bool remove_target = true;
+ 
+ 	ISCSI_DBG_TRANS_SESSION(session, "Unbinding session\n");
+ 
+ 	/* Prevent new scans and make sure scanning is not in progress */
+ 	mutex_lock(&ihost->mutex);
+ 	spin_lock_irqsave(&session->lock, flags);
+-	if (session->target_id == ISCSI_MAX_TARGET) {
++	if (session->target_state == ISCSI_SESSION_TARGET_ALLOCATED) {
++		remove_target = false;
++	} else if (session->target_state != ISCSI_SESSION_TARGET_SCANNED) {
+ 		spin_unlock_irqrestore(&session->lock, flags);
+ 		mutex_unlock(&ihost->mutex);
+-		goto unbind_session_exit;
++		ISCSI_DBG_TRANS_SESSION(session,
++			"Skipping target unbinding: Session is unbound/unbinding.\n");
++		return;
+ 	}
+ 
++	session->target_state = ISCSI_SESSION_TARGET_UNBINDING;
+ 	target_id = session->target_id;
+ 	session->target_id = ISCSI_MAX_TARGET;
+ 	spin_unlock_irqrestore(&session->lock, flags);
+ 	mutex_unlock(&ihost->mutex);
+ 
+-	scsi_remove_target(&session->dev);
++	if (remove_target)
++		scsi_remove_target(&session->dev);
+ 
+ 	if (session->ida_used)
+ 		ida_free(&iscsi_sess_ida, target_id);
+ 
+-unbind_session_exit:
+ 	iscsi_session_event(session, ISCSI_KEVENT_UNBIND_SESSION);
+ 	ISCSI_DBG_TRANS_SESSION(session, "Completed target removal\n");
++
++	spin_lock_irqsave(&session->lock, flags);
++	session->target_state = ISCSI_SESSION_TARGET_UNBOUND;
++	spin_unlock_irqrestore(&session->lock, flags);
+ }
+ 
+ static void __iscsi_destroy_session(struct work_struct *work)
+@@ -2062,6 +2083,9 @@ int iscsi_add_session(struct iscsi_cls_session *session, unsigned int target_id)
+ 		session->ida_used = true;
+ 	} else
+ 		session->target_id = target_id;
++	spin_lock_irqsave(&session->lock, flags);
++	session->target_state = ISCSI_SESSION_TARGET_ALLOCATED;
++	spin_unlock_irqrestore(&session->lock, flags);
+ 
+ 	dev_set_name(&session->dev, "session%u", session->sid);
+ 	err = device_add(&session->dev);
+@@ -4369,6 +4393,19 @@ iscsi_session_attr(def_taskmgmt_tmo, ISCSI_PARAM_DEF_TASKMGMT_TMO, 0);
+ iscsi_session_attr(discovery_parent_idx, ISCSI_PARAM_DISCOVERY_PARENT_IDX, 0);
+ iscsi_session_attr(discovery_parent_type, ISCSI_PARAM_DISCOVERY_PARENT_TYPE, 0);
+ 
++static ssize_t
++show_priv_session_target_state(struct device *dev, struct device_attribute *attr,
++			char *buf)
++{
++	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
++
++	return sysfs_emit(buf, "%s\n",
++			iscsi_session_target_state_name[session->target_state]);
++}
++
++static ISCSI_CLASS_ATTR(priv_sess, target_state, S_IRUGO,
++			show_priv_session_target_state, NULL);
++
+ static ssize_t
+ show_priv_session_state(struct device *dev, struct device_attribute *attr,
+ 			char *buf)
+@@ -4471,6 +4508,7 @@ static struct attribute *iscsi_session_attrs[] = {
+ 	&dev_attr_sess_boot_target.attr,
+ 	&dev_attr_priv_sess_recovery_tmo.attr,
+ 	&dev_attr_priv_sess_state.attr,
++	&dev_attr_priv_sess_target_state.attr,
+ 	&dev_attr_priv_sess_creator.attr,
+ 	&dev_attr_sess_chap_out_idx.attr,
+ 	&dev_attr_sess_chap_in_idx.attr,
+@@ -4584,6 +4622,8 @@ static umode_t iscsi_session_attr_is_visible(struct kobject *kobj,
+ 		return S_IRUGO | S_IWUSR;
+ 	else if (attr == &dev_attr_priv_sess_state.attr)
+ 		return S_IRUGO;
++	else if (attr == &dev_attr_priv_sess_target_state.attr)
++		return S_IRUGO;
+ 	else if (attr == &dev_attr_priv_sess_creator.attr)
+ 		return S_IRUGO;
+ 	else if (attr == &dev_attr_priv_sess_target_id.attr)
+diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
+index cab52b0f11d0..34c03707fb6e 100644
+--- a/include/scsi/scsi_transport_iscsi.h
++++ b/include/scsi/scsi_transport_iscsi.h
+@@ -236,6 +236,14 @@ enum {
+ 	ISCSI_SESSION_FREE,
+ };
+ 
++enum {
++	ISCSI_SESSION_TARGET_UNBOUND,
++	ISCSI_SESSION_TARGET_ALLOCATED,
++	ISCSI_SESSION_TARGET_SCANNED,
++	ISCSI_SESSION_TARGET_UNBINDING,
++	ISCSI_SESSION_TARGET_MAX,
++};
++
+ #define ISCSI_MAX_TARGET -1
+ 
+ struct iscsi_cls_session {
+@@ -264,6 +272,7 @@ struct iscsi_cls_session {
+ 	 */
+ 	pid_t creator;
+ 	int state;
++	int target_state;			/* session target bind state */
+ 	int sid;				/* session id */
+ 	void *dd_data;				/* LLD private data */
+ 	struct device dev;	/* sysfs transport/container device */
+-- 
+2.35.1
 
