@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A25866C712
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 405C966C713
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233131AbjAPQ1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:27:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41892 "EHLO
+        id S233210AbjAPQ1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:27:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233168AbjAPQ1M (ORCPT
+        with ESMTP id S232818AbjAPQ1M (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0329234FB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:46 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 958DD227BF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AD8161040
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BABCC433EF;
-        Mon, 16 Jan 2023 16:15:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30E486104D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47B36C433EF;
+        Mon, 16 Jan 2023 16:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885746;
-        bh=C+x/lFBImlDa7QHFW2fL/dMmYf/EP4trOiZOFCYflGc=;
+        s=korg; t=1673885748;
+        bh=SppgiaoUM4cSCfXxrwDF3s9QSsA4TIf2pbhp3YGKslQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yiilo0y7PeFs6J7Vm3hoJYUg5aqFxoL0MvnZD5SSGRHfZtUPfPUq84rgn7NQBzQnV
-         xkltvmS0zG2efHa8dXzziJldINXcdXF7rkNbnNiucvLjkEBL+O076s5Tr56NdMCigJ
-         l3oO3xG0Lu2pqhIYBrUzb6Pr23+jKS0URZzDC4m8=
+        b=10LHWmVwVHrPldlTxSiUf6CAkGSz/FMZ7LzDWXMYo7rIIvzHhlrA4h4MAe2miu1J8
+         1roz/3lMDdeYEbsjZO35SgpmaKqcWqLwELCykLKLGo438W6rT1LQ/ju4wtiwgwrtSv
+         K3YbqhnUzPLqWTZXtCOh+7NQRESZM34j+pAZOKIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Eric Garver <eric@garver.life>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 169/658] ASoC: pcm512x: Fix PM disable depth imbalance in pcm512x_probe
-Date:   Mon, 16 Jan 2023 16:44:17 +0100
-Message-Id: <20230116154917.218989151@linuxfoundation.org>
+Subject: [PATCH 5.4 170/658] netfilter: conntrack: set icmpv6 redirects as RELATED
+Date:   Mon, 16 Jan 2023 16:44:18 +0100
+Message-Id: <20230116154917.258878513@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,62 +54,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 97b801be6f8e53676b9f2b105f54e35c745c1b22 ]
+[ Upstream commit 7d7cfb48d81353e826493d24c7cec7360950968f ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by going to
-err_pm instead of err_clk.
+icmp conntrack will set icmp redirects as RELATED, but icmpv6 will not
+do this.
 
-Fixes:f086ba9d5389c ("ASoC: pcm512x: Support mastering BCLK/LRCLK using the PLL")
+For icmpv6, only icmp errors (code <= 128) are examined for RELATED state.
+ICMPV6 Redirects are part of neighbour discovery mechanism, those are
+handled by marking a selected subset (e.g.  neighbour solicitations) as
+UNTRACKED, but not REDIRECT -- they will thus be flagged as INVALID.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160402.126140-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Add minimal support for REDIRECTs.  No parsing of neighbour options is
+added for simplicity, so this will only check that we have the embeeded
+original header (ND_OPT_REDIRECT_HDR), and then attempt to do a flow
+lookup for this tuple.
+
+Also extend the existing test case to cover redirects.
+
+Fixes: 9fb9cbb1082d ("[NETFILTER]: Add nf_conntrack subsystem.")
+Reported-by: Eric Garver <eric@garver.life>
+Link: https://github.com/firewalld/firewalld/issues/1046
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: Eric Garver <eric@garver.life>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/pcm512x.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/netfilter/nf_conntrack_proto_icmpv6.c     | 53 +++++++++++++++++++
+ .../netfilter/conntrack_icmp_related.sh       | 36 ++++++++++++-
+ 2 files changed, 87 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/pcm512x.c b/sound/soc/codecs/pcm512x.c
-index 4cbef9affffd..feb590a20544 100644
---- a/sound/soc/codecs/pcm512x.c
-+++ b/sound/soc/codecs/pcm512x.c
-@@ -1598,7 +1598,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			if (val > 6) {
- 				dev_err(dev, "Invalid pll-in\n");
- 				ret = -EINVAL;
--				goto err_clk;
-+				goto err_pm;
- 			}
- 			pcm512x->pll_in = val;
- 		}
-@@ -1607,7 +1607,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			if (val > 6) {
- 				dev_err(dev, "Invalid pll-out\n");
- 				ret = -EINVAL;
--				goto err_clk;
-+				goto err_pm;
- 			}
- 			pcm512x->pll_out = val;
- 		}
-@@ -1616,12 +1616,12 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			dev_err(dev,
- 				"Error: both pll-in and pll-out, or none\n");
- 			ret = -EINVAL;
--			goto err_clk;
-+			goto err_pm;
- 		}
- 		if (pcm512x->pll_in && pcm512x->pll_in == pcm512x->pll_out) {
- 			dev_err(dev, "Error: pll-in == pll-out\n");
- 			ret = -EINVAL;
--			goto err_clk;
-+			goto err_pm;
- 		}
+diff --git a/net/netfilter/nf_conntrack_proto_icmpv6.c b/net/netfilter/nf_conntrack_proto_icmpv6.c
+index 6f9144e1f1c1..ee45dbf1b035 100644
+--- a/net/netfilter/nf_conntrack_proto_icmpv6.c
++++ b/net/netfilter/nf_conntrack_proto_icmpv6.c
+@@ -128,6 +128,56 @@ static void icmpv6_error_log(const struct sk_buff *skb,
+ 			       IPPROTO_ICMPV6, "%s", msg);
+ }
+ 
++static noinline_for_stack int
++nf_conntrack_icmpv6_redirect(struct nf_conn *tmpl, struct sk_buff *skb,
++			     unsigned int dataoff,
++			     const struct nf_hook_state *state)
++{
++	u8 hl = ipv6_hdr(skb)->hop_limit;
++	union nf_inet_addr outer_daddr;
++	union {
++		struct nd_opt_hdr nd_opt;
++		struct rd_msg rd_msg;
++	} tmp;
++	const struct nd_opt_hdr *nd_opt;
++	const struct rd_msg *rd_msg;
++
++	rd_msg = skb_header_pointer(skb, dataoff, sizeof(*rd_msg), &tmp.rd_msg);
++	if (!rd_msg) {
++		icmpv6_error_log(skb, state, "short redirect");
++		return -NF_ACCEPT;
++	}
++
++	if (rd_msg->icmph.icmp6_code != 0)
++		return NF_ACCEPT;
++
++	if (hl != 255 || !(ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL)) {
++		icmpv6_error_log(skb, state, "invalid saddr or hoplimit for redirect");
++		return -NF_ACCEPT;
++	}
++
++	dataoff += sizeof(*rd_msg);
++
++	/* warning: rd_msg no longer usable after this call */
++	nd_opt = skb_header_pointer(skb, dataoff, sizeof(*nd_opt), &tmp.nd_opt);
++	if (!nd_opt || nd_opt->nd_opt_len == 0) {
++		icmpv6_error_log(skb, state, "redirect without options");
++		return -NF_ACCEPT;
++	}
++
++	/* We could call ndisc_parse_options(), but it would need
++	 * skb_linearize() and a bit more work.
++	 */
++	if (nd_opt->nd_opt_type != ND_OPT_REDIRECT_HDR)
++		return NF_ACCEPT;
++
++	memcpy(&outer_daddr.ip6, &ipv6_hdr(skb)->daddr,
++	       sizeof(outer_daddr.ip6));
++	dataoff += 8;
++	return nf_conntrack_inet_error(tmpl, skb, dataoff, state,
++				       IPPROTO_ICMPV6, &outer_daddr);
++}
++
+ int nf_conntrack_icmpv6_error(struct nf_conn *tmpl,
+ 			      struct sk_buff *skb,
+ 			      unsigned int dataoff,
+@@ -158,6 +208,9 @@ int nf_conntrack_icmpv6_error(struct nf_conn *tmpl,
+ 		return NF_ACCEPT;
  	}
- #endif
+ 
++	if (icmp6h->icmp6_type == NDISC_REDIRECT)
++		return nf_conntrack_icmpv6_redirect(tmpl, skb, dataoff, state);
++
+ 	/* is not error message ? */
+ 	if (icmp6h->icmp6_type >= 128)
+ 		return NF_ACCEPT;
+diff --git a/tools/testing/selftests/netfilter/conntrack_icmp_related.sh b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
+index b48e1833bc89..76645aaf2b58 100755
+--- a/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
++++ b/tools/testing/selftests/netfilter/conntrack_icmp_related.sh
+@@ -35,6 +35,8 @@ cleanup() {
+ 	for i in 1 2;do ip netns del nsrouter$i;done
+ }
+ 
++trap cleanup EXIT
++
+ ipv4() {
+     echo -n 192.168.$1.2
+ }
+@@ -146,11 +148,17 @@ ip netns exec nsclient1 nft -f - <<EOF
+ table inet filter {
+ 	counter unknown { }
+ 	counter related { }
++	counter redir4 { }
++	counter redir6 { }
+ 	chain input {
+ 		type filter hook input priority 0; policy accept;
+-		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
+ 
++		icmp type "redirect" ct state "related" counter name "redir4" accept
++		icmpv6 type "nd-redirect" ct state "related" counter name "redir6" accept
++
++		meta l4proto { icmp, icmpv6 } ct state established,untracked accept
+ 		meta l4proto { icmp, icmpv6 } ct state "related" counter name "related" accept
++
+ 		counter name "unknown" drop
+ 	}
+ }
+@@ -279,5 +287,29 @@ else
+ 	echo "ERROR: icmp error RELATED state test has failed"
+ fi
+ 
+-cleanup
++# add 'bad' route,  expect icmp REDIRECT to be generated
++ip netns exec nsclient1 ip route add 192.168.1.42 via 192.168.1.1
++ip netns exec nsclient1 ip route add dead:1::42 via dead:1::1
++
++ip netns exec "nsclient1" ping -q -c 2 192.168.1.42 > /dev/null
++
++expect="packets 1 bytes 112"
++check_counter nsclient1 "redir4" "$expect"
++if [ $? -ne 0 ];then
++	ret=1
++fi
++
++ip netns exec "nsclient1" ping -c 1 dead:1::42 > /dev/null
++expect="packets 1 bytes 192"
++check_counter nsclient1 "redir6" "$expect"
++if [ $? -ne 0 ];then
++	ret=1
++fi
++
++if [ $ret -eq 0 ];then
++	echo "PASS: icmp redirects had RELATED state"
++else
++	echo "ERROR: icmp redirect RELATED state test has failed"
++fi
++
+ exit $ret
 -- 
 2.35.1
 
