@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 144D966CBD2
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:18:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91AD666CD36
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234488AbjAPRSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:18:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39566 "EHLO
+        id S234823AbjAPRef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234547AbjAPRRk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:17:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 417C1530E4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:42 -0800 (PST)
+        with ESMTP id S234612AbjAPReT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56BF03B3EB
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDAB661058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4849C433EF;
-        Mon, 16 Jan 2023 16:57:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 527EF6108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63B3FC433D2;
+        Mon, 16 Jan 2023 17:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888261;
-        bh=UFfvIsjI55wJSFyx0zgHuvSem6Z3hSP4nlcaN63Jl4c=;
+        s=korg; t=1673889021;
+        bh=CkMj+qZ87eLbSq+NVejB/K9vX7YDEsoNc+ThVKoO/zY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UBeYmi2NOX80myic7ZpeHhr3zWGNLqgs7I1tarzsXnYEEG9k8gtt/HTOVfvN43EjQ
-         ZGRYW5Sdfyxpd32GVtTryjegQSND3o1swq2WZaEwe7mvziXgdf0b9KTi5OZVp8+Epp
-         tf3ls4lnY2yxiWMTGI1Pjq8jaeBtE7K8k/HDyOV0=
+        b=wryUuMBgp+AJABmauQHexE36ldOGoMz/voET7/0UN2A9CZ6pBBloIaiWPkXNJ/n71
+         pZmUq/Vk2cKXjtky7Lv7HR6quxl5sJixF9B59O68bRQclobzZM1UjfN4DfiTjsrjMK
+         2FRDtWL+pwxVdS5pSbfRtiphd+EI9AkO5OwWZncI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-fsd@tesla.com,
-        Smitha T Murthy <smitha.t@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev,
+        Sean Tranchetti <quic_stranche@quicinc.com>,
+        Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 422/521] media: s5p-mfc: Clear workbit to handle error condition
+Subject: [PATCH 4.14 211/338] skbuff: Account for tail adjustment during pull operations
 Date:   Mon, 16 Jan 2023 16:51:24 +0100
-Message-Id: <20230116154906.006541845@linuxfoundation.org>
+Message-Id: <20230116154830.216724516@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smitha T Murthy <smitha.t@samsung.com>
+From: Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>
 
-[ Upstream commit d3f3c2fe54e30b0636496d842ffbb5ad3a547f9b ]
+[ Upstream commit 2d7afdcbc9d32423f177ee12b7c93783aea338fb ]
 
-During error on CLOSE_INSTANCE command, ctx_work_bits was not getting
-cleared. During consequent mfc execution NULL pointer dereferencing of
-this context led to kernel panic. This patch fixes this issue by making
-sure to clear ctx_work_bits always.
+Extending the tail can have some unexpected side effects if a program uses
+a helper like BPF_FUNC_skb_pull_data to read partial content beyond the
+head skb headlen when all the skbs in the gso frag_list are linear with no
+head_frag -
 
-Fixes: 818cd91ab8c6 ("[media] s5p-mfc: Extract open/close MFC instance commands")
-Cc: stable@vger.kernel.org
-Cc: linux-fsd@tesla.com
-Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+  kernel BUG at net/core/skbuff.c:4219!
+  pc : skb_segment+0xcf4/0xd2c
+  lr : skb_segment+0x63c/0xd2c
+  Call trace:
+   skb_segment+0xcf4/0xd2c
+   __udp_gso_segment+0xa4/0x544
+   udp4_ufo_fragment+0x184/0x1c0
+   inet_gso_segment+0x16c/0x3a4
+   skb_mac_gso_segment+0xd4/0x1b0
+   __skb_gso_segment+0xcc/0x12c
+   udp_rcv_segment+0x54/0x16c
+   udp_queue_rcv_skb+0x78/0x144
+   udp_unicast_rcv_skb+0x8c/0xa4
+   __udp4_lib_rcv+0x490/0x68c
+   udp_rcv+0x20/0x30
+   ip_protocol_deliver_rcu+0x1b0/0x33c
+   ip_local_deliver+0xd8/0x1f0
+   ip_rcv+0x98/0x1a4
+   deliver_ptype_list_skb+0x98/0x1ec
+   __netif_receive_skb_core+0x978/0xc60
+
+Fix this by marking these skbs as GSO_DODGY so segmentation can handle
+the tail updates accordingly.
+
+Fixes: 3dcbdb134f32 ("net: gso: Fix skb_segment splat when splitting gso_size mangled skb having linear-headed frag_list")
+Signed-off-by: Sean Tranchetti <quic_stranche@quicinc.com>
+Signed-off-by: Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Link: https://lore.kernel.org/r/1671084718-24796-1-git-send-email-quic_subashab@quicinc.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/skbuff.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c b/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
-index ee7b15b335e0..31bbf1cc5388 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
-@@ -472,8 +472,10 @@ void s5p_mfc_close_mfc_inst(struct s5p_mfc_dev *dev, struct s5p_mfc_ctx *ctx)
- 	s5p_mfc_hw_call(dev->mfc_ops, try_run, dev);
- 	/* Wait until instance is returned or timeout occurred */
- 	if (s5p_mfc_wait_for_done_ctx(ctx,
--				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0))
-+				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0)){
-+		clear_work_bit_irqsave(ctx);
- 		mfc_err("Err returning instance\n");
-+	}
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 0b672d71447f..9dae8009b407 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -1951,6 +1951,9 @@ void *__pskb_pull_tail(struct sk_buff *skb, int delta)
+ 				insp = list;
+ 			} else {
+ 				/* Eaten partially. */
++				if (skb_is_gso(skb) && !list->head_frag &&
++				    skb_headlen(list))
++					skb_shinfo(skb)->gso_type |= SKB_GSO_DODGY;
  
- 	/* Free resources */
- 	s5p_mfc_hw_call(dev->mfc_ops, release_codec_buffers, ctx);
+ 				if (skb_shared(list)) {
+ 					/* Sucks! We need to fork list. :-( */
 -- 
 2.35.1
 
