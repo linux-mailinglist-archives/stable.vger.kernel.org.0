@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A5366CDB9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE7366CDBA
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234901AbjAPRi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:38:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56492 "EHLO
+        id S229739AbjAPRjI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:39:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234923AbjAPRiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:38:16 -0500
+        with ESMTP id S235036AbjAPRiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:38:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CBBD305C6
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289A4305D2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AD396108D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F96DC433EF;
-        Mon, 16 Jan 2023 17:14:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B389361086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8611C433F1;
+        Mon, 16 Jan 2023 17:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889294;
-        bh=s7RxDIb/QNlZbsSmWP/CE4EC70/2iANKJXAQq3z13j0=;
+        s=korg; t=1673889297;
+        bh=HVzxMLyn3rcyoX8oN2/qx564qZ+DfW0ZR5/sOHVsmXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=al7AMv3RnSSPmvxI0smh6SxEJZJqkR4MJR8/AzXTBMOal+vPkJYhU8+4S2A5i9IaP
-         WW/GQOGwCWjBK/LN0W9md2ZpXxkRtNslSiPCHRuxjfdvo5dc0DjrT+bJsEwnCLD7oq
-         FIpIMUNsUGCpbKbP3MOQxHhhjKj2ZumasooSivJI=
+        b=WbmTnCjQv6mPhUE4m4fB+4LwfztqIoAgomPXxPcylGmk2jFv+8p0B0/iOcx2DwVFN
+         YndpcF1yrO39BN5+y4uIvb/+Jzpf2U5mEqD9pFL2a/sgYhvcnSG3vTnoa3xFXD8pnA
+         BTr9z2UjRolVQT9KM4td4CxFhuzDW54F8OvHmfBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Ilia.Gavrilov" <Ilia.Gavrilov@infotecs.ru>,
-        Simon Horman <simon.horman@corigine.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 332/338] netfilter: ipset: Fix overflow before widen in the bitmap_ip_create() function.
-Date:   Mon, 16 Jan 2023 16:53:25 +0100
-Message-Id: <20230116154835.558691243@linuxfoundation.org>
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>
+Subject: [PATCH 4.14 333/338] x86/boot: Avoid using Intel mnemonics in AT&T syntax asm
+Date:   Mon, 16 Jan 2023 16:53:26 +0100
+Message-Id: <20230116154835.609143067@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -54,41 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 9ea4b476cea1b7d461d16dda25ca3c7e616e2d15 upstream.
+commit 7c6dd961d0c8e7e8f9fdc65071fb09ece702e18d upstream.
 
-When first_ip is 0, last_ip is 0xFFFFFFFF, and netmask is 31, the value of
-an arithmetic expression 2 << (netmask - mask_bits - 1) is subject
-to overflow due to a failure casting operands to a larger data type
-before performing the arithmetic.
+With 'GNU assembler (GNU Binutils for Debian) 2.39.90.20221231' the
+build now reports:
 
-Note that it's harmless since the value will be checked at the next step.
+  arch/x86/realmode/rm/../../boot/bioscall.S: Assembler messages:
+  arch/x86/realmode/rm/../../boot/bioscall.S:35: Warning: found `movsd'; assuming `movsl' was meant
+  arch/x86/realmode/rm/../../boot/bioscall.S:70: Warning: found `movsd'; assuming `movsl' was meant
 
-Found by InfoTeCS on behalf of Linux Verification Center
-(linuxtesting.org) with SVACE.
+  arch/x86/boot/bioscall.S: Assembler messages:
+  arch/x86/boot/bioscall.S:35: Warning: found `movsd'; assuming `movsl' was meant
+  arch/x86/boot/bioscall.S:70: Warning: found `movsd'; assuming `movsl' was meant
 
-Fixes: b9fed748185a ("netfilter: ipset: Check and reject crazy /0 input parameters")
-Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Which is due to:
+
+  PR gas/29525
+
+  Note that with the dropped CMPSD and MOVSD Intel Syntax string insn
+  templates taking operands, mixed IsString/non-IsString template groups
+  (with memory operands) cannot occur anymore. With that
+  maybe_adjust_templates() becomes unnecessary (and is hence being
+  removed).
+
+More details: https://sourceware.org/bugzilla/show_bug.cgi?id=29525
+
+Borislav Petkov further explains:
+
+  " the particular problem here is is that the 'd' suffix is
+    "conflicting" in the sense that you can have SSE mnemonics like movsD %xmm...
+    and the same thing also for string ops (which is the case here) so apparently
+    the agreement in binutils land is to use the always accepted suffixes 'l' or 'q'
+    and phase out 'd' slowly... "
+
+Fixes: 7a734e7dd93b ("x86, setup: "glove box" BIOS calls -- infrastructure")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Borislav Petkov (AMD) <bp@alien8.de>
+Link: https://lore.kernel.org/r/Y71I3Ex2pvIxMpsP@hirez.programming.kicks-ass.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/ipset/ip_set_bitmap_ip.c |    4 ++--
+ arch/x86/boot/bioscall.S |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/ipset/ip_set_bitmap_ip.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_ip.c
-@@ -301,8 +301,8 @@ bitmap_ip_create(struct net *net, struct
- 			return -IPSET_ERR_BITMAP_RANGE;
+--- a/arch/x86/boot/bioscall.S
++++ b/arch/x86/boot/bioscall.S
+@@ -35,7 +35,7 @@ intcall:
+ 	movw	%dx, %si
+ 	movw	%sp, %di
+ 	movw	$11, %cx
+-	rep; movsd
++	rep; movsl
  
- 		pr_debug("mask_bits %u, netmask %u\n", mask_bits, netmask);
--		hosts = 2 << (32 - netmask - 1);
--		elements = 2 << (netmask - mask_bits - 1);
-+		hosts = 2U << (32 - netmask - 1);
-+		elements = 2UL << (netmask - mask_bits - 1);
- 	}
- 	if (elements > IPSET_BITMAP_MAX_RANGE + 1)
- 		return -IPSET_ERR_BITMAP_RANGE_SIZE;
+ 	/* Pop full state from the stack */
+ 	popal
+@@ -70,7 +70,7 @@ intcall:
+ 	jz	4f
+ 	movw	%sp, %si
+ 	movw	$11, %cx
+-	rep; movsd
++	rep; movsl
+ 4:	addw	$44, %sp
+ 
+ 	/* Restore state and return */
 
 
