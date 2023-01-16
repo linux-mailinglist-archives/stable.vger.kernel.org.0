@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8CAE66CBF6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F72E66CD9B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234567AbjAPRUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:20:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42156 "EHLO
+        id S234953AbjAPRhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:37:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234467AbjAPRUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:20:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4482936B0E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:59:11 -0800 (PST)
+        with ESMTP id S234980AbjAPRhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720E03D0AD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10DBD60F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:59:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29699C433F1;
-        Mon, 16 Jan 2023 16:59:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30678B81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86E1AC433D2;
+        Mon, 16 Jan 2023 17:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888350;
-        bh=9X0kihwH9v6KguSmRyZOP8GwxDqVtyzFzxdFFoL3/QY=;
+        s=korg; t=1673889231;
+        bh=vEpmbVZ/PZHJ2C1JJkGIiUDPla5U/sXBxAqdgQl1pMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GoO18dCuCMAhyj58e8VtuaNYaIPnhHAPSIb/z0kyJt4A2vSXhff2x28i1Z0rNcDEY
-         2sts6mxxNJWe5oB4zQrZMOjJYJcQenVIidtj0JWMw4w0irZaIOidjYdSkXAZ85seq7
-         1fkVL5R0etLJpkSjoEpTXlyp9mX6sg186Z0T27ss=
+        b=z7iuLbVz5ohxJlZdtirx4VgUeFSL5Onobisf+YNI1ER7wcHdraqGZDT0NJTs5lf8k
+         RUwqn0VmCPaIcjPD5Dm/NUCjRoXQZJqbKrJTQgHPjDsK2VTZj2ll3ag6QozFzaLyMf
+         eh5pv1F/gtYfKh/nPMMvjPemguKxWME1YdvpDCsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Libo Chen <libo.chen@oracle.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 488/521] ktest.pl: Fix incorrect reboot for grub2bls
-Date:   Mon, 16 Jan 2023 16:52:30 +0100
-Message-Id: <20230116154909.003672466@linuxfoundation.org>
+        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Joe Thornber <ejt@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.14 278/338] dm thin: Use last transactions pmd->root when commit failed
+Date:   Mon, 16 Jan 2023 16:52:31 +0100
+Message-Id: <20230116154833.202448876@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Libo Chen <libo.chen@oracle.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 271e0c9dce1b02a825b3cc1a7aa1fab7c381d44b ]
+commit 7991dbff6849f67e823b7cc0c15e5a90b0549b9f upstream.
 
-This issue was first noticed when I was testing different kernels on
-Oracle Linux 8 which as Fedora 30+ adopts BLS as default. Even though a
-kernel entry was added successfully and the index of that kernel entry was
-retrieved correctly, ktest still wouldn't reboot the system into
-user-specified kernel.
+Recently we found a softlock up problem in dm thin pool btree lookup
+code due to corrupted metadata:
 
-The bug was spotted in subroutine reboot_to where the if-statement never
-checks for REBOOT_TYPE "grub2bls", therefore the desired entry will not be
-set for the next boot.
+ Kernel panic - not syncing: softlockup: hung tasks
+ CPU: 7 PID: 2669225 Comm: kworker/u16:3
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+ Workqueue: dm-thin do_worker [dm_thin_pool]
+ Call Trace:
+   <IRQ>
+   dump_stack+0x9c/0xd3
+   panic+0x35d/0x6b9
+   watchdog_timer_fn.cold+0x16/0x25
+   __run_hrtimer+0xa2/0x2d0
+   </IRQ>
+   RIP: 0010:__relink_lru+0x102/0x220 [dm_bufio]
+   __bufio_new+0x11f/0x4f0 [dm_bufio]
+   new_read+0xa3/0x1e0 [dm_bufio]
+   dm_bm_read_lock+0x33/0xd0 [dm_persistent_data]
+   ro_step+0x63/0x100 [dm_persistent_data]
+   btree_lookup_raw.constprop.0+0x44/0x220 [dm_persistent_data]
+   dm_btree_lookup+0x16f/0x210 [dm_persistent_data]
+   dm_thin_find_block+0x12c/0x210 [dm_thin_pool]
+   __process_bio_read_only+0xc5/0x400 [dm_thin_pool]
+   process_thin_deferred_bios+0x1a4/0x4a0 [dm_thin_pool]
+   process_one_work+0x3c5/0x730
 
-Add a check for "grub2bls" so that $grub_reboot $grub_number can
-be run before a reboot if REBOOT_TYPE is "grub2bls" then we can boot to
-the correct kernel.
+Following process may generate a broken btree mixed with fresh and
+stale btree nodes, which could get dm thin trapped in an infinite loop
+while looking up data block:
+ Transaction 1: pmd->root = A, A->B->C   // One path in btree
+                pmd->root = X, X->Y->Z   // Copy-up
+ Transaction 2: X,Z is updated on disk, Y write failed.
+                // Commit failed, dm thin becomes read-only.
+                process_bio_read_only
+		 dm_thin_find_block
+		  __find_block
+		   dm_btree_lookup(pmd->root)
+The pmd->root points to a broken btree, Y may contain stale node
+pointing to any block, for example X, which gets dm thin trapped into
+a dead loop while looking up Z.
 
-Link: https://lkml.kernel.org/r/20201121021243.1532477-1-libo.chen@oracle.com
+Fix this by setting pmd->root in __open_metadata(), so that dm thin
+will use the last transaction's pmd->root if commit failed.
 
+Fetch a reproducer in [Link].
+
+Linke: https://bugzilla.kernel.org/show_bug.cgi?id=216790
 Cc: stable@vger.kernel.org
-Fixes: ac2466456eaa ("ktest: introduce grub2bls REBOOT_TYPE option")
-Signed-off-by: Libo Chen <libo.chen@oracle.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Stable-dep-of: 26df05a8c142 ("kest.pl: Fix grub2 menu handling for rebooting")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 991d9fa02da0 ("dm: add thin provisioning target")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Acked-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/ktest/ktest.pl | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-thin-metadata.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/tools/testing/ktest/ktest.pl b/tools/testing/ktest/ktest.pl
-index 76468e2d619f..689fa4fd3d76 100755
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -2023,7 +2023,7 @@ sub reboot_to {
+--- a/drivers/md/dm-thin-metadata.c
++++ b/drivers/md/dm-thin-metadata.c
+@@ -660,6 +660,15 @@ static int __open_metadata(struct dm_poo
+ 		goto bad_cleanup_data_sm;
+ 	}
  
-     if ($reboot_type eq "grub") {
- 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
--    } elsif ($reboot_type eq "grub2") {
-+    } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
- 	run_ssh "$grub_reboot $grub_number";
-     } elsif ($reboot_type eq "syslinux") {
- 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
--- 
-2.35.1
-
++	/*
++	 * For pool metadata opening process, root setting is redundant
++	 * because it will be set again in __begin_transaction(). But dm
++	 * pool aborting process really needs to get last transaction's
++	 * root to avoid accessing broken btree.
++	 */
++	pmd->root = le64_to_cpu(disk_super->data_mapping_root);
++	pmd->details_root = le64_to_cpu(disk_super->device_details_root);
++
+ 	__setup_btree_details(pmd);
+ 	dm_bm_unlock(sblock);
+ 
 
 
