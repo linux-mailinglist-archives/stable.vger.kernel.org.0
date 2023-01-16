@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FAE466C840
+	by mail.lfdr.de (Postfix) with ESMTP id B4C7B66C841
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:37:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233514AbjAPQhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:37:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53662 "EHLO
+        id S233378AbjAPQhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:37:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233445AbjAPQgj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:36:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D886274AC
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:25:41 -0800 (PST)
+        with ESMTP id S233552AbjAPQgk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:36:40 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460CE241C8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:25:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EED6D61068
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:25:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAC88C433EF;
-        Mon, 16 Jan 2023 16:25:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AEBACCE1283
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:25:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BD87C433D2;
+        Mon, 16 Jan 2023 16:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886340;
-        bh=bfN1oduN1+2E8UPQqLRFS7LImw7HIQK0zER4VeQedzY=;
+        s=korg; t=1673886343;
+        bh=gek+l7ptYo4Muy3VFVAYVi5zkahpQ0QWpUWgCkA1Nww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tuZFtXqHJfZrizyCjVgGAUevSC8gz6aDm5Mu0OvgJ3CWPt+/ABr0RzInW0SR804Cb
-         c2zOeQoHNL+9Fqi/PeKsmFYrhJknz6B/f1maGdGp9u1bHGe1qU/Tx1tc2OHd2rpJly
-         b2uxubro+SHMrQiH8EJftfkPUj6ts02Kry1HPibk=
+        b=F7adyVA9RpBE28lyh3NVhO+sKe4A0xS+0HPNrc1EG1ACzeKW1Pf/1W7k2AcNzBEeG
+         73loBwJk/YC6bNhwz1BpiY5xMp4AU4TMrxpRb1no2pZXG8wmTeIVxDOdlE/Uc7B67X
+         h+uVbQOvZekB8yPklCSXfryy56KyIOKpds36DW4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Nanyong Sun <sunnanyong@huawei.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Doug Brown <doug@schmorgal.com>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 394/658] hfs: fix OOB Read in __hfs_brec_find
-Date:   Mon, 16 Jan 2023 16:48:02 +0100
-Message-Id: <20230116154927.599143525@linuxfoundation.org>
+Subject: [PATCH 5.4 395/658] drm/etnaviv: add missing quirks for GC300
+Date:   Mon, 16 Jan 2023 16:48:03 +0100
+Message-Id: <20230116154927.647011448@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -61,79 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Doug Brown <doug@schmorgal.com>
 
-[ Upstream commit 8d824e69d9f3fa3121b2dda25053bae71e2460d2 ]
+[ Upstream commit cc7d3fb446a91f24978a6aa59cbb578f92e22242 ]
 
-Syzbot reported a OOB read bug:
+The GC300's features register doesn't specify that a 2D pipe is
+available, and like the GC600, its idle register reports zero bits where
+modules aren't present.
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in hfs_strcmp+0x117/0x190
-fs/hfs/string.c:84
-Read of size 1 at addr ffff88807eb62c4e by task kworker/u4:1/11
-CPU: 1 PID: 11 Comm: kworker/u4:1 Not tainted
-6.1.0-rc6-syzkaller-00308-g644e9524388a #0
-Workqueue: writeback wb_workfn (flush-7:0)
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- hfs_strcmp+0x117/0x190 fs/hfs/string.c:84
- __hfs_brec_find+0x213/0x5c0 fs/hfs/bfind.c:75
- hfs_brec_find+0x276/0x520 fs/hfs/bfind.c:138
- hfs_write_inode+0x34c/0xb40 fs/hfs/inode.c:462
- write_inode fs/fs-writeback.c:1440 [inline]
-
-If the input inode of hfs_write_inode() is incorrect:
-struct inode
-  struct hfs_inode_info
-    struct hfs_cat_key
-      struct hfs_name
-        u8 len # len is greater than HFS_NAMELEN(31) which is the
-maximum length of an HFS filename
-
-OOB read occurred:
-hfs_write_inode()
-  hfs_brec_find()
-    __hfs_brec_find()
-      hfs_cat_keycmp()
-        hfs_strcmp() # OOB read occurred due to len is too large
-
-Fix this by adding a Check on len in hfs_write_inode() before calling
-hfs_brec_find().
-
-Link: https://lkml.kernel.org/r/20221130065959.2168236-1-zhangpeng362@huawei.com
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Reported-by: <syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com>
-Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jeff Layton <jlayton@kernel.org>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Nanyong Sun <sunnanyong@huawei.com>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Doug Brown <doug@schmorgal.com>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
-index da243c84e93b..9c5badc9db00 100644
---- a/fs/hfs/inode.c
-+++ b/fs/hfs/inode.c
-@@ -453,6 +453,8 @@ int hfs_write_inode(struct inode *inode, struct writeback_control *wbc)
- 		/* panic? */
- 		return -EIO;
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+index db35736d47af..8c6f9752692d 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
+@@ -392,6 +392,12 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 	if (gpu->identity.model == chipModel_GC700)
+ 		gpu->identity.features &= ~chipFeatures_FAST_CLEAR;
  
-+	if (HFS_I(main_inode)->cat_key.CName.len > HFS_NAMELEN)
-+		return -EIO;
- 	fd.search_key->cat = HFS_I(main_inode)->cat_key;
- 	if (hfs_brec_find(&fd))
- 		/* panic? */
++	/* These models/revisions don't have the 2D pipe bit */
++	if ((gpu->identity.model == chipModel_GC500 &&
++	     gpu->identity.revision <= 2) ||
++	    gpu->identity.model == chipModel_GC300)
++		gpu->identity.features |= chipFeatures_PIPE_2D;
++
+ 	if ((gpu->identity.model == chipModel_GC500 &&
+ 	     gpu->identity.revision < 2) ||
+ 	    (gpu->identity.model == chipModel_GC300 &&
+@@ -425,8 +431,9 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
+ 				gpu_read(gpu, VIVS_HI_CHIP_MINOR_FEATURE_5);
+ 	}
+ 
+-	/* GC600 idle register reports zero bits where modules aren't present */
+-	if (gpu->identity.model == chipModel_GC600)
++	/* GC600/300 idle register reports zero bits where modules aren't present */
++	if (gpu->identity.model == chipModel_GC600 ||
++	    gpu->identity.model == chipModel_GC300)
+ 		gpu->idle_mask = VIVS_HI_IDLE_STATE_TX |
+ 				 VIVS_HI_IDLE_STATE_RA |
+ 				 VIVS_HI_IDLE_STATE_SE |
 -- 
 2.35.1
 
