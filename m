@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4773566C620
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:15:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DE6066C59E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232819AbjAPQPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:15:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32840 "EHLO
+        id S232336AbjAPQIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:08:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232870AbjAPQOf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:14:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BFF0241DA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:08:38 -0800 (PST)
+        with ESMTP id S232385AbjAPQHX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:07:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821A426843
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACD2261042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:08:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C26ABC433D2;
-        Mon, 16 Jan 2023 16:08:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B8A361041
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB1DC43396;
+        Mon, 16 Jan 2023 16:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885317;
-        bh=+ef+bKhlTRPs2GMghyM011F1uCyVlt/bPmD5u5ZBIIk=;
+        s=korg; t=1673885131;
+        bh=0ZTGjfGJJGVZANrCTIYSMnxH7e+nyhQhm9wZgo81YrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ry/4DsUkcQDVcty7x96uVuj7g2zKha2EzivommuUywda20gZD3281KIFvUdW06htC
-         GfoIkmVhP5JgRgkI0OzEJAXGrDds3P4fyZd3H94MDEW3bJLZL3WSf5ZAWVmf8xEZ64
-         bxSKfWOoSJ+/+5iAvvSkZ8zB9Awuu3K3xZIGjC4g=
+        b=mca0h4K7uZb2fycXl+dAiCFg2t7F9o9HntPagkdmGwiDOWib/WAQe4tcqSv3WAC+0
+         KKmIOtnYJzgbsODBcieKuLfOfY+gQ54v7DLfjAJ8Qo9ZuiOcsDqE8wyipBT3KPBTd0
+         k/uIJQdGvsJP2nRc2FPhh5cYo2dw/HcRej/nFtQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 53/64] Documentation: KVM: add API issues section
+        patches@lists.linux.dev,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Mark Pearson <markpearson@lenovo.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.15 86/86] pinctrl: amd: Add dynamic debugging for active GPIOs
 Date:   Mon, 16 Jan 2023 16:52:00 +0100
-Message-Id: <20230116154745.401320092@linuxfoundation.org>
+Message-Id: <20230116154750.587154272@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,79 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit cde363ab7ca7aea7a853851cd6a6745a9e1aaf5e ]
+commit 1d66e379731f79ae5039a869c0fde22a4f6a6a91 upstream.
 
-Add a section to document all the different ways in which the KVM API sucks.
+Some laptops have been reported to wake up from s2idle when plugging
+in the AC adapter or by closing the lid.  This is a surprising
+behavior that is further clarified by commit cb3e7d624c3ff ("PM:
+wakeup: Add extra debugging statement for multiple active IRQs").
 
-I am sure there are way more, give people a place to vent so that userspace
-authors are aware.
+With that commit in place the following interaction can be seen
+when the lid is closed:
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <20220322110712.222449-4-pbonzini@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[   28.946038] PM: suspend-to-idle
+[   28.946083] ACPI: EC: ACPI EC GPE status set
+[   28.946101] ACPI: PM: Rearming ACPI SCI for wakeup
+[   28.950152] Timekeeping suspended for 3.320 seconds
+[   28.950152] PM: Triggering wakeup from IRQ 9
+[   28.950152] ACPI: EC: ACPI EC GPE status set
+[   28.950152] ACPI: EC: ACPI EC GPE dispatched
+[   28.995057] ACPI: EC: ACPI EC work flushed
+[   28.995075] ACPI: PM: Rearming ACPI SCI for wakeup
+[   28.995131] PM: Triggering wakeup from IRQ 9
+[   28.995271] ACPI: EC: ACPI EC GPE status set
+[   28.995291] ACPI: EC: ACPI EC GPE dispatched
+[   29.098556] ACPI: EC: ACPI EC work flushed
+[   29.207020] ACPI: EC: ACPI EC work flushed
+[   29.207037] ACPI: PM: Rearming ACPI SCI for wakeup
+[   29.211095] Timekeeping suspended for 0.739 seconds
+[   29.211095] PM: Triggering wakeup from IRQ 9
+[   29.211079] PM: Triggering wakeup from IRQ 7
+[   29.211095] ACPI: PM: ACPI non-EC GPE wakeup
+[   29.211095] PM: resume from suspend-to-idle
+
+* IRQ9 on this laptop is used for the ACPI SCI.
+* IRQ7 on this laptop is used for the GPIO controller.
+
+What has occurred is when the lid was closed the EC woke up the
+SoC from it's deepest sleep state and the kernel's s2idle loop
+processed all EC events.  When it was finished processing EC events,
+it checked for any other reasons to wake (break the s2idle loop).
+
+The IRQ for the GPIO controller was active so the loop broke, and
+then this IRQ was processed.  This is not a kernel bug but it is
+certainly a surprising behavior, and to better debug it we should
+have a dynamic debugging message that we can enact to catch it.
+
+Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Acked-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Mark Pearson <markpearson@lenovo.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20221013134729.5592-2-mario.limonciello@amd.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/virt/kvm/api.rst | 46 ++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ drivers/pinctrl/pinctrl-amd.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index cd8a58556804..d807994360d4 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -6398,3 +6398,49 @@ When enabled, KVM will disable paravirtual features provided to the
- guest according to the bits in the KVM_CPUID_FEATURES CPUID leaf
- (0x40000001). Otherwise, a guest may use the paravirtual features
- regardless of what has actually been exposed through the CPUID leaf.
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -627,13 +627,15 @@ static bool do_amd_gpio_irq_handler(int
+ 		/* Each status bit covers four pins */
+ 		for (i = 0; i < 4; i++) {
+ 			regval = readl(regs + i);
+-			/* caused wake on resume context for shared IRQ */
+-			if (irq < 0 && (regval & BIT(WAKE_STS_OFF))) {
 +
-+9. Known KVM API problems
-+=========================
++			if (regval & PIN_IRQ_PENDING)
+ 				dev_dbg(&gpio_dev->pdev->dev,
+-					"Waking due to GPIO %d: 0x%x",
++					"GPIO %d is active: 0x%x",
+ 					irqnr + i, regval);
 +
-+In some cases, KVM's API has some inconsistencies or common pitfalls
-+that userspace need to be aware of.  This section details some of
-+these issues.
-+
-+Most of them are architecture specific, so the section is split by
-+architecture.
-+
-+9.1. x86
-+--------
-+
-+``KVM_GET_SUPPORTED_CPUID`` issues
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+In general, ``KVM_GET_SUPPORTED_CPUID`` is designed so that it is possible
-+to take its result and pass it directly to ``KVM_SET_CPUID2``.  This section
-+documents some cases in which that requires some care.
-+
-+Local APIC features
-+~~~~~~~~~~~~~~~~~~~
-+
-+CPU[EAX=1]:ECX[21] (X2APIC) is reported by ``KVM_GET_SUPPORTED_CPUID``,
-+but it can only be enabled if ``KVM_CREATE_IRQCHIP`` or
-+``KVM_ENABLE_CAP(KVM_CAP_IRQCHIP_SPLIT)`` are used to enable in-kernel emulation of
-+the local APIC.
-+
-+The same is true for the ``KVM_FEATURE_PV_UNHALT`` paravirtualized feature.
-+
-+CPU[EAX=1]:ECX[24] (TSC_DEADLINE) is not reported by ``KVM_GET_SUPPORTED_CPUID``.
-+It can be enabled if ``KVM_CAP_TSC_DEADLINE_TIMER`` is present and the kernel
-+has enabled in-kernel emulation of the local APIC.
-+
-+Obsolete ioctls and capabilities
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+KVM_CAP_DISABLE_QUIRKS does not let userspace know which quirks are actually
-+available.  Use ``KVM_CHECK_EXTENSION(KVM_CAP_DISABLE_QUIRKS2)`` instead if
-+available.
-+
-+Ordering of KVM_GET_*/KVM_SET_* ioctls
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+TBD
--- 
-2.35.1
-
++			/* caused wake on resume context for shared IRQ */
++			if (irq < 0 && (regval & BIT(WAKE_STS_OFF)))
+ 				return true;
+-			}
+ 
+ 			if (!(regval & PIN_IRQ_PENDING) ||
+ 			    !(regval & BIT(INTERRUPT_MASK_OFF)))
 
 
