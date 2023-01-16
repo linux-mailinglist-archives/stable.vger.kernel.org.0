@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55EBD66CC64
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5540C66CAE8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234341AbjAPRZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46386 "EHLO
+        id S229545AbjAPRJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234555AbjAPRZV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:25:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4F59ED1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:23 -0800 (PST)
+        with ESMTP id S233741AbjAPRIJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 811872E0C8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95C93B8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E56BAC433D2;
-        Mon, 16 Jan 2023 17:02:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D90B60F61
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 308FEC433EF;
+        Mon, 16 Jan 2023 16:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888541;
-        bh=DI0exy9Ibs/VqBK2uY33BRoZKEOE++b4VIh2vTydm4s=;
+        s=korg; t=1673887715;
+        bh=wcHfSWMguSyfy8n0xOtPwQ/9KuTxu6ELIvQhoybdKbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NwusC7De6dFKRLyBTc+O3ZwdXz3d6mrOmCjZga5tK8K+eNdSMT5Eo18CAuyoR8LIZ
-         +UqY5sfPDTm4Olo0/vcaU4K0hxo9T6AbVMFqobx1zjni3UzDbvvJtNVnQtLQfMyoNl
-         Wp58PAmslgLFumudpdLPufkiTUZbtoNi50ZKAQOk=
+        b=fhyLT0dDftw1uec0Rdn3WGEZJg8zmnyfFEt9rjs+1G61HnHnOnSQNHhujiIXL2JnU
+         Qazg78HWrRLY8ziBHVwae+iEY4FIRTfvvztbbp8B9jJxGd+2MRHyA1rGU4GuH68D0m
+         4ogJcL2eXjeDdIg2XgkTWyiFeAyJt/c5JC8fvpik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, xiongxin <xiongxin@kylinos.cn>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 043/338] PM: hibernate: Fix mistake in kerneldoc comment
+        patches@lists.linux.dev,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 254/521] fbdev: ssd1307fb: Drop optional dependency
 Date:   Mon, 16 Jan 2023 16:48:36 +0100
-Message-Id: <20230116154822.658407029@linuxfoundation.org>
+Message-Id: <20230116154858.492206186@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xiongxin <xiongxin@kylinos.cn>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 6e5d7300cbe7c3541bc31f16db3e9266e6027b4b ]
+[ Upstream commit 025e3b507a3a8e1ee96a3112bb67495c77d6cdb6 ]
 
-The actual maximum image size formula in hibernate_preallocate_memory()
-is as follows:
+Only a single out of three devices need a PWM, so from driver it's
+optional. Moreover it's a single driver in the entire kernel that
+currently selects PWM. Unfortunately this selection is a root cause
+of the circular dependencies when we want to enable optional PWM
+for some other drivers that select GPIOLIB.
 
-max_size = (count - (size + PAGES_FOR_IO)) / 2
-	    - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE);
-
-but the one in the kerneldoc comment of the function is different and
-incorrect.
-
-Fixes: ddeb64870810 ("PM / Hibernate: Add sysfs knob to control size of memory for drivers")
-Signed-off-by: xiongxin <xiongxin@kylinos.cn>
-[ rjw: Subject and changelog rewrite ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: a2ed00da5047 ("drivers/video: add support for the Solomon SSD1307 OLED Controller")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/snapshot.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
-index ff2aabb70de9..3df9d57c18fe 100644
---- a/kernel/power/snapshot.c
-+++ b/kernel/power/snapshot.c
-@@ -1679,8 +1679,8 @@ static unsigned long minimum_image_size(unsigned long saveable)
-  * /sys/power/reserved_size, respectively).  To make this happen, we compute the
-  * total number of available page frames and allocate at least
-  *
-- * ([page frames total] + PAGES_FOR_IO + [metadata pages]) / 2
-- *  + 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
-+ * ([page frames total] - PAGES_FOR_IO - [metadata pages]) / 2
-+ *  - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
-  *
-  * of them, which corresponds to the maximum size of a hibernation image.
-  *
+diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+index 97c4319797d5..afb0c9e4d738 100644
+--- a/drivers/video/fbdev/Kconfig
++++ b/drivers/video/fbdev/Kconfig
+@@ -2316,7 +2316,6 @@ config FB_SSD1307
+ 	select FB_SYS_COPYAREA
+ 	select FB_SYS_IMAGEBLIT
+ 	select FB_DEFERRED_IO
+-	select PWM
+ 	select FB_BACKLIGHT
+ 	help
+ 	  This driver implements support for the Solomon SSD1307
 -- 
 2.35.1
 
