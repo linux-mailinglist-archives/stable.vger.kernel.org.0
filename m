@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 862EE66CC8C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:27:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C454266CB15
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:10:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234674AbjAPR07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:26:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47816 "EHLO
+        id S234340AbjAPRK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:10:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234687AbjAPR0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:26:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE8B3F2A5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:03:53 -0800 (PST)
+        with ESMTP id S234271AbjAPRKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:10:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A20042DF8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:50:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE79961055
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:03:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D47DC433D2;
-        Mon, 16 Jan 2023 17:03:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C23A5B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:50:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E667C433D2;
+        Mon, 16 Jan 2023 16:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888632;
-        bh=bloqT0XLlL6pZlvfDkPmdF+ymEdYgihtx++/A0gF1zA=;
+        s=korg; t=1673887810;
+        bh=YYH7BdtKsVIGbKRdZzknBbx9GBs7wx+C+iKW0GYxji4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJcU+iYFzP/OV5stpIoqf3sHw9H4PV6eNMa0R2IT0IrxbgohT45Cpq3NAcQACFg+W
-         4UqqSaP1/9dJg5CNeDjHcEc6sI26EzBCHBtKrjw9lrcxqheF+O9beCW+xFsJUeW1dT
-         mBvoNz3fXgvygytlIY/jOvB73z2Tbfu9nVxfmqf8=
+        b=qy0tpu/LW3U/Uq00l6MGQQC9LN4g2D4Bn/4lc7w8Ul/tgIgDMQ746EMkkXcjC4jZe
+         zA56iiOrO4p2Ca4wQfA2JYZg57z9hhKyAyKkqldNdHGtnL+spTSgIwDtvHoYQprpqX
+         Y/rzL2My8g0jWep4DW1DZ82XpyAvHkFtyTEtE/xU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 051/338] irqchip: gic-pm: Use pm_runtime_resume_and_get() in gic_probe()
-Date:   Mon, 16 Jan 2023 16:48:44 +0100
-Message-Id: <20230116154823.046638801@linuxfoundation.org>
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 263/521] HSI: omap_ssi_core: Fix error handling in ssi_init()
+Date:   Mon, 16 Jan 2023 16:48:45 +0100
+Message-Id: <20230116154858.893895841@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit f9ee20c85b3a3ba0afd3672630ec4f93d339f015 ]
+[ Upstream commit 3ffa9f713c39a213a08d9ff13ab983a8aa5d8b5d ]
 
-gic_probe() calls pm_runtime_get_sync() and added fail path as
-rpm_put to put usage_counter. However, pm_runtime_get_sync()
-will increment usage_counter even it failed. Fix it by replacing it with
-pm_runtime_resume_and_get() to keep usage counter balanced.
+The ssi_init() returns the platform_driver_register() directly without
+checking its return value, if platform_driver_register() failed, the
+ssi_pdriver is not unregistered.
+Fix by unregister ssi_pdriver when the last platform_driver_register()
+failed.
 
-Fixes: 9c8edddfc992 ("irqchip/gic: Add platform driver for non-root GICs that require RPM")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20221124065150.22809-1-shangxiaojing@huawei.com
+Fixes: 0fae198988b8 ("HSI: omap_ssi: built omap_ssi and omap_ssi_port into one module")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-pm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hsi/controllers/omap_ssi_core.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-gic-pm.c b/drivers/irqchip/irq-gic-pm.c
-index ecafd295c31c..21c5decfc55b 100644
---- a/drivers/irqchip/irq-gic-pm.c
-+++ b/drivers/irqchip/irq-gic-pm.c
-@@ -112,7 +112,7 @@ static int gic_probe(struct platform_device *pdev)
+diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
+index 2f1a576fa8b7..6595f34e51aa 100644
+--- a/drivers/hsi/controllers/omap_ssi_core.c
++++ b/drivers/hsi/controllers/omap_ssi_core.c
+@@ -667,7 +667,13 @@ static int __init ssi_init(void) {
+ 	if (ret)
+ 		return ret;
  
- 	pm_runtime_enable(dev);
- 
--	ret = pm_runtime_get_sync(dev);
-+	ret = pm_runtime_resume_and_get(dev);
- 	if (ret < 0)
- 		goto rpm_disable;
+-	return platform_driver_register(&ssi_port_pdriver);
++	ret = platform_driver_register(&ssi_port_pdriver);
++	if (ret) {
++		platform_driver_unregister(&ssi_pdriver);
++		return ret;
++	}
++
++	return 0;
+ }
+ module_init(ssi_init);
  
 -- 
 2.35.1
