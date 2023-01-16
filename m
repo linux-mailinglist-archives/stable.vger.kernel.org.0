@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7589D66C603
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:13:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 983CF66C573
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232817AbjAPQNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:13:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59424 "EHLO
+        id S232128AbjAPQG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:06:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232818AbjAPQMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:12:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E2C2B280
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:48 -0800 (PST)
+        with ESMTP id S232215AbjAPQGD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5971727997
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:04:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20BBD61048
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 324D4C433EF;
-        Mon, 16 Jan 2023 16:07:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2E456104D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:04:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1CB0C433D2;
+        Mon, 16 Jan 2023 16:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885267;
-        bh=bhB3u7KRuIDhfOGfS9S4Rehu1Wi2ISGA2qR3xKaEZRU=;
+        s=korg; t=1673885050;
+        bh=0OgaoWosvqxkO1w57FcJR+AA59Te+PBwH1KYgAqSVzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E72oWKjpQAwYaSDzd+AzhhXfhukvjfpgJIzFRhxqMGZcRnGd8oFPb8k9ROcToeBU7
-         o4tYljuF+qOLWBZtpcPoX/lk3RA4eTgmMkoyVA/MF2G9Wb0vQ5f3zzwBsac31VTAu3
-         FL/XbWHMfaUIm8E7DkcGkhqtiNo506eg02GLWpZY=
+        b=Bbw/2Pz6CD2KFBHpni/T9UQ+fXrhkwEnevYtA0CDJsQaFkR19urI5Gz4xMpB5mUwu
+         bCx/yZMsYmkdlmr20N1OEG/VDfmikoLlmdmLwp5LCCLKZ+CKzR+MDvKRcQuara13zb
+         kmMDmQArZbkk4Y8BFJHDbJLWFqDy0H/DCHuE2Yg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Li Jun <jun.li@nxp.com>, Abel Vesa <abel.vesa@linaro.org>,
+        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 22/64] dt-bindings: clocks: imx8mp: Add ID for usb suspend clock
+Subject: [PATCH 5.15 55/86] nfc: pn533: Wait for out_urbs completion in pn533_usb_send_frame()
 Date:   Mon, 16 Jan 2023 16:51:29 +0100
-Message-Id: <20230116154744.380724729@linuxfoundation.org>
+Message-Id: <20230116154749.332705660@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +53,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit 5c1f7f1090947d494c30042123e0ec846f696336 ]
+[ Upstream commit 9dab880d675b9d0dd56c6428e4e8352a3339371d ]
 
-usb suspend clock has a gate shared with usb_root_clk.
+Fix a use-after-free that occurs in hcd when in_urb sent from
+pn533_usb_send_frame() is completed earlier than out_urb. Its callback
+frees the skb data in pn533_send_async_complete() that is used as a
+transfer buffer of out_urb. Wait before sending in_urb until the
+callback of out_urb is called. To modify the callback of out_urb alone,
+separate the complete function of out_urb and ack_urb.
 
-Fixes: 9c140d9926761 ("clk: imx: Add support for i.MX8MP clock driver")
-Cc: stable@vger.kernel.org # v5.19+
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Tested-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Link: https://lore.kernel.org/r/1664549663-20364-1-git-send-email-jun.li@nxp.com
+Found by a modified version of syzkaller.
+
+BUG: KASAN: use-after-free in dummy_timer
+Call Trace:
+ memcpy (mm/kasan/shadow.c:65)
+ dummy_perform_transfer (drivers/usb/gadget/udc/dummy_hcd.c:1352)
+ transfer (drivers/usb/gadget/udc/dummy_hcd.c:1453)
+ dummy_timer (drivers/usb/gadget/udc/dummy_hcd.c:1972)
+ arch_static_branch (arch/x86/include/asm/jump_label.h:27)
+ static_key_false (include/linux/jump_label.h:207)
+ timer_expire_exit (include/trace/events/timer.h:127)
+ call_timer_fn (kernel/time/timer.c:1475)
+ expire_timers (kernel/time/timer.c:1519)
+ __run_timers (kernel/time/timer.c:1790)
+ run_timer_softirq (kernel/time/timer.c:1803)
+
+Fixes: c46ee38620a2 ("NFC: pn533: add NXP pn533 nfc device driver")
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/dt-bindings/clock/imx8mp-clock.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nfc/pn533/usb.c | 44 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 41 insertions(+), 3 deletions(-)
 
-diff --git a/include/dt-bindings/clock/imx8mp-clock.h b/include/dt-bindings/clock/imx8mp-clock.h
-index 0ba16b76eb2f..d7e513243dd2 100644
---- a/include/dt-bindings/clock/imx8mp-clock.h
-+++ b/include/dt-bindings/clock/imx8mp-clock.h
-@@ -328,8 +328,9 @@
- #define IMX8MP_CLK_CLKOUT2_SEL			317
- #define IMX8MP_CLK_CLKOUT2_DIV			318
- #define IMX8MP_CLK_CLKOUT2			319
-+#define IMX8MP_CLK_USB_SUSP			320
+diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
+index bd7f7478d189..62ad26e4299d 100644
+--- a/drivers/nfc/pn533/usb.c
++++ b/drivers/nfc/pn533/usb.c
+@@ -153,10 +153,17 @@ static int pn533_usb_send_ack(struct pn533 *dev, gfp_t flags)
+ 	return usb_submit_urb(phy->ack_urb, flags);
+ }
  
--#define IMX8MP_CLK_END				320
-+#define IMX8MP_CLK_END				321
++struct pn533_out_arg {
++	struct pn533_usb_phy *phy;
++	struct completion done;
++};
++
+ static int pn533_usb_send_frame(struct pn533 *dev,
+ 				struct sk_buff *out)
+ {
+ 	struct pn533_usb_phy *phy = dev->phy;
++	struct pn533_out_arg arg;
++	void *cntx;
+ 	int rc;
  
- #define IMX8MP_CLK_AUDIOMIX_SAI1_IPG		0
- #define IMX8MP_CLK_AUDIOMIX_SAI1_MCLK1		1
+ 	if (phy->priv == NULL)
+@@ -168,10 +175,17 @@ static int pn533_usb_send_frame(struct pn533 *dev,
+ 	print_hex_dump_debug("PN533 TX: ", DUMP_PREFIX_NONE, 16, 1,
+ 			     out->data, out->len, false);
+ 
++	init_completion(&arg.done);
++	cntx = phy->out_urb->context;
++	phy->out_urb->context = &arg;
++
+ 	rc = usb_submit_urb(phy->out_urb, GFP_KERNEL);
+ 	if (rc)
+ 		return rc;
+ 
++	wait_for_completion(&arg.done);
++	phy->out_urb->context = cntx;
++
+ 	if (dev->protocol_type == PN533_PROTO_REQ_RESP) {
+ 		/* request for response for sent packet directly */
+ 		rc = pn533_submit_urb_for_response(phy, GFP_KERNEL);
+@@ -408,7 +422,31 @@ static int pn533_acr122_poweron_rdr(struct pn533_usb_phy *phy)
+ 	return arg.rc;
+ }
+ 
+-static void pn533_send_complete(struct urb *urb)
++static void pn533_out_complete(struct urb *urb)
++{
++	struct pn533_out_arg *arg = urb->context;
++	struct pn533_usb_phy *phy = arg->phy;
++
++	switch (urb->status) {
++	case 0:
++		break; /* success */
++	case -ECONNRESET:
++	case -ENOENT:
++		dev_dbg(&phy->udev->dev,
++			"The urb has been stopped (status %d)\n",
++			urb->status);
++		break;
++	case -ESHUTDOWN:
++	default:
++		nfc_err(&phy->udev->dev,
++			"Urb failure (status %d)\n",
++			urb->status);
++	}
++
++	complete(&arg->done);
++}
++
++static void pn533_ack_complete(struct urb *urb)
+ {
+ 	struct pn533_usb_phy *phy = urb->context;
+ 
+@@ -496,10 +534,10 @@ static int pn533_usb_probe(struct usb_interface *interface,
+ 
+ 	usb_fill_bulk_urb(phy->out_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_out_complete, phy);
+ 	usb_fill_bulk_urb(phy->ack_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_ack_complete, phy);
+ 
+ 	switch (id->driver_info) {
+ 	case PN533_DEVICE_STD:
 -- 
 2.35.1
 
