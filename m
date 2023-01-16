@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF8E66C6A5
+	by mail.lfdr.de (Postfix) with ESMTP id A3A1866C6A6
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:22:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232941AbjAPQWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:22:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38040 "EHLO
+        id S232446AbjAPQW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:22:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232446AbjAPQWB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:22:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61AB324104
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:10 -0800 (PST)
+        with ESMTP id S233015AbjAPQWD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:22:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 954892A15B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F0DEB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64987C433EF;
-        Mon, 16 Jan 2023 16:12:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2E6661041
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1479AC433EF;
+        Mon, 16 Jan 2023 16:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885527;
-        bh=1tDOy5L1eAmoTDNxl0ATOWda2hr1mp+tv6SvHsoWBzM=;
+        s=korg; t=1673885530;
+        bh=cqUExqvN0IgAyRIATW50OocgACFi0w0VAuJPF0mW6IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NsNqd3evVMD8lyIOr+EiSdojGgMX9U/jJ3gvdJMmTr6fvO+HXgkS+nsFhnbYhVv60
-         6GTyDzoyP6IRnkiq9uICSTvDiaq8f7uHaNlsM95RL2dS1t6wbU69gCvs1HqXLXKRpU
-         dqrocWz5kKqxta6x/OknqcAZc36ZKitNLALawO5c=
+        b=G9CrvrGriYev2joZj/6Iz+uPqovVDrivxfLK8ZFj9alfT/mOcHemWlVB+4mc7gG3U
+         qSW5SOqRtVs0AyW9r9wnBb9vELXEDaPFxdMl7fbnim/S088HdBds2yrOKP3OY8j1ee
+         n16RE9ovs+b9DgNfBapcIowB5B6hOm81Gj0k2uNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
         Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 085/658] x86/xen: Fix memory leak in xen_smp_intr_init{_pv}()
-Date:   Mon, 16 Jan 2023 16:42:53 +0100
-Message-Id: <20230116154913.470214432@linuxfoundation.org>
+Subject: [PATCH 5.4 086/658] x86/xen: Fix memory leak in xen_init_lock_cpu()
+Date:   Mon, 16 Jan 2023 16:42:54 +0100
+Message-Id: <20230116154913.518727362@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -55,174 +55,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 69143f60868b3939ddc89289b29db593b647295e ]
+[ Upstream commit ca84ce153d887b1dc8b118029976cc9faf2a9b40 ]
 
-These local variables @{resched|pmu|callfunc...}_name saves the new
-string allocated by kasprintf(), and when bind_{v}ipi_to_irqhandler()
-fails, it goes to the @fail tag, and calls xen_smp_intr_free{_pv}() to
-free resource, however the new string is not saved, which cause a memory
-leak issue. fix it.
+In xen_init_lock_cpu(), the @name has allocated new string by kasprintf(),
+if bind_ipi_to_irqhandler() fails, it should be freed, otherwise may lead
+to a memory leak issue, fix it.
 
-Fixes: 9702785a747a ("i386: move xen")
+Fixes: 2d9e1e2f58b5 ("xen: implement Xen-specific spinlocks")
 Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
 Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221123155858.11382-2-xiujianfeng@huawei.com
+Link: https://lore.kernel.org/r/20221123155858.11382-3-xiujianfeng@huawei.com
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/smp.c    | 24 ++++++++++++------------
- arch/x86/xen/smp_pv.c | 12 ++++++------
- 2 files changed, 18 insertions(+), 18 deletions(-)
+ arch/x86/xen/spinlock.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
-index 63a3605b2225..a1cc855c539c 100644
---- a/arch/x86/xen/smp.c
-+++ b/arch/x86/xen/smp.c
-@@ -32,30 +32,30 @@ static irqreturn_t xen_reschedule_interrupt(int irq, void *dev_id)
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index d817b7c862a6..00d2ec73017e 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -75,6 +75,7 @@ void xen_init_lock_cpu(int cpu)
+ 	     cpu, per_cpu(lock_kicker_irq, cpu));
  
- void xen_smp_intr_free(unsigned int cpu)
- {
-+	kfree(per_cpu(xen_resched_irq, cpu).name);
-+	per_cpu(xen_resched_irq, cpu).name = NULL;
- 	if (per_cpu(xen_resched_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_resched_irq, cpu).irq, NULL);
- 		per_cpu(xen_resched_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_resched_irq, cpu).name);
--		per_cpu(xen_resched_irq, cpu).name = NULL;
+ 	name = kasprintf(GFP_KERNEL, "spinlock%d", cpu);
++	per_cpu(irq_name, cpu) = name;
+ 	irq = bind_ipi_to_irqhandler(XEN_SPIN_UNLOCK_VECTOR,
+ 				     cpu,
+ 				     dummy_handler,
+@@ -85,7 +86,6 @@ void xen_init_lock_cpu(int cpu)
+ 	if (irq >= 0) {
+ 		disable_irq(irq); /* make sure it's never delivered */
+ 		per_cpu(lock_kicker_irq, cpu) = irq;
+-		per_cpu(irq_name, cpu) = name;
  	}
-+	kfree(per_cpu(xen_callfunc_irq, cpu).name);
-+	per_cpu(xen_callfunc_irq, cpu).name = NULL;
- 	if (per_cpu(xen_callfunc_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_callfunc_irq, cpu).irq, NULL);
- 		per_cpu(xen_callfunc_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_callfunc_irq, cpu).name);
--		per_cpu(xen_callfunc_irq, cpu).name = NULL;
- 	}
-+	kfree(per_cpu(xen_debug_irq, cpu).name);
-+	per_cpu(xen_debug_irq, cpu).name = NULL;
- 	if (per_cpu(xen_debug_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_debug_irq, cpu).irq, NULL);
- 		per_cpu(xen_debug_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_debug_irq, cpu).name);
--		per_cpu(xen_debug_irq, cpu).name = NULL;
- 	}
-+	kfree(per_cpu(xen_callfuncsingle_irq, cpu).name);
-+	per_cpu(xen_callfuncsingle_irq, cpu).name = NULL;
- 	if (per_cpu(xen_callfuncsingle_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_callfuncsingle_irq, cpu).irq,
- 				       NULL);
- 		per_cpu(xen_callfuncsingle_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_callfuncsingle_irq, cpu).name);
--		per_cpu(xen_callfuncsingle_irq, cpu).name = NULL;
- 	}
+ 
+ 	printk("cpu %d spinlock event irq %d\n", cpu, irq);
+@@ -98,6 +98,8 @@ void xen_uninit_lock_cpu(int cpu)
+ 	if (!xen_pvspin)
+ 		return;
+ 
++	kfree(per_cpu(irq_name, cpu));
++	per_cpu(irq_name, cpu) = NULL;
+ 	/*
+ 	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
+ 	 * CPUs are not activated, and lock_kicker_irq is not initialized.
+@@ -108,8 +110,6 @@ void xen_uninit_lock_cpu(int cpu)
+ 
+ 	unbind_from_irqhandler(irq, NULL);
+ 	per_cpu(lock_kicker_irq, cpu) = -1;
+-	kfree(per_cpu(irq_name, cpu));
+-	per_cpu(irq_name, cpu) = NULL;
  }
  
-@@ -65,6 +65,7 @@ int xen_smp_intr_init(unsigned int cpu)
- 	char *resched_name, *callfunc_name, *debug_name;
- 
- 	resched_name = kasprintf(GFP_KERNEL, "resched%d", cpu);
-+	per_cpu(xen_resched_irq, cpu).name = resched_name;
- 	rc = bind_ipi_to_irqhandler(XEN_RESCHEDULE_VECTOR,
- 				    cpu,
- 				    xen_reschedule_interrupt,
-@@ -74,9 +75,9 @@ int xen_smp_intr_init(unsigned int cpu)
- 	if (rc < 0)
- 		goto fail;
- 	per_cpu(xen_resched_irq, cpu).irq = rc;
--	per_cpu(xen_resched_irq, cpu).name = resched_name;
- 
- 	callfunc_name = kasprintf(GFP_KERNEL, "callfunc%d", cpu);
-+	per_cpu(xen_callfunc_irq, cpu).name = callfunc_name;
- 	rc = bind_ipi_to_irqhandler(XEN_CALL_FUNCTION_VECTOR,
- 				    cpu,
- 				    xen_call_function_interrupt,
-@@ -86,10 +87,10 @@ int xen_smp_intr_init(unsigned int cpu)
- 	if (rc < 0)
- 		goto fail;
- 	per_cpu(xen_callfunc_irq, cpu).irq = rc;
--	per_cpu(xen_callfunc_irq, cpu).name = callfunc_name;
- 
- 	if (!xen_fifo_events) {
- 		debug_name = kasprintf(GFP_KERNEL, "debug%d", cpu);
-+		per_cpu(xen_debug_irq, cpu).name = debug_name;
- 		rc = bind_virq_to_irqhandler(VIRQ_DEBUG, cpu,
- 					     xen_debug_interrupt,
- 					     IRQF_PERCPU | IRQF_NOBALANCING,
-@@ -97,10 +98,10 @@ int xen_smp_intr_init(unsigned int cpu)
- 		if (rc < 0)
- 			goto fail;
- 		per_cpu(xen_debug_irq, cpu).irq = rc;
--		per_cpu(xen_debug_irq, cpu).name = debug_name;
- 	}
- 
- 	callfunc_name = kasprintf(GFP_KERNEL, "callfuncsingle%d", cpu);
-+	per_cpu(xen_callfuncsingle_irq, cpu).name = callfunc_name;
- 	rc = bind_ipi_to_irqhandler(XEN_CALL_FUNCTION_SINGLE_VECTOR,
- 				    cpu,
- 				    xen_call_function_single_interrupt,
-@@ -110,7 +111,6 @@ int xen_smp_intr_init(unsigned int cpu)
- 	if (rc < 0)
- 		goto fail;
- 	per_cpu(xen_callfuncsingle_irq, cpu).irq = rc;
--	per_cpu(xen_callfuncsingle_irq, cpu).name = callfunc_name;
- 
- 	return 0;
- 
-diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
-index 9d9777ded5f7..928fbe63c96f 100644
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -98,18 +98,18 @@ asmlinkage __visible void cpu_bringup_and_idle(void)
- 
- void xen_smp_intr_free_pv(unsigned int cpu)
- {
-+	kfree(per_cpu(xen_irq_work, cpu).name);
-+	per_cpu(xen_irq_work, cpu).name = NULL;
- 	if (per_cpu(xen_irq_work, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_irq_work, cpu).irq, NULL);
- 		per_cpu(xen_irq_work, cpu).irq = -1;
--		kfree(per_cpu(xen_irq_work, cpu).name);
--		per_cpu(xen_irq_work, cpu).name = NULL;
- 	}
- 
-+	kfree(per_cpu(xen_pmu_irq, cpu).name);
-+	per_cpu(xen_pmu_irq, cpu).name = NULL;
- 	if (per_cpu(xen_pmu_irq, cpu).irq >= 0) {
- 		unbind_from_irqhandler(per_cpu(xen_pmu_irq, cpu).irq, NULL);
- 		per_cpu(xen_pmu_irq, cpu).irq = -1;
--		kfree(per_cpu(xen_pmu_irq, cpu).name);
--		per_cpu(xen_pmu_irq, cpu).name = NULL;
- 	}
- }
- 
-@@ -119,6 +119,7 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 	char *callfunc_name, *pmu_name;
- 
- 	callfunc_name = kasprintf(GFP_KERNEL, "irqwork%d", cpu);
-+	per_cpu(xen_irq_work, cpu).name = callfunc_name;
- 	rc = bind_ipi_to_irqhandler(XEN_IRQ_WORK_VECTOR,
- 				    cpu,
- 				    xen_irq_work_interrupt,
-@@ -128,10 +129,10 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 	if (rc < 0)
- 		goto fail;
- 	per_cpu(xen_irq_work, cpu).irq = rc;
--	per_cpu(xen_irq_work, cpu).name = callfunc_name;
- 
- 	if (is_xen_pmu) {
- 		pmu_name = kasprintf(GFP_KERNEL, "pmu%d", cpu);
-+		per_cpu(xen_pmu_irq, cpu).name = pmu_name;
- 		rc = bind_virq_to_irqhandler(VIRQ_XENPMU, cpu,
- 					     xen_pmu_irq_handler,
- 					     IRQF_PERCPU|IRQF_NOBALANCING,
-@@ -139,7 +140,6 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 		if (rc < 0)
- 			goto fail;
- 		per_cpu(xen_pmu_irq, cpu).irq = rc;
--		per_cpu(xen_pmu_irq, cpu).name = pmu_name;
- 	}
- 
- 	return 0;
+ PV_CALLEE_SAVE_REGS_THUNK(xen_vcpu_stolen);
 -- 
 2.35.1
 
