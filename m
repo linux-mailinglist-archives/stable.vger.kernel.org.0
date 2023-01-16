@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9C166CA08
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7882766C7AD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:33:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233954AbjAPQ6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:58:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51192 "EHLO
+        id S233370AbjAPQdO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:33:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234109AbjAPQ56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF3B18B26
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:59 -0800 (PST)
+        with ESMTP id S233329AbjAPQct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:32:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8AEC30289
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E79586105A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B16EC433EF;
-        Mon, 16 Jan 2023 16:40:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 660C06104E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C225C433EF;
+        Mon, 16 Jan 2023 16:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887258;
-        bh=JomcOo/4kqytm12hE+uJauojC5B8+/cFQ6L7uzTPAco=;
+        s=korg; t=1673886053;
+        bh=96oQnMRI0DTt9qsPe9KbUmap40BDEVS2+mZZlqPVp4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ka8i4iGf+ldA852p80gY/3tsnHPMX4i61iChu7ZumZzxQsLT4SjA7wuTB/RgZBkuh
-         z0OXzXrDgowvXN4VBOY87wrZrdHgkolFuAYmArAIUMSQVBtyg9QLC1LDbE/uf3p+tZ
-         MMccjvKTdb+L+99Md5CrpTBI1D6Z6rz4LRBXHsGQ=
+        b=0qNupDaYQ0QQK1RilMh30G+C7jei+voPLAzoC+iQ0smNPs7XDRH+i2diOcs6M6wNR
+         q3sWXsjIJh5jnX1H5hTJhHQJENtSWEUx7aweKkChQw2ZIMwGx3WxTOgg+fMWvsZq0a
+         Bt7pk4euUs1WiJH7sp2kCcIhpgabvJYwFZHimFow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 081/521] wifi: ath9k: hif_usb: Fix use-after-free in ath9k_hif_usb_reg_in_cb()
+Subject: [PATCH 5.4 255/658] RDMA/rxe: Fix NULL-ptr-deref in rxe_qp_do_cleanup() when socket create failed
 Date:   Mon, 16 Jan 2023 16:45:43 +0100
-Message-Id: <20230116154850.862492067@linuxfoundation.org>
+Message-Id: <20230116154921.232389472@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,113 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit dd95f2239fc846795fc926787c3ae0ca701c9840 ]
+[ Upstream commit f67376d801499f4fa0838c18c1efcad8840e550d ]
 
-It is possible that skb is freed in ath9k_htc_rx_msg(), then
-usb_submit_urb() fails and we try to free skb again. It causes
-use-after-free bug. Moreover, if alloc_skb() fails, urb->context becomes
-NULL but rx_buf is not freed and there can be a memory leak.
+There is a null-ptr-deref when mount.cifs over rdma:
 
-The patch removes unnecessary nskb and makes skb processing more clear: it
-is supposed that ath9k_htc_rx_msg() either frees old skb or passes its
-managing to another callback function.
+  BUG: KASAN: null-ptr-deref in rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
+  Read of size 8 at addr 0000000000000018 by task mount.cifs/3046
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+  CPU: 2 PID: 3046 Comm: mount.cifs Not tainted 6.1.0-rc5+ #62
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc3
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   kasan_report+0xad/0x130
+   rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
+   execute_in_process_context+0x25/0x90
+   __rxe_cleanup+0x101/0x1d0 [rdma_rxe]
+   rxe_create_qp+0x16a/0x180 [rdma_rxe]
+   create_qp.part.0+0x27d/0x340
+   ib_create_qp_kernel+0x73/0x160
+   rdma_create_qp+0x100/0x230
+   _smbd_get_connection+0x752/0x20f0
+   smbd_get_connection+0x21/0x40
+   cifs_get_tcp_session+0x8ef/0xda0
+   mount_get_conns+0x60/0x750
+   cifs_mount+0x103/0xd00
+   cifs_smb3_do_mount+0x1dd/0xcb0
+   smb3_get_tree+0x1d5/0x300
+   vfs_get_tree+0x41/0xf0
+   path_mount+0x9b3/0xdd0
+   __x64_sys_mount+0x190/0x1d0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-Fixes: 3deff76095c4 ("ath9k_htc: Increase URB count for REG_IN pipe")
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20221008114917.21404-1-pchelkin@ispras.ru
+The root cause of the issue is the socket create failed in
+rxe_qp_init_req().
+
+So move the reset rxe_qp_do_cleanup() after the NULL ptr check.
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20221122151437.1057671-1-zhangxiaoxu5@huawei.com
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 28 +++++++++++++-----------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index 4290753a2002..d872459c51cc 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -709,14 +709,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
- 	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
- 	struct sk_buff *skb = rx_buf->skb;
--	struct sk_buff *nskb;
- 	int ret;
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 89f6d54a4312..5dd9bcef5921 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -842,12 +842,12 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
+ 		qp->resp.mr = NULL;
+ 	}
  
- 	if (!skb)
- 		return;
- 
- 	if (!hif_dev)
--		goto free;
-+		goto free_skb;
- 
- 	switch (urb->status) {
- 	case 0:
-@@ -725,7 +724,7 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	case -ECONNRESET:
- 	case -ENODEV:
- 	case -ESHUTDOWN:
--		goto free;
-+		goto free_skb;
- 	default:
- 		skb_reset_tail_pointer(skb);
- 		skb_trim(skb, 0);
-@@ -736,25 +735,27 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	if (likely(urb->actual_length != 0)) {
- 		skb_put(skb, urb->actual_length);
- 
--		/* Process the command first */
-+		/*
-+		 * Process the command first.
-+		 * skb is either freed here or passed to be
-+		 * managed to another callback function.
-+		 */
- 		ath9k_htc_rx_msg(hif_dev->htc_handle, skb,
- 				 skb->len, USB_REG_IN_PIPE);
- 
+-	if (qp_type(qp) == IB_QPT_RC)
+-		sk_dst_reset(qp->sk->sk);
 -
--		nskb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
--		if (!nskb) {
-+		skb = alloc_skb(MAX_REG_IN_BUF_SIZE, GFP_ATOMIC);
-+		if (!skb) {
- 			dev_err(&hif_dev->udev->dev,
- 				"ath9k_htc: REG_IN memory allocation failure\n");
--			urb->context = NULL;
--			return;
-+			goto free_rx_buf;
- 		}
+ 	free_rd_atomic_resources(qp);
  
--		rx_buf->skb = nskb;
-+		rx_buf->skb = skb;
- 
- 		usb_fill_int_urb(urb, hif_dev->udev,
- 				 usb_rcvintpipe(hif_dev->udev,
- 						 USB_REG_IN_PIPE),
--				 nskb->data, MAX_REG_IN_BUF_SIZE,
-+				 skb->data, MAX_REG_IN_BUF_SIZE,
- 				 ath9k_hif_usb_reg_in_cb, rx_buf, 1);
+ 	if (qp->sk) {
++		if (qp_type(qp) == IB_QPT_RC)
++			sk_dst_reset(qp->sk->sk);
++
+ 		kernel_sock_shutdown(qp->sk, SHUT_RDWR);
+ 		sock_release(qp->sk);
  	}
- 
-@@ -763,12 +764,13 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	ret = usb_submit_urb(urb, GFP_ATOMIC);
- 	if (ret) {
- 		usb_unanchor_urb(urb);
--		goto free;
-+		goto free_skb;
- 	}
- 
- 	return;
--free:
-+free_skb:
- 	kfree_skb(skb);
-+free_rx_buf:
- 	kfree(rx_buf);
- 	urb->context = NULL;
- }
 -- 
 2.35.1
 
