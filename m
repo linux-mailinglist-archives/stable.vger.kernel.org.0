@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 387A466CD03
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:32:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0893266CB88
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234862AbjAPRci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:32:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53238 "EHLO
+        id S234440AbjAPRPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234854AbjAPRcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6B742DD4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:29 -0800 (PST)
+        with ESMTP id S234435AbjAPRN6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 998F225299
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05D84B810A5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ED20C433D2;
-        Mon, 16 Jan 2023 17:08:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3611561018
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B80C433D2;
+        Mon, 16 Jan 2023 16:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888906;
-        bh=EisQoTkT/fo8eqjMDoPsX1aX2ZPh1PToLWpozWmqpXA=;
+        s=korg; t=1673888071;
+        bh=kCnWFqIJsJsLVNUsATSvvvUu5AIaJy/0EUf4PgVt0UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F/T02DtBH1zWyoCYPnaXgd8njuaIysT4UvzV7fRjEJGiGTSwuAQ0oZlX0iNWH23V9
-         8RpTgxr1ARR8TGlo/WpeltXzBIfDoo1l25LE3V6ar/7trkoIMcFzflyFP/ux25OuXI
-         Qli72Tsw9bZZMnUrHhw9jUUEHZTNC5VQjGtkcWcA=
+        b=Hx0J+WlnxwAR8Tfe7LVzQ8uAc/wZbui9Hcy3+G0XjBUHRG5HpiXJFCQgUVbY3kUEJ
+         NoM1GuKn3s+Q37eG/DUuUClN08P6aJlFtsz75+1VYnEaQa6oM+l+yzZcyi5z7lffCm
+         IdrMR5nwh8xMQae9lrIUiAYpEoeh6BlPKsM0FJUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 177/338] staging: rtl8192e: Fix potential use-after-free in rtllib_rx_Monitor()
+        patches@lists.linux.dev, Ashok Raj <ashok.raj@intel.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 388/521] x86/microcode/intel: Do not retry microcode reloading on the APs
 Date:   Mon, 16 Jan 2023 16:50:50 +0100
-Message-Id: <20230116154828.628400077@linuxfoundation.org>
+Message-Id: <20230116154904.471022002@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Ashok Raj <ashok.raj@intel.com>
 
-[ Upstream commit d30f4436f364b4ad915ca2c09be07cd0f93ceb44 ]
+commit be1b670f61443aa5d0d01782e9b8ea0ee825d018 upstream.
 
-The skb is delivered to netif_rx() in rtllib_monitor_rx(), which may free it,
-after calling this, dereferencing skb may trigger use-after-free.
-Found by Smatch.
+The retries in load_ucode_intel_ap() were in place to support systems
+with mixed steppings. Mixed steppings are no longer supported and there is
+only one microcode image at a time. Any retries will simply reattempt to
+apply the same image over and over without making progress.
 
-Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20221123081253.22296-1-yuehaibing@huawei.com
+  [ bp: Zap the circumstantial reasoning from the commit message. ]
+
+Fixes: 06b8534cb728 ("x86/microcode: Rework microcode loading")
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20221129210832.107850-3-ashok.raj@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/rtllib_rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/microcode/intel.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/staging/rtl8192e/rtllib_rx.c b/drivers/staging/rtl8192e/rtllib_rx.c
-index 171009e82137..85a71b09fcba 100644
---- a/drivers/staging/rtl8192e/rtllib_rx.c
-+++ b/drivers/staging/rtl8192e/rtllib_rx.c
-@@ -1501,9 +1501,9 @@ static int rtllib_rx_Monitor(struct rtllib_device *ieee, struct sk_buff *skb,
- 		hdrlen += 4;
- 	}
+--- a/arch/x86/kernel/cpu/microcode/intel.c
++++ b/arch/x86/kernel/cpu/microcode/intel.c
+@@ -662,7 +662,6 @@ void load_ucode_intel_ap(void)
+ 	else
+ 		iup = &intel_ucode_patch;
  
--	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
- 	ieee->stats.rx_packets++;
- 	ieee->stats.rx_bytes += skb->len;
-+	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
+-reget:
+ 	if (!*iup) {
+ 		patch = __load_ucode_intel(&uci);
+ 		if (!patch)
+@@ -673,12 +672,7 @@ reget:
  
- 	return 1;
+ 	uci.mc = *iup;
+ 
+-	if (apply_microcode_early(&uci, true)) {
+-		/* Mixed-silicon system? Try to refetch the proper patch: */
+-		*iup = NULL;
+-
+-		goto reget;
+-	}
++	apply_microcode_early(&uci, true);
  }
--- 
-2.35.1
-
+ 
+ static struct microcode_intel *find_patch(struct ucode_cpu_info *uci)
 
 
