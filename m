@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4CCC66C6BB
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:24:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93FFE66C6BD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:24:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232896AbjAPQYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:24:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37964 "EHLO
+        id S232995AbjAPQYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:24:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233052AbjAPQXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:23:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 368D72A9B1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:55 -0800 (PST)
+        with ESMTP id S233067AbjAPQXd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:23:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 054F423DB8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A897BB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1796CC433F0;
-        Mon, 16 Jan 2023 16:12:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95DA060FDF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA63EC433EF;
+        Mon, 16 Jan 2023 16:12:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885572;
-        bh=UFVSMEluSimBVWnAzAFm8/z9GKq6wSrJmfTcgmBljNY=;
+        s=korg; t=1673885575;
+        bh=OGGwimbZ30I/zhreRE+ADN1rM9wYJTV9rnXriSbPpCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSpIpuAIO2nvFrArfpCRBCMrZhdR38hPqyB9V0R04QC8kFQTtkhuPxjxrShaywpPW
-         eLRN8tP7GS3VX88kZGq5BDLYLvi5dmy8UAfclsHRLAgwwQe1rJubADo0cwqF2P8G5P
-         ciYt8hK89U8YMKowE7SYjWtzXLNl0sGiri0HYlj0=
+        b=iNPPlM/qGj/8LMk3RZIC0atZ2GONmCb6SWsL7LqRFHmp9SXfTMGpR8dWq+neCP/s5
+         Nxm8jt8ghqhmLEEsi6Beed4ywYBYLM1+tkaYmZfioBhOx2IfhqrryjONxod+/acvV0
+         NR5FmNwmI0Xch1lqAwqw+CuHh8O931mCUj/Y6y9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/658] media: i2c: ad5820: Fix error path
-Date:   Mon, 16 Jan 2023 16:43:11 +0100
-Message-Id: <20230116154914.243031653@linuxfoundation.org>
+Subject: [PATCH 5.4 104/658] can: kvaser_usb: do not increase tx statistics when sending error message frames
+Date:   Mon, 16 Jan 2023 16:43:12 +0100
+Message-Id: <20230116154914.283345344@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,49 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit 9fce241660f37d9e95e93c0ae6fba8cfefa5797b ]
+[ Upstream commit 0b0ce2c67795672115ac6ca28351a78799cd114b ]
 
-Error path seems to be swaped. Fix the order and provide some meaningful
-names.
+The CAN error message frames (i.e. error skb) are an interface
+specific to socket CAN. The payload of the CAN error message frames
+does not correspond to any actual data sent on the wire. Only an error
+flag and a delimiter are transmitted when an error occurs (c.f. ISO
+11898-1 section 10.4.4.2 "Error flag").
 
-Fixes: bee3d5115611 ("[media] ad5820: Add driver for auto-focus coil")
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+For this reason, it makes no sense to increment the tx_packets and
+tx_bytes fields of struct net_device_stats when sending an error
+message frame because no actual payload will be transmitted on the
+wire.
+
+N.B. Sending error message frames is a very specific feature which, at
+the moment, is only supported by the Kvaser Hydra hardware. Please
+refer to [1] for more details on the topic.
+
+[1] https://lore.kernel.org/linux-can/CAMZ6RqK0rTNg3u3mBpZOoY51jLZ-et-J01tY6-+mWsM4meVw-A@mail.gmail.com/t/#u
+
+Link: https://lore.kernel.org/all/20211207121531.42941-3-mailhol.vincent@wanadoo.fr
+Co-developed-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Stable-dep-of: 35364f5b41a4 ("can: kvaser_usb: kvaser_usb_leaf: Get capabilities from device")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ad5820.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ad5820.c b/drivers/media/i2c/ad5820.c
-index 7a49651f4d1f..d7d85edeedd5 100644
---- a/drivers/media/i2c/ad5820.c
-+++ b/drivers/media/i2c/ad5820.c
-@@ -314,18 +314,18 @@ static int ad5820_probe(struct i2c_client *client,
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+index 45d278724883..9588efbfae71 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+@@ -293,6 +293,7 @@ struct kvaser_cmd {
+ #define KVASER_USB_HYDRA_CF_FLAG_OVERRUN	BIT(1)
+ #define KVASER_USB_HYDRA_CF_FLAG_REMOTE_FRAME	BIT(4)
+ #define KVASER_USB_HYDRA_CF_FLAG_EXTENDED_ID	BIT(5)
++#define KVASER_USB_HYDRA_CF_FLAG_TX_ACK		BIT(6)
+ /* CAN frame flags. Used in ext_rx_can and ext_tx_can */
+ #define KVASER_USB_HYDRA_CF_FLAG_OSM_NACK	BIT(12)
+ #define KVASER_USB_HYDRA_CF_FLAG_ABL		BIT(13)
+@@ -1099,6 +1100,7 @@ static void kvaser_usb_hydra_tx_acknowledge(const struct kvaser_usb *dev,
+ 	struct kvaser_usb_net_priv *priv;
+ 	unsigned long irq_flags;
+ 	bool one_shot_fail = false;
++	bool is_err_frame = false;
+ 	u16 transid = kvaser_usb_hydra_get_cmd_transid(cmd);
  
- 	ret = media_entity_pads_init(&coil->subdev.entity, 0, NULL);
- 	if (ret < 0)
--		goto cleanup2;
-+		goto clean_mutex;
+ 	priv = kvaser_usb_hydra_net_priv_from_cmd(dev, cmd);
+@@ -1117,10 +1119,13 @@ static void kvaser_usb_hydra_tx_acknowledge(const struct kvaser_usb *dev,
+ 			kvaser_usb_hydra_one_shot_fail(priv, cmd_ext);
+ 			one_shot_fail = true;
+ 		}
++
++		is_err_frame = flags & KVASER_USB_HYDRA_CF_FLAG_TX_ACK &&
++			       flags & KVASER_USB_HYDRA_CF_FLAG_ERROR_FRAME;
+ 	}
  
- 	ret = v4l2_async_register_subdev(&coil->subdev);
- 	if (ret < 0)
--		goto cleanup;
-+		goto clean_entity;
+ 	context = &priv->tx_contexts[transid % dev->max_tx_urbs];
+-	if (!one_shot_fail) {
++	if (!one_shot_fail && !is_err_frame) {
+ 		struct net_device_stats *stats = &priv->netdev->stats;
  
- 	return ret;
- 
--cleanup2:
--	mutex_destroy(&coil->power_lock);
--cleanup:
-+clean_entity:
- 	media_entity_cleanup(&coil->subdev.entity);
-+clean_mutex:
-+	mutex_destroy(&coil->power_lock);
- 	return ret;
- }
- 
+ 		stats->tx_packets++;
 -- 
 2.35.1
 
