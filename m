@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F37166C788
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF64366C9DA
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:57:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233127AbjAPQbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:31:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47024 "EHLO
+        id S234044AbjAPQ46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:56:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233226AbjAPQa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEFCE27D77
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:19:35 -0800 (PST)
+        with ESMTP id S233961AbjAPQ43 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BF722A0C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 323B261047
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:19:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47082C433F0;
-        Mon, 16 Jan 2023 16:19:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39718B8108F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BEF4C433EF;
+        Mon, 16 Jan 2023 16:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885974;
-        bh=2NnvUskgAJDl2fOu8XG+8dZNcvM/F8W3W2y469KZUek=;
+        s=korg; t=1673887174;
+        bh=l4mdijT3DXLoB3FEQAQQT3XWHgMtUjdefbiHKLqvrG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNMcabqo5fAEsn2qodpF3l7OZABlUY/BdKH0zMcmarvvsFWeXPH3NpFc04vGSAr03
-         dOEEV3xxm4Wo3TnwDRzBfeByqgk5wXmW4fB1R4/AtSkf/6a6vsANaIC+VfXlBgqw+A
-         a7DML+G1DOmyT6VezxiXAoWTdHzAQ8TabXiH0mrk=
+        b=XK8Y0Uk6iOk/f1RnIqceQnVpJpsex4owHyEKqb+69g99sLDJDUYuMqgtaDT8ot2ti
+         ebMn/+tWKo7lIchouuJfTkrOJeAR67kiJAG9nbtzCNoa7Uz64L1YpEJtGRQJETJUB7
+         DEnL70UJ8SZZV3v8jvkvdrR1kx34Dotk4iGHyfmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 224/658] net: ethernet: dnet: dont call dev_kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 4.19 050/521] proc: fixup uptime selftest
 Date:   Mon, 16 Jan 2023 16:45:12 +0100
-Message-Id: <20230116154919.752016560@linuxfoundation.org>
+Message-Id: <20230116154849.486191201@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit f07fadcbee2a5e84caa67c7c445424200bffb60b ]
+[ Upstream commit 5cc81d5c81af0dee54da9a67a3ebe4be076a13db ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+syscall(3) returns -1 and sets errno on error, unlike "syscall"
+instruction.
 
-In this case, the lock is used to protected 'bp', so we can move
-dev_kfree_skb() after the spin_unlock_irqrestore().
+Systems which have <= 32/64 CPUs are unaffected. Test won't bounce
+to all CPUs before completing if there are more of them.
 
-Fixes: 4796417417a6 ("dnet: Dave DNET ethernet controller driver (updated)")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lkml.kernel.org/r/Y1bUiT7VRXlXPQa1@p183
+Fixes: 1f5bd0547654 ("proc: selftests: test /proc/uptime")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/dnet.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/proc/proc-uptime-002.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/dnet.c b/drivers/net/ethernet/dnet.c
-index e24979010969..da9f9ec3e123 100644
---- a/drivers/net/ethernet/dnet.c
-+++ b/drivers/net/ethernet/dnet.c
-@@ -553,11 +553,11 @@ static netdev_tx_t dnet_start_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/tools/testing/selftests/proc/proc-uptime-002.c b/tools/testing/selftests/proc/proc-uptime-002.c
+index e7ceabed7f51..7d0aa22bdc12 100644
+--- a/tools/testing/selftests/proc/proc-uptime-002.c
++++ b/tools/testing/selftests/proc/proc-uptime-002.c
+@@ -17,6 +17,7 @@
+ // while shifting across CPUs.
+ #undef NDEBUG
+ #include <assert.h>
++#include <errno.h>
+ #include <unistd.h>
+ #include <sys/syscall.h>
+ #include <stdlib.h>
+@@ -54,7 +55,7 @@ int main(void)
+ 		len += sizeof(unsigned long);
+ 		free(m);
+ 		m = malloc(len);
+-	} while (sys_sched_getaffinity(0, len, m) == -EINVAL);
++	} while (sys_sched_getaffinity(0, len, m) == -1 && errno == EINVAL);
  
- 	skb_tx_timestamp(skb);
- 
-+	spin_unlock_irqrestore(&bp->lock, flags);
-+
- 	/* free the buffer */
- 	dev_kfree_skb(skb);
- 
--	spin_unlock_irqrestore(&bp->lock, flags);
--
- 	return NETDEV_TX_OK;
- }
- 
+ 	fd = open("/proc/uptime", O_RDONLY);
+ 	assert(fd >= 0);
 -- 
 2.35.1
 
