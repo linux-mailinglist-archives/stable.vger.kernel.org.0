@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77E7566CD8F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F22AE66CC20
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:22:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235029AbjAPRha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:37:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58962 "EHLO
+        id S234544AbjAPRWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:22:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235031AbjAPRhB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B782A43444
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:25 -0800 (PST)
+        with ESMTP id S234584AbjAPRVM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:21:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D052DE63
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:59:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74877B8106C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA84BC433D2;
-        Mon, 16 Jan 2023 17:13:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E99860F7C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:59:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7610BC433EF;
+        Mon, 16 Jan 2023 16:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889203;
-        bh=3YjISPR5sYInftzEzvFIaudIGzW76vWC8b+zfg+deas=;
+        s=korg; t=1673888385;
+        bh=z9HBeGABdP0W38UW/7W4/Qe/J7MWugFpD+I24T3Ipag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQeNgaOped5cxSUywHAOSYz7MOil0xFECVYduJMrLHo2525nigtz0UzfR8EQsqU9C
-         0jK9BKuYFjFNDp3NKDUrzOUsdtq2B87GmBYfazyShJEVEBt+vF9KeIRdSc+UVEdmUA
-         TSZVBFdbc2D0bBc94MGv9g06/+rrPA2TCadmkb+U=
+        b=hKc/Q0thG47y2Iac1mdRsoy1EI+z2itU+yTBYRE4LMg81YOPPA3dLUBBNIm05pVeF
+         Jc1P7ZWdmvP1P5NmRSDiv5kRwi9YuTQcT/0M3CXfm00dKSFlj3Fnki03DfsT1IMjj0
+         Gka/Pv4x+EQneeBL0cFQ+SECFCv8+oGjBDduIziU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Baokun Li <libaokun1@huawei.com>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 297/338] ext4: add inode table check in __ext4_get_inode_loc to aovid possible infinite loop
+        patches@lists.linux.dev, Yong Wu <yong.wu@mediatek.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 508/521] iommu/mediatek-v1: Add error handle for mtk_iommu_probe
 Date:   Mon, 16 Jan 2023 16:52:50 +0100
-Message-Id: <20230116154834.046086386@linuxfoundation.org>
+Message-Id: <20230116154909.921496250@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Yong Wu <yong.wu@mediatek.com>
 
-commit eee22187b53611e173161e38f61de1c7ecbeb876 upstream.
+[ Upstream commit ac304c070c54413efabf29f9e73c54576d329774 ]
 
-In do_writepages, if the value returned by ext4_writepages is "-ENOMEM"
-and "wbc->sync_mode == WB_SYNC_ALL", retry until the condition is not met.
+In the original code, we lack the error handle. This patch adds them.
 
-In __ext4_get_inode_loc, if the bh returned by sb_getblk is NULL,
-the function returns -ENOMEM.
-
-In __getblk_slow, if the return value of grow_buffers is less than 0,
-the function returns NULL.
-
-When the three processes are connected in series like the following stack,
-an infinite loop may occur:
-
-do_writepages					<--- keep retrying
- ext4_writepages
-  mpage_map_and_submit_extent
-   mpage_map_one_extent
-    ext4_map_blocks
-     ext4_ext_map_blocks
-      ext4_ext_handle_unwritten_extents
-       ext4_ext_convert_to_initialized
-        ext4_split_extent
-         ext4_split_extent_at
-          __ext4_ext_dirty
-           __ext4_mark_inode_dirty
-            ext4_reserve_inode_write
-             ext4_get_inode_loc
-              __ext4_get_inode_loc		<--- return -ENOMEM
-               sb_getblk
-                __getblk_gfp
-                 __getblk_slow			<--- return NULL
-                  grow_buffers
-                   grow_dev_page		<--- return -ENXIO
-                    ret = (block < end_block) ? 1 : -ENXIO;
-
-In this issue, bg_inode_table_hi is overwritten as an incorrect value.
-As a result, `block < end_block` cannot be met in grow_dev_page.
-Therefore, __ext4_get_inode_loc always returns '-ENOMEM' and do_writepages
-keeps retrying. As a result, the writeback process is in the D state due
-to an infinite loop.
-
-Add a check on inode table block in the __ext4_get_inode_loc function by
-referring to ext4_read_inode_bitmap to avoid this infinite loop.
-
-Cc: stable@kernel.org
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220817132701.3015912-3-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Link: https://lore.kernel.org/r/20210412064843.11614-2-yong.wu@mediatek.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Stable-dep-of: 142e821f68cf ("iommu/mediatek-v1: Fix an error handling path in mtk_iommu_v1_probe()")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/iommu/mtk_iommu_v1.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4570,9 +4570,17 @@ static int __ext4_get_inode_loc(struct i
- 	inodes_per_block = EXT4_SB(sb)->s_inodes_per_block;
- 	inode_offset = ((inode->i_ino - 1) %
- 			EXT4_INODES_PER_GROUP(sb));
--	block = ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block);
- 	iloc->offset = (inode_offset % inodes_per_block) * EXT4_INODE_SIZE(sb);
+diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
+index 676c029494e4..1a1f9a05982f 100644
+--- a/drivers/iommu/mtk_iommu_v1.c
++++ b/drivers/iommu/mtk_iommu_v1.c
+@@ -632,12 +632,26 @@ static int mtk_iommu_probe(struct platform_device *pdev)
  
-+	block = ext4_inode_table(sb, gdp);
-+	if ((block <= le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block)) ||
-+	    (block >= ext4_blocks_count(EXT4_SB(sb)->s_es))) {
-+		ext4_error(sb, "Invalid inode table block %llu in "
-+			   "block_group %u", block, iloc->block_group);
-+		return -EFSCORRUPTED;
+ 	ret = iommu_device_register(&data->iommu);
+ 	if (ret)
+-		return ret;
++		goto out_sysfs_remove;
+ 
+-	if (!iommu_present(&platform_bus_type))
+-		bus_set_iommu(&platform_bus_type,  &mtk_iommu_ops);
++	if (!iommu_present(&platform_bus_type)) {
++		ret = bus_set_iommu(&platform_bus_type,  &mtk_iommu_ops);
++		if (ret)
++			goto out_dev_unreg;
 +	}
-+	block += (inode_offset / inodes_per_block);
+ 
+-	return component_master_add_with_match(dev, &mtk_iommu_com_ops, match);
++	ret = component_master_add_with_match(dev, &mtk_iommu_com_ops, match);
++	if (ret)
++		goto out_bus_set_null;
++	return ret;
 +
- 	bh = sb_getblk(sb, block);
- 	if (unlikely(!bh))
- 		return -ENOMEM;
++out_bus_set_null:
++	bus_set_iommu(&platform_bus_type, NULL);
++out_dev_unreg:
++	iommu_device_unregister(&data->iommu);
++out_sysfs_remove:
++	iommu_device_sysfs_remove(&data->iommu);
++	return ret;
+ }
+ 
+ static int mtk_iommu_remove(struct platform_device *pdev)
+-- 
+2.35.1
+
 
 
