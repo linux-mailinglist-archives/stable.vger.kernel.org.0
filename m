@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF7F66C9FD
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:58:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C2DA66C785
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbjAPQ6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:58:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50854 "EHLO
+        id S233217AbjAPQbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:31:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233996AbjAPQ5u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D6530182
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:47 -0800 (PST)
+        with ESMTP id S233313AbjAPQa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A9127D75
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:19:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B887B8108F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8DFDC433D2;
-        Mon, 16 Jan 2023 16:40:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41FF161040
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:19:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C31C433EF;
+        Mon, 16 Jan 2023 16:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887245;
-        bh=ZK5uK7N8HlTp6L1yuhG51HpCQp5kal8ByCHMF0hWgGw=;
+        s=korg; t=1673885966;
+        bh=cORcWrLZyF9I9ldzjoJBNTk5ajBSWpTfwgRvdpKlbMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPiyztzN83hRxBoVCjrKhKGmQCzFt0vaxqLhouyhAWB8fTiPt8HdNVtfpOfI3BZld
-         zH4Tja/jRB51qgHxbNSGGicSmrV8KOOfbo7ZgMJH3RoNPV1SZrHy927T7TLznFjCsO
-         Md7dr5NDDedUhfRNrbmB9PeRELdMOXjJkWcaG7JE=
+        b=Ea3WYwwJ+aqUXk7cXSmbHdw19e5Kh/LpKEbW80J+vHDxTP+pqJXZ+CHtsE9jSEc2v
+         1sINhMTd+Qg8sMzF/gxp9Om9intAj2fDMEqsG4Er+Ki4fV+mJw8ylARQNE4A2OJ+j2
+         N89o0gSZzrBN9Fdja8pNfLyCyDPXXhdl+VYYst0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yipeng Zou <zouyipeng@huawei.com>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/521] selftests/ftrace: event_triggers: wait longer for test_event_enable
+Subject: [PATCH 5.4 221/658] net: apple: mace: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Mon, 16 Jan 2023 16:45:09 +0100
-Message-Id: <20230116154849.357210169@linuxfoundation.org>
+Message-Id: <20230116154919.606068787@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yipeng Zou <zouyipeng@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a1d6cd88c8973cfb08ee85722488b1d6d5d16327 ]
+[ Upstream commit 3dfe3486c1cd4f82b466b7d307f23777137b8acc ]
 
-In some platform, the schedule event may came slowly, delay 100ms can't
-cover it.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-I was notice that on my board which running in low cpu_freq,and this
-selftests allways gose fail.
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
 
-So maybe we can check more times here to wait longer.
+In this case, dev_kfree_skb() is called in mace_tx_timeout() to drop
+the SKB, when tx timeout, so replace it with dev_kfree_skb_irq().
 
-Fixes: 43bb45da82f9 ("selftests: ftrace: Add a selftest to test event enable/disable func trigger")
-Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ftrace/test.d/ftrace/func_event_triggers.tc   | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/apple/mace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
-index 6fed4cf2db81..79d614f1fe8e 100644
---- a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
-+++ b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
-@@ -45,11 +45,18 @@ cnt_trace() {
- 
- test_event_enabled() {
-     val=$1
-+    check_times=10		# wait for 10 * SLEEP_TIME at most
- 
--    e=`cat $EVENT_ENABLE`
--    if [ "$e" != $val ]; then
--	fail "Expected $val but found $e"
--    fi
-+    while [ $check_times -ne 0 ]; do
-+	e=`cat $EVENT_ENABLE`
-+	if [ "$e" == $val ]; then
-+	    return 0
-+	fi
-+	sleep $SLEEP_TIME
-+	check_times=$((check_times - 1))
-+    done
-+
-+    fail "Expected $val but found $e"
- }
- 
- run_enable_disable() {
+diff --git a/drivers/net/ethernet/apple/mace.c b/drivers/net/ethernet/apple/mace.c
+index b8ba2abf5b3a..65ed373d04f5 100644
+--- a/drivers/net/ethernet/apple/mace.c
++++ b/drivers/net/ethernet/apple/mace.c
+@@ -841,7 +841,7 @@ static void mace_tx_timeout(struct timer_list *t)
+     if (mp->tx_bad_runt) {
+ 	mp->tx_bad_runt = 0;
+     } else if (i != mp->tx_fill) {
+-	dev_kfree_skb(mp->tx_bufs[i]);
++	dev_kfree_skb_irq(mp->tx_bufs[i]);
+ 	if (++i >= N_TX_RING)
+ 	    i = 0;
+ 	mp->tx_empty = i;
 -- 
 2.35.1
 
