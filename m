@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40DE666CDA4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F61166CBEC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:20:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234874AbjAPRhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:37:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58848 "EHLO
+        id S234460AbjAPRUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:20:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234858AbjAPRhS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A9184902F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:08 -0800 (PST)
+        with ESMTP id S234334AbjAPRTk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:19:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BFFC23846
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:58:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 348966108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47B61C433EF;
-        Mon, 16 Jan 2023 17:14:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 098BFB80E95
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:58:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BBBEC433D2;
+        Mon, 16 Jan 2023 16:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889247;
-        bh=NTT+qHKewQPt4vngVcPkNp3MBFfOTp95N/UezIrtxy8=;
+        s=korg; t=1673888326;
+        bh=kGND5xNN3yhK60X3dNDwAoBpExafk0jgENUohVPj964=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qhOBrpEZifMrMBp747judxfhIejERFx34hOsUtzGhiMCo0MPHZ9jIk7eAoLDSOgWC
-         j9LArueAC4KB0t4rc+6IFLQfrfvNCmpj0jF0opW7jhRx7YFargYarX5XNht8L5WShl
-         5Aj9kKYRf+YACcZCO6Ns8MoozurlTOqNDnNT/W3A=
+        b=OLu8x6lfmZjsYnRMovB7euEKS7QwlRHzpw67YNpJb+rWgp3MWOLA9ExwSX3KeI9x5
+         /XdKT9Fznqd5MAG2CXpYIZoFec85KO1qKtxLx28DsQodo1aPdvAYlw+2jrqWQZKU8e
+         JggXTkwKMJ4COnLxH5SzCj0c4nORG5gxv6yJ4iew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "John Warthog9 Hawley (VMware)" <warthog9@eaglescrag.net>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 274/338] ktest.pl minconfig: Unset configs instead of just removing them
+        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 485/521] ktest: introduce _get_grub_index
 Date:   Mon, 16 Jan 2023 16:52:27 +0100
-Message-Id: <20230116154833.035491884@linuxfoundation.org>
+Message-Id: <20230116154908.871466489@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
 
-commit ef784eebb56425eed6e9b16e7d47e5c00dcf9c38 upstream.
+[ Upstream commit f824b6866835bc5051c44ffd289134974f214e98 ]
 
-After a full run of a make_min_config test, I noticed there were a lot of
-CONFIGs still enabled that really should not be. Looking at them, I
-noticed they were all defined as "default y". The issue is that the test
-simple removes the config and re-runs make oldconfig, which enables it
-again because it is set to default 'y'. Instead, explicitly disable the
-config with writing "# CONFIG_FOO is not set" to the file to keep it from
-being set again.
+Introduce _get_grub_index() to deal with Boot Loader
+Specification (BLS) and cleanup.
 
-With this change, one of my box's minconfigs went from 768 configs set,
-down to 521 configs set.
+Link: http://lkml.kernel.org/r/20190509213647.6276-2-msys.mizuma@gmail.com
 
-Link: https://lkml.kernel.org/r/20221202115936.016fce23@gandalf.local.home
-
-Cc: stable@vger.kernel.org
-Fixes: 0a05c769a9de5 ("ktest: Added config_bisect test type")
-Reviewed-by: John 'Warthog9' Hawley (VMware) <warthog9@eaglescrag.net>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Stable-dep-of: 26df05a8c142 ("kest.pl: Fix grub2 menu handling for rebooting")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/ktest/ktest.pl |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/ktest/ktest.pl | 37 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
+diff --git a/tools/testing/ktest/ktest.pl b/tools/testing/ktest/ktest.pl
+index 635121ecf543..5fa60b3c564f 100755
 --- a/tools/testing/ktest/ktest.pl
 +++ b/tools/testing/ktest/ktest.pl
-@@ -3797,9 +3797,10 @@ sub test_this_config {
-     # .config to make sure it is missing the config that
-     # we had before
-     my %configs = %min_configs;
--    delete $configs{$config};
-+    $configs{$config} = "# $config is not set";
-     make_new_config ((values %configs), (values %keep_configs));
-     make_oldconfig;
-+    delete $configs{$config};
-     undef %configs;
-     assign_configs \%configs, $output_config;
+@@ -1850,6 +1850,43 @@ sub run_scp_mod {
+     return run_scp($src, $dst, $cp_scp);
+ }
  
++sub _get_grub_index {
++
++    my ($command, $target, $skip) = @_;
++
++    return if (defined($grub_number) && defined($last_grub_menu) &&
++	       $last_grub_menu eq $grub_menu && defined($last_machine) &&
++	       $last_machine eq $machine);
++
++    doprint "Find $reboot_type menu ... ";
++    $grub_number = -1;
++
++    my $ssh_grub = $ssh_exec;
++    $ssh_grub =~ s,\$SSH_COMMAND,$command,g;
++
++    open(IN, "$ssh_grub |")
++	or dodie "unable to execute $command";
++
++    my $found = 0;
++
++    while (<IN>) {
++	if (/$target/) {
++	    $grub_number++;
++	    $found = 1;
++	    last;
++	} elsif (/$skip/) {
++	    $grub_number++;
++	}
++    }
++    close(IN);
++
++    dodie "Could not find '$grub_menu' through $command on $machine"
++	if (!$found);
++    doprint "$grub_number\n";
++    $last_grub_menu = $grub_menu;
++    $last_machine = $machine;
++}
++
+ sub get_grub2_index {
+ 
+     return if (defined($grub_number) && defined($last_grub_menu) &&
+-- 
+2.35.1
+
 
 
