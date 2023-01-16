@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DE6066C59E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD5C66C96C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232336AbjAPQIH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:08:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49552 "EHLO
+        id S233849AbjAPQtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:49:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232385AbjAPQHX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:07:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821A426843
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:32 -0800 (PST)
+        with ESMTP id S233867AbjAPQt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1B1230B33
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B8A361041
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB1DC43396;
-        Mon, 16 Jan 2023 16:05:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72BF2B8107D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C70C433EF;
+        Mon, 16 Jan 2023 16:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885131;
-        bh=0ZTGjfGJJGVZANrCTIYSMnxH7e+nyhQhm9wZgo81YrM=;
+        s=korg; t=1673886974;
+        bh=EOIkK71oPEcYimMfZ+unnaVKkHdMnF3btNm6vMz2ayY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mca0h4K7uZb2fycXl+dAiCFg2t7F9o9HntPagkdmGwiDOWib/WAQe4tcqSv3WAC+0
-         KKmIOtnYJzgbsODBcieKuLfOfY+gQ54v7DLfjAJ8Qo9ZuiOcsDqE8wyipBT3KPBTd0
-         k/uIJQdGvsJP2nRc2FPhh5cYo2dw/HcRej/nFtQg=
+        b=ylkxmY8Vf062JUoRYh3HN94y4di6iOy8KX+Oawa01MKIKxUcttnVYTk7SgrHePEo7
+         X5uB1CCFKGcVmZNuGN1vDqbDUuHB+xZ2wns/F3mLChPIlQH8N6rfXtoMzgwnOA8m7b
+         i7g3HYbi21q5juEEQvwkCWER54EVCmgkt9H8fd8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Mark Pearson <markpearson@lenovo.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.15 86/86] pinctrl: amd: Add dynamic debugging for active GPIOs
+        patches@lists.linux.dev, Eliav Farber <farbere@amazon.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>, stable@kernel.org
+Subject: [PATCH 5.4 632/658] EDAC/device: Fix period calculation in edac_device_reset_delay_period()
 Date:   Mon, 16 Jan 2023 16:52:00 +0100
-Message-Id: <20230116154750.587154272@linuxfoundation.org>
+Message-Id: <20230116154938.411236050@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,84 +52,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Eliav Farber <farbere@amazon.com>
 
-commit 1d66e379731f79ae5039a869c0fde22a4f6a6a91 upstream.
+commit e84077437902ec99eba0a6b516df772653f142c7 upstream.
 
-Some laptops have been reported to wake up from s2idle when plugging
-in the AC adapter or by closing the lid.  This is a surprising
-behavior that is further clarified by commit cb3e7d624c3ff ("PM:
-wakeup: Add extra debugging statement for multiple active IRQs").
+Fix period calculation in case user sets a value of 1000.  The input of
+round_jiffies_relative() should be in jiffies and not in milli-seconds.
 
-With that commit in place the following interaction can be seen
-when the lid is closed:
+  [ bp: Use the same code pattern as in edac_device_workq_setup() for
+    clarity. ]
 
-[   28.946038] PM: suspend-to-idle
-[   28.946083] ACPI: EC: ACPI EC GPE status set
-[   28.946101] ACPI: PM: Rearming ACPI SCI for wakeup
-[   28.950152] Timekeeping suspended for 3.320 seconds
-[   28.950152] PM: Triggering wakeup from IRQ 9
-[   28.950152] ACPI: EC: ACPI EC GPE status set
-[   28.950152] ACPI: EC: ACPI EC GPE dispatched
-[   28.995057] ACPI: EC: ACPI EC work flushed
-[   28.995075] ACPI: PM: Rearming ACPI SCI for wakeup
-[   28.995131] PM: Triggering wakeup from IRQ 9
-[   28.995271] ACPI: EC: ACPI EC GPE status set
-[   28.995291] ACPI: EC: ACPI EC GPE dispatched
-[   29.098556] ACPI: EC: ACPI EC work flushed
-[   29.207020] ACPI: EC: ACPI EC work flushed
-[   29.207037] ACPI: PM: Rearming ACPI SCI for wakeup
-[   29.211095] Timekeeping suspended for 0.739 seconds
-[   29.211095] PM: Triggering wakeup from IRQ 9
-[   29.211079] PM: Triggering wakeup from IRQ 7
-[   29.211095] ACPI: PM: ACPI non-EC GPE wakeup
-[   29.211095] PM: resume from suspend-to-idle
-
-* IRQ9 on this laptop is used for the ACPI SCI.
-* IRQ7 on this laptop is used for the GPIO controller.
-
-What has occurred is when the lid was closed the EC woke up the
-SoC from it's deepest sleep state and the kernel's s2idle loop
-processed all EC events.  When it was finished processing EC events,
-it checked for any other reasons to wake (break the s2idle loop).
-
-The IRQ for the GPIO controller was active so the loop broke, and
-then this IRQ was processed.  This is not a kernel bug but it is
-certainly a surprising behavior, and to better debug it we should
-have a dynamic debugging message that we can enact to catch it.
-
-Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Acked-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Acked-by: Mark Pearson <markpearson@lenovo.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20221013134729.5592-2-mario.limonciello@amd.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: c4cf3b454eca ("EDAC: Rework workqueue handling")
+Signed-off-by: Eliav Farber <farbere@amazon.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/20221020124458.22153-1-farbere@amazon.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-amd.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/edac/edac_device.c |   17 ++++++++---------
+ drivers/edac/edac_module.h |    2 +-
+ 2 files changed, 9 insertions(+), 10 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -627,13 +627,15 @@ static bool do_amd_gpio_irq_handler(int
- 		/* Each status bit covers four pins */
- 		for (i = 0; i < 4; i++) {
- 			regval = readl(regs + i);
--			/* caused wake on resume context for shared IRQ */
--			if (irq < 0 && (regval & BIT(WAKE_STS_OFF))) {
-+
-+			if (regval & PIN_IRQ_PENDING)
- 				dev_dbg(&gpio_dev->pdev->dev,
--					"Waking due to GPIO %d: 0x%x",
-+					"GPIO %d is active: 0x%x",
- 					irqnr + i, regval);
-+
-+			/* caused wake on resume context for shared IRQ */
-+			if (irq < 0 && (regval & BIT(WAKE_STS_OFF)))
- 				return true;
--			}
+--- a/drivers/edac/edac_device.c
++++ b/drivers/edac/edac_device.c
+@@ -424,17 +424,16 @@ static void edac_device_workq_teardown(s
+  *	Then restart the workq on the new delay
+  */
+ void edac_device_reset_delay_period(struct edac_device_ctl_info *edac_dev,
+-					unsigned long value)
++				    unsigned long msec)
+ {
+-	unsigned long jiffs = msecs_to_jiffies(value);
++	edac_dev->poll_msec = msec;
++	edac_dev->delay	    = msecs_to_jiffies(msec);
  
- 			if (!(regval & PIN_IRQ_PENDING) ||
- 			    !(regval & BIT(INTERRUPT_MASK_OFF)))
+-	if (value == 1000)
+-		jiffs = round_jiffies_relative(value);
+-
+-	edac_dev->poll_msec = value;
+-	edac_dev->delay	    = jiffs;
+-
+-	edac_mod_work(&edac_dev->work, jiffs);
++	/* See comment in edac_device_workq_setup() above */
++	if (edac_dev->poll_msec == 1000)
++		edac_mod_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
++	else
++		edac_mod_work(&edac_dev->work, edac_dev->delay);
+ }
+ 
+ int edac_device_alloc_index(void)
+--- a/drivers/edac/edac_module.h
++++ b/drivers/edac/edac_module.h
+@@ -57,7 +57,7 @@ bool edac_stop_work(struct delayed_work
+ bool edac_mod_work(struct delayed_work *work, unsigned long delay);
+ 
+ extern void edac_device_reset_delay_period(struct edac_device_ctl_info
+-					   *edac_dev, unsigned long value);
++					   *edac_dev, unsigned long msec);
+ extern void edac_mc_reset_delay_period(unsigned long value);
+ 
+ extern void *edac_align_ptr(void **p, unsigned size, int n_elems);
 
 
