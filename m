@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8361A66C746
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D64066C9C2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233184AbjAPQ3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47406 "EHLO
+        id S234055AbjAPQ4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:56:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233227AbjAPQ3K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5877A36FE4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:21 -0800 (PST)
+        with ESMTP id S234006AbjAPQzw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:55:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FF982BEFF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C07756104D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D46CCC433F0;
-        Mon, 16 Jan 2023 16:17:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFE3DB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:38:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 296D1C433F0;
+        Mon, 16 Jan 2023 16:38:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885840;
-        bh=pYmBLVih8lOnWahmwFGPCYDZ2yohEGGqh7oBYOXZIP0=;
+        s=korg; t=1673887127;
+        bh=blyfxqLSv5GZeaCEmRMoaZLV2VTBXrIYjdiSqc+hSis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qyDtOSYyMLTMuwD43o+j9DbVKRlWs6yvSKR2xP1WJkx99VoPYq8YnrafKv3oWzggD
-         TfTAlrhl5EDNprihMGya78wsiGVxN0Kc+1GVkgb7s30/CWjy/yfG2iPQKRjBhtdYEt
-         IWr5lsPkDo8wxLBWk4vsPqeZDgjZQhmkCPyUdRjo=
+        b=qqytlBc9spw+dvyayZAYnpjO6Bu8CN/qBxYx/n8583IIUWqnA6233B0xXZ3OzRbXf
+         neb1A0f5RGlIbJ7TzZ5XRDEdXL1S15zTquhLy2ZF4PYyC74l3SBqljDa8tIrqfxHC0
+         fY3ortV+gkzMMTPZzPe7U7E8P1s4yWRdYwZyPzwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 204/658] media: coda: Add check for kmalloc
-Date:   Mon, 16 Jan 2023 16:44:52 +0100
-Message-Id: <20230116154918.778825813@linuxfoundation.org>
+Subject: [PATCH 4.19 031/521] arm64: dts: mediatek: mt6797: Fix 26M oscillator unit name
+Date:   Mon, 16 Jan 2023 16:44:53 +0100
+Message-Id: <20230116154848.710404043@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 6e5e5defdb8b0186312c2f855ace175aee6daf9b ]
+[ Upstream commit 5f535cc583759c9c60d4cc9b8d221762e2d75387 ]
 
-As the kmalloc may return NULL pointer,
-it should be better to check the return value
-in order to avoid NULL poineter dereference,
-same as the others.
+Update its unit name to oscillator-26m and remove the unneeded unit
+address to fix a unit_address_vs_reg warning.
 
-Fixes: cb1d3a336371 ("[media] coda: add CODA7541 JPEG support")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 464c510f60c6 ("arm64: dts: mediatek: add mt6797 support")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-9-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt6797.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 6dc59d7fe8df..73023d34d920 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -1082,10 +1082,16 @@ static int coda_start_encoding(struct coda_ctx *ctx)
- 	}
+diff --git a/arch/arm64/boot/dts/mediatek/mt6797.dtsi b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
+index 4beaa71107d7..ebe1b5343966 100644
+--- a/arch/arm64/boot/dts/mediatek/mt6797.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt6797.dtsi
+@@ -101,7 +101,7 @@ cpu9: cpu@201 {
+ 		};
+ 	};
  
- 	if (dst_fourcc == V4L2_PIX_FMT_JPEG) {
--		if (!ctx->params.jpeg_qmat_tab[0])
-+		if (!ctx->params.jpeg_qmat_tab[0]) {
- 			ctx->params.jpeg_qmat_tab[0] = kmalloc(64, GFP_KERNEL);
--		if (!ctx->params.jpeg_qmat_tab[1])
-+			if (!ctx->params.jpeg_qmat_tab[0])
-+				return -ENOMEM;
-+		}
-+		if (!ctx->params.jpeg_qmat_tab[1]) {
- 			ctx->params.jpeg_qmat_tab[1] = kmalloc(64, GFP_KERNEL);
-+			if (!ctx->params.jpeg_qmat_tab[1])
-+				return -ENOMEM;
-+		}
- 		coda_set_jpeg_compression_quality(ctx, ctx->params.jpeg_quality);
- 	}
- 
+-	clk26m: oscillator@0 {
++	clk26m: oscillator-26m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <26000000>;
 -- 
 2.35.1
 
