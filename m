@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E28D66C94D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0929A66C533
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233896AbjAPQr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:47:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38760 "EHLO
+        id S232117AbjAPQDD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:03:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233825AbjAPQrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:47:23 -0500
+        with ESMTP id S232155AbjAPQC2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:02:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A85ED3B0FF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E9AD24115
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6887AB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C37C1C433D2;
-        Mon, 16 Jan 2023 16:35:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 012E6B81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A3A0C433EF;
+        Mon, 16 Jan 2023 16:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886910;
-        bh=k+aQ0o5Qdo598IiqTJpP87kl4JXAOtFa/cMtEL+roCE=;
+        s=korg; t=1673884921;
+        bh=2+MFT7diB5sMkEISLd3RnsiPr72cymYaKRU5CfejL48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsNgBcXNNA7XFYHdWhjnE5rqUqTA+q7e4tQ5409wvrZAeQJnoGsYHyx2lgkFdeXSE
-         FpjQbZpTyaKI5Cw4fI7qnjcyKrwE3xGNGEG0vXECtZt1nQXV02LfgXA8Kwda5lR5ZU
-         avxNAjkmsBJViRqqkXL3KV7nHeeUGviu4Mv7/h48=
+        b=0MVoDxaF6nxwq5ZfMFWVnhvFksZzlcHotSujRR2+R6KVQwv73U8+1zJQpg/YoYQCP
+         NSkNlkerTXKWVI5ILtVnwyc5HOuvGtMyrG86z0JikyAzPq8b282BO2Y6M3jC1Pb2ct
+         V6eP8IwMY/J1ExmTt57F9a/yvTwzKFAzWIn3eJ4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, slipper <slipper.alive@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 607/658] net/ulp: prevent ULP without clone op from entering the LISTEN status
-Date:   Mon, 16 Jan 2023 16:51:35 +0100
-Message-Id: <20230116154937.273783165@linuxfoundation.org>
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 173/183] platform/x86/amd: Fix refcount leak in amd_pmc_probe
+Date:   Mon, 16 Jan 2023 16:51:36 +0100
+Message-Id: <20230116154810.606736211@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 2c02d41d71f90a5168391b6a5f2954112ba2307c upstream.
+[ Upstream commit ccb32e2be14271a60e9ba89c6d5660cc9998773c ]
 
-When an ULP-enabled socket enters the LISTEN status, the listener ULP data
-pointer is copied inside the child/accepted sockets by sk_clone_lock().
+pci_get_domain_bus_and_slot() takes reference, the caller should release
+the reference by calling pci_dev_put() after use. Call pci_dev_put() in
+the error path to fix this.
 
-The relevant ULP can take care of de-duplicating the context pointer via
-the clone() operation, but only MPTCP and SMC implement such op.
-
-Other ULPs may end-up with a double-free at socket disposal time.
-
-We can't simply clear the ULP data at clone time, as TLS replaces the
-socket ops with custom ones assuming a valid TLS ULP context is
-available.
-
-Instead completely prevent clone-less ULP sockets from entering the
-LISTEN status.
-
-Fixes: 734942cc4ea6 ("tcp: ULP infrastructure")
-Reported-by: slipper <slipper.alive@gmail.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Link: https://lore.kernel.org/r/4b80c3d1dbe3d0ab072f80450c202d9bc88b4b03.1672740602.git.pabeni@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3d7d407dfb05 ("platform/x86: amd-pmc: Add support for AMD Spill to DRAM STB feature")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20221229072534.1381432-1-linmq006@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_connection_sock.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/platform/x86/amd/pmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -902,11 +902,25 @@ void inet_csk_prepare_forced_close(struc
- }
- EXPORT_SYMBOL(inet_csk_prepare_forced_close);
+diff --git a/drivers/platform/x86/amd/pmc.c b/drivers/platform/x86/amd/pmc.c
+index 439d282aafd1..8d924986381b 100644
+--- a/drivers/platform/x86/amd/pmc.c
++++ b/drivers/platform/x86/amd/pmc.c
+@@ -932,7 +932,7 @@ static int amd_pmc_probe(struct platform_device *pdev)
+ 	if (enable_stb && (dev->cpu_id == AMD_CPU_ID_YC || dev->cpu_id == AMD_CPU_ID_CB)) {
+ 		err = amd_pmc_s2d_init(dev);
+ 		if (err)
+-			return err;
++			goto err_pci_dev_put;
+ 	}
  
-+static int inet_ulp_can_listen(const struct sock *sk)
-+{
-+	const struct inet_connection_sock *icsk = inet_csk(sk);
-+
-+	if (icsk->icsk_ulp_ops)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
- int inet_csk_listen_start(struct sock *sk, int backlog)
- {
- 	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct inet_sock *inet = inet_sk(sk);
--	int err = -EADDRINUSE;
-+	int err;
-+
-+	err = inet_ulp_can_listen(sk);
-+	if (unlikely(err))
-+		return err;
- 
- 	reqsk_queue_alloc(&icsk->icsk_accept_queue);
- 
+ 	platform_set_drvdata(pdev, dev);
+-- 
+2.35.1
+
 
 
