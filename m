@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F232166C4EF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21EC866C8FB
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231766AbjAPQAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41766 "EHLO
+        id S233803AbjAPQpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:45:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231897AbjAPP7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246A523110
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:40 -0800 (PST)
+        with ESMTP id S233767AbjAPQo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:44:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D17BF2FCC6
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D335DB8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EA49C433D2;
-        Mon, 16 Jan 2023 15:59:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F86561059
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 838B6C433D2;
+        Mon, 16 Jan 2023 16:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884777;
-        bh=y7dXr5pG0p/Qty7nDP+Q2gmP8RhIcnT37aUyQ4YtKH4=;
+        s=korg; t=1673886735;
+        bh=qgRQMPUO1Uc+cH74o/UKEo8XOXmapK+SQ9IzDbHibi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0bB9fUISI8+LcxEg2bjRtcoIUo661LxCy5cLGRSF4JbVDhSigF0j7fIzLWhpSSZ4
-         +iPpfLNGwUGfqab6E7V5XijVc3Q6d1NH2Yrlm2a00WNylbCXAJ+K7ZKmfyMc2h0w4V
-         V7TuFPoN2KTRP5dXzms7iobbV/AITk9MoqJiR3pY=
+        b=TpMACKXd3QtxFkbrx6kLms235E9QpkKtr5ExwWf5mOeEhEbsvchs/qy2X1/56iMUk
+         n3tzcArguO2yAdTj0Vgua2p4Cn5WYMwuVvvkC4btF33o3vGNSLUI2KDzg+YN+kZkVX
+         YpotWnBKmTMmVpnrxHL55mW06w6+8kF7ajV1F94U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        patches@lists.linux.dev, linux-fsd@tesla.com,
+        Smitha T Murthy <smitha.t@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 105/183] drm/msm/dpu: Fix memory leak in msm_mdss_parse_data_bus_icc_path
-Date:   Mon, 16 Jan 2023 16:50:28 +0100
-Message-Id: <20230116154807.812400820@linuxfoundation.org>
+Subject: [PATCH 5.4 541/658] media: s5p-mfc: Clear workbit to handle error condition
+Date:   Mon, 16 Jan 2023 16:50:29 +0100
+Message-Id: <20230116154934.286752047@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Smitha T Murthy <smitha.t@samsung.com>
 
-[ Upstream commit 45dac1352b55b1d8cb17f218936b2bc2bc1fb4ee ]
+[ Upstream commit d3f3c2fe54e30b0636496d842ffbb5ad3a547f9b ]
 
-of_icc_get() alloc resources for path1, we should release it when not
-need anymore. Early return when IS_ERR_OR_NULL(path0) may leak path1.
-Defer getting path1 to fix this.
+During error on CLOSE_INSTANCE command, ctx_work_bits was not getting
+cleared. During consequent mfc execution NULL pointer dereferencing of
+this context led to kernel panic. This patch fixes this issue by making
+sure to clear ctx_work_bits always.
 
-Fixes: b9364eed9232 ("drm/msm/dpu: Move min BW request and full BW disable back to mdss")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/514264/
-Link: https://lore.kernel.org/r/20221207065922.2086368-1-linmq006@gmail.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fixes: 818cd91ab8c6 ("[media] s5p-mfc: Extract open/close MFC instance commands")
+Cc: stable@vger.kernel.org
+Cc: linux-fsd@tesla.com
+Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_mdss.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_mdss.c b/drivers/gpu/drm/msm/msm_mdss.c
-index e13c5c12b775..3b8d6991b04e 100644
---- a/drivers/gpu/drm/msm/msm_mdss.c
-+++ b/drivers/gpu/drm/msm/msm_mdss.c
-@@ -46,15 +46,17 @@ struct msm_mdss {
- static int msm_mdss_parse_data_bus_icc_path(struct device *dev,
- 					    struct msm_mdss *msm_mdss)
- {
--	struct icc_path *path0 = of_icc_get(dev, "mdp0-mem");
--	struct icc_path *path1 = of_icc_get(dev, "mdp1-mem");
-+	struct icc_path *path0;
-+	struct icc_path *path1;
+diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c b/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
+index da138c314963..58822ec5370e 100644
+--- a/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
++++ b/drivers/media/platform/s5p-mfc/s5p_mfc_ctrl.c
+@@ -468,8 +468,10 @@ void s5p_mfc_close_mfc_inst(struct s5p_mfc_dev *dev, struct s5p_mfc_ctx *ctx)
+ 	s5p_mfc_hw_call(dev->mfc_ops, try_run, dev);
+ 	/* Wait until instance is returned or timeout occurred */
+ 	if (s5p_mfc_wait_for_done_ctx(ctx,
+-				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0))
++				S5P_MFC_R2H_CMD_CLOSE_INSTANCE_RET, 0)){
++		clear_work_bit_irqsave(ctx);
+ 		mfc_err("Err returning instance\n");
++	}
  
-+	path0 = of_icc_get(dev, "mdp0-mem");
- 	if (IS_ERR_OR_NULL(path0))
- 		return PTR_ERR_OR_ZERO(path0);
- 
- 	msm_mdss->path[0] = path0;
- 	msm_mdss->num_paths = 1;
- 
-+	path1 = of_icc_get(dev, "mdp1-mem");
- 	if (!IS_ERR_OR_NULL(path1)) {
- 		msm_mdss->path[1] = path1;
- 		msm_mdss->num_paths++;
+ 	/* Free resources */
+ 	s5p_mfc_hw_call(dev->mfc_ops, release_codec_buffers, ctx);
 -- 
 2.35.1
 
