@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F7D266CAA6
+	by mail.lfdr.de (Postfix) with ESMTP id 9537F66CAA7
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:05:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234087AbjAPRFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:05:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56782 "EHLO
+        id S234098AbjAPRFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:05:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234072AbjAPREf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:04:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412B55D122
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:46:40 -0800 (PST)
+        with ESMTP id S234089AbjAPREg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:04:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51490298E9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:46:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03999B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D671C433EF;
-        Mon, 16 Jan 2023 16:46:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E23AA61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:46:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0311C433EF;
+        Mon, 16 Jan 2023 16:46:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887597;
-        bh=YX3oG2m2mFjOcOVQBQxPZsaQ5W9QTQbByqB1eqV+Y7o=;
+        s=korg; t=1673887600;
+        bh=FnS3AZ2mGUeg3aEmBCeTYnrD4xzz9w1QN/ENfR6vCYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aw2ffMV0H2iy89xUVZr9821wXBs/nqXk7N++P+TTMJA+8B82GABruyOhnY3y9JZFd
-         8il0SnKZfhUV7Q+V86DiszDFlJG7B6Yt8a3wDBHHcUXFfJpejD+VOzQj3igXWafQXk
-         DHO15vTIM/0zBTd51JohrrxSe0gGskXJQHOrOJk8=
+        b=LFApMKG/KTxL+Kd3SOgJyZV7U4smwpBxPP+9TPcA+hybVxYYvPJasKev3Xrvd4VtT
+         +bkDioIDydkxdTKvgBJ7d5KMyLmK5mZAje861wlCReRWqKCPzHmMPLyV+I8n8m6rgP
+         66dnMXxqoW+Ttovwd+TEhxgsmDns//y4suJ6Z4Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Shardar Shariff Md <smohammed@nvidia.com>,
         Krishna Yarlagadda <kyarlagadda@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 210/521] serial: tegra: check for FIFO mode enabled status
-Date:   Mon, 16 Jan 2023 16:47:52 +0100
-Message-Id: <20230116154856.550539916@linuxfoundation.org>
+Subject: [PATCH 4.19 211/521] serial: tegra: set maximum num of uart ports to 8
+Date:   Mon, 16 Jan 2023 16:47:53 +0100
+Message-Id: <20230116154856.601623467@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -55,135 +55,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krishna Yarlagadda <kyarlagadda@nvidia.com>
 
-[ Upstream commit 222dcdff3405a31803aecd3bf66f62d46b8bda98 ]
+[ Upstream commit 53d0a062cb771d62cd205d9e2845fe26c9989142 ]
 
-Chips prior to Tegra186 needed delay of 3 UART clock cycles to avoid
-data loss. This issue is fixed in Tegra186 and a new flag is added to
-check if FIFO mode is enabled. chip data updated to check if this flag
-is available for a chip. Tegra186 has new compatible to enable this
-flag.
+Set maximum number of UART ports to 8 as older chips have 5 ports and
+Tergra186 and later chips will have 8 ports. Add this info to chip
+data. Read device tree compatible of this driver and register uart
+driver with max ports of matching chip data.
 
 Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
 Signed-off-by: Krishna Yarlagadda <kyarlagadda@nvidia.com>
-Link: https://lore.kernel.org/r/1567572187-29820-7-git-send-email-kyarlagadda@nvidia.com
+Link: https://lore.kernel.org/r/1567572187-29820-8-git-send-email-kyarlagadda@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Stable-dep-of: 109a951a9f1f ("serial: tegra: Read DMA status before terminating")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial-tegra.c | 52 +++++++++++++++++++++++++++----
- 1 file changed, 46 insertions(+), 6 deletions(-)
+ drivers/tty/serial/serial-tegra.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
-index c113a0b1ece1..5408486be834 100644
+index 5408486be834..55415a12d3cc 100644
 --- a/drivers/tty/serial/serial-tegra.c
 +++ b/drivers/tty/serial/serial-tegra.c
-@@ -72,6 +72,8 @@
- #define TEGRA_TX_PIO				1
- #define TEGRA_TX_DMA				2
+@@ -62,7 +62,7 @@
+ #define TEGRA_UART_TX_TRIG_4B			0x20
+ #define TEGRA_UART_TX_TRIG_1B			0x30
  
-+#define TEGRA_UART_FCR_IIR_FIFO_EN		0x40
-+
- /**
-  * tegra_uart_chip_data: SOC specific data.
-  *
-@@ -84,6 +86,7 @@ struct tegra_uart_chip_data {
- 	bool	tx_fifo_full_status;
+-#define TEGRA_UART_MAXIMUM			5
++#define TEGRA_UART_MAXIMUM			8
+ 
+ /* Default UART setting when started: 115200 no parity, stop, 8 data bits */
+ #define TEGRA_UART_DEFAULT_BAUD			115200
+@@ -87,6 +87,7 @@ struct tegra_uart_chip_data {
  	bool	allow_txfifo_reset_fifo_mode;
  	bool	support_clk_src_div;
-+	bool	fifo_mode_enable_status;
+ 	bool	fifo_mode_enable_status;
++	int	uart_max_port;
  };
  
  struct tegra_uart_port {
-@@ -245,6 +248,21 @@ static void tegra_uart_wait_sym_time(struct tegra_uart_port *tup,
- 			tup->current_baud));
- }
- 
-+static int tegra_uart_wait_fifo_mode_enabled(struct tegra_uart_port *tup)
-+{
-+	unsigned long iir;
-+	unsigned int tmout = 100;
-+
-+	do {
-+		iir = tegra_uart_read(tup, UART_IIR);
-+		if (iir & TEGRA_UART_FCR_IIR_FIFO_EN)
-+			return 0;
-+		udelay(1);
-+	} while (--tmout);
-+
-+	return -ETIMEDOUT;
-+}
-+
- static void tegra_uart_fifo_reset(struct tegra_uart_port *tup, u8 fcr_bits)
- {
- 	unsigned long fcr = tup->fcr_shadow;
-@@ -260,6 +278,8 @@ static void tegra_uart_fifo_reset(struct tegra_uart_port *tup, u8 fcr_bits)
- 		tegra_uart_write(tup, fcr, UART_FCR);
- 		fcr |= UART_FCR_ENABLE_FIFO;
- 		tegra_uart_write(tup, fcr, UART_FCR);
-+		if (tup->cdata->fifo_mode_enable_status)
-+			tegra_uart_wait_fifo_mode_enabled(tup);
- 	}
- 
- 	/* Dummy read to ensure the write is posted */
-@@ -863,12 +883,20 @@ static int tegra_uart_hw_init(struct tegra_uart_port *tup)
- 	/* Dummy read to ensure the write is posted */
- 	tegra_uart_read(tup, UART_SCR);
- 
--	/*
--	 * For all tegra devices (up to t210), there is a hardware issue that
--	 * requires software to wait for 3 UART clock periods after enabling
--	 * the TX fifo, otherwise data could be lost.
--	 */
--	tegra_uart_wait_cycle_time(tup, 3);
-+	if (tup->cdata->fifo_mode_enable_status) {
-+		ret = tegra_uart_wait_fifo_mode_enabled(tup);
-+		dev_err(tup->uport.dev, "FIFO mode not enabled\n");
-+		if (ret < 0)
-+			return ret;
-+	} else {
-+		/*
-+		 * For all tegra devices (up to t210), there is a hardware
-+		 * issue that requires software to wait for 3 UART clock
-+		 * periods after enabling the TX fifo, otherwise data could
-+		 * be lost.
-+		 */
-+		tegra_uart_wait_cycle_time(tup, 3);
-+	}
- 
- 	/*
- 	 * Initialize the UART with default configuration
-@@ -1232,12 +1260,21 @@ static struct tegra_uart_chip_data tegra20_uart_chip_data = {
- 	.tx_fifo_full_status		= false,
+@@ -1261,6 +1262,7 @@ static struct tegra_uart_chip_data tegra20_uart_chip_data = {
  	.allow_txfifo_reset_fifo_mode	= true,
  	.support_clk_src_div		= false,
-+	.fifo_mode_enable_status	= false,
+ 	.fifo_mode_enable_status	= false,
++	.uart_max_port			= 5,
  };
  
  static struct tegra_uart_chip_data tegra30_uart_chip_data = {
- 	.tx_fifo_full_status		= true,
+@@ -1268,6 +1270,7 @@ static struct tegra_uart_chip_data tegra30_uart_chip_data = {
  	.allow_txfifo_reset_fifo_mode	= false,
  	.support_clk_src_div		= true,
-+	.fifo_mode_enable_status	= false,
-+};
-+
-+static struct tegra_uart_chip_data tegra186_uart_chip_data = {
-+	.tx_fifo_full_status		= true,
-+	.allow_txfifo_reset_fifo_mode	= false,
-+	.support_clk_src_div		= true,
-+	.fifo_mode_enable_status	= true,
+ 	.fifo_mode_enable_status	= false,
++	.uart_max_port			= 5,
+ };
+ 
+ static struct tegra_uart_chip_data tegra186_uart_chip_data = {
+@@ -1275,6 +1278,7 @@ static struct tegra_uart_chip_data tegra186_uart_chip_data = {
+ 	.allow_txfifo_reset_fifo_mode	= false,
+ 	.support_clk_src_div		= true,
+ 	.fifo_mode_enable_status	= true,
++	.uart_max_port			= 8,
  };
  
  static const struct of_device_id tegra_uart_of_match[] = {
-@@ -1247,6 +1284,9 @@ static const struct of_device_id tegra_uart_of_match[] = {
- 	}, {
- 		.compatible	= "nvidia,tegra20-hsuart",
- 		.data		= &tegra20_uart_chip_data,
-+	}, {
-+		.compatible     = "nvidia,tegra186-hsuart",
-+		.data		= &tegra186_uart_chip_data,
- 	}, {
- 	},
- };
+@@ -1409,11 +1413,22 @@ static struct platform_driver tegra_uart_platform_driver = {
+ static int __init tegra_uart_init(void)
+ {
+ 	int ret;
++	struct device_node *node;
++	const struct of_device_id *match = NULL;
++	const struct tegra_uart_chip_data *cdata = NULL;
++
++	node = of_find_matching_node(NULL, tegra_uart_of_match);
++	if (node)
++		match = of_match_node(tegra_uart_of_match, node);
++	if (match)
++		cdata = match->data;
++	if (cdata)
++		tegra_uart_driver.nr = cdata->uart_max_port;
+ 
+ 	ret = uart_register_driver(&tegra_uart_driver);
+ 	if (ret < 0) {
+ 		pr_err("Could not register %s driver\n",
+-			tegra_uart_driver.driver_name);
++		       tegra_uart_driver.driver_name);
+ 		return ret;
+ 	}
+ 
 -- 
 2.35.1
 
