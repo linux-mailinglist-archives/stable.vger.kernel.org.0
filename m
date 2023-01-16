@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BADE66CB9C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3181866CD1D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234427AbjAPRP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36676 "EHLO
+        id S234829AbjAPRdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:33:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234346AbjAPRPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 993404C6FB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:40 -0800 (PST)
+        with ESMTP id S234823AbjAPRdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9509B43933
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 363C161042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 431F0C433D2;
-        Mon, 16 Jan 2023 16:55:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34C9F61086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D9DC433D2;
+        Mon, 16 Jan 2023 17:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888139;
-        bh=BPQ0BIBfVbEWfBpt6wLK/JFnO3XNUZh1qg2beyPzEQ8=;
+        s=korg; t=1673888961;
+        bh=MrK5vpleQZZTtTWJEzwNl2vyk/lNqUyP7INMPV/lEcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B20lwc+fLOjxa8N7t9QgvGcmEU08w7gfRTdCWqeMn+FPkMnfCNxmezBgS6dOzq6fb
-         qMQYNPvVSJ+1RimwzKoOGvVNtjLtu0ugYmVvfCdrl8F8Kt6R3XVmqcAugnLaaoOAbw
-         bg1bOoCIQo4fZ5JKKe4zyhRDbEUnHxFkHxD+LYJI=
+        b=JOrNZbRabCFzGhgIa8OoEqSgan93Joc3wMD9JHI1WI6nIBivW08C4BJiAgpjg9Iib
+         m4Jokeg8RuUw1wxFfu//V0yQ+SLIRx6gWmm+pCGk78rrba810ounJBqnOHRq89XcZE
+         XhPH/Hpr+gCkYMUzomrLVcQLErwG9lQsl3QlhrxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        stable@kernel.org, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 415/521] ext4: initialize quota before expanding inode in setproject ioctl
-Date:   Mon, 16 Jan 2023 16:51:17 +0100
-Message-Id: <20230116154905.675537386@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 205/338] mISDN: hfcsusb: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
+Date:   Mon, 16 Jan 2023 16:51:18 +0100
+Message-Id: <20230116154829.927639240@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,47 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 1485f726c6dec1a1f85438f2962feaa3d585526f upstream.
+[ Upstream commit ddc9648db162eee556edd5222d2808fe33730203 ]
 
-Make sure we initialize quotas before possibly expanding inode space
-(and thus maybe needing to allocate external xattr block) in
-ext4_ioctl_setproject(). This prevents not accounting the necessary
-block allocation.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20221207115937.26601-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
+
+skb_queue_purge() is called under spin_lock_irqsave() in hfcusb_l2l1D(),
+kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
+to move the dch->squeue to a free queue, also enqueue the tx_skb and
+rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+
+In tx_iso_complete(), dev_kfree_skb() is called to consume the transmitted
+SKB, so replace it with dev_consume_skb_irq().
+
+Fixes: 69f52adb2d53 ("mISDN: Add HFC USB driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ioctl.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -449,6 +449,10 @@ static int ext4_ioctl_setproject(struct
- 	if (ext4_is_quota_file(inode))
- 		return err;
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 87588198d68f..3be213750303 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -337,20 +337,24 @@ hfcusb_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
  
-+	err = dquot_initialize(inode);
-+	if (err)
-+		return err;
+ 		if (hw->protocol == ISDN_P_NT_S0) {
++			struct sk_buff_head free_queue;
 +
- 	err = ext4_get_inode_loc(inode, &iloc);
- 	if (err)
- 		return err;
-@@ -464,10 +468,6 @@ static int ext4_ioctl_setproject(struct
- 		brelse(iloc.bh);
- 	}
++			__skb_queue_head_init(&free_queue);
+ 			hfcsusb_ph_command(hw, HFC_L1_DEACTIVATE_NT);
+ 			spin_lock_irqsave(&hw->lock, flags);
+-			skb_queue_purge(&dch->squeue);
++			skb_queue_splice_init(&dch->squeue, &free_queue);
+ 			if (dch->tx_skb) {
+-				dev_kfree_skb(dch->tx_skb);
++				__skb_queue_tail(&free_queue, dch->tx_skb);
+ 				dch->tx_skb = NULL;
+ 			}
+ 			dch->tx_idx = 0;
+ 			if (dch->rx_skb) {
+-				dev_kfree_skb(dch->rx_skb);
++				__skb_queue_tail(&free_queue, dch->rx_skb);
+ 				dch->rx_skb = NULL;
+ 			}
+ 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+ 			spin_unlock_irqrestore(&hw->lock, flags);
++			__skb_queue_purge(&free_queue);
+ #ifdef FIXME
+ 			if (test_and_clear_bit(FLG_L1_BUSY, &dch->Flags))
+ 				dchannel_sched_event(&hc->dch, D_CLEARBUSY);
+@@ -1340,7 +1344,7 @@ tx_iso_complete(struct urb *urb)
+ 					printk("\n");
+ 				}
  
--	err = dquot_initialize(inode);
--	if (err)
--		return err;
--
- 	handle = ext4_journal_start(inode, EXT4_HT_QUOTA,
- 		EXT4_QUOTA_INIT_BLOCKS(sb) +
- 		EXT4_QUOTA_DEL_BLOCKS(sb) + 3);
+-				dev_kfree_skb(tx_skb);
++				dev_consume_skb_irq(tx_skb);
+ 				tx_skb = NULL;
+ 				if (fifo->dch && get_next_dframe(fifo->dch))
+ 					tx_skb = fifo->dch->tx_skb;
+-- 
+2.35.1
+
 
 
