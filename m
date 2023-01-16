@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C362966C939
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AACD66C5C9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:10:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233811AbjAPQrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:47:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39792 "EHLO
+        id S232587AbjAPQK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:10:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233753AbjAPQqZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:25 -0500
+        with ESMTP id S232648AbjAPQJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:09:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1EF3298FE
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659561D91C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 513826105A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6700AC433EF;
-        Mon, 16 Jan 2023 16:34:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCFF86102A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1ACFC433F0;
+        Mon, 16 Jan 2023 16:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886867;
-        bh=3JGy0A+qlby1Hi+r8ZLgvdEnwzVyIF/FdvXMhoCXuIU=;
+        s=korg; t=1673885189;
+        bh=44HSyK6uZDz6w8zpJGlM/OacizFb/ohe739n6uWOtP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XXrgFQgQ94/hUn2ySMC3HIB6TyO+UYo2npGUkRCc28IhtQ7U+SWFMzNUm8fEUu98P
-         H0hd+q/0LUUJ9xEx/sIa4C3wpnlmtaaKx3rnhgWCh/XRMcTb7JQel2Mo6mvCXB93J1
-         GC6LDuG8Yd8PJU0S9XE/Z6lvbrxNw9mZh/hR6PdQ=
+        b=SLN4Rfc2XaiwS5I8uEoUrPMg1WaYaWJusiBK2R4fL06Q0ZIGitTGYOcCZ7C8BBSfL
+         2tpwwMrb4EKWcdapGNa6T8s+TT5V9EnTl30g8v7akpNZKAy8nCNwE+YysRnk9vN/n8
+         h/iRiEDGHkovwDS1LIwkhFgv2Tbac9xV/Z+8DJn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jan Kara <jack@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 593/658] hfs/hfsplus: use WARN_ON for sanity check
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Mattia Dongili <malattia@linux.it>
+Subject: [PATCH 5.10 14/64] platform/x86: sony-laptop: Dont turn off 0x153 keyboard backlight during probe
 Date:   Mon, 16 Jan 2023 16:51:21 +0100
-Message-Id: <20230116154936.614436138@linuxfoundation.org>
+Message-Id: <20230116154744.133517576@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,118 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 55d1cbbbb29e6656c662ee8f73ba1fc4777532eb upstream.
+commit ad75bd85b1db69c97eefea07b375567821f6ef58 upstream.
 
-gcc warns about a couple of instances in which a sanity check exists but
-the author wasn't sure how to react to it failing, which makes it look
-like a possible bug:
+The 0x153 version of the kbd backlight control SNC handle has no separate
+address to probe if the backlight is there.
 
-  fs/hfsplus/inode.c: In function 'hfsplus_cat_read_inode':
-  fs/hfsplus/inode.c:503:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    503 |                         /* panic? */;
-        |                                     ^
-  fs/hfsplus/inode.c:524:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    524 |                         /* panic? */;
-        |                                     ^
-  fs/hfsplus/inode.c: In function 'hfsplus_cat_write_inode':
-  fs/hfsplus/inode.c:582:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    582 |                         /* panic? */;
-        |                                     ^
-  fs/hfsplus/inode.c:608:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    608 |                         /* panic? */;
-        |                                     ^
-  fs/hfs/inode.c: In function 'hfs_write_inode':
-  fs/hfs/inode.c:464:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    464 |                         /* panic? */;
-        |                                     ^
-  fs/hfs/inode.c:485:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
-    485 |                         /* panic? */;
-        |                                     ^
+This turns the probe call into a set keyboard backlight call with a value
+of 0 turning off the keyboard backlight.
 
-panic() is probably not the correct choice here, but a WARN_ON
-seems appropriate and avoids the compile-time warning.
+Skip probing when there is no separate probe address to avoid this.
 
-Link: https://lkml.kernel.org/r/20210927102149.1809384-1-arnd@kernel.org
-Link: https://lore.kernel.org/all/20210322223249.2632268-1-arnd@kernel.org/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jan Kara <jack@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1583752
+Fixes: 800f20170dcf ("Keyboard backlight control for some Vaio Fit models")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mattia Dongili <malattia@linux.it>
+Link: https://lore.kernel.org/r/20221213122943.11123-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hfs/inode.c     |    6 ++----
- fs/hfsplus/inode.c |   12 ++++--------
- 2 files changed, 6 insertions(+), 12 deletions(-)
+ drivers/platform/x86/sony-laptop.c |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/fs/hfs/inode.c
-+++ b/fs/hfs/inode.c
-@@ -461,8 +461,7 @@ int hfs_write_inode(struct inode *inode,
- 		goto out;
+--- a/drivers/platform/x86/sony-laptop.c
++++ b/drivers/platform/x86/sony-laptop.c
+@@ -1892,14 +1892,21 @@ static int sony_nc_kbd_backlight_setup(s
+ 		break;
+ 	}
  
- 	if (S_ISDIR(main_inode->i_mode)) {
--		if (fd.entrylength < sizeof(struct hfs_cat_dir))
--			/* panic? */;
-+		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_dir));
- 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
- 			   sizeof(struct hfs_cat_dir));
- 		if (rec.type != HFS_CDR_DIR ||
-@@ -482,8 +481,7 @@ int hfs_write_inode(struct inode *inode,
- 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
- 				sizeof(struct hfs_cat_file));
- 	} else {
--		if (fd.entrylength < sizeof(struct hfs_cat_file))
--			/* panic? */;
-+		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_file));
- 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
- 			   sizeof(struct hfs_cat_file));
- 		if (rec.type != HFS_CDR_FIL ||
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -497,8 +497,7 @@ int hfsplus_cat_read_inode(struct inode
- 	if (type == HFSPLUS_FOLDER) {
- 		struct hfsplus_cat_folder *folder = &entry.folder;
+-	ret = sony_call_snc_handle(handle, probe_base, &result);
+-	if (ret)
+-		return ret;
++	/*
++	 * Only probe if there is a separate probe_base, otherwise the probe call
++	 * is equivalent to __sony_nc_kbd_backlight_mode_set(0), resulting in
++	 * the keyboard backlight being turned off.
++	 */
++	if (probe_base) {
++		ret = sony_call_snc_handle(handle, probe_base, &result);
++		if (ret)
++			return ret;
  
--		if (fd->entrylength < sizeof(struct hfsplus_cat_folder))
--			/* panic? */;
-+		WARN_ON(fd->entrylength < sizeof(struct hfsplus_cat_folder));
- 		hfs_bnode_read(fd->bnode, &entry, fd->entryoffset,
- 					sizeof(struct hfsplus_cat_folder));
- 		hfsplus_get_perms(inode, &folder->permissions, 1);
-@@ -518,8 +517,7 @@ int hfsplus_cat_read_inode(struct inode
- 	} else if (type == HFSPLUS_FILE) {
- 		struct hfsplus_cat_file *file = &entry.file;
+-	if ((handle == 0x0137 && !(result & 0x02)) ||
+-			!(result & 0x01)) {
+-		dprintk("no backlight keyboard found\n");
+-		return 0;
++		if ((handle == 0x0137 && !(result & 0x02)) ||
++				!(result & 0x01)) {
++			dprintk("no backlight keyboard found\n");
++			return 0;
++		}
+ 	}
  
--		if (fd->entrylength < sizeof(struct hfsplus_cat_file))
--			/* panic? */;
-+		WARN_ON(fd->entrylength < sizeof(struct hfsplus_cat_file));
- 		hfs_bnode_read(fd->bnode, &entry, fd->entryoffset,
- 					sizeof(struct hfsplus_cat_file));
- 
-@@ -576,8 +574,7 @@ int hfsplus_cat_write_inode(struct inode
- 	if (S_ISDIR(main_inode->i_mode)) {
- 		struct hfsplus_cat_folder *folder = &entry.folder;
- 
--		if (fd.entrylength < sizeof(struct hfsplus_cat_folder))
--			/* panic? */;
-+		WARN_ON(fd.entrylength < sizeof(struct hfsplus_cat_folder));
- 		hfs_bnode_read(fd.bnode, &entry, fd.entryoffset,
- 					sizeof(struct hfsplus_cat_folder));
- 		/* simple node checks? */
-@@ -602,8 +599,7 @@ int hfsplus_cat_write_inode(struct inode
- 	} else {
- 		struct hfsplus_cat_file *file = &entry.file;
- 
--		if (fd.entrylength < sizeof(struct hfsplus_cat_file))
--			/* panic? */;
-+		WARN_ON(fd.entrylength < sizeof(struct hfsplus_cat_file));
- 		hfs_bnode_read(fd.bnode, &entry, fd.entryoffset,
- 					sizeof(struct hfsplus_cat_file));
- 		hfsplus_inode_write_fork(inode, &file->data_fork);
+ 	kbdbl_ctl = kzalloc(sizeof(*kbdbl_ctl), GFP_KERNEL);
 
 
