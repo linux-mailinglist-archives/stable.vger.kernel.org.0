@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B09E66C5C4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:10:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4F4F66C4FD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232492AbjAPQKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:10:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
+        id S231844AbjAPQAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:00:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232603AbjAPQJb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:09:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F02B628856
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:19 -0800 (PST)
+        with ESMTP id S231869AbjAPQAV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B209B23C60
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78B5E6102A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80CB9C433F1;
-        Mon, 16 Jan 2023 16:06:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6499FB81061
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B92BFC433D2;
+        Mon, 16 Jan 2023 16:00:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885178;
-        bh=sCzp53A8zK1sw9NNzzJz4deyjZC6vOEcgGIg0IQRrVU=;
+        s=korg; t=1673884817;
+        bh=lZVgaUAg9pbyCOMu78NzV16NsGp3ONE17m2NulhRf6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2JiHUeabwq+9Wyv3n13+E0dhXqz+VBIilCg0gi8GJcZp5vokN/+GGYe9DXmwWBjJ
-         guDJocr4i5Ra+pWImFym7pHNPH1njuUtrtL1SrL+zpp+LX5rXOETeKTG9LX0VDfbkR
-         AM3pWtIEqPIWBiMKFHym6QqP/pURT9oUBYcNLfhw=
+        b=c+XWyVDqwi7FWsxLCeFvzw3uXtcv6oScRWXZl90YAxIdr4qM9clb1XgsjW7vbCnsV
+         +QjsHNyqum04OhqSVz0rrc+0yEuuiOpzyA18ZDFqtG1t7i27+Rfhz6Y7Fj4Ih93RUw
+         REAtuLC57BAxSBQVRTtQpSVR9BUouH1v2HMMYGcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.10 07/64] s390/kexec: fix ipl report address for kdump
+        patches@lists.linux.dev, Ariel Levkovich <lariel@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 151/183] net/mlx5e: TC, Keep mod hdr actions after mod hdr alloc
 Date:   Mon, 16 Jan 2023 16:51:14 +0100
-Message-Id: <20230116154743.915495128@linuxfoundation.org>
+Message-Id: <20230116154809.713043243@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
+From: Ariel Levkovich <lariel@nvidia.com>
 
-commit c2337a40e04dde1692b5b0a46ecc59f89aaba8a1 upstream.
+[ Upstream commit 5e72f3f1c558019082cfeedeed73748f35d780c6 ]
 
-This commit addresses the following erroneous situation with file-based
-kdump executed on a system with a valid IPL report.
+When offloading TC NIC rule which has mod_hdr action, the
+mod_hdr actions list is freed upon mod_hdr allocation.
 
-On s390, a kdump kernel, its initrd and IPL report if present are loaded
-into a special and reserved on boot memory region - crashkernel. When
-a system crashes and kdump was activated before, the purgatory code
-is entered first which swaps the crashkernel and [0 - crashkernel size]
-memory regions. Only after that the kdump kernel is entered. For this
-reason, the pointer to an IPL report in lowcore must point to the IPL report
-after the swap and not to the address of the IPL report that was located in
-crashkernel memory region before the swap. Failing to do so, makes the
-kdump's decompressor try to read memory from the crashkernel memory region
-which already contains the production's kernel memory.
+In the new format of handling multi table actions and CT in
+particular, the mod_hdr actions list is still relevant when
+setting the pre and post rules and therefore, freeing the list
+may cause adding rules which don't set the FTE_ID.
 
-The situation described above caused spontaneous kdump failures/hangs
-on systems where the Secure IPL is activated because on such systems
-an IPL report is always present. In that case kdump's decompressor tried
-to parse an IPL report which frequently lead to illegal memory accesses
-because an IPL report contains addresses to various data.
+Therefore, the mod_hdr actions list needs to be kept for the
+pre/post flows as well and should be left for these handler to
+be freed.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to next kernel")
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8300f225268b ("net/mlx5e: Create new flow attr for multi table actions")
+Signed-off-by: Ariel Levkovich <lariel@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/machine_kexec_file.c |    5 +++--
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -185,8 +185,6 @@ static int kexec_file_add_ipl_report(str
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index bd9936af4582..4c313b7424bf 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -1283,7 +1283,6 @@ mlx5e_tc_add_nic_flow(struct mlx5e_priv *priv,
  
- 	data->memsz = ALIGN(data->memsz, PAGE_SIZE);
- 	buf.mem = data->memsz;
--	if (image->type == KEXEC_TYPE_CRASH)
--		buf.mem += crashk_res.start;
+ 	if (attr->action & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR) {
+ 		err = mlx5e_attach_mod_hdr(priv, flow, parse_attr);
+-		mlx5e_mod_hdr_dealloc(&parse_attr->mod_hdr_acts);
+ 		if (err)
+ 			return err;
+ 	}
+@@ -1341,8 +1340,10 @@ static void mlx5e_tc_del_nic_flow(struct mlx5e_priv *priv,
+ 	}
+ 	mutex_unlock(&tc->t_lock);
  
- 	ptr = (void *)ipl_cert_list_addr;
- 	end = ptr + ipl_cert_list_size;
-@@ -223,6 +221,9 @@ static int kexec_file_add_ipl_report(str
- 		data->kernel_buf + offsetof(struct lowcore, ipl_parmblock_ptr);
- 	*lc_ipl_parmblock_ptr = (__u32)buf.mem;
+-	if (attr->action & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR)
++	if (attr->action & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR) {
++		mlx5e_mod_hdr_dealloc(&attr->parse_attr->mod_hdr_acts);
+ 		mlx5e_detach_mod_hdr(priv, flow);
++	}
  
-+	if (image->type == KEXEC_TYPE_CRASH)
-+		buf.mem += crashk_res.start;
-+
- 	ret = kexec_add_buffer(&buf);
- out:
- 	return ret;
+ 	if (attr->action & MLX5_FLOW_CONTEXT_ACTION_COUNT)
+ 		mlx5_fc_destroy(priv->mdev, attr->counter);
+-- 
+2.35.1
+
 
 
