@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 660A566C8ED
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8317566C4C4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233769AbjAPQoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:44:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32998 "EHLO
+        id S231534AbjAPP6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:58:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233898AbjAPQn7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4433A2F795
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:40 -0800 (PST)
+        with ESMTP id S231612AbjAPP5z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05DB31EFC3
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DD846104D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA002C433F2;
-        Mon, 16 Jan 2023 16:31:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3CBF61041
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3579C433EF;
+        Mon, 16 Jan 2023 15:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886699;
-        bh=Uz5pSA1q9KSqfFdHVCiwVF7uhr2gwU+l+f75LMK0z94=;
+        s=korg; t=1673884673;
+        bh=4UBk/jSKwW/pvyDqEF6pjBkVlfZgG2x+acbux2dtkTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XJxeZdzFiJwtvOxwrmLmX7ohVjzmbUxTTAKuEsjOzLIFbj9eNwDgpvuLi5sdzbEzO
-         8x9GzrWpLc8CRs582+a2BALK1KLH3iXN15OPpVk9BN+Z9RlWcuUUvvwMd6WDhsKy4w
-         X8RLvEiSpq9FCGPM/m2Ri8/fxGKk70fpCaRhRI3o=
+        b=SQlZgj73ZXza0sadc9ttnBNgV5MI4YVtyZb4whx641XBNCOiZefJFp2Yoq11Jb64k
+         s7JGjHSxHkq0gM7K1J68hrQH+qFklUzJsCC1wf4hnkMSWAEBQUdHFmFN53GqGHLVqr
+         wKmc3D/snz6fGCNKiHlDfXNFssbhsdsVrT9dfFko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.4 529/658] ext4: fix delayed allocation bug in ext4_clu_mapped for bigalloc + inline
-Date:   Mon, 16 Jan 2023 16:50:17 +0100
-Message-Id: <20230116154933.771483416@linuxfoundation.org>
+        patches@lists.linux.dev, Peter Newman <peternewman@google.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Babu Moger <babu.moger@amd.com>, stable@kernel.org
+Subject: [PATCH 6.1 095/183] x86/resctrl: Fix task CLOSID/RMID update race
+Date:   Mon, 16 Jan 2023 16:50:18 +0100
+Message-Id: <20230116154807.418281760@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Whitney <enwlinux@gmail.com>
+From: Peter Newman <peternewman@google.com>
 
-commit 131294c35ed6f777bd4e79d42af13b5c41bf2775 upstream.
+commit fe1f0714385fbcf76b0cbceb02b7277d842014fc upstream.
 
-When converting files with inline data to extents, delayed allocations
-made on a file system created with both the bigalloc and inline options
-can result in invalid extent status cache content, incorrect reserved
-cluster counts, kernel memory leaks, and potential kernel panics.
+When the user moves a running task to a new rdtgroup using the task's
+file interface or by deleting its rdtgroup, the resulting change in
+CLOSID/RMID must be immediately propagated to the PQR_ASSOC MSR on the
+task(s) CPUs.
 
-With bigalloc, the code that determines whether a block must be
-delayed allocated searches the extent tree to see if that block maps
-to a previously allocated cluster.  If not, the block is delayed
-allocated, and otherwise, it isn't.  However, if the inline option is
-also used, and if the file containing the block is marked as able to
-store data inline, there isn't a valid extent tree associated with
-the file.  The current code in ext4_clu_mapped() calls
-ext4_find_extent() to search the non-existent tree for a previously
-allocated cluster anyway, which typically finds nothing, as desired.
-However, a side effect of the search can be to cache invalid content
-from the non-existent tree (garbage) in the extent status tree,
-including bogus entries in the pending reservation tree.
+x86 allows reordering loads with prior stores, so if the task starts
+running between a task_curr() check that the CPU hoisted before the
+stores in the CLOSID/RMID update then it can start running with the old
+CLOSID/RMID until it is switched again because __rdtgroup_move_task()
+failed to determine that it needs to be interrupted to obtain the new
+CLOSID/RMID.
 
-To fix this, avoid searching the extent tree when allocating blocks
-for bigalloc + inline files that are being converted from inline to
-extent mapped.
+Refer to the diagram below:
 
-Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-Link: https://lore.kernel.org/r/20221117152207.2424-1-enwlinux@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+CPU 0                                   CPU 1
+-----                                   -----
+__rdtgroup_move_task():
+  curr <- t1->cpu->rq->curr
+                                        __schedule():
+                                          rq->curr <- t1
+                                        resctrl_sched_in():
+                                          t1->{closid,rmid} -> {1,1}
+  t1->{closid,rmid} <- {2,2}
+  if (curr == t1) // false
+   IPI(t1->cpu)
+
+A similar race impacts rdt_move_group_tasks(), which updates tasks in a
+deleted rdtgroup.
+
+In both cases, use smp_mb() to order the task_struct::{closid,rmid}
+stores before the loads in task_curr().  In particular, in the
+rdt_move_group_tasks() case, simply execute an smp_mb() on every
+iteration with a matching task.
+
+It is possible to use a single smp_mb() in rdt_move_group_tasks(), but
+this would require two passes and a means of remembering which
+task_structs were updated in the first loop. However, benchmarking
+results below showed too little performance impact in the simple
+approach to justify implementing the two-pass approach.
+
+Times below were collected using `perf stat` to measure the time to
+remove a group containing a 1600-task, parallel workload.
+
+CPU: Intel(R) Xeon(R) Platinum P-8136 CPU @ 2.00GHz (112 threads)
+
+  # mkdir /sys/fs/resctrl/test
+  # echo $$ > /sys/fs/resctrl/test/tasks
+  # perf bench sched messaging -g 40 -l 100000
+
+task-clock time ranges collected using:
+
+  # perf stat rmdir /sys/fs/resctrl/test
+
+Baseline:                     1.54 - 1.60 ms
+smp_mb() every matching task: 1.57 - 1.67 ms
+
+  [ bp: Massage commit message. ]
+
+Fixes: ae28d1aae48a ("x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR")
+Fixes: 0efc89be9471 ("x86/intel_rdt: Update task closid immediately on CPU in rmdir and unmount")
+Signed-off-by: Peter Newman <peternewman@google.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Reviewed-by: Babu Moger <babu.moger@amd.com>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/20221220161123.432120-1-peternewman@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -6022,6 +6022,14 @@ int ext4_clu_mapped(struct inode *inode,
- 	struct ext4_extent *extent;
- 	ext4_lblk_t first_lblk, first_lclu, last_lclu;
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -580,8 +580,10 @@ static int __rdtgroup_move_task(struct t
+ 	/*
+ 	 * Ensure the task's closid and rmid are written before determining if
+ 	 * the task is current that will decide if it will be interrupted.
++	 * This pairs with the full barrier between the rq->curr update and
++	 * resctrl_sched_in() during context switch.
+ 	 */
+-	barrier();
++	smp_mb();
  
-+	/*
-+	 * if data can be stored inline, the logical cluster isn't
-+	 * mapped - no physical clusters have been allocated, and the
-+	 * file has no extents
-+	 */
-+	if (ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA))
-+		return 0;
+ 	/*
+ 	 * By now, the task's closid and rmid are set. If the task is current
+@@ -2402,6 +2404,14 @@ static void rdt_move_group_tasks(struct
+ 			WRITE_ONCE(t->rmid, to->mon.rmid);
+ 
+ 			/*
++			 * Order the closid/rmid stores above before the loads
++			 * in task_curr(). This pairs with the full barrier
++			 * between the rq->curr update and resctrl_sched_in()
++			 * during context switch.
++			 */
++			smp_mb();
 +
- 	/* search for the extent closest to the first block in the cluster */
- 	path = ext4_find_extent(inode, EXT4_C2B(sbi, lclu), NULL, 0);
- 	if (IS_ERR(path)) {
++			/*
+ 			 * If the task is on a CPU, set the CPU in the mask.
+ 			 * The detection is inaccurate as tasks might move or
+ 			 * schedule before the smp function call takes place.
 
 
