@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12FA766CA2A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1177B66CA32
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbjAPRAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:00:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49650 "EHLO
+        id S234145AbjAPRAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:00:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234105AbjAPQ7c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D8742ED43
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:14 -0800 (PST)
+        with ESMTP id S234100AbjAPQ7x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9776D3D089
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 297F0B81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84B0FC433EF;
-        Mon, 16 Jan 2023 16:42:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36DC861077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49EB3C433EF;
+        Mon, 16 Jan 2023 16:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887331;
-        bh=+oFISMAZCZqWUcyp1cseHxfZgKpqTLZNFjwgUniu0H0=;
+        s=korg; t=1673887360;
+        bh=OUgQ3YmlL+kC/xj82o2Oh7xprEho4Eb8CVEzeEQBe6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13bcHj5tiGAv+yQokAHVBLoyks/Nho9EmIvmxftOPJ77ZprouAakFdGGfKarRKoZC
-         Urue6fpwMTV1WMP+oVBGAZByxOXBGw+7GgmeDpsUOcLC5WWx5KxOZCWHdpA+Xr2Oaq
-         RMZZwf2glyciDAivm+KbAAuwOLddEQfazF4HUj3o=
+        b=Tj6Vy7qVvDxhjGpg81V5rusUWIb3bS0URM7Hjm/TSR0DpNcK8Zq+36AZNHiEwx1dQ
+         U1zD+WN6eN/3LK723i8/BAx+vc/wuHp1UTwFyiwgMPNwiaVmSWfMyyIvgT0Efa8Yy5
+         uI4wg/gUT2hYUNvMrtJUSEniELLw0BKHx46XLK/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hanjun Guo <guohanjun@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 101/521] drm/radeon: Add the missed acpi_put_table() to fix memory leak
-Date:   Mon, 16 Jan 2023 16:46:03 +0100
-Message-Id: <20230116154851.767697233@linuxfoundation.org>
+Subject: [PATCH 4.19 102/521] ASoC: pxa: fix null-pointer dereference in filter()
+Date:   Mon, 16 Jan 2023 16:46:04 +0100
+Message-Id: <20230116154851.820551150@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,84 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit 10276a20be1115e1f76c189330da2992df980eee ]
+[ Upstream commit ec7bf231aaa1bdbcb69d23bc50c753c80fb22429 ]
 
-When the radeon driver reads the bios information from ACPI
-table in radeon_acpi_vfct_bios(), it misses to call acpi_put_table()
-to release the ACPI memory after the init, so add acpi_put_table()
-properly to fix the memory leak.
+kasprintf() would return NULL pointer when kmalloc() fail to allocate.
+Need to check the return pointer before calling strcmp().
 
-v2: fix text formatting (Alex)
-
-Fixes: 268ba0a99f89 ("drm/radeon: implement ACPI VFCT vbios fetch (v3)")
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 7a824e214e25 ("ASoC: mmp: add audio dma support")
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
+Link: https://lore.kernel.org/r/20221114085629.1910435-1-zengheng4@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_bios.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ sound/soc/pxa/mmp-pcm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_bios.c b/drivers/gpu/drm/radeon/radeon_bios.c
-index dd0528cf9818..8154d2d7fe9e 100644
---- a/drivers/gpu/drm/radeon/radeon_bios.c
-+++ b/drivers/gpu/drm/radeon/radeon_bios.c
-@@ -608,13 +608,14 @@ static bool radeon_acpi_vfct_bios(struct radeon_device *rdev)
- 	acpi_size tbl_size;
- 	UEFI_ACPI_VFCT *vfct;
- 	unsigned offset;
-+	bool r = false;
+diff --git a/sound/soc/pxa/mmp-pcm.c b/sound/soc/pxa/mmp-pcm.c
+index d2d4652de32c..5969aa66410d 100644
+--- a/sound/soc/pxa/mmp-pcm.c
++++ b/sound/soc/pxa/mmp-pcm.c
+@@ -90,7 +90,7 @@ static bool filter(struct dma_chan *chan, void *param)
  
- 	if (!ACPI_SUCCESS(acpi_get_table("VFCT", 1, &hdr)))
- 		return false;
- 	tbl_size = hdr->length;
- 	if (tbl_size < sizeof(UEFI_ACPI_VFCT)) {
- 		DRM_ERROR("ACPI VFCT table present but broken (too short #1)\n");
--		return false;
-+		goto out;
+ 	devname = kasprintf(GFP_KERNEL, "%s.%d", dma_data->dma_res->name,
+ 		dma_data->ssp_id);
+-	if ((strcmp(dev_name(chan->device->dev), devname) == 0) &&
++	if (devname && (strcmp(dev_name(chan->device->dev), devname) == 0) &&
+ 		(chan->chan_id == dma_data->dma_res->start)) {
+ 		found = true;
  	}
- 
- 	vfct = (UEFI_ACPI_VFCT *)hdr;
-@@ -627,13 +628,13 @@ static bool radeon_acpi_vfct_bios(struct radeon_device *rdev)
- 		offset += sizeof(VFCT_IMAGE_HEADER);
- 		if (offset > tbl_size) {
- 			DRM_ERROR("ACPI VFCT image header truncated\n");
--			return false;
-+			goto out;
- 		}
- 
- 		offset += vhdr->ImageLength;
- 		if (offset > tbl_size) {
- 			DRM_ERROR("ACPI VFCT image truncated\n");
--			return false;
-+			goto out;
- 		}
- 
- 		if (vhdr->ImageLength &&
-@@ -645,15 +646,18 @@ static bool radeon_acpi_vfct_bios(struct radeon_device *rdev)
- 			rdev->bios = kmemdup(&vbios->VbiosContent,
- 					     vhdr->ImageLength,
- 					     GFP_KERNEL);
-+			if (rdev->bios)
-+				r = true;
- 
--			if (!rdev->bios)
--				return false;
--			return true;
-+			goto out;
- 		}
- 	}
- 
- 	DRM_ERROR("ACPI VFCT table present but broken (too short #2)\n");
--	return false;
-+
-+out:
-+	acpi_put_table(hdr);
-+	return r;
- }
- #else
- static inline bool radeon_acpi_vfct_bios(struct radeon_device *rdev)
 -- 
 2.35.1
 
