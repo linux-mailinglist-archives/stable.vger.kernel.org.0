@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5824E66C4D6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92D7966C555
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231684AbjAPP6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:58:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41262 "EHLO
+        id S232284AbjAPQFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:05:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231855AbjAPP6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:58:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC813A5F5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:58:42 -0800 (PST)
+        with ESMTP id S232243AbjAPQEX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6624926843
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75425B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:58:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0BA5C433D2;
-        Mon, 16 Jan 2023 15:58:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05D3A6101F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2002AC433EF;
+        Mon, 16 Jan 2023 16:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884720;
-        bh=kutnvLjlyoyL9F+iEZ7deFk7ovuwvvlLlKBcwzRcvRE=;
+        s=korg; t=1673884979;
+        bh=q3I9oyNPuyaG204omZYQ7JfhSGA8eH56E/F4qYmFTME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jw8QkhhCFxHPR6FFrnJB541h2zR22KQvmsDsX8D7BvH5oKuaFZ8bSaWRIWmI8xDOP
-         mEDZ6U7kod9b6PepcMln3Xeak6n8v5O1zj9ytEJLbjugEkY5U0R3sohcGPbT42quP4
-         9k6+Ot65KzP2ShZJZehJnMpDSufGXxZv1/BptXkk=
+        b=adC3rgkDse2c+XlMnuPKYDhg+sMSAZj3P9uknI4/6MxslBsv1GqnvBkwlv33jZG0w
+         p2e2Y1fmLy/Xpsn092jl4Aki1gWtagwmWBM8aNa5wdaR+2HBWYew81aRRB6v5hldEl
+         1gPDojNX+3zZdaMDNIutCeiwgK8URMtk9qp+Fjgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chuck Lever <chuck.lever@oracle.com>,
-        Jeff Layton <jlayton@kernel.org>, NeilBrown <neilb@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 114/183] NFSD: Revert "NFSD: NFSv4 CLOSE should release an nfsd_file immediately"
+        patches@lists.linux.dev, Yuchi Yang <yangyuchi66@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 03/86] ALSA: hda/realtek - Turn on power early
 Date:   Mon, 16 Jan 2023 16:50:37 +0100
-Message-Id: <20230116154808.207728963@linuxfoundation.org>
+Message-Id: <20230116154747.201472242@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +52,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Yuchi Yang <yangyuchi66@gmail.com>
 
-[ Upstream commit dcf3f80965ca787c70def402cdf1553c93c75529 ]
+commit 1f680609bf1beac20e2a31ddcb1b88874123c39f upstream.
 
-This reverts commit 5e138c4a750dc140d881dab4a8804b094bbc08d2.
+Turn on power early to avoid wrong state for power relation register.
+This can earlier update JD state when resume back.
 
-That commit attempted to make files available to other users as soon
-as all NFSv4 clients were done with them, rather than waiting until
-the filecache LRU had garbage collected them.
-
-It gets the reference counting wrong, for one thing.
-
-But it also misses that DELEGRETURN should release a file in the
-same fashion. In fact, any nfsd_file_put() on an file held open
-by an NFSv4 client needs potentially to release the file
-immediately...
-
-Clear the way for implementing that idea.
-
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: NeilBrown <neilb@suse.de>
-Stable-dep-of: 0b3a551fa58b ("nfsd: fix handling of cached open files in nfsd4_open codepath")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yuchi Yang <yangyuchi66@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/e35d8f4fa18f4448a2315cc7d4a3715f@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/filecache.c | 18 ------------------
- fs/nfsd/filecache.h |  1 -
- fs/nfsd/nfs4state.c |  4 ++--
- 3 files changed, 2 insertions(+), 21 deletions(-)
+ sound/pci/hda/patch_realtek.c |   30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/fs/nfsd/filecache.c b/fs/nfsd/filecache.c
-index ec3fceb92236..babea79d3f6f 100644
---- a/fs/nfsd/filecache.c
-+++ b/fs/nfsd/filecache.c
-@@ -444,24 +444,6 @@ nfsd_file_put(struct nfsd_file *nf)
- 		nfsd_file_put_noref(nf);
- }
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -3558,6 +3558,15 @@ static void alc256_init(struct hda_codec
+ 	hda_nid_t hp_pin = alc_get_hp_pin(spec);
+ 	bool hp_pin_sense;
  
--/**
-- * nfsd_file_close - Close an nfsd_file
-- * @nf: nfsd_file to close
-- *
-- * If this is the final reference for @nf, free it immediately.
-- * This reflects an on-the-wire CLOSE or DELEGRETURN into the
-- * VFS and exported filesystem.
-- */
--void nfsd_file_close(struct nfsd_file *nf)
--{
--	nfsd_file_put(nf);
--	if (refcount_dec_if_one(&nf->nf_ref)) {
--		nfsd_file_unhash(nf);
--		nfsd_file_lru_remove(nf);
--		nfsd_file_free(nf);
++	if (spec->ultra_low_power) {
++		alc_update_coef_idx(codec, 0x03, 1<<1, 1<<1);
++		alc_update_coef_idx(codec, 0x08, 3<<2, 3<<2);
++		alc_update_coef_idx(codec, 0x08, 7<<4, 0);
++		alc_update_coef_idx(codec, 0x3b, 1<<15, 0);
++		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
++		msleep(30);
++	}
++
+ 	if (!hp_pin)
+ 		hp_pin = 0x21;
+ 
+@@ -3569,14 +3578,6 @@ static void alc256_init(struct hda_codec
+ 		msleep(2);
+ 
+ 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x1); /* Low power */
+-	if (spec->ultra_low_power) {
+-		alc_update_coef_idx(codec, 0x03, 1<<1, 1<<1);
+-		alc_update_coef_idx(codec, 0x08, 3<<2, 3<<2);
+-		alc_update_coef_idx(codec, 0x08, 7<<4, 0);
+-		alc_update_coef_idx(codec, 0x3b, 1<<15, 0);
+-		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
+-		msleep(30);
 -	}
--}
--
- struct nfsd_file *
- nfsd_file_get(struct nfsd_file *nf)
- {
-diff --git a/fs/nfsd/filecache.h b/fs/nfsd/filecache.h
-index 357832bac736..6b012ea4bd9d 100644
---- a/fs/nfsd/filecache.h
-+++ b/fs/nfsd/filecache.h
-@@ -52,7 +52,6 @@ void nfsd_file_cache_shutdown(void);
- int nfsd_file_cache_start_net(struct net *net);
- void nfsd_file_cache_shutdown_net(struct net *net);
- void nfsd_file_put(struct nfsd_file *nf);
--void nfsd_file_close(struct nfsd_file *nf);
- struct nfsd_file *nfsd_file_get(struct nfsd_file *nf);
- void nfsd_file_close_inode_sync(struct inode *inode);
- bool nfsd_file_is_cached(struct inode *inode);
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 52b5552d0d70..16c3e991ddcc 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -842,9 +842,9 @@ static void __nfs4_file_put_access(struct nfs4_file *fp, int oflag)
- 			swap(f2, fp->fi_fds[O_RDWR]);
- 		spin_unlock(&fp->fi_lock);
- 		if (f1)
--			nfsd_file_close(f1);
-+			nfsd_file_put(f1);
- 		if (f2)
--			nfsd_file_close(f2);
-+			nfsd_file_put(f2);
- 	}
- }
  
--- 
-2.35.1
-
+ 	snd_hda_codec_write(codec, hp_pin, 0,
+ 			    AC_VERB_SET_AMP_GAIN_MUTE, AMP_OUT_MUTE);
+@@ -3707,6 +3708,13 @@ static void alc225_init(struct hda_codec
+ 	hda_nid_t hp_pin = alc_get_hp_pin(spec);
+ 	bool hp1_pin_sense, hp2_pin_sense;
+ 
++	if (spec->ultra_low_power) {
++		alc_update_coef_idx(codec, 0x08, 0x0f << 2, 3<<2);
++		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
++		alc_update_coef_idx(codec, 0x33, 1<<11, 0);
++		msleep(30);
++	}
++
+ 	if (spec->codec_variant != ALC269_TYPE_ALC287 &&
+ 		spec->codec_variant != ALC269_TYPE_ALC245)
+ 		/* required only at boot or S3 and S4 resume time */
+@@ -3728,12 +3736,6 @@ static void alc225_init(struct hda_codec
+ 		msleep(2);
+ 
+ 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x1); /* Low power */
+-	if (spec->ultra_low_power) {
+-		alc_update_coef_idx(codec, 0x08, 0x0f << 2, 3<<2);
+-		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
+-		alc_update_coef_idx(codec, 0x33, 1<<11, 0);
+-		msleep(30);
+-	}
+ 
+ 	if (hp1_pin_sense || spec->ultra_low_power)
+ 		snd_hda_codec_write(codec, hp_pin, 0,
 
 
