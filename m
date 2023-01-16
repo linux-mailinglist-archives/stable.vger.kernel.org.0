@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CBC566C866
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:38:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C4366C867
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:38:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233555AbjAPQir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:38:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60176 "EHLO
+        id S233453AbjAPQis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:38:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233532AbjAPQiY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:38:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9691B27D53
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:10 -0800 (PST)
+        with ESMTP id S233505AbjAPQiZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:38:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C758265B9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC1B1B81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 380CEC433D2;
-        Mon, 16 Jan 2023 16:27:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD41561058
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3D9CC433EF;
+        Mon, 16 Jan 2023 16:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886427;
-        bh=+e/HtiXHmC9cNxoFlT+IdQfHCRPZeK0Ta/77VbnnW38=;
+        s=korg; t=1673886430;
+        bh=UO2KWIN9lEp9rlsay7SFYUnLpIwAJ6qTyqrbsgEsLyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kz9qy25ixB1U3BPsUfEb9RIjfHzhqBt2n6JMvxRDyzS8gx/AJA0aLT5cynR5yGQc0
-         GlK5wb3ZHQKTsdaHnaGL/3nANSVSnqz+TpFfboxGrR8Z/AhzS1d7Fy6ea3vg5dmOb5
-         xb36ncmh5uC46tpVnTlGgDhq6PNoCwktwZlBALPU=
+        b=gsZhv/jGy/BSaudtcAPfG2XtaqLi55hroRvaBdlAQcTvhUPsXsWMAAs2m0OwhOlW3
+         grw6WThMCDVd0vj/n9Hnoo3jpoCf+m2jGVKKA2BIT1QR9SZ571qqDwp4polnFo6RCi
+         LSMxm/CCQ/0JWGnND8lyc9jJD4UntIRi7vFjZf6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Mike Marshall <hubcap@omnibond.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 427/658] drm/sti: Fix return type of sti_{dvo,hda,hdmi}_connector_mode_valid()
-Date:   Mon, 16 Jan 2023 16:48:35 +0100
-Message-Id: <20230116154929.103267224@linuxfoundation.org>
+Subject: [PATCH 5.4 428/658] orangefs: Fix kmemleak in orangefs_prepare_debugfs_help_string()
+Date:   Mon, 16 Jan 2023 16:48:36 +0100
+Message-Id: <20230116154929.134830979@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,93 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 0ad811cc08a937d875cbad0149c1bab17f84ba05 ]
+[ Upstream commit d23417a5bf3a3afc55de5442eb46e1e60458b0a1 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+When insert and remove the orangefs module, then debug_help_string will
+be leaked:
 
-  drivers/gpu/drm/sti/sti_hda.c:637:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .mode_valid = sti_hda_connector_mode_valid,
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  drivers/gpu/drm/sti/sti_dvo.c:376:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .mode_valid = sti_dvo_connector_mode_valid,
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  drivers/gpu/drm/sti/sti_hdmi.c:1035:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .mode_valid = sti_hdmi_connector_mode_valid,
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  unreferenced object 0xffff8881652ba000 (size 4096):
+    comm "insmod", pid 1701, jiffies 4294893639 (age 13218.530s)
+    hex dump (first 32 bytes):
+      43 6c 69 65 6e 74 20 44 65 62 75 67 20 4b 65 79  Client Debug Key
+      77 6f 72 64 73 20 61 72 65 20 75 6e 6b 6e 6f 77  words are unknow
+    backtrace:
+      [<0000000004e6f8e3>] kmalloc_trace+0x27/0xa0
+      [<0000000006f75d85>] orangefs_prepare_debugfs_help_string+0x5e/0x480 [orangefs]
+      [<0000000091270a2a>] _sub_I_65535_1+0x57/0xf70 [crc_itu_t]
+      [<000000004b1ee1a3>] do_one_initcall+0x87/0x2a0
+      [<000000001d0614ae>] do_init_module+0xdf/0x320
+      [<00000000efef068c>] load_module+0x2f98/0x3330
+      [<000000006533b44d>] __do_sys_finit_module+0x113/0x1b0
+      [<00000000a0da6f99>] do_syscall_64+0x35/0x80
+      [<000000007790b19b>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-->mode_valid() in 'struct drm_connector_helper_funcs' expects a return
-type of 'enum drm_mode_status', not 'int'. Adjust the return type of
-sti_{dvo,hda,hdmi}_connector_mode_valid() to match the prototype's to
-resolve the warning and CFI failure.
+When remove the module, should always free debug_help_string. Should
+always free the allocated buffer when change the free_debug_help_string.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102155623.3042869-1-nathan@kernel.org
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sti/sti_dvo.c  | 5 +++--
- drivers/gpu/drm/sti/sti_hda.c  | 5 +++--
- drivers/gpu/drm/sti/sti_hdmi.c | 5 +++--
- 3 files changed, 9 insertions(+), 6 deletions(-)
+ fs/orangefs/orangefs-debugfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/sti/sti_dvo.c b/drivers/gpu/drm/sti/sti_dvo.c
-index 3c65c73aa854..d0f1384d0fba 100644
---- a/drivers/gpu/drm/sti/sti_dvo.c
-+++ b/drivers/gpu/drm/sti/sti_dvo.c
-@@ -345,8 +345,9 @@ static int sti_dvo_connector_get_modes(struct drm_connector *connector)
- 
- #define CLK_TOLERANCE_HZ 50
- 
--static int sti_dvo_connector_mode_valid(struct drm_connector *connector,
--					struct drm_display_mode *mode)
-+static enum drm_mode_status
-+sti_dvo_connector_mode_valid(struct drm_connector *connector,
-+			     struct drm_display_mode *mode)
+diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
+index 29eaa4544372..a848b6ef9599 100644
+--- a/fs/orangefs/orangefs-debugfs.c
++++ b/fs/orangefs/orangefs-debugfs.c
+@@ -222,6 +222,8 @@ static void orangefs_kernel_debug_init(void)
+ void orangefs_debugfs_cleanup(void)
  {
- 	int target = mode->clock * 1000;
- 	int target_min = target - CLK_TOLERANCE_HZ;
-diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
-index 158192680bea..b321e5525771 100644
---- a/drivers/gpu/drm/sti/sti_hda.c
-+++ b/drivers/gpu/drm/sti/sti_hda.c
-@@ -600,8 +600,9 @@ static int sti_hda_connector_get_modes(struct drm_connector *connector)
+ 	debugfs_remove_recursive(debug_dir);
++	kfree(debug_help_string);
++	debug_help_string = NULL;
+ }
  
- #define CLK_TOLERANCE_HZ 50
+ /* open ORANGEFS_KMOD_DEBUG_HELP_FILE */
+@@ -671,6 +673,7 @@ int orangefs_prepare_debugfs_help_string(int at_boot)
+ 		memset(debug_help_string, 0, DEBUG_HELP_STRING_SIZE);
+ 		strlcat(debug_help_string, new, string_size);
+ 		mutex_unlock(&orangefs_help_file_lock);
++		kfree(new);
+ 	}
  
--static int sti_hda_connector_mode_valid(struct drm_connector *connector,
--					struct drm_display_mode *mode)
-+static enum drm_mode_status
-+sti_hda_connector_mode_valid(struct drm_connector *connector,
-+			     struct drm_display_mode *mode)
- {
- 	int target = mode->clock * 1000;
- 	int target_min = target - CLK_TOLERANCE_HZ;
-diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
-index c91ce51836ca..c5547fedebe3 100644
---- a/drivers/gpu/drm/sti/sti_hdmi.c
-+++ b/drivers/gpu/drm/sti/sti_hdmi.c
-@@ -996,8 +996,9 @@ static int sti_hdmi_connector_get_modes(struct drm_connector *connector)
- 
- #define CLK_TOLERANCE_HZ 50
- 
--static int sti_hdmi_connector_mode_valid(struct drm_connector *connector,
--					struct drm_display_mode *mode)
-+static enum drm_mode_status
-+sti_hdmi_connector_mode_valid(struct drm_connector *connector,
-+			      struct drm_display_mode *mode)
- {
- 	int target = mode->clock * 1000;
- 	int target_min = target - CLK_TOLERANCE_HZ;
+ 	rc = 0;
 -- 
 2.35.1
 
