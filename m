@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42F0366CB9F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 285DA66CD22
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234454AbjAPRPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36704 "EHLO
+        id S234879AbjAPRd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:33:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234438AbjAPRPF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:05 -0500
+        with ESMTP id S234612AbjAPRd0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF67C2B610
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979BE23C48
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC390B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18BE7C433EF;
-        Mon, 16 Jan 2023 16:55:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 521C1B810A0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5EB5C433D2;
+        Mon, 16 Jan 2023 17:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888147;
-        bh=3egT90OQ9sgJi2rEEaM6f+kWpSgPMquYfgPPoGx3TvU=;
+        s=korg; t=1673888972;
+        bh=Csv9egRb+sP1m7GZtFMYX5iu2nakUFwIoFRAamIdUBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1F9TcyF5VCAVxZGKlQQ86rWvDjh6sXAopVLIMoW4zlkjCZefVSlmxi80tTYMm4S1B
-         zkn33eK9zPBms4FwsBFvoK+0uidK0E2i74dpoZ0vOEkZuhXBU6bybnjp3V4Y1RAeUU
-         v07pOKQIo9EoQWXWsG2MpIRQTjKMQ3ErhV98Eq+A=
+        b=Z/LL5ZatjcE3/o+jn8ykOavna8HY4lM4T9MfaUWN+LVtIbb/dYYo0YdTMoLkd9kl8
+         8mic40bz5pOOJ20xekDWzbzvwlawSxQN/QM2nzKn3vdmx0nTMdl13CR+vqKy1NjURC
+         +pLIrCk8m5oQU0CQs1rl4UEnxflSgAK/pe/eWE3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luben Tuikov <luben.tuikov@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.19 418/521] drm/amdgpu: make display pinning more flexible (v2)
-Date:   Mon, 16 Jan 2023 16:51:20 +0100
-Message-Id: <20230116154905.818150796@linuxfoundation.org>
+        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 208/338] nfc: pn533: Clear nfc_target before being used
+Date:   Mon, 16 Jan 2023 16:51:21 +0100
+Message-Id: <20230116154830.065256119@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-commit 81d0bcf9900932633d270d5bc4a54ff599c6ebdb upstream.
+[ Upstream commit 9f28157778ede0d4f183f7ab3b46995bb400abbe ]
 
-Only apply the static threshold for Stoney and Carrizo.
-This hardware has certain requirements that don't allow
-mixing of GTT and VRAM.  Newer asics do not have these
-requirements so we should be able to be more flexible
-with where buffers end up.
+Fix a slab-out-of-bounds read that occurs in nla_put() called from
+nfc_genl_send_target() when target->sensb_res_len, which is duplicated
+from an nfc_target in pn533, is too large as the nfc_target is not
+properly initialized and retains garbage values. Clear nfc_targets with
+memset() before they are used.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2270
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2291
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2255
-Acked-by: Luben Tuikov <luben.tuikov@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found by a modified version of syzkaller.
+
+BUG: KASAN: slab-out-of-bounds in nla_put
+Call Trace:
+ memcpy
+ nla_put
+ nfc_genl_dump_targets
+ genl_lock_dumpit
+ netlink_dump
+ __netlink_dump_start
+ genl_family_rcv_msg_dumpit
+ genl_rcv_msg
+ netlink_rcv_skb
+ genl_rcv
+ netlink_unicast
+ netlink_sendmsg
+ sock_sendmsg
+ ____sys_sendmsg
+ ___sys_sendmsg
+ __sys_sendmsg
+ do_syscall_64
+
+Fixes: 673088fb42d0 ("NFC: pn533: Send ATR_REQ directly for active device detection")
+Fixes: 361f3cb7f9cf ("NFC: DEP link hook implementation for pn533")
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20221214015139.119673-1-linuxlovemin@yonsei.ac.kr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_object.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nfc/pn533/pn533.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-@@ -1387,7 +1387,8 @@ u64 amdgpu_bo_gpu_offset(struct amdgpu_b
- uint32_t amdgpu_bo_get_preferred_pin_domain(struct amdgpu_device *adev,
- 					    uint32_t domain)
- {
--	if (domain == (AMDGPU_GEM_DOMAIN_VRAM | AMDGPU_GEM_DOMAIN_GTT)) {
-+	if ((domain == (AMDGPU_GEM_DOMAIN_VRAM | AMDGPU_GEM_DOMAIN_GTT)) &&
-+	    ((adev->asic_type == CHIP_CARRIZO) || (adev->asic_type == CHIP_STONEY))) {
- 		domain = AMDGPU_GEM_DOMAIN_VRAM;
- 		if (adev->gmc.real_vram_size <= AMDGPU_SG_THRESHOLD)
- 			domain = AMDGPU_GEM_DOMAIN_GTT;
+diff --git a/drivers/nfc/pn533/pn533.c b/drivers/nfc/pn533/pn533.c
+index 52a1a2cae6c7..1d14f5a28266 100644
+--- a/drivers/nfc/pn533/pn533.c
++++ b/drivers/nfc/pn533/pn533.c
+@@ -1305,6 +1305,8 @@ static int pn533_poll_dep_complete(struct pn533 *dev, void *arg,
+ 	if (IS_ERR(resp))
+ 		return PTR_ERR(resp);
+ 
++	memset(&nfc_target, 0, sizeof(struct nfc_target));
++
+ 	rsp = (struct pn533_cmd_jump_dep_response *)resp->data;
+ 
+ 	rc = rsp->status & PN533_CMD_RET_MASK;
+@@ -1786,6 +1788,8 @@ static int pn533_in_dep_link_up_complete(struct pn533 *dev, void *arg,
+ 
+ 		dev_dbg(dev->dev, "Creating new target\n");
+ 
++		memset(&nfc_target, 0, sizeof(struct nfc_target));
++
+ 		nfc_target.supported_protocols = NFC_PROTO_NFC_DEP_MASK;
+ 		nfc_target.nfcid1_len = 10;
+ 		memcpy(nfc_target.nfcid1, rsp->nfcid3t, nfc_target.nfcid1_len);
+-- 
+2.35.1
+
 
 
