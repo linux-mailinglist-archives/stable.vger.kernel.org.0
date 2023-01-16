@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7886C66C730
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 690DD66C731
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232907AbjAPQ3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233195AbjAPQ3D (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Jan 2023 11:29:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233224AbjAPQ2X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886772D165
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:43 -0800 (PST)
+        with ESMTP id S233165AbjAPQ2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8891F2D169
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BBBDEB8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26A1CC433D2;
-        Mon, 16 Jan 2023 16:16:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBF9261031
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1405C433EF;
+        Mon, 16 Jan 2023 16:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885800;
-        bh=VF+9Qk0M7jhPYc91uD5LVjRY2tijB/yE0xofHREFclw=;
+        s=korg; t=1673885803;
+        bh=hGxg/op7zcqYpPji529cCOOsaQdPXlDh+7S8HNuZETA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KDtg3kj11yiGq5cMgyQLoNJC/aOO79RakmSC10cf+vd1D29m2s3c+1RMpYCgSuzEO
-         NuyXVBK31mBwFOg5WJTjYAuD1VUvEugHbLvCA4Q7fRh5mNBrADm3gWdGvIbrkjcqo4
-         5CgD/wCnoP/zUGjOw04m7JZf+X9FW4qax+vbdeKc=
+        b=cqw5cHO26lUkDjhPVyP5a9rpsht9wieLMHp9qYIXl88TBMe90n5pR1+F+CeKsdH7k
+         VgsCRWcKgbVsjdXBDpwy34oR56ZO1C6P8tamX6ExVQMi7Uu9YwYE72MQBmDfvFFR5L
+         Rb0Xw1JVecn7sR3xy1FWtohLdhoTLtNnz9NJjs90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 159/658] ASoC: mediatek: mtk-btcvsd: Add checks for write and read of mtk_btcvsd_snd
-Date:   Mon, 16 Jan 2023 16:44:07 +0100
-Message-Id: <20230116154916.731314289@linuxfoundation.org>
+Subject: [PATCH 5.4 160/658] NFSv4.2: Clear FATTR4_WORD2_SECURITY_LABEL when done decoding
+Date:   Mon, 16 Jan 2023 16:44:08 +0100
+Message-Id: <20230116154916.774177741@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,40 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit d067b3378a78c9c3048ac535e31c171b6f5b5846 ]
+[ Upstream commit eef7314caf2d73a94b68ba293cd105154d3a664e ]
 
-As the mtk_btcvsd_snd_write and mtk_btcvsd_snd_read may return error,
-it should be better to catch the exception.
+We need to clear the FATTR4_WORD2_SECURITY_LABEL bitmap flag
+irrespective of whether or not the label is too long.
 
-Fixes: 4bd8597dc36c ("ASoC: mediatek: add btcvsd driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20221116030750.40500-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/common/mtk-btcvsd.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/nfs/nfs4xdr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/mediatek/common/mtk-btcvsd.c b/sound/soc/mediatek/common/mtk-btcvsd.c
-index b66f7dee1e14..f6ec6937a71b 100644
---- a/sound/soc/mediatek/common/mtk-btcvsd.c
-+++ b/sound/soc/mediatek/common/mtk-btcvsd.c
-@@ -1054,11 +1054,9 @@ static int mtk_pcm_btcvsd_copy(struct snd_pcm_substream *substream,
- 	struct mtk_btcvsd_snd *bt = snd_soc_component_get_drvdata(component);
- 
- 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
--		mtk_btcvsd_snd_write(bt, buf, count);
-+		return mtk_btcvsd_snd_write(bt, buf, count);
- 	else
--		mtk_btcvsd_snd_read(bt, buf, count);
--
--	return 0;
-+		return mtk_btcvsd_snd_read(bt, buf, count);
- }
- 
- static struct snd_pcm_ops mtk_btcvsd_ops = {
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 2b7741fe42ea..ac9ffe184451 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4169,6 +4169,7 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 		p = xdr_inline_decode(xdr, len);
+ 		if (unlikely(!p))
+ 			return -EIO;
++		bitmap[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
+ 		if (len < NFS4_MAXLABELLEN) {
+ 			if (label) {
+ 				if (label->len) {
+@@ -4181,7 +4182,6 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 				label->lfs = lfs;
+ 				status = NFS_ATTR_FATTR_V4_SECURITY_LABEL;
+ 			}
+-			bitmap[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
+ 		} else
+ 			printk(KERN_WARNING "%s: label too long (%u)!\n",
+ 					__func__, len);
 -- 
 2.35.1
 
