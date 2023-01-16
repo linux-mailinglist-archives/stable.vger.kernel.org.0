@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4E266CBA2
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 817FF66CD5B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234343AbjAPRPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38992 "EHLO
+        id S233621AbjAPRfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:35:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234452AbjAPRPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:08 -0500
+        with ESMTP id S234715AbjAPRfC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F264CF76B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6EA823322
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1870B80E95
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A9BEC433EF;
-        Mon, 16 Jan 2023 16:55:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72362B81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:11:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBCDC433EF;
+        Mon, 16 Jan 2023 17:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888155;
-        bh=TkCHzohUPlzyQLwONlqXBHNNlTGDGT5nySft9D7EbTw=;
+        s=korg; t=1673889077;
+        bh=BpN3Sva0JSp+Zaq2oTXSZYfT49B4CmHw5QEZv342z4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S85FKfR/8n0Ow/kpP08MJEGN6JW5KBxEAfNzSmrIMiGwuq8AcIRawNZZYsMG0zhn1
-         ZOWsor4MDOOJ0suUelmUm1+iw4wHdKiGx8SFEWv9jZ2kCmKvBO2JcB1WKKYmb6cD5j
-         YgLeTzTUOknLLYqu3ee2Pbjh7QSr3UeMCP17Ubvw=
+        b=NFyNnduiyUA8D9hph/IGoxGsLXUG/4eL6SIeJoOf4kXCTNdlUOcAWrRPkANphkv3z
+         KS/vPEzw9+1ASyA03NdvaMM43KMERdeatqqcVYQmvsnQmJJPJ1Ze81W0hXFHEIYWom
+         6znHvKlie1VudNwUADUHr4ISWsq8721racaRVowo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 420/521] btrfs: replace strncpy() with strscpy()
+Subject: [PATCH 4.14 209/338] r6040: Fix kmemleak in probe and remove
 Date:   Mon, 16 Jan 2023 16:51:22 +0100
-Message-Id: <20230116154905.913186409@linuxfoundation.org>
+Message-Id: <20230116154830.115195469@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 63d5429f68a3d4c4aa27e65a05196c17f86c41d6 ]
+From: Li Zetao <lizetao1@huawei.com>
 
-Using strncpy() on NUL-terminated strings are deprecated.  To avoid
-possible forming of non-terminated string strscpy() should be used.
+[ Upstream commit 7e43039a49c2da45edc1d9d7c9ede4003ab45a5f ]
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+There is a memory leaks reported by kmemleak:
 
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+  unreferenced object 0xffff888116111000 (size 2048):
+    comm "modprobe", pid 817, jiffies 4294759745 (age 76.502s)
+    hex dump (first 32 bytes):
+      00 c4 0a 04 81 88 ff ff 08 10 11 16 81 88 ff ff  ................
+      08 10 11 16 81 88 ff ff 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
+      [<ffffffff827e20ee>] phy_device_create+0x4e/0x90
+      [<ffffffff827e6072>] get_phy_device+0xd2/0x220
+      [<ffffffff827e7844>] mdiobus_scan+0xa4/0x2e0
+      [<ffffffff827e8be2>] __mdiobus_register+0x482/0x8b0
+      [<ffffffffa01f5d24>] r6040_init_one+0x714/0xd2c [r6040]
+      ...
+
+The problem occurs in probe process as follows:
+  r6040_init_one:
+    mdiobus_register
+      mdiobus_scan    <- alloc and register phy_device,
+                         the reference count of phy_device is 3
+    r6040_mii_probe
+      phy_connect     <- connect to the first phy_device,
+                         so the reference count of the first
+                         phy_device is 4, others are 3
+    register_netdev   <- fault inject succeeded, goto error handling path
+
+    // error handling path
+    err_out_mdio_unregister:
+      mdiobus_unregister(lp->mii_bus);
+    err_out_mdio:
+      mdiobus_free(lp->mii_bus);    <- the reference count of the first
+                                       phy_device is 1, it is not released
+                                       and other phy_devices are released
+  // similarly, the remove process also has the same problem
+
+The root cause is traced to the phy_device is not disconnected when
+removes one r6040 device in r6040_remove_one() or on error handling path
+after r6040_mii probed successfully. In r6040_mii_probe(), a net ethernet
+device is connected to the first PHY device of mii_bus, in order to
+notify the connected driver when the link status changes, which is the
+default behavior of the PHY infrastructure to handle everything.
+Therefore the phy_device should be disconnected when removes one r6040
+device or on error handling path.
+
+Fix it by adding phy_disconnect() when removes one r6040 device or on
+error handling path after r6040_mii probed successfully.
+
+Fixes: 3831861b4ad8 ("r6040: implement phylib")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20221213125614.927754-1-lizetao1@huawei.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c      | 9 +++------
- fs/btrfs/rcu-string.h | 6 +++++-
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/rdc/r6040.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 752b5d265284..4f2513388567 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3234,13 +3234,10 @@ static long btrfs_ioctl_dev_info(struct btrfs_fs_info *fs_info,
- 	di_args->bytes_used = btrfs_device_get_bytes_used(dev);
- 	di_args->total_bytes = btrfs_device_get_total_bytes(dev);
- 	memcpy(di_args->uuid, dev->uuid, sizeof(di_args->uuid));
--	if (dev->name) {
--		strncpy(di_args->path, rcu_str_deref(dev->name),
--				sizeof(di_args->path) - 1);
--		di_args->path[sizeof(di_args->path) - 1] = 0;
--	} else {
-+	if (dev->name)
-+		strscpy(di_args->path, rcu_str_deref(dev->name), sizeof(di_args->path));
-+	else
- 		di_args->path[0] = '\0';
--	}
+diff --git a/drivers/net/ethernet/rdc/r6040.c b/drivers/net/ethernet/rdc/r6040.c
+index 2199bd08f4d6..e377c1f68777 100644
+--- a/drivers/net/ethernet/rdc/r6040.c
++++ b/drivers/net/ethernet/rdc/r6040.c
+@@ -1184,10 +1184,12 @@ static int r6040_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	err = register_netdev(dev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "Failed to register net device\n");
+-		goto err_out_mdio_unregister;
++		goto err_out_phy_disconnect;
+ 	}
+ 	return 0;
  
- out:
- 	rcu_read_unlock();
-diff --git a/fs/btrfs/rcu-string.h b/fs/btrfs/rcu-string.h
-index a97dc74a4d3d..02f15321cecc 100644
---- a/fs/btrfs/rcu-string.h
-+++ b/fs/btrfs/rcu-string.h
-@@ -18,7 +18,11 @@ static inline struct rcu_string *rcu_string_strdup(const char *src, gfp_t mask)
- 					 (len * sizeof(char)), mask);
- 	if (!ret)
- 		return ret;
--	strncpy(ret->str, src, len);
-+	/* Warn if the source got unexpectedly truncated. */
-+	if (WARN_ON(strscpy(ret->str, src, len) < 0)) {
-+		kfree(ret);
-+		return NULL;
-+	}
- 	return ret;
- }
++err_out_phy_disconnect:
++	phy_disconnect(dev->phydev);
+ err_out_mdio_unregister:
+ 	mdiobus_unregister(lp->mii_bus);
+ err_out_mdio:
+@@ -1211,6 +1213,7 @@ static void r6040_remove_one(struct pci_dev *pdev)
+ 	struct r6040_private *lp = netdev_priv(dev);
  
+ 	unregister_netdev(dev);
++	phy_disconnect(dev->phydev);
+ 	mdiobus_unregister(lp->mii_bus);
+ 	mdiobus_free(lp->mii_bus);
+ 	netif_napi_del(&lp->napi);
 -- 
 2.35.1
 
