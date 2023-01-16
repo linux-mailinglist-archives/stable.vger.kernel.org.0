@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E09E266C534
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:03:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2490066C941
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232141AbjAPQDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:03:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43866 "EHLO
+        id S233756AbjAPQrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:47:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232060AbjAPQCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:02:31 -0500
+        with ESMTP id S233725AbjAPQqy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF9372412B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF8E229E0D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3C2AB81061
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F382FC433EF;
-        Mon, 16 Jan 2023 16:02:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96D54B81059
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E97EAC433F0;
+        Mon, 16 Jan 2023 16:34:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884924;
-        bh=OfKYDGteaeDMBUjlPgA7wAX12P/sUamu1cZaY3GuOCU=;
+        s=korg; t=1673886886;
+        bh=YnMP6OvuwJCpsnYCtBm5dRk50MPX5M1Vcs6TEM1+fdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qV8ORVfPSDmDtMega4r7X/RcBqs2EMrP2VT3K3nKDIDT/+snUduJplhsNm67TEYuL
-         GR4nSQXpBKlyoH/HO3u831lHGgOQw3jFMRqn3NmqSBoiRXFvOsj6WxgY4z24UfukO0
-         uRwLo8uDVpLj7CxMWlJi3EkF8qml2en3u4SMgPAE=
+        b=nXcmsADwvnoGB5B2RtJK/R5YfKaU7HCbCImmSrNQpbD8xH9j8AzMFPYqHTCETFDRe
+         fH6rZyQFXNf/YyIT4dqvwsrDeXM3IypKp2bajiWZGiBpl0X7YfTUgE5BVjBWnYN3G2
+         8JWmunLhAL6vUPCByLebSzVabOn9HTu+6rkWSR7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hariprasad Kelam <hkelam@marvell.com>,
-        Sunil Kovvuri Goutham <sgoutham@marvell.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 164/183] octeontx2-pf: Fix resource leakage in VF driver unbind
+        patches@lists.linux.dev, Saravana Kannan <saravanak@google.com>,
+        "Isaac J. Manjarres" <isaacmanjarres@google.com>
+Subject: [PATCH 5.4 599/658] driver core: Fix bus_type.match() error handling in __driver_attach()
 Date:   Mon, 16 Jan 2023 16:51:27 +0100
-Message-Id: <20230116154810.229977332@linuxfoundation.org>
+Message-Id: <20230116154936.882365042@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hariprasad Kelam <hkelam@marvell.com>
+From: Isaac J. Manjarres <isaacmanjarres@google.com>
 
-[ Upstream commit 53da7aec32982f5ee775b69dce06d63992ce4af3 ]
+commit 27c0d217340e47ec995557f61423ef415afba987 upstream.
 
-resources allocated like mcam entries to support the Ntuple feature
-and hash tables for the tc feature are not getting freed in driver
-unbind. This patch fixes the issue.
+When a driver registers with a bus, it will attempt to match with every
+device on the bus through the __driver_attach() function. Currently, if
+the bus_type.match() function encounters an error that is not
+-EPROBE_DEFER, __driver_attach() will return a negative error code, which
+causes the driver registration logic to stop trying to match with the
+remaining devices on the bus.
 
-Fixes: 2da489432747 ("octeontx2-pf: devlink params support to set mcam entry count")
-Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
-Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Link: https://lore.kernel.org/r/20230109061325.21395-1-hkelam@marvell.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This behavior is not correct; a failure while matching a driver to a
+device does not mean that the driver won't be able to match and bind
+with other devices on the bus. Update the logic in __driver_attach()
+to reflect this.
+
+Fixes: 656b8035b0ee ("ARM: 8524/1: driver cohandle -EPROBE_DEFER from bus_type.match()")
+Cc: stable@vger.kernel.org
+Cc: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+Link: https://lore.kernel.org/r/20220921001414.4046492-1-isaacmanjarres@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/base/dd.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c
-index 86653bb8e403..7f8ffbf79cf7 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_vf.c
-@@ -758,6 +758,8 @@ static void otx2vf_remove(struct pci_dev *pdev)
- 	if (vf->otx2_wq)
- 		destroy_workqueue(vf->otx2_wq);
- 	otx2_ptp_destroy(vf);
-+	otx2_mcam_flow_del(vf);
-+	otx2_shutdown_tc(vf);
- 	otx2vf_disable_mbox_intr(vf);
- 	otx2_detach_resources(&vf->mbox);
- 	if (test_bit(CN10K_LMTST, &vf->hw.cap_flag))
--- 
-2.35.1
-
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -1068,8 +1068,12 @@ static int __driver_attach(struct device
+ 		 */
+ 		return 0;
+ 	} else if (ret < 0) {
+-		dev_dbg(dev, "Bus failed to match device: %d", ret);
+-		return ret;
++		dev_dbg(dev, "Bus failed to match device: %d\n", ret);
++		/*
++		 * Driver could not match with device, but may match with
++		 * another device on the bus.
++		 */
++		return 0;
+ 	} /* ret > 0 means positive match */
+ 
+ 	if (driver_allows_async_probing(drv)) {
 
 
