@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B19566CB29
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95E0B66CB28
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234332AbjAPRLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:11:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36738 "EHLO
+        id S232893AbjAPRLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:11:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234264AbjAPRKr (ORCPT
+        with ESMTP id S234270AbjAPRKr (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:10:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 312FAF773
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84D3C10AB7
         for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9A86CCE129B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:50:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95ED5C433D2;
-        Mon, 16 Jan 2023 16:50:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 225D961037
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 345D5C433EF;
+        Mon, 16 Jan 2023 16:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887857;
-        bh=S3MQFwveuVz5ZkHkoVJ02DlX//UdDpcJZPds+tpAUwg=;
+        s=korg; t=1673887860;
+        bh=PLWjoElbUUTrwiueek+ck3ZZEqIQCzSUwGIQlRGcNmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iNuTyFRLRU2uj3Mys6PMbg+v41mOC3Mu4rdW3qpU5wWdKdfQ0U66R9aZoCSjsbk7q
-         GEMeSDDvWI837BpHBq8no+clfYDBEvppI1j6UZu29N11sEzvmYkjI5zVINU6wrFXP4
-         Rly5ZqYwRf+J6UCEgniOVd8RXpM0xD8dFcEI65/M=
+        b=bQ+zr47dZzs9TOgiIMZ/t79KJUCwrAlBTJIhyumLSpcEJ6Rxx/R3KlA6CyzYoowYZ
+         CeoeNx4h2dX/eF/9tFeC7Tmp6JQUKh8N62niaQAGrripg2muWHd0jolVnWU2pRdjls
+         AWXvmSh/2x6yUbU1AjL/0hve37UY03V/rUCXSqHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Changheon Lee <darklight2357@icloud.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 309/521] net: stream: purge sk_error_queue in sk_stream_kill_queues()
-Date:   Mon, 16 Jan 2023 16:49:31 +0100
-Message-Id: <20230116154900.933246283@linuxfoundation.org>
+Subject: [PATCH 4.19 310/521] binfmt_misc: fix shift-out-of-bounds in check_special_flags
+Date:   Mon, 16 Jan 2023 16:49:32 +0100
+Message-Id: <20230116154900.981074157@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -54,67 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit e0c8bccd40fc1c19e1d246c39bcf79e357e1ada3 ]
+[ Upstream commit 6a46bf558803dd2b959ca7435a5c143efe837217 ]
 
-Changheon Lee reported TCP socket leaks, with a nice repro.
+UBSAN reported a shift-out-of-bounds warning:
 
-It seems we leak TCP sockets with the following sequence:
+ left shift of 1 by 31 places cannot be represented in type 'int'
+ Call Trace:
+  <TASK>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0x8d/0xcf lib/dump_stack.c:106
+  ubsan_epilogue+0xa/0x44 lib/ubsan.c:151
+  __ubsan_handle_shift_out_of_bounds+0x1e7/0x208 lib/ubsan.c:322
+  check_special_flags fs/binfmt_misc.c:241 [inline]
+  create_entry fs/binfmt_misc.c:456 [inline]
+  bm_register_write+0x9d3/0xa20 fs/binfmt_misc.c:654
+  vfs_write+0x11e/0x580 fs/read_write.c:582
+  ksys_write+0xcf/0x120 fs/read_write.c:637
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x34/0x80 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0033:0x4194e1
 
-1) SOF_TIMESTAMPING_TX_ACK is enabled on the socket.
+Since the type of Node's flags is unsigned long, we should define these
+macros with same type too.
 
-   Each ACK will cook an skb put in error queue, from __skb_tstamp_tx().
-   __skb_tstamp_tx() is using skb_clone(), unless
-   SOF_TIMESTAMPING_OPT_TSONLY was also requested.
-
-2) If the application is also using MSG_ZEROCOPY, then we put in the
-   error queue cloned skbs that had a struct ubuf_info attached to them.
-
-   Whenever an struct ubuf_info is allocated, sock_zerocopy_alloc()
-   does a sock_hold().
-
-   As long as the cloned skbs are still in sk_error_queue,
-   socket refcount is kept elevated.
-
-3) Application closes the socket, while error queue is not empty.
-
-Since tcp_close() no longer purges the socket error queue,
-we might end up with a TCP socket with at least one skb in
-error queue keeping the socket alive forever.
-
-This bug can be (ab)used to consume all kernel memory
-and freeze the host.
-
-We need to purge the error queue, with proper synchronization
-against concurrent writers.
-
-Fixes: 24bcbe1cc69f ("net: stream: don't purge sk_error_queue in sk_stream_kill_queues()")
-Reported-by: Changheon Lee <darklight2357@icloud.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102025123.1117184-1-liushixin2@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/stream.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/binfmt_misc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/core/stream.c b/net/core/stream.c
-index 7b411a91a81c..58755528d39e 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -196,6 +196,12 @@ void sk_stream_kill_queues(struct sock *sk)
- 	/* First the read buffer. */
- 	__skb_queue_purge(&sk->sk_receive_queue);
+diff --git a/fs/binfmt_misc.c b/fs/binfmt_misc.c
+index 27a04f492541..8fe7edd2b001 100644
+--- a/fs/binfmt_misc.c
++++ b/fs/binfmt_misc.c
+@@ -42,10 +42,10 @@ static LIST_HEAD(entries);
+ static int enabled = 1;
  
-+	/* Next, the error queue.
-+	 * We need to use queue lock, because other threads might
-+	 * add packets to the queue without socket lock being held.
-+	 */
-+	skb_queue_purge(&sk->sk_error_queue);
-+
- 	/* Next, the write queue. */
- 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
+ enum {Enabled, Magic};
+-#define MISC_FMT_PRESERVE_ARGV0 (1 << 31)
+-#define MISC_FMT_OPEN_BINARY (1 << 30)
+-#define MISC_FMT_CREDENTIALS (1 << 29)
+-#define MISC_FMT_OPEN_FILE (1 << 28)
++#define MISC_FMT_PRESERVE_ARGV0 (1UL << 31)
++#define MISC_FMT_OPEN_BINARY (1UL << 30)
++#define MISC_FMT_CREDENTIALS (1UL << 29)
++#define MISC_FMT_OPEN_FILE (1UL << 28)
  
+ typedef struct {
+ 	struct list_head list;
 -- 
 2.35.1
 
