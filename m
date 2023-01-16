@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 272DE66CA77
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:03:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC14F66CA6B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:03:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234224AbjAPRDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:03:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54850 "EHLO
+        id S234175AbjAPRDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:03:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234163AbjAPRDB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:03:01 -0500
+        with ESMTP id S234176AbjAPRCx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:02:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA192F786
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:45:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A530E3F288
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:44:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF2E66104F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:45:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1039EC433EF;
-        Mon, 16 Jan 2023 16:44:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E47061042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:44:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 514C1C433D2;
+        Mon, 16 Jan 2023 16:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887500;
-        bh=z95TO89fnLiKLWmb1SFZ5etzvgdvBsEsKBgmJa9QzQo=;
+        s=korg; t=1673887473;
+        bh=AuNaN0GCNftC9YQnKfcyFAmqeTbq0UJ+hXMp2BC8PX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y58Lb0YFmBj5SkqucySPvBwCtxdTtEsmghY09HGHDIVFxv5XXtOBS0SI3ZiFeAxFJ
-         BU8NEDX7kLs/RTDiuZ1QcqP30+sKrkL35yJRLpLrnazDZFG72mQVs+03VthmwvJlJM
-         HSWuIGDxyUOCtnzF9cWljPgKtV6CL2iKVwIAzjOQ=
+        b=bIob2lW37pP1/3lrmqzSY3fVNbPuRIW/mCrz/bT3aiCUJyeMWnNnFbqW/Cb0c2urA
+         qtyW2jlq9NHH72uK2j1iUHCVwFD+rTmGxFH9Bya288rq4NPiVgIo8C6PhzKMePISBo
+         afOERy9Xx0/MHHlOR1X3FjjIb5mCRnQiifHdKouk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 132/521] media: saa7164: fix missing pci_disable_device()
-Date:   Mon, 16 Jan 2023 16:46:34 +0100
-Message-Id: <20230116154853.161832006@linuxfoundation.org>
+Subject: [PATCH 4.19 135/521] NFSv4.x: Fail client initialisation if state manager thread cant run
+Date:   Mon, 16 Jan 2023 16:46:37 +0100
+Message-Id: <20230116154853.300153469@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -54,43 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 57fb35d7542384cac8f198cd1c927540ad38b61a ]
+[ Upstream commit b4e4f66901658fae0614dea5bf91062a5387eda7 ]
 
-Add missing pci_disable_device() in the error path in saa7164_initdev().
+If the state manager thread fails to start, then we should just mark the
+client initialisation as failed so that other processes or threads don't
+get stuck in nfs_wait_client_init_complete().
 
-Fixes: 443c1228d505 ("V4L/DVB (12923): SAA7164: Add support for the NXP SAA7164 silicon")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Reported-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Fixes: 4697bd5e9419 ("NFSv4: Fix a race in the net namespace mount notification")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7164/saa7164-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4state.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/pci/saa7164/saa7164-core.c b/drivers/media/pci/saa7164/saa7164-core.c
-index 5102519df108..dba9071e8507 100644
---- a/drivers/media/pci/saa7164/saa7164-core.c
-+++ b/drivers/media/pci/saa7164/saa7164-core.c
-@@ -1237,7 +1237,7 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
- 
- 	if (saa7164_dev_setup(dev) < 0) {
- 		err = -EINVAL;
--		goto fail_free;
-+		goto fail_dev;
- 	}
- 
- 	/* print pci info */
-@@ -1405,6 +1405,8 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
- 
- fail_irq:
- 	saa7164_dev_unregister(dev);
-+fail_dev:
-+	pci_disable_device(pci_dev);
- fail_free:
- 	v4l2_device_unregister(&dev->v4l2_dev);
- 	kfree(dev);
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 5ab021f87ecf..b9fbd01ef4cf 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -1247,6 +1247,8 @@ void nfs4_schedule_state_manager(struct nfs_client *clp)
+ 	if (IS_ERR(task)) {
+ 		printk(KERN_ERR "%s: kthread_run: %ld\n",
+ 			__func__, PTR_ERR(task));
++		if (!nfs_client_init_is_complete(clp))
++			nfs_mark_client_ready(clp, PTR_ERR(task));
+ 		nfs4_clear_state_manager_bit(clp);
+ 		nfs_put_client(clp);
+ 		module_put(THIS_MODULE);
 -- 
 2.35.1
 
