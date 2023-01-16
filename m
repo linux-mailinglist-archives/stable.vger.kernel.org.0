@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15E6666C4E4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:59:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AF8766C90E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbjAPP7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:59:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41780 "EHLO
+        id S233438AbjAPQp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:45:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231845AbjAPP7X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:23 -0500
+        with ESMTP id S233708AbjAPQpb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6DFF22782
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 773413018F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 574D5B8106C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB9DEC433EF;
-        Mon, 16 Jan 2023 15:59:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2515CB81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74F7BC433EF;
+        Mon, 16 Jan 2023 16:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884749;
-        bh=PXzaomj7tY5lp/w/mQpHcVi8guh732PTklR5dUjsnjM=;
+        s=korg; t=1673886777;
+        bh=L8iSiOOe3xAf1h/v0+0aD/8dcs0sLHw2BN+quSTVRG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1waqRh5Xbb2kebHiokLfNr3Mg8KLY3zFhxCQP9/z1FhGeplB+xnwv9sw/DNyZpW3
-         IfnJxJ3RVntuxso9Bu0ymOb6GLqfwWskXZfnTJMuIE7mTUXunv0/BevKsb4sKe3pGM
-         w52WFfSF/f9gmrY2RxfnC/7/HefFTcQOc/rrUM3E=
+        b=ZbNHtlFcWEtqPAfppMoevyhXLgcFsGCbAD9e5mxORVsXtgyPx4NOUk8jBpYqAXARk
+         x9D7PH1CoC2rKko9JpsVNdWAuANe3aE5BoVsJS3Txmdpo9HnhdeKlUvQP/CstBci8v
+         T4vwurYsDzsgcM3qGSm1yyDVog4i+IxMBV7N3Q4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        patches@lists.linux.dev, Eric Biggers <ebiggers@kernel.org>,
+        syzbot+9767be679ef5016b6082@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
         Eric Biggers <ebiggers@google.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 124/183] blk-crypto: pass a gendisk to blk_crypto_sysfs_{,un}register
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 559/658] fs: ext4: initialize fsdata in pagecache_write()
 Date:   Mon, 16 Jan 2023 16:50:47 +0100
-Message-Id: <20230116154808.619939940@linuxfoundation.org>
+Message-Id: <20230116154935.070899927@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit 450deb93df7d457cdd93594a1987f9650c749b96 ]
+[ Upstream commit 956510c0c7439e90b8103aaeaf4da92878c622f0 ]
 
-Prepare for changes to the block layer sysfs handling by passing the
-readily available gendisk to blk_crypto_sysfs_{,un}register.
+When aops->write_begin() does not initialize fsdata, KMSAN reports
+an error passing the latter to aops->write_end().
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fix this by unconditionally initializing fsdata.
+
+Cc: Eric Biggers <ebiggers@kernel.org>
+Fixes: c93d8f885809 ("ext4: add basic fs-verity support")
+Reported-by: syzbot+9767be679ef5016b6082@syzkaller.appspotmail.com
+Signed-off-by: Alexander Potapenko <glider@google.com>
 Reviewed-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221114042637.1009333-2-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 49e4d04f0486 ("block: Drop spurious might_sleep() from blk_put_queue()")
+Link: https://lore.kernel.org/r/20221121112134.407362-1-glider@google.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-crypto-internal.h | 10 ++++++----
- block/blk-crypto-sysfs.c    |  7 ++++---
- block/blk-sysfs.c           |  4 ++--
- 3 files changed, 12 insertions(+), 9 deletions(-)
+ fs/ext4/verity.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-crypto-internal.h b/block/blk-crypto-internal.h
-index e6818ffaddbf..b8a00847171f 100644
---- a/block/blk-crypto-internal.h
-+++ b/block/blk-crypto-internal.h
-@@ -21,9 +21,9 @@ extern const struct blk_crypto_mode blk_crypto_modes[];
+diff --git a/fs/ext4/verity.c b/fs/ext4/verity.c
+index 0c67b7060eb4..9879ea046e5a 100644
+--- a/fs/ext4/verity.c
++++ b/fs/ext4/verity.c
+@@ -79,7 +79,7 @@ static int pagecache_write(struct inode *inode, const void *buf, size_t count,
+ 		size_t n = min_t(size_t, count,
+ 				 PAGE_SIZE - offset_in_page(pos));
+ 		struct page *page;
+-		void *fsdata;
++		void *fsdata = NULL;
+ 		int res;
  
- #ifdef CONFIG_BLK_INLINE_ENCRYPTION
- 
--int blk_crypto_sysfs_register(struct request_queue *q);
-+int blk_crypto_sysfs_register(struct gendisk *disk);
- 
--void blk_crypto_sysfs_unregister(struct request_queue *q);
-+void blk_crypto_sysfs_unregister(struct gendisk *disk);
- 
- void bio_crypt_dun_increment(u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE],
- 			     unsigned int inc);
-@@ -67,12 +67,14 @@ static inline bool blk_crypto_rq_is_encrypted(struct request *rq)
- 
- #else /* CONFIG_BLK_INLINE_ENCRYPTION */
- 
--static inline int blk_crypto_sysfs_register(struct request_queue *q)
-+static inline int blk_crypto_sysfs_register(struct gendisk *disk)
- {
- 	return 0;
- }
- 
--static inline void blk_crypto_sysfs_unregister(struct request_queue *q) { }
-+static inline void blk_crypto_sysfs_unregister(struct gendisk *disk)
-+{
-+}
- 
- static inline bool bio_crypt_rq_ctx_compatible(struct request *rq,
- 					       struct bio *bio)
-diff --git a/block/blk-crypto-sysfs.c b/block/blk-crypto-sysfs.c
-index fd93bd2f33b7..e05f145cd797 100644
---- a/block/blk-crypto-sysfs.c
-+++ b/block/blk-crypto-sysfs.c
-@@ -126,8 +126,9 @@ static struct kobj_type blk_crypto_ktype = {
-  * If the request_queue has a blk_crypto_profile, create the "crypto"
-  * subdirectory in sysfs (/sys/block/$disk/queue/crypto/).
-  */
--int blk_crypto_sysfs_register(struct request_queue *q)
-+int blk_crypto_sysfs_register(struct gendisk *disk)
- {
-+	struct request_queue *q = disk->queue;
- 	struct blk_crypto_kobj *obj;
- 	int err;
- 
-@@ -149,9 +150,9 @@ int blk_crypto_sysfs_register(struct request_queue *q)
- 	return 0;
- }
- 
--void blk_crypto_sysfs_unregister(struct request_queue *q)
-+void blk_crypto_sysfs_unregister(struct gendisk *disk)
- {
--	kobject_put(q->crypto_kobject);
-+	kobject_put(disk->queue->crypto_kobject);
- }
- 
- static int __init blk_crypto_sysfs_init(void)
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index e7871665825a..2b1cf0b2a5c7 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -833,7 +833,7 @@ int blk_register_queue(struct gendisk *disk)
- 			goto put_dev;
- 	}
- 
--	ret = blk_crypto_sysfs_register(q);
-+	ret = blk_crypto_sysfs_register(disk);
- 	if (ret)
- 		goto put_dev;
- 
-@@ -910,7 +910,7 @@ void blk_unregister_queue(struct gendisk *disk)
- 	 */
- 	if (queue_is_mq(q))
- 		blk_mq_sysfs_unregister(disk);
--	blk_crypto_sysfs_unregister(q);
-+	blk_crypto_sysfs_unregister(disk);
- 
- 	mutex_lock(&q->sysfs_lock);
- 	elv_unregister_queue(q);
+ 		res = pagecache_write_begin(NULL, inode->i_mapping, pos, n, 0,
 -- 
 2.35.1
 
