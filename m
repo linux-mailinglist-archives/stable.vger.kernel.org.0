@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F1D66CDA9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92BF266CDAB
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235006AbjAPRiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:38:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58996 "EHLO
+        id S235073AbjAPRiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:38:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235031AbjAPRhb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:31 -0500
+        with ESMTP id S229989AbjAPRhd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:33 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4A249949
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C8C04994E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2783360F63
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D16BC433D2;
-        Mon, 16 Jan 2023 17:14:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B79C560F63
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE0ACC433F1;
+        Mon, 16 Jan 2023 17:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889260;
-        bh=Oa+7z2CKRvY4h6VGcWvpZBwJOAxMJleX2mSN3Ph7FP0=;
+        s=korg; t=1673889263;
+        bh=sDXtTusDY0v5/CoIfpTvm0mD/KHRJN8ytXiFyWGplNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jp2korWvXDXAAl7Im+gV+uEftTKRzeF5Lrb+MyPnmZlNqJs6jSCkSuuBWh+dUsGBk
-         blkq1EDLwjBdk8+1udUAqSNg9nMaTPfI3TdNbtDG6TJIyPch2b7/1DSjJO8TtXhZbm
-         WGphLlqQ/M2q1EXlZqvEAalX79u+zUSfAjjo3JlY=
+        b=1EueQ/G6NcdwHn+worsAeIZozHndupUhAKTEArESchAI4d0Il2V4Hcuk+B/SSJ9BQ
+         mFGvRGQN+vozEYIGq8Ch5suU6NT81L+iX/UNQ7nqcbF7Bmw+P6WGU5fmXPbzrYk8Jb
+         lfAfAGIkumyEBIp7EiOW0kZYwiAzgm6JUFYNUTB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+7bb7cd3595533513a9e7@syzkaller.appspotmail.com,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Matthew Wilcox <willy@infradead.org>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 320/338] hfs/hfsplus: avoid WARN_ON() for sanity check, use proper error handling
-Date:   Mon, 16 Jan 2023 16:53:13 +0100
-Message-Id: <20230116154835.064594708@linuxfoundation.org>
+        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.14 321/338] parisc: Align parisc MADV_XXX constants with all other architectures
+Date:   Mon, 16 Jan 2023 16:53:14 +0100
+Message-Id: <20230116154835.098013611@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -57,90 +51,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Helge Deller <deller@gmx.de>
 
-commit cb7a95af78d29442b8294683eca4897544b8ef46 upstream.
+commit 71bdea6f798b425bc0003780b13e3fdecb16a010 upstream.
 
-Commit 55d1cbbbb29e ("hfs/hfsplus: use WARN_ON for sanity check") fixed
-a build warning by turning a comment into a WARN_ON(), but it turns out
-that syzbot then complains because it can trigger said warning with a
-corrupted hfs image.
+Adjust some MADV_XXX constants to be in sync what their values are on
+all other platforms. There is currently no reason to have an own
+numbering on parisc, but it requires workarounds in many userspace
+sources (e.g. glibc, qemu, ...) - which are often forgotten and thus
+introduce bugs and different behaviour on parisc.
 
-The warning actually does warn about a bad situation, but we are much
-better off just handling it as the error it is.  So rather than warn
-about us doing bad things, stop doing the bad things and return -EIO.
+A wrapper avoids an ABI breakage for existing userspace applications by
+translating any old values to the new ones, so this change allows us to
+move over all programs to the new ABI over time.
 
-While at it, also fix a memory leak that was introduced by an earlier
-fix for a similar syzbot warning situation, and add a check for one case
-that historically wasn't handled at all (ie neither comment nor
-subsequent WARN_ON).
-
-Reported-by: syzbot+7bb7cd3595533513a9e7@syzkaller.appspotmail.com
-Fixes: 55d1cbbbb29e ("hfs/hfsplus: use WARN_ON for sanity check")
-Fixes: 8d824e69d9f3 ("hfs: fix OOB Read in __hfs_brec_find")
-Link: https://lore.kernel.org/lkml/000000000000dbce4e05f170f289@google.com/
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hfs/inode.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ arch/parisc/include/uapi/asm/mman.h       |   17 ++++++++---------
+ arch/parisc/kernel/sys_parisc.c           |   27 +++++++++++++++++++++++++++
+ arch/parisc/kernel/syscall_table.S        |    2 +-
+ tools/arch/parisc/include/uapi/asm/mman.h |   12 ++++++------
+ tools/perf/bench/bench.h                  |   12 ------------
+ 5 files changed, 42 insertions(+), 28 deletions(-)
 
---- a/fs/hfs/inode.c
-+++ b/fs/hfs/inode.c
-@@ -453,15 +453,16 @@ int hfs_write_inode(struct inode *inode,
- 		/* panic? */
- 		return -EIO;
+--- a/arch/parisc/include/uapi/asm/mman.h
++++ b/arch/parisc/include/uapi/asm/mman.h
+@@ -48,25 +48,24 @@
+ #define MADV_DONTFORK	10		/* don't inherit across fork */
+ #define MADV_DOFORK	11		/* do inherit across fork */
  
-+	res = -EIO;
- 	if (HFS_I(main_inode)->cat_key.CName.len > HFS_NAMELEN)
--		return -EIO;
-+		goto out;
- 	fd.search_key->cat = HFS_I(main_inode)->cat_key;
- 	if (hfs_brec_find(&fd))
--		/* panic? */
- 		goto out;
+-#define MADV_MERGEABLE   65		/* KSM may merge identical pages */
+-#define MADV_UNMERGEABLE 66		/* KSM may not merge identical pages */
++#define MADV_MERGEABLE   12		/* KSM may merge identical pages */
++#define MADV_UNMERGEABLE 13		/* KSM may not merge identical pages */
  
- 	if (S_ISDIR(main_inode->i_mode)) {
--		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_dir));
-+		if (fd.entrylength < sizeof(struct hfs_cat_dir))
-+			goto out;
- 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
- 			   sizeof(struct hfs_cat_dir));
- 		if (rec.type != HFS_CDR_DIR ||
-@@ -474,6 +475,8 @@ int hfs_write_inode(struct inode *inode,
- 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
- 			    sizeof(struct hfs_cat_dir));
- 	} else if (HFS_IS_RSRC(inode)) {
-+		if (fd.entrylength < sizeof(struct hfs_cat_file))
-+			goto out;
- 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
- 			       sizeof(struct hfs_cat_file));
- 		hfs_inode_write_fork(inode, rec.file.RExtRec,
-@@ -481,7 +484,8 @@ int hfs_write_inode(struct inode *inode,
- 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
- 				sizeof(struct hfs_cat_file));
- 	} else {
--		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_file));
-+		if (fd.entrylength < sizeof(struct hfs_cat_file))
-+			goto out;
- 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
- 			   sizeof(struct hfs_cat_file));
- 		if (rec.type != HFS_CDR_FIL ||
-@@ -498,9 +502,10 @@ int hfs_write_inode(struct inode *inode,
- 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
- 			    sizeof(struct hfs_cat_file));
- 	}
-+	res = 0;
- out:
- 	hfs_find_exit(&fd);
--	return 0;
-+	return res;
+-#define MADV_HUGEPAGE	67		/* Worth backing with hugepages */
+-#define MADV_NOHUGEPAGE	68		/* Not worth backing with hugepages */
++#define MADV_HUGEPAGE	14		/* Worth backing with hugepages */
++#define MADV_NOHUGEPAGE 15		/* Not worth backing with hugepages */
+ 
+-#define MADV_DONTDUMP   69		/* Explicity exclude from the core dump,
++#define MADV_DONTDUMP   16		/* Explicity exclude from the core dump,
+ 					   overrides the coredump filter bits */
+-#define MADV_DODUMP	70		/* Clear the MADV_NODUMP flag */
++#define MADV_DODUMP	17		/* Clear the MADV_NODUMP flag */
+ 
+-#define MADV_WIPEONFORK 71		/* Zero memory on fork, child only */
+-#define MADV_KEEPONFORK 72		/* Undo MADV_WIPEONFORK */
++#define MADV_WIPEONFORK 18		/* Zero memory on fork, child only */
++#define MADV_KEEPONFORK 19		/* Undo MADV_WIPEONFORK */
+ 
+ #define MADV_HWPOISON     100		/* poison a page for testing */
+ #define MADV_SOFT_OFFLINE 101		/* soft offline page for testing */
+ 
+ /* compatibility flags */
+ #define MAP_FILE	0
+-#define MAP_VARIABLE	0
+ 
+ #define PKEY_DISABLE_ACCESS	0x1
+ #define PKEY_DISABLE_WRITE	0x2
+--- a/arch/parisc/kernel/sys_parisc.c
++++ b/arch/parisc/kernel/sys_parisc.c
+@@ -385,3 +385,30 @@ long parisc_personality(unsigned long pe
+ 
+ 	return err;
  }
++
++/*
++ * madvise() wrapper
++ *
++ * Up to kernel v6.1 parisc has different values than all other
++ * platforms for the MADV_xxx flags listed below.
++ * To keep binary compatibility with existing userspace programs
++ * translate the former values to the new values.
++ *
++ * XXX: Remove this wrapper in year 2025 (or later)
++ */
++
++asmlinkage notrace long parisc_madvise(unsigned long start, size_t len_in, int behavior)
++{
++	switch (behavior) {
++	case 65: behavior = MADV_MERGEABLE;	break;
++	case 66: behavior = MADV_UNMERGEABLE;	break;
++	case 67: behavior = MADV_HUGEPAGE;	break;
++	case 68: behavior = MADV_NOHUGEPAGE;	break;
++	case 69: behavior = MADV_DONTDUMP;	break;
++	case 70: behavior = MADV_DODUMP;	break;
++	case 71: behavior = MADV_WIPEONFORK;	break;
++	case 72: behavior = MADV_KEEPONFORK;	break;
++	}
++
++	return sys_madvise(start, len_in, behavior);
++}
+--- a/arch/parisc/kernel/syscall_table.S
++++ b/arch/parisc/kernel/syscall_table.S
+@@ -195,7 +195,7 @@
+ 	ENTRY_COMP(sysinfo)
+ 	ENTRY_SAME(shutdown)
+ 	ENTRY_SAME(fsync)
+-	ENTRY_SAME(madvise)
++	ENTRY_OURS(madvise)
+ 	ENTRY_SAME(clone_wrapper)	/* 120 */
+ 	ENTRY_SAME(setdomainname)
+ 	ENTRY_COMP(sendfile)
+--- a/tools/arch/parisc/include/uapi/asm/mman.h
++++ b/tools/arch/parisc/include/uapi/asm/mman.h
+@@ -1,20 +1,20 @@
+ /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+ #ifndef TOOLS_ARCH_PARISC_UAPI_ASM_MMAN_FIX_H
+ #define TOOLS_ARCH_PARISC_UAPI_ASM_MMAN_FIX_H
+-#define MADV_DODUMP	70
++#define MADV_DODUMP	17
+ #define MADV_DOFORK	11
+-#define MADV_DONTDUMP   69
++#define MADV_DONTDUMP   16
+ #define MADV_DONTFORK	10
+ #define MADV_DONTNEED   4
+ #define MADV_FREE	8
+-#define MADV_HUGEPAGE	67
+-#define MADV_MERGEABLE   65
+-#define MADV_NOHUGEPAGE	68
++#define MADV_HUGEPAGE	14
++#define MADV_MERGEABLE  12
++#define MADV_NOHUGEPAGE 15
+ #define MADV_NORMAL     0
+ #define MADV_RANDOM     1
+ #define MADV_REMOVE	9
+ #define MADV_SEQUENTIAL 2
+-#define MADV_UNMERGEABLE 66
++#define MADV_UNMERGEABLE 13
+ #define MADV_WILLNEED   3
+ #define MAP_ANONYMOUS	0x10
+ #define MAP_DENYWRITE	0x0800
+--- a/tools/perf/bench/bench.h
++++ b/tools/perf/bench/bench.h
+@@ -6,25 +6,13 @@
+  * The madvise transparent hugepage constants were added in glibc
+  * 2.13. For compatibility with older versions of glibc, define these
+  * tokens if they are not already defined.
+- *
+- * PA-RISC uses different madvise values from other architectures and
+- * needs to be special-cased.
+  */
+-#ifdef __hppa__
+-# ifndef MADV_HUGEPAGE
+-#  define MADV_HUGEPAGE		67
+-# endif
+-# ifndef MADV_NOHUGEPAGE
+-#  define MADV_NOHUGEPAGE	68
+-# endif
+-#else
+ # ifndef MADV_HUGEPAGE
+ #  define MADV_HUGEPAGE		14
+ # endif
+ # ifndef MADV_NOHUGEPAGE
+ #  define MADV_NOHUGEPAGE	15
+ # endif
+-#endif
  
- static struct dentry *hfs_file_lookup(struct inode *dir, struct dentry *dentry,
+ int bench_numa(int argc, const char **argv);
+ int bench_sched_messaging(int argc, const char **argv);
 
 
