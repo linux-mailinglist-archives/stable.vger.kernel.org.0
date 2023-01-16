@@ -2,43 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C471C66C470
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6AA866C877
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230265AbjAPPzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:55:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37066 "EHLO
+        id S233535AbjAPQje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:39:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231285AbjAPPyu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7240422798
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:47 -0800 (PST)
+        with ESMTP id S233487AbjAPQjM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:39:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F069C2BF30
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33B06B81059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1F2C433EF;
-        Mon, 16 Jan 2023 15:54:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F84461062
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79964C433D2;
+        Mon, 16 Jan 2023 16:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884484;
-        bh=xXVxtNWYPvZZxv3zTZ7JxPoVGhMa+/gbaypD66urjgI=;
+        s=korg; t=1673886467;
+        bh=zp5V+hBPDE1ddKmb/PSiM2t6XqB8A6P5AfH003LQ1jA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ick3I9LJF5/v/pQRe2+dmR1ZNB8NZ2bqRNPr15f7fM8weREi8yCOCSFJg2FHf/w3A
-         Fs4LiwWN/vXlJXvkYW30jfFDe89viF/hazVaGODhvr+07C9gp7fKP8+hOXSD+rMqfN
-         RTWgfxTQov4dK6gbnSZuL1p3tbk/D2ZaeQaQYrRY=
+        b=IkDscaHJvDEv4JT9+Prra7NFFVFJdIUH2umOoWQ8K8FFKANHM+EE4NtStrZ1ny/nd
+         Z69dw+bZz+qOBi6pO0WwVmvC4vImhtULbr7ftcd8cFNUHq9b9EAtulY2/GP+HCnIJx
+         p2F6YSYfH1y4PPVhcgDjcn8DXrtC4fum55+IIPgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luka Guzenko <l.guzenko@web.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 006/183] ALSA: hda/realtek: Enable mute/micmute LEDs on HP Spectre x360 13-aw0xxx
+        patches@lists.linux.dev, Wei Wang <wvw@google.com>,
+        Midas Chien <midaschieh@google.com>,
+        Connor OBrien <connoro@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>,
+        kernel test robot <lkp@intel.com>, kernel-team@android.com,
+        John Stultz <jstultz@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 441/658] pstore: Make sure CONFIG_PSTORE_PMSG selects CONFIG_RT_MUTEXES
 Date:   Mon, 16 Jan 2023 16:48:49 +0100
-Message-Id: <20230116154803.630615187@linuxfoundation.org>
+Message-Id: <20230116154929.706776420@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,82 +60,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luka Guzenko <l.guzenko@web.de>
+From: John Stultz <jstultz@google.com>
 
-commit ca88eeb308a221c2dcd4a64031d2e5fcd3db9eaa upstream.
+[ Upstream commit 2f4fec5943407318b9523f01ce1f5d668c028332 ]
 
-The HP Spectre x360 13-aw0xxx devices use the ALC285 codec with GPIO 0x04
-controlling the micmute LED and COEF 0x0b index 8 controlling the mute LED.
-A quirk was added to make these work as well as a fixup.
+In commit 76d62f24db07 ("pstore: Switch pmsg_lock to an rt_mutex
+to avoid priority inversion") I changed a lock to an rt_mutex.
 
-Signed-off-by: Luka Guzenko <l.guzenko@web.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230110202514.2792-1-l.guzenko@web.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, its possible that CONFIG_RT_MUTEXES is not enabled,
+which then results in a build failure, as the 0day bot detected:
+  https://lore.kernel.org/linux-mm/202212211244.TwzWZD3H-lkp@intel.com/
+
+Thus this patch changes CONFIG_PSTORE_PMSG to select
+CONFIG_RT_MUTEXES, which ensures the build will not fail.
+
+Cc: Wei Wang <wvw@google.com>
+Cc: Midas Chien<midaschieh@google.com>
+Cc: Connor O'Brien <connoro@google.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Anton Vorontsov <anton@enomsg.org>
+Cc: Colin Cross <ccross@android.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: kernel test robot <lkp@intel.com>
+Cc: kernel-team@android.com
+Fixes: 76d62f24db07 ("pstore: Switch pmsg_lock to an rt_mutex to avoid priority inversion")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: John Stultz <jstultz@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221221051855.15761-1-jstultz@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ fs/pstore/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4646,6 +4646,16 @@ static void alc285_fixup_hp_coef_micmute
- 	}
- }
- 
-+static void alc285_fixup_hp_gpio_micmute_led(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE)
-+		spec->micmute_led_polarity = 1;
-+	alc_fixup_hp_gpio_led(codec, action, 0, 0x04);
-+}
-+
- static void alc236_fixup_hp_coef_micmute_led(struct hda_codec *codec,
- 				const struct hda_fixup *fix, int action)
- {
-@@ -4667,6 +4677,13 @@ static void alc285_fixup_hp_mute_led(str
- 	alc285_fixup_hp_coef_micmute_led(codec, fix, action);
- }
- 
-+static void alc285_fixup_hp_spectre_x360_mute_led(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	alc285_fixup_hp_mute_led_coefbit(codec, fix, action);
-+	alc285_fixup_hp_gpio_micmute_led(codec, fix, action);
-+}
-+
- static void alc236_fixup_hp_mute_led(struct hda_codec *codec,
- 				const struct hda_fixup *fix, int action)
- {
-@@ -7108,6 +7125,7 @@ enum {
- 	ALC285_FIXUP_ASUS_G533Z_PINS,
- 	ALC285_FIXUP_HP_GPIO_LED,
- 	ALC285_FIXUP_HP_MUTE_LED,
-+	ALC285_FIXUP_HP_SPECTRE_X360_MUTE_LED,
- 	ALC236_FIXUP_HP_GPIO_LED,
- 	ALC236_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
-@@ -8488,6 +8506,10 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc285_fixup_hp_mute_led,
- 	},
-+	[ALC285_FIXUP_HP_SPECTRE_X360_MUTE_LED] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc285_fixup_hp_spectre_x360_mute_led,
-+	},
- 	[ALC236_FIXUP_HP_GPIO_LED] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc236_fixup_hp_gpio_led,
-@@ -9330,6 +9352,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x86e7, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
- 	SND_PCI_QUIRK(0x103c, 0x86e8, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
-+	SND_PCI_QUIRK(0x103c, 0x86f9, "HP Spectre x360 13-aw0xxx", ALC285_FIXUP_HP_SPECTRE_X360_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8716, "HP Elite Dragonfly G2 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8720, "HP EliteBook x360 1040 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
+diff --git a/fs/pstore/Kconfig b/fs/pstore/Kconfig
+index 8f0369aad22a..9fe46cc26403 100644
+--- a/fs/pstore/Kconfig
++++ b/fs/pstore/Kconfig
+@@ -118,6 +118,7 @@ config PSTORE_CONSOLE
+ config PSTORE_PMSG
+ 	bool "Log user space messages"
+ 	depends on PSTORE
++	select RT_MUTEXES
+ 	help
+ 	  When the option is enabled, pstore will export a character
+ 	  interface /dev/pmsg0 to log user space messages. On reboot
+-- 
+2.35.1
+
 
 
