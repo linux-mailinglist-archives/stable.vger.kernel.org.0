@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 446F666C8BF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF3B66C49C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:56:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233660AbjAPQmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:42:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60154 "EHLO
+        id S231666AbjAPP4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:56:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232993AbjAPQlz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:41:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8132ED5B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:30:04 -0800 (PST)
+        with ESMTP id S231727AbjAPP4T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:56:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D27623104
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:56:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 570E5B8107A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:30:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65ECC433EF;
-        Mon, 16 Jan 2023 16:30:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1825A6102A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:56:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F5D1C433EF;
+        Mon, 16 Jan 2023 15:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886602;
-        bh=PyIcpMYQGUMJldcFOaOEtetGcA/WfAG+Iz2VCHEzh4c=;
+        s=korg; t=1673884576;
+        bh=4yylJ2Egue4JgjwSZ7fp6iS43+VnMOkb5xIS5+LqzHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZx4xitnKVJA57JZI0RO+jJtssyr+Y/RVH1QiuQ47mqhgO2av/3JmSsWC+SUHeCJ+
-         SS4zAgjPeaJOGbr+uZmf57Ooi8wHsY2D2E9na2ymxppcQuf2s+dpszEvCERjFpTxwP
-         5nrjfWO5hg5H0xQAwKEIobPit4GLUyafBKZLGyiA=
+        b=jzXvtKRcnnooy7djZnqJffl4KtlXt4Elt3eNM64TKShmno92zqSb7Fi8ZoMoUoZKI
+         YHxOpgxTuomIGbPSGOKRAe07qaruHJv6dZ0pSmKsntJpvUqMBgE4sgL2m5yCoKBXh0
+         9+wwX5nLijDQCxHu6Ovpj8cH/Egm6rq4selIRb60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.4 493/658] dm thin: Use last transactions pmd->root when commit failed
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 6.1 058/183] dt-bindings: msm: dsi-controller-main: Fix power-domain constraint
 Date:   Mon, 16 Jan 2023 16:49:41 +0100
-Message-Id: <20230116154932.067476138@linuxfoundation.org>
+Message-Id: <20230116154805.796127493@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit 7991dbff6849f67e823b7cc0c15e5a90b0549b9f upstream.
+commit a6f033938beb31f893302a93f83ec0b6460c6cac upstream.
 
-Recently we found a softlock up problem in dm thin pool btree lookup
-code due to corrupted metadata:
+power-domain is required for the sc7180 dispcc GDSC but not every qcom SoC
+has a similar dependency for example the apq8064.
 
- Kernel panic - not syncing: softlockup: hung tasks
- CPU: 7 PID: 2669225 Comm: kworker/u16:3
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
- Workqueue: dm-thin do_worker [dm_thin_pool]
- Call Trace:
-   <IRQ>
-   dump_stack+0x9c/0xd3
-   panic+0x35d/0x6b9
-   watchdog_timer_fn.cold+0x16/0x25
-   __run_hrtimer+0xa2/0x2d0
-   </IRQ>
-   RIP: 0010:__relink_lru+0x102/0x220 [dm_bufio]
-   __bufio_new+0x11f/0x4f0 [dm_bufio]
-   new_read+0xa3/0x1e0 [dm_bufio]
-   dm_bm_read_lock+0x33/0xd0 [dm_persistent_data]
-   ro_step+0x63/0x100 [dm_persistent_data]
-   btree_lookup_raw.constprop.0+0x44/0x220 [dm_persistent_data]
-   dm_btree_lookup+0x16f/0x210 [dm_persistent_data]
-   dm_thin_find_block+0x12c/0x210 [dm_thin_pool]
-   __process_bio_read_only+0xc5/0x400 [dm_thin_pool]
-   process_thin_deferred_bios+0x1a4/0x4a0 [dm_thin_pool]
-   process_one_work+0x3c5/0x730
+Most Qcom SoC's using mdss-dsi-ctrl seem to have the ability to
+power-collapse the MDP without collapsing DSI.
 
-Following process may generate a broken btree mixed with fresh and
-stale btree nodes, which could get dm thin trapped in an infinite loop
-while looking up data block:
- Transaction 1: pmd->root = A, A->B->C   // One path in btree
-                pmd->root = X, X->Y->Z   // Copy-up
- Transaction 2: X,Z is updated on disk, Y write failed.
-                // Commit failed, dm thin becomes read-only.
-                process_bio_read_only
-		 dm_thin_find_block
-		  __find_block
-		   dm_btree_lookup(pmd->root)
-The pmd->root points to a broken btree, Y may contain stale node
-pointing to any block, for example X, which gets dm thin trapped into
-a dead loop while looking up Z.
+For example the qcom vendor kernel commit for apq8084, msm8226, msm8916,
+msm8974.
 
-Fix this by setting pmd->root in __open_metadata(), so that dm thin
-will use the last transaction's pmd->root if commit failed.
+https://review.carbonrom.org/plugins/gitiles/CarbonROM/android_kernel_oneplus_msm8994/+/7b5c011a770daa2811778937ed646237a28a8694
 
-Fetch a reproducer in [Link].
+"ARM: dts: msm: add mdss gdsc supply to dsi controller device
 
-Linke: https://bugzilla.kernel.org/show_bug.cgi?id=216790
-Cc: stable@vger.kernel.org
-Fixes: 991d9fa02da0 ("dm: add thin provisioning target")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Acked-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+ It is possible for the DSI controller to be active when MDP is
+ power collapsed. DSI controller needs to have it's own vote for
+ mdss gdsc to ensure that gdsc remains on in such cases."
+
+This however doesn't appear to be the case for the apq8064 so we shouldn't
+be marking power-domain as required in yaml checks.
+
+Fixes: 4dbe55c97741 ("dt-bindings: msm: dsi: add yaml schemas for DSI bindings")
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/515958/
+Link: https://lore.kernel.org/r/20221223021025.1646636-3-bryan.odonoghue@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-thin-metadata.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -701,6 +701,15 @@ static int __open_metadata(struct dm_poo
- 		goto bad_cleanup_data_sm;
- 	}
+--- a/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
++++ b/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
+@@ -134,7 +134,6 @@ required:
+   - phy-names
+   - assigned-clocks
+   - assigned-clock-parents
+-  - power-domains
+   - ports
  
-+	/*
-+	 * For pool metadata opening process, root setting is redundant
-+	 * because it will be set again in __begin_transaction(). But dm
-+	 * pool aborting process really needs to get last transaction's
-+	 * root to avoid accessing broken btree.
-+	 */
-+	pmd->root = le64_to_cpu(disk_super->data_mapping_root);
-+	pmd->details_root = le64_to_cpu(disk_super->device_details_root);
-+
- 	__setup_btree_details(pmd);
- 	dm_bm_unlock(sblock);
- 
+ additionalProperties: false
 
 
