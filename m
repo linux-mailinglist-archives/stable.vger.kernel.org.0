@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBFF366C60E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:14:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C28566C982
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:50:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232274AbjAPQOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:14:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57562 "EHLO
+        id S233952AbjAPQuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:50:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232926AbjAPQNn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:13:43 -0500
+        with ESMTP id S233894AbjAPQtx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B082B603
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:08:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C0431E20
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68C1FB81065
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F08C433D2;
-        Mon, 16 Jan 2023 16:08:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 303B6B8108C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA01C433F0;
+        Mon, 16 Jan 2023 16:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885283;
-        bh=TtNFbmbyQMUY1UNLJxHpRslj2iQ4Az+lw7EjSohj+50=;
+        s=korg; t=1673886989;
+        bh=uo7KkbuyfL+Wjpw8Xyb5LPY/ilnYN7txUAWX4pVd/Fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yNG0EEIlHMyplAcEgGq65sUdhdH2ogHTgmL3oMoXmTQQH/MU2MFUNFXAd/5Mr9cd9
-         WvD3AiOk+iK9deQOQm5i2Dyzx/L/uK2lHErVib7t0nPXQ9fUeoowKxilKQMiaq8S+F
-         Q+jAAYAQVdnnNxRsEtcgYxr9+3zqglAi2V58Fbsg=
+        b=uzOv3ovJCNk363fLwjYqBr7cumuk3aQ4qNkq35b70ZoXN1uxnnk7JXqYslhJe9ceT
+         bBSDOuqEtVuzQ+RAKr6l3MsSpBXuD6Y6GFp0Jsau8MLIh7iiD2kA5FSnxuEXzBEzET
+         f/5GdCcsgJi9ST5q5L5Pg/l2AcQj+Twbiva6yRwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 58/64] arm64: atomics: remove LL/SC trampolines
-Date:   Mon, 16 Jan 2023 16:52:05 +0100
-Message-Id: <20230116154745.592511839@linuxfoundation.org>
+Subject: [PATCH 5.4 638/658] nfc: pn533: Wait for out_urbs completion in pn533_usb_send_frame()
+Date:   Mon, 16 Jan 2023 16:52:06 +0100
+Message-Id: <20230116154938.687185575@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,272 +53,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit b2c3ccbd0011bb3b51d0fec24cb3a5812b1ec8ea ]
+[ Upstream commit 9dab880d675b9d0dd56c6428e4e8352a3339371d ]
 
-When CONFIG_ARM64_LSE_ATOMICS=y, each use of an LL/SC atomic results in
-a fragment of code being generated in a subsection without a clear
-association with its caller. A trampoline in the caller branches to the
-LL/SC atomic with with a direct branch, and the atomic directly branches
-back into its trampoline.
+Fix a use-after-free that occurs in hcd when in_urb sent from
+pn533_usb_send_frame() is completed earlier than out_urb. Its callback
+frees the skb data in pn533_send_async_complete() that is used as a
+transfer buffer of out_urb. Wait before sending in_urb until the
+callback of out_urb is called. To modify the callback of out_urb alone,
+separate the complete function of out_urb and ack_urb.
 
-This breaks backtracing, as any PC within the out-of-line fragment will
-be symbolized as an offset from the nearest prior symbol (which may not
-be the function using the atomic), and since the atomic returns with a
-direct branch, the caller's PC may be missing from the backtrace.
+Found by a modified version of syzkaller.
 
-For example, with secondary_start_kernel() hacked to contain
-atomic_inc(NULL), the resulting exception can be reported as being taken
-from cpus_are_stuck_in_kernel():
+BUG: KASAN: use-after-free in dummy_timer
+Call Trace:
+ memcpy (mm/kasan/shadow.c:65)
+ dummy_perform_transfer (drivers/usb/gadget/udc/dummy_hcd.c:1352)
+ transfer (drivers/usb/gadget/udc/dummy_hcd.c:1453)
+ dummy_timer (drivers/usb/gadget/udc/dummy_hcd.c:1972)
+ arch_static_branch (arch/x86/include/asm/jump_label.h:27)
+ static_key_false (include/linux/jump_label.h:207)
+ timer_expire_exit (include/trace/events/timer.h:127)
+ call_timer_fn (kernel/time/timer.c:1475)
+ expire_timers (kernel/time/timer.c:1519)
+ __run_timers (kernel/time/timer.c:1790)
+ run_timer_softirq (kernel/time/timer.c:1803)
 
-| Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-| Mem abort info:
-|   ESR = 0x0000000096000004
-|   EC = 0x25: DABT (current EL), IL = 32 bits
-|   SET = 0, FnV = 0
-|   EA = 0, S1PTW = 0
-|   FSC = 0x04: level 0 translation fault
-| Data abort info:
-|   ISV = 0, ISS = 0x00000004
-|   CM = 0, WnR = 0
-| [0000000000000000] user address but active_mm is swapper
-| Internal error: Oops: 96000004 [#1] PREEMPT SMP
-| Modules linked in:
-| CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.19.0-11219-geb555cb5b794-dirty #3
-| Hardware name: linux,dummy-virt (DT)
-| pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-| pc : cpus_are_stuck_in_kernel+0xa4/0x120
-| lr : secondary_start_kernel+0x164/0x170
-| sp : ffff80000a4cbe90
-| x29: ffff80000a4cbe90 x28: 0000000000000000 x27: 0000000000000000
-| x26: 0000000000000000 x25: 0000000000000000 x24: 0000000000000000
-| x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000000
-| x20: 0000000000000001 x19: 0000000000000001 x18: 0000000000000008
-| x17: 3030383832343030 x16: 3030303030307830 x15: ffff80000a4cbab0
-| x14: 0000000000000001 x13: 5d31666130663133 x12: 3478305b20313030
-| x11: 3030303030303078 x10: 3020726f73736563 x9 : 726f737365636f72
-| x8 : ffff800009ff2ef0 x7 : 0000000000000003 x6 : 0000000000000000
-| x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000100
-| x2 : 0000000000000000 x1 : ffff0000029bd880 x0 : 0000000000000000
-| Call trace:
-|  cpus_are_stuck_in_kernel+0xa4/0x120
-|  __secondary_switched+0xb0/0xb4
-| Code: 35ffffa3 17fffc6c d53cd040 f9800011 (885f7c01)
-| ---[ end trace 0000000000000000 ]---
-
-This is confusing and hinders debugging, and will be problematic for
-CONFIG_LIVEPATCH as these cases cannot be unwound reliably.
-
-This is very similar to recent issues with out-of-line exception fixups,
-which were removed in commits:
-
-  35d67794b8828333 ("arm64: lib: __arch_clear_user(): fold fixups into body")
-  4012e0e22739eef9 ("arm64: lib: __arch_copy_from_user(): fold fixups into body")
-  139f9ab73d60cf76 ("arm64: lib: __arch_copy_to_user(): fold fixups into body")
-
-When the trampolines were introduced in commit:
-
-  addfc38672c73efd ("arm64: atomics: avoid out-of-line ll/sc atomics")
-
-The rationale was to improve icache performance by grouping the LL/SC
-atomics together. This has never been measured, and this theoretical
-benefit is outweighed by other factors:
-
-* As the subsections are collapsed into sections at object file
-  granularity, these are spread out throughout the kernel and can share
-  cachelines with unrelated code regardless.
-
-* GCC 12.1.0 has been observed to place the trampoline out-of-line in
-  specialised __ll_sc_*() functions, introducing more branching than was
-  intended.
-
-* Removing the trampolines has been observed to shrink a defconfig
-  kernel Image by 64KiB when building with GCC 12.1.0.
-
-This patch removes the LL/SC trampolines, meaning that the LL/SC atomics
-will be inlined into their callers (or placed in out-of line functions
-using regular BL/RET pairs). When CONFIG_ARM64_LSE_ATOMICS=y, the LL/SC
-atomics are always called in an unlikely branch, and will be placed in a
-cold portion of the function, so this should have minimal impact to the
-hot paths.
-
-Other than the improved backtracing, there should be no functional
-change as a result of this patch.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220817155914.3975112-2-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Stable-dep-of: 031af50045ea ("arm64: cmpxchg_double*: hazard against entire exchange variable")
+Fixes: c46ee38620a2 ("NFC: pn533: add NXP pn533 nfc device driver")
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/atomic_ll_sc.h | 40 ++++++---------------------
- 1 file changed, 9 insertions(+), 31 deletions(-)
+ drivers/nfc/pn533/usb.c | 44 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 41 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
-index fe0db8d416fb..906e2d8c254c 100644
---- a/arch/arm64/include/asm/atomic_ll_sc.h
-+++ b/arch/arm64/include/asm/atomic_ll_sc.h
-@@ -12,19 +12,6 @@
- 
- #include <linux/stringify.h>
- 
--#ifdef CONFIG_ARM64_LSE_ATOMICS
--#define __LL_SC_FALLBACK(asm_ops)					\
--"	b	3f\n"							\
--"	.subsection	1\n"						\
--"3:\n"									\
--asm_ops "\n"								\
--"	b	4f\n"							\
--"	.previous\n"							\
--"4:\n"
--#else
--#define __LL_SC_FALLBACK(asm_ops) asm_ops
--#endif
--
- #ifndef CONFIG_CC_HAS_K_CONSTRAINT
- #define K
- #endif
-@@ -43,12 +30,11 @@ __ll_sc_atomic_##op(int i, atomic_t *v)					\
- 	int result;							\
- 									\
- 	asm volatile("// atomic_" #op "\n"				\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ldxr	%w0, %2\n"					\
- 	"	" #asm_op "	%w0, %w0, %w3\n"			\
- 	"	stxr	%w1, %w0, %2\n"					\
--	"	cbnz	%w1, 1b\n")					\
-+	"	cbnz	%w1, 1b\n"					\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
- 	: __stringify(constraint) "r" (i));				\
+diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
+index d7a355d05368..82e5b7dbaee9 100644
+--- a/drivers/nfc/pn533/usb.c
++++ b/drivers/nfc/pn533/usb.c
+@@ -153,10 +153,17 @@ static int pn533_usb_send_ack(struct pn533 *dev, gfp_t flags)
+ 	return usb_submit_urb(phy->ack_urb, flags);
  }
-@@ -61,13 +47,12 @@ __ll_sc_atomic_##op##_return##name(int i, atomic_t *v)			\
- 	int result;							\
- 									\
- 	asm volatile("// atomic_" #op "_return" #name "\n"		\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ld" #acq "xr	%w0, %2\n"				\
- 	"	" #asm_op "	%w0, %w0, %w3\n"			\
- 	"	st" #rel "xr	%w1, %w0, %2\n"				\
- 	"	cbnz	%w1, 1b\n"					\
--	"	" #mb )							\
-+	"	" #mb							\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
- 	: __stringify(constraint) "r" (i)				\
- 	: cl);								\
-@@ -83,13 +68,12 @@ __ll_sc_atomic_fetch_##op##name(int i, atomic_t *v)			\
- 	int val, result;						\
- 									\
- 	asm volatile("// atomic_fetch_" #op #name "\n"			\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %3\n"				\
- 	"1:	ld" #acq "xr	%w0, %3\n"				\
- 	"	" #asm_op "	%w1, %w0, %w4\n"			\
- 	"	st" #rel "xr	%w2, %w1, %3\n"				\
- 	"	cbnz	%w2, 1b\n"					\
--	"	" #mb )							\
-+	"	" #mb							\
- 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
- 	: __stringify(constraint) "r" (i)				\
- 	: cl);								\
-@@ -142,12 +126,11 @@ __ll_sc_atomic64_##op(s64 i, atomic64_t *v)				\
- 	unsigned long tmp;						\
- 									\
- 	asm volatile("// atomic64_" #op "\n"				\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ldxr	%0, %2\n"					\
- 	"	" #asm_op "	%0, %0, %3\n"				\
- 	"	stxr	%w1, %0, %2\n"					\
--	"	cbnz	%w1, 1b")					\
-+	"	cbnz	%w1, 1b"					\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
- 	: __stringify(constraint) "r" (i));				\
- }
-@@ -160,13 +143,12 @@ __ll_sc_atomic64_##op##_return##name(s64 i, atomic64_t *v)		\
- 	unsigned long tmp;						\
- 									\
- 	asm volatile("// atomic64_" #op "_return" #name "\n"		\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ld" #acq "xr	%0, %2\n"				\
- 	"	" #asm_op "	%0, %0, %3\n"				\
- 	"	st" #rel "xr	%w1, %0, %2\n"				\
- 	"	cbnz	%w1, 1b\n"					\
--	"	" #mb )							\
-+	"	" #mb							\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
- 	: __stringify(constraint) "r" (i)				\
- 	: cl);								\
-@@ -182,13 +164,12 @@ __ll_sc_atomic64_fetch_##op##name(s64 i, atomic64_t *v)			\
- 	unsigned long tmp;						\
- 									\
- 	asm volatile("// atomic64_fetch_" #op #name "\n"		\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %3\n"				\
- 	"1:	ld" #acq "xr	%0, %3\n"				\
- 	"	" #asm_op "	%1, %0, %4\n"				\
- 	"	st" #rel "xr	%w2, %1, %3\n"				\
- 	"	cbnz	%w2, 1b\n"					\
--	"	" #mb )							\
-+	"	" #mb							\
- 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
- 	: __stringify(constraint) "r" (i)				\
- 	: cl);								\
-@@ -240,7 +221,6 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
- 	unsigned long tmp;
  
- 	asm volatile("// atomic64_dec_if_positive\n"
--	__LL_SC_FALLBACK(
- 	"	prfm	pstl1strm, %2\n"
- 	"1:	ldxr	%0, %2\n"
- 	"	subs	%0, %0, #1\n"
-@@ -248,7 +228,7 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
- 	"	stlxr	%w1, %0, %2\n"
- 	"	cbnz	%w1, 1b\n"
- 	"	dmb	ish\n"
--	"2:")
-+	"2:"
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)
- 	:
- 	: "cc", "memory");
-@@ -274,7 +254,6 @@ __ll_sc__cmpxchg_case_##name##sz(volatile void *ptr,			\
- 		old = (u##sz)old;					\
- 									\
- 	asm volatile(							\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %[v]\n"				\
- 	"1:	ld" #acq "xr" #sfx "\t%" #w "[oldval], %[v]\n"		\
- 	"	eor	%" #w "[tmp], %" #w "[oldval], %" #w "[old]\n"	\
-@@ -282,7 +261,7 @@ __ll_sc__cmpxchg_case_##name##sz(volatile void *ptr,			\
- 	"	st" #rel "xr" #sfx "\t%w[tmp], %" #w "[new], %[v]\n"	\
- 	"	cbnz	%w[tmp], 1b\n"					\
- 	"	" #mb "\n"						\
--	"2:")								\
-+	"2:"								\
- 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
- 	  [v] "+Q" (*(u##sz *)ptr)					\
- 	: [old] __stringify(constraint) "r" (old), [new] "r" (new)	\
-@@ -326,7 +305,6 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
- 	unsigned long tmp, ret;						\
- 									\
- 	asm volatile("// __cmpxchg_double" #name "\n"			\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ldxp	%0, %1, %2\n"					\
- 	"	eor	%0, %0, %3\n"					\
-@@ -336,7 +314,7 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
- 	"	st" #rel "xp	%w0, %5, %6, %2\n"			\
- 	"	cbnz	%w0, 1b\n"					\
- 	"	" #mb "\n"						\
--	"2:")								\
-+	"2:"								\
- 	: "=&r" (tmp), "=&r" (ret), "+Q" (*(unsigned long *)ptr)	\
- 	: "r" (old1), "r" (old2), "r" (new1), "r" (new2)		\
- 	: cl);								\
++struct pn533_out_arg {
++	struct pn533_usb_phy *phy;
++	struct completion done;
++};
++
+ static int pn533_usb_send_frame(struct pn533 *dev,
+ 				struct sk_buff *out)
+ {
+ 	struct pn533_usb_phy *phy = dev->phy;
++	struct pn533_out_arg arg;
++	void *cntx;
+ 	int rc;
+ 
+ 	if (phy->priv == NULL)
+@@ -168,10 +175,17 @@ static int pn533_usb_send_frame(struct pn533 *dev,
+ 	print_hex_dump_debug("PN533 TX: ", DUMP_PREFIX_NONE, 16, 1,
+ 			     out->data, out->len, false);
+ 
++	init_completion(&arg.done);
++	cntx = phy->out_urb->context;
++	phy->out_urb->context = &arg;
++
+ 	rc = usb_submit_urb(phy->out_urb, GFP_KERNEL);
+ 	if (rc)
+ 		return rc;
+ 
++	wait_for_completion(&arg.done);
++	phy->out_urb->context = cntx;
++
+ 	if (dev->protocol_type == PN533_PROTO_REQ_RESP) {
+ 		/* request for response for sent packet directly */
+ 		rc = pn533_submit_urb_for_response(phy, GFP_KERNEL);
+@@ -412,7 +426,31 @@ static int pn533_acr122_poweron_rdr(struct pn533_usb_phy *phy)
+ 	return arg.rc;
+ }
+ 
+-static void pn533_send_complete(struct urb *urb)
++static void pn533_out_complete(struct urb *urb)
++{
++	struct pn533_out_arg *arg = urb->context;
++	struct pn533_usb_phy *phy = arg->phy;
++
++	switch (urb->status) {
++	case 0:
++		break; /* success */
++	case -ECONNRESET:
++	case -ENOENT:
++		dev_dbg(&phy->udev->dev,
++			"The urb has been stopped (status %d)\n",
++			urb->status);
++		break;
++	case -ESHUTDOWN:
++	default:
++		nfc_err(&phy->udev->dev,
++			"Urb failure (status %d)\n",
++			urb->status);
++	}
++
++	complete(&arg->done);
++}
++
++static void pn533_ack_complete(struct urb *urb)
+ {
+ 	struct pn533_usb_phy *phy = urb->context;
+ 
+@@ -500,10 +538,10 @@ static int pn533_usb_probe(struct usb_interface *interface,
+ 
+ 	usb_fill_bulk_urb(phy->out_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_out_complete, phy);
+ 	usb_fill_bulk_urb(phy->ack_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_ack_complete, phy);
+ 
+ 	switch (id->driver_info) {
+ 	case PN533_DEVICE_STD:
 -- 
 2.35.1
 
