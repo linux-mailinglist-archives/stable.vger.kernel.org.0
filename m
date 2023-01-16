@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D908266C546
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:04:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A80366C4EB
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:59:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232270AbjAPQET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:04:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46110 "EHLO
+        id S231852AbjAPP7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:59:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232332AbjAPQDl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:03:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D542384C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:39 -0800 (PST)
+        with ESMTP id S231863AbjAPP7b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9C05234EA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0037E61045
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1735DC433F0;
-        Mon, 16 Jan 2023 16:02:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 573A66102D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C01BC433D2;
+        Mon, 16 Jan 2023 15:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884958;
-        bh=9Ze9LIHHY6BwSB7dGnFn+PUCMl0LJ5jbNK/TSTZzAVY=;
+        s=korg; t=1673884769;
+        bh=ZyS5IrKw30xxuWrPbJkhZZSrQgbo372hFB+YyvEgpMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yNhv3p86Cb8HXeksGm/i4NcMf0WgrzfVAsnTH8vodrq0wJPbfoqDNujCwXkUvpVOd
-         nWNeFezffLGEH5YQikUnhRqqEWD5VVnBh+ePLBi8u1K7Ha4ltrhGQGO6POV+fM8mDF
-         qA7NCPjSWnBSSLbGqFulb24r4g8IxkFGtqFgpT1w=
+        b=1ChDTBDVoEdf31px9hMr4Mlpc5/nr4Po1xuKrzl0rNRPpIOT4vfEWXhPvcogWvqqO
+         V94AxLmQ+RYCwhptAmPwtmiPwuoJidA2mVDu7qrB+PtK/d8HCsm3PcfYTRoar95r5h
+         Tgd6hOXMzDOJv6BNppiRp7K2yUb8iTC784CIhNJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.15 20/86] platform/x86: dell-privacy: Only register SW_CAMERA_LENS_COVER if present
+        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 131/183] nfc: pn533: Wait for out_urbs completion in pn533_usb_send_frame()
 Date:   Mon, 16 Jan 2023 16:50:54 +0100
-Message-Id: <20230116154747.936812983@linuxfoundation.org>
+Message-Id: <20230116154808.914601448@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,65 +53,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-commit 6dc485f9940df8105ea729cbeb7a7d18d409dde5 upstream.
+[ Upstream commit 9dab880d675b9d0dd56c6428e4e8352a3339371d ]
 
-Unlike keys where userspace only reacts to keypresses, userspace may act
-on switches in both (0 and 1) of their positions.
+Fix a use-after-free that occurs in hcd when in_urb sent from
+pn533_usb_send_frame() is completed earlier than out_urb. Its callback
+frees the skb data in pn533_send_async_complete() that is used as a
+transfer buffer of out_urb. Wait before sending in_urb until the
+callback of out_urb is called. To modify the callback of out_urb alone,
+separate the complete function of out_urb and ack_urb.
 
-For example if a SW_TABLET_MODE switch is registered then GNOME will not
-automatically show the onscreen keyboard when a text field gets focus on
-touchscreen devices when SW_TABLET_MODE reports 0 and when SW_TABLET_MODE
-reports 1 libinput will block (filter out) builtin keyboard and touchpad
-events.
+Found by a modified version of syzkaller.
 
-So to avoid unwanted side-effects EV_SW type inputs should only be
-registered if they are actually present, only register SW_CAMERA_LENS_COVER
-if it is actually there.
+BUG: KASAN: use-after-free in dummy_timer
+Call Trace:
+ memcpy (mm/kasan/shadow.c:65)
+ dummy_perform_transfer (drivers/usb/gadget/udc/dummy_hcd.c:1352)
+ transfer (drivers/usb/gadget/udc/dummy_hcd.c:1453)
+ dummy_timer (drivers/usb/gadget/udc/dummy_hcd.c:1972)
+ arch_static_branch (arch/x86/include/asm/jump_label.h:27)
+ static_key_false (include/linux/jump_label.h:207)
+ timer_expire_exit (include/trace/events/timer.h:127)
+ call_timer_fn (kernel/time/timer.c:1475)
+ expire_timers (kernel/time/timer.c:1519)
+ __run_timers (kernel/time/timer.c:1790)
+ run_timer_softirq (kernel/time/timer.c:1803)
 
-Fixes: 8af9fa37b8a3 ("platform/x86: dell-privacy: Add support for Dell hardware privacy")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221221220724.119594-2-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c46ee38620a2 ("NFC: pn533: add NXP pn533 nfc device driver")
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell/dell-wmi-privacy.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/nfc/pn533/usb.c | 44 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 41 insertions(+), 3 deletions(-)
 
---- a/drivers/platform/x86/dell/dell-wmi-privacy.c
-+++ b/drivers/platform/x86/dell/dell-wmi-privacy.c
-@@ -295,7 +295,7 @@ static int dell_privacy_wmi_probe(struct
- {
- 	struct privacy_wmi_data *priv;
- 	struct key_entry *keymap;
--	int ret, i;
-+	int ret, i, j;
+diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
+index 6f71ac72012e..ed9c5e2cf3ad 100644
+--- a/drivers/nfc/pn533/usb.c
++++ b/drivers/nfc/pn533/usb.c
+@@ -153,10 +153,17 @@ static int pn533_usb_send_ack(struct pn533 *dev, gfp_t flags)
+ 	return usb_submit_urb(phy->ack_urb, flags);
+ }
  
- 	ret = wmi_has_guid(DELL_PRIVACY_GUID);
- 	if (!ret)
-@@ -321,9 +321,20 @@ static int dell_privacy_wmi_probe(struct
- 	/* remap the keymap code with Dell privacy key type 0x12 as prefix
- 	 * KEY_MICMUTE scancode will be reported as 0x120001
- 	 */
--	for (i = 0; i < ARRAY_SIZE(dell_wmi_keymap_type_0012); i++) {
--		keymap[i] = dell_wmi_keymap_type_0012[i];
--		keymap[i].code |= (0x0012 << 16);
-+	for (i = 0, j = 0; i < ARRAY_SIZE(dell_wmi_keymap_type_0012); i++) {
-+		/*
-+		 * Unlike keys where only presses matter, userspace may act
-+		 * on switches in both of their positions. Only register
-+		 * SW_CAMERA_LENS_COVER if it is actually there.
-+		 */
-+		if (dell_wmi_keymap_type_0012[i].type == KE_VSW &&
-+		    dell_wmi_keymap_type_0012[i].sw.code == SW_CAMERA_LENS_COVER &&
-+		    !(priv->features_present & BIT(DELL_PRIVACY_TYPE_CAMERA)))
-+			continue;
++struct pn533_out_arg {
++	struct pn533_usb_phy *phy;
++	struct completion done;
++};
 +
-+		keymap[j] = dell_wmi_keymap_type_0012[i];
-+		keymap[j].code |= (0x0012 << 16);
-+		j++;
- 	}
- 	ret = sparse_keymap_setup(priv->input_dev, keymap, NULL);
- 	kfree(keymap);
+ static int pn533_usb_send_frame(struct pn533 *dev,
+ 				struct sk_buff *out)
+ {
+ 	struct pn533_usb_phy *phy = dev->phy;
++	struct pn533_out_arg arg;
++	void *cntx;
+ 	int rc;
+ 
+ 	if (phy->priv == NULL)
+@@ -168,10 +175,17 @@ static int pn533_usb_send_frame(struct pn533 *dev,
+ 	print_hex_dump_debug("PN533 TX: ", DUMP_PREFIX_NONE, 16, 1,
+ 			     out->data, out->len, false);
+ 
++	init_completion(&arg.done);
++	cntx = phy->out_urb->context;
++	phy->out_urb->context = &arg;
++
+ 	rc = usb_submit_urb(phy->out_urb, GFP_KERNEL);
+ 	if (rc)
+ 		return rc;
+ 
++	wait_for_completion(&arg.done);
++	phy->out_urb->context = cntx;
++
+ 	if (dev->protocol_type == PN533_PROTO_REQ_RESP) {
+ 		/* request for response for sent packet directly */
+ 		rc = pn533_submit_urb_for_response(phy, GFP_KERNEL);
+@@ -408,7 +422,31 @@ static int pn533_acr122_poweron_rdr(struct pn533_usb_phy *phy)
+ 	return arg.rc;
+ }
+ 
+-static void pn533_send_complete(struct urb *urb)
++static void pn533_out_complete(struct urb *urb)
++{
++	struct pn533_out_arg *arg = urb->context;
++	struct pn533_usb_phy *phy = arg->phy;
++
++	switch (urb->status) {
++	case 0:
++		break; /* success */
++	case -ECONNRESET:
++	case -ENOENT:
++		dev_dbg(&phy->udev->dev,
++			"The urb has been stopped (status %d)\n",
++			urb->status);
++		break;
++	case -ESHUTDOWN:
++	default:
++		nfc_err(&phy->udev->dev,
++			"Urb failure (status %d)\n",
++			urb->status);
++	}
++
++	complete(&arg->done);
++}
++
++static void pn533_ack_complete(struct urb *urb)
+ {
+ 	struct pn533_usb_phy *phy = urb->context;
+ 
+@@ -496,10 +534,10 @@ static int pn533_usb_probe(struct usb_interface *interface,
+ 
+ 	usb_fill_bulk_urb(phy->out_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_out_complete, phy);
+ 	usb_fill_bulk_urb(phy->ack_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_ack_complete, phy);
+ 
+ 	switch (id->driver_info) {
+ 	case PN533_DEVICE_STD:
+-- 
+2.35.1
+
 
 
