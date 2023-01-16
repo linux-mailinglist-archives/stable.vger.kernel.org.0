@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F1B66CC34
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A3F66CD8A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234610AbjAPRXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:23:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46356 "EHLO
+        id S234934AbjAPRhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:37:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234411AbjAPRWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:22:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E01636FD9
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:00:35 -0800 (PST)
+        with ESMTP id S234923AbjAPRgb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 063F23D0A3
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 197CF60F61
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:00:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30AA3C433F0;
-        Mon, 16 Jan 2023 17:00:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2234A60F63
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 388A4C433D2;
+        Mon, 16 Jan 2023 17:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888434;
-        bh=Faf3x/eeUECjRwIHC0HoCzbo23zaaEKmorulEU1/OYA=;
+        s=korg; t=1673889192;
+        bh=6s2Tb3eHH6LLYT7Fut/hhoaprggUaScGwRqF1wzu1jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wn5ZdfewXMVRwXGUvDkCFwH3inrEximThmKSsOdoowQvt740Lc+BRsf28cJ27MCaS
-         /fF0aJoQV3vSj+ShapBTvu7DRr2fnnKWxIaFoSZj4THVeJZevKcX4qMqqvlwk+J0tJ
-         w7pvAQGOBXpyijxO2AyFob9EXbcrap1lRIT61EIg=
+        b=wNAicm7W151WRjk4BADUGgHbAnAhsplYnsDarJVP41g1HL1WtICHZX8eGnpgdNp/O
+         3PoX6Kob04oxWVNYnjO7AviK0MrHCDWS4ngaTfje0IJV9fEyhcS2BjQWEzdd1Yq53l
+         hceKWzdwrxi4yd+k+Cgec1w/lNNQ+0JE2fWHg08Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 487/521] ktest: introduce grub2bls REBOOT_TYPE option
+        patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 4.14 276/338] selftests: Use optional USERCFLAGS and USERLDFLAGS
 Date:   Mon, 16 Jan 2023 16:52:29 +0100
-Message-Id: <20230116154908.952621696@linuxfoundation.org>
+Message-Id: <20230116154833.111828948@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,115 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+From: Mickaël Salaün <mic@digikod.net>
 
-[ Upstream commit ac2466456eaa0ff9b8cf647c4c52832024bc929f ]
+commit de3ee3f63400a23954e7c1ad1cb8c20f29ab6fe3 upstream.
 
-Fedora 30 introduces Boot Loader Specification (BLS),
-it changes around grub entry configuration.
+This change enables to extend CFLAGS and LDFLAGS from command line, e.g.
+to extend compiler checks: make USERCFLAGS=-Werror USERLDFLAGS=-static
 
-kernel entries aren't in grub.cfg. We can get the entries
-by "grubby --info=ALL" command.
+USERCFLAGS and USERLDFLAGS are documented in
+Documentation/kbuild/makefiles.rst and Documentation/kbuild/kbuild.rst
 
-Introduce grub2bls as REBOOT_TYPE option for BLS.
+This should be backported (down to 5.10) to improve previous kernel
+versions testing as well.
 
-Link: http://lkml.kernel.org/r/20190509213647.6276-4-msys.mizuma@gmail.com
-
-Signed-off-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Stable-dep-of: 26df05a8c142 ("kest.pl: Fix grub2 menu handling for rebooting")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Link: https://lore.kernel.org/r/20220909103901.1503436-1-mic@digikod.net
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/ktest/ktest.pl | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ tools/testing/selftests/lib.mk |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/testing/ktest/ktest.pl b/tools/testing/ktest/ktest.pl
-index a1067469ba0e..76468e2d619f 100755
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -63,6 +63,7 @@ my %default = (
-     "STOP_TEST_AFTER"		=> 600,
-     "MAX_MONITOR_WAIT"		=> 1800,
-     "GRUB_REBOOT"		=> "grub2-reboot",
-+    "GRUB_BLS_GET"		=> "grubby --info=ALL",
-     "SYSLINUX"			=> "extlinux",
-     "SYSLINUX_PATH"		=> "/boot/extlinux",
-     "CONNECT_TIMEOUT"		=> 25,
-@@ -123,6 +124,7 @@ my $last_grub_menu;
- my $grub_file;
- my $grub_number;
- my $grub_reboot;
-+my $grub_bls_get;
- my $syslinux;
- my $syslinux_path;
- my $syslinux_label;
-@@ -292,6 +294,7 @@ my %option_map = (
-     "GRUB_MENU"			=> \$grub_menu,
-     "GRUB_FILE"			=> \$grub_file,
-     "GRUB_REBOOT"		=> \$grub_reboot,
-+    "GRUB_BLS_GET"		=> \$grub_bls_get,
-     "SYSLINUX"			=> \$syslinux,
-     "SYSLINUX_PATH"		=> \$syslinux_path,
-     "SYSLINUX_LABEL"		=> \$syslinux_label,
-@@ -437,7 +440,7 @@ EOF
-     ;
- $config_help{"REBOOT_TYPE"} = << "EOF"
-  Way to reboot the box to the test kernel.
-- Only valid options so far are "grub", "grub2", "syslinux", and "script".
-+ Only valid options so far are "grub", "grub2", "grub2bls", "syslinux", and "script".
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -103,6 +103,11 @@ endef
+ clean:
+ 	$(CLEAN)
  
-  If you specify grub, it will assume grub version 1
-  and will search in /boot/grub/menu.lst for the title \$GRUB_MENU
-@@ -451,6 +454,8 @@ $config_help{"REBOOT_TYPE"} = << "EOF"
-  If you specify grub2, then you also need to specify both \$GRUB_MENU
-  and \$GRUB_FILE.
- 
-+ If you specify grub2bls, then you also need to specify \$GRUB_MENU.
++# Enables to extend CFLAGS and LDFLAGS from command line, e.g.
++# make USERCFLAGS=-Werror USERLDFLAGS=-static
++CFLAGS += $(USERCFLAGS)
++LDFLAGS += $(USERLDFLAGS)
 +
-  If you specify syslinux, then you may use SYSLINUX to define the syslinux
-  command (defaults to extlinux), and SYSLINUX_PATH to specify the path to
-  the syslinux install (defaults to /boot/extlinux). But you have to specify
-@@ -476,6 +481,9 @@ $config_help{"GRUB_MENU"} = << "EOF"
-  menu must be a non-nested menu. Add the quotes used in the menu
-  to guarantee your selection, as the first menuentry with the content
-  of \$GRUB_MENU that is found will be used.
-+
-+ For grub2bls, \$GRUB_MENU is searched on the result of \$GRUB_BLS_GET
-+ command for the lines that begin with "title".
- EOF
-     ;
- $config_help{"GRUB_FILE"} = << "EOF"
-@@ -692,7 +700,7 @@ sub get_mandatory_configs {
- 	}
-     }
- 
--    if ($rtype eq "grub") {
-+    if (($rtype eq "grub") or ($rtype eq "grub2bls")) {
- 	get_mandatory_config("GRUB_MENU");
-     }
- 
-@@ -1944,6 +1952,10 @@ sub get_grub_index {
- 	$command = "cat $grub_file";
- 	$target = '^menuentry.*' . $grub_menu_qt;
- 	$skip = '^menuentry\s|^submenu\s';
-+    } elsif ($reboot_type eq "grub2bls") {
-+        $command = $grub_bls_get;
-+        $target = '^title=.*' . $grub_menu_qt;
-+        $skip = '^title=';
-     } else {
- 	return;
-     }
-@@ -4307,7 +4319,7 @@ for (my $i = 1; $i <= $opt{"NUM_TESTS"}; $i++) {
- 
-     if (!$buildonly) {
- 	$target = "$ssh_user\@$machine";
--	if ($reboot_type eq "grub") {
-+	if (($reboot_type eq "grub") or ($reboot_type eq "grub2bls")) {
- 	    dodie "GRUB_MENU not defined" if (!defined($grub_menu));
- 	} elsif ($reboot_type eq "grub2") {
- 	    dodie "GRUB_MENU not defined" if (!defined($grub_menu));
--- 
-2.35.1
-
+ # When make O= with kselftest target from main level
+ # the following aren't defined.
+ #
 
 
