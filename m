@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5940966C72D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0439D66C72F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233155AbjAPQ26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:28:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46490 "EHLO
+        id S233176AbjAPQ3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:29:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233002AbjAPQ2P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7555C2D166
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:36 -0800 (PST)
+        with ESMTP id S232889AbjAPQ2R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83EF42D14B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2F4161041
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E187EC433EF;
-        Mon, 16 Jan 2023 16:16:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E242B81063
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81D52C433EF;
+        Mon, 16 Jan 2023 16:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885795;
-        bh=2N/zyrmvZxVXf9UnfBaY5VptyHvddOnsQozxmqhL+Nc=;
+        s=korg; t=1673885797;
+        bh=QR6MxQrldUdDWMfrKT93GGo/bMaTZQ2jwrNxGnVBOgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFSKRS36Tbdkaf+orxweBmSVFJLvrNVnMgwUCATeI9kXL/n/67ATNSPzvn3g+pd1h
-         /tP5xjRoRL0cONGBgyFYw4cexlJVXb75E9+QvofiJAZ0wbu+X4O9OPiK2swcfXgnMx
-         Ex5rjAcAy1mLxADHl2k9V24iYuQuRJ2PyXBSFd/s=
+        b=VatgKX+dCls3tV/tV+8LhTHzRmE7wTN/8pZjcwa50A9aVdjVPa4TTh4ZTwS0wizMD
+         EbH3MKz1d5/L0QHB5StEg8bPJiU3U1lA1fuS/y1cRQlCfn/mWoDJ7lP7oLIJ4OT88T
+         L90aiR6NmLiglFyIVUuJKF4eNjjzF1fglxJcHbAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Zekun <zhangzekun11@huawei.com>,
-        Thierry Reding <treding@nvidia.com>,
+        patches@lists.linux.dev,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/658] drm/tegra: Add missing clk_disable_unprepare() in tegra_dc_probe()
-Date:   Mon, 16 Jan 2023 16:44:05 +0100
-Message-Id: <20230116154916.636639693@linuxfoundation.org>
+Subject: [PATCH 5.4 158/658] ASoC: dt-bindings: wcd9335: fix reset line polarity in example
+Date:   Mon, 16 Jan 2023 16:44:06 +0100
+Message-Id: <20230116154916.680567237@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,37 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Zekun <zhangzekun11@huawei.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 7ad4384d53c67672a8720cdc2ef638d7d1710ab8 ]
+[ Upstream commit 34cb111f8a7b98b5fec809dd194003bca20ef1b2 ]
 
-Add the missing clk_disable_unprepare() before return from
-tegra_dc_probe() in the error handling path.
+When resetting the block, the reset line is being driven low and then
+high, which means that the line in DTS should be annotated as "active
+low".
 
-Fixes: f68ba6912bd2 ("drm/tegra: dc: Link DC1 to DC0 on Tegra20")
-Signed-off-by: Zhang Zekun <zhangzekun11@huawei.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: 1877c9fda1b7 ("ASoC: dt-bindings: add dt bindings for wcd9335 audio codec")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20221027074652.1044235-2-dmitry.torokhov@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/dc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/sound/qcom,wcd9335.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
-index c410221824c1..923899b95c88 100644
---- a/drivers/gpu/drm/tegra/dc.c
-+++ b/drivers/gpu/drm/tegra/dc.c
-@@ -2458,8 +2458,10 @@ static int tegra_dc_probe(struct platform_device *pdev)
- 	usleep_range(2000, 4000);
- 
- 	err = reset_control_assert(dc->rst);
--	if (err < 0)
-+	if (err < 0) {
-+		clk_disable_unprepare(dc->clk);
- 		return err;
-+	}
- 
- 	usleep_range(2000, 4000);
- 
+diff --git a/Documentation/devicetree/bindings/sound/qcom,wcd9335.txt b/Documentation/devicetree/bindings/sound/qcom,wcd9335.txt
+index 5d6ea66a863f..1f75feec3dec 100644
+--- a/Documentation/devicetree/bindings/sound/qcom,wcd9335.txt
++++ b/Documentation/devicetree/bindings/sound/qcom,wcd9335.txt
+@@ -109,7 +109,7 @@ audio-codec@1{
+ 	reg  = <1 0>;
+ 	interrupts = <&msmgpio 54 IRQ_TYPE_LEVEL_HIGH>;
+ 	interrupt-names = "intr2"
+-	reset-gpios = <&msmgpio 64 0>;
++	reset-gpios = <&msmgpio 64 GPIO_ACTIVE_LOW>;
+ 	slim-ifc-dev  = <&wc9335_ifd>;
+ 	clock-names = "mclk", "native";
+ 	clocks = <&rpmcc RPM_SMD_DIV_CLK1>,
 -- 
 2.35.1
 
