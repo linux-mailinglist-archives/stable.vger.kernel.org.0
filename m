@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 852EC66C797
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:32:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D5CD66C799
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:32:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233159AbjAPQcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:32:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46442 "EHLO
+        id S233322AbjAPQcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:32:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233039AbjAPQbz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:31:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F48A2FCE3
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:04 -0800 (PST)
+        with ESMTP id S233090AbjAPQb5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:31:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 946191D91C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AA9861049
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C748C433D2;
-        Mon, 16 Jan 2023 16:20:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AC0861047
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B027C433D2;
+        Mon, 16 Jan 2023 16:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886004;
-        bh=8vcFxw7LO674nsA+ycMw7cxUJd8+JfdEUukM2cg7exg=;
+        s=korg; t=1673886006;
+        bh=3+nWwGzh+QW9L5/ubK2qYXEB6eBp0omMrNgBYZSj0NE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1tEyz+lBuwq2+7EN1ulJJW6I6NnLpiz4ksAsL822eaDC5EE48aJdOc4Lglxe/Pru
-         HWFQb8oeNATLDqT4Hu3NRfD4llgr3FYx98PMPxCD4/09fUy9jaUAnMYA1hF7Nyd0Wu
-         w6UazeX3GZV4h9NV7VyKOOAoB04d3SV5VENOANPo=
+        b=068iOe8i+9tM0W2dfy7vE0Zew9RrRsl/02hC1QhxyCG2uvnOZExXY0vBstikfLSc1
+         JRG2dlfRQjOtAvt8wxCheFzJUOr2YM7UvdRuCD15HaXGRtciqgiUhYdr1cAjc5RWFh
+         a35sFsscQAY3VikEJQDOGn3wg8haCXOdQUpowXoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yonggil Song <yonggil.song@samsung.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Mark Greer <mgreer@animalcreek.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 266/658] f2fs: avoid victim selection from previous victim section
-Date:   Mon, 16 Jan 2023 16:45:54 +0100
-Message-Id: <20230116154921.763032123@linuxfoundation.org>
+Subject: [PATCH 5.4 267/658] crypto: omap-sham - Use pm_runtime_resume_and_get() in omap_sham_probe()
+Date:   Mon, 16 Jan 2023 16:45:55 +0100
+Message-Id: <20230116154921.799695790@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,46 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonggil Song <yonggil.song@samsung.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit e219aecfd4b766c4e878a3769057e9809f7fcadc ]
+[ Upstream commit 7bcceb4c9896b1b672b636ae70fe75110d6bf1ad ]
 
-When f2fs chooses GC victim in large section & LFS mode,
-next_victim_seg[gc_type] is referenced first. After segment is freed,
-next_victim_seg[gc_type] has the next segment number.
-However, next_victim_seg[gc_type] still has the last segment number
-even after the last segment of section is freed. In this case, when f2fs
-chooses a victim for the next GC round, the last segment of previous victim
-section is chosen as a victim.
+omap_sham_probe() calls pm_runtime_get_sync() and calls
+pm_runtime_put_sync() latter to put usage_counter. However,
+pm_runtime_get_sync() will increment usage_counter even it failed. Fix
+it by replacing it with pm_runtime_resume_and_get() to keep usage
+counter balanced.
 
-Initialize next_victim_seg[gc_type] to NULL_SEGNO for the last segment in
-large section.
-
-Fixes: e3080b0120a1 ("f2fs: support subsectional garbage collection")
-Signed-off-by: Yonggil Song <yonggil.song@samsung.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: b359f034c8bf ("crypto: omap-sham - Convert to use pm_runtime API")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Acked-by: Mark Greer <mgreer@animalcreek.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/crypto/omap-sham.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index 3d3e414e2987..420591654ca0 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1253,8 +1253,9 @@ static int do_garbage_collect(struct f2fs_sb_info *sbi,
- 			seg_freed++;
- 		migrated++;
+diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
+index f8a146554b1f..dbab9e38223e 100644
+--- a/drivers/crypto/omap-sham.c
++++ b/drivers/crypto/omap-sham.c
+@@ -2141,7 +2141,7 @@ static int omap_sham_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_irq_safe(dev);
  
--		if (__is_large_section(sbi) && segno + 1 < end_segno)
--			sbi->next_victim_seg[gc_type] = segno + 1;
-+		if (__is_large_section(sbi))
-+			sbi->next_victim_seg[gc_type] =
-+				(segno + 1 < end_segno) ? segno + 1 : NULL_SEGNO;
- skip:
- 		f2fs_put_page(sum_page, 0);
- 	}
+-	err = pm_runtime_get_sync(dev);
++	err = pm_runtime_resume_and_get(dev);
+ 	if (err < 0) {
+ 		dev_err(dev, "failed to get sync: %d\n", err);
+ 		goto err_pm;
 -- 
 2.35.1
 
