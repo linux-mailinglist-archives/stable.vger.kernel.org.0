@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B34D66C898
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A57B366C478
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233613AbjAPQkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:40:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34610 "EHLO
+        id S231316AbjAPPzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:55:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233446AbjAPQkd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F17236B19
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:28:43 -0800 (PST)
+        with ESMTP id S231375AbjAPPzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:05 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD45C227B5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C1E361084
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CAE3C433EF;
-        Mon, 16 Jan 2023 16:28:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 37A58CE1276
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BFB6C433F0;
+        Mon, 16 Jan 2023 15:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886522;
-        bh=2GcRly9AVDUC27HN7Zqofi6oG8Jv56e1hzoEUsWjzC0=;
+        s=korg; t=1673884500;
+        bh=3rTy7XE1Pmj3KGs8RvnNtqtkfT0SywqxFhep8j3Pn3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nW87NMA6iXp8w4GDKCuYjTY0cuhvfhVipP3OXbvEk98PW0TTq+kCr7aGyt2KfIP0e
-         pHDUfCdJjH/4j18H3luHxNK2gaD6pnf1Vvbvra0O70Dmo4zkIV2azMe1hcvv4kyxx9
-         MghcfL7c8dkNy32mlMGYOTTa/XTUM0+pybhHPuys=
+        b=RiYTsknd7xilCf0RS6DSjruUXiT0htu0GgVBdHEcNSoDzmUfIn8JlqR90n/PiBgG6
+         uZvjCn9tTsQD38/z7qh8gRuXb0h2A3JwHB6d4dUiIg25JWtjQtGbti5LAA9j6YeKm1
+         x/y4nJufud8xGOOv0vbBxCtBxd+/TDG+9KOAOEdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akito <the@akito.ooo>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 463/658] HID: multitouch: fix Asus ExpertBook P2 P2451FA trackpoint
-Date:   Mon, 16 Jan 2023 16:49:11 +0100
-Message-Id: <20230116154930.685714729@linuxfoundation.org>
+        patches@lists.linux.dev, Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 6.1 029/183] drm/i915/gt: Reset twice
+Date:   Mon, 16 Jan 2023 16:49:12 +0100
+Message-Id: <20230116154804.602579121@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 4eab1c2fe06c98a4dff258dd64800b6986c101e9 ]
+commit d3de5616d36462a646f5b360ba82d3b09ff668eb upstream.
 
-The HID descriptor of this device contains two mouse collections, one
-for mouse emulation and the other for the trackpoint.
+After applying an engine reset, on some platforms like Jasperlake, we
+occasionally detect that the engine state is not cleared until shortly
+after the resume. As we try to resume the engine with volatile internal
+state, the first request fails with a spurious CS event (it looks like
+it reports a lite-restore to the hung context, instead of the expected
+idle->active context switch).
 
-Both collections get merged and, because the first one defines X and Y,
-the movemenent events reported by the trackpoint collection are
-ignored.
-
-Set the MT_CLS_WIN_8_FORCE_MULTI_INPUT class for this device to be able
-to receive its reports.
-
-This fix is similar to/based on commit 40d5bb87377a ("HID: multitouch:
-enable multi-input as a quirk for some devices").
-
-Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/825
-Reported-by: Akito <the@akito.ooo>
-Tested-by: Akito <the@akito.ooo>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: stable@vger.kernel.org
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
+Reviewed-by: Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221212161338.1007659-1-andi.shyti@linux.intel.com
+(cherry picked from commit 3db9d590557da3aa2c952f2fecd3e9b703dad790)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-multitouch.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/i915/gt/intel_reset.c |   34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 463a8deae37e..9db327654580 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1953,6 +1953,10 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
- 			USB_VENDOR_ID_ELAN, 0x313a) },
+--- a/drivers/gpu/drm/i915/gt/intel_reset.c
++++ b/drivers/gpu/drm/i915/gt/intel_reset.c
+@@ -278,6 +278,7 @@ out:
+ static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
+ {
+ 	struct intel_uncore *uncore = gt->uncore;
++	int loops = 2;
+ 	int err;
  
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_ELAN, 0x3148) },
+ 	/*
+@@ -285,18 +286,39 @@ static int gen6_hw_domain_reset(struct i
+ 	 * for fifo space for the write or forcewake the chip for
+ 	 * the read
+ 	 */
+-	intel_uncore_write_fw(uncore, GEN6_GDRST, hw_domain_mask);
++	do {
++		intel_uncore_write_fw(uncore, GEN6_GDRST, hw_domain_mask);
+ 
+-	/* Wait for the device to ack the reset requests */
+-	err = __intel_wait_for_register_fw(uncore,
+-					   GEN6_GDRST, hw_domain_mask, 0,
+-					   500, 0,
+-					   NULL);
++		/*
++		 * Wait for the device to ack the reset requests.
++		 *
++		 * On some platforms, e.g. Jasperlake, we see that the
++		 * engine register state is not cleared until shortly after
++		 * GDRST reports completion, causing a failure as we try
++		 * to immediately resume while the internal state is still
++		 * in flux. If we immediately repeat the reset, the second
++		 * reset appears to serialise with the first, and since
++		 * it is a no-op, the registers should retain their reset
++		 * value. However, there is still a concern that upon
++		 * leaving the second reset, the internal engine state
++		 * is still in flux and not ready for resuming.
++		 */
++		err = __intel_wait_for_register_fw(uncore, GEN6_GDRST,
++						   hw_domain_mask, 0,
++						   2000, 0,
++						   NULL);
++	} while (err == 0 && --loops);
+ 	if (err)
+ 		GT_TRACE(gt,
+ 			 "Wait for 0x%08x engines reset failed\n",
+ 			 hw_domain_mask);
+ 
++	/*
++	 * As we have observed that the engine state is still volatile
++	 * after GDRST is acked, impose a small delay to let everything settle.
++	 */
++	udelay(50);
 +
- 	/* Elitegroup panel */
- 	{ .driver_data = MT_CLS_SERIAL,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
--- 
-2.35.1
-
+ 	return err;
+ }
+ 
 
 
