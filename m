@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E2F166CC99
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02F2666CB22
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234417AbjAPR16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:27:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47950 "EHLO
+        id S234310AbjAPRLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:11:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234697AbjAPR1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:27:30 -0500
+        with ESMTP id S233691AbjAPRKo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:10:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 258B141B44
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9385D26583
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:50:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7764DB81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A55C433D2;
-        Mon, 16 Jan 2023 17:04:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 544DBB8109D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:50:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1CA4C433EF;
+        Mon, 16 Jan 2023 16:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888666;
-        bh=MYgvvSZ0N+PGJ6CUT7oxo+RlqZtU5FY7vb+oSJIB+n4=;
+        s=korg; t=1673887845;
+        bh=k8qTpg1UMr0nUseLQBnu5kdpFOyrTYBEPHGo6B8KGY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xsy3Y6umK7Y/RLefYJ7S0jutnztj1dSLPQzyQMdnkatP+OlxcRE8sst9o+T1Q2rEr
-         pOYazNR+mkiGpA5FDl1Zcqrgka07e0m0RB2gSLvP4nK/iaMwJNmdcxOeMih1Tm7+IQ
-         t852vo2ySLImRcQNhFD9CliO9hehxuTjQqaebuas=
+        b=UXttBDm5UMtiChWBa+vxputc8ckSnbdZd0Rk1+1igOWHtH6vTXyEub4eOBEYGGS5W
+         56nSk4ySztTbJZ/XMx32BeQezAH6XqoBS6zCyx0rK+IzWBA9w/H1NHeJk0bWxFicaJ
+         jglLU7pdJUZQsEke0IIcP3md+Y0cKdt1+PbbT/Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Eelco Chaudron <echaudro@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 093/338] drm/radeon: Fix PCI device refcount leak in radeon_atrm_get_bios()
+Subject: [PATCH 4.19 304/521] openvswitch: Fix flow lookup to use unmasked key
 Date:   Mon, 16 Jan 2023 16:49:26 +0100
-Message-Id: <20230116154824.943314836@linuxfoundation.org>
+Message-Id: <20230116154900.720866731@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Eelco Chaudron <echaudro@redhat.com>
 
-[ Upstream commit 725a521a18734f65de05b8d353b5bd0d3ca4c37a ]
+[ Upstream commit 68bb10101e6b0a6bb44e9c908ef795fc4af99eae ]
 
-As comment of pci_get_class() says, it returns a pci_device with its
-refcount increased and decreased the refcount for the input parameter
-@from if it is not NULL.
+The commit mentioned below causes the ovs_flow_tbl_lookup() function
+to be called with the masked key. However, it's supposed to be called
+with the unmasked key. This due to the fact that the datapath supports
+installing wider flows, and OVS relies on this behavior. For example
+if ipv4(src=1.1.1.1/192.0.0.0, dst=1.1.1.2/192.0.0.0) exists, a wider
+flow (smaller mask) of ipv4(src=192.1.1.1/128.0.0.0,dst=192.1.1.2/
+128.0.0.0) is allowed to be added.
 
-If we break the loop in radeon_atrm_get_bios() with 'pdev' not NULL, we
-need to call pci_dev_put() to decrease the refcount. Add the missing
-pci_dev_put() to avoid refcount leak.
+However, if we try to add a wildcard rule, the installation fails:
 
-Fixes: d8ade3526b2a ("drm/radeon: handle non-VGA class pci devices with ATRM")
-Fixes: c61e2775873f ("drm/radeon: split ATRM support out from the ATPX handler (v3)")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+$ ovs-appctl dpctl/add-flow system@myDP "in_port(1),eth_type(0x0800), \
+  ipv4(src=1.1.1.1/192.0.0.0,dst=1.1.1.2/192.0.0.0,frag=no)" 2
+$ ovs-appctl dpctl/add-flow system@myDP "in_port(1),eth_type(0x0800), \
+  ipv4(src=192.1.1.1/0.0.0.0,dst=49.1.1.2/0.0.0.0,frag=no)" 2
+ovs-vswitchd: updating flow table (File exists)
+
+The reason is that the key used to determine if the flow is already
+present in the system uses the original key ANDed with the mask.
+This results in the IP address not being part of the (miniflow) key,
+i.e., being substituted with an all-zero value. When doing the actual
+lookup, this results in the key wrongfully matching the first flow,
+and therefore the flow does not get installed.
+
+This change reverses the commit below, but rather than having the key
+on the stack, it's allocated.
+
+Fixes: 190aa3e77880 ("openvswitch: Fix Frame-size larger than 1024 bytes warning.")
+
+Signed-off-by: Eelco Chaudron <echaudro@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_bios.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/openvswitch/datapath.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_bios.c b/drivers/gpu/drm/radeon/radeon_bios.c
-index 80562aeb8149..92f50b26e4c9 100644
---- a/drivers/gpu/drm/radeon/radeon_bios.c
-+++ b/drivers/gpu/drm/radeon/radeon_bios.c
-@@ -215,6 +215,7 @@ static bool radeon_atrm_get_bios(struct radeon_device *rdev)
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index e9a10a66b4ca..fbc575247268 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -903,6 +903,7 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	struct sw_flow_mask mask;
+ 	struct sk_buff *reply;
+ 	struct datapath *dp;
++	struct sw_flow_key *key;
+ 	struct sw_flow_actions *acts;
+ 	struct sw_flow_match match;
+ 	u32 ufid_flags = ovs_nla_get_ufid_flags(a[OVS_FLOW_ATTR_UFID_FLAGS]);
+@@ -930,24 +931,26 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	}
  
- 	if (!found)
- 		return false;
-+	pci_dev_put(pdev);
+ 	/* Extract key. */
+-	ovs_match_init(&match, &new_flow->key, false, &mask);
++	key = kzalloc(sizeof(*key), GFP_KERNEL);
++	if (!key) {
++		error = -ENOMEM;
++		goto err_kfree_key;
++	}
++
++	ovs_match_init(&match, key, false, &mask);
+ 	error = ovs_nla_get_match(net, &match, a[OVS_FLOW_ATTR_KEY],
+ 				  a[OVS_FLOW_ATTR_MASK], log);
+ 	if (error)
+ 		goto err_kfree_flow;
  
- 	rdev->bios = kmalloc(size, GFP_KERNEL);
- 	if (!rdev->bios) {
++	ovs_flow_mask_key(&new_flow->key, key, true, &mask);
++
+ 	/* Extract flow identifier. */
+ 	error = ovs_nla_get_identifier(&new_flow->id, a[OVS_FLOW_ATTR_UFID],
+-				       &new_flow->key, log);
++				       key, log);
+ 	if (error)
+ 		goto err_kfree_flow;
+ 
+-	/* unmasked key is needed to match when ufid is not used. */
+-	if (ovs_identifier_is_key(&new_flow->id))
+-		match.key = new_flow->id.unmasked_key;
+-
+-	ovs_flow_mask_key(&new_flow->key, &new_flow->key, true, &mask);
+-
+ 	/* Validate actions. */
+ 	error = ovs_nla_copy_actions(net, a[OVS_FLOW_ATTR_ACTIONS],
+ 				     &new_flow->key, &acts, log);
+@@ -974,7 +977,7 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	if (ovs_identifier_is_ufid(&new_flow->id))
+ 		flow = ovs_flow_tbl_lookup_ufid(&dp->table, &new_flow->id);
+ 	if (!flow)
+-		flow = ovs_flow_tbl_lookup(&dp->table, &new_flow->key);
++		flow = ovs_flow_tbl_lookup(&dp->table, key);
+ 	if (likely(!flow)) {
+ 		rcu_assign_pointer(new_flow->sf_acts, acts);
+ 
+@@ -1044,6 +1047,8 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 
+ 	if (reply)
+ 		ovs_notify(&dp_flow_genl_family, reply, info);
++
++	kfree(key);
+ 	return 0;
+ 
+ err_unlock_ovs:
+@@ -1053,6 +1058,8 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	ovs_nla_free_flow_actions(acts);
+ err_kfree_flow:
+ 	ovs_flow_free(new_flow, false);
++err_kfree_key:
++	kfree(key);
+ error:
+ 	return error;
+ }
 -- 
 2.35.1
 
