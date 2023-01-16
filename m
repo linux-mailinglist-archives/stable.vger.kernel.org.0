@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0467A66CBC3
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:17:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92B9466CD4D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234541AbjAPRR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:17:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42080 "EHLO
+        id S234908AbjAPRfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:35:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234460AbjAPRQi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:16:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1BEC3A582
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:14 -0800 (PST)
+        with ESMTP id S234930AbjAPRer (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4B031E02
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 670F0B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF1FAC433F0;
-        Mon, 16 Jan 2023 16:57:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF81CB8107A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B994C433D2;
+        Mon, 16 Jan 2023 17:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888232;
-        bh=7uvtiZsQiXByGYzrT7Kbuh0ZMO6iIueX7kjfodR6j/E=;
+        s=korg; t=1673889053;
+        bh=CuB0pMaf5n0eTWneMwo14eXVHXl3th6l6lN7Qux1r1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIzWTBw1ebP9yETHEOoJ8PM0hPQ05xoCTcWdYEJzxTugLqw7go9Mbk/JxRxOt3rC0
-         1O3rmSKFVA+/tAiRUQAi+LBFSx9yY5oR2NimY3uVNpGsvE2GLupnJYu2d0xJoILGp1
-         obehUTuToqZHlKzVCBxACIz/W65mzrMntyh3GFjk=
+        b=YUkNL4vGsQ7kQnOeVdE+fwQ66wwrVrAkmGh+JGBLrFz1dxnPnsrERLFzslNLW+4Sk
+         gQzzGJBTwnCMBUxcNSe2Sic+wBI2DsC0liiGq0jy3DbGUESzkS7d9b1kG+pWlJ9uZn
+         fnWVlVjuPkxHx269NRpmWDFw6efibjk6yxfT5wN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Szymon Heidrich <szymon.heidrich@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yan Lei <yan_lei@dahuatech.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 450/521] usb: rndis_host: Secure rndis_query check against int overflow
+Subject: [PATCH 4.14 239/338] media: dvb-frontends: fix leak of memory fw
 Date:   Mon, 16 Jan 2023 16:51:52 +0100
-Message-Id: <20230116154907.249036885@linuxfoundation.org>
+Message-Id: <20230116154831.469861210@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Yan Lei <yan_lei@dahuatech.com>
 
-[ Upstream commit c7dd13805f8b8fc1ce3b6d40f6aff47e66b72ad2 ]
+[ Upstream commit a15fe8d9f1bf460a804bcf18a890bfd2cf0d5caa ]
 
-Variables off and len typed as uint32 in rndis_query function
-are controlled by incoming RNDIS response message thus their
-value may be manipulated. Setting off to a unexpectetly large
-value will cause the sum with len and 8 to overflow and pass
-the implemented validation step. Consequently the response
-pointer will be referring to a location past the expected
-buffer boundaries allowing information leakage e.g. via
-RNDIS_OID_802_3_PERMANENT_ADDRESS OID.
-
-Fixes: ddda08624013 ("USB: rndis_host, various cleanups")
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/linux-media/20220410061925.4107-1-chinayanlei2002@163.com
+Signed-off-by: Yan Lei <yan_lei@dahuatech.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/rndis_host.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/dvb-frontends/bcm3510.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/rndis_host.c b/drivers/net/usb/rndis_host.c
-index ab41a63aa4aa..497d6bcdc276 100644
---- a/drivers/net/usb/rndis_host.c
-+++ b/drivers/net/usb/rndis_host.c
-@@ -267,7 +267,8 @@ static int rndis_query(struct usbnet *dev, struct usb_interface *intf,
- 
- 	off = le32_to_cpu(u.get_c->offset);
- 	len = le32_to_cpu(u.get_c->len);
--	if (unlikely((8 + off + len) > CONTROL_BUFFER_SIZE))
-+	if (unlikely((off > CONTROL_BUFFER_SIZE - 8) ||
-+		     (len > CONTROL_BUFFER_SIZE - 8 - off)))
- 		goto response_error;
- 
- 	if (*reply_len != -1 && len != *reply_len)
+diff --git a/drivers/media/dvb-frontends/bcm3510.c b/drivers/media/dvb-frontends/bcm3510.c
+index ba63ad170d3c..87684610f59e 100644
+--- a/drivers/media/dvb-frontends/bcm3510.c
++++ b/drivers/media/dvb-frontends/bcm3510.c
+@@ -649,6 +649,7 @@ static int bcm3510_download_firmware(struct dvb_frontend* fe)
+ 		deb_info("firmware chunk, addr: 0x%04x, len: 0x%04x, total length: 0x%04zx\n",addr,len,fw->size);
+ 		if ((ret = bcm3510_write_ram(st,addr,&b[i+4],len)) < 0) {
+ 			err("firmware download failed: %d\n",ret);
++			release_firmware(fw);
+ 			return ret;
+ 		}
+ 		i += 4 + len;
 -- 
 2.35.1
 
