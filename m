@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B140366C53C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:03:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 861A866C910
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231869AbjAPQDq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:03:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45076 "EHLO
+        id S233727AbjAPQqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:46:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232153AbjAPQDL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:03:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A159D1D908
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:22 -0800 (PST)
+        with ESMTP id S233615AbjAPQpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E5C8298DD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E247B8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9C68C433F0;
-        Mon, 16 Jan 2023 16:02:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A63AA61077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB4CEC433D2;
+        Mon, 16 Jan 2023 16:33:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884940;
-        bh=WROqFAiErdaF3lnHXhz2rUbwxhZYLJvkv4rSyvbVB2o=;
+        s=korg; t=1673886783;
+        bh=K3Z/voQ6voqtb0S8pqAhrrojJQY4E6tYR2H3+PP6jXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V0FcMKKgn+I2fCWHRfKZHuBQCSU4qlXB3z61OvjU+92Q2eeMkViZWFWSMlv+BDHJ6
-         hYf4zkBaHasnoresh/UVhBJod0SpWf5scf+K/xzs4vLxF6UEfZxkcSgghlSVs+a+3i
-         pLa5W50D5kYlb7M99Z00ehWWKRjZ1gNNxuCxxM5Q=
+        b=q/RaP5IcCx6EQuZ0QdGRzZ7tiprGlsZxAQpH5qziOyiQWYmWRj2uIoB/O0UAAnx/t
+         NmAgA8bMK+43xu69C20a9RxHSXvzATCX5nAUWKuGrwRipeUrvAS4Htl1XMCIO9eVqU
+         VN7DtOSgjGAsooRXEZaOPP5lQX++PiGF2Bn2ICSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.15 14/86] s390/cpum_sf: add READ_ONCE() semantics to compare and swap loops
-Date:   Mon, 16 Jan 2023 16:50:48 +0100
-Message-Id: <20230116154747.668735367@linuxfoundation.org>
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 561/658] mbcache: dont reclaim used entries
+Date:   Mon, 16 Jan 2023 16:50:49 +0100
+Message-Id: <20230116154935.162723413@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,345 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 82d3edb50a11bf3c5ef63294d5358ba230181413 upstream.
+[ Upstream commit 58318914186c157477b978b1739dfe2f1b9dc0fe ]
 
-The current cmpxchg_double() loops within the perf hw sampling code do not
-have READ_ONCE() semantics to read the old value from memory. This allows
-the compiler to generate code which reads the "old" value several times
-from memory, which again allows for inconsistencies.
+Do not reclaim entries that are currently used by somebody from a
+shrinker. Firstly, these entries are likely useful. Secondly, we will
+need to keep such entries to protect pending increment of xattr block
+refcount.
 
-For example:
-
-        /* Reset trailer (using compare-double-and-swap) */
-        do {
-                te_flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
-                te_flags |= SDB_TE_ALERT_REQ_MASK;
-        } while (!cmpxchg_double(&te->flags, &te->overflow,
-                 te->flags, te->overflow,
-                 te_flags, 0ULL));
-
-The compiler could generate code where te->flags used within the
-cmpxchg_double() call may be refetched from memory and which is not
-necessarily identical to the previous read version which was used to
-generate te_flags. Which in turn means that an incorrect update could
-happen.
-
-Fix this by adding READ_ONCE() semantics to all cmpxchg_double()
-loops. Given that READ_ONCE() cannot generate code on s390 which atomically
-reads 16 bytes, use a private compare-and-swap-double implementation to
-achieve that.
-
-Also replace cmpxchg_double() with the private implementation to be able to
-re-use the old value within the loops.
-
-As a side effect this converts the whole code to only use bit fields
-to read and modify bits within the hws trailer header.
-
-Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Acked-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Reviewed-by: Thomas Richter <tmricht@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/linux-s390/Y71QJBhNTIatvxUT@osiris/T/#ma14e2a5f7aa8ed4b94b6f9576799b3ad9c60f333
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: stable@vger.kernel.org
+Fixes: 82939d7999df ("ext4: convert to mbcache2")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220712105436.32204-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Stable-dep-of: a44e84a9b776 ("ext4: fix deadlock due to mbcache entry corruption")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/cpu_mf.h  |   31 +++++-------
- arch/s390/kernel/perf_cpum_sf.c |  101 ++++++++++++++++++++++++----------------
- 2 files changed, 77 insertions(+), 55 deletions(-)
+ fs/mbcache.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/s390/include/asm/cpu_mf.h
-+++ b/arch/s390/include/asm/cpu_mf.h
-@@ -128,19 +128,21 @@ struct hws_combined_entry {
- 	struct hws_diag_entry	diag;	/* Diagnostic-sampling data entry */
- } __packed;
- 
--struct hws_trailer_entry {
--	union {
--		struct {
--			unsigned int f:1;	/* 0 - Block Full Indicator   */
--			unsigned int a:1;	/* 1 - Alert request control  */
--			unsigned int t:1;	/* 2 - Timestamp format	      */
--			unsigned int :29;	/* 3 - 31: Reserved	      */
--			unsigned int bsdes:16;	/* 32-47: size of basic SDE   */
--			unsigned int dsdes:16;	/* 48-63: size of diagnostic SDE */
--		};
--		unsigned long long flags;	/* 0 - 63: All indicators     */
-+union hws_trailer_header {
-+	struct {
-+		unsigned int f:1;	/* 0 - Block Full Indicator   */
-+		unsigned int a:1;	/* 1 - Alert request control  */
-+		unsigned int t:1;	/* 2 - Timestamp format	      */
-+		unsigned int :29;	/* 3 - 31: Reserved	      */
-+		unsigned int bsdes:16;	/* 32-47: size of basic SDE   */
-+		unsigned int dsdes:16;	/* 48-63: size of diagnostic SDE */
-+		unsigned long long overflow; /* 64 - Overflow Count   */
- 	};
--	unsigned long long overflow;	 /* 64 - sample Overflow count	      */
-+	__uint128_t val;
-+};
-+
-+struct hws_trailer_entry {
-+	union hws_trailer_header header; /* 0 - 15 Flags + Overflow Count     */
- 	unsigned char timestamp[16];	 /* 16 - 31 timestamp		      */
- 	unsigned long long reserved1;	 /* 32 -Reserved		      */
- 	unsigned long long reserved2;	 /*				      */
-@@ -287,14 +289,11 @@ static inline unsigned long sample_rate_
- 	return USEC_PER_SEC * qsi->cpu_speed / rate;
- }
- 
--#define SDB_TE_ALERT_REQ_MASK	0x4000000000000000UL
--#define SDB_TE_BUFFER_FULL_MASK 0x8000000000000000UL
--
- /* Return TOD timestamp contained in an trailer entry */
- static inline unsigned long long trailer_timestamp(struct hws_trailer_entry *te)
- {
- 	/* TOD in STCKE format */
--	if (te->t)
-+	if (te->header.t)
- 		return *((unsigned long long *) &te->timestamp[1]);
- 
- 	/* TOD in STCK format */
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -163,14 +163,15 @@ static void free_sampling_buffer(struct
- 
- static int alloc_sample_data_block(unsigned long *sdbt, gfp_t gfp_flags)
- {
--	unsigned long sdb, *trailer;
-+	struct hws_trailer_entry *te;
-+	unsigned long sdb;
- 
- 	/* Allocate and initialize sample-data-block */
- 	sdb = get_zeroed_page(gfp_flags);
- 	if (!sdb)
- 		return -ENOMEM;
--	trailer = trailer_entry_ptr(sdb);
--	*trailer = SDB_TE_ALERT_REQ_MASK;
-+	te = (struct hws_trailer_entry *)trailer_entry_ptr(sdb);
-+	te->header.a = 1;
- 
- 	/* Link SDB into the sample-data-block-table */
- 	*sdbt = sdb;
-@@ -1206,7 +1207,7 @@ static void hw_collect_samples(struct pe
- 					    "%s: Found unknown"
- 					    " sampling data entry: te->f %i"
- 					    " basic.def %#4x (%p)\n", __func__,
--					    te->f, sample->def, sample);
-+					    te->header.f, sample->def, sample);
- 			/* Sample slot is not yet written or other record.
- 			 *
- 			 * This condition can occur if the buffer was reused
-@@ -1217,7 +1218,7 @@ static void hw_collect_samples(struct pe
- 			 * that are not full.  Stop processing if the first
- 			 * invalid format was detected.
- 			 */
--			if (!te->f)
-+			if (!te->header.f)
- 				break;
- 		}
- 
-@@ -1227,6 +1228,16 @@ static void hw_collect_samples(struct pe
- 	}
- }
- 
-+static inline __uint128_t __cdsg(__uint128_t *ptr, __uint128_t old, __uint128_t new)
-+{
-+	asm volatile(
-+		"	cdsg	%[old],%[new],%[ptr]\n"
-+		: [old] "+d" (old), [ptr] "+QS" (*ptr)
-+		: [new] "d" (new)
-+		: "memory", "cc");
-+	return old;
-+}
-+
- /* hw_perf_event_update() - Process sampling buffer
-  * @event:	The perf event
-  * @flush_all:	Flag to also flush partially filled sample-data-blocks
-@@ -1243,10 +1254,11 @@ static void hw_collect_samples(struct pe
-  */
- static void hw_perf_event_update(struct perf_event *event, int flush_all)
- {
-+	unsigned long long event_overflow, sampl_overflow, num_sdb;
-+	union hws_trailer_header old, prev, new;
- 	struct hw_perf_event *hwc = &event->hw;
- 	struct hws_trailer_entry *te;
- 	unsigned long *sdbt;
--	unsigned long long event_overflow, sampl_overflow, num_sdb, te_flags;
- 	int done;
- 
- 	/*
-@@ -1266,25 +1278,25 @@ static void hw_perf_event_update(struct
- 		te = (struct hws_trailer_entry *) trailer_entry_ptr(*sdbt);
- 
- 		/* Leave loop if no more work to do (block full indicator) */
--		if (!te->f) {
-+		if (!te->header.f) {
- 			done = 1;
- 			if (!flush_all)
- 				break;
- 		}
- 
- 		/* Check the sample overflow count */
--		if (te->overflow)
-+		if (te->header.overflow)
- 			/* Account sample overflows and, if a particular limit
- 			 * is reached, extend the sampling buffer.
- 			 * For details, see sfb_account_overflows().
- 			 */
--			sampl_overflow += te->overflow;
-+			sampl_overflow += te->header.overflow;
- 
- 		/* Timestamps are valid for full sample-data-blocks only */
- 		debug_sprintf_event(sfdbg, 6, "%s: sdbt %#lx "
- 				    "overflow %llu timestamp %#llx\n",
--				    __func__, (unsigned long)sdbt, te->overflow,
--				    (te->f) ? trailer_timestamp(te) : 0ULL);
-+				    __func__, (unsigned long)sdbt, te->header.overflow,
-+				    (te->header.f) ? trailer_timestamp(te) : 0ULL);
- 
- 		/* Collect all samples from a single sample-data-block and
- 		 * flag if an (perf) event overflow happened.  If so, the PMU
-@@ -1294,12 +1306,16 @@ static void hw_perf_event_update(struct
- 		num_sdb++;
- 
- 		/* Reset trailer (using compare-double-and-swap) */
-+		/* READ_ONCE() 16 byte header */
-+		prev.val = __cdsg(&te->header.val, 0, 0);
- 		do {
--			te_flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
--			te_flags |= SDB_TE_ALERT_REQ_MASK;
--		} while (!cmpxchg_double(&te->flags, &te->overflow,
--					 te->flags, te->overflow,
--					 te_flags, 0ULL));
-+			old.val = prev.val;
-+			new.val = prev.val;
-+			new.f = 0;
-+			new.a = 1;
-+			new.overflow = 0;
-+			prev.val = __cdsg(&te->header.val, old.val, new.val);
-+		} while (prev.val != old.val);
- 
- 		/* Advance to next sample-data-block */
- 		sdbt++;
-@@ -1384,7 +1400,7 @@ static void aux_output_end(struct perf_o
- 	range_scan = AUX_SDB_NUM_ALERT(aux);
- 	for (i = 0, idx = aux->head; i < range_scan; i++, idx++) {
- 		te = aux_sdb_trailer(aux, idx);
--		if (!(te->flags & SDB_TE_BUFFER_FULL_MASK))
-+		if (!te->header.f)
- 			break;
- 	}
- 	/* i is num of SDBs which are full */
-@@ -1392,7 +1408,7 @@ static void aux_output_end(struct perf_o
- 
- 	/* Remove alert indicators in the buffer */
- 	te = aux_sdb_trailer(aux, aux->alert_mark);
--	te->flags &= ~SDB_TE_ALERT_REQ_MASK;
-+	te->header.a = 0;
- 
- 	debug_sprintf_event(sfdbg, 6, "%s: SDBs %ld range %ld head %ld\n",
- 			    __func__, i, range_scan, aux->head);
-@@ -1437,9 +1453,9 @@ static int aux_output_begin(struct perf_
- 		idx = aux->empty_mark + 1;
- 		for (i = 0; i < range_scan; i++, idx++) {
- 			te = aux_sdb_trailer(aux, idx);
--			te->flags &= ~(SDB_TE_BUFFER_FULL_MASK |
--				       SDB_TE_ALERT_REQ_MASK);
--			te->overflow = 0;
-+			te->header.f = 0;
-+			te->header.a = 0;
-+			te->header.overflow = 0;
- 		}
- 		/* Save the position of empty SDBs */
- 		aux->empty_mark = aux->head + range - 1;
-@@ -1448,7 +1464,7 @@ static int aux_output_begin(struct perf_
- 	/* Set alert indicator */
- 	aux->alert_mark = aux->head + range/2 - 1;
- 	te = aux_sdb_trailer(aux, aux->alert_mark);
--	te->flags = te->flags | SDB_TE_ALERT_REQ_MASK;
-+	te->header.a = 1;
- 
- 	/* Reset hardware buffer head */
- 	head = AUX_SDB_INDEX(aux, aux->head);
-@@ -1475,14 +1491,17 @@ static int aux_output_begin(struct perf_
- static bool aux_set_alert(struct aux_buffer *aux, unsigned long alert_index,
- 			  unsigned long long *overflow)
- {
--	unsigned long long orig_overflow, orig_flags, new_flags;
-+	union hws_trailer_header old, prev, new;
- 	struct hws_trailer_entry *te;
- 
- 	te = aux_sdb_trailer(aux, alert_index);
-+	/* READ_ONCE() 16 byte header */
-+	prev.val = __cdsg(&te->header.val, 0, 0);
- 	do {
--		orig_flags = te->flags;
--		*overflow = orig_overflow = te->overflow;
--		if (orig_flags & SDB_TE_BUFFER_FULL_MASK) {
-+		old.val = prev.val;
-+		new.val = prev.val;
-+		*overflow = old.overflow;
-+		if (old.f) {
- 			/*
- 			 * SDB is already set by hardware.
- 			 * Abort and try to set somewhere
-@@ -1490,10 +1509,10 @@ static bool aux_set_alert(struct aux_buf
- 			 */
- 			return false;
- 		}
--		new_flags = orig_flags | SDB_TE_ALERT_REQ_MASK;
--	} while (!cmpxchg_double(&te->flags, &te->overflow,
--				 orig_flags, orig_overflow,
--				 new_flags, 0ULL));
-+		new.a = 1;
-+		new.overflow = 0;
-+		prev.val = __cdsg(&te->header.val, old.val, new.val);
-+	} while (prev.val != old.val);
- 	return true;
- }
- 
-@@ -1522,8 +1541,9 @@ static bool aux_set_alert(struct aux_buf
- static bool aux_reset_buffer(struct aux_buffer *aux, unsigned long range,
- 			     unsigned long long *overflow)
- {
--	unsigned long long orig_overflow, orig_flags, new_flags;
- 	unsigned long i, range_scan, idx, idx_old;
-+	union hws_trailer_header old, prev, new;
-+	unsigned long long orig_overflow;
- 	struct hws_trailer_entry *te;
- 
- 	debug_sprintf_event(sfdbg, 6, "%s: range %ld head %ld alert %ld "
-@@ -1554,17 +1574,20 @@ static bool aux_reset_buffer(struct aux_
- 	idx_old = idx = aux->empty_mark + 1;
- 	for (i = 0; i < range_scan; i++, idx++) {
- 		te = aux_sdb_trailer(aux, idx);
-+		/* READ_ONCE() 16 byte header */
-+		prev.val = __cdsg(&te->header.val, 0, 0);
- 		do {
--			orig_flags = te->flags;
--			orig_overflow = te->overflow;
--			new_flags = orig_flags & ~SDB_TE_BUFFER_FULL_MASK;
-+			old.val = prev.val;
-+			new.val = prev.val;
-+			orig_overflow = old.overflow;
-+			new.f = 0;
-+			new.overflow = 0;
- 			if (idx == aux->alert_mark)
--				new_flags |= SDB_TE_ALERT_REQ_MASK;
-+				new.a = 1;
- 			else
--				new_flags &= ~SDB_TE_ALERT_REQ_MASK;
--		} while (!cmpxchg_double(&te->flags, &te->overflow,
--					 orig_flags, orig_overflow,
--					 new_flags, 0ULL));
-+				new.a = 0;
-+			prev.val = __cdsg(&te->header.val, old.val, new.val);
-+		} while (prev.val != old.val);
- 		*overflow += orig_overflow;
- 	}
- 
+diff --git a/fs/mbcache.c b/fs/mbcache.c
+index 97c54d3a2227..cfc28129fb6f 100644
+--- a/fs/mbcache.c
++++ b/fs/mbcache.c
+@@ -288,7 +288,7 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
+ 	while (nr_to_scan-- && !list_empty(&cache->c_list)) {
+ 		entry = list_first_entry(&cache->c_list,
+ 					 struct mb_cache_entry, e_list);
+-		if (entry->e_referenced) {
++		if (entry->e_referenced || atomic_read(&entry->e_refcnt) > 2) {
+ 			entry->e_referenced = 0;
+ 			list_move_tail(&entry->e_list, &cache->c_list);
+ 			continue;
+@@ -302,6 +302,14 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
+ 		spin_unlock(&cache->c_list_lock);
+ 		head = mb_cache_entry_head(cache, entry->e_key);
+ 		hlist_bl_lock(head);
++		/* Now a reliable check if the entry didn't get used... */
++		if (atomic_read(&entry->e_refcnt) > 2) {
++			hlist_bl_unlock(head);
++			spin_lock(&cache->c_list_lock);
++			list_add_tail(&entry->e_list, &cache->c_list);
++			cache->c_entry_count++;
++			continue;
++		}
+ 		if (!hlist_bl_unhashed(&entry->e_hash_list)) {
+ 			hlist_bl_del_init(&entry->e_hash_list);
+ 			atomic_dec(&entry->e_refcnt);
+-- 
+2.35.1
+
 
 
