@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD54A66C7E5
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:35:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1242566CA2D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233264AbjAPQf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:35:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52064 "EHLO
+        id S233396AbjAPRA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:00:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233115AbjAPQeg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2DFE23DAA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:22:25 -0800 (PST)
+        with ESMTP id S234033AbjAPQ7n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C65336FE5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACAD4B80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:22:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 174C1C433EF;
-        Mon, 16 Jan 2023 16:22:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA3ED61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD0C7C433EF;
+        Mon, 16 Jan 2023 16:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886143;
-        bh=JgKe15jaV9shHN3aN5fip3zQtjObwCyaBdkTTFakv3o=;
+        s=korg; t=1673887350;
+        bh=OmsPLRXFDL38AeADP5/X7Hx5DP2QzY4nwszw3tVhIQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a80LUHa7LWxtcge1J+Vb6dba39fSjtJS/ieKGOY+uqHzc13LoRL91GWjO08nIGtjE
-         zSiju4FxcJMpFnshG3rC5aMF2f6rsbNYYEoELll7ZkEW/68Ac0qk8IWlT6TIZtmF1y
-         P7crwBHL686FMiwyaTRwA46RZBRyQynHdHz4SYAc=
+        b=ADajMvvhERthlBSc5Iha4hquBQ0dYqvze7kqDgmxkQbhwx7tJnwIEAGpMHlikrwKZ
+         FWdPqBvpzGsUS+pAxDGPiSAJNmjf3uj0mUflIJ5wPf/gaSRmw6Xqhn0ETrZtXN1+dY
+         Bvcry6gRnQxAMvmbDP9+YcVjf26fgoW5o4nk4DAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tobias Klauser <tklauser@distanz.ch>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 289/658] tty: serial: altera_uart_{r,t}x_chars() need only uart_port
-Date:   Mon, 16 Jan 2023 16:46:17 +0100
-Message-Id: <20230116154922.817477253@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com,
+        Gautam Menghani <gautammenghani201@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 116/521] media: imon: fix a race condition in send_packet()
+Date:   Mon, 16 Jan 2023 16:46:18 +0100
+Message-Id: <20230116154852.427317523@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +56,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Gautam Menghani <gautammenghani201@gmail.com>
 
-[ Upstream commit 3af44d9bb0539d5fa27d6159d696fda5f3747bff ]
+[ Upstream commit 813ceef062b53d68f296aa3cb944b21a091fabdb ]
 
-Both altera_uart_{r,t}x_chars() need only uart_port, not altera_uart. So
-pass the former from altera_uart_interrupt() directly.
+The function send_packet() has a race condition as follows:
 
-Apart it maybe saves a dereference, this makes the transition of
-altera_uart_tx_chars() easier to follow in the next patch.
+func send_packet()
+{
+    // do work
+    call usb_submit_urb()
+    mutex_unlock()
+    wait_for_event_interruptible()  <-- lock gone
+    mutex_lock()
+}
 
-Cc: Tobias Klauser <tklauser@distanz.ch>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Acked-by: Tobias Klauser <tklauser@distanz.ch>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220920052049.20507-4-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 1307c5d33cce ("serial: altera_uart: fix locking in polling mode")
+func vfd_write()
+{
+    mutex_lock()
+    call send_packet()  <- prev call is not completed
+    mutex_unlock()
+}
+
+When the mutex is unlocked and the function send_packet() waits for the
+call to complete, vfd_write() can start another call, which leads to the
+"URB submitted while active" warning in usb_submit_urb().
+Fix this by removing the mutex_unlock() call in send_packet() and using
+mutex_lock_interruptible().
+
+Link: https://syzkaller.appspot.com/bug?id=e378e6a51fbe6c5cc43e34f131cc9a315ef0337e
+
+Fixes: 21677cfc562a ("V4L/DVB: ir-core: add imon driver")
+Reported-by: syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com
+Signed-off-by: Gautam Menghani <gautammenghani201@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/altera_uart.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/media/rc/imon.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/altera_uart.c b/drivers/tty/serial/altera_uart.c
-index 508a3c2b7781..20c610440133 100644
---- a/drivers/tty/serial/altera_uart.c
-+++ b/drivers/tty/serial/altera_uart.c
-@@ -199,9 +199,8 @@ static void altera_uart_set_termios(struct uart_port *port,
- 	 */
- }
+diff --git a/drivers/media/rc/imon.c b/drivers/media/rc/imon.c
+index 6b10363fb6f0..99bb7380ee0e 100644
+--- a/drivers/media/rc/imon.c
++++ b/drivers/media/rc/imon.c
+@@ -613,15 +613,14 @@ static int send_packet(struct imon_context *ictx)
+ 		pr_err_ratelimited("error submitting urb(%d)\n", retval);
+ 	} else {
+ 		/* Wait for transmission to complete (or abort) */
+-		mutex_unlock(&ictx->lock);
+ 		retval = wait_for_completion_interruptible(
+ 				&ictx->tx.finished);
+ 		if (retval) {
+ 			usb_kill_urb(ictx->tx_urb);
+ 			pr_err_ratelimited("task interrupted\n");
+ 		}
+-		mutex_lock(&ictx->lock);
  
--static void altera_uart_rx_chars(struct altera_uart *pp)
-+static void altera_uart_rx_chars(struct uart_port *port)
- {
--	struct uart_port *port = &pp->port;
- 	unsigned char ch, flag;
- 	unsigned short status;
++		ictx->tx.busy = false;
+ 		retval = ictx->tx.status;
+ 		if (retval)
+ 			pr_err_ratelimited("packet tx failed (%d)\n", retval);
+@@ -928,7 +927,8 @@ static ssize_t vfd_write(struct file *file, const char __user *buf,
+ 		return -ENODEV;
+ 	}
  
-@@ -248,9 +247,8 @@ static void altera_uart_rx_chars(struct altera_uart *pp)
- 	spin_lock(&port->lock);
- }
+-	mutex_lock(&ictx->lock);
++	if (mutex_lock_interruptible(&ictx->lock))
++		return -ERESTARTSYS;
  
--static void altera_uart_tx_chars(struct altera_uart *pp)
-+static void altera_uart_tx_chars(struct uart_port *port)
- {
--	struct uart_port *port = &pp->port;
- 	struct circ_buf *xmit = &port->state->xmit;
- 
- 	if (port->x_char) {
-@@ -288,9 +286,9 @@ static irqreturn_t altera_uart_interrupt(int irq, void *data)
- 
- 	spin_lock(&port->lock);
- 	if (isr & ALTERA_UART_STATUS_RRDY_MSK)
--		altera_uart_rx_chars(pp);
-+		altera_uart_rx_chars(port);
- 	if (isr & ALTERA_UART_STATUS_TRDY_MSK)
--		altera_uart_tx_chars(pp);
-+		altera_uart_tx_chars(port);
- 	spin_unlock(&port->lock);
- 
- 	return IRQ_RETVAL(isr);
+ 	if (!ictx->dev_present_intf0) {
+ 		pr_err_ratelimited("no iMON device present\n");
 -- 
 2.35.1
 
