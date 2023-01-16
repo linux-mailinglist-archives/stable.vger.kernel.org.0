@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B6F66C947
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE02B66C52B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233733AbjAPQrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:47:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39906 "EHLO
+        id S232073AbjAPQCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:02:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233830AbjAPQrM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:47:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9843240BD1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:00 -0800 (PST)
+        with ESMTP id S231967AbjAPQCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:02:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E985D23C70
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B4C06105A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 325A2C433EF;
-        Mon, 16 Jan 2023 16:34:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 956F4B81061
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7BE5C433F0;
+        Mon, 16 Jan 2023 16:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886899;
-        bh=x0CNfeHD71vINYA3Sxpre1MPadDpYVtWH94W7Ias0E8=;
+        s=korg; t=1673884911;
+        bh=LhLcymre40N3ru1qokaMuvrTvAXrEyGWkscN6ZFbY2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZ3Cyuo7eqUo6h+nQBFY60JvX1EN1mduF/cYJc5W0JQVMnhrnvol6egjIGTry/YlE
-         +6z/i9B5yHmSgbbb/QcnPdxXmmVofXfkgJAPdj+YTYOrgTM1XShI0V5dXsi5clmGRa
-         WgRAXU/4T73mFM11ALrbH/NLtVrd+Yd0XwFJTD8Q=
+        b=vhCyzKZisaQUxo5yCHI5SMsi35WymUmFS4U/DC5lZhWL3ZQCEn+ngWwwZjuPnmJ+g
+         M/64QI2MmxkOipy/uVJ1dMoajj4AvcbQ4P6ZqKDBTb0nRQ04vFB+3GSd4yS4ZVwyAK
+         cCtHnbdcik7QP06TDzh72nAzag7YrsGTuKN0NU6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dmitrii Dolgov <9erthalion6@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 604/658] perf auxtrace: Fix address filter duplicate symbol selection
+        patches@lists.linux.dev,
+        =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Jiri Pirko <jiri@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 169/183] net: lan966x: check for ptp to be enabled in lan966x_ptp_deinit()
 Date:   Mon, 16 Jan 2023 16:51:32 +0100
-Message-Id: <20230116154937.128926325@linuxfoundation.org>
+Message-Id: <20230116154810.433968281@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,104 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Clément Léger <clement.leger@bootlin.com>
 
-commit cf129830ee820f7fc90b98df193cd49d49344d09 upstream.
+[ Upstream commit b0e380b5d4275299adf43e249f18309331b6f54f ]
 
-When a match has been made to the nth duplicate symbol, return
-success not error.
+If ptp was not enabled due to missing IRQ for instance,
+lan966x_ptp_deinit() will dereference NULL pointers.
 
-Example:
-
-  Before:
-
-    $ cat file.c
-    cat: file.c: No such file or directory
-    $ cat file1.c
-    #include <stdio.h>
-
-    static void func(void)
-    {
-            printf("First func\n");
-    }
-
-    void other(void);
-
-    int main()
-    {
-            func();
-            other();
-            return 0;
-    }
-    $ cat file2.c
-    #include <stdio.h>
-
-    static void func(void)
-    {
-            printf("Second func\n");
-    }
-
-    void other(void)
-    {
-            func();
-    }
-
-    $ gcc -Wall -Wextra -o test file1.c file2.c
-    $ perf record -e intel_pt//u --filter 'filter func @ ./test' -- ./test
-    Multiple symbols with name 'func'
-    #1      0x1149  l       func
-                    which is near           main
-    #2      0x1179  l       func
-                    which is near           other
-    Disambiguate symbol name by inserting #n after the name e.g. func #2
-    Or select a global symbol by inserting #0 or #g or #G
-    Failed to parse address filter: 'filter func @ ./test'
-    Filter format is: filter|start|stop|tracestop <start symbol or address> [/ <end symbol or size>] [@<file name>]
-    Where multiple filters are separated by space or comma.
-    $ perf record -e intel_pt//u --filter 'filter func #2 @ ./test' -- ./test
-    Failed to parse address filter: 'filter func #2 @ ./test'
-    Filter format is: filter|start|stop|tracestop <start symbol or address> [/ <end symbol or size>] [@<file name>]
-    Where multiple filters are separated by space or comma.
-
-  After:
-
-    $ perf record -e intel_pt//u --filter 'filter func #2 @ ./test' -- ./test
-    First func
-    Second func
-    [ perf record: Woken up 1 times to write data ]
-    [ perf record: Captured and wrote 0.016 MB perf.data ]
-    $ perf script --itrace=b -Ftime,flags,ip,sym,addr --ns
-    1231062.526977619:   tr strt                               0 [unknown] =>     558495708179 func
-    1231062.526977619:   tr end  call               558495708188 func =>     558495708050 _init
-    1231062.526979286:   tr strt                               0 [unknown] =>     55849570818d func
-    1231062.526979286:   tr end  return             55849570818f func =>     55849570819d other
-
-Fixes: 1b36c03e356936d6 ("perf record: Add support for using symbols in address filters")
-Reported-by: Dmitrii Dolgov <9erthalion6@gmail.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Dmitry Dolgov <9erthalion6@gmail.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230110185659.15979-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d096459494a8 ("net: lan966x: Add support for ptp clocks")
+Signed-off-by: Clément Léger <clement.leger@bootlin.com>
+Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/auxtrace.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/tools/perf/util/auxtrace.c
-+++ b/tools/perf/util/auxtrace.c
-@@ -1995,7 +1995,7 @@ static int find_dso_sym(struct dso *dso,
- 				*size = sym->start - *start;
- 			if (idx > 0) {
- 				if (*size)
--					return 1;
-+					return 0;
- 			} else if (dso_sym_match(sym, sym_name, &cnt, idx)) {
- 				print_duplicate_syms(dso, sym_name);
- 				return -EINVAL;
+diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c b/drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c
+index e5a2bbe064f8..8e368318558a 100644
+--- a/drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c
++++ b/drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c
+@@ -853,6 +853,9 @@ void lan966x_ptp_deinit(struct lan966x *lan966x)
+ 	struct lan966x_port *port;
+ 	int i;
+ 
++	if (!lan966x->ptp)
++		return;
++
+ 	for (i = 0; i < lan966x->num_phys_ports; i++) {
+ 		port = lan966x->ports[i];
+ 		if (!port)
+-- 
+2.35.1
+
 
 
