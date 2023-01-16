@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 006C266C737
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7714166C738
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233267AbjAPQ3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47498 "EHLO
+        id S233277AbjAPQ3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:29:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233299AbjAPQ2u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DEF27494
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:01 -0800 (PST)
+        with ESMTP id S233301AbjAPQ2v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 234772DE72
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FF5EB80E93
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B81BDC433EF;
-        Mon, 16 Jan 2023 16:16:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7889A6102D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ABDCC433F0;
+        Mon, 16 Jan 2023 16:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885819;
-        bh=N++FBtXJlxXbJZFbQQBYyBQ5/3IHJUBshyllkUeJdM4=;
+        s=korg; t=1673885821;
+        bh=1ZQ6+/fuRCxh9DqWHM9P3dLdWAyJxLUDJHaysaLu7W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PAzFKw6anIhtJoiA+D63MHT4XjxdxAP2JIO+c57L1sNbAwMDs74Md0prViMD59pdm
-         Z0up7IV3keNd0/DmB9jJpUoi8w3jThKCufLmsKm0ESWiEZJlHWdd9/HBbMR2+eU8kv
-         8JbTBTF9YMxntybmw3k3MeVsCrzT0LBQSF9Ee8ms=
+        b=WCgfyXhPhg4rmgUQ9ncRfbJ9wXR5XTZdcBH3bENAx533Gs+pb+vNPB6VrT/q4Icob
+         a7tl8+ip8e+udbu4//ozcVcCjMuBT9402xmOFiWiLiKU1c8kUBX+4juEpjq0lBQNLh
+         jpqwFhlBa2YmFu70rRnWC4vApcvZfxh/4st+0Ah8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 196/658] mmc: atmel-mci: fix return value check of mmc_add_host()
-Date:   Mon, 16 Jan 2023 16:44:44 +0100
-Message-Id: <20230116154918.401633420@linuxfoundation.org>
+Subject: [PATCH 5.4 197/658] mmc: omap_hsmmc: fix return value check of mmc_add_host()
+Date:   Mon, 16 Jan 2023 16:44:45 +0100
+Message-Id: <20230116154918.445987939@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -55,7 +55,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9e6e8c43726673ca2abcaac87640b9215fd72f4c ]
+[ Upstream commit a525cad241c339ca00bf7ebf03c5180f2a9b767c ]
 
 mmc_add_host() may return error, if we ignore its return value,
 it will lead two issues:
@@ -64,47 +64,33 @@ it will lead two issues:
    delete device, but it's not added yet, it will lead a kernel
    crash because of null-ptr-deref in device_del().
 
-So fix this by checking the return value and calling mmc_free_host()
-in the error path.
+Fix this by checking the return value and goto error path wihch
+will call mmc_free_host().
 
-Fixes: 7d2be0749a59 ("atmel-mci: Driver for Atmel on-chip MMC controllers")
+Fixes: a45c6cb81647 ("[ARM] 5369/1: omap mmc: Add new omap hsmmc controller for 2430 and 34xx, v3")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221108122819.429975-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20221108121316.340354-1-yangyingliang@huawei.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/atmel-mci.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/mmc/host/omap_hsmmc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/atmel-mci.c b/drivers/mmc/host/atmel-mci.c
-index c26fbe5f2222..9c084f64f7db 100644
---- a/drivers/mmc/host/atmel-mci.c
-+++ b/drivers/mmc/host/atmel-mci.c
-@@ -2217,6 +2217,7 @@ static int atmci_init_slot(struct atmel_mci *host,
- {
- 	struct mmc_host			*mmc;
- 	struct atmel_mci_slot		*slot;
-+	int ret;
+diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
+index d0df054b0b47..ee9edf817a32 100644
+--- a/drivers/mmc/host/omap_hsmmc.c
++++ b/drivers/mmc/host/omap_hsmmc.c
+@@ -1998,7 +1998,9 @@ static int omap_hsmmc_probe(struct platform_device *pdev)
+ 	if (!ret)
+ 		mmc->caps |= MMC_CAP_SDIO_IRQ;
  
- 	mmc = mmc_alloc_host(sizeof(struct atmel_mci_slot), &host->pdev->dev);
- 	if (!mmc)
-@@ -2300,11 +2301,13 @@ static int atmci_init_slot(struct atmel_mci *host,
- 
- 	host->slot[id] = slot;
- 	mmc_regulator_get_supply(mmc);
 -	mmc_add_host(mmc);
 +	ret = mmc_add_host(mmc);
-+	if (ret) {
-+		mmc_free_host(mmc);
-+		return ret;
-+	}
++	if (ret)
++		goto err_irq;
  
- 	if (gpio_is_valid(slot->detect_pin)) {
--		int ret;
--
- 		timer_setup(&slot->detect_timer, atmci_detect_change, 0);
- 
- 		ret = request_irq(gpio_to_irq(slot->detect_pin),
+ 	if (mmc_pdata(host)->name != NULL) {
+ 		ret = device_create_file(&mmc->class_dev, &dev_attr_slot_name);
 -- 
 2.35.1
 
