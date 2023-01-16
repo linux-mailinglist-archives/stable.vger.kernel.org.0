@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA7B66C723
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F065F66C9AF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:55:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233231AbjAPQ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:28:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
+        id S233956AbjAPQzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:55:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232873AbjAPQ2C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:02 -0500
+        with ESMTP id S233960AbjAPQy2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:54:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E8C2CFEA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C2C2310B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C5A5B81063
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1267C433D2;
-        Mon, 16 Jan 2023 16:16:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C530EB81094
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2829FC433EF;
+        Mon, 16 Jan 2023 16:37:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885772;
-        bh=Vi7dUtHrEAaNYM9bMxRmH2PMGgJCsA4wijDta0PzS5s=;
+        s=korg; t=1673887074;
+        bh=EQVw4W6XHpoYTwqKxUANMXO6GShKlmTRNZQPeDq9RPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mh7Kt7GOBRmwMr9myR8OmwD9mjy+rmbAVg4c3HggXh2vYFBLSzTAjVgut77qeIxpQ
-         F+ulfgK+Y+TbrGE8ePJXxgqy3rN2j3ZtK5y2lCBbv6XWFJkTULCQ0bT/9IdJimaUkM
-         kOgw3Nu2aiXhLH94+ZEPyk7vBmcsixFUaDfLcJqY=
+        b=Vj/q1NKl451JMPmgZd2dFFA8EI1nrGVqvRAbWuTX7GgTG1ZgB0ktbaYgxcN7Vz2hM
+         crKwScIH9ghtTN1tl2XlZ07FvIC84CI0OA32oqyOpzp/AGHvXFEvVZ+fa5H3aH3qlG
+         dQkbu0IUSCr9/WWqajNpXPCI69pva3TOp3O/yeHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christian Marangi <ansuelsmth@gmail.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 178/658] clk: qcom: clk-krait: fix wrong div2 functions
+        patches@lists.linux.dev, Jialiang Wang <wangjialiang0806@163.com>,
+        Yinjun Zhang <yinjun.zhang@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 004/521] nfp: fix use-after-free in area_cache_get()
 Date:   Mon, 16 Jan 2023 16:44:26 +0100
-Message-Id: <20230116154917.589554663@linuxfoundation.org>
+Message-Id: <20230116154847.444518915@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Marangi <ansuelsmth@gmail.com>
+From: Jialiang Wang <wangjialiang0806@163.com>
 
-[ Upstream commit d676d3a3717cf726d3affedbe5ba98fc4ccad7b3 ]
+commit 02e1a114fdb71e59ee6770294166c30d437bf86a upstream.
 
-Currently div2 value is applied to the wrong bits. This is caused by a
-bug in the code where the shift is done only for lpl, for anything
-else the mask is not shifted to the correct bits.
+area_cache_get() is used to distribute cache->area and set cache->id,
+ and if cache->id is not 0 and cache->area->kref refcount is 0, it will
+ release the cache->area by nfp_cpp_area_release(). area_cache_get()
+ set cache->id before cpp->op->area_init() and nfp_cpp_area_acquire().
 
-Fix this by correctly shift if lpl is not supported.
+But if area_init() or nfp_cpp_area_acquire() fails, the cache->id is
+ is already set but the refcount is not increased as expected. At this
+ time, calling the nfp_cpp_area_release() will cause use-after-free.
 
-Fixes: 4d7dc77babfe ("clk: qcom: Add support for Krait clocks")
-Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221108215625.30186-1-ansuelsmth@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To avoid the use-after-free, set cache->id after area_init() and
+ nfp_cpp_area_acquire() complete successfully.
+
+Note: This vulnerability is triggerable by providing emulated device
+ equipped with specified configuration.
+
+ BUG: KASAN: use-after-free in nfp6000_area_init (drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:760)
+  Write of size 4 at addr ffff888005b7f4a0 by task swapper/0/1
+
+ Call Trace:
+  <TASK>
+ nfp6000_area_init (drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:760)
+ area_cache_get.constprop.8 (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:884)
+
+ Allocated by task 1:
+ nfp_cpp_area_alloc_with_name (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:303)
+ nfp_cpp_area_cache_add (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:802)
+ nfp6000_init (drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:1230)
+ nfp_cpp_from_operations (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:1215)
+ nfp_pci_probe (drivers/net/ethernet/netronome/nfp/nfp_main.c:744)
+
+ Freed by task 1:
+ kfree (mm/slub.c:4562)
+ area_cache_get.constprop.8 (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:873)
+ nfp_cpp_read (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:924 drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:973)
+ nfp_cpp_readl (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cpplib.c:48)
+
+Signed-off-by: Jialiang Wang <wangjialiang0806@163.com>
+Reviewed-by: Yinjun Zhang <yinjun.zhang@corigine.com>
+Acked-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20220810073057.4032-1-wangjialiang0806@163.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/qcom/clk-krait.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/clk-krait.c b/drivers/clk/qcom/clk-krait.c
-index 90046428693c..e74fc81a14d0 100644
---- a/drivers/clk/qcom/clk-krait.c
-+++ b/drivers/clk/qcom/clk-krait.c
-@@ -98,6 +98,8 @@ static int krait_div2_set_rate(struct clk_hw *hw, unsigned long rate,
+--- a/drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c
++++ b/drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c
+@@ -874,7 +874,6 @@ area_cache_get(struct nfp_cpp *cpp, u32
+ 	}
  
- 	if (d->lpl)
- 		mask = mask << (d->shift + LPL_SHIFT) | mask << d->shift;
-+	else
-+		mask <<= d->shift;
+ 	/* Adjust the start address to be cache size aligned */
+-	cache->id = id;
+ 	cache->addr = addr & ~(u64)(cache->size - 1);
  
- 	spin_lock_irqsave(&krait_clock_reg_lock, flags);
- 	val = krait_get_l2_indirect_reg(d->offset);
--- 
-2.35.1
-
+ 	/* Re-init to the new ID and address */
+@@ -894,6 +893,8 @@ area_cache_get(struct nfp_cpp *cpp, u32
+ 		return NULL;
+ 	}
+ 
++	cache->id = id;
++
+ exit:
+ 	/* Adjust offset */
+ 	*offset = addr - cache->addr;
 
 
