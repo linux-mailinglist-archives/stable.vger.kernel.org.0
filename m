@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D652B66C870
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:39:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F06D66C871
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:39:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233468AbjAPQjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:39:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54386 "EHLO
+        id S233532AbjAPQjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:39:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233467AbjAPQin (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:38:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A03F427D56
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:31 -0800 (PST)
+        with ESMTP id S233438AbjAPQis (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:38:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6EA33524C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D05A6B8107D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30053C433D2;
-        Mon, 16 Jan 2023 16:27:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D9B5B81065
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB60CC433D2;
+        Mon, 16 Jan 2023 16:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886448;
-        bh=xLNK1PvoJh0Dx4+icM8fpYqF4BejcDZQqWp4O/lNUEk=;
+        s=korg; t=1673886451;
+        bh=z1wvUinEIXw7zwzQFl1VEaeCR8kX7OngFqVNw4BDvYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cIn3M9X5JJEGHSzjc0wQN7nfsi/BRJmyh5Pdi/MJP97WMuiIPomYXyZ71Ra+YjiY6
-         O4s2ICbFZujsqYjdhiz1/xc2/SNbOaQ4cSN6oShyvtKxYdzT36TEA46ARqhczlcCP1
-         /2F0UrNY/8mUZ6IJMOndpIzSQQiyV7F0DOfWKTwM=
+        b=TMRkO4IeIuX8zCib6DSKbqZyZ2qvkNzKbMjCx5J6IHRta2/T6ub0ONPFLDiLEGxjA
+         UQIMfUnzbXeLhYflJvsuKaZ1QOHTXT8t784it26pHtaQdWf9iYg7PdN7bqHuwHCRWv
+         CT95ci2JZMfx+JWtrZwP7oCUJNkpIJDv5V6TlXWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        patches@lists.linux.dev, Wang Jingjin <wangjingjin1@huawei.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 434/658] ASoC: audio-graph-card: fix refcount leak of cpu_ep in __graph_for_each_link()
-Date:   Mon, 16 Jan 2023 16:48:42 +0100
-Message-Id: <20230116154929.411118012@linuxfoundation.org>
+Subject: [PATCH 5.4 435/658] ASoC: rockchip: pdm: Add missing clk_disable_unprepare() in rockchip_pdm_runtime_resume()
+Date:   Mon, 16 Jan 2023 16:48:43 +0100
+Message-Id: <20230116154929.449378797@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -54,40 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Wang Jingjin <wangjingjin1@huawei.com>
 
-[ Upstream commit 8ab2d12c726f0fde0692fa5d81d8019b3dcd62d0 ]
+[ Upstream commit ef0a098efb36660326c133af9b5a04a96a00e3ca ]
 
-The of_get_next_child() returns a node with refcount incremented, and
-decrements the refcount of prev. So in the error path of the while loop,
-of_node_put() needs be called for cpu_ep.
+The clk_disable_unprepare() should be called in the error handling of
+rockchip_pdm_runtime_resume().
 
-Fixes: fce9b90c1ab7 ("ASoC: audio-graph-card: cleanup DAI link loop method - step2")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/1670228127-13835-1-git-send-email-wangyufen@huawei.com
+Fixes: fc05a5b22253 ("ASoC: rockchip: add support for pdm controller")
+Signed-off-by: Wang Jingjin <wangjingjin1@huawei.com>
+Link: https://lore.kernel.org/r/20221205032802.2422983-1-wangjingjin1@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/audio-graph-card.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/rockchip/rockchip_pdm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
-index 96aa2c015572..a96a7cd8af6e 100644
---- a/sound/soc/generic/audio-graph-card.c
-+++ b/sound/soc/generic/audio-graph-card.c
-@@ -466,8 +466,10 @@ static int graph_for_each_link(struct asoc_simple_priv *priv,
- 			of_node_put(codec_ep);
- 			of_node_put(codec_port);
+diff --git a/sound/soc/rockchip/rockchip_pdm.c b/sound/soc/rockchip/rockchip_pdm.c
+index 1707414cfa92..9f6cbaf3c0e9 100644
+--- a/sound/soc/rockchip/rockchip_pdm.c
++++ b/sound/soc/rockchip/rockchip_pdm.c
+@@ -368,6 +368,7 @@ static int rockchip_pdm_runtime_resume(struct device *dev)
  
--			if (ret < 0)
-+			if (ret < 0) {
-+				of_node_put(cpu_ep);
- 				return ret;
-+			}
- 
- 			codec_port_old = codec_port;
- 		}
+ 	ret = clk_prepare_enable(pdm->hclk);
+ 	if (ret) {
++		clk_disable_unprepare(pdm->clk);
+ 		dev_err(pdm->dev, "hclock enable failed %d\n", ret);
+ 		return ret;
+ 	}
 -- 
 2.35.1
 
