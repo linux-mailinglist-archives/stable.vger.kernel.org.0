@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C424A66CDB1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10B6F66CDBF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235044AbjAPRiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:38:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56258 "EHLO
+        id S234938AbjAPRja (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:39:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235037AbjAPRhl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D69A22B099
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:39 -0800 (PST)
+        with ESMTP id S235134AbjAPRiu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:38:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 864A74E504
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:15:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7473F6108D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84CFEC433F1;
-        Mon, 16 Jan 2023 17:14:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 269B361086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:15:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C190C433D2;
+        Mon, 16 Jan 2023 17:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889278;
-        bh=6ltIpZ0SM7iJdZqKHkMYTJu+PpOmES4Ko7ul0RlUblw=;
+        s=korg; t=1673889307;
+        bh=0AEmCcCj/wd3F7GH03MOiuj0OGe1mXXO0IH08JuMGa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bn5uaHFkbwIDvrm2BKXDEnuIglzyHXUoxea1GEsMAsiyLBb3zA9OwbpS1+eP+Bf7E
-         w/hiCxzAovFU462oo2ILzGKR7fjgs/gYAzuy+4pPB/diKwsO9lxQM18SCqfPRN4Izq
-         mQ/Jk62RjNHE62EAW5yR/ZC5RxvtWxcZHVwWN/nM=
+        b=c9YMsFRKnuMzmTaDVrBkvK6l7Es1JW9ebmFG0QMZ9t+XVQNuzyEIsGRpLMQpAfcVo
+         DlIMtkjHGj9QqgjQyvoTAcgsEYXqsOhPs34JnHYI+r2UxZqO7scybuE/Ksm9KI3BMF
+         sQ0zqhUVGJl2Zqg0wBLixWEODeNq74O0uIwf9hIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 309/338] qlcnic: prevent ->dcb use-after-free on qlcnic_dcb_enable() failure
-Date:   Mon, 16 Jan 2023 16:53:02 +0100
-Message-Id: <20230116154834.599560570@linuxfoundation.org>
+Subject: [PATCH 4.14 310/338] nfc: Fix potential resource leaks
+Date:   Mon, 16 Jan 2023 16:53:03 +0100
+Message-Id: <20230116154834.648606865@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -55,101 +53,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 13a7c8964afcd8ca43c0b6001ebb0127baa95362 ]
+[ Upstream commit df49908f3c52d211aea5e2a14a93bbe67a2cb3af ]
 
-adapter->dcb would get silently freed inside qlcnic_dcb_enable() in
-case qlcnic_dcb_attach() would return an error, which always happens
-under OOM conditions. This would lead to use-after-free because both
-of the existing callers invoke qlcnic_dcb_get_info() on the obtained
-pointer, which is potentially freed at that point.
+nfc_get_device() take reference for the device, add missing
+nfc_put_device() to release it when not need anymore.
+Also fix the style warnning by use error EOPNOTSUPP instead of
+ENOTSUPP.
 
-Propagate errors from qlcnic_dcb_enable(), and instead free the dcb
-pointer at callsite using qlcnic_dcb_free(). This also removes the now
-unused qlcnic_clear_dcb_ops() helper, which was a simple wrapper around
-kfree() also causing memory leaks for partially initialized dcb.
-
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
-
-Fixes: 3c44bba1d270 ("qlcnic: Disable DCB operations from SR-IOV VFs")
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
+Fixes: 29e76924cf08 ("nfc: netlink: Add capability to reply to vendor_cmd with data")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c |  8 +++++++-
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h       | 10 ++--------
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c      |  8 +++++++-
- 3 files changed, 16 insertions(+), 10 deletions(-)
+ net/nfc/netlink.c | 52 ++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-index 10286215092f..85419b8258b5 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-@@ -2525,7 +2525,13 @@ int qlcnic_83xx_init(struct qlcnic_adapter *adapter, int pci_using_dac)
- 		goto disable_mbx_intr;
+diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
+index 0320ae7560ad..be06f4e37c43 100644
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1506,6 +1506,7 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
+ 	u32 dev_idx, se_idx;
+ 	u8 *apdu;
+ 	size_t apdu_len;
++	int rc;
  
- 	qlcnic_83xx_clear_function_resources(adapter);
--	qlcnic_dcb_enable(adapter->dcb);
+ 	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
+ 	    !info->attrs[NFC_ATTR_SE_INDEX] ||
+@@ -1519,25 +1520,37 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
+ 	if (!dev)
+ 		return -ENODEV;
+ 
+-	if (!dev->ops || !dev->ops->se_io)
+-		return -ENOTSUPP;
++	if (!dev->ops || !dev->ops->se_io) {
++		rc = -EOPNOTSUPP;
++		goto put_dev;
++	}
+ 
+ 	apdu_len = nla_len(info->attrs[NFC_ATTR_SE_APDU]);
+-	if (apdu_len == 0)
+-		return -EINVAL;
++	if (apdu_len == 0) {
++		rc = -EINVAL;
++		goto put_dev;
++	}
+ 
+ 	apdu = nla_data(info->attrs[NFC_ATTR_SE_APDU]);
+-	if (!apdu)
+-		return -EINVAL;
++	if (!apdu) {
++		rc = -EINVAL;
++		goto put_dev;
++	}
+ 
+ 	ctx = kzalloc(sizeof(struct se_io_ctx), GFP_KERNEL);
+-	if (!ctx)
+-		return -ENOMEM;
++	if (!ctx) {
++		rc = -ENOMEM;
++		goto put_dev;
++	}
+ 
+ 	ctx->dev_idx = dev_idx;
+ 	ctx->se_idx = se_idx;
+ 
+-	return nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
++	rc = nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
 +
-+	err = qlcnic_dcb_enable(adapter->dcb);
-+	if (err) {
-+		qlcnic_dcb_free(adapter->dcb);
-+		goto disable_mbx_intr;
++put_dev:
++	nfc_put_device(dev);
++	return rc;
+ }
+ 
+ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+@@ -1560,14 +1573,21 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+ 	subcmd = nla_get_u32(info->attrs[NFC_ATTR_VENDOR_SUBCMD]);
+ 
+ 	dev = nfc_get_device(dev_idx);
+-	if (!dev || !dev->vendor_cmds || !dev->n_vendor_cmds)
++	if (!dev)
+ 		return -ENODEV;
+ 
++	if (!dev->vendor_cmds || !dev->n_vendor_cmds) {
++		err = -ENODEV;
++		goto put_dev;
 +	}
 +
- 	qlcnic_83xx_initialize_nic(adapter, 1);
- 	qlcnic_dcb_get_info(adapter->dcb);
- 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-index 0a9d24e86715..eb8000d9b6d0 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-@@ -42,11 +42,6 @@ struct qlcnic_dcb {
- 	unsigned long			state;
- };
- 
--static inline void qlcnic_clear_dcb_ops(struct qlcnic_dcb *dcb)
--{
--	kfree(dcb);
--}
--
- static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
- {
- 	if (dcb && dcb->ops->get_hw_capability)
-@@ -113,9 +108,8 @@ static inline void qlcnic_dcb_init_dcbnl_ops(struct qlcnic_dcb *dcb)
- 		dcb->ops->init_dcbnl_ops(dcb);
- }
- 
--static inline void qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
-+static inline int qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
- {
--	if (dcb && qlcnic_dcb_attach(dcb))
--		qlcnic_clear_dcb_ops(dcb);
-+	return dcb ? qlcnic_dcb_attach(dcb) : 0;
- }
- #endif
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-index 45361310eea0..fe879e212b7a 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-@@ -2641,7 +2641,13 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			 "Device does not support MSI interrupts\n");
- 
- 	if (qlcnic_82xx_check(adapter)) {
--		qlcnic_dcb_enable(adapter->dcb);
-+		err = qlcnic_dcb_enable(adapter->dcb);
-+		if (err) {
-+			qlcnic_dcb_free(adapter->dcb);
-+			dev_err(&pdev->dev, "Failed to enable DCB\n");
-+			goto err_out_free_hw;
+ 	if (info->attrs[NFC_ATTR_VENDOR_DATA]) {
+ 		data = nla_data(info->attrs[NFC_ATTR_VENDOR_DATA]);
+ 		data_len = nla_len(info->attrs[NFC_ATTR_VENDOR_DATA]);
+-		if (data_len == 0)
+-			return -EINVAL;
++		if (data_len == 0) {
++			err = -EINVAL;
++			goto put_dev;
 +		}
-+
- 		qlcnic_dcb_get_info(adapter->dcb);
- 		err = qlcnic_setup_intr(adapter);
+ 	} else {
+ 		data = NULL;
+ 		data_len = 0;
+@@ -1582,10 +1602,14 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+ 		dev->cur_cmd_info = info;
+ 		err = cmd->doit(dev, data, data_len);
+ 		dev->cur_cmd_info = NULL;
+-		return err;
++		goto put_dev;
+ 	}
  
+-	return -EOPNOTSUPP;
++	err = -EOPNOTSUPP;
++
++put_dev:
++	nfc_put_device(dev);
++	return err;
+ }
+ 
+ /* message building helper */
 -- 
 2.35.1
 
