@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 508ED66C56C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C362966C939
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232171AbjAPQGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:06:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43968 "EHLO
+        id S233811AbjAPQrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:47:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232340AbjAPQFK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:05:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF9824492
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:49 -0800 (PST)
+        with ESMTP id S233753AbjAPQqZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1EF3298FE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB9F2B81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DE4EC433EF;
-        Mon, 16 Jan 2023 16:03:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 513826105A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6700AC433EF;
+        Mon, 16 Jan 2023 16:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885026;
-        bh=qGoY/juyP+JW62BA6zmGEwNX9OuerpgTYnTvz5C/fCA=;
+        s=korg; t=1673886867;
+        bh=3JGy0A+qlby1Hi+r8ZLgvdEnwzVyIF/FdvXMhoCXuIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WoaOWIMrvu64RkssTDr2yQmcYciRRnNIQcgWDCe4tGBPsA+iB/fIbLRlogDGt4IEY
-         zkLSfFhHPW/Bv08FfborOCkuFfIMJJNAIx7f5iNNV9vRsII8FRjSjk0+R2dQHqYiEw
-         WKkOI3m8HN+OU4VR43vqoZzsoLH+EFTU7cwBl/FE=
+        b=XXrgFQgQ94/hUn2ySMC3HIB6TyO+UYo2npGUkRCc28IhtQ7U+SWFMzNUm8fEUu98P
+         H0hd+q/0LUUJ9xEx/sIa4C3wpnlmtaaKx3rnhgWCh/XRMcTb7JQel2Mo6mvCXB93J1
+         GC6LDuG8Yd8PJU0S9XE/Z6lvbrxNw9mZh/hR6PdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bean Huo <beanhuo@micron.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 47/86] scsi: ufs: Stop using the clock scaling lock in the error handler
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jan Kara <jack@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 593/658] hfs/hfsplus: use WARN_ON for sanity check
 Date:   Mon, 16 Jan 2023 16:51:21 +0100
-Message-Id: <20230116154749.026889613@linuxfoundation.org>
+Message-Id: <20230116154936.614436138@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +56,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 5675c381ea51360b4968b78f23aefda73e3de90d ]
+commit 55d1cbbbb29e6656c662ee8f73ba1fc4777532eb upstream.
 
-Instead of locking and unlocking the clock scaling lock, surround the
-command queueing code with an RCU reader lock and call synchronize_rcu().
-This patch prepares for removal of the clock scaling lock.
+gcc warns about a couple of instances in which a sanity check exists but
+the author wasn't sure how to react to it failing, which makes it look
+like a possible bug:
 
-Link: https://lore.kernel.org/r/20211203231950.193369-16-bvanassche@acm.org
-Tested-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Stable-dep-of: 1a5665fc8d7a ("scsi: ufs: core: WLUN suspend SSU/enter hibern8 fail recovery")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  fs/hfsplus/inode.c: In function 'hfsplus_cat_read_inode':
+  fs/hfsplus/inode.c:503:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
+    503 |                         /* panic? */;
+        |                                     ^
+  fs/hfsplus/inode.c:524:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
+    524 |                         /* panic? */;
+        |                                     ^
+  fs/hfsplus/inode.c: In function 'hfsplus_cat_write_inode':
+  fs/hfsplus/inode.c:582:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
+    582 |                         /* panic? */;
+        |                                     ^
+  fs/hfsplus/inode.c:608:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
+    608 |                         /* panic? */;
+        |                                     ^
+  fs/hfs/inode.c: In function 'hfs_write_inode':
+  fs/hfs/inode.c:464:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
+    464 |                         /* panic? */;
+        |                                     ^
+  fs/hfs/inode.c:485:37: error: suggest braces around empty body in an 'if' statement [-Werror=empty-body]
+    485 |                         /* panic? */;
+        |                                     ^
+
+panic() is probably not the correct choice here, but a WARN_ON
+seems appropriate and avoids the compile-time warning.
+
+Link: https://lkml.kernel.org/r/20210927102149.1809384-1-arnd@kernel.org
+Link: https://lore.kernel.org/all/20210322223249.2632268-1-arnd@kernel.org/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jan Kara <jack@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ fs/hfs/inode.c     |    6 ++----
+ fs/hfsplus/inode.c |   12 ++++--------
+ 2 files changed, 6 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index a428b8145dcc..6dd341674110 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -2700,6 +2700,12 @@ static int ufshcd_queuecommand(struct Scsi_Host *host, struct scsi_cmnd *cmd)
- 	if (!down_read_trylock(&hba->clk_scaling_lock))
- 		return SCSI_MLQUEUE_HOST_BUSY;
+--- a/fs/hfs/inode.c
++++ b/fs/hfs/inode.c
+@@ -461,8 +461,7 @@ int hfs_write_inode(struct inode *inode,
+ 		goto out;
  
-+	/*
-+	 * Allows the UFS error handler to wait for prior ufshcd_queuecommand()
-+	 * calls.
-+	 */
-+	rcu_read_lock();
-+
- 	switch (hba->ufshcd_state) {
- 	case UFSHCD_STATE_OPERATIONAL:
- 	case UFSHCD_STATE_EH_SCHEDULED_NON_FATAL:
-@@ -2766,7 +2772,10 @@ static int ufshcd_queuecommand(struct Scsi_Host *host, struct scsi_cmnd *cmd)
- 	}
+ 	if (S_ISDIR(main_inode->i_mode)) {
+-		if (fd.entrylength < sizeof(struct hfs_cat_dir))
+-			/* panic? */;
++		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_dir));
+ 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
+ 			   sizeof(struct hfs_cat_dir));
+ 		if (rec.type != HFS_CDR_DIR ||
+@@ -482,8 +481,7 @@ int hfs_write_inode(struct inode *inode,
+ 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
+ 				sizeof(struct hfs_cat_file));
+ 	} else {
+-		if (fd.entrylength < sizeof(struct hfs_cat_file))
+-			/* panic? */;
++		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_file));
+ 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
+ 			   sizeof(struct hfs_cat_file));
+ 		if (rec.type != HFS_CDR_FIL ||
+--- a/fs/hfsplus/inode.c
++++ b/fs/hfsplus/inode.c
+@@ -497,8 +497,7 @@ int hfsplus_cat_read_inode(struct inode
+ 	if (type == HFSPLUS_FOLDER) {
+ 		struct hfsplus_cat_folder *folder = &entry.folder;
  
- 	ufshcd_send_command(hba, tag);
-+
- out:
-+	rcu_read_unlock();
-+
- 	up_read(&hba->clk_scaling_lock);
+-		if (fd->entrylength < sizeof(struct hfsplus_cat_folder))
+-			/* panic? */;
++		WARN_ON(fd->entrylength < sizeof(struct hfsplus_cat_folder));
+ 		hfs_bnode_read(fd->bnode, &entry, fd->entryoffset,
+ 					sizeof(struct hfsplus_cat_folder));
+ 		hfsplus_get_perms(inode, &folder->permissions, 1);
+@@ -518,8 +517,7 @@ int hfsplus_cat_read_inode(struct inode
+ 	} else if (type == HFSPLUS_FILE) {
+ 		struct hfsplus_cat_file *file = &entry.file;
  
- 	if (ufs_trigger_eh()) {
-@@ -5952,8 +5961,7 @@ static void ufshcd_err_handling_prepare(struct ufs_hba *hba)
- 	}
- 	ufshcd_scsi_block_requests(hba);
- 	/* Drain ufshcd_queuecommand() */
--	down_write(&hba->clk_scaling_lock);
--	up_write(&hba->clk_scaling_lock);
-+	synchronize_rcu();
- 	cancel_work_sync(&hba->eeh_work);
- }
+-		if (fd->entrylength < sizeof(struct hfsplus_cat_file))
+-			/* panic? */;
++		WARN_ON(fd->entrylength < sizeof(struct hfsplus_cat_file));
+ 		hfs_bnode_read(fd->bnode, &entry, fd->entryoffset,
+ 					sizeof(struct hfsplus_cat_file));
  
--- 
-2.35.1
-
+@@ -576,8 +574,7 @@ int hfsplus_cat_write_inode(struct inode
+ 	if (S_ISDIR(main_inode->i_mode)) {
+ 		struct hfsplus_cat_folder *folder = &entry.folder;
+ 
+-		if (fd.entrylength < sizeof(struct hfsplus_cat_folder))
+-			/* panic? */;
++		WARN_ON(fd.entrylength < sizeof(struct hfsplus_cat_folder));
+ 		hfs_bnode_read(fd.bnode, &entry, fd.entryoffset,
+ 					sizeof(struct hfsplus_cat_folder));
+ 		/* simple node checks? */
+@@ -602,8 +599,7 @@ int hfsplus_cat_write_inode(struct inode
+ 	} else {
+ 		struct hfsplus_cat_file *file = &entry.file;
+ 
+-		if (fd.entrylength < sizeof(struct hfsplus_cat_file))
+-			/* panic? */;
++		WARN_ON(fd.entrylength < sizeof(struct hfsplus_cat_file));
+ 		hfs_bnode_read(fd.bnode, &entry, fd.entryoffset,
+ 					sizeof(struct hfsplus_cat_file));
+ 		hfsplus_inode_write_fork(inode, &file->data_fork);
 
 
