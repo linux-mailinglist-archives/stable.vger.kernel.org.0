@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5981B66CC62
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3863466CABD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234709AbjAPRZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46330 "EHLO
+        id S234122AbjAPRGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:06:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234671AbjAPRZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:25:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92F5435BA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:18 -0800 (PST)
+        with ESMTP id S233143AbjAPRGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:06:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3AA23FF3C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:47:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 544B4B81091
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3D83C433EF;
-        Mon, 16 Jan 2023 17:02:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 634C16104F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 797EEC433F0;
+        Mon, 16 Jan 2023 16:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888536;
-        bh=T6ogtEA/k+38oJHMiRWvj7T+7+jE5E9D0h7SCn0qiRo=;
+        s=korg; t=1673887644;
+        bh=b0Gha/MQA7n2izlWFu7xR759hhbqSz0WTBDVU+Rl/PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mkUWGfGO491I2fwdgxwjQpnEYGwTyIm6il5h90kXM2wGRbQB4dShZ6GQ4JF6EQhZO
-         DugrlI2kkk5E4Mnr8ZEP0IyL6L5n9iDAZFHcL3zoy8hoSvRjzM+i4M54mqNBkafFry
-         uNd3ox6ytmPaMaIZkAzHL7PFGbAEcLqIHCHbtoO4=
+        b=1XgaFcydOHF37yaJuyjaF+9AHANPVepcGRjJRMOMMtjpY8pNNBU3Sid1Fgclvh4w/
+         3qwykDfnlFMmmJFnL7B2z4WoP0zAXEyJJinTm3IG0SotPxl4hNg3LiDBTqAGyQqWMy
+         j7EXq+34FNgu/gD+zTCADBvCgoJikOhKNBxEmYS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.14 015/338] udf: Do not bother looking for prealloc extents if i_lenExtents matches i_size
+        patches@lists.linux.dev, delisun <delisun@pateo.com.cn>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 226/521] serial: pl011: Do not clear RX FIFO & RX interrupt in unthrottle.
 Date:   Mon, 16 Jan 2023 16:48:08 +0100
-Message-Id: <20230116154821.412315567@linuxfoundation.org>
+Message-Id: <20230116154857.274280928@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,34 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: delisun <delisun@pateo.com.cn>
 
-commit 6ad53f0f71c52871202a7bf096feb2c59db33fc5 upstream.
+[ Upstream commit 032d5a71ed378ffc6a2d41a187d8488a4f9fe415 ]
 
-If rounded block-rounded i_lenExtents matches block rounded i_size,
-there are no preallocation extents. Do not bother walking extent linked
-list.
+Clearing the RX FIFO will cause data loss.
+Copy the pl011_enabl_interrupts implementation, and remove the clear
+interrupt and FIFO part of the code.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 211565b10099 ("serial: pl011: UPSTAT_AUTORTS requires .throttle/unthrottle")
+Signed-off-by: delisun <delisun@pateo.com.cn>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20221110020108.7700-1-delisun@pateo.com.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/truncate.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/serial/amba-pl011.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/fs/udf/truncate.c
-+++ b/fs/udf/truncate.c
-@@ -127,9 +127,10 @@ void udf_discard_prealloc(struct inode *
- 	uint64_t lbcount = 0;
- 	int8_t etype = -1, netype;
- 	struct udf_inode_info *iinfo = UDF_I(inode);
-+	int bsize = 1 << inode->i_blkbits;
+diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
+index 87d9bfafc82e..d1f4882d9f40 100644
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -1771,8 +1771,17 @@ static void pl011_enable_interrupts(struct uart_amba_port *uap)
+ static void pl011_unthrottle_rx(struct uart_port *port)
+ {
+ 	struct uart_amba_port *uap = container_of(port, struct uart_amba_port, port);
++	unsigned long flags;
  
- 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB ||
--	    inode->i_size == iinfo->i_lenExtents)
-+	    ALIGN(inode->i_size, bsize) == ALIGN(iinfo->i_lenExtents, bsize))
- 		return;
+-	pl011_enable_interrupts(uap);
++	spin_lock_irqsave(&uap->port.lock, flags);
++
++	uap->im = UART011_RTIM;
++	if (!pl011_dma_rx_running(uap))
++		uap->im |= UART011_RXIM;
++
++	pl011_write(uap->im, uap, REG_IMSC);
++
++	spin_unlock_irqrestore(&uap->port.lock, flags);
+ }
  
- 	epos.block = iinfo->i_location;
+ static int pl011_startup(struct uart_port *port)
+-- 
+2.35.1
+
 
 
