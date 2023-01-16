@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3B4D66CC3C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:23:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B4666CAA8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:05:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234505AbjAPRXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:23:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47534 "EHLO
+        id S231940AbjAPRFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:05:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234652AbjAPRWo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:22:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D1F34C1A;
-        Mon, 16 Jan 2023 09:00:48 -0800 (PST)
+        with ESMTP id S229977AbjAPREm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:04:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE6922784
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:46:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54134B8108E;
-        Mon, 16 Jan 2023 17:00:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A66C433F0;
-        Mon, 16 Jan 2023 17:00:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B8706104F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A44C433D2;
+        Mon, 16 Jan 2023 16:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888446;
-        bh=JN7BAhi05lA95z4XwJ24gNQ7l0Zg5HPuQNnc4W+KX58=;
+        s=korg; t=1673887602;
+        bh=ZE3cV21EtLxc+2Uh14AdGrR1FSyKzyLFGkk4Iyl3pvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jywSVsZc2pvRwBNd9UrHuDujYYBdVtztaa+fVdCBbxh+9PkpmyP0QIFaj65+2lKU7
-         L7JUhG5qlL59BDAU83vMsn07OYq9b3ag4ksIkecxvSRe1Y3jFGOeLg8QKC8xVEP2SP
-         Kpw82nLycbLY8s6ifegQGaeWPacqODNIfk1CRexc=
+        b=mlBzCuY3qFqEddBc9Lpev77ogOP1qV1UN8xQbwhGEFxodOONARKP3nO22ULcSLpYd
+         qP3naAoqPfJkIITX/7RrwHvOOFNEE2JEShZwQFKZge/5r+zRFzBDE7LUZrPM8FO33Z
+         +E+RY2Ao3YOpd81fPFsa2XB/8y1gKuVonctkia/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ben Hutchings <ben@decadent.org.uk>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        linux-trace-devel@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH 4.14 001/338] libtraceevent: Fix build with binutils 2.35
+        patches@lists.linux.dev, Shardar Shariff Md <smohammed@nvidia.com>,
+        Krishna Yarlagadda <kyarlagadda@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 212/521] serial: tegra: add support to use 8 bytes trigger
 Date:   Mon, 16 Jan 2023 16:47:54 +0100
-Message-Id: <20230116154820.749600609@linuxfoundation.org>
+Message-Id: <20230116154856.650290735@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,37 +53,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Krishna Yarlagadda <kyarlagadda@nvidia.com>
 
-commit 39efdd94e314336f4acbac4c07e0f37bdc3bef71 upstream.
+[ Upstream commit 7799a3aa81279637031abad19e56e4bbf1481d4e ]
 
-In binutils 2.35, 'nm -D' changed to show symbol versions along with
-symbol names, with the usual @@ separator.  When generating
-libtraceevent-dynamic-list we need just the names, so strip off the
-version suffix if present.
+Add support to use 8 bytes trigger for Tegra186 SOC.
 
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
-Reviewed-by: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-trace-devel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+Signed-off-by: Krishna Yarlagadda <kyarlagadda@nvidia.com>
+Link: https://lore.kernel.org/r/1567572187-29820-9-git-send-email-kyarlagadda@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 109a951a9f1f ("serial: tegra: Read DMA status before terminating")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/serial-tegra.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/tools/lib/traceevent/Makefile
-+++ b/tools/lib/traceevent/Makefile
-@@ -263,7 +263,7 @@ define do_generate_dynamic_list_file
- 	xargs echo "U w W" | tr 'w ' 'W\n' | sort -u | xargs echo`;\
- 	if [ "$$symbol_type" = "U W" ];then				\
- 		(echo '{';						\
--		$(NM) -u -D $1 | awk 'NF>1 {print "\t"$$2";"}' | sort -u;\
-+		$(NM) -u -D $1 | awk 'NF>1 {sub("@.*", "", $$2); print "\t"$$2";"}' | sort -u;\
- 		echo '};';						\
- 		) > $2;							\
- 	else								\
+diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
+index 55415a12d3cc..6a3c6bf5b964 100644
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -88,6 +88,7 @@ struct tegra_uart_chip_data {
+ 	bool	support_clk_src_div;
+ 	bool	fifo_mode_enable_status;
+ 	int	uart_max_port;
++	int	max_dma_burst_bytes;
+ };
+ 
+ struct tegra_uart_port {
+@@ -877,7 +878,12 @@ static int tegra_uart_hw_init(struct tegra_uart_port *tup)
+ 	 * programmed in the DMA registers.
+ 	 */
+ 	tup->fcr_shadow = UART_FCR_ENABLE_FIFO;
+-	tup->fcr_shadow |= UART_FCR_R_TRIG_01;
++
++	if (tup->cdata->max_dma_burst_bytes == 8)
++		tup->fcr_shadow |= UART_FCR_R_TRIG_10;
++	else
++		tup->fcr_shadow |= UART_FCR_R_TRIG_01;
++
+ 	tup->fcr_shadow |= TEGRA_UART_TX_TRIG_16B;
+ 	tegra_uart_write(tup, tup->fcr_shadow, UART_FCR);
+ 
+@@ -991,7 +997,7 @@ static int tegra_uart_dma_channel_allocate(struct tegra_uart_port *tup,
+ 		}
+ 		dma_sconfig.src_addr = tup->uport.mapbase;
+ 		dma_sconfig.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+-		dma_sconfig.src_maxburst = 4;
++		dma_sconfig.src_maxburst = tup->cdata->max_dma_burst_bytes;
+ 		tup->rx_dma_chan = dma_chan;
+ 		tup->rx_dma_buf_virt = dma_buf;
+ 		tup->rx_dma_buf_phys = dma_phys;
+@@ -1263,6 +1269,7 @@ static struct tegra_uart_chip_data tegra20_uart_chip_data = {
+ 	.support_clk_src_div		= false,
+ 	.fifo_mode_enable_status	= false,
+ 	.uart_max_port			= 5,
++	.max_dma_burst_bytes		= 4,
+ };
+ 
+ static struct tegra_uart_chip_data tegra30_uart_chip_data = {
+@@ -1271,6 +1278,7 @@ static struct tegra_uart_chip_data tegra30_uart_chip_data = {
+ 	.support_clk_src_div		= true,
+ 	.fifo_mode_enable_status	= false,
+ 	.uart_max_port			= 5,
++	.max_dma_burst_bytes		= 4,
+ };
+ 
+ static struct tegra_uart_chip_data tegra186_uart_chip_data = {
+@@ -1279,6 +1287,7 @@ static struct tegra_uart_chip_data tegra186_uart_chip_data = {
+ 	.support_clk_src_div		= true,
+ 	.fifo_mode_enable_status	= true,
+ 	.uart_max_port			= 8,
++	.max_dma_burst_bytes		= 8,
+ };
+ 
+ static const struct of_device_id tegra_uart_of_match[] = {
+-- 
+2.35.1
+
 
 
