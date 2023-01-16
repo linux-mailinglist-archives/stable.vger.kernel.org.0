@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3116B66CCC0
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7151E66CB43
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234825AbjAPR3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:29:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
+        id S234223AbjAPRMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:12:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234832AbjAPR2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677AA23DBC
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:52 -0800 (PST)
+        with ESMTP id S234334AbjAPRLn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4892F2B28B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:52:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1BCC5B81014
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FF07C433D2;
-        Mon, 16 Jan 2023 17:05:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D88E361037
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:52:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF6B1C433D2;
+        Mon, 16 Jan 2023 16:52:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888749;
-        bh=YEgd9/ufPKDPwBq2ItBbX0/W5UAJwFGwbt6yJM8tJQw=;
+        s=korg; t=1673887929;
+        bh=iJ5gAYpzP8X2I6wP90o/f3wKH74SBdM7lJNZXzn9mmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JdLtWKJ57noBBJzShXv9NYpcdicBauhZQ5p4rSOjMACPTMguHCwyI9/huwlzWxU2+
-         8H5dbAvO7kYrphFXpfu+aYtfs0xrA9DgDqPxdZqxnlYs4FWklAlzZcK8zXDWK60YGq
-         nS65w/VSwSNe1Wke9Ml4iRxLnGbUU5wkjy6QLjJU=
+        b=lXFVC7q1kuJHufDSUVHktiPgKgMN6vHXm8KytAMRgCMbhRvEt7MUE/6gd4yORRT9K
+         V3n3JBuro09yh04uYcIkdssgkjCE7VJkDvl6IgHHQpSfyyB1wKzz2U7fAdQNRe9Rd0
+         +Sqvo0rA7KvClvOWRL+6nCzpGsulH7b/BRMo1KCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Yan Lei <yan_lei@dahuatech.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 125/338] net: apple: mace: dont call dev_kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 4.19 336/521] media: dvb-frontends: fix leak of memory fw
 Date:   Mon, 16 Jan 2023 16:49:58 +0100
-Message-Id: <20230116154826.285246496@linuxfoundation.org>
+Message-Id: <20230116154902.208387064@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yan Lei <yan_lei@dahuatech.com>
 
-[ Upstream commit 3dfe3486c1cd4f82b466b7d307f23777137b8acc ]
+[ Upstream commit a15fe8d9f1bf460a804bcf18a890bfd2cf0d5caa ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
-
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
-
-In this case, dev_kfree_skb() is called in mace_tx_timeout() to drop
-the SKB, when tx timeout, so replace it with dev_kfree_skb_irq().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/linux-media/20220410061925.4107-1-chinayanlei2002@163.com
+Signed-off-by: Yan Lei <yan_lei@dahuatech.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/apple/mace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/dvb-frontends/bcm3510.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/apple/mace.c b/drivers/net/ethernet/apple/mace.c
-index e58b157b7d7c..11e6285b0c8e 100644
---- a/drivers/net/ethernet/apple/mace.c
-+++ b/drivers/net/ethernet/apple/mace.c
-@@ -842,7 +842,7 @@ static void mace_tx_timeout(unsigned long data)
-     if (mp->tx_bad_runt) {
- 	mp->tx_bad_runt = 0;
-     } else if (i != mp->tx_fill) {
--	dev_kfree_skb(mp->tx_bufs[i]);
-+	dev_kfree_skb_irq(mp->tx_bufs[i]);
- 	if (++i >= N_TX_RING)
- 	    i = 0;
- 	mp->tx_empty = i;
+diff --git a/drivers/media/dvb-frontends/bcm3510.c b/drivers/media/dvb-frontends/bcm3510.c
+index e92542b92d34..6457b0912d14 100644
+--- a/drivers/media/dvb-frontends/bcm3510.c
++++ b/drivers/media/dvb-frontends/bcm3510.c
+@@ -649,6 +649,7 @@ static int bcm3510_download_firmware(struct dvb_frontend* fe)
+ 		deb_info("firmware chunk, addr: 0x%04x, len: 0x%04x, total length: 0x%04zx\n",addr,len,fw->size);
+ 		if ((ret = bcm3510_write_ram(st,addr,&b[i+4],len)) < 0) {
+ 			err("firmware download failed: %d\n",ret);
++			release_firmware(fw);
+ 			return ret;
+ 		}
+ 		i += 4 + len;
 -- 
 2.35.1
 
