@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B63E66CC5F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AED0D66CAE3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234563AbjAPRZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47550 "EHLO
+        id S229597AbjAPRJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234602AbjAPRYm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00CC859E7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:08 -0800 (PST)
+        with ESMTP id S234104AbjAPRH4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:07:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F4042DD8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D19B61085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1021C433EF;
-        Mon, 16 Jan 2023 17:02:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EC41B8108F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C081FC433F0;
+        Mon, 16 Jan 2023 16:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888528;
-        bh=PWi7STOMuV5HROAyxHVLPlzSZU24UCeaGiE+O3BSE08=;
+        s=korg; t=1673887705;
+        bh=QZBa4Xizx7nXyF9vF767bTvmkdjjLN/DQ1nlnWRRpJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E0kSL2yxHVqBClw+xpPWle/xSdFyv+VBQV6mNzzNG0CuDvX65CSaEul8CrR8p4Hzr
-         1st1LtSPGFmmNL06zFvd1cnX5eJ4H6t73boNAQkxux/R8xuccaipBOzV5VExULsb9m
-         5vfR5CM6ek+WGEK8tgdj/JqHetKBFTYy5FzvY7Xw=
+        b=fuz6KNgtiiwLTRZuC+iPml2vMP7/04q+rYFo8da/lRyOOyloDB9RjJOSnPPlduN9y
+         IlWoHwqfiVMYL6+uTJz+OyQa74J5ugH+RCTkybkO3F685FfmBgbl/Wkx8/61W52tzK
+         nw39V0DtP4VsFjoyl9nKOwWq/98LxS2F55ZZoQTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Brian Geffon <bgeffon@google.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 039/338] pstore: Avoid kcore oops by vmap()ing with VM_IOREMAP
+        patches@lists.linux.dev, Zheyu Ma <zheyuma97@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 250/521] i2c: ismt: Fix an out-of-bounds bug in ismt_access()
 Date:   Mon, 16 Jan 2023 16:48:32 +0100
-Message-Id: <20230116154822.482232515@linuxfoundation.org>
+Message-Id: <20230116154858.326912885@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,101 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit e6b842741b4f39007215fd7e545cb55aa3d358a2 ]
+[ Upstream commit 39244cc754829bf707dccd12e2ce37510f5b1f8d ]
 
-An oops can be induced by running 'cat /proc/kcore > /dev/null' on
-devices using pstore with the ram backend because kmap_atomic() assumes
-lowmem pages are accessible with __va().
+When the driver does not check the data from the user, the variable
+'data->block[0]' may be very large to cause an out-of-bounds bug.
 
- Unable to handle kernel paging request at virtual address ffffff807ff2b000
- Mem abort info:
- ESR = 0x96000006
- EC = 0x25: DABT (current EL), IL = 32 bits
- SET = 0, FnV = 0
- EA = 0, S1PTW = 0
- FSC = 0x06: level 2 translation fault
- Data abort info:
- ISV = 0, ISS = 0x00000006
- CM = 0, WnR = 0
- swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000081d87000
- [ffffff807ff2b000] pgd=180000017fe18003, p4d=180000017fe18003, pud=180000017fe18003, pmd=0000000000000000
- Internal error: Oops: 96000006 [#1] PREEMPT SMP
- Modules linked in: dm_integrity
- CPU: 7 PID: 21179 Comm: perf Not tainted 5.15.67-10882-ge4eb2eb988cd #1 baa443fb8e8477896a370b31a821eb2009f9bfba
- Hardware name: Google Lazor (rev3 - 8) (DT)
- pstate: a0400009 (NzCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
- pc : __memcpy+0x110/0x260
- lr : vread+0x194/0x294
- sp : ffffffc013ee39d0
- x29: ffffffc013ee39f0 x28: 0000000000001000 x27: ffffff807ff2b000
- x26: 0000000000001000 x25: ffffffc0085a2000 x24: ffffff802d4b3000
- x23: ffffff80f8a60000 x22: ffffff802d4b3000 x21: ffffffc0085a2000
- x20: ffffff8080b7bc68 x19: 0000000000001000 x18: 0000000000000000
- x17: 0000000000000000 x16: 0000000000000000 x15: ffffffd3073f2e60
- x14: ffffffffad588000 x13: 0000000000000000 x12: 0000000000000001
- x11: 00000000000001a2 x10: 00680000fff2bf0b x9 : 03fffffff807ff2b
- x8 : 0000000000000001 x7 : 0000000000000000 x6 : 0000000000000000
- x5 : ffffff802d4b4000 x4 : ffffff807ff2c000 x3 : ffffffc013ee3a78
- x2 : 0000000000001000 x1 : ffffff807ff2b000 x0 : ffffff802d4b3000
- Call trace:
- __memcpy+0x110/0x260
- read_kcore+0x584/0x778
- proc_reg_read+0xb4/0xe4
+The following log can reveal it:
 
-During early boot, memblock reserves the pages for the ramoops reserved
-memory node in DT that would otherwise be part of the direct lowmem
-mapping. Pstore's ram backend reuses those reserved pages to change the
-memory type (writeback or non-cached) by passing the pages to vmap()
-(see pfn_to_page() usage in persistent_ram_vmap() for more details) with
-specific flags. When read_kcore() starts iterating over the vmalloc
-region, it runs over the virtual address that vmap() returned for
-ramoops. In aligned_vread() the virtual address is passed to
-vmalloc_to_page() which returns the page struct for the reserved lowmem
-area. That lowmem page is passed to kmap_atomic(), which effectively
-calls page_to_virt() that assumes a lowmem page struct must be directly
-accessible with __va() and friends. These pages are mapped via vmap()
-though, and the lowmem mapping was never made, so accessing them via the
-lowmem virtual address oopses like above.
+[   33.995542] i2c i2c-1: ioctl, cmd=0x720, arg=0x7ffcb3dc3a20
+[   33.995978] ismt_smbus 0000:00:05.0: I2C_SMBUS_BLOCK_DATA:  WRITE
+[   33.996475] ==================================================================
+[   33.996995] BUG: KASAN: out-of-bounds in ismt_access.cold+0x374/0x214b
+[   33.997473] Read of size 18446744073709551615 at addr ffff88810efcfdb1 by task ismt_poc/485
+[   33.999450] Call Trace:
+[   34.001849]  memcpy+0x20/0x60
+[   34.002077]  ismt_access.cold+0x374/0x214b
+[   34.003382]  __i2c_smbus_xfer+0x44f/0xfb0
+[   34.004007]  i2c_smbus_xfer+0x10a/0x390
+[   34.004291]  i2cdev_ioctl_smbus+0x2c8/0x710
+[   34.005196]  i2cdev_ioctl+0x5ec/0x74c
 
-Let's side-step this problem by passing VM_IOREMAP to vmap(). This will
-tell vread() to not include the ramoops region in the kcore. Instead the
-area will look like a bunch of zeros. The alternative is to teach kmap()
-about vmalloc areas that intersect with lowmem. Presumably such a change
-isn't a one-liner, and there isn't much interest in inspecting the
-ramoops region in kcore files anyway, so the most expedient route is
-taken for now.
+Fix this bug by checking the size of 'data->block[0]' first.
 
-Cc: Brian Geffon <bgeffon@google.com>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Fixes: 404a6043385d ("staging: android: persistent_ram: handle reserving and mapping memory")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221205233136.3420802-1-swboyd@chromium.org
+Fixes: 13f35ac14cd0 ("i2c: Adding support for Intel iSMT SMBus 2.0 host controller")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/ram_core.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-ismt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/pstore/ram_core.c b/fs/pstore/ram_core.c
-index 11e558efd61e..b56cf56ae926 100644
---- a/fs/pstore/ram_core.c
-+++ b/fs/pstore/ram_core.c
-@@ -418,7 +418,11 @@ static void *persistent_ram_vmap(phys_addr_t start, size_t size,
- 		phys_addr_t addr = page_start + i * PAGE_SIZE;
- 		pages[i] = pfn_to_page(addr >> PAGE_SHIFT);
- 	}
--	vaddr = vmap(pages, page_count, VM_MAP, prot);
-+	/*
-+	 * VM_IOREMAP used here to bypass this region during vread()
-+	 * and kmap_atomic() (i.e. kcore) to avoid __va() failures.
-+	 */
-+	vaddr = vmap(pages, page_count, VM_MAP | VM_IOREMAP, prot);
- 	kfree(pages);
- 
- 	/*
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index 80796061102f..9f5915d5f7e7 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -504,6 +504,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* Block Write */
+ 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  WRITE\n");
++			if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++				return -EINVAL;
++
+ 			dma_size = data->block[0] + 1;
+ 			dma_direction = DMA_TO_DEVICE;
+ 			desc->wr_len_cmd = dma_size;
 -- 
 2.35.1
 
