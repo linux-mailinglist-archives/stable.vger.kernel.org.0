@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E9366C462
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:54:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C471C66C470
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231247AbjAPPyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:54:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36870 "EHLO
+        id S230265AbjAPPzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:55:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231235AbjAPPyT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 822B31CF78
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:18 -0800 (PST)
+        with ESMTP id S231285AbjAPPyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7240422798
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34757B80F4B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C079C433F0;
-        Mon, 16 Jan 2023 15:54:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33B06B81059
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1F2C433EF;
+        Mon, 16 Jan 2023 15:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884455;
-        bh=4evxPRLh2NZTiziwo27HS6TqK/gdeQb54BDvFHW3bcw=;
+        s=korg; t=1673884484;
+        bh=xXVxtNWYPvZZxv3zTZ7JxPoVGhMa+/gbaypD66urjgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6AqIOWa0cq1O+jY0NqPqF3hRJvYRMJn9rIb5nFBp23yCA6T0LpreN2Zf60Rd+A8o
-         2aHcXDyq9v0VaErpGKhft9aSDpQTsvKJvU0BYQEfU5fUR77iW5bl7YBQkHDQ54fQyp
-         2lzDZkwPkIjGgYi8gpSnjI6Ph0jKCNxUJdRpF/gg=
+        b=Ick3I9LJF5/v/pQRe2+dmR1ZNB8NZ2bqRNPr15f7fM8weREi8yCOCSFJg2FHf/w3A
+         Fs4LiwWN/vXlJXvkYW30jfFDe89viF/hazVaGODhvr+07C9gp7fKP8+hOXSD+rMqfN
+         RTWgfxTQov4dK6gbnSZuL1p3tbk/D2ZaeQaQYrRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuchi Yang <yangyuchi66@gmail.com>,
+        patches@lists.linux.dev, Luka Guzenko <l.guzenko@web.de>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 005/183] ALSA: hda/realtek - Turn on power early
-Date:   Mon, 16 Jan 2023 16:48:48 +0100
-Message-Id: <20230116154803.585967408@linuxfoundation.org>
+Subject: [PATCH 6.1 006/183] ALSA: hda/realtek: Enable mute/micmute LEDs on HP Spectre x360 13-aw0xxx
+Date:   Mon, 16 Jan 2023 16:48:49 +0100
+Message-Id: <20230116154803.630615187@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
 References: <20230116154803.321528435@linuxfoundation.org>
@@ -52,81 +52,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuchi Yang <yangyuchi66@gmail.com>
+From: Luka Guzenko <l.guzenko@web.de>
 
-commit 1f680609bf1beac20e2a31ddcb1b88874123c39f upstream.
+commit ca88eeb308a221c2dcd4a64031d2e5fcd3db9eaa upstream.
 
-Turn on power early to avoid wrong state for power relation register.
-This can earlier update JD state when resume back.
+The HP Spectre x360 13-aw0xxx devices use the ALC285 codec with GPIO 0x04
+controlling the micmute LED and COEF 0x0b index 8 controlling the mute LED.
+A quirk was added to make these work as well as a fixup.
 
-Signed-off-by: Yuchi Yang <yangyuchi66@gmail.com>
+Signed-off-by: Luka Guzenko <l.guzenko@web.de>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/e35d8f4fa18f4448a2315cc7d4a3715f@realtek.com
+Link: https://lore.kernel.org/r/20230110202514.2792-1-l.guzenko@web.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+ sound/pci/hda/patch_realtek.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -3564,6 +3564,15 @@ static void alc256_init(struct hda_codec
- 	hda_nid_t hp_pin = alc_get_hp_pin(spec);
- 	bool hp_pin_sense;
+@@ -4646,6 +4646,16 @@ static void alc285_fixup_hp_coef_micmute
+ 	}
+ }
  
-+	if (spec->ultra_low_power) {
-+		alc_update_coef_idx(codec, 0x03, 1<<1, 1<<1);
-+		alc_update_coef_idx(codec, 0x08, 3<<2, 3<<2);
-+		alc_update_coef_idx(codec, 0x08, 7<<4, 0);
-+		alc_update_coef_idx(codec, 0x3b, 1<<15, 0);
-+		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
-+		msleep(30);
-+	}
++static void alc285_fixup_hp_gpio_micmute_led(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	struct alc_spec *spec = codec->spec;
 +
- 	if (!hp_pin)
- 		hp_pin = 0x21;
- 
-@@ -3575,14 +3584,6 @@ static void alc256_init(struct hda_codec
- 		msleep(2);
- 
- 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x1); /* Low power */
--	if (spec->ultra_low_power) {
--		alc_update_coef_idx(codec, 0x03, 1<<1, 1<<1);
--		alc_update_coef_idx(codec, 0x08, 3<<2, 3<<2);
--		alc_update_coef_idx(codec, 0x08, 7<<4, 0);
--		alc_update_coef_idx(codec, 0x3b, 1<<15, 0);
--		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
--		msleep(30);
--	}
- 
- 	snd_hda_codec_write(codec, hp_pin, 0,
- 			    AC_VERB_SET_AMP_GAIN_MUTE, AMP_OUT_MUTE);
-@@ -3713,6 +3714,13 @@ static void alc225_init(struct hda_codec
- 	hda_nid_t hp_pin = alc_get_hp_pin(spec);
- 	bool hp1_pin_sense, hp2_pin_sense;
- 
-+	if (spec->ultra_low_power) {
-+		alc_update_coef_idx(codec, 0x08, 0x0f << 2, 3<<2);
-+		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
-+		alc_update_coef_idx(codec, 0x33, 1<<11, 0);
-+		msleep(30);
-+	}
++	if (action == HDA_FIXUP_ACT_PRE_PROBE)
++		spec->micmute_led_polarity = 1;
++	alc_fixup_hp_gpio_led(codec, action, 0, 0x04);
++}
 +
- 	if (spec->codec_variant != ALC269_TYPE_ALC287 &&
- 		spec->codec_variant != ALC269_TYPE_ALC245)
- 		/* required only at boot or S3 and S4 resume time */
-@@ -3734,12 +3742,6 @@ static void alc225_init(struct hda_codec
- 		msleep(2);
+ static void alc236_fixup_hp_coef_micmute_led(struct hda_codec *codec,
+ 				const struct hda_fixup *fix, int action)
+ {
+@@ -4667,6 +4677,13 @@ static void alc285_fixup_hp_mute_led(str
+ 	alc285_fixup_hp_coef_micmute_led(codec, fix, action);
+ }
  
- 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x1); /* Low power */
--	if (spec->ultra_low_power) {
--		alc_update_coef_idx(codec, 0x08, 0x0f << 2, 3<<2);
--		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
--		alc_update_coef_idx(codec, 0x33, 1<<11, 0);
--		msleep(30);
--	}
- 
- 	if (hp1_pin_sense || spec->ultra_low_power)
- 		snd_hda_codec_write(codec, hp_pin, 0,
++static void alc285_fixup_hp_spectre_x360_mute_led(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	alc285_fixup_hp_mute_led_coefbit(codec, fix, action);
++	alc285_fixup_hp_gpio_micmute_led(codec, fix, action);
++}
++
+ static void alc236_fixup_hp_mute_led(struct hda_codec *codec,
+ 				const struct hda_fixup *fix, int action)
+ {
+@@ -7108,6 +7125,7 @@ enum {
+ 	ALC285_FIXUP_ASUS_G533Z_PINS,
+ 	ALC285_FIXUP_HP_GPIO_LED,
+ 	ALC285_FIXUP_HP_MUTE_LED,
++	ALC285_FIXUP_HP_SPECTRE_X360_MUTE_LED,
+ 	ALC236_FIXUP_HP_GPIO_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
+@@ -8488,6 +8506,10 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc285_fixup_hp_mute_led,
+ 	},
++	[ALC285_FIXUP_HP_SPECTRE_X360_MUTE_LED] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_hp_spectre_x360_mute_led,
++	},
+ 	[ALC236_FIXUP_HP_GPIO_LED] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc236_fixup_hp_gpio_led,
+@@ -9330,6 +9352,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
+ 	SND_PCI_QUIRK(0x103c, 0x86e7, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
+ 	SND_PCI_QUIRK(0x103c, 0x86e8, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
++	SND_PCI_QUIRK(0x103c, 0x86f9, "HP Spectre x360 13-aw0xxx", ALC285_FIXUP_HP_SPECTRE_X360_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8716, "HP Elite Dragonfly G2 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8720, "HP EliteBook x360 1040 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
 
 
