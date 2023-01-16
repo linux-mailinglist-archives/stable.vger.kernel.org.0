@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8545166CDB4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A07E66CDB5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234959AbjAPRiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235066AbjAPRiX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Jan 2023 12:38:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58922 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234858AbjAPRhy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED334B1B2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:46 -0800 (PST)
+        with ESMTP id S235068AbjAPRhz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9C5A4B1B6
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6913CB8109D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0328C433F1;
-        Mon, 16 Jan 2023 17:14:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A7DE61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E3BAC433D2;
+        Mon, 16 Jan 2023 17:14:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889284;
-        bh=m+hr9itkdl22VVvwcVGr9bqF7C8fVeomx3FsQxuBlL4=;
+        s=korg; t=1673889286;
+        bh=ermBIJuKq6MVNzmRSivKUMIfW6T7kHME4U41VF0/+iE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hXuCuaf3+OQ5sPn0jT6UV+JqNty/jcYBnhrhZGaQssDf3wjCOK59V8a513tDxVc0e
-         IdDEtpNJB5z8FZjy/VvuZY/j8dI8Rv62E+ZTF9TpWqTLSOZbPJ+M/3xzGsQWHv0Bi6
-         1Axrb7wA5fzdeAPDfmoB3aXv+khQ8qCpXGVXF0uw=
+        b=1ivzCtMeMX9TArZ9DsgWQV2sKkxXRdKOA7kQMI4d9fTizX303xuwv2lity4l1cszE
+         EkNOnrQMKyA+f0JpZUflL+hLnuvO1CL2xa2a5yyGEsOYt7ankJRGeYJ+Cr7anwZFBm
+         jU9k8KNrb9qp1oDatIAYKjXLKLTOrwOflg1WuWZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, slipper <slipper.alive@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 328/338] net/ulp: prevent ULP without clone op from entering the LISTEN status
-Date:   Mon, 16 Jan 2023 16:53:21 +0100
-Message-Id: <20230116154835.388105788@linuxfoundation.org>
+        patches@lists.linux.dev, Clement Lecigne <clecigne@google.com>,
+        Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>,
+        stable@kernel.org
+Subject: [PATCH 4.14 329/338] ALSA: pcm: Move rwsem lock inside snd_ctl_elem_read to prevent UAF
+Date:   Mon, 16 Jan 2023 16:53:22 +0100
+Message-Id: <20230116154835.426807230@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,63 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Clement Lecigne <clecigne@google.com>
 
-commit 2c02d41d71f90a5168391b6a5f2954112ba2307c upstream.
+[ Note: this is a fix that works around the bug equivalently as the
+  two upstream commits:
+   1fa4445f9adf ("ALSA: control - introduce snd_ctl_notify_one() helper")
+   56b88b50565c ("ALSA: pcm: Move rwsem lock inside snd_ctl_elem_read to prevent UAF")
+  but in a simpler way to fit with older stable trees -- tiwai ]
 
-When an ULP-enabled socket enters the LISTEN status, the listener ULP data
-pointer is copied inside the child/accepted sockets by sk_clone_lock().
+Add missing locking in ctl_elem_read_user/ctl_elem_write_user which can be
+easily triggered and turned into an use-after-free.
 
-The relevant ULP can take care of de-duplicating the context pointer via
-the clone() operation, but only MPTCP and SMC implement such op.
+Example code paths with SNDRV_CTL_IOCTL_ELEM_READ:
 
-Other ULPs may end-up with a double-free at socket disposal time.
+64-bits:
+snd_ctl_ioctl
+  snd_ctl_elem_read_user
+    [takes controls_rwsem]
+    snd_ctl_elem_read [lock properly held, all good]
+    [drops controls_rwsem]
 
-We can't simply clear the ULP data at clone time, as TLS replaces the
-socket ops with custom ones assuming a valid TLS ULP context is
-available.
+32-bits (compat):
+snd_ctl_ioctl_compat
+  snd_ctl_elem_write_read_compat
+    ctl_elem_write_read
+      snd_ctl_elem_read [missing lock, not good]
 
-Instead completely prevent clone-less ULP sockets from entering the
-LISTEN status.
+CVE-2023-0266 was assigned for this issue.
 
-Fixes: 734942cc4ea6 ("tcp: ULP infrastructure")
-Reported-by: slipper <slipper.alive@gmail.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Link: https://lore.kernel.org/r/4b80c3d1dbe3d0ab072f80450c202d9bc88b4b03.1672740602.git.pabeni@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Clement Lecigne <clecigne@google.com>
+Cc: stable@kernel.org # 5.12 and older
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_connection_sock.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ sound/core/control_compat.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -894,11 +894,25 @@ void inet_csk_prepare_forced_close(struc
- }
- EXPORT_SYMBOL(inet_csk_prepare_forced_close);
- 
-+static int inet_ulp_can_listen(const struct sock *sk)
-+{
-+	const struct inet_connection_sock *icsk = inet_csk(sk);
-+
-+	if (icsk->icsk_ulp_ops)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
- int inet_csk_listen_start(struct sock *sk, int backlog)
- {
- 	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct inet_sock *inet = inet_sk(sk);
--	int err = -EADDRINUSE;
-+	int err;
-+
-+	err = inet_ulp_can_listen(sk);
-+	if (unlikely(err))
-+		return err;
- 
- 	reqsk_queue_alloc(&icsk->icsk_accept_queue);
- 
+--- a/sound/core/control_compat.c
++++ b/sound/core/control_compat.c
+@@ -319,7 +319,9 @@ static int ctl_elem_read_user(struct snd
+ 	err = snd_power_wait(card, SNDRV_CTL_POWER_D0);
+ 	if (err < 0)
+ 		goto error;
++	down_read(&card->controls_rwsem);
+ 	err = snd_ctl_elem_read(card, data);
++	up_read(&card->controls_rwsem);
+ 	if (err < 0)
+ 		goto error;
+ 	err = copy_ctl_value_to_user(userdata, valuep, data, type, count);
+@@ -347,7 +349,9 @@ static int ctl_elem_write_user(struct sn
+ 	err = snd_power_wait(card, SNDRV_CTL_POWER_D0);
+ 	if (err < 0)
+ 		goto error;
++	down_write(&card->controls_rwsem);
+ 	err = snd_ctl_elem_write(card, file, data);
++	up_write(&card->controls_rwsem);
+ 	if (err < 0)
+ 		goto error;
+ 	err = copy_ctl_value_to_user(userdata, valuep, data, type, count);
 
 
