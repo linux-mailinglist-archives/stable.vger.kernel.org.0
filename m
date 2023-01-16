@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F99F66C938
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 236CE66C605
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233855AbjAPQrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:47:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39788 "EHLO
+        id S232861AbjAPQNV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:13:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233733AbjAPQqZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BA2298F4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:27 -0800 (PST)
+        with ESMTP id S232025AbjAPQMr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:12:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2529B2B29C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 444B0B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F02C433EF;
-        Mon, 16 Jan 2023 16:34:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B58C060FDF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C86EAC433EF;
+        Mon, 16 Jan 2023 16:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886865;
-        bh=1dqAHGRbfaQnDFsQsvdy3d0rpymkmJrWcZC5DZFVBz4=;
+        s=korg; t=1673885270;
+        bh=umQjfgcVdDPx000jvkzEuxnQzuCBxzj6IRiqKzqPEoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRa7dHQxTHqB3yM7K5qoZrRqHEum2eaS6EzzcKZcbr8FblpJlIdnNmmykja83GysO
-         b3tHr0Lq01U4lVgJw24UDXGEJmTQZmY0IWihkGTeVcPMR0H1sC3iQaZ61bbdzOk3v8
-         Lnni9mMdag8O+/NBVxl6HbJN2zZysytlhc2mPdt8=
+        b=X15w29E+GFclXMDoOrbgOszZk3g8X61DsVnitCp4uC29qhy7A4CsWscDemd87O4AN
+         6MSU9P+tMJ8bm08kqgxXciyCQW+qTYBhngcS8oWsAGQAQrA+Tsl1BinzrmUSyqJqsM
+         lrfNFFDjKjJtrkdb6y2THELnEyOFURaEnx8QICIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.4 592/658] ext4: dont allow journal inode to have encrypt flag
+        patches@lists.linux.dev, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Subject: [PATCH 5.10 13/64] drm/msm/dp: do not complete dp_aux_cmd_fifo_tx() if irq is not for aux transfer
 Date:   Mon, 16 Jan 2023 16:51:20 +0100
-Message-Id: <20230116154936.570722114@linuxfoundation.org>
+Message-Id: <20230116154744.104217733@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Kuogee Hsieh <quic_khsieh@quicinc.com>
 
-commit 105c78e12468413e426625831faa7db4284e1fec upstream.
+commit 1cba0d150fa102439114a91b3e215909efc9f169 upstream.
 
-Mounting a filesystem whose journal inode has the encrypt flag causes a
-NULL dereference in fscrypt_limit_io_blocks() when the 'inlinecrypt'
-mount option is used.
+There are 3 possible interrupt sources are handled by DP controller,
+HPDstatus, Controller state changes and Aux read/write transaction.
+At every irq, DP controller have to check isr status of every interrupt
+sources and service the interrupt if its isr status bits shows interrupts
+are pending. There is potential race condition may happen at current aux
+isr handler implementation since it is always complete dp_aux_cmd_fifo_tx()
+even irq is not for aux read or write transaction. This may cause aux read
+transaction return premature if host aux data read is in the middle of
+waiting for sink to complete transferring data to host while irq happen.
+This will cause host's receiving buffer contains unexpected data. This
+patch fixes this problem by checking aux isr and return immediately at
+aux isr handler if there are no any isr status bits set.
 
-The problem is that when jbd2_journal_init_inode() calls bmap(), it
-eventually finds its way into ext4_iomap_begin(), which calls
-fscrypt_limit_io_blocks().  fscrypt_limit_io_blocks() requires that if
-the inode is encrypted, then its encryption key must already be set up.
-That's not the case here, since the journal inode is never "opened" like
-a normal file would be.  Hence the crash.
+Current there is a bug report regrading eDP edid corruption happen during
+system booting up. After lengthy debugging to found that VIDEO_READY
+interrupt was continuously firing during system booting up which cause
+dp_aux_isr() to complete dp_aux_cmd_fifo_tx() prematurely to retrieve data
+from aux hardware buffer which is not yet contains complete data transfer
+from sink. This cause edid corruption.
 
-A reproducer is:
+Follows are the signature at kernel logs when problem happen,
+EDID has corrupt header
+panel-simple-dp-aux aux-aea0000.edp: Couldn't identify panel via EDID
 
-    mkfs.ext4 -F /dev/vdb
-    debugfs -w /dev/vdb -R "set_inode_field <8> flags 0x80808"
-    mount /dev/vdb /mnt -o inlinecrypt
+Changes in v2:
+-- do complete if (ret == IRQ_HANDLED) ay dp-aux_isr()
+-- add more commit text
 
-To fix this, make ext4 consider journal inodes with the encrypt flag to
-be invalid.  (Note, maybe other flags should be rejected on the journal
-inode too.  For now, this is just the minimal fix for the above issue.)
+Changes in v3:
+-- add Stephen suggested
+-- dp_aux_isr() return IRQ_XXX back to caller
+-- dp_ctrl_isr() return IRQ_XXX back to caller
 
-I've marked this as fixing the commit that introduced the call to
-fscrypt_limit_io_blocks(), since that's what made an actual crash start
-being possible.  But this fix could be applied to any version of ext4
-that supports the encrypt feature.
+Changes in v4:
+-- split into two patches
 
-Reported-by: syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com
-Fixes: 38ea50daa7a4 ("ext4: support direct I/O with fscrypt using blk-crypto")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20221102053312.189962-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Changes in v5:
+-- delete empty line between tags
+
+Changes in v6:
+-- remove extra "that" and fixed line more than 75 char at commit text
+
+Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
+Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/516121/
+Link: https://lore.kernel.org/r/1672193785-11003-2-git-send-email-quic_khsieh@quicinc.com
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/dp/dp_aux.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4836,7 +4836,7 @@ static struct inode *ext4_get_journal_in
+--- a/drivers/gpu/drm/msm/dp/dp_aux.c
++++ b/drivers/gpu/drm/msm/dp/dp_aux.c
+@@ -423,6 +423,10 @@ void dp_aux_isr(struct drm_dp_aux *dp_au
  
- 	jbd_debug(2, "Journal inode found at %p: %lld bytes\n",
- 		  journal_inode, journal_inode->i_size);
--	if (!S_ISREG(journal_inode->i_mode)) {
-+	if (!S_ISREG(journal_inode->i_mode) || IS_ENCRYPTED(journal_inode)) {
- 		ext4_msg(sb, KERN_ERR, "invalid journal inode");
- 		iput(journal_inode);
- 		return NULL;
+ 	aux->isr = dp_catalog_aux_get_irq(aux->catalog);
+ 
++	/* no interrupts pending, return immediately */
++	if (!isr)
++		return;
++
+ 	if (!aux->cmd_busy)
+ 		return;
+ 
 
 
