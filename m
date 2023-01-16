@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 646BF66CA1D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2325666C7A2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:33:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233962AbjAPQ7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:59:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51192 "EHLO
+        id S233286AbjAPQdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:33:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233932AbjAPQ6v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:58:51 -0500
+        with ESMTP id S233181AbjAPQcb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:32:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C60AF36FC0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A015430198
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B964B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABAE8C433EF;
-        Mon, 16 Jan 2023 16:41:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CDABB81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF036C433EF;
+        Mon, 16 Jan 2023 16:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887311;
-        bh=XrgdG2N//PxloW98SHRjXRf9ZfMGygxelCPoGoSw51A=;
+        s=korg; t=1673886025;
+        bh=u2G7KsNvx1t4p0w3cv/P1PjhwpUFctrHwEigoF/gCIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pX18cxPNLbXwXN2y1aPlGB5paLZ2v3OH5pOqlJV6RJdr6Xi9fJu4X8+btIn+bfR2y
-         xyShQbqvF+MJWavwhfKRCC8ZP/xjJ4QNde3wLeYr3vPJPCwyLw7nh7ZxWby+qqNL7K
-         DtUZjBQQ3vjqSR1HEA5AR0MI+AZ9+/earOnKOGPk=
+        b=rK0iNtB8h+H0s9JpIXIVcOOWoFPCJnsIB0levX18lX3FElU77yT/O8UtgaTvHoCfU
+         NFd2+I8RWDpSp59FYCvKklRXEzUteTsAl6D8IAiETNc2g7L0NFVksNaFMKKxhuubIW
+         11dBzbvIZPscB4hcGUq6ZJI1CPz24Co0zzyqVmPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Robert Foss <robert.foss@linaro.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Dragos Tatulea <dtatulea@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 099/521] media: camss: Clean up received buffers on failed start of streaming
+Subject: [PATCH 5.4 273/658] IB/IPoIB: Fix queue count inconsistency for PKEY child interfaces
 Date:   Mon, 16 Jan 2023 16:46:01 +0100
-Message-Id: <20230116154851.673085746@linuxfoundation.org>
+Message-Id: <20230116154922.068045693@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+From: Dragos Tatulea <dtatulea@nvidia.com>
 
-[ Upstream commit c8f3582345e6a69da65ab588f7c4c2d1685b0e80 ]
+[ Upstream commit dbc94a0fb81771a38733c0e8f2ea8c4fa6934dc1 ]
 
-It is required to return the received buffers, if streaming can not be
-started. For instance media_pipeline_start() may fail with EPIPE, if
-a link validation between entities is not passed, and in such a case
-a user gets a kernel warning:
+There are 2 ways to create IPoIB PKEY child interfaces:
+1) Writing a PKEY to /sys/class/net/<ib parent interface>/create_child.
+2) Using netlink with iproute.
 
-  WARNING: CPU: 1 PID: 520 at drivers/media/common/videobuf2/videobuf2-core.c:1592 vb2_start_streaming+0xec/0x160
-  <snip>
-  Call trace:
-   vb2_start_streaming+0xec/0x160
-   vb2_core_streamon+0x9c/0x1a0
-   vb2_ioctl_streamon+0x68/0xbc
-   v4l_streamon+0x30/0x3c
-   __video_do_ioctl+0x184/0x3e0
-   video_usercopy+0x37c/0x7b0
-   video_ioctl2+0x24/0x40
-   v4l2_ioctl+0x4c/0x70
+While with sysfs the child interface has the same number of tx and
+rx queues as the parent, with netlink there will always be 1 tx
+and 1 rx queue for the child interface. That's because the
+get_num_tx/rx_queues() netlink ops are missing and the default value
+of 1 is taken for the number of queues (in rtnl_create_link()).
 
-The fix is to correct the error path in video_start_streaming() of camss.
+This change adds the get_num_tx/rx_queues() ops which allows for
+interfaces with multiple queues to be created over netlink. This
+constant only represents the max number of tx and rx queues on that
+net device.
 
-Fixes: 0ac2586c410f ("media: camss: Add files which handle the video device nodes")
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 9baa0b036410 ("IB/ipoib: Add rtnl_link_ops support")
+Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+Link: https://lore.kernel.org/r/f4a42c8aa43c02d5ae5559a60c3e5e0f18c82531.1670485816.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/camss/camss-video.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/ulp/ipoib/ipoib_netlink.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/media/platform/qcom/camss/camss-video.c b/drivers/media/platform/qcom/camss/camss-video.c
-index e81ebeb0506e..23701ec8d7de 100644
---- a/drivers/media/platform/qcom/camss/camss-video.c
-+++ b/drivers/media/platform/qcom/camss/camss-video.c
-@@ -438,7 +438,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
+index 5b05cf3837da..28e9b70844e4 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
+@@ -42,6 +42,11 @@ static const struct nla_policy ipoib_policy[IFLA_IPOIB_MAX + 1] = {
+ 	[IFLA_IPOIB_UMCAST]	= { .type = NLA_U16 },
+ };
  
- 	ret = media_pipeline_start(&vdev->entity, &video->pipe);
- 	if (ret < 0)
--		return ret;
-+		goto flush_buffers;
++static unsigned int ipoib_get_max_num_queues(void)
++{
++	return min_t(unsigned int, num_possible_cpus(), 128);
++}
++
+ static int ipoib_fill_info(struct sk_buff *skb, const struct net_device *dev)
+ {
+ 	struct ipoib_dev_priv *priv = ipoib_priv(dev);
+@@ -173,6 +178,8 @@ static struct rtnl_link_ops ipoib_link_ops __read_mostly = {
+ 	.changelink	= ipoib_changelink,
+ 	.get_size	= ipoib_get_size,
+ 	.fill_info	= ipoib_fill_info,
++	.get_num_rx_queues = ipoib_get_max_num_queues,
++	.get_num_tx_queues = ipoib_get_max_num_queues,
+ };
  
- 	ret = video_check_format(video);
- 	if (ret < 0)
-@@ -467,6 +467,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
- error:
- 	media_pipeline_stop(&vdev->entity);
- 
-+flush_buffers:
- 	video->ops->flush_buffers(video, VB2_BUF_STATE_QUEUED);
- 
- 	return ret;
+ struct rtnl_link_ops *ipoib_get_link_ops(void)
 -- 
 2.35.1
 
