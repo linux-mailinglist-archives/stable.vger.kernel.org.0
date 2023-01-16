@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB8466C8D1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF4366C4D0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233776AbjAPQnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:43:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60238 "EHLO
+        id S231621AbjAPP6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:58:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233752AbjAPQmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:42:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B300438B58
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:30:37 -0800 (PST)
+        with ESMTP id S231671AbjAPP60 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:58:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9301BAF8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:58:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DB3BB80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:30:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7508C433D2;
-        Mon, 16 Jan 2023 16:30:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1764F61042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:58:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA77C433F1;
+        Mon, 16 Jan 2023 15:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886635;
-        bh=vxs/uePeqY9uEnTL5udaLloHxcY/GXkuhbWxtSbsUG4=;
+        s=korg; t=1673884704;
+        bh=21Z3JeefnVAA+pdXmW2IOI6bQnbL7bINEAW0gbd1WK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7hj58rbd0QRyVdqSp/US9zOG8vOBevEnVbZOHApVGsSqTj0OPzDpFHNOJpGDz0ju
-         BjgHEtrfoy2vcKcF+Ekzf8s1e2dE2MTqTp09mT6yNZXNeH/bqBJdtqDE8VA0Y4iCqj
-         +NDU/FNjjgu+cmbwVnQ8tkxjcIpFZ8fBCkv3BCyw=
+        b=owxFTl8adxD3SJt7TF0Wv4WlGz8A7ktnRDnI2wVpQ2PREebAhAXtQqbw3Fgsez1KA
+         FEo3DMOn2RvTEUJC0TXNf0JFhcm7AwL5I4FewTabY3pe4xLo92NReWjiuKhn6L81P5
+         WCmeEFlfdQCx1bnn3I8A1BmizAmloHD5BXQGlnj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenwen Wang <wenwen@cs.uga.edu>,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 5.4 504/658] media: dvb-core: Fix double free in dvb_register_device()
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Mattia Dongili <malattia@linux.it>
+Subject: [PATCH 6.1 069/183] platform/x86: sony-laptop: Dont turn off 0x153 keyboard backlight during probe
 Date:   Mon, 16 Jan 2023 16:49:52 +0100
-Message-Id: <20230116154932.559804771@linuxfoundation.org>
+Message-Id: <20230116154806.271920769@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 6b0d0477fce747d4137aa65856318b55fba72198 upstream.
+commit ad75bd85b1db69c97eefea07b375567821f6ef58 upstream.
 
-In function dvb_register_device() -> dvb_register_media_device() ->
-dvb_create_media_entity(), dvb->entity is allocated and initialized. If
-the initialization fails, it frees the dvb->entity, and return an error
-code. The caller takes the error code and handles the error by calling
-dvb_media_device_free(), which unregisters the entity and frees the
-field again if it is not NULL. As dvb->entity may not NULLed in
-dvb_create_media_entity() when the allocation of dvbdev->pad fails, a
-double free may occur. This may also cause an Use After free in
-media_device_unregister_entity().
+The 0x153 version of the kbd backlight control SNC handle has no separate
+address to probe if the backlight is there.
 
-Fix this by storing NULL to dvb->entity when it is freed.
+This turns the probe call into a set keyboard backlight call with a value
+of 0 turning off the keyboard backlight.
 
-Link: https://lore.kernel.org/linux-media/20220426052921.2088416-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Fixes: fcd5ce4b3936 ("media: dvb-core: fix a memory leak bug")
-Cc: stable@vger.kernel.org
-Cc: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Skip probing when there is no separate probe address to avoid this.
+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1583752
+Fixes: 800f20170dcf ("Keyboard backlight control for some Vaio Fit models")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mattia Dongili <malattia@linux.it>
+Link: https://lore.kernel.org/r/20221213122943.11123-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dvbdev.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/sony-laptop.c |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -345,6 +345,7 @@ static int dvb_create_media_entity(struc
- 				       GFP_KERNEL);
- 		if (!dvbdev->pads) {
- 			kfree(dvbdev->entity);
-+			dvbdev->entity = NULL;
- 			return -ENOMEM;
- 		}
+--- a/drivers/platform/x86/sony-laptop.c
++++ b/drivers/platform/x86/sony-laptop.c
+@@ -1888,14 +1888,21 @@ static int sony_nc_kbd_backlight_setup(s
+ 		break;
  	}
+ 
+-	ret = sony_call_snc_handle(handle, probe_base, &result);
+-	if (ret)
+-		return ret;
++	/*
++	 * Only probe if there is a separate probe_base, otherwise the probe call
++	 * is equivalent to __sony_nc_kbd_backlight_mode_set(0), resulting in
++	 * the keyboard backlight being turned off.
++	 */
++	if (probe_base) {
++		ret = sony_call_snc_handle(handle, probe_base, &result);
++		if (ret)
++			return ret;
+ 
+-	if ((handle == 0x0137 && !(result & 0x02)) ||
+-			!(result & 0x01)) {
+-		dprintk("no backlight keyboard found\n");
+-		return 0;
++		if ((handle == 0x0137 && !(result & 0x02)) ||
++				!(result & 0x01)) {
++			dprintk("no backlight keyboard found\n");
++			return 0;
++		}
+ 	}
+ 
+ 	kbdbl_ctl = kzalloc(sizeof(*kbdbl_ctl), GFP_KERNEL);
 
 
