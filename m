@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36F0266C9B7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:55:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 006C266C737
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233960AbjAPQzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:55:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47234 "EHLO
+        id S233267AbjAPQ3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:29:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233932AbjAPQzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:55:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3405582AF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:24 -0800 (PST)
+        with ESMTP id S233299AbjAPQ2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DEF27494
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 650A8B8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:38:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF404C433EF;
-        Mon, 16 Jan 2023 16:38:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FF5EB80E93
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B81BDC433EF;
+        Mon, 16 Jan 2023 16:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887101;
-        bh=HChJHmFT/sOYSM1H3gN7N6r+y+P1rf8cl7zPH+28QfU=;
+        s=korg; t=1673885819;
+        bh=N++FBtXJlxXbJZFbQQBYyBQ5/3IHJUBshyllkUeJdM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2L4VDWLp+SE66M34EPQVTvHTqyFZgdKlY74Xfxu1su8xsg1BoQ7IXpTvoUqMV903
-         DsZ3THkP4hQaeN6CvOoLvfhz5AW561oDS5EVpydMIZDzyLt/1gBIvXufbU5SxdUpH0
-         SbVMJ+VLjo3bbcUxiyUbMGq5yEUZaRsi9bUf4scQ=
+        b=PAzFKw6anIhtJoiA+D63MHT4XjxdxAP2JIO+c57L1sNbAwMDs74Md0prViMD59pdm
+         Z0up7IV3keNd0/DmB9jJpUoi8w3jThKCufLmsKm0ESWiEZJlHWdd9/HBbMR2+eU8kv
+         8JbTBTF9YMxntybmw3k3MeVsCrzT0LBQSF9Ee8ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 022/521] usb: musb: remove extra check in musb_gadget_vbus_draw
+Subject: [PATCH 5.4 196/658] mmc: atmel-mci: fix return value check of mmc_add_host()
 Date:   Mon, 16 Jan 2023 16:44:44 +0100
-Message-Id: <20230116154848.275099836@linuxfoundation.org>
+Message-Id: <20230116154918.401633420@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ecec4b20d29c3d6922dafe7d2555254a454272d2 ]
+[ Upstream commit 9e6e8c43726673ca2abcaac87640b9215fd72f4c ]
 
-The checks for musb->xceiv and musb->xceiv->set_power duplicate those in
-usb_phy_set_power(), so there is no need of them. Moreover, not calling
-usb_phy_set_power() results in usb_phy_set_charger_current() not being
-called, so current USB config max current is not propagated through USB
-charger framework and charger drivers may try to draw more current than
-allowed or possible.
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-Fix that by removing those extra checks and calling usb_phy_set_power()
-directly.
+So fix this by checking the return value and calling mmc_free_host()
+in the error path.
 
-Tested on Motorola Droid4 and Nokia N900
-
-Fixes: a9081a008f84 ("usb: phy: Add USB charger support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
-Link: https://lore.kernel.org/r/1669400475-4762-1-git-send-email-ivo.g.dimitrov.75@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7d2be0749a59 ("atmel-mci: Driver for Atmel on-chip MMC controllers")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221108122819.429975-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/musb_gadget.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/mmc/host/atmel-mci.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
-index 8e83995fc3bd..b8fc818c154a 100644
---- a/drivers/usb/musb/musb_gadget.c
-+++ b/drivers/usb/musb/musb_gadget.c
-@@ -1629,8 +1629,6 @@ static int musb_gadget_vbus_draw(struct usb_gadget *gadget, unsigned mA)
+diff --git a/drivers/mmc/host/atmel-mci.c b/drivers/mmc/host/atmel-mci.c
+index c26fbe5f2222..9c084f64f7db 100644
+--- a/drivers/mmc/host/atmel-mci.c
++++ b/drivers/mmc/host/atmel-mci.c
+@@ -2217,6 +2217,7 @@ static int atmci_init_slot(struct atmel_mci *host,
  {
- 	struct musb	*musb = gadget_to_musb(gadget);
+ 	struct mmc_host			*mmc;
+ 	struct atmel_mci_slot		*slot;
++	int ret;
  
--	if (!musb->xceiv->set_power)
--		return -EOPNOTSUPP;
- 	return usb_phy_set_power(musb->xceiv, mA);
- }
+ 	mmc = mmc_alloc_host(sizeof(struct atmel_mci_slot), &host->pdev->dev);
+ 	if (!mmc)
+@@ -2300,11 +2301,13 @@ static int atmci_init_slot(struct atmel_mci *host,
  
+ 	host->slot[id] = slot;
+ 	mmc_regulator_get_supply(mmc);
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret) {
++		mmc_free_host(mmc);
++		return ret;
++	}
+ 
+ 	if (gpio_is_valid(slot->detect_pin)) {
+-		int ret;
+-
+ 		timer_setup(&slot->detect_timer, atmci_detect_change, 0);
+ 
+ 		ret = request_irq(gpio_to_irq(slot->detect_pin),
 -- 
 2.35.1
 
