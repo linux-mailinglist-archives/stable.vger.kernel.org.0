@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EEBC66CDC6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 059B066CDC7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:40:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234942AbjAPRjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:39:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57892 "EHLO
+        id S234980AbjAPRkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:40:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235072AbjAPRja (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:39:30 -0500
+        with ESMTP id S234973AbjAPRje (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:39:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC69B4F850
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:15:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D85D4E539
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:15:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4984961050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:15:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C851C433EF;
-        Mon, 16 Jan 2023 17:15:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBD6F6108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:15:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF34C433D2;
+        Mon, 16 Jan 2023 17:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889325;
-        bh=P3UqIXeWuRTueiw7w1nTXQ+KPu+Glf1NbnliW9wWCg8=;
+        s=korg; t=1673889328;
+        bh=Y1lPqm4UJmZvsKkiZ++l6lYE2elJaGIuvgnIKAdSkUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlhQOYFypGB9WQGnrqw0e/6Ya23X1mGStBnngs8+/Nyaxf7pRuoUuWpWmezg+YRE3
-         JHI688kTz1qVJnKpk+1nmJRJTww1x1gsFnHwXnqhCphjmLKcEFHPR8fosz5fIGxYF3
-         dXxuguvBTVOLcHk6yojBRnRAU/qxWW6NrY4BqJDg=
+        b=bctT8vAY6gYfnw6dxiEh1K5K8z/S68bYtX3aX3rUncKQAqkKJY2TOuH2mb6GtcvUY
+         S+2isrojhYj3Z/kJ+w/8KT2MgU1UqkgOd8fizEIAJzBJRwsJWGOwJTpP4ps0PacTVV
+         dFRddoEkxUwzPFbA6dKBA4dW8PTrzPjRJRgrkD5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Jiri Pirko <jiri@nvidia.com>, Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 315/338] caif: fix memory leak in cfctrl_linkup_request()
-Date:   Mon, 16 Jan 2023 16:53:08 +0100
-Message-Id: <20230116154834.869702744@linuxfoundation.org>
+Subject: [PATCH 4.14 316/338] udf: Fix extension of the last extent in the file
+Date:   Mon, 16 Jan 2023 16:53:09 +0100
+Message-Id: <20230116154834.902986648@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,45 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit fe69230f05897b3de758427b574fc98025dfc907 ]
+[ Upstream commit 83c7423d1eb6806d13c521d1002cc1a012111719 ]
 
-When linktype is unknown or kzalloc failed in cfctrl_linkup_request(),
-pkt is not released. Add release process to error path.
+When extending the last extent in the file within the last block, we
+wrongly computed the length of the last extent. This is mostly a
+cosmetical problem since the extent does not contain any data and the
+length will be fixed up by following operations but still.
 
-Fixes: b482cd2053e3 ("net-caif: add CAIF core protocol stack")
-Fixes: 8d545c8f958f ("caif: Disconnect without waiting for response")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/20230104065146.1153009-1-shaozhengchao@huawei.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 1f3868f06855 ("udf: Fix extending file within last block")
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/caif/cfctrl.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/udf/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/caif/cfctrl.c b/net/caif/cfctrl.c
-index 4dc82e9a855d..7af9439a08c3 100644
---- a/net/caif/cfctrl.c
-+++ b/net/caif/cfctrl.c
-@@ -269,11 +269,15 @@ int cfctrl_linkup_request(struct cflayer *layer,
- 	default:
- 		pr_warn("Request setup of bad link type = %d\n",
- 			param->linktype);
-+		cfpkt_destroy(pkt);
- 		return -EINVAL;
- 	}
- 	req = kzalloc(sizeof(*req), GFP_KERNEL);
--	if (!req)
-+	if (!req) {
-+		cfpkt_destroy(pkt);
- 		return -ENOMEM;
-+	}
-+
- 	req->client_layer = user_layer;
- 	req->cmd = CFCTRL_CMD_LINK_SETUP;
- 	req->param = *param;
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index 0c80788cc429..2da65989ae5d 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -595,7 +595,7 @@ static void udf_do_extend_final_block(struct inode *inode,
+ 	 */
+ 	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
+ 		return;
+-	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
++	added_bytes = new_elen - (last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+ 	last_ext->extLength += added_bytes;
+ 	UDF_I(inode)->i_lenExtents += added_bytes;
+ 
 -- 
 2.35.1
 
