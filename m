@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D05B066C5FA
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:12:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56AFA66C56F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232749AbjAPQM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:12:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57428 "EHLO
+        id S232095AbjAPQGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:06:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232787AbjAPQMJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:12:09 -0500
+        with ESMTP id S232025AbjAPQFU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:05:20 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FBA32A15A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7158027991
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5FBCB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C719C433EF;
-        Mon, 16 Jan 2023 16:07:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22FAFB81077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73683C433D2;
+        Mon, 16 Jan 2023 16:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885254;
-        bh=/9/sLrO+F7gZzKzb3yQC6Pj5Lt7FrtS+XpmJofEFz28=;
+        s=korg; t=1673885036;
+        bh=Js6RZH2ecQ+hKtymEZUwQNTYxCqG5fcjjoHM54slJ1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVu9ky7TZggqh3723rvy8Rk5cECMAH60x2P+gVz9Fni1VFq/2siL+ZgIfUk0gIibg
-         h1n8V+BCBobNBmmPcWScjBkyfDZ2RKbzBC0RxbkRfcjQmF4i03NyDObJCY5FXbbaU3
-         YLcmrJcLy5lgq9olgnjXLp8VnFCoK9WWVWGmmIDw=
+        b=KX5vb3Zh+HOpAD/VR3mfAn02FFRjx91TqkKqsqXHo43F77Tvm64VsOkY9/MhxHQ/s
+         DwS9IZiLK3bQ9xGBUmNt20iyG2imhkeEyqbxwxSAvb6MFQxPonH2ETDni10RhqsqFN
+         D2RZrfKd1mNT7/OqRl12OyqkKqL7heMrMwuEG7qE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiang Yu <quic_qianyu@quicinc.com>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/64] bus: mhi: host: Fix race between channel preparation and M0 event
+Subject: [PATCH 5.15 50/86] ALSA: usb-audio: Make sure to stop endpoints before closing EPs
 Date:   Mon, 16 Jan 2023 16:51:24 +0100
-Message-Id: <20230116154744.224077266@linuxfoundation.org>
+Message-Id: <20230116154749.151492211@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <quic_qianyu@quicinc.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 869a99907faea6d1835b0bd0d0422ae3519c6ea9 ]
+[ Upstream commit 0599313e26666e79f6e7fe1450588431b8cb25d5 ]
 
-There is a race condition where mhi_prepare_channel() updates the
-read and write pointers as the base address and in parallel, if
-an M0 transition occurs, the tasklet goes ahead and rings
-doorbells for all channels with a delta in TRE rings assuming
-they are already enabled. This causes a null pointer access. Fix
-it by adding a channel enabled check before ringing channel
-doorbells.
+At the PCM hw params, we may re-configure the endpoints and it's done
+by a temporary EP close followed by re-open.  A potential problem
+there is that the EP might be already running internally at the PCM
+prepare stage; it's seen typically in the playback stream with the
+implicit feedback sync.  As this stream start isn't tracked by the
+core PCM layer, we'd need to stop it explicitly, and that's the
+missing piece.
 
-Cc: stable@vger.kernel.org # 5.19
-Fixes: a6e2e3522f29 "bus: mhi: core: Add support for PM state transitions"
-Signed-off-by: Qiang Yu <quic_qianyu@quicinc.com>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Link: https://lore.kernel.org/r/1665889532-13634-1-git-send-email-quic_qianyu@quicinc.com
-[mani: CCed stable list]
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+This patch adds the stop_endpoints() call at snd_usb_hw_params() to
+assure the stream stop before closing the EPs.
+
+Fixes: bf6313a0ff76 ("ALSA: usb-audio: Refactor endpoint management")
+Link: https://lore.kernel.org/r/4e509aea-e563-e592-e652-ba44af6733fe@veniogames.com
+Link: https://lore.kernel.org/r/20230102170759.29610-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/mhi/core/pm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/usb/pcm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index 044dcdd723a7..7d69b740b9f9 100644
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -298,7 +298,8 @@ int mhi_pm_m0_transition(struct mhi_controller *mhi_cntrl)
- 		read_lock_irq(&mhi_chan->lock);
- 
- 		/* Only ring DB if ring is not empty */
--		if (tre_ring->base && tre_ring->wp  != tre_ring->rp)
-+		if (tre_ring->base && tre_ring->wp  != tre_ring->rp &&
-+		    mhi_chan->ch_state == MHI_CH_STATE_ENABLED)
- 			mhi_ring_chan_db(mhi_cntrl, mhi_chan);
- 		read_unlock_irq(&mhi_chan->lock);
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index b6cd43c5ea3e..ef0c1baaefde 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -525,6 +525,8 @@ static int snd_usb_hw_params(struct snd_pcm_substream *substream,
+ 		if (snd_usb_endpoint_compatible(chip, subs->data_endpoint,
+ 						fmt, hw_params))
+ 			goto unlock;
++		if (stop_endpoints(subs, false))
++			sync_pending_stops(subs);
+ 		close_endpoints(chip, subs);
  	}
+ 
 -- 
 2.35.1
 
