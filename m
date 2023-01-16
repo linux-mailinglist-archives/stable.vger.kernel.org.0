@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E4866C594
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:07:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BFFF66C595
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:07:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232084AbjAPQHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:07:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44932 "EHLO
+        id S232515AbjAPQHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:07:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232443AbjAPQHB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:07:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BA4024129
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:18 -0800 (PST)
+        with ESMTP id S232345AbjAPQHD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:07:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8575724137
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 416A6B8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90C69C433F2;
-        Mon, 16 Jan 2023 16:05:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22B036104A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D46C433D2;
+        Mon, 16 Jan 2023 16:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885115;
-        bh=j9mrXvhJ8AkLj55szg6EBszhgH5W6srHo8fnsF2dmls=;
+        s=korg; t=1673885118;
+        bh=hqmIFF6FRBevN8BnrGrGgRfs2wEOCrsDsUNJ+1Oa90I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CZP3l6dS3GVAVZ7LddBp09k6SS3zSjWpLW/kWK06cy/PBJx5VrfytCs1ET0+2UrHF
-         fo3jqBRPAdjw3x1PssjFoPt0Aj85z8Wju70dSrXgDov6iFcff1YlVKdLXeOOguLk0K
-         5dgaZgCIg8aLyyuAUSYj9UEiaBYjFSxh/gZSawXM=
+        b=2fL5+Zu94FEueNgevbWOYXwSh5Be+RIygj8FFrnzlcvJIe+0JR2btZCTfVmsHFCbG
+         TeG+KddQ41bnniht46Eeoti4T0kcGkf2aKaeGp6RtupLhcsexRj0EjONe6TvsnF9Pk
+         yBYd4wAJ97IOdKhFxt46dr05++jXkdxW02wKt4Vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Heng <liheng40@huawei.com>,
-        Johan Hovold <johan+linaro@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 80/86] efi: fix NULL-deref in init error path
-Date:   Mon, 16 Jan 2023 16:51:54 +0100
-Message-Id: <20230116154750.367296648@linuxfoundation.org>
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>
+Subject: [PATCH 5.15 81/86] scsi: mpt3sas: Remove scsi_dma_map() error messages
+Date:   Mon, 16 Jan 2023 16:51:55 +0100
+Message-Id: <20230116154750.408864951@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
 References: <20230116154747.036911298@linuxfoundation.org>
@@ -54,56 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan+linaro@kernel.org>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 703c13fe3c9af557d312f5895ed6a5fda2711104 ]
+commit 0c25422d34b4726b2707d5f38560943155a91b80 upstream.
 
-In cases where runtime services are not supported or have been disabled,
-the runtime services workqueue will never have been allocated.
+When scsi_dma_map() fails by returning a sges_left value less than zero,
+the amount of logging produced can be extremely high.  In a recent end-user
+environment, 1200 messages per second were being sent to the log buffer.
+This eventually overwhelmed the system and it stalled.
 
-Do not try to destroy the workqueue unconditionally in the unlikely
-event that EFI initialisation fails to avoid dereferencing a NULL
-pointer.
+These error messages are not needed. Remove them.
 
-Fixes: 98086df8b70c ("efi: add missed destroy_workqueue when efisubsys_init fails")
-Cc: stable@vger.kernel.org
-Cc: Li Heng <liheng40@huawei.com>
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220303140203.12642-1-sreekanth.reddy@broadcom.com
+Suggested-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/efi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c |   18 +++---------------
+ 1 file changed, 3 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index ba03f5a4b30c..a2765d668856 100644
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -385,8 +385,8 @@ static int __init efisubsys_init(void)
- 	efi_kobj = kobject_create_and_add("efi", firmware_kobj);
- 	if (!efi_kobj) {
- 		pr_err("efi: Firmware registration failed.\n");
--		destroy_workqueue(efi_rts_wq);
--		return -ENOMEM;
-+		error = -ENOMEM;
-+		goto err_destroy_wq;
- 	}
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -2594,12 +2594,8 @@ _base_check_pcie_native_sgl(struct MPT3S
  
- 	if (efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE |
-@@ -429,7 +429,10 @@ static int __init efisubsys_init(void)
- 		generic_ops_unregister();
- err_put:
- 	kobject_put(efi_kobj);
--	destroy_workqueue(efi_rts_wq);
-+err_destroy_wq:
-+	if (efi_rts_wq)
-+		destroy_workqueue(efi_rts_wq);
-+
- 	return error;
- }
+ 	/* Get the SG list pointer and info. */
+ 	sges_left = scsi_dma_map(scmd);
+-	if (sges_left < 0) {
+-		sdev_printk(KERN_ERR, scmd->device,
+-			"scsi_dma_map failed: request for %d bytes!\n",
+-			scsi_bufflen(scmd));
++	if (sges_left < 0)
+ 		return 1;
+-	}
  
--- 
-2.35.1
-
+ 	/* Check if we need to build a native SG list. */
+ 	if (!base_is_prp_possible(ioc, pcie_device,
+@@ -2706,12 +2702,8 @@ _base_build_sg_scmd(struct MPT3SAS_ADAPT
+ 
+ 	sg_scmd = scsi_sglist(scmd);
+ 	sges_left = scsi_dma_map(scmd);
+-	if (sges_left < 0) {
+-		sdev_printk(KERN_ERR, scmd->device,
+-		 "scsi_dma_map failed: request for %d bytes!\n",
+-		 scsi_bufflen(scmd));
++	if (sges_left < 0)
+ 		return -ENOMEM;
+-	}
+ 
+ 	sg_local = &mpi_request->SGL;
+ 	sges_in_segment = ioc->max_sges_in_main_message;
+@@ -2854,12 +2846,8 @@ _base_build_sg_scmd_ieee(struct MPT3SAS_
+ 
+ 	sg_scmd = scsi_sglist(scmd);
+ 	sges_left = scsi_dma_map(scmd);
+-	if (sges_left < 0) {
+-		sdev_printk(KERN_ERR, scmd->device,
+-			"scsi_dma_map failed: request for %d bytes!\n",
+-			scsi_bufflen(scmd));
++	if (sges_left < 0)
+ 		return -ENOMEM;
+-	}
+ 
+ 	sg_local = &mpi_request->SGL;
+ 	sges_in_segment = (ioc->request_sz -
 
 
