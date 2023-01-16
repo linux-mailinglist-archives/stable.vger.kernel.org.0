@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C2966CD0A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B0366CB7F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234899AbjAPRdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:33:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53228 "EHLO
+        id S229741AbjAPRPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234841AbjAPRcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB24E43906
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:45 -0800 (PST)
+        with ESMTP id S232958AbjAPROe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BDC14C0FC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A67061055
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E817C433D2;
-        Mon, 16 Jan 2023 17:08:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0952B8109B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36DA4C433EF;
+        Mon, 16 Jan 2023 16:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888924;
-        bh=LE/eE5UItzkVM3ncfNV0hBxL2FkEF5n2mHNN4XPbE2g=;
+        s=korg; t=1673888105;
+        bh=1P3nnmRHUxThTbJs/gTJ06d8w/VzPM7WxIdUBiGIQ9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gz1g5mIDux0BHMwHRied5HJIwS6HAsMgseSxk8jZOcYc2I3aBIs1pYI8DucGnnPaU
-         Jwb6JMwpsssnm0yvNLSM+Nw6dMFm/v53SJ1eYtY95LQbvqgpGhBrrNqBwJPfpUoB6D
-         weQolBG5Rg80hzlt9yUB7n+QexfRgtsW4deZ8+40=
+        b=ziULo0YYytpzgRNg0TUQyvUp/GC6yWwcPC8TYMd6KNlC/91wS9Y/xVRtwCLnwqH1U
+         ItTPbACx/oaPezn2JwvKttG1+QflrSEA4+u/N8hdtfyacziEcGYEf4LTiSGHDDKl3W
+         u0W1/NAyCqT3UCuCl2d77E/xmF/5QPoOnjTRa+bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 192/338] iommu/amd: Fix pci device refcount leak in ppr_notifier()
+        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
+        Aristeu Rozanski <aris@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.19 403/521] device_cgroup: Roll back to original exceptions after copy failure
 Date:   Mon, 16 Jan 2023 16:51:05 +0100
-Message-Id: <20230116154829.318631268@linuxfoundation.org>
+Message-Id: <20230116154905.102328838@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,39 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Wang Weiyang <wangweiyang2@huawei.com>
 
-[ Upstream commit 6cf0981c2233f97d56938d9d61845383d6eb227c ]
+commit e68bfbd3b3c3a0ec3cf8c230996ad8cabe90322f upstream.
 
-As comment of pci_get_domain_bus_and_slot() says, it returns
-a pci device with refcount increment, when finish using it,
-the caller must decrement the reference count by calling
-pci_dev_put(). So call it before returning from ppr_notifier()
-to avoid refcount leak.
+When add the 'a *:* rwm' entry to devcgroup A's whitelist, at first A's
+exceptions will be cleaned and A's behavior is changed to
+DEVCG_DEFAULT_ALLOW. Then parent's exceptions will be copyed to A's
+whitelist. If copy failure occurs, just return leaving A to grant
+permissions to all devices. And A may grant more permissions than
+parent.
 
-Fixes: daae2d25a477 ("iommu/amd: Don't copy GCR3 table root pointer")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221118093604.216371-1-yangyingliang@huawei.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Backup A's whitelist and recover original exceptions after copy
+failure.
+
+Cc: stable@vger.kernel.org
+Fixes: 4cef7299b478 ("device_cgroup: add proper checking when changing default behavior")
+Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
+Reviewed-by: Aristeu Rozanski <aris@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd_iommu_v2.c | 1 +
- 1 file changed, 1 insertion(+)
+ security/device_cgroup.c |   33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu_v2.c b/drivers/iommu/amd_iommu_v2.c
-index 7d94e1d39e5e..4449fa56f065 100644
---- a/drivers/iommu/amd_iommu_v2.c
-+++ b/drivers/iommu/amd_iommu_v2.c
-@@ -624,6 +624,7 @@ static int ppr_notifier(struct notifier_block *nb, unsigned long e, void *data)
- 	put_device_state(dev_state);
- 
- out:
-+	pci_dev_put(pdev);
- 	return ret;
+--- a/security/device_cgroup.c
++++ b/security/device_cgroup.c
+@@ -79,6 +79,17 @@ free_and_exit:
+ 	return -ENOMEM;
  }
  
--- 
-2.35.1
-
++static void dev_exceptions_move(struct list_head *dest, struct list_head *orig)
++{
++	struct dev_exception_item *ex, *tmp;
++
++	lockdep_assert_held(&devcgroup_mutex);
++
++	list_for_each_entry_safe(ex, tmp, orig, list) {
++		list_move_tail(&ex->list, dest);
++	}
++}
++
+ /*
+  * called under devcgroup_mutex
+  */
+@@ -600,11 +611,13 @@ static int devcgroup_update_access(struc
+ 	int count, rc = 0;
+ 	struct dev_exception_item ex;
+ 	struct dev_cgroup *parent = css_to_devcgroup(devcgroup->css.parent);
++	struct dev_cgroup tmp_devcgrp;
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
+ 	memset(&ex, 0, sizeof(ex));
++	memset(&tmp_devcgrp, 0, sizeof(tmp_devcgrp));
+ 	b = buffer;
+ 
+ 	switch (*b) {
+@@ -616,15 +629,27 @@ static int devcgroup_update_access(struc
+ 
+ 			if (!may_allow_all(parent))
+ 				return -EPERM;
+-			dev_exception_clean(devcgroup);
+-			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
+-			if (!parent)
++			if (!parent) {
++				devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
++				dev_exception_clean(devcgroup);
+ 				break;
++			}
+ 
++			INIT_LIST_HEAD(&tmp_devcgrp.exceptions);
++			rc = dev_exceptions_copy(&tmp_devcgrp.exceptions,
++						 &devcgroup->exceptions);
++			if (rc)
++				return rc;
++			dev_exception_clean(devcgroup);
+ 			rc = dev_exceptions_copy(&devcgroup->exceptions,
+ 						 &parent->exceptions);
+-			if (rc)
++			if (rc) {
++				dev_exceptions_move(&devcgroup->exceptions,
++						    &tmp_devcgrp.exceptions);
+ 				return rc;
++			}
++			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
++			dev_exception_clean(&tmp_devcgrp);
+ 			break;
+ 		case DEVCG_DENY:
+ 			if (css_has_online_children(&devcgroup->css))
 
 
