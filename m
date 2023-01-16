@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BED66C4B0
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 362F566C8A4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231551AbjAPP5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38322 "EHLO
+        id S233721AbjAPQlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:41:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231699AbjAPP5U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25564234DA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:06 -0800 (PST)
+        with ESMTP id S233625AbjAPQky (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E85A2CC78
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:29:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF9E5B81052
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BE50C433EF;
-        Mon, 16 Jan 2023 15:57:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19A6D61077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:29:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C340C433EF;
+        Mon, 16 Jan 2023 16:29:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884623;
-        bh=rHBu8Dj6Z3tNqDguWD72F/yqqFaZkK23yTDZVV5DM9E=;
+        s=korg; t=1673886546;
+        bh=TtP+t4juWJKc17+Jgd9Ch2vvTzR82jar4vvALKbKCVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0eQm4XQcaLZ6o+KztYgUiXtsmukH7MZBhQarHEP5Y+Y+okXmhfqPQb5stFbO+3EO3
-         ahSK1Yo60dffZdpsMyUuuGvqOtDO+3HeYTsPoYz9V+/L5cOJhABKkPIh5OyN/65Ec+
-         Qh0xDkGF/+uEP9j17OsGmbH91b8AfRHts6WYs7uA=
+        b=dEc/tRJ923f9FhGMC5E1RrWt+Gj03Wh1maSH8N5FMxU/CptuV832pTH2Q1m8yr2Rn
+         QliRibVsO1MVHGGJY0XrPhaksxXzcMpX8P3E8wKwMVunDEvGU8WEaQlVecMA93Nvke
+         4dw1SvFUltcwFddAT925PdejWgXsKI2R4Ds6ggls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Ao Zhong <hacc1225@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 036/183] drm/amd/display: move remaining FPU code to dml folder
+        NARIBAYASHI Akira <a.naribayashi@fujitsu.com>,
+        David Rientjes <rientjes@google.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 471/658] mm, compaction: fix fast_isolate_around() to stay within boundaries
 Date:   Mon, 16 Jan 2023 16:49:19 +0100
-Message-Id: <20230116154804.903390554@linuxfoundation.org>
+Message-Id: <20230116154931.043122897@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +56,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ao Zhong <hacc1225@gmail.com>
+From: NARIBAYASHI Akira <a.naribayashi@fujitsu.com>
 
-commit 58ddbecb14c792b7fe0d92ae5e25c9179d62ff25 upstream.
+commit be21b32afe470c5ae98e27e49201158a47032942 upstream.
 
-pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_luma = 0;
-pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_chroma = 0;
-these two operations in dcn32/dcn32_resource.c still need to use FPU,
-This will cause compilation to fail on ARM64 platforms because
--mgeneral-regs-only is enabled by default to disable the hardware FPU.
-Therefore, imitate the dcn31_zero_pipe_dcc_fraction function in
-dml/dcn31/dcn31_fpu.c, declare the dcn32_zero_pipe_dcc_fraction function
-in dcn32_fpu.c, and move above two operations into this function.
+Depending on the memory configuration, isolate_freepages_block() may scan
+pages out of the target range and causes panic.
 
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Ao Zhong <hacc1225@gmail.com>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Panic can occur on systems with multiple zones in a single pageblock.
+
+The reason it is rare is that it only happens in special
+configurations.  Depending on how many similar systems there are, it
+may be a good idea to fix this problem for older kernels as well.
+
+The problem is that pfn as argument of fast_isolate_around() could be out
+of the target range.  Therefore we should consider the case where pfn <
+start_pfn, and also the case where end_pfn < pfn.
+
+This problem should have been addressd by the commit 6e2b7044c199 ("mm,
+compaction: make fast_isolate_freepages() stay within zone") but there was
+an oversight.
+
+ Case1: pfn < start_pfn
+
+  <at memory compaction for node Y>
+  |  node X's zone  | node Y's zone
+  +-----------------+------------------------------...
+   pageblock    ^   ^     ^
+  +-----------+-----------+-----------+-----------+...
+                ^   ^     ^
+                ^   ^      end_pfn
+                ^    start_pfn = cc->zone->zone_start_pfn
+                 pfn
+                <---------> scanned range by "Scan After"
+
+ Case2: end_pfn < pfn
+
+  <at memory compaction for node X>
+  |  node X's zone  | node Y's zone
+  +-----------------+------------------------------...
+   pageblock  ^     ^   ^
+  +-----------+-----------+-----------+-----------+...
+              ^     ^   ^
+              ^     ^    pfn
+              ^      end_pfn
+               start_pfn
+              <---------> scanned range by "Scan Before"
+
+It seems that there is no good reason to skip nr_isolated pages just after
+given pfn.  So let perform simple scan from start to end instead of
+dividing the scan into "Before" and "After".
+
+Link: https://lkml.kernel.org/r/20221026112438.236336-1-a.naribayashi@fujitsu.com
+Fixes: 6e2b7044c199 ("mm, compaction: make fast_isolate_freepages() stay within zone").
+Signed-off-by: NARIBAYASHI Akira <a.naribayashi@fujitsu.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c |    5 +++--
- drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c  |    8 ++++++++
- drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.h  |    3 +++
- 3 files changed, 14 insertions(+), 2 deletions(-)
+ mm/compaction.c |   18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_resource.c
-@@ -1919,8 +1919,9 @@ int dcn32_populate_dml_pipes_from_contex
- 		timing = &pipe->stream->timing;
- 
- 		pipes[pipe_cnt].pipe.src.gpuvm = true;
--		pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_luma = 0;
--		pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_chroma = 0;
-+		DC_FP_START();
-+		dcn32_zero_pipe_dcc_fraction(pipes, pipe_cnt);
-+		DC_FP_END();
- 		pipes[pipe_cnt].pipe.dest.vfront_porch = timing->v_front_porch;
- 		pipes[pipe_cnt].pipe.src.gpuvm_min_page_size_kbytes = 256; // according to spreadsheet
- 		pipes[pipe_cnt].pipe.src.unbounded_req_mode = false;
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-@@ -2546,3 +2546,11 @@ void dcn32_update_bw_bounding_box_fpu(st
- 	}
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -1219,7 +1219,7 @@ move_freelist_tail(struct list_head *fre
  }
  
-+void dcn32_zero_pipe_dcc_fraction(display_e2e_pipe_params_st *pipes,
-+				  int pipe_cnt)
-+{
-+	dc_assert_fp_enabled();
-+
-+	pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_luma = 0;
-+	pipes[pipe_cnt].pipe.src.dcc_fraction_of_zs_req_chroma = 0;
-+}
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.h
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.h
-@@ -73,4 +73,7 @@ int dcn32_find_dummy_latency_index_for_f
+ static void
+-fast_isolate_around(struct compact_control *cc, unsigned long pfn, unsigned long nr_isolated)
++fast_isolate_around(struct compact_control *cc, unsigned long pfn)
+ {
+ 	unsigned long start_pfn, end_pfn;
+ 	struct page *page = pfn_to_page(pfn);
+@@ -1236,21 +1236,13 @@ fast_isolate_around(struct compact_contr
+ 	start_pfn = pageblock_start_pfn(pfn);
+ 	end_pfn = min(pageblock_end_pfn(pfn), zone_end_pfn(cc->zone)) - 1;
  
- void dcn32_patch_dpm_table(struct clk_bw_params *bw_params);
+-	/* Scan before */
+-	if (start_pfn != pfn) {
+-		isolate_freepages_block(cc, &start_pfn, pfn, &cc->freepages, 1, false);
+-		if (cc->nr_freepages >= cc->nr_migratepages)
+-			return;
+-	}
+-
+-	/* Scan after */
+-	start_pfn = pfn + nr_isolated;
+-	if (start_pfn < end_pfn)
+-		isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
++	isolate_freepages_block(cc, &start_pfn, end_pfn, &cc->freepages, 1, false);
  
-+void dcn32_zero_pipe_dcc_fraction(display_e2e_pipe_params_st *pipes,
-+				  int pipe_cnt);
+ 	/* Skip this pageblock in the future as it's full or nearly full */
+ 	if (cc->nr_freepages < cc->nr_migratepages)
+ 		set_pageblock_skip(page);
 +
- #endif
++	return;
+ }
+ 
+ /* Search orders in round-robin fashion */
+@@ -1422,7 +1414,7 @@ fast_isolate_freepages(struct compact_co
+ 		return cc->free_pfn;
+ 
+ 	low_pfn = page_to_pfn(page);
+-	fast_isolate_around(cc, low_pfn, nr_isolated);
++	fast_isolate_around(cc, low_pfn);
+ 	return low_pfn;
+ }
+ 
 
 
