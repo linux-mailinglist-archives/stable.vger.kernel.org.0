@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45C0B66CD08
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:32:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1913766CD09
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234888AbjAPRcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:32:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
+        id S234896AbjAPRdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:33:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234896AbjAPRcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:33 -0500
+        with ESMTP id S233621AbjAPRcf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A719C5D13D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BA1B43904
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 444BF6108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 541C6C433EF;
-        Mon, 16 Jan 2023 17:08:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCBE760F63
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFCF4C433EF;
+        Mon, 16 Jan 2023 17:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888919;
-        bh=iipozZfwKxuvFHMN2/LylZ200fRqCNZUPm8J4aIeik0=;
+        s=korg; t=1673888922;
+        bh=wV562rbgLxCviu4w/0Q2gqz7xGUnmMdwvL2li1UsXuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BAChVNm7L2YvOJQkfz6yqiNz8KgbIy3ZGJsl0fRvXgZZIUDACPOJrkwg3FSPb4kn3
-         xPdRS1jbqFWnm4PDLdgVmuw83y5rGREltyKvqOMmWMmCYGevStVTg+A2Nm50Reoq6H
-         EROM1NpNsZSTShaZDnZmZUE2dzx2AavOoY7oQUdU=
+        b=yLyprKuyhj6D9JCYdzIR4n3yXR3x4PH5CIrBen5tDAc5DHmyrE7jVwKy/ejZ7u58W
+         HFUbcwP7/snY53pguU55q+JpAmMF2y29plIPARRIrRADlswcOqNHPb/65JMuzPZZy2
+         QvpLZ0Poo7wLdwNmMaAdd0CtyR6HVCXWmrqDl/tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matt Redfearn <matt.redfearn@mips.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        =?UTF-8?q?Petr=20Van=C4=9Bk?= <arkamar@atlas.cz>,
+        patches@lists.linux.dev,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Stefan Eichenberger <stefan.eichenberger@toradex.com>,
+        Francesco Dolcini <francesco@dolcini.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 190/338] include/uapi/linux/swab: Fix potentially missing __always_inline
-Date:   Mon, 16 Jan 2023 16:51:03 +0100
-Message-Id: <20230116154829.222255143@linuxfoundation.org>
+Subject: [PATCH 4.14 191/338] rtc: snvs: Allow a time difference on clock register read
+Date:   Mon, 16 Jan 2023 16:51:04 +0100
+Message-Id: <20230116154829.272752508@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -56,59 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Redfearn <matt.redfearn@mips.com>
+From: Stefan Eichenberger <stefan.eichenberger@toradex.com>
 
-[ Upstream commit defbab270d45e32b068e7e73c3567232d745c60f ]
+[ Upstream commit 0462681e207ccc44778a77b3297af728b1cf5b9f ]
 
-Commit bc27fb68aaad ("include/uapi/linux/byteorder, swab: force inlining
-of some byteswap operations") added __always_inline to swab functions
-and commit 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to
-userspace headers") added a definition of __always_inline for use in
-exported headers when the kernel's compiler.h is not available.
+On an iMX6ULL the following message appears when a wakealarm is set:
 
-However, since swab.h does not include stddef.h, if the header soup does
-not indirectly include it, the definition of __always_inline is missing,
-resulting in a compilation failure, which was observed compiling the
-perf tool using exported headers containing this commit:
+echo 0 > /sys/class/rtc/rtc1/wakealarm
+rtc rtc1: Timeout trying to get valid LPSRT Counter read
 
-In file included from /usr/include/linux/byteorder/little_endian.h:12:0,
-                 from /usr/include/asm/byteorder.h:14,
-                 from tools/include/uapi/linux/perf_event.h:20,
-                 from perf.h:8,
-                 from builtin-bench.c:18:
-/usr/include/linux/swab.h:160:8: error: unknown type name `__always_inline'
- static __always_inline __u16 __swab16p(const __u16 *p)
+This does not always happen but is reproducible quite often (7 out of 10
+times). The problem appears because the iMX6ULL is not able to read the
+registers within one 32kHz clock cycle which is the base clock of the
+RTC. Therefore, this patch allows a difference of up to 320 cycles
+(10ms). 10ms was chosen to be big enough even on systems with less cpu
+power (e.g. iMX6ULL). According to the reference manual a difference is
+fine:
+- If the two consecutive reads are similar, the value is correct.
+The values have to be similar, not equal.
 
-Fix this by replacing the inclusion of linux/compiler.h with
-linux/stddef.h to ensure that we pick up that definition if required,
-without relying on it's indirect inclusion. compiler.h is then included
-indirectly, via stddef.h.
-
-Fixes: 283d75737837 ("uapi/linux/stddef.h: Provide __always_inline to userspace headers")
-Signed-off-by: Matt Redfearn <matt.redfearn@mips.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Petr Vaněk <arkamar@atlas.cz>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: cd7f3a249dbe ("rtc: snvs: Add timeouts to avoid kernel lockups")
+Reviewed-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+Signed-off-by: Francesco Dolcini <francesco@dolcini.it>
+Link: https://lore.kernel.org/r/20221106115915.7930-1-francesco@dolcini.it
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/swab.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-snvs.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/swab.h b/include/uapi/linux/swab.h
-index 7272f85d6d6a..3736f2fe1541 100644
---- a/include/uapi/linux/swab.h
-+++ b/include/uapi/linux/swab.h
-@@ -3,7 +3,7 @@
- #define _UAPI_LINUX_SWAB_H
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 7aa2c5ea0de4..86d1af7b6e75 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -39,6 +39,14 @@
+ #define SNVS_LPPGDR_INIT	0x41736166
+ #define CNTR_TO_SECS_SH		15
  
- #include <linux/types.h>
--#include <linux/compiler.h>
-+#include <linux/stddef.h>
- #include <asm/bitsperlong.h>
- #include <asm/swab.h>
++/* The maximum RTC clock cycles that are allowed to pass between two
++ * consecutive clock counter register reads. If the values are corrupted a
++ * bigger difference is expected. The RTC frequency is 32kHz. With 320 cycles
++ * we end at 10ms which should be enough for most cases. If it once takes
++ * longer than expected we do a retry.
++ */
++#define MAX_RTC_READ_DIFF_CYCLES	320
++
+ struct snvs_rtc_data {
+ 	struct rtc_device *rtc;
+ 	struct regmap *regmap;
+@@ -63,6 +71,7 @@ static u64 rtc_read_lpsrt(struct snvs_rtc_data *data)
+ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
+ {
+ 	u64 read1, read2;
++	s64 diff;
+ 	unsigned int timeout = 100;
  
+ 	/* As expected, the registers might update between the read of the LSB
+@@ -73,7 +82,8 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
+ 	do {
+ 		read2 = read1;
+ 		read1 = rtc_read_lpsrt(data);
+-	} while (read1 != read2 && --timeout);
++		diff = read1 - read2;
++	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
+ 	if (!timeout)
+ 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
+ 
+@@ -85,13 +95,15 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
+ static int rtc_read_lp_counter_lsb(struct snvs_rtc_data *data, u32 *lsb)
+ {
+ 	u32 count1, count2;
++	s32 diff;
+ 	unsigned int timeout = 100;
+ 
+ 	regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
+ 	do {
+ 		count2 = count1;
+ 		regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
+-	} while (count1 != count2 && --timeout);
++		diff = count1 - count2;
++	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
+ 	if (!timeout) {
+ 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
+ 		return -ETIMEDOUT;
 -- 
 2.35.1
 
