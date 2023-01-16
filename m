@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB12C66C4D3
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90A3466C535
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:03:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231683AbjAPP6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:58:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41154 "EHLO
+        id S232158AbjAPQDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:03:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231787AbjAPP6g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:58:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7B271EFE0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:58:34 -0800 (PST)
+        with ESMTP id S232194AbjAPQCc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:02:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98D6724132
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A53F2B8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:58:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F30C7C433EF;
-        Mon, 16 Jan 2023 15:58:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C4BBB81062
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93CC5C433F0;
+        Mon, 16 Jan 2023 16:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884712;
-        bh=f+B3hQ8bQlLsA4dwkMueRXp6yg389tA+Vx2uaELslVA=;
+        s=korg; t=1673884927;
+        bh=AGgSgN0KD9wa2C/r3+Sdgg0lBN7PJMU28YJuPhQvwHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XrTgf8a9ouprcjUubNvC+tM2mrDnvdsxNGqWIaZ8ut+kS1W7yM7g8Zr/SQ64KIIM9
-         69FSs2j4uOwVSNUEclkj2mriWjuI+vDvnrpyxymEpkXpfTAJ4+FPZ7feiD7Z7/97yS
-         RIMYeoYQK/jWuPsHTiITsh40NinqbSBdUcapynHo=
+        b=fOzRpx7mn/LZ3+DlF2tIv0pMBWD7FqDCswWyW3MrdgPqggTDOchw6R+CmTL1+YJTB
+         D4YJLgBKCj/PRm68PljFcc5DhN4Mvm5XAxWn7uHmi+9f2ou1Gm0v4ydy2b08PGE0Xa
+         Jfpph6fOmK3ePrDnqjJLrbgRmgTEEAW8ZulC/VcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Lunn <andrew@lunn.ch>,
-        Biao Huang <biao.huang@mediatek.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 111/183] stmmac: dwmac-mediatek: remove the dwmac_fix_mac_speed
-Date:   Mon, 16 Jan 2023 16:50:34 +0100
-Message-Id: <20230116154808.056490493@linuxfoundation.org>
+        patches@lists.linux.dev, Davide Ornaghi <d.ornaghi97@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.15 01/86] netfilter: nft_payload: incorrect arithmetics when fetching VLAN header bits
+Date:   Mon, 16 Jan 2023 16:50:35 +0100
+Message-Id: <20230116154747.114079478@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,81 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biao Huang <biao.huang@mediatek.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit c26de7507d1f5ffa5daf6a4980ef7896889691a9 ]
+commit 696e1a48b1a1b01edad542a1ef293665864a4dd0 upstream.
 
-In current driver, MAC will always enable 2ns delay in RGMII mode,
-but that's not the correct usage.
+If the offset + length goes over the ethernet + vlan header, then the
+length is adjusted to copy the bytes that are within the boundaries of
+the vlan_ethhdr scratchpad area. The remaining bytes beyond ethernet +
+vlan header are copied directly from the skbuff data area.
 
-Remove the dwmac_fix_mac_speed() in driver, and recommend "rgmii-id"
-for phy-mode in device tree.
+Fix incorrect arithmetic operator: subtract, not add, the size of the
+vlan header in case of double-tagged packets to adjust the length
+accordingly to address CVE-2023-0179.
 
-Fixes: f2d356a6ab71 ("stmmac: dwmac-mediatek: add support for mt8195")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Biao Huang <biao.huang@mediatek.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Davide Ornaghi <d.ornaghi97@gmail.com>
+Fixes: f6ae9f120dad ("netfilter: nft_payload: add C-VLAN support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../ethernet/stmicro/stmmac/dwmac-mediatek.c  | 26 -------------------
- 1 file changed, 26 deletions(-)
+ net/netfilter/nft_payload.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c
-index d42e1afb6521..2f7d8e4561d9 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c
-@@ -90,7 +90,6 @@ struct mediatek_dwmac_plat_data {
- struct mediatek_dwmac_variant {
- 	int (*dwmac_set_phy_interface)(struct mediatek_dwmac_plat_data *plat);
- 	int (*dwmac_set_delay)(struct mediatek_dwmac_plat_data *plat);
--	void (*dwmac_fix_mac_speed)(void *priv, unsigned int speed);
+--- a/net/netfilter/nft_payload.c
++++ b/net/netfilter/nft_payload.c
+@@ -63,7 +63,7 @@ nft_payload_copy_vlan(u32 *d, const stru
+ 			return false;
  
- 	/* clock ids to be requested */
- 	const char * const *clk_list;
-@@ -443,32 +442,9 @@ static int mt8195_set_delay(struct mediatek_dwmac_plat_data *plat)
- 	return 0;
- }
+ 		if (offset + len > VLAN_ETH_HLEN + vlan_hlen)
+-			ethlen -= offset + len - VLAN_ETH_HLEN + vlan_hlen;
++			ethlen -= offset + len - VLAN_ETH_HLEN - vlan_hlen;
  
--static void mt8195_fix_mac_speed(void *priv, unsigned int speed)
--{
--	struct mediatek_dwmac_plat_data *priv_plat = priv;
--
--	if ((phy_interface_mode_is_rgmii(priv_plat->phy_mode))) {
--		/* prefer 2ns fixed delay which is controlled by TXC_PHASE_CTRL,
--		 * when link speed is 1Gbps with RGMII interface,
--		 * Fall back to delay macro circuit for 10/100Mbps link speed.
--		 */
--		if (speed == SPEED_1000)
--			regmap_update_bits(priv_plat->peri_regmap,
--					   MT8195_PERI_ETH_CTRL0,
--					   MT8195_RGMII_TXC_PHASE_CTRL |
--					   MT8195_DLY_GTXC_ENABLE |
--					   MT8195_DLY_GTXC_INV |
--					   MT8195_DLY_GTXC_STAGES,
--					   MT8195_RGMII_TXC_PHASE_CTRL);
--		else
--			mt8195_set_delay(priv_plat);
--	}
--}
--
- static const struct mediatek_dwmac_variant mt8195_gmac_variant = {
- 	.dwmac_set_phy_interface = mt8195_set_interface,
- 	.dwmac_set_delay = mt8195_set_delay,
--	.dwmac_fix_mac_speed = mt8195_fix_mac_speed,
- 	.clk_list = mt8195_dwmac_clk_l,
- 	.num_clks = ARRAY_SIZE(mt8195_dwmac_clk_l),
- 	.dma_bit_mask = 35,
-@@ -619,8 +595,6 @@ static int mediatek_dwmac_common_data(struct platform_device *pdev,
- 	plat->bsp_priv = priv_plat;
- 	plat->init = mediatek_dwmac_init;
- 	plat->clks_config = mediatek_dwmac_clks_config;
--	if (priv_plat->variant->dwmac_fix_mac_speed)
--		plat->fix_mac_speed = priv_plat->variant->dwmac_fix_mac_speed;
+ 		memcpy(dst_u8, vlanh + offset - vlan_hlen, ethlen);
  
- 	plat->safety_feat_cfg = devm_kzalloc(&pdev->dev,
- 					     sizeof(*plat->safety_feat_cfg),
--- 
-2.35.1
-
 
 
