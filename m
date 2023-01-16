@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12E2366C6B0
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:23:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 506C966C6B1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233072AbjAPQXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:23:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41384 "EHLO
+        id S232770AbjAPQX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:23:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233077AbjAPQW6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:22:58 -0500
+        with ESMTP id S233096AbjAPQXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:23:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C6E3251C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B21F832522
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB61DB81065
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26C6DC433D2;
-        Mon, 16 Jan 2023 16:12:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73232B81085
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0B49C433EF;
+        Mon, 16 Jan 2023 16:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885551;
-        bh=bp/R7mMv/SCi3w1gAk8gp9y1YEpKRXZ/rRW6Vci6Yv0=;
+        s=korg; t=1673885554;
+        bh=/EDt0kOiSQuBfVXzCijxUJreh/NgWK01WumrG59bQos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b51m13duL/kNUKtGGg1b3eMN1QVub+LY1mEdQcUyi2IMdTG6L8dsam1QKvvLPcPnW
-         Ik8xopD5ItZDMYlEcpGI0a7tJwruxxdeV8LWNEHSGqIWzksf9gEq0H1AIoiV2v1UkY
-         xHAlAKTdc1P6kz/v8z0WT4su03CCMZSKAai92uNY=
+        b=LwovTShJj3p8PIEoACXaTSG/1dkUSJl2GWwbIeGppu3K6NgcXWEmwqKfTdz5NuLXg
+         Pcfrze+7deAyMW/f7ApqBd3+dlrYLfhj+DyTl7uveq47EM+y4iQWTzGXruPX7IPZMI
+         53hpoSW9TW1xsMYvaqEf2ygtFQPUhr2xLzu1m1P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 066/658] perf/x86/intel/uncore: Fix reference count leak in hswep_has_limit_sbox()
-Date:   Mon, 16 Jan 2023 16:42:34 +0100
-Message-Id: <20230116154912.672731635@linuxfoundation.org>
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 067/658] irqchip: gic-pm: Use pm_runtime_resume_and_get() in gic_probe()
+Date:   Mon, 16 Jan 2023 16:42:35 +0100
+Message-Id: <20230116154912.706195826@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -55,36 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 1ff9dd6e7071a561f803135c1d684b13c7a7d01d ]
+[ Upstream commit f9ee20c85b3a3ba0afd3672630ec4f93d339f015 ]
 
-pci_get_device() will increase the reference count for the returned
-'dev'. We need to call pci_dev_put() to decrease the reference count.
-Since 'dev' is only used in pci_read_config_dword(), let's add
-pci_dev_put() right after it.
+gic_probe() calls pm_runtime_get_sync() and added fail path as
+rpm_put to put usage_counter. However, pm_runtime_get_sync()
+will increment usage_counter even it failed. Fix it by replacing it with
+pm_runtime_resume_and_get() to keep usage counter balanced.
 
-Fixes: 9d480158ee86 ("perf/x86/intel/uncore: Remove uncore extra PCI dev HSWEP_PCI_PCU_3")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20221118063137.121512-3-wangxiongfeng2@huawei.com
+Fixes: 9c8edddfc992 ("irqchip/gic: Add platform driver for non-root GICs that require RPM")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20221124065150.22809-1-shangxiaojing@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/irqchip/irq-gic-pm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 0f61f46e6086..fe2edc760e60 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -2762,6 +2762,7 @@ static bool hswep_has_limit_sbox(unsigned int device)
- 		return false;
+diff --git a/drivers/irqchip/irq-gic-pm.c b/drivers/irqchip/irq-gic-pm.c
+index 1337ceceb59b..8be7d136c3bf 100644
+--- a/drivers/irqchip/irq-gic-pm.c
++++ b/drivers/irqchip/irq-gic-pm.c
+@@ -104,7 +104,7 @@ static int gic_probe(struct platform_device *pdev)
  
- 	pci_read_config_dword(dev, HSWEP_PCU_CAPID4_OFFET, &capid4);
-+	pci_dev_put(dev);
- 	if (!hswep_get_chop(capid4))
- 		return true;
+ 	pm_runtime_enable(dev);
+ 
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0)
+ 		goto rpm_disable;
  
 -- 
 2.35.1
