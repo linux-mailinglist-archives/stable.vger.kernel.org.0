@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40E2866C48E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:56:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61A9066C8E2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231290AbjAPP4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:56:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37990 "EHLO
+        id S233413AbjAPQoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:44:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231551AbjAPP4A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:56:00 -0500
+        with ESMTP id S233625AbjAPQnV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B1447ECB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9090244AE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6BF2B8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BC36C433D2;
-        Mon, 16 Jan 2023 15:55:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C120B80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE256C433EF;
+        Mon, 16 Jan 2023 16:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884555;
-        bh=MU8wepNEKBoAoupapCSody0HU15y//59seMrIiAZ70E=;
+        s=korg; t=1673886670;
+        bh=W5NGfxoJwuCFZ8PaPL+/+vrjZDBNkqfoseKUAUk97wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Av2XvtgYEmhBi5XRebMQHYwyMvFsEAoO0Ln2ealg1cs+xBK7ONe4ITJbaCo6kCIN
-         8tNjNKrfB8yeUd7QgT+38GCjveTSNEow551RLmEOSON7gteTFerGWDFThdVtZ6isTF
-         VRBvzLZ+VFVeAo6gJuBZJ14mxqBoEsH0hiaRW6mY=
+        b=wOxtuuKyEJKBIfrxQIC8p4rI4EnC+UPuv3H77rHxe3HYBZdmZwgu2VkCuuMztj5ux
+         30917nba6QomlIt/Gi87jt+ZHdAuFVVIgIM1/7Qr/K4hERKB9rccEDNAM19FNwY8sT
+         ItSyYf/loEZ/m6Ob4NyUKYnLelGkvGVvB8iNfRmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 6.1 051/183] platform/x86: dell-privacy: Fix SW_CAMERA_LENS_COVER reporting
-Date:   Mon, 16 Jan 2023 16:49:34 +0100
-Message-Id: <20230116154805.519705490@linuxfoundation.org>
+        patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>,
+        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+Subject: [PATCH 5.4 487/658] selftests: Use optional USERCFLAGS and USERLDFLAGS
+Date:   Mon, 16 Jan 2023 16:49:35 +0100
+Message-Id: <20230116154931.801269901@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,80 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Mickaël Salaün <mic@digikod.net>
 
-commit 1af7fef0d9d3fa075bf4e850f705df1fe97d33ce upstream.
+commit de3ee3f63400a23954e7c1ad1cb8c20f29ab6fe3 upstream.
 
-Use KE_VSW instead of KE_SW for the SW_CAMERA_LENS_COVER key_entry
-and get the value of the switch from the status field when handling
-SW_CAMERA_LENS_COVER events, instead of always reporting 0.
+This change enables to extend CFLAGS and LDFLAGS from command line, e.g.
+to extend compiler checks: make USERCFLAGS=-Werror USERLDFLAGS=-static
 
-Also correctly set the initial SW_CAMERA_LENS_COVER value.
+USERCFLAGS and USERLDFLAGS are documented in
+Documentation/kbuild/makefiles.rst and Documentation/kbuild/kbuild.rst
 
-Fixes: 8af9fa37b8a3 ("platform/x86: dell-privacy: Add support for Dell hardware privacy")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221221220724.119594-1-hdegoede@redhat.com
+This should be backported (down to 5.10) to improve previous kernel
+versions testing as well.
+
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Link: https://lore.kernel.org/r/20220909103901.1503436-1-mic@digikod.net
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/dell/dell-wmi-privacy.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ tools/testing/selftests/lib.mk |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/platform/x86/dell/dell-wmi-privacy.c
-+++ b/drivers/platform/x86/dell/dell-wmi-privacy.c
-@@ -61,7 +61,7 @@ static const struct key_entry dell_wmi_k
- 	/* privacy mic mute */
- 	{ KE_KEY, 0x0001, { KEY_MICMUTE } },
- 	/* privacy camera mute */
--	{ KE_SW,  0x0002, { SW_CAMERA_LENS_COVER } },
-+	{ KE_VSW, 0x0002, { SW_CAMERA_LENS_COVER } },
- 	{ KE_END, 0},
- };
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -130,6 +130,11 @@ endef
+ clean:
+ 	$(CLEAN)
  
-@@ -115,11 +115,15 @@ bool dell_privacy_process_event(int type
- 
- 	switch (code) {
- 	case DELL_PRIVACY_AUDIO_EVENT: /* Mic mute */
--	case DELL_PRIVACY_CAMERA_EVENT: /* Camera mute */
- 		priv->last_status = status;
- 		sparse_keymap_report_entry(priv->input_dev, key, 1, true);
- 		ret = true;
- 		break;
-+	case DELL_PRIVACY_CAMERA_EVENT: /* Camera mute */
-+		priv->last_status = status;
-+		sparse_keymap_report_entry(priv->input_dev, key, !(status & CAMERA_STATUS), false);
-+		ret = true;
-+		break;
- 	default:
- 		dev_dbg(&priv->wdev->dev, "unknown event type 0x%04x 0x%04x\n", type, code);
- 	}
-@@ -304,6 +308,11 @@ static int dell_privacy_wmi_probe(struct
- 
- 	dev_set_drvdata(&wdev->dev, priv);
- 	priv->wdev = wdev;
++# Enables to extend CFLAGS and LDFLAGS from command line, e.g.
++# make USERCFLAGS=-Werror USERLDFLAGS=-static
++CFLAGS += $(USERCFLAGS)
++LDFLAGS += $(USERLDFLAGS)
 +
-+	ret = get_current_status(priv->wdev);
-+	if (ret)
-+		return ret;
-+
- 	/* create evdev passing interface */
- 	priv->input_dev = devm_input_allocate_device(&wdev->dev);
- 	if (!priv->input_dev)
-@@ -342,11 +351,12 @@ static int dell_privacy_wmi_probe(struct
- 	priv->input_dev->name = "Dell Privacy Driver";
- 	priv->input_dev->id.bustype = BUS_HOST;
- 
--	ret = input_register_device(priv->input_dev);
--	if (ret)
--		return ret;
-+	/* Report initial camera-cover status */
-+	if (priv->features_present & BIT(DELL_PRIVACY_TYPE_CAMERA))
-+		input_report_switch(priv->input_dev, SW_CAMERA_LENS_COVER,
-+				    !(priv->last_status & CAMERA_STATUS));
- 
--	ret = get_current_status(priv->wdev);
-+	ret = input_register_device(priv->input_dev);
- 	if (ret)
- 		return ret;
- 
+ # When make O= with kselftest target from main level
+ # the following aren't defined.
+ #
 
 
