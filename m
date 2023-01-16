@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D0166C778
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 016AF66C9EC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:57:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233240AbjAPQbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:31:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46490 "EHLO
+        id S234099AbjAPQ5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:57:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233291AbjAPQad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:33 -0500
+        with ESMTP id S233925AbjAPQ53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6049F38B7E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD66459E42
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E725961027
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04124C433EF;
-        Mon, 16 Jan 2023 16:18:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69FBE61077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D288C433F1;
+        Mon, 16 Jan 2023 16:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885932;
-        bh=WDWVJsU54yrKIMxl39Xh66r9MI1mM4lWGsO59b5hmDQ=;
+        s=korg; t=1673887215;
+        bh=t5+x0T00fGyLXIl7H9IOn5UpGd8fZGrnJo90+sBA0vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeI+1ZpiCeLXd7LkQVSqx3Gy65HmKBHdWGYPM5zifivdgY94GP4JyZWCVBrx+Xp1Y
-         HJMCRUtrGVQtNkPFOSwCIkb+lRPyWH2Z4zGv/OqwfqKBDQV9vhNfsdPewrq8VKCXAC
-         9/n+J+OMBXhwAFnjGNPFPT8JttqghhiNYS2tdnXM=
+        b=aFUM6LKIxXKqOp9EighpakjQFOfNYG4WYyJ4u9mX0CrrTk4TCyz+7XBPZaVzI/FZ8
+         GK68Z0xZzZlzVaQ1W/vWKqsP5N1JuajfbPll5s0/MtW/c/Gw/Ird2p3htertJho+UP
+         ajY1cLUgsJLCfjYdaoYPlOR01gCF8kCtzsWarCCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 238/658] Bluetooth: RFCOMM: dont call kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 4.19 064/521] ACPICA: Fix use-after-free in acpi_ut_copy_ipackage_to_ipackage()
 Date:   Mon, 16 Jan 2023 16:45:26 +0100
-Message-Id: <20230116154920.439851640@linuxfoundation.org>
+Message-Id: <20230116154850.104199341@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit 0ba18967d4544955b2eff2fbc4f2a8750c4df90a ]
+[ Upstream commit 470188b09e92d83c5a997f25f0e8fb8cd2bc3469 ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So replace kfree_skb()
-with dev_kfree_skb_irq() under spin_lock_irqsave().
+There is an use-after-free reported by KASAN:
 
-Fixes: 81be03e026dc ("Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+  BUG: KASAN: use-after-free in acpi_ut_remove_reference+0x3b/0x82
+  Read of size 1 at addr ffff888112afc460 by task modprobe/2111
+  CPU: 0 PID: 2111 Comm: modprobe Not tainted 6.1.0-rc7-dirty
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+  Call Trace:
+   <TASK>
+   kasan_report+0xae/0xe0
+   acpi_ut_remove_reference+0x3b/0x82
+   acpi_ut_copy_iobject_to_iobject+0x3be/0x3d5
+   acpi_ds_store_object_to_local+0x15d/0x3a0
+   acpi_ex_store+0x78d/0x7fd
+   acpi_ex_opcode_1A_1T_1R+0xbe4/0xf9b
+   acpi_ps_parse_aml+0x217/0x8d5
+   ...
+   </TASK>
+
+The root cause of the problem is that the acpi_operand_object
+is freed when acpi_ut_walk_package_tree() fails in
+acpi_ut_copy_ipackage_to_ipackage(), lead to repeated release in
+acpi_ut_copy_iobject_to_iobject(). The problem was introduced
+by "8aa5e56eeb61" commit, this commit is to fix memory leak in
+acpi_ut_copy_iobject_to_iobject(), repeatedly adding remove
+operation, lead to "acpi_operand_object" used after free.
+
+Fix it by removing acpi_ut_remove_reference() in
+acpi_ut_copy_ipackage_to_ipackage(). acpi_ut_copy_ipackage_to_ipackage()
+is called to copy an internal package object into another internal
+package object, when it fails, the memory of acpi_operand_object
+should be freed by the caller.
+
+Fixes: 8aa5e56eeb61 ("ACPICA: Utilities: Fix memory leak in acpi_ut_copy_iobject_to_iobject")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/rfcomm/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/acpica/utcopy.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/net/bluetooth/rfcomm/core.c b/net/bluetooth/rfcomm/core.c
-index 83a8c48dfaa8..2db9e285215c 100644
---- a/net/bluetooth/rfcomm/core.c
-+++ b/net/bluetooth/rfcomm/core.c
-@@ -594,7 +594,7 @@ int rfcomm_dlc_send(struct rfcomm_dlc *d, struct sk_buff *skb)
- 
- 		ret = rfcomm_dlc_send_frag(d, frag);
- 		if (ret < 0) {
--			kfree_skb(frag);
-+			dev_kfree_skb_irq(frag);
- 			goto unlock;
- 		}
+diff --git a/drivers/acpi/acpica/utcopy.c b/drivers/acpi/acpica/utcopy.c
+index a872ed7879ca..056c1741c1e3 100644
+--- a/drivers/acpi/acpica/utcopy.c
++++ b/drivers/acpi/acpica/utcopy.c
+@@ -916,13 +916,6 @@ acpi_ut_copy_ipackage_to_ipackage(union acpi_operand_object *source_obj,
+ 	status = acpi_ut_walk_package_tree(source_obj, dest_obj,
+ 					   acpi_ut_copy_ielement_to_ielement,
+ 					   walk_state);
+-	if (ACPI_FAILURE(status)) {
+-
+-		/* On failure, delete the destination package object */
+-
+-		acpi_ut_remove_reference(dest_obj);
+-	}
+-
+ 	return_ACPI_STATUS(status);
+ }
  
 -- 
 2.35.1
