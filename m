@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 677C766CB80
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 387A466CD03
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:32:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234372AbjAPRPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39146 "EHLO
+        id S234862AbjAPRci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:32:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234424AbjAPRNu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEB7B4B76F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:29 -0800 (PST)
+        with ESMTP id S234854AbjAPRcD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6B742DD4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E17261018
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A778CC433EF;
-        Mon, 16 Jan 2023 16:54:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05D84B810A5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ED20C433D2;
+        Mon, 16 Jan 2023 17:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888069;
-        bh=FLYHP4h2jbNAfMMW0jtLHY3ilKtxDgEnGDPOCS4ZCsU=;
+        s=korg; t=1673888906;
+        bh=EisQoTkT/fo8eqjMDoPsX1aX2ZPh1PToLWpozWmqpXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcIqMQW2zuuXJhb/G8RSEwYjenUWPJlLcTWOFee11alJO3TeES53XGdGe2dIuBLM+
-         wp8EWthNzw+h0Rg/6Blibon2kjslujGfHEn4f4l1muH1MSfPpNW1NcgZ4emIccs5Hf
-         KisZMLYDfO0Be5x1d1E+eOFCvzaImpEL4NKBZS5o=
+        b=F/T02DtBH1zWyoCYPnaXgd8njuaIysT4UvzV7fRjEJGiGTSwuAQ0oZlX0iNWH23V9
+         8RpTgxr1ARR8TGlo/WpeltXzBIfDoo1l25LE3V6ar/7trkoIMcFzflyFP/ux25OuXI
+         Qli72Tsw9bZZMnUrHhw9jUUEHZTNC5VQjGtkcWcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.19 387/521] dm cache: set needs_check flag after aborting metadata
-Date:   Mon, 16 Jan 2023 16:50:49 +0100
-Message-Id: <20230116154904.432327270@linuxfoundation.org>
+        patches@lists.linux.dev, YueHaibing <yuehaibing@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 177/338] staging: rtl8192e: Fix potential use-after-free in rtllib_rx_Monitor()
+Date:   Mon, 16 Jan 2023 16:50:50 +0100
+Message-Id: <20230116154828.628400077@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,47 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@kernel.org>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit 6b9973861cb2e96dcd0bb0f1baddc5c034207c5c upstream.
+[ Upstream commit d30f4436f364b4ad915ca2c09be07cd0f93ceb44 ]
 
-Otherwise the commit that will be aborted will be associated with the
-metadata objects that will be torn down.  Must write needs_check flag
-to metadata with a reset block manager.
+The skb is delivered to netif_rx() in rtllib_monitor_rx(), which may free it,
+after calling this, dereferencing skb may trigger use-after-free.
+Found by Smatch.
 
-Found through code-inspection (and compared against dm-thin.c).
-
-Cc: stable@vger.kernel.org
-Fixes: 028ae9f76f29 ("dm cache: add fail io mode and needs_check flag")
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com> [PATCH 1/8] rtl8192e: Import new version of driver from realtek")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20221123081253.22296-1-yuehaibing@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-cache-target.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/rtl8192e/rtllib_rx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-cache-target.c
-+++ b/drivers/md/dm-cache-target.c
-@@ -1010,16 +1010,16 @@ static void abort_transaction(struct cac
- 	if (get_cache_mode(cache) >= CM_READ_ONLY)
- 		return;
- 
--	if (dm_cache_metadata_set_needs_check(cache->cmd)) {
--		DMERR("%s: failed to set 'needs_check' flag in metadata", dev_name);
--		set_cache_mode(cache, CM_FAIL);
--	}
--
- 	DMERR_LIMIT("%s: aborting current metadata transaction", dev_name);
- 	if (dm_cache_metadata_abort(cache->cmd)) {
- 		DMERR("%s: failed to abort metadata transaction", dev_name);
- 		set_cache_mode(cache, CM_FAIL);
+diff --git a/drivers/staging/rtl8192e/rtllib_rx.c b/drivers/staging/rtl8192e/rtllib_rx.c
+index 171009e82137..85a71b09fcba 100644
+--- a/drivers/staging/rtl8192e/rtllib_rx.c
++++ b/drivers/staging/rtl8192e/rtllib_rx.c
+@@ -1501,9 +1501,9 @@ static int rtllib_rx_Monitor(struct rtllib_device *ieee, struct sk_buff *skb,
+ 		hdrlen += 4;
  	}
-+
-+	if (dm_cache_metadata_set_needs_check(cache->cmd)) {
-+		DMERR("%s: failed to set 'needs_check' flag in metadata", dev_name);
-+		set_cache_mode(cache, CM_FAIL);
-+	}
- }
  
- static void metadata_operation_failed(struct cache *cache, const char *op, int r)
+-	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
+ 	ieee->stats.rx_packets++;
+ 	ieee->stats.rx_bytes += skb->len;
++	rtllib_monitor_rx(ieee, skb, rx_stats, hdrlen);
+ 
+ 	return 1;
+ }
+-- 
+2.35.1
+
 
 
