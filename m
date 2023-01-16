@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A934966CCF8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9F466CCFA
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234846AbjAPRbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:31:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54316 "EHLO
+        id S234833AbjAPRbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:31:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234792AbjAPRbO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:31:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5169E42BF9
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:09 -0800 (PST)
+        with ESMTP id S234661AbjAPRbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:31:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFA3742DC5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E437561050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F33A7C433D2;
-        Mon, 16 Jan 2023 17:08:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7889161050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F94AC433EF;
+        Mon, 16 Jan 2023 17:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888888;
-        bh=tzSOTSA0HP8n3RgsL4EscEvLzrTLGfxDw45WANuCjio=;
+        s=korg; t=1673888890;
+        bh=TMSpC676pJqqGdXjBqcpao97F+p1PQzZfiLVaBlGaT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SmsCF/0ie3H7d3C+XGqEHv6HdFoYcFrEj0TBbmsGhmX9yLHpgJw9N+1ubwfCWlDO/
-         0kx42y6vNAEOyQAhUki+cayP6h10vCWSFLeq0iyvE8nI+4EP4EcV2LTSd+vrgUFvH2
-         eq8y1IfArqzC3ORD10JDMCy5JbgvLfyrzw0OcVxU=
+        b=HOE4flSCznFtSc36jdfb87kR5cr5+edmfoQ2nVaRtkhepqWWj49VB/K0KIt1t48y5
+         xMLou4c42aMzbVGCrPgZCJmjm5NhechzPkn+u0mqAT3fYaN4g1hY74p5QPwsDWbntR
+         qqzbBip+tX2dbRSl81Fhr2JwP1hpcRQfL5T1hlBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 147/338] scsi: fcoe: Fix possible name leak when device_register() fails
-Date:   Mon, 16 Jan 2023 16:50:20 +0100
-Message-Id: <20230116154827.264083776@linuxfoundation.org>
+Subject: [PATCH 4.14 148/338] scsi: ipr: Fix WARNING in ipr_init()
+Date:   Mon, 16 Jan 2023 16:50:21 +0100
+Message-Id: <20230116154827.307309356@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,76 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 47b6a122c7b69a876c7ee2fc064a26b09627de9d ]
+[ Upstream commit e6f108bffc3708ddcff72324f7d40dfcd0204894 ]
 
-If device_register() returns an error, the name allocated by dev_set_name()
-needs to be freed. As the comment of device_register() says, one should use
-put_device() to give up the reference in the error path. Fix this by
-calling put_device(), then the name can be freed in kobject_cleanup().
+ipr_init() will not call unregister_reboot_notifier() when
+pci_register_driver() fails, which causes a WARNING. Call
+unregister_reboot_notifier() when pci_register_driver() fails.
 
-The 'fcf' is freed in fcoe_fcf_device_release(), so the kfree() in the
-error path can be removed.
+notifier callback ipr_halt [ipr] already registered
+WARNING: CPU: 3 PID: 299 at kernel/notifier.c:29
+notifier_chain_register+0x16d/0x230
+Modules linked in: ipr(+) xhci_pci_renesas xhci_hcd ehci_hcd usbcore
+led_class gpu_sched drm_buddy video wmi drm_ttm_helper ttm
+drm_display_helper drm_kms_helper drm drm_panel_orientation_quirks
+agpgart cfbft
+CPU: 3 PID: 299 Comm: modprobe Tainted: G        W
+6.1.0-rc1-00190-g39508d23b672-dirty #332
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
+RIP: 0010:notifier_chain_register+0x16d/0x230
+Call Trace:
+ <TASK>
+ __blocking_notifier_chain_register+0x73/0xb0
+ ipr_init+0x30/0x1000 [ipr]
+ do_one_initcall+0xdb/0x480
+ do_init_module+0x1cf/0x680
+ load_module+0x6a50/0x70a0
+ __do_sys_finit_module+0x12f/0x1c0
+ do_syscall_64+0x3f/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-The 'ctlr' is freed in fcoe_ctlr_device_release(), so don't use the error
-label, just return NULL after calling put_device().
-
-Fixes: 9a74e884ee71 ("[SCSI] libfcoe: Add fcoe_sysfs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221112094310.3633291-1-yangyingliang@huawei.com
+Fixes: f72919ec2bbb ("[SCSI] ipr: implement shutdown changes and remove obsolete write cache parameter")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Link: https://lore.kernel.org/r/20221113064513.14028-1-shangxiaojing@huawei.com
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fcoe/fcoe_sysfs.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/scsi/ipr.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/fcoe/fcoe_sysfs.c b/drivers/scsi/fcoe/fcoe_sysfs.c
-index 5c8310bade61..dab025e3ed27 100644
---- a/drivers/scsi/fcoe/fcoe_sysfs.c
-+++ b/drivers/scsi/fcoe/fcoe_sysfs.c
-@@ -831,14 +831,15 @@ struct fcoe_ctlr_device *fcoe_ctlr_device_add(struct device *parent,
+diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
+index 99b37e19feca..86e2d3033a2d 100644
+--- a/drivers/scsi/ipr.c
++++ b/drivers/scsi/ipr.c
+@@ -10858,11 +10858,19 @@ static struct notifier_block ipr_notifier = {
+  **/
+ static int __init ipr_init(void)
+ {
++	int rc;
++
+ 	ipr_info("IBM Power RAID SCSI Device Driver version: %s %s\n",
+ 		 IPR_DRIVER_VERSION, IPR_DRIVER_DATE);
  
- 	dev_set_name(&ctlr->dev, "ctlr_%d", ctlr->id);
- 	error = device_register(&ctlr->dev);
--	if (error)
--		goto out_del_q2;
-+	if (error) {
-+		destroy_workqueue(ctlr->devloss_work_q);
-+		destroy_workqueue(ctlr->work_q);
-+		put_device(&ctlr->dev);
-+		return NULL;
+ 	register_reboot_notifier(&ipr_notifier);
+-	return pci_register_driver(&ipr_driver);
++	rc = pci_register_driver(&ipr_driver);
++	if (rc) {
++		unregister_reboot_notifier(&ipr_notifier);
++		return rc;
 +	}
- 
- 	return ctlr;
- 
--out_del_q2:
--	destroy_workqueue(ctlr->devloss_work_q);
--	ctlr->devloss_work_q = NULL;
- out_del_q:
- 	destroy_workqueue(ctlr->work_q);
- 	ctlr->work_q = NULL;
-@@ -1037,16 +1038,16 @@ struct fcoe_fcf_device *fcoe_fcf_device_add(struct fcoe_ctlr_device *ctlr,
- 	fcf->selected = new_fcf->selected;
- 
- 	error = device_register(&fcf->dev);
--	if (error)
--		goto out_del;
-+	if (error) {
-+		put_device(&fcf->dev);
-+		goto out;
-+	}
- 
- 	fcf->state = FCOE_FCF_STATE_CONNECTED;
- 	list_add_tail(&fcf->peers, &ctlr->fcfs);
- 
- 	return fcf;
- 
--out_del:
--	kfree(fcf);
- out:
- 	return NULL;
++
++	return 0;
  }
+ 
+ /**
 -- 
 2.35.1
 
