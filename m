@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B93866CC93
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:27:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 053D866CB3D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234659AbjAPR1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:27:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47800 "EHLO
+        id S234344AbjAPRMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:12:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234619AbjAPR06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:26:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B775C0CE
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:11 -0800 (PST)
+        with ESMTP id S234157AbjAPRLi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:38 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1EF24900F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FEBB6108B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B92C433D2;
-        Mon, 16 Jan 2023 17:04:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C6676CE129D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8345C433D2;
+        Mon, 16 Jan 2023 16:51:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888650;
-        bh=mQmaaTw8qMiR0+ulFu1I+B7EMG0NIIazNUF1xEP0tMs=;
+        s=korg; t=1673887911;
+        bh=QXhVbp0YlHjNLSNJDJDg/wo6YVZcPyeh7mDGZBboRxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vk3lLJbidj8tdQdpTPUpVCbgyXnuxz9vZzAy+OSiFZGBIjPa3PJASOrTz5q/zv/Nk
-         gxqmSLb9Qs4/9KFy5MYEdqRRLynYHNTR6WRGzZ8qp9rnZOTvJFxbPr53oF0jPX+PRj
-         WXEDlKN2/UtgEDhvWVofNtLrcZk1Ngh+aAYQ9g38=
+        b=Bf0Voon+SqJ+AgJkrrYLCL9mFwPd5LDqsYARYpMZYIfkWR+NDLJ6X8b3DilsLf6Wf
+         +tKEZDXOvYOElJO5LnCdBDlUIPtKs25Q47neWbMccpbRnruQyZDOXrhPg6018MBs/j
+         qRVl5ioIHiIYsK7ZbrYVAtFMTTIjwtlXaf93usUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 087/338] pinctrl: pinconf-generic: add missing of_node_put()
-Date:   Mon, 16 Jan 2023 16:49:20 +0100
-Message-Id: <20230116154824.670738828@linuxfoundation.org>
+Subject: [PATCH 4.19 299/521] mISDN: hfcpci: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
+Date:   Mon, 16 Jan 2023 16:49:21 +0100
+Message-Id: <20230116154900.493298553@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 5ead93289815a075d43c415e35c8beafafb801c9 ]
+[ Upstream commit f0f596bd75a9d573ca9b587abb39cee0b916bb82 ]
 
-of_node_put() needs to be called when jumping out of the loop, since
-for_each_available_child_of_node() will increase the refcount of node.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Fixes: c7289500e29d ("pinctrl: pinconf-generic: scan also referenced phandle node")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Link: https://lore.kernel.org/r/20221125070156.3535855-1-zhangpeng362@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+skb_queue_purge() is called under spin_lock_irqsave() in hfcpci_l2l1D(),
+kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
+to move the dch->squeue to a free queue, also enqueue the tx_skb and
+rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+
+Fixes: 1700fe1a10dc ("Add mISDN HFC PCI driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinconf-generic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/hfcpci.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pinctrl/pinconf-generic.c b/drivers/pinctrl/pinconf-generic.c
-index 6f6fd5e6b68c..07e29fc7443d 100644
---- a/drivers/pinctrl/pinconf-generic.c
-+++ b/drivers/pinctrl/pinconf-generic.c
-@@ -388,8 +388,10 @@ int pinconf_generic_dt_node_to_map(struct pinctrl_dev *pctldev,
- 	for_each_available_child_of_node(np_config, np) {
- 		ret = pinconf_generic_dt_subnode_to_map(pctldev, np, map,
- 					&reserved_maps, num_maps, type);
--		if (ret < 0)
-+		if (ret < 0) {
-+			of_node_put(np);
- 			goto exit;
-+		}
+diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
+index 53349850f866..de98e94711d2 100644
+--- a/drivers/isdn/hardware/mISDN/hfcpci.c
++++ b/drivers/isdn/hardware/mISDN/hfcpci.c
+@@ -1633,16 +1633,19 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
+ 		spin_lock_irqsave(&hc->lock, flags);
+ 		if (hc->hw.protocol == ISDN_P_NT_S0) {
++			struct sk_buff_head free_queue;
++
++			__skb_queue_head_init(&free_queue);
+ 			/* prepare deactivation */
+ 			Write_hfc(hc, HFCPCI_STATES, 0x40);
+-			skb_queue_purge(&dch->squeue);
++			skb_queue_splice_init(&dch->squeue, &free_queue);
+ 			if (dch->tx_skb) {
+-				dev_kfree_skb(dch->tx_skb);
++				__skb_queue_tail(&free_queue, dch->tx_skb);
+ 				dch->tx_skb = NULL;
+ 			}
+ 			dch->tx_idx = 0;
+ 			if (dch->rx_skb) {
+-				dev_kfree_skb(dch->rx_skb);
++				__skb_queue_tail(&free_queue, dch->rx_skb);
+ 				dch->rx_skb = NULL;
+ 			}
+ 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+@@ -1655,10 +1658,12 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 			hc->hw.mst_m &= ~HFCPCI_MASTER;
+ 			Write_hfc(hc, HFCPCI_MST_MODE, hc->hw.mst_m);
+ 			ret = 0;
++			spin_unlock_irqrestore(&hc->lock, flags);
++			__skb_queue_purge(&free_queue);
+ 		} else {
+ 			ret = l1_event(dch->l1, hh->prim);
++			spin_unlock_irqrestore(&hc->lock, flags);
+ 		}
+-		spin_unlock_irqrestore(&hc->lock, flags);
+ 		break;
  	}
- 	return 0;
- 
+ 	if (!ret)
 -- 
 2.35.1
 
