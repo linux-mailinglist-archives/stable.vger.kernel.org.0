@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBC9C66CB9E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E03066CD1F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234431AbjAPRPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
+        id S234170AbjAPRdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:33:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234433AbjAPRPF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 941AE26848
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:47 -0800 (PST)
+        with ESMTP id S234720AbjAPRdU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCEA3442CE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B8CBB80E95
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A6C9C433F0;
-        Mon, 16 Jan 2023 16:55:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58D8461086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68E54C433D2;
+        Mon, 16 Jan 2023 17:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888144;
-        bh=o9PFD4IWyaOxFkIqCM0Mzx67SxK5O+byg1NWQWR5eTY=;
+        s=korg; t=1673888966;
+        bh=G+UxDmprDOMCoO0ThoUu+sNuKWioyzaglYr0k9cSS0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FN/qZyvOcOuqhWLqlnwavvAYQZz+iZp1Sdpg7AFHAMyGdDt6nr+QnJN9MMCe3IOH4
-         vC0ZT7ErInGIBrWp1QjdxU0REUVh2zw0fM5efBPrlC0r8/XP35JiiaLYBaVeDQGq4H
-         www2aN1/xOhv8w4YFl6UA1UwS0SLMlolCzfJSmno=
+        b=W/uToQJDD2RUPDnMrttSTZjl0ykYAifLj0Lm4csH5HB3xAD2Wij+cYSudkO0MMYzd
+         uCQGg7qzaNzuCNtiVbn6soYzPzuL7io3e2rBP2uaNUi2oV8MDVEI2SIG/OfeY3Jr+a
+         8vyKm3y1yRYrjPOpXvEEjgaGsASLEa/x9H+y1q30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.19 417/521] ext4: allocate extended attribute value in vmalloc area
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 206/338] mISDN: hfcpci: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
 Date:   Mon, 16 Jan 2023 16:51:19 +0100
-Message-Id: <20230116154905.769173860@linuxfoundation.org>
+Message-Id: <20230116154829.968603277@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit cc12a6f25e07ed05d5825a1664b67a970842b2ca upstream.
+[ Upstream commit f0f596bd75a9d573ca9b587abb39cee0b916bb82 ]
 
-Now, extended attribute value maximum length is 64K. The memory
-requested here does not need continuous physical addresses, so it is
-appropriate to use kvmalloc to request memory. At the same time, it
-can also cope with the situation that the extended attribute will
-become longer in the future.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221208023233.1231330-3-yebin@huaweicloud.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+skb_queue_purge() is called under spin_lock_irqsave() in hfcpci_l2l1D(),
+kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
+to move the dch->squeue to a free queue, also enqueue the tx_skb and
+rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+
+Fixes: 1700fe1a10dc ("Add mISDN HFC PCI driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcpci.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2570,7 +2570,7 @@ static int ext4_xattr_move_to_block(hand
- 
- 	is = kzalloc(sizeof(struct ext4_xattr_ibody_find), GFP_NOFS);
- 	bs = kzalloc(sizeof(struct ext4_xattr_block_find), GFP_NOFS);
--	buffer = kmalloc(value_size, GFP_NOFS);
-+	buffer = kvmalloc(value_size, GFP_NOFS);
- 	b_entry_name = kmalloc(entry->e_name_len + 1, GFP_NOFS);
- 	if (!is || !bs || !buffer || !b_entry_name) {
- 		error = -ENOMEM;
-@@ -2622,7 +2622,7 @@ static int ext4_xattr_move_to_block(hand
- 	error = 0;
- out:
- 	kfree(b_entry_name);
--	kfree(buffer);
-+	kvfree(buffer);
- 	if (is)
- 		brelse(is->iloc.bh);
- 	if (bs)
+diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
+index 3e73cb5b8304..e7ebc50788d0 100644
+--- a/drivers/isdn/hardware/mISDN/hfcpci.c
++++ b/drivers/isdn/hardware/mISDN/hfcpci.c
+@@ -1631,16 +1631,19 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
+ 		spin_lock_irqsave(&hc->lock, flags);
+ 		if (hc->hw.protocol == ISDN_P_NT_S0) {
++			struct sk_buff_head free_queue;
++
++			__skb_queue_head_init(&free_queue);
+ 			/* prepare deactivation */
+ 			Write_hfc(hc, HFCPCI_STATES, 0x40);
+-			skb_queue_purge(&dch->squeue);
++			skb_queue_splice_init(&dch->squeue, &free_queue);
+ 			if (dch->tx_skb) {
+-				dev_kfree_skb(dch->tx_skb);
++				__skb_queue_tail(&free_queue, dch->tx_skb);
+ 				dch->tx_skb = NULL;
+ 			}
+ 			dch->tx_idx = 0;
+ 			if (dch->rx_skb) {
+-				dev_kfree_skb(dch->rx_skb);
++				__skb_queue_tail(&free_queue, dch->rx_skb);
+ 				dch->rx_skb = NULL;
+ 			}
+ 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+@@ -1653,10 +1656,12 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 			hc->hw.mst_m &= ~HFCPCI_MASTER;
+ 			Write_hfc(hc, HFCPCI_MST_MODE, hc->hw.mst_m);
+ 			ret = 0;
++			spin_unlock_irqrestore(&hc->lock, flags);
++			__skb_queue_purge(&free_queue);
+ 		} else {
+ 			ret = l1_event(dch->l1, hh->prim);
++			spin_unlock_irqrestore(&hc->lock, flags);
+ 		}
+-		spin_unlock_irqrestore(&hc->lock, flags);
+ 		break;
+ 	}
+ 	if (!ret)
+-- 
+2.35.1
+
 
 
