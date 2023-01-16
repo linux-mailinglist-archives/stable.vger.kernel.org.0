@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB3F66C622
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:15:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 444BA66C960
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232892AbjAPQPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:15:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57244 "EHLO
+        id S233861AbjAPQt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:49:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232894AbjAPQOk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:14:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E033241FA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:08:43 -0800 (PST)
+        with ESMTP id S233989AbjAPQsv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:48:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F27030B21
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0CDD61047
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:08:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B63AC433EF;
-        Mon, 16 Jan 2023 16:08:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53F1EB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA7EC43396;
+        Mon, 16 Jan 2023 16:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885322;
-        bh=jSg1Y/ZL7yxbwhiG7qz4niMNnDyABXYNZuS8Fm87tvM=;
+        s=korg; t=1673886953;
+        bh=dFD/eDN4+B1cUdFGu1f4xJbtzOQQdrS2hIarmbxZYtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YzwMYMI4cjSPibpfbRDt0encVLJwLRj6ivlVNYtMckLPJrIvUqYAt64HErkOfd1SI
-         p8Q4g4ql7j6duHPEDHvRMFlwnQLVgwOXz5XpSlgDVyT2OKpIzB7ibTwjKn7lsr5TQ4
-         vCjliydiKsggG57FU5upAFEOJiCxEAhvOrO3+gUU=
+        b=Jxorr6AxJwBPX9TMdNUDPCZ6E2oDvk9OnO2392jK5VWNM65cfWMQXj9G+BnWRllrV
+         VBLdZfZbs5hOoAGiWsOlKTo8ZTXVq4Xuw/dbKgIlkKfuS13YibOMphTlxoQv8m5vSP
+         y4157c8uzpH6VAQowT7CZHB0g7NNZDKJvJAPLYYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 45/64] hvc/xen: lock console list traversal
-Date:   Mon, 16 Jan 2023 16:51:52 +0100
-Message-Id: <20230116154745.123402288@linuxfoundation.org>
+Subject: [PATCH 5.4 625/658] ext4: fix bug_on in __es_tree_search caused by bad quota inode
+Date:   Mon, 16 Jan 2023 16:51:53 +0100
+Message-Id: <20230116154938.086224252@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,181 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit c0dccad87cf68fc6012aec7567e354353097ec1a ]
+[ Upstream commit d323877484765aaacbb2769b06e355c2041ed115 ]
 
-The currently lockless access to the xen console list in
-vtermno_to_xencons() is incorrect, as additions and removals from the
-list can happen anytime, and as such the traversal of the list to get
-the private console data for a given termno needs to happen with the
-lock held.  Note users that modify the list already do so with the
-lock taken.
+We got a issue as fllows:
+==================================================================
+ kernel BUG at fs/ext4/extents_status.c:202!
+ invalid opcode: 0000 [#1] PREEMPT SMP
+ CPU: 1 PID: 810 Comm: mount Not tainted 6.1.0-rc1-next-g9631525255e3 #352
+ RIP: 0010:__es_tree_search.isra.0+0xb8/0xe0
+ RSP: 0018:ffffc90001227900 EFLAGS: 00010202
+ RAX: 0000000000000000 RBX: 0000000077512a0f RCX: 0000000000000000
+ RDX: 0000000000000002 RSI: 0000000000002a10 RDI: ffff8881004cd0c8
+ RBP: ffff888177512ac8 R08: 47ffffffffffffff R09: 0000000000000001
+ R10: 0000000000000001 R11: 00000000000679af R12: 0000000000002a10
+ R13: ffff888177512d88 R14: 0000000077512a10 R15: 0000000000000000
+ FS: 00007f4bd76dbc40(0000)GS:ffff88842fd00000(0000)knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00005653bf993cf8 CR3: 000000017bfdf000 CR4: 00000000000006e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  <TASK>
+  ext4_es_cache_extent+0xe2/0x210
+  ext4_cache_extents+0xd2/0x110
+  ext4_find_extent+0x5d5/0x8c0
+  ext4_ext_map_blocks+0x9c/0x1d30
+  ext4_map_blocks+0x431/0xa50
+  ext4_getblk+0x82/0x340
+  ext4_bread+0x14/0x110
+  ext4_quota_read+0xf0/0x180
+  v2_read_header+0x24/0x90
+  v2_check_quota_file+0x2f/0xa0
+  dquot_load_quota_sb+0x26c/0x760
+  dquot_load_quota_inode+0xa5/0x190
+  ext4_enable_quotas+0x14c/0x300
+  __ext4_fill_super+0x31cc/0x32c0
+  ext4_fill_super+0x115/0x2d0
+  get_tree_bdev+0x1d2/0x360
+  ext4_get_tree+0x19/0x30
+  vfs_get_tree+0x26/0xe0
+  path_mount+0x81d/0xfc0
+  do_mount+0x8d/0xc0
+  __x64_sys_mount+0xc0/0x160
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  </TASK>
+==================================================================
 
-Adjust current lock takers to use the _irq{save,restore} helpers,
-since the context in which vtermno_to_xencons() is called can have
-interrupts disabled.  Use the _irq{save,restore} set of helpers to
-switch the current callers to disable interrupts in the locked region.
-I haven't checked if existing users could instead use the _irq
-variant, as I think it's safer to use _irq{save,restore} upfront.
+Above issue may happen as follows:
+-------------------------------------
+ext4_fill_super
+ ext4_orphan_cleanup
+  ext4_enable_quotas
+   ext4_quota_enable
+    ext4_iget --> get error inode <5>
+     ext4_ext_check_inode --> Wrong imode makes it escape inspection
+     make_bad_inode(inode) --> EXT4_BOOT_LOADER_INO set imode
+    dquot_load_quota_inode
+     vfs_setup_quota_inode --> check pass
+     dquot_load_quota_sb
+      v2_check_quota_file
+       v2_read_header
+        ext4_quota_read
+         ext4_bread
+          ext4_getblk
+           ext4_map_blocks
+            ext4_ext_map_blocks
+             ext4_find_extent
+              ext4_cache_extents
+               ext4_es_cache_extent
+                __es_tree_search.isra.0
+                 ext4_es_end --> Wrong extents trigger BUG_ON
 
-While there switch from using list_for_each_entry_safe to
-list_for_each_entry: the current entry cursor won't be removed as
-part of the code in the loop body, so using the _safe variant is
-pointless.
+In the above issue, s_usr_quota_inum is set to 5, but inode<5> contains
+incorrect imode and disordered extents. Because 5 is EXT4_BOOT_LOADER_INO,
+the ext4_ext_check_inode check in the ext4_iget function can be bypassed,
+finally, the extents that are not checked trigger the BUG_ON in the
+__es_tree_search function. To solve this issue, check whether the inode is
+bad_inode in vfs_setup_quota_inode().
 
-Fixes: 02e19f9c7cac ('hvc_xen: implement multiconsole support')
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20221130163611.14686-1-roger.pau@citrix.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221026042310.3839669-2-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvc_xen.c | 46 ++++++++++++++++++++++++---------------
- 1 file changed, 29 insertions(+), 17 deletions(-)
+ fs/quota/dquot.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/hvc/hvc_xen.c b/drivers/tty/hvc/hvc_xen.c
-index 7948660e042f..6f387a4fd96a 100644
---- a/drivers/tty/hvc/hvc_xen.c
-+++ b/drivers/tty/hvc/hvc_xen.c
-@@ -52,17 +52,22 @@ static DEFINE_SPINLOCK(xencons_lock);
+diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
+index 84f61ab05890..1d652af48f0b 100644
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -2311,6 +2311,8 @@ static int vfs_setup_quota_inode(struct inode *inode, int type)
+ 	struct super_block *sb = inode->i_sb;
+ 	struct quota_info *dqopt = sb_dqopt(sb);
  
- static struct xencons_info *vtermno_to_xencons(int vtermno)
- {
--	struct xencons_info *entry, *n, *ret = NULL;
-+	struct xencons_info *entry, *ret = NULL;
-+	unsigned long flags;
- 
--	if (list_empty(&xenconsoles))
--			return NULL;
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	if (list_empty(&xenconsoles)) {
-+		spin_unlock_irqrestore(&xencons_lock, flags);
-+		return NULL;
-+	}
- 
--	list_for_each_entry_safe(entry, n, &xenconsoles, list) {
-+	list_for_each_entry(entry, &xenconsoles, list) {
- 		if (entry->vtermno == vtermno) {
- 			ret  = entry;
- 			break;
- 		}
- 	}
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return ret;
- }
-@@ -223,7 +228,7 @@ static int xen_hvm_console_init(void)
- {
- 	int r;
- 	uint64_t v = 0;
--	unsigned long gfn;
-+	unsigned long gfn, flags;
- 	struct xencons_info *info;
- 
- 	if (!xen_hvm_domain())
-@@ -258,9 +263,9 @@ static int xen_hvm_console_init(void)
- 		goto err;
- 	info->vtermno = HVC_COOKIE;
- 
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_add_tail(&info->list, &xenconsoles);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- err:
-@@ -283,6 +288,7 @@ static int xencons_info_pv_init(struct xencons_info *info, int vtermno)
- static int xen_pv_console_init(void)
- {
- 	struct xencons_info *info;
-+	unsigned long flags;
- 
- 	if (!xen_pv_domain())
- 		return -ENODEV;
-@@ -299,9 +305,9 @@ static int xen_pv_console_init(void)
- 		/* already configured */
- 		return 0;
- 	}
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	xencons_info_pv_init(info, HVC_COOKIE);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- }
-@@ -309,6 +315,7 @@ static int xen_pv_console_init(void)
- static int xen_initial_domain_console_init(void)
- {
- 	struct xencons_info *info;
-+	unsigned long flags;
- 
- 	if (!xen_initial_domain())
- 		return -ENODEV;
-@@ -323,9 +330,9 @@ static int xen_initial_domain_console_init(void)
- 	info->irq = bind_virq_to_irq(VIRQ_CONSOLE, 0, false);
- 	info->vtermno = HVC_COOKIE;
- 
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_add_tail(&info->list, &xenconsoles);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- }
-@@ -380,10 +387,12 @@ static void xencons_free(struct xencons_info *info)
- 
- static int xen_console_remove(struct xencons_info *info)
- {
-+	unsigned long flags;
-+
- 	xencons_disconnect_backend(info);
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_del(&info->list);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 	if (info->xbdev != NULL)
- 		xencons_free(info);
- 	else {
-@@ -464,6 +473,7 @@ static int xencons_probe(struct xenbus_device *dev,
- {
- 	int ret, devid;
- 	struct xencons_info *info;
-+	unsigned long flags;
- 
- 	devid = dev->nodename[strlen(dev->nodename) - 1] - '0';
- 	if (devid == 0)
-@@ -482,9 +492,9 @@ static int xencons_probe(struct xenbus_device *dev,
- 	ret = xencons_connect_backend(dev, info);
- 	if (ret < 0)
- 		goto error;
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_add_tail(&info->list, &xenconsoles);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- 
-@@ -583,10 +593,12 @@ static int __init xen_hvc_init(void)
- 
- 	info->hvc = hvc_alloc(HVC_COOKIE, info->irq, ops, 256);
- 	if (IS_ERR(info->hvc)) {
-+		unsigned long flags;
-+
- 		r = PTR_ERR(info->hvc);
--		spin_lock(&xencons_lock);
-+		spin_lock_irqsave(&xencons_lock, flags);
- 		list_del(&info->list);
--		spin_unlock(&xencons_lock);
-+		spin_unlock_irqrestore(&xencons_lock, flags);
- 		if (info->irq)
- 			unbind_from_irqhandler(info->irq, NULL);
- 		kfree(info);
++	if (is_bad_inode(inode))
++		return -EUCLEAN;
+ 	if (!S_ISREG(inode->i_mode))
+ 		return -EACCES;
+ 	if (IS_RDONLY(inode))
 -- 
 2.35.1
 
