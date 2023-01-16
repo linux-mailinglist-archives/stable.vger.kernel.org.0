@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E1966CD99
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C7D666CD9A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234946AbjAPRhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:37:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59266 "EHLO
+        id S235052AbjAPRhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:37:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234928AbjAPRhJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20F8523D93
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:49 -0800 (PST)
+        with ESMTP id S234975AbjAPRhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:12 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBEDF32E44
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D01E7B8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3532CC433D2;
-        Mon, 16 Jan 2023 17:13:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 15431CE1286
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFE75C433EF;
+        Mon, 16 Jan 2023 17:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889226;
-        bh=wBKxZmG349uxzszzewuZj5eTp7kBrI/4+z86tF8EWw0=;
+        s=korg; t=1673889229;
+        bh=dH3jTZlUGdBtUoxozGHivgGL08f603BKXWa1Ub0AcqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u44upGGaTHNBNALzvrxYtXb4+AvVkg0ALv2nrP+tInPy7mdscQ1W3H3aGqJLlvQ5t
-         kFMyPiZH47Ijz0H1dwJRTAsoAmu7OLl9ZnzliuLNxHSz2H23aBechRi3ceKXFfKGo7
-         fy65zZPDGqWBjI57urel4AddlLM8HUYaVm7SpVmk=
+        b=BA8yAjJN1W0HW/h8LJyUOyDWHGCKoAb1B5hnI3S+Dxe4Oz9kdlxPjz8+cuXDtVCHo
+         Q06ebGDC6MHgo1pFamY1dkV7K9hwH8tEzci378tRDio2hxTDDuw1OvoewpyF3MiaWI
+         4ZOBNUQunNIXaU7yJfFWUyW+0rmFbBXU55ydv6ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
-        Jan Kara <jack@suse.cz>, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 305/338] ext4: avoid unaccounted block allocation when expanding inode
-Date:   Mon, 16 Jan 2023 16:52:58 +0100
-Message-Id: <20230116154834.403985650@linuxfoundation.org>
+        patches@lists.linux.dev, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.14 306/338] ext4: allocate extended attribute value in vmalloc area
+Date:   Mon, 16 Jan 2023 16:52:59 +0100
+Message-Id: <20230116154834.452452021@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,42 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 8994d11395f8165b3deca1971946f549f0822630 upstream.
+commit cc12a6f25e07ed05d5825a1664b67a970842b2ca upstream.
 
-When expanding inode space in ext4_expand_extra_isize_ea() we may need
-to allocate external xattr block. If quota is not initialized for the
-inode, the block allocation will not be accounted into quota usage. Make
-sure the quota is initialized before we try to expand inode space.
+Now, extended attribute value maximum length is 64K. The memory
+requested here does not need continuous physical addresses, so it is
+appropriate to use kvmalloc to request memory. At the same time, it
+can also cope with the situation that the extended attribute will
+become longer in the future.
 
-Reported-by: Pengfei Xu <pengfei.xu@intel.com>
-Link: https://lore.kernel.org/all/Y5BT+k6xWqthZc1P@xpf.sh.intel.com
-Signed-off-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20221207115937.26601-2-jack@suse.cz
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221208023233.1231330-3-yebin@huaweicloud.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/ext4/xattr.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5905,6 +5905,14 @@ static int __ext4_expand_extra_isize(str
- 		return 0;
- 	}
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -2569,7 +2569,7 @@ static int ext4_xattr_move_to_block(hand
  
-+	/*
-+	 * We may need to allocate external xattr block so we need quotas
-+	 * initialized. Here we can be called with various locks held so we
-+	 * cannot affort to initialize quotas ourselves. So just bail.
-+	 */
-+	if (dquot_initialize_needed(inode))
-+		return -EAGAIN;
-+
- 	/* try to expand with EAs present */
- 	error = ext4_expand_extra_isize_ea(inode, new_extra_isize,
- 					   raw_inode, handle);
+ 	is = kzalloc(sizeof(struct ext4_xattr_ibody_find), GFP_NOFS);
+ 	bs = kzalloc(sizeof(struct ext4_xattr_block_find), GFP_NOFS);
+-	buffer = kmalloc(value_size, GFP_NOFS);
++	buffer = kvmalloc(value_size, GFP_NOFS);
+ 	b_entry_name = kmalloc(entry->e_name_len + 1, GFP_NOFS);
+ 	if (!is || !bs || !buffer || !b_entry_name) {
+ 		error = -ENOMEM;
+@@ -2621,7 +2621,7 @@ static int ext4_xattr_move_to_block(hand
+ 	error = 0;
+ out:
+ 	kfree(b_entry_name);
+-	kfree(buffer);
++	kvfree(buffer);
+ 	if (is)
+ 		brelse(is->iloc.bh);
+ 	if (bs)
 
 
