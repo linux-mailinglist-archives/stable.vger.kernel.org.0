@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 053D866CB3D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C797B66CC94
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:27:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234344AbjAPRMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:12:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36810 "EHLO
+        id S234767AbjAPR1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:27:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234157AbjAPRLi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:38 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1EF24900F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:54 -0800 (PST)
+        with ESMTP id S234661AbjAPR1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:27:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DED936098
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C6676CE129D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8345C433D2;
-        Mon, 16 Jan 2023 16:51:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF36061086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C539FC433D2;
+        Mon, 16 Jan 2023 17:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887911;
-        bh=QXhVbp0YlHjNLSNJDJDg/wo6YVZcPyeh7mDGZBboRxY=;
+        s=korg; t=1673888653;
+        bh=z4OWxsMqc4jmGsGwyPEq7uJhm9+Y2Q2LbM3MLfhd574=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bf0Voon+SqJ+AgJkrrYLCL9mFwPd5LDqsYARYpMZYIfkWR+NDLJ6X8b3DilsLf6Wf
-         +tKEZDXOvYOElJO5LnCdBDlUIPtKs25Q47neWbMccpbRnruQyZDOXrhPg6018MBs/j
-         qRVl5ioIHiIYsK7ZbrYVAtFMTTIjwtlXaf93usUc=
+        b=ne827gxClBdWPVkoptNo4YV04HGzjarR+BMm1QUz725Ua9IVDSiAaFeptYYqJIDzI
+         w+ijnkinkyuokfaBNCJx64cQ8SWFQYgXo9DubY/pziQLp4egsU0nPQHuzTD9tvWEew
+         5IwSePkouzoV7fEST1rzybnKVrniW8W3YoRWWM4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Baisong Zhong <zhongbaisong@huawei.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 299/521] mISDN: hfcpci: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 4.14 088/338] media: dvb-usb: az6027: fix null-ptr-deref in az6027_i2c_xfer()
 Date:   Mon, 16 Jan 2023 16:49:21 +0100
-Message-Id: <20230116154900.493298553@linuxfoundation.org>
+Message-Id: <20230116154824.708961385@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Baisong Zhong <zhongbaisong@huawei.com>
 
-[ Upstream commit f0f596bd75a9d573ca9b587abb39cee0b916bb82 ]
+[ Upstream commit 0ed554fd769a19ea8464bb83e9ac201002ef74ad ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+Wei Chen reports a kernel bug as blew:
 
-skb_queue_purge() is called under spin_lock_irqsave() in hfcpci_l2l1D(),
-kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
-to move the dch->squeue to a free queue, also enqueue the tx_skb and
-rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+general protection fault, probably for non-canonical address
+KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
+...
+Call Trace:
+<TASK>
+__i2c_transfer+0x77e/0x1930 drivers/i2c/i2c-core-base.c:2109
+i2c_transfer+0x1d5/0x3d0 drivers/i2c/i2c-core-base.c:2170
+i2cdev_ioctl_rdwr+0x393/0x660 drivers/i2c/i2c-dev.c:297
+i2cdev_ioctl+0x75d/0x9f0 drivers/i2c/i2c-dev.c:458
+vfs_ioctl fs/ioctl.c:51 [inline]
+__do_sys_ioctl fs/ioctl.c:870 [inline]
+__se_sys_ioctl+0xfb/0x170 fs/ioctl.c:856
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7fd834a8bded
 
-Fixes: 1700fe1a10dc ("Add mISDN HFC PCI driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In az6027_i2c_xfer(), if msg[i].addr is 0x99,
+a null-ptr-deref will caused when accessing msg[i].buf.
+For msg[i].len is 0 and msg[i].buf is null.
+
+Fix this by checking msg[i].len in az6027_i2c_xfer().
+
+Link: https://lore.kernel.org/lkml/CAO4mrfcPHB5aQJO=mpqV+p8mPLNg-Fok0gw8gZ=zemAfMGTzMg@mail.gmail.com/
+
+Link: https://lore.kernel.org/linux-media/20221120065918.2160782-1-zhongbaisong@huawei.com
+Fixes: 76f9a820c867 ("V4L/DVB: AZ6027: Initial import of the driver")
+Reported-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcpci.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/media/usb/dvb-usb/az6027.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
-index 53349850f866..de98e94711d2 100644
---- a/drivers/isdn/hardware/mISDN/hfcpci.c
-+++ b/drivers/isdn/hardware/mISDN/hfcpci.c
-@@ -1633,16 +1633,19 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
- 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
- 		spin_lock_irqsave(&hc->lock, flags);
- 		if (hc->hw.protocol == ISDN_P_NT_S0) {
-+			struct sk_buff_head free_queue;
-+
-+			__skb_queue_head_init(&free_queue);
- 			/* prepare deactivation */
- 			Write_hfc(hc, HFCPCI_STATES, 0x40);
--			skb_queue_purge(&dch->squeue);
-+			skb_queue_splice_init(&dch->squeue, &free_queue);
- 			if (dch->tx_skb) {
--				dev_kfree_skb(dch->tx_skb);
-+				__skb_queue_tail(&free_queue, dch->tx_skb);
- 				dch->tx_skb = NULL;
- 			}
- 			dch->tx_idx = 0;
- 			if (dch->rx_skb) {
--				dev_kfree_skb(dch->rx_skb);
-+				__skb_queue_tail(&free_queue, dch->rx_skb);
- 				dch->rx_skb = NULL;
- 			}
- 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
-@@ -1655,10 +1658,12 @@ hfcpci_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
- 			hc->hw.mst_m &= ~HFCPCI_MASTER;
- 			Write_hfc(hc, HFCPCI_MST_MODE, hc->hw.mst_m);
- 			ret = 0;
-+			spin_unlock_irqrestore(&hc->lock, flags);
-+			__skb_queue_purge(&free_queue);
- 		} else {
- 			ret = l1_event(dch->l1, hh->prim);
-+			spin_unlock_irqrestore(&hc->lock, flags);
- 		}
--		spin_unlock_irqrestore(&hc->lock, flags);
- 		break;
- 	}
- 	if (!ret)
+diff --git a/drivers/media/usb/dvb-usb/az6027.c b/drivers/media/usb/dvb-usb/az6027.c
+index 382c8075ef52..f2b5ba1d2809 100644
+--- a/drivers/media/usb/dvb-usb/az6027.c
++++ b/drivers/media/usb/dvb-usb/az6027.c
+@@ -978,6 +978,10 @@ static int az6027_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int n
+ 		if (msg[i].addr == 0x99) {
+ 			req = 0xBE;
+ 			index = 0;
++			if (msg[i].len < 1) {
++				i = -EOPNOTSUPP;
++				break;
++			}
+ 			value = msg[i].buf[0] & 0x00ff;
+ 			length = 1;
+ 			az6027_usb_out_op(d, req, value, index, data, length);
 -- 
 2.35.1
 
