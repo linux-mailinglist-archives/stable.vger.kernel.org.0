@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A57B366C478
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3138F66C89A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:40:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231316AbjAPPzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:55:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37402 "EHLO
+        id S233340AbjAPQk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:40:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231375AbjAPPzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:05 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD45C227B5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:03 -0800 (PST)
+        with ESMTP id S233595AbjAPQkf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D859F36B21
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:28:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 37A58CE1276
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BFB6C433F0;
-        Mon, 16 Jan 2023 15:55:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BC2BB81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:28:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6714C433D2;
+        Mon, 16 Jan 2023 16:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884500;
-        bh=3rTy7XE1Pmj3KGs8RvnNtqtkfT0SywqxFhep8j3Pn3w=;
+        s=korg; t=1673886525;
+        bh=FxyLmsygnkligAfOlbsQWR/lqkeYbHXqgx9Ya1t0pVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RiYTsknd7xilCf0RS6DSjruUXiT0htu0GgVBdHEcNSoDzmUfIn8JlqR90n/PiBgG6
-         uZvjCn9tTsQD38/z7qh8gRuXb0h2A3JwHB6d4dUiIg25JWtjQtGbti5LAA9j6YeKm1
-         x/y4nJufud8xGOOv0vbBxCtBxd+/TDG+9KOAOEdY=
+        b=r6z0IKr734EHaito/ICCL88ZhmUD/OZQClNEn75By+1imV8RvbBF6IlIL+nUsvDyS
+         N0xMB8lHKNG5t0nVCsyQegJUKjhPt5mpVm8P2Os/RVQwIeD4xlgVaK3FEt5FOs/aGL
+         JfYN8M2Th9/j48k1nXxX+LV9ZSuNJcMvWSoRpydU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 6.1 029/183] drm/i915/gt: Reset twice
+        patches@lists.linux.dev,
+        Terry Junge <linuxhid@cosmicgizmosystems.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 464/658] HID: plantronics: Additional PIDs for double volume key presses quirk
 Date:   Mon, 16 Jan 2023 16:49:12 +0100
-Message-Id: <20230116154804.602579121@linuxfoundation.org>
+Message-Id: <20230116154930.722497146@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,85 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Terry Junge <linuxhid@cosmicgizmosystems.com>
 
-commit d3de5616d36462a646f5b360ba82d3b09ff668eb upstream.
+[ Upstream commit 3d57f36c89d8ba32b2c312f397a37fd1a2dc7cfc ]
 
-After applying an engine reset, on some platforms like Jasperlake, we
-occasionally detect that the engine state is not cleared until shortly
-after the resume. As we try to resume the engine with volatile internal
-state, the first request fails with a spurious CS event (it looks like
-it reports a lite-restore to the hung context, instead of the expected
-idle->active context switch).
+I no longer work for Plantronics (aka Poly, aka HP) and do not have
+access to the headsets in order to test. However, as noted by Maxim,
+the other 32xx models that share the same base code set as the 3220
+would need the same quirk. This patch adds the PIDs for the rest of
+the Blackwire 32XX product family that require the quirk.
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
-Reviewed-by: Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221212161338.1007659-1-andi.shyti@linux.intel.com
-(cherry picked from commit 3db9d590557da3aa2c952f2fecd3e9b703dad790)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Plantronics Blackwire 3210 Series (047f:c055)
+Plantronics Blackwire 3215 Series (047f:c057)
+Plantronics Blackwire 3225 Series (047f:c058)
+
+Quote from previous patch by Maxim Mikityanskiy
+Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
+for each volume key press. This patch adds a quirk to hid-plantronics
+for this product ID, which will ignore the second volume key press if
+it happens within 5 ms from the last one that was handled.
+
+The patch was tested on the mentioned model only, it shouldn't affect
+other models, however, this quirk might be needed for them too.
+Auto-repeat (when a key is held pressed) is not affected, because the
+rate is about 3 times per second, which is far less frequent than once
+in 5 ms.
+End quote
+
+Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_reset.c |   34 ++++++++++++++++++++++++++++------
- 1 file changed, 28 insertions(+), 6 deletions(-)
+ drivers/hid/hid-ids.h         | 3 +++
+ drivers/hid/hid-plantronics.c | 9 +++++++++
+ 2 files changed, 12 insertions(+)
 
---- a/drivers/gpu/drm/i915/gt/intel_reset.c
-+++ b/drivers/gpu/drm/i915/gt/intel_reset.c
-@@ -278,6 +278,7 @@ out:
- static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
- {
- 	struct intel_uncore *uncore = gt->uncore;
-+	int loops = 2;
- 	int err;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6d550681869f..222f525c3d04 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -938,7 +938,10 @@
+ #define USB_DEVICE_ID_ORTEK_IHOME_IMAC_A210S	0x8003
  
- 	/*
-@@ -285,18 +286,39 @@ static int gen6_hw_domain_reset(struct i
- 	 * for fifo space for the write or forcewake the chip for
- 	 * the read
- 	 */
--	intel_uncore_write_fw(uncore, GEN6_GDRST, hw_domain_mask);
-+	do {
-+		intel_uncore_write_fw(uncore, GEN6_GDRST, hw_domain_mask);
+ #define USB_VENDOR_ID_PLANTRONICS	0x047f
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES	0xc055
+ #define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES	0xc057
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES	0xc058
  
--	/* Wait for the device to ack the reset requests */
--	err = __intel_wait_for_register_fw(uncore,
--					   GEN6_GDRST, hw_domain_mask, 0,
--					   500, 0,
--					   NULL);
-+		/*
-+		 * Wait for the device to ack the reset requests.
-+		 *
-+		 * On some platforms, e.g. Jasperlake, we see that the
-+		 * engine register state is not cleared until shortly after
-+		 * GDRST reports completion, causing a failure as we try
-+		 * to immediately resume while the internal state is still
-+		 * in flux. If we immediately repeat the reset, the second
-+		 * reset appears to serialise with the first, and since
-+		 * it is a no-op, the registers should retain their reset
-+		 * value. However, there is still a concern that upon
-+		 * leaving the second reset, the internal engine state
-+		 * is still in flux and not ready for resuming.
-+		 */
-+		err = __intel_wait_for_register_fw(uncore, GEN6_GDRST,
-+						   hw_domain_mask, 0,
-+						   2000, 0,
-+						   NULL);
-+	} while (err == 0 && --loops);
- 	if (err)
- 		GT_TRACE(gt,
- 			 "Wait for 0x%08x engines reset failed\n",
- 			 hw_domain_mask);
- 
-+	/*
-+	 * As we have observed that the engine state is still volatile
-+	 * after GDRST is acked, impose a small delay to let everything settle.
-+	 */
-+	udelay(50);
-+
- 	return err;
+ #define USB_VENDOR_ID_PANASONIC		0x04da
+ #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
+diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
+index e81b7cec2d12..3d414ae194ac 100644
+--- a/drivers/hid/hid-plantronics.c
++++ b/drivers/hid/hid-plantronics.c
+@@ -198,9 +198,18 @@ static int plantronics_probe(struct hid_device *hdev,
  }
  
+ static const struct hid_device_id plantronics_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
+ 					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
+ 		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
+ 	{ }
+ };
+-- 
+2.35.1
+
 
 
