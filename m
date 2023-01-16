@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B911C66CC49
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8185666CABA
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:06:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234469AbjAPRYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:24:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46388 "EHLO
+        id S234206AbjAPRGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:06:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234587AbjAPRYH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F1B59E63
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:20 -0800 (PST)
+        with ESMTP id S234014AbjAPRFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:05:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2449929E01
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:47:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AB6CB8109B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 897FFC433F0;
-        Mon, 16 Jan 2023 17:01:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 927F761042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A217FC433D2;
+        Mon, 16 Jan 2023 16:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888477;
-        bh=73WFUb21fcNqOPg0QvNVM4ryxiOq5tkxg+PEZ8Otv+A=;
+        s=korg; t=1673887637;
+        bh=g1xzYZGHnsk2ynsRHCNsTmMhklLz6nWuou1CptJl40U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftphPUBv9mGWtp+4re+tHt3arFh4qDt3eJoH4OQ1Ynh3TaovRsbZbCKtO7lJXGM0K
-         XmQuAGy5vRvv2RdRMYsL/XeqKEcBDF9s+xudR2YDF9W7EHPKhpwEyXxnbAIOK98dzw
-         s5/lsR+GF7OABZe5F+yaVabGqa7Iomp+J27cnZ6o=
+        b=hgO2U2OuikLQOfLQfpxYqtDfTqUKNUm9h2ZS6jeFI7HwLbRbyRVDMVMtEH5wQ2gt9
+         YLzooH/Mi3tMJnjpCh9H/la98UXvyg0IjSt3z7xnSjwb5F/iFXFCfhXlIewkJfcBzX
+         WVRyXH6q6NZizixTSGYxuzJDOd30gnrLB8rDuYGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.14 013/338] udf: Drop unused arguments of udf_delete_aext()
+        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 224/521] usb: typec: Check for ops->exit instead of ops->enter in altmode_exit
 Date:   Mon, 16 Jan 2023 16:48:06 +0100
-Message-Id: <20230116154821.309395770@linuxfoundation.org>
+Message-Id: <20230116154857.185267869@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,83 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Sven Peter <sven@svenpeter.dev>
 
-commit 6c1e4d06a3808dc67dbce2d631f4c12574567dd5 upstream.
+[ Upstream commit b6ddd180e3d9f92c1e482b3cdeec7dda086b1341 ]
 
-udf_delete_aext() uses its last two arguments only as local variables.
-Drop them.
+typec_altmode_exit checks if ops->enter is not NULL but then calls
+ops->exit a few lines below. Fix that and check for the function
+pointer it's about to call instead.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 8a37d87d72f0 ("usb: typec: Bus type for alternate modes")
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20221114165924.33487-1-sven@svenpeter.dev
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/balloc.c  |    5 ++---
- fs/udf/inode.c   |    8 ++++----
- fs/udf/udfdecl.h |    3 +--
- 3 files changed, 7 insertions(+), 9 deletions(-)
+ drivers/usb/typec/bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/udf/balloc.c
-+++ b/fs/udf/balloc.c
-@@ -531,8 +531,7 @@ static int udf_table_prealloc_blocks(str
- 			udf_write_aext(table, &epos, &eloc,
- 					(etype << 30) | elen, 1);
- 		} else
--			udf_delete_aext(table, epos, eloc,
--					(etype << 30) | elen);
-+			udf_delete_aext(table, epos);
- 	} else {
- 		alloc_count = 0;
- 	}
-@@ -627,7 +626,7 @@ static int udf_table_new_block(struct su
- 	if (goal_elen)
- 		udf_write_aext(table, &goal_epos, &goal_eloc, goal_elen, 1);
- 	else
--		udf_delete_aext(table, goal_epos, goal_eloc, goal_elen);
-+		udf_delete_aext(table, goal_epos);
- 	brelse(goal_epos.bh);
+diff --git a/drivers/usb/typec/bus.c b/drivers/usb/typec/bus.c
+index 76299b6ff06d..7605963f71ed 100644
+--- a/drivers/usb/typec/bus.c
++++ b/drivers/usb/typec/bus.c
+@@ -126,7 +126,7 @@ int typec_altmode_exit(struct typec_altmode *adev)
+ 	if (!adev || !adev->active)
+ 		return 0;
  
- 	udf_add_free_space(sb, partition, -1);
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -1169,8 +1169,7 @@ static void udf_update_extents(struct in
+-	if (!pdev->ops || !pdev->ops->enter)
++	if (!pdev->ops || !pdev->ops->exit)
+ 		return -EOPNOTSUPP;
  
- 	if (startnum > endnum) {
- 		for (i = 0; i < (startnum - endnum); i++)
--			udf_delete_aext(inode, *epos, laarr[i].extLocation,
--					laarr[i].extLength);
-+			udf_delete_aext(inode, *epos);
- 	} else if (startnum < endnum) {
- 		for (i = 0; i < (endnum - startnum); i++) {
- 			udf_insert_aext(inode, *epos, laarr[i].extLocation,
-@@ -2202,14 +2201,15 @@ static int8_t udf_insert_aext(struct ino
- 	return (nelen >> 30);
- }
- 
--int8_t udf_delete_aext(struct inode *inode, struct extent_position epos,
--		       struct kernel_lb_addr eloc, uint32_t elen)
-+int8_t udf_delete_aext(struct inode *inode, struct extent_position epos)
- {
- 	struct extent_position oepos;
- 	int adsize;
- 	int8_t etype;
- 	struct allocExtDesc *aed;
- 	struct udf_inode_info *iinfo;
-+	struct kernel_lb_addr eloc;
-+	uint32_t elen;
- 
- 	if (epos.bh) {
- 		get_bh(epos.bh);
---- a/fs/udf/udfdecl.h
-+++ b/fs/udf/udfdecl.h
-@@ -161,8 +161,7 @@ extern int udf_add_aext(struct inode *,
- 			struct kernel_lb_addr *, uint32_t, int);
- extern void udf_write_aext(struct inode *, struct extent_position *,
- 			   struct kernel_lb_addr *, uint32_t, int);
--extern int8_t udf_delete_aext(struct inode *, struct extent_position,
--			      struct kernel_lb_addr, uint32_t);
-+extern int8_t udf_delete_aext(struct inode *, struct extent_position);
- extern int8_t udf_next_aext(struct inode *, struct extent_position *,
- 			    struct kernel_lb_addr *, uint32_t *, int);
- extern int8_t udf_current_aext(struct inode *, struct extent_position *,
+ 	/* Moving to USB Safe State */
+-- 
+2.35.1
+
 
 
