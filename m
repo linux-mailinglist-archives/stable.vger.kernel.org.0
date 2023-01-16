@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5902D66CCBD
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88CFF66CB65
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:14:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234814AbjAPR3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:29:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52614 "EHLO
+        id S234406AbjAPROj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:14:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234824AbjAPR2g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA38825E1B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:42 -0800 (PST)
+        with ESMTP id S234317AbjAPRNF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A38334B1BE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 776DC61058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D819C433EF;
-        Mon, 16 Jan 2023 17:05:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F892B80E95
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E82C433EF;
+        Mon, 16 Jan 2023 16:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888741;
-        bh=K8zezOMpViSo+fJcGBQzMiZLvczaR+LD8KAAKPyUtdQ=;
+        s=korg; t=1673888003;
+        bh=OEzMX2QBCarEPGj3nv0syZnlYMTrmJvqWJspe9cOE6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQKjpd9QwqTbPdcTBZPSw+neu2jqBA2VCQ+ZUWrOmDsVe9Ha2hdO472ZCBELyL0RK
-         G2HQtji1ANQFwLImBD9TBE3Hf2fq8da39+VBFk0JrVK37VKfvDiOaxG/vPIiebfE+D
-         J8IPZUFA9/0s8t5D8CxJaRHUwxy/XWnLdsDZ/L2o=
+        b=q/tn+1QEVgSGW5kV9vAe3qE5+XJSs4Y7hiCutPIAb1qD/HIMSyvbWJYqdsLTfgxqV
+         nE6X4haTUTbUaixkGe5QuoA9Uj1jFMGGvUk1ovcPMAPz7N2Y0XTnRMvs/I+pWa8te8
+         RMriB0oVqW7SYDuEZMti5EGNZTWFa49pFO7irCzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev,
+        syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com,
+        Schspa Shi <schspa@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 122/338] ethernet: s2io: dont call dev_kfree_skb() under spin_lock_irqsave()
-Date:   Mon, 16 Jan 2023 16:49:55 +0100
-Message-Id: <20230116154826.171128772@linuxfoundation.org>
+Subject: [PATCH 4.19 334/521] mrp: introduce active flags to prevent UAF when applicant uninit
+Date:   Mon, 16 Jan 2023 16:49:56 +0100
+Message-Id: <20230116154902.115361595@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Schspa Shi <schspa@gmail.com>
 
-[ Upstream commit 6cee96e09df54ae17784c0f38a49e0ed8229b825 ]
+[ Upstream commit ab0377803dafc58f1e22296708c1c28e309414d6 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+The caller of del_timer_sync must prevent restarting of the timer, If
+we have no this synchronization, there is a small probability that the
+cancellation will not be successful.
 
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
+And syzbot report the fellowing crash:
+==================================================================
+BUG: KASAN: use-after-free in hlist_add_head include/linux/list.h:929 [inline]
+BUG: KASAN: use-after-free in enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
+Write at addr f9ff000024df6058 by task syz-fuzzer/2256
+Pointer tag: [f9], memory tag: [fe]
 
-In this case, dev_kfree_skb() is called in free_tx_buffers() to drop
-the SKBs in tx buffers, when the card is down, so replace it with
-dev_kfree_skb_irq() here.
+CPU: 1 PID: 2256 Comm: syz-fuzzer Not tainted 6.1.0-rc5-syzkaller-00008-
+ge01d50cbd6ee #0
+Hardware name: linux,dummy-virt (DT)
+Call trace:
+ dump_backtrace.part.0+0xe0/0xf0 arch/arm64/kernel/stacktrace.c:156
+ dump_backtrace arch/arm64/kernel/stacktrace.c:162 [inline]
+ show_stack+0x18/0x40 arch/arm64/kernel/stacktrace.c:163
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x68/0x84 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:284 [inline]
+ print_report+0x1a8/0x4a0 mm/kasan/report.c:395
+ kasan_report+0x94/0xb4 mm/kasan/report.c:495
+ __do_kernel_fault+0x164/0x1e0 arch/arm64/mm/fault.c:320
+ do_bad_area arch/arm64/mm/fault.c:473 [inline]
+ do_tag_check_fault+0x78/0x8c arch/arm64/mm/fault.c:749
+ do_mem_abort+0x44/0x94 arch/arm64/mm/fault.c:825
+ el1_abort+0x40/0x60 arch/arm64/kernel/entry-common.c:367
+ el1h_64_sync_handler+0xd8/0xe4 arch/arm64/kernel/entry-common.c:427
+ el1h_64_sync+0x64/0x68 arch/arm64/kernel/entry.S:576
+ hlist_add_head include/linux/list.h:929 [inline]
+ enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
+ mod_timer+0x14/0x20 kernel/time/timer.c:1161
+ mrp_periodic_timer_arm net/802/mrp.c:614 [inline]
+ mrp_periodic_timer+0xa0/0xc0 net/802/mrp.c:627
+ call_timer_fn.constprop.0+0x24/0x80 kernel/time/timer.c:1474
+ expire_timers+0x98/0xc4 kernel/time/timer.c:1519
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+To fix it, we can introduce a new active flags to make sure the timer will
+not restart.
+
+Reported-by: syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com
+
+Signed-off-by: Schspa Shi <schspa@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/neterion/s2io.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/mrp.h |  1 +
+ net/802/mrp.c     | 18 +++++++++++++-----
+ 2 files changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/neterion/s2io.c b/drivers/net/ethernet/neterion/s2io.c
-index 94aabf280768..cb8094de89d1 100644
---- a/drivers/net/ethernet/neterion/s2io.c
-+++ b/drivers/net/ethernet/neterion/s2io.c
-@@ -2381,7 +2381,7 @@ static void free_tx_buffers(struct s2io_nic *nic)
- 			skb = s2io_txdl_getskb(&mac_control->fifos[i], txdp, j);
- 			if (skb) {
- 				swstats->mem_freed += skb->truesize;
--				dev_kfree_skb(skb);
-+				dev_kfree_skb_irq(skb);
- 				cnt++;
- 			}
- 		}
+diff --git a/include/net/mrp.h b/include/net/mrp.h
+index ef58b4a07190..c6c53370e390 100644
+--- a/include/net/mrp.h
++++ b/include/net/mrp.h
+@@ -120,6 +120,7 @@ struct mrp_applicant {
+ 	struct sk_buff		*pdu;
+ 	struct rb_root		mad;
+ 	struct rcu_head		rcu;
++	bool			active;
+ };
+ 
+ struct mrp_port {
+diff --git a/net/802/mrp.c b/net/802/mrp.c
+index 32f87d458f05..ce6e4774d333 100644
+--- a/net/802/mrp.c
++++ b/net/802/mrp.c
+@@ -609,7 +609,10 @@ static void mrp_join_timer(struct timer_list *t)
+ 	spin_unlock(&app->lock);
+ 
+ 	mrp_queue_xmit(app);
+-	mrp_join_timer_arm(app);
++	spin_lock(&app->lock);
++	if (likely(app->active))
++		mrp_join_timer_arm(app);
++	spin_unlock(&app->lock);
+ }
+ 
+ static void mrp_periodic_timer_arm(struct mrp_applicant *app)
+@@ -623,11 +626,12 @@ static void mrp_periodic_timer(struct timer_list *t)
+ 	struct mrp_applicant *app = from_timer(app, t, periodic_timer);
+ 
+ 	spin_lock(&app->lock);
+-	mrp_mad_event(app, MRP_EVENT_PERIODIC);
+-	mrp_pdu_queue(app);
++	if (likely(app->active)) {
++		mrp_mad_event(app, MRP_EVENT_PERIODIC);
++		mrp_pdu_queue(app);
++		mrp_periodic_timer_arm(app);
++	}
+ 	spin_unlock(&app->lock);
+-
+-	mrp_periodic_timer_arm(app);
+ }
+ 
+ static int mrp_pdu_parse_end_mark(struct sk_buff *skb, int *offset)
+@@ -875,6 +879,7 @@ int mrp_init_applicant(struct net_device *dev, struct mrp_application *appl)
+ 	app->dev = dev;
+ 	app->app = appl;
+ 	app->mad = RB_ROOT;
++	app->active = true;
+ 	spin_lock_init(&app->lock);
+ 	skb_queue_head_init(&app->queue);
+ 	rcu_assign_pointer(dev->mrp_port->applicants[appl->type], app);
+@@ -903,6 +908,9 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
+ 
+ 	RCU_INIT_POINTER(port->applicants[appl->type], NULL);
+ 
++	spin_lock_bh(&app->lock);
++	app->active = false;
++	spin_unlock_bh(&app->lock);
+ 	/* Delete timer and generate a final TX event to flush out
+ 	 * all pending messages before the applicant is gone.
+ 	 */
 -- 
 2.35.1
 
