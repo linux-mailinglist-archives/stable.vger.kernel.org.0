@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EE0966C9EB
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:57:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08D0166C778
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234073AbjAPQ5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:57:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49650 "EHLO
+        id S233240AbjAPQbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:31:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234025AbjAPQ51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB435999C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:14 -0800 (PST)
+        with ESMTP id S233291AbjAPQad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6049F38B7E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C67696105A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD92AC433F0;
-        Mon, 16 Jan 2023 16:40:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E725961027
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04124C433EF;
+        Mon, 16 Jan 2023 16:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887213;
-        bh=byfGjJcE9TSs+QzPf69ugM7pJQW6DUL4JOTZX5yekpQ=;
+        s=korg; t=1673885932;
+        bh=WDWVJsU54yrKIMxl39Xh66r9MI1mM4lWGsO59b5hmDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QsSTYKelH0Tn/VJC8IE2ewJjSAY9xg2O4WDoq8pCLkN2P68AOoGUYXLYDMQPioxXo
-         u/E7fIKcfkQPfVHjDx84LXnuptU7AYOsWCAnLqNGCYoN2UjF9B5tZmHlPL8TXjnhsw
-         TGmH6cnnnAyU+jGvE47QOK2xd14enaynphekxgew=
+        b=CeI+1ZpiCeLXd7LkQVSqx3Gy65HmKBHdWGYPM5zifivdgY94GP4JyZWCVBrx+Xp1Y
+         HJMCRUtrGVQtNkPFOSwCIkb+lRPyWH2Z4zGv/OqwfqKBDQV9vhNfsdPewrq8VKCXAC
+         9/n+J+OMBXhwAFnjGNPFPT8JttqghhiNYS2tdnXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 063/521] clocksource/drivers/sh_cmt: Make sure channel clock supply is enabled
-Date:   Mon, 16 Jan 2023 16:45:25 +0100
-Message-Id: <20230116154850.052303926@linuxfoundation.org>
+Subject: [PATCH 5.4 238/658] Bluetooth: RFCOMM: dont call kfree_skb() under spin_lock_irqsave()
+Date:   Mon, 16 Jan 2023 16:45:26 +0100
+Message-Id: <20230116154920.439851640@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,102 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 2a97d55333e4299f32c98cca6dc5c4db1c5855fc ]
+[ Upstream commit 0ba18967d4544955b2eff2fbc4f2a8750c4df90a ]
 
-The Renesas Compare Match Timer 0 and 1 (CMT0/1) variants have a
-register to control the clock supply to the individual channels.
-Currently the driver does not touch this register, and relies on the
-documented initial value, which has the clock supply enabled for all
-channels present.
+It is not allowed to call kfree_skb() from hardware interrupt
+context or with interrupts being disabled. So replace kfree_skb()
+with dev_kfree_skb_irq() under spin_lock_irqsave().
 
-However, when Linux starts on the APE6-EVM development board, only the
-clock supply to the first CMT1 channel is enabled.  Hence the first
-channel (used as a clockevent) works, while the second channel (used as
-a clocksource) does not.  Note that the default system clocksource is
-the Cortex-A15 architectured timer, and the user needs to manually
-switch to the CMT1 clocksource to trigger the broken behavior.
-
-Fix this by removing the fragile dependency on implicit reset and/or
-boot loader state, and by enabling the clock supply explicitly for all
-channels used instead.  This requires postponing the clk_disable() call,
-else the timer's registers cannot be accessed in sh_cmt_setup_channel().
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201210194648.2901899-1-geert+renesas@glider.be
+Fixes: 81be03e026dc ("Bluetooth: RFCOMM: Replace use of memcpy_from_msg with bt_skb_sendmmsg")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/sh_cmt.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ net/bluetooth/rfcomm/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
-index 7a6d4c4c0feb..0ca8819acc4d 100644
---- a/drivers/clocksource/sh_cmt.c
-+++ b/drivers/clocksource/sh_cmt.c
-@@ -239,6 +239,8 @@ static const struct sh_cmt_info sh_cmt_info[] = {
- #define CMCNT 1 /* channel register */
- #define CMCOR 2 /* channel register */
+diff --git a/net/bluetooth/rfcomm/core.c b/net/bluetooth/rfcomm/core.c
+index 83a8c48dfaa8..2db9e285215c 100644
+--- a/net/bluetooth/rfcomm/core.c
++++ b/net/bluetooth/rfcomm/core.c
+@@ -594,7 +594,7 @@ int rfcomm_dlc_send(struct rfcomm_dlc *d, struct sk_buff *skb)
  
-+#define CMCLKE	0x1000	/* CLK Enable Register (R-Car Gen2) */
-+
- static inline u32 sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
- {
- 	if (ch->iostart)
-@@ -856,6 +858,7 @@ static int sh_cmt_setup_channel(struct sh_cmt_channel *ch, unsigned int index,
- 				unsigned int hwidx, bool clockevent,
- 				bool clocksource, struct sh_cmt_device *cmt)
- {
-+	u32 value;
- 	int ret;
+ 		ret = rfcomm_dlc_send_frag(d, frag);
+ 		if (ret < 0) {
+-			kfree_skb(frag);
++			dev_kfree_skb_irq(frag);
+ 			goto unlock;
+ 		}
  
- 	/* Skip unused channels. */
-@@ -885,6 +888,11 @@ static int sh_cmt_setup_channel(struct sh_cmt_channel *ch, unsigned int index,
- 		ch->iostart = cmt->mapbase + ch->hwidx * 0x100;
- 		ch->ioctrl = ch->iostart + 0x10;
- 		ch->timer_bit = 0;
-+
-+		/* Enable the clock supply to the channel */
-+		value = ioread32(cmt->mapbase + CMCLKE);
-+		value |= BIT(hwidx);
-+		iowrite32(value, cmt->mapbase + CMCLKE);
- 		break;
- 	}
- 
-@@ -991,12 +999,10 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
- 	else
- 		cmt->rate = clk_get_rate(cmt->clk) / 8;
- 
--	clk_disable(cmt->clk);
--
- 	/* Map the memory resource(s). */
- 	ret = sh_cmt_map_memory(cmt);
- 	if (ret < 0)
--		goto err_clk_unprepare;
-+		goto err_clk_disable;
- 
- 	/* Allocate and setup the channels. */
- 	cmt->num_channels = hweight8(cmt->hw_channels);
-@@ -1024,6 +1030,8 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
- 		mask &= ~(1 << hwidx);
- 	}
- 
-+	clk_disable(cmt->clk);
-+
- 	platform_set_drvdata(pdev, cmt);
- 
- 	return 0;
-@@ -1031,6 +1039,8 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
- err_unmap:
- 	kfree(cmt->channels);
- 	iounmap(cmt->mapbase);
-+err_clk_disable:
-+	clk_disable(cmt->clk);
- err_clk_unprepare:
- 	clk_unprepare(cmt->clk);
- err_clk_put:
 -- 
 2.35.1
 
