@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B6366C501
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E24666C5C8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:10:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231825AbjAPQAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41896 "EHLO
+        id S232518AbjAPQKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:10:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231860AbjAPQA3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:29 -0500
+        with ESMTP id S232613AbjAPQJx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:09:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C74C1234F9
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D7028855
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 287C9B81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82EBEC433EF;
-        Mon, 16 Jan 2023 16:00:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63FB8B8107A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA631C433F1;
+        Mon, 16 Jan 2023 16:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884824;
-        bh=qOzE2rdgDEjww2U45Lpa/1Y9HN4a1OLAOf7LIffXDmk=;
+        s=korg; t=1673885184;
+        bh=WROqFAiErdaF3lnHXhz2rUbwxhZYLJvkv4rSyvbVB2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5Mg+o5I78zMkpPXYyoWXwDK8EPxOhR3EFQqJiPRY32kQDNEP7Pyz9W/+GUceV9CI
-         N5u22qkBzetss9PWzsTxGgFkNVAgFXg/W3kWOgTrd9+NMs1MTk0ybBdGNZz1YYPgGw
-         y4eQF0MRFjlcvnuYn398f4r/DoyAYKW547QTu7GI=
+        b=xgY0IwdDW6/Le7x1Avrq+6QTGAIiRN6zRGmNd+k3q6Gf17L3o/oNQ/9dgZzmSS6Y4
+         tZyoMBM/MQNPhGEC6q7rY3l8hYngGQIiKcVmZtXjAVwf53YXL8k9K7uuFqCKNBwy8D
+         twplNfb/i20HzztT2zuIdWzugLPSRmgMZ4ZUP3MY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Roy Novich <royno@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 153/183] net/mlx5e: Verify dev is present for fix features ndo
+        patches@lists.linux.dev,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.10 09/64] s390/cpum_sf: add READ_ONCE() semantics to compare and swap loops
 Date:   Mon, 16 Jan 2023 16:51:16 +0100
-Message-Id: <20230116154809.785183168@linuxfoundation.org>
+Message-Id: <20230116154743.984757776@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +55,345 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roy Novich <royno@nvidia.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit ab4b01bfdaa69492fb36484026b0a0f0af02d75a ]
+commit 82d3edb50a11bf3c5ef63294d5358ba230181413 upstream.
 
-The native NIC port net device instance is being used as Uplink
-representor.  While changing profiles private resources are not
-available, fix features ndo does not check if the netdev is present.
-Add driver protection to verify private resources are ready.
+The current cmpxchg_double() loops within the perf hw sampling code do not
+have READ_ONCE() semantics to read the old value from memory. This allows
+the compiler to generate code which reads the "old" value several times
+from memory, which again allows for inconsistencies.
 
-Fixes: 7a9fb35e8c3a ("net/mlx5e: Do not reload ethernet ports when changing eswitch mode")
-Signed-off-by: Roy Novich <royno@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For example:
+
+        /* Reset trailer (using compare-double-and-swap) */
+        do {
+                te_flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
+                te_flags |= SDB_TE_ALERT_REQ_MASK;
+        } while (!cmpxchg_double(&te->flags, &te->overflow,
+                 te->flags, te->overflow,
+                 te_flags, 0ULL));
+
+The compiler could generate code where te->flags used within the
+cmpxchg_double() call may be refetched from memory and which is not
+necessarily identical to the previous read version which was used to
+generate te_flags. Which in turn means that an incorrect update could
+happen.
+
+Fix this by adding READ_ONCE() semantics to all cmpxchg_double()
+loops. Given that READ_ONCE() cannot generate code on s390 which atomically
+reads 16 bytes, use a private compare-and-swap-double implementation to
+achieve that.
+
+Also replace cmpxchg_double() with the private implementation to be able to
+re-use the old value within the loops.
+
+As a side effect this converts the whole code to only use bit fields
+to read and modify bits within the hws trailer header.
+
+Reported-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Acked-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+Reviewed-by: Thomas Richter <tmricht@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/linux-s390/Y71QJBhNTIatvxUT@osiris/T/#ma14e2a5f7aa8ed4b94b6f9576799b3ad9c60f333
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/s390/include/asm/cpu_mf.h  |   31 +++++-------
+ arch/s390/kernel/perf_cpum_sf.c |  101 ++++++++++++++++++++++++----------------
+ 2 files changed, 77 insertions(+), 55 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 951ede433813..4dc149ef618c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4071,6 +4071,9 @@ static netdev_features_t mlx5e_fix_features(struct net_device *netdev,
- 	struct mlx5e_vlan_table *vlan;
- 	struct mlx5e_params *params;
+--- a/arch/s390/include/asm/cpu_mf.h
++++ b/arch/s390/include/asm/cpu_mf.h
+@@ -128,19 +128,21 @@ struct hws_combined_entry {
+ 	struct hws_diag_entry	diag;	/* Diagnostic-sampling data entry */
+ } __packed;
  
-+	if (!netif_device_present(netdev))
-+		return features;
+-struct hws_trailer_entry {
+-	union {
+-		struct {
+-			unsigned int f:1;	/* 0 - Block Full Indicator   */
+-			unsigned int a:1;	/* 1 - Alert request control  */
+-			unsigned int t:1;	/* 2 - Timestamp format	      */
+-			unsigned int :29;	/* 3 - 31: Reserved	      */
+-			unsigned int bsdes:16;	/* 32-47: size of basic SDE   */
+-			unsigned int dsdes:16;	/* 48-63: size of diagnostic SDE */
+-		};
+-		unsigned long long flags;	/* 0 - 63: All indicators     */
++union hws_trailer_header {
++	struct {
++		unsigned int f:1;	/* 0 - Block Full Indicator   */
++		unsigned int a:1;	/* 1 - Alert request control  */
++		unsigned int t:1;	/* 2 - Timestamp format	      */
++		unsigned int :29;	/* 3 - 31: Reserved	      */
++		unsigned int bsdes:16;	/* 32-47: size of basic SDE   */
++		unsigned int dsdes:16;	/* 48-63: size of diagnostic SDE */
++		unsigned long long overflow; /* 64 - Overflow Count   */
+ 	};
+-	unsigned long long overflow;	 /* 64 - sample Overflow count	      */
++	__uint128_t val;
++};
 +
- 	vlan = mlx5e_fs_get_vlan(priv->fs);
- 	mutex_lock(&priv->state_lock);
- 	params = &priv->channels.params;
--- 
-2.35.1
-
++struct hws_trailer_entry {
++	union hws_trailer_header header; /* 0 - 15 Flags + Overflow Count     */
+ 	unsigned char timestamp[16];	 /* 16 - 31 timestamp		      */
+ 	unsigned long long reserved1;	 /* 32 -Reserved		      */
+ 	unsigned long long reserved2;	 /*				      */
+@@ -287,14 +289,11 @@ static inline unsigned long sample_rate_
+ 	return USEC_PER_SEC * qsi->cpu_speed / rate;
+ }
+ 
+-#define SDB_TE_ALERT_REQ_MASK	0x4000000000000000UL
+-#define SDB_TE_BUFFER_FULL_MASK 0x8000000000000000UL
+-
+ /* Return TOD timestamp contained in an trailer entry */
+ static inline unsigned long long trailer_timestamp(struct hws_trailer_entry *te)
+ {
+ 	/* TOD in STCKE format */
+-	if (te->t)
++	if (te->header.t)
+ 		return *((unsigned long long *) &te->timestamp[1]);
+ 
+ 	/* TOD in STCK format */
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -163,14 +163,15 @@ static void free_sampling_buffer(struct
+ 
+ static int alloc_sample_data_block(unsigned long *sdbt, gfp_t gfp_flags)
+ {
+-	unsigned long sdb, *trailer;
++	struct hws_trailer_entry *te;
++	unsigned long sdb;
+ 
+ 	/* Allocate and initialize sample-data-block */
+ 	sdb = get_zeroed_page(gfp_flags);
+ 	if (!sdb)
+ 		return -ENOMEM;
+-	trailer = trailer_entry_ptr(sdb);
+-	*trailer = SDB_TE_ALERT_REQ_MASK;
++	te = (struct hws_trailer_entry *)trailer_entry_ptr(sdb);
++	te->header.a = 1;
+ 
+ 	/* Link SDB into the sample-data-block-table */
+ 	*sdbt = sdb;
+@@ -1206,7 +1207,7 @@ static void hw_collect_samples(struct pe
+ 					    "%s: Found unknown"
+ 					    " sampling data entry: te->f %i"
+ 					    " basic.def %#4x (%p)\n", __func__,
+-					    te->f, sample->def, sample);
++					    te->header.f, sample->def, sample);
+ 			/* Sample slot is not yet written or other record.
+ 			 *
+ 			 * This condition can occur if the buffer was reused
+@@ -1217,7 +1218,7 @@ static void hw_collect_samples(struct pe
+ 			 * that are not full.  Stop processing if the first
+ 			 * invalid format was detected.
+ 			 */
+-			if (!te->f)
++			if (!te->header.f)
+ 				break;
+ 		}
+ 
+@@ -1227,6 +1228,16 @@ static void hw_collect_samples(struct pe
+ 	}
+ }
+ 
++static inline __uint128_t __cdsg(__uint128_t *ptr, __uint128_t old, __uint128_t new)
++{
++	asm volatile(
++		"	cdsg	%[old],%[new],%[ptr]\n"
++		: [old] "+d" (old), [ptr] "+QS" (*ptr)
++		: [new] "d" (new)
++		: "memory", "cc");
++	return old;
++}
++
+ /* hw_perf_event_update() - Process sampling buffer
+  * @event:	The perf event
+  * @flush_all:	Flag to also flush partially filled sample-data-blocks
+@@ -1243,10 +1254,11 @@ static void hw_collect_samples(struct pe
+  */
+ static void hw_perf_event_update(struct perf_event *event, int flush_all)
+ {
++	unsigned long long event_overflow, sampl_overflow, num_sdb;
++	union hws_trailer_header old, prev, new;
+ 	struct hw_perf_event *hwc = &event->hw;
+ 	struct hws_trailer_entry *te;
+ 	unsigned long *sdbt;
+-	unsigned long long event_overflow, sampl_overflow, num_sdb, te_flags;
+ 	int done;
+ 
+ 	/*
+@@ -1266,25 +1278,25 @@ static void hw_perf_event_update(struct
+ 		te = (struct hws_trailer_entry *) trailer_entry_ptr(*sdbt);
+ 
+ 		/* Leave loop if no more work to do (block full indicator) */
+-		if (!te->f) {
++		if (!te->header.f) {
+ 			done = 1;
+ 			if (!flush_all)
+ 				break;
+ 		}
+ 
+ 		/* Check the sample overflow count */
+-		if (te->overflow)
++		if (te->header.overflow)
+ 			/* Account sample overflows and, if a particular limit
+ 			 * is reached, extend the sampling buffer.
+ 			 * For details, see sfb_account_overflows().
+ 			 */
+-			sampl_overflow += te->overflow;
++			sampl_overflow += te->header.overflow;
+ 
+ 		/* Timestamps are valid for full sample-data-blocks only */
+ 		debug_sprintf_event(sfdbg, 6, "%s: sdbt %#lx "
+ 				    "overflow %llu timestamp %#llx\n",
+-				    __func__, (unsigned long)sdbt, te->overflow,
+-				    (te->f) ? trailer_timestamp(te) : 0ULL);
++				    __func__, (unsigned long)sdbt, te->header.overflow,
++				    (te->header.f) ? trailer_timestamp(te) : 0ULL);
+ 
+ 		/* Collect all samples from a single sample-data-block and
+ 		 * flag if an (perf) event overflow happened.  If so, the PMU
+@@ -1294,12 +1306,16 @@ static void hw_perf_event_update(struct
+ 		num_sdb++;
+ 
+ 		/* Reset trailer (using compare-double-and-swap) */
++		/* READ_ONCE() 16 byte header */
++		prev.val = __cdsg(&te->header.val, 0, 0);
+ 		do {
+-			te_flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
+-			te_flags |= SDB_TE_ALERT_REQ_MASK;
+-		} while (!cmpxchg_double(&te->flags, &te->overflow,
+-					 te->flags, te->overflow,
+-					 te_flags, 0ULL));
++			old.val = prev.val;
++			new.val = prev.val;
++			new.f = 0;
++			new.a = 1;
++			new.overflow = 0;
++			prev.val = __cdsg(&te->header.val, old.val, new.val);
++		} while (prev.val != old.val);
+ 
+ 		/* Advance to next sample-data-block */
+ 		sdbt++;
+@@ -1384,7 +1400,7 @@ static void aux_output_end(struct perf_o
+ 	range_scan = AUX_SDB_NUM_ALERT(aux);
+ 	for (i = 0, idx = aux->head; i < range_scan; i++, idx++) {
+ 		te = aux_sdb_trailer(aux, idx);
+-		if (!(te->flags & SDB_TE_BUFFER_FULL_MASK))
++		if (!te->header.f)
+ 			break;
+ 	}
+ 	/* i is num of SDBs which are full */
+@@ -1392,7 +1408,7 @@ static void aux_output_end(struct perf_o
+ 
+ 	/* Remove alert indicators in the buffer */
+ 	te = aux_sdb_trailer(aux, aux->alert_mark);
+-	te->flags &= ~SDB_TE_ALERT_REQ_MASK;
++	te->header.a = 0;
+ 
+ 	debug_sprintf_event(sfdbg, 6, "%s: SDBs %ld range %ld head %ld\n",
+ 			    __func__, i, range_scan, aux->head);
+@@ -1437,9 +1453,9 @@ static int aux_output_begin(struct perf_
+ 		idx = aux->empty_mark + 1;
+ 		for (i = 0; i < range_scan; i++, idx++) {
+ 			te = aux_sdb_trailer(aux, idx);
+-			te->flags &= ~(SDB_TE_BUFFER_FULL_MASK |
+-				       SDB_TE_ALERT_REQ_MASK);
+-			te->overflow = 0;
++			te->header.f = 0;
++			te->header.a = 0;
++			te->header.overflow = 0;
+ 		}
+ 		/* Save the position of empty SDBs */
+ 		aux->empty_mark = aux->head + range - 1;
+@@ -1448,7 +1464,7 @@ static int aux_output_begin(struct perf_
+ 	/* Set alert indicator */
+ 	aux->alert_mark = aux->head + range/2 - 1;
+ 	te = aux_sdb_trailer(aux, aux->alert_mark);
+-	te->flags = te->flags | SDB_TE_ALERT_REQ_MASK;
++	te->header.a = 1;
+ 
+ 	/* Reset hardware buffer head */
+ 	head = AUX_SDB_INDEX(aux, aux->head);
+@@ -1475,14 +1491,17 @@ static int aux_output_begin(struct perf_
+ static bool aux_set_alert(struct aux_buffer *aux, unsigned long alert_index,
+ 			  unsigned long long *overflow)
+ {
+-	unsigned long long orig_overflow, orig_flags, new_flags;
++	union hws_trailer_header old, prev, new;
+ 	struct hws_trailer_entry *te;
+ 
+ 	te = aux_sdb_trailer(aux, alert_index);
++	/* READ_ONCE() 16 byte header */
++	prev.val = __cdsg(&te->header.val, 0, 0);
+ 	do {
+-		orig_flags = te->flags;
+-		*overflow = orig_overflow = te->overflow;
+-		if (orig_flags & SDB_TE_BUFFER_FULL_MASK) {
++		old.val = prev.val;
++		new.val = prev.val;
++		*overflow = old.overflow;
++		if (old.f) {
+ 			/*
+ 			 * SDB is already set by hardware.
+ 			 * Abort and try to set somewhere
+@@ -1490,10 +1509,10 @@ static bool aux_set_alert(struct aux_buf
+ 			 */
+ 			return false;
+ 		}
+-		new_flags = orig_flags | SDB_TE_ALERT_REQ_MASK;
+-	} while (!cmpxchg_double(&te->flags, &te->overflow,
+-				 orig_flags, orig_overflow,
+-				 new_flags, 0ULL));
++		new.a = 1;
++		new.overflow = 0;
++		prev.val = __cdsg(&te->header.val, old.val, new.val);
++	} while (prev.val != old.val);
+ 	return true;
+ }
+ 
+@@ -1522,8 +1541,9 @@ static bool aux_set_alert(struct aux_buf
+ static bool aux_reset_buffer(struct aux_buffer *aux, unsigned long range,
+ 			     unsigned long long *overflow)
+ {
+-	unsigned long long orig_overflow, orig_flags, new_flags;
+ 	unsigned long i, range_scan, idx, idx_old;
++	union hws_trailer_header old, prev, new;
++	unsigned long long orig_overflow;
+ 	struct hws_trailer_entry *te;
+ 
+ 	debug_sprintf_event(sfdbg, 6, "%s: range %ld head %ld alert %ld "
+@@ -1554,17 +1574,20 @@ static bool aux_reset_buffer(struct aux_
+ 	idx_old = idx = aux->empty_mark + 1;
+ 	for (i = 0; i < range_scan; i++, idx++) {
+ 		te = aux_sdb_trailer(aux, idx);
++		/* READ_ONCE() 16 byte header */
++		prev.val = __cdsg(&te->header.val, 0, 0);
+ 		do {
+-			orig_flags = te->flags;
+-			orig_overflow = te->overflow;
+-			new_flags = orig_flags & ~SDB_TE_BUFFER_FULL_MASK;
++			old.val = prev.val;
++			new.val = prev.val;
++			orig_overflow = old.overflow;
++			new.f = 0;
++			new.overflow = 0;
+ 			if (idx == aux->alert_mark)
+-				new_flags |= SDB_TE_ALERT_REQ_MASK;
++				new.a = 1;
+ 			else
+-				new_flags &= ~SDB_TE_ALERT_REQ_MASK;
+-		} while (!cmpxchg_double(&te->flags, &te->overflow,
+-					 orig_flags, orig_overflow,
+-					 new_flags, 0ULL));
++				new.a = 0;
++			prev.val = __cdsg(&te->header.val, old.val, new.val);
++		} while (prev.val != old.val);
+ 		*overflow += orig_overflow;
+ 	}
+ 
 
 
