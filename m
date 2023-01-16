@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6748E66CC83
+	by mail.lfdr.de (Postfix) with ESMTP id B30E266CC84
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:26:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234599AbjAPR0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:26:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48018 "EHLO
+        id S234657AbjAPR0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:26:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234591AbjAPR0P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:26:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92CCB2F794
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:03:32 -0800 (PST)
+        with ESMTP id S234652AbjAPR0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:26:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 369323F281
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:03:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3100F61085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:03:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4735EC433F0;
-        Mon, 16 Jan 2023 17:03:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C07BB61047
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:03:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D48C0C433EF;
+        Mon, 16 Jan 2023 17:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888611;
-        bh=dsFG0BbKvjevPgPfJpQlUh0gSK9xoz+DpVGbvU7hmBY=;
+        s=korg; t=1673888614;
+        bh=DmOeBVURhgQZUtdGiTSTtdig7+VQ8PjyIJxorsBgMrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RChOSK2k/wbng5I7R3oxMxToFxLcNBvzqUUBG9JCb07sYFYYSc0H6l5V1UU7V8AGf
-         sCwWf2GlHpED0TnfoikvHlBosg8UCHgbyg84Zn136KgpVyrOoLfuWS9gJ7UhfndNtq
-         G0xkWy3qjJVpa/ZhIguje7EC3H5CMAhnLgqfaqOk=
+        b=RATZhMtrbcsoZVjxOhabyY+gZkTJYQiXYI6O7RNnXZ+58vcIWaiTgKQe1UOK7f5H/
+         rbBZbm2SxzJq48sMag2PS9oeLYMM0a5YHP4K+oO2HD+KHA4BDdaDkoTzFFYra3qr0D
+         ZO6hBEnCe0AA0xm/0ZotEOfvTDY4iFnQaHuSWM0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 071/338] mtd: Fix device name leak when register device failed in add_mtd_device()
-Date:   Mon, 16 Jan 2023 16:49:04 +0100
-Message-Id: <20230116154823.969632617@linuxfoundation.org>
+Subject: [PATCH 4.14 072/338] media: camss: Clean up received buffers on failed start of streaming
+Date:   Mon, 16 Jan 2023 16:49:05 +0100
+Message-Id: <20230116154824.011050880@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,59 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit 895d68a39481a75c680aa421546931fb11942fa6 ]
+[ Upstream commit c8f3582345e6a69da65ab588f7c4c2d1685b0e80 ]
 
-There is a kmemleak when register device failed:
-  unreferenced object 0xffff888101aab550 (size 8):
-    comm "insmod", pid 3922, jiffies 4295277753 (age 925.408s)
-    hex dump (first 8 bytes):
-      6d 74 64 30 00 88 ff ff                          mtd0....
-    backtrace:
-      [<00000000bde26724>] __kmalloc_node_track_caller+0x4e/0x150
-      [<000000003c32b416>] kvasprintf+0xb0/0x130
-      [<000000001f7a8f15>] kobject_set_name_vargs+0x2f/0xb0
-      [<000000006e781163>] dev_set_name+0xab/0xe0
-      [<00000000e30d0c78>] add_mtd_device+0x4bb/0x700
-      [<00000000f3d34de7>] mtd_device_parse_register+0x2ac/0x3f0
-      [<00000000c0d88488>] 0xffffffffa0238457
-      [<00000000b40d0922>] 0xffffffffa02a008f
-      [<0000000023d17b9d>] do_one_initcall+0x87/0x2a0
-      [<00000000770f6ca6>] do_init_module+0xdf/0x320
-      [<000000007b6768fe>] load_module+0x2f98/0x3330
-      [<00000000346bed5a>] __do_sys_finit_module+0x113/0x1b0
-      [<00000000674c2290>] do_syscall_64+0x35/0x80
-      [<000000004c6a8d97>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+It is required to return the received buffers, if streaming can not be
+started. For instance media_pipeline_start() may fail with EPIPE, if
+a link validation between entities is not passed, and in such a case
+a user gets a kernel warning:
 
-If register device failed, should call put_device() to give up the
-reference.
+  WARNING: CPU: 1 PID: 520 at drivers/media/common/videobuf2/videobuf2-core.c:1592 vb2_start_streaming+0xec/0x160
+  <snip>
+  Call trace:
+   vb2_start_streaming+0xec/0x160
+   vb2_core_streamon+0x9c/0x1a0
+   vb2_ioctl_streamon+0x68/0xbc
+   v4l_streamon+0x30/0x3c
+   __video_do_ioctl+0x184/0x3e0
+   video_usercopy+0x37c/0x7b0
+   video_ioctl2+0x24/0x40
+   v4l2_ioctl+0x4c/0x70
 
-Fixes: 1f24b5a8ecbb ("[MTD] driver model updates")
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20221022121352.2534682-1-zhangxiaoxu5@huawei.com
+The fix is to correct the error path in video_start_streaming() of camss.
+
+Fixes: 0ac2586c410f ("media: camss: Add files which handle the video device nodes")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdcore.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/qcom/camss-8x16/camss-video.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index e7ea842ba3db..912b09f5d066 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -552,8 +552,10 @@ int add_mtd_device(struct mtd_info *mtd)
- 	dev_set_drvdata(&mtd->dev, mtd);
- 	of_node_get(mtd_get_of_node(mtd));
- 	error = device_register(&mtd->dev);
--	if (error)
-+	if (error) {
-+		put_device(&mtd->dev);
- 		goto fail_added;
-+	}
+diff --git a/drivers/media/platform/qcom/camss-8x16/camss-video.c b/drivers/media/platform/qcom/camss-8x16/camss-video.c
+index cf4219e871bd..53a0df638324 100644
+--- a/drivers/media/platform/qcom/camss-8x16/camss-video.c
++++ b/drivers/media/platform/qcom/camss-8x16/camss-video.c
+@@ -353,7 +353,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
  
- 	if (!IS_ERR_OR_NULL(dfs_dir_mtd)) {
- 		mtd->dbg.dfs_dir = debugfs_create_dir(dev_name(&mtd->dev), dfs_dir_mtd);
+ 	ret = media_pipeline_start(&vdev->entity, &video->pipe);
+ 	if (ret < 0)
+-		return ret;
++		goto flush_buffers;
+ 
+ 	ret = video_check_format(video);
+ 	if (ret < 0)
+@@ -382,6 +382,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
+ error:
+ 	media_pipeline_stop(&vdev->entity);
+ 
++flush_buffers:
+ 	video->ops->flush_buffers(video, VB2_BUF_STATE_QUEUED);
+ 
+ 	return ret;
 -- 
 2.35.1
 
