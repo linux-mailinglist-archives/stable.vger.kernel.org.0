@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 936BD66C95F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B38366C58E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233714AbjAPQt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:49:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39906 "EHLO
+        id S232420AbjAPQH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:07:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233977AbjAPQsh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:48:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2253030B0A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:53 -0800 (PST)
+        with ESMTP id S232271AbjAPQGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A873824107
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACF02B81059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 183F7C433EF;
-        Mon, 16 Jan 2023 16:35:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 393A361041
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E03FC433D2;
+        Mon, 16 Jan 2023 16:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886950;
-        bh=SaKxcX090vV8uGZHwGfqMmClVocNkCdg45iVhDMIJDI=;
+        s=korg; t=1673885107;
+        bh=TtNFbmbyQMUY1UNLJxHpRslj2iQ4Az+lw7EjSohj+50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yShI4sbkreb5vMtRwCd5j7Ohiuw9wybxFDnGh3IaIuGObXG0c8dgBs0sM3h2plGhO
-         WMxTPHoq5PtDrkTHROvz9m4RuRRd/Fz6ryBBQDVvUASQ9FOJHPVBPYVwf78ot5JWXS
-         zYdAEg5aJMplM8taasRSnqQjSdRuphOeMzFrHqdc=
+        b=Q3500LFSrfOxnhSpvy4J7HFueEJF6qQxKlP7LnxgC9ijnbShy1gsQqSNTd+NGymgS
+         FRLFfner0DIv5QZH73rgqxKzELL+u0wJvahNXtBqQOrqqnRfovGTtSV4D+SSLe2lrI
+         2W+xb/fUwJYdFZzLAgTCw3FbOJMsA97yLMRhkCNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 624/658] quota: Factor out setup of quota inode
+Subject: [PATCH 5.15 78/86] arm64: atomics: remove LL/SC trampolines
 Date:   Mon, 16 Jan 2023 16:51:52 +0100
-Message-Id: <20230116154938.033874843@linuxfoundation.org>
+Message-Id: <20230116154750.290544597@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,190 +54,272 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit c7d3d28360fdb3ed3a5aa0bab19315e0fdc994a1 ]
+[ Upstream commit b2c3ccbd0011bb3b51d0fec24cb3a5812b1ec8ea ]
 
-Factor out setting up of quota inode and eventual error cleanup from
-vfs_load_quota_inode(). This will simplify situation for filesystems
-that don't have any quota inodes.
+When CONFIG_ARM64_LSE_ATOMICS=y, each use of an LL/SC atomic results in
+a fragment of code being generated in a subsection without a clear
+association with its caller. A trampoline in the caller branches to the
+LL/SC atomic with with a direct branch, and the atomic directly branches
+back into its trampoline.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Stable-dep-of: d32387748476 ("ext4: fix bug_on in __es_tree_search caused by bad quota inode")
+This breaks backtracing, as any PC within the out-of-line fragment will
+be symbolized as an offset from the nearest prior symbol (which may not
+be the function using the atomic), and since the atomic returns with a
+direct branch, the caller's PC may be missing from the backtrace.
+
+For example, with secondary_start_kernel() hacked to contain
+atomic_inc(NULL), the resulting exception can be reported as being taken
+from cpus_are_stuck_in_kernel():
+
+| Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+| Mem abort info:
+|   ESR = 0x0000000096000004
+|   EC = 0x25: DABT (current EL), IL = 32 bits
+|   SET = 0, FnV = 0
+|   EA = 0, S1PTW = 0
+|   FSC = 0x04: level 0 translation fault
+| Data abort info:
+|   ISV = 0, ISS = 0x00000004
+|   CM = 0, WnR = 0
+| [0000000000000000] user address but active_mm is swapper
+| Internal error: Oops: 96000004 [#1] PREEMPT SMP
+| Modules linked in:
+| CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.19.0-11219-geb555cb5b794-dirty #3
+| Hardware name: linux,dummy-virt (DT)
+| pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+| pc : cpus_are_stuck_in_kernel+0xa4/0x120
+| lr : secondary_start_kernel+0x164/0x170
+| sp : ffff80000a4cbe90
+| x29: ffff80000a4cbe90 x28: 0000000000000000 x27: 0000000000000000
+| x26: 0000000000000000 x25: 0000000000000000 x24: 0000000000000000
+| x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000000
+| x20: 0000000000000001 x19: 0000000000000001 x18: 0000000000000008
+| x17: 3030383832343030 x16: 3030303030307830 x15: ffff80000a4cbab0
+| x14: 0000000000000001 x13: 5d31666130663133 x12: 3478305b20313030
+| x11: 3030303030303078 x10: 3020726f73736563 x9 : 726f737365636f72
+| x8 : ffff800009ff2ef0 x7 : 0000000000000003 x6 : 0000000000000000
+| x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000100
+| x2 : 0000000000000000 x1 : ffff0000029bd880 x0 : 0000000000000000
+| Call trace:
+|  cpus_are_stuck_in_kernel+0xa4/0x120
+|  __secondary_switched+0xb0/0xb4
+| Code: 35ffffa3 17fffc6c d53cd040 f9800011 (885f7c01)
+| ---[ end trace 0000000000000000 ]---
+
+This is confusing and hinders debugging, and will be problematic for
+CONFIG_LIVEPATCH as these cases cannot be unwound reliably.
+
+This is very similar to recent issues with out-of-line exception fixups,
+which were removed in commits:
+
+  35d67794b8828333 ("arm64: lib: __arch_clear_user(): fold fixups into body")
+  4012e0e22739eef9 ("arm64: lib: __arch_copy_from_user(): fold fixups into body")
+  139f9ab73d60cf76 ("arm64: lib: __arch_copy_to_user(): fold fixups into body")
+
+When the trampolines were introduced in commit:
+
+  addfc38672c73efd ("arm64: atomics: avoid out-of-line ll/sc atomics")
+
+The rationale was to improve icache performance by grouping the LL/SC
+atomics together. This has never been measured, and this theoretical
+benefit is outweighed by other factors:
+
+* As the subsections are collapsed into sections at object file
+  granularity, these are spread out throughout the kernel and can share
+  cachelines with unrelated code regardless.
+
+* GCC 12.1.0 has been observed to place the trampoline out-of-line in
+  specialised __ll_sc_*() functions, introducing more branching than was
+  intended.
+
+* Removing the trampolines has been observed to shrink a defconfig
+  kernel Image by 64KiB when building with GCC 12.1.0.
+
+This patch removes the LL/SC trampolines, meaning that the LL/SC atomics
+will be inlined into their callers (or placed in out-of line functions
+using regular BL/RET pairs). When CONFIG_ARM64_LSE_ATOMICS=y, the LL/SC
+atomics are always called in an unlikely branch, and will be placed in a
+cold portion of the function, so this should have minimal impact to the
+hot paths.
+
+Other than the improved backtracing, there should be no functional
+change as a result of this patch.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220817155914.3975112-2-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Stable-dep-of: 031af50045ea ("arm64: cmpxchg_double*: hazard against entire exchange variable")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/dquot.c         | 108 ++++++++++++++++++++++++---------------
- include/linux/quotaops.h |   2 +
- 2 files changed, 69 insertions(+), 41 deletions(-)
+ arch/arm64/include/asm/atomic_ll_sc.h | 40 ++++++---------------------
+ 1 file changed, 9 insertions(+), 31 deletions(-)
 
-diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index dc5f8654b277..84f61ab05890 100644
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -2306,28 +2306,60 @@ EXPORT_SYMBOL(dquot_quota_off);
-  *	Turn quotas on on a device
-  */
+diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
+index fe0db8d416fb..906e2d8c254c 100644
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -12,19 +12,6 @@
  
--/*
-- * Helper function to turn quotas on when we already have the inode of
-- * quota file and no quota information is loaded.
-- */
--static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
-+static int vfs_setup_quota_inode(struct inode *inode, int type)
-+{
-+	struct super_block *sb = inode->i_sb;
-+	struct quota_info *dqopt = sb_dqopt(sb);
-+
-+	if (!S_ISREG(inode->i_mode))
-+		return -EACCES;
-+	if (IS_RDONLY(inode))
-+		return -EROFS;
-+	if (sb_has_quota_loaded(sb, type))
-+		return -EBUSY;
-+
-+	dqopt->files[type] = igrab(inode);
-+	if (!dqopt->files[type])
-+		return -EIO;
-+	if (!(dqopt->flags & DQUOT_QUOTA_SYS_FILE)) {
-+		/* We don't want quota and atime on quota files (deadlocks
-+		 * possible) Also nobody should write to the file - we use
-+		 * special IO operations which ignore the immutable bit. */
-+		inode_lock(inode);
-+		inode->i_flags |= S_NOQUOTA;
-+		inode_unlock(inode);
-+		/*
-+		 * When S_NOQUOTA is set, remove dquot references as no more
-+		 * references can be added
-+		 */
-+		__dquot_drop(inode);
-+	}
-+	return 0;
-+}
-+
-+static void vfs_cleanup_quota_inode(struct super_block *sb, int type)
-+{
-+	struct quota_info *dqopt = sb_dqopt(sb);
-+	struct inode *inode = dqopt->files[type];
-+
-+	if (!(dqopt->flags & DQUOT_QUOTA_SYS_FILE)) {
-+		inode_lock(inode);
-+		inode->i_flags &= ~S_NOQUOTA;
-+		inode_unlock(inode);
-+	}
-+	dqopt->files[type] = NULL;
-+	iput(inode);
-+}
-+
-+int dquot_load_quota_sb(struct super_block *sb, int type, int format_id,
- 	unsigned int flags)
- {
- 	struct quota_format_type *fmt = find_quota_format(format_id);
--	struct super_block *sb = inode->i_sb;
- 	struct quota_info *dqopt = sb_dqopt(sb);
- 	int error;
+ #include <linux/stringify.h>
  
- 	if (!fmt)
- 		return -ESRCH;
--	if (!S_ISREG(inode->i_mode)) {
--		error = -EACCES;
--		goto out_fmt;
--	}
--	if (IS_RDONLY(inode)) {
--		error = -EROFS;
--		goto out_fmt;
--	}
- 	if (!sb->s_op->quota_write || !sb->s_op->quota_read ||
- 	    (type == PRJQUOTA && sb->dq_op->get_projid == NULL)) {
- 		error = -EINVAL;
-@@ -2359,27 +2391,9 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
- 		invalidate_bdev(sb->s_bdev);
- 	}
- 
--	if (!(dqopt->flags & DQUOT_QUOTA_SYS_FILE)) {
--		/* We don't want quota and atime on quota files (deadlocks
--		 * possible) Also nobody should write to the file - we use
--		 * special IO operations which ignore the immutable bit. */
--		inode_lock(inode);
--		inode->i_flags |= S_NOQUOTA;
--		inode_unlock(inode);
--		/*
--		 * When S_NOQUOTA is set, remove dquot references as no more
--		 * references can be added
--		 */
--		__dquot_drop(inode);
--	}
+-#ifdef CONFIG_ARM64_LSE_ATOMICS
+-#define __LL_SC_FALLBACK(asm_ops)					\
+-"	b	3f\n"							\
+-"	.subsection	1\n"						\
+-"3:\n"									\
+-asm_ops "\n"								\
+-"	b	4f\n"							\
+-"	.previous\n"							\
+-"4:\n"
+-#else
+-#define __LL_SC_FALLBACK(asm_ops) asm_ops
+-#endif
 -
--	error = -EIO;
--	dqopt->files[type] = igrab(inode);
--	if (!dqopt->files[type])
--		goto out_file_flags;
- 	error = -EINVAL;
- 	if (!fmt->qf_ops->check_quota_file(sb, type))
--		goto out_file_init;
-+		goto out_fmt;
- 
- 	dqopt->ops[type] = fmt->qf_ops;
- 	dqopt->info[type].dqi_format = fmt;
-@@ -2387,7 +2401,7 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
- 	INIT_LIST_HEAD(&dqopt->info[type].dqi_dirty_list);
- 	error = dqopt->ops[type]->read_file_info(sb, type);
- 	if (error < 0)
--		goto out_file_init;
-+		goto out_fmt;
- 	if (dqopt->flags & DQUOT_QUOTA_SYS_FILE) {
- 		spin_lock(&dq_data_lock);
- 		dqopt->info[type].dqi_flags |= DQF_SYS_FILE;
-@@ -2402,18 +2416,30 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
- 		dquot_disable(sb, type, flags);
- 
- 	return error;
--out_file_init:
--	dqopt->files[type] = NULL;
--	iput(inode);
--out_file_flags:
--	inode_lock(inode);
--	inode->i_flags &= ~S_NOQUOTA;
--	inode_unlock(inode);
- out_fmt:
- 	put_quota_format(fmt);
- 
- 	return error;
+ #ifndef CONFIG_CC_HAS_K_CONSTRAINT
+ #define K
+ #endif
+@@ -43,12 +30,11 @@ __ll_sc_atomic_##op(int i, atomic_t *v)					\
+ 	int result;							\
+ 									\
+ 	asm volatile("// atomic_" #op "\n"				\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ldxr	%w0, %2\n"					\
+ 	"	" #asm_op "	%w0, %w0, %w3\n"			\
+ 	"	stxr	%w1, %w0, %2\n"					\
+-	"	cbnz	%w1, 1b\n")					\
++	"	cbnz	%w1, 1b\n"					\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i));				\
  }
-+EXPORT_SYMBOL(dquot_load_quota_sb);
-+
-+/*
-+ * Helper function to turn quotas on when we already have the inode of
-+ * quota file and no quota information is loaded.
-+ */
-+static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
-+	unsigned int flags)
-+{
-+	int err;
-+
-+	err = vfs_setup_quota_inode(inode, type);
-+	if (err < 0)
-+		return err;
-+	err = dquot_load_quota_sb(inode->i_sb, type, format_id, flags);
-+	if (err < 0)
-+		vfs_cleanup_quota_inode(inode->i_sb, type);
-+	return err;
-+}
+@@ -61,13 +47,12 @@ __ll_sc_atomic_##op##_return##name(int i, atomic_t *v)			\
+ 	int result;							\
+ 									\
+ 	asm volatile("// atomic_" #op "_return" #name "\n"		\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ld" #acq "xr	%w0, %2\n"				\
+ 	"	" #asm_op "	%w0, %w0, %w3\n"			\
+ 	"	st" #rel "xr	%w1, %w0, %2\n"				\
+ 	"	cbnz	%w1, 1b\n"					\
+-	"	" #mb )							\
++	"	" #mb							\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -83,13 +68,12 @@ __ll_sc_atomic_fetch_##op##name(int i, atomic_t *v)			\
+ 	int val, result;						\
+ 									\
+ 	asm volatile("// atomic_fetch_" #op #name "\n"			\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %3\n"				\
+ 	"1:	ld" #acq "xr	%w0, %3\n"				\
+ 	"	" #asm_op "	%w1, %w0, %w4\n"			\
+ 	"	st" #rel "xr	%w2, %w1, %3\n"				\
+ 	"	cbnz	%w2, 1b\n"					\
+-	"	" #mb )							\
++	"	" #mb							\
+ 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -142,12 +126,11 @@ __ll_sc_atomic64_##op(s64 i, atomic64_t *v)				\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile("// atomic64_" #op "\n"				\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ldxr	%0, %2\n"					\
+ 	"	" #asm_op "	%0, %0, %3\n"				\
+ 	"	stxr	%w1, %0, %2\n"					\
+-	"	cbnz	%w1, 1b")					\
++	"	cbnz	%w1, 1b"					\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i));				\
+ }
+@@ -160,13 +143,12 @@ __ll_sc_atomic64_##op##_return##name(s64 i, atomic64_t *v)		\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile("// atomic64_" #op "_return" #name "\n"		\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ld" #acq "xr	%0, %2\n"				\
+ 	"	" #asm_op "	%0, %0, %3\n"				\
+ 	"	st" #rel "xr	%w1, %0, %2\n"				\
+ 	"	cbnz	%w1, 1b\n"					\
+-	"	" #mb )							\
++	"	" #mb							\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -182,13 +164,12 @@ __ll_sc_atomic64_fetch_##op##name(s64 i, atomic64_t *v)			\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile("// atomic64_fetch_" #op #name "\n"		\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %3\n"				\
+ 	"1:	ld" #acq "xr	%0, %3\n"				\
+ 	"	" #asm_op "	%1, %0, %4\n"				\
+ 	"	st" #rel "xr	%w2, %1, %3\n"				\
+ 	"	cbnz	%w2, 1b\n"					\
+-	"	" #mb )							\
++	"	" #mb							\
+ 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -240,7 +221,6 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
+ 	unsigned long tmp;
  
- /* Reenable quotas on remount RW */
- int dquot_resume(struct super_block *sb, int type)
-diff --git a/include/linux/quotaops.h b/include/linux/quotaops.h
-index 91e0b7624053..ec10897f7f60 100644
---- a/include/linux/quotaops.h
-+++ b/include/linux/quotaops.h
-@@ -99,6 +99,8 @@ int dquot_file_open(struct inode *inode, struct file *file);
- 
- int dquot_enable(struct inode *inode, int type, int format_id,
- 	unsigned int flags);
-+int dquot_load_quota_sb(struct super_block *sb, int type, int format_id,
-+	unsigned int flags);
- int dquot_quota_on(struct super_block *sb, int type, int format_id,
- 	const struct path *path);
- int dquot_quota_on_mount(struct super_block *sb, char *qf_name,
+ 	asm volatile("// atomic64_dec_if_positive\n"
+-	__LL_SC_FALLBACK(
+ 	"	prfm	pstl1strm, %2\n"
+ 	"1:	ldxr	%0, %2\n"
+ 	"	subs	%0, %0, #1\n"
+@@ -248,7 +228,7 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
+ 	"	stlxr	%w1, %0, %2\n"
+ 	"	cbnz	%w1, 1b\n"
+ 	"	dmb	ish\n"
+-	"2:")
++	"2:"
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)
+ 	:
+ 	: "cc", "memory");
+@@ -274,7 +254,6 @@ __ll_sc__cmpxchg_case_##name##sz(volatile void *ptr,			\
+ 		old = (u##sz)old;					\
+ 									\
+ 	asm volatile(							\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %[v]\n"				\
+ 	"1:	ld" #acq "xr" #sfx "\t%" #w "[oldval], %[v]\n"		\
+ 	"	eor	%" #w "[tmp], %" #w "[oldval], %" #w "[old]\n"	\
+@@ -282,7 +261,7 @@ __ll_sc__cmpxchg_case_##name##sz(volatile void *ptr,			\
+ 	"	st" #rel "xr" #sfx "\t%w[tmp], %" #w "[new], %[v]\n"	\
+ 	"	cbnz	%w[tmp], 1b\n"					\
+ 	"	" #mb "\n"						\
+-	"2:")								\
++	"2:"								\
+ 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
+ 	  [v] "+Q" (*(u##sz *)ptr)					\
+ 	: [old] __stringify(constraint) "r" (old), [new] "r" (new)	\
+@@ -326,7 +305,6 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
+ 	unsigned long tmp, ret;						\
+ 									\
+ 	asm volatile("// __cmpxchg_double" #name "\n"			\
+-	__LL_SC_FALLBACK(						\
+ 	"	prfm	pstl1strm, %2\n"				\
+ 	"1:	ldxp	%0, %1, %2\n"					\
+ 	"	eor	%0, %0, %3\n"					\
+@@ -336,7 +314,7 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
+ 	"	st" #rel "xp	%w0, %5, %6, %2\n"			\
+ 	"	cbnz	%w0, 1b\n"					\
+ 	"	" #mb "\n"						\
+-	"2:")								\
++	"2:"								\
+ 	: "=&r" (tmp), "=&r" (ret), "+Q" (*(unsigned long *)ptr)	\
+ 	: "r" (old1), "r" (old2), "r" (new1), "r" (new2)		\
+ 	: cl);								\
 -- 
 2.35.1
 
