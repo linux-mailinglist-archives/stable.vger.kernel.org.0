@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E3F166C564
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E10066C4FF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232022AbjAPQFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:05:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45088 "EHLO
+        id S231671AbjAPQAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:00:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232156AbjAPQFB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:05:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C02B241C1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:29 -0800 (PST)
+        with ESMTP id S231470AbjAPQAX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C41B2365A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B218561044
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8FBEC433EF;
-        Mon, 16 Jan 2023 16:03:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA21FB8105F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 517C6C433EF;
+        Mon, 16 Jan 2023 16:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885008;
-        bh=hZZYq+zgBp6jnJCJp99jRdvG759Q47Fb0q3E2vpXnsQ=;
+        s=korg; t=1673884819;
+        bh=aSEBMnxHvBcjCoXrgvE0g1i6rLKSgIVzO1kOPFFit8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ysH3sk1PaZHY6ZnHIsiR67ZjuEo4OKSYkJN9yyMtuIxVjURH1AkVQ//gtlsa01e+C
-         /l/jj50Wk42gebF/BCrt9mbZEU8q2fnTWK+Uho/joa57tfUOD+Y2QFkrW2klLYe8cF
-         SJhVOLhXrSDyDIF806D+VW96esa0qV/gsnXPGJts=
+        b=O8MxzPxszQlP2z6ngcm30nJo2K0iC8vnNbEU/z5MsyJ5o3uZHIjzmcRLrycDr+Wcc
+         CkUstZZphcrR6GiFt795xyynBqf5XEnIqpPpy7pgp7ydrtWY0XMVUEr074OfTDCKou
+         2Q9TEya6XHMLCxQeXIVqTpm+VV7zc7/N6GqPfH9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Ilia.Gavrilov" <Ilia.Gavrilov@infotecs.ru>,
-        Simon Horman <simon.horman@corigine.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 40/86] netfilter: ipset: Fix overflow before widen in the bitmap_ip_create() function.
-Date:   Mon, 16 Jan 2023 16:51:14 +0100
-Message-Id: <20230116154748.730592694@linuxfoundation.org>
+        patches@lists.linux.dev, Moshe Shemesh <moshe@nvidia.com>,
+        Shay Drory <shayd@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 152/183] net/mlx5: Fix command stats access after free
+Date:   Mon, 16 Jan 2023 16:51:15 +0100
+Message-Id: <20230116154809.748920597@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-commit 9ea4b476cea1b7d461d16dda25ca3c7e616e2d15 upstream.
+[ Upstream commit da2e552b469a0cd130ff70a88ccc4139da428a65 ]
 
-When first_ip is 0, last_ip is 0xFFFFFFFF, and netmask is 31, the value of
-an arithmetic expression 2 << (netmask - mask_bits - 1) is subject
-to overflow due to a failure casting operands to a larger data type
-before performing the arithmetic.
+Command may fail while driver is reloading and can't accept FW commands
+till command interface is reinitialized. Such command failure is being
+logged to command stats. This results in NULL pointer access as command
+stats structure is being freed and reallocated during mlx5 devlink
+reload (see kernel log below).
 
-Note that it's harmless since the value will be checked at the next step.
+Fix it by making command stats statically allocated on driver probe.
 
-Found by InfoTeCS on behalf of Linux Verification Center
-(linuxtesting.org) with SVACE.
+Kernel log:
+[ 2394.808802] BUG: unable to handle kernel paging request at 000000000002a9c0
+[ 2394.810610] PGD 0 P4D 0
+[ 2394.811811] Oops: 0002 [#1] SMP NOPTI
+...
+[ 2394.815482] RIP: 0010:native_queued_spin_lock_slowpath+0x183/0x1d0
+...
+[ 2394.829505] Call Trace:
+[ 2394.830667]  _raw_spin_lock_irq+0x23/0x26
+[ 2394.831858]  cmd_status_err+0x55/0x110 [mlx5_core]
+[ 2394.833020]  mlx5_access_reg+0xe7/0x150 [mlx5_core]
+[ 2394.834175]  mlx5_query_port_ptys+0x78/0xa0 [mlx5_core]
+[ 2394.835337]  mlx5e_ethtool_get_link_ksettings+0x74/0x590 [mlx5_core]
+[ 2394.836454]  ? kmem_cache_alloc_trace+0x140/0x1c0
+[ 2394.837562]  __rh_call_get_link_ksettings+0x33/0x100
+[ 2394.838663]  ? __rtnl_unlock+0x25/0x50
+[ 2394.839755]  __ethtool_get_link_ksettings+0x72/0x150
+[ 2394.840862]  duplex_show+0x6e/0xc0
+[ 2394.841963]  dev_attr_show+0x1c/0x40
+[ 2394.843048]  sysfs_kf_seq_show+0x9b/0x100
+[ 2394.844123]  seq_read+0x153/0x410
+[ 2394.845187]  vfs_read+0x91/0x140
+[ 2394.846226]  ksys_read+0x4f/0xb0
+[ 2394.847234]  do_syscall_64+0x5b/0x1a0
+[ 2394.848228]  entry_SYSCALL_64_after_hwframe+0x65/0xca
 
-Fixes: b9fed748185a ("netfilter: ipset: Check and reject crazy /0 input parameters")
-Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 34f46ae0d4b3 ("net/mlx5: Add command failures data to debugfs")
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Shay Drory <shayd@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_bitmap_ip.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 13 ++-----------
+ include/linux/mlx5/driver.h                   |  2 +-
+ 2 files changed, 3 insertions(+), 12 deletions(-)
 
---- a/net/netfilter/ipset/ip_set_bitmap_ip.c
-+++ b/net/netfilter/ipset/ip_set_bitmap_ip.c
-@@ -308,8 +308,8 @@ bitmap_ip_create(struct net *net, struct
- 			return -IPSET_ERR_BITMAP_RANGE;
- 
- 		pr_debug("mask_bits %u, netmask %u\n", mask_bits, netmask);
--		hosts = 2 << (32 - netmask - 1);
--		elements = 2 << (netmask - mask_bits - 1);
-+		hosts = 2U << (32 - netmask - 1);
-+		elements = 2UL << (netmask - mask_bits - 1);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index e7a894ba5c3e..723891eb86ee 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -2177,15 +2177,9 @@ int mlx5_cmd_init(struct mlx5_core_dev *dev)
+ 		return -EINVAL;
  	}
- 	if (elements > IPSET_BITMAP_MAX_RANGE + 1)
- 		return -IPSET_ERR_BITMAP_RANGE_SIZE;
+ 
+-	cmd->stats = kvcalloc(MLX5_CMD_OP_MAX, sizeof(*cmd->stats), GFP_KERNEL);
+-	if (!cmd->stats)
+-		return -ENOMEM;
+-
+ 	cmd->pool = dma_pool_create("mlx5_cmd", mlx5_core_dma_dev(dev), size, align, 0);
+-	if (!cmd->pool) {
+-		err = -ENOMEM;
+-		goto dma_pool_err;
+-	}
++	if (!cmd->pool)
++		return -ENOMEM;
+ 
+ 	err = alloc_cmd_page(dev, cmd);
+ 	if (err)
+@@ -2269,8 +2263,6 @@ int mlx5_cmd_init(struct mlx5_core_dev *dev)
+ 
+ err_free_pool:
+ 	dma_pool_destroy(cmd->pool);
+-dma_pool_err:
+-	kvfree(cmd->stats);
+ 	return err;
+ }
+ 
+@@ -2283,7 +2275,6 @@ void mlx5_cmd_cleanup(struct mlx5_core_dev *dev)
+ 	destroy_msg_cache(dev);
+ 	free_cmd_page(dev, cmd);
+ 	dma_pool_destroy(cmd->pool);
+-	kvfree(cmd->stats);
+ }
+ 
+ void mlx5_cmd_set_state(struct mlx5_core_dev *dev,
+diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
+index 06cbad166225..ad55470a9fb9 100644
+--- a/include/linux/mlx5/driver.h
++++ b/include/linux/mlx5/driver.h
+@@ -315,7 +315,7 @@ struct mlx5_cmd {
+ 	struct mlx5_cmd_debug dbg;
+ 	struct cmd_msg_cache cache[MLX5_NUM_COMMAND_CACHES];
+ 	int checksum_disabled;
+-	struct mlx5_cmd_stats *stats;
++	struct mlx5_cmd_stats stats[MLX5_CMD_OP_MAX];
+ };
+ 
+ struct mlx5_cmd_mailbox {
+-- 
+2.35.1
+
 
 
