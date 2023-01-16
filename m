@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4C7B66C841
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:37:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C60466C842
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:37:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233378AbjAPQhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:37:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52512 "EHLO
+        id S233537AbjAPQhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:37:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233552AbjAPQgk (ORCPT
+        with ESMTP id S232993AbjAPQgk (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:36:40 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460CE241C8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:25:46 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD152B62C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:25:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AEBACCE1283
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:25:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BD87C433D2;
-        Mon, 16 Jan 2023 16:25:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E676B81065
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:25:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8393CC433D2;
+        Mon, 16 Jan 2023 16:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886343;
-        bh=gek+l7ptYo4Muy3VFVAYVi5zkahpQ0QWpUWgCkA1Nww=;
+        s=korg; t=1673886345;
+        bh=b52JihtzJHFSqIQQvyHNO6KZaqTEOKizc3NuPBO1sUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7adyVA9RpBE28lyh3NVhO+sKe4A0xS+0HPNrc1EG1ACzeKW1Pf/1W7k2AcNzBEeG
-         73loBwJk/YC6bNhwz1BpiY5xMp4AU4TMrxpRb1no2pZXG8wmTeIVxDOdlE/Uc7B67X
-         h+uVbQOvZekB8yPklCSXfryy56KyIOKpds36DW4c=
+        b=Lav/HR5FcCOg4xe0GR0g6ftgg4rFxQ0DWMpGtUVq9iwtXOVDv9h4QVFeMjQC8JkPB
+         t7DC/kBKV9U6xCpPA32J+8JDaf4ks8G3dOR01mBJ3eiVSVPUlIm6ephRmQH8zAjKyE
+         xyABdRgWTfNiPjdqdlUkJDKdA1kFBZUFW6kAb5XE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Doug Brown <doug@schmorgal.com>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
+        patches@lists.linux.dev, Wright Feng <wright.feng@cypress.com>,
+        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
+        Ian Lin <ian.lin@infineon.com>, Kalle Valo <kvalo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 395/658] drm/etnaviv: add missing quirks for GC300
-Date:   Mon, 16 Jan 2023 16:48:03 +0100
-Message-Id: <20230116154927.647011448@linuxfoundation.org>
+Subject: [PATCH 5.4 396/658] brcmfmac: return error when getting invalid max_flowrings from dongle
+Date:   Mon, 16 Jan 2023 16:48:04 +0100
+Message-Id: <20230116154927.694608423@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -54,51 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Brown <doug@schmorgal.com>
+From: Wright Feng <wright.feng@cypress.com>
 
-[ Upstream commit cc7d3fb446a91f24978a6aa59cbb578f92e22242 ]
+[ Upstream commit 2aca4f3734bd717e04943ddf340d49ab62299a00 ]
 
-The GC300's features register doesn't specify that a 2D pipe is
-available, and like the GC600, its idle register reports zero bits where
-modules aren't present.
+When firmware hit trap at initialization, host will read abnormal
+max_flowrings number from dongle, and it will cause kernel panic when
+doing iowrite to initialize dongle ring.
+To detect this error at early stage, we directly return error when getting
+invalid max_flowrings(>256).
 
-Signed-off-by: Doug Brown <doug@schmorgal.com>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Wright Feng <wright.feng@cypress.com>
+Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Ian Lin <ian.lin@infineon.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220929031001.9962-3-ian.lin@infineon.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-index db35736d47af..8c6f9752692d 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -392,6 +392,12 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
- 	if (gpu->identity.model == chipModel_GC700)
- 		gpu->identity.features &= ~chipFeatures_FAST_CLEAR;
- 
-+	/* These models/revisions don't have the 2D pipe bit */
-+	if ((gpu->identity.model == chipModel_GC500 &&
-+	     gpu->identity.revision <= 2) ||
-+	    gpu->identity.model == chipModel_GC300)
-+		gpu->identity.features |= chipFeatures_PIPE_2D;
-+
- 	if ((gpu->identity.model == chipModel_GC500 &&
- 	     gpu->identity.revision < 2) ||
- 	    (gpu->identity.model == chipModel_GC300 &&
-@@ -425,8 +431,9 @@ static void etnaviv_hw_identify(struct etnaviv_gpu *gpu)
- 				gpu_read(gpu, VIVS_HI_CHIP_MINOR_FEATURE_5);
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index c3ea31ca857a..092501eee9aa 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -1109,6 +1109,10 @@ static int brcmf_pcie_init_ringbuffers(struct brcmf_pciedev_info *devinfo)
+ 				BRCMF_NROF_H2D_COMMON_MSGRINGS;
+ 		max_completionrings = BRCMF_NROF_D2H_COMMON_MSGRINGS;
  	}
++	if (max_flowrings > 256) {
++		brcmf_err(bus, "invalid max_flowrings(%d)\n", max_flowrings);
++		return -EIO;
++	}
  
--	/* GC600 idle register reports zero bits where modules aren't present */
--	if (gpu->identity.model == chipModel_GC600)
-+	/* GC600/300 idle register reports zero bits where modules aren't present */
-+	if (gpu->identity.model == chipModel_GC600 ||
-+	    gpu->identity.model == chipModel_GC300)
- 		gpu->idle_mask = VIVS_HI_IDLE_STATE_TX |
- 				 VIVS_HI_IDLE_STATE_RA |
- 				 VIVS_HI_IDLE_STATE_SE |
+ 	if (devinfo->dma_idx_sz != 0) {
+ 		bufsz = (max_submissionrings + max_completionrings) *
 -- 
 2.35.1
 
