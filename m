@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B09B166C8F7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B2A66C4ED
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233817AbjAPQpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:45:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38518 "EHLO
+        id S231776AbjAPQAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:00:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233449AbjAPQop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:44:45 -0500
+        with ESMTP id S231894AbjAPP7h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77CDF2F798
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E626623860
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 001D361059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15D89C433EF;
-        Mon, 16 Jan 2023 16:32:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86C626102D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9870BC433D2;
+        Mon, 16 Jan 2023 15:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886725;
-        bh=Ll8rBaKVoplQ3eCFPjwUmndeM7Z3aZ2wKe/glpQbtJQ=;
+        s=korg; t=1673884775;
+        bh=95MzELXbmXfwUuEQQ2+CW4+v+lrHNXwiM9pIXIcxov4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnpx0oRNH9yVW+WZG1oP7mYDgAbIzxTu4EuaQI618EJAbZ1naaHh5j2oQ8nNVWCyg
-         adBQip0OxXj4ZEbSRZn7gGml+y/KJ38pU+2Osq2kL0eAmjplWVlvqiHcttrN91GrkK
-         ilXrvzXa3LL78OTDxhkWRvH1SsUXpVaJwwiFJYRQ=
+        b=uMlqwft/06ENNdReKQo+bdV2llE92+BgkFaOK5c/WvmA/n7XEcFw0PKE5yY6PfUu4
+         Q4oj9SmGuk6uJhEhviiJ18EkYRj3bFXCpbixFnnIDnNL5RgxGpQ9FMDzYodmfnxZ5L
+         npT9/mHoZjeq3mb/nJwlxDXwCPxbSIKM6OuiICSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Abaci Robot <abaci@linux.alibaba.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 538/658] btrfs: replace strncpy() with strscpy()
-Date:   Mon, 16 Jan 2023 16:50:26 +0100
-Message-Id: <20230116154934.137948077@linuxfoundation.org>
+Subject: [PATCH 6.1 104/183] drm/msm/dpu: Fix some kernel-doc comments
+Date:   Mon, 16 Jan 2023 16:50:27 +0100
+Message-Id: <20230116154807.771286596@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 63d5429f68a3d4c4aa27e65a05196c17f86c41d6 ]
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-Using strncpy() on NUL-terminated strings are deprecated.  To avoid
-possible forming of non-terminated string strscpy() should be used.
+[ Upstream commit 1bdeb321d1f856346fe0078af09c9e7ffbd2ca7a ]
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+Make the description of @init to @p in dpu_encoder_phys_wb_init()
+and remove @wb_roi in dpu_encoder_phys_wb_setup_fb() to clear the below
+warnings:
 
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c:139: warning: Excess function parameter 'wb_roi' description in 'dpu_encoder_phys_wb_setup_fb'
+drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c:699: warning: Function parameter or member 'p' not described in 'dpu_encoder_phys_wb_init'
+drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c:699: warning: Excess function parameter 'init' description in 'dpu_encoder_phys_wb_init'
+
+Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3067
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Fixes: d7d0e73f7de3 ("drm/msm/dpu: introduce the dpu_encoder_phys_* for writeback")
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/511605/
+Link: https://lore.kernel.org/r/20221115014902.45240-1-yang.lee@linux.alibaba.com
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c      | 9 +++------
- fs/btrfs/rcu-string.h | 6 +++++-
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 8553bd4361dd..64b443aa61ca 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3299,13 +3299,10 @@ static long btrfs_ioctl_dev_info(struct btrfs_fs_info *fs_info,
- 	di_args->bytes_used = btrfs_device_get_bytes_used(dev);
- 	di_args->total_bytes = btrfs_device_get_total_bytes(dev);
- 	memcpy(di_args->uuid, dev->uuid, sizeof(di_args->uuid));
--	if (dev->name) {
--		strncpy(di_args->path, rcu_str_deref(dev->name),
--				sizeof(di_args->path) - 1);
--		di_args->path[sizeof(di_args->path) - 1] = 0;
--	} else {
-+	if (dev->name)
-+		strscpy(di_args->path, rcu_str_deref(dev->name), sizeof(di_args->path));
-+	else
- 		di_args->path[0] = '\0';
--	}
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c
+index 7cbcef6efe17..62f6ff6abf41 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c
+@@ -132,7 +132,6 @@ static void dpu_encoder_phys_wb_set_qos(struct dpu_encoder_phys *phys_enc)
+  * dpu_encoder_phys_wb_setup_fb - setup output framebuffer
+  * @phys_enc:	Pointer to physical encoder
+  * @fb:		Pointer to output framebuffer
+- * @wb_roi:	Pointer to output region of interest
+  */
+ static void dpu_encoder_phys_wb_setup_fb(struct dpu_encoder_phys *phys_enc,
+ 		struct drm_framebuffer *fb)
+@@ -692,7 +691,7 @@ static void dpu_encoder_phys_wb_init_ops(struct dpu_encoder_phys_ops *ops)
  
- out:
- 	rcu_read_unlock();
-diff --git a/fs/btrfs/rcu-string.h b/fs/btrfs/rcu-string.h
-index a97dc74a4d3d..02f15321cecc 100644
---- a/fs/btrfs/rcu-string.h
-+++ b/fs/btrfs/rcu-string.h
-@@ -18,7 +18,11 @@ static inline struct rcu_string *rcu_string_strdup(const char *src, gfp_t mask)
- 					 (len * sizeof(char)), mask);
- 	if (!ret)
- 		return ret;
--	strncpy(ret->str, src, len);
-+	/* Warn if the source got unexpectedly truncated. */
-+	if (WARN_ON(strscpy(ret->str, src, len) < 0)) {
-+		kfree(ret);
-+		return NULL;
-+	}
- 	return ret;
- }
- 
+ /**
+  * dpu_encoder_phys_wb_init - initialize writeback encoder
+- * @init:	Pointer to init info structure with initialization params
++ * @p:	Pointer to init info structure with initialization params
+  */
+ struct dpu_encoder_phys *dpu_encoder_phys_wb_init(
+ 		struct dpu_enc_phys_init_params *p)
 -- 
 2.35.1
 
