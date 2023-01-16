@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B5A66CCB2
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C75166CCB3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234555AbjAPR2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:28:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52538 "EHLO
+        id S234703AbjAPR3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234788AbjAPR21 (ORCPT
+        with ESMTP id S234756AbjAPR21 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCCE238649
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:16 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103B23865D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7316F60F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 862F3C433EF;
-        Mon, 16 Jan 2023 17:05:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF1E7B81014
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29B50C433D2;
+        Mon, 16 Jan 2023 17:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888715;
-        bh=57WJNM/Doia2ByJN1tCr+Lg9f1ORpCmkQcU3sEnTmPg=;
+        s=korg; t=1673888718;
+        bh=PAR5b1IoLfzvojnxAmUsHY43AvlrY/bg2ADfcz6/7EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwI3KBrbRPxIR6/SyqZUQ9jQq8/Q/va78Rs43SaoeJxbPPI8GjeNqIihSAxxG9o5x
-         L2lYdhnYErHle0qAAGw/1vAj+L/ezivF3qDGxpBFKhaaME7whZGyv2ddVDFleC+KYW
-         vhtTFgPnB0sYUHANoIuGsVwvpGElT45/dRn0HY6g=
+        b=Y41iHnYjGZAnSGOsuMCM9jUc8STZ+ew1LWGXEKrPW5Zm+jy0S5XU8Sxo9XMZ/FA1x
+         537gfJ/pPH1A7dKwbmC2MxnEl6EtzcrmrUtvSy7aUcOPUVf5X8GoyKoHFJXm6GdP0/
+         w8nUnkUhS9LulLcgU9W1bbSUr7suTBTXvs8Ye4sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 080/338] media: solo6x10: fix possible memory leak in solo_sysfs_init()
-Date:   Mon, 16 Jan 2023 16:49:13 +0100
-Message-Id: <20230116154824.369180343@linuxfoundation.org>
+Subject: [PATCH 4.14 081/338] media: platform: exynos4-is: Fix error handling in fimc_md_init()
+Date:   Mon, 16 Jan 2023 16:49:14 +0100
+Message-Id: <20230116154824.409413536@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,36 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 7f5866dd96d95b74e439f6ee17b8abd8195179fb ]
+[ Upstream commit b434422c45282a0573d8123239abc41fa72665d4 ]
 
-If device_register() returns error in solo_sysfs_init(), the
-name allocated by dev_set_name() need be freed. As comment of
-device_register() says, it should use put_device() to give up
-the reference in the error path. So fix this by calling
-put_device(), then the name can be freed in kobject_cleanup().
+A problem about modprobe s5p_fimc failed is triggered with the
+following log given:
 
-Fixes: dcae5dacbce5 ("[media] solo6x10: sync to latest code from Bluecherry's git repo")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+ [  272.075275] Error: Driver 'exynos4-fimc' is already registered, aborting...
+ modprobe: ERROR: could not insert 's5p_fimc': Device or resource busy
+
+The reason is that fimc_md_init() returns platform_driver_register()
+directly without checking its return value, if platform_driver_register()
+failed, it returns without unregister fimc_driver, resulting the
+s5p_fimc can never be installed later.
+A simple call graph is shown as below:
+
+ fimc_md_init()
+   fimc_register_driver() # register fimc_driver
+   platform_driver_register()
+     platform_driver_register()
+       driver_register()
+         bus_add_driver()
+           dev = kzalloc(...) # OOM happened
+   # return without unregister fimc_driver
+
+Fix by unregister fimc_driver when platform_driver_register() returns
+error.
+
+Fixes: d3953223b090 ("[media] s5p-fimc: Add the media device driver")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/solo6x10/solo6x10-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/exynos4-is/fimc-core.c | 2 +-
+ drivers/media/platform/exynos4-is/media-dev.c | 6 +++++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/solo6x10/solo6x10-core.c b/drivers/media/pci/solo6x10/solo6x10-core.c
-index ca0873e47bea..a654cc5ddecd 100644
---- a/drivers/media/pci/solo6x10/solo6x10-core.c
-+++ b/drivers/media/pci/solo6x10/solo6x10-core.c
-@@ -428,6 +428,7 @@ static int solo_sysfs_init(struct solo_dev *solo_dev)
- 		     solo_dev->nr_chans);
+diff --git a/drivers/media/platform/exynos4-is/fimc-core.c b/drivers/media/platform/exynos4-is/fimc-core.c
+index 099c735a39b7..5099cc1481e3 100644
+--- a/drivers/media/platform/exynos4-is/fimc-core.c
++++ b/drivers/media/platform/exynos4-is/fimc-core.c
+@@ -1255,7 +1255,7 @@ int __init fimc_register_driver(void)
+ 	return platform_driver_register(&fimc_driver);
+ }
  
- 	if (device_register(dev)) {
-+		put_device(dev);
- 		dev->parent = NULL;
- 		return -ENOMEM;
- 	}
+-void __exit fimc_unregister_driver(void)
++void fimc_unregister_driver(void)
+ {
+ 	platform_driver_unregister(&fimc_driver);
+ }
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index 24fb0f4b95e1..785b8f0a39ca 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -1561,7 +1561,11 @@ static int __init fimc_md_init(void)
+ 	if (ret)
+ 		return ret;
+ 
+-	return platform_driver_register(&fimc_md_driver);
++	ret = platform_driver_register(&fimc_md_driver);
++	if (ret)
++		fimc_unregister_driver();
++
++	return ret;
+ }
+ 
+ static void __exit fimc_md_exit(void)
 -- 
 2.35.1
 
