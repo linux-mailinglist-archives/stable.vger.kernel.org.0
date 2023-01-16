@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEA1766CC67
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB6366CAF5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234727AbjAPRZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47532 "EHLO
+        id S234258AbjAPRJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234528AbjAPRZY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:25:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24FCC5A379
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:30 -0800 (PST)
+        with ESMTP id S234357AbjAPRIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91F5542DE0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:49:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD55261085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C111EC433D2;
-        Mon, 16 Jan 2023 17:02:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DD6BB81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:49:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A83E5C433D2;
+        Mon, 16 Jan 2023 16:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888549;
-        bh=5Wcf3fSC2/Jsce+T6mZ0EKvOIiEPQBxA//7TkKuib6s=;
+        s=korg; t=1673887750;
+        bh=oirjHvUm/24DGQLv4pPofWFz6LgNO1j6+Bh8e6KtH1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NxKVxPznwPckPriMyooVNGVlskiQfTnaGwalr272vNIlyVBuXbZnxoUcN4yJ76xVN
-         dGm69G3fZhDDLAicHCoTXDU6aTJz0ZkrjScwtANB3eIxBoLXuW9oiGL7IlugEdIJky
-         uuXzqbr+6X6OMqw6O1Tyg+L+ojNVOni2x9F1XzTA=
+        b=vGOQbjdlBNTrWItqTjMOwPOzqyMGIVLC7JkAViBUgUPz1xwoft3+O8yScvuMgQ1jG
+         0e5vuqGbO2CLF2D/wj77aveNHnh/MaYYgML5hF2uMPp0i/FaMCLkp5qNUkTkmX+cyo
+         axCy/sS9MjrmkgczztWi9PFE9rjZ0z6pYpP0krw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Daniel Scally <dan.scally@ideasonboard.com>,
-        Szymon Heidrich <szymon.heidrich@gmail.com>
-Subject: [PATCH 4.14 017/338] usb: gadget: uvc: Prevent buffer overflow in setup handler
+        patches@lists.linux.dev, Tobias Klauser <tklauser@distanz.ch>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 228/521] tty: serial: clean up stop-tx part in altera_uart_tx_chars()
 Date:   Mon, 16 Jan 2023 16:48:10 +0100
-Message-Id: <20230116154821.502505658@linuxfoundation.org>
+Message-Id: <20230116154857.350666530@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 4c92670b16727365699fe4b19ed32013bab2c107 upstream.
+[ Upstream commit d9c128117da41cf4cb0e80ae565b5d3ac79dffac ]
 
-Setup function uvc_function_setup permits control transfer
-requests with up to 64 bytes of payload (UVC_MAX_REQUEST_SIZE),
-data stage handler for OUT transfer uses memcpy to copy req->actual
-bytes to uvc_event->data.data array of size 60. This may result
-in an overflow of 4 bytes.
+The "stop TX" path in altera_uart_tx_chars() is open-coded, so:
+* use uart_circ_empty() to check if the buffer is empty, and
+* when true, call altera_uart_stop_tx().
 
-Fixes: cdda479f15cd ("USB gadget: video class function driver")
-Cc: stable <stable@kernel.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Daniel Scally <dan.scally@ideasonboard.com>
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Link: https://lore.kernel.org/r/20221206141301.51305-1-szymon.heidrich@gmail.com
+Cc: Tobias Klauser <tklauser@distanz.ch>
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Acked-by: Tobias Klauser <tklauser@distanz.ch>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220920052049.20507-3-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 1307c5d33cce ("serial: altera_uart: fix locking in polling mode")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_uvc.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/tty/serial/altera_uart.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/gadget/function/f_uvc.c
-+++ b/drivers/usb/gadget/function/f_uvc.c
-@@ -220,8 +220,9 @@ uvc_function_ep0_complete(struct usb_ep
+diff --git a/drivers/tty/serial/altera_uart.c b/drivers/tty/serial/altera_uart.c
+index 0e487ce091ac..508a3c2b7781 100644
+--- a/drivers/tty/serial/altera_uart.c
++++ b/drivers/tty/serial/altera_uart.c
+@@ -274,10 +274,8 @@ static void altera_uart_tx_chars(struct altera_uart *pp)
+ 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
+ 		uart_write_wakeup(port);
  
- 		memset(&v4l2_event, 0, sizeof(v4l2_event));
- 		v4l2_event.type = UVC_EVENT_DATA;
--		uvc_event->data.length = req->actual;
--		memcpy(&uvc_event->data.data, req->buf, req->actual);
-+		uvc_event->data.length = min_t(unsigned int, req->actual,
-+			sizeof(uvc_event->data.data));
-+		memcpy(&uvc_event->data.data, req->buf, uvc_event->data.length);
- 		v4l2_event_queue(&uvc->vdev, &v4l2_event);
- 	}
+-	if (xmit->head == xmit->tail) {
+-		pp->imr &= ~ALTERA_UART_CONTROL_TRDY_MSK;
+-		altera_uart_update_ctrl_reg(pp);
+-	}
++	if (uart_circ_empty(xmit))
++		altera_uart_stop_tx(port);
  }
+ 
+ static irqreturn_t altera_uart_interrupt(int irq, void *data)
+-- 
+2.35.1
+
 
 
