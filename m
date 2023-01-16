@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ADD966CAE7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B69966CC63
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231322AbjAPRJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:09:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60204 "EHLO
+        id S234722AbjAPRZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:25:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233051AbjAPRIF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9847942DE8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:34 -0800 (PST)
+        with ESMTP id S234693AbjAPRZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:25:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97B865A36B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3977AB8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D67C433EF;
-        Mon, 16 Jan 2023 16:48:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F92161055
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC4BC433EF;
+        Mon, 16 Jan 2023 17:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887712;
-        bh=IoBwvQBfnAWsNK+WzDnaiuMJlvW27xC2l5fId9zx01M=;
+        s=korg; t=1673888538;
+        bh=sMdBkFDKwhlfZGRwELfM/fLhW4YwDf5qIxyY63e6VYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wb3sk+Entn5ewQpJTMbgneyq2QzbojD7MQSSoBY964UdJBfLNX2Q3HvQ+fAvhzbbT
-         xb6xGSq3zzfAGcJIy9wxVzw9D40AxqCYdbtk8cZQUBncAJIMMzeEPtUleiAKN0kxQ/
-         i+rvcIjqqHrVUNQgCF6Un58pKjKAnKWUVYfNZ1cc=
+        b=yGYiU6k9jk3X0kRG896OYyVVrtZ6K3RuMaPzbRoeYZ+emqgu1HD73B0RurJkdv3iC
+         PY3WBsFLOMK7RzeFTYTmEc+gFXbJ479M+E1n6q2Z6cO7eDUpiFwqDnMY6cJ+P1NjfY
+         Wckav25ACfxLQ1qBn2LBwyxII+VFtR/BFPbotikw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 253/521] samples: vfio-mdev: Fix missing pci_disable_device() in mdpy_fb_probe()
+Subject: [PATCH 4.14 042/338] alpha: fix syscall entry in !AUDUT_SYSCALL case
 Date:   Mon, 16 Jan 2023 16:48:35 +0100
-Message-Id: <20230116154858.450410487@linuxfoundation.org>
+Message-Id: <20230116154822.617659711@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit d1f0f50fbbbbca1e3e8157e51934613bf88f6d44 ]
+[ Upstream commit f7b2431a6d22f7a91c567708e071dfcd6d66db14 ]
 
-Add missing pci_disable_device() in fail path of mdpy_fb_probe().
-Besides, fix missing release functions in mdpy_fb_remove().
+We only want to take the slow path if SYSCALL_TRACE or SYSCALL_AUDIT is
+set; on !AUDIT_SYSCALL configs the current tree hits it whenever _any_
+thread flag (including NEED_RESCHED, NOTIFY_SIGNAL, etc.) happens to
+be set.
 
-Fixes: cacade1946a4 ("sample: vfio mdev display - guest driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Link: https://lore.kernel.org/r/20221208013341.3999-1-shangxiaojing@huawei.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: a9302e843944 "alpha: Enable system-call auditing support"
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/vfio-mdev/mdpy-fb.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/alpha/kernel/entry.S | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/samples/vfio-mdev/mdpy-fb.c b/samples/vfio-mdev/mdpy-fb.c
-index a760e130bd0d..8ad1aa13ddd9 100644
---- a/samples/vfio-mdev/mdpy-fb.c
-+++ b/samples/vfio-mdev/mdpy-fb.c
-@@ -109,7 +109,7 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
- 
- 	ret = pci_request_regions(pdev, "mdpy-fb");
- 	if (ret < 0)
--		return ret;
-+		goto err_disable_dev;
- 
- 	pci_read_config_dword(pdev, MDPY_FORMAT_OFFSET, &format);
- 	pci_read_config_dword(pdev, MDPY_WIDTH_OFFSET,	&width);
-@@ -191,6 +191,9 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
- err_release_regions:
- 	pci_release_regions(pdev);
- 
-+err_disable_dev:
-+	pci_disable_device(pdev);
-+
- 	return ret;
- }
- 
-@@ -199,7 +202,10 @@ static void mdpy_fb_remove(struct pci_dev *pdev)
- 	struct fb_info *info = pci_get_drvdata(pdev);
- 
- 	unregister_framebuffer(info);
-+	iounmap(info->screen_base);
- 	framebuffer_release(info);
-+	pci_release_regions(pdev);
-+	pci_disable_device(pdev);
- }
- 
- static struct pci_device_id mdpy_fb_pci_table[] = {
+diff --git a/arch/alpha/kernel/entry.S b/arch/alpha/kernel/entry.S
+index d92abb01c249..25eda9c103c4 100644
+--- a/arch/alpha/kernel/entry.S
++++ b/arch/alpha/kernel/entry.S
+@@ -469,8 +469,10 @@ entSys:
+ #ifdef CONFIG_AUDITSYSCALL
+ 	lda     $6, _TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT
+ 	and     $3, $6, $3
+-#endif
+ 	bne     $3, strace
++#else
++	blbs    $3, strace		/* check for SYSCALL_TRACE in disguise */
++#endif
+ 	beq	$4, 1f
+ 	ldq	$27, 0($5)
+ 1:	jsr	$26, ($27), alpha_ni_syscall
 -- 
 2.35.1
 
