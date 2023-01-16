@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E112F66CB79
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA52366CCF6
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234297AbjAPRPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39040 "EHLO
+        id S234738AbjAPRbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:31:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233691AbjAPRNY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F5482412F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:19 -0800 (PST)
+        with ESMTP id S234781AbjAPRbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:31:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A63F42BCD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C50061089
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31BE9C433EF;
-        Mon, 16 Jan 2023 16:54:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 983F161055
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABAE7C433D2;
+        Mon, 16 Jan 2023 17:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888058;
-        bh=vEpmbVZ/PZHJ2C1JJkGIiUDPla5U/sXBxAqdgQl1pMM=;
+        s=korg; t=1673888883;
+        bh=VRoWMdQZptWHz7vDB+Jl4DFHRKCxSYOcznflECbSgnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGaBut3Sddtd9qpQT00QSsAIEG9W0mdh5rWtHKIXhbRqFLuWaYi5Ek/IoMtXNZ2Kj
-         wQNLwBlbQYcwG18O2yXw1nI0kMtsJ/PLckbPiSgWn+5F3PhQl9FTAkew23jBSM8apR
-         23tW2tDOmTJX3paxKw0eoUejbXLqpeCzXqjc0sZk=
+        b=heXse8wvjxpm5EyROI6spuiPCwqBrlVUDGPadczUvhgF2uzYSUETSrH2k+tbjMcim
+         BHAap9F4g6k0s+ZbyLvMveS2pPGhCvMyZf2yjjEdhlWyC0LAWUGHvZ6NaODmvHeMZJ
+         CSUi1ojttPNpIt22MQEUPCfoKoMKseS5O4QyZu4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.19 384/521] dm thin: Use last transactions pmd->root when commit failed
-Date:   Mon, 16 Jan 2023 16:50:46 +0100
-Message-Id: <20230116154904.295912354@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 174/338] chardev: fix error handling in cdev_device_add()
+Date:   Mon, 16 Jan 2023 16:50:47 +0100
+Message-Id: <20230116154828.486829728@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 7991dbff6849f67e823b7cc0c15e5a90b0549b9f upstream.
+[ Upstream commit 11fa7fefe3d8fac7da56bc9aa3dd5fb3081ca797 ]
 
-Recently we found a softlock up problem in dm thin pool btree lookup
-code due to corrupted metadata:
+While doing fault injection test, I got the following report:
 
- Kernel panic - not syncing: softlockup: hung tasks
- CPU: 7 PID: 2669225 Comm: kworker/u16:3
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
- Workqueue: dm-thin do_worker [dm_thin_pool]
- Call Trace:
-   <IRQ>
-   dump_stack+0x9c/0xd3
-   panic+0x35d/0x6b9
-   watchdog_timer_fn.cold+0x16/0x25
-   __run_hrtimer+0xa2/0x2d0
-   </IRQ>
-   RIP: 0010:__relink_lru+0x102/0x220 [dm_bufio]
-   __bufio_new+0x11f/0x4f0 [dm_bufio]
-   new_read+0xa3/0x1e0 [dm_bufio]
-   dm_bm_read_lock+0x33/0xd0 [dm_persistent_data]
-   ro_step+0x63/0x100 [dm_persistent_data]
-   btree_lookup_raw.constprop.0+0x44/0x220 [dm_persistent_data]
-   dm_btree_lookup+0x16f/0x210 [dm_persistent_data]
-   dm_thin_find_block+0x12c/0x210 [dm_thin_pool]
-   __process_bio_read_only+0xc5/0x400 [dm_thin_pool]
-   process_thin_deferred_bios+0x1a4/0x4a0 [dm_thin_pool]
-   process_one_work+0x3c5/0x730
+------------[ cut here ]------------
+kobject: '(null)' (0000000039956980): is not initialized, yet kobject_put() is being called.
+WARNING: CPU: 3 PID: 6306 at kobject_put+0x23d/0x4e0
+CPU: 3 PID: 6306 Comm: 283 Tainted: G        W          6.1.0-rc2-00005-g307c1086d7c9 #1253
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:kobject_put+0x23d/0x4e0
+Call Trace:
+ <TASK>
+ cdev_device_add+0x15e/0x1b0
+ __iio_device_register+0x13b4/0x1af0 [industrialio]
+ __devm_iio_device_register+0x22/0x90 [industrialio]
+ max517_probe+0x3d8/0x6b4 [max517]
+ i2c_device_probe+0xa81/0xc00
 
-Following process may generate a broken btree mixed with fresh and
-stale btree nodes, which could get dm thin trapped in an infinite loop
-while looking up data block:
- Transaction 1: pmd->root = A, A->B->C   // One path in btree
-                pmd->root = X, X->Y->Z   // Copy-up
- Transaction 2: X,Z is updated on disk, Y write failed.
-                // Commit failed, dm thin becomes read-only.
-                process_bio_read_only
-		 dm_thin_find_block
-		  __find_block
-		   dm_btree_lookup(pmd->root)
-The pmd->root points to a broken btree, Y may contain stale node
-pointing to any block, for example X, which gets dm thin trapped into
-a dead loop while looking up Z.
+When device_add() is injected fault and returns error, if dev->devt is not set,
+cdev_add() is not called, cdev_del() is not needed. Fix this by checking dev->devt
+in error path.
 
-Fix this by setting pmd->root in __open_metadata(), so that dm thin
-will use the last transaction's pmd->root if commit failed.
-
-Fetch a reproducer in [Link].
-
-Linke: https://bugzilla.kernel.org/show_bug.cgi?id=216790
-Cc: stable@vger.kernel.org
-Fixes: 991d9fa02da0 ("dm: add thin provisioning target")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Acked-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 233ed09d7fda ("chardev: add helper function to register char devs with a struct device")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221202030237.520280-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-thin-metadata.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/char_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-thin-metadata.c
-+++ b/drivers/md/dm-thin-metadata.c
-@@ -660,6 +660,15 @@ static int __open_metadata(struct dm_poo
- 		goto bad_cleanup_data_sm;
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index 715d76b00108..c7f79f048086 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -553,7 +553,7 @@ int cdev_device_add(struct cdev *cdev, struct device *dev)
  	}
  
-+	/*
-+	 * For pool metadata opening process, root setting is redundant
-+	 * because it will be set again in __begin_transaction(). But dm
-+	 * pool aborting process really needs to get last transaction's
-+	 * root to avoid accessing broken btree.
-+	 */
-+	pmd->root = le64_to_cpu(disk_super->data_mapping_root);
-+	pmd->details_root = le64_to_cpu(disk_super->device_details_root);
-+
- 	__setup_btree_details(pmd);
- 	dm_bm_unlock(sblock);
+ 	rc = device_add(dev);
+-	if (rc)
++	if (rc && dev->devt)
+ 		cdev_del(cdev);
  
+ 	return rc;
+-- 
+2.35.1
+
 
 
