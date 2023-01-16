@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3551966C4D8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20FCD66C557
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231717AbjAPP64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:58:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41318 "EHLO
+        id S231977AbjAPQFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:05:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231921AbjAPP6t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:58:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E762915543
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:58:47 -0800 (PST)
+        with ESMTP id S232172AbjAPQEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E74E826854
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1F85B81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:58:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0502FC433F0;
-        Mon, 16 Jan 2023 15:58:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03054B81065
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53DCDC433D2;
+        Mon, 16 Jan 2023 16:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884725;
-        bh=Xk69cy4wqPiV4fV7PIldGb5tFpkAiC+OmRnd02WSkSE=;
+        s=korg; t=1673884984;
+        bh=MkCq7CJNnMxdUr2XX6o0cJG8jVcLCWdAVqqA3TDbf+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZg2lJTvsIvUs1X2zq2IpJSfjvqAEfwbW99VaBGvS7DLBb9czVwvbr8cZBuldngAV
-         w1BeI1g9IpPHcbJJO9DeTjxoOkLw5JxdANRtBxA0Lq+yUQgUKP7Uy/lSma+jYP6ijC
-         F6DaQChi2bUN/nwuJ+S8keMkNVh5CAAq0K9/CC4M=
+        b=MFF5nRQl0i1hhhabSGCZOq2XhmNtdLU8EwfHsval9fAq6915U5w/H50WAMBzvOqNS
+         F9+adBXJDvDcncaCzEJWgZYIjvFS7AV7+YFtVSnxXtpaCkjJ+jadJjg9wy0/eCGh8B
+         EHxvJL9Z5FbMAt2ItGPuhxp1KPXOK1KdHBdu98sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 116/183] nfsd: remove the pages_flushed statistic from filecache
+        patches@lists.linux.dev, Oliver Upton <oliver.upton@linux.dev>,
+        Ard Biesheuvel <ardb@kernel.org>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.15 05/86] KVM: arm64: Fix S1PTW handling on RO memslots
 Date:   Mon, 16 Jan 2023 16:50:39 +0100
-Message-Id: <20230116154808.293963574@linuxfoundation.org>
+Message-Id: <20230116154747.282287335@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +52,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 1f696e230ea5198e393368b319eb55651828d687 ]
+commit 406504c7b0405d74d74c15a667cd4c4620c3e7a9 upstream.
 
-We're counting mapping->nrpages, but not all of those are necessarily
-dirty. We don't really have a simple way to count just the dirty pages,
-so just remove this stat since it's not accurate.
+A recent development on the EFI front has resulted in guests having
+their page tables baked in the firmware binary, and mapped into the
+IPA space as part of a read-only memslot. Not only is this legitimate,
+but it also results in added security, so thumbs up.
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Stable-dep-of: 0b3a551fa58b ("nfsd: fix handling of cached open files in nfsd4_open codepath")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It is possible to take an S1PTW translation fault if the S1 PTs are
+unmapped at stage-2. However, KVM unconditionally treats S1PTW as a
+write to correctly handle hardware AF/DB updates to the S1 PTs.
+Furthermore, KVM injects an exception into the guest for S1PTW writes.
+In the aforementioned case this results in the guest taking an abort
+it won't recover from, as the S1 PTs mapping the vectors suffer from
+the same problem.
+
+So clearly our handling is... wrong.
+
+Instead, switch to a two-pronged approach:
+
+- On S1PTW translation fault, handle the fault as a read
+
+- On S1PTW permission fault, handle the fault as a write
+
+This is of no consequence to SW that *writes* to its PTs (the write
+will trigger a non-S1PTW fault), and SW that uses RO PTs will not
+use HW-assisted AF/DB anyway, as that'd be wrong.
+
+Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
+fault on S1PTW permission fault on instruction fetch") do we end-up
+with two back-to-back faults (page being evicted and faulted back).
+I don't think this is a case worth optimising for.
+
+Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
+Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Regression-tested-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/filecache.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ arch/arm64/include/asm/kvm_emulate.h |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfsd/filecache.c b/fs/nfsd/filecache.c
-index cee44405cf7d..28fff3672df9 100644
---- a/fs/nfsd/filecache.c
-+++ b/fs/nfsd/filecache.c
-@@ -33,7 +33,6 @@ static DEFINE_PER_CPU(unsigned long, nfsd_file_cache_hits);
- static DEFINE_PER_CPU(unsigned long, nfsd_file_acquisitions);
- static DEFINE_PER_CPU(unsigned long, nfsd_file_releases);
- static DEFINE_PER_CPU(unsigned long, nfsd_file_total_age);
--static DEFINE_PER_CPU(unsigned long, nfsd_file_pages_flushed);
- static DEFINE_PER_CPU(unsigned long, nfsd_file_evictions);
+--- a/arch/arm64/include/asm/kvm_emulate.h
++++ b/arch/arm64/include/asm/kvm_emulate.h
+@@ -366,8 +366,26 @@ static __always_inline int kvm_vcpu_sys_
  
- struct nfsd_fcache_disposal {
-@@ -371,7 +370,6 @@ nfsd_file_flush(struct nfsd_file *nf)
- 
- 	if (!file || !(file->f_mode & FMODE_WRITE))
- 		return;
--	this_cpu_add(nfsd_file_pages_flushed, file->f_mapping->nrpages);
- 	if (vfs_fsync(file, 1) != 0)
- 		nfsd_reset_write_verifier(net_generic(nf->nf_net, nfsd_net_id));
- }
-@@ -998,7 +996,6 @@ nfsd_file_cache_shutdown(void)
- 		per_cpu(nfsd_file_acquisitions, i) = 0;
- 		per_cpu(nfsd_file_releases, i) = 0;
- 		per_cpu(nfsd_file_total_age, i) = 0;
--		per_cpu(nfsd_file_pages_flushed, i) = 0;
- 		per_cpu(nfsd_file_evictions, i) = 0;
- 	}
- }
-@@ -1213,7 +1210,7 @@ nfsd_file_create(struct svc_rqst *rqstp, struct svc_fh *fhp,
-  */
- int nfsd_file_cache_stats_show(struct seq_file *m, void *v)
+ static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
  {
--	unsigned long releases = 0, pages_flushed = 0, evictions = 0;
-+	unsigned long releases = 0, evictions = 0;
- 	unsigned long hits = 0, acquisitions = 0;
- 	unsigned int i, count = 0, buckets = 0;
- 	unsigned long lru = 0, total_age = 0;
-@@ -1241,7 +1238,6 @@ int nfsd_file_cache_stats_show(struct seq_file *m, void *v)
- 		releases += per_cpu(nfsd_file_releases, i);
- 		total_age += per_cpu(nfsd_file_total_age, i);
- 		evictions += per_cpu(nfsd_file_evictions, i);
--		pages_flushed += per_cpu(nfsd_file_pages_flushed, i);
- 	}
+-	if (kvm_vcpu_abt_iss1tw(vcpu))
+-		return true;
++	if (kvm_vcpu_abt_iss1tw(vcpu)) {
++		/*
++		 * Only a permission fault on a S1PTW should be
++		 * considered as a write. Otherwise, page tables baked
++		 * in a read-only memslot will result in an exception
++		 * being delivered in the guest.
++		 *
++		 * The drawback is that we end-up faulting twice if the
++		 * guest is using any of HW AF/DB: a translation fault
++		 * to map the page containing the PT (read only at
++		 * first), then a permission fault to allow the flags
++		 * to be set.
++		 */
++		switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
++		case ESR_ELx_FSC_PERM:
++			return true;
++		default:
++			return false;
++		}
++	}
  
- 	seq_printf(m, "total entries: %u\n", count);
-@@ -1255,6 +1251,5 @@ int nfsd_file_cache_stats_show(struct seq_file *m, void *v)
- 		seq_printf(m, "mean age (ms): %ld\n", total_age / releases);
- 	else
- 		seq_printf(m, "mean age (ms): -\n");
--	seq_printf(m, "pages flushed: %lu\n", pages_flushed);
- 	return 0;
- }
--- 
-2.35.1
-
+ 	if (kvm_vcpu_trap_is_iabt(vcpu))
+ 		return false;
 
 
