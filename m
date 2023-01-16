@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C37B466C5F6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:12:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 249B366C508
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232820AbjAPQMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:12:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49948 "EHLO
+        id S231802AbjAPQAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:00:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232604AbjAPQL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:11:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 706C82A9B1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:29 -0800 (PST)
+        with ESMTP id S231799AbjAPQAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 077052365A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FEDBB8107E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A702C433EF;
-        Mon, 16 Jan 2023 16:07:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0111B8105C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12973C433EF;
+        Mon, 16 Jan 2023 16:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885246;
-        bh=RBiS6fcv0YJXok61UF7LsTRXGo9xtxxD/KWz0I85TBw=;
+        s=korg; t=1673884843;
+        bh=cS1P93Myt0HzPeEL8NZ4bXLt9OLBFuoUHBIXvf3xhlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xg890mV8zl3ojuOLXKDMCTXQb39/4RxyRI9wc8GWQE95F0+GKBWvwIXko+y1ntMbf
-         fdPkBuk0+7yE1XQAcOozNVHQS9iAIknlw4+CRcoHv90uqcksrUqJA0LKc07wvGjoX3
-         V94HaSBVvMAFhAPh3Hk4ilIoQF0E2oN2NZ1dn78s=
+        b=kTk5ONhalxCu0SNuVPBJn1sAhgj5owiWOQEmpYZr3znE0d3zVR2LUG+XB3zRTUWcy
+         NTv3Dan5JqtSpBNfyGe4DrabJtHVbPv7mpsNuJJ0CgNocopxmPTg3FgcmnAACLMEt/
+         WXARFNCb/SwwHj0edtbi0WgW6dOpjx1No7QfHdH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kyle Zeng <zengyhkyle@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 16/64] ipv6: raw: Deduct extension header length in rawv6_push_pending_frames
+        patches@lists.linux.dev, Emeel Hakim <ehakim@nvidia.com>,
+        Raed Salem <raeds@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 160/183] net/mlx5e: Fix macsec possible null dereference when updating MAC security entity (SecY)
 Date:   Mon, 16 Jan 2023 16:51:23 +0100
-Message-Id: <20230116154744.195320249@linuxfoundation.org>
+Message-Id: <20230116154810.068747068@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Emeel Hakim <ehakim@nvidia.com>
 
-commit cb3e9864cdbe35ff6378966660edbcbac955fe17 upstream.
+[ Upstream commit 9828994ac492e8e7de47fe66097b7e665328f348 ]
 
-The total cork length created by ip6_append_data includes extension
-headers, so we must exclude them when comparing them against the
-IPV6_CHECKSUM offset which does not include extension headers.
+Upon updating MAC security entity (SecY) in hw offload path, the macsec
+security association (SA) initialization routine is called. In case of
+extended packet number (epn) is enabled the salt and ssci attributes are
+retrieved using the MACsec driver rx_sa context which is unavailable when
+updating a SecY property such as encoding-sa hence the null dereference.
+Fix by using the provided SA to set those attributes.
 
-Reported-by: Kyle Zeng <zengyhkyle@gmail.com>
-Fixes: 357b40a18b04 ("[IPV6]: IPV6_CHECKSUM socket option can corrupt kernel memory")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4411a6c0abd3 ("net/mlx5e: Support MACsec offload extended packet number (EPN)")
+Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
+Reviewed-by: Raed Salem <raeds@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/raw.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ .../net/ethernet/mellanox/mlx5/core/en_accel/macsec.c    | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -539,6 +539,7 @@ csum_copy_err:
- static int rawv6_push_pending_frames(struct sock *sk, struct flowi6 *fl6,
- 				     struct raw6_sock *rp)
- {
-+	struct ipv6_txoptions *opt;
- 	struct sk_buff *skb;
- 	int err = 0;
- 	int offset;
-@@ -556,6 +557,9 @@ static int rawv6_push_pending_frames(str
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
+index 7c0085ba2fc5..b92d541b5286 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
+@@ -359,7 +359,6 @@ static int mlx5e_macsec_init_sa(struct macsec_context *ctx,
+ 	struct mlx5_core_dev *mdev = priv->mdev;
+ 	struct mlx5_macsec_obj_attrs obj_attrs;
+ 	union mlx5e_macsec_rule *macsec_rule;
+-	struct macsec_key *key;
+ 	int err;
  
- 	offset = rp->offset;
- 	total_len = inet_sk(sk)->cork.base.length;
-+	opt = inet6_sk(sk)->cork.opt;
-+	total_len -= opt ? opt->opt_flen : 0;
-+
- 	if (offset >= total_len - 1) {
- 		err = -EINVAL;
- 		ip6_flush_pending_frames(sk);
+ 	obj_attrs.next_pn = sa->next_pn;
+@@ -369,13 +368,9 @@ static int mlx5e_macsec_init_sa(struct macsec_context *ctx,
+ 	obj_attrs.aso_pdn = macsec->aso.pdn;
+ 	obj_attrs.epn_state = sa->epn_state;
+ 
+-	key = (is_tx) ? &ctx->sa.tx_sa->key : &ctx->sa.rx_sa->key;
+-
+ 	if (sa->epn_state.epn_enabled) {
+-		obj_attrs.ssci = (is_tx) ? cpu_to_be32((__force u32)ctx->sa.tx_sa->ssci) :
+-					   cpu_to_be32((__force u32)ctx->sa.rx_sa->ssci);
+-
+-		memcpy(&obj_attrs.salt, &key->salt, sizeof(key->salt));
++		obj_attrs.ssci = cpu_to_be32((__force u32)sa->ssci);
++		memcpy(&obj_attrs.salt, &sa->salt, sizeof(sa->salt));
+ 	}
+ 
+ 	obj_attrs.replay_window = ctx->secy->replay_window;
+-- 
+2.35.1
+
 
 
