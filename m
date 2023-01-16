@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46E5866C4A9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BB8466C8D1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:43:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231809AbjAPP5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38338 "EHLO
+        id S233776AbjAPQnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:43:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231775AbjAPP5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E740523C6D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:56:47 -0800 (PST)
+        with ESMTP id S233752AbjAPQmT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:42:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B300438B58
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:30:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A02BB81052
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:56:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E91CAC433D2;
-        Mon, 16 Jan 2023 15:56:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DB3BB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7508C433D2;
+        Mon, 16 Jan 2023 16:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884605;
-        bh=R5Px0Ms81Hov6SKp1U3TOd9+gAyn7JNHe04Ye6AAoTw=;
+        s=korg; t=1673886635;
+        bh=vxs/uePeqY9uEnTL5udaLloHxcY/GXkuhbWxtSbsUG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uR+e3/Ndfa1zEPJB6BF0DWDM+ya2NOzbyoQduAHSJwrVKXhMYrhu+BMjfUYPgNN9c
-         7Vi5UcoX+E2p0B2amnAPt9cteflrcU+4/R0Yjdx4PqCq765QhbQZvYw5526vdazl3p
-         cS9OPMMFgCv0sxondK8kBFiNSephbddZ3weURTnw=
+        b=X7hj58rbd0QRyVdqSp/US9zOG8vOBevEnVbZOHApVGsSqTj0OPzDpFHNOJpGDz0ju
+         BjgHEtrfoy2vcKcF+Ekzf8s1e2dE2MTqTp09mT6yNZXNeH/bqBJdtqDE8VA0Y4iCqj
+         +NDU/FNjjgu+cmbwVnQ8tkxjcIpFZ8fBCkv3BCyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>
-Subject: [PATCH 6.1 068/183] dt-bindings: msm/dsi: Dont require vcca-supply on 14nm PHY
-Date:   Mon, 16 Jan 2023 16:49:51 +0100
-Message-Id: <20230116154806.235255241@linuxfoundation.org>
+        patches@lists.linux.dev, Wenwen Wang <wenwen@cs.uga.edu>,
+        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: [PATCH 5.4 504/658] media: dvb-core: Fix double free in dvb_register_device()
+Date:   Mon, 16 Jan 2023 16:49:52 +0100
+Message-Id: <20230116154932.559804771@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-commit a2117773c839a8439a3771e0c040b5c505b083a7 upstream.
+commit 6b0d0477fce747d4137aa65856318b55fba72198 upstream.
 
-On some SoCs (hello SM6115) vcca-supply is not wired to any smd-rpm
-or rpmh regulator, but instead powered by the VDD_MX line, which is
-voted for in the DSI ctrl node.
+In function dvb_register_device() -> dvb_register_media_device() ->
+dvb_create_media_entity(), dvb->entity is allocated and initialized. If
+the initialization fails, it frees the dvb->entity, and return an error
+code. The caller takes the error code and handles the error by calling
+dvb_media_device_free(), which unregisters the entity and frees the
+field again if it is not NULL. As dvb->entity may not NULLed in
+dvb_create_media_entity() when the allocation of dvbdev->pad fails, a
+double free may occur. This may also cause an Use After free in
+media_device_unregister_entity().
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Fixes: 8fc939e72ff8 ("dt-bindings: msm: dsi: add yaml schemas for DSI PHY bindings")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/513555/
-Link: https://lore.kernel.org/r/20221130135807.45028-1-konrad.dybcio@linaro.org
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fix this by storing NULL to dvb->entity when it is freed.
+
+Link: https://lore.kernel.org/linux-media/20220426052921.2088416-1-keitasuzuki.park@sslab.ics.keio.ac.jp
+Fixes: fcd5ce4b3936 ("media: dvb-core: fix a memory leak bug")
+Cc: stable@vger.kernel.org
+Cc: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/display/msm/dsi-phy-14nm.yaml |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/dvb-core/dvbdev.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Documentation/devicetree/bindings/display/msm/dsi-phy-14nm.yaml
-+++ b/Documentation/devicetree/bindings/display/msm/dsi-phy-14nm.yaml
-@@ -38,7 +38,6 @@ required:
-   - compatible
-   - reg
-   - reg-names
--  - vcca-supply
- 
- unevaluatedProperties: false
- 
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -345,6 +345,7 @@ static int dvb_create_media_entity(struc
+ 				       GFP_KERNEL);
+ 		if (!dvbdev->pads) {
+ 			kfree(dvbdev->entity);
++			dvbdev->entity = NULL;
+ 			return -ENOMEM;
+ 		}
+ 	}
 
 
