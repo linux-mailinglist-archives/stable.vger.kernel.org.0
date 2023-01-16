@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3285966C4E9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:59:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E3A66C543
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:04:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231855AbjAPP7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:59:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41544 "EHLO
+        id S232072AbjAPQEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:04:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231931AbjAPP72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1527233E8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:22 -0800 (PST)
+        with ESMTP id S232249AbjAPQDg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:03:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0390B2384A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EA2E6102D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A62DAC433D2;
-        Mon, 16 Jan 2023 15:59:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0F5AB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EA0EC433D2;
+        Mon, 16 Jan 2023 16:02:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884762;
-        bh=KaKV/VwFmpKCDG21/XCOBCCUIyAsbXXf1yidWqZKlS8=;
+        s=korg; t=1673884950;
+        bh=gGYMn6WzGqvBIQ7sOAitNF9QlPAGCIP0H2lLkfa/hcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glNbwsJDM9gSZxIcA9EaGZTgQx5N2TbImtfIz+jdq6Aw8z0ac7OtbwBnaPwX91X+P
-         rptL5k6Aoks5JGXjbPDQNmA0WSp1jBNOyFZca1+Iwk02cu9EVMEIyxxlGHxzkMOR0X
-         GG5hrVtDVybXRGbVauyyZdYfZNSaj4tOikhuieFc=
+        b=jC7IQEZ7F+8moK+v77xYB4BRTjW0G+3FcABSsyyxyVVwnlGtcli+AoOelajbgrYhi
+         rIKycZoaBr9d6PzYPHxe/ud4hYEFq5Kv5nU2ly+gAdTu/CIxw1uB2ZS+gal1MIgOZ8
+         4K9aODTs49WcdBh4Opheegrj6pZON7hqldL9VOj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tejun Heo <tj@kernel.org>,
-        Dan Carpenter <error27@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 129/183] block: Drop spurious might_sleep() from blk_put_queue()
+        patches@lists.linux.dev, Roi Dayan <roid@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        dann frazier <dann.frazier@canonical.com>
+Subject: [PATCH 5.15 18/86] net/mlx5e: Set action fwd flag when parsing tc action goto
 Date:   Mon, 16 Jan 2023 16:50:52 +0100
-Message-Id: <20230116154808.823026476@linuxfoundation.org>
+Message-Id: <20230116154747.848412058@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Roi Dayan <roid@nvidia.com>
 
-[ Upstream commit 49e4d04f0486117ac57a97890eb1db6d52bf82b3 ]
+commit 7f8770c71646cf93abdf3fea8b7733aaec4c82a3 upstream.
 
-Dan reports the following smatch detected the following:
+Do it when parsing like in other actions instead of when
+checking if goto is supported in current scenario.
 
-  block/blk-cgroup.c:1863 blkcg_schedule_throttle() warn: sleeping in atomic context
-
-caused by blkcg_schedule_throttle() calling blk_put_queue() in an
-non-sleepable context.
-
-blk_put_queue() acquired might_sleep() in 63f93fd6fa57 ("block: mark
-blk_put_queue as potentially blocking") which transferred the might_sleep()
-from blk_free_queue().
-
-blk_free_queue() acquired might_sleep() in e8c7d14ac6c3 ("block: revert back
-to synchronous request_queue removal") while turning request_queue removal
-synchronous. However, this isn't necessary as nothing in the free path
-actually requires sleeping.
-
-It's pretty unusual to require a sleeping context in a put operation and
-it's not needed in the first place. Let's drop it.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Dan Carpenter <error27@gmail.com>
-Link: https://lkml.kernel.org/r/Y7g3L6fntnTtOm63@kili
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Fixes: e8c7d14ac6c3 ("block: revert back to synchronous request_queue removal") # v5.9+
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/Y7iFwjN+XzWvLv3y@slm.duckdns.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Cc: dann frazier <dann.frazier@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-core.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |   43 ++++++++++--------------
+ 1 file changed, 18 insertions(+), 25 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 815ffce6b988..f5ae527fb0c3 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -282,12 +282,9 @@ static void blk_free_queue(struct request_queue *q)
-  *
-  * Decrements the refcount of the request_queue and free it when the refcount
-  * reaches 0.
-- *
-- * Context: Can sleep.
-  */
- void blk_put_queue(struct request_queue *q)
- {
--	might_sleep();
- 	if (refcount_dec_and_test(&q->refs))
- 		blk_free_queue(q);
- }
--- 
-2.35.1
-
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -3597,7 +3597,8 @@ static int parse_tc_nic_actions(struct m
+ 			if (err)
+ 				return err;
+ 
+-			action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
++			action |= MLX5_FLOW_CONTEXT_ACTION_FWD_DEST |
++				  MLX5_FLOW_CONTEXT_ACTION_COUNT;
+ 			attr->dest_chain = act->chain_index;
+ 			break;
+ 		case FLOW_ACTION_CT:
+@@ -3632,12 +3633,9 @@ static int parse_tc_nic_actions(struct m
+ 
+ 	attr->action = action;
+ 
+-	if (attr->dest_chain) {
+-		if (attr->action & MLX5_FLOW_CONTEXT_ACTION_FWD_DEST) {
+-			NL_SET_ERR_MSG(extack, "Mirroring goto chain rules isn't supported");
+-			return -EOPNOTSUPP;
+-		}
+-		attr->action |= MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
++	if (attr->dest_chain && parse_attr->mirred_ifindex[0]) {
++		NL_SET_ERR_MSG(extack, "Mirroring goto chain rules isn't supported");
++		return -EOPNOTSUPP;
+ 	}
+ 
+ 	if (attr->action & MLX5_FLOW_CONTEXT_ACTION_MOD_HDR)
+@@ -4146,7 +4144,8 @@ static int parse_tc_fdb_actions(struct m
+ 			if (err)
+ 				return err;
+ 
+-			action |= MLX5_FLOW_CONTEXT_ACTION_COUNT;
++			action |= MLX5_FLOW_CONTEXT_ACTION_FWD_DEST |
++				  MLX5_FLOW_CONTEXT_ACTION_COUNT;
+ 			attr->dest_chain = act->chain_index;
+ 			break;
+ 		case FLOW_ACTION_CT:
+@@ -4218,24 +4217,18 @@ static int parse_tc_fdb_actions(struct m
+ 	if (!actions_match_supported(priv, flow_action, parse_attr, flow, extack))
+ 		return -EOPNOTSUPP;
+ 
+-	if (attr->dest_chain) {
+-		if (decap) {
+-			/* It can be supported if we'll create a mapping for
+-			 * the tunnel device only (without tunnel), and set
+-			 * this tunnel id with this decap flow.
+-			 *
+-			 * On restore (miss), we'll just set this saved tunnel
+-			 * device.
+-			 */
+-
+-			NL_SET_ERR_MSG(extack,
+-				       "Decap with goto isn't supported");
+-			netdev_warn(priv->netdev,
+-				    "Decap with goto isn't supported");
+-			return -EOPNOTSUPP;
+-		}
++	if (attr->dest_chain && decap) {
++		/* It can be supported if we'll create a mapping for
++		 * the tunnel device only (without tunnel), and set
++		 * this tunnel id with this decap flow.
++		 *
++		 * On restore (miss), we'll just set this saved tunnel
++		 * device.
++		 */
+ 
+-		attr->action |= MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
++		NL_SET_ERR_MSG(extack, "Decap with goto isn't supported");
++		netdev_warn(priv->netdev, "Decap with goto isn't supported");
++		return -EOPNOTSUPP;
+ 	}
+ 
+ 	if (esw_attr->split_count > 0 && !mlx5_esw_has_fwd_fdb(priv->mdev)) {
 
 
