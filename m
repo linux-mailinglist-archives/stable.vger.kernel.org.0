@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31DFF66C95B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CD366C58C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233800AbjAPQtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:49:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40018 "EHLO
+        id S232116AbjAPQHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:07:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233839AbjAPQsU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:48:20 -0500
+        with ESMTP id S232064AbjAPQGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75F894345C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 526BA26588
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E09861089
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FE38C433D2;
-        Mon, 16 Jan 2023 16:35:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3C7860C1B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 025CFC433EF;
+        Mon, 16 Jan 2023 16:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886942;
-        bh=6IqYSJ9PUPBz3rqoM9PaKfR/5UykSsWr3IYZVBWYfPo=;
+        s=korg; t=1673885102;
+        bh=uu30+jzKJ531bnNqhlr7Q2wziYBZBi1edgJbw7q4IVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKVZ/blXhpfpiQ4x/nCGwZQzYnv8Ib1+Ui40tFYtfC2YFo9THGbs75bq89RRSK7hi
-         smOv985CBFodQhiHgzLbIxZv3w1urwx2pZ9qNTZo4fVgPVXozO4vO3wIp+Rqpw7UGh
-         9qHDqDANr95a3PoOO24pbzh7fP6+gUsCcm+pbg2U=
+        b=RTPCX3trUoOjNB0EE1UurjRHTBuU90s0acSQNt8cXCVQzL4e60770LmLmE/m3hzRS
+         RBOuUzJqCQNq7PXnDdosIQ/Ay3RgEbxBb23YCy3r4ui2qUR467l5IIhuKhGJui0Mzu
+         NRiItsli3iEavocXngAi5vphuuJEM0RuKUsFpwFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 621/658] jbd2: Drop pointless wakeup from jbd2_journal_stop()
-Date:   Mon, 16 Jan 2023 16:51:49 +0100
-Message-Id: <20230116154937.916918384@linuxfoundation.org>
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        syzbot+6805087452d72929404e@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 76/86] io_uring: lock overflowing for IOPOLL
+Date:   Mon, 16 Jan 2023 16:51:50 +0100
+Message-Id: <20230116154750.210435869@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 5559b2d81b51de75cb7864bb1fbb82982f7e8fff ]
+commit 544d163d659d45a206d8929370d5a2984e546cb7 upstream.
 
-When we drop last handle from a transaction and journal->j_barrier_count
-> 0, jbd2_journal_stop() wakes up journal->j_wait_transaction_locked
-wait queue. This looks pointless - wait for outstanding handles always
-happens on journal->j_wait_updates waitqueue.
-journal->j_wait_transaction_locked is used to wait for transaction state
-changes and by start_this_handle() for waiting until
-journal->j_barrier_count drops to 0. The first case is clearly
-irrelevant here since only jbd2 thread changes transaction state. The
-second case looks related but jbd2_journal_unlock_updates() is
-responsible for the wakeup in this case. So just drop the wakeup.
+syzbot reports an issue with overflow filling for IOPOLL:
 
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191105164437.32602-16-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Stable-dep-of: d87a7b4c77a9 ("jbd2: use the correct print format")
+WARNING: CPU: 0 PID: 28 at io_uring/io_uring.c:734 io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
+CPU: 0 PID: 28 Comm: kworker/u4:1 Not tainted 6.2.0-rc3-syzkaller-16369-g358a161a6a9e #0
+Workqueue: events_unbound io_ring_exit_work
+Call trace:
+ io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
+ io_req_cqe_overflow+0x5c/0x70 io_uring/io_uring.c:773
+ io_fill_cqe_req io_uring/io_uring.h:168 [inline]
+ io_do_iopoll+0x474/0x62c io_uring/rw.c:1065
+ io_iopoll_try_reap_events+0x6c/0x108 io_uring/io_uring.c:1513
+ io_uring_try_cancel_requests+0x13c/0x258 io_uring/io_uring.c:3056
+ io_ring_exit_work+0xec/0x390 io_uring/io_uring.c:2869
+ process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
+ worker_thread+0x340/0x610 kernel/workqueue.c:2436
+ kthread+0x12c/0x158 kernel/kthread.c:376
+ ret_from_fork+0x10/0x20 arch/arm64/kernel/entry.S:863
+
+There is no real problem for normal IOPOLL as flush is also called with
+uring_lock taken, but it's getting more complicated for IOPOLL|SQPOLL,
+for which __io_cqring_overflow_flush() happens from the CQ waiting path.
+
+Reported-and-tested-by: syzbot+6805087452d72929404e@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org # 5.10+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/transaction.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ io_uring/io_uring.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index ce66dbbf0f90..6d78648392f0 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -1850,11 +1850,8 @@ int jbd2_journal_stop(handle_t *handle)
- 	 * once we do this, we must not dereference transaction
- 	 * pointer again.
- 	 */
--	if (atomic_dec_and_test(&transaction->t_updates)) {
-+	if (atomic_dec_and_test(&transaction->t_updates))
- 		wake_up(&journal->j_wait_updates);
--		if (journal->j_barrier_count)
--			wake_up(&journal->j_wait_transaction_locked);
--	}
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index c587221a289c..9a01188ff45a 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2477,12 +2477,26 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
  
- 	rwsem_release(&journal->j_trans_commit_map, 1, _THIS_IP_);
+ 	io_init_req_batch(&rb);
+ 	while (!list_empty(done)) {
++		struct io_uring_cqe *cqe;
++		unsigned cflags;
++
+ 		req = list_first_entry(done, struct io_kiocb, inflight_entry);
+ 		list_del(&req->inflight_entry);
+-
+-		io_fill_cqe_req(req, req->result, io_put_rw_kbuf(req));
++		cflags = io_put_rw_kbuf(req);
+ 		(*nr_events)++;
  
++		cqe = io_get_cqe(ctx);
++		if (cqe) {
++			WRITE_ONCE(cqe->user_data, req->user_data);
++			WRITE_ONCE(cqe->res, req->result);
++			WRITE_ONCE(cqe->flags, cflags);
++		} else {
++			spin_lock(&ctx->completion_lock);
++			io_cqring_event_overflow(ctx, req->user_data,
++							req->result, cflags);
++			spin_unlock(&ctx->completion_lock);
++		}
++
+ 		if (req_ref_put_and_test(req))
+ 			io_req_free_batch(&rb, req, &ctx->submit_state);
+ 	}
 -- 
 2.35.1
 
