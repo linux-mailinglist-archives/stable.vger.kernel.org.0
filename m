@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 512CE66C719
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1275466C71A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233056AbjAPQ2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:28:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43032 "EHLO
+        id S233171AbjAPQ2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:28:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233007AbjAPQ1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B57BB18B2C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:01 -0800 (PST)
+        with ESMTP id S233075AbjAPQ1i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 563B323DA5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BD0EB8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC2B5C433EF;
-        Mon, 16 Jan 2023 16:15:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C84860FDF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61AACC433D2;
+        Mon, 16 Jan 2023 16:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885759;
-        bh=ykiS9gqIOKUeTcu+OBR+7ICt5G8aiKgvRB+1qDg0wAo=;
+        s=korg; t=1673885761;
+        bh=NnjV2ND8Fib1hz1Evw0shan0XBpb9qeocdoMvfE6E9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Gfi3EmZ+PAZdm1Ho359CtUDu3Kx85P7ycrhVO40YOpIHyX2t3bozjD1R9l+07PR6
-         mdfC7Q0mcnSY/qRt4RMf3rH9U8c+r1S2jd5v1rSDI2Z6M5MipqpvjDC/eRa1k53BkX
-         o5+17Y+04PmYvBWIK8SkFa4pbs3fbK+pvw5e9S9w=
+        b=heVYKequPZ58eMMQkrWlqYHHQI01p5zKbtRmmJb1t5rN5/f4dgH9wPuGYOpxesWTq
+         ArQ1qTOAUkzHBrp3/JEq8ue6LVRwmLI9l5jILCBcn1EnjgLXdRw2bnutFdD432mHJ6
+         7PGJshU5tKxzjetIkHFX0BBARQwDToL4ojpU7TXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev,
+        Alexander Sverdlin <alexander.sverdlin@siemens.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 173/658] bonding: uninitialized variable in bond_miimon_inspect()
-Date:   Mon, 16 Jan 2023 16:44:21 +0100
-Message-Id: <20230116154917.392844817@linuxfoundation.org>
+Subject: [PATCH 5.4 174/658] spi: spidev: mask SPI_CS_HIGH in SPI_IOC_RD_MODE
+Date:   Mon, 16 Jan 2023 16:44:22 +0100
+Message-Id: <20230116154917.434771385@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -55,39 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
 
-[ Upstream commit e5214f363dabca240446272dac54d404501ad5e5 ]
+[ Upstream commit 7dbfa445ff7393d1c4c066c1727c9e0af1251958 ]
 
-The "ignore_updelay" variable needs to be initialized to false.
+Commit f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
+has changed the user-space interface so that bogus SPI_CS_HIGH started
+to appear in the mask returned by SPI_IOC_RD_MODE even for active-low CS
+pins. Commit 138c9c32f090
+("spi: spidev: Fix CS polarity if GPIO descriptors are used") fixed only
+SPI_IOC_WR_MODE part of the problem. Let's fix SPI_IOC_RD_MODE
+symmetrically.
 
-Fixes: f8a65ab2f3ff ("bonding: fix link recovery in mode 2 when updelay is nonzero")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Link: https://lore.kernel.org/r/Y4SWJlh3ohJ6EPTL@kili
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Test case:
+
+	#include <sys/ioctl.h>
+	#include <fcntl.h>
+	#include <linux/spi/spidev.h>
+
+	int main(int argc, char **argv)
+	{
+		char modew = SPI_CPHA;
+		char moder;
+		int f = open("/dev/spidev0.0", O_RDWR);
+
+		if (f < 0)
+			return 1;
+
+		ioctl(f, SPI_IOC_WR_MODE, &modew);
+		ioctl(f, SPI_IOC_RD_MODE, &moder);
+
+		return moder == modew ? 0 : 2;
+	}
+
+Fixes: f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+Link: https://lore.kernel.org/r/20221130162927.539512-1-alexander.sverdlin@siemens.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spidev.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 0b7994cb9380..0885991347d0 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -2102,10 +2102,10 @@ static int bond_slave_info_query(struct net_device *bond_dev, struct ifslave *in
- /* called with rcu_read_lock() */
- static int bond_miimon_inspect(struct bonding *bond)
- {
-+	bool ignore_updelay = false;
- 	int link_state, commit = 0;
- 	struct list_head *iter;
- 	struct slave *slave;
--	bool ignore_updelay;
- 
- 	if (BOND_MODE(bond) == BOND_MODE_ACTIVEBACKUP) {
- 		ignore_updelay = !rcu_dereference(bond->curr_active_slave);
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index be503a0e6ef7..2478ae471f4e 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -373,12 +373,23 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 	switch (cmd) {
+ 	/* read requests */
+ 	case SPI_IOC_RD_MODE:
+-		retval = put_user(spi->mode & SPI_MODE_MASK,
+-					(__u8 __user *)arg);
+-		break;
+ 	case SPI_IOC_RD_MODE32:
+-		retval = put_user(spi->mode & SPI_MODE_MASK,
+-					(__u32 __user *)arg);
++		tmp = spi->mode;
++
++		{
++			struct spi_controller *ctlr = spi->controller;
++
++			if (ctlr->use_gpio_descriptors && ctlr->cs_gpiods &&
++			    ctlr->cs_gpiods[spi->chip_select])
++				tmp &= ~SPI_CS_HIGH;
++		}
++
++		if (cmd == SPI_IOC_RD_MODE)
++			retval = put_user(tmp & SPI_MODE_MASK,
++					  (__u8 __user *)arg);
++		else
++			retval = put_user(tmp & SPI_MODE_MASK,
++					  (__u32 __user *)arg);
+ 		break;
+ 	case SPI_IOC_RD_LSB_FIRST:
+ 		retval = put_user((spi->mode & SPI_LSB_FIRST) ?  1 : 0,
 -- 
 2.35.1
 
