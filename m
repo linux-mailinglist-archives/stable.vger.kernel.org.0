@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 578C166CC48
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83B5D66CAB1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:06:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234442AbjAPRY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:24:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47760 "EHLO
+        id S231732AbjAPRGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:06:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234336AbjAPRXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:23:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F09F93EFEE
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:14 -0800 (PST)
+        with ESMTP id S232970AbjAPRFg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:05:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3761301BE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:47:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BDC8B810A1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F11A3C433EF;
-        Mon, 16 Jan 2023 17:01:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1286061083
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27247C433F0;
+        Mon, 16 Jan 2023 16:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888472;
-        bh=3iEapZgDSosL3hePVUI4dqoidIC319/rwc8JNOAuYLM=;
+        s=korg; t=1673887626;
+        bh=f/ZV4kgNP10g1Hlemvi+WmA7nSiPVUDv4yX1PWg9l3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fKGprg9xdKeoANIRKnJdAJ7qeKhnYeWDD5TMQkQkJw/FeEasKIoHOUBceR0wdzSVW
-         rC/DEtpbh1TKpi3jD0Kj1DeyhX0a2Lr/8MI312Bo/iJvpDxJDpFmI+QoDnjTo336Mj
-         w+JTL1YbZ8BLp1XWKRhs7L69cDV7I+gXvGy3xXwI=
+        b=w4NQo5XOg4Cfy/jBR/4UfzYH+muBle/MyglShZG5q5P7bHRCxMGFxFGIW8E0NEABF
+         /dLpsG0tVGAcbFXeTZ5BlGn6+Gnw32l28QnYZdix9hqMAaAaKKVA4T8vxGR8x52p3+
+         AyFYGMIwNqdJSlVD7+rbQ3zT9PF7czwivlKtUOwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yasushi SHOJI <yashi@spacecubics.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 009/338] can: mcba_usb: Fix termination command argument
+Subject: [PATCH 4.19 220/521] uio: uio_dmem_genirq: Fix missing unlock in irq configuration
 Date:   Mon, 16 Jan 2023 16:48:02 +0100
-Message-Id: <20230116154821.116926696@linuxfoundation.org>
+Message-Id: <20230116154857.009227918@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +52,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yasushi SHOJI <yasushi.shoji@gmail.com>
+From: Rafael Mendonca <rafaelmendsr@gmail.com>
 
-[ Upstream commit 1a8e3bd25f1e789c8154e11ea24dc3ec5a4c1da0 ]
+[ Upstream commit 9de255c461d1b3f0242b3ad1450c3323a3e00b34 ]
 
-Microchip USB Analyzer can activate the internal termination resistors
-by setting the "termination" option ON, or OFF to to deactivate them.
-As I've observed, both with my oscilloscope and captured USB packets
-below, you must send "0" to turn it ON, and "1" to turn it OFF.
+Commit b74351287d4b ("uio: fix a sleep-in-atomic-context bug in
+uio_dmem_genirq_irqcontrol()") started calling disable_irq() without
+holding the spinlock because it can sleep. However, that fix introduced
+another bug: if interrupt is already disabled and a new disable request
+comes in, then the spinlock is not unlocked:
 
->From the schematics in the user's guide, I can confirm that you must
-drive the CAN_RES signal LOW "0" to activate the resistors.
+root@localhost:~# printf '\x00\x00\x00\x00' > /dev/uio0
+root@localhost:~# printf '\x00\x00\x00\x00' > /dev/uio0
+root@localhost:~# [   14.851538] BUG: scheduling while atomic: bash/223/0x00000002
+[   14.851991] Modules linked in: uio_dmem_genirq uio myfpga(OE) bochs drm_vram_helper drm_ttm_helper ttm drm_kms_helper drm snd_pcm ppdev joydev psmouse snd_timer snd e1000fb_sys_fops syscopyarea parport sysfillrect soundcore sysimgblt input_leds pcspkr i2c_piix4 serio_raw floppy evbug qemu_fw_cfg mac_hid pata_acpi ip_tables x_tables autofs4 [last unloaded: parport_pc]
+[   14.854206] CPU: 0 PID: 223 Comm: bash Tainted: G           OE      6.0.0-rc7 #21
+[   14.854786] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+[   14.855664] Call Trace:
+[   14.855861]  <TASK>
+[   14.856025]  dump_stack_lvl+0x4d/0x67
+[   14.856325]  dump_stack+0x14/0x1a
+[   14.856583]  __schedule_bug.cold+0x4b/0x5c
+[   14.856915]  __schedule+0xe81/0x13d0
+[   14.857199]  ? idr_find+0x13/0x20
+[   14.857456]  ? get_work_pool+0x2d/0x50
+[   14.857756]  ? __flush_work+0x233/0x280
+[   14.858068]  ? __schedule+0xa95/0x13d0
+[   14.858307]  ? idr_find+0x13/0x20
+[   14.858519]  ? get_work_pool+0x2d/0x50
+[   14.858798]  schedule+0x6c/0x100
+[   14.859009]  schedule_hrtimeout_range_clock+0xff/0x110
+[   14.859335]  ? tty_write_room+0x1f/0x30
+[   14.859598]  ? n_tty_poll+0x1ec/0x220
+[   14.859830]  ? tty_ldisc_deref+0x1a/0x20
+[   14.860090]  schedule_hrtimeout_range+0x17/0x20
+[   14.860373]  do_select+0x596/0x840
+[   14.860627]  ? __kernel_text_address+0x16/0x50
+[   14.860954]  ? poll_freewait+0xb0/0xb0
+[   14.861235]  ? poll_freewait+0xb0/0xb0
+[   14.861517]  ? rpm_resume+0x49d/0x780
+[   14.861798]  ? common_interrupt+0x59/0xa0
+[   14.862127]  ? asm_common_interrupt+0x2b/0x40
+[   14.862511]  ? __uart_start.isra.0+0x61/0x70
+[   14.862902]  ? __check_object_size+0x61/0x280
+[   14.863255]  core_sys_select+0x1c6/0x400
+[   14.863575]  ? vfs_write+0x1c9/0x3d0
+[   14.863853]  ? vfs_write+0x1c9/0x3d0
+[   14.864121]  ? _copy_from_user+0x45/0x70
+[   14.864526]  do_pselect.constprop.0+0xb3/0xf0
+[   14.864893]  ? do_syscall_64+0x6d/0x90
+[   14.865228]  ? do_syscall_64+0x6d/0x90
+[   14.865556]  __x64_sys_pselect6+0x76/0xa0
+[   14.865906]  do_syscall_64+0x60/0x90
+[   14.866214]  ? syscall_exit_to_user_mode+0x2a/0x50
+[   14.866640]  ? do_syscall_64+0x6d/0x90
+[   14.866972]  ? do_syscall_64+0x6d/0x90
+[   14.867286]  ? do_syscall_64+0x6d/0x90
+[   14.867626]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+[...] stripped
+[   14.872959]  </TASK>
 
-Reverse the argument value of usb_msg.termination to fix this.
+('myfpga' is a simple 'uio_dmem_genirq' driver I wrote to test this)
 
-These are the two commands sequence, ON then OFF.
+The implementation of "uio_dmem_genirq" was based on "uio_pdrv_genirq" and
+it is used in a similar manner to the "uio_pdrv_genirq" driver with respect
+to interrupt configuration and handling. At the time "uio_dmem_genirq" was
+introduced, both had the same implementation of the 'uio_info' handlers
+irqcontrol() and handler(). Then commit 34cb27528398 ("UIO: Fix concurrency
+issue"), which was only applied to "uio_pdrv_genirq", ended up making them
+a little different. That commit, among other things, changed disable_irq()
+to disable_irq_nosync() in the implementation of irqcontrol(). The
+motivation there was to avoid a deadlock between irqcontrol() and
+handler(), since it added a spinlock in the irq handler, and disable_irq()
+waits for the completion of the irq handler.
 
-> No.     Time           Source                Destination           Protocol Length Info
->       1 0.000000       host                  1.3.1                 USB      46     URB_BULK out
->
-> Frame 1: 46 bytes on wire (368 bits), 46 bytes captured (368 bits)
-> USB URB
-> Leftover Capture Data: a80000000000000000000000000000000000a8
->
-> No.     Time           Source                Destination           Protocol Length Info
->       2 4.372547       host                  1.3.1                 USB      46     URB_BULK out
->
-> Frame 2: 46 bytes on wire (368 bits), 46 bytes captured (368 bits)
-> USB URB
-> Leftover Capture Data: a80100000000000000000000000000000000a9
+By changing disable_irq() to disable_irq_nosync() in irqcontrol(), we also
+avoid the sleeping-while-atomic bug that commit b74351287d4b ("uio: fix a
+sleep-in-atomic-context bug in uio_dmem_genirq_irqcontrol()") was trying to
+fix. Thus, this fixes the missing unlock in irqcontrol() by importing the
+implementation of irqcontrol() handler from the "uio_pdrv_genirq" driver.
+In the end, it reverts commit b74351287d4b ("uio: fix a
+sleep-in-atomic-context bug in uio_dmem_genirq_irqcontrol()") and change
+disable_irq() to disable_irq_nosync().
 
-Signed-off-by: Yasushi SHOJI <yashi@spacecubics.com>
-Link: https://lore.kernel.org/all/20221124152504.125994-1-yashi@spacecubics.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+It is worth noting that this still does not address the concurrency issue
+fixed by commit 34cb27528398 ("UIO: Fix concurrency issue"). It will be
+addressed separately in the next commits.
+
+Split out from commit 34cb27528398 ("UIO: Fix concurrency issue").
+
+Fixes: b74351287d4b ("uio: fix a sleep-in-atomic-context bug in uio_dmem_genirq_irqcontrol()")
+Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
+Link: https://lore.kernel.org/r/20220930224100.816175-2-rafaelmendsr@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/mcba_usb.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/uio/uio_dmem_genirq.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/can/usb/mcba_usb.c b/drivers/net/can/usb/mcba_usb.c
-index f7c3fc3dabfe..01ef5cabdc11 100644
---- a/drivers/net/can/usb/mcba_usb.c
-+++ b/drivers/net/can/usb/mcba_usb.c
-@@ -58,6 +58,10 @@
- #define MCBA_VER_REQ_USB 1
- #define MCBA_VER_REQ_CAN 2
- 
-+/* Drive the CAN_RES signal LOW "0" to activate R24 and R25 */
-+#define MCBA_VER_TERMINATION_ON 0
-+#define MCBA_VER_TERMINATION_OFF 1
-+
- #define MCBA_SIDL_EXID_MASK 0x8
- #define MCBA_DLC_MASK 0xf
- #define MCBA_DLC_RTR_MASK 0x40
-@@ -480,7 +484,7 @@ static void mcba_usb_process_ka_usb(struct mcba_priv *priv,
- 		priv->usb_ka_first_pass = false;
+diff --git a/drivers/uio/uio_dmem_genirq.c b/drivers/uio/uio_dmem_genirq.c
+index a00b4aee6c79..c25a6bcb2d21 100644
+--- a/drivers/uio/uio_dmem_genirq.c
++++ b/drivers/uio/uio_dmem_genirq.c
+@@ -135,13 +135,11 @@ static int uio_dmem_genirq_irqcontrol(struct uio_info *dev_info, s32 irq_on)
+ 	if (irq_on) {
+ 		if (test_and_clear_bit(0, &priv->flags))
+ 			enable_irq(dev_info->irq);
+-		spin_unlock_irqrestore(&priv->lock, flags);
+ 	} else {
+-		if (!test_and_set_bit(0, &priv->flags)) {
+-			spin_unlock_irqrestore(&priv->lock, flags);
+-			disable_irq(dev_info->irq);
+-		}
++		if (!test_and_set_bit(0, &priv->flags))
++			disable_irq_nosync(dev_info->irq);
  	}
++	spin_unlock_irqrestore(&priv->lock, flags);
  
--	if (msg->termination_state)
-+	if (msg->termination_state == MCBA_VER_TERMINATION_ON)
- 		priv->can.termination = MCBA_TERMINATION_ENABLED;
- 	else
- 		priv->can.termination = MCBA_TERMINATION_DISABLED;
-@@ -800,9 +804,9 @@ static int mcba_set_termination(struct net_device *netdev, u16 term)
- 	};
- 
- 	if (term == MCBA_TERMINATION_ENABLED)
--		usb_msg.termination = 1;
-+		usb_msg.termination = MCBA_VER_TERMINATION_ON;
- 	else
--		usb_msg.termination = 0;
-+		usb_msg.termination = MCBA_VER_TERMINATION_OFF;
- 
- 	mcba_usb_xmit_cmd(priv, (struct mcba_usb_msg *)&usb_msg);
- 
+ 	return 0;
+ }
 -- 
 2.35.1
 
