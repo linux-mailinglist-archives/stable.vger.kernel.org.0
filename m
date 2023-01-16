@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E30F66CBAB
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59D8A66CD48
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234490AbjAPRQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:16:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38114 "EHLO
+        id S234889AbjAPRf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:35:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234266AbjAPRPX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFF7927D60
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:21 -0800 (PST)
+        with ESMTP id S234855AbjAPRel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA2E3BDB2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B0B0B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8D2FC433D2;
-        Mon, 16 Jan 2023 16:56:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AF356108D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A6E9C433D2;
+        Mon, 16 Jan 2023 17:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888179;
-        bh=XVGttKS9A4NCunIbTeoK+gQpvjWTgoCvhQan3ZS2N58=;
+        s=korg; t=1673889050;
+        bh=aZ0JKpZUSDhGF4muQfj/pOfCpHaLsON8A2w+yYEIG1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xv7K7ZGGg9P6VGXLNPb9iFsMH5gcTphtiM5JWSNO4VKOFEangzhCrgu1SBG8dHgsd
-         bT5bvFgYcHpbxtYzBHro1dkFRzn6qFiMa6ReYw2FU29wv+S8fZYXFyNhBwwh3ot3vn
-         0YbfbYZ3VtKhUUYx1V3sN4UkiRanzLvBopkVEOdo=
+        b=HxgL/ByfeaK9D/ar4yf/Ee+JXCit6zufQvYZp1TkXP3eKmAZqfvgoivqUnEuAKhyw
+         Bod+t3kG/C7DM0Sep3NWFDok132IP57Fdd2/lD+GXRqg9cQqj2Xv1tcExdtNgVk9ZG
+         kWztaqaPgcNi797Nak+ewGL3JQLisslKtDbNd3WY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-fsd@tesla.com,
-        Smitha T Murthy <smitha.t@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 423/521] media: s5p-mfc: Fix in register read and write for H264
+        patches@lists.linux.dev, Jun Nie <jun.nie@linaro.org>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 212/338] net_sched: reject TCF_EM_SIMPLE case for complex ematch module
 Date:   Mon, 16 Jan 2023 16:51:25 +0100
-Message-Id: <20230116154906.048327074@linuxfoundation.org>
+Message-Id: <20230116154830.266662295@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smitha T Murthy <smitha.t@samsung.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit 06710cd5d2436135046898d7e4b9408c8bb99446 ]
+[ Upstream commit 9cd3fd2054c3b3055163accbf2f31a4426f10317 ]
 
-Few of the H264 encoder registers written were not getting reflected
-since the read values were not stored and getting overwritten.
+When TCF_EM_SIMPLE was introduced, it is supposed to be convenient
+for ematch implementation:
 
-Fixes: 6a9c6f681257 ("[media] s5p-mfc: Add variants to access mfc registers")
+https://lore.kernel.org/all/20050105110048.GO26856@postel.suug.ch/
 
-Cc: stable@vger.kernel.org
-Cc: linux-fsd@tesla.com
-Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+"You don't have to, providing a 32bit data chunk without TCF_EM_SIMPLE
+set will simply result in allocating & copy. It's an optimization,
+nothing more."
+
+So if an ematch module provides ops->datalen that means it wants a
+complex data structure (saved in its em->data) instead of a simple u32
+value. We should simply reject such a combination, otherwise this u32
+could be misinterpreted as a pointer.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
+Reported-by: Jun Nie <jun.nie@linaro.org>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ net/sched/ematch.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c b/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
-index 7c629be43205..1171b76df036 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
-@@ -1063,7 +1063,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
- 	}
- 
- 	/* aspect ratio VUI */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 5);
- 	reg |= ((p_h264->vui_sar & 0x1) << 5);
- 	writel(reg, mfc_regs->e_h264_options);
-@@ -1086,7 +1086,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
- 
- 	/* intra picture period for H.264 open GOP */
- 	/* control */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 4);
- 	reg |= ((p_h264->open_gop & 0x1) << 4);
- 	writel(reg, mfc_regs->e_h264_options);
-@@ -1100,23 +1100,23 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
- 	}
- 
- 	/* 'WEIGHTED_BI_PREDICTION' for B is disable */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x3 << 9);
- 	writel(reg, mfc_regs->e_h264_options);
- 
- 	/* 'CONSTRAINED_INTRA_PRED_ENABLE' is disable */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 14);
- 	writel(reg, mfc_regs->e_h264_options);
- 
- 	/* ASO */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 6);
- 	reg |= ((p_h264->aso & 0x1) << 6);
- 	writel(reg, mfc_regs->e_h264_options);
- 
- 	/* hier qp enable */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 8);
- 	reg |= ((p_h264->open_gop & 0x1) << 8);
- 	writel(reg, mfc_regs->e_h264_options);
-@@ -1137,7 +1137,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
- 	writel(reg, mfc_regs->e_h264_num_t_layer);
- 
- 	/* frame packing SEI generation */
--	readl(mfc_regs->e_h264_options);
-+	reg = readl(mfc_regs->e_h264_options);
- 	reg &= ~(0x1 << 25);
- 	reg |= ((p_h264->sei_frame_packing & 0x1) << 25);
- 	writel(reg, mfc_regs->e_h264_options);
+diff --git a/net/sched/ematch.c b/net/sched/ematch.c
+index a48dca26f178..e6078a3da76a 100644
+--- a/net/sched/ematch.c
++++ b/net/sched/ematch.c
+@@ -259,6 +259,8 @@ static int tcf_em_validate(struct tcf_proto *tp,
+ 			 * the value carried.
+ 			 */
+ 			if (em_hdr->flags & TCF_EM_SIMPLE) {
++				if (em->ops->datalen > 0)
++					goto errout;
+ 				if (data_len < sizeof(u32))
+ 					goto errout;
+ 				em->data = *(u32 *) data;
 -- 
 2.35.1
 
