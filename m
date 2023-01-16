@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6250566C964
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DC1666C51D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:01:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233916AbjAPQtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:49:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39790 "EHLO
+        id S231939AbjAPQBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:01:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234060AbjAPQtS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374C22A98C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:06 -0800 (PST)
+        with ESMTP id S231966AbjAPQBZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:01:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122D91CAC1
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9CAFB80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A0F5C433D2;
-        Mon, 16 Jan 2023 16:36:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25D896102D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3911EC433D2;
+        Mon, 16 Jan 2023 16:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886963;
-        bh=OB5LrUrjmsSfhrns86hwpqaAH4TNSO1lszxIGuEq56Q=;
+        s=korg; t=1673884882;
+        bh=cMzVHi6y81arKg8yTwml2AJUiL/SRH1fF4NxImU0KTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGChM7Ar+ihYuEN63/Muk/1cXR/wuuFHnhCiJSr0nj9g29PCvNU6ynYxa5mSTWUVf
-         Zvmh+ApxKBePU8aC1l4QJSCSptgjS4WlIEtcdQ6GW8N9cQGXGa9EC6ZEc1Skeqcp0j
-         L2yY4jAMtPen8wsLhipQk4CVA7ObFuLED+fJExuk=
+        b=xElkhIHhzqfTwoUuDlWqEiSk3CZQsCZv7wKSSZetuG7E7WdRMfwsyDOCyRNmcIBOl
+         +XQF4PtdI2XFinT5TrFeWMuuRf3fz0iFR9y2cHcsuDILS6a1khs02M20wg8rphrFcF
+         DiVzZnAEW5oIl3fMOOpGOWGZZDiKvznTUzhpeW0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Akhil P Oommen <quic_akhilpo@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.4 611/658] drm/msm/adreno: Make adreno quirks not overwrite each other
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        syzbot+6805087452d72929404e@syzkaller.appspotmail.com
+Subject: [PATCH 6.1 176/183] io_uring: lock overflowing for IOPOLL
 Date:   Mon, 16 Jan 2023 16:51:39 +0100
-Message-Id: <20230116154937.454780787@linuxfoundation.org>
+Message-Id: <20230116154810.730325486@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 13ef096e342b00e30b95a90c6c13eee1f0bec4c5 upstream.
+commit 544d163d659d45a206d8929370d5a2984e546cb7 upstream.
 
-So far the adreno quirks have all been assigned with an OR operator,
-which is problematic, because they were assigned consecutive integer
-values, which makes checking them with an AND operator kind of no bueno..
+syzbot reports an issue with overflow filling for IOPOLL:
 
-Switch to using BIT(n) so that only the quirks that the programmer chose
-are taken into account when evaluating info->quirks & ADRENO_QUIRK_...
+WARNING: CPU: 0 PID: 28 at io_uring/io_uring.c:734 io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
+CPU: 0 PID: 28 Comm: kworker/u4:1 Not tainted 6.2.0-rc3-syzkaller-16369-g358a161a6a9e #0
+Workqueue: events_unbound io_ring_exit_work
+Call trace:
+ io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
+ io_req_cqe_overflow+0x5c/0x70 io_uring/io_uring.c:773
+ io_fill_cqe_req io_uring/io_uring.h:168 [inline]
+ io_do_iopoll+0x474/0x62c io_uring/rw.c:1065
+ io_iopoll_try_reap_events+0x6c/0x108 io_uring/io_uring.c:1513
+ io_uring_try_cancel_requests+0x13c/0x258 io_uring/io_uring.c:3056
+ io_ring_exit_work+0xec/0x390 io_uring/io_uring.c:2869
+ process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
+ worker_thread+0x340/0x610 kernel/workqueue.c:2436
+ kthread+0x12c/0x158 kernel/kthread.c:376
+ ret_from_fork+0x10/0x20 arch/arm64/kernel/entry.S:863
 
-Fixes: 370063ee427a ("drm/msm/adreno: Add A540 support")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/516456/
-Link: https://lore.kernel.org/r/20230102100201.77286-1-konrad.dybcio@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There is no real problem for normal IOPOLL as flush is also called with
+uring_lock taken, but it's getting more complicated for IOPOLL|SQPOLL,
+for which __io_cqring_overflow_flush() happens from the CQ waiting path.
+
+Reported-and-tested-by: syzbot+6805087452d72929404e@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org # 5.10+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_gpu.h |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ io_uring/rw.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/msm/adreno/adreno_gpu.h
-+++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.h
-@@ -47,11 +47,9 @@ enum {
- 	ADRENO_FW_MAX,
- };
+diff --git a/io_uring/rw.c b/io_uring/rw.c
+index bb47cc4da713..6223472095d2 100644
+--- a/io_uring/rw.c
++++ b/io_uring/rw.c
+@@ -1055,7 +1055,11 @@ int io_do_iopoll(struct io_ring_ctx *ctx, bool force_nonspin)
+ 			continue;
  
--enum adreno_quirks {
--	ADRENO_QUIRK_TWO_PASS_USE_WFI = 1,
--	ADRENO_QUIRK_FAULT_DETECT_MASK = 2,
--	ADRENO_QUIRK_LMLOADKILL_DISABLE = 3,
--};
-+#define ADRENO_QUIRK_TWO_PASS_USE_WFI		BIT(0)
-+#define ADRENO_QUIRK_FAULT_DETECT_MASK		BIT(1)
-+#define ADRENO_QUIRK_LMLOADKILL_DISABLE		BIT(2)
+ 		req->cqe.flags = io_put_kbuf(req, 0);
+-		__io_fill_cqe_req(req->ctx, req);
++		if (unlikely(!__io_fill_cqe_req(ctx, req))) {
++			spin_lock(&ctx->completion_lock);
++			io_req_cqe_overflow(req);
++			spin_unlock(&ctx->completion_lock);
++		}
+ 	}
  
- struct adreno_rev {
- 	uint8_t  core;
-@@ -74,7 +72,7 @@ struct adreno_info {
- 	const char *name;
- 	const char *fw[ADRENO_FW_MAX];
- 	uint32_t gmem;
--	enum adreno_quirks quirks;
-+	u64 quirks;
- 	struct msm_gpu *(*init)(struct drm_device *dev);
- 	const char *zapfw;
- 	u32 inactive_period;
+ 	if (unlikely(!nr_events))
+-- 
+2.35.1
+
 
 
