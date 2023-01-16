@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3553866C0EF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:06:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 753F566C0F7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:06:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231676AbjAPOGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:06:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44340 "EHLO
+        id S231982AbjAPOGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:06:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231858AbjAPOFE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:05:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CEB227A8;
-        Mon, 16 Jan 2023 06:03:15 -0800 (PST)
+        with ESMTP id S231715AbjAPOFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:05:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8D8D227B1;
+        Mon, 16 Jan 2023 06:03:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5161460FD3;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1506FB80F96;
+        Mon, 16 Jan 2023 14:03:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30C3BC43392;
         Mon, 16 Jan 2023 14:03:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 229CFC433D2;
-        Mon, 16 Jan 2023 14:03:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877794;
-        bh=fbIIfrqgLnFzf7qmBh7osG4T9uei9BB7Woeb6fp4REI=;
+        s=k20201202; t=1673877795;
+        bh=hMG8bCwROR3ELbgEiVG9GZVu4p4mu/n4COxPtdzCges=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SZPQmfeIVXopShbBUfaDdCFJSdwQySAC9+VrEGe0eW6yduvr9IopyjV/DMbpovy0W
-         o5I9M6kelYdHFC6plY48J/i27gnrzot2V4cimeMnSLMBxgUEHqrpT+Ya4xlVhfr9Nl
-         1B/7lJ/n/yQktq65Y52VgI7EqA69nljE3UljpdxXHwGgo07WrwUzGUMhiK00fTtFuR
-         ceI7e/Wd2AH8pkgsfVwBFDkPogNVgAaZOIr1e76MWDXZcfKfNX/mVGjZXTmGxm/o88
-         9vpuv/Fj+liF4nvhxE8UuCLwtXHNkIOOXsiq0oY9fo7dm6+tJVfrIhhF97Cze1EG45
-         pvbbQjLSUImUQ==
+        b=Gykqkx5Ebdoq7a7lEH+qcIKiaYdo+z9HrBgVZElg8jxJcKo0B+zuBjP84Ds9jMxKU
+         vQIr5rboybjWm+u4aHdwAo08xrXzwX9mTeOs8yLBkGtyG4+6RSlvTPrOVvbK/TU/4t
+         YJHCcdxbAxKN49s5ZitRLYcfoH4MjRPnCt9ybYgKUDZPgouE4JdwHD59b5kh07VyXY
+         RSzEPB9kAvfrchoQkcaUEk08NrIorydX5xMIuwd+L2OmJMdDjPKTYKonZSooRvepec
+         DOYugAostAr/KqhVsgTUbJRLrhv5rohYOCMbXLXTKbuPTHseVgHjCC6OIG1wmgfJ/z
+         Bdg9B6EylEYiQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Willy Tarreau <w@1wt.eu>, "Paul E . McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 6.1 29/53] tools/nolibc: fix missing includes causing build issues at -O0
-Date:   Mon, 16 Jan 2023 09:01:29 -0500
-Message-Id: <20230116140154.114951-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 30/53] tools/nolibc: prevent gcc from making memset() loop over itself
+Date:   Mon, 16 Jan 2023 09:01:30 -0500
+Message-Id: <20230116140154.114951-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140154.114951-1-sashal@kernel.org>
 References: <20230116140154.114951-1-sashal@kernel.org>
@@ -56,160 +56,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit 55abdd1f5e1e07418bf4a46c233a92f83cb5ae97 ]
+[ Upstream commit 1bfbe1f3e96720daf185f03d101f072d69753f88 ]
 
-After the nolibc includes were split to facilitate portability from
-standard libcs, programs that include only what they need may miss
-some symbols which are needed by libgcc. This is the case for raise()
-which is needed by the divide by zero code in some architectures for
-example.
+When building on ARM in thumb mode with gcc-11.3 at -O2 or -O3,
+nolibc-test segfaults during the select() tests. It turns out that at
+this level, gcc recognizes an opportunity for using memset() to zero
+the fd_set, but it miscompiles it because it also recognizes a memset
+pattern as well, and decides to call memset() from the memset() code:
 
-Regardless, being able to include only the apparently needed files is
-convenient.
+  000122bc <memset>:
+     122bc:       b510            push    {r4, lr}
+     122be:       0004            movs    r4, r0
+     122c0:       2a00            cmp     r2, #0
+     122c2:       d003            beq.n   122cc <memset+0x10>
+     122c4:       23ff            movs    r3, #255        ; 0xff
+     122c6:       4019            ands    r1, r3
+     122c8:       f7ff fff8       bl      122bc <memset>
+     122cc:       0020            movs    r0, r4
+     122ce:       bd10            pop     {r4, pc}
 
-Instead of trying to move all exported definitions to a single file,
-since this can change over time, this patch takes another approach
-consisting in including the nolibc header at the end of all standard
-include files. This way their types and functions are already known
-at the moment of inclusion, and including any single one of them is
-sufficient to bring all the required ones.
+Simply placing an empty asm() statement inside the loop suffices to
+avoid this.
 
 Signed-off-by: Willy Tarreau <w@1wt.eu>
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/include/nolibc/ctype.h  | 3 +++
- tools/include/nolibc/errno.h  | 3 +++
- tools/include/nolibc/signal.h | 3 +++
- tools/include/nolibc/stdio.h  | 3 +++
- tools/include/nolibc/stdlib.h | 3 +++
- tools/include/nolibc/string.h | 3 +++
- tools/include/nolibc/sys.h    | 2 ++
- tools/include/nolibc/time.h   | 3 +++
- tools/include/nolibc/types.h  | 3 +++
- tools/include/nolibc/unistd.h | 3 +++
- 10 files changed, 29 insertions(+)
+ tools/include/nolibc/string.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/include/nolibc/ctype.h b/tools/include/nolibc/ctype.h
-index e3000b2992d7..6f90706d0644 100644
---- a/tools/include/nolibc/ctype.h
-+++ b/tools/include/nolibc/ctype.h
-@@ -96,4 +96,7 @@ int ispunct(int c)
- 	return isgraph(c) && !isalnum(c);
- }
- 
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
-+
- #endif /* _NOLIBC_CTYPE_H */
-diff --git a/tools/include/nolibc/errno.h b/tools/include/nolibc/errno.h
-index 06893d6dfb7a..9dc4919c769b 100644
---- a/tools/include/nolibc/errno.h
-+++ b/tools/include/nolibc/errno.h
-@@ -24,4 +24,7 @@ static int errno;
-  */
- #define MAX_ERRNO 4095
- 
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
-+
- #endif /* _NOLIBC_ERRNO_H */
-diff --git a/tools/include/nolibc/signal.h b/tools/include/nolibc/signal.h
-index ef47e71e2be3..137552216e46 100644
---- a/tools/include/nolibc/signal.h
-+++ b/tools/include/nolibc/signal.h
-@@ -19,4 +19,7 @@ int raise(int signal)
- 	return sys_kill(sys_getpid(), signal);
- }
- 
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
-+
- #endif /* _NOLIBC_SIGNAL_H */
-diff --git a/tools/include/nolibc/stdio.h b/tools/include/nolibc/stdio.h
-index a3cebc4bc3ac..96ac8afc5aee 100644
---- a/tools/include/nolibc/stdio.h
-+++ b/tools/include/nolibc/stdio.h
-@@ -303,4 +303,7 @@ void perror(const char *msg)
- 	fprintf(stderr, "%s%serrno=%d\n", (msg && *msg) ? msg : "", (msg && *msg) ? ": " : "", errno);
- }
- 
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
-+
- #endif /* _NOLIBC_STDIO_H */
-diff --git a/tools/include/nolibc/stdlib.h b/tools/include/nolibc/stdlib.h
-index 92378c4b9660..a24000d1e822 100644
---- a/tools/include/nolibc/stdlib.h
-+++ b/tools/include/nolibc/stdlib.h
-@@ -419,4 +419,7 @@ char *u64toa(uint64_t in)
- 	return itoa_buffer;
- }
- 
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
-+
- #endif /* _NOLIBC_STDLIB_H */
 diff --git a/tools/include/nolibc/string.h b/tools/include/nolibc/string.h
-index ad97c0d522b8..0932db3817d2 100644
+index 0932db3817d2..fffdaf6ff467 100644
 --- a/tools/include/nolibc/string.h
 +++ b/tools/include/nolibc/string.h
-@@ -285,4 +285,7 @@ char *strrchr(const char *s, int c)
- 	return (char *)ret;
+@@ -88,8 +88,11 @@ void *memset(void *dst, int b, size_t len)
+ {
+ 	char *p = dst;
+ 
+-	while (len--)
++	while (len--) {
++		/* prevent gcc from recognizing memset() here */
++		asm volatile("");
+ 		*(p++) = b;
++	}
+ 	return dst;
  }
  
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
-+
- #endif /* _NOLIBC_STRING_H */
-diff --git a/tools/include/nolibc/sys.h b/tools/include/nolibc/sys.h
-index ce3ee03aa679..78473d34e27c 100644
---- a/tools/include/nolibc/sys.h
-+++ b/tools/include/nolibc/sys.h
-@@ -1243,5 +1243,7 @@ ssize_t write(int fd, const void *buf, size_t count)
- 	return ret;
- }
- 
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
- 
- #endif /* _NOLIBC_SYS_H */
-diff --git a/tools/include/nolibc/time.h b/tools/include/nolibc/time.h
-index d18b7661fdd7..84655361b9ad 100644
---- a/tools/include/nolibc/time.h
-+++ b/tools/include/nolibc/time.h
-@@ -25,4 +25,7 @@ time_t time(time_t *tptr)
- 	return tv.tv_sec;
- }
- 
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
-+
- #endif /* _NOLIBC_TIME_H */
-diff --git a/tools/include/nolibc/types.h b/tools/include/nolibc/types.h
-index f1d64fca7cf0..fbbc0e68c001 100644
---- a/tools/include/nolibc/types.h
-+++ b/tools/include/nolibc/types.h
-@@ -209,4 +209,7 @@ struct stat {
- })
- #endif
- 
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
-+
- #endif /* _NOLIBC_TYPES_H */
-diff --git a/tools/include/nolibc/unistd.h b/tools/include/nolibc/unistd.h
-index 1c25e20ee360..1cfcd52106a4 100644
---- a/tools/include/nolibc/unistd.h
-+++ b/tools/include/nolibc/unistd.h
-@@ -51,4 +51,7 @@ int tcsetpgrp(int fd, pid_t pid)
- 	return ioctl(fd, TIOCSPGRP, &pid);
- }
- 
-+/* make sure to include all global symbols */
-+#include "nolibc.h"
-+
- #endif /* _NOLIBC_UNISTD_H */
 -- 
 2.35.1
 
