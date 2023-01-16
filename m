@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1F2766C99B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 633A866C99C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:52:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234003AbjAPQwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:52:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44416 "EHLO
+        id S233939AbjAPQw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:52:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234005AbjAPQvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:51:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 681B84B775
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:37:16 -0800 (PST)
+        with ESMTP id S233838AbjAPQv7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:51:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8CC624113
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:37:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B7DA61083
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DC2BC433F0;
-        Mon, 16 Jan 2023 16:37:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E836661058
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1439C433EF;
+        Mon, 16 Jan 2023 16:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887034;
-        bh=829ReEx9kwuWay6Tp+HCEI3eVnwwgKf+v3BoEfkhc8Y=;
+        s=korg; t=1673887037;
+        bh=VUvGvQNX5a6RKrHa73IYYrDOiY0bhqeFvM5KwadAYKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PBSBxskWIP47Or8FK7eMnAgeKXxjHxO6vWxR14A+2WcAHtNWyBm88JSG0ly5S6YiF
-         Mwunli+/IfErpTI5ueFvEy1vuqUx1E00Slu06LWdQ9kYTqXTMXqnsoFvRGPA1bQ7dU
-         0x0NbYSIhEh/ITaleXXod0XwQcaLPq2TTPqn9Alw=
+        b=gRGSkJIHyfiCLNQd4/KNGAhNyvR9GiVDYY7N5M3csvwKV7NxekJURaSIwp6YuL9ee
+         TD+fuzZiuBjVRgRTI/H7L7bZqBVQCediwSRtFowUGQKjDbzZBArKczbVqIBPsKLepf
+         YzgLZWYtCtMC0kgrTCUlEZCrrO+rGMLtlEB3KSPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mahesh Salgaonkar <mahesh@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 656/658] pseries/eeh: Fix the kdump kernel crash during eeh_pseries_init
-Date:   Mon, 16 Jan 2023 16:52:24 +0100
-Message-Id: <20230116154939.466910375@linuxfoundation.org>
+        patches@lists.linux.dev, Heming Zhao <heming.zhao@suse.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.4 657/658] ocfs2: fix freeing uninitialized resource on ocfs2_dlm_shutdown
+Date:   Mon, 16 Jan 2023 16:52:25 +0100
+Message-Id: <20230116154939.514200362@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -52,73 +58,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+From: Heming Zhao <ocfs2-devel@oss.oracle.com>
 
-commit eb8257a12192f43ffd41bd90932c39dade958042 upstream.
+commit 550842cc60987b269e31b222283ade3e1b6c7fc8 upstream.
 
-On pseries LPAR when an empty slot is assigned to partition OR in single
-LPAR mode, kdump kernel crashes during issuing PHB reset.
+After commit 0737e01de9c4 ("ocfs2: ocfs2_mount_volume does cleanup job
+before return error"), any procedure after ocfs2_dlm_init() fails will
+trigger crash when calling ocfs2_dlm_shutdown().
 
-In the kdump scenario, we traverse all PHBs and issue reset using the
-pe_config_addr of the first child device present under each PHB. However
-the code assumes that none of the PHB slots can be empty and uses
-list_first_entry() to get the first child device under the PHB. Since
-list_first_entry() expects the list to be non-empty, it returns an
-invalid pci_dn entry and ends up accessing NULL phb pointer under
-pci_dn->phb causing kdump kernel crash.
+ie: On local mount mode, no dlm resource is initialized.  If
+ocfs2_mount_volume() fails in ocfs2_find_slot(), error handling will call
+ocfs2_dlm_shutdown(), then does dlm resource cleanup job, which will
+trigger kernel crash.
 
-This patch fixes the below kdump kernel crash by skipping empty slots:
+This solution should bypass uninitialized resources in
+ocfs2_dlm_shutdown().
 
-  audit: initializing netlink subsys (disabled)
-  thermal_sys: Registered thermal governor 'fair_share'
-  thermal_sys: Registered thermal governor 'step_wise'
-  cpuidle: using governor menu
-  pstore: Registered nvram as persistent store backend
-  Issue PHB reset ...
-  audit: type=2000 audit(1631267818.000:1): state=initialized audit_enabled=0 res=1
-  BUG: Kernel NULL pointer dereference on read at 0x00000268
-  Faulting instruction address: 0xc000000008101fb0
-  Oops: Kernel access of bad area, sig: 7 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA pSeries
-  Modules linked in:
-  CPU: 7 PID: 1 Comm: swapper/7 Not tainted 5.14.0 #1
-  NIP:  c000000008101fb0 LR: c000000009284ccc CTR: c000000008029d70
-  REGS: c00000001161b840 TRAP: 0300   Not tainted  (5.14.0)
-  MSR:  8000000002009033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 28000224  XER: 20040002
-  CFAR: c000000008101f0c DAR: 0000000000000268 DSISR: 00080000 IRQMASK: 0
-  ...
-  NIP pseries_eeh_get_pe_config_addr+0x100/0x1b0
-  LR  __machine_initcall_pseries_eeh_pseries_init+0x2cc/0x350
-  Call Trace:
-    0xc00000001161bb80 (unreliable)
-    __machine_initcall_pseries_eeh_pseries_init+0x2cc/0x350
-    do_one_initcall+0x60/0x2d0
-    kernel_init_freeable+0x350/0x3f8
-    kernel_init+0x3c/0x17c
-    ret_from_kernel_thread+0x5c/0x64
-
-Fixes: 5a090f7c363fd ("powerpc/pseries: PCIE PHB reset")
-Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
-[mpe: Tweak wording and trim oops]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/163215558252.413351.8600189949820258982.stgit@jupiter
+Link: https://lkml.kernel.org/r/20220815085754.20417-1-heming.zhao@suse.com
+Fixes: 0737e01de9c4 ("ocfs2: ocfs2_mount_volume does cleanup job before return error")
+Signed-off-by: Heming Zhao <heming.zhao@suse.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/pseries/eeh_pseries.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/ocfs2/dlmglue.c |    8 +++++---
+ fs/ocfs2/super.c   |    3 +--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/eeh_pseries.c
-+++ b/arch/powerpc/platforms/pseries/eeh_pseries.c
-@@ -879,6 +879,10 @@ static int __init eeh_pseries_init(void)
- 	if (is_kdump_kernel() || reset_devices) {
- 		pr_info("Issue PHB reset ...\n");
- 		list_for_each_entry(phb, &hose_list, list_node) {
-+			// Skip if the slot is empty
-+			if (list_empty(&PCI_DN(phb->dn)->child_list))
-+				continue;
-+
- 			pdn = list_first_entry(&PCI_DN(phb->dn)->child_list, struct pci_dn, list);
- 			addr = (pdn->busno << 16) | (pdn->devfn << 8);
- 			config_addr = pseries_eeh_get_config_addr(phb, addr);
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -3396,10 +3396,12 @@ void ocfs2_dlm_shutdown(struct ocfs2_sup
+ 	ocfs2_lock_res_free(&osb->osb_nfs_sync_lockres);
+ 	ocfs2_lock_res_free(&osb->osb_orphan_scan.os_lockres);
+ 
+-	ocfs2_cluster_disconnect(osb->cconn, hangup_pending);
+-	osb->cconn = NULL;
++	if (osb->cconn) {
++		ocfs2_cluster_disconnect(osb->cconn, hangup_pending);
++		osb->cconn = NULL;
+ 
+-	ocfs2_dlm_shutdown_debug(osb);
++		ocfs2_dlm_shutdown_debug(osb);
++	}
+ }
+ 
+ static int ocfs2_drop_lock(struct ocfs2_super *osb,
+--- a/fs/ocfs2/super.c
++++ b/fs/ocfs2/super.c
+@@ -1922,8 +1922,7 @@ static void ocfs2_dismount_volume(struct
+ 	    !ocfs2_is_hard_readonly(osb))
+ 		hangup_needed = 1;
+ 
+-	if (osb->cconn)
+-		ocfs2_dlm_shutdown(osb, hangup_needed);
++	ocfs2_dlm_shutdown(osb, hangup_needed);
+ 
+ 	ocfs2_blockcheck_stats_debugfs_remove(&osb->osb_ecc_stats);
+ 	debugfs_remove_recursive(osb->osb_debug_root);
 
 
