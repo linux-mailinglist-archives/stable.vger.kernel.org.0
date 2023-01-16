@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3386F66C997
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 760A666C99A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233395AbjAPQwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:52:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44370 "EHLO
+        id S233712AbjAPQwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:52:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233987AbjAPQvv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:51:51 -0500
+        with ESMTP id S233619AbjAPQvy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:51:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05E94B77B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:37:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B26A4C0DB
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:37:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AEE43B8108F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E822C433F1;
-        Mon, 16 Jan 2023 16:37:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59816B81092
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB3AC433F2;
+        Mon, 16 Jan 2023 16:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887029;
-        bh=dqaCuBh2RIQ1CzdKUSfdsctJEEfsKXJj5CweXNPbFX4=;
+        s=korg; t=1673887032;
+        bh=3hgBKHOHGO/SddED0eXVkvDcKqLRV2TmTT7N34rbzG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIkpHxyIsRJu8hN6rqZtBSCXciPXusrMVPtQYrrnfi0H2X4Fut5kaCcdD2GcHqdDq
-         hzgNvwGS3BDEwu1/DgnIEvS7FQ5d28kM2xHk9GFPqRTWMpYXca45MPGN76SPQE9r2Q
-         vYE6wjcDcQ4XHgT3BzKqHQ13W8GWmD+hmPNewH0c=
+        b=c7/iEnsuHkRFnqJ9V3kWLAZS2T8z7lv3IgtmqJPVAjjfuiFeRHKJOrfAkFaPWWFvs
+         7hS+W7BYovSb54hPIPh0rjeJYXi9BzjhjR14YtAwVqZwDhIyMHhfSdSaRvnlI7uxce
+         wm8d98gccS1ir74Gtpab62TCeEIq8roT2RT+Ib20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH 5.4 654/658] tty: serial: tegra: Handle RX transfer in PIO mode if DMA wasnt started
-Date:   Mon, 16 Jan 2023 16:52:22 +0100
-Message-Id: <20230116154939.382477043@linuxfoundation.org>
+        patches@lists.linux.dev, Tuong Lien <tuong.t.lien@dektech.com.au>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 655/658] tipc: Add a missing case of TIPC_DIRECT_MSG type
+Date:   Mon, 16 Jan 2023 16:52:23 +0100
+Message-Id: <20230116154939.416588790@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -51,94 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-commit 1f69a1273b3f204a9c00dc3bbdcc4afcd0787428 upstream.
+commit 8b1e5b0a99f04bda2d6c85ecfe5e68a356c10914 upstream.
 
-It is possible to get an instant RX timeout or end-of-transfer interrupt
-before RX DMA was started, if transaction is less than 16 bytes. Transfer
-should be handled in PIO mode in this case because DMA can't handle it.
-This patch brings back the original behaviour of the driver that was
-changed by accident by a previous commit, it fixes occasional Bluetooth HW
-initialization failures which I started to notice recently.
+In the commit f73b12812a3d
+("tipc: improve throughput between nodes in netns"), we're missing a check
+to handle TIPC_DIRECT_MSG type, it's still using old sending mechanism for
+this message type. So, throughput improvement is not significant as
+expected.
 
-Fixes: d5e3fadb7012 ("tty: serial: tegra: Activate RX DMA transfer by request")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20200209164415.9632-1-digetx@gmail.com
+Besides that, when sending a large message with that type, we're also
+handle wrong receiving queue, it should be enqueued in socket receiving
+instead of multicast messages.
+
+Fix this by adding the missing case for TIPC_DIRECT_MSG.
+
+Fixes: f73b12812a3d ("tipc: improve throughput between nodes in netns")
+Reported-by: Tuong Lien <tuong.t.lien@dektech.com.au>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/serial-tegra.c |   35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ net/tipc/msg.h    |    5 +++++
+ net/tipc/node.c   |    3 ++-
+ net/tipc/socket.c |    2 +-
+ 3 files changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -694,11 +694,22 @@ static void tegra_uart_copy_rx_to_tty(st
- 				TEGRA_UART_RX_DMA_BUFFER_SIZE, DMA_TO_DEVICE);
+--- a/net/tipc/msg.h
++++ b/net/tipc/msg.h
+@@ -358,6 +358,11 @@ static inline u32 msg_connected(struct t
+ 	return msg_type(m) == TIPC_CONN_MSG;
  }
  
-+static void do_handle_rx_pio(struct tegra_uart_port *tup)
++static inline u32 msg_direct(struct tipc_msg *m)
 +{
-+	struct tty_struct *tty = tty_port_tty_get(&tup->uport.state->port);
-+	struct tty_port *port = &tup->uport.state->port;
-+
-+	tegra_uart_handle_rx_pio(tup, port);
-+	if (tty) {
-+		tty_flip_buffer_push(port);
-+		tty_kref_put(tty);
-+	}
++	return msg_type(m) == TIPC_DIRECT_MSG;
 +}
 +
- static void tegra_uart_rx_buffer_push(struct tegra_uart_port *tup,
- 				      unsigned int residue)
+ static inline u32 msg_errcode(struct tipc_msg *m)
  {
- 	struct tty_port *port = &tup->uport.state->port;
--	struct tty_struct *tty = tty_port_tty_get(port);
- 	unsigned int count;
+ 	return msg_bits(m, 1, 25, 0xf);
+--- a/net/tipc/node.c
++++ b/net/tipc/node.c
+@@ -1489,7 +1489,8 @@ static void tipc_lxc_xmit(struct net *pe
+ 	case TIPC_MEDIUM_IMPORTANCE:
+ 	case TIPC_HIGH_IMPORTANCE:
+ 	case TIPC_CRITICAL_IMPORTANCE:
+-		if (msg_connected(hdr) || msg_named(hdr)) {
++		if (msg_connected(hdr) || msg_named(hdr) ||
++		    msg_direct(hdr)) {
+ 			tipc_loopback_trace(peer_net, list);
+ 			spin_lock_init(&list->lock);
+ 			tipc_sk_rcv(peer_net, list);
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1407,7 +1407,7 @@ static int __tipc_sendmsg(struct socket
+ 	}
  
- 	async_tx_ack(tup->rx_dma_desc);
-@@ -707,11 +718,7 @@ static void tegra_uart_rx_buffer_push(st
- 	/* If we are here, DMA is stopped */
- 	tegra_uart_copy_rx_to_tty(tup, port, count);
- 
--	tegra_uart_handle_rx_pio(tup, port);
--	if (tty) {
--		tty_flip_buffer_push(port);
--		tty_kref_put(tty);
--	}
-+	do_handle_rx_pio(tup);
- }
- 
- static void tegra_uart_rx_dma_complete(void *args)
-@@ -751,8 +758,10 @@ static void tegra_uart_terminate_rx_dma(
- {
- 	struct dma_tx_state state;
- 
--	if (!tup->rx_dma_active)
-+	if (!tup->rx_dma_active) {
-+		do_handle_rx_pio(tup);
- 		return;
-+	}
- 
- 	dmaengine_pause(tup->rx_dma_chan);
- 	dmaengine_tx_status(tup->rx_dma_chan, tup->rx_cookie, &state);
-@@ -821,18 +830,6 @@ static void tegra_uart_handle_modem_sign
- 		uart_handle_cts_change(&tup->uport, msr & UART_MSR_CTS);
- }
- 
--static void do_handle_rx_pio(struct tegra_uart_port *tup)
--{
--	struct tty_struct *tty = tty_port_tty_get(&tup->uport.state->port);
--	struct tty_port *port = &tup->uport.state->port;
--
--	tegra_uart_handle_rx_pio(tup, port);
--	if (tty) {
--		tty_flip_buffer_push(port);
--		tty_kref_put(tty);
--	}
--}
--
- static irqreturn_t tegra_uart_isr(int irq, void *data)
- {
- 	struct tegra_uart_port *tup = data;
+ 	__skb_queue_head_init(&pkts);
+-	mtu = tipc_node_get_mtu(net, dnode, tsk->portid, false);
++	mtu = tipc_node_get_mtu(net, dnode, tsk->portid, true);
+ 	rc = tipc_msg_build(hdr, m, 0, dlen, mtu, &pkts);
+ 	if (unlikely(rc != dlen))
+ 		return rc;
 
 
