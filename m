@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E9C66CBB4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E3D66CD33
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234503AbjAPRQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:16:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
+        id S234663AbjAPReb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234500AbjAPRPb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:31 -0500
+        with ESMTP id S234891AbjAPReO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:14 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15A733345A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865E92A15A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8B4461042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD27FC433EF;
-        Mon, 16 Jan 2023 16:56:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2497360F63
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3915CC433F2;
+        Mon, 16 Jan 2023 17:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888195;
-        bh=Y8brbIPSGheNAcs4u+o2+2Agc2b0OLdc25UcDGWE6y0=;
+        s=korg; t=1673889016;
+        bh=FKFeXBZUIHSsIolawMhZQVbQo4nrgBgbADf9icYqgFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLbtXJvNMTfPQ9WbIiEjwTmY6n/XXnLipcRIl77Ih1/F4DER/JJ9xd28F3D+DoD5F
-         c+nvR/i52ohpKzVQi6riQsD/i69Mk4Zlw4IEQeu9zfsZ+LfoCsALDDV9XBkgey5Vg/
-         P30cT5O1YtlnoOScEnwIqKiY4wwiQi+YUwC6FSNA=
+        b=xmVJhg6CrqRCKshDB/Pd4RbcFD+4L07QqhX2QrypE/ARAT0Hn3CzE3DKD/DseCZrC
+         agqOfDSHhRLgrOjimqjVo+KOGqCTlVbANdvujpxvr93nM+MukIVV6a6w6ZuOXoyUS6
+         hmDChIEhvAMbbnW12uQV0RDt68qixNVQkbOAXUHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 437/521] ext4: remove EA inode entry from mbcache on inode eviction
-Date:   Mon, 16 Jan 2023 16:51:39 +0100
-Message-Id: <20230116154906.696362096@linuxfoundation.org>
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        syzbot+f635e86ec3fa0a37e019@syzkaller.appspotmail.com,
+        Stanislav Fomichev <sdf@google.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 227/338] bpf: make sure skb->len != 0 when redirecting to a tunneling device
+Date:   Mon, 16 Jan 2023 16:51:40 +0100
+Message-Id: <20230116154830.924796873@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,115 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit 6bc0d63dad7f9f54d381925ee855b402f652fa39 ]
+[ Upstream commit 07ec7b502800ba9f7b8b15cb01dd6556bb41aaca ]
 
-Currently we remove EA inode from mbcache as soon as its xattr refcount
-drops to zero. However there can be pending attempts to reuse the inode
-and thus refcount handling code has to handle the situation when
-refcount increases from zero anyway. So save some work and just keep EA
-inode in mbcache until it is getting evicted. At that moment we are sure
-following iget() of EA inode will fail anyway (or wait for eviction to
-finish and load things from the disk again) and so removing mbcache
-entry at that moment is fine and simplifies the code a bit.
+syzkaller managed to trigger another case where skb->len == 0
+when we enter __dev_queue_xmit:
 
-CC: stable@vger.kernel.org
-Fixes: 82939d7999df ("ext4: convert to mbcache2")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220712105436.32204-3-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Stable-dep-of: a44e84a9b776 ("ext4: fix deadlock due to mbcache entry corruption")
+WARNING: CPU: 0 PID: 2470 at include/linux/skbuff.h:2576 skb_assert_len include/linux/skbuff.h:2576 [inline]
+WARNING: CPU: 0 PID: 2470 at include/linux/skbuff.h:2576 __dev_queue_xmit+0x2069/0x35e0 net/core/dev.c:4295
+
+Call Trace:
+ dev_queue_xmit+0x17/0x20 net/core/dev.c:4406
+ __bpf_tx_skb net/core/filter.c:2115 [inline]
+ __bpf_redirect_no_mac net/core/filter.c:2140 [inline]
+ __bpf_redirect+0x5fb/0xda0 net/core/filter.c:2163
+ ____bpf_clone_redirect net/core/filter.c:2447 [inline]
+ bpf_clone_redirect+0x247/0x390 net/core/filter.c:2419
+ bpf_prog_48159a89cb4a9a16+0x59/0x5e
+ bpf_dispatcher_nop_func include/linux/bpf.h:897 [inline]
+ __bpf_prog_run include/linux/filter.h:596 [inline]
+ bpf_prog_run include/linux/filter.h:603 [inline]
+ bpf_test_run+0x46c/0x890 net/bpf/test_run.c:402
+ bpf_prog_test_run_skb+0xbdc/0x14c0 net/bpf/test_run.c:1170
+ bpf_prog_test_run+0x345/0x3c0 kernel/bpf/syscall.c:3648
+ __sys_bpf+0x43a/0x6c0 kernel/bpf/syscall.c:5005
+ __do_sys_bpf kernel/bpf/syscall.c:5091 [inline]
+ __se_sys_bpf kernel/bpf/syscall.c:5089 [inline]
+ __x64_sys_bpf+0x7c/0x90 kernel/bpf/syscall.c:5089
+ do_syscall_64+0x54/0x70 arch/x86/entry/common.c:48
+ entry_SYSCALL_64_after_hwframe+0x61/0xc6
+
+The reproducer doesn't really reproduce outside of syzkaller
+environment, so I'm taking a guess here. It looks like we
+do generate correct ETH_HLEN-sized packet, but we redirect
+the packet to the tunneling device. Before we do so, we
+__skb_pull l2 header and arrive again at skb->len == 0.
+Doesn't seem like we can do anything better than having
+an explicit check after __skb_pull?
+
+Cc: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+f635e86ec3fa0a37e019@syzkaller.appspotmail.com
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20221027225537.353077-1-sdf@google.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c |  2 ++
- fs/ext4/xattr.c | 24 ++++++++----------------
- fs/ext4/xattr.h |  1 +
- 3 files changed, 11 insertions(+), 16 deletions(-)
+ net/core/filter.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 2ad0a9540481..b322658ceff1 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -207,6 +207,8 @@ void ext4_evict_inode(struct inode *inode)
+diff --git a/net/core/filter.c b/net/core/filter.c
+index afe27343051f..0613aa7b0966 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -1725,6 +1725,10 @@ static int __bpf_redirect_no_mac(struct sk_buff *skb, struct net_device *dev,
  
- 	trace_ext4_evict_inode(inode);
+ 	if (mlen) {
+ 		__skb_pull(skb, mlen);
++		if (unlikely(!skb->len)) {
++			kfree_skb(skb);
++			return -ERANGE;
++		}
  
-+	if (EXT4_I(inode)->i_flags & EXT4_EA_INODE_FL)
-+		ext4_evict_ea_inode(inode);
- 	if (inode->i_nlink) {
- 		/*
- 		 * When journalling data dirty buffers are tracked only in the
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index 959fc3328c3a..648368b02c79 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -434,6 +434,14 @@ static int ext4_xattr_inode_iget(struct inode *parent, unsigned long ea_ino,
- 	return err;
- }
- 
-+/* Remove entry from mbcache when EA inode is getting evicted */
-+void ext4_evict_ea_inode(struct inode *inode)
-+{
-+	if (EA_INODE_CACHE(inode))
-+		mb_cache_entry_delete(EA_INODE_CACHE(inode),
-+			ext4_xattr_inode_get_hash(inode), inode->i_ino);
-+}
-+
- static int
- ext4_xattr_inode_verify_hashes(struct inode *ea_inode,
- 			       struct ext4_xattr_entry *entry, void *buffer,
-@@ -1019,10 +1027,8 @@ static int ext4_xattr_ensure_credits(handle_t *handle, struct inode *inode,
- static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
- 				       int ref_change)
- {
--	struct mb_cache *ea_inode_cache = EA_INODE_CACHE(ea_inode);
- 	struct ext4_iloc iloc;
- 	s64 ref_count;
--	u32 hash;
- 	int ret;
- 
- 	inode_lock(ea_inode);
-@@ -1047,14 +1053,6 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
- 
- 			set_nlink(ea_inode, 1);
- 			ext4_orphan_del(handle, ea_inode);
--
--			if (ea_inode_cache) {
--				hash = ext4_xattr_inode_get_hash(ea_inode);
--				mb_cache_entry_create(ea_inode_cache,
--						      GFP_NOFS, hash,
--						      ea_inode->i_ino,
--						      true /* reusable */);
--			}
- 		}
- 	} else {
- 		WARN_ONCE(ref_count < 0, "EA inode %lu ref_count=%lld",
-@@ -1067,12 +1065,6 @@ static int ext4_xattr_inode_update_ref(handle_t *handle, struct inode *ea_inode,
- 
- 			clear_nlink(ea_inode);
- 			ext4_orphan_add(handle, ea_inode);
--
--			if (ea_inode_cache) {
--				hash = ext4_xattr_inode_get_hash(ea_inode);
--				mb_cache_entry_delete(ea_inode_cache, hash,
--						      ea_inode->i_ino);
--			}
- 		}
- 	}
- 
-diff --git a/fs/ext4/xattr.h b/fs/ext4/xattr.h
-index 990084e00374..231ef308d10c 100644
---- a/fs/ext4/xattr.h
-+++ b/fs/ext4/xattr.h
-@@ -190,6 +190,7 @@ extern void ext4_xattr_inode_array_free(struct ext4_xattr_inode_array *array);
- 
- extern int ext4_expand_extra_isize_ea(struct inode *inode, int new_extra_isize,
- 			    struct ext4_inode *raw_inode, handle_t *handle);
-+extern void ext4_evict_ea_inode(struct inode *inode);
- 
- extern const struct xattr_handler *ext4_xattr_handlers[];
- 
+ 		/* At ingress, the mac header has already been pulled once.
+ 		 * At egress, skb_pospull_rcsum has to be done in case that
 -- 
 2.35.1
 
