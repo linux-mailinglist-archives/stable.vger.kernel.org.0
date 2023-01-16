@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF7A66C569
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F99F66C938
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232047AbjAPQFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:05:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43632 "EHLO
+        id S233855AbjAPQrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:47:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232084AbjAPQFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:05:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E007014E8E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:43 -0800 (PST)
+        with ESMTP id S233733AbjAPQqZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81BA2298F4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 819FAB80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E068AC433D2;
-        Mon, 16 Jan 2023 16:03:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 444B0B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F02C433EF;
+        Mon, 16 Jan 2023 16:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885021;
-        bh=dV3T2K0wm/vcbInio0P0c+0afNHzeJwUEaiboLCpBb8=;
+        s=korg; t=1673886865;
+        bh=1dqAHGRbfaQnDFsQsvdy3d0rpymkmJrWcZC5DZFVBz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10vUHZxXPGbMnrpNylRbnsYJClMt0/MPi42xwkPW1Aa31tLs/sqrrnUPfKnFaXJE5
-         a2nPo7JFp8ULoAFjL0N2HwoyaagKXhqKAGrupwaLKRC4sV6/Owxr3HadE5qA6LruR4
-         Zd3SqZoxef2rv+OZG4jv1YCEf2Fg6JwuVQo77C2w=
+        b=GRa7dHQxTHqB3yM7K5qoZrRqHEum2eaS6EzzcKZcbr8FblpJlIdnNmmykja83GysO
+         b3tHr0Lq01U4lVgJw24UDXGEJmTQZmY0IWihkGTeVcPMR0H1sC3iQaZ61bbdzOk3v8
+         Lnni9mMdag8O+/NBVxl6HbJN2zZysytlhc2mPdt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
-        Adam Ward <DLG-Adam.Ward.opensource@dm.renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 45/86] regulator: da9211: Use irq handler when ready
-Date:   Mon, 16 Jan 2023 16:51:19 +0100
-Message-Id: <20230116154748.937736122@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.4 592/658] ext4: dont allow journal inode to have encrypt flag
+Date:   Mon, 16 Jan 2023 16:51:20 +0100
+Message-Id: <20230116154936.570722114@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 02228f6aa6a64d588bc31e3267d05ff184d772eb ]
+commit 105c78e12468413e426625831faa7db4284e1fec upstream.
 
-If the system does not come from reset (like when it is kexec()), the
-regulator might have an IRQ waiting for us.
+Mounting a filesystem whose journal inode has the encrypt flag causes a
+NULL dereference in fscrypt_limit_io_blocks() when the 'inlinecrypt'
+mount option is used.
 
-If we enable the IRQ handler before its structures are ready, we crash.
+The problem is that when jbd2_journal_init_inode() calls bmap(), it
+eventually finds its way into ext4_iomap_begin(), which calls
+fscrypt_limit_io_blocks().  fscrypt_limit_io_blocks() requires that if
+the inode is encrypted, then its encryption key must already be set up.
+That's not the case here, since the journal inode is never "opened" like
+a normal file would be.  Hence the crash.
 
-This patch fixes:
+A reproducer is:
 
-[    1.141839] Unable to handle kernel read from unreadable memory at virtual address 0000000000000078
-[    1.316096] Call trace:
-[    1.316101]  blocking_notifier_call_chain+0x20/0xa8
-[    1.322757] cpu cpu0: dummy supplies not allowed for exclusive requests
-[    1.327823]  regulator_notifier_call_chain+0x1c/0x2c
-[    1.327825]  da9211_irq_handler+0x68/0xf8
-[    1.327829]  irq_thread+0x11c/0x234
-[    1.327833]  kthread+0x13c/0x154
+    mkfs.ext4 -F /dev/vdb
+    debugfs -w /dev/vdb -R "set_inode_field <8> flags 0x80808"
+    mount /dev/vdb /mnt -o inlinecrypt
 
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Adam Ward <DLG-Adam.Ward.opensource@dm.renesas.com>
-Link: https://lore.kernel.org/r/20221124-da9211-v2-0-1779e3c5d491@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To fix this, make ext4 consider journal inodes with the encrypt flag to
+be invalid.  (Note, maybe other flags should be rejected on the journal
+inode too.  For now, this is just the minimal fix for the above issue.)
+
+I've marked this as fixing the commit that introduced the call to
+fscrypt_limit_io_blocks(), since that's what made an actual crash start
+being possible.  But this fix could be applied to any version of ext4
+that supports the encrypt feature.
+
+Reported-by: syzbot+ba9dac45bc76c490b7c3@syzkaller.appspotmail.com
+Fixes: 38ea50daa7a4 ("ext4: support direct I/O with fscrypt using blk-crypto")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221102053312.189962-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/da9211-regulator.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/ext4/super.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/da9211-regulator.c b/drivers/regulator/da9211-regulator.c
-index e01b32d1fa17..00828f5baa97 100644
---- a/drivers/regulator/da9211-regulator.c
-+++ b/drivers/regulator/da9211-regulator.c
-@@ -498,6 +498,12 @@ static int da9211_i2c_probe(struct i2c_client *i2c)
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4836,7 +4836,7 @@ static struct inode *ext4_get_journal_in
  
- 	chip->chip_irq = i2c->irq;
- 
-+	ret = da9211_regulator_init(chip);
-+	if (ret < 0) {
-+		dev_err(chip->dev, "Failed to initialize regulator: %d\n", ret);
-+		return ret;
-+	}
-+
- 	if (chip->chip_irq != 0) {
- 		ret = devm_request_threaded_irq(chip->dev, chip->chip_irq, NULL,
- 					da9211_irq_handler,
-@@ -512,11 +518,6 @@ static int da9211_i2c_probe(struct i2c_client *i2c)
- 		dev_warn(chip->dev, "No IRQ configured\n");
- 	}
- 
--	ret = da9211_regulator_init(chip);
--
--	if (ret < 0)
--		dev_err(chip->dev, "Failed to initialize regulator: %d\n", ret);
--
- 	return ret;
- }
- 
--- 
-2.35.1
-
+ 	jbd_debug(2, "Journal inode found at %p: %lld bytes\n",
+ 		  journal_inode, journal_inode->i_size);
+-	if (!S_ISREG(journal_inode->i_mode)) {
++	if (!S_ISREG(journal_inode->i_mode) || IS_ENCRYPTED(journal_inode)) {
+ 		ext4_msg(sb, KERN_ERR, "invalid journal inode");
+ 		iput(journal_inode);
+ 		return NULL;
 
 
