@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA95166C51B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EFC766C5AE
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:08:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231941AbjAPQBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:01:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
+        id S232354AbjAPQIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:08:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231971AbjAPQB1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:01:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2734E1DBAB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:26 -0800 (PST)
+        with ESMTP id S232196AbjAPQIG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:08:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AB15241E2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAFB561042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFAF7C433EF;
-        Mon, 16 Jan 2023 16:01:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07759B81076
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65EDCC433EF;
+        Mon, 16 Jan 2023 16:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884885;
-        bh=rNqEF/aIXlvFqIWH47pT7l9K18fsuUb+KuesPhDypos=;
+        s=korg; t=1673885144;
+        bh=XjSEVx6pSKSbZE23IK3lyJnm6y5a8yncEIgWoHtxr/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=led4P3nUb3wS4vSGpZF1adJeuoU/uKTNZ4WhmyR84VzdbvhX/Eee9n0+IQetRBfjM
-         GVGW2zbD+VGMciWcTVh63vc+83i8Wzmce/9rI0REAHN8kUTfUgLHw3SLAPg1oLup4d
-         53H4UrxikyJztudkuElyCIa6G42v1JT95CAaZoZY=
+        b=YvuxIV5rXttgtjnPGVwGm2cRSWyBthCH8fY0r3FrwNdNH4pGKkGyjVEKyYHnC9kih
+         GJgmrz2EQkImmfLVjiso+H2+wQ5TuJlciofb/bKJIvCjB0DPYNj8+5+q8j7xccgkkO
+         5gSa5b9M9urb0pVBjzjT9BmFfycbCgpBn8bloJtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 177/183] io_uring/poll: attempt request issue after racy poll wakeup
-Date:   Mon, 16 Jan 2023 16:51:40 +0100
-Message-Id: <20230116154810.771826278@linuxfoundation.org>
+Subject: [PATCH 5.15 67/86] net/sched: act_mpls: Fix warning during failed attribute validation
+Date:   Mon, 16 Jan 2023 16:51:41 +0100
+Message-Id: <20230116154749.838502770@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,114 +55,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit 6e5aedb9324aab1c14a23fae3d8eeb64a679c20e upstream.
+[ Upstream commit 9e17f99220d111ea031b44153fdfe364b0024ff2 ]
 
-If we have multiple requests waiting on the same target poll waitqueue,
-then it's quite possible to get a request triggered and get disappointed
-in not being able to make any progress with it. If we race in doing so,
-we'll potentially leave the poll request on the internal tables, but
-removed from the waitqueue. That means that any subsequent trigger of
-the poll waitqueue will not kick that request into action, causing an
-application to potentially wait for completion of a request that will
-never happen.
+The 'TCA_MPLS_LABEL' attribute is of 'NLA_U32' type, but has a
+validation type of 'NLA_VALIDATE_FUNCTION'. This is an invalid
+combination according to the comment above 'struct nla_policy':
 
-Fix this by adding a new poll return state, IOU_POLL_REISSUE. Rather
-than have complicated logic for how to re-arm a given type of request,
-just punt it for a reissue.
+"
+Meaning of `validate' field, use via NLA_POLICY_VALIDATE_FN:
+   NLA_BINARY           Validation function called for the attribute.
+   All other            Unused - but note that it's a union
+"
 
-While in there, move the 'ret' variable to the only section where it
-gets used. This avoids confusion the scope of it.
+This can trigger the warning [1] in nla_get_range_unsigned() when
+validation of the attribute fails. Despite being of 'NLA_U32' type, the
+associated 'min'/'max' fields in the policy are negative as they are
+aliased by the 'validate' field.
 
-Cc: stable@vger.kernel.org
-Fixes: eb0089d629ba ("io_uring: single shot poll removal optimisation")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix by changing the attribute type to 'NLA_BINARY' which is consistent
+with the above comment and all other users of NLA_POLICY_VALIDATE_FN().
+As a result, move the length validation to the validation function.
+
+No regressions in MPLS tests:
+
+ # ./tdc.py -f tc-tests/actions/mpls.json
+ [...]
+ # echo $?
+ 0
+
+[1]
+WARNING: CPU: 0 PID: 17743 at lib/nlattr.c:118
+nla_get_range_unsigned+0x1d8/0x1e0 lib/nlattr.c:117
+Modules linked in:
+CPU: 0 PID: 17743 Comm: syz-executor.0 Not tainted 6.1.0-rc8 #3
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.13.0-48-gd9c812dda519-prebuilt.qemu.org 04/01/2014
+RIP: 0010:nla_get_range_unsigned+0x1d8/0x1e0 lib/nlattr.c:117
+[...]
+Call Trace:
+ <TASK>
+ __netlink_policy_dump_write_attr+0x23d/0x990 net/netlink/policy.c:310
+ netlink_policy_dump_write_attr+0x22/0x30 net/netlink/policy.c:411
+ netlink_ack_tlv_fill net/netlink/af_netlink.c:2454 [inline]
+ netlink_ack+0x546/0x760 net/netlink/af_netlink.c:2506
+ netlink_rcv_skb+0x1b7/0x240 net/netlink/af_netlink.c:2546
+ rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:6109
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x5e9/0x6b0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x739/0x860 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0x38f/0x500 net/socket.c:2482
+ ___sys_sendmsg net/socket.c:2536 [inline]
+ __sys_sendmsg+0x197/0x230 net/socket.c:2565
+ __do_sys_sendmsg net/socket.c:2574 [inline]
+ __se_sys_sendmsg net/socket.c:2572 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2572
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Link: https://lore.kernel.org/netdev/CAO4mrfdmjvRUNbDyP0R03_DrD_eFCLCguz6OxZ2TYRSv0K9gxA@mail.gmail.com/
+Fixes: 2a2ea50870ba ("net: sched: add mpls manipulation actions to TC")
+Reported-by: Wei Chen <harperchen1110@gmail.com>
+Tested-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Link: https://lore.kernel.org/r/20230107171004.608436-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/poll.c |   33 ++++++++++++++++++++++-----------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ net/sched/act_mpls.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/io_uring/poll.c
-+++ b/io_uring/poll.c
-@@ -223,22 +223,23 @@ enum {
- 	IOU_POLL_DONE = 0,
- 	IOU_POLL_NO_ACTION = 1,
- 	IOU_POLL_REMOVE_POLL_USE_RES = 2,
-+	IOU_POLL_REISSUE = 3,
- };
- 
- /*
-  * All poll tw should go through this. Checks for poll events, manages
-  * references, does rewait, etc.
-  *
-- * Returns a negative error on failure. IOU_POLL_NO_ACTION when no action require,
-- * which is either spurious wakeup or multishot CQE is served.
-- * IOU_POLL_DONE when it's done with the request, then the mask is stored in req->cqe.res.
-- * IOU_POLL_REMOVE_POLL_USE_RES indicates to remove multishot poll and that the result
-- * is stored in req->cqe.
-+ * Returns a negative error on failure. IOU_POLL_NO_ACTION when no action
-+ * require, which is either spurious wakeup or multishot CQE is served.
-+ * IOU_POLL_DONE when it's done with the request, then the mask is stored in
-+ * req->cqe.res. IOU_POLL_REMOVE_POLL_USE_RES indicates to remove multishot
-+ * poll and that the result is stored in req->cqe.
-  */
- static int io_poll_check_events(struct io_kiocb *req, bool *locked)
+diff --git a/net/sched/act_mpls.c b/net/sched/act_mpls.c
+index e4529b428cf4..db0ef0486309 100644
+--- a/net/sched/act_mpls.c
++++ b/net/sched/act_mpls.c
+@@ -133,6 +133,11 @@ static int valid_label(const struct nlattr *attr,
  {
- 	struct io_ring_ctx *ctx = req->ctx;
--	int v, ret;
-+	int v;
+ 	const u32 *label = nla_data(attr);
  
- 	/* req->task == current here, checking PF_EXITING is safe */
- 	if (unlikely(req->task->flags & PF_EXITING))
-@@ -274,10 +275,15 @@ static int io_poll_check_events(struct i
- 		if (!req->cqe.res) {
- 			struct poll_table_struct pt = { ._key = req->apoll_events };
- 			req->cqe.res = vfs_poll(req->file, &pt) & req->apoll_events;
-+			/*
-+			 * We got woken with a mask, but someone else got to
-+			 * it first. The above vfs_poll() doesn't add us back
-+			 * to the waitqueue, so if we get nothing back, we
-+			 * should be safe and attempt a reissue.
-+			 */
-+			if (unlikely(!req->cqe.res))
-+				return IOU_POLL_REISSUE;
- 		}
--
--		if ((unlikely(!req->cqe.res)))
--			continue;
- 		if (req->apoll_events & EPOLLONESHOT)
- 			return IOU_POLL_DONE;
- 		if (io_is_uring_fops(req->file))
-@@ -294,7 +300,7 @@ static int io_poll_check_events(struct i
- 				return IOU_POLL_REMOVE_POLL_USE_RES;
- 			}
- 		} else {
--			ret = io_poll_issue(req, locked);
-+			int ret = io_poll_issue(req, locked);
- 			if (ret == IOU_STOP_MULTISHOT)
- 				return IOU_POLL_REMOVE_POLL_USE_RES;
- 			if (ret < 0)
-@@ -325,6 +331,11 @@ static void io_poll_task_func(struct io_
- 	if (ret == IOU_POLL_DONE) {
- 		struct io_poll *poll = io_kiocb_to_cmd(req, struct io_poll);
- 		req->cqe.res = mangle_poll(req->cqe.res & poll->events);
-+	} else if (ret == IOU_POLL_REISSUE) {
-+		io_poll_remove_entries(req);
-+		io_poll_tw_hash_eject(req, locked);
-+		io_req_task_submit(req, locked);
-+		return;
- 	} else if (ret != IOU_POLL_REMOVE_POLL_USE_RES) {
- 		req->cqe.res = ret;
- 		req_set_fail(req);
-@@ -350,7 +361,7 @@ static void io_apoll_task_func(struct io
- 
- 	if (ret == IOU_POLL_REMOVE_POLL_USE_RES)
- 		io_req_complete_post(req);
--	else if (ret == IOU_POLL_DONE)
-+	else if (ret == IOU_POLL_DONE || ret == IOU_POLL_REISSUE)
- 		io_req_task_submit(req, locked);
- 	else
- 		io_req_complete_failed(req, ret);
++	if (nla_len(attr) != sizeof(*label)) {
++		NL_SET_ERR_MSG_MOD(extack, "Invalid MPLS label length");
++		return -EINVAL;
++	}
++
+ 	if (*label & ~MPLS_LABEL_MASK || *label == MPLS_LABEL_IMPLNULL) {
+ 		NL_SET_ERR_MSG_MOD(extack, "MPLS label out of range");
+ 		return -EINVAL;
+@@ -144,7 +149,8 @@ static int valid_label(const struct nlattr *attr,
+ static const struct nla_policy mpls_policy[TCA_MPLS_MAX + 1] = {
+ 	[TCA_MPLS_PARMS]	= NLA_POLICY_EXACT_LEN(sizeof(struct tc_mpls)),
+ 	[TCA_MPLS_PROTO]	= { .type = NLA_U16 },
+-	[TCA_MPLS_LABEL]	= NLA_POLICY_VALIDATE_FN(NLA_U32, valid_label),
++	[TCA_MPLS_LABEL]	= NLA_POLICY_VALIDATE_FN(NLA_BINARY,
++							 valid_label),
+ 	[TCA_MPLS_TC]		= NLA_POLICY_RANGE(NLA_U8, 0, 7),
+ 	[TCA_MPLS_TTL]		= NLA_POLICY_MIN(NLA_U8, 1),
+ 	[TCA_MPLS_BOS]		= NLA_POLICY_RANGE(NLA_U8, 0, 1),
+-- 
+2.35.1
+
 
 
