@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 318BC66CD8E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C283566CD8C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235024AbjAPRhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:37:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56298 "EHLO
+        id S235023AbjAPRhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:37:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234874AbjAPRgq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34EB4402F3
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:20 -0800 (PST)
+        with ESMTP id S234998AbjAPRgp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3572942DEA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32576B8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92D7BC433F1;
-        Mon, 16 Jan 2023 17:13:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2046D61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37492C433EF;
+        Mon, 16 Jan 2023 17:13:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889197;
-        bh=Id/6QiHmc49JSw3V/6uvLLQXRIYgxzWR8UqB0rESjY8=;
+        s=korg; t=1673889200;
+        bh=AA65B6Ub8loLIpRU9RK3yZ+0OMUupVgjH46chE+YGs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1+CTr+xkClX4/ccZApN1d635EGwFbkgkwNTjwo9P2biIe3r/XGxvBYFc5gPgX+YK
-         O1gOebxn5V54xjAHxOaGLEh8JmrPDFuq1MRRFeay1iGjU0w+enNpIPWTUS8SFApiLU
-         pwcsP2a1M/F+EGOdV5gzFwXK+xPegLADbrhY3dG4=
+        b=QUNliFyfnkImylgtTvmU6DbFUEZ3J9vrt2tEZqi426/r92qaPqFlgWJipQTqCp9X+
+         QjAIV2Ld6dTksvJ3oGvfEXOfr1635IsAI4qLdeFBnRjIUWDMvgvnVd21hnxubINOGq
+         3uxWsR9lCdt3V6L9PS0glg8pJUTEJoddH3GCzWsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Simon Ser <contact@emersion.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Lyude Paul <lyude@redhat.com>,
-        =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@redhat.com>
-Subject: [PATCH 4.14 295/338] drm/connector: send hotplug uevent on connector cleanup
-Date:   Mon, 16 Jan 2023 16:52:48 +0100
-Message-Id: <20230116154833.952612950@linuxfoundation.org>
+        patches@lists.linux.dev, Zack Rusin <zackr@vmware.com>,
+        Michael Banack <banackm@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>
+Subject: [PATCH 4.14 296/338] drm/vmwgfx: Validate the box size for the snooped cursor
+Date:   Mon, 16 Jan 2023 16:52:49 +0100
+Message-Id: <20230116154833.998079012@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -54,56 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Ser <contact@emersion.fr>
+From: Zack Rusin <zackr@vmware.com>
 
-commit 6fdc2d490ea1369d17afd7e6eb66fecc5b7209bc upstream.
+commit 4cf949c7fafe21e085a4ee386bb2dade9067316e upstream.
 
-A typical DP-MST unplug removes a KMS connector. However care must
-be taken to properly synchronize with user-space. The expected
-sequence of events is the following:
+Invalid userspace dma surface copies could potentially overflow
+the memcpy from the surface to the snooped image leading to crashes.
+To fix it the dimensions of the copybox have to be validated
+against the expected size of the snooped cursor.
 
-1. The kernel notices that the DP-MST port is gone.
-2. The kernel marks the connector as disconnected, then sends a
-   uevent to make user-space re-scan the connector list.
-3. User-space notices the connector goes from connected to disconnected,
-   disables it.
-4. Kernel handles the IOCTL disabling the connector. On success,
-   the very last reference to the struct drm_connector is dropped and
-   drm_connector_cleanup() is called.
-5. The connector is removed from the list, and a uevent is sent to tell
-   user-space that the connector disappeared.
-
-The very last step was missing. As a result, user-space thought the
-connector still existed and could try to disable it again. Since the
-kernel no longer knows about the connector, that would end up with
-EINVAL and confused user-space.
-
-Fix this by sending a hotplug uevent from drm_connector_cleanup().
-
-Signed-off-by: Simon Ser <contact@emersion.fr>
-Cc: stable@vger.kernel.org
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Jonas Ådahl <jadahl@redhat.com>
-Tested-by: Jonas Ådahl <jadahl@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221017153150.60675-2-contact@emersion.fr
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 2ac863719e51 ("vmwgfx: Snoop DMA transfers with non-covering sizes")
+Cc: <stable@vger.kernel.org> # v3.2+
+Reviewed-by: Michael Banack <banackm@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221026031936.1004280-1-zack@kde.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_connector.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_connector.c
-+++ b/drivers/gpu/drm/drm_connector.c
-@@ -352,6 +352,9 @@ void drm_connector_cleanup(struct drm_co
- 	mutex_destroy(&connector->mutex);
- 
- 	memset(connector, 0, sizeof(*connector));
-+
-+	if (dev->registered)
-+		drm_sysfs_hotplug_event(dev);
- }
- EXPORT_SYMBOL(drm_connector_cleanup);
- 
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+@@ -179,7 +179,8 @@ void vmw_kms_cursor_snoop(struct vmw_sur
+ 	if (cmd->dma.guest.ptr.offset % PAGE_SIZE ||
+ 	    box->x != 0    || box->y != 0    || box->z != 0    ||
+ 	    box->srcx != 0 || box->srcy != 0 || box->srcz != 0 ||
+-	    box->d != 1    || box_count != 1) {
++	    box->d != 1    || box_count != 1 ||
++	    box->w > 64 || box->h > 64) {
+ 		/* TODO handle none page aligned offsets */
+ 		/* TODO handle more dst & src != 0 */
+ 		/* TODO handle more then one copy */
 
 
