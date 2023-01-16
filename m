@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1913766CD09
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BEE66CB73
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234896AbjAPRdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:33:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52602 "EHLO
+        id S234478AbjAPRPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233621AbjAPRcf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BA1B43904
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:43 -0800 (PST)
+        with ESMTP id S229741AbjAPROd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EC514C0FA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCBE760F63
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFCF4C433EF;
-        Mon, 16 Jan 2023 17:08:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 458DFB80E95
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94ECCC433EF;
+        Mon, 16 Jan 2023 16:55:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888922;
-        bh=wV562rbgLxCviu4w/0Q2gqz7xGUnmMdwvL2li1UsXuk=;
+        s=korg; t=1673888102;
+        bh=tYIEuLSNTWlXjFmgvDwBaG8GSlNO4i8M05o/zEICOGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLyprKuyhj6D9JCYdzIR4n3yXR3x4PH5CIrBen5tDAc5DHmyrE7jVwKy/ejZ7u58W
-         HFUbcwP7/snY53pguU55q+JpAmMF2y29plIPARRIrRADlswcOqNHPb/65JMuzPZZy2
-         QvpLZ0Poo7wLdwNmMaAdd0CtyR6HVCXWmrqDl/tk=
+        b=CHGT5ex3Fk+CrNf9N/mIP3A2+k7Q79unSq8AOQDKkkh8F0+/O0UxcuwJ1j41RwsPX
+         uVzYejcSGbxig0gtvzFPY741igpcZ0P7KQhIMJJjg2EM0e3AoVfCKmNiSNt9abqwAT
+         xQP/y+hN48HD4iF6SOUQTyX+hzKt3SOht84EYg9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-        Francesco Dolcini <francesco@dolcini.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 191/338] rtc: snvs: Allow a time difference on clock register read
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 402/521] parisc: led: Fix potential null-ptr-deref in start_task()
 Date:   Mon, 16 Jan 2023 16:51:04 +0100
-Message-Id: <20230116154829.272752508@linuxfoundation.org>
+Message-Id: <20230116154905.050739492@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 0462681e207ccc44778a77b3297af728b1cf5b9f ]
+commit 41f563ab3c33698bdfc3403c7c2e6c94e73681e4 upstream.
 
-On an iMX6ULL the following message appears when a wakealarm is set:
+start_task() calls create_singlethread_workqueue() and not checked the
+ret value, which may return NULL. And a null-ptr-deref may happen:
 
-echo 0 > /sys/class/rtc/rtc1/wakealarm
-rtc rtc1: Timeout trying to get valid LPSRT Counter read
+start_task()
+    create_singlethread_workqueue() # failed, led_wq is NULL
+    queue_delayed_work()
+        queue_delayed_work_on()
+            __queue_delayed_work()  # warning here, but continue
+                __queue_work()      # access wq->flags, null-ptr-deref
 
-This does not always happen but is reproducible quite often (7 out of 10
-times). The problem appears because the iMX6ULL is not able to read the
-registers within one 32kHz clock cycle which is the base clock of the
-RTC. Therefore, this patch allows a difference of up to 320 cycles
-(10ms). 10ms was chosen to be big enough even on systems with less cpu
-power (e.g. iMX6ULL). According to the reference manual a difference is
-fine:
-- If the two consecutive reads are similar, the value is correct.
-The values have to be similar, not equal.
+Check the ret value and return -ENOMEM if it is NULL.
 
-Fixes: cd7f3a249dbe ("rtc: snvs: Add timeouts to avoid kernel lockups")
-Reviewed-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco@dolcini.it>
-Link: https://lore.kernel.org/r/20221106115915.7930-1-francesco@dolcini.it
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3499495205a6 ("[PARISC] Use work queue in LED/LCD driver instead of tasklet.")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-snvs.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/parisc/led.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index 7aa2c5ea0de4..86d1af7b6e75 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -39,6 +39,14 @@
- #define SNVS_LPPGDR_INIT	0x41736166
- #define CNTR_TO_SECS_SH		15
+--- a/drivers/parisc/led.c
++++ b/drivers/parisc/led.c
+@@ -141,6 +141,9 @@ static int start_task(void)
  
-+/* The maximum RTC clock cycles that are allowed to pass between two
-+ * consecutive clock counter register reads. If the values are corrupted a
-+ * bigger difference is expected. The RTC frequency is 32kHz. With 320 cycles
-+ * we end at 10ms which should be enough for most cases. If it once takes
-+ * longer than expected we do a retry.
-+ */
-+#define MAX_RTC_READ_DIFF_CYCLES	320
+ 	/* Create the work queue and queue the LED task */
+ 	led_wq = create_singlethread_workqueue("led_wq");	
++	if (!led_wq)
++		return -ENOMEM;
 +
- struct snvs_rtc_data {
- 	struct rtc_device *rtc;
- 	struct regmap *regmap;
-@@ -63,6 +71,7 @@ static u64 rtc_read_lpsrt(struct snvs_rtc_data *data)
- static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- {
- 	u64 read1, read2;
-+	s64 diff;
- 	unsigned int timeout = 100;
+ 	queue_delayed_work(led_wq, &led_task, 0);
  
- 	/* As expected, the registers might update between the read of the LSB
-@@ -73,7 +82,8 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- 	do {
- 		read2 = read1;
- 		read1 = rtc_read_lpsrt(data);
--	} while (read1 != read2 && --timeout);
-+		diff = read1 - read2;
-+	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
- 	if (!timeout)
- 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
- 
-@@ -85,13 +95,15 @@ static u32 rtc_read_lp_counter(struct snvs_rtc_data *data)
- static int rtc_read_lp_counter_lsb(struct snvs_rtc_data *data, u32 *lsb)
- {
- 	u32 count1, count2;
-+	s32 diff;
- 	unsigned int timeout = 100;
- 
- 	regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
- 	do {
- 		count2 = count1;
- 		regmap_read(data->regmap, data->offset + SNVS_LPSRTCLR, &count1);
--	} while (count1 != count2 && --timeout);
-+		diff = count1 - count2;
-+	} while (((diff < 0) || (diff > MAX_RTC_READ_DIFF_CYCLES)) && --timeout);
- 	if (!timeout) {
- 		dev_err(&data->rtc->dev, "Timeout trying to get valid LPSRT Counter read\n");
- 		return -ETIMEDOUT;
--- 
-2.35.1
-
+ 	return 0;
 
 
