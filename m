@@ -2,57 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABC3366CBD1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:18:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECAA266CD2D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234466AbjAPRSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:18:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39576 "EHLO
+        id S234836AbjAPReR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234515AbjAPRRk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:17:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B964F530ED;
-        Mon, 16 Jan 2023 08:57:41 -0800 (PST)
+        with ESMTP id S234702AbjAPRd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:56 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496F43B667
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECBF7B8105D;
-        Mon, 16 Jan 2023 16:57:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B28CC433D2;
-        Mon, 16 Jan 2023 16:57:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B88DECE1230
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8193C433EF;
+        Mon, 16 Jan 2023 17:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888258;
-        bh=JXHgnEsoWZeWPLb0O7tMwk9WlvFs6jzSGMct0JgbqeA=;
+        s=korg; t=1673888998;
+        bh=cTfjFVSCHGBhgWRs2pMpUyF8rh9no/cs6e/vHVsG0ZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLjZgojLbwgFak3UbR92tKCxj+l0SfvDflsHuB7pe/f4HdHVj/vz796RwT36imxSr
-         HYUl0ZbKD2/qMBABRtU99vQnOUCuPAt5Af0QPB3UWlCRlp0y7I8gYVJbwayIIKxb2z
-         VIOHJcpMncXtf4ies++1dYOP1nZNQ47DKSN1wQyA=
+        b=EmMjlal9dTsBM/ToN+/FYmR0HxATqCY98/fHwUu/wK43GKjlYyGOskLlYskHJ4kmF
+         i5MTBgJ2tCqM2JlC7+2OfcYZfDem0q13HoYJ4nJOdxPF0hmdTdPBkbDGrai3Ko/uP+
+         yjmzjI8QVPzPzNGturX1BBc22JkIoMGiSRtzSYQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-pm@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Mark Brown <broonie@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Saravana Kannan <saravanak@google.com>,
-        Todd Kjos <tkjos@google.com>, Len Brown <len.brown@intel.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Kevin Hilman <khilman@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Rob Herring <robh@kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        John Stultz <john.stultz@linaro.org>,
+        patches@lists.linux.dev,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+e91619dd4c11c4960706@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 431/521] driver core: Set deferred_probe_timeout to a longer default if CONFIG_MODULES is set
+Subject: [PATCH 4.14 220/338] nilfs2: fix shift-out-of-bounds/overflow in nilfs_sb2_bad_offset()
 Date:   Mon, 16 Jan 2023 16:51:33 +0100
-Message-Id: <20230116154906.411052637@linuxfoundation.org>
+Message-Id: <20230116154830.627728497@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,66 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <john.stultz@linaro.org>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-[ Upstream commit e2cec7d6853712295cef5377762165a489b2957f ]
+[ Upstream commit 610a2a3d7d8be3537458a378ec69396a76c385b6 ]
 
-When using modules, its common for the modules not to be loaded
-until quite late by userland. With the current code,
-driver_deferred_probe_check_state() will stop returning
-EPROBE_DEFER after late_initcall, which can cause module
-dependency resolution to fail after that.
+Patch series "nilfs2: fix UBSAN shift-out-of-bounds warnings on mount
+time".
 
-So allow a longer window of 30 seconds (picked somewhat
-arbitrarily, but influenced by the similar regulator core
-timeout value) in the case where modules are enabled.
+The first patch fixes a bug reported by syzbot, and the second one fixes
+the remaining bug of the same kind.  Although they are triggered by the
+same super block data anomaly, I divided it into the above two because the
+details of the issues and how to fix it are different.
 
-Cc: linux-pm@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Thierry Reding <treding@nvidia.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Saravana Kannan <saravanak@google.com>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Len Brown <len.brown@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Kevin Hilman <khilman@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Rob Herring <robh@kernel.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Link: https://lore.kernel.org/r/20200225050828.56458-3-john.stultz@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Both are required to eliminate the shift-out-of-bounds issues at mount
+time.
+
+This patch (of 2):
+
+If the block size exponent information written in an on-disk superblock is
+corrupted, nilfs_sb2_bad_offset helper function can trigger
+shift-out-of-bounds warning followed by a kernel panic (if panic_on_warn
+is set):
+
+ shift exponent 38983 is too large for 64-bit type 'unsigned long long'
+ Call Trace:
+  <TASK>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
+  ubsan_epilogue lib/ubsan.c:151 [inline]
+  __ubsan_handle_shift_out_of_bounds+0x33d/0x3b0 lib/ubsan.c:322
+  nilfs_sb2_bad_offset fs/nilfs2/the_nilfs.c:449 [inline]
+  nilfs_load_super_block+0xdf5/0xe00 fs/nilfs2/the_nilfs.c:523
+  init_nilfs+0xb7/0x7d0 fs/nilfs2/the_nilfs.c:577
+  nilfs_fill_super+0xb1/0x5d0 fs/nilfs2/super.c:1047
+  nilfs_mount+0x613/0x9b0 fs/nilfs2/super.c:1317
+  ...
+
+In addition, since nilfs_sb2_bad_offset() performs multiplication without
+considering the upper bound, the computation may overflow if the disk
+layout parameters are not normal.
+
+This fixes these issues by inserting preliminary sanity checks for those
+parameters and by converting the comparison from one involving
+multiplication and left bit-shifting to one using division and right
+bit-shifting.
+
+Link: https://lkml.kernel.org/r/20221027044306.42774-1-konishi.ryusuke@gmail.com
+Link: https://lkml.kernel.org/r/20221027044306.42774-2-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: syzbot+e91619dd4c11c4960706@syzkaller.appspotmail.com
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/nilfs2/the_nilfs.c | 31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 63390a416b44..529d324a0f20 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -220,7 +220,16 @@ static int deferred_devs_show(struct seq_file *s, void *data)
+diff --git a/fs/nilfs2/the_nilfs.c b/fs/nilfs2/the_nilfs.c
+index 9bbdd152c296..3e143c2da06d 100644
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -22,6 +22,7 @@
+ #include <linux/blkdev.h>
+ #include <linux/backing-dev.h>
+ #include <linux/random.h>
++#include <linux/log2.h>
+ #include <linux/crc32.h>
+ #include "nilfs.h"
+ #include "segment.h"
+@@ -457,11 +458,33 @@ static int nilfs_valid_sb(struct nilfs_super_block *sbp)
+ 	return crc == le32_to_cpu(sbp->s_sum);
  }
- DEFINE_SHOW_ATTRIBUTE(deferred_devs);
  
-+#ifdef CONFIG_MODULES
-+/*
-+ * In the case of modules, set the default probe timeout to
-+ * 30 seconds to give userland some time to load needed modules
+-static int nilfs_sb2_bad_offset(struct nilfs_super_block *sbp, u64 offset)
++/**
++ * nilfs_sb2_bad_offset - check the location of the second superblock
++ * @sbp: superblock raw data buffer
++ * @offset: byte offset of second superblock calculated from device size
++ *
++ * nilfs_sb2_bad_offset() checks if the position on the second
++ * superblock is valid or not based on the filesystem parameters
++ * stored in @sbp.  If @offset points to a location within the segment
++ * area, or if the parameters themselves are not normal, it is
++ * determined to be invalid.
++ *
++ * Return Value: true if invalid, false if valid.
 + */
-+static int deferred_probe_timeout = 30;
-+#else
-+/* In the case of !modules, no probe timeout needed */
- static int deferred_probe_timeout = -1;
-+#endif
- static int __init deferred_probe_timeout_setup(char *str)
++static bool nilfs_sb2_bad_offset(struct nilfs_super_block *sbp, u64 offset)
  {
- 	deferred_probe_timeout = simple_strtol(str, NULL, 10);
+-	return offset < ((le64_to_cpu(sbp->s_nsegments) *
+-			  le32_to_cpu(sbp->s_blocks_per_segment)) <<
+-			 (le32_to_cpu(sbp->s_log_block_size) + 10));
++	unsigned int shift_bits = le32_to_cpu(sbp->s_log_block_size);
++	u32 blocks_per_segment = le32_to_cpu(sbp->s_blocks_per_segment);
++	u64 nsegments = le64_to_cpu(sbp->s_nsegments);
++	u64 index;
++
++	if (blocks_per_segment < NILFS_SEG_MIN_BLOCKS ||
++	    shift_bits > ilog2(NILFS_MAX_BLOCK_SIZE) - BLOCK_SIZE_BITS)
++		return true;
++
++	index = offset >> (shift_bits + BLOCK_SIZE_BITS);
++	do_div(index, blocks_per_segment);
++	return index < nsegments;
+ }
+ 
+ static void nilfs_release_super_block(struct the_nilfs *nilfs)
 -- 
 2.35.1
 
