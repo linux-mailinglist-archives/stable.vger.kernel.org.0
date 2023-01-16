@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22CE966CA24
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F66166C783
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234095AbjAPQ7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:59:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49590 "EHLO
+        id S233271AbjAPQbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:31:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234090AbjAPQ7a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7484C2DE7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:10 -0800 (PST)
+        with ESMTP id S233270AbjAPQaz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FA4826844
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:19:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D145F6104F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8544C433EF;
-        Mon, 16 Jan 2023 16:42:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDC50B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:19:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C295C433D2;
+        Mon, 16 Jan 2023 16:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887329;
-        bh=xUXxADh6XT2wAz116OplHBXPSV5CAoAd6WYTZRTwV3Y=;
+        s=korg; t=1673885945;
+        bh=xjzdPdhnNDVzaI1stne5CNaAclQU9RzMmIqfH2qDLKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hlE/TQ1YeL52lknWv8BS4iu/feReb9roYzEbkpu2aWiTUyPGY1hVdARTIFwHCSw+0
-         mPlLg4YyV5VM+EOmN3NfbjTY2yxQDwyzZA6ChtDewVoDwG7RD7FBguDo44XX6jp/ah
-         7lfjpx7GT4c64u4shNFnVRvzeIvQ8uix45wq8DPE=
+        b=waLVGRqAk0AT2CIbTRiVV7UQijthTyRQBWqxMOkwh79nS+bc3dWrWABpaSA3sBDgW
+         DCcWeBghzTyAtLnYhI3iMzrPXh2fLg+psSNgBtNcFnEcRrsXZwhWmp/0drefcXqROv
+         Q5OlZ6yXVG60iN5Kb8KvlSbWgRTmLXDiZzQkH6Gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 069/521] xen/privcmd: Fix a possible warning in privcmd_ioctl_mmap_resource()
+Subject: [PATCH 5.4 243/658] apparmor: Use pointer to struct aa_label for lbs_cred
 Date:   Mon, 16 Jan 2023 16:45:31 +0100
-Message-Id: <20230116154850.301774983@linuxfoundation.org>
+Message-Id: <20230116154920.688810248@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 8b997b2bb2c53b76a6db6c195930e9ab8e4b0c79 ]
+[ Upstream commit 37923d4321b1e38170086da2c117f78f2b0f49c6 ]
 
-As 'kdata.num' is user-controlled data, if user tries to allocate
-memory larger than(>=) MAX_ORDER, then kcalloc() will fail, it
-creates a stack trace and messes up dmesg with a warning.
+According to the implementations of cred_label() and set_cred_label(),
+we should use pointer to struct aa_label for lbs_cred instead of struct
+aa_task_ctx, this patch fixes it.
 
-Call trace:
--> privcmd_ioctl
---> privcmd_ioctl_mmap_resource
-
-Add __GFP_NOWARN in order to avoid too large allocation warning.
-This is detected by static analysis using smatch.
-
-Fixes: 3ad0876554ca ("xen/privcmd: add IOCTL_PRIVCMD_MMAP_RESOURCE")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20221126050745.778967-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: bbd3662a8348 ("Infrastructure management of the cred security blob")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/privcmd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/apparmor/lsm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
-index 74ff28fda64d..15ece1041d17 100644
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -785,7 +785,7 @@ static long privcmd_ioctl_mmap_resource(struct file *file,
- 		goto out;
- 	}
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index e31965dc6dd1..21e03380dd86 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1148,10 +1148,10 @@ static int apparmor_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ #endif
  
--	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL);
-+	pfns = kcalloc(kdata.num, sizeof(*pfns), GFP_KERNEL | __GFP_NOWARN);
- 	if (!pfns) {
- 		rc = -ENOMEM;
- 		goto out;
+ /*
+- * The cred blob is a pointer to, not an instance of, an aa_task_ctx.
++ * The cred blob is a pointer to, not an instance of, an aa_label.
+  */
+ struct lsm_blob_sizes apparmor_blob_sizes __lsm_ro_after_init = {
+-	.lbs_cred = sizeof(struct aa_task_ctx *),
++	.lbs_cred = sizeof(struct aa_label *),
+ 	.lbs_file = sizeof(struct aa_file_ctx),
+ 	.lbs_task = sizeof(struct aa_task_ctx),
+ };
 -- 
 2.35.1
 
