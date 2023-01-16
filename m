@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F108766CD07
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:32:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD61966CB76
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234772AbjAPRcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:32:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54906 "EHLO
+        id S234473AbjAPRPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234885AbjAPRcb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B1135D128
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:38 -0800 (PST)
+        with ESMTP id S234528AbjAPROa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B72854C0F0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A97B061055
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BED91C433D2;
-        Mon, 16 Jan 2023 17:08:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18332B8109B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62085C433D2;
+        Mon, 16 Jan 2023 16:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888917;
-        bh=MpYlnlvwfUKN3dT5u/JDR3k62p8CeHkdfZ7yiTlcc4Y=;
+        s=korg; t=1673888097;
+        bh=BCsjCri5W45/Z+xShuWkpRfYMdS4nvVYMupo6IF8VQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5R1bm3+KAgfYoKFFtX70HJ+aBOjiFmPd99OPpCZB/r/t/VNt6eGp//1eO3IzN0jb
-         l4cdGcIwE0CcIhxu7kaJdTKN7b8316O+EH+0Tm3V4jyC2M3bWa6bHfXdZx7VnP9dNi
-         +4txkp4vW7FSnOn5AvoIwt58yp3Hw94fZfy4h5Z0=
+        b=mPGZuKhGON7lGp9dOiuhziFhpKpM5PcZxQdGhjwYFw1wCXN5uuAJOIo6JddAYjk3c
+         X7WBSH/zkAgw31WoLgO911WQ7Ok24OqjMhwqNcuakGoIxqwTYr1dzXl9zlJhr4TpfG
+         W7Sl4qgVwU41XTpW5H17KOirkBD+pqA+hlf3HjaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 189/338] HSI: omap_ssi_core: Fix error handling in ssi_init()
+        patches@lists.linux.dev, Rolf Eike Beer <eike-kernel@sf-tec.de>,
+        Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>, stable@kernel.org
+Subject: [PATCH 4.19 400/521] crypto: n2 - add missing hash statesize
 Date:   Mon, 16 Jan 2023 16:51:02 +0100
-Message-Id: <20230116154829.181876662@linuxfoundation.org>
+Message-Id: <20230116154904.956802330@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +53,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 3ffa9f713c39a213a08d9ff13ab983a8aa5d8b5d ]
+commit 76a4e874593543a2dff91d249c95bac728df2774 upstream.
 
-The ssi_init() returns the platform_driver_register() directly without
-checking its return value, if platform_driver_register() failed, the
-ssi_pdriver is not unregistered.
-Fix by unregister ssi_pdriver when the last platform_driver_register()
-failed.
+Add missing statesize to hash templates.
+This is mandatory otherwise no algorithms can be registered as the core
+requires statesize to be set.
 
-Fixes: 0fae198988b8 ("HSI: omap_ssi: built omap_ssi and omap_ssi_port into one module")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@kernel.org # 4.3+
+Reported-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Tested-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Fixes: 0a625fd2abaa ("crypto: n2 - Add Niagara2 crypto driver")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hsi/controllers/omap_ssi_core.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/crypto/n2_core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
-index fa3835ec5104..09653b064d93 100644
---- a/drivers/hsi/controllers/omap_ssi_core.c
-+++ b/drivers/hsi/controllers/omap_ssi_core.c
-@@ -667,7 +667,13 @@ static int __init ssi_init(void) {
- 	if (ret)
- 		return ret;
+--- a/drivers/crypto/n2_core.c
++++ b/drivers/crypto/n2_core.c
+@@ -1286,6 +1286,7 @@ struct n2_hash_tmpl {
+ 	const u32	*hash_init;
+ 	u8		hw_op_hashsz;
+ 	u8		digest_size;
++	u8		statesize;
+ 	u8		block_size;
+ 	u8		auth_type;
+ 	u8		hmac_type;
+@@ -1317,6 +1318,7 @@ static const struct n2_hash_tmpl hash_tm
+ 	  .hmac_type	= AUTH_TYPE_HMAC_MD5,
+ 	  .hw_op_hashsz	= MD5_DIGEST_SIZE,
+ 	  .digest_size	= MD5_DIGEST_SIZE,
++	  .statesize	= sizeof(struct md5_state),
+ 	  .block_size	= MD5_HMAC_BLOCK_SIZE },
+ 	{ .name		= "sha1",
+ 	  .hash_zero	= sha1_zero_message_hash,
+@@ -1325,6 +1327,7 @@ static const struct n2_hash_tmpl hash_tm
+ 	  .hmac_type	= AUTH_TYPE_HMAC_SHA1,
+ 	  .hw_op_hashsz	= SHA1_DIGEST_SIZE,
+ 	  .digest_size	= SHA1_DIGEST_SIZE,
++	  .statesize	= sizeof(struct sha1_state),
+ 	  .block_size	= SHA1_BLOCK_SIZE },
+ 	{ .name		= "sha256",
+ 	  .hash_zero	= sha256_zero_message_hash,
+@@ -1333,6 +1336,7 @@ static const struct n2_hash_tmpl hash_tm
+ 	  .hmac_type	= AUTH_TYPE_HMAC_SHA256,
+ 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
+ 	  .digest_size	= SHA256_DIGEST_SIZE,
++	  .statesize	= sizeof(struct sha256_state),
+ 	  .block_size	= SHA256_BLOCK_SIZE },
+ 	{ .name		= "sha224",
+ 	  .hash_zero	= sha224_zero_message_hash,
+@@ -1341,6 +1345,7 @@ static const struct n2_hash_tmpl hash_tm
+ 	  .hmac_type	= AUTH_TYPE_RESERVED,
+ 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
+ 	  .digest_size	= SHA224_DIGEST_SIZE,
++	  .statesize	= sizeof(struct sha256_state),
+ 	  .block_size	= SHA224_BLOCK_SIZE },
+ };
+ #define NUM_HASH_TMPLS ARRAY_SIZE(hash_tmpls)
+@@ -1482,6 +1487,7 @@ static int __n2_register_one_ahash(const
  
--	return platform_driver_register(&ssi_port_pdriver);
-+	ret = platform_driver_register(&ssi_port_pdriver);
-+	if (ret) {
-+		platform_driver_unregister(&ssi_pdriver);
-+		return ret;
-+	}
-+
-+	return 0;
- }
- module_init(ssi_init);
+ 	halg = &ahash->halg;
+ 	halg->digestsize = tmpl->digest_size;
++	halg->statesize = tmpl->statesize;
  
--- 
-2.35.1
-
+ 	base = &halg->base;
+ 	snprintf(base->cra_name, CRYPTO_MAX_ALG_NAME, "%s", tmpl->name);
 
 
