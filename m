@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8946F66CBA8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8247466CD05
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:32:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234267AbjAPRP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
+        id S234795AbjAPRco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:32:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234356AbjAPRPV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:21 -0500
+        with ESMTP id S234780AbjAPRcK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A25B1241F4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66AA15D10A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 545AEB81091
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB79EC433D2;
-        Mon, 16 Jan 2023 16:56:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23324B8109D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D6EAC433D2;
+        Mon, 16 Jan 2023 17:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888171;
-        bh=Kmb+lpzyXejTqIhbvlkwgECcHu5uCK9s2dAvxGb6Yuw=;
+        s=korg; t=1673888911;
+        bh=yBul7LKb13qRrMGXqUeTDx2fmV9/t3F5Nxut59jbji8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lUXw+mEY0UWV3UQq/XtDs90f0bWahs73P+z9prORAWNWJmtRsndqhz2Sj4yW84+5T
-         OfHwl9s7fuaGx/a0hxHkuVZEIVf6KpI3cxPwllqScpfNuwZKJK8/6+rEppD+OSJfzw
-         lB+GSIYOj3Yw52olNb9ohfXuIQNxSM3Htc6PGdcc=
+        b=mxwrz2gS6lwpuISShHY39zHJb2MAtHJFCdUwiMJBpDpcLy04q1ln0hX829r6t8qPi
+         8vIUUYTg4psTln6TmKV3PQHSczJiEQiB4JAs8xkkKdaC1uPBZUSzn03fm7Nyd99/jI
+         9b+f20TRm7zFRTwFtgiX/QExo3NAMycDrUnpl6rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 4.19 397/521] ipmi: fix use after free in _ipmi_destroy_user()
-Date:   Mon, 16 Jan 2023 16:50:59 +0100
-Message-Id: <20230116154904.839567902@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 187/338] HSI: omap_ssi_core: fix possible memory leak in ssi_probe()
+Date:   Mon, 16 Jan 2023 16:51:00 +0100
+Message-Id: <20230116154829.090509290@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,43 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit a92ce570c81dc0feaeb12a429b4bc65686d17967 upstream.
+[ Upstream commit 1aff514e1d2bd47854dbbdf867970b9d463d4c57 ]
 
-The intf_free() function frees the "intf" pointer so we cannot
-dereference it again on the next line.
+If ssi_add_controller() returns error, it should call hsi_put_controller()
+to give up the reference that was set in hsi_alloc_controller(), so that
+it can call hsi_controller_release() to free controller and ports that
+allocated in hsi_alloc_controller().
 
-Fixes: cbb79863fc31 ("ipmi: Don't allow device module unload when in use")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Message-Id: <Y3M8xa1drZv4CToE@kili>
-Cc: <stable@vger.kernel.org> # 5.5+
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c |    4 +++-
+ drivers/hsi/controllers/omap_ssi_core.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -1219,6 +1219,7 @@ static void _ipmi_destroy_user(struct ip
- 	unsigned long    flags;
- 	struct cmd_rcvr  *rcvr;
- 	struct cmd_rcvr  *rcvrs = NULL;
-+	struct module    *owner;
+diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
+index 281fb9b1f219..fa3835ec5104 100644
+--- a/drivers/hsi/controllers/omap_ssi_core.c
++++ b/drivers/hsi/controllers/omap_ssi_core.c
+@@ -538,8 +538,10 @@ static int ssi_probe(struct platform_device *pd)
+ 	platform_set_drvdata(pd, ssi);
  
- 	if (!acquire_ipmi_user(user, &i)) {
- 		/*
-@@ -1278,8 +1279,9 @@ static void _ipmi_destroy_user(struct ip
- 		kfree(rcvr);
- 	}
+ 	err = ssi_add_controller(ssi, pd);
+-	if (err < 0)
++	if (err < 0) {
++		hsi_put_controller(ssi);
+ 		goto out1;
++	}
  
-+	owner = intf->owner;
- 	kref_put(&intf->refcount, intf_free);
--	module_put(intf->owner);
-+	module_put(owner);
- }
+ 	pm_runtime_enable(&pd->dev);
  
- int ipmi_destroy_user(struct ipmi_user *user)
+-- 
+2.35.1
+
 
 
