@@ -2,54 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F6766CB42
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D89CC66CCD8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234074AbjAPRMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:12:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33746 "EHLO
+        id S234853AbjAPR3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234245AbjAPRLm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 186F749037;
-        Mon, 16 Jan 2023 08:52:05 -0800 (PST)
+        with ESMTP id S234817AbjAPR3U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B455529E1A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:06:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A644461018;
-        Mon, 16 Jan 2023 16:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 912F8C433EF;
-        Mon, 16 Jan 2023 16:52:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50F9F60F7C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67FA1C433D2;
+        Mon, 16 Jan 2023 17:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887924;
-        bh=iSqDLD6V+EXFHPEBmFJh4zIKI9zQjbomE3YIKznsP8c=;
+        s=korg; t=1673888804;
+        bh=3YrXqdrA1O6zYakGWdAvTVPymq93bwx+hlktvckr0Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xYEYsn5RcZvwF926sON9mU8NtHH0CSTiIWZkHfkWwGr6s5l4nAxXAH8kqgMQSVT4m
-         5mm2tUgRmBjjr22VY4XQW4tqkTAlGYdsUAtpsEIuKYAKrAwdlSAmj7S3fDiLcGYMDj
-         jln7QbJHqcBbVnhCsdo2iZFKjbpDXyeFa+lZp+Gw=
+        b=X9WFpz/VcEk6E9SCGLqyIysnAlgBsJlFv5ElbYGUeHnQ0m+B6I6XUql97MlECu/ot
+         S4VM9IVMmyhRGvGD2YyuQiFEBHeQHim7GnRyWypskZETRFKgrAKS1cJCON8a0j3nW3
+         r1FERmFpitdNSyw8cqaKR0n1vPQjrs3YfrkLwaPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 4.19 326/521] igb: Do not free q_vector unless new one was allocated
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 115/338] clk: samsung: Fix memory leak in _samsung_clk_register_pll()
 Date:   Mon, 16 Jan 2023 16:49:48 +0100
-Message-Id: <20230116154901.743823137@linuxfoundation.org>
+Message-Id: <20230116154825.855332884@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,50 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 0668716506ca66f90d395f36ccdaebc3e0e84801 ]
+[ Upstream commit 5174e5b0d1b669a489524192b6adcbb3c54ebc72 ]
 
-Avoid potential use-after-free condition under memory pressure. If the
-kzalloc() fails, q_vector will be freed but left in the original
-adapter->q_vector[v_idx] array position.
+If clk_register() fails, @pll->rate_table may have allocated memory by
+kmemdup(), so it needs to be freed, otherwise will cause memory leak
+issue, this patch fixes it.
 
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Cc: Tony Nguyen <anthony.l.nguyen@intel.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: intel-wired-lan@lists.osuosl.org
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 3ff6e0d8d64d ("clk: samsung: Add support to register rate_table for samsung plls")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Link: https://lore.kernel.org/r/20221123032015.63980-1-xiujianfeng@huawei.com
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/clk/samsung/clk-pll.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index 3d2dd15859cb..87f98170ac93 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -1211,8 +1211,12 @@ static int igb_alloc_q_vector(struct igb_adapter *adapter,
- 	if (!q_vector) {
- 		q_vector = kzalloc(size, GFP_KERNEL);
- 	} else if (size > ksize(q_vector)) {
--		kfree_rcu(q_vector, rcu);
--		q_vector = kzalloc(size, GFP_KERNEL);
-+		struct igb_q_vector *new_q_vector;
-+
-+		new_q_vector = kzalloc(size, GFP_KERNEL);
-+		if (new_q_vector)
-+			kfree_rcu(q_vector, rcu);
-+		q_vector = new_q_vector;
- 	} else {
- 		memset(q_vector, 0, size);
+diff --git a/drivers/clk/samsung/clk-pll.c b/drivers/clk/samsung/clk-pll.c
+index 037c61484098..8778425e2e87 100644
+--- a/drivers/clk/samsung/clk-pll.c
++++ b/drivers/clk/samsung/clk-pll.c
+@@ -1392,6 +1392,7 @@ static void __init _samsung_clk_register_pll(struct samsung_clk_provider *ctx,
+ 	if (ret) {
+ 		pr_err("%s: failed to register pll clock %s : %d\n",
+ 			__func__, pll_clk->name, ret);
++		kfree(pll->rate_table);
+ 		kfree(pll);
+ 		return;
  	}
 -- 
 2.35.1
