@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0801566C913
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB12C66C4D3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233781AbjAPQqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:46:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34870 "EHLO
+        id S231683AbjAPP6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:58:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233801AbjAPQpi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D5C72BEFC
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:12 -0800 (PST)
+        with ESMTP id S231787AbjAPP6g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:58:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7B271EFE0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:58:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F13656104F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC01C433F1;
-        Mon, 16 Jan 2023 16:33:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A53F2B8105F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:58:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F30C7C433EF;
+        Mon, 16 Jan 2023 15:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886791;
-        bh=xjQYmfARQnJY1+jSGLas8jXFQIn/IjZC7ndNe5304iQ=;
+        s=korg; t=1673884712;
+        bh=f+B3hQ8bQlLsA4dwkMueRXp6yg389tA+Vx2uaELslVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tsX+4XgxbVxEYa8DycCrNaXgetrr3dx6wLdkDW/2fyJcUOJtm2BUIqbDN6RPiPwgS
-         3H+/lzsgOrSJ85iRGcGuxj1bitr2dDhwO3wNX0CwT1bSj6pLWmyoMfck1qR5U4FzrQ
-         QeFRo6TQzR4x4y30sZXGJk9xwZZwGFkGAObFzBbE=
+        b=XrTgf8a9ouprcjUubNvC+tM2mrDnvdsxNGqWIaZ8ut+kS1W7yM7g8Zr/SQ64KIIM9
+         69FSs2j4uOwVSNUEclkj2mriWjuI+vDvnrpyxymEpkXpfTAJ4+FPZ7feiD7Z7/97yS
+         RIMYeoYQK/jWuPsHTiITsh40NinqbSBdUcapynHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrea Arcangeli <aarcange@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        patches@lists.linux.dev, Andrew Lunn <andrew@lunn.ch>,
+        Biao Huang <biao.huang@mediatek.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 546/658] KVM: x86: optimize more exit handlers in vmx.c
+Subject: [PATCH 6.1 111/183] stmmac: dwmac-mediatek: remove the dwmac_fix_mac_speed
 Date:   Mon, 16 Jan 2023 16:50:34 +0100
-Message-Id: <20230116154934.508827223@linuxfoundation.org>
+Message-Id: <20230116154808.056490493@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Biao Huang <biao.huang@mediatek.com>
 
-[ Upstream commit f399e60c45f6b6e6ad6dfcedff1dd6386e086b0b ]
+[ Upstream commit c26de7507d1f5ffa5daf6a4980ef7896889691a9 ]
 
-Eliminate wasteful call/ret non RETPOLINE case and unnecessary fentry
-dynamic tracing hooking points.
+In current driver, MAC will always enable 2ns delay in RGMII mode,
+but that's not the correct usage.
 
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Stable-dep-of: 31de69f4eea7 ("KVM: nVMX: Properly expose ENABLE_USR_WAIT_PAUSE control to L1")
+Remove the dwmac_fix_mac_speed() in driver, and recommend "rgmii-id"
+for phy-mode in device tree.
+
+Fixes: f2d356a6ab71 ("stmmac: dwmac-mediatek: add support for mt8195")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Biao Huang <biao.huang@mediatek.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 30 +++++-------------------------
- 1 file changed, 5 insertions(+), 25 deletions(-)
+ .../ethernet/stmicro/stmmac/dwmac-mediatek.c  | 26 -------------------
+ 1 file changed, 26 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 52f024eeac3d..0fae9b448ab9 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -4802,7 +4802,7 @@ static int handle_exception_nmi(struct kvm_vcpu *vcpu)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c
+index d42e1afb6521..2f7d8e4561d9 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-mediatek.c
+@@ -90,7 +90,6 @@ struct mediatek_dwmac_plat_data {
+ struct mediatek_dwmac_variant {
+ 	int (*dwmac_set_phy_interface)(struct mediatek_dwmac_plat_data *plat);
+ 	int (*dwmac_set_delay)(struct mediatek_dwmac_plat_data *plat);
+-	void (*dwmac_fix_mac_speed)(void *priv, unsigned int speed);
+ 
+ 	/* clock ids to be requested */
+ 	const char * const *clk_list;
+@@ -443,32 +442,9 @@ static int mt8195_set_delay(struct mediatek_dwmac_plat_data *plat)
  	return 0;
  }
  
--static int handle_external_interrupt(struct kvm_vcpu *vcpu)
-+static __always_inline int handle_external_interrupt(struct kvm_vcpu *vcpu)
- {
- 	++vcpu->stat.irq_exits;
- 	return 1;
-@@ -5074,21 +5074,6 @@ static void vmx_set_dr7(struct kvm_vcpu *vcpu, unsigned long val)
- 	vmcs_writel(GUEST_DR7, val);
- }
+-static void mt8195_fix_mac_speed(void *priv, unsigned int speed)
+-{
+-	struct mediatek_dwmac_plat_data *priv_plat = priv;
+-
+-	if ((phy_interface_mode_is_rgmii(priv_plat->phy_mode))) {
+-		/* prefer 2ns fixed delay which is controlled by TXC_PHASE_CTRL,
+-		 * when link speed is 1Gbps with RGMII interface,
+-		 * Fall back to delay macro circuit for 10/100Mbps link speed.
+-		 */
+-		if (speed == SPEED_1000)
+-			regmap_update_bits(priv_plat->peri_regmap,
+-					   MT8195_PERI_ETH_CTRL0,
+-					   MT8195_RGMII_TXC_PHASE_CTRL |
+-					   MT8195_DLY_GTXC_ENABLE |
+-					   MT8195_DLY_GTXC_INV |
+-					   MT8195_DLY_GTXC_STAGES,
+-					   MT8195_RGMII_TXC_PHASE_CTRL);
+-		else
+-			mt8195_set_delay(priv_plat);
+-	}
+-}
+-
+ static const struct mediatek_dwmac_variant mt8195_gmac_variant = {
+ 	.dwmac_set_phy_interface = mt8195_set_interface,
+ 	.dwmac_set_delay = mt8195_set_delay,
+-	.dwmac_fix_mac_speed = mt8195_fix_mac_speed,
+ 	.clk_list = mt8195_dwmac_clk_l,
+ 	.num_clks = ARRAY_SIZE(mt8195_dwmac_clk_l),
+ 	.dma_bit_mask = 35,
+@@ -619,8 +595,6 @@ static int mediatek_dwmac_common_data(struct platform_device *pdev,
+ 	plat->bsp_priv = priv_plat;
+ 	plat->init = mediatek_dwmac_init;
+ 	plat->clks_config = mediatek_dwmac_clks_config;
+-	if (priv_plat->variant->dwmac_fix_mac_speed)
+-		plat->fix_mac_speed = priv_plat->variant->dwmac_fix_mac_speed;
  
--static int handle_cpuid(struct kvm_vcpu *vcpu)
--{
--	return kvm_emulate_cpuid(vcpu);
--}
--
--static int handle_rdmsr(struct kvm_vcpu *vcpu)
--{
--	return kvm_emulate_rdmsr(vcpu);
--}
--
--static int handle_wrmsr(struct kvm_vcpu *vcpu)
--{
--	return kvm_emulate_wrmsr(vcpu);
--}
--
- static int handle_tpr_below_threshold(struct kvm_vcpu *vcpu)
- {
- 	kvm_apic_update_ppr(vcpu);
-@@ -5105,11 +5090,6 @@ static int handle_interrupt_window(struct kvm_vcpu *vcpu)
- 	return 1;
- }
- 
--static int handle_halt(struct kvm_vcpu *vcpu)
--{
--	return kvm_emulate_halt(vcpu);
--}
--
- static int handle_vmcall(struct kvm_vcpu *vcpu)
- {
- 	return kvm_emulate_hypercall(vcpu);
-@@ -5657,11 +5637,11 @@ static int (*kvm_vmx_exit_handlers[])(struct kvm_vcpu *vcpu) = {
- 	[EXIT_REASON_IO_INSTRUCTION]          = handle_io,
- 	[EXIT_REASON_CR_ACCESS]               = handle_cr,
- 	[EXIT_REASON_DR_ACCESS]               = handle_dr,
--	[EXIT_REASON_CPUID]                   = handle_cpuid,
--	[EXIT_REASON_MSR_READ]                = handle_rdmsr,
--	[EXIT_REASON_MSR_WRITE]               = handle_wrmsr,
-+	[EXIT_REASON_CPUID]                   = kvm_emulate_cpuid,
-+	[EXIT_REASON_MSR_READ]                = kvm_emulate_rdmsr,
-+	[EXIT_REASON_MSR_WRITE]               = kvm_emulate_wrmsr,
- 	[EXIT_REASON_PENDING_INTERRUPT]       = handle_interrupt_window,
--	[EXIT_REASON_HLT]                     = handle_halt,
-+	[EXIT_REASON_HLT]                     = kvm_emulate_halt,
- 	[EXIT_REASON_INVD]		      = handle_invd,
- 	[EXIT_REASON_INVLPG]		      = handle_invlpg,
- 	[EXIT_REASON_RDPMC]                   = handle_rdpmc,
+ 	plat->safety_feat_cfg = devm_kzalloc(&pdev->dev,
+ 					     sizeof(*plat->safety_feat_cfg),
 -- 
 2.35.1
 
