@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC9766CC23
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:22:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E63B66CD92
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234494AbjAPRWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:22:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46330 "EHLO
+        id S235034AbjAPRhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:37:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234530AbjAPRVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:21:42 -0500
+        with ESMTP id S234949AbjAPRhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:06 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F1C2DE68
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:59:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF1E4346F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4432460F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 599C7C433EF;
-        Mon, 16 Jan 2023 16:59:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BDED60F7C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92EBAC433EF;
+        Mon, 16 Jan 2023 17:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888393;
-        bh=/yPHBCgKvE7jBTHJuECjRCM3wpYJJ5IfLHkkPF55u2Y=;
+        s=korg; t=1673889210;
+        bh=rjOrd7XVT6bVrbbuh0li1USyXFXgj3vCXFdnPRVxvF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ec7VS7UnqZRzSZ4+3lPjoRdKFuWKXtZZdBTIl2WIc60hHLHRO3w4dPeUG1U19b3l
-         mt8Bfz4YFNkhErjp2jliRWgbqYSY91dGHGzBpjPyn8a10mIvQv17DwEO4GtooznZb9
-         jpAk2McEC0CF6+U11sTEO1hvuMsazHq7R/KL1t9U=
+        b=HBQ/zo/XT697vqF2YFSj/AHMp1GKWCnnDHSE0xQ0Kp3mRfCu3+w27xaqUrelprtMx
+         UKX5g0JgVeTp9DS2yADaShkTK6cXqI6340TDX/7u4f/KdJmxTR3r4zHteQfDxCgk5e
+         tZ1GLk5LDFeseWgCpuCAsZV//N5GlAx9FKogOyss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Newman <peternewman@google.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Babu Moger <babu.moger@amd.com>, stable@kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 511/521] x86/resctrl: Fix task CLOSID/RMID update race
+        patches@lists.linux.dev,
+        syzbot+98346927678ac3059c77@syzkaller.appspotmail.com,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.14 300/338] ext4: init quota for old.inode in ext4_rename
 Date:   Mon, 16 Jan 2023 16:52:53 +0100
-Message-Id: <20230116154910.069446370@linuxfoundation.org>
+Message-Id: <20230116154834.189873420@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,114 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Newman <peternewman@google.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit fe1f0714385fbcf76b0cbceb02b7277d842014fc ]
+commit fae381a3d79bb94aa2eb752170d47458d778b797 upstream.
 
-When the user moves a running task to a new rdtgroup using the task's
-file interface or by deleting its rdtgroup, the resulting change in
-CLOSID/RMID must be immediately propagated to the PQR_ASSOC MSR on the
-task(s) CPUs.
+Syzbot found the following issue:
+ext4_parse_param: s_want_extra_isize=128
+ext4_inode_info_init: s_want_extra_isize=32
+ext4_rename: old.inode=ffff88823869a2c8 old.dir=ffff888238699828 new.inode=ffff88823869d7e8 new.dir=ffff888238699828
+__ext4_mark_inode_dirty: inode=ffff888238699828 ea_isize=32 want_ea_size=128
+__ext4_mark_inode_dirty: inode=ffff88823869a2c8 ea_isize=32 want_ea_size=128
+ext4_xattr_block_set: inode=ffff88823869a2c8
+------------[ cut here ]------------
+WARNING: CPU: 13 PID: 2234 at fs/ext4/xattr.c:2070 ext4_xattr_block_set.cold+0x22/0x980
+Modules linked in:
+RIP: 0010:ext4_xattr_block_set.cold+0x22/0x980
+RSP: 0018:ffff888227d3f3b0 EFLAGS: 00010202
+RAX: 0000000000000001 RBX: ffff88823007a000 RCX: 0000000000000000
+RDX: 0000000000000a03 RSI: 0000000000000040 RDI: ffff888230078178
+RBP: 0000000000000000 R08: 000000000000002c R09: ffffed1075c7df8e
+R10: ffff8883ae3efc6b R11: ffffed1075c7df8d R12: 0000000000000000
+R13: ffff88823869a2c8 R14: ffff8881012e0460 R15: dffffc0000000000
+FS:  00007f350ac1f740(0000) GS:ffff8883ae200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f350a6ed6a0 CR3: 0000000237456000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ ? ext4_xattr_set_entry+0x3b7/0x2320
+ ? ext4_xattr_block_set+0x0/0x2020
+ ? ext4_xattr_set_entry+0x0/0x2320
+ ? ext4_xattr_check_entries+0x77/0x310
+ ? ext4_xattr_ibody_set+0x23b/0x340
+ ext4_xattr_move_to_block+0x594/0x720
+ ext4_expand_extra_isize_ea+0x59a/0x10f0
+ __ext4_expand_extra_isize+0x278/0x3f0
+ __ext4_mark_inode_dirty.cold+0x347/0x410
+ ext4_rename+0xed3/0x174f
+ vfs_rename+0x13a7/0x2510
+ do_renameat2+0x55d/0x920
+ __x64_sys_rename+0x7d/0xb0
+ do_syscall_64+0x3b/0xa0
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
 
-x86 allows reordering loads with prior stores, so if the task starts
-running between a task_curr() check that the CPU hoisted before the
-stores in the CLOSID/RMID update then it can start running with the old
-CLOSID/RMID until it is switched again because __rdtgroup_move_task()
-failed to determine that it needs to be interrupted to obtain the new
-CLOSID/RMID.
+As 'ext4_rename' will modify 'old.inode' ctime and mark inode dirty,
+which may trigger expand 'extra_isize' and allocate block. If inode
+didn't init quota will lead to warning.  To solve above issue, init
+'old.inode' firstly in 'ext4_rename'.
 
-Refer to the diagram below:
-
-CPU 0                                   CPU 1
------                                   -----
-__rdtgroup_move_task():
-  curr <- t1->cpu->rq->curr
-                                        __schedule():
-                                          rq->curr <- t1
-                                        resctrl_sched_in():
-                                          t1->{closid,rmid} -> {1,1}
-  t1->{closid,rmid} <- {2,2}
-  if (curr == t1) // false
-   IPI(t1->cpu)
-
-A similar race impacts rdt_move_group_tasks(), which updates tasks in a
-deleted rdtgroup.
-
-In both cases, use smp_mb() to order the task_struct::{closid,rmid}
-stores before the loads in task_curr().  In particular, in the
-rdt_move_group_tasks() case, simply execute an smp_mb() on every
-iteration with a matching task.
-
-It is possible to use a single smp_mb() in rdt_move_group_tasks(), but
-this would require two passes and a means of remembering which
-task_structs were updated in the first loop. However, benchmarking
-results below showed too little performance impact in the simple
-approach to justify implementing the two-pass approach.
-
-Times below were collected using `perf stat` to measure the time to
-remove a group containing a 1600-task, parallel workload.
-
-CPU: Intel(R) Xeon(R) Platinum P-8136 CPU @ 2.00GHz (112 threads)
-
-  # mkdir /sys/fs/resctrl/test
-  # echo $$ > /sys/fs/resctrl/test/tasks
-  # perf bench sched messaging -g 40 -l 100000
-
-task-clock time ranges collected using:
-
-  # perf stat rmdir /sys/fs/resctrl/test
-
-Baseline:                     1.54 - 1.60 ms
-smp_mb() every matching task: 1.57 - 1.67 ms
-
-  [ bp: Massage commit message. ]
-
-Fixes: ae28d1aae48a ("x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR")
-Fixes: 0efc89be9471 ("x86/intel_rdt: Update task closid immediately on CPU in rmdir and unmount")
-Signed-off-by: Peter Newman <peternewman@google.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Babu Moger <babu.moger@amd.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/20221220161123.432120-1-peternewman@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+98346927678ac3059c77@syzkaller.appspotmail.com
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221107015335.2524319-1-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/intel_rdt_rdtgroup.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/ext4/namei.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-index 8c405149c671..1125f752f126 100644
---- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-+++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
-@@ -585,8 +585,10 @@ static int __rdtgroup_move_task(struct task_struct *tsk,
- 	/*
- 	 * Ensure the task's closid and rmid are written before determining if
- 	 * the task is current that will decide if it will be interrupted.
-+	 * This pairs with the full barrier between the rq->curr update and
-+	 * resctrl_sched_in() during context switch.
- 	 */
--	barrier();
-+	smp_mb();
- 
- 	/*
- 	 * By now, the task's closid and rmid are set. If the task is current
-@@ -2140,6 +2142,14 @@ static void rdt_move_group_tasks(struct rdtgroup *from, struct rdtgroup *to,
- 			t->closid = to->closid;
- 			t->rmid = to->mon.rmid;
- 
-+			/*
-+			 * Order the closid/rmid stores above before the loads
-+			 * in task_curr(). This pairs with the full barrier
-+			 * between the rq->curr update and resctrl_sched_in()
-+			 * during context switch.
-+			 */
-+			smp_mb();
-+
- 			/*
- 			 * If the task is on a CPU, set the CPU in the mask.
- 			 * The detection is inaccurate as tasks might move or
--- 
-2.35.1
-
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3901,6 +3901,9 @@ static int ext4_cross_rename(struct inod
+ 	retval = dquot_initialize(old.dir);
+ 	if (retval)
+ 		return retval;
++	retval = dquot_initialize(old.inode);
++	if (retval)
++		return retval;
+ 	retval = dquot_initialize(new.dir);
+ 	if (retval)
+ 		return retval;
 
 
