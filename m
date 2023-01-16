@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33D6766C507
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AABF366C93A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231801AbjAPQAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41792 "EHLO
+        id S233581AbjAPQrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:47:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231869AbjAPQAm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9251023645
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:41 -0800 (PST)
+        with ESMTP id S233868AbjAPQq1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C6683028A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3016E61045
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 435A3C433EF;
-        Mon, 16 Jan 2023 16:00:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA03A61077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07242C433EF;
+        Mon, 16 Jan 2023 16:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884840;
-        bh=BLL8NSXUqPQaocHu3FTUWn9hCq929yJSxLlcPAU54Mk=;
+        s=korg; t=1673886870;
+        bh=Oa+7z2CKRvY4h6VGcWvpZBwJOAxMJleX2mSN3Ph7FP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uz9eI1NSSJykF3KWQVsz+LyeEPChvwvYFbB0In+47tNFnpb17fkodOQa3BEcycXTu
-         rfMXWWC6KwU0D03uRkQDeAQen4g6sHP+N4Iw86rAJo72oEwyZc+TFdQZmPWrrKWNfD
-         rcupGoILn+42qW1/3ekFwzv49cjFrVAbJ/wVq3Hg=
+        b=LSG9PZOH35LptKgwHi1gm763oDW3BcmmqLGlN2xrvQF8jXlGaOmFMW4UrLD5yBAEo
+         CHerQbhZSfGhzwVvqRG1BQHkhsFe+BdoMwtdDnU3/IDYt+BZ++hU8HSyEOm6QogCMw
+         2VbUU5Tz7ZPG5EHaBdIEF5SUr+hW5O7QY8Vq6+6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Emeel Hakim <ehakim@nvidia.com>,
-        Raed Salem <raeds@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 159/183] net/mlx5e: Fix macsec ssci attribute handling in offload path
+        patches@lists.linux.dev,
+        syzbot+7bb7cd3595533513a9e7@syzkaller.appspotmail.com,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Matthew Wilcox <willy@infradead.org>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 594/658] hfs/hfsplus: avoid WARN_ON() for sanity check, use proper error handling
 Date:   Mon, 16 Jan 2023 16:51:22 +0100
-Message-Id: <20230116154810.030935498@linuxfoundation.org>
+Message-Id: <20230116154936.653910093@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +57,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emeel Hakim <ehakim@nvidia.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit f5e1ed04aa2ea665a796f0109091ca3f2b01024a ]
+commit cb7a95af78d29442b8294683eca4897544b8ef46 upstream.
 
-Currently when macsec offload is set with extended packet number (epn)
-enabled, the driver wrongly deduce the short secure channel identifier
-(ssci) from the salt instead of the stand alone ssci attribute as it
-should, consequently creating a mismatch between the kernel and driver's
-ssci values.
-Fix by using the ssci value from the relevant attribute.
+Commit 55d1cbbbb29e ("hfs/hfsplus: use WARN_ON for sanity check") fixed
+a build warning by turning a comment into a WARN_ON(), but it turns out
+that syzbot then complains because it can trigger said warning with a
+corrupted hfs image.
 
-Fixes: 4411a6c0abd3 ("net/mlx5e: Support MACsec offload extended packet number (EPN)")
-Signed-off-by: Emeel Hakim <ehakim@nvidia.com>
-Reviewed-by: Raed Salem <raeds@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The warning actually does warn about a bad situation, but we are much
+better off just handling it as the error it is.  So rather than warn
+about us doing bad things, stop doing the bad things and return -EIO.
+
+While at it, also fix a memory leak that was introduced by an earlier
+fix for a similar syzbot warning situation, and add a check for one case
+that historically wasn't handled at all (ie neither comment nor
+subsequent WARN_ON).
+
+Reported-by: syzbot+7bb7cd3595533513a9e7@syzkaller.appspotmail.com
+Fixes: 55d1cbbbb29e ("hfs/hfsplus: use WARN_ON for sanity check")
+Fixes: 8d824e69d9f3 ("hfs: fix OOB Read in __hfs_brec_find")
+Link: https://lore.kernel.org/lkml/000000000000dbce4e05f170f289@google.com/
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en_accel/macsec.c  | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ fs/hfs/inode.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
-index f900709639f6..7c0085ba2fc5 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/macsec.c
-@@ -62,6 +62,7 @@ struct mlx5e_macsec_sa {
- 	u32 enc_key_id;
- 	u32 next_pn;
- 	sci_t sci;
-+	ssci_t ssci;
- 	salt_t salt;
+--- a/fs/hfs/inode.c
++++ b/fs/hfs/inode.c
+@@ -453,15 +453,16 @@ int hfs_write_inode(struct inode *inode,
+ 		/* panic? */
+ 		return -EIO;
  
- 	struct rhash_head hash;
-@@ -499,10 +500,11 @@ mlx5e_macsec_get_macsec_device_context(const struct mlx5e_macsec *macsec,
++	res = -EIO;
+ 	if (HFS_I(main_inode)->cat_key.CName.len > HFS_NAMELEN)
+-		return -EIO;
++		goto out;
+ 	fd.search_key->cat = HFS_I(main_inode)->cat_key;
+ 	if (hfs_brec_find(&fd))
+-		/* panic? */
+ 		goto out;
+ 
+ 	if (S_ISDIR(main_inode->i_mode)) {
+-		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_dir));
++		if (fd.entrylength < sizeof(struct hfs_cat_dir))
++			goto out;
+ 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
+ 			   sizeof(struct hfs_cat_dir));
+ 		if (rec.type != HFS_CDR_DIR ||
+@@ -474,6 +475,8 @@ int hfs_write_inode(struct inode *inode,
+ 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
+ 			    sizeof(struct hfs_cat_dir));
+ 	} else if (HFS_IS_RSRC(inode)) {
++		if (fd.entrylength < sizeof(struct hfs_cat_file))
++			goto out;
+ 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
+ 			       sizeof(struct hfs_cat_file));
+ 		hfs_inode_write_fork(inode, rec.file.RExtRec,
+@@ -481,7 +484,8 @@ int hfs_write_inode(struct inode *inode,
+ 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
+ 				sizeof(struct hfs_cat_file));
+ 	} else {
+-		WARN_ON(fd.entrylength < sizeof(struct hfs_cat_file));
++		if (fd.entrylength < sizeof(struct hfs_cat_file))
++			goto out;
+ 		hfs_bnode_read(fd.bnode, &rec, fd.entryoffset,
+ 			   sizeof(struct hfs_cat_file));
+ 		if (rec.type != HFS_CDR_FIL ||
+@@ -498,9 +502,10 @@ int hfs_write_inode(struct inode *inode,
+ 		hfs_bnode_write(fd.bnode, &rec, fd.entryoffset,
+ 			    sizeof(struct hfs_cat_file));
+ 	}
++	res = 0;
+ out:
+ 	hfs_find_exit(&fd);
+-	return 0;
++	return res;
  }
  
- static void update_macsec_epn(struct mlx5e_macsec_sa *sa, const struct macsec_key *key,
--			      const pn_t *next_pn_halves)
-+			      const pn_t *next_pn_halves, ssci_t ssci)
- {
- 	struct mlx5e_macsec_epn_state *epn_state = &sa->epn_state;
- 
-+	sa->ssci = ssci;
- 	sa->salt = key->salt;
- 	epn_state->epn_enabled = 1;
- 	epn_state->epn_msb = next_pn_halves->upper;
-@@ -550,7 +552,8 @@ static int mlx5e_macsec_add_txsa(struct macsec_context *ctx)
- 	tx_sa->assoc_num = assoc_num;
- 
- 	if (secy->xpn)
--		update_macsec_epn(tx_sa, &ctx_tx_sa->key, &ctx_tx_sa->next_pn_halves);
-+		update_macsec_epn(tx_sa, &ctx_tx_sa->key, &ctx_tx_sa->next_pn_halves,
-+				  ctx_tx_sa->ssci);
- 
- 	err = mlx5_create_encryption_key(mdev, ctx->sa.key, secy->key_len,
- 					 MLX5_ACCEL_OBJ_MACSEC_KEY,
-@@ -945,7 +948,8 @@ static int mlx5e_macsec_add_rxsa(struct macsec_context *ctx)
- 	rx_sa->fs_id = rx_sc->sc_xarray_element->fs_id;
- 
- 	if (ctx->secy->xpn)
--		update_macsec_epn(rx_sa, &ctx_rx_sa->key, &ctx_rx_sa->next_pn_halves);
-+		update_macsec_epn(rx_sa, &ctx_rx_sa->key, &ctx_rx_sa->next_pn_halves,
-+				  ctx_rx_sa->ssci);
- 
- 	err = mlx5_create_encryption_key(mdev, ctx->sa.key, ctx->secy->key_len,
- 					 MLX5_ACCEL_OBJ_MACSEC_KEY,
--- 
-2.35.1
-
+ static struct dentry *hfs_file_lookup(struct inode *dir, struct dentry *dentry,
 
 
