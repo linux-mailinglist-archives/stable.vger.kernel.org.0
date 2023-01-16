@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8378266CB9A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F6766CD19
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234391AbjAPRP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36632 "EHLO
+        id S234929AbjAPRd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:33:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234417AbjAPRPC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF8264C6E8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:36 -0800 (PST)
+        with ESMTP id S234778AbjAPRc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFE4F2E0E9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2509B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05949C433EF;
-        Mon, 16 Jan 2023 16:55:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A1346108D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 694DEC433EF;
+        Mon, 16 Jan 2023 17:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888134;
-        bh=ncR10ObcXnmBEoNAM16monO+RokhQ7VTe0S5BKXjw68=;
+        s=korg; t=1673888953;
+        bh=oqLbCDkQyS4LQO5VytMVXnNKCo3ysbCZrC/FBrkJfRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcu7MUfGUc23IxhKOASLBZeHCSoZkjl+60QYDFzpt9mi7mDSKp72FXiAdXMl4ZCNf
-         S4g8fLVP5whbCM7gJdtDFYNCs7SgWYf4c1mbRNUgap8un0iEaxMaqzBbHQWAXuG3Yu
-         kuxq2CDU/UqlFflLnYqoMfAutkoohDRn24+MEkHg=
+        b=NyegrFchMIp1kO3TdGl04MTAmcZUst35Qs7DUKCDo7+O8WFB913ceVDi2pZ+745Sc
+         KVClb3lyjOfzW1pKhDy9hJVK59pZJWsjmajzs6kzatm/3kHChK+KhE26ORT16jodew
+         KM9KG8YvwN6H+6T4Stk37lm0YyvycIlYZ9GNqr+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Sandeen <sandeen@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.19 413/521] ext4: avoid BUG_ON when creating xattrs
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 202/338] selftests/powerpc: Fix resource leaks
 Date:   Mon, 16 Jan 2023 16:51:15 +0100
-Message-Id: <20230116154905.585203777@linuxfoundation.org>
+Message-Id: <20230116154829.782404978@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit b40ebaf63851b3a401b0dc9263843538f64f5ce6 upstream.
+[ Upstream commit 8f4ab7da904ab7027ccd43ddb4f0094e932a5877 ]
 
-Commit fb0a387dcdcd ("ext4: limit block allocations for indirect-block
-files to < 2^32") added code to try to allocate xattr block with 32-bit
-block number for indirect block based files on the grounds that these
-files cannot use larger block numbers. It also added BUG_ON when
-allocated block could not fit into 32 bits. This is however bogus
-reasoning because xattr block is stored in inode->i_file_acl and
-inode->i_file_acl_hi and as such even indirect block based files can
-happily use full 48 bits for xattr block number. The proper handling
-seems to be there basically since 64-bit block number support was added.
-So remove the bogus limitation and BUG_ON.
+In check_all_cpu_dscr_defaults, opendir() opens the directory stream.
+Add missing closedir() in the error path to release it.
 
-Cc: Eric Sandeen <sandeen@redhat.com>
-Fixes: fb0a387dcdcd ("ext4: limit block allocations for indirect-block files to < 2^32")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221121130929.32031-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In check_cpu_dscr_default, open() creates an open file descriptor.
+Add missing close() in the error path to release it.
+
+Fixes: ebd5858c904b ("selftests/powerpc: Add test for all DSCR sysfs interfaces")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221205084429.570654-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c |    8 --------
- 1 file changed, 8 deletions(-)
+ tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -2070,19 +2070,11 @@ inserted:
+diff --git a/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c b/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c
+index 17fb1b43c320..d6fb6f1125f9 100644
+--- a/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c
++++ b/tools/testing/selftests/powerpc/dscr/dscr_sysfs_test.c
+@@ -27,6 +27,7 @@ static int check_cpu_dscr_default(char *file, unsigned long val)
+ 	rc = read(fd, buf, sizeof(buf));
+ 	if (rc == -1) {
+ 		perror("read() failed");
++		close(fd);
+ 		return 1;
+ 	}
+ 	close(fd);
+@@ -64,8 +65,10 @@ static int check_all_cpu_dscr_defaults(unsigned long val)
+ 		if (access(file, F_OK))
+ 			continue;
  
- 			goal = ext4_group_first_block_no(sb,
- 						EXT4_I(inode)->i_block_group);
--
--			/* non-extent files can't have physical blocks past 2^32 */
--			if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
--				goal = goal & EXT4_MAX_BLOCK_FILE_PHYS;
--
- 			block = ext4_new_meta_blocks(handle, inode, goal, 0,
- 						     NULL, &error);
- 			if (error)
- 				goto cleanup;
- 
--			if (!(ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS)))
--				BUG_ON(block > EXT4_MAX_BLOCK_FILE_PHYS);
--
- 			ea_idebug(inode, "creating block %llu",
- 				  (unsigned long long)block);
- 
+-		if (check_cpu_dscr_default(file, val))
++		if (check_cpu_dscr_default(file, val)) {
++			closedir(sysfs);
+ 			return 1;
++		}
+ 	}
+ 	closedir(sysfs);
+ 	return 0;
+-- 
+2.35.1
+
 
 
