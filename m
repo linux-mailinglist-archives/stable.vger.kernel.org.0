@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 236CE66C605
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:13:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2D6466C56A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232861AbjAPQNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:13:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59536 "EHLO
+        id S232360AbjAPQFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:05:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232025AbjAPQMr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:12:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2529B2B29C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:51 -0800 (PST)
+        with ESMTP id S232151AbjAPQFI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:05:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E97124480
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B58C060FDF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C86EAC433EF;
-        Mon, 16 Jan 2023 16:07:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13F40B80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75473C433D2;
+        Mon, 16 Jan 2023 16:03:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885270;
-        bh=umQjfgcVdDPx000jvkzEuxnQzuCBxzj6IRiqKzqPEoo=;
+        s=korg; t=1673885023;
+        bh=cMUV+0rexTPjeMjaEKnfHP+cJEkFgXqd2FS4IWcfO0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X15w29E+GFclXMDoOrbgOszZk3g8X61DsVnitCp4uC29qhy7A4CsWscDemd87O4AN
-         6MSU9P+tMJ8bm08kqgxXciyCQW+qTYBhngcS8oWsAGQAQrA+Tsl1BinzrmUSyqJqsM
-         lrfNFFDjKjJtrkdb6y2THELnEyOFURaEnx8QICIQ=
+        b=f6C+FQ4wO/5mFGv8Q7c4RzRHLTZIZdod+Fa5JjKoqKzJB4x+q6z+UA1xZXEsThUdv
+         aPXNT65N9TYDXyku/93m7+EtTvl+TbPcYadxa/ovOSbOAOe/HMiehNN/wlk7AWKDZ8
+         YvBFjy//31eV4qgS/plrFecxDeO6OfVIBN2dgIIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Subject: [PATCH 5.10 13/64] drm/msm/dp: do not complete dp_aux_cmd_fifo_tx() if irq is not for aux transfer
+        patches@lists.linux.dev,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 46/86] scsi: mpi3mr: Refer CONFIG_SCSI_MPI3MR in Makefile
 Date:   Mon, 16 Jan 2023 16:51:20 +0100
-Message-Id: <20230116154744.104217733@linuxfoundation.org>
+Message-Id: <20230116154748.986348913@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-commit 1cba0d150fa102439114a91b3e215909efc9f169 upstream.
+[ Upstream commit f0a43ba6c66cc0688e2748d986a1459fdd3442ef ]
 
-There are 3 possible interrupt sources are handled by DP controller,
-HPDstatus, Controller state changes and Aux read/write transaction.
-At every irq, DP controller have to check isr status of every interrupt
-sources and service the interrupt if its isr status bits shows interrupts
-are pending. There is potential race condition may happen at current aux
-isr handler implementation since it is always complete dp_aux_cmd_fifo_tx()
-even irq is not for aux read or write transaction. This may cause aux read
-transaction return premature if host aux data read is in the middle of
-waiting for sink to complete transferring data to host while irq happen.
-This will cause host's receiving buffer contains unexpected data. This
-patch fixes this problem by checking aux isr and return immediately at
-aux isr handler if there are no any isr status bits set.
+When Kconfig item CONFIG_SCSI_MPI3MR was introduced for mpi3mr driver, the
+Makefile of the driver was not modified to refer the Kconfig item.
 
-Current there is a bug report regrading eDP edid corruption happen during
-system booting up. After lengthy debugging to found that VIDEO_READY
-interrupt was continuously firing during system booting up which cause
-dp_aux_isr() to complete dp_aux_cmd_fifo_tx() prematurely to retrieve data
-from aux hardware buffer which is not yet contains complete data transfer
-from sink. This cause edid corruption.
+As a result, mpi3mr.ko is built regardless of the Kconfig item value y or
+m. Also, if 'make localmodconfig' can not find the Kconfig item in the
+Makefile, then it does not generate CONFIG_SCSI_MPI3MR=m even when
+mpi3mr.ko is loaded on the system.
 
-Follows are the signature at kernel logs when problem happen,
-EDID has corrupt header
-panel-simple-dp-aux aux-aea0000.edp: Couldn't identify panel via EDID
+Refer to the Kconfig item to avoid the issues.
 
-Changes in v2:
--- do complete if (ret == IRQ_HANDLED) ay dp-aux_isr()
--- add more commit text
-
-Changes in v3:
--- add Stephen suggested
--- dp_aux_isr() return IRQ_XXX back to caller
--- dp_ctrl_isr() return IRQ_XXX back to caller
-
-Changes in v4:
--- split into two patches
-
-Changes in v5:
--- delete empty line between tags
-
-Changes in v6:
--- remove extra "that" and fixed line more than 75 char at commit text
-
-Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/516121/
-Link: https://lore.kernel.org/r/1672193785-11003-2-git-send-email-quic_khsieh@quicinc.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c4f7ac64616e ("scsi: mpi3mr: Add mpi30 Rev-R headers and Kconfig")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Link: https://lore.kernel.org/r/20221207023659.2411785-1-shinichiro.kawasaki@wdc.com
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_aux.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/mpi3mr/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/msm/dp/dp_aux.c
-+++ b/drivers/gpu/drm/msm/dp/dp_aux.c
-@@ -423,6 +423,10 @@ void dp_aux_isr(struct drm_dp_aux *dp_au
- 
- 	aux->isr = dp_catalog_aux_get_irq(aux->catalog);
- 
-+	/* no interrupts pending, return immediately */
-+	if (!isr)
-+		return;
-+
- 	if (!aux->cmd_busy)
- 		return;
- 
+diff --git a/drivers/scsi/mpi3mr/Makefile b/drivers/scsi/mpi3mr/Makefile
+index 7c2063e04c81..7ebca0ba538d 100644
+--- a/drivers/scsi/mpi3mr/Makefile
++++ b/drivers/scsi/mpi3mr/Makefile
+@@ -1,4 +1,4 @@
+ # mpi3mr makefile
+-obj-m += mpi3mr.o
++obj-$(CONFIG_SCSI_MPI3MR) += mpi3mr.o
+ mpi3mr-y +=  mpi3mr_os.o     \
+ 		mpi3mr_fw.o \
+-- 
+2.35.1
+
 
 
