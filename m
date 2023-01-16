@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7500966C709
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F248F66C6DF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233126AbjAPQ1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:27:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
+        id S233057AbjAPQZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:25:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233114AbjAPQ1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A03D27D69
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:23 -0800 (PST)
+        with ESMTP id S232540AbjAPQZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:25:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BABA02B0B7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:14:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 140F961040
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C8A0C433EF;
-        Mon, 16 Jan 2023 16:15:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 575EF61041
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:14:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F13C433EF;
+        Mon, 16 Jan 2023 16:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885722;
-        bh=XwkNTwjSvQjpEK++AbypaoT6FLRgWOSlRngm363nkMY=;
+        s=korg; t=1673885645;
+        bh=HrwjVQla4aOqoFdGehGkcw3KMih8UyiyIA88yo2Wrck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kc9JEFJzZHPc5++gjC0rDwaA9fy5JIcx3zypw5hz+zAI0k3BZXU+uwe8g4qGsGwPV
-         NXC1cQwF0eI9yiryfyZ9ffotm+ZO1lMcPR154hwVqj534NS7ND3AScH3zvwfmBZg2k
-         Ryf+lAEkJXyE9/p0AfABo2234vIVOUniCeLkbv5M=
+        b=iCxmU67Ozvt1ytY7I3/+HIvGw3HwtJwGnFF5q4xOObCBlPAbEoicB742DPyp72aBm
+         FTg8dMTTEG3e8AofVIJA1BEpMFpb/PWJItd8l3sJBFvrc5VYChX/mHa/v8XD0+Dd4Z
+         UID1MWWmCy6887w8thYfla+SVbdw3VoANvOrAjM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 130/658] regulator: core: fix unbalanced of node refcount in regulator_dev_lookup()
-Date:   Mon, 16 Jan 2023 16:43:38 +0100
-Message-Id: <20230116154915.394303028@linuxfoundation.org>
+Subject: [PATCH 5.4 131/658] amdgpu/pm: prevent array underflow in vega20_odn_edit_dpm_table()
+Date:   Mon, 16 Jan 2023 16:43:39 +0100
+Message-Id: <20230116154915.441995863@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,39 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit f2b41b748c19962b82709d9f23c6b2b0ce9d2f91 ]
+[ Upstream commit d27252b5706e51188aed7647126e44dcf9e940c1 ]
 
-I got the the following report:
+In the PP_OD_EDIT_VDDC_CURVE case the "input_index" variable is capped at
+2 but not checked for negative values so it results in an out of bounds
+read.  This value comes from the user via sysfs.
 
-  OF: ERROR: memory leak, expected refcount 1 instead of 2,
-  of_node_get()/of_node_put() unbalanced - destroy cset entry:
-  attach overlay node /i2c/pmic@62/regulators/exten
-
-In of_get_regulator(), the node is returned from of_parse_phandle()
-with refcount incremented, after using it, of_node_put() need be called.
-
-Fixes: 69511a452e6d ("regulator: map consumer regulator based on device tree")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221115091508.900752-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d5bf26539494 ("drm/amd/powerplay: added vega20 overdrive support V3")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 7d15312d6792..ee71dcb009bf 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -1734,6 +1734,7 @@ static struct regulator_dev *regulator_dev_lookup(struct device *dev,
- 		node = of_get_regulator(dev, supply);
- 		if (node) {
- 			r = of_find_regulator_by_node(node);
-+			of_node_put(node);
- 			if (r)
- 				return r;
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c
+index 947e4fa3c5e6..d499add3601a 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega20_hwmgr.c
+@@ -2894,7 +2894,8 @@ static int vega20_odn_edit_dpm_table(struct pp_hwmgr *hwmgr,
+ 			data->od8_settings.od8_settings_array;
+ 	OverDriveTable_t *od_table =
+ 			&(data->smc_state_table.overdrive_table);
+-	int32_t input_index, input_clk, input_vol, i;
++	int32_t input_clk, input_vol, i;
++	uint32_t input_index;
+ 	int od8_id;
+ 	int ret;
  
 -- 
 2.35.1
