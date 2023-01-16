@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6759A66C4E5
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:59:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F4EB66C53E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:03:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231771AbjAPP7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:59:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41806 "EHLO
+        id S232127AbjAPQDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:03:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231879AbjAPP7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA01023863
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:16 -0800 (PST)
+        with ESMTP id S232155AbjAPQDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:03:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA772333A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88662B81062
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1938C433D2;
-        Mon, 16 Jan 2023 15:59:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E431EB81057
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47E4FC433D2;
+        Mon, 16 Jan 2023 16:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884754;
-        bh=fBPw6wHm0PkbjDtv7q3sa3E5Z1clejdlt5ASskLGZbk=;
+        s=korg; t=1673884942;
+        bh=XalcQgvmaKEiJxgess2rg5blO9B8KGoVgxoeRmUeb4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQ2JhR1FuA/hKXvAjZIe1tjmamWHu/pvncn7IAwj3nLcPchQZ3utt14Deoy+yWbls
-         jXo3/m+5ZbZaZP0QKT2beR43U4ctN1y/sl41qUVTP84JMNqmHB6B4pnBp3nS2zaOTF
-         0XG8SnK0DJoChU9keJ9puZSC7qEKkkENzFToPKtQ=
+        b=TDoMWZGrjYrp4PeixwBDotVezU3Aio3MvjMv9K78ioIs1tyTE1SFsfMkbK9r/Qthc
+         WVWla/9bwWefVFN/+LgDiY6BzbqIn38zmtak8kpCyfMBkne5Le35h4rpjwId7TQ8M4
+         5yJiTseUw651RebvCWB1hBjF/EV6D24T+zSHaG9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 126/183] block: fix error unwinding in blk_register_queue
+        patches@lists.linux.dev,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.15 15/86] s390/percpu: add READ_ONCE() to arch_this_cpu_to_op_simple()
 Date:   Mon, 16 Jan 2023 16:50:49 +0100
-Message-Id: <20230116154808.708477555@linuxfoundation.org>
+Message-Id: <20230116154747.708592932@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,101 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 40602997be26887bdfa3d58659c3acb4579099e9 ]
+commit e3f360db08d55a14112bd27454e616a24296a8b0 upstream.
 
-blk_register_queue fails to handle errors from blk_mq_sysfs_register,
-leaks various resources on errors and accidentally sets queue refs percpu
-refcount to percpu mode on kobject_add failure.  Fix all that by
-properly unwinding on errors.
+Make sure that *ptr__ within arch_this_cpu_to_op_simple() is only
+dereferenced once by using READ_ONCE(). Otherwise the compiler could
+generate incorrect code.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20221114042637.1009333-4-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 49e4d04f0486 ("block: Drop spurious might_sleep() from blk_put_queue()")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-sysfs.c | 28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ arch/s390/include/asm/percpu.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index 3d6951a0b4e7..1631ba2f7259 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -820,13 +820,15 @@ int blk_register_queue(struct gendisk *disk)
- 	int ret;
- 
- 	mutex_lock(&q->sysfs_dir_lock);
--
- 	ret = kobject_add(&q->kobj, &disk_to_dev(disk)->kobj, "queue");
- 	if (ret < 0)
--		goto unlock;
-+		goto out_unlock_dir;
- 
--	if (queue_is_mq(q))
--		blk_mq_sysfs_register(disk);
-+	if (queue_is_mq(q)) {
-+		ret = blk_mq_sysfs_register(disk);
-+		if (ret)
-+			goto out_del_queue_kobj;
-+	}
- 	mutex_lock(&q->sysfs_lock);
- 
- 	mutex_lock(&q->debugfs_mutex);
-@@ -838,17 +840,17 @@ int blk_register_queue(struct gendisk *disk)
- 
- 	ret = disk_register_independent_access_ranges(disk);
- 	if (ret)
--		goto put_dev;
-+		goto out_debugfs_remove;
- 
- 	if (q->elevator) {
- 		ret = elv_register_queue(q, false);
- 		if (ret)
--			goto put_dev;
-+			goto out_unregister_ia_ranges;
- 	}
- 
- 	ret = blk_crypto_sysfs_register(disk);
- 	if (ret)
--		goto put_dev;
-+		goto out_elv_unregister;
- 
- 	blk_queue_flag_set(QUEUE_FLAG_REGISTERED, q);
- 	wbt_enable_default(q);
-@@ -859,8 +861,6 @@ int blk_register_queue(struct gendisk *disk)
- 	if (q->elevator)
- 		kobject_uevent(&q->elevator->kobj, KOBJ_ADD);
- 	mutex_unlock(&q->sysfs_lock);
--
--unlock:
- 	mutex_unlock(&q->sysfs_dir_lock);
- 
- 	/*
-@@ -879,13 +879,17 @@ int blk_register_queue(struct gendisk *disk)
- 
- 	return ret;
- 
--put_dev:
-+out_elv_unregister:
- 	elv_unregister_queue(q);
-+out_unregister_ia_ranges:
- 	disk_unregister_independent_access_ranges(disk);
-+out_debugfs_remove:
-+	blk_debugfs_remove(disk);
- 	mutex_unlock(&q->sysfs_lock);
--	mutex_unlock(&q->sysfs_dir_lock);
-+out_del_queue_kobj:
- 	kobject_del(&q->kobj);
--
-+out_unlock_dir:
-+	mutex_unlock(&q->sysfs_dir_lock);
- 	return ret;
- }
- 
--- 
-2.35.1
-
+--- a/arch/s390/include/asm/percpu.h
++++ b/arch/s390/include/asm/percpu.h
+@@ -31,7 +31,7 @@
+ 	pcp_op_T__ *ptr__;						\
+ 	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+-	prev__ = *ptr__;						\
++	prev__ = READ_ONCE(*ptr__);					\
+ 	do {								\
+ 		old__ = prev__;						\
+ 		new__ = old__ op (val);					\
 
 
