@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C2366C84E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:37:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4082F66C84F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:37:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233507AbjAPQhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:37:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52156 "EHLO
+        id S233607AbjAPQhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:37:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233401AbjAPQhK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:37:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A0E2749A;
-        Mon, 16 Jan 2023 08:26:14 -0800 (PST)
+        with ESMTP id S233576AbjAPQhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:37:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8F3923D86
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:26:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54523B8107A;
-        Mon, 16 Jan 2023 16:26:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88AE7C433D2;
-        Mon, 16 Jan 2023 16:26:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 452A46105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C574C433EF;
+        Mon, 16 Jan 2023 16:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886372;
-        bh=ywgGkH8Qqdh/4psfKW+9USpddiJwmFwH+GLzJj1MPVA=;
+        s=korg; t=1673886374;
+        bh=9oiWed+y+dylobj+KkpI5BF0iQt4WrsPE7rg2K5NE2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h76yYS3YWHdCQvTFQJCiWV8JcqQkc65SOgwBie/RnSUEtVcTJMEbCqRUB7oLbEf7a
-         m9WsgsaUaGCGQicP93lB20E27gdIDMDIOGKahAnyP0ZeJ2LYrgnyl6/XQ7o1RKNM3B
-         oBSweEdnvKwoXIsfTV9Qy4S0tTiF4XreEeYSLF5k=
+        b=tFUjbAy7DpK7Ry3FWjJwpjmTz0LZM1/Dh1/grc/p8pO5shqMCT3oYZKXKBTsDd1g9
+         9RAzbD/ONuerVZvUY2cgUNN3V99Tz85gCIJiXXV1WoPuTiZC+uSW0f8jUQ/lELkscw
+         23xddso4xBu2RIAsv8OGA/E0pZZo/57qAYqQIa7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
         Kees Cook <keescook@chromium.org>,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.4 405/658] igb: Do not free q_vector unless new one was allocated
-Date:   Mon, 16 Jan 2023 16:48:13 +0100
-Message-Id: <20230116154928.123666319@linuxfoundation.org>
+        Nathan Chancellor <nathan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 406/658] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+Date:   Mon, 16 Jan 2023 16:48:14 +0100
+Message-Id: <20230116154928.174259692@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -63,51 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 0668716506ca66f90d395f36ccdaebc3e0e84801 ]
+[ Upstream commit aa5bf80c3c067b82b4362cd6e8e2194623bcaca6 ]
 
-Avoid potential use-after-free condition under memory pressure. If the
-kzalloc() fails, q_vector will be freed but left in the original
-adapter->q_vector[v_idx] array position.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Cc: Tony Nguyen <anthony.l.nguyen@intel.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: intel-wired-lan@lists.osuosl.org
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+  drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcm_tx,
+                                    ^~~~~~~
+  drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = ctcmpc_tx,
+                                    ^~~~~~~~~
+
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
+match the prototype's to resolve the warning and potential CFI failure,
+should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
+
+Additionally, while in the area, remove a comment block that is no
+longer relevant.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/s390/net/ctcm_main.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index 37f174b41df3..10b16c292541 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -1213,8 +1213,12 @@ static int igb_alloc_q_vector(struct igb_adapter *adapter,
- 	if (!q_vector) {
- 		q_vector = kzalloc(size, GFP_KERNEL);
- 	} else if (size > ksize(q_vector)) {
--		kfree_rcu(q_vector, rcu);
--		q_vector = kzalloc(size, GFP_KERNEL);
-+		struct igb_q_vector *new_q_vector;
-+
-+		new_q_vector = kzalloc(size, GFP_KERNEL);
-+		if (new_q_vector)
-+			kfree_rcu(q_vector, rcu);
-+		q_vector = new_q_vector;
- 	} else {
- 		memset(q_vector, 0, size);
- 	}
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 437a6d822105..87d05b13fbd5 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -865,16 +865,9 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
+ /**
+  * Start transmission of a packet.
+  * Called from generic network device layer.
+- *
+- *  skb		Pointer to buffer containing the packet.
+- *  dev		Pointer to interface struct.
+- *
+- * returns 0 if packet consumed, !0 if packet rejected.
+- *         Note: If we return !0, then the packet is free'd by
+- *               the generic network layer.
+  */
+ /* first merge version - leaving both functions separated */
+-static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct ctcm_priv *priv = dev->ml_priv;
+ 
+@@ -917,7 +910,7 @@ static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+ }
+ 
+ /* unmerged MPC variant of ctcm_tx */
+-static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	int len = 0;
+ 	struct ctcm_priv *priv = dev->ml_priv;
 -- 
 2.35.1
 
