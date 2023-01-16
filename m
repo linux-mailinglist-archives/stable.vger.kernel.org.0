@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6557766CC61
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ADD966CAE7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234677AbjAPRZe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46322 "EHLO
+        id S231322AbjAPRJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234697AbjAPRZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:25:16 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6EF95A364
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:16 -0800 (PST)
+        with ESMTP id S233051AbjAPRIF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9847942DE8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2BACCCE1230
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A69C433EF;
-        Mon, 16 Jan 2023 17:02:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3977AB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D67C433EF;
+        Mon, 16 Jan 2023 16:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888533;
-        bh=R5m+meuX56lK8qqvJMnFyVFAEiJUbiZ90m0DHPeDlvY=;
+        s=korg; t=1673887712;
+        bh=IoBwvQBfnAWsNK+WzDnaiuMJlvW27xC2l5fId9zx01M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ggh3bWZXFL6mrqNrrhggTdUYjwmNxH+7/0ymhLU6ivKZWo50rZNkZKTasCdsUABle
-         Rtzsms4dBGcfrjBgV44cPSdhc3tDunCKZuB1cSPlazLdZ17jUn9j/jMIFzv/MJw8mZ
-         mQ6IroT8zKi1Hxzbr+kISvI3Il61/l+iH29oBo0M=
+        b=wb3sk+Entn5ewQpJTMbgneyq2QzbojD7MQSSoBY964UdJBfLNX2Q3HvQ+fAvhzbbT
+         xb6xGSq3zzfAGcJIy9wxVzw9D40AxqCYdbtk8cZQUBncAJIMMzeEPtUleiAKN0kxQ/
+         i+rvcIjqqHrVUNQgCF6Un58pKjKAnKWUVYfNZ1cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 041/338] cpuidle: dt: Return the correct numbers of parsed idle states
-Date:   Mon, 16 Jan 2023 16:48:34 +0100
-Message-Id: <20230116154822.575465503@linuxfoundation.org>
+Subject: [PATCH 4.19 253/521] samples: vfio-mdev: Fix missing pci_disable_device() in mdpy_fb_probe()
+Date:   Mon, 16 Jan 2023 16:48:35 +0100
+Message-Id: <20230116154858.450410487@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit ee3c2c8ad6ba6785f14a60e4081d7c82e88162a2 ]
+[ Upstream commit d1f0f50fbbbbca1e3e8157e51934613bf88f6d44 ]
 
-While we correctly skips to initialize an idle state from a disabled idle
-state node in DT, the returned value from dt_init_idle_driver() don't get
-adjusted accordingly. Instead the number of found idle state nodes are
-returned, while the callers are expecting the number of successfully
-initialized idle states from DT.
+Add missing pci_disable_device() in fail path of mdpy_fb_probe().
+Besides, fix missing release functions in mdpy_fb_remove().
 
-This leads to cpuidle drivers unnecessarily continues to initialize their
-idle state specific data. Moreover, in the case when all idle states have
-been disabled in DT, we would end up registering a cpuidle driver, rather
-than relying on the default arch specific idle call.
-
-Fixes: 9f14da345599 ("drivers: cpuidle: implement DT based idle states infrastructure")
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: cacade1946a4 ("sample: vfio mdev display - guest driver")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Link: https://lore.kernel.org/r/20221208013341.3999-1-shangxiaojing@huawei.com
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/dt_idle_states.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ samples/vfio-mdev/mdpy-fb.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpuidle/dt_idle_states.c b/drivers/cpuidle/dt_idle_states.c
-index 53342b7f1010..ea3c59d3fdad 100644
---- a/drivers/cpuidle/dt_idle_states.c
-+++ b/drivers/cpuidle/dt_idle_states.c
-@@ -224,6 +224,6 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
- 	 * also be 0 on platforms with missing DT idle states or legacy DT
- 	 * configuration predating the DT idle states bindings.
- 	 */
--	return i;
-+	return state_idx - start_idx;
+diff --git a/samples/vfio-mdev/mdpy-fb.c b/samples/vfio-mdev/mdpy-fb.c
+index a760e130bd0d..8ad1aa13ddd9 100644
+--- a/samples/vfio-mdev/mdpy-fb.c
++++ b/samples/vfio-mdev/mdpy-fb.c
+@@ -109,7 +109,7 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
+ 
+ 	ret = pci_request_regions(pdev, "mdpy-fb");
+ 	if (ret < 0)
+-		return ret;
++		goto err_disable_dev;
+ 
+ 	pci_read_config_dword(pdev, MDPY_FORMAT_OFFSET, &format);
+ 	pci_read_config_dword(pdev, MDPY_WIDTH_OFFSET,	&width);
+@@ -191,6 +191,9 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
+ err_release_regions:
+ 	pci_release_regions(pdev);
+ 
++err_disable_dev:
++	pci_disable_device(pdev);
++
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(dt_init_idle_driver);
+ 
+@@ -199,7 +202,10 @@ static void mdpy_fb_remove(struct pci_dev *pdev)
+ 	struct fb_info *info = pci_get_drvdata(pdev);
+ 
+ 	unregister_framebuffer(info);
++	iounmap(info->screen_base);
+ 	framebuffer_release(info);
++	pci_release_regions(pdev);
++	pci_disable_device(pdev);
+ }
+ 
+ static struct pci_device_id mdpy_fb_pci_table[] = {
 -- 
 2.35.1
 
