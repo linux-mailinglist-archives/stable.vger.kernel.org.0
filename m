@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E0F066C70A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADD2066C6DE
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:25:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233149AbjAPQ1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:27:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
+        id S233054AbjAPQZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:25:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233127AbjAPQ1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2227027D66
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:26 -0800 (PST)
+        with ESMTP id S233058AbjAPQZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:25:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2054A2B2AD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:14:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0FC860FDF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5FD5C433F0;
-        Mon, 16 Jan 2023 16:15:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEFEE61031
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:14:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C435DC433EF;
+        Mon, 16 Jan 2023 16:14:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885725;
-        bh=Y9S/adRlmr/fyLsuYoWQk0+mu1ilzxeFTn/rLDWyXgE=;
+        s=korg; t=1673885643;
+        bh=aFBB8ySts1CB76SBPlZ0R2XMtuLtItuo46tCJd7e6Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/RDx85xsZtskfvPwBV5HswG024/RjyNJXfSgoLNF4dfB0gZ4fmT00O44lmxVsW3b
-         /PfhonKmfPvy6omfQnO/u253jQqGW2WjfViTdNjpILw6moNUn25j9NLIWnVEKrahJ9
-         83bv6bsiJelRA+rZm3UZYE8/zro1QQ88/VLCFk8Q=
+        b=0qTBveyi6aTlsvQA5X7V8XfL++D5ZzUOcn/QDop3pmo7qi/tp5kB7Og+8wnOHoLIy
+         nhV1PBR0H2ZAdJFxWULEjPyU3VBF7VOOjYrA5ZSZWtX4cQXPg7TTIVR6ippfkIHXAq
+         ztHT/LohOInLutf6F5s1W60reiyWo7TPpKuZO7V0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 121/658] bpf: propagate precision in ALU/ALU64 operations
-Date:   Mon, 16 Jan 2023 16:43:29 +0100
-Message-Id: <20230116154915.012487359@linuxfoundation.org>
+Subject: [PATCH 5.4 122/658] mtd: Fix device name leak when register device failed in add_mtd_device()
+Date:   Mon, 16 Jan 2023 16:43:30 +0100
+Message-Id: <20230116154915.046436315@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,87 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit a3b666bfa9c9edc05bca62a87abafe0936bd7f97 ]
+[ Upstream commit 895d68a39481a75c680aa421546931fb11942fa6 ]
 
-When processing ALU/ALU64 operations (apart from BPF_MOV, which is
-handled correctly already; and BPF_NEG and BPF_END are special and don't
-have source register), if destination register is already marked
-precise, this causes problem with potentially missing precision tracking
-for the source register. E.g., when we have r1 >>= r5 and r1 is marked
-precise, but r5 isn't, this will lead to r5 staying as imprecise. This
-is due to the precision backtracking logic stopping early when it sees
-r1 is already marked precise. If r1 wasn't precise, we'd keep
-backtracking and would add r5 to the set of registers that need to be
-marked precise. So there is a discrepancy here which can lead to invalid
-and incompatible states matched due to lack of precision marking on r5.
-If r1 wasn't precise, precision backtracking would correctly mark both
-r1 and r5 as precise.
+There is a kmemleak when register device failed:
+  unreferenced object 0xffff888101aab550 (size 8):
+    comm "insmod", pid 3922, jiffies 4295277753 (age 925.408s)
+    hex dump (first 8 bytes):
+      6d 74 64 30 00 88 ff ff                          mtd0....
+    backtrace:
+      [<00000000bde26724>] __kmalloc_node_track_caller+0x4e/0x150
+      [<000000003c32b416>] kvasprintf+0xb0/0x130
+      [<000000001f7a8f15>] kobject_set_name_vargs+0x2f/0xb0
+      [<000000006e781163>] dev_set_name+0xab/0xe0
+      [<00000000e30d0c78>] add_mtd_device+0x4bb/0x700
+      [<00000000f3d34de7>] mtd_device_parse_register+0x2ac/0x3f0
+      [<00000000c0d88488>] 0xffffffffa0238457
+      [<00000000b40d0922>] 0xffffffffa02a008f
+      [<0000000023d17b9d>] do_one_initcall+0x87/0x2a0
+      [<00000000770f6ca6>] do_init_module+0xdf/0x320
+      [<000000007b6768fe>] load_module+0x2f98/0x3330
+      [<00000000346bed5a>] __do_sys_finit_module+0x113/0x1b0
+      [<00000000674c2290>] do_syscall_64+0x35/0x80
+      [<000000004c6a8d97>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-This is simple to fix, though. During the forward instruction simulation
-pass, for arithmetic operations of `scalar <op>= scalar` form (where
-<op> is ALU or ALU64 operations), if destination register is already
-precise, mark source register as precise. This applies only when both
-involved registers are SCALARs. `ptr += scalar` and `scalar += ptr`
-cases are already handled correctly.
+If register device failed, should call put_device() to give up the
+reference.
 
-This does have (negative) effect on some selftest programs and few
-Cilium programs.  ~/baseline-tmp-results.csv are veristat results with
-this patch, while ~/baseline-results.csv is without it. See post
-scriptum for instructions on how to make Cilium programs testable with
-veristat. Correctness has a price.
-
-$ ./veristat -C -e file,prog,insns,states ~/baseline-results.csv ~/baseline-tmp-results.csv | grep -v '+0'
-File                     Program               Total insns (A)  Total insns (B)  Total insns (DIFF)  Total states (A)  Total states (B)  Total states (DIFF)
------------------------  --------------------  ---------------  ---------------  ------------------  ----------------  ----------------  -------------------
-bpf_cubic.bpf.linked1.o  bpf_cubic_cong_avoid              997             1700      +703 (+70.51%)                62                90        +28 (+45.16%)
-test_l4lb.bpf.linked1.o  balancer_ingress                 4559             5469      +910 (+19.96%)               118               126          +8 (+6.78%)
------------------------  --------------------  ---------------  ---------------  ------------------  ----------------  ----------------  -------------------
-
-$ ./veristat -C -e file,prog,verdict,insns,states ~/baseline-results-cilium.csv ~/baseline-tmp-results-cilium.csv | grep -v '+0'
-File           Program                         Total insns (A)  Total insns (B)  Total insns (DIFF)  Total states (A)  Total states (B)  Total states (DIFF)
--------------  ------------------------------  ---------------  ---------------  ------------------  ----------------  ----------------  -------------------
-bpf_host.o     tail_nodeport_nat_ingress_ipv6             4448             5261      +813 (+18.28%)               234               247         +13 (+5.56%)
-bpf_host.o     tail_nodeport_nat_ipv6_egress              3396             3446        +50 (+1.47%)               201               203          +2 (+1.00%)
-bpf_lxc.o      tail_nodeport_nat_ingress_ipv6             4448             5261      +813 (+18.28%)               234               247         +13 (+5.56%)
-bpf_overlay.o  tail_nodeport_nat_ingress_ipv6             4448             5261      +813 (+18.28%)               234               247         +13 (+5.56%)
-bpf_xdp.o      tail_lb_ipv4                              71736            73442      +1706 (+2.38%)              4295              4370         +75 (+1.75%)
--------------  ------------------------------  ---------------  ---------------  ------------------  ----------------  ----------------  -------------------
-
-P.S. To make Cilium ([0]) programs libbpf-compatible and thus
-veristat-loadable, apply changes from topmost commit in [1], which does
-minimal changes to Cilium source code, mostly around SEC() annotations
-and BPF map definitions.
-
-  [0] https://github.com/cilium/cilium/
-  [1] https://github.com/anakryiko/cilium/commits/libbpf-friendliness
-
-Fixes: b5dc0163d8fd ("bpf: precise scalar_value tracking")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/r/20221104163649.121784-2-andrii@kernel.org
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 1f24b5a8ecbb ("[MTD] driver model updates")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20221022121352.2534682-1-zhangxiaoxu5@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mtd/mtdcore.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index f705d3752fe0..32b32ecad770 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5140,6 +5140,11 @@ static int adjust_reg_min_max_vals(struct bpf_verifier_env *env,
- 				return err;
- 			return adjust_ptr_min_max_vals(env, insn,
- 						       dst_reg, src_reg);
-+		} else if (dst_reg->precise) {
-+			/* if dst_reg is precise, src_reg should be precise as well */
-+			err = mark_chain_precision(env, insn->src_reg);
-+			if (err)
-+				return err;
- 		}
- 	} else {
- 		/* Pretend the src is a reg with a known value, since we only
+diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
+index ac5d3b6db9b8..83012d74dcd5 100644
+--- a/drivers/mtd/mtdcore.c
++++ b/drivers/mtd/mtdcore.c
+@@ -673,8 +673,10 @@ int add_mtd_device(struct mtd_info *mtd)
+ 	dev_set_drvdata(&mtd->dev, mtd);
+ 	of_node_get(mtd_get_of_node(mtd));
+ 	error = device_register(&mtd->dev);
+-	if (error)
++	if (error) {
++		put_device(&mtd->dev);
+ 		goto fail_added;
++	}
+ 
+ 	/* Add the nvmem provider */
+ 	error = mtd_nvmem_add(mtd);
 -- 
 2.35.1
 
