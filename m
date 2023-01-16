@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 546F066CA60
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:02:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F4DD66CA61
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:02:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbjAPRCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:02:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57016 "EHLO
+        id S234121AbjAPRCw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:02:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234020AbjAPRCC (ORCPT
+        with ESMTP id S232676AbjAPRCC (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:02:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CCE1279A6
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:44:09 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56A692799B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:44:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11DDCB80E95
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:44:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64D51C433EF;
-        Mon, 16 Jan 2023 16:44:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4C686108A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:44:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04254C433F0;
+        Mon, 16 Jan 2023 16:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887446;
-        bh=SzvOZOsv+Tki7k2ryQ/+xS6ElmkPUmsiGhMjiXyLDU4=;
+        s=korg; t=1673887449;
+        bh=nJalQ46jrFOqvjeVoeKhJ1+95DMpJMkXoK9jeVumufI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4kzPpSQAED8JTQHD3+4ZjIHBo94z1er8Ir47+Ox4fvRaaJFJSZ+7omZ0gohcDPky
-         rrVbvvNV7KYawfRYKtZJdLvPE66o8DgvEs2Cs07z/AoqhSzQuxhoJTNAisXCSslRSm
-         EmrFsk44MhtBdfX4rlYjDu0lLkxKPbY5vvSFuSfw=
+        b=gsmr6i6lxC76srPLeJ+0zck4L94NmlWNLBUbV7QAuHx0reLCZd/v6hBM61MPz9qrC
+         vrS6iJ4UOpMNpEhI3X1WMfblLo6z6ly2JUSeWALR/WpioWVsAm2NPeXuWmNMBUHkPM
+         qC0WnBu3Bqg/LxMZzUf1dcxnguoJL7GedVKnDJh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chris Chiu <chiu@endlessm.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 152/521] rtl8xxxu: add enumeration for channel bandwidth
-Date:   Mon, 16 Jan 2023 16:46:54 +0100
-Message-Id: <20230116154854.060973045@linuxfoundation.org>
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 153/521] wifi: brcmfmac: Fix error return code in brcmf_sdio_download_firmware()
+Date:   Mon, 16 Jan 2023 16:46:55 +0100
+Message-Id: <20230116154854.093009927@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,55 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessm.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit a66b8b4108f178f34394681232c7df07e9b0f6be ]
+[ Upstream commit c2f2924bc7f9ea75ef8d95863e710168f8196256 ]
 
-There's a data field in H2C and C2H commands which is used to
-carry channel bandwidth information. Add enumeration to make it
-more descriptive in code.
+Fix to return a negative error code instead of 0 when
+brcmf_chip_set_active() fails. In addition, change the return
+value for brcmf_pcie_exit_download_state() to keep consistent.
 
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200320063833.1058-2-chiu@endlessm.com
+Fixes: d380ebc9b6fb ("brcmfmac: rename chip download functions")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1669959342-27144-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h      | 9 +++++++++
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 2 +-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 2 +-
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-index 7eef3f7c36ad..921a226b18f8 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-@@ -1136,6 +1136,15 @@ enum bt_mp_oper_opcode_8723b {
- 	BT_MP_OP_ENABLE_CFO_TRACKING = 0x24,
- };
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index a21529d2ccab..6ee04af85e9d 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -612,7 +612,7 @@ static int brcmf_pcie_exit_download_state(struct brcmf_pciedev_info *devinfo,
+ 	}
  
-+enum rtl8xxxu_bw_mode {
-+	RTL8XXXU_CHANNEL_WIDTH_20 = 0,
-+	RTL8XXXU_CHANNEL_WIDTH_40 = 1,
-+	RTL8XXXU_CHANNEL_WIDTH_80 = 2,
-+	RTL8XXXU_CHANNEL_WIDTH_160 = 3,
-+	RTL8XXXU_CHANNEL_WIDTH_80_80 = 4,
-+	RTL8XXXU_CHANNEL_WIDTH_MAX = 5,
-+};
-+
- struct rtl8723bu_c2h {
- 	u8 id;
- 	u8 seq;
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index fb8545f79fa6..c3c8382dd0ba 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4333,7 +4333,7 @@ void rtl8xxxu_gen2_update_rate_mask(struct rtl8xxxu_priv *priv,
- 				    u32 ramask, int sgi)
- {
- 	struct h2c_cmd h2c;
--	u8 bw = 0;
-+	u8 bw = RTL8XXXU_CHANNEL_WIDTH_20;
+ 	if (!brcmf_chip_set_active(devinfo->ci, resetintr))
+-		return -EINVAL;
++		return -EIO;
+ 	return 0;
+ }
  
- 	memset(&h2c, 0, sizeof(struct h2c_cmd));
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index 0a96c1071e5b..6eb1daf51301 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -3337,6 +3337,7 @@ static int brcmf_sdio_download_firmware(struct brcmf_sdio *bus,
+ 	/* Take arm out of reset */
+ 	if (!brcmf_chip_set_active(bus->ci, rstvec)) {
+ 		brcmf_err("error getting out of ARM core reset\n");
++		bcmerror = -EIO;
+ 		goto err;
+ 	}
  
 -- 
 2.35.1
