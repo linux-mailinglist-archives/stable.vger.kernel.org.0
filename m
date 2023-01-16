@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B75F666C9DD
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:57:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6529566C764
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:30:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233081AbjAPQ5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:57:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50798 "EHLO
+        id S233276AbjAPQab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:30:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233932AbjAPQ4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:30 -0500
+        with ESMTP id S233165AbjAPQ3x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CF0117CE8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE6938B72
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA4006106C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD9AEC433F0;
-        Mon, 16 Jan 2023 16:39:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DEB56104D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62FF9C433EF;
+        Mon, 16 Jan 2023 16:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887180;
-        bh=E66UfLByuvpiFkZgPsyqOojYpRvUYbgfQf0UxwG0EZY=;
+        s=korg; t=1673885900;
+        bh=7inS6YWNrnvKaxke7VHuWn/ouIpRA+WDrmWtVtfi9l0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FESp6SWtEL+tH2k3CMlGZGh9g8I31e/d9OYbgx2LwYxxds8w2HA4q9LPC336W1/oB
-         zO+2DIevheTvudeNiX4WFQMwIa2oFlyp2/E0iRozCxc9V9JB5QQ4A5gAixeBuUL4UJ
-         KAFt8eJmJwwEkfLTuggW70CpZP+eS0hXk9QFQlus=
+        b=lc1yPEs9qxlC94QE679OwOkHnMugPLElRW0VTr0L4vFlAHTVhhfAW5XB36hPVZrYX
+         zhqdpfibl8KE15TLVeVhSYxR6WTQ/F3ykpWyeR9you1aDuewGakNZ5ZUZvrPEMs+Mm
+         h6Cesw9yZy7cVYF5VJlRP7YPdLSZb9GD0ot+dkG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev, Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 052/521] MIPS: vpe-mt: fix possible memory leak while module exiting
-Date:   Mon, 16 Jan 2023 16:45:14 +0100
-Message-Id: <20230116154849.576112283@linuxfoundation.org>
+Subject: [PATCH 5.4 227/658] net: amd-xgbe: Fix logic around active and passive cables
+Date:   Mon, 16 Jan 2023 16:45:15 +0100
+Message-Id: <20230116154919.899098096@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-[ Upstream commit 5822e8cc84ee37338ab0bdc3124f6eec04dc232d ]
+[ Upstream commit 4998006c73afe44e2f639d55bd331c6c26eb039f ]
 
-Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
-bus_id string array"), the name of device is allocated dynamically,
-it need be freed when module exiting, call put_device() to give up
-reference, so that it can be freed in kobject_cleanup() when the
-refcount hit to 0. The vpe_device is static, so remove kfree() from
-vpe_device_release().
+SFP+ active and passive cables are copper cables with fixed SFP+ end
+connectors. Due to a misinterpretation of this, SFP+ active cables could
+end up not being recognized, causing the driver to fail to establish a
+connection.
 
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Introduce a new enum in SFP+ cable types, XGBE_SFP_CABLE_FIBER, that is
+the default cable type, and handle active and passive cables when they are
+specifically detected.
+
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/vpe-mt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/kernel/vpe-mt.c b/arch/mips/kernel/vpe-mt.c
-index 2e003b11a098..9fd7cd48ea1d 100644
---- a/arch/mips/kernel/vpe-mt.c
-+++ b/arch/mips/kernel/vpe-mt.c
-@@ -313,7 +313,6 @@ ATTRIBUTE_GROUPS(vpe);
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index b76138cd0935..2cd5fd95af03 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -188,6 +188,7 @@ enum xgbe_sfp_cable {
+ 	XGBE_SFP_CABLE_UNKNOWN = 0,
+ 	XGBE_SFP_CABLE_ACTIVE,
+ 	XGBE_SFP_CABLE_PASSIVE,
++	XGBE_SFP_CABLE_FIBER,
+ };
  
- static void vpe_device_release(struct device *cd)
- {
--	kfree(cd);
- }
+ enum xgbe_sfp_base {
+@@ -1148,16 +1149,18 @@ static void xgbe_phy_sfp_parse_eeprom(struct xgbe_prv_data *pdata)
+ 	phy_data->sfp_tx_fault = xgbe_phy_check_sfp_tx_fault(phy_data);
+ 	phy_data->sfp_rx_los = xgbe_phy_check_sfp_rx_los(phy_data);
  
- static struct class vpe_class = {
-@@ -497,6 +496,7 @@ int __init vpe_module_init(void)
- 	device_del(&vpe_device);
+-	/* Assume ACTIVE cable unless told it is PASSIVE */
++	/* Assume FIBER cable unless told otherwise */
+ 	if (sfp_base[XGBE_SFP_BASE_CABLE] & XGBE_SFP_BASE_CABLE_PASSIVE) {
+ 		phy_data->sfp_cable = XGBE_SFP_CABLE_PASSIVE;
+ 		phy_data->sfp_cable_len = sfp_base[XGBE_SFP_BASE_CU_CABLE_LEN];
+-	} else {
++	} else if (sfp_base[XGBE_SFP_BASE_CABLE] & XGBE_SFP_BASE_CABLE_ACTIVE) {
+ 		phy_data->sfp_cable = XGBE_SFP_CABLE_ACTIVE;
++	} else {
++		phy_data->sfp_cable = XGBE_SFP_CABLE_FIBER;
+ 	}
  
- out_class:
-+	put_device(&vpe_device);
- 	class_unregister(&vpe_class);
- 
- out_chrdev:
-@@ -509,7 +509,7 @@ void __exit vpe_module_exit(void)
- {
- 	struct vpe *v, *n;
- 
--	device_del(&vpe_device);
-+	device_unregister(&vpe_device);
- 	class_unregister(&vpe_class);
- 	unregister_chrdev(major, VPE_MODULE_NAME);
- 
+ 	/* Determine the type of SFP */
+-	if (phy_data->sfp_cable == XGBE_SFP_CABLE_PASSIVE &&
++	if (phy_data->sfp_cable != XGBE_SFP_CABLE_FIBER &&
+ 	    xgbe_phy_sfp_bit_rate(sfp_eeprom, XGBE_SFP_SPEED_10000))
+ 		phy_data->sfp_base = XGBE_SFP_BASE_10000_CR;
+ 	else if (sfp_base[XGBE_SFP_BASE_10GBE_CC] & XGBE_SFP_BASE_10GBE_CC_SR)
 -- 
 2.35.1
 
