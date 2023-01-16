@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19FDA66CAEC
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E696666CC87
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:26:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233918AbjAPRJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:09:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33990 "EHLO
+        id S234689AbjAPR0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:26:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234296AbjAPRIl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB6862E0D8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:49 -0800 (PST)
+        with ESMTP id S234694AbjAPR0V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:26:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECF502F7A5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:03:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 474DE60F61
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A6D3C433EF;
-        Mon, 16 Jan 2023 16:48:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 890AE61055
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:03:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 996C7C433EF;
+        Mon, 16 Jan 2023 17:03:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887728;
-        bh=S3kgCteVzya4v0I96UifQjsq/9EOHzM8XUXF27L08PU=;
+        s=korg; t=1673888622;
+        bh=E66UfLByuvpiFkZgPsyqOojYpRvUYbgfQf0UxwG0EZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTmnzvtXTZKSuVmES5F4VEDWN0ozecBLUhFBXf0NIfMGB9gzF4VeyART8L0ZgtwOB
-         qtV8l50OcRG5M+RtqkaQ+myvZQB9gXs+U42Tk0udyxa4Bj7eaxxRBCrGLUQSTeSpV7
-         3DQSxXTMmF8BRkaBouDf6ltJald1izvhNzZAEVpE=
+        b=lM2Y5xtj9LlgHy3cOonIFlMuL9HYNp8la86PoJTziqu3XtQisr9jUl06zHL0I780o
+         yr5n5b3lP20BOo7LGI0D6HvX0spBWio0lJyVxawgVR4uswGXiBLgJEtYj9h4CqR/e1
+         HMnQYH3vhDGkBROKPEmMsv2IVVftMttFSBYoGFEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 258/521] fbdev: uvesafb: Fixes an error handling path in uvesafb_probe()
-Date:   Mon, 16 Jan 2023 16:48:40 +0100
-Message-Id: <20230116154858.671144737@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 048/338] MIPS: vpe-mt: fix possible memory leak while module exiting
+Date:   Mon, 16 Jan 2023 16:48:41 +0100
+Message-Id: <20230116154822.892546103@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a94371040712031ba129c7e9d8ff04a06a2f8207 ]
+[ Upstream commit 5822e8cc84ee37338ab0bdc3124f6eec04dc232d ]
 
-If an error occurs after a successful uvesafb_init_mtrr() call, it must be
-undone by a corresponding arch_phys_wc_del() call, as already done in the
-remove function.
+Afer commit 1fa5ae857bb1 ("driver core: get rid of struct device's
+bus_id string array"), the name of device is allocated dynamically,
+it need be freed when module exiting, call put_device() to give up
+reference, so that it can be freed in kobject_cleanup() when the
+refcount hit to 0. The vpe_device is static, so remove kfree() from
+vpe_device_release().
 
-This has been added in the remove function in commit 63e28a7a5ffc
-("uvesafb: Clean up MTRR code")
-
-Fixes: 8bdb3a2d7df4 ("uvesafb: the driver core")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/uvesafb.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/kernel/vpe-mt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
-index 440a6636d8f0..f6ebca883912 100644
---- a/drivers/video/fbdev/uvesafb.c
-+++ b/drivers/video/fbdev/uvesafb.c
-@@ -1755,6 +1755,7 @@ static int uvesafb_probe(struct platform_device *dev)
- out_unmap:
- 	iounmap(info->screen_base);
- out_mem:
-+	arch_phys_wc_del(par->mtrr_handle);
- 	release_mem_region(info->fix.smem_start, info->fix.smem_len);
- out_reg:
- 	release_region(0x3c0, 32);
+diff --git a/arch/mips/kernel/vpe-mt.c b/arch/mips/kernel/vpe-mt.c
+index 2e003b11a098..9fd7cd48ea1d 100644
+--- a/arch/mips/kernel/vpe-mt.c
++++ b/arch/mips/kernel/vpe-mt.c
+@@ -313,7 +313,6 @@ ATTRIBUTE_GROUPS(vpe);
+ 
+ static void vpe_device_release(struct device *cd)
+ {
+-	kfree(cd);
+ }
+ 
+ static struct class vpe_class = {
+@@ -497,6 +496,7 @@ int __init vpe_module_init(void)
+ 	device_del(&vpe_device);
+ 
+ out_class:
++	put_device(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 
+ out_chrdev:
+@@ -509,7 +509,7 @@ void __exit vpe_module_exit(void)
+ {
+ 	struct vpe *v, *n;
+ 
+-	device_del(&vpe_device);
++	device_unregister(&vpe_device);
+ 	class_unregister(&vpe_class);
+ 	unregister_chrdev(major, VPE_MODULE_NAME);
+ 
 -- 
 2.35.1
 
