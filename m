@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7882766C7AD
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:33:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F5A766CA07
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233370AbjAPQdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:33:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48474 "EHLO
+        id S233375AbjAPQ6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:58:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233329AbjAPQct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:32:49 -0500
+        with ESMTP id S233954AbjAPQ57 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8AEC30289
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3C9B23123
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 660C06104E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C225C433EF;
-        Mon, 16 Jan 2023 16:20:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 909A56104F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A67FEC433D2;
+        Mon, 16 Jan 2023 16:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886053;
-        bh=96oQnMRI0DTt9qsPe9KbUmap40BDEVS2+mZZlqPVp4U=;
+        s=korg; t=1673887261;
+        bh=ph3udTZfBnJdiz030yzdLvSDIAD/nEUWTlR2o3jXSb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qNupDaYQ0QQK1RilMh30G+C7jei+voPLAzoC+iQ0smNPs7XDRH+i2diOcs6M6wNR
-         q3sWXsjIJh5jnX1H5hTJhHQJENtSWEUx7aweKkChQw2ZIMwGx3WxTOgg+fMWvsZq0a
-         Bt7pk4euUs1WiJH7sp2kCcIhpgabvJYwFZHimFow=
+        b=D/EYoJbUTqQzkNjGulh1dco1jV+nfOnj6liFqFnavMzuh2Z2BwVxGnUO5awIpnQKT
+         GE1h5d8SvdgyMSSNXkxy9iGFH141s8Vqf4FwQ/C+0Mo5Wxq/jYGs4XIc+ISuMRrjm9
+         TKyX9B6/UkmkCmqUtrfk7P31NZuqug7KnbZDFJBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 255/658] RDMA/rxe: Fix NULL-ptr-deref in rxe_qp_do_cleanup() when socket create failed
-Date:   Mon, 16 Jan 2023 16:45:43 +0100
-Message-Id: <20230116154921.232389472@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 082/521] wifi: rtl8xxxu: Fix reading the vendor of combo chips
+Date:   Mon, 16 Jan 2023 16:45:44 +0100
+Message-Id: <20230116154850.912616536@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-[ Upstream commit f67376d801499f4fa0838c18c1efcad8840e550d ]
+[ Upstream commit 6f103aeb5e985ac08f3a4a049a2c17294f40cff9 ]
 
-There is a null-ptr-deref when mount.cifs over rdma:
+The wifi + bluetooth combo chips (RTL8723AU and RTL8723BU) read the
+chip vendor from the wrong register because the val32 variable gets
+overwritten. Add one more variable to avoid this.
 
-  BUG: KASAN: null-ptr-deref in rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
-  Read of size 8 at addr 0000000000000018 by task mount.cifs/3046
+This had no real effect on RTL8723BU. It may have had an effect on
+RTL8723AU.
 
-  CPU: 2 PID: 3046 Comm: mount.cifs Not tainted 6.1.0-rc5+ #62
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc3
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x34/0x44
-   kasan_report+0xad/0x130
-   rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
-   execute_in_process_context+0x25/0x90
-   __rxe_cleanup+0x101/0x1d0 [rdma_rxe]
-   rxe_create_qp+0x16a/0x180 [rdma_rxe]
-   create_qp.part.0+0x27d/0x340
-   ib_create_qp_kernel+0x73/0x160
-   rdma_create_qp+0x100/0x230
-   _smbd_get_connection+0x752/0x20f0
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-The root cause of the issue is the socket create failed in
-rxe_qp_init_req().
-
-So move the reset rxe_qp_do_cleanup() after the NULL ptr check.
-
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20221122151437.1057671-1-zhangxiaoxu5@huawei.com
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 26f1fad29ad9 ("New driver: rtl8xxxu (mac80211)")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/24af8024-2f07-552b-93d8-38823d8e3cb0@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_qp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c    | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 89f6d54a4312..5dd9bcef5921 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -842,12 +842,12 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
- 		qp->resp.mr = NULL;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 38f06ee98b35..fb8545f79fa6 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -1614,18 +1614,18 @@ static void rtl8xxxu_print_chipinfo(struct rtl8xxxu_priv *priv)
+ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ {
+ 	struct device *dev = &priv->udev->dev;
+-	u32 val32, bonding;
++	u32 val32, bonding, sys_cfg;
+ 	u16 val16;
+ 
+-	val32 = rtl8xxxu_read32(priv, REG_SYS_CFG);
+-	priv->chip_cut = (val32 & SYS_CFG_CHIP_VERSION_MASK) >>
++	sys_cfg = rtl8xxxu_read32(priv, REG_SYS_CFG);
++	priv->chip_cut = (sys_cfg & SYS_CFG_CHIP_VERSION_MASK) >>
+ 		SYS_CFG_CHIP_VERSION_SHIFT;
+-	if (val32 & SYS_CFG_TRP_VAUX_EN) {
++	if (sys_cfg & SYS_CFG_TRP_VAUX_EN) {
+ 		dev_info(dev, "Unsupported test chip\n");
+ 		return -ENOTSUPP;
  	}
  
--	if (qp_type(qp) == IB_QPT_RC)
--		sk_dst_reset(qp->sk->sk);
--
- 	free_rd_atomic_resources(qp);
- 
- 	if (qp->sk) {
-+		if (qp_type(qp) == IB_QPT_RC)
-+			sk_dst_reset(qp->sk->sk);
-+
- 		kernel_sock_shutdown(qp->sk, SHUT_RDWR);
- 		sock_release(qp->sk);
- 	}
+-	if (val32 & SYS_CFG_BT_FUNC) {
++	if (sys_cfg & SYS_CFG_BT_FUNC) {
+ 		if (priv->chip_cut >= 3) {
+ 			sprintf(priv->chip_name, "8723BU");
+ 			priv->rtl_chip = RTL8723B;
+@@ -1647,7 +1647,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ 		if (val32 & MULTI_GPS_FUNC_EN)
+ 			priv->has_gps = 1;
+ 		priv->is_multi_func = 1;
+-	} else if (val32 & SYS_CFG_TYPE_ID) {
++	} else if (sys_cfg & SYS_CFG_TYPE_ID) {
+ 		bonding = rtl8xxxu_read32(priv, REG_HPON_FSM);
+ 		bonding &= HPON_FSM_BONDING_MASK;
+ 		if (priv->fops->tx_desc_size ==
+@@ -1695,7 +1695,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ 	case RTL8188E:
+ 	case RTL8192E:
+ 	case RTL8723B:
+-		switch (val32 & SYS_CFG_VENDOR_EXT_MASK) {
++		switch (sys_cfg & SYS_CFG_VENDOR_EXT_MASK) {
+ 		case SYS_CFG_VENDOR_ID_TSMC:
+ 			sprintf(priv->chip_vendor, "TSMC");
+ 			break;
+@@ -1712,7 +1712,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
+ 		}
+ 		break;
+ 	default:
+-		if (val32 & SYS_CFG_VENDOR_ID) {
++		if (sys_cfg & SYS_CFG_VENDOR_ID) {
+ 			sprintf(priv->chip_vendor, "UMC");
+ 			priv->vendor_umc = 1;
+ 		} else {
 -- 
 2.35.1
 
