@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2B7A66C8E6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31C2166C4BC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233731AbjAPQoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:44:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34466 "EHLO
+        id S231649AbjAPP55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:57:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233782AbjAPQnc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5731274A2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:21 -0800 (PST)
+        with ESMTP id S231882AbjAPP5h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B5751CAE7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B53761027
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2BBC433D2;
-        Mon, 16 Jan 2023 16:31:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B781EB81052
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26137C433EF;
+        Mon, 16 Jan 2023 15:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886680;
-        bh=Y9RWcW1VgmubagI5cNB3sq4m2+G3DXXWEuHTO2zFGcs=;
+        s=korg; t=1673884649;
+        bh=GQU4LNfI1hqYzrH5Ajp80x1VTaSFsryD7BYENTUXjr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSh4+v+pvHCaVPocdm3JGNVGBIk6BlB4+FOlqn2th/1gOBZ8kLq6k0VZZljt8f2Fi
-         GY3dr4AATkHqHINZpu7vRYHWNNX7eEy4E5iwW3+Hohqa/Q+FAGsvMhFC0HoGJUu++E
-         qfbtec8+hZ4NXyuPSsPD8aUkWBuXWqoZya8JPfqU=
+        b=a40RnUstu8dJXbkdnwilzoQfRqdhBwhAaPJJkNI6CD5pIvI4+a/q2kWxVV/SbdWW0
+         /+IOrO0KZedxxsi3JeOMpIieHTdo+gKx9XWi+OdcmY0VomHjcBujisa3waTpw3jaTQ
+         4eBPwdFU3BJetgd/LkErxshm3oPNQggCVq5it1bM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Baokun Li <libaokun1@huawei.com>,
-        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 522/658] ext4: add inode table check in __ext4_get_inode_loc to aovid possible infinite loop
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 6.1 087/183] iommu/arm-smmu: Report IOMMU_CAP_CACHE_COHERENCY even betterer
 Date:   Mon, 16 Jan 2023 16:50:10 +0100
-Message-Id: <20230116154933.420425401@linuxfoundation.org>
+Message-Id: <20230116154807.102072721@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit eee22187b53611e173161e38f61de1c7ecbeb876 upstream.
+commit ac9c5e92dd15b9927e7355ccf79df76a58b44344 upstream.
 
-In do_writepages, if the value returned by ext4_writepages is "-ENOMEM"
-and "wbc->sync_mode == WB_SYNC_ALL", retry until the condition is not met.
+Although it's vanishingly unlikely that anyone would integrate an SMMU
+within a coherent interconnect without also making the pagetable walk
+interface coherent, the same effect happens if a coherent SMMU fails to
+advertise CTTW correctly. This turns out to be the case on some popular
+NXP SoCs, where VFIO started failing the IOMMU_CAP_CACHE_COHERENCY test,
+even though IOMMU_CACHE *was* previously achieving the desired effect
+anyway thanks to the underlying integration.
 
-In __ext4_get_inode_loc, if the bh returned by sb_getblk is NULL,
-the function returns -ENOMEM.
+While those SoCs stand to gain some more general benefits from a
+firmware update to override CTTW correctly in DT/ACPI, it's also easy
+to work around this in Linux as well, to avoid imposing too much on
+affected users - since the upstream client devices *are* correctly
+marked as coherent, we can trivially infer their coherent paths through
+the SMMU as well.
 
-In __getblk_slow, if the return value of grow_buffers is less than 0,
-the function returns NULL.
-
-When the three processes are connected in series like the following stack,
-an infinite loop may occur:
-
-do_writepages					<--- keep retrying
- ext4_writepages
-  mpage_map_and_submit_extent
-   mpage_map_one_extent
-    ext4_map_blocks
-     ext4_ext_map_blocks
-      ext4_ext_handle_unwritten_extents
-       ext4_ext_convert_to_initialized
-        ext4_split_extent
-         ext4_split_extent_at
-          __ext4_ext_dirty
-           __ext4_mark_inode_dirty
-            ext4_reserve_inode_write
-             ext4_get_inode_loc
-              __ext4_get_inode_loc		<--- return -ENOMEM
-               sb_getblk
-                __getblk_gfp
-                 __getblk_slow			<--- return NULL
-                  grow_buffers
-                   grow_dev_page		<--- return -ENXIO
-                    ret = (block < end_block) ? 1 : -ENXIO;
-
-In this issue, bg_inode_table_hi is overwritten as an incorrect value.
-As a result, `block < end_block` cannot be met in grow_dev_page.
-Therefore, __ext4_get_inode_loc always returns '-ENOMEM' and do_writepages
-keeps retrying. As a result, the writeback process is in the D state due
-to an infinite loop.
-
-Add a check on inode table block in the __ext4_get_inode_loc function by
-referring to ext4_read_inode_bitmap to avoid this infinite loop.
-
-Cc: stable@kernel.org
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-Link: https://lore.kernel.org/r/20220817132701.3015912-3-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reported-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: df198b37e72c ("iommu/arm-smmu: Report IOMMU_CAP_CACHE_COHERENCY better")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Tested-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/d6dc41952961e5c7b21acac08a8bf1eb0f69e124.1671123115.git.robin.murphy@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/iommu/arm/arm-smmu/arm-smmu.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4652,9 +4652,17 @@ static int __ext4_get_inode_loc(struct i
- 	inodes_per_block = EXT4_SB(sb)->s_inodes_per_block;
- 	inode_offset = ((inode->i_ino - 1) %
- 			EXT4_INODES_PER_GROUP(sb));
--	block = ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block);
- 	iloc->offset = (inode_offset % inodes_per_block) * EXT4_INODE_SIZE(sb);
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+@@ -1319,8 +1319,14 @@ static bool arm_smmu_capable(struct devi
  
-+	block = ext4_inode_table(sb, gdp);
-+	if ((block <= le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block)) ||
-+	    (block >= ext4_blocks_count(EXT4_SB(sb)->s_es))) {
-+		ext4_error(sb, "Invalid inode table block %llu in "
-+			   "block_group %u", block, iloc->block_group);
-+		return -EFSCORRUPTED;
-+	}
-+	block += (inode_offset / inodes_per_block);
-+
- 	bh = sb_getblk(sb, block);
- 	if (unlikely(!bh))
- 		return -ENOMEM;
+ 	switch (cap) {
+ 	case IOMMU_CAP_CACHE_COHERENCY:
+-		/* Assume that a coherent TCU implies coherent TBUs */
+-		return cfg->smmu->features & ARM_SMMU_FEAT_COHERENT_WALK;
++		/*
++		 * It's overwhelmingly the case in practice that when the pagetable
++		 * walk interface is connected to a coherent interconnect, all the
++		 * translation interfaces are too. Furthermore if the device is
++		 * natively coherent, then its translation interface must also be.
++		 */
++		return cfg->smmu->features & ARM_SMMU_FEAT_COHERENT_WALK ||
++			device_get_dma_attr(dev) == DEV_DMA_COHERENT;
+ 	case IOMMU_CAP_NOEXEC:
+ 		return true;
+ 	default:
 
 
