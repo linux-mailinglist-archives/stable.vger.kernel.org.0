@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88DED66C87F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:39:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4509266C481
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233629AbjAPQjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:39:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54422 "EHLO
+        id S231442AbjAPPz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:55:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233654AbjAPQjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:39:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5588F74D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:58 -0800 (PST)
+        with ESMTP id S231718AbjAPPzi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D3AA234D5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F83F61058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76654C433F0;
-        Mon, 16 Jan 2023 16:27:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAF6D61037
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0BF0C433D2;
+        Mon, 16 Jan 2023 15:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886477;
-        bh=wiMRYrwCjihogfOJ8kN8+MjKHhiMLI6OOtGx8lIQc6A=;
+        s=korg; t=1673884524;
+        bh=6tsBmFtam1/tY3esMmayO7fRCaEfHUxqGVnxy6B+b34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6XhIOsXmVfHE63UQ+dHYRdBdoze0CEvo7BsYbR09OtNq1r/q5nuO9aUPA9SwAima
-         TAvoJSoRC8yRmj3VTGMguZ04i/kEh9DsL4sgi4S/UqruIle20bxCCqMgFuu48QIH9h
-         EcqKvon2aoBvZNsM1OyrBHgM0s2YirNHoulgCL/0=
+        b=v5xbzJ2kQHIgIKrXhbPYim8I/VEq89xn9RiGzEF7bX87yzrRcwdt0/HDnb/6lsmbM
+         E869l2fLJWpwLeeFmQIGiTO0niY9+1MmKvjVY1337Pg+hPbUiH0Sw1LuL3/m+BQwpD
+         hb5tyZrCHf5it26F0dPaxdqCh84tpEyx70A+7aug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Ferry Toth <ftoth@exalondelft.nl>
-Subject: [PATCH 5.4 444/658] usb: dwc3: core: defer probe on ulpi_read_id timeout
+        patches@lists.linux.dev, Ding Hui <dinghui@sangfor.com.cn>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 6.1 009/183] efi: fix userspace infinite retry read efivars after EFI runtime services page fault
 Date:   Mon, 16 Jan 2023 16:48:52 +0100
-Message-Id: <20230116154929.828585892@linuxfoundation.org>
+Message-Id: <20230116154803.768917283@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Ding Hui <dinghui@sangfor.com.cn>
 
-commit 63130462c919ece0ad0d9bb5a1f795ef8d79687e upstream.
+commit e006ac3003080177cf0b673441a4241f77aaecce upstream.
 
-Since commit 0f0101719138 ("usb: dwc3: Don't switch OTG -> peripheral
-if extcon is present"), Dual Role support on Intel Merrifield platform
-broke due to rearranging the call to dwc3_get_extcon().
+After [1][2], if we catch exceptions due to EFI runtime service, we will
+clear EFI_RUNTIME_SERVICES bit to disable EFI runtime service, then the
+subsequent routine which invoke the EFI runtime service should fail.
 
-It appears to be caused by ulpi_read_id() masking the timeout on the first
-test write. In the past dwc3 probe continued by calling dwc3_core_soft_reset()
-followed by dwc3_get_extcon() which happend to return -EPROBE_DEFER.
-On deferred probe ulpi_read_id() finally succeeded. Due to above mentioned
-rearranging -EPROBE_DEFER is not returned and probe completes without phy.
+But the userspace cat efivars through /sys/firmware/efi/efivars/ will stuck
+and infinite loop calling read() due to efivarfs_file_read() return -EINTR.
 
-On Intel Merrifield the timeout on the first test write issue is reproducible
-but it is difficult to find the root cause. Using a mainline kernel and
-rootfs with buildroot ulpi_read_id() succeeds. As soon as adding
-ftrace / bootconfig to find out why, ulpi_read_id() fails and we can't
-analyze the flow. Using another rootfs ulpi_read_id() fails even without
-adding ftrace. We suspect the issue is some kind of timing / race, but
-merely retrying ulpi_read_id() does not resolve the issue.
+The -EINTR is converted from EFI_ABORTED by efi_status_to_err(), and is
+an improper return value in this situation, so let virt_efi_xxx() return
+EFI_DEVICE_ERROR and converted to -EIO to invoker.
 
-As we now changed ulpi_read_id() to return -ETIMEDOUT in this case, we
-need to handle the error by calling dwc3_core_soft_reset() and request
--EPROBE_DEFER. On deferred probe ulpi_read_id() is retried and succeeds.
-
-Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
-Cc: stable@vger.kernel.org
-Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Link: https://lore.kernel.org/r/20221205201527.13525-3-ftoth@exalondelft.nl
+Cc: <stable@vger.kernel.org>
+Fixes: 3425d934fc03 ("efi/x86: Handle page faults occurring while running EFI runtime services")
+Fixes: 23715a26c8d8 ("arm64: efi: Recover from synchronous exceptions occurring in firmware")
+Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/core.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/runtime-wrappers.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -931,8 +931,13 @@ static int dwc3_core_init(struct dwc3 *d
- 
- 	if (!dwc->ulpi_ready) {
- 		ret = dwc3_core_ulpi_init(dwc);
--		if (ret)
-+		if (ret) {
-+			if (ret == -ETIMEDOUT) {
-+				dwc3_core_soft_reset(dwc);
-+				ret = -EPROBE_DEFER;
-+			}
- 			goto err0;
-+		}
- 		dwc->ulpi_ready = true;
- 	}
- 
+diff --git a/drivers/firmware/efi/runtime-wrappers.c b/drivers/firmware/efi/runtime-wrappers.c
+index 7feee3d9c2bf..1fba4e09cdcf 100644
+--- a/drivers/firmware/efi/runtime-wrappers.c
++++ b/drivers/firmware/efi/runtime-wrappers.c
+@@ -62,6 +62,7 @@ struct efi_runtime_work efi_rts_work;
+ 									\
+ 	if (!efi_enabled(EFI_RUNTIME_SERVICES)) {			\
+ 		pr_warn_once("EFI Runtime Services are disabled!\n");	\
++		efi_rts_work.status = EFI_DEVICE_ERROR;			\
+ 		goto exit;						\
+ 	}								\
+ 									\
+-- 
+2.39.0
+
 
 
