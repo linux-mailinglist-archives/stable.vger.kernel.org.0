@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8DDD66C77B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67ACD66C9F3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:58:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233260AbjAPQbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:31:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48364 "EHLO
+        id S234111AbjAPQ6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:58:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233227AbjAPQam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5FF27483
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:19:03 -0800 (PST)
+        with ESMTP id S234088AbjAPQ5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 215232C668
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 616E261047
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:19:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78021C433D2;
-        Mon, 16 Jan 2023 16:19:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE47E61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5CE7C433EF;
+        Mon, 16 Jan 2023 16:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885942;
-        bh=iLMIcUGoaR1oXnyAtOIdmloOVHjHTAhXBqkrlpMB/wI=;
+        s=korg; t=1673887229;
+        bh=4yPHua5dzOhHCyWQwmUR1XlV3DlTDENMhvz1bd3OC2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UA9ZQYneaiSikC9BuybjsQJzGiy+tTfZ065/iM7Or1R4VIc/VLMFBmmE+BWOUWu3B
-         wXoxJEBxiZTMzGLyIfe+l9B4X3fHibmrPEBZM3bXjOh+iO+sDTXkxodi0HACf/mcPa
-         EX1kIOkTz6zFur5jCrxrUukAe/rDHJO54NT7MSFk=
+        b=uVG9csbs7mfbpcjRjSWHgNRXOojIJoKg0FvrGyrheWOaGQGDIWWMm3Q7jzLnoJCDk
+         mOGqcB/mD7Y+LselkE5E+ujVQXOsVN4ztgrXoJyKfRcwMyuC4eAeZ8pjBT+HiLSeUI
+         kKJghDIzFKR40gj+joxAad02LOlnrfUqON2UFBGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        John Johansen <john.johansen@canonical.com>,
+        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 242/658] apparmor: Fix abi check to include v8 abi
+Subject: [PATCH 4.19 068/521] x86/xen: Fix memory leak in xen_init_lock_cpu()
 Date:   Mon, 16 Jan 2023 16:45:30 +0100
-Message-Id: <20230116154920.637544700@linuxfoundation.org>
+Message-Id: <20230116154850.264113212@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 1b5a6198f5a9d0aa5497da0dc4bcd4fc166ee516 ]
+[ Upstream commit ca84ce153d887b1dc8b118029976cc9faf2a9b40 ]
 
-The v8 abi is supported by the kernel but the userspace supported
-version check does not allow for it. This was missed when v8 was added
-due to a bug in the userspace compiler which was setting an older abi
-version for v8 encoding (which is forward compatible except on the
-network encoding). However it is possible to detect the network
-encoding by checking the policydb network support which the code
-does. The end result was that missing the abi flag worked until
-userspace was fixed and began correctly checking for the v8 abi
-version.
+In xen_init_lock_cpu(), the @name has allocated new string by kasprintf(),
+if bind_ipi_to_irqhandler() fails, it should be freed, otherwise may lead
+to a memory leak issue, fix it.
 
-Fixes: 56974a6fcfef ("apparmor: add base infastructure for socket mediation")
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fixes: 2d9e1e2f58b5 ("xen: implement Xen-specific spinlocks")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20221123155858.11382-3-xiujianfeng@huawei.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/policy_unpack.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/xen/spinlock.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/security/apparmor/policy_unpack.c b/security/apparmor/policy_unpack.c
-index 8cfc9493eefc..7e32c09249b1 100644
---- a/security/apparmor/policy_unpack.c
-+++ b/security/apparmor/policy_unpack.c
-@@ -955,7 +955,7 @@ static int verify_header(struct aa_ext *e, int required, const char **ns)
- 	 * if not specified use previous version
- 	 * Mask off everything that is not kernel abi version
- 	 */
--	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v7)) {
-+	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v8)) {
- 		audit_iface(NULL, NULL, NULL, "unsupported interface version",
- 			    e, error);
- 		return error;
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 6fffb86a32ad..e6cf1b430fd0 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -83,6 +83,7 @@ void xen_init_lock_cpu(int cpu)
+ 	     cpu, per_cpu(lock_kicker_irq, cpu));
+ 
+ 	name = kasprintf(GFP_KERNEL, "spinlock%d", cpu);
++	per_cpu(irq_name, cpu) = name;
+ 	irq = bind_ipi_to_irqhandler(XEN_SPIN_UNLOCK_VECTOR,
+ 				     cpu,
+ 				     dummy_handler,
+@@ -93,7 +94,6 @@ void xen_init_lock_cpu(int cpu)
+ 	if (irq >= 0) {
+ 		disable_irq(irq); /* make sure it's never delivered */
+ 		per_cpu(lock_kicker_irq, cpu) = irq;
+-		per_cpu(irq_name, cpu) = name;
+ 	}
+ 
+ 	printk("cpu %d spinlock event irq %d\n", cpu, irq);
+@@ -106,6 +106,8 @@ void xen_uninit_lock_cpu(int cpu)
+ 	if (!xen_pvspin)
+ 		return;
+ 
++	kfree(per_cpu(irq_name, cpu));
++	per_cpu(irq_name, cpu) = NULL;
+ 	/*
+ 	 * When booting the kernel with 'mitigations=auto,nosmt', the secondary
+ 	 * CPUs are not activated, and lock_kicker_irq is not initialized.
+@@ -116,8 +118,6 @@ void xen_uninit_lock_cpu(int cpu)
+ 
+ 	unbind_from_irqhandler(irq, NULL);
+ 	per_cpu(lock_kicker_irq, cpu) = -1;
+-	kfree(per_cpu(irq_name, cpu));
+-	per_cpu(irq_name, cpu) = NULL;
+ }
+ 
+ PV_CALLEE_SAVE_REGS_THUNK(xen_vcpu_stolen);
 -- 
 2.35.1
 
