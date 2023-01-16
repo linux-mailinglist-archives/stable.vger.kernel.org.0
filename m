@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA56866CC2B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:22:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FFB566CC2D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234483AbjAPRWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:22:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45712 "EHLO
+        id S234601AbjAPRWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:22:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234601AbjAPRWa (ORCPT
+        with ESMTP id S234348AbjAPRWa (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:22:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B18B59E77
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:00:18 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 109CB2ED79
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:00:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2654560F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:00:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D772C433D2;
-        Mon, 16 Jan 2023 17:00:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 883DCB8109E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:00:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0964C433D2;
+        Mon, 16 Jan 2023 17:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888417;
-        bh=Us/UeLQYB1mOEUwJSijpk0xQBExh6WcJDviFH04YdEo=;
+        s=korg; t=1673888420;
+        bh=+fl8Z7EzskdY1HIa3lv6KLRnddXIIsFM/sU459v1yHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wS7QpzRFmKmXoSijYZmYOHUICMAYM9YWpYljfCsDOLjTdL7kczNk6o+KlUhvR6eGm
-         47mo1Yw7ZCPe53W/tLPyg0DKWohkOk5FMe02Tcd7idtolEk26630Ge5r8Kp6JVKqXm
-         7y0KdSY0W1VTnsAaYwK4pAqZsnyzQHPs1pUf0xlE=
+        b=ArQ+G2IT1XA0Hrx0IB261WA2btf02I+zbatujuvD49lKKm4PZrtAYNZnTELDEy10c
+         jSMIcXzAjLDosXhHKc6X/iUb9c9xajRYmByjbEic5Ng0IIAbbjkTzUchiwYNDaHkth
+         yIjyAaP//8pIWGNiMdoEVOcMZ92RaBk+pzmz2o5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 491/521] quota: Factor out setup of quota inode
-Date:   Mon, 16 Jan 2023 16:52:33 +0100
-Message-Id: <20230116154909.145768189@linuxfoundation.org>
+Subject: [PATCH 4.19 492/521] ext4: fix bug_on in __es_tree_search caused by bad quota inode
+Date:   Mon, 16 Jan 2023 16:52:34 +0100
+Message-Id: <20230116154909.198199219@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -52,190 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit c7d3d28360fdb3ed3a5aa0bab19315e0fdc994a1 ]
+[ Upstream commit d323877484765aaacbb2769b06e355c2041ed115 ]
 
-Factor out setting up of quota inode and eventual error cleanup from
-vfs_load_quota_inode(). This will simplify situation for filesystems
-that don't have any quota inodes.
+We got a issue as fllows:
+==================================================================
+ kernel BUG at fs/ext4/extents_status.c:202!
+ invalid opcode: 0000 [#1] PREEMPT SMP
+ CPU: 1 PID: 810 Comm: mount Not tainted 6.1.0-rc1-next-g9631525255e3 #352
+ RIP: 0010:__es_tree_search.isra.0+0xb8/0xe0
+ RSP: 0018:ffffc90001227900 EFLAGS: 00010202
+ RAX: 0000000000000000 RBX: 0000000077512a0f RCX: 0000000000000000
+ RDX: 0000000000000002 RSI: 0000000000002a10 RDI: ffff8881004cd0c8
+ RBP: ffff888177512ac8 R08: 47ffffffffffffff R09: 0000000000000001
+ R10: 0000000000000001 R11: 00000000000679af R12: 0000000000002a10
+ R13: ffff888177512d88 R14: 0000000077512a10 R15: 0000000000000000
+ FS: 00007f4bd76dbc40(0000)GS:ffff88842fd00000(0000)knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00005653bf993cf8 CR3: 000000017bfdf000 CR4: 00000000000006e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  <TASK>
+  ext4_es_cache_extent+0xe2/0x210
+  ext4_cache_extents+0xd2/0x110
+  ext4_find_extent+0x5d5/0x8c0
+  ext4_ext_map_blocks+0x9c/0x1d30
+  ext4_map_blocks+0x431/0xa50
+  ext4_getblk+0x82/0x340
+  ext4_bread+0x14/0x110
+  ext4_quota_read+0xf0/0x180
+  v2_read_header+0x24/0x90
+  v2_check_quota_file+0x2f/0xa0
+  dquot_load_quota_sb+0x26c/0x760
+  dquot_load_quota_inode+0xa5/0x190
+  ext4_enable_quotas+0x14c/0x300
+  __ext4_fill_super+0x31cc/0x32c0
+  ext4_fill_super+0x115/0x2d0
+  get_tree_bdev+0x1d2/0x360
+  ext4_get_tree+0x19/0x30
+  vfs_get_tree+0x26/0xe0
+  path_mount+0x81d/0xfc0
+  do_mount+0x8d/0xc0
+  __x64_sys_mount+0xc0/0x160
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  </TASK>
+==================================================================
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Stable-dep-of: d32387748476 ("ext4: fix bug_on in __es_tree_search caused by bad quota inode")
+Above issue may happen as follows:
+-------------------------------------
+ext4_fill_super
+ ext4_orphan_cleanup
+  ext4_enable_quotas
+   ext4_quota_enable
+    ext4_iget --> get error inode <5>
+     ext4_ext_check_inode --> Wrong imode makes it escape inspection
+     make_bad_inode(inode) --> EXT4_BOOT_LOADER_INO set imode
+    dquot_load_quota_inode
+     vfs_setup_quota_inode --> check pass
+     dquot_load_quota_sb
+      v2_check_quota_file
+       v2_read_header
+        ext4_quota_read
+         ext4_bread
+          ext4_getblk
+           ext4_map_blocks
+            ext4_ext_map_blocks
+             ext4_find_extent
+              ext4_cache_extents
+               ext4_es_cache_extent
+                __es_tree_search.isra.0
+                 ext4_es_end --> Wrong extents trigger BUG_ON
+
+In the above issue, s_usr_quota_inum is set to 5, but inode<5> contains
+incorrect imode and disordered extents. Because 5 is EXT4_BOOT_LOADER_INO,
+the ext4_ext_check_inode check in the ext4_iget function can be bypassed,
+finally, the extents that are not checked trigger the BUG_ON in the
+__es_tree_search function. To solve this issue, check whether the inode is
+bad_inode in vfs_setup_quota_inode().
+
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221026042310.3839669-2-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/dquot.c         | 108 ++++++++++++++++++++++++---------------
- include/linux/quotaops.h |   2 +
- 2 files changed, 69 insertions(+), 41 deletions(-)
+ fs/quota/dquot.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index ddb379abd919..a1d2aed0d833 100644
+index a1d2aed0d833..770a2b143485 100644
 --- a/fs/quota/dquot.c
 +++ b/fs/quota/dquot.c
-@@ -2298,28 +2298,60 @@ EXPORT_SYMBOL(dquot_quota_off);
-  *	Turn quotas on on a device
-  */
- 
--/*
-- * Helper function to turn quotas on when we already have the inode of
-- * quota file and no quota information is loaded.
-- */
--static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
-+static int vfs_setup_quota_inode(struct inode *inode, int type)
-+{
-+	struct super_block *sb = inode->i_sb;
-+	struct quota_info *dqopt = sb_dqopt(sb);
-+
-+	if (!S_ISREG(inode->i_mode))
-+		return -EACCES;
-+	if (IS_RDONLY(inode))
-+		return -EROFS;
-+	if (sb_has_quota_loaded(sb, type))
-+		return -EBUSY;
-+
-+	dqopt->files[type] = igrab(inode);
-+	if (!dqopt->files[type])
-+		return -EIO;
-+	if (!(dqopt->flags & DQUOT_QUOTA_SYS_FILE)) {
-+		/* We don't want quota and atime on quota files (deadlocks
-+		 * possible) Also nobody should write to the file - we use
-+		 * special IO operations which ignore the immutable bit. */
-+		inode_lock(inode);
-+		inode->i_flags |= S_NOQUOTA;
-+		inode_unlock(inode);
-+		/*
-+		 * When S_NOQUOTA is set, remove dquot references as no more
-+		 * references can be added
-+		 */
-+		__dquot_drop(inode);
-+	}
-+	return 0;
-+}
-+
-+static void vfs_cleanup_quota_inode(struct super_block *sb, int type)
-+{
-+	struct quota_info *dqopt = sb_dqopt(sb);
-+	struct inode *inode = dqopt->files[type];
-+
-+	if (!(dqopt->flags & DQUOT_QUOTA_SYS_FILE)) {
-+		inode_lock(inode);
-+		inode->i_flags &= ~S_NOQUOTA;
-+		inode_unlock(inode);
-+	}
-+	dqopt->files[type] = NULL;
-+	iput(inode);
-+}
-+
-+int dquot_load_quota_sb(struct super_block *sb, int type, int format_id,
- 	unsigned int flags)
- {
- 	struct quota_format_type *fmt = find_quota_format(format_id);
--	struct super_block *sb = inode->i_sb;
+@@ -2303,6 +2303,8 @@ static int vfs_setup_quota_inode(struct inode *inode, int type)
+ 	struct super_block *sb = inode->i_sb;
  	struct quota_info *dqopt = sb_dqopt(sb);
- 	int error;
  
- 	if (!fmt)
- 		return -ESRCH;
--	if (!S_ISREG(inode->i_mode)) {
--		error = -EACCES;
--		goto out_fmt;
--	}
--	if (IS_RDONLY(inode)) {
--		error = -EROFS;
--		goto out_fmt;
--	}
- 	if (!sb->s_op->quota_write || !sb->s_op->quota_read ||
- 	    (type == PRJQUOTA && sb->dq_op->get_projid == NULL)) {
- 		error = -EINVAL;
-@@ -2351,27 +2383,9 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
- 		invalidate_bdev(sb->s_bdev);
- 	}
- 
--	if (!(dqopt->flags & DQUOT_QUOTA_SYS_FILE)) {
--		/* We don't want quota and atime on quota files (deadlocks
--		 * possible) Also nobody should write to the file - we use
--		 * special IO operations which ignore the immutable bit. */
--		inode_lock(inode);
--		inode->i_flags |= S_NOQUOTA;
--		inode_unlock(inode);
--		/*
--		 * When S_NOQUOTA is set, remove dquot references as no more
--		 * references can be added
--		 */
--		__dquot_drop(inode);
--	}
--
--	error = -EIO;
--	dqopt->files[type] = igrab(inode);
--	if (!dqopt->files[type])
--		goto out_file_flags;
- 	error = -EINVAL;
- 	if (!fmt->qf_ops->check_quota_file(sb, type))
--		goto out_file_init;
-+		goto out_fmt;
- 
- 	dqopt->ops[type] = fmt->qf_ops;
- 	dqopt->info[type].dqi_format = fmt;
-@@ -2379,7 +2393,7 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
- 	INIT_LIST_HEAD(&dqopt->info[type].dqi_dirty_list);
- 	error = dqopt->ops[type]->read_file_info(sb, type);
- 	if (error < 0)
--		goto out_file_init;
-+		goto out_fmt;
- 	if (dqopt->flags & DQUOT_QUOTA_SYS_FILE) {
- 		spin_lock(&dq_data_lock);
- 		dqopt->info[type].dqi_flags |= DQF_SYS_FILE;
-@@ -2394,18 +2408,30 @@ static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
- 		dquot_disable(sb, type, flags);
- 
- 	return error;
--out_file_init:
--	dqopt->files[type] = NULL;
--	iput(inode);
--out_file_flags:
--	inode_lock(inode);
--	inode->i_flags &= ~S_NOQUOTA;
--	inode_unlock(inode);
- out_fmt:
- 	put_quota_format(fmt);
- 
- 	return error; 
- }
-+EXPORT_SYMBOL(dquot_load_quota_sb);
-+
-+/*
-+ * Helper function to turn quotas on when we already have the inode of
-+ * quota file and no quota information is loaded.
-+ */
-+static int vfs_load_quota_inode(struct inode *inode, int type, int format_id,
-+	unsigned int flags)
-+{
-+	int err;
-+
-+	err = vfs_setup_quota_inode(inode, type);
-+	if (err < 0)
-+		return err;
-+	err = dquot_load_quota_sb(inode->i_sb, type, format_id, flags);
-+	if (err < 0)
-+		vfs_cleanup_quota_inode(inode->i_sb, type);
-+	return err;
-+}
- 
- /* Reenable quotas on remount RW */
- int dquot_resume(struct super_block *sb, int type)
-diff --git a/include/linux/quotaops.h b/include/linux/quotaops.h
-index 91e0b7624053..ec10897f7f60 100644
---- a/include/linux/quotaops.h
-+++ b/include/linux/quotaops.h
-@@ -99,6 +99,8 @@ int dquot_file_open(struct inode *inode, struct file *file);
- 
- int dquot_enable(struct inode *inode, int type, int format_id,
- 	unsigned int flags);
-+int dquot_load_quota_sb(struct super_block *sb, int type, int format_id,
-+	unsigned int flags);
- int dquot_quota_on(struct super_block *sb, int type, int format_id,
- 	const struct path *path);
- int dquot_quota_on_mount(struct super_block *sb, char *qf_name,
++	if (is_bad_inode(inode))
++		return -EUCLEAN;
+ 	if (!S_ISREG(inode->i_mode))
+ 		return -EACCES;
+ 	if (IS_RDONLY(inode))
 -- 
 2.35.1
 
