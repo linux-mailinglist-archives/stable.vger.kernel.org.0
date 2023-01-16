@@ -2,50 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B312766C695
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:21:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFAC366C696
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:21:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232917AbjAPQVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:21:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36644 "EHLO
+        id S232916AbjAPQVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:21:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233045AbjAPQVD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:21:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DA5025E04
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:11:36 -0800 (PST)
+        with ESMTP id S232976AbjAPQVE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:21:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 656C629E04
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:11:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E1A9B81059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:11:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C7D5C43392;
-        Mon, 16 Jan 2023 16:11:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F108460FDF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:11:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB36C433D2;
+        Mon, 16 Jan 2023 16:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885493;
-        bh=lomZ4pZK6Ek1cuGNK35hkaOAos1qguTINJQwSxAZRrc=;
+        s=korg; t=1673885496;
+        bh=EVKbeqe3sVmz6gPyK4px4cwHaORxjGRRhkXAONP5Kmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sbHzTDWVSik8FNTX0iwB+AdDfGXQY+DbT/BqJf0YXaVaptEdgFB/FYrsHDrp0zbtZ
-         ZKykmBmY2k+W8zkghjy0oL4pBYqtGSmj+JkjwUwG/OFsJ6IWfC0aBcuTLtm3c3gM3v
-         GBsLqDhoQU+GKerI48hWOrrnrYszEOQG6WG5ANeg=
+        b=wIuru6tWriFSCZsmilsk/Uc8cKLCDWQC8uHLqwlBxVArZvvRElcBFld2e17Xyi3j4
+         0t287im//5lhi3hvQmIIgSi+2uais486N0WAPkub5jOUkqhyXo08TqX+yJ0G+6ywfa
+         bJIP6RyiEZMc+z0oO+JMNX82NR5QkOa0Jwuyf1pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
-        Zhao Gongyi <zhaogongyi@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
+        patches@lists.linux.dev,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Jonathan Corbet <corbet@lwn.net>,
-        Oscar Salvador <osalvador@suse.de>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Yicong Yang <yangyicong@hisilicon.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/658] lib/notifier-error-inject: fix error when writing -errno to debugfs file
-Date:   Mon, 16 Jan 2023 16:42:41 +0100
-Message-Id: <20230116154912.960156857@linuxfoundation.org>
+Subject: [PATCH 5.4 074/658] docs: fault-injection: fix non-working usage of negative values
+Date:   Mon, 16 Jan 2023 16:42:42 +0100
+Message-Id: <20230116154913.012061081@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -62,49 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit f883c3edd2c432a2931ec8773c70a570115a50fe ]
+[ Upstream commit 005747526d4f3c2ec995891e95cb7625161022f9 ]
 
-The simple attribute files do not accept a negative value since the commit
-488dac0c9237 ("libfs: fix error cast of negative value in
-simple_attr_write()").
+Fault injection uses debugfs in a way that the provided values via sysfs
+are interpreted as u64. Providing negative numbers results in an error:
 
-This restores the previous behaviour by using newly introduced
-DEFINE_SIMPLE_ATTRIBUTE_SIGNED instead of DEFINE_SIMPLE_ATTRIBUTE.
+/sys/kernel/debug/fail_function# echo -1 > times
+sh: write error: Invalid argument
 
-Link: https://lkml.kernel.org/r/20220919172418.45257-3-akinobu.mita@gmail.com
-Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Rafael J. Wysocki <rafael@kernel.org>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Wei Yongjun <weiyongjun1@huawei.com>
-Cc: Yicong Yang <yangyicong@hisilicon.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Update the docs and examples to use "printf %#x <val>" in these cases.
+For "retval", reword the paragraph a little and fix a typo.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/20210603125841.27436-1-wsa+renesas@sang-engineering.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Stable-dep-of: d472cf797c4e ("debugfs: fix error when writing negative value to atomic_t debugfs file")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/notifier-error-inject.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../fault-injection/fault-injection.rst       | 24 +++++++++++--------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/lib/notifier-error-inject.c b/lib/notifier-error-inject.c
-index 21016b32d313..2b24ea6c9497 100644
---- a/lib/notifier-error-inject.c
-+++ b/lib/notifier-error-inject.c
-@@ -15,7 +15,7 @@ static int debugfs_errno_get(void *data, u64 *val)
- 	return 0;
- }
+diff --git a/Documentation/fault-injection/fault-injection.rst b/Documentation/fault-injection/fault-injection.rst
+index f51bb21d20e4..e4056dc51e7f 100644
+--- a/Documentation/fault-injection/fault-injection.rst
++++ b/Documentation/fault-injection/fault-injection.rst
+@@ -74,8 +74,10 @@ configuration of fault-injection capabilities.
  
--DEFINE_SIMPLE_ATTRIBUTE(fops_errno, debugfs_errno_get, debugfs_errno_set,
-+DEFINE_SIMPLE_ATTRIBUTE_SIGNED(fops_errno, debugfs_errno_get, debugfs_errno_set,
- 			"%lld\n");
+ - /sys/kernel/debug/fail*/times:
  
- static struct dentry *debugfs_create_errno(const char *name, umode_t mode,
+-	specifies how many times failures may happen at most.
+-	A value of -1 means "no limit".
++	specifies how many times failures may happen at most. A value of -1
++	means "no limit". Note, though, that this file only accepts unsigned
++	values. So, if you want to specify -1, you better use 'printf' instead
++	of 'echo', e.g.: $ printf %#x -1 > times
+ 
+ - /sys/kernel/debug/fail*/space:
+ 
+@@ -163,11 +165,13 @@ configuration of fault-injection capabilities.
+ 	- ERRNO: retval must be -1 to -MAX_ERRNO (-4096).
+ 	- ERR_NULL: retval must be 0 or -1 to -MAX_ERRNO (-4096).
+ 
+-- /sys/kernel/debug/fail_function/<functiuon-name>/retval:
++- /sys/kernel/debug/fail_function/<function-name>/retval:
+ 
+-	specifies the "error" return value to inject to the given
+-	function for given function. This will be created when
+-	user specifies new injection entry.
++	specifies the "error" return value to inject to the given function.
++	This will be created when the user specifies a new injection entry.
++	Note that this file only accepts unsigned values. So, if you want to
++	use a negative errno, you better use 'printf' instead of 'echo', e.g.:
++	$ printf %#x -12 > retval
+ 
+ Boot option
+ ^^^^^^^^^^^
+@@ -250,7 +254,7 @@ Application Examples
+     echo Y > /sys/kernel/debug/$FAILTYPE/task-filter
+     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
+     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
+-    echo -1 > /sys/kernel/debug/$FAILTYPE/times
++    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
+     echo 0 > /sys/kernel/debug/$FAILTYPE/space
+     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
+     echo 1 > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
+@@ -304,7 +308,7 @@ Application Examples
+     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
+     echo 10 > /sys/kernel/debug/$FAILTYPE/probability
+     echo 100 > /sys/kernel/debug/$FAILTYPE/interval
+-    echo -1 > /sys/kernel/debug/$FAILTYPE/times
++    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
+     echo 0 > /sys/kernel/debug/$FAILTYPE/space
+     echo 2 > /sys/kernel/debug/$FAILTYPE/verbose
+     echo 1 > /sys/kernel/debug/$FAILTYPE/ignore-gfp-wait
+@@ -331,11 +335,11 @@ Application Examples
+     FAILTYPE=fail_function
+     FAILFUNC=open_ctree
+     echo $FAILFUNC > /sys/kernel/debug/$FAILTYPE/inject
+-    echo -12 > /sys/kernel/debug/$FAILTYPE/$FAILFUNC/retval
++    printf %#x -12 > /sys/kernel/debug/$FAILTYPE/$FAILFUNC/retval
+     echo N > /sys/kernel/debug/$FAILTYPE/task-filter
+     echo 100 > /sys/kernel/debug/$FAILTYPE/probability
+     echo 0 > /sys/kernel/debug/$FAILTYPE/interval
+-    echo -1 > /sys/kernel/debug/$FAILTYPE/times
++    printf %#x -1 > /sys/kernel/debug/$FAILTYPE/times
+     echo 0 > /sys/kernel/debug/$FAILTYPE/space
+     echo 1 > /sys/kernel/debug/$FAILTYPE/verbose
+ 
 -- 
 2.35.1
 
