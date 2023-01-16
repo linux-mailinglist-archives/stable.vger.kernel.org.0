@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2541F66C602
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:13:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 117CB66C943
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232696AbjAPQNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:13:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59386 "EHLO
+        id S233902AbjAPQrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:47:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232770AbjAPQMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:12:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E06152B0B8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:47 -0800 (PST)
+        with ESMTP id S233845AbjAPQq7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8173B0D6
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 380A6B81085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85D93C433F0;
-        Mon, 16 Jan 2023 16:07:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36AFE6106E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49CFDC433F0;
+        Mon, 16 Jan 2023 16:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885264;
-        bh=ifHpNd3XK8MN5Lz6TtqIToAa6TI82pLX1kn7HNJ7/14=;
+        s=korg; t=1673886891;
+        bh=IN41O2u8NXoeA6QCFZqS/m70Mz2F9VCWIIt7SPGU5r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2C+n9MX8nw1wKH63aSsGIiO0D5LGpSJPDtvABCuuWhGT18GSeYsn/UKyOlzd/p0q
-         /bMiiJSi9G3uTpFoO1tip/lhCcDZ6j6FeIWV2oE1VvTlGp6WnlQASskUTveuCceVxV
-         csRxS4dAyJcLmK0M5YhJmmY/YKhYCM5rXrPhqpEs=
+        b=Iyd7D7wX/NXAXci4nthNGDwmeuBg17eCXXTlbWvmLBNbYxGks/TX1ymE5vvbK92Ut
+         BeY7kuS04sXZgTOXIzhQEJESwxfT6tHTHhGQBeZxYLQjSrqQpUrZedA6v/1b53Ft95
+         fbJqfZso8EhKwD+q8u70y59MATLwR0l7eDKSC65A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        Abel Vesa <abel.vesa@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 21/64] clk: imx8mp: add clkout1/2 support
-Date:   Mon, 16 Jan 2023 16:51:28 +0100
-Message-Id: <20230116154744.344026110@linuxfoundation.org>
+        patches@lists.linux.dev, Oliver Upton <oliver.upton@linux.dev>,
+        Ard Biesheuvel <ardb@kernel.org>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 601/658] KVM: arm64: Fix S1PTW handling on RO memslots
+Date:   Mon, 16 Jan 2023 16:51:29 +0100
+Message-Id: <20230116154936.983855105@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,80 +52,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 43896f56b59eeaf08687fa976257ae7083d01b41 ]
+commit 406504c7b0405d74d74c15a667cd4c4620c3e7a9 upstream.
 
-clkout1 and clkout2 allow to supply clocks from the SoC to the board,
-which is used by some board designs to provide reference clocks.
+A recent development on the EFI front has resulted in guests having
+their page tables baked in the firmware binary, and mapped into the
+IPA space as part of a read-only memslot. Not only is this legitimate,
+but it also results in added security, so thumbs up.
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
-Link: https://lore.kernel.org/r/20220427162131.3127303-1-l.stach@pengutronix.de
-Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
-Stable-dep-of: 5c1f7f109094 ("dt-bindings: clocks: imx8mp: Add ID for usb suspend clock")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It is possible to take an S1PTW translation fault if the S1 PTs are
+unmapped at stage-2. However, KVM unconditionally treats S1PTW as a
+write to correctly handle hardware AF/DB updates to the S1 PTs.
+Furthermore, KVM injects an exception into the guest for S1PTW writes.
+In the aforementioned case this results in the guest taking an abort
+it won't recover from, as the S1 PTs mapping the vectors suffer from
+the same problem.
+
+So clearly our handling is... wrong.
+
+Instead, switch to a two-pronged approach:
+
+- On S1PTW translation fault, handle the fault as a read
+
+- On S1PTW permission fault, handle the fault as a write
+
+This is of no consequence to SW that *writes* to its PTs (the write
+will trigger a non-S1PTW fault), and SW that uses RO PTs will not
+use HW-assisted AF/DB anyway, as that'd be wrong.
+
+Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
+fault on S1PTW permission fault on instruction fetch") do we end-up
+with two back-to-back faults (page being evicted and faulted back).
+I don't think this is a case worth optimising for.
+
+Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
+Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Regression-tested-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/imx/clk-imx8mp.c             | 14 ++++++++++++++
- include/dt-bindings/clock/imx8mp-clock.h |  9 +++++++--
- 2 files changed, 21 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/kvm_emulate.h |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-imx8mp.c b/drivers/clk/imx/clk-imx8mp.c
-index 2af39c8240fa..187044b98bde 100644
---- a/drivers/clk/imx/clk-imx8mp.c
-+++ b/drivers/clk/imx/clk-imx8mp.c
-@@ -411,6 +411,11 @@ static const char * const imx8mp_sai7_sels[] = {"osc_24m", "audio_pll1_out", "au
+--- a/arch/arm64/include/asm/kvm_emulate.h
++++ b/arch/arm64/include/asm/kvm_emulate.h
+@@ -378,8 +378,26 @@ static inline int kvm_vcpu_sys_get_rt(st
  
- static const char * const imx8mp_dram_core_sels[] = {"dram_pll_out", "dram_alt_root", };
+ static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
+ {
+-	if (kvm_vcpu_abt_iss1tw(vcpu))
+-		return true;
++	if (kvm_vcpu_abt_iss1tw(vcpu)) {
++		/*
++		 * Only a permission fault on a S1PTW should be
++		 * considered as a write. Otherwise, page tables baked
++		 * in a read-only memslot will result in an exception
++		 * being delivered in the guest.
++		 *
++		 * The drawback is that we end-up faulting twice if the
++		 * guest is using any of HW AF/DB: a translation fault
++		 * to map the page containing the PT (read only at
++		 * first), then a permission fault to allow the flags
++		 * to be set.
++		 */
++		switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
++		case ESR_ELx_FSC_PERM:
++			return true;
++		default:
++			return false;
++		}
++	}
  
-+static const char * const imx8mp_clkout_sels[] = {"audio_pll1_out", "audio_pll2_out", "video_pll1_out",
-+						  "dummy", "dummy", "gpu_pll_out", "vpu_pll_out",
-+						  "arm_pll_out", "sys_pll1", "sys_pll2", "sys_pll3",
-+						  "dummy", "dummy", "osc_24m", "dummy", "osc_32k"};
-+
- static struct clk_hw **hws;
- static struct clk_hw_onecell_data *clk_hw_data;
- 
-@@ -532,6 +537,15 @@ static int imx8mp_clocks_probe(struct platform_device *pdev)
- 	hws[IMX8MP_SYS_PLL2_500M] = imx_clk_hw_fixed_factor("sys_pll2_500m", "sys_pll2_500m_cg", 1, 2);
- 	hws[IMX8MP_SYS_PLL2_1000M] = imx_clk_hw_fixed_factor("sys_pll2_1000m", "sys_pll2_out", 1, 1);
- 
-+	hws[IMX8MP_CLK_CLKOUT1_SEL] = imx_clk_hw_mux2("clkout1_sel", anatop_base + 0x128, 4, 4,
-+						      imx8mp_clkout_sels, ARRAY_SIZE(imx8mp_clkout_sels));
-+	hws[IMX8MP_CLK_CLKOUT1_DIV] = imx_clk_hw_divider("clkout1_div", "clkout1_sel", anatop_base + 0x128, 0, 4);
-+	hws[IMX8MP_CLK_CLKOUT1] = imx_clk_hw_gate("clkout1", "clkout1_div", anatop_base + 0x128, 8);
-+	hws[IMX8MP_CLK_CLKOUT2_SEL] = imx_clk_hw_mux2("clkout2_sel", anatop_base + 0x128, 20, 4,
-+						      imx8mp_clkout_sels, ARRAY_SIZE(imx8mp_clkout_sels));
-+	hws[IMX8MP_CLK_CLKOUT2_DIV] = imx_clk_hw_divider("clkout2_div", "clkout2_sel", anatop_base + 0x128, 16, 4);
-+	hws[IMX8MP_CLK_CLKOUT2] = imx_clk_hw_gate("clkout2", "clkout2_div", anatop_base + 0x128, 24);
-+
- 	hws[IMX8MP_CLK_A53_DIV] = imx8m_clk_hw_composite_core("arm_a53_div", imx8mp_a53_sels, ccm_base + 0x8000);
- 	hws[IMX8MP_CLK_A53_SRC] = hws[IMX8MP_CLK_A53_DIV];
- 	hws[IMX8MP_CLK_A53_CG] = hws[IMX8MP_CLK_A53_DIV];
-diff --git a/include/dt-bindings/clock/imx8mp-clock.h b/include/dt-bindings/clock/imx8mp-clock.h
-index 4a621fddfcd3..0ba16b76eb2f 100644
---- a/include/dt-bindings/clock/imx8mp-clock.h
-+++ b/include/dt-bindings/clock/imx8mp-clock.h
-@@ -321,10 +321,15 @@
- #define IMX8MP_CLK_AUDIO_AXI			310
- #define IMX8MP_CLK_HSIO_AXI			311
- #define IMX8MP_CLK_MEDIA_ISP			312
--
- #define IMX8MP_CLK_MEDIA_DISP2_PIX		313
-+#define IMX8MP_CLK_CLKOUT1_SEL			314
-+#define IMX8MP_CLK_CLKOUT1_DIV			315
-+#define IMX8MP_CLK_CLKOUT1			316
-+#define IMX8MP_CLK_CLKOUT2_SEL			317
-+#define IMX8MP_CLK_CLKOUT2_DIV			318
-+#define IMX8MP_CLK_CLKOUT2			319
- 
--#define IMX8MP_CLK_END				314
-+#define IMX8MP_CLK_END				320
- 
- #define IMX8MP_CLK_AUDIOMIX_SAI1_IPG		0
- #define IMX8MP_CLK_AUDIOMIX_SAI1_MCLK1		1
--- 
-2.35.1
-
+ 	if (kvm_vcpu_trap_is_iabt(vcpu))
+ 		return false;
 
 
