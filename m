@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FCD66C557
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B407866C928
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231977AbjAPQFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:05:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45958 "EHLO
+        id S233879AbjAPQqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:46:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232172AbjAPQEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E74E826854
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:07 -0800 (PST)
+        with ESMTP id S233793AbjAPQqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C52041DB80
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03054B81065
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53DCDC433D2;
-        Mon, 16 Jan 2023 16:03:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62B006105A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C256C433F0;
+        Mon, 16 Jan 2023 16:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884984;
-        bh=MkCq7CJNnMxdUr2XX6o0cJG8jVcLCWdAVqqA3TDbf+Q=;
+        s=korg; t=1673886835;
+        bh=JdSCoMMrjIqGKT0LpQELer+ffb1siJMjsmAxRVfATfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFF5nRQl0i1hhhabSGCZOq2XhmNtdLU8EwfHsval9fAq6915U5w/H50WAMBzvOqNS
-         F9+adBXJDvDcncaCzEJWgZYIjvFS7AV7+YFtVSnxXtpaCkjJ+jadJjg9wy0/eCGh8B
-         EHxvJL9Z5FbMAt2ItGPuhxp1KPXOK1KdHBdu98sc=
+        b=IGPHmqXoWsYtKmqdp8gGDwI6i88LrpOUS2DfQiCeZAjLz+R524LnAI6QWI1G2KUgH
+         NqVpzzz62had4oZdvVVar7jGmLtJYo9Pkb5D5vslsHLv+dIJATpB2LHIXDc2/uwnRq
+         q+peXbttxk+QteLqMrmK/UU+rspumwbDXDEdTtbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Oliver Upton <oliver.upton@linux.dev>,
-        Ard Biesheuvel <ardb@kernel.org>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.15 05/86] KVM: arm64: Fix S1PTW handling on RO memslots
+        patches@lists.linux.dev, Aaron Lewis <aaronlewis@google.com>,
+        Yu Zhang <yu.c.zhang@linux.intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 551/658] KVM: nVMX: Properly expose ENABLE_USR_WAIT_PAUSE control to L1
 Date:   Mon, 16 Jan 2023 16:50:39 +0100
-Message-Id: <20230116154747.282287335@linuxfoundation.org>
+Message-Id: <20230116154934.733798917@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,81 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 406504c7b0405d74d74c15a667cd4c4620c3e7a9 upstream.
+[ Upstream commit 31de69f4eea77b28a9724b3fa55aae104fc91fc7 ]
 
-A recent development on the EFI front has resulted in guests having
-their page tables baked in the firmware binary, and mapped into the
-IPA space as part of a read-only memslot. Not only is this legitimate,
-but it also results in added security, so thumbs up.
+Set ENABLE_USR_WAIT_PAUSE in KVM's supported VMX MSR configuration if the
+feature is supported in hardware and enabled in KVM's base, non-nested
+configuration, i.e. expose ENABLE_USR_WAIT_PAUSE to L1 if it's supported.
+This fixes a bug where saving/restoring, i.e. migrating, a vCPU will fail
+if WAITPKG (the associated CPUID feature) is enabled for the vCPU, and
+obviously allows L1 to enable the feature for L2.
 
-It is possible to take an S1PTW translation fault if the S1 PTs are
-unmapped at stage-2. However, KVM unconditionally treats S1PTW as a
-write to correctly handle hardware AF/DB updates to the S1 PTs.
-Furthermore, KVM injects an exception into the guest for S1PTW writes.
-In the aforementioned case this results in the guest taking an abort
-it won't recover from, as the S1 PTs mapping the vectors suffer from
-the same problem.
+KVM already effectively exposes ENABLE_USR_WAIT_PAUSE to L1 by stuffing
+the allowed-1 control ina vCPU's virtual MSR_IA32_VMX_PROCBASED_CTLS2 when
+updating secondary controls in response to KVM_SET_CPUID(2), but (a) that
+depends on flawed code (KVM shouldn't touch VMX MSRs in response to CPUID
+updates) and (b) runs afoul of vmx_restore_control_msr()'s restriction
+that the guest value must be a strict subset of the supported host value.
 
-So clearly our handling is... wrong.
+Although no past commit explicitly enabled nested support for WAITPKG,
+doing so is safe and functionally correct from an architectural
+perspective as no additional KVM support is needed to virtualize TPAUSE,
+UMONITOR, and UMWAIT for L2 relative to L1, and KVM already forwards
+VM-Exits to L1 as necessary (commit bf653b78f960, "KVM: vmx: Introduce
+handle_unexpected_vmexit and handle WAITPKG vmexit").
 
-Instead, switch to a two-pronged approach:
+Note, KVM always keeps the hosts MSR_IA32_UMWAIT_CONTROL resident in
+hardware, i.e. always runs both L1 and L2 with the host's power management
+settings for TPAUSE and UMWAIT.  See commit bf09fb6cba4f ("KVM: VMX: Stop
+context switching MSR_IA32_UMWAIT_CONTROL") for more details.
 
-- On S1PTW translation fault, handle the fault as a read
-
-- On S1PTW permission fault, handle the fault as a write
-
-This is of no consequence to SW that *writes* to its PTs (the write
-will trigger a non-S1PTW fault), and SW that uses RO PTs will not
-use HW-assisted AF/DB anyway, as that'd be wrong.
-
-Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
-fault on S1PTW permission fault on instruction fetch") do we end-up
-with two back-to-back faults (page being evicted and faulted back).
-I don't think this is a case worth optimising for.
-
-Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
-Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Regression-tested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Fixes: e69e72faa3a0 ("KVM: x86: Add support for user wait instructions")
 Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Aaron Lewis <aaronlewis@google.com>
+Reported-by: Yu Zhang <yu.c.zhang@linux.intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Message-Id: <20221213062306.667649-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/kvm_emulate.h |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/kvm_emulate.h
-+++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -366,8 +366,26 @@ static __always_inline int kvm_vcpu_sys_
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 1dd693d18395..00f3336194a9 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -5916,7 +5916,8 @@ void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps)
+ 		SECONDARY_EXEC_RDRAND_EXITING |
+ 		SECONDARY_EXEC_ENABLE_INVPCID |
+ 		SECONDARY_EXEC_RDSEED_EXITING |
+-		SECONDARY_EXEC_XSAVES;
++		SECONDARY_EXEC_XSAVES |
++		SECONDARY_EXEC_ENABLE_USR_WAIT_PAUSE;
  
- static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
- {
--	if (kvm_vcpu_abt_iss1tw(vcpu))
--		return true;
-+	if (kvm_vcpu_abt_iss1tw(vcpu)) {
-+		/*
-+		 * Only a permission fault on a S1PTW should be
-+		 * considered as a write. Otherwise, page tables baked
-+		 * in a read-only memslot will result in an exception
-+		 * being delivered in the guest.
-+		 *
-+		 * The drawback is that we end-up faulting twice if the
-+		 * guest is using any of HW AF/DB: a translation fault
-+		 * to map the page containing the PT (read only at
-+		 * first), then a permission fault to allow the flags
-+		 * to be set.
-+		 */
-+		switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
-+		case ESR_ELx_FSC_PERM:
-+			return true;
-+		default:
-+			return false;
-+		}
-+	}
- 
- 	if (kvm_vcpu_trap_is_iabt(vcpu))
- 		return false;
+ 	/*
+ 	 * We can emulate "VMCS shadowing," even if the hardware
+-- 
+2.35.1
+
 
 
