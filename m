@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3194766CD43
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EFDD66CBC0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234939AbjAPRfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:35:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56296 "EHLO
+        id S234535AbjAPRQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:16:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234838AbjAPReh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 498C73BDA7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:48 -0800 (PST)
+        with ESMTP id S234504AbjAPRQ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:16:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433483526A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEB93B810A0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51C34C433D2;
-        Mon, 16 Jan 2023 17:10:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6692E6108C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76DBFC433EF;
+        Mon, 16 Jan 2023 16:57:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889045;
-        bh=dIFI76H+3HKySnfrj/8RrdvNXumTys7GmJPQEr6L9T4=;
+        s=korg; t=1673888226;
+        bh=4j/nzF9SvzFuuKZtji9I66nKz38hSmtwG/YbXkGaau8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udrTcwCGmLugnI9suz7O1CUcSWmuZHFKu8GJKquArLM3ivEq2wHRdTYnha0JKQs/H
-         Avg8j73f7uICIxE+v5wCcHl4oMaz7HzeXD9qmOmNYz1j8Drt/poxNolU0MSU0bA199
-         MfMYZEsWR7ZocD30v5FN7G0+P7Xa77vJ/fLrkbd8=
+        b=pj62wELVW9TH/8Ii9xURcfYz6AnfDq1ctEg0nflKGJv6kr+2DXU0EDmlc0OMi7Ztd
+         PnnxhGyTc6bFeCsPgdbKVoevKtVfyhHm0b2FGP0CZsaWnvI4+CZ9ozaQlBPFJqASJs
+         yDWfJQCiNdqOsflgNK3qmMSMLHp6hL80w/XCaZXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com,
-        Schspa Shi <schspa@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 237/338] mrp: introduce active flags to prevent UAF when applicant uninit
+Subject: [PATCH 4.19 448/521] RDMA/mlx5: Fix validation of max_rd_atomic caps for DC
 Date:   Mon, 16 Jan 2023 16:51:50 +0100
-Message-Id: <20230116154831.381822103@linuxfoundation.org>
+Message-Id: <20230116154907.173408198@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,124 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit ab0377803dafc58f1e22296708c1c28e309414d6 ]
+[ Upstream commit 8de8482fe5732fbef4f5af82bc0c0362c804cd1f ]
 
-The caller of del_timer_sync must prevent restarting of the timer, If
-we have no this synchronization, there is a small probability that the
-cancellation will not be successful.
+Currently, when modifying DC, we validate max_rd_atomic user attribute
+against the RC cap, validate against DC. RC and DC QP types have different
+device limitations.
 
-And syzbot report the fellowing crash:
-==================================================================
-BUG: KASAN: use-after-free in hlist_add_head include/linux/list.h:929 [inline]
-BUG: KASAN: use-after-free in enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
-Write at addr f9ff000024df6058 by task syz-fuzzer/2256
-Pointer tag: [f9], memory tag: [fe]
+This can cause userspace created DC QPs to malfunction.
 
-CPU: 1 PID: 2256 Comm: syz-fuzzer Not tainted 6.1.0-rc5-syzkaller-00008-
-ge01d50cbd6ee #0
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace.part.0+0xe0/0xf0 arch/arm64/kernel/stacktrace.c:156
- dump_backtrace arch/arm64/kernel/stacktrace.c:162 [inline]
- show_stack+0x18/0x40 arch/arm64/kernel/stacktrace.c:163
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x68/0x84 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:284 [inline]
- print_report+0x1a8/0x4a0 mm/kasan/report.c:395
- kasan_report+0x94/0xb4 mm/kasan/report.c:495
- __do_kernel_fault+0x164/0x1e0 arch/arm64/mm/fault.c:320
- do_bad_area arch/arm64/mm/fault.c:473 [inline]
- do_tag_check_fault+0x78/0x8c arch/arm64/mm/fault.c:749
- do_mem_abort+0x44/0x94 arch/arm64/mm/fault.c:825
- el1_abort+0x40/0x60 arch/arm64/kernel/entry-common.c:367
- el1h_64_sync_handler+0xd8/0xe4 arch/arm64/kernel/entry-common.c:427
- el1h_64_sync+0x64/0x68 arch/arm64/kernel/entry.S:576
- hlist_add_head include/linux/list.h:929 [inline]
- enqueue_timer+0x18/0xa4 kernel/time/timer.c:605
- mod_timer+0x14/0x20 kernel/time/timer.c:1161
- mrp_periodic_timer_arm net/802/mrp.c:614 [inline]
- mrp_periodic_timer+0xa0/0xc0 net/802/mrp.c:627
- call_timer_fn.constprop.0+0x24/0x80 kernel/time/timer.c:1474
- expire_timers+0x98/0xc4 kernel/time/timer.c:1519
-
-To fix it, we can introduce a new active flags to make sure the timer will
-not restart.
-
-Reported-by: syzbot+6fd64001c20aa99e34a4@syzkaller.appspotmail.com
-
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c32a4f296e1d ("IB/mlx5: Add support for DC Initiator QP")
+Link: https://lore.kernel.org/r/0c5aee72cea188c3bb770f4207cce7abc9b6fc74.1672231736.git.leonro@nvidia.com
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/mrp.h |  1 +
- net/802/mrp.c     | 18 +++++++++++++-----
- 2 files changed, 14 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c | 49 +++++++++++++++++++++++----------
+ 1 file changed, 35 insertions(+), 14 deletions(-)
 
-diff --git a/include/net/mrp.h b/include/net/mrp.h
-index ef58b4a07190..c6c53370e390 100644
---- a/include/net/mrp.h
-+++ b/include/net/mrp.h
-@@ -120,6 +120,7 @@ struct mrp_applicant {
- 	struct sk_buff		*pdu;
- 	struct rb_root		mad;
- 	struct rcu_head		rcu;
-+	bool			active;
- };
- 
- struct mrp_port {
-diff --git a/net/802/mrp.c b/net/802/mrp.c
-index 7a893a03e795..fb4d1e9c0bb2 100644
---- a/net/802/mrp.c
-+++ b/net/802/mrp.c
-@@ -609,7 +609,10 @@ static void mrp_join_timer(unsigned long data)
- 	spin_unlock(&app->lock);
- 
- 	mrp_queue_xmit(app);
--	mrp_join_timer_arm(app);
-+	spin_lock(&app->lock);
-+	if (likely(app->active))
-+		mrp_join_timer_arm(app);
-+	spin_unlock(&app->lock);
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index 361b1b859782..1520a3098f7d 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -3411,6 +3411,40 @@ static int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 	return err;
  }
  
- static void mrp_periodic_timer_arm(struct mrp_applicant *app)
-@@ -623,11 +626,12 @@ static void mrp_periodic_timer(unsigned long data)
- 	struct mrp_applicant *app = (struct mrp_applicant *)data;
- 
- 	spin_lock(&app->lock);
--	mrp_mad_event(app, MRP_EVENT_PERIODIC);
--	mrp_pdu_queue(app);
-+	if (likely(app->active)) {
-+		mrp_mad_event(app, MRP_EVENT_PERIODIC);
-+		mrp_pdu_queue(app);
-+		mrp_periodic_timer_arm(app);
++static int validate_rd_atomic(struct mlx5_ib_dev *dev, struct ib_qp_attr *attr,
++			      int attr_mask, enum ib_qp_type qp_type)
++{
++	int log_max_ra_res;
++	int log_max_ra_req;
++
++	if (qp_type == MLX5_IB_QPT_DCI) {
++		log_max_ra_res = 1 << MLX5_CAP_GEN(dev->mdev,
++						   log_max_ra_res_dc);
++		log_max_ra_req = 1 << MLX5_CAP_GEN(dev->mdev,
++						   log_max_ra_req_dc);
++	} else {
++		log_max_ra_res = 1 << MLX5_CAP_GEN(dev->mdev,
++						   log_max_ra_res_qp);
++		log_max_ra_req = 1 << MLX5_CAP_GEN(dev->mdev,
++						   log_max_ra_req_qp);
 +	}
- 	spin_unlock(&app->lock);
++
++	if (attr_mask & IB_QP_MAX_QP_RD_ATOMIC &&
++	    attr->max_rd_atomic > log_max_ra_res) {
++		mlx5_ib_dbg(dev, "invalid max_rd_atomic value %d\n",
++			    attr->max_rd_atomic);
++		return false;
++	}
++
++	if (attr_mask & IB_QP_MAX_DEST_RD_ATOMIC &&
++	    attr->max_dest_rd_atomic > log_max_ra_req) {
++		mlx5_ib_dbg(dev, "invalid max_dest_rd_atomic value %d\n",
++			    attr->max_dest_rd_atomic);
++		return false;
++	}
++	return true;
++}
++
+ int mlx5_ib_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 		      int attr_mask, struct ib_udata *udata)
+ {
+@@ -3508,21 +3542,8 @@ int mlx5_ib_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 		}
+ 	}
+ 
+-	if (attr_mask & IB_QP_MAX_QP_RD_ATOMIC &&
+-	    attr->max_rd_atomic >
+-	    (1 << MLX5_CAP_GEN(dev->mdev, log_max_ra_res_qp))) {
+-		mlx5_ib_dbg(dev, "invalid max_rd_atomic value %d\n",
+-			    attr->max_rd_atomic);
+-		goto out;
+-	}
 -
--	mrp_periodic_timer_arm(app);
- }
+-	if (attr_mask & IB_QP_MAX_DEST_RD_ATOMIC &&
+-	    attr->max_dest_rd_atomic >
+-	    (1 << MLX5_CAP_GEN(dev->mdev, log_max_ra_req_qp))) {
+-		mlx5_ib_dbg(dev, "invalid max_dest_rd_atomic value %d\n",
+-			    attr->max_dest_rd_atomic);
++	if (!validate_rd_atomic(dev, attr, attr_mask, qp_type))
+ 		goto out;
+-	}
  
- static int mrp_pdu_parse_end_mark(struct sk_buff *skb, int *offset)
-@@ -875,6 +879,7 @@ int mrp_init_applicant(struct net_device *dev, struct mrp_application *appl)
- 	app->dev = dev;
- 	app->app = appl;
- 	app->mad = RB_ROOT;
-+	app->active = true;
- 	spin_lock_init(&app->lock);
- 	skb_queue_head_init(&app->queue);
- 	rcu_assign_pointer(dev->mrp_port->applicants[appl->type], app);
-@@ -904,6 +909,9 @@ void mrp_uninit_applicant(struct net_device *dev, struct mrp_application *appl)
- 
- 	RCU_INIT_POINTER(port->applicants[appl->type], NULL);
- 
-+	spin_lock_bh(&app->lock);
-+	app->active = false;
-+	spin_unlock_bh(&app->lock);
- 	/* Delete timer and generate a final TX event to flush out
- 	 * all pending messages before the applicant is gone.
- 	 */
+ 	if (cur_state == new_state && cur_state == IB_QPS_RESET) {
+ 		err = 0;
 -- 
 2.35.1
 
