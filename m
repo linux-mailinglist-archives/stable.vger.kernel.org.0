@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DBC066CA27
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49EEC66CA2B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229571AbjAPRAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:00:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50858 "EHLO
+        id S234040AbjAPRAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:00:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232143AbjAPQ7i (ORCPT
+        with ESMTP id S234143AbjAPQ7i (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 019EB2ED69
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:24 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2470274AA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D41BB8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 059C5C433D2;
-        Mon, 16 Jan 2023 16:42:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F06D6104F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3ABBC433EF;
+        Mon, 16 Jan 2023 16:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887342;
-        bh=LJs8LQQduOOsZdQL/NNKOGZqKepKg7XFudip+AiDgdY=;
+        s=korg; t=1673887345;
+        bh=joO2+CCVxFkxLe3TsGb1maLTiOpsi1iXRg/tzScuud8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QgbggMJsS66COZcVh7HwrxThScZrUTU9DL/hnddcAjeTBMpPASMVUkIZ/BHABrBkE
-         kEVz0chi4fp1FA2cl+LQNVRRiaJkNS7f7UbUenDats0eeTFs2877VukWMSKZFQSPqB
-         2lRckaWcmOeVqSDsprY8w6T/ixov5JZsZ5/w6xpA=
+        b=TAaYhzXNX54U4q/iF4bGY5QiqDy487xyXE61TiQXOP+4GEddIDH8m6rP/x1JaZdr2
+         2nqDE63nFNSWZSgAlJUHeF5Jgz8nmith5IKFGcGNjIEkt6EhGzYCMI7F/w5GAAlRpc
+         v2jruOBTDZxWtvyUAS1Tyf7Q2nU75UB9DraU1KtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maor Gottlieb <maorg@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        patches@lists.linux.dev, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 113/521] bonding: Export skip slave logic to function
-Date:   Mon, 16 Jan 2023 16:46:15 +0100
-Message-Id: <20230116154852.295755980@linuxfoundation.org>
+Subject: [PATCH 4.19 114/521] mtd: maps: pxa2xx-flash: fix memory leak in probe
+Date:   Mon, 16 Jan 2023 16:46:16 +0100
+Message-Id: <20230116154852.336621647@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -56,88 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@mellanox.com>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit 119d48fd4298594beccf4f2ecd00627826ce2646 ]
+[ Upstream commit 2399401feee27c639addc5b7e6ba519d3ca341bf ]
 
-As a preparation for following change that add array of
-all slaves, extract code that skip slave to function.
+Free 'info' upon remapping error to avoid a memory leak.
 
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Reviewed-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Acked-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: e644f7d62894 ("[MTD] MAPS: Merge Lubbock and Mainstone drivers into common PXA2xx driver")
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+[<miquel.raynal@bootlin.com>: Reword the commit log]
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20221119073307.22929-1-zhengyongjun3@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 47 ++++++++++++++++++---------------
- 1 file changed, 26 insertions(+), 21 deletions(-)
+ drivers/mtd/maps/pxa2xx-flash.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index cab5c1cc9fe9..85efa0e0ee2c 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3993,6 +3993,29 @@ static void bond_slave_arr_handler(struct work_struct *work)
- 	bond_slave_arr_work_rearm(bond, 1);
- }
- 
-+static void bond_skip_slave(struct bond_up_slave *slaves,
-+			    struct slave *skipslave)
-+{
-+	int idx;
-+
-+	/* Rare situation where caller has asked to skip a specific
-+	 * slave but allocation failed (most likely!). BTW this is
-+	 * only possible when the call is initiated from
-+	 * __bond_release_one(). In this situation; overwrite the
-+	 * skipslave entry in the array with the last entry from the
-+	 * array to avoid a situation where the xmit path may choose
-+	 * this to-be-skipped slave to send a packet out.
-+	 */
-+	for (idx = 0; slaves && idx < slaves->count; idx++) {
-+		if (skipslave == slaves->arr[idx]) {
-+			slaves->arr[idx] =
-+				slaves->arr[slaves->count - 1];
-+			slaves->count--;
-+			break;
-+		}
-+	}
-+}
-+
- /* Build the usable slaves array in control path for modes that use xmit-hash
-  * to determine the slave interface -
-  * (a) BOND_MODE_8023AD
-@@ -4063,27 +4086,9 @@ int bond_update_slave_arr(struct bonding *bond, struct slave *skipslave)
- 	if (old_arr)
- 		kfree_rcu(old_arr, rcu);
- out:
--	if (ret != 0 && skipslave) {
--		int idx;
--
--		/* Rare situation where caller has asked to skip a specific
--		 * slave but allocation failed (most likely!). BTW this is
--		 * only possible when the call is initiated from
--		 * __bond_release_one(). In this situation; overwrite the
--		 * skipslave entry in the array with the last entry from the
--		 * array to avoid a situation where the xmit path may choose
--		 * this to-be-skipped slave to send a packet out.
--		 */
--		old_arr = rtnl_dereference(bond->slave_arr);
--		for (idx = 0; old_arr != NULL && idx < old_arr->count; idx++) {
--			if (skipslave == old_arr->arr[idx]) {
--				old_arr->arr[idx] =
--				    old_arr->arr[old_arr->count-1];
--				old_arr->count--;
--				break;
--			}
--		}
--	}
-+	if (ret != 0 && skipslave)
-+		bond_skip_slave(rtnl_dereference(bond->slave_arr), skipslave);
-+
- 	return ret;
- }
- 
+diff --git a/drivers/mtd/maps/pxa2xx-flash.c b/drivers/mtd/maps/pxa2xx-flash.c
+index 2cde28ed95c9..59d2fe1f46e1 100644
+--- a/drivers/mtd/maps/pxa2xx-flash.c
++++ b/drivers/mtd/maps/pxa2xx-flash.c
+@@ -69,6 +69,7 @@ static int pxa2xx_flash_probe(struct platform_device *pdev)
+ 	if (!info->map.virt) {
+ 		printk(KERN_WARNING "Failed to ioremap %s\n",
+ 		       info->map.name);
++		kfree(info);
+ 		return -ENOMEM;
+ 	}
+ 	info->map.cached =
+@@ -91,6 +92,7 @@ static int pxa2xx_flash_probe(struct platform_device *pdev)
+ 		iounmap((void *)info->map.virt);
+ 		if (info->map.cached)
+ 			iounmap(info->map.cached);
++		kfree(info);
+ 		return -EIO;
+ 	}
+ 	info->mtd->dev.parent = &pdev->dev;
 -- 
 2.35.1
 
