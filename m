@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D2A366C894
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6CF66C474
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233539AbjAPQkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:40:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54012 "EHLO
+        id S229973AbjAPPzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:55:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233396AbjAPQk0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3BF0367D4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:28:34 -0800 (PST)
+        with ESMTP id S230492AbjAPPyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F22B222C7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75FF2B81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:28:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEC54C433F0;
-        Mon, 16 Jan 2023 16:28:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFD1561038
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0468C433D2;
+        Mon, 16 Jan 2023 15:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886512;
-        bh=U5Mey/rQLwvtLP/hNqwdG1LV3MWIzt7O65pHqfQOdzQ=;
+        s=korg; t=1673884490;
+        bh=XalcQgvmaKEiJxgess2rg5blO9B8KGoVgxoeRmUeb4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJjOSl7bjSfzuRn8dJNGCEU0RnuRDgXzoUZ4d8saAVeMvJtVMvgIWpPCYAgksk0K/
-         yQPuhYPYjBv0FKu1ZxxCm1h0QpHVdj5qQuY/L8NckMhvQj/Z0cw3Aa9NC8+rKytI/P
-         8c0kOeOCYTP7nfYT6zu9KRSeGu4cZQ+XsjsI0XsI=
+        b=xD2mHKOWUMFRKkmZWA/p0CLSNjfiDb1D0VXI+ISSvV5uxrGajfJROk9Pwk+rh0kI7
+         qfjBPbSZmjfFo9E23jxx+oruKgdPYucmQSJHWu9cuBj1fC0g8vGjVS7Cd5WbmTvm1F
+         zeKh7acgnYqYnnpsvV3huW+WVdd2MUQ666rhqqUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Kanchan Joshi <joshi.k@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 459/658] nvme: fix the NVME_CMD_EFFECTS_CSE_MASK definition
-Date:   Mon, 16 Jan 2023 16:49:07 +0100
-Message-Id: <20230116154930.494301155@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 6.1 025/183] s390/percpu: add READ_ONCE() to arch_this_cpu_to_op_simple()
+Date:   Mon, 16 Jan 2023 16:49:08 +0100
+Message-Id: <20230116154804.441957920@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 685e6311637e46f3212439ce2789f8a300e5050f ]
+commit e3f360db08d55a14112bd27454e616a24296a8b0 upstream.
 
-3 << 16 does not generate the correct mask for bits 16, 17 and 18.
-Use the GENMASK macro to generate the correct mask instead.
+Make sure that *ptr__ within arch_this_cpu_to_op_simple() is only
+dereferenced once by using READ_ONCE(). Otherwise the compiler could
+generate incorrect code.
 
-Fixes: 84fef62d135b ("nvme: check admin passthru command effects")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Kanchan Joshi <joshi.k@samsung.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/nvme.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/percpu.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/nvme.h b/include/linux/nvme.h
-index 3eca4f7d8510..ff0ee07b1e8f 100644
---- a/include/linux/nvme.h
-+++ b/include/linux/nvme.h
-@@ -7,6 +7,7 @@
- #ifndef _LINUX_NVME_H
- #define _LINUX_NVME_H
- 
-+#include <linux/bits.h>
- #include <linux/types.h>
- #include <linux/uuid.h>
- 
-@@ -469,7 +470,7 @@ enum {
- 	NVME_CMD_EFFECTS_NCC		= 1 << 2,
- 	NVME_CMD_EFFECTS_NIC		= 1 << 3,
- 	NVME_CMD_EFFECTS_CCC		= 1 << 4,
--	NVME_CMD_EFFECTS_CSE_MASK	= 3 << 16,
-+	NVME_CMD_EFFECTS_CSE_MASK	= GENMASK(18, 16),
- 	NVME_CMD_EFFECTS_UUID_SEL	= 1 << 19,
- };
- 
--- 
-2.35.1
-
+--- a/arch/s390/include/asm/percpu.h
++++ b/arch/s390/include/asm/percpu.h
+@@ -31,7 +31,7 @@
+ 	pcp_op_T__ *ptr__;						\
+ 	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+-	prev__ = *ptr__;						\
++	prev__ = READ_ONCE(*ptr__);					\
+ 	do {								\
+ 		old__ = prev__;						\
+ 		new__ = old__ op (val);					\
 
 
