@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95D2966C1C9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D975E66C1CD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:15:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232237AbjAPOPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:15:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40140 "EHLO
+        id S232437AbjAPOPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:15:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232481AbjAPONn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:13:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A73E925E09;
-        Mon, 16 Jan 2023 06:05:14 -0800 (PST)
+        with ESMTP id S232568AbjAPON7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:13:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 290E323879;
+        Mon, 16 Jan 2023 06:05:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87C8B60FD2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94AA9B80F9D;
+        Mon, 16 Jan 2023 14:05:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B39AC433EF;
         Mon, 16 Jan 2023 14:05:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F63C433D2;
-        Mon, 16 Jan 2023 14:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877914;
-        bh=dccJRID2/H5or6ii2rYhXgU7IXZtPIgvFhUmSQ+8IME=;
+        s=k20201202; t=1673877915;
+        bh=ZclT+Rr4Amqk2xxKYwoOwr98+nCPydHHUKNDuDbMQzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/WbkQITleww6Q+2YjgUeOU5BQB+sTEA+L3XKRV7L7f2isARXjaRVGDIzOmb9LDWC
-         ZwGeUypZbM1P0J5+4/1reXBk3GF70nyHAMQ5TRqpUtaLVVyv8gNWh52wxR4qmAZ+rO
-         GkryCflhSEuHmC99GLiBUu0d8CFPmjpthrTQQWY2OeiWjZdfQgqpFHnFAmK1leh/m4
-         RGCe9t1Z/HYLJYOed4pYsm8X6IWqTcjxzapxBnYLI9FVTYvZ5t9ORgE6M5RnLWITI/
-         gh7HB6sN2C//76BHv8BxL8bFuJDTvirDBGTTk05X+6FExK8JQf72Js6QgyGI6B1bDK
-         WnK4Pxt44GQ6w==
+        b=cSCRtzakXsovTWhVG3efGgdFW+fyx7ja+SqDnjfX5oRc/7uHTta1i5f5Dr4lotcxZ
+         f3To9Sz6kcEs7ALzqnKf8a65UY+YZ6mvdkNEw++lIw5fHl/RrxuAPbpMx3Fl5pKaIw
+         BVZ0tscMXk2OO8RfvUyqiGsoIPd1MCVFuIVnyHKhONOGn+nnS0jSOIP2hibs3ok/+z
+         qW0NOKMePE3H320mxpjQi0lyb4omd7C9IOk31O09M7OPYESX68RKHu9mIcl9zR6lXE
+         PHpHxeLHxLSALmcZcs6A0ea7EdFL4iRJt6eIJUR6kVy4ddnCmoG0xcYIxcQPVSafBS
+         k6YasPOwagm9A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yihang Li <liyihang9@huawei.com>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 14/17] scsi: hisi_sas: Set a port invalid only if there are no devices attached when refreshing port id
-Date:   Mon, 16 Jan 2023 09:04:45 -0500
-Message-Id: <20230116140448.116034-14-sashal@kernel.org>
+Cc:     Michael Klein <m.klein@mvz-labor-lb.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
+        linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 15/17] platform/x86: touchscreen_dmi: Add info for the CSL Panther Tab HD
+Date:   Mon, 16 Jan 2023 09:04:46 -0500
+Message-Id: <20230116140448.116034-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140448.116034-1-sashal@kernel.org>
 References: <20230116140448.116034-1-sashal@kernel.org>
@@ -57,40 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yihang Li <liyihang9@huawei.com>
+From: Michael Klein <m.klein@mvz-labor-lb.de>
 
-[ Upstream commit f58c89700630da6554b24fd3df293a24874c10c1 ]
+[ Upstream commit 36c2b9d6710427f802494ba070621cb415198293 ]
 
-Currently the driver sets the port invalid if one phy in the port is not
-enabled, which may cause issues in expander situation. In directly attached
-situation, if phy up doesn't occur in time when refreshing port id, the
-port is incorrectly set to invalid which will also cause disk lost.
+Add touchscreen info for the CSL Panther Tab HD.
 
-Therefore set a port invalid only if there are no devices attached to the
-port.
-
-Signed-off-by: Yihang Li <liyihang9@huawei.com>
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Link: https://lore.kernel.org/r/1672805000-141102-3-git-send-email-chenxiang66@hisilicon.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Michael Klein <m.klein@mvz-labor-lb.de>
+Link: https://lore.kernel.org/r/20221220121103.uiwn5l7fii2iggct@LLGMVZLB-0037
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index 1feca45384c7..e5b9229310a0 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -1408,7 +1408,7 @@ static void hisi_sas_refresh_port_id(struct hisi_hba *hisi_hba)
- 				device->linkrate = phy->sas_phy.linkrate;
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 110ff1e6ef81..bc26acace2c3 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -255,6 +255,23 @@ static const struct ts_dmi_data connect_tablet9_data = {
+ 	.properties     = connect_tablet9_props,
+ };
  
- 			hisi_hba->hw->setup_itct(hisi_hba, sas_dev);
--		} else
-+		} else if (!port->port_attached)
- 			port->id = 0xff;
- 	}
- }
++static const struct property_entry csl_panther_tab_hd_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 1),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 20),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1980),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1526),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-csl-panther-tab-hd.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct ts_dmi_data csl_panther_tab_hd_data = {
++	.acpi_name      = "MSSL1680:00",
++	.properties     = csl_panther_tab_hd_props,
++};
++
+ static const struct property_entry cube_iwork8_air_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 1),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 3),
+@@ -1057,6 +1074,14 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Tablet 9"),
+ 		},
+ 	},
++	{
++		/* CSL Panther Tab HD */
++		.driver_data = (void *)&csl_panther_tab_hd_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "CSL Computer GmbH & Co. KG"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "CSL Panther Tab HD"),
++		},
++	},
+ 	{
+ 		/* CUBE iwork8 Air */
+ 		.driver_data = (void *)&cube_iwork8_air_data,
 -- 
 2.35.1
 
