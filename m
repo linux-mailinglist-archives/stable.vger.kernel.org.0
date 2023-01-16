@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 863BE66C754
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A99466C9F1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233168AbjAPQ3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47310 "EHLO
+        id S234002AbjAPQ57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:57:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233215AbjAPQ3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1238D302A4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:57 -0800 (PST)
+        with ESMTP id S234050AbjAPQ5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 785272C660
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C38A2B8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29D62C433EF;
-        Mon, 16 Jan 2023 16:17:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15F1A61077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27850C433EF;
+        Mon, 16 Jan 2023 16:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885874;
-        bh=rdddXxFhLkjA0k7kHGBqXgaOotGVWezcNMj/RA0RRzU=;
+        s=korg; t=1673887226;
+        bh=n8Nq0Ty86m0viJpELb5xHmcQRan2ATAjFnHhYodzI3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4NmSQUayodpmhUtrlIPJd6/7RqMM1R4ZpTL9Qnm2ZrWpfJ7FImGyt2KMlDhK3nEo
-         /xCFwDeoZF1Vvr9elMbaUHdPS8rzui1lWAuZiu17SlP4EvBbLnJg/P8rYzUpS+gWmr
-         G4IFqS2kid7vkjgkx6c3kiPnNXtvaecNqb7dZ/lE=
+        b=al38mY58gHivkq3Z6dJcQNXknJ1Q6Wlr75SMlcbVLJrRRQpzfufAl0QVNv0B5asPQ
+         eM9Ep1nOQqNYurHPZ2zwpA5zUqDpZ0tB4Hc38x1QojZEsIo2IOmjCpKhYyghecMhfI
+         87GVg9e/W+PYreXlZHDeVE2TAdVh66iTC++2f2Kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 215/658] net: stmmac: selftests: fix potential memleak in stmmac_test_arpoffload()
+        patches@lists.linux.dev, Doug Brown <doug@schmorgal.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 041/521] ARM: mmp: fix timer_read delay
 Date:   Mon, 16 Jan 2023 16:45:03 +0100
-Message-Id: <20230116154919.298951572@linuxfoundation.org>
+Message-Id: <20230116154849.122535032@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Doug Brown <doug@schmorgal.com>
 
-[ Upstream commit f150b63f3fa5fdd81e0dd6151e8850268e29438c ]
+[ Upstream commit e348b4014c31041e13ff370669ba3348c4d385e3 ]
 
-The skb allocated by stmmac_test_get_arp_skb() hasn't been released in
-some error handling case, which will lead to a memory leak. Fix this up
-by adding kfree_skb() to release skb.
+timer_read() was using an empty 100-iteration loop to wait for the
+TMR_CVWR register to capture the latest timer counter value. The delay
+wasn't long enough. This resulted in CPU idle time being extremely
+underreported on PXA168 with CONFIG_NO_HZ_IDLE=y.
 
-Compile tested only.
+Switch to the approach used in the vendor kernel, which implements the
+capture delay by reading TMR_CVWR a few times instead.
 
-Fixes: 5e3fb0a6e2b3 ("net: stmmac: selftests: Implement the ARP Offload test")
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 49cbe78637eb ("[ARM] pxa: add base support for Marvell's PXA168 processor line")
+Signed-off-by: Doug Brown <doug@schmorgal.com>
+Link: https://lore.kernel.org/r/20221204005117.53452-3-doug@schmorgal.com
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/arm/mach-mmp/time.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-index ba03a2d77434..e65577f1da54 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c
-@@ -1614,12 +1614,16 @@ static int stmmac_test_arpoffload(struct stmmac_priv *priv)
- 	}
+diff --git a/arch/arm/mach-mmp/time.c b/arch/arm/mach-mmp/time.c
+index 96ad1db0b04b..edd280e75546 100644
+--- a/arch/arm/mach-mmp/time.c
++++ b/arch/arm/mach-mmp/time.c
+@@ -52,18 +52,21 @@
+ static void __iomem *mmp_timer_base = TIMERS_VIRT_BASE;
  
- 	ret = stmmac_set_arp_offload(priv, priv->hw, true, ip_addr);
--	if (ret)
-+	if (ret) {
-+		kfree_skb(skb);
- 		goto cleanup;
-+	}
+ /*
+- * FIXME: the timer needs some delay to stablize the counter capture
++ * Read the timer through the CVWR register. Delay is required after requesting
++ * a read. The CR register cannot be directly read due to metastability issues
++ * documented in the PXA168 software manual.
+  */
+ static inline uint32_t timer_read(void)
+ {
+-	int delay = 100;
++	uint32_t val;
++	int delay = 3;
  
- 	ret = dev_set_promiscuity(priv->dev, 1);
--	if (ret)
-+	if (ret) {
-+		kfree_skb(skb);
- 		goto cleanup;
-+	}
+ 	__raw_writel(1, mmp_timer_base + TMR_CVWR(1));
  
- 	skb_set_queue_mapping(skb, 0);
- 	ret = dev_queue_xmit(skb);
+ 	while (delay--)
+-		cpu_relax();
++		val = __raw_readl(mmp_timer_base + TMR_CVWR(1));
+ 
+-	return __raw_readl(mmp_timer_base + TMR_CVWR(1));
++	return val;
+ }
+ 
+ static u64 notrace mmp_read_sched_clock(void)
 -- 
 2.35.1
 
