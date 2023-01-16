@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 653AD66C813
+	by mail.lfdr.de (Postfix) with ESMTP id 1AADC66C812
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233250AbjAPQgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:36:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51998 "EHLO
+        id S233328AbjAPQgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:36:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233170AbjAPQfw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:35:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C60F30EAD
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:04 -0800 (PST)
+        with ESMTP id S232949AbjAPQfz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:35:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E5E331E02
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FAFF61062
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A63DDC433EF;
-        Mon, 16 Jan 2023 16:24:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E805AB81077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4498CC433EF;
+        Mon, 16 Jan 2023 16:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886243;
-        bh=0VJzwGGZZulbKb+oC+RZpve3cFs3p/T/OUkRvd1ctCE=;
+        s=korg; t=1673886245;
+        bh=TG/CET/vuH10sR59sIJK4C8Chmfok+IW2kgpV00mUKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6SLvR6qrqgFk/0P46TYR/9dVZHRW6rYl8VElxBxgg8kqOe8Fx0feIVLMbg0/ThrW
-         uHvexHs3NWkcPaoal15/jgPKGgQ/DL08gcKAmmIPEOb3cIMfwEblCGIaHQ7TLf7Elf
-         jBiXUbWsU3eY7Id3FpL2rOnDSa/iMF5pijGF/0tA=
+        b=ZJ2OSgxFSxi1DNyy1XJkQnCaADkhkE7PDwNlEOXJ6gtUzKxNeoWbXGyPLQguC/fKi
+         0VPFzS4mY151nhq7JpK/k8ska87a8hJhQ5pUTXal9+eO7SHg+99FuQS7p+5COH+GO/
+         qYkKjr+D+FAAX1wRz8Fer3PugMPgod1PXlGFh8V0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Kajol Jain <kjain@linux.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 357/658] powerpc/83xx/mpc832x_rdb: call platform_device_put() in error case in of_fsl_spi_probe()
-Date:   Mon, 16 Jan 2023 16:47:25 +0100
-Message-Id: <20230116154925.922271460@linuxfoundation.org>
+Subject: [PATCH 5.4 358/658] powerpc/hv-gpci: Fix hv_gpci event list
+Date:   Mon, 16 Jan 2023 16:47:26 +0100
+Message-Id: <20230116154925.962812798@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,36 +55,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit 4d0eea415216fe3791da2f65eb41399e70c7bedf ]
+[ Upstream commit 03f7c1d2a49acd30e38789cd809d3300721e9b0e ]
 
-If platform_device_add() is not called or failed, it can not call
-platform_device_del() to clean up memory, it should call
-platform_device_put() in error case.
+Based on getPerfCountInfo v1.018 documentation, some of the
+hv_gpci events were deprecated for platform firmware that
+supports counter_info_version 0x8 or above.
 
-Fixes: 26f6cb999366 ("[POWERPC] fsl_soc: add support for fsl_spi")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Fix the hv_gpci event list by adding a new attribute group
+called "hv_gpci_event_attrs_v6" and a "ENABLE_EVENTS_COUNTERINFO_V6"
+macro to enable these events for platform firmware
+that supports counter_info_version 0x6 or below. And assigning
+the hv_gpci event list based on output counter info version
+of underlying plaform.
+
+Fixes: 97bf2640184f ("powerpc/perf/hv-gpci: add the remaining gpci requests")
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Reviewed-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221029111626.429971-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20221130174513.87501-1-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/83xx/mpc832x_rdb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/perf/hv-gpci-requests.h |  4 ++++
+ arch/powerpc/perf/hv-gpci.c          | 33 +++++++++++++++++++++++++++-
+ arch/powerpc/perf/hv-gpci.h          |  1 +
+ arch/powerpc/perf/req-gen/perf.h     | 20 +++++++++++++++++
+ 4 files changed, 57 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/83xx/mpc832x_rdb.c b/arch/powerpc/platforms/83xx/mpc832x_rdb.c
-index 4588ce632484..b6354054f883 100644
---- a/arch/powerpc/platforms/83xx/mpc832x_rdb.c
-+++ b/arch/powerpc/platforms/83xx/mpc832x_rdb.c
-@@ -107,7 +107,7 @@ static int __init of_fsl_spi_probe(char *type, char *compatible, u32 sysclk,
+diff --git a/arch/powerpc/perf/hv-gpci-requests.h b/arch/powerpc/perf/hv-gpci-requests.h
+index 8965b4463d43..5e86371a20c7 100644
+--- a/arch/powerpc/perf/hv-gpci-requests.h
++++ b/arch/powerpc/perf/hv-gpci-requests.h
+@@ -79,6 +79,7 @@ REQUEST(__field(0,	8,	partition_id)
+ )
+ #include I(REQUEST_END)
  
- 		goto next;
- unreg:
--		platform_device_del(pdev);
-+		platform_device_put(pdev);
- err:
- 		pr_err("%pOF: registration failed\n", np);
- next:
++#ifdef ENABLE_EVENTS_COUNTERINFO_V6
+ /*
+  * Not available for counter_info_version >= 0x8, use
+  * run_instruction_cycles_by_partition(0x100) instead.
+@@ -92,6 +93,7 @@ REQUEST(__field(0,	8,	partition_id)
+ 	__count(0x10,	8,	cycles)
+ )
+ #include I(REQUEST_END)
++#endif
+ 
+ #define REQUEST_NAME system_performance_capabilities
+ #define REQUEST_NUM 0x40
+@@ -103,6 +105,7 @@ REQUEST(__field(0,	1,	perf_collect_privileged)
+ )
+ #include I(REQUEST_END)
+ 
++#ifdef ENABLE_EVENTS_COUNTERINFO_V6
+ #define REQUEST_NAME processor_bus_utilization_abc_links
+ #define REQUEST_NUM 0x50
+ #define REQUEST_IDX_KIND "hw_chip_id=?"
+@@ -194,6 +197,7 @@ REQUEST(__field(0,	4,	phys_processor_idx)
+ 	__count(0x28,	8,	instructions_completed)
+ )
+ #include I(REQUEST_END)
++#endif
+ 
+ /* Processor_core_power_mode (0x95) skipped, no counters */
+ /* Affinity_domain_information_by_virtual_processor (0xA0) skipped,
+diff --git a/arch/powerpc/perf/hv-gpci.c b/arch/powerpc/perf/hv-gpci.c
+index 732cfc53e260..ac3f3df57fe3 100644
+--- a/arch/powerpc/perf/hv-gpci.c
++++ b/arch/powerpc/perf/hv-gpci.c
+@@ -70,7 +70,7 @@ static struct attribute_group format_group = {
+ 
+ static struct attribute_group event_group = {
+ 	.name  = "events",
+-	.attrs = hv_gpci_event_attrs,
++	/* .attrs is set in init */
+ };
+ 
+ #define HV_CAPS_ATTR(_name, _format)				\
+@@ -280,6 +280,7 @@ static int hv_gpci_init(void)
+ 	int r;
+ 	unsigned long hret;
+ 	struct hv_perf_caps caps;
++	struct hv_gpci_request_buffer *arg;
+ 
+ 	hv_gpci_assert_offsets_correct();
+ 
+@@ -298,6 +299,36 @@ static int hv_gpci_init(void)
+ 	/* sampling not supported */
+ 	h_gpci_pmu.capabilities |= PERF_PMU_CAP_NO_INTERRUPT;
+ 
++	arg = (void *)get_cpu_var(hv_gpci_reqb);
++	memset(arg, 0, HGPCI_REQ_BUFFER_SIZE);
++
++	/*
++	 * hcall H_GET_PERF_COUNTER_INFO populates the output
++	 * counter_info_version value based on the system hypervisor.
++	 * Pass the counter request 0x10 corresponds to request type
++	 * 'Dispatch_timebase_by_processor', to get the supported
++	 * counter_info_version.
++	 */
++	arg->params.counter_request = cpu_to_be32(0x10);
++
++	r = plpar_hcall_norets(H_GET_PERF_COUNTER_INFO,
++			virt_to_phys(arg), HGPCI_REQ_BUFFER_SIZE);
++	if (r) {
++		pr_devel("hcall failed, can't get supported counter_info_version: 0x%x\n", r);
++		arg->params.counter_info_version_out = 0x8;
++	}
++
++	/*
++	 * Use counter_info_version_out value to assign
++	 * required hv-gpci event list.
++	 */
++	if (arg->params.counter_info_version_out >= 0x8)
++		event_group.attrs = hv_gpci_event_attrs;
++	else
++		event_group.attrs = hv_gpci_event_attrs_v6;
++
++	put_cpu_var(hv_gpci_reqb);
++
+ 	r = perf_pmu_register(&h_gpci_pmu, h_gpci_pmu.name, -1);
+ 	if (r)
+ 		return r;
+diff --git a/arch/powerpc/perf/hv-gpci.h b/arch/powerpc/perf/hv-gpci.h
+index a3053eda5dcc..060e464d35c6 100644
+--- a/arch/powerpc/perf/hv-gpci.h
++++ b/arch/powerpc/perf/hv-gpci.h
+@@ -53,6 +53,7 @@ enum {
+ #define REQUEST_FILE "../hv-gpci-requests.h"
+ #define NAME_LOWER hv_gpci
+ #define NAME_UPPER HV_GPCI
++#define ENABLE_EVENTS_COUNTERINFO_V6
+ #include "req-gen/perf.h"
+ #undef REQUEST_FILE
+ #undef NAME_LOWER
+diff --git a/arch/powerpc/perf/req-gen/perf.h b/arch/powerpc/perf/req-gen/perf.h
+index fa9bc804e67a..6b2a59fefffa 100644
+--- a/arch/powerpc/perf/req-gen/perf.h
++++ b/arch/powerpc/perf/req-gen/perf.h
+@@ -139,6 +139,26 @@ PMU_EVENT_ATTR_STRING(							\
+ #define REQUEST_(r_name, r_value, r_idx_1, r_fields)			\
+ 	r_fields
+ 
++/* Generate event list for platforms with counter_info_version 0x6 or below */
++static __maybe_unused struct attribute *hv_gpci_event_attrs_v6[] = {
++#include REQUEST_FILE
++	NULL
++};
++
++/*
++ * Based on getPerfCountInfo v1.018 documentation, some of the hv-gpci
++ * events were deprecated for platform firmware that supports
++ * counter_info_version 0x8 or above.
++ * Those deprecated events are still part of platform firmware that
++ * support counter_info_version 0x6 and below. As per the getPerfCountInfo
++ * v1.018 documentation there is no counter_info_version 0x7.
++ * Undefining macro ENABLE_EVENTS_COUNTERINFO_V6, to disable the addition of
++ * deprecated events in "hv_gpci_event_attrs" attribute group, for platforms
++ * that supports counter_info_version 0x8 or above.
++ */
++#undef ENABLE_EVENTS_COUNTERINFO_V6
++
++/* Generate event list for platforms with counter_info_version 0x8 or above*/
+ static __maybe_unused struct attribute *hv_gpci_event_attrs[] = {
+ #include REQUEST_FILE
+ 	NULL
 -- 
 2.35.1
 
