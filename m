@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AB6266CDAE
+	by mail.lfdr.de (Postfix) with ESMTP id C906366CDAF
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234936AbjAPRiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:38:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56426 "EHLO
+        id S234949AbjAPRiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:38:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235016AbjAPRhi (ORCPT
+        with ESMTP id S234832AbjAPRhi (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9FCD2310C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:33 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925F22203C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A553B81091
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6E24C433D2;
-        Mon, 16 Jan 2023 17:14:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 307FF60F63
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46FDAC433D2;
+        Mon, 16 Jan 2023 17:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889271;
-        bh=2h7yA+rgSvZkMU36MXNmwK4gveuxkEMXOOoksj2GCBo=;
+        s=korg; t=1673889273;
+        bh=eQN7xGxWa+wFIeq3fR7PmEe3M1mX/uC1YU1nir2Ub7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XeDE1v9KmivZwG2awIMprZkIZmgDNjuaNFA8PgSXl01za6QMoY/zgLKFfU3/wndj9
-         OoqHrPeM53rGLeQlhMThk4+O6gyhEpT3+MJMwmKL6q/KKD6E5IA+BIQ+ZAdEsBVG6j
-         jnX/U7Oe1/xiwVMYIJi1X/ZbEgmUZCvousgs1KXs=
+        b=vm9/3VahQE5hznHZSlqY6120k1tGyT56dJD5u4zOvTgAQICnVIS33quB1L61108Lj
+         H/c/iXI8rJ3GZlnMu852YMWKbVX95UHNQhMQvWEupnP3o+BFqEihaccXEINYgVBsgP
+         MZ8Y+ojHoPTT5yGLN14G5qLI5y91eJOlgp5Bo+Qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frederick Lawler <fred@cloudflare.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 324/338] net: sched: disallow noqueue for qdisc classes
-Date:   Mon, 16 Jan 2023 16:53:17 +0100
-Message-Id: <20230116154835.224769440@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Martin=20Li=C5=A1ka?= <mliska@suse.cz>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 4.14 325/338] docs: Fix the docs build with Sphinx 6.0
+Date:   Mon, 16 Jan 2023 16:53:18 +0100
+Message-Id: <20230116154835.264240067@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,99 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederick Lawler <fred@cloudflare.com>
+From: Jonathan Corbet <corbet@lwn.net>
 
-commit 96398560f26aa07e8f2969d73c8197e6a6d10407 upstream.
+commit 0283189e8f3d0917e2ac399688df85211f48447b upstream.
 
-While experimenting with applying noqueue to a classful queue discipline,
-we discovered a NULL pointer dereference in the __dev_queue_xmit()
-path that generates a kernel OOPS:
+Sphinx 6.0 removed the execfile_() function, which we use as part of the
+configuration process.  They *did* warn us...  Just open-code the
+functionality as is done in Sphinx itself.
 
-    # dev=enp0s5
-    # tc qdisc replace dev $dev root handle 1: htb default 1
-    # tc class add dev $dev parent 1: classid 1:1 htb rate 10mbit
-    # tc qdisc add dev $dev parent 1:1 handle 10: noqueue
-    # ping -I $dev -w 1 -c 1 1.1.1.1
+Tested (using SPHINX_CONF, since this code is only executed with an
+alternative config file) on various Sphinx versions from 2.5 through 6.0.
 
-[    2.172856] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[    2.173217] #PF: supervisor instruction fetch in kernel mode
-...
-[    2.178451] Call Trace:
-[    2.178577]  <TASK>
-[    2.178686]  htb_enqueue+0x1c8/0x370
-[    2.178880]  dev_qdisc_enqueue+0x15/0x90
-[    2.179093]  __dev_queue_xmit+0x798/0xd00
-[    2.179305]  ? _raw_write_lock_bh+0xe/0x30
-[    2.179522]  ? __local_bh_enable_ip+0x32/0x70
-[    2.179759]  ? ___neigh_create+0x610/0x840
-[    2.179968]  ? eth_header+0x21/0xc0
-[    2.180144]  ip_finish_output2+0x15e/0x4f0
-[    2.180348]  ? dst_output+0x30/0x30
-[    2.180525]  ip_push_pending_frames+0x9d/0xb0
-[    2.180739]  raw_sendmsg+0x601/0xcb0
-[    2.180916]  ? _raw_spin_trylock+0xe/0x50
-[    2.181112]  ? _raw_spin_unlock_irqrestore+0x16/0x30
-[    2.181354]  ? get_page_from_freelist+0xcd6/0xdf0
-[    2.181594]  ? sock_sendmsg+0x56/0x60
-[    2.181781]  sock_sendmsg+0x56/0x60
-[    2.181958]  __sys_sendto+0xf7/0x160
-[    2.182139]  ? handle_mm_fault+0x6e/0x1d0
-[    2.182366]  ? do_user_addr_fault+0x1e1/0x660
-[    2.182627]  __x64_sys_sendto+0x1b/0x30
-[    2.182881]  do_syscall_64+0x38/0x90
-[    2.183085]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-...
-[    2.187402]  </TASK>
-
-Previously in commit d66d6c3152e8 ("net: sched: register noqueue
-qdisc"), NULL was set for the noqueue discipline on noqueue init
-so that __dev_queue_xmit() falls through for the noqueue case. This
-also sets a bypass of the enqueue NULL check in the
-register_qdisc() function for the struct noqueue_disc_ops.
-
-Classful queue disciplines make it past the NULL check in
-__dev_queue_xmit() because the discipline is set to htb (in this case),
-and then in the call to __dev_xmit_skb(), it calls into htb_enqueue()
-which grabs a leaf node for a class and then calls qdisc_enqueue() by
-passing in a queue discipline which assumes ->enqueue() is not set to NULL.
-
-Fix this by not allowing classes to be assigned to the noqueue
-discipline. Linux TC Notes states that classes cannot be set to
-the noqueue discipline. [1] Let's enforce that here.
-
-Links:
-1. https://linux-tc-notes.sourceforge.net/tc/doc/sch_noqueue.txt
-
-Fixes: d66d6c3152e8 ("net: sched: register noqueue qdisc")
+Reported-by: Martin Liška <mliska@suse.cz>
 Cc: stable@vger.kernel.org
-Signed-off-by: Frederick Lawler <fred@cloudflare.com>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/r/20230109163906.706000-1-fred@cloudflare.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_api.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ Documentation/sphinx/load_config.py |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -959,10 +959,14 @@ skip:
- 		if (cops && cops->graft) {
- 			unsigned long cl = cops->find(parent, classid);
+--- a/Documentation/sphinx/load_config.py
++++ b/Documentation/sphinx/load_config.py
+@@ -3,7 +3,7 @@
  
--			if (cl)
--				err = cops->graft(parent, cl, new, &old);
--			else
-+			if (cl) {
-+				if (new && new->ops == &noqueue_qdisc_ops)
-+					err = -EINVAL;
-+				else
-+					err = cops->graft(parent, cl, new, &old);
-+			} else {
- 				err = -ENOENT;
-+			}
- 		}
- 		if (!err)
- 			notify_and_destroy(net, skb, n, classid, old, new);
+ import os
+ import sys
+-from sphinx.util.pycompat import execfile_
++from sphinx.util.osutil import fs_encoding
+ 
+ # ------------------------------------------------------------------------------
+ def loadConfig(namespace):
+@@ -25,7 +25,9 @@ def loadConfig(namespace):
+             sys.stdout.write("load additional sphinx-config: %s\n" % config_file)
+             config = namespace.copy()
+             config['__file__'] = config_file
+-            execfile_(config_file, config)
++            with open(config_file, 'rb') as f:
++                code = compile(f.read(), fs_encoding, 'exec')
++                exec(code, config)
+             del config['__file__']
+             namespace.update(config)
+         else:
 
 
