@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B10F66CBB8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD89366CD38
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234475AbjAPRQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:16:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39626 "EHLO
+        id S234903AbjAPRej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232648AbjAPRPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18DCA2B602
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:48 -0800 (PST)
+        with ESMTP id S234942AbjAPReW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0121530B10
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C28AAB8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 298B1C433EF;
-        Mon, 16 Jan 2023 16:56:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94E8061086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6EEDC433D2;
+        Mon, 16 Jan 2023 17:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888205;
-        bh=vRtDYjTYraXj7D5p0RRrL5S5J7Rd6Ftl9OlyywmRkBA=;
+        s=korg; t=1673889027;
+        bh=Z7CDVW4Yw0F26NS9hP+a8dKDjTuG/KnVsyi9erOKx04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g1jJ1AnbifvV/3xDV4QZhY45ggbcy1jcMOr5Uu5xM7959I3XorXszL+iCZ4fdgnRM
-         4bD1EKyqJ0t7aiulpzeq16m3Od9aR9wjsooWXtNDv1RQIxKNnmZ/JlPps32ZwZMN/z
-         mvz86XnSd6y5nsFBVLSgck6EWGOAZh1jpXYyOuvs=
+        b=zcGD9vZ3lbyTjrKuH1uMHbTfEJq0WjFW6FKzkc71f4rkCVkalVnC92vqiR97He7Ny
+         bfSE/W2OXdQorWhH13jlNm92LTULzvIP89/4NmGaIheu/ivQjwNKmBOiZ2Di/AAewS
+         f6uwsBv7SoldAVgRRTmMbNy2ixXyoNRZhyO/Jh/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thilo Fromm <t-lo@linux.microsoft.com>,
-        Jan Kara <jack@suse.cz>, Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Subject: [PATCH 4.19 441/521] ext4: fix deadlock due to mbcache entry corruption
+        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 230/338] wifi: brcmfmac: Fix potential shift-out-of-bounds in brcmf_fw_alloc_request()
 Date:   Mon, 16 Jan 2023 16:51:43 +0100
-Message-Id: <20230116154906.868578674@linuxfoundation.org>
+Message-Id: <20230116154831.072581217@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,141 +54,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit a44e84a9b7764c72896f7241a0ec9ac7e7ef38dd ]
+[ Upstream commit 81d17f6f3331f03c8eafdacea68ab773426c1e3c ]
 
-When manipulating xattr blocks, we can deadlock infinitely looping
-inside ext4_xattr_block_set() where we constantly keep finding xattr
-block for reuse in mbcache but we are unable to reuse it because its
-reference count is too big. This happens because cache entry for the
-xattr block is marked as reusable (e_reusable set) although its
-reference count is too big. When this inconsistency happens, this
-inconsistent state is kept indefinitely and so ext4_xattr_block_set()
-keeps retrying indefinitely.
+This patch fixes a shift-out-of-bounds in brcmfmac that occurs in
+BIT(chiprev) when a 'chiprev' provided by the device is too large.
+It should also not be equal to or greater than BITS_PER_TYPE(u32)
+as we do bitwise AND with a u32 variable and BIT(chiprev). The patch
+adds a check that makes the function return NULL if that is the case.
+Note that the NULL case is later handled by the bus-specific caller,
+brcmf_usb_probe_cb() or brcmf_usb_reset_resume(), for example.
 
-The inconsistent state is caused by non-atomic update of e_reusable bit.
-e_reusable is part of a bitfield and e_reusable update can race with
-update of e_referenced bit in the same bitfield resulting in loss of one
-of the updates. Fix the problem by using atomic bitops instead.
+Found by a modified version of syzkaller.
 
-This bug has been around for many years, but it became *much* easier
-to hit after commit 65f8b80053a1 ("ext4: fix race when reusing xattr
-blocks").
+UBSAN: shift-out-of-bounds in drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+shift exponent 151055786 is too large for 64-bit type 'long unsigned int'
+CPU: 0 PID: 1885 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ dump_stack_lvl+0x57/0x7d
+ ubsan_epilogue+0x5/0x40
+ __ubsan_handle_shift_out_of_bounds.cold+0x53/0xdb
+ ? lock_chain_count+0x20/0x20
+ brcmf_fw_alloc_request.cold+0x19/0x3ea
+ ? brcmf_fw_get_firmwares+0x250/0x250
+ ? brcmf_usb_ioctl_resp_wait+0x1a7/0x1f0
+ brcmf_usb_get_fwname+0x114/0x1a0
+ ? brcmf_usb_reset_resume+0x120/0x120
+ ? number+0x6c4/0x9a0
+ brcmf_c_process_clm_blob+0x168/0x590
+ ? put_dec+0x90/0x90
+ ? enable_ptr_key_workfn+0x20/0x20
+ ? brcmf_common_pd_remove+0x50/0x50
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ brcmf_c_preinit_dcmds+0x673/0xc40
+ ? brcmf_c_set_joinpref_default+0x100/0x100
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? lock_acquire+0x19d/0x4e0
+ ? find_held_lock+0x2d/0x110
+ ? brcmf_usb_deq+0x1cc/0x260
+ ? mark_held_locks+0x9f/0xe0
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ ? _raw_spin_unlock_irqrestore+0x47/0x50
+ ? trace_hardirqs_on+0x1c/0x120
+ ? brcmf_usb_deq+0x1a7/0x260
+ ? brcmf_usb_rx_fill_all+0x5a/0xf0
+ brcmf_attach+0x246/0xd40
+ ? wiphy_new_nm+0x1476/0x1d50
+ ? kmemdup+0x30/0x40
+ brcmf_usb_probe+0x12de/0x1690
+ ? brcmf_usbdev_qinit.constprop.0+0x470/0x470
+ usb_probe_interface+0x25f/0x710
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ ? usb_match_id.part.0+0x88/0xc0
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ ? driver_allows_async_probing+0x120/0x120
+ bus_for_each_drv+0x123/0x1a0
+ ? bus_rescan_devices+0x20/0x20
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ ? trace_hardirqs_on+0x1c/0x120
+ __device_attach+0x207/0x330
+ ? device_bind_driver+0xb0/0xb0
+ ? kobject_uevent_env+0x230/0x12c0
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ ? __mutex_unlock_slowpath+0xe7/0x660
+ ? __fw_devlink_link_to_suppliers+0x550/0x550
+ usb_set_configuration+0x984/0x1770
+ ? kernfs_create_link+0x175/0x230
+ usb_generic_driver_probe+0x69/0x90
+ usb_probe_device+0x9c/0x220
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ ? driver_allows_async_probing+0x120/0x120
+ bus_for_each_drv+0x123/0x1a0
+ ? bus_rescan_devices+0x20/0x20
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ ? trace_hardirqs_on+0x1c/0x120
+ __device_attach+0x207/0x330
+ ? device_bind_driver+0xb0/0xb0
+ ? kobject_uevent_env+0x230/0x12c0
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ ? __fw_devlink_link_to_suppliers+0x550/0x550
+ usb_new_device.cold+0x463/0xf66
+ ? hub_disconnect+0x400/0x400
+ ? _raw_spin_unlock_irq+0x24/0x30
+ hub_event+0x10d5/0x3330
+ ? hub_port_debounce+0x280/0x280
+ ? __lock_acquire+0x1671/0x5790
+ ? wq_calc_node_cpumask+0x170/0x2a0
+ ? lock_release+0x640/0x640
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ process_one_work+0x873/0x13e0
+ ? lock_release+0x640/0x640
+ ? pwq_dec_nr_in_flight+0x320/0x320
+ ? rwlock_bug.part.0+0x90/0x90
+ worker_thread+0x8b/0xd10
+ ? __kthread_parkme+0xd9/0x1d0
+ ? process_one_work+0x13e0/0x13e0
+ kthread+0x379/0x450
+ ? _raw_spin_unlock_irq+0x24/0x30
+ ? set_kthread_struct+0x100/0x100
+ ret_from_fork+0x1f/0x30
 
-Cc: stable@vger.kernel.org
-Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
-Fixes: 65f8b80053a1 ("ext4: fix race when reusing xattr blocks")
-Reported-and-tested-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Reported-by: Thilo Fromm <t-lo@linux.microsoft.com>
-Link: https://lore.kernel.org/r/c77bf00f-4618-7149-56f1-b8d1664b9d07@linux.microsoft.com/
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20221123193950.16758-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221024071329.504277-1-linuxlovemin@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c         |  4 ++--
- fs/mbcache.c            | 14 ++++++++------
- include/linux/mbcache.h |  9 +++++++--
- 3 files changed, 17 insertions(+), 10 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index f759ab8c1a68..0772941bbe92 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1297,7 +1297,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
- 				ce = mb_cache_entry_get(ea_block_cache, hash,
- 							bh->b_blocknr);
- 				if (ce) {
--					ce->e_reusable = 1;
-+					set_bit(MBE_REUSABLE_B, &ce->e_flags);
- 					mb_cache_entry_put(ea_block_cache, ce);
- 				}
- 			}
-@@ -2058,7 +2058,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- 				}
- 				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
- 				if (ref == EXT4_XATTR_REFCOUNT_MAX)
--					ce->e_reusable = 0;
-+					clear_bit(MBE_REUSABLE_B, &ce->e_flags);
- 				ea_bdebug(new_bh, "reusing; refcount now=%d",
- 					  ref);
- 				ext4_xattr_block_csum_set(inode, new_bh);
-diff --git a/fs/mbcache.c b/fs/mbcache.c
-index aa564e79891d..8e9e1888e448 100644
---- a/fs/mbcache.c
-+++ b/fs/mbcache.c
-@@ -93,8 +93,9 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
- 	atomic_set(&entry->e_refcnt, 1);
- 	entry->e_key = key;
- 	entry->e_value = value;
--	entry->e_reusable = reusable;
--	entry->e_referenced = 0;
-+	entry->e_flags = 0;
-+	if (reusable)
-+		set_bit(MBE_REUSABLE_B, &entry->e_flags);
- 	head = mb_cache_entry_head(cache, key);
- 	hlist_bl_lock(head);
- 	hlist_bl_for_each_entry(dup, dup_node, head, e_hash_list) {
-@@ -161,7 +162,8 @@ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
- 	while (node) {
- 		entry = hlist_bl_entry(node, struct mb_cache_entry,
- 				       e_hash_list);
--		if (entry->e_key == key && entry->e_reusable &&
-+		if (entry->e_key == key &&
-+		    test_bit(MBE_REUSABLE_B, &entry->e_flags) &&
- 		    atomic_inc_not_zero(&entry->e_refcnt))
- 			goto out;
- 		node = node->next;
-@@ -317,7 +319,7 @@ EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
- void mb_cache_entry_touch(struct mb_cache *cache,
- 			  struct mb_cache_entry *entry)
- {
--	entry->e_referenced = 1;
-+	set_bit(MBE_REFERENCED_B, &entry->e_flags);
- }
- EXPORT_SYMBOL(mb_cache_entry_touch);
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+index 13c25798f39a..6d868b8b441a 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+@@ -572,6 +572,11 @@ int brcmf_fw_map_chip_to_name(u32 chip, u32 chiprev,
+ 	u32 i;
+ 	char end;
  
-@@ -342,9 +344,9 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
- 		entry = list_first_entry(&cache->c_list,
- 					 struct mb_cache_entry, e_list);
- 		/* Drop initial hash reference if there is no user */
--		if (entry->e_referenced ||
-+		if (test_bit(MBE_REFERENCED_B, &entry->e_flags) ||
- 		    atomic_cmpxchg(&entry->e_refcnt, 1, 0) != 1) {
--			entry->e_referenced = 0;
-+			clear_bit(MBE_REFERENCED_B, &entry->e_flags);
- 			list_move_tail(&entry->e_list, &cache->c_list);
- 			continue;
- 		}
-diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
-index e9d5ece87794..591bc4cefe1d 100644
---- a/include/linux/mbcache.h
-+++ b/include/linux/mbcache.h
-@@ -10,6 +10,12 @@
- 
- struct mb_cache;
- 
-+/* Cache entry flags */
-+enum {
-+	MBE_REFERENCED_B = 0,
-+	MBE_REUSABLE_B
-+};
++	if (chiprev >= BITS_PER_TYPE(u32)) {
++		brcmf_err("Invalid chip revision %u\n", chiprev);
++		return NULL;
++	}
 +
- struct mb_cache_entry {
- 	/* List of entries in cache - protected by cache->c_list_lock */
- 	struct list_head	e_list;
-@@ -26,8 +32,7 @@ struct mb_cache_entry {
- 	atomic_t		e_refcnt;
- 	/* Key in hash - stable during lifetime of the entry */
- 	u32			e_key;
--	u32			e_referenced:1;
--	u32			e_reusable:1;
-+	unsigned long		e_flags;
- 	/* User provided value - stable during lifetime of the entry */
- 	u64			e_value;
- };
+ 	for (i = 0; i < table_size; i++) {
+ 		if (mapping_table[i].chipid == chip &&
+ 		    mapping_table[i].revmask & BIT(chiprev))
 -- 
 2.35.1
 
