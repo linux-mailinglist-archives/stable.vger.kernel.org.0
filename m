@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B7A666CD3C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E0266CBBD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234785AbjAPRex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:34:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54900 "EHLO
+        id S234542AbjAPRQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:16:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234780AbjAPRea (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C4A33BD8E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:37 -0800 (PST)
+        with ESMTP id S234493AbjAPRQH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:16:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC74C3454D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3733BB81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FAD6C433D2;
-        Mon, 16 Jan 2023 17:10:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 781B961089
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DC51C433EF;
+        Mon, 16 Jan 2023 16:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889034;
-        bh=MXHyYopZ4S2ODtjoIFP4OUghp3esDJ8iLRzh3BEjY30=;
+        s=korg; t=1673888218;
+        bh=gH2bXmN+XPyY3R5S6T4DpnBQ2mQQAfX/0Px5tGg2Iag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enjRHVmz0qgCdRvZMlYABDxlgcOkXxFSa4q3XW2G+cshdZ76VdHxrxJCyiaEQXw4P
-         qsVJY4r0f2QbMpOpcBt+X84OrGgHgS+RCxWrYez0EdRBgvbaw4YBvppCe3CxtjMMku
-         SxjSoq7CPcXPIe4NYPo4ZlzgDYbRnzgt1uyoQjEk=
+        b=k2mif1qK6MeUMbXup9gL312u3P/LkNlgTxSTHLrTS/UTvk8qVuWu2c1JlYiAyIxzf
+         hQsENA4eDxGitedJysPp3bd792V33qaPgNAehpiJ1qLnns4682pVZBQmhE5Ti5fYu3
+         fQkjCFiGPYqBEmfPcdHWcWVHnJCE9MZSJyAg+xoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 233/338] s390/netiucv: Fix return type of netiucv_tx()
-Date:   Mon, 16 Jan 2023 16:51:46 +0100
-Message-Id: <20230116154831.207622756@linuxfoundation.org>
+Subject: [PATCH 4.19 445/521] nfc: Fix potential resource leaks
+Date:   Mon, 16 Jan 2023 16:51:47 +0100
+Message-Id: <20230116154907.042774289@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +53,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 88d86d18d7cf7e9137c95f9d212bb9fff8a1b4be ]
+[ Upstream commit df49908f3c52d211aea5e2a14a93bbe67a2cb3af ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+nfc_get_device() take reference for the device, add missing
+nfc_put_device() to release it when not need anymore.
+Also fix the style warnning by use error EOPNOTSUPP instead of
+ENOTSUPP.
 
-  drivers/s390/net/netiucv.c:1854:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = netiucv_tx,
-                                    ^~~~~~~~~~
-
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of netiucv_tx() to
-match the prototype's to resolve the warning and potential CFI failure,
-should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
-
-Additionally, while in the area, remove a comment block that is no
-longer relevant.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
+Fixes: 29e76924cf08 ("nfc: netlink: Add capability to reply to vendor_cmd with data")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/netiucv.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ net/nfc/netlink.c | 52 ++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index b9c7c1e61da2..b6d123c60742 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -1358,15 +1358,8 @@ static int netiucv_pm_restore_thaw(struct device *dev)
- /**
-  * Start transmission of a packet.
-  * Called from generic network device layer.
-- *
-- * @param skb Pointer to buffer containing the packet.
-- * @param dev Pointer to interface struct.
-- *
-- * @return 0 if packet consumed, !0 if packet rejected.
-- *         Note: If we return !0, then the packet is free'd by
-- *               the generic network layer.
-  */
--static int netiucv_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t netiucv_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct netiucv_priv *privptr = netdev_priv(dev);
- 	int rc;
+diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
+index 39fb01ee9222..8953b03d5a52 100644
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1515,6 +1515,7 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
+ 	u32 dev_idx, se_idx;
+ 	u8 *apdu;
+ 	size_t apdu_len;
++	int rc;
+ 
+ 	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
+ 	    !info->attrs[NFC_ATTR_SE_INDEX] ||
+@@ -1528,25 +1529,37 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
+ 	if (!dev)
+ 		return -ENODEV;
+ 
+-	if (!dev->ops || !dev->ops->se_io)
+-		return -ENOTSUPP;
++	if (!dev->ops || !dev->ops->se_io) {
++		rc = -EOPNOTSUPP;
++		goto put_dev;
++	}
+ 
+ 	apdu_len = nla_len(info->attrs[NFC_ATTR_SE_APDU]);
+-	if (apdu_len == 0)
+-		return -EINVAL;
++	if (apdu_len == 0) {
++		rc = -EINVAL;
++		goto put_dev;
++	}
+ 
+ 	apdu = nla_data(info->attrs[NFC_ATTR_SE_APDU]);
+-	if (!apdu)
+-		return -EINVAL;
++	if (!apdu) {
++		rc = -EINVAL;
++		goto put_dev;
++	}
+ 
+ 	ctx = kzalloc(sizeof(struct se_io_ctx), GFP_KERNEL);
+-	if (!ctx)
+-		return -ENOMEM;
++	if (!ctx) {
++		rc = -ENOMEM;
++		goto put_dev;
++	}
+ 
+ 	ctx->dev_idx = dev_idx;
+ 	ctx->se_idx = se_idx;
+ 
+-	return nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
++	rc = nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
++
++put_dev:
++	nfc_put_device(dev);
++	return rc;
+ }
+ 
+ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+@@ -1569,14 +1582,21 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+ 	subcmd = nla_get_u32(info->attrs[NFC_ATTR_VENDOR_SUBCMD]);
+ 
+ 	dev = nfc_get_device(dev_idx);
+-	if (!dev || !dev->vendor_cmds || !dev->n_vendor_cmds)
++	if (!dev)
+ 		return -ENODEV;
+ 
++	if (!dev->vendor_cmds || !dev->n_vendor_cmds) {
++		err = -ENODEV;
++		goto put_dev;
++	}
++
+ 	if (info->attrs[NFC_ATTR_VENDOR_DATA]) {
+ 		data = nla_data(info->attrs[NFC_ATTR_VENDOR_DATA]);
+ 		data_len = nla_len(info->attrs[NFC_ATTR_VENDOR_DATA]);
+-		if (data_len == 0)
+-			return -EINVAL;
++		if (data_len == 0) {
++			err = -EINVAL;
++			goto put_dev;
++		}
+ 	} else {
+ 		data = NULL;
+ 		data_len = 0;
+@@ -1591,10 +1611,14 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
+ 		dev->cur_cmd_info = info;
+ 		err = cmd->doit(dev, data, data_len);
+ 		dev->cur_cmd_info = NULL;
+-		return err;
++		goto put_dev;
+ 	}
+ 
+-	return -EOPNOTSUPP;
++	err = -EOPNOTSUPP;
++
++put_dev:
++	nfc_put_device(dev);
++	return err;
+ }
+ 
+ /* message building helper */
 -- 
 2.35.1
 
