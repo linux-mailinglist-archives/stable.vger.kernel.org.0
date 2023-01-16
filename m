@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D65966CA36
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CEA166C7BC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:34:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234150AbjAPRAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:00:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50584 "EHLO
+        id S233341AbjAPQeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:34:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234172AbjAPRAD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:00:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A28763D0BF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:53 -0800 (PST)
+        with ESMTP id S233204AbjAPQdU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:33:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD9A125E12
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:21:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B876B8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB537C433EF;
-        Mon, 16 Jan 2023 16:42:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49F0361049
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:21:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B802C433EF;
+        Mon, 16 Jan 2023 16:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887371;
-        bh=vxu6udgAcIzR7dH6ZNdLeDwKjqERMHiw3h/KT7NKWpQ=;
+        s=korg; t=1673886085;
+        bh=EpxBNJwcm9a8nfr5KG8vZQngwl1afZwch0/a3FladsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8LcxIY38yEZsuJ0u8Zjo21yGg+BNS8nN5H4i/WpTJPb/NA6u1xZnCj115hQAlJEb
-         g04p1W1i0ZkiQ9Bfga/u7zsFo+q5/RnYakJilMMQcBvn09MQfsSFDvm8rHmcYk7rUU
-         BLVG0CMcC2LfN0qAn9f59UBwJt/u9SnXuOqBVMrE=
+        b=XX5XgUgbDIB1XyLyF05pM9OthGlPX+H5aMYSgbye8ykbdX7et4el97qLGS8iq7Aoc
+         hxJ2W4nS+4jSHZ0PSSm55OwcKHVVlRf3kslmRsTooQV7eowHAbWXmu5laZU8Dd2dPS
+         OwnptMG1BBGzwEjvDL437JDqzVUW/YgllAzclWCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 123/521] NFSv4: Fix a deadlock between nfs4_open_recover_helper() and delegreturn
+Subject: [PATCH 5.4 297/658] cxl: fix possible null-ptr-deref in cxl_pci_init_afu|adapter()
 Date:   Mon, 16 Jan 2023 16:46:25 +0100
-Message-Id: <20230116154852.773784878@linuxfoundation.org>
+Message-Id: <20230116154923.185213247@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 51069e4aef6257b0454057359faed0ab0c9af083 ]
+[ Upstream commit 02cd3032b154fa02fdf90e7467abaeed889330b2 ]
 
-If we're asked to recover open state while a delegation return is
-outstanding, then the state manager thread cannot use a cached open, so
-if the server returns a delegation, we can end up deadlocked behind the
-pending delegreturn.
-To avoid this problem, let's just ask the server not to give us a
-delegation unless we're explicitly reclaiming one.
+If device_register() fails in cxl_pci_afu|adapter(), the device
+is not added, device_unregister() can not be called in the error
+path, otherwise it will cause a null-ptr-deref because of removing
+not added device.
 
-Fixes: be36e185bd26 ("NFSv4: nfs4_open_recover_helper() must set share access")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+As comment of device_register() says, it should use put_device() to give
+up the reference in the error path. So split device_unregister() into
+device_del() and put_device(), then goes to put dev when register fails.
+
+Fixes: f204e0b8cedd ("cxl: Driver code for powernv PCIe based cards for userspace access")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Acked-by: Andrew Donnellan <ajd@linux.ibm.com>
+Link: https://lore.kernel.org/r/20221111145440.2426970-2-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/misc/cxl/pci.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 9a0f48f7f2b8..250fa88303fa 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1980,18 +1980,18 @@ static struct nfs4_opendata *nfs4_open_recoverdata_alloc(struct nfs_open_context
- }
+diff --git a/drivers/misc/cxl/pci.c b/drivers/misc/cxl/pci.c
+index 2ba899f5659f..0ac3f4cb88ac 100644
+--- a/drivers/misc/cxl/pci.c
++++ b/drivers/misc/cxl/pci.c
+@@ -1164,10 +1164,10 @@ static int pci_init_afu(struct cxl *adapter, int slice, struct pci_dev *dev)
+ 	 * if it returns an error!
+ 	 */
+ 	if ((rc = cxl_register_afu(afu)))
+-		goto err_put1;
++		goto err_put_dev;
  
- static int nfs4_open_recover_helper(struct nfs4_opendata *opendata,
--		fmode_t fmode)
-+				    fmode_t fmode)
- {
- 	struct nfs4_state *newstate;
-+	struct nfs_server *server = NFS_SB(opendata->dentry->d_sb);
-+	int openflags = opendata->o_arg.open_flags;
- 	int ret;
+ 	if ((rc = cxl_sysfs_afu_add(afu)))
+-		goto err_put1;
++		goto err_del_dev;
  
- 	if (!nfs4_mode_match_open_stateid(opendata->state, fmode))
- 		return 0;
--	opendata->o_arg.open_flags = 0;
- 	opendata->o_arg.fmode = fmode;
--	opendata->o_arg.share_access = nfs4_map_atomic_open_share(
--			NFS_SB(opendata->dentry->d_sb),
--			fmode, 0);
-+	opendata->o_arg.share_access =
-+		nfs4_map_atomic_open_share(server, fmode, openflags);
- 	memset(&opendata->o_res, 0, sizeof(opendata->o_res));
- 	memset(&opendata->c_res, 0, sizeof(opendata->c_res));
- 	nfs4_init_opendata_res(opendata);
-@@ -2569,10 +2569,15 @@ static int _nfs4_open_expired(struct nfs_open_context *ctx, struct nfs4_state *s
- 	struct nfs4_opendata *opendata;
- 	int ret;
+ 	adapter->afu[afu->slice] = afu;
  
--	opendata = nfs4_open_recoverdata_alloc(ctx, state,
--			NFS4_OPEN_CLAIM_FH);
-+	opendata = nfs4_open_recoverdata_alloc(ctx, state, NFS4_OPEN_CLAIM_FH);
- 	if (IS_ERR(opendata))
- 		return PTR_ERR(opendata);
-+	/*
-+	 * We're not recovering a delegation, so ask for no delegation.
-+	 * Otherwise the recovery thread could deadlock with an outstanding
-+	 * delegation return.
-+	 */
-+	opendata->o_arg.open_flags = O_DIRECT;
- 	ret = nfs4_open_recover(opendata, state);
- 	if (ret == -ESTALE)
- 		d_drop(ctx->dentry);
+@@ -1176,10 +1176,12 @@ static int pci_init_afu(struct cxl *adapter, int slice, struct pci_dev *dev)
+ 
+ 	return 0;
+ 
+-err_put1:
++err_del_dev:
++	device_del(&afu->dev);
++err_put_dev:
+ 	pci_deconfigure_afu(afu);
+ 	cxl_debugfs_afu_remove(afu);
+-	device_unregister(&afu->dev);
++	put_device(&afu->dev);
+ 	return rc;
+ 
+ err_free_native:
+@@ -1667,23 +1669,25 @@ static struct cxl *cxl_pci_init_adapter(struct pci_dev *dev)
+ 	 * even if it returns an error!
+ 	 */
+ 	if ((rc = cxl_register_adapter(adapter)))
+-		goto err_put1;
++		goto err_put_dev;
+ 
+ 	if ((rc = cxl_sysfs_adapter_add(adapter)))
+-		goto err_put1;
++		goto err_del_dev;
+ 
+ 	/* Release the context lock as adapter is configured */
+ 	cxl_adapter_context_unlock(adapter);
+ 
+ 	return adapter;
+ 
+-err_put1:
++err_del_dev:
++	device_del(&adapter->dev);
++err_put_dev:
+ 	/* This should mirror cxl_remove_adapter, except without the
+ 	 * sysfs parts
+ 	 */
+ 	cxl_debugfs_adapter_remove(adapter);
+ 	cxl_deconfigure_adapter(adapter);
+-	device_unregister(&adapter->dev);
++	put_device(&adapter->dev);
+ 	return ERR_PTR(rc);
+ 
+ err_release:
 -- 
 2.35.1
 
