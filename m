@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3CD666CABB
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:06:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A3B66CC59
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232805AbjAPRGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:06:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60222 "EHLO
+        id S234557AbjAPRZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:25:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234238AbjAPRGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:06:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E11542BE0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:47:22 -0800 (PST)
+        with ESMTP id S234699AbjAPRYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E880B402D4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9444B81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FAAEC433EF;
-        Mon, 16 Jan 2023 16:47:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84E1A61083
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 932ABC433EF;
+        Mon, 16 Jan 2023 17:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887639;
-        bh=iRzJhdQM19Snj7Ql47odLVgpgkoNLHvo0jIoM1n/So8=;
+        s=korg; t=1673888506;
+        bh=hky+L9OqszPzzfyyNFRtDqP5ZOd/0ysZcJ2HNj/l+b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M30I/PnJct5BQLrCxEP8M2QORQcCRd81RMbux2UP3ZmHtzuEDxWOFcsnEdIPOv+RY
-         Bi0KcxJ95Ct/4tZD/0JY7P8ejy7M+vZmMzrPYk+XOpxspRAs+H2MSFvJbVX4oeeSmJ
-         dSNSqqRFQy5NxZvfqB9M34zYnZ0mxgzJNAEplRP8=
+        b=FegazsPt1QdtTrYBoGWPEkSzcsZp0sTpsB48LY/x8UknWUD0WZfh+k1pDw8b0eQFO
+         0emEVX6Rxs1wW/qVjk7kNCBEMHBew9a+dVfGcPqSoFjGm31uPKAjlc09t1QmTUwM8R
+         JoBRHVF1kUmidrZTTBqRHyYYAiwgP+p20ij5rlS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jiamei Xie <jiamei.xie@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 225/521] serial: amba-pl011: avoid SBSA UART accessing DMACR register
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.14 014/338] udf: Fix preallocation discarding at indirect extent boundary
 Date:   Mon, 16 Jan 2023 16:48:07 +0100
-Message-Id: <20230116154857.228891855@linuxfoundation.org>
+Message-Id: <20230116154821.359725427@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,93 +51,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiamei Xie <jiamei.xie@arm.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 94cdb9f33698478b0e7062586633c42c6158a786 ]
+commit cfe4c1b25dd6d2f056afc00b7c98bcb3dd0b1fc3 upstream.
 
-Chapter "B Generic UART" in "ARM Server Base System Architecture" [1]
-documentation describes a generic UART interface. Such generic UART
-does not support DMA. In current code, sbsa_uart_pops and
-amba_pl011_pops share the same stop_rx operation, which will invoke
-pl011_dma_rx_stop, leading to an access of the DMACR register. This
-commit adds a using_rx_dma check in pl011_dma_rx_stop to avoid the
-access to DMACR register for SBSA UARTs which does not support DMA.
+When preallocation extent is the first one in the extent block, the
+code would corrupt extent tree header instead. Fix the problem and use
+udf_delete_aext() for deleting extent to avoid some code duplication.
 
-When the kernel enables DMA engine with "CONFIG_DMA_ENGINE=y", Linux
-SBSA PL011 driver will access PL011 DMACR register in some functions.
-For most real SBSA Pl011 hardware implementations, the DMACR write
-behaviour will be ignored. So these DMACR operations will not cause
-obvious problems. But for some virtual SBSA PL011 hardware, like Xen
-virtual SBSA PL011 (vpl011) device, the behaviour might be different.
-Xen vpl011 emulation will inject a data abort to guest, when guest is
-accessing an unimplemented UART register. As Xen VPL011 is SBSA
-compatible, it will not implement DMACR register. So when Linux SBSA
-PL011 driver access DMACR register, it will get an unhandled data abort
-fault and the application will get a segmentation fault:
-Unhandled fault at 0xffffffc00944d048
-Mem abort info:
-  ESR = 0x96000000
-  EC = 0x25: DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-  FSC = 0x00: ttbr address size fault
-Data abort info:
-  ISV = 0, ISS = 0x00000000
-  CM = 0, WnR = 0
-swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000020e2e000
-[ffffffc00944d048] pgd=100000003ffff803, p4d=100000003ffff803, pud=100000003ffff803, pmd=100000003fffa803, pte=006800009c090f13
-Internal error: ttbr address size fault: 96000000 [#1] PREEMPT SMP
-...
-Call trace:
- pl011_stop_rx+0x70/0x80
- tty_port_shutdown+0x7c/0xb4
- tty_port_close+0x60/0xcc
- uart_close+0x34/0x8c
- tty_release+0x144/0x4c0
- __fput+0x78/0x220
- ____fput+0x1c/0x30
- task_work_run+0x88/0xc0
- do_notify_resume+0x8d0/0x123c
- el0_svc+0xa8/0xc0
- el0t_64_sync_handler+0xa4/0x130
- el0t_64_sync+0x1a0/0x1a4
-Code: b9000083 b901f001 794038a0 8b000042 (b9000041)
----[ end trace 83dd93df15c3216f ]---
-note: bootlogd[132] exited with preempt_count 1
-/etc/rcS.d/S07bootlogd: line 47: 132 Segmentation fault start-stop-daemon
-
-This has been discussed in the Xen community, and we think it should fix
-this in Linux. See [2] for more information.
-
-[1] https://developer.arm.com/documentation/den0094/c/?lang=en
-[2] https://lists.xenproject.org/archives/html/xen-devel/2022-11/msg00543.html
-
-Fixes: 0dd1e247fd39 (drivers: PL011: add support for the ARM SBSA generic UART)
-Signed-off-by: Jiamei Xie <jiamei.xie@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/20221117103237.86856-1-jiamei.xie@arm.com
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/amba-pl011.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/udf/truncate.c |   45 +++++++++++++--------------------------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
-index 7de4bed1ddba..87d9bfafc82e 100644
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -1053,6 +1053,9 @@ static void pl011_dma_rx_callback(void *data)
-  */
- static inline void pl011_dma_rx_stop(struct uart_amba_port *uap)
+--- a/fs/udf/truncate.c
++++ b/fs/udf/truncate.c
+@@ -120,60 +120,41 @@ void udf_truncate_tail_extent(struct ino
+ 
+ void udf_discard_prealloc(struct inode *inode)
  {
-+	if (!uap->using_rx_dma)
-+		return;
+-	struct extent_position epos = { NULL, 0, {0, 0} };
++	struct extent_position epos = {};
++	struct extent_position prev_epos = {};
+ 	struct kernel_lb_addr eloc;
+ 	uint32_t elen;
+ 	uint64_t lbcount = 0;
+ 	int8_t etype = -1, netype;
+-	int adsize;
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 
+ 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB ||
+ 	    inode->i_size == iinfo->i_lenExtents)
+ 		return;
+ 
+-	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
+-		adsize = sizeof(struct short_ad);
+-	else if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_LONG)
+-		adsize = sizeof(struct long_ad);
+-	else
+-		adsize = 0;
+-
+ 	epos.block = iinfo->i_location;
+ 
+ 	/* Find the last extent in the file */
+-	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 1)) != -1) {
+-		etype = netype;
++	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 0)) != -1) {
++		brelse(prev_epos.bh);
++		prev_epos = epos;
++		if (prev_epos.bh)
++			get_bh(prev_epos.bh);
 +
- 	/* FIXME.  Just disable the DMA enable */
- 	uap->dmacr &= ~UART011_RXDMAE;
- 	pl011_write(uap->dmacr, uap, REG_DMACR);
--- 
-2.35.1
-
++		etype = udf_next_aext(inode, &epos, &eloc, &elen, 1);
+ 		lbcount += elen;
+ 	}
+ 	if (etype == (EXT_NOT_RECORDED_ALLOCATED >> 30)) {
+-		epos.offset -= adsize;
+ 		lbcount -= elen;
+-		extent_trunc(inode, &epos, &eloc, etype, elen, 0);
+-		if (!epos.bh) {
+-			iinfo->i_lenAlloc =
+-				epos.offset -
+-				udf_file_entry_alloc_offset(inode);
+-			mark_inode_dirty(inode);
+-		} else {
+-			struct allocExtDesc *aed =
+-				(struct allocExtDesc *)(epos.bh->b_data);
+-			aed->lengthAllocDescs =
+-				cpu_to_le32(epos.offset -
+-					    sizeof(struct allocExtDesc));
+-			if (!UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_STRICT) ||
+-			    UDF_SB(inode->i_sb)->s_udfrev >= 0x0201)
+-				udf_update_tag(epos.bh->b_data, epos.offset);
+-			else
+-				udf_update_tag(epos.bh->b_data,
+-					       sizeof(struct allocExtDesc));
+-			mark_buffer_dirty_inode(epos.bh, inode);
+-		}
++		udf_delete_aext(inode, prev_epos);
++		udf_free_blocks(inode->i_sb, inode, &eloc, 0,
++				DIV_ROUND_UP(elen, 1 << inode->i_blkbits));
+ 	}
+ 	/* This inode entry is in-memory only and thus we don't have to mark
+ 	 * the inode dirty */
+ 	iinfo->i_lenExtents = lbcount;
+ 	brelse(epos.bh);
++	brelse(prev_epos.bh);
+ }
+ 
+ static void udf_update_alloc_ext_desc(struct inode *inode,
 
 
