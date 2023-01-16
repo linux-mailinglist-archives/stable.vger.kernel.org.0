@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BA866CD3B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F289266CBBB
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234943AbjAPRev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:34:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56114 "EHLO
+        id S234477AbjAPRQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:16:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234684AbjAPRe2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 027D03BD9E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:34 -0800 (PST)
+        with ESMTP id S234484AbjAPRPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49DA23455D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96531B8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBB7DC433EF;
-        Mon, 16 Jan 2023 17:10:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01FE8B8109B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37C61C433EF;
+        Mon, 16 Jan 2023 16:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889032;
-        bh=rkkvkwcvFbandx7VvtnNofDcgYxyfSs1jI02opgF54k=;
+        s=korg; t=1673888213;
+        bh=WbMpE+0gSzQvijrHMe1ILeN1tMM0zDR9FWTeKEpL6wg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BlH4I65kSa8IPOaVaIdtAoB/PVO6nydXSWtMEFSxLtAg2oh9FqxRvG2NvHa8bXZpi
-         nlSxuoiWVw332hXUit/6UnNDsxHoTX0NFO/KohwO4watvhtE+2bLhnKFzt8MhQYWQ2
-         g9dp4LEM9NvqfBei1cVyn+z665cyg0uo7ewH8dgw=
+        b=YJsh4T02ICexHhOeHpVKHCIeDfL9JwLPmXrQx7wnpdjpLx3PVeMDQ5YdGt0CARfTe
+         LWwPCdOqfITtdbj/HXw2aEJqONXLSf2MFFaZIfwCARdR4N8dTjAEu2MRSZe56FkRVo
+         TZirjasHNY61ofqkxeJjfohVFY4wYwT0SmUZG06M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Anand Parthasarathy <anpartha@meta.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 232/338] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+Subject: [PATCH 4.19 443/521] bpf: pull before calling skb_postpull_rcsum()
 Date:   Mon, 16 Jan 2023 16:51:45 +0100
-Message-Id: <20230116154831.160522205@linuxfoundation.org>
+Message-Id: <20230116154906.954022230@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit aa5bf80c3c067b82b4362cd6e8e2194623bcaca6 ]
+[ Upstream commit 54c3f1a81421f85e60ae2eaae7be3727a09916ee ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+Anand hit a BUG() when pulling off headers on egress to a SW tunnel.
+We get to skb_checksum_help() with an invalid checksum offset
+(commit d7ea0d9df2a6 ("net: remove two BUG() from skb_checksum_help()")
+converted those BUGs to WARN_ONs()).
+He points out oddness in how skb_postpull_rcsum() gets used.
+Indeed looks like we should pull before "postpull", otherwise
+the CHECKSUM_PARTIAL fixup from skb_postpull_rcsum() will not
+be able to do its job:
 
-  drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = ctcm_tx,
-                                    ^~~~~~~
-  drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = ctcmpc_tx,
-                                    ^~~~~~~~~
+	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+	    skb_checksum_start_offset(skb) < 0)
+		skb->ip_summed = CHECKSUM_NONE;
 
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
-match the prototype's to resolve the warning and potential CFI failure,
-should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
-
-Additionally, while in the area, remove a comment block that is no
-longer relevant.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Anand Parthasarathy <anpartha@meta.com>
+Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20221220004701.402165-1-kuba@kernel.org
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/ctcm_main.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ net/core/filter.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index fbe35c2ac898..dcaee3fccfab 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -866,16 +866,9 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- /**
-  * Start transmission of a packet.
-  * Called from generic network device layer.
-- *
-- *  skb		Pointer to buffer containing the packet.
-- *  dev		Pointer to interface struct.
-- *
-- * returns 0 if packet consumed, !0 if packet rejected.
-- *         Note: If we return !0, then the packet is free'd by
-- *               the generic network layer.
-  */
- /* first merge version - leaving both functions separated */
--static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t ctcm_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct ctcm_priv *priv = dev->ml_priv;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index aa2e7baa13c4..32d0b8f14aab 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2565,15 +2565,18 @@ static int bpf_skb_generic_push(struct sk_buff *skb, u32 off, u32 len)
  
-@@ -918,7 +911,7 @@ static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+ static int bpf_skb_generic_pop(struct sk_buff *skb, u32 off, u32 len)
+ {
++	void *old_data;
++
+ 	/* skb_ensure_writable() is not needed here, as we're
+ 	 * already working on an uncloned skb.
+ 	 */
+ 	if (unlikely(!pskb_may_pull(skb, off + len)))
+ 		return -ENOMEM;
+ 
+-	skb_postpull_rcsum(skb, skb->data + off, len);
+-	memmove(skb->data + len, skb->data, off);
++	old_data = skb->data;
+ 	__skb_pull(skb, len);
++	skb_postpull_rcsum(skb, old_data + off, len);
++	memmove(skb->data, old_data, off);
+ 
+ 	return 0;
  }
- 
- /* unmerged MPC variant of ctcm_tx */
--static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	int len = 0;
- 	struct ctcm_priv *priv = dev->ml_priv;
 -- 
 2.35.1
 
