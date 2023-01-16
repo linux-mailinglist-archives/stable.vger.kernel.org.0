@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE02B66C52B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:02:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CE9366C5D2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232073AbjAPQCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:02:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44344 "EHLO
+        id S232728AbjAPQKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:10:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231967AbjAPQCD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:02:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E985D23C70
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:53 -0800 (PST)
+        with ESMTP id S232516AbjAPQKE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:10:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C93BC298D2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 956F4B81061
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7BE5C433F0;
-        Mon, 16 Jan 2023 16:01:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89924B8107A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDB9EC433EF;
+        Mon, 16 Jan 2023 16:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884911;
-        bh=LhLcymre40N3ru1qokaMuvrTvAXrEyGWkscN6ZFbY2U=;
+        s=korg; t=1673885197;
+        bh=mmJGH3qKA4XYqplHXT50W9TRgTQvZGNX0DtIqJkaUow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhCyzKZisaQUxo5yCHI5SMsi35WymUmFS4U/DC5lZhWL3ZQCEn+ngWwwZjuPnmJ+g
-         M/64QI2MmxkOipy/uVJ1dMoajj4AvcbQ4P6ZqKDBTb0nRQ04vFB+3GSd4yS4ZVwyAK
-         cCtHnbdcik7QP06TDzh72nAzag7YrsGTuKN0NU6I=
+        b=fy8smI8+uU/nLV2zIfCAj0FYsYbwm5FEatAeMhzcfj5FdzHwJmVZHSIMGG3fQpFZd
+         NpaVtk4wGvdff68sZvZp9Qvjm3HzmTC/46zExLkoDuxoLHwdCIFiYgryBcoERQyvaG
+         Ju7GU9/QTzuEicrtSZHsvL8Hb5bKanOIzrJG0BXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 169/183] net: lan966x: check for ptp to be enabled in lan966x_ptp_deinit()
+Subject: [PATCH 5.10 25/64] xhci: get isochronous ring directly from endpoint structure
 Date:   Mon, 16 Jan 2023 16:51:32 +0100
-Message-Id: <20230116154810.433968281@linuxfoundation.org>
+Message-Id: <20230116154744.471346329@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Léger <clement.leger@bootlin.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit b0e380b5d4275299adf43e249f18309331b6f54f ]
+[ Upstream commit d4dff8043ea5b93a30cb9b19d4407bd506a6877a ]
 
-If ptp was not enabled due to missing IRQ for instance,
-lan966x_ptp_deinit() will dereference NULL pointers.
+isochronous endpoints do not support streams, meaning that
+there is only one ring per endpoint.
 
-Fixes: d096459494a8 ("net: lan966x: Add support for ptp clocks")
-Signed-off-by: Clément Léger <clement.leger@bootlin.com>
-Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Avoid double-fetching the transfer event DMA to get the
+ring. Also makes passing the event to skip_isoc_td() uncecessary.
+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210129130044.206855-3-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: a1575120972e ("xhci: Prevent infinite loop in transaction errors recovery for streams")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/host/xhci-ring.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c b/drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c
-index e5a2bbe064f8..8e368318558a 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_ptp.c
-@@ -853,6 +853,9 @@ void lan966x_ptp_deinit(struct lan966x *lan966x)
- 	struct lan966x_port *port;
- 	int i;
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 5cee7150376d..6d34c56376e5 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2209,7 +2209,6 @@ static int process_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
+ 	union xhci_trb *ep_trb, struct xhci_transfer_event *event,
+ 	struct xhci_virt_ep *ep, int *status)
+ {
+-	struct xhci_ring *ep_ring;
+ 	struct urb_priv *urb_priv;
+ 	int idx;
+ 	struct usb_iso_packet_descriptor *frame;
+@@ -2218,7 +2217,6 @@ static int process_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
+ 	u32 remaining, requested, ep_trb_len;
+ 	int short_framestatus;
  
-+	if (!lan966x->ptp)
-+		return;
-+
- 	for (i = 0; i < lan966x->num_phys_ports; i++) {
- 		port = lan966x->ports[i];
- 		if (!port)
+-	ep_ring = xhci_dma_to_transfer_ring(ep, le64_to_cpu(event->buffer));
+ 	trb_comp_code = GET_COMP_CODE(le32_to_cpu(event->transfer_len));
+ 	urb_priv = td->urb->hcpriv;
+ 	idx = urb_priv->num_tds_done;
+@@ -2279,7 +2277,7 @@ static int process_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
+ 	}
+ 
+ 	if (sum_trbs_for_length)
+-		frame->actual_length = sum_trb_lengths(xhci, ep_ring, ep_trb) +
++		frame->actual_length = sum_trb_lengths(xhci, ep->ring, ep_trb) +
+ 			ep_trb_len - remaining;
+ 	else
+ 		frame->actual_length = requested;
+@@ -2290,15 +2288,12 @@ static int process_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
+ }
+ 
+ static int skip_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
+-			struct xhci_transfer_event *event,
+ 			struct xhci_virt_ep *ep, int *status)
+ {
+-	struct xhci_ring *ep_ring;
+ 	struct urb_priv *urb_priv;
+ 	struct usb_iso_packet_descriptor *frame;
+ 	int idx;
+ 
+-	ep_ring = xhci_dma_to_transfer_ring(ep, le64_to_cpu(event->buffer));
+ 	urb_priv = td->urb->hcpriv;
+ 	idx = urb_priv->num_tds_done;
+ 	frame = &td->urb->iso_frame_desc[idx];
+@@ -2310,11 +2305,11 @@ static int skip_isoc_td(struct xhci_hcd *xhci, struct xhci_td *td,
+ 	frame->actual_length = 0;
+ 
+ 	/* Update ring dequeue pointer */
+-	while (ep_ring->dequeue != td->last_trb)
+-		inc_deq(xhci, ep_ring);
+-	inc_deq(xhci, ep_ring);
++	while (ep->ring->dequeue != td->last_trb)
++		inc_deq(xhci, ep->ring);
++	inc_deq(xhci, ep->ring);
+ 
+-	return xhci_td_cleanup(xhci, td, ep_ring, status);
++	return xhci_td_cleanup(xhci, td, ep->ring, status);
+ }
+ 
+ /*
+@@ -2693,7 +2688,7 @@ static int handle_tx_event(struct xhci_hcd *xhci,
+ 				return -ESHUTDOWN;
+ 			}
+ 
+-			skip_isoc_td(xhci, td, event, ep, &status);
++			skip_isoc_td(xhci, td, ep, &status);
+ 			goto cleanup;
+ 		}
+ 		if (trb_comp_code == COMP_SHORT_PACKET)
 -- 
 2.35.1
 
