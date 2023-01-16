@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA2466CBD4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:19:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BC5766CD5D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232648AbjAPRTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:19:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45360 "EHLO
+        id S234876AbjAPRgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:36:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234531AbjAPRR5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:17:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D985399B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:47 -0800 (PST)
+        with ESMTP id S234950AbjAPRfW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB5731E22
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 147DB60F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26888C433EF;
-        Mon, 16 Jan 2023 16:57:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41AF5B81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EE01C433EF;
+        Mon, 16 Jan 2023 17:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888266;
-        bh=eQN7xGxWa+wFIeq3fR7PmEe3M1mX/uC1YU1nir2Ub7U=;
+        s=korg; t=1673889085;
+        bh=YhW2FzU0dSQrT60euBoyI1F6QF+vgUza0f7Af96Ugl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d1qCIoPdz/4q5TUJrBMcrCu4c/RRr198JB8Ph3YbeKiQOArrbIN3WXP9pkZWmuCgu
-         EPxjrJPwrIY9WUEY7kdJzdTfRYgnPy3w8yEI9yx937Yd/dF8HaJoTG4UeSlEtLjzKJ
-         rbvdaAy3v26uLsO+YzNtgQEWJ5Rv2yjOOHcdVuEI=
+        b=X1E4ZFjyMw+0wPl9SlwUC/cb09yW4kAIXZBwaprObtmXqwJBqmYbI032NAbVfofZ8
+         X1rYCu5D6IBYZBjofBQJIo7kPnwZDXgntQmW1PgKc5F34oQoE01GltQqF+L7EhYpPB
+         zpI04o5CJCfCn1uybQ8EvOuWGAJdRiLUZM9BmCBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Martin=20Li=C5=A1ka?= <mliska@suse.cz>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 4.19 464/521] docs: Fix the docs build with Sphinx 6.0
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 253/338] ASoC: rt5670: Remove unbalanced pm_runtime_put()
 Date:   Mon, 16 Jan 2023 16:52:06 +0100
-Message-Id: <20230116154907.914972823@linuxfoundation.org>
+Message-Id: <20230116154832.100623420@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Corbet <corbet@lwn.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 0283189e8f3d0917e2ac399688df85211f48447b upstream.
+[ Upstream commit 6c900dcc3f7331a67ed29739d74524e428d137fb ]
 
-Sphinx 6.0 removed the execfile_() function, which we use as part of the
-configuration process.  They *did* warn us...  Just open-code the
-functionality as is done in Sphinx itself.
+For some reason rt5670_i2c_probe() does a pm_runtime_put() at the end
+of a successful probe. But it has never done a pm_runtime_get() leading
+to the following error being logged into dmesg:
 
-Tested (using SPHINX_CONF, since this code is only executed with an
-alternative config file) on various Sphinx versions from 2.5 through 6.0.
+ rt5670 i2c-10EC5640:00: Runtime PM usage count underflow!
 
-Reported-by: Martin Liška <mliska@suse.cz>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by removing the unnecessary pm_runtime_put().
+
+Fixes: 64e89e5f5548 ("ASoC: rt5670: Add runtime PM support")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221213123319.11285-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/sphinx/load_config.py |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/codecs/rt5670.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/Documentation/sphinx/load_config.py
-+++ b/Documentation/sphinx/load_config.py
-@@ -3,7 +3,7 @@
+diff --git a/sound/soc/codecs/rt5670.c b/sound/soc/codecs/rt5670.c
+index 9545764ef3eb..08367a813f5b 100644
+--- a/sound/soc/codecs/rt5670.c
++++ b/sound/soc/codecs/rt5670.c
+@@ -3071,8 +3071,6 @@ static int rt5670_i2c_probe(struct i2c_client *i2c,
+ 	if (ret < 0)
+ 		goto err;
  
- import os
- import sys
--from sphinx.util.pycompat import execfile_
-+from sphinx.util.osutil import fs_encoding
- 
- # ------------------------------------------------------------------------------
- def loadConfig(namespace):
-@@ -25,7 +25,9 @@ def loadConfig(namespace):
-             sys.stdout.write("load additional sphinx-config: %s\n" % config_file)
-             config = namespace.copy()
-             config['__file__'] = config_file
--            execfile_(config_file, config)
-+            with open(config_file, 'rb') as f:
-+                code = compile(f.read(), fs_encoding, 'exec')
-+                exec(code, config)
-             del config['__file__']
-             namespace.update(config)
-         else:
+-	pm_runtime_put(&i2c->dev);
+-
+ 	return 0;
+ err:
+ 	pm_runtime_disable(&i2c->dev);
+-- 
+2.35.1
+
 
 
