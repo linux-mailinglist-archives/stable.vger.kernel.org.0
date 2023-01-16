@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9119366CA05
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FFA566C793
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:32:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234001AbjAPQ7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:59:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
+        id S233187AbjAPQcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:32:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234125AbjAPQ62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:58:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25559367E7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:18 -0800 (PST)
+        with ESMTP id S233284AbjAPQbi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:31:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D35F2F7BA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:19:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A24F61042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD6F2C433EF;
-        Mon, 16 Jan 2023 16:41:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D9ABB81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:19:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85BDFC433D2;
+        Mon, 16 Jan 2023 16:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887277;
-        bh=kbu1vVHx9t7b1FIZZW/ZmvZBmnndYlTOUDbH3KYCrGo=;
+        s=korg; t=1673885995;
+        bh=z+jrDHmKjofKg1Lnfg8xr3pyhiUDQqFFUAePcemAF6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ctqHSjxoiiwXAAlvz10Jdg1i+A/o2Ee0KheuXVMHwhhTzL9Acxbu3Rbu4xyDiytw
-         9NKxf05x/OCP0Li0MnUnS3X1yOqAGGQRZuSv74KyHyY0Dfx+YQirbzUCyWNPJug1ov
-         S7czbxg3xe1ORVhaFYh16DbHGH3HtRcQ8G1GmA5I=
+        b=qpyElItWIS6UnRq+qmL7YXS6zvx+CfWUqriPx0LfebvviMUFRat620ZAKpiN+SRqT
+         T95D+qPlbVzR+iEmrSEAAptxuSaD0Cl7f1nBwdUluTy4ou57844bKxr1fSvefv9lVL
+         ZSIbS+rjwLCyyCx4gLfKKxskq4MgtgmPRnwaztzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Jimmy Assarsson <extja@kvaser.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 088/521] can: kvaser_usb: kvaser_usb_leaf: Handle CMD_ERROR_EVENT
-Date:   Mon, 16 Jan 2023 16:45:50 +0100
-Message-Id: <20230116154851.164498124@linuxfoundation.org>
+Subject: [PATCH 5.4 263/658] scsi: fcoe: Fix transport not deattached when fcoe_if_init() fails
+Date:   Mon, 16 Jan 2023 16:45:51 +0100
+Message-Id: <20230116154921.628589423@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,184 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Assarsson <extja@kvaser.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit b24cb2d169e0c9dce664a959e1f2aa9781285dc9 ]
+[ Upstream commit 4155658cee394b22b24c6d64e49247bf26d95b92 ]
 
-The device will send an error event command, to indicate certain errors.
-This indicates a misbehaving driver, and should never occur.
+fcoe_init() calls fcoe_transport_attach(&fcoe_sw_transport), but when
+fcoe_if_init() fails, &fcoe_sw_transport is not detached and leaves freed
+&fcoe_sw_transport on fcoe_transports list. This causes panic when
+reinserting module.
 
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Co-developed-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010185237.319219-5-extja@kvaser.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+ BUG: unable to handle page fault for address: fffffbfff82e2213
+ RIP: 0010:fcoe_transport_attach+0xe1/0x230 [libfcoe]
+ Call Trace:
+  <TASK>
+  do_one_initcall+0xd0/0x4e0
+  load_module+0x5eee/0x7210
+  ...
+
+Fixes: 78a582463c1e ("[SCSI] fcoe: convert fcoe.ko to become an fcoe transport provider driver")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221115092442.133088-1-chenzhongjin@huawei.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 99 +++++++++++++++++++
- 1 file changed, 99 insertions(+)
+ drivers/scsi/fcoe/fcoe.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index 4f3d1150b2b2..3c3e78992b55 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -69,6 +69,7 @@
- #define CMD_GET_CARD_INFO_REPLY		35
- #define CMD_GET_SOFTWARE_INFO		38
- #define CMD_GET_SOFTWARE_INFO_REPLY	39
-+#define CMD_ERROR_EVENT			45
- #define CMD_FLUSH_QUEUE			48
- #define CMD_TX_ACKNOWLEDGE		50
- #define CMD_CAN_ERROR_EVENT		51
-@@ -257,6 +258,28 @@ struct usbcan_cmd_can_error_event {
- 	__le16 time;
- } __packed;
+diff --git a/drivers/scsi/fcoe/fcoe.c b/drivers/scsi/fcoe/fcoe.c
+index 25dae9f0b205..00ddb3fd940f 100644
+--- a/drivers/scsi/fcoe/fcoe.c
++++ b/drivers/scsi/fcoe/fcoe.c
+@@ -2506,6 +2506,7 @@ static int __init fcoe_init(void)
  
-+/* CMD_ERROR_EVENT error codes */
-+#define KVASER_USB_LEAF_ERROR_EVENT_TX_QUEUE_FULL 0x8
-+#define KVASER_USB_LEAF_ERROR_EVENT_PARAM 0x9
-+
-+struct leaf_cmd_error_event {
-+	u8 tid;
-+	u8 error_code;
-+	__le16 timestamp[3];
-+	__le16 padding;
-+	__le16 info1;
-+	__le16 info2;
-+} __packed;
-+
-+struct usbcan_cmd_error_event {
-+	u8 tid;
-+	u8 error_code;
-+	__le16 info1;
-+	__le16 info2;
-+	__le16 timestamp;
-+	__le16 padding;
-+} __packed;
-+
- struct kvaser_cmd_ctrl_mode {
- 	u8 tid;
- 	u8 channel;
-@@ -320,6 +343,7 @@ struct kvaser_cmd {
- 			struct leaf_cmd_chip_state_event chip_state_event;
- 			struct leaf_cmd_can_error_event can_error_event;
- 			struct leaf_cmd_log_message log_message;
-+			struct leaf_cmd_error_event error_event;
- 			struct kvaser_cmd_cap_req cap_req;
- 			struct kvaser_cmd_cap_res cap_res;
- 		} __packed leaf;
-@@ -329,6 +353,7 @@ struct kvaser_cmd {
- 			struct usbcan_cmd_rx_can rx_can;
- 			struct usbcan_cmd_chip_state_event chip_state_event;
- 			struct usbcan_cmd_can_error_event can_error_event;
-+			struct usbcan_cmd_error_event error_event;
- 		} __packed usbcan;
- 
- 		struct kvaser_cmd_tx_can tx_can;
-@@ -352,6 +377,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
- 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
- 	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.can_error_event),
- 	[CMD_GET_CAPABILITIES_RESP]	= kvaser_fsize(u.leaf.cap_res),
-+	[CMD_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
- 	/* ignored events: */
- 	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
- };
-@@ -366,6 +392,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_usbcan[] = {
- 	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
- 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.usbcan.chip_state_event),
- 	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.can_error_event),
-+	[CMD_ERROR_EVENT]		= kvaser_fsize(u.usbcan.error_event),
- 	/* ignored events: */
- 	[CMD_USBCAN_CLOCK_OVERFLOW_EVENT] = CMD_SIZE_ANY,
- };
-@@ -1308,6 +1335,74 @@ static void kvaser_usb_leaf_rx_can_msg(const struct kvaser_usb *dev,
- 	netif_rx(skb);
- }
- 
-+static void kvaser_usb_leaf_error_event_parameter(const struct kvaser_usb *dev,
-+						  const struct kvaser_cmd *cmd)
-+{
-+	u16 info1 = 0;
-+
-+	switch (dev->driver_info->family) {
-+	case KVASER_LEAF:
-+		info1 = le16_to_cpu(cmd->u.leaf.error_event.info1);
-+		break;
-+	case KVASER_USBCAN:
-+		info1 = le16_to_cpu(cmd->u.usbcan.error_event.info1);
-+		break;
-+	}
-+
-+	/* info1 will contain the offending cmd_no */
-+	switch (info1) {
-+	case CMD_SET_CTRL_MODE:
-+		dev_warn(&dev->intf->dev,
-+			 "CMD_SET_CTRL_MODE error in parameter\n");
-+		break;
-+
-+	case CMD_SET_BUS_PARAMS:
-+		dev_warn(&dev->intf->dev,
-+			 "CMD_SET_BUS_PARAMS error in parameter\n");
-+		break;
-+
-+	default:
-+		dev_warn(&dev->intf->dev,
-+			 "Unhandled parameter error event cmd_no (%u)\n",
-+			 info1);
-+		break;
-+	}
-+}
-+
-+static void kvaser_usb_leaf_error_event(const struct kvaser_usb *dev,
-+					const struct kvaser_cmd *cmd)
-+{
-+	u8 error_code = 0;
-+
-+	switch (dev->driver_info->family) {
-+	case KVASER_LEAF:
-+		error_code = cmd->u.leaf.error_event.error_code;
-+		break;
-+	case KVASER_USBCAN:
-+		error_code = cmd->u.usbcan.error_event.error_code;
-+		break;
-+	}
-+
-+	switch (error_code) {
-+	case KVASER_USB_LEAF_ERROR_EVENT_TX_QUEUE_FULL:
-+		/* Received additional CAN message, when firmware TX queue is
-+		 * already full. Something is wrong with the driver.
-+		 * This should never happen!
-+		 */
-+		dev_err(&dev->intf->dev,
-+			"Received error event TX_QUEUE_FULL\n");
-+		break;
-+	case KVASER_USB_LEAF_ERROR_EVENT_PARAM:
-+		kvaser_usb_leaf_error_event_parameter(dev, cmd);
-+		break;
-+
-+	default:
-+		dev_warn(&dev->intf->dev,
-+			 "Unhandled error event (%d)\n", error_code);
-+		break;
-+	}
-+}
-+
- static void kvaser_usb_leaf_start_chip_reply(const struct kvaser_usb *dev,
- 					     const struct kvaser_cmd *cmd)
- {
-@@ -1386,6 +1481,10 @@ static void kvaser_usb_leaf_handle_command(const struct kvaser_usb *dev,
- 		kvaser_usb_leaf_tx_acknowledge(dev, cmd);
- 		break;
- 
-+	case CMD_ERROR_EVENT:
-+		kvaser_usb_leaf_error_event(dev, cmd);
-+		break;
-+
- 	/* Ignored commands */
- 	case CMD_USBCAN_CLOCK_OVERFLOW_EVENT:
- 		if (dev->driver_info->family != KVASER_USBCAN)
+ out_free:
+ 	mutex_unlock(&fcoe_config_mutex);
++	fcoe_transport_detach(&fcoe_sw_transport);
+ out_destroy:
+ 	destroy_workqueue(fcoe_wq);
+ 	return rc;
 -- 
 2.35.1
 
