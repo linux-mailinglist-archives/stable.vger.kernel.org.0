@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5808B66CB7D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD72E66CCE8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:30:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234349AbjAPROo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:14:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39532 "EHLO
+        id S234653AbjAPRar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:30:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234407AbjAPRNL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B58F44B75A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:47 -0800 (PST)
+        with ESMTP id S234702AbjAPR35 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A43D63A864
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B0A61085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68BB5C433EF;
-        Mon, 16 Jan 2023 16:53:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C767AB81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A97EC433D2;
+        Mon, 16 Jan 2023 17:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888026;
-        bh=94uJ3jRsrurtQ6mZKAJRf1XVxIMFT79cumgjZtyXg18=;
+        s=korg; t=1673888846;
+        bh=Ueq31P5S+NKv4SoM41ahwQnBfnMXsleLNi02qlJp240=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9VsJvQ5DRREXdgt5O8x4jHkKc5rLRstGiCVXxpb8PABDYWoUYIWiU/okPxWOVyIP
-         EeZ59BlpcCknOAHyVrQWdEoFBhwUj4FWhrtNXgiVUI4Ue6dr5dPWpMf2YWIt/U/0+W
-         AuO7goR22USMrrOa7qSylTJuTGM1WBdcEiXe1nAc=
+        b=nUVWwSAnVNcyKGKARFlWgSM7KqYGilUHkMySXI+k9sF/4/cohCsZElxaQ40rhL2LX
+         wzo8MHL44LLuFVX5Xh15nv9W1rrTacqA7xoy/IN5JEiYhXxvrFCzIENxuT6FttqlvR
+         H+D3k78wXZ1lrLu21VezoaMSIHYZTu7ZmIm4MDDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hanjun Guo <guohanjun@huawei.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 4.19 373/521] tpm: tpm_crb: Add the missed acpi_put_table() to fix memory leak
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 162/338] usb: fotg210-udc: Fix ages old endianness issues
 Date:   Mon, 16 Jan 2023 16:50:35 +0100
-Message-Id: <20230116154903.777399969@linuxfoundation.org>
+Message-Id: <20230116154827.953448433@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,85 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 37e90c374dd11cf4919c51e847c6d6ced0abc555 upstream.
+[ Upstream commit 46ed6026ca2181c917c8334a82e3eaf40a6234dd ]
 
-In crb_acpi_add(), we get the TPM2 table to retrieve information
-like start method, and then assign them to the priv data, so the
-TPM2 table is not used after the init, should be freed, call
-acpi_put_table() to fix the memory leak.
+The code in the FOTG210 driver isn't entirely endianness-agnostic
+as reported by the kernel robot sparse testing. This came to
+the surface while moving the files around.
 
-Fixes: 30fc8d138e91 ("tpm: TPM 2.0 CRB Interface")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+The driver is only used on little-endian systems, so this causes
+no real-world regression, but it is nice to be strict and have
+some compile coverage also on big endian machines, so fix it
+up with the right LE accessors.
+
+Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/linux-usb/202211110910.0dJ7nZCn-lkp@intel.com/
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20221111090317.94228-1-linus.walleij@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_crb.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/usb/gadget/udc/fotg210-udc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/char/tpm/tpm_crb.c
-+++ b/drivers/char/tpm/tpm_crb.c
-@@ -680,12 +680,16 @@ static int crb_acpi_add(struct acpi_devi
- 
- 	/* Should the FIFO driver handle this? */
- 	sm = buf->start_method;
--	if (sm == ACPI_TPM2_MEMORY_MAPPED)
--		return -ENODEV;
-+	if (sm == ACPI_TPM2_MEMORY_MAPPED) {
-+		rc = -ENODEV;
-+		goto out;
-+	}
- 
- 	priv = devm_kzalloc(dev, sizeof(struct crb_priv), GFP_KERNEL);
--	if (!priv)
--		return -ENOMEM;
-+	if (!priv) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
- 
- 	if (sm == ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC) {
- 		if (buf->header.length < (sizeof(*buf) + sizeof(*crb_smc))) {
-@@ -693,7 +697,8 @@ static int crb_acpi_add(struct acpi_devi
- 				FW_BUG "TPM2 ACPI table has wrong size %u for start method type %d\n",
- 				buf->header.length,
- 				ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC);
--			return -EINVAL;
-+			rc = -EINVAL;
-+			goto out;
- 		}
- 		crb_smc = ACPI_ADD_PTR(struct tpm2_crb_smc, buf, sizeof(*buf));
- 		priv->smc_func_id = crb_smc->smc_func_id;
-@@ -704,17 +709,23 @@ static int crb_acpi_add(struct acpi_devi
- 
- 	rc = crb_map_io(device, priv, buf);
- 	if (rc)
--		return rc;
-+		goto out;
- 
- 	chip = tpmm_chip_alloc(dev, &tpm_crb);
--	if (IS_ERR(chip))
--		return PTR_ERR(chip);
-+	if (IS_ERR(chip)) {
-+		rc = PTR_ERR(chip);
-+		goto out;
-+	}
- 
- 	dev_set_drvdata(&chip->dev, priv);
- 	chip->acpi_dev_handle = device->handle;
- 	chip->flags = TPM_CHIP_FLAG_TPM2;
- 
--	return tpm_chip_register(chip);
-+	rc = tpm_chip_register(chip);
-+
-+out:
-+	acpi_put_table((struct acpi_table_header *)buf);
-+	return rc;
+diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
+index 9440973cdb44..08ffbf394fe9 100644
+--- a/drivers/usb/gadget/udc/fotg210-udc.c
++++ b/drivers/usb/gadget/udc/fotg210-udc.c
+@@ -636,10 +636,10 @@ static void fotg210_request_error(struct fotg210_udc *fotg210)
+ static void fotg210_set_address(struct fotg210_udc *fotg210,
+ 				struct usb_ctrlrequest *ctrl)
+ {
+-	if (ctrl->wValue >= 0x0100) {
++	if (le16_to_cpu(ctrl->wValue) >= 0x0100) {
+ 		fotg210_request_error(fotg210);
+ 	} else {
+-		fotg210_set_dev_addr(fotg210, ctrl->wValue);
++		fotg210_set_dev_addr(fotg210, le16_to_cpu(ctrl->wValue));
+ 		fotg210_set_cxdone(fotg210);
+ 	}
  }
+@@ -720,17 +720,17 @@ static void fotg210_get_status(struct fotg210_udc *fotg210,
  
- static int crb_acpi_remove(struct acpi_device *device)
+ 	switch (ctrl->bRequestType & USB_RECIP_MASK) {
+ 	case USB_RECIP_DEVICE:
+-		fotg210->ep0_data = 1 << USB_DEVICE_SELF_POWERED;
++		fotg210->ep0_data = cpu_to_le16(1 << USB_DEVICE_SELF_POWERED);
+ 		break;
+ 	case USB_RECIP_INTERFACE:
+-		fotg210->ep0_data = 0;
++		fotg210->ep0_data = cpu_to_le16(0);
+ 		break;
+ 	case USB_RECIP_ENDPOINT:
+ 		epnum = ctrl->wIndex & USB_ENDPOINT_NUMBER_MASK;
+ 		if (epnum)
+ 			fotg210->ep0_data =
+-				fotg210_is_epnstall(fotg210->ep[epnum])
+-				<< USB_ENDPOINT_HALT;
++				cpu_to_le16(fotg210_is_epnstall(fotg210->ep[epnum])
++					    << USB_ENDPOINT_HALT);
+ 		else
+ 			fotg210_request_error(fotg210);
+ 		break;
+-- 
+2.35.1
+
 
 
