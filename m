@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E5566C5B8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:09:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF7A66C569
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232251AbjAPQJO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:09:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46108 "EHLO
+        id S232047AbjAPQFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:05:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232136AbjAPQIY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:08:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE02426592
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:03 -0800 (PST)
+        with ESMTP id S232084AbjAPQFI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:05:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E007014E8E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D83360C1B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DBEEC433F2;
-        Mon, 16 Jan 2023 16:06:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 819FAB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E068AC433D2;
+        Mon, 16 Jan 2023 16:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885163;
-        bh=ZgfTzPXbm436fcG9QldX4WTZEYWUgT3QS1nm35u/LjI=;
+        s=korg; t=1673885021;
+        bh=dV3T2K0wm/vcbInio0P0c+0afNHzeJwUEaiboLCpBb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWW8yrwuJT+WsV4OSVey6bwN/ILvynbcH4iikop3KcECzIWEx68U7GRuufQan8BNK
-         C4/t22UfnXUQTGH0+h5PV0NqaDFOI2LCPPwjA5k1FBwePB0z1yDPmi3Fj8Yj3zynDb
-         MHA1BjNVRdPtW8EMuddJyN1hX3ISLbouQQap5LXU=
+        b=10vUHZxXPGbMnrpNylRbnsYJClMt0/MPi42xwkPW1Aa31tLs/sqrrnUPfKnFaXJE5
+         a2nPo7JFp8ULoAFjL0N2HwoyaagKXhqKAGrupwaLKRC4sV6/Owxr3HadE5qA6LruR4
+         Zd3SqZoxef2rv+OZG4jv1YCEf2Fg6JwuVQo77C2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Akhil P Oommen <quic_akhilpo@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.10 12/64] drm/msm/adreno: Make adreno quirks not overwrite each other
+        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
+        Adam Ward <DLG-Adam.Ward.opensource@dm.renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 45/86] regulator: da9211: Use irq handler when ready
 Date:   Mon, 16 Jan 2023 16:51:19 +0100
-Message-Id: <20230116154744.074374513@linuxfoundation.org>
+Message-Id: <20230116154748.937736122@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +54,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 13ef096e342b00e30b95a90c6c13eee1f0bec4c5 upstream.
+[ Upstream commit 02228f6aa6a64d588bc31e3267d05ff184d772eb ]
 
-So far the adreno quirks have all been assigned with an OR operator,
-which is problematic, because they were assigned consecutive integer
-values, which makes checking them with an AND operator kind of no bueno..
+If the system does not come from reset (like when it is kexec()), the
+regulator might have an IRQ waiting for us.
 
-Switch to using BIT(n) so that only the quirks that the programmer chose
-are taken into account when evaluating info->quirks & ADRENO_QUIRK_...
+If we enable the IRQ handler before its structures are ready, we crash.
 
-Fixes: 370063ee427a ("drm/msm/adreno: Add A540 support")
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/516456/
-Link: https://lore.kernel.org/r/20230102100201.77286-1-konrad.dybcio@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch fixes:
+
+[    1.141839] Unable to handle kernel read from unreadable memory at virtual address 0000000000000078
+[    1.316096] Call trace:
+[    1.316101]  blocking_notifier_call_chain+0x20/0xa8
+[    1.322757] cpu cpu0: dummy supplies not allowed for exclusive requests
+[    1.327823]  regulator_notifier_call_chain+0x1c/0x2c
+[    1.327825]  da9211_irq_handler+0x68/0xf8
+[    1.327829]  irq_thread+0x11c/0x234
+[    1.327833]  kthread+0x13c/0x154
+
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Adam Ward <DLG-Adam.Ward.opensource@dm.renesas.com>
+Link: https://lore.kernel.org/r/20221124-da9211-v2-0-1779e3c5d491@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_gpu.h |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/regulator/da9211-regulator.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/msm/adreno/adreno_gpu.h
-+++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.h
-@@ -28,11 +28,9 @@ enum {
- 	ADRENO_FW_MAX,
- };
+diff --git a/drivers/regulator/da9211-regulator.c b/drivers/regulator/da9211-regulator.c
+index e01b32d1fa17..00828f5baa97 100644
+--- a/drivers/regulator/da9211-regulator.c
++++ b/drivers/regulator/da9211-regulator.c
+@@ -498,6 +498,12 @@ static int da9211_i2c_probe(struct i2c_client *i2c)
  
--enum adreno_quirks {
--	ADRENO_QUIRK_TWO_PASS_USE_WFI = 1,
--	ADRENO_QUIRK_FAULT_DETECT_MASK = 2,
--	ADRENO_QUIRK_LMLOADKILL_DISABLE = 3,
--};
-+#define ADRENO_QUIRK_TWO_PASS_USE_WFI		BIT(0)
-+#define ADRENO_QUIRK_FAULT_DETECT_MASK		BIT(1)
-+#define ADRENO_QUIRK_LMLOADKILL_DISABLE		BIT(2)
+ 	chip->chip_irq = i2c->irq;
  
- struct adreno_rev {
- 	uint8_t  core;
-@@ -62,7 +60,7 @@ struct adreno_info {
- 	const char *name;
- 	const char *fw[ADRENO_FW_MAX];
- 	uint32_t gmem;
--	enum adreno_quirks quirks;
-+	u64 quirks;
- 	struct msm_gpu *(*init)(struct drm_device *dev);
- 	const char *zapfw;
- 	u32 inactive_period;
++	ret = da9211_regulator_init(chip);
++	if (ret < 0) {
++		dev_err(chip->dev, "Failed to initialize regulator: %d\n", ret);
++		return ret;
++	}
++
+ 	if (chip->chip_irq != 0) {
+ 		ret = devm_request_threaded_irq(chip->dev, chip->chip_irq, NULL,
+ 					da9211_irq_handler,
+@@ -512,11 +518,6 @@ static int da9211_i2c_probe(struct i2c_client *i2c)
+ 		dev_warn(chip->dev, "No IRQ configured\n");
+ 	}
+ 
+-	ret = da9211_regulator_init(chip);
+-
+-	if (ret < 0)
+-		dev_err(chip->dev, "Failed to initialize regulator: %d\n", ret);
+-
+ 	return ret;
+ }
+ 
+-- 
+2.35.1
+
 
 
