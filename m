@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B9866C4BA
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2A5E66C8E8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231654AbjAPP55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39126 "EHLO
+        id S233735AbjAPQoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:44:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231649AbjAPP5i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:38 -0500
+        with ESMTP id S233822AbjAPQnp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E2422A0B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBB0539BA8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7AB36102D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB938C433D2;
-        Mon, 16 Jan 2023 15:57:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 786546106E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFB9C433EF;
+        Mon, 16 Jan 2023 16:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884652;
-        bh=9n7iOmKjYiUM48hry9NGOKRL0Lz89ppHiWO6NqrgA1E=;
+        s=korg; t=1673886685;
+        bh=xOvi7aIxPjKXJsKEx5kQQgW2dp3oENq6smwAh6Mly+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zo75LzWrflbA55mOctTSZMuWq0UakiR24FNxgvDsLoL6Bri57KLXudmQI2xOEK9vn
-         OS8dLNEyu8NnIB/w/JT9pjlOBwkaFLX7f6ORv9APW0GfmQKkD4DKx9oCvFxJZZ6wbK
-         uASzK2MZIa0aqQ7pBwv9gpGcfNOuYVDxkxk03xaU=
+        b=2DTvesiQVzY/bJdyYAyPpSOAov5icjWjtZ2d1a+CDrdK9bUqto3Z+gnkOoBuCgx90
+         3Fw2PmwUyYcaDRLMHmOcYt38LOKlLHlGVCI8Uo7WIObIKGHQ8rh700EGZdUI5aZ1Je
+         hA80eVW6LGZIJ+bjlkGAoCiBa/E0zbwHgP/Fxf5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?David=20Wang=20=E7=8E=8B=E6=A0=87?= 
-        <wangbiao3@xiaomi.com>, Waiman Long <longman@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 6.1 088/183] sched/core: Fix use-after-free bug in dup_user_cpus_ptr()
-Date:   Mon, 16 Jan 2023 16:50:11 +0100
-Message-Id: <20230116154807.145821027@linuxfoundation.org>
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.4 524/658] ext4: add EXT4_IGET_BAD flag to prevent unexpected bad inode
+Date:   Mon, 16 Jan 2023 16:50:12 +0100
+Message-Id: <20230116154933.511427664@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 87ca4f9efbd7cc649ff43b87970888f2812945b8 upstream.
+commit 63b1e9bccb71fe7d7e3ddc9877dbdc85e5d2d023 upstream.
 
-Since commit 07ec77a1d4e8 ("sched: Allow task CPU affinity to be
-restricted on asymmetric systems"), the setting and clearing of
-user_cpus_ptr are done under pi_lock for arm64 architecture. However,
-dup_user_cpus_ptr() accesses user_cpus_ptr without any lock
-protection. Since sched_setaffinity() can be invoked from another
-process, the process being modified may be undergoing fork() at
-the same time.  When racing with the clearing of user_cpus_ptr in
-__set_cpus_allowed_ptr_locked(), it can lead to user-after-free and
-possibly double-free in arm64 kernel.
+There are many places that will get unhappy (and crash) when ext4_iget()
+returns a bad inode. However, if iget the boot loader inode, allows a bad
+inode to be returned, because the inode may not be initialized. This
+mechanism can be used to bypass some checks and cause panic. To solve this
+problem, we add a special iget flag EXT4_IGET_BAD. Only with this flag
+we'd be returning bad inode from ext4_iget(), otherwise we always return
+the error code if the inode is bad inode.(suggested by Jan Kara)
 
-Commit 8f9ea86fdf99 ("sched: Always preserve the user requested
-cpumask") fixes this problem as user_cpus_ptr, once set, will never
-be cleared in a task's lifetime. However, this bug was re-introduced
-in commit 851a723e45d1 ("sched: Always clear user_cpus_ptr in
-do_set_cpus_allowed()") which allows the clearing of user_cpus_ptr in
-do_set_cpus_allowed(). This time, it will affect all arches.
-
-Fix this bug by always clearing the user_cpus_ptr of the newly
-cloned/forked task before the copying process starts and check the
-user_cpus_ptr state of the source task under pi_lock.
-
-Note to stable, this patch won't be applicable to stable releases.
-Just copy the new dup_user_cpus_ptr() function over.
-
-Fixes: 07ec77a1d4e8 ("sched: Allow task CPU affinity to be restricted on asymmetric systems")
-Fixes: 851a723e45d1 ("sched: Always clear user_cpus_ptr in do_set_cpus_allowed()")
-Reported-by: David Wang 王标 <wangbiao3@xiaomi.com>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221231041120.440785-2-longman@redhat.com
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221026042310.3839669-4-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/core.c |   37 +++++++++++++++++++++++++++++++++----
- 1 file changed, 33 insertions(+), 4 deletions(-)
+ fs/ext4/ext4.h  |    3 ++-
+ fs/ext4/inode.c |    8 +++++++-
+ fs/ext4/ioctl.c |    3 ++-
+ 3 files changed, 11 insertions(+), 3 deletions(-)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2587,14 +2587,43 @@ void do_set_cpus_allowed(struct task_str
- int dup_user_cpus_ptr(struct task_struct *dst, struct task_struct *src,
- 		      int node)
- {
--	if (!src->user_cpus_ptr)
-+	cpumask_t *user_mask;
-+	unsigned long flags;
-+
-+	/*
-+	 * Always clear dst->user_cpus_ptr first as their user_cpus_ptr's
-+	 * may differ by now due to racing.
-+	 */
-+	dst->user_cpus_ptr = NULL;
-+
-+	/*
-+	 * This check is racy and losing the race is a valid situation.
-+	 * It is not worth the extra overhead of taking the pi_lock on
-+	 * every fork/clone.
-+	 */
-+	if (data_race(!src->user_cpus_ptr))
- 		return 0;
+--- a/fs/ext4/ext4.h
++++ b/fs/ext4/ext4.h
+@@ -2608,7 +2608,8 @@ int do_journal_get_write_access(handle_t
+ typedef enum {
+ 	EXT4_IGET_NORMAL =	0,
+ 	EXT4_IGET_SPECIAL =	0x0001, /* OK to iget a system inode */
+-	EXT4_IGET_HANDLE = 	0x0002	/* Inode # is from a handle */
++	EXT4_IGET_HANDLE = 	0x0002,	/* Inode # is from a handle */
++	EXT4_IGET_BAD =		0x0004  /* Allow to iget a bad inode */
+ } ext4_iget_flags;
  
--	dst->user_cpus_ptr = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
--	if (!dst->user_cpus_ptr)
-+	user_mask = kmalloc_node(cpumask_size(), GFP_KERNEL, node);
-+	if (!user_mask)
- 		return -ENOMEM;
- 
--	cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
-+	/*
-+	 * Use pi_lock to protect content of user_cpus_ptr
-+	 *
-+	 * Though unlikely, user_cpus_ptr can be reset to NULL by a concurrent
-+	 * do_set_cpus_allowed().
-+	 */
-+	raw_spin_lock_irqsave(&src->pi_lock, flags);
-+	if (src->user_cpus_ptr) {
-+		swap(dst->user_cpus_ptr, user_mask);
-+		cpumask_copy(dst->user_cpus_ptr, src->user_cpus_ptr);
+ extern struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5192,8 +5192,14 @@ struct inode *__ext4_iget(struct super_b
+ 	if (IS_CASEFOLDED(inode) && !ext4_has_feature_casefold(inode->i_sb))
+ 		ext4_error_inode(inode, function, line, 0,
+ 				 "casefold flag without casefold feature");
+-	brelse(iloc.bh);
++	if (is_bad_inode(inode) && !(flags & EXT4_IGET_BAD)) {
++		ext4_error_inode(inode, function, line, 0,
++				 "bad inode without EXT4_IGET_BAD flag");
++		ret = -EUCLEAN;
++		goto bad_inode;
 +	}
-+	raw_spin_unlock_irqrestore(&src->pi_lock, flags);
-+
-+	if (unlikely(user_mask))
-+		kfree(user_mask);
-+
- 	return 0;
- }
  
++	brelse(iloc.bh);
+ 	unlock_new_inode(inode);
+ 	return inode;
+ 
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -121,7 +121,8 @@ static long swap_inode_boot_loader(struc
+ 	blkcnt_t blocks;
+ 	unsigned short bytes;
+ 
+-	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO, EXT4_IGET_SPECIAL);
++	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO,
++			EXT4_IGET_SPECIAL | EXT4_IGET_BAD);
+ 	if (IS_ERR(inode_bl))
+ 		return PTR_ERR(inode_bl);
+ 	ei_bl = EXT4_I(inode_bl);
 
 
