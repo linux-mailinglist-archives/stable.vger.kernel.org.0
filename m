@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB36C66C95C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC2B366C5F3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:12:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233815AbjAPQtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:49:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40014 "EHLO
+        id S232693AbjAPQMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:12:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233753AbjAPQsT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:48:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6582D43459
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:42 -0800 (PST)
+        with ESMTP id S232475AbjAPQLm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:11:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E39B025E30
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20A17B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 810E3C433EF;
-        Mon, 16 Jan 2023 16:35:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39B1A61037
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C80CC433D2;
+        Mon, 16 Jan 2023 16:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886939;
-        bh=wHUaAU5fDxLnromnsNEk9BvFIIPsxifoRg80XRDHeI0=;
+        s=korg; t=1673885241;
+        bh=OKDs+AP3hv9vdeMWJXHOfsbTSOtTcyD7R2hiRjoyLj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIxqt5q2MMfXrCbXWzTC6T7rQWMwOqqt8s2phhamPGFBbGOHihbY5S9Us0Yv2fYIr
-         pGEDrrc7ss4G7KDsrTuBEQhO/sayWyakZYu1qcYYKGGWzLDXATGU6LYXrqdk83ZbiW
-         dsKeIitzQNmVr3bDZqPzKvp54H9YOU7MJm1U3YbA=
+        b=Pdkmb0wkD+We4Nmr8eiNoc59u7HcZLvgxsYBY0wjgNOm/7x+t/c4ka7xJIswPPhKE
+         4aDSSwMJQJWxKbj5QrMP+bmIVA3nZoqJHLEMDWwcJ2QMAw7iddfcASWd0AZpgijW6B
+         OuPVsK191BQuBB1glhzMCWBe7jhI8dFLRMu1odJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 620/658] jbd2: Reorganize jbd2_journal_stop()
+        patches@lists.linux.dev, Jon Maloy <jmaloy@redhat.com>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 41/64] tipc: fix unexpected link reset due to discovery messages
 Date:   Mon, 16 Jan 2023 16:51:48 +0100
-Message-Id: <20230116154937.870524899@linuxfoundation.org>
+Message-Id: <20230116154744.979300903@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,102 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Tung Nguyen <tung.q.nguyen@dektech.com.au>
 
-[ Upstream commit dfaf5ffda227be3e867fee7c0f6a66749392fbd0 ]
+[ Upstream commit c244c092f1ed2acfb5af3d3da81e22367d3dd733 ]
 
-Move code in jbd2_journal_stop() around a bit. It removes some
-unnecessary code duplication and will make factoring out parts common
-with jbd2__journal_restart() easier.
+This unexpected behavior is observed:
 
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191105164437.32602-14-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Stable-dep-of: d87a7b4c77a9 ("jbd2: use the correct print format")
+node 1                    | node 2
+------                    | ------
+link is established       | link is established
+reboot                    | link is reset
+up                        | send discovery message
+receive discovery message |
+link is established       | link is established
+send discovery message    |
+                          | receive discovery message
+                          | link is reset (unexpected)
+                          | send reset message
+link is reset             |
+
+It is due to delayed re-discovery as described in function
+tipc_node_check_dest(): "this link endpoint has already reset
+and re-established contact with the peer, before receiving a
+discovery message from that node."
+
+However, commit 598411d70f85 has changed the condition for calling
+tipc_node_link_down() which was the acceptance of new media address.
+
+This commit fixes this by restoring the old and correct behavior.
+
+Fixes: 598411d70f85 ("tipc: make resetting of links non-atomic")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/transaction.c | 40 ++++++++++++++++------------------------
- 1 file changed, 16 insertions(+), 24 deletions(-)
+ net/tipc/node.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index 09f4d00fece2..ce66dbbf0f90 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -1722,41 +1722,34 @@ int jbd2_journal_stop(handle_t *handle)
- 	tid_t tid;
- 	pid_t pid;
+diff --git a/net/tipc/node.c b/net/tipc/node.c
+index 7589f2ac6fd0..38f61dccb855 100644
+--- a/net/tipc/node.c
++++ b/net/tipc/node.c
+@@ -1152,8 +1152,9 @@ void tipc_node_check_dest(struct net *net, u32 addr,
+ 	bool addr_match = false;
+ 	bool sign_match = false;
+ 	bool link_up = false;
++	bool link_is_reset = false;
+ 	bool accept_addr = false;
+-	bool reset = true;
++	bool reset = false;
+ 	char *if_name;
+ 	unsigned long intv;
+ 	u16 session;
+@@ -1173,14 +1174,14 @@ void tipc_node_check_dest(struct net *net, u32 addr,
+ 	/* Prepare to validate requesting node's signature and media address */
+ 	l = le->link;
+ 	link_up = l && tipc_link_is_up(l);
++	link_is_reset = l && tipc_link_is_reset(l);
+ 	addr_match = l && !memcmp(&le->maddr, maddr, sizeof(*maddr));
+ 	sign_match = (signature == n->signature);
  
-+	if (--handle->h_ref > 0) {
-+		jbd_debug(4, "h_ref %d -> %d\n", handle->h_ref + 1,
-+						 handle->h_ref);
-+		if (is_handle_aborted(handle))
-+			return -EIO;
-+		return 0;
-+	}
- 	if (!transaction) {
- 		/*
--		 * Handle is already detached from the transaction so
--		 * there is nothing to do other than decrease a refcount,
--		 * or free the handle if refcount drops to zero
-+		 * Handle is already detached from the transaction so there is
-+		 * nothing to do other than free the handle.
+ 	/* These three flags give us eight permutations: */
+ 
+ 	if (sign_match && addr_match && link_up) {
+-		/* All is fine. Do nothing. */
+-		reset = false;
++		/* All is fine. Ignore requests. */
+ 		/* Peer node is not a container/local namespace */
+ 		if (!n->peer_hash_mix)
+ 			n->peer_hash_mix = hash_mixes;
+@@ -1205,6 +1206,7 @@ void tipc_node_check_dest(struct net *net, u32 addr,
  		 */
--		if (--handle->h_ref > 0) {
--			jbd_debug(4, "h_ref %d -> %d\n", handle->h_ref + 1,
--							 handle->h_ref);
--			return err;
--		} else {
--			if (handle->h_rsv_handle)
--				jbd2_free_handle(handle->h_rsv_handle);
--			goto free_and_exit;
--		}
-+		if (handle->h_rsv_handle)
-+			jbd2_free_handle(handle->h_rsv_handle);
-+		goto free_and_exit;
+ 		accept_addr = true;
+ 		*respond = true;
++		reset = true;
+ 	} else if (!sign_match && addr_match && link_up) {
+ 		/* Peer node rebooted. Two possibilities:
+ 		 *  - Delayed re-discovery; this link endpoint has already
+@@ -1236,6 +1238,7 @@ void tipc_node_check_dest(struct net *net, u32 addr,
+ 		n->signature = signature;
+ 		accept_addr = true;
+ 		*respond = true;
++		reset = true;
  	}
- 	journal = transaction->t_journal;
-+	tid = transaction->t_tid;
  
- 	J_ASSERT(journal_current_handle() == handle);
-+	J_ASSERT(atomic_read(&transaction->t_updates) > 0);
- 
- 	if (is_handle_aborted(handle))
- 		err = -EIO;
--	else
--		J_ASSERT(atomic_read(&transaction->t_updates) > 0);
--
--	if (--handle->h_ref > 0) {
--		jbd_debug(4, "h_ref %d -> %d\n", handle->h_ref + 1,
--			  handle->h_ref);
--		return err;
--	}
- 
- 	jbd_debug(4, "Handle %p going down\n", handle);
- 	trace_jbd2_handle_stats(journal->j_fs_dev->bd_dev,
--				transaction->t_tid,
--				handle->h_type, handle->h_line_no,
-+				tid, handle->h_type, handle->h_line_no,
- 				jiffies - handle->h_start_jiffies,
- 				handle->h_sync, handle->h_requested_credits,
- 				(handle->h_requested_credits -
-@@ -1841,7 +1834,7 @@ int jbd2_journal_stop(handle_t *handle)
- 		jbd_debug(2, "transaction too old, requesting commit for "
- 					"handle %p\n", handle);
- 		/* This is non-blocking */
--		jbd2_log_start_commit(journal, transaction->t_tid);
-+		jbd2_log_start_commit(journal, tid);
- 
- 		/*
- 		 * Special case: JBD2_SYNC synchronous updates require us
-@@ -1857,7 +1850,6 @@ int jbd2_journal_stop(handle_t *handle)
- 	 * once we do this, we must not dereference transaction
- 	 * pointer again.
- 	 */
--	tid = transaction->t_tid;
- 	if (atomic_dec_and_test(&transaction->t_updates)) {
- 		wake_up(&journal->j_wait_updates);
- 		if (journal->j_barrier_count)
+ 	if (!accept_addr)
+@@ -1264,6 +1267,7 @@ void tipc_node_check_dest(struct net *net, u32 addr,
+ 		tipc_link_fsm_evt(l, LINK_RESET_EVT);
+ 		if (n->state == NODE_FAILINGOVER)
+ 			tipc_link_fsm_evt(l, LINK_FAILOVER_BEGIN_EVT);
++		link_is_reset = tipc_link_is_reset(l);
+ 		le->link = l;
+ 		n->link_cnt++;
+ 		tipc_node_calculate_timer(n, l);
+@@ -1276,7 +1280,7 @@ void tipc_node_check_dest(struct net *net, u32 addr,
+ 	memcpy(&le->maddr, maddr, sizeof(*maddr));
+ exit:
+ 	tipc_node_write_unlock(n);
+-	if (reset && l && !tipc_link_is_reset(l))
++	if (reset && !link_is_reset)
+ 		tipc_node_link_down(n, b->identity, false);
+ 	tipc_node_put(n);
+ }
 -- 
 2.35.1
 
