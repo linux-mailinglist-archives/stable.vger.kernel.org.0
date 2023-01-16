@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F065F66C9AF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29BAA66C728
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233956AbjAPQzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:55:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47180 "EHLO
+        id S232779AbjAPQ2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:28:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233960AbjAPQy2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:54:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C2C2310B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:07 -0800 (PST)
+        with ESMTP id S233172AbjAPQ2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9347736B29
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C530EB81094
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2829FC433EF;
-        Mon, 16 Jan 2023 16:37:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27B43B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EC71C433F0;
+        Mon, 16 Jan 2023 16:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887074;
-        bh=EQVw4W6XHpoYTwqKxUANMXO6GShKlmTRNZQPeDq9RPo=;
+        s=korg; t=1673885776;
+        bh=0BKBsSGWrcbN2eBqO7h0t6/hqaZfQv4gECFdTpEIVx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vj/q1NKl451JMPmgZd2dFFA8EI1nrGVqvRAbWuTX7GgTG1ZgB0ktbaYgxcN7Vz2hM
-         crKwScIH9ghtTN1tl2XlZ07FvIC84CI0OA32oqyOpzp/AGHvXFEvVZ+fa5H3aH3qlG
-         dQkbu0IUSCr9/WWqajNpXPCI69pva3TOp3O/yeHw=
+        b=Mm1ZtfIvomN9NpEdLcey7ZiYS1MK6o1iGHRbWsT/CDoK8QuIjaxdoGi6cTGmRJZvO
+         Mum48Ovct3b3FMfAi2oQoEJJ72ZgqRlj3oMZAIOxsqDsM8FhR0fJlcPad1tjZt2+Su
+         ZLBNfseojAEmPcqpHcjrecORTZAGm4ka9Y5Ai1rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jialiang Wang <wangjialiang0806@163.com>,
-        Yinjun Zhang <yinjun.zhang@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 004/521] nfp: fix use-after-free in area_cache_get()
-Date:   Mon, 16 Jan 2023 16:44:26 +0100
-Message-Id: <20230116154847.444518915@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 179/658] hsr: Avoid double remove of a node.
+Date:   Mon, 16 Jan 2023 16:44:27 +0100
+Message-Id: <20230116154917.637737445@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jialiang Wang <wangjialiang0806@163.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 02e1a114fdb71e59ee6770294166c30d437bf86a upstream.
+[ Upstream commit 0c74d9f79ec4299365bbe803baa736ae0068179e ]
 
-area_cache_get() is used to distribute cache->area and set cache->id,
- and if cache->id is not 0 and cache->area->kref refcount is 0, it will
- release the cache->area by nfp_cpp_area_release(). area_cache_get()
- set cache->id before cpp->op->area_init() and nfp_cpp_area_acquire().
+Due to the hashed-MAC optimisation one problem become visible:
+hsr_handle_sup_frame() walks over the list of available nodes and merges
+two node entries into one if based on the information in the supervision
+both MAC addresses belong to one node. The list-walk happens on a RCU
+protected list and delete operation happens under a lock.
 
-But if area_init() or nfp_cpp_area_acquire() fails, the cache->id is
- is already set but the refcount is not increased as expected. At this
- time, calling the nfp_cpp_area_release() will cause use-after-free.
+If the supervision arrives on both slave interfaces at the same time
+then this delete operation can occur simultaneously on two CPUs. The
+result is the first-CPU deletes the from the list and the second CPUs
+BUGs while attempting to dereference a poisoned list-entry. This happens
+more likely with the optimisation because a new node for the mac_B entry
+is created once a packet has been received and removed (merged) once the
+supervision frame has been received.
 
-To avoid the use-after-free, set cache->id after area_init() and
- nfp_cpp_area_acquire() complete successfully.
+Avoid removing/ cleaning up a hsr_node twice by adding a `removed' field
+which is set to true after the removal and checked before the removal.
 
-Note: This vulnerability is triggerable by providing emulated device
- equipped with specified configuration.
-
- BUG: KASAN: use-after-free in nfp6000_area_init (drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:760)
-  Write of size 4 at addr ffff888005b7f4a0 by task swapper/0/1
-
- Call Trace:
-  <TASK>
- nfp6000_area_init (drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:760)
- area_cache_get.constprop.8 (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:884)
-
- Allocated by task 1:
- nfp_cpp_area_alloc_with_name (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:303)
- nfp_cpp_area_cache_add (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:802)
- nfp6000_init (drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c:1230)
- nfp_cpp_from_operations (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:1215)
- nfp_pci_probe (drivers/net/ethernet/netronome/nfp/nfp_main.c:744)
-
- Freed by task 1:
- kfree (mm/slub.c:4562)
- area_cache_get.constprop.8 (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:873)
- nfp_cpp_read (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:924 drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c:973)
- nfp_cpp_readl (drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cpplib.c:48)
-
-Signed-off-by: Jialiang Wang <wangjialiang0806@163.com>
-Reviewed-by: Yinjun Zhang <yinjun.zhang@corigine.com>
-Acked-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20220810073057.4032-1-wangjialiang0806@163.com
+Fixes: f266a683a4804 ("net/hsr: Better frame dispatch")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/hsr/hsr_framereg.c | 16 +++++++++++-----
+ net/hsr/hsr_framereg.h |  1 +
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c
-@@ -874,7 +874,6 @@ area_cache_get(struct nfp_cpp *cpp, u32
+diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
+index 4a9200729a32..783e741491ec 100644
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -269,9 +269,12 @@ void hsr_handle_sup_frame(struct sk_buff *skb, struct hsr_node *node_curr,
+ 	node_real->addr_B_port = port_rcv->type;
+ 
+ 	spin_lock_bh(&hsr->list_lock);
+-	list_del_rcu(&node_curr->mac_list);
++	if (!node_curr->removed) {
++		list_del_rcu(&node_curr->mac_list);
++		node_curr->removed = true;
++		kfree_rcu(node_curr, rcu_head);
++	}
+ 	spin_unlock_bh(&hsr->list_lock);
+-	kfree_rcu(node_curr, rcu_head);
+ 
+ done:
+ 	skb_push(skb, sizeof(struct hsrv1_ethhdr_sp));
+@@ -436,9 +439,12 @@ void hsr_prune_nodes(struct timer_list *t)
+ 		if (time_is_before_jiffies(timestamp +
+ 				msecs_to_jiffies(HSR_NODE_FORGET_TIME))) {
+ 			hsr_nl_nodedown(hsr, node->macaddress_A);
+-			list_del_rcu(&node->mac_list);
+-			/* Note that we need to free this entry later: */
+-			kfree_rcu(node, rcu_head);
++			if (!node->removed) {
++				list_del_rcu(&node->mac_list);
++				node->removed = true;
++				/* Note that we need to free this entry later: */
++				kfree_rcu(node, rcu_head);
++			}
+ 		}
  	}
+ 	spin_unlock_bh(&hsr->list_lock);
+diff --git a/net/hsr/hsr_framereg.h b/net/hsr/hsr_framereg.h
+index 0f0fa12b4329..01f4ef4ae494 100644
+--- a/net/hsr/hsr_framereg.h
++++ b/net/hsr/hsr_framereg.h
+@@ -56,6 +56,7 @@ struct hsr_node {
+ 	unsigned long		time_in[HSR_PT_PORTS];
+ 	bool			time_in_stale[HSR_PT_PORTS];
+ 	u16			seq_out[HSR_PT_PORTS];
++	bool			removed;
+ 	struct rcu_head		rcu_head;
+ };
  
- 	/* Adjust the start address to be cache size aligned */
--	cache->id = id;
- 	cache->addr = addr & ~(u64)(cache->size - 1);
- 
- 	/* Re-init to the new ID and address */
-@@ -894,6 +893,8 @@ area_cache_get(struct nfp_cpp *cpp, u32
- 		return NULL;
- 	}
- 
-+	cache->id = id;
-+
- exit:
- 	/* Adjust offset */
- 	*offset = addr - cache->addr;
+-- 
+2.35.1
+
 
 
