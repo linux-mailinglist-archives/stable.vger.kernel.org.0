@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CFD66CB93
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D25FF66CD12
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234482AbjAPRPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36868 "EHLO
+        id S234926AbjAPRdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:33:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234391AbjAPROg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05A124C6D0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:17 -0800 (PST)
+        with ESMTP id S234903AbjAPRcl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1CC62A145
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95A2C61018
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7908C433D2;
-        Mon, 16 Jan 2023 16:55:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CE1C6108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0571C433D2;
+        Mon, 16 Jan 2023 17:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888116;
-        bh=8mH7jVBlNBCx0VfFIxnnhNX1vRJHM4UQKrwqBEhEenM=;
+        s=korg; t=1673888938;
+        bh=TbCpINvWp0CKrrPTkJS/DMyD036gVi7Qg6haYZw8mkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0d6Kg2bIwwsMW25N+JddRrwHj+aHEpj/ULG4x3+ns40BmhZGkibNjX0S9wvxnK8ND
-         pgEG90iMvaER42fOI6a2pLBezF1LHLchv9GBOpVIWIKIAliUzqOxuT314IChFnJ4Xm
-         rdpcuo7zoFkHJajx7/td9gTKkgF+NfXgU1TQDeK8=
+        b=FWw13u4nq1UuBoHEpO5RbFW2WzM80hCoKlh5e+BnYPt9VfrjniVIGqtBd85qIqQh2
+         7IphZS1y5IhsmLDOUSfusVoQvE0XS+AJmEzRJtmwXQ7H/DUjqwEJOlk9JkBTdpj7rz
+         qKzyeKu8QmZoKeqZBKpy4bZHmQw53uld9GQKek3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.19 407/521] ext4: fix undefined behavior in bit shift for ext4_check_flag_values
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 196/338] powerpc/52xx: Fix a resource leak in an error handling path
 Date:   Mon, 16 Jan 2023 16:51:09 +0100
-Message-Id: <20230116154905.298475690@linuxfoundation.org>
+Message-Id: <20230116154829.507461167@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 3bf678a0f9c017c9ba7c581541dbc8453452a7ae upstream.
+[ Upstream commit 5836947613ef33d311b4eff6a32d019580a214f5 ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+The error handling path of mpc52xx_lpbfifo_probe() has a request_irq()
+that is not balanced by a corresponding free_irq().
 
-UBSAN: shift-out-of-bounds in fs/ext4/ext4.h:591:2
-left shift of 1 by 31 places cannot be represented in type 'int'
-Call Trace:
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- ext4_init_fs+0x5a/0x277
- do_one_initcall+0x76/0x430
- kernel_init_freeable+0x3b3/0x422
- kernel_init+0x24/0x1e0
- ret_from_fork+0x1f/0x30
- </TASK>
+Add the missing call, as already done in the remove function.
 
-Fixes: 9a4c80194713 ("ext4: ensure Inode flags consistency are checked at build time")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221031055833.3966222-1-cuigaosheng1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3c9059d79f5e ("powerpc/5200: add LocalPlus bus FIFO device driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/dec1496d46ccd5311d0f6e9f9ca4238be11bf6a6.1643440531.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ext4.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -503,7 +503,7 @@ enum {
-  *
-  * It's not paranoia if the Murphy's Law really *is* out to get you.  :-)
-  */
--#define TEST_FLAG_VALUE(FLAG) (EXT4_##FLAG##_FL == (1 << EXT4_INODE_##FLAG))
-+#define TEST_FLAG_VALUE(FLAG) (EXT4_##FLAG##_FL == (1U << EXT4_INODE_##FLAG))
- #define CHECK_FLAG_VALUE(FLAG) BUILD_BUG_ON(!TEST_FLAG_VALUE(FLAG))
- 
- static inline void ext4_check_flag_values(void)
+diff --git a/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c b/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
+index 7bb42a0100de..caaaaf2bea52 100644
+--- a/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
++++ b/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
+@@ -531,6 +531,7 @@ static int mpc52xx_lpbfifo_probe(struct platform_device *op)
+  err_bcom_rx_irq:
+ 	bcom_gen_bd_rx_release(lpbfifo.bcom_rx_task);
+  err_bcom_rx:
++	free_irq(lpbfifo.irq, &lpbfifo);
+  err_irq:
+ 	iounmap(lpbfifo.regs);
+ 	lpbfifo.regs = NULL;
+-- 
+2.35.1
+
 
 
