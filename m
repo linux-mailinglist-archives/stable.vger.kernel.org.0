@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D394766CB66
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:14:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAC6D66CCF4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234450AbjAPROk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:14:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39044 "EHLO
+        id S234881AbjAPRbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:31:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234362AbjAPRM5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:12:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D7E4B1A3
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:08 -0800 (PST)
+        with ESMTP id S234838AbjAPRbB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:31:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F37042BC3
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C72FE61042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAC19C433D2;
-        Mon, 16 Jan 2023 16:53:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30042B81091
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FCC7C433EF;
+        Mon, 16 Jan 2023 17:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887987;
-        bh=z6zVC8H7rl06ls4N/RSIvoL7rP95KwkMsUACJ1U2rRs=;
+        s=korg; t=1673888877;
+        bh=KS9lhq6WNXQJhVuywN4k1cs5OgTQSLWjPpzDgMPcReM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/LtKsV9w8ZJGtZGFcCkxWoKEMxtApaPbOUScUpRAgVdclETQBDWSywKUmzt0vL75
-         jDk0NmGDSxSd5KluOR323WtqXfPTmb/mCL3lGdv+wjA0KVUF9BgipbzLVfLYFsRCKR
-         yuWOi3dg8TPhmrM4NFwSMIyEDjHgOqsA1VI7Y0+k=
+        b=TyuKS6lnojj0/AXwofYdmML3upR445/oyCnkltct+0I22XI+B7904RG8zbzRWSJ+0
+         I6TdHk9PcneOKExne3PRGBKMkgiP05GEZ0WnjaRnJYksaPWkNQ/O2i0xWfyfa9QZQj
+         CDaHBN4ynxj9R15cSr04EljjDSJBf+UhYweBT6Jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Gerecke <jason.gerecke@wacom.com>,
-        Tatsunosuke Tobita <tatsunosuke.tobita@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.19 356/521] HID: wacom: Ensure bootloader PID is usable in hidraw mode
-Date:   Mon, 16 Jan 2023 16:50:18 +0100
-Message-Id: <20230116154903.034629591@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 146/338] scsi: hpsa: Fix possible memory leak in hpsa_add_sas_device()
+Date:   Mon, 16 Jan 2023 16:50:19 +0100
+Message-Id: <20230116154827.214289686@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 1db1f392591aff13fd643f0ec7c1d5e27391d700 upstream.
+[ Upstream commit fda34a5d304d0b98cc967e8763b52221b66dc202 ]
 
-Some Wacom devices have a special "bootloader" mode that is used for
-firmware flashing. When operating in this mode, the device cannot be
-used for input, and the HID descriptor is not able to be processed by
-the driver. The driver generates an "Unknown device_type" warning and
-then returns an error code from wacom_probe(). This is a problem because
-userspace still needs to be able to interact with the device via hidraw
-to perform the firmware flash.
+If hpsa_sas_port_add_rphy() returns an error, the 'rphy' allocated in
+sas_end_device_alloc() needs to be freed. Address this by calling
+sas_rphy_free() in the error path.
 
-This commit adds a non-generic device definition for 056a:0094 which
-is used when devices are in "bootloader" mode. It marks the devices
-with a special BOOTLOADER type that is recognized by wacom_probe() and
-wacom_raw_event(). When we see this type we ensure a hidraw device is
-created and otherwise keep our hands off so that userspace is in full
-control.
-
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Tested-by: Tatsunosuke Tobita <tatsunosuke.tobita@wacom.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d04e62b9d63a ("hpsa: add in sas transport class")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221111043012.1074466-1-yangyingliang@huawei.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_sys.c |    8 ++++++++
- drivers/hid/wacom_wac.c |    4 ++++
- drivers/hid/wacom_wac.h |    1 +
- 3 files changed, 13 insertions(+)
+ drivers/scsi/hpsa.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -163,6 +163,9 @@ static int wacom_raw_event(struct hid_de
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index a63ff9301a69..6b25c5ce13ed 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -9489,10 +9489,12 @@ static int hpsa_add_sas_device(struct hpsa_sas_node *hpsa_sas_node,
  
-+	if (wacom->wacom_wac.features.type == BOOTLOADER)
-+		return 0;
-+
- 	if (size > WACOM_PKGLEN_MAX)
- 		return 1;
+ 	rc = hpsa_sas_port_add_rphy(hpsa_sas_port, rphy);
+ 	if (rc)
+-		goto free_sas_port;
++		goto free_sas_rphy;
  
-@@ -2759,6 +2762,11 @@ static int wacom_probe(struct hid_device
- 		goto fail;
- 	}
+ 	return 0;
  
-+	if (features->type == BOOTLOADER) {
-+		hid_warn(hdev, "Using device in hidraw-only mode");
-+		return hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	}
-+
- 	error = wacom_parse_and_register(wacom, false);
- 	if (error)
- 		goto fail;
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -4680,6 +4680,9 @@ static const struct wacom_features wacom
- static const struct wacom_features wacom_features_HID_ANY_ID =
- 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
- 
-+static const struct wacom_features wacom_features_0x94 =
-+	{ "Wacom Bootloader", .type = BOOTLOADER };
-+
- #define USB_DEVICE_WACOM(prod)						\
- 	HID_DEVICE(BUS_USB, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
- 	.driver_data = (kernel_ulong_t)&wacom_features_##prod
-@@ -4753,6 +4756,7 @@ const struct hid_device_id wacom_ids[] =
- 	{ USB_DEVICE_WACOM(0x84) },
- 	{ USB_DEVICE_WACOM(0x90) },
- 	{ USB_DEVICE_WACOM(0x93) },
-+	{ USB_DEVICE_WACOM(0x94) },
- 	{ USB_DEVICE_WACOM(0x97) },
- 	{ USB_DEVICE_WACOM(0x9A) },
- 	{ USB_DEVICE_WACOM(0x9F) },
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -244,6 +244,7 @@ enum {
- 	MTTPC,
- 	MTTPC_B,
- 	HID_GENERIC,
-+	BOOTLOADER,
- 	MAX_TYPE
- };
- 
++free_sas_rphy:
++	sas_rphy_free(rphy);
+ free_sas_port:
+ 	hpsa_free_sas_port(hpsa_sas_port);
+ 	device->sas_port = NULL;
+-- 
+2.35.1
+
 
 
