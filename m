@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D08A66C900
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A56AF66C901
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233826AbjAPQpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:45:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38188 "EHLO
+        id S233775AbjAPQpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:45:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233775AbjAPQpA (ORCPT
+        with ESMTP id S233777AbjAPQpA (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 663812886D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:27 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC2528869
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00FDF6104D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BAA5C433EF;
-        Mon, 16 Jan 2023 16:32:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A9626104D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E864C433D2;
+        Mon, 16 Jan 2023 16:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886746;
-        bh=gO2XNaIaoZjyvwZAlCRuWjfi1t5Dpg+8WpKv+yY2/WU=;
+        s=korg; t=1673886749;
+        bh=6vRi5zWnUkTOpQroL8nflk3446aqTKa+yyRLY4JqaCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XLR7vQMI3I3tgKvjfZ1PllDUEkX5f3sd/OR7pycoY+PF3FnuPfFe2MGMrqjRZZgu+
-         doTZiVRfOZPGsliVsOr5ELYe4CDsKNMEx0QP3JCUxVinv4FV4UTft+qFwJcvqqkMQ8
-         U16EQ7tSH8QGRJxIo3KVHQu5zDTvwGZv3Hcl0Qqo=
+        b=ZR8cSx0zrfz8Kb0nS20HDeVaK0CMpb9qqc1D/jp4jjBxNEvhgDJgfa8kgd4YD8Abl
+         V3u9g3sRgU5aXMG3dXfO4h095aELnIIOdg2LNEk4cNgXCWx3fPhjH0pwtjiV2kpOKW
+         lPhsk2TrXWaYYRn4PFG9vgQUfcY0Ldl7HAKJMfFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rolf Eike Beer <eike-kernel@sf-tec.de>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, stable@kernel.org
-Subject: [PATCH 5.4 516/658] crypto: n2 - add missing hash statesize
-Date:   Mon, 16 Jan 2023 16:50:04 +0100
-Message-Id: <20230116154933.129964545@linuxfoundation.org>
+        patches@lists.linux.dev, Kim Phillips <kim.phillips@amd.com>,
+        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.4 517/658] iommu/amd: Fix ivrs_acpihid cmdline parsing code
+Date:   Mon, 16 Jan 2023 16:50:05 +0100
+Message-Id: <20230116154933.170621462@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,74 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 76a4e874593543a2dff91d249c95bac728df2774 upstream.
+commit 5f18e9f8868c6d4eae71678e7ebd4977b7d8c8cf upstream.
 
-Add missing statesize to hash templates.
-This is mandatory otherwise no algorithms can be registered as the core
-requires statesize to be set.
+The second (UID) strcmp in acpi_dev_hid_uid_match considers
+"0" and "00" different, which can prevent device registration.
 
-CC: stable@kernel.org # 4.3+
-Reported-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Tested-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Fixes: 0a625fd2abaa ("crypto: n2 - Add Niagara2 crypto driver")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Have the AMD IOMMU driver's ivrs_acpihid parsing code remove
+any leading zeroes to make the UID strcmp succeed.  Now users
+can safely specify "AMDxxxxx:00" or "AMDxxxxx:0" and expect
+the same behaviour.
+
+Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Cc: stable@vger.kernel.org
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/r/20220919155638.391481-1-kim.phillips@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/n2_core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/iommu/amd_iommu_init.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/crypto/n2_core.c
-+++ b/drivers/crypto/n2_core.c
-@@ -1278,6 +1278,7 @@ struct n2_hash_tmpl {
- 	const u32	*hash_init;
- 	u8		hw_op_hashsz;
- 	u8		digest_size;
-+	u8		statesize;
- 	u8		block_size;
- 	u8		auth_type;
- 	u8		hmac_type;
-@@ -1309,6 +1310,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_HMAC_MD5,
- 	  .hw_op_hashsz	= MD5_DIGEST_SIZE,
- 	  .digest_size	= MD5_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct md5_state),
- 	  .block_size	= MD5_HMAC_BLOCK_SIZE },
- 	{ .name		= "sha1",
- 	  .hash_zero	= sha1_zero_message_hash,
-@@ -1317,6 +1319,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_HMAC_SHA1,
- 	  .hw_op_hashsz	= SHA1_DIGEST_SIZE,
- 	  .digest_size	= SHA1_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct sha1_state),
- 	  .block_size	= SHA1_BLOCK_SIZE },
- 	{ .name		= "sha256",
- 	  .hash_zero	= sha256_zero_message_hash,
-@@ -1325,6 +1328,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_HMAC_SHA256,
- 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
- 	  .digest_size	= SHA256_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct sha256_state),
- 	  .block_size	= SHA256_BLOCK_SIZE },
- 	{ .name		= "sha224",
- 	  .hash_zero	= sha224_zero_message_hash,
-@@ -1333,6 +1337,7 @@ static const struct n2_hash_tmpl hash_tm
- 	  .hmac_type	= AUTH_TYPE_RESERVED,
- 	  .hw_op_hashsz	= SHA256_DIGEST_SIZE,
- 	  .digest_size	= SHA224_DIGEST_SIZE,
-+	  .statesize	= sizeof(struct sha256_state),
- 	  .block_size	= SHA224_BLOCK_SIZE },
- };
- #define NUM_HASH_TMPLS ARRAY_SIZE(hash_tmpls)
-@@ -1474,6 +1479,7 @@ static int __n2_register_one_ahash(const
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -3051,6 +3051,13 @@ static int __init parse_ivrs_acpihid(cha
+ 		return 1;
+ 	}
  
- 	halg = &ahash->halg;
- 	halg->digestsize = tmpl->digest_size;
-+	halg->statesize = tmpl->statesize;
- 
- 	base = &halg->base;
- 	snprintf(base->cra_name, CRYPTO_MAX_ALG_NAME, "%s", tmpl->name);
++	/*
++	 * Ignore leading zeroes after ':', so e.g., AMDI0095:00
++	 * will match AMDI0095:0 in the second strcmp in acpi_dev_hid_uid_match
++	 */
++	while (*uid == '0' && *(uid + 1))
++		uid++;
++
+ 	i = early_acpihid_map_size++;
+ 	memcpy(early_acpihid_map[i].hid, hid, strlen(hid));
+ 	memcpy(early_acpihid_map[i].uid, uid, strlen(uid));
 
 
