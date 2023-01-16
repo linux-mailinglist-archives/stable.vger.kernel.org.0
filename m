@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66FD966C4F5
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E23B566C54C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231928AbjAPQAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42208 "EHLO
+        id S232129AbjAPQEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:04:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231871AbjAPP74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C4323C79
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:56 -0800 (PST)
+        with ESMTP id S232070AbjAPQEB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6389225E30
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2493B81062
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4A32C433EF;
-        Mon, 16 Jan 2023 15:59:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3A1E6101F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 175BFC433F0;
+        Mon, 16 Jan 2023 16:02:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884793;
-        bh=M2c1ip4ndVcF/bloUlUSapu1NgYjxtJvczY+b3gM5yU=;
+        s=korg; t=1673884966;
+        bh=GAbqLjdWsCdt1AdXLXdZ51n+BLF7ZCis3sBIiyuUapY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fVtaWArIMT/h1y7EP26ILjAzPCMbJYkYaINRmTfyw0f+AXMQyJhKGBTsdVSaCI3p
-         YPiyLDCbtjP1TlviNStMjptQCyPH2vsMPBMyAXsE7ovEqf4AnOymVKP1fcNYYxasWQ
-         2cpldj4oQQBBZSX+J2+3HDkuyQBLHzJpDiX7YcUw=
+        b=I6d/1xR+/EVXn2rt0jW9yBlx0A2iR/sUMr8evRPGPVuwdT+htUflaDb80fwFbiuSu
+         q1HvecaZjI4m5QYxV63QusYuUgyrfUjL1fWXV8sBFj+UDQWcMA1KwBuQDNBio/OzJn
+         NC06dwRmAxoDMyqU0bwx6b3J3WguoEQh8UPn1kbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        Florian Westphal <fw@strlen.de>,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 134/183] af_unix: selftest: Fix the size of the parameter to connect()
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 5.15 23/86] dt-bindings: msm: dsi-controller-main: Fix operating-points-v2 constraint
 Date:   Mon, 16 Jan 2023 16:50:57 +0100
-Message-Id: <20230116154809.037434938@linuxfoundation.org>
+Message-Id: <20230116154748.068351301@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,58 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 7d6ceeb1875cc08dc3d1e558e191434d94840cd5 ]
+commit cdf64343f91a1225e9e3d4ce4261962cd41b4ddd upstream.
 
-Adjust size parameter in connect() to match the type of the parameter, to
-fix "No such file or directory" error in selftests/net/af_unix/
-test_oob_unix.c:127.
+The existing msm8916.dtsi does not depend on nor require operating points.
 
-The existing code happens to work provided that the autogenerated pathname
-is shorter than sizeof (struct sockaddr), which is why it hasn't been
-noticed earlier.
-
-Visible from the trace excerpt:
-
-bind(3, {sa_family=AF_UNIX, sun_path="unix_oob_453059"}, 110) = 0
-clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7fa6a6577a10) = 453060
-[pid <child>] connect(6, {sa_family=AF_UNIX, sun_path="unix_oob_45305"}, 16) = -1 ENOENT (No such file or directory)
-
-BUG: The filename is trimmed to sizeof (struct sockaddr).
-
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-Cc: Florian Westphal <fw@strlen.de>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Fixes: 314001f0bf92 ("af_unix: Add OOB support")
-Signed-off-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4dbe55c97741 ("dt-bindings: msm: dsi: add yaml schemas for DSI bindings")
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/515940/
+Link: https://lore.kernel.org/r/20221223021025.1646636-2-bryan.odonoghue@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/af_unix/test_unix_oob.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/af_unix/test_unix_oob.c b/tools/testing/selftests/net/af_unix/test_unix_oob.c
-index b57e91e1c3f2..532459a15067 100644
---- a/tools/testing/selftests/net/af_unix/test_unix_oob.c
-+++ b/tools/testing/selftests/net/af_unix/test_unix_oob.c
-@@ -124,7 +124,7 @@ void producer(struct sockaddr_un *consumer_addr)
+--- a/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
++++ b/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
+@@ -136,7 +136,6 @@ required:
+   - assigned-clocks
+   - assigned-clock-parents
+   - power-domains
+-  - operating-points-v2
+   - ports
  
- 	wait_for_signal(pipefd[0]);
- 	if (connect(cfd, (struct sockaddr *)consumer_addr,
--		     sizeof(struct sockaddr)) != 0) {
-+		     sizeof(*consumer_addr)) != 0) {
- 		perror("Connect failed");
- 		kill(0, SIGTERM);
- 		exit(1);
--- 
-2.35.1
-
+ additionalProperties: false
 
 
