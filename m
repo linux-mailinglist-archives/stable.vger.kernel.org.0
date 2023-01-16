@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9CE66CD1B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BADE66CB9C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234791AbjAPRdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:33:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55676 "EHLO
+        id S234427AbjAPRP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234879AbjAPRdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:08 -0500
+        with ESMTP id S234346AbjAPRPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FED22E0F9
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 993404C6FB
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 946DE61092
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A562DC433F0;
-        Mon, 16 Jan 2023 17:09:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 363C161042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 431F0C433D2;
+        Mon, 16 Jan 2023 16:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888959;
-        bh=6Uh7j4D3yEdu+ipKNwEXJuy040UfVvNZV9jiyr5a+5Y=;
+        s=korg; t=1673888139;
+        bh=BPQ0BIBfVbEWfBpt6wLK/JFnO3XNUZh1qg2beyPzEQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l0rlxShsG/ofLHxp8g9D69VzuBeE0KABdwI/6YvoyPMZuGbXH7IokVX/UqhrUTA1k
-         ooqYrK9mJsMNJGvpZaetFlDUuVhPEcBOhsPPyzlAZMKYbBRRFLAOazmT5qDMOArELG
-         fnDnrD9wDzCSOA8vh6le94oc9vpTMcnkuuj2CyzE=
+        b=B20lwc+fLOjxa8N7t9QgvGcmEU08w7gfRTdCWqeMn+FPkMnfCNxmezBgS6dOzq6fb
+         qMQYNPvVSJ+1RimwzKoOGvVNtjLtu0ugYmVvfCdrl8F8Kt6R3XVmqcAugnLaaoOAbw
+         bg1bOoCIQo4fZ5JKKe4zyhRDbEUnHxFkHxD+LYJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Dan Aloni <dan.aloni@vastdata.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 204/338] nfsd: under NFSv4.1, fix double svc_xprt_put on rpc_create failure
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
+        stable@kernel.org, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 415/521] ext4: initialize quota before expanding inode in setproject ioctl
 Date:   Mon, 16 Jan 2023 16:51:17 +0100
-Message-Id: <20230116154829.876389911@linuxfoundation.org>
+Message-Id: <20230116154905.675537386@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,87 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Aloni <dan.aloni@vastdata.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 3bc8edc98bd43540dbe648e4ef91f443d6d20a24 ]
+commit 1485f726c6dec1a1f85438f2962feaa3d585526f upstream.
 
-On error situation `clp->cl_cb_conn.cb_xprt` should not be given
-a reference to the xprt otherwise both client cleanup and the
-error handling path of the caller call to put it. Better to
-delay handing over the reference to a later branch.
+Make sure we initialize quotas before possibly expanding inode space
+(and thus maybe needing to allocate external xattr block) in
+ext4_ioctl_setproject(). This prevents not accounting the necessary
+block allocation.
 
-[   72.530665] refcount_t: underflow; use-after-free.
-[   72.531933] WARNING: CPU: 0 PID: 173 at lib/refcount.c:28 refcount_warn_saturate+0xcf/0x120
-[   72.533075] Modules linked in: nfsd(OE) nfsv4(OE) nfsv3(OE) nfs(OE) lockd(OE) compat_nfs_ssc(OE) nfs_acl(OE) rpcsec_gss_krb5(OE) auth_rpcgss(OE) rpcrdma(OE) dns_resolver fscache netfs grace rdma_cm iw_cm ib_cm sunrpc(OE) mlx5_ib mlx5_core mlxfw pci_hyperv_intf ib_uverbs ib_core xt_MASQUERADE nf_conntrack_netlink nft_counter xt_addrtype nft_compat br_netfilter bridge stp llc nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set overlay nf_tables nfnetlink crct10dif_pclmul crc32_pclmul ghash_clmulni_intel xfs serio_raw virtio_net virtio_blk net_failover failover fuse [last unloaded: sunrpc]
-[   72.540389] CPU: 0 PID: 173 Comm: kworker/u16:5 Tainted: G           OE     5.15.82-dan #1
-[   72.541511] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-3.module+el8.7.0+1084+97b81f61 04/01/2014
-[   72.542717] Workqueue: nfsd4_callbacks nfsd4_run_cb_work [nfsd]
-[   72.543575] RIP: 0010:refcount_warn_saturate+0xcf/0x120
-[   72.544299] Code: 55 00 0f 0b 5d e9 01 50 98 00 80 3d 75 9e 39 08 00 0f 85 74 ff ff ff 48 c7 c7 e8 d1 60 8e c6 05 61 9e 39 08 01 e8 f6 51 55 00 <0f> 0b 5d e9 d9 4f 98 00 80 3d 4b 9e 39 08 00 0f 85 4c ff ff ff 48
-[   72.546666] RSP: 0018:ffffb3f841157cf0 EFLAGS: 00010286
-[   72.547393] RAX: 0000000000000026 RBX: ffff89ac6231d478 RCX: 0000000000000000
-[   72.548324] RDX: ffff89adb7c2c2c0 RSI: ffff89adb7c205c0 RDI: ffff89adb7c205c0
-[   72.549271] RBP: ffffb3f841157cf0 R08: 0000000000000000 R09: c0000000ffefffff
-[   72.550209] R10: 0000000000000001 R11: ffffb3f841157ad0 R12: ffff89ac6231d180
-[   72.551142] R13: ffff89ac6231d478 R14: ffff89ac40c06180 R15: ffff89ac6231d4b0
-[   72.552089] FS:  0000000000000000(0000) GS:ffff89adb7c00000(0000) knlGS:0000000000000000
-[   72.553175] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   72.553934] CR2: 0000563a310506a8 CR3: 0000000109a66000 CR4: 0000000000350ef0
-[   72.554874] Call Trace:
-[   72.555278]  <TASK>
-[   72.555614]  svc_xprt_put+0xaf/0xe0 [sunrpc]
-[   72.556276]  nfsd4_process_cb_update.isra.11+0xb7/0x410 [nfsd]
-[   72.557087]  ? update_load_avg+0x82/0x610
-[   72.557652]  ? cpuacct_charge+0x60/0x70
-[   72.558212]  ? dequeue_entity+0xdb/0x3e0
-[   72.558765]  ? queued_spin_unlock+0x9/0x20
-[   72.559358]  nfsd4_run_cb_work+0xfc/0x270 [nfsd]
-[   72.560031]  process_one_work+0x1df/0x390
-[   72.560600]  worker_thread+0x37/0x3b0
-[   72.561644]  ? process_one_work+0x390/0x390
-[   72.562247]  kthread+0x12f/0x150
-[   72.562710]  ? set_kthread_struct+0x50/0x50
-[   72.563309]  ret_from_fork+0x22/0x30
-[   72.563818]  </TASK>
-[   72.564189] ---[ end trace 031117b1c72ec616 ]---
-[   72.566019] list_add corruption. next->prev should be prev (ffff89ac4977e538), but was ffff89ac4763e018. (next=ffff89ac4763e018).
-[   72.567647] ------------[ cut here ]------------
-
-Fixes: a4abc6b12eb1 ("nfsd: Fix svc_xprt refcnt leak when setup callback client failed")
-Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Cc: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20221207115937.26601-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4callback.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ext4/ioctl.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
-index 22b784e7ef50..e347abf3dfa0 100644
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -813,7 +813,6 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
- 	} else {
- 		if (!conn->cb_xprt)
- 			return -EINVAL;
--		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
- 		clp->cl_cb_session = ses;
- 		args.bc_xprt = conn->cb_xprt;
- 		args.prognumber = clp->cl_cb_session->se_cb_prog;
-@@ -833,6 +832,9 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
- 		rpc_shutdown_client(client);
- 		return PTR_ERR(cred);
- 	}
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -449,6 +449,10 @@ static int ext4_ioctl_setproject(struct
+ 	if (ext4_is_quota_file(inode))
+ 		return err;
+ 
++	err = dquot_initialize(inode);
++	if (err)
++		return err;
 +
-+	if (clp->cl_minorversion != 0)
-+		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
- 	clp->cl_cb_client = client;
- 	clp->cl_cb_cred = cred;
- 	return 0;
--- 
-2.35.1
-
+ 	err = ext4_get_inode_loc(inode, &iloc);
+ 	if (err)
+ 		return err;
+@@ -464,10 +468,6 @@ static int ext4_ioctl_setproject(struct
+ 		brelse(iloc.bh);
+ 	}
+ 
+-	err = dquot_initialize(inode);
+-	if (err)
+-		return err;
+-
+ 	handle = ext4_journal_start(inode, EXT4_HT_QUOTA,
+ 		EXT4_QUOTA_INIT_BLOCKS(sb) +
+ 		EXT4_QUOTA_DEL_BLOCKS(sb) + 3);
 
 
