@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7437B66C9DE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:57:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 029C466C766
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:30:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233947AbjAPQ5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:57:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49660 "EHLO
+        id S233296AbjAPQae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:30:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234069AbjAPQ4c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B6418AA8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:43 -0800 (PST)
+        with ESMTP id S233081AbjAPQaC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1104338B7B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9092E6106C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6617C433EF;
-        Mon, 16 Jan 2023 16:39:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B595CB81065
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1059BC433D2;
+        Mon, 16 Jan 2023 16:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887183;
-        bh=dJq01lreG1hWlgvQLtbQ9qGIiIdw9xBElaXv/5HCxYI=;
+        s=korg; t=1673885903;
+        bh=i9lp36iIsay55Ai+4i7uN2B+0UdMf+jyEx4iPVQyD3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fi9hxuOrqd2Q++xJBg5YUh99DYXLLJ1pHL4yv7jz6Eaq3Rj0FvOsP4EJK9yCNssrl
-         hkwEJbs1zrBwLU5p6hzlkor51VM929RJztG1khs8snjVcCFhBI9SqMGekyWLwuCjrp
-         4w5Ud8piiE9T1/uIbr4Q+6RSH9SIANGrfxh+B8mA=
+        b=AiAgYu9yD3x4YAZIRcYlZ+sCausKnAeXz36bso+ueiGlzsMYrtE1PonQ8zRcCnPbj
+         O3rXJw6k82NGtlFANaUeYScT8HSRTaKe87niP8c28Y6eDx7t1KjMOyyDJRepkTvSSz
+         turs4Kl7HCjxSQBjIT3t2ICfWwNDLGbh9uDfuvDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        patches@lists.linux.dev, Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 053/521] MIPS: vpe-cmp: fix possible memory leak while module exiting
-Date:   Mon, 16 Jan 2023 16:45:15 +0100
-Message-Id: <20230116154849.627180984@linuxfoundation.org>
+Subject: [PATCH 5.4 228/658] net: amd-xgbe: Check only the minimum speed for active/passive cables
+Date:   Mon, 16 Jan 2023 16:45:16 +0100
+Message-Id: <20230116154919.945981537@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-[ Upstream commit c5ed1fe0801f0c66b0fbce2785239a5664629057 ]
+[ Upstream commit f8ab263d4d48e6dab752029bf562f20a2ee630ed ]
 
-dev_set_name() allocates memory for name, it need be freed
-when module exiting, call put_device() to give up reference,
-so that it can be freed in kobject_cleanup() when the refcount
-hit to 0. The vpe_device is static, so remove kfree() from
-vpe_device_release().
+There are cables that exist that can support speeds in excess of 10GbE.
+The driver, however, restricts the EEPROM advertised nominal bitrate to
+a specific range, which can prevent usage of cables that can support,
+for example, up to 25GbE.
 
-Fixes: 17a1d523aa58 ("MIPS: APRP: Add VPE loader support for CMP platforms.")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Rather than checking that an active or passive cable supports a specific
+range, only check for a minimum supported speed.
+
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/vpe-cmp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/arch/mips/kernel/vpe-cmp.c b/arch/mips/kernel/vpe-cmp.c
-index 9268ebc0f61e..903c07bdc92d 100644
---- a/arch/mips/kernel/vpe-cmp.c
-+++ b/arch/mips/kernel/vpe-cmp.c
-@@ -75,7 +75,6 @@ ATTRIBUTE_GROUPS(vpe);
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index 2cd5fd95af03..0a15c617c702 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -236,10 +236,7 @@ enum xgbe_sfp_speed {
  
- static void vpe_device_release(struct device *cd)
+ #define XGBE_SFP_BASE_BR			12
+ #define XGBE_SFP_BASE_BR_1GBE_MIN		0x0a
+-#define XGBE_SFP_BASE_BR_1GBE_MAX		0x0d
+ #define XGBE_SFP_BASE_BR_10GBE_MIN		0x64
+-#define XGBE_SFP_BASE_BR_10GBE_MAX		0x68
+-#define XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX	0x78
+ 
+ #define XGBE_SFP_BASE_CU_CABLE_LEN		18
+ 
+@@ -826,29 +823,22 @@ static void xgbe_phy_sfp_phy_settings(struct xgbe_prv_data *pdata)
+ static bool xgbe_phy_sfp_bit_rate(struct xgbe_sfp_eeprom *sfp_eeprom,
+ 				  enum xgbe_sfp_speed sfp_speed)
  {
--	kfree(cd);
+-	u8 *sfp_base, min, max;
++	u8 *sfp_base, min;
+ 
+ 	sfp_base = sfp_eeprom->base;
+ 
+ 	switch (sfp_speed) {
+ 	case XGBE_SFP_SPEED_1000:
+ 		min = XGBE_SFP_BASE_BR_1GBE_MIN;
+-		max = XGBE_SFP_BASE_BR_1GBE_MAX;
+ 		break;
+ 	case XGBE_SFP_SPEED_10000:
+ 		min = XGBE_SFP_BASE_BR_10GBE_MIN;
+-		if (memcmp(&sfp_eeprom->base[XGBE_SFP_BASE_VENDOR_NAME],
+-			   XGBE_MOLEX_VENDOR, XGBE_SFP_BASE_VENDOR_NAME_LEN) == 0)
+-			max = XGBE_MOLEX_SFP_BASE_BR_10GBE_MAX;
+-		else
+-			max = XGBE_SFP_BASE_BR_10GBE_MAX;
+ 		break;
+ 	default:
+ 		return false;
+ 	}
+ 
+-	return ((sfp_base[XGBE_SFP_BASE_BR] >= min) &&
+-		(sfp_base[XGBE_SFP_BASE_BR] <= max));
++	return sfp_base[XGBE_SFP_BASE_BR] >= min;
  }
  
- static struct class vpe_class = {
-@@ -157,6 +156,7 @@ int __init vpe_module_init(void)
- 	device_del(&vpe_device);
- 
- out_class:
-+	put_device(&vpe_device);
- 	class_unregister(&vpe_class);
- 
- out_chrdev:
-@@ -169,7 +169,7 @@ void __exit vpe_module_exit(void)
- {
- 	struct vpe *v, *n;
- 
--	device_del(&vpe_device);
-+	device_unregister(&vpe_device);
- 	class_unregister(&vpe_class);
- 	unregister_chrdev(major, VPE_MODULE_NAME);
- 
+ static void xgbe_phy_free_phy_device(struct xgbe_prv_data *pdata)
 -- 
 2.35.1
 
