@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7EAD66CA29
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADEB366C7D8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:35:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233519AbjAPRAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:00:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50824 "EHLO
+        id S233215AbjAPQfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:35:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234121AbjAPQ7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ACB92DE70
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:18 -0800 (PST)
+        with ESMTP id S232949AbjAPQec (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A1BC2A168
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:22:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AABEE6104F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE27DC433D2;
-        Mon, 16 Jan 2023 16:42:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C52BB8105F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:22:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71100C433EF;
+        Mon, 16 Jan 2023 16:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887337;
-        bh=KHzEcZE2k1pRm8RztkLsclhbLBR1oLAIU4UFuSVxwr4=;
+        s=korg; t=1673886127;
+        bh=GVrdr39D4QbdFMVmxmYYRto/lqst8kNG9Q9uqSFQvHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1n4TvekCNW9d3B858eaosr8++2VGFTIdj84nGIuR1C79osrDeWqU5oz/UYln5D1I
-         8yNwfB4aTM/YDFRsC0N8hx7hL5cN+fx9xZrbklEXoqM7QXpMa7CR/HhQGzpilEsoog
-         3NV8T4p/iUrer5FIKcBvwMZs1i6KhsUFA1WILwLI=
+        b=Swc5gM/lpfsbhrpFn9H3ONIWQetXlRAbSaoBIStnQCpxK65BMMn5FguK633A9e4CK
+         cOVkDL7kUINWZmSRS5XT/0b3v7tK9wNsvbuN/TUdBqIgZWs1j4OU2Cr97ognkFHjJD
+         uS3gntiFEtszOewvB6C10vU2G36R0jq44hG6ZvXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baisong Zhong <zhongbaisong@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 111/521] ALSA: seq: fix undefined behavior in bit shift for SNDRV_SEQ_FILTER_USE_EVENT
+        patches@lists.linux.dev, Jiamei Xie <jiamei.xie@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 285/658] serial: amba-pl011: avoid SBSA UART accessing DMACR register
 Date:   Mon, 16 Jan 2023 16:46:13 +0100
-Message-Id: <20230116154852.221265224@linuxfoundation.org>
+Message-Id: <20230116154922.624275342@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,63 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baisong Zhong <zhongbaisong@huawei.com>
+From: Jiamei Xie <jiamei.xie@arm.com>
 
-[ Upstream commit cf59e1e4c79bf741905484cdb13c130b53576a16 ]
+[ Upstream commit 94cdb9f33698478b0e7062586633c42c6158a786 ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned. The UBSAN warning calltrace like below:
+Chapter "B Generic UART" in "ARM Server Base System Architecture" [1]
+documentation describes a generic UART interface. Such generic UART
+does not support DMA. In current code, sbsa_uart_pops and
+amba_pl011_pops share the same stop_rx operation, which will invoke
+pl011_dma_rx_stop, leading to an access of the DMACR register. This
+commit adds a using_rx_dma check in pl011_dma_rx_stop to avoid the
+access to DMACR register for SBSA UARTs which does not support DMA.
 
-UBSAN: shift-out-of-bounds in sound/core/seq/seq_clientmgr.c:509:22
-left shift of 1 by 31 places cannot be represented in type 'int'
+When the kernel enables DMA engine with "CONFIG_DMA_ENGINE=y", Linux
+SBSA PL011 driver will access PL011 DMACR register in some functions.
+For most real SBSA Pl011 hardware implementations, the DMACR write
+behaviour will be ignored. So these DMACR operations will not cause
+obvious problems. But for some virtual SBSA PL011 hardware, like Xen
+virtual SBSA PL011 (vpl011) device, the behaviour might be different.
+Xen vpl011 emulation will inject a data abort to guest, when guest is
+accessing an unimplemented UART register. As Xen VPL011 is SBSA
+compatible, it will not implement DMACR register. So when Linux SBSA
+PL011 driver access DMACR register, it will get an unhandled data abort
+fault and the application will get a segmentation fault:
+Unhandled fault at 0xffffffc00944d048
+Mem abort info:
+  ESR = 0x96000000
+  EC = 0x25: DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+  FSC = 0x00: ttbr address size fault
+Data abort info:
+  ISV = 0, ISS = 0x00000000
+  CM = 0, WnR = 0
+swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000020e2e000
+[ffffffc00944d048] pgd=100000003ffff803, p4d=100000003ffff803, pud=100000003ffff803, pmd=100000003fffa803, pte=006800009c090f13
+Internal error: ttbr address size fault: 96000000 [#1] PREEMPT SMP
 ...
-Call Trace:
- <TASK>
- dump_stack_lvl+0x8d/0xcf
- ubsan_epilogue+0xa/0x44
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x208
- snd_seq_deliver_single_event.constprop.21+0x191/0x2f0
- snd_seq_deliver_event+0x1a2/0x350
- snd_seq_kernel_client_dispatch+0x8b/0xb0
- snd_seq_client_notify_subscription+0x72/0xa0
- snd_seq_ioctl_subscribe_port+0x128/0x160
- snd_seq_kernel_client_ctl+0xce/0xf0
- snd_seq_oss_create_client+0x109/0x15b
- alsa_seq_oss_init+0x11c/0x1aa
- do_one_initcall+0x80/0x440
- kernel_init_freeable+0x370/0x3c3
- kernel_init+0x1b/0x190
- ret_from_fork+0x1f/0x30
- </TASK>
+Call trace:
+ pl011_stop_rx+0x70/0x80
+ tty_port_shutdown+0x7c/0xb4
+ tty_port_close+0x60/0xcc
+ uart_close+0x34/0x8c
+ tty_release+0x144/0x4c0
+ __fput+0x78/0x220
+ ____fput+0x1c/0x30
+ task_work_run+0x88/0xc0
+ do_notify_resume+0x8d0/0x123c
+ el0_svc+0xa8/0xc0
+ el0t_64_sync_handler+0xa4/0x130
+ el0t_64_sync+0x1a0/0x1a4
+Code: b9000083 b901f001 794038a0 8b000042 (b9000041)
+---[ end trace 83dd93df15c3216f ]---
+note: bootlogd[132] exited with preempt_count 1
+/etc/rcS.d/S07bootlogd: line 47: 132 Segmentation fault start-stop-daemon
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Baisong Zhong <zhongbaisong@huawei.com>
-Link: https://lore.kernel.org/r/20221121111630.3119259-1-zhongbaisong@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This has been discussed in the Xen community, and we think it should fix
+this in Linux. See [2] for more information.
+
+[1] https://developer.arm.com/documentation/den0094/c/?lang=en
+[2] https://lists.xenproject.org/archives/html/xen-devel/2022-11/msg00543.html
+
+Fixes: 0dd1e247fd39 (drivers: PL011: add support for the ARM SBSA generic UART)
+Signed-off-by: Jiamei Xie <jiamei.xie@arm.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/20221117103237.86856-1-jiamei.xie@arm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/sound/asequencer.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/tty/serial/amba-pl011.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/uapi/sound/asequencer.h b/include/uapi/sound/asequencer.h
-index a75e14edc957..dbd60f48b4b0 100644
---- a/include/uapi/sound/asequencer.h
-+++ b/include/uapi/sound/asequencer.h
-@@ -344,10 +344,10 @@ typedef int __bitwise snd_seq_client_type_t;
- #define	KERNEL_CLIENT	((__force snd_seq_client_type_t) 2)
-                         
- 	/* event filter flags */
--#define SNDRV_SEQ_FILTER_BROADCAST	(1<<0)	/* accept broadcast messages */
--#define SNDRV_SEQ_FILTER_MULTICAST	(1<<1)	/* accept multicast messages */
--#define SNDRV_SEQ_FILTER_BOUNCE		(1<<2)	/* accept bounce event in error */
--#define SNDRV_SEQ_FILTER_USE_EVENT	(1<<31)	/* use event filter */
-+#define SNDRV_SEQ_FILTER_BROADCAST	(1U<<0)	/* accept broadcast messages */
-+#define SNDRV_SEQ_FILTER_MULTICAST	(1U<<1)	/* accept multicast messages */
-+#define SNDRV_SEQ_FILTER_BOUNCE		(1U<<2)	/* accept bounce event in error */
-+#define SNDRV_SEQ_FILTER_USE_EVENT	(1U<<31)	/* use event filter */
- 
- struct snd_seq_client_info {
- 	int client;			/* client number to inquire */
+diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
+index 52b7d559b44b..44485689333e 100644
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -1053,6 +1053,9 @@ static void pl011_dma_rx_callback(void *data)
+  */
+ static inline void pl011_dma_rx_stop(struct uart_amba_port *uap)
+ {
++	if (!uap->using_rx_dma)
++		return;
++
+ 	/* FIXME.  Just disable the DMA enable */
+ 	uap->dmacr &= ~UART011_RXDMAE;
+ 	pl011_write(uap->dmacr, uap, REG_DMACR);
 -- 
 2.35.1
 
