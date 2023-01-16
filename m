@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F5C366CB6C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75BF866CCE0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:30:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234451AbjAPRPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
+        id S234560AbjAPRaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:30:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234472AbjAPROW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED98252B1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:42 -0800 (PST)
+        with ESMTP id S234700AbjAPR3d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3683A5A7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E84861018
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4FA9C433EF;
-        Mon, 16 Jan 2023 16:54:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05642B81091
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D4E4C433D2;
+        Mon, 16 Jan 2023 17:07:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888082;
-        bh=3swhw+enmypehjqyI6PnyQjtUw+asaiOz+rYKGL2U/E=;
+        s=korg; t=1673888825;
+        bh=kF+UJ2+GxPrysisT/BDB8fHKcqKuKNa+EmWQ2Nb8Tuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYgkPLdIO/9kuKGwRJwrbjVxEQ7oyd62hqmC9ZJfR8amV+k8zzZyzcrfaI1A9sycj
-         aYxKWoFtDWqOvix5ZJ41PLZeLTk5vMiENfDKLYfElwsI+4eFgx2a4oWvwL2EsL24Li
-         z4cmBs7KqiHbwdxwRjMM7rCGwYRJ3g66D5SYbSI0=
+        b=kGr+hBhYInlPSvru0TNjICm7QsXMkZHafwKaQXwsL+KsOpkCiH6laYZpYLK9zIQK8
+         4rqri88sRyO+UjMl3iyJJRZy8xCqrP+Pd0zdyaYrYtS9ga08f0C0DxaOaG34hpfYH6
+         L1sz+weTLbPeuCErRS7KTKFjzNWDyisrjhs9XCW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 364/521] powerpc/rtas: avoid scheduling in rtas_os_term()
-Date:   Mon, 16 Jan 2023 16:50:26 +0100
-Message-Id: <20230116154903.361539891@linuxfoundation.org>
+Subject: [PATCH 4.14 154/338] hwrng: amd - Fix PCI device refcount leak
+Date:   Mon, 16 Jan 2023 16:50:27 +0100
+Message-Id: <20230116154827.574764182@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 6c606e57eecc37d6b36d732b1ff7e55b7dc32dd4 ]
+[ Upstream commit ecadb5b0111ea19fc7c240bb25d424a94471eb7d ]
 
-It's unsafe to use rtas_busy_delay() to handle a busy status from
-the ibm,os-term RTAS function in rtas_os_term():
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
-BUG: sleeping function called from invalid context at arch/powerpc/kernel/rtas.c:618
-in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
-preempt_count: 2, expected: 0
-CPU: 7 PID: 1 Comm: swapper/0 Tainted: G      D            6.0.0-rc5-02182-gf8553a572277-dirty #9
-Call Trace:
-[c000000007b8f000] [c000000001337110] dump_stack_lvl+0xb4/0x110 (unreliable)
-[c000000007b8f040] [c0000000002440e4] __might_resched+0x394/0x3c0
-[c000000007b8f0e0] [c00000000004f680] rtas_busy_delay+0x120/0x1b0
-[c000000007b8f100] [c000000000052d04] rtas_os_term+0xb8/0xf4
-[c000000007b8f180] [c0000000001150fc] pseries_panic+0x50/0x68
-[c000000007b8f1f0] [c000000000036354] ppc_panic_platform_handler+0x34/0x50
-[c000000007b8f210] [c0000000002303c4] notifier_call_chain+0xd4/0x1c0
-[c000000007b8f2b0] [c0000000002306cc] atomic_notifier_call_chain+0xac/0x1c0
-[c000000007b8f2f0] [c0000000001d62b8] panic+0x228/0x4d0
-[c000000007b8f390] [c0000000001e573c] do_exit+0x140c/0x1420
-[c000000007b8f480] [c0000000001e586c] make_task_dead+0xdc/0x200
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. Add the missing
+pci_dev_put() for the normal and error path.
 
-Use rtas_busy_delay_time() instead, which signals without side effects
-whether to attempt the ibm,os-term RTAS call again.
-
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221118150751.469393-5-nathanl@linux.ibm.com
+Fixes: 96d63c0297cc ("[PATCH] Add AMD HW RNG driver")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/rtas.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/char/hw_random/amd-rng.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index 4c9ed28465b3..a3f08a380c99 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -734,10 +734,15 @@ void rtas_os_term(char *str)
+diff --git a/drivers/char/hw_random/amd-rng.c b/drivers/char/hw_random/amd-rng.c
+index 9959c762da2f..db3dd467194c 100644
+--- a/drivers/char/hw_random/amd-rng.c
++++ b/drivers/char/hw_random/amd-rng.c
+@@ -143,15 +143,19 @@ static int __init mod_init(void)
+ found:
+ 	err = pci_read_config_dword(pdev, 0x58, &pmbase);
+ 	if (err)
+-		return err;
++		goto put_dev;
  
- 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
+ 	pmbase &= 0x0000FF00;
+-	if (pmbase == 0)
+-		return -EIO;
++	if (pmbase == 0) {
++		err = -EIO;
++		goto put_dev;
++	}
  
-+	/*
-+	 * Keep calling as long as RTAS returns a "try again" status,
-+	 * but don't use rtas_busy_delay(), which potentially
-+	 * schedules.
-+	 */
- 	do {
- 		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
- 				   __pa(rtas_os_term_buf));
--	} while (rtas_busy_delay(status));
-+	} while (rtas_busy_delay_time(status));
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
++	if (!priv) {
++		err = -ENOMEM;
++		goto put_dev;
++	}
  
- 	if (status != 0)
- 		printk(KERN_EMERG "ibm,os-term call failed %d\n", status);
+ 	if (!request_region(pmbase + PMBASE_OFFSET, PMBASE_SIZE, DRV_NAME)) {
+ 		dev_err(&pdev->dev, DRV_NAME " region 0x%x already in use!\n",
+@@ -185,6 +189,8 @@ static int __init mod_init(void)
+ 	release_region(pmbase + PMBASE_OFFSET, PMBASE_SIZE);
+ out:
+ 	kfree(priv);
++put_dev:
++	pci_dev_put(pdev);
+ 	return err;
+ }
+ 
+@@ -200,6 +206,8 @@ static void __exit mod_exit(void)
+ 
+ 	release_region(priv->pmbase + PMBASE_OFFSET, PMBASE_SIZE);
+ 
++	pci_dev_put(priv->pcidev);
++
+ 	kfree(priv);
+ }
+ 
 -- 
 2.35.1
 
