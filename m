@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B2A66C4ED
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EDEE66C8F8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231776AbjAPQAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41754 "EHLO
+        id S233743AbjAPQpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:45:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231894AbjAPP7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E626623860
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:35 -0800 (PST)
+        with ESMTP id S233750AbjAPQov (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:44:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91C693FF2C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86C626102D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9870BC433D2;
-        Mon, 16 Jan 2023 15:59:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 506FCB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9ADEC433EF;
+        Mon, 16 Jan 2023 16:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884775;
-        bh=95MzELXbmXfwUuEQQ2+CW4+v+lrHNXwiM9pIXIcxov4=;
+        s=korg; t=1673886728;
+        bh=7xRMMNM09tzVFE5imf3mlQaNikgg5ey7OFaPwqYDJE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMlqwft/06ENNdReKQo+bdV2llE92+BgkFaOK5c/WvmA/n7XEcFw0PKE5yY6PfUu4
-         Q4oj9SmGuk6uJhEhviiJ18EkYRj3bFXCpbixFnnIDnNL5RgxGpQ9FMDzYodmfnxZ5L
-         npT9/mHoZjeq3mb/nJwlxDXwCPxbSIKM6OuiICSo=
+        b=BZiaiaguXgLaPZFWH3pDGwHbFv425nOhxA3zKadmsuLu9P0S7nXhota3F5pVfWGJR
+         UQzns9jimHosPfJw8igm33Z8VvvPY259csdwCb3NTARTjjR4nbnVg4geiA/kf07EIp
+         QRuQb2de1SDr+qHA3rJEhNfC6bHUBRnyrtmO+yzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        patches@lists.linux.dev, Chanwoo Choi <cwchoi00@gmail.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Kant Fan <kant@allwinnertech.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 104/183] drm/msm/dpu: Fix some kernel-doc comments
+Subject: [PATCH 5.4 539/658] PM/devfreq: governor: Add a private governor_data for governor
 Date:   Mon, 16 Jan 2023 16:50:27 +0100
-Message-Id: <20230116154807.771286596@linuxfoundation.org>
+Message-Id: <20230116154934.180898917@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +55,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Kant Fan <kant@allwinnertech.com>
 
-[ Upstream commit 1bdeb321d1f856346fe0078af09c9e7ffbd2ca7a ]
+[ Upstream commit 5fdded8448924e3631d466eea499b11606c43640 ]
 
-Make the description of @init to @p in dpu_encoder_phys_wb_init()
-and remove @wb_roi in dpu_encoder_phys_wb_setup_fb() to clear the below
-warnings:
+The member void *data in the structure devfreq can be overwrite
+by governor_userspace. For example:
+1. The device driver assigned the devfreq governor to simple_ondemand
+by the function devfreq_add_device() and init the devfreq member
+void *data to a pointer of a static structure devfreq_simple_ondemand_data
+by the function devfreq_add_device().
+2. The user changed the devfreq governor to userspace by the command
+"echo userspace > /sys/class/devfreq/.../governor".
+3. The governor userspace alloced a dynamic memory for the struct
+userspace_data and assigend the member void *data of devfreq to
+this memory by the function userspace_init().
+4. The user changed the devfreq governor back to simple_ondemand
+by the command "echo simple_ondemand > /sys/class/devfreq/.../governor".
+5. The governor userspace exited and assigned the member void *data
+in the structure devfreq to NULL by the function userspace_exit().
+6. The governor simple_ondemand fetched the static information of
+devfreq_simple_ondemand_data in the function
+devfreq_simple_ondemand_func() but the member void *data of devfreq was
+assigned to NULL by the function userspace_exit().
+7. The information of upthreshold and downdifferential is lost
+and the governor simple_ondemand can't work correctly.
 
-drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c:139: warning: Excess function parameter 'wb_roi' description in 'dpu_encoder_phys_wb_setup_fb'
-drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c:699: warning: Function parameter or member 'p' not described in 'dpu_encoder_phys_wb_init'
-drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c:699: warning: Excess function parameter 'init' description in 'dpu_encoder_phys_wb_init'
+The member void *data in the structure devfreq is designed for
+a static pointer used in a governor and inited by the function
+devfreq_add_device(). This patch add an element named governor_data
+in the devfreq structure which can be used by a governor(E.g userspace)
+who want to assign a private data to do some private things.
 
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3067
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Fixes: d7d0e73f7de3 ("drm/msm/dpu: introduce the dpu_encoder_phys_* for writeback")
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/511605/
-Link: https://lore.kernel.org/r/20221115014902.45240-1-yang.lee@linux.alibaba.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Fixes: ce26c5bb9569 ("PM / devfreq: Add basic governors")
+Cc: stable@vger.kernel.org # 5.10+
+Reviewed-by: Chanwoo Choi <cwchoi00@gmail.com>
+Acked-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+Signed-off-by: Kant Fan <kant@allwinnertech.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/devfreq/devfreq.c            |  6 ++----
+ drivers/devfreq/governor_userspace.c | 12 ++++++------
+ include/linux/devfreq.h              | 11 ++++++-----
+ 3 files changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c
-index 7cbcef6efe17..62f6ff6abf41 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_wb.c
-@@ -132,7 +132,6 @@ static void dpu_encoder_phys_wb_set_qos(struct dpu_encoder_phys *phys_enc)
-  * dpu_encoder_phys_wb_setup_fb - setup output framebuffer
-  * @phys_enc:	Pointer to physical encoder
-  * @fb:		Pointer to output framebuffer
-- * @wb_roi:	Pointer to output region of interest
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index c79652ee94be..f5ad9b998654 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -603,8 +603,7 @@ static void devfreq_dev_release(struct device *dev)
+  * @dev:	the device to add devfreq feature.
+  * @profile:	device-specific profile to run devfreq.
+  * @governor_name:	name of the policy to choose frequency.
+- * @data:	private data for the governor. The devfreq framework does not
+- *		touch this value.
++ * @data:	devfreq driver pass to governors, governor should not change it.
   */
- static void dpu_encoder_phys_wb_setup_fb(struct dpu_encoder_phys *phys_enc,
- 		struct drm_framebuffer *fb)
-@@ -692,7 +691,7 @@ static void dpu_encoder_phys_wb_init_ops(struct dpu_encoder_phys_ops *ops)
+ struct devfreq *devfreq_add_device(struct device *dev,
+ 				   struct devfreq_dev_profile *profile,
+@@ -788,8 +787,7 @@ static void devm_devfreq_dev_release(struct device *dev, void *res)
+  * @dev:	the device to add devfreq feature.
+  * @profile:	device-specific profile to run devfreq.
+  * @governor_name:	name of the policy to choose frequency.
+- * @data:	private data for the governor. The devfreq framework does not
+- *		touch this value.
++ * @data:	 devfreq driver pass to governors, governor should not change it.
+  *
+  * This function manages automatically the memory of devfreq device using device
+  * resource management and simplify the free operation for memory of devfreq
+diff --git a/drivers/devfreq/governor_userspace.c b/drivers/devfreq/governor_userspace.c
+index af94942fcf95..a3ae4dc4668b 100644
+--- a/drivers/devfreq/governor_userspace.c
++++ b/drivers/devfreq/governor_userspace.c
+@@ -21,7 +21,7 @@ struct userspace_data {
  
- /**
-  * dpu_encoder_phys_wb_init - initialize writeback encoder
-- * @init:	Pointer to init info structure with initialization params
-+ * @p:	Pointer to init info structure with initialization params
-  */
- struct dpu_encoder_phys *dpu_encoder_phys_wb_init(
- 		struct dpu_enc_phys_init_params *p)
+ static int devfreq_userspace_func(struct devfreq *df, unsigned long *freq)
+ {
+-	struct userspace_data *data = df->data;
++	struct userspace_data *data = df->governor_data;
+ 
+ 	if (data->valid)
+ 		*freq = data->user_frequency;
+@@ -40,7 +40,7 @@ static ssize_t store_freq(struct device *dev, struct device_attribute *attr,
+ 	int err = 0;
+ 
+ 	mutex_lock(&devfreq->lock);
+-	data = devfreq->data;
++	data = devfreq->governor_data;
+ 
+ 	sscanf(buf, "%lu", &wanted);
+ 	data->user_frequency = wanted;
+@@ -60,7 +60,7 @@ static ssize_t show_freq(struct device *dev, struct device_attribute *attr,
+ 	int err = 0;
+ 
+ 	mutex_lock(&devfreq->lock);
+-	data = devfreq->data;
++	data = devfreq->governor_data;
+ 
+ 	if (data->valid)
+ 		err = sprintf(buf, "%lu\n", data->user_frequency);
+@@ -91,7 +91,7 @@ static int userspace_init(struct devfreq *devfreq)
+ 		goto out;
+ 	}
+ 	data->valid = false;
+-	devfreq->data = data;
++	devfreq->governor_data = data;
+ 
+ 	err = sysfs_create_group(&devfreq->dev.kobj, &dev_attr_group);
+ out:
+@@ -107,8 +107,8 @@ static void userspace_exit(struct devfreq *devfreq)
+ 	if (devfreq->dev.kobj.sd)
+ 		sysfs_remove_group(&devfreq->dev.kobj, &dev_attr_group);
+ 
+-	kfree(devfreq->data);
+-	devfreq->data = NULL;
++	kfree(devfreq->governor_data);
++	devfreq->governor_data = NULL;
+ }
+ 
+ static int devfreq_userspace_handler(struct devfreq *devfreq,
+diff --git a/include/linux/devfreq.h b/include/linux/devfreq.h
+index 2bae9ed3c783..7535f860d45d 100644
+--- a/include/linux/devfreq.h
++++ b/include/linux/devfreq.h
+@@ -121,10 +121,10 @@ struct devfreq_dev_profile {
+  *		devfreq.nb to the corresponding register notifier call chain.
+  * @work:	delayed work for load monitoring.
+  * @previous_freq:	previously configured frequency value.
+- * @data:	Private data of the governor. The devfreq framework does not
+- *		touch this.
+- * @min_freq:	Limit minimum frequency requested by user (0: none)
+- * @max_freq:	Limit maximum frequency requested by user (0: none)
++ * @data:	devfreq driver pass to governors, governor should not change it.
++ * @governor_data:	private data for governors, devfreq core doesn't touch it.
++ * @min_freq:   Limit minimum frequency requested by user (0: none)
++ * @max_freq:   Limit maximum frequency requested by user (0: none)
+  * @scaling_min_freq:	Limit minimum frequency requested by OPP interface
+  * @scaling_max_freq:	Limit maximum frequency requested by OPP interface
+  * @stop_polling:	 devfreq polling status of a device.
+@@ -159,7 +159,8 @@ struct devfreq {
+ 	unsigned long previous_freq;
+ 	struct devfreq_dev_status last_status;
+ 
+-	void *data; /* private data for governors */
++	void *data;
++	void *governor_data;
+ 
+ 	unsigned long min_freq;
+ 	unsigned long max_freq;
 -- 
 2.35.1
 
