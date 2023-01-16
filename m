@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6258C66C168
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:11:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E849B66C16B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232286AbjAPOLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:11:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56902 "EHLO
+        id S232297AbjAPOLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:11:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232220AbjAPOKp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:10:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C04628869;
-        Mon, 16 Jan 2023 06:04:19 -0800 (PST)
+        with ESMTP id S232254AbjAPOKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:10:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B67B2B097;
+        Mon, 16 Jan 2023 06:04:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5DD260FE0;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 312EAB80F91;
+        Mon, 16 Jan 2023 14:04:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0A04C4339C;
         Mon, 16 Jan 2023 14:04:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AF63C43396;
-        Mon, 16 Jan 2023 14:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877858;
-        bh=KqF83T1wi3gZrPovP8xbQHdxtpKzpwd8LW54Zyo/Hzs=;
+        s=k20201202; t=1673877859;
+        bh=1WuCNP891T2A+p3sb0RDsrJqTKSkAYppNYlowYfi06Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tosqiRAKM+HYMkZxMtz7At0sw33zYNVM1YtKUBe9gXVwOCa6qWvTEjMr4hZAep++f
-         Uql/fmaYfMYSlxQjdOrqqnkzD64X3hbapjWpXCbfIQ/Jmp36FRkpMZozutgNUJwsDp
-         HeCKEY8Zp3HoWrDJ4S02/pN+7nczTw6Ild1TRO4tBc/IjjzsFvdM0I6W1c1pGjDHdC
-         unogiva6Zet5FKm08YEBxSzeYvJGFpuONqg1QrUtUZTatsdS4toRhhi4G8tgykw98y
-         4ZYmKTBMqOT9zzAJqicxcy72s864AoV6xHKI7XfXUbQ2PEFF5EJ+t7j59e2cRSjdHF
-         BZGiVvEVeoNVA==
+        b=Uk2u4WJpAf9LQkx/Qzv0saem0t32mIhA0KeScLJ3wSRsOhx7Y8NiTKZMMq02+5CjB
+         thhCbn8GTvSeqhQ7PM8hWwREYGJ4okU9F9di/taRkFPyIsjJtJPecN/plRSs5vQWuK
+         0evRav0yFF6i1At12/g2UJvujCkL6dI++vMiwBfYPUqaINKNRNH/wAlQQ6LMLxW1ft
+         TFRMooT+zaZhPDnUyWAd0nPnO3arNfaJLm/yo0os51gTdtqDauUCfDEl1ImOu/8P0n
+         ujXGGp8VN7nCJG5k9k179+EaWTkippln8B3pSiOillrGPUwMD0hUTIJbRnGpKHhka/
+         XoqnYdtBH/FTw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Kan Liang <kan.liang@linux.intel.com>,
@@ -39,9 +39,9 @@ Cc:     Kan Liang <kan.liang@linux.intel.com>,
         mingo@redhat.com, acme@kernel.org, tglx@linutronix.de,
         bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
         linux-perf-users@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 10/24] perf/x86/msr: Add Emerald Rapids
-Date:   Mon, 16 Jan 2023 09:03:45 -0500
-Message-Id: <20230116140359.115716-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 11/24] perf/x86/intel/uncore: Add Emerald Rapids
+Date:   Mon, 16 Jan 2023 09:03:46 -0500
+Message-Id: <20230116140359.115716-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140359.115716-1-sashal@kernel.org>
 References: <20230116140359.115716-1-sashal@kernel.org>
@@ -60,31 +60,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 69ced4160969025821f2999ff92163ed26568f1c ]
+[ Upstream commit 5268a2842066c227e6ccd94bac562f1e1000244f ]
 
-The same as Sapphire Rapids, the SMI_COUNT MSR is also supported on
-Emerald Rapids. Add Emerald Rapids model.
+From the perspective of the uncore PMU, the new Emerald Rapids is the
+same as the Sapphire Rapids. The only difference is the event list,
+which will be supported in the perf tool later.
 
 Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20230106160449.3566477-3-kan.liang@linux.intel.com
+Link: https://lore.kernel.org/r/20230106160449.3566477-4-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/msr.c | 1 +
+ arch/x86/events/intel/uncore.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/events/msr.c b/arch/x86/events/msr.c
-index 96c775abe31f..d23b5523cdd3 100644
---- a/arch/x86/events/msr.c
-+++ b/arch/x86/events/msr.c
-@@ -69,6 +69,7 @@ static bool test_intel(int idx, void *data)
- 	case INTEL_FAM6_BROADWELL_G:
- 	case INTEL_FAM6_BROADWELL_X:
- 	case INTEL_FAM6_SAPPHIRERAPIDS_X:
-+	case INTEL_FAM6_EMERALDRAPIDS_X:
- 
- 	case INTEL_FAM6_ATOM_SILVERMONT:
- 	case INTEL_FAM6_ATOM_SILVERMONT_D:
+diff --git a/arch/x86/events/intel/uncore.c b/arch/x86/events/intel/uncore.c
+index c72e368dd164..7e16c590f259 100644
+--- a/arch/x86/events/intel/uncore.c
++++ b/arch/x86/events/intel/uncore.c
+@@ -1829,6 +1829,7 @@ static const struct x86_cpu_id intel_uncore_match[] __initconst = {
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE,		&adl_uncore_init),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L,		&adl_uncore_init),
+ 	X86_MATCH_INTEL_FAM6_MODEL(SAPPHIRERAPIDS_X,	&spr_uncore_init),
++	X86_MATCH_INTEL_FAM6_MODEL(EMERALDRAPIDS_X,	&spr_uncore_init),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ATOM_TREMONT_D,	&snr_uncore_init),
+ 	{},
+ };
 -- 
 2.35.1
 
