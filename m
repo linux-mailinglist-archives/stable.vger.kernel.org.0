@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B64F666C4AB
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9D466C8AC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:41:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231355AbjAPP5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38740 "EHLO
+        id S233711AbjAPQls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:41:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231688AbjAPP5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A74F1CAE7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:56:53 -0800 (PST)
+        with ESMTP id S233700AbjAPQlF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:41:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585E12ED57
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:29:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3380B81052
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D7AEC433EF;
-        Mon, 16 Jan 2023 15:56:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7BBD61077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:29:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00ED6C433EF;
+        Mon, 16 Jan 2023 16:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884610;
-        bh=R6oZbqNU/2ppKcaBnPmrVX8xGwVcBk6i1S/XMl4WZlY=;
+        s=korg; t=1673886562;
+        bh=RgnXddINoIAuidOKw4DasAjpIMoLfiZXyCvNmPWv48w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dwNen6fl37xVoIDIdsYAzpoIEjKWg15YRraUi/y5H0rFYlt1wmHYKjZBIxuE5BVjE
-         jS9KvwY05ciV3S0Oh2RqBfl2cYlGJ5S4/hfLDX+VTGklfmoid07+gRJBS7T2aM4jaG
-         idk/272EaAHxb/4ZdRjocIpePnr6TooBbe+xKyEI=
+        b=WDcTRbHjBzAT0KE7/SL1bOWfc+VSi+MvFDuRr+5WcyzrktuGamJTp2bQhZoR5hWUo
+         XwsDhM2uC/M298buKBxHIt4tEOtD4hQw2X96bF/REDX5en5OvMjz3R6TG1UWl8/mR8
+         Ad2+Ok80IPYAsrd02LZElk3EkqS6X+RzYDQkTZTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shyam Prasad N <sprasad@microsoft.com>,
-        Tom Talpey <tom@talpey.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.1 041/183] cifs: do not query ifaces on smb1 mounts
+        patches@lists.linux.dev, Chuck Lever <chuck.lever@oracle.com>,
+        Jeff Layton <jlayton@kernel.org>
+Subject: [PATCH 5.4 476/658] SUNRPC: Dont leak netobj memory when gss_read_proxy_verf() fails
 Date:   Mon, 16 Jan 2023 16:49:24 +0100
-Message-Id: <20230116154805.126104685@linuxfoundation.org>
+Message-Id: <20230116154931.257396862@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 22aeb01db7080e18c6aeb4361cc2556c9887099a upstream.
+commit da522b5fe1a5f8b7c20a0023e87b52a150e53bf5 upstream.
 
-Users have reported the following error on every 600 seconds
-(SMB_INTERFACE_POLL_INTERVAL) when mounting SMB1 shares:
-
-	CIFS: VFS: \\srv\share error -5 on ioctl to get interface list
-
-It's supported only by SMB2+, so do not query network interfaces on
-SMB1 mounts.
-
-Fixes: 6e1c1c08cdf3 ("cifs: periodically query network interfaces from server")
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Tom Talpey <tom@talpey.com>
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 030d794bf498 ("SUNRPC: Use gssproxy upcall for server RPCGSS authentication.")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/connect.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/sunrpc/auth_gss/svcauth_gss.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2609,11 +2609,14 @@ cifs_get_tcon(struct cifs_ses *ses, stru
- 	INIT_LIST_HEAD(&tcon->pending_opens);
- 	tcon->status = TID_GOOD;
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1104,18 +1104,23 @@ static int gss_read_proxy_verf(struct sv
+ 		return res;
  
--	/* schedule query interfaces poll */
- 	INIT_DELAYED_WORK(&tcon->query_interfaces,
- 			  smb2_query_server_interfaces);
--	queue_delayed_work(cifsiod_wq, &tcon->query_interfaces,
--			   (SMB_INTERFACE_POLL_INTERVAL * HZ));
-+	if (ses->server->dialect >= SMB30_PROT_ID &&
-+	    (ses->server->capabilities & SMB2_GLOBAL_CAP_MULTI_CHANNEL)) {
-+		/* schedule query interfaces poll */
-+		queue_delayed_work(cifsiod_wq, &tcon->query_interfaces,
-+				   (SMB_INTERFACE_POLL_INTERVAL * HZ));
+ 	inlen = svc_getnl(argv);
+-	if (inlen > (argv->iov_len + rqstp->rq_arg.page_len))
++	if (inlen > (argv->iov_len + rqstp->rq_arg.page_len)) {
++		kfree(in_handle->data);
+ 		return SVC_DENIED;
 +	}
  
- 	spin_lock(&cifs_tcp_ses_lock);
- 	list_add(&tcon->tcon_list, &ses->tcon_list);
+ 	pages = DIV_ROUND_UP(inlen, PAGE_SIZE);
+ 	in_token->pages = kcalloc(pages, sizeof(struct page *), GFP_KERNEL);
+-	if (!in_token->pages)
++	if (!in_token->pages) {
++		kfree(in_handle->data);
+ 		return SVC_DENIED;
++	}
+ 	in_token->page_base = 0;
+ 	in_token->page_len = inlen;
+ 	for (i = 0; i < pages; i++) {
+ 		in_token->pages[i] = alloc_page(GFP_KERNEL);
+ 		if (!in_token->pages[i]) {
++			kfree(in_handle->data);
+ 			gss_free_in_token_pages(in_token);
+ 			return SVC_DENIED;
+ 		}
 
 
