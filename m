@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3112666C8E9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3627566C4BF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233739AbjAPQoX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:44:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34872 "EHLO
+        id S231582AbjAPP6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:58:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233831AbjAPQnq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 044BB39BB2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:31 -0800 (PST)
+        with ESMTP id S231699AbjAPP5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D4523332
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA39CB81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B7CC433F2;
-        Mon, 16 Jan 2023 16:31:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8422C61031
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90FF0C433EF;
+        Mon, 16 Jan 2023 15:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886688;
-        bh=UPw55wXHTEgyOHqevqFCXglAqMMYr0F1K8VA3yX2I58=;
+        s=korg; t=1673884659;
+        bh=gwXibOn/UarruZHKukZW+4kIqqw6P6zzm9aBHYHxeDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tia/JItN80YJtgkGVa0dmuDcoYQHSAG0yl959eLl2eRqv0/euxpo7pEXZxhSuGS2N
-         74bx2DImuTirHNhqeWYMnl7+gXhba18WTXJBEYn+UbIFDwWOEeGRYeYwDYcQ9WtHJE
-         //DUS/Rcez87PxFBkHLCFNMEyMTLj8hbKK4WnHZw=
+        b=WXQIh9e9w5FRiB5Dvhpw9FCgZ6f9V1UWreyH+5CojUBGxuXZ1ykciXYX3ZiH+OwTT
+         drj9/mw4P7zHPwvNuotqdEk05EAFFvzvmcHpVtm9t7vcCNVSu3jupFtgQuSrhG5gYa
+         f/97BhC3E5CDLM3wORWlwjLuk7u0m3rDfXmMY2PU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.4 525/658] ext4: add helper to check quota inums
+        patches@lists.linux.dev,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 6.1 090/183] selftests: netfilter: fix transaction test script timeout handling
 Date:   Mon, 16 Jan 2023 16:50:13 +0100
-Message-Id: <20230116154933.563661964@linuxfoundation.org>
+Message-Id: <20230116154807.225847175@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 07342ec259df2a35d6a34aebce010567a80a0e15 upstream.
+commit c273289fac370b6488757236cd62cc2cf04830b7 upstream.
 
-Before quota is enabled, a check on the preset quota inums in
-ext4_super_block is added to prevent wrong quota inodes from being loaded.
-In addition, when the quota fails to be enabled, the quota type and quota
-inum are printed to facilitate fault locating.
+The kselftest framework uses a default timeout of 45 seconds for
+all test scripts.
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221026042310.3839669-3-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Increase the timeout to two minutes for the netfilter tests, this
+should hopefully be enough,
+
+Make sure that, should the script be canceled, the net namespace and
+the spawned ping instances are removed.
+
+Fixes: 25d8bcedbf43 ("selftests: add script to stress-test nft packet path vs. control plane")
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ tools/testing/selftests/netfilter/nft_trans_stress.sh |   16 +++++++++-------
+ tools/testing/selftests/netfilter/settings            |    1 +
+ 2 files changed, 10 insertions(+), 7 deletions(-)
+ create mode 100644 tools/testing/selftests/netfilter/settings
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5954,6 +5954,20 @@ static int ext4_quota_on(struct super_bl
- 	return err;
- }
+--- a/tools/testing/selftests/netfilter/nft_trans_stress.sh
++++ b/tools/testing/selftests/netfilter/nft_trans_stress.sh
+@@ -10,12 +10,20 @@
+ ksft_skip=4
  
-+static inline bool ext4_check_quota_inum(int type, unsigned long qf_inum)
-+{
-+	switch (type) {
-+	case USRQUOTA:
-+		return qf_inum == EXT4_USR_QUOTA_INO;
-+	case GRPQUOTA:
-+		return qf_inum == EXT4_GRP_QUOTA_INO;
-+	case PRJQUOTA:
-+		return qf_inum >= EXT4_GOOD_OLD_FIRST_INO;
-+	default:
-+		BUG();
-+	}
+ testns=testns-$(mktemp -u "XXXXXXXX")
++tmp=""
+ 
+ tables="foo bar baz quux"
+ global_ret=0
+ eret=0
+ lret=0
+ 
++cleanup() {
++	ip netns pids "$testns" | xargs kill 2>/dev/null
++	ip netns del "$testns"
++
++	rm -f "$tmp"
 +}
 +
- static int ext4_quota_enable(struct super_block *sb, int type, int format_id,
- 			     unsigned int flags)
+ check_result()
  {
-@@ -5970,9 +5984,16 @@ static int ext4_quota_enable(struct supe
- 	if (!qf_inums[type])
- 		return -EPERM;
+ 	local r=$1
+@@ -43,6 +51,7 @@ if [ $? -ne 0 ];then
+ 	exit $ksft_skip
+ fi
  
-+	if (!ext4_check_quota_inum(type, qf_inums[type])) {
-+		ext4_error(sb, "Bad quota inum: %lu, type: %d",
-+				qf_inums[type], type);
-+		return -EUCLEAN;
-+	}
-+
- 	qf_inode = ext4_iget(sb, qf_inums[type], EXT4_IGET_SPECIAL);
- 	if (IS_ERR(qf_inode)) {
--		ext4_error(sb, "Bad quota inode # %lu", qf_inums[type]);
-+		ext4_error(sb, "Bad quota inode: %lu, type: %d",
-+				qf_inums[type], type);
- 		return PTR_ERR(qf_inode);
- 	}
++trap cleanup EXIT
+ tmp=$(mktemp)
  
-@@ -6011,8 +6032,9 @@ static int ext4_enable_quotas(struct sup
- 			if (err) {
- 				ext4_warning(sb,
- 					"Failed to enable quota tracking "
--					"(type=%d, err=%d). Please run "
--					"e2fsck to fix.", type, err);
-+					"(type=%d, err=%d, ino=%lu). "
-+					"Please run e2fsck to fix.", type,
-+					err, qf_inums[type]);
- 				for (type--; type >= 0; type--) {
- 					struct inode *inode;
+ for table in $tables; do
+@@ -139,11 +148,4 @@ done
  
+ check_result $lret "add/delete with nftrace enabled"
+ 
+-pkill -9 ping
+-
+-wait
+-
+-rm -f "$tmp"
+-ip netns del "$testns"
+-
+ exit $global_ret
+--- /dev/null
++++ b/tools/testing/selftests/netfilter/settings
+@@ -0,0 +1 @@
++timeout=120
 
 
