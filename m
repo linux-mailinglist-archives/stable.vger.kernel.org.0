@@ -2,43 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F3FC66C4D2
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B76A66C907
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231659AbjAPP6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:58:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41196 "EHLO
+        id S233481AbjAPQpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:45:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231747AbjAPP6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:58:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B23CA5F5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:58:32 -0800 (PST)
+        with ESMTP id S233501AbjAPQpV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F45298C8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E66DB8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:58:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FFC2C433D2;
-        Mon, 16 Jan 2023 15:58:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 650B2B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85269C433D2;
+        Mon, 16 Jan 2023 16:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884709;
-        bh=zsq3p6s+XnOIxGRfuCJrHApRakwMCUBzCs3MTRyB6pc=;
+        s=korg; t=1673886762;
+        bh=7RE1tdhOS4Lw3uuFWHm1x1TzWIu5VvDCX5ywxQS08zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGXzQZ0eyoGDHF4YwQcOXmUT9XWv+HEoXWVc357smXGh7up4jhS6VjFZkkP3Qm0Nx
-         ENx5Lt4Xr7A+XHJRJfEhA6ksi48Tvgq3W4Y92jglEyKb0mOEW3uHVDxWpiVZpdlKfo
-         bVsjgkrYq+G5TaeU//mxaK7rSeP2j2nqzIIcgvoY=
+        b=Yv5jIaowTyqmmresEhh5yASeHwo+jMVHfj32J2ahf946/VwGtXJt6L8Yx4E25B1Wh
+         CHfNoLlIBNnNox+Q/MMT8R0/e9s43HfHfhuN9zvP4REgD7Ah3avn98fMX75g5WTtB7
+         iM0RZAVG+G9+Y6yjw0CLXXt392tU/JOiRGxCSP4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ruud van Asseldonk <ruud@veniogames.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 110/183] ALSA: usb-audio: Relax hw constraints for implicit fb sync
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 545/658] perf probe: Fix to get the DW_AT_decl_file and DW_AT_call_file as unsinged data
 Date:   Mon, 16 Jan 2023 16:50:33 +0100
-Message-Id: <20230116154808.016540940@linuxfoundation.org>
+Message-Id: <20230116154934.457679675@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +60,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-[ Upstream commit d463ac1acb454fafed58f695cb3067fbf489f3a0 ]
+[ Upstream commit a9dfc46c67b52ad43b8e335e28f4cf8002c67793 ]
 
-The fix commit the commit e4ea77f8e53f ("ALSA: usb-audio: Always apply
-the hw constraints for implicit fb sync") tried to address the bug
-where an incorrect PCM parameter is chosen when two (implicit fb)
-streams are set up at the same time.  This change had, however, some
-side effect: once when the sync endpoint is chosen and set up, this
-restriction is applied at the next hw params unless it's freed via hw
-free explicitly.
+DWARF version 5 standard Sec 2.14 says that
 
-This patch is a workaround for the problem by relaxing the hw
-constraints a bit for the implicit fb sync.  We still keep applying
-the hw constraints for implicit fb sync, but only when the matching
-sync EP is being used by other streams.
+  Any debugging information entry representing the declaration of an object,
+  module, subprogram or type may have DW_AT_decl_file, DW_AT_decl_line and
+  DW_AT_decl_column attributes, each of whose value is an unsigned integer
+  constant.
 
-Fixes: e4ea77f8e53f ("ALSA: usb-audio: Always apply the hw constraints for implicit fb sync")
-Reported-by: Ruud van Asseldonk <ruud@veniogames.com>
-Link: https://lore.kernel.org/r/4e509aea-e563-e592-e652-ba44af6733fe@veniogames.com
-Link: https://lore.kernel.org/r/20230102170759.29610-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+So it should be an unsigned integer data. Also, even though the standard
+doesn't clearly say the DW_AT_call_file is signed or unsigned, the
+elfutils (eu-readelf) interprets it as unsigned integer data and it is
+natural to handle it as unsigned integer data as same as DW_AT_decl_file.
+This changes the DW_AT_call_file as unsigned integer data too.
+
+Fixes: 3f4460a28fb2f73d ("perf probe: Filter out redundant inline-instances")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/166761727445.480106.3738447577082071942.stgit@devnote3
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/pcm.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ tools/perf/util/dwarf-aux.c | 21 ++++-----------------
+ 1 file changed, 4 insertions(+), 17 deletions(-)
 
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index 535eb95bc9ee..29838000eee0 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -939,8 +939,13 @@ get_sync_ep_from_substream(struct snd_usb_substream *subs)
- 			continue;
- 		/* for the implicit fb, check the sync ep as well */
- 		ep = snd_usb_get_endpoint(chip, fp->sync_ep);
--		if (ep && ep->cur_audiofmt)
--			return ep;
-+		if (ep && ep->cur_audiofmt) {
-+			/* ditto, if the sync (data) ep is used by others,
-+			 * this stream is restricted by the sync ep
-+			 */
-+			if (ep != subs->sync_endpoint || ep->opened > 1)
-+				return ep;
-+		}
- 	}
- 	return NULL;
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index b51e0ba363b2..f1e2f566ce6f 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -261,19 +261,6 @@ static int die_get_attr_udata(Dwarf_Die *tp_die, unsigned int attr_name,
+ 	return 0;
  }
+ 
+-/* Get attribute and translate it as a sdata */
+-static int die_get_attr_sdata(Dwarf_Die *tp_die, unsigned int attr_name,
+-			      Dwarf_Sword *result)
+-{
+-	Dwarf_Attribute attr;
+-
+-	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
+-	    dwarf_formsdata(&attr, result) != 0)
+-		return -ENOENT;
+-
+-	return 0;
+-}
+-
+ /**
+  * die_is_signed_type - Check whether a type DIE is signed or not
+  * @tp_die: a DIE of a type
+@@ -397,9 +384,9 @@ int die_get_data_member_location(Dwarf_Die *mb_die, Dwarf_Word *offs)
+ /* Get the call file index number in CU DIE */
+ static int die_get_call_fileno(Dwarf_Die *in_die)
+ {
+-	Dwarf_Sword idx;
++	Dwarf_Word idx;
+ 
+-	if (die_get_attr_sdata(in_die, DW_AT_call_file, &idx) == 0)
++	if (die_get_attr_udata(in_die, DW_AT_call_file, &idx) == 0)
+ 		return (int)idx;
+ 	else
+ 		return -ENOENT;
+@@ -408,9 +395,9 @@ static int die_get_call_fileno(Dwarf_Die *in_die)
+ /* Get the declared file index number in CU DIE */
+ static int die_get_decl_fileno(Dwarf_Die *pdie)
+ {
+-	Dwarf_Sword idx;
++	Dwarf_Word idx;
+ 
+-	if (die_get_attr_sdata(pdie, DW_AT_decl_file, &idx) == 0)
++	if (die_get_attr_udata(pdie, DW_AT_decl_file, &idx) == 0)
+ 		return (int)idx;
+ 	else
+ 		return -ENOENT;
 -- 
 2.35.1
 
