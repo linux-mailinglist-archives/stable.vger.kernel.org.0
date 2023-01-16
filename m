@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0961E66C62B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:15:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EB2166C62C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232845AbjAPQP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:15:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57988 "EHLO
+        id S232923AbjAPQP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:15:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232840AbjAPQPB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:15:01 -0500
+        with ESMTP id S232862AbjAPQPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:15:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 020862C663
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:09:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20C172C669
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:09:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7FD96104A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:09:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBD39C433D2;
-        Mon, 16 Jan 2023 16:09:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81F0A6102D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:09:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 924E4C433EF;
+        Mon, 16 Jan 2023 16:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885343;
-        bh=hI+POaKolA3gfaiu9iwBCuI3o6+XmO5o77l4DOYHUXE=;
+        s=korg; t=1673885345;
+        bh=0/pZdp075E7mcGyKJ6P0qvqA4lTlNFQUUkYTBYcKxsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aCavQ4yqU2Se/TvqnefNsW85Zmnhx/CeeqCyULUrDg7Iq/mF82uCBroMjOPIk2xEm
-         U96sXfgrvbURlFuU+aPfTbYRufziwuykJL/nTF3MntCTfuY3f9i8yeUW/NCOF1Q6gS
-         MYr/BVLRjs39jXkh2POjBzw/MryD4Bvx2PFcZiQo=
+        b=WYn4Df90YH/vZZ4xtO7wRZUhAYb8a8Ay3HmyORdbEHJYz1GUSuJKGkjlc/SFrtK1D
+         01ylzRdZiMPADXN23dTDsGQm9f4J97em6AMtRyZFacWwUDijNouqIceSllh2D6Y2OT
+         GvK3hCiZt6ItFjowhOxJNu0Nz6+YbCkeuib/9bNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Torge Matthies <openglfreak@googlemail.com>,
-        Alexander Zhang <alex@alexyzhang.dev>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 016/658] HID: uclogic: Add HID_QUIRK_HIDINPUT_FORCE quirk
-Date:   Mon, 16 Jan 2023 16:41:44 +0100
-Message-Id: <20230116154910.381611598@linuxfoundation.org>
+        patches@lists.linux.dev, Sungwoo Kim <iam@sung-woo.kim>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 017/658] Bluetooth: L2CAP: Fix u8 overflow
+Date:   Mon, 16 Jan 2023 16:41:45 +0100
+Message-Id: <20230116154910.422492304@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -55,41 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Sungwoo Kim <iam@sung-woo.kim>
 
-[ Upstream commit 3405a4beaaa852f3ed2a5eb3b5149932d5c3779b ]
+[ Upstream commit bcd70260ef56e0aee8a4fc6cd214a419900b0765 ]
 
-Commit f7d8e387d9ae ("HID: uclogic: Switch to Digitizer usage for
-styluses") changed the usage used in UCLogic from "Pen" to "Digitizer".
+By keep sending L2CAP_CONF_REQ packets, chan->num_conf_rsp increases
+multiple times and eventually it will wrap around the maximum number
+(i.e., 255).
+This patch prevents this by adding a boundary check with
+L2CAP_MAX_CONF_RSP
 
-However, the IS_INPUT_APPLICATION() macro evaluates to false for
-HID_DG_DIGITIZER causing issues with the XP-Pen Star G640 tablet.
+Btmon log:
+Bluetooth monitor ver 5.64
+= Note: Linux version 6.1.0-rc2 (x86_64)                               0.264594
+= Note: Bluetooth subsystem version 2.22                               0.264636
+@ MGMT Open: btmon (privileged) version 1.22                  {0x0001} 0.272191
+= New Index: 00:00:00:00:00:00 (Primary,Virtual,hci0)          [hci0] 13.877604
+@ RAW Open: 9496 (privileged) version 2.22                   {0x0002} 13.890741
+= Open Index: 00:00:00:00:00:00                                [hci0] 13.900426
+(...)
+> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #32 [hci0] 14.273106
+        invalid packet size (12 != 1033)
+        08 00 01 00 02 01 04 00 01 10 ff ff              ............
+> ACL Data RX: Handle 200 flags 0x00 dlen 1547             #33 [hci0] 14.273561
+        invalid packet size (14 != 1547)
+        0a 00 01 00 04 01 06 00 40 00 00 00 00 00        ........@.....
+> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #34 [hci0] 14.274390
+        invalid packet size (16 != 2061)
+        0c 00 01 00 04 01 08 00 40 00 00 00 00 00 00 04  ........@.......
+> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #35 [hci0] 14.274932
+        invalid packet size (16 != 2061)
+        0c 00 01 00 04 01 08 00 40 00 00 00 07 00 03 00  ........@.......
+= bluetoothd: Bluetooth daemon 5.43                                   14.401828
+> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #36 [hci0] 14.275753
+        invalid packet size (12 != 1033)
+        08 00 01 00 04 01 04 00 40 00 00 00              ........@...
 
-Add the HID_QUIRK_HIDINPUT_FORCE quirk to bypass the
-IS_INPUT_APPLICATION() check.
-
-Reported-by: Torge Matthies <openglfreak@googlemail.com>
-Reported-by: Alexander Zhang <alex@alexyzhang.dev>
-Tested-by: Alexander Zhang <alex@alexyzhang.dev>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-uclogic-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/bluetooth/l2cap_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index 4edb24195704..e4811d37ca77 100644
---- a/drivers/hid/hid-uclogic-core.c
-+++ b/drivers/hid/hid-uclogic-core.c
-@@ -172,6 +172,7 @@ static int uclogic_probe(struct hid_device *hdev,
- 	 * than the pen, so use QUIRK_MULTI_INPUT for all tablets.
- 	 */
- 	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-+	hdev->quirks |= HID_QUIRK_HIDINPUT_FORCE;
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index fb2abd0e979a..0e51ed3412ef 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4210,7 +4210,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
  
- 	/* Allocate and assign driver data */
- 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
+ 	chan->ident = cmd->ident;
+ 	l2cap_send_cmd(conn, cmd->ident, L2CAP_CONF_RSP, len, rsp);
+-	chan->num_conf_rsp++;
++	if (chan->num_conf_rsp < L2CAP_CONF_MAX_CONF_RSP)
++		chan->num_conf_rsp++;
+ 
+ 	/* Reset config buffer. */
+ 	chan->conf_len = 0;
 -- 
 2.35.1
 
