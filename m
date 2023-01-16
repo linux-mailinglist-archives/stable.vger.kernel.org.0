@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5320F66C6D5
+	by mail.lfdr.de (Postfix) with ESMTP id BBA6066C6D6
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:25:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233102AbjAPQZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233117AbjAPQZh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Jan 2023 11:25:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41382 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233038AbjAPQZI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:25:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4DEB2B2A0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:13:45 -0800 (PST)
+        with ESMTP id S232929AbjAPQZK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:25:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21CBD26851
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:13:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71C8F61041
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:13:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86E85C433D2;
-        Mon, 16 Jan 2023 16:13:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0B2FB80E93
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:13:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00206C433EF;
+        Mon, 16 Jan 2023 16:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885624;
-        bh=tCnS0SNyFNg54VFaR5gtUmxdFlKvY03hZ1UMaewY9UM=;
+        s=korg; t=1673885627;
+        bh=jT8HFwsIW9HVy19aURZyUgShz7hslR71npGs22XsKUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYN86/5kdofXRJivZ3C8Z4DQk924gZfm9h5LePf42SJJdxewVE0dWCpgYi3BPW5Ze
-         jHwwwmgyThKw4m7kllTa1TUBPvz/KYlVFfbNT5xPz4+IZAghi+28jK3iOvahlj9XyW
-         7Wv9iqss1bWNrSiHnmMiGTJxOQqirKIt1D9VXUI8=
+        b=gyAwHl+z4aDdapkmpZGR42lHJdgxG5opzuY/r36cclrbAphGq14gOOkWnA7BvA9Vm
+         dWw+rNAU/Xzc8x6sKovMvH56/ZUnRAqUprAT715oX+kclE0+xe+h59JqmPJYSVcrMq
+         JQGn+KB2N+yE1e2MTtr5HHyUqB8gbZRugRGRHVqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Dan Carpenter <error27@gmail.com>,
+        Jakob Koschel <jakobkoschel@gmail.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 093/658] fs: sysv: Fix sysv_nblocks() returns wrong value
-Date:   Mon, 16 Jan 2023 16:43:01 +0100
-Message-Id: <20230116154913.806366961@linuxfoundation.org>
+Subject: [PATCH 5.4 094/658] rapidio: fix possible UAF when kfifo_alloc() fails
+Date:   Mon, 16 Jan 2023 16:43:02 +0100
+Message-Id: <20230116154913.854663073@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,40 +59,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Wang Weiyang <wangweiyang2@huawei.com>
 
-[ Upstream commit e0c49bd2b4d3cd1751491eb2d940bce968ac65e9 ]
+[ Upstream commit 02d7d89f816951e0862147d751b1150d67aaebdd ]
 
-sysv_nblocks() returns 'blocks' rather than 'res', which only counting
-the number of triple-indirect blocks and causing sysv_getattr() gets a
-wrong result.
+If kfifo_alloc() fails in mport_cdev_open(), goto err_fifo and just free
+priv. But priv is still in the chdev->file_list, then list traversal
+may cause UAF. This fixes the following smatch warning:
 
-[AV: this is actually a sysv counterpart of minixfs fix -
-0fcd426de9d0 "[PATCH] minix block usage counting fix" in
-historical tree; mea culpa, should've thought to check
-fs/sysv back then...]
+drivers/rapidio/devices/rio_mport_cdev.c:1930 mport_cdev_open() warn: '&priv->list' not removed from list
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://lkml.kernel.org/r/20221123095147.52408-1-wangweiyang2@huawei.com
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Dan Carpenter <error27@gmail.com>
+Cc: Jakob Koschel <jakobkoschel@gmail.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/sysv/itree.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rapidio/devices/rio_mport_cdev.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/sysv/itree.c b/fs/sysv/itree.c
-index bcb67b0cabe7..31f66053e239 100644
---- a/fs/sysv/itree.c
-+++ b/fs/sysv/itree.c
-@@ -438,7 +438,7 @@ static unsigned sysv_nblocks(struct super_block *s, loff_t size)
- 		res += blocks;
- 		direct = 1;
- 	}
--	return blocks;
-+	return res;
- }
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
+index 51440668ee79..8a420dfd5ee1 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -1907,10 +1907,6 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
  
- int sysv_getattr(const struct path *path, struct kstat *stat,
+ 	priv->md = chdev;
+ 
+-	mutex_lock(&chdev->file_mutex);
+-	list_add_tail(&priv->list, &chdev->file_list);
+-	mutex_unlock(&chdev->file_mutex);
+-
+ 	INIT_LIST_HEAD(&priv->db_filters);
+ 	INIT_LIST_HEAD(&priv->pw_filters);
+ 	spin_lock_init(&priv->fifo_lock);
+@@ -1929,6 +1925,9 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
+ 	spin_lock_init(&priv->req_lock);
+ 	mutex_init(&priv->dma_lock);
+ #endif
++	mutex_lock(&chdev->file_mutex);
++	list_add_tail(&priv->list, &chdev->file_list);
++	mutex_unlock(&chdev->file_mutex);
+ 
+ 	filp->private_data = priv;
+ 	goto out;
 -- 
 2.35.1
 
