@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E0B66CB28
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2041966CCA3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:28:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232893AbjAPRLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:11:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36712 "EHLO
+        id S234741AbjAPR21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:28:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234270AbjAPRKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:10:47 -0500
+        with ESMTP id S234703AbjAPR1y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:27:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84D3C10AB7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9242641B59
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 225D961037
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 345D5C433EF;
-        Mon, 16 Jan 2023 16:51:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26FCB61083
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DC18C433D2;
+        Mon, 16 Jan 2023 17:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887860;
-        bh=PLWjoElbUUTrwiueek+ck3ZZEqIQCzSUwGIQlRGcNmA=;
+        s=korg; t=1673888684;
+        bh=rDYwkLYwEk5WPgv/Rn7tTcKOrH7xomvq6EtL4CJdjOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQ+zr47dZzs9TOgiIMZ/t79KJUCwrAlBTJIhyumLSpcEJ6Rxx/R3KlA6CyzYoowYZ
-         CeoeNx4h2dX/eF/9tFeC7Tmp6JQUKh8N62niaQAGrripg2muWHd0jolVnWU2pRdjls
-         AWXvmSh/2x6yUbU1AjL/0hve37UY03V/rUCXSqHo=
+        b=NSKBoJm+hsBh5PfZwrJgnalJVczyj6axfLrba8JedBj5YIvo0kGLGLTSI/NLGt2GD
+         f5jEuGldNO5KUuZXugp6gxq95n7KNmgD4WnCaSJbO1qWvcZmnhEhCqYQALVpSVHBcM
+         tE41lzNWbxDX4U4Qcf5FqSlfVYtn/khkYVY7jlEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 310/521] binfmt_misc: fix shift-out-of-bounds in check_special_flags
+Subject: [PATCH 4.14 099/338] media: saa7164: fix missing pci_disable_device()
 Date:   Mon, 16 Jan 2023 16:49:32 +0100
-Message-Id: <20230116154900.981074157@linuxfoundation.org>
+Message-Id: <20230116154825.205858040@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +56,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 6a46bf558803dd2b959ca7435a5c143efe837217 ]
+[ Upstream commit 57fb35d7542384cac8f198cd1c927540ad38b61a ]
 
-UBSAN reported a shift-out-of-bounds warning:
+Add missing pci_disable_device() in the error path in saa7164_initdev().
 
- left shift of 1 by 31 places cannot be represented in type 'int'
- Call Trace:
-  <TASK>
-  __dump_stack lib/dump_stack.c:88 [inline]
-  dump_stack_lvl+0x8d/0xcf lib/dump_stack.c:106
-  ubsan_epilogue+0xa/0x44 lib/ubsan.c:151
-  __ubsan_handle_shift_out_of_bounds+0x1e7/0x208 lib/ubsan.c:322
-  check_special_flags fs/binfmt_misc.c:241 [inline]
-  create_entry fs/binfmt_misc.c:456 [inline]
-  bm_register_write+0x9d3/0xa20 fs/binfmt_misc.c:654
-  vfs_write+0x11e/0x580 fs/read_write.c:582
-  ksys_write+0xcf/0x120 fs/read_write.c:637
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x34/0x80 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- RIP: 0033:0x4194e1
-
-Since the type of Node's flags is unsigned long, we should define these
-macros with same type too.
-
+Fixes: 443c1228d505 ("V4L/DVB (12923): SAA7164: Add support for the NXP SAA7164 silicon")
 Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102025123.1117184-1-liushixin2@huawei.com
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_misc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/pci/saa7164/saa7164-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/binfmt_misc.c b/fs/binfmt_misc.c
-index 27a04f492541..8fe7edd2b001 100644
---- a/fs/binfmt_misc.c
-+++ b/fs/binfmt_misc.c
-@@ -42,10 +42,10 @@ static LIST_HEAD(entries);
- static int enabled = 1;
+diff --git a/drivers/media/pci/saa7164/saa7164-core.c b/drivers/media/pci/saa7164/saa7164-core.c
+index fca36a4910c2..f922c8b3cf99 100644
+--- a/drivers/media/pci/saa7164/saa7164-core.c
++++ b/drivers/media/pci/saa7164/saa7164-core.c
+@@ -1240,7 +1240,7 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
  
- enum {Enabled, Magic};
--#define MISC_FMT_PRESERVE_ARGV0 (1 << 31)
--#define MISC_FMT_OPEN_BINARY (1 << 30)
--#define MISC_FMT_CREDENTIALS (1 << 29)
--#define MISC_FMT_OPEN_FILE (1 << 28)
-+#define MISC_FMT_PRESERVE_ARGV0 (1UL << 31)
-+#define MISC_FMT_OPEN_BINARY (1UL << 30)
-+#define MISC_FMT_CREDENTIALS (1UL << 29)
-+#define MISC_FMT_OPEN_FILE (1UL << 28)
+ 	if (saa7164_dev_setup(dev) < 0) {
+ 		err = -EINVAL;
+-		goto fail_free;
++		goto fail_dev;
+ 	}
  
- typedef struct {
- 	struct list_head list;
+ 	/* print pci info */
+@@ -1408,6 +1408,8 @@ static int saa7164_initdev(struct pci_dev *pci_dev,
+ 
+ fail_irq:
+ 	saa7164_dev_unregister(dev);
++fail_dev:
++	pci_disable_device(pci_dev);
+ fail_free:
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+ 	kfree(dev);
 -- 
 2.35.1
 
