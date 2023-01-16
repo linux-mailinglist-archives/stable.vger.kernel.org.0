@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39B0866CC97
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:27:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2A966CB23
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234740AbjAPR1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:27:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47460 "EHLO
+        id S234191AbjAPRLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:11:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234735AbjAPR1S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:27:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B684C15
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:21 -0800 (PST)
+        with ESMTP id S234310AbjAPRKo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:10:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC8B265AD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:50:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8790861092
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A012C433D2;
-        Mon, 16 Jan 2023 17:04:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9DC2CB8109D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:50:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01B7DC433D2;
+        Mon, 16 Jan 2023 16:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888661;
-        bh=FlFB9+D4OVMAygAtw2B7pplwTaA/Ng/kZBQMxYg58es=;
+        s=korg; t=1673887842;
+        bh=/QvuFOCiR0BO1zt5sRKCC/RGU3o4j+dOhjox9YrTnrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZnndXRJCTDotwYQFBziL04+AVdqya/s/N57zOpSFbmgZmDVNKDY5RiGezO5fkHGB
-         p/SFt7RaWSBFwwI4OfKFgh5LaD9JyMmZqBrniaSBPU2cOFGhR6bXGRrwP0D7Lws+5H
-         Ujfkkc+D7i/LQvMDZtBXK19SkfacTEpl2gl6sXcg=
+        b=XeC5LG8d3qPHeW8H16S1n3gZqrrcPKQntT5ne8Mja0Rzzz11ic/pJs6hWCupSyZ7R
+         7gRz+2f5Yw0JYSGXzT4RbaUT4xmDxBHCdnHC3/pt3ouFq8DYS/3/K3lNR2ZTbRkkpC
+         0pgowvgcOStQCYGt03uckB9chx2JaMn3d9VAD0I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, GUO Zihua <guozihua@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 091/338] NFSv4: Fix a deadlock between nfs4_open_recover_helper() and delegreturn
-Date:   Mon, 16 Jan 2023 16:49:24 +0100
-Message-Id: <20230116154824.850516135@linuxfoundation.org>
+Subject: [PATCH 4.19 303/521] rtc: mxc_v2: Add missing clk_disable_unprepare()
+Date:   Mon, 16 Jan 2023 16:49:25 +0100
+Message-Id: <20230116154900.670414817@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: GUO Zihua <guozihua@huawei.com>
 
-[ Upstream commit 51069e4aef6257b0454057359faed0ab0c9af083 ]
+[ Upstream commit 55d5a86618d3b1a768bce01882b74cbbd2651975 ]
 
-If we're asked to recover open state while a delegation return is
-outstanding, then the state manager thread cannot use a cached open, so
-if the server returns a delegation, we can end up deadlocked behind the
-pending delegreturn.
-To avoid this problem, let's just ask the server not to give us a
-delegation unless we're explicitly reclaiming one.
+The call to clk_disable_unprepare() is left out in the error handling of
+devm_rtc_allocate_device. Add it back.
 
-Fixes: be36e185bd26 ("NFSv4: nfs4_open_recover_helper() must set share access")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 5490a1e018a4 ("rtc: mxc_v2: fix possible race condition")
+Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Link: https://lore.kernel.org/r/20221122085046.21689-1-guozihua@huawei.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-mxc_v2.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 11d36763f256..ff41d726f758 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1832,18 +1832,18 @@ static struct nfs4_opendata *nfs4_open_recoverdata_alloc(struct nfs_open_context
- }
+diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+index 45c7366b7286..c16aa4a389e9 100644
+--- a/drivers/rtc/rtc-mxc_v2.c
++++ b/drivers/rtc/rtc-mxc_v2.c
+@@ -335,8 +335,10 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	}
  
- static int nfs4_open_recover_helper(struct nfs4_opendata *opendata,
--		fmode_t fmode)
-+				    fmode_t fmode)
- {
- 	struct nfs4_state *newstate;
-+	struct nfs_server *server = NFS_SB(opendata->dentry->d_sb);
-+	int openflags = opendata->o_arg.open_flags;
- 	int ret;
+ 	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
+-	if (IS_ERR(pdata->rtc))
++	if (IS_ERR(pdata->rtc)) {
++		clk_disable_unprepare(pdata->clk);
+ 		return PTR_ERR(pdata->rtc);
++	}
  
- 	if (!nfs4_mode_match_open_stateid(opendata->state, fmode))
- 		return 0;
--	opendata->o_arg.open_flags = 0;
- 	opendata->o_arg.fmode = fmode;
--	opendata->o_arg.share_access = nfs4_map_atomic_open_share(
--			NFS_SB(opendata->dentry->d_sb),
--			fmode, 0);
-+	opendata->o_arg.share_access =
-+		nfs4_map_atomic_open_share(server, fmode, openflags);
- 	memset(&opendata->o_res, 0, sizeof(opendata->o_res));
- 	memset(&opendata->c_res, 0, sizeof(opendata->c_res));
- 	nfs4_init_opendata_res(opendata);
-@@ -2418,10 +2418,15 @@ static int _nfs4_open_expired(struct nfs_open_context *ctx, struct nfs4_state *s
- 	struct nfs4_opendata *opendata;
- 	int ret;
- 
--	opendata = nfs4_open_recoverdata_alloc(ctx, state,
--			NFS4_OPEN_CLAIM_FH);
-+	opendata = nfs4_open_recoverdata_alloc(ctx, state, NFS4_OPEN_CLAIM_FH);
- 	if (IS_ERR(opendata))
- 		return PTR_ERR(opendata);
-+	/*
-+	 * We're not recovering a delegation, so ask for no delegation.
-+	 * Otherwise the recovery thread could deadlock with an outstanding
-+	 * delegation return.
-+	 */
-+	opendata->o_arg.open_flags = O_DIRECT;
- 	ret = nfs4_open_recover(opendata, state);
- 	if (ret == -ESTALE)
- 		d_drop(ctx->dentry);
+ 	pdata->rtc->ops = &mxc_rtc_ops;
+ 	pdata->rtc->range_max = U32_MAX;
 -- 
 2.35.1
 
