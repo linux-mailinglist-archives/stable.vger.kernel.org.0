@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB1B66C14B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:09:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF3E66C148
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:09:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232007AbjAPOJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232075AbjAPOJg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Jan 2023 09:09:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58536 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232224AbjAPOIv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:08:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32EBD252B0;
-        Mon, 16 Jan 2023 06:04:06 -0800 (PST)
+        with ESMTP id S232255AbjAPOI5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:08:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6051527985;
+        Mon, 16 Jan 2023 06:04:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B853560FC7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D852560FC9;
+        Mon, 16 Jan 2023 14:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C124C43392;
         Mon, 16 Jan 2023 14:04:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78EA9C433F0;
-        Mon, 16 Jan 2023 14:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877845;
-        bh=Bv05RcB3b1M6f8HV/o/9S5MJ1rv031tRLtbjTF3xP+s=;
+        s=k20201202; t=1673877846;
+        bh=fWZvhx0pxcN20Fs5uX9/JKigE7iPIqBs/SYQ29qU88A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAYoxC/dXT+gCeYpGCSK01+irUB7ny6jc7ByaTTHtVeQFXrVnEjYxxZEowPNR8jH/
-         pXLTcSN3RXs5h9AcGtj4IWAMHsUACey49E0S85coPd+8Yerw3HIYsqvgf6jhRA/BY6
-         ix+OwbA8bXmzqA16kYBSIoIAiYRC0OXRhM34mLGSCsi9LwRa9GuYQX6Ze/B/PnWuy7
-         SH81XZ1LzdxShLvzpVRiDadiLckT4fKG3sNEXOoes8AO/+GZ8R+6Fugds1AzCDjtyS
-         8HiJISlM7XwIDX6b3H6ABMUM/KYWC9z3enc+G3BzrMkggJuZd5GqWO7R56GZFKiXa/
-         alHasaHECIyPA==
+        b=WkcsNKMc/FQB4LmYMw7T1YqCYGfrM8Upe856sCPIBW9hicKNKrEAIey6d0xZFoddn
+         7kxoIKzz33X57WA6tQTbMw5/HEI1qzYWBRm0dmorKCdLPI0MPma63lZpivn3Y3l6cS
+         KB0McrjRNUFyJGepCVwAPLltwMyDhrzJLHuSt+mpWtUymBgA/iyKrmXuT9ttMH2e1w
+         WyxJcRRY2eiWz/Gm429arWM9y5n2oCAmXpuMZUt0k2CGrsQh1MZ1OGUUDIIRaFL9UY
+         FTDKQ+LAXLHWnc/e33zHnXow8KhhwSB98oNKrsBkmlERJ7wX39HCZV2KYAxoIKwj0x
+         LyhFrh5hyFOEA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Max Filippov <jcmvbkbc@gmail.com>, Marco Elver <elver@google.com>,
-        Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.15 03/24] kcsan: test: don't put the expect array on the stack
-Date:   Mon, 16 Jan 2023 09:03:38 -0500
-Message-Id: <20230116140359.115716-3-sashal@kernel.org>
+Cc:     Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 04/24] cpufreq: Add SM6375 to cpufreq-dt-platdev blocklist
+Date:   Mon, 16 Jan 2023 09:03:39 -0500
+Message-Id: <20230116140359.115716-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140359.115716-1-sashal@kernel.org>
 References: <20230116140359.115716-1-sashal@kernel.org>
@@ -54,62 +56,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 5b24ac2dfd3eb3e36f794af3aa7f2828b19035bd ]
+[ Upstream commit faf28e240dd118d9521c68aeb9388b9b8f02d9d0 ]
 
-Size of the 'expect' array in the __report_matches is 1536 bytes, which
-is exactly the default frame size warning limit of the xtensa
-architecture.
-As a result allmodconfig xtensa kernel builds with the gcc that does not
-support the compiler plugins (which otherwise would push the said
-warning limit to 2K) fail with the following message:
+The Qualcomm SM6375 platform uses the qcom-cpufreq-hw driver, so add
+it to the cpufreq-dt-platdev driver's blocklist.
 
-  kernel/kcsan/kcsan_test.c:257:1: error: the frame size of 1680 bytes
-    is larger than 1536 bytes
-
-Fix it by dynamically allocating the 'expect' array.
-
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Tested-by: Marco Elver <elver@google.com>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kcsan/kcsan_test.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq-dt-platdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/kcsan/kcsan_test.c b/kernel/kcsan/kcsan_test.c
-index dc55fd5a36fc..8b176aeab91b 100644
---- a/kernel/kcsan/kcsan_test.c
-+++ b/kernel/kcsan/kcsan_test.c
-@@ -151,7 +151,7 @@ static bool report_matches(const struct expect_report *r)
- 	const bool is_assert = (r->access[0].type | r->access[1].type) & KCSAN_ACCESS_ASSERT;
- 	bool ret = false;
- 	unsigned long flags;
--	typeof(observed.lines) expect;
-+	typeof(*observed.lines) *expect;
- 	const char *end;
- 	char *cur;
- 	int i;
-@@ -160,6 +160,10 @@ static bool report_matches(const struct expect_report *r)
- 	if (!report_available())
- 		return false;
- 
-+	expect = kmalloc(sizeof(observed.lines), GFP_KERNEL);
-+	if (WARN_ON(!expect))
-+		return false;
-+
- 	/* Generate expected report contents. */
- 
- 	/* Title */
-@@ -243,6 +247,7 @@ static bool report_matches(const struct expect_report *r)
- 		strstr(observed.lines[2], expect[1])));
- out:
- 	spin_unlock_irqrestore(&observed.lock, flags);
-+	kfree(expect);
- 	return ret;
- }
- 
+diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
+index 27a3b8800a35..e1b5975c7daa 100644
+--- a/drivers/cpufreq/cpufreq-dt-platdev.c
++++ b/drivers/cpufreq/cpufreq-dt-platdev.c
+@@ -144,6 +144,7 @@ static const struct of_device_id blocklist[] __initconst = {
+ 	{ .compatible = "qcom,sc8180x", },
+ 	{ .compatible = "qcom,sdm845", },
+ 	{ .compatible = "qcom,sm6350", },
++	{ .compatible = "qcom,sm6375", },
+ 	{ .compatible = "qcom,sm8150", },
+ 	{ .compatible = "qcom,sm8250", },
+ 	{ .compatible = "qcom,sm8350", },
 -- 
 2.35.1
 
