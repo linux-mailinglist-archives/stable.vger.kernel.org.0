@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E076C66C6AE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:23:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E2366C6B0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:23:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233029AbjAPQXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:23:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37998 "EHLO
+        id S233072AbjAPQXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:23:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233037AbjAPQWq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:22:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD9331E2C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:31 -0800 (PST)
+        with ESMTP id S233077AbjAPQW6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:22:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C6E3251C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 414EEB8107A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AB14C433D2;
-        Mon, 16 Jan 2023 16:12:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB61DB81065
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26C6DC433D2;
+        Mon, 16 Jan 2023 16:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885548;
-        bh=y0RYymWES8yUMcNcK7hAJ9L88eMOJbo1s8jKpVj8TTo=;
+        s=korg; t=1673885551;
+        bh=bp/R7mMv/SCi3w1gAk8gp9y1YEpKRXZ/rRW6Vci6Yv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sGWiQ5Rg08UBlMEiX1vTIxl5PFK8RgeVgsAapGTypM1AUvW8kbkj2V7+enZx5QBj2
-         xKXd/wwxGEbvK7/l4FmrOSrp4Nnw++ONFH7KqAioMx97FFECXqW8HB/rRPNupmo9X4
-         CkxHNMxY7vBBiu8crLSHDwd908karOsH3niyL9tQ=
+        b=b51m13duL/kNUKtGGg1b3eMN1QVub+LY1mEdQcUyi2IMdTG6L8dsam1QKvvLPcPnW
+         Ik8xopD5ItZDMYlEcpGI0a7tJwruxxdeV8LWNEHSGqIWzksf9gEq0H1AIoiV2v1UkY
+         xHAlAKTdc1P6kz/v8z0WT4su03CCMZSKAai92uNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/658] PNP: fix name memory leak in pnp_alloc_dev()
-Date:   Mon, 16 Jan 2023 16:42:33 +0100
-Message-Id: <20230116154912.634362931@linuxfoundation.org>
+Subject: [PATCH 5.4 066/658] perf/x86/intel/uncore: Fix reference count leak in hswep_has_limit_sbox()
+Date:   Mon, 16 Jan 2023 16:42:34 +0100
+Message-Id: <20230116154912.672731635@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -54,43 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 110d7b0325c55ff3620073ba4201845f59e22ebf ]
+[ Upstream commit 1ff9dd6e7071a561f803135c1d684b13c7a7d01d ]
 
-After commit 1fa5ae857bb1 ("driver core: get rid of struct device's
-bus_id string array"), the name of device is allocated dynamically,
-move dev_set_name() after pnp_add_id() to avoid memory leak.
+pci_get_device() will increase the reference count for the returned
+'dev'. We need to call pci_dev_put() to decrease the reference count.
+Since 'dev' is only used in pci_read_config_dword(), let's add
+pci_dev_put() right after it.
 
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 9d480158ee86 ("perf/x86/intel/uncore: Remove uncore extra PCI dev HSWEP_PCI_PCU_3")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Link: https://lore.kernel.org/r/20221118063137.121512-3-wangxiongfeng2@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pnp/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/uncore_snbep.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pnp/core.c b/drivers/pnp/core.c
-index 3bf18d718975..131b925b820d 100644
---- a/drivers/pnp/core.c
-+++ b/drivers/pnp/core.c
-@@ -160,14 +160,14 @@ struct pnp_dev *pnp_alloc_dev(struct pnp_protocol *protocol, int id,
- 	dev->dev.coherent_dma_mask = dev->dma_mask;
- 	dev->dev.release = &pnp_release_device;
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index 0f61f46e6086..fe2edc760e60 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -2762,6 +2762,7 @@ static bool hswep_has_limit_sbox(unsigned int device)
+ 		return false;
  
--	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
--
- 	dev_id = pnp_add_id(dev, pnpid);
- 	if (!dev_id) {
- 		kfree(dev);
- 		return NULL;
- 	}
- 
-+	dev_set_name(&dev->dev, "%02x:%02x", dev->protocol->number, dev->number);
-+
- 	return dev;
- }
+ 	pci_read_config_dword(dev, HSWEP_PCU_CAPID4_OFFET, &capid4);
++	pci_dev_put(dev);
+ 	if (!hswep_get_chop(capid4))
+ 		return true;
  
 -- 
 2.35.1
