@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DED1166CD87
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 352CD66CC11
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:21:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234950AbjAPRhD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:37:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55702 "EHLO
+        id S234383AbjAPRV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:21:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234938AbjAPRg2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CE0A24139
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:03 -0800 (PST)
+        with ESMTP id S234538AbjAPRUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:20:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6AAC36B06
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:59:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A024861050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3F39C433D2;
-        Mon, 16 Jan 2023 17:13:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BB5DB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:59:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D34E5C433D2;
+        Mon, 16 Jan 2023 16:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889182;
-        bh=XqK3hS//9PObAkO8vdTYOIoewMY5SfChosY8EShogas=;
+        s=korg; t=1673888366;
+        bh=EOIkK71oPEcYimMfZ+unnaVKkHdMnF3btNm6vMz2ayY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfruxkTuagw58fD0UZNSBDipe0AoawTZ+Zf+L4Tooxdn9sITIfdqXMPpslUKxaxgl
-         glcldoVf1+C/67+MlKsP4REX0tb7oWFkXwHvjNmRWC5oiAlJ4v8lXwIIgMxqZ5LuSF
-         vCUoSgxwJMdEXdB72hYKhozBD+FZ5bFA9QUtvNfg=
+        b=YgFTZw7peEkMM3MNYlTkN7OxKZP2zkXLIwBiybQULi5QIiVwO1ypWGuLjhAusJM3n
+         hsQhDzoxPPGokh7RXkcxRSEqFyHB2O2Ig1K2I94m1mjtpUOq3r8RLgdyjeq/TBtNct
+         +eHYwnPIjv+W7JOvGxPfhD1tFThQj74dWwW2ANGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sascha Hauer <s.hauer@pengutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 290/338] PCI/sysfs: Fix double free in error path
-Date:   Mon, 16 Jan 2023 16:52:43 +0100
-Message-Id: <20230116154833.712330863@linuxfoundation.org>
+        patches@lists.linux.dev, Eliav Farber <farbere@amazon.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>, stable@kernel.org
+Subject: [PATCH 4.19 502/521] EDAC/device: Fix period calculation in edac_device_reset_delay_period()
+Date:   Mon, 16 Jan 2023 16:52:44 +0100
+Message-Id: <20230116154909.653542693@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +52,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Eliav Farber <farbere@amazon.com>
 
-commit aa382ffa705bea9931ec92b6f3c70e1fdb372195 upstream.
+commit e84077437902ec99eba0a6b516df772653f142c7 upstream.
 
-When pci_create_attr() fails, pci_remove_resource_files() is called which
-will iterate over the res_attr[_wc] arrays and frees every non NULL entry.
-To avoid a double free here set the array entry only after it's clear we
-successfully initialized it.
+Fix period calculation in case user sets a value of 1000.  The input of
+round_jiffies_relative() should be in jiffies and not in milli-seconds.
 
-Fixes: b562ec8f74e4 ("PCI: Don't leak memory if sysfs_create_bin_file() fails")
-Link: https://lore.kernel.org/r/20221007070735.GX986@pengutronix.de/
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
+  [ bp: Use the same code pattern as in edac_device_workq_setup() for
+    clarity. ]
+
+Fixes: c4cf3b454eca ("EDAC: Rework workqueue handling")
+Signed-off-by: Eliav Farber <farbere@amazon.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/20221020124458.22153-1-farbere@amazon.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci-sysfs.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/edac/edac_device.c |   17 ++++++++---------
+ drivers/edac/edac_module.h |    2 +-
+ 2 files changed, 9 insertions(+), 10 deletions(-)
 
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -1313,11 +1313,9 @@ static int pci_create_attr(struct pci_de
+--- a/drivers/edac/edac_device.c
++++ b/drivers/edac/edac_device.c
+@@ -424,17 +424,16 @@ static void edac_device_workq_teardown(s
+  *	Then restart the workq on the new delay
+  */
+ void edac_device_reset_delay_period(struct edac_device_ctl_info *edac_dev,
+-					unsigned long value)
++				    unsigned long msec)
+ {
+-	unsigned long jiffs = msecs_to_jiffies(value);
++	edac_dev->poll_msec = msec;
++	edac_dev->delay	    = msecs_to_jiffies(msec);
  
- 	sysfs_bin_attr_init(res_attr);
- 	if (write_combine) {
--		pdev->res_attr_wc[num] = res_attr;
- 		sprintf(res_attr_name, "resource%d_wc", num);
- 		res_attr->mmap = pci_mmap_resource_wc;
- 	} else {
--		pdev->res_attr[num] = res_attr;
- 		sprintf(res_attr_name, "resource%d", num);
- 		if (pci_resource_flags(pdev, num) & IORESOURCE_IO) {
- 			res_attr->read = pci_read_resource_io;
-@@ -1333,10 +1331,17 @@ static int pci_create_attr(struct pci_de
- 	res_attr->size = pci_resource_len(pdev, num);
- 	res_attr->private = (void *)(unsigned long)num;
- 	retval = sysfs_create_bin_file(&pdev->dev.kobj, res_attr);
--	if (retval)
-+	if (retval) {
- 		kfree(res_attr);
-+		return retval;
-+	}
-+
-+	if (write_combine)
-+		pdev->res_attr_wc[num] = res_attr;
+-	if (value == 1000)
+-		jiffs = round_jiffies_relative(value);
+-
+-	edac_dev->poll_msec = value;
+-	edac_dev->delay	    = jiffs;
+-
+-	edac_mod_work(&edac_dev->work, jiffs);
++	/* See comment in edac_device_workq_setup() above */
++	if (edac_dev->poll_msec == 1000)
++		edac_mod_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
 +	else
-+		pdev->res_attr[num] = res_attr;
- 
--	return retval;
-+	return 0;
++		edac_mod_work(&edac_dev->work, edac_dev->delay);
  }
  
- /**
+ int edac_device_alloc_index(void)
+--- a/drivers/edac/edac_module.h
++++ b/drivers/edac/edac_module.h
+@@ -57,7 +57,7 @@ bool edac_stop_work(struct delayed_work
+ bool edac_mod_work(struct delayed_work *work, unsigned long delay);
+ 
+ extern void edac_device_reset_delay_period(struct edac_device_ctl_info
+-					   *edac_dev, unsigned long value);
++					   *edac_dev, unsigned long msec);
+ extern void edac_mc_reset_delay_period(unsigned long value);
+ 
+ extern void *edac_align_ptr(void **p, unsigned size, int n_elems);
 
 
