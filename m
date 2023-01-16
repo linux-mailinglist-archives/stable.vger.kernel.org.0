@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D186C66CAB4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:06:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FE7366CC6D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:26:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233871AbjAPRGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:06:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56972 "EHLO
+        id S234693AbjAPR0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:26:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231260AbjAPRFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:05:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8B142BD2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:47:15 -0800 (PST)
+        with ESMTP id S234713AbjAPRZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:25:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B5A402E4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE46461037
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03C0DC433F0;
-        Mon, 16 Jan 2023 16:47:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A4BAB8108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA0B2C433EF;
+        Mon, 16 Jan 2023 17:02:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887634;
-        bh=Ijt2SxP1rF90j8R8ojj1pabuzyiyJTx78cwgKzOwiJo=;
+        s=korg; t=1673888562;
+        bh=4w9RSncs8HNkHV2mvtWHSfknXTkPBoZ+KQKrT+W8cXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+hhHTQWAwijR/7dlrqAhiNNXqOXt8bTX4iHWs8mOH/hzJEM4JJRD9QxqeAOWQj36
-         nM5Ma2gGbQRRQDo0SV5+5S2J4uJG4IEO4Kym6tVur2OCusT61cyndIvWZyM7l5sgLR
-         Qg5GmFy24mjDTWcXOQRk8iXwvq3KM7Dg7Y1n2Dmg=
+        b=U9iXiIFhu9S2hDgH/jLu/ynE7yoYSjWlop83os2opyojr1DtReRmRgeqfNbKOjW3C
+         FuLtQltNMSJdzSCjgX6E7gujVTLfXPzO/cYCrzObtX0Kd4xKx6IGvehf+OVTbldTnK
+         0YEceSvnhMH9qfYDCVwTyg+nyjVtscNJdKka/+VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 223/521] staging: vme_user: Fix possible UAF in tsi148_dma_list_add
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.14 012/338] udf: Discard preallocation before extending file with a hole
 Date:   Mon, 16 Jan 2023 16:48:05 +0100
-Message-Id: <20230116154857.137684473@linuxfoundation.org>
+Message-Id: <20230116154821.260660541@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +51,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 357057ee55d3c99a5de5abe8150f7bca04f8e53b ]
+commit 16d0556568148bdcaa45d077cac9f8f7077cf70a upstream.
 
-Smatch report warning as follows:
+When extending file with a hole, we tried to preserve existing
+preallocation for the file. However that is not very useful and
+complicates code because the previous extent may need to be rounded to
+block boundary as well (which we forgot to do thus causing data
+corruption for sequence like:
 
-drivers/staging/vme_user/vme_tsi148.c:1757 tsi148_dma_list_add() warn:
-  '&entry->list' not removed from list
+xfs_io -f -c "pwrite 0x75e63 11008" -c "truncate 0x7b24b" \
+  -c "truncate 0xabaa3" -c "pwrite 0xac70b 22954" \
+  -c "pwrite 0x93a43 11358" -c "pwrite 0xb8e65 52211" file
 
-In tsi148_dma_list_add(), the error path "goto err_dma" will not
-remove entry->list from list->entries, but entry will be freed,
-then list traversal may cause UAF.
+with 512-byte block size. Just discard preallocation before extending
+file to simplify things and also fix this data corruption.
 
-Fix by removeing it from list->entries before free().
-
-Fixes: b2383c90a9d6 ("vme: tsi148: fix first DMA item mapping")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221117035914.2954454-1-cuigaosheng1@huawei.com
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vme/bridges/vme_tsi148.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/udf/inode.c |   46 ++++++++++++++++++----------------------------
+ 1 file changed, 18 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/vme/bridges/vme_tsi148.c b/drivers/vme/bridges/vme_tsi148.c
-index 647d231d4422..b1be12dc61eb 100644
---- a/drivers/vme/bridges/vme_tsi148.c
-+++ b/drivers/vme/bridges/vme_tsi148.c
-@@ -1775,6 +1775,7 @@ static int tsi148_dma_list_add(struct vme_dma_list *list,
- 	return 0;
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -434,6 +434,12 @@ static int udf_get_block(struct inode *i
+ 		iinfo->i_next_alloc_goal++;
+ 	}
  
- err_dma:
-+	list_del(&entry->list);
- err_dest:
- err_source:
- err_align:
--- 
-2.35.1
-
++	/*
++	 * Block beyond EOF and prealloc extents? Just discard preallocation
++	 * as it is not useful and complicates things.
++	 */
++	if (((loff_t)block) << inode->i_blkbits > iinfo->i_lenExtents)
++		udf_discard_prealloc(inode);
+ 	udf_clear_extent_cache(inode);
+ 	phys = inode_getblk(inode, block, &err, &new);
+ 	if (!phys)
+@@ -483,8 +489,6 @@ static int udf_do_extend_file(struct ino
+ 	uint32_t add;
+ 	int count = 0, fake = !(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+ 	struct super_block *sb = inode->i_sb;
+-	struct kernel_lb_addr prealloc_loc = {};
+-	int prealloc_len = 0;
+ 	struct udf_inode_info *iinfo;
+ 	int err;
+ 
+@@ -505,19 +509,6 @@ static int udf_do_extend_file(struct ino
+ 			~(sb->s_blocksize - 1);
+ 	}
+ 
+-	/* Last extent are just preallocated blocks? */
+-	if ((last_ext->extLength & UDF_EXTENT_FLAG_MASK) ==
+-						EXT_NOT_RECORDED_ALLOCATED) {
+-		/* Save the extent so that we can reattach it to the end */
+-		prealloc_loc = last_ext->extLocation;
+-		prealloc_len = last_ext->extLength;
+-		/* Mark the extent as a hole */
+-		last_ext->extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
+-			(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+-		last_ext->extLocation.logicalBlockNum = 0;
+-		last_ext->extLocation.partitionReferenceNum = 0;
+-	}
+-
+ 	/* Can we merge with the previous extent? */
+ 	if ((last_ext->extLength & UDF_EXTENT_FLAG_MASK) ==
+ 					EXT_NOT_RECORDED_NOT_ALLOCATED) {
+@@ -545,7 +536,7 @@ static int udf_do_extend_file(struct ino
+ 		 * more extents, we may need to enter possible following
+ 		 * empty indirect extent.
+ 		 */
+-		if (new_block_bytes || prealloc_len)
++		if (new_block_bytes)
+ 			udf_next_aext(inode, last_pos, &tmploc, &tmplen, 0);
+ 	}
+ 
+@@ -579,17 +570,6 @@ static int udf_do_extend_file(struct ino
+ 	}
+ 
+ out:
+-	/* Do we have some preallocated blocks saved? */
+-	if (prealloc_len) {
+-		err = udf_add_aext(inode, last_pos, &prealloc_loc,
+-				   prealloc_len, 1);
+-		if (err)
+-			return err;
+-		last_ext->extLocation = prealloc_loc;
+-		last_ext->extLength = prealloc_len;
+-		count++;
+-	}
+-
+ 	/* last_pos should point to the last written extent... */
+ 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
+ 		last_pos->offset -= sizeof(struct short_ad);
+@@ -642,8 +622,17 @@ static int udf_extend_file(struct inode
+ 	else
+ 		BUG();
+ 
++	/*
++	 * When creating hole in file, just don't bother with preserving
++	 * preallocation. It likely won't be very useful anyway.
++	 */
++	udf_discard_prealloc(inode);
++
+ 	etype = inode_bmap(inode, first_block, &epos, &eloc, &elen, &offset);
+ 	within_final_block = (etype != -1);
++	/* We don't expect extents past EOF... */
++	WARN_ON_ONCE(etype != -1 &&
++		     elen > ((loff_t)offset + 1) << inode->i_blkbits);
+ 
+ 	if ((!epos.bh && epos.offset == udf_file_entry_alloc_offset(inode)) ||
+ 	    (epos.bh && epos.offset == sizeof(struct allocExtDesc))) {
+@@ -772,10 +761,11 @@ static sector_t inode_getblk(struct inod
+ 		goto out_free;
+ 	}
+ 
+-	/* Are we beyond EOF? */
++	/* Are we beyond EOF and preallocated extent? */
+ 	if (etype == -1) {
+ 		int ret;
+ 		loff_t hole_len;
++
+ 		isBeyondEOF = true;
+ 		if (count) {
+ 			if (c)
 
 
