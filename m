@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 848F066CB6D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B494166CCE1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234421AbjAPRPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39324 "EHLO
+        id S234860AbjAPRaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:30:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234482AbjAPROY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CF0A4C0C1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:47 -0800 (PST)
+        with ESMTP id S234776AbjAPR3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 349813A5AF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAF50B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F3D1C433D2;
-        Mon, 16 Jan 2023 16:54:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5CD060F7C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB460C433EF;
+        Mon, 16 Jan 2023 17:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888084;
-        bh=ecdEva4g4plPZSIGb0osCXt5CKtfa57X5dXM251YLgk=;
+        s=korg; t=1673888828;
+        bh=3umGfoUesU0Bpc2kWu35atFs2Nf2q8EV/o6o+K/LdK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kru2A7Wzxj/maCsjwCQmm+JTLHTxMbit1Tmp/96AN7xGvQ6qR3Byytbn5acbS7K0v
-         iae8wqhJ5y8SPdtNQ/xVB+M16c+GjrMKsJZ8vlnBOQ996bMOC4U6cDUF1fFKDCtY3m
-         +HRb3s/5iBK9eReYATyR5JXpXgHIu+w6ZzOxhxag=
+        b=y8fq2G2HZuIWI2xqF2+bXIwOumVkuwLSTVxjInHOO5bow5qHnGcVVDzbEj77U0EaG
+         y1sOnLrXRojhppLngUDQicols8Qz5LRLN325ZeXcPuqN52op63lXMEe2P/AB0ubGux
+         M4VEtYGDkidiqYmssBdukPU9g41os4/VzWU5E8qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Terry Junge <linuxhid@cosmicgizmosystems.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 365/521] HID: plantronics: Additional PIDs for double volume key presses quirk
-Date:   Mon, 16 Jan 2023 16:50:27 +0100
-Message-Id: <20230116154903.412543432@linuxfoundation.org>
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 155/338] hwrng: geode - Fix PCI device refcount leak
+Date:   Mon, 16 Jan 2023 16:50:28 +0100
+Message-Id: <20230116154827.625114929@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +54,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Terry Junge <linuxhid@cosmicgizmosystems.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 3d57f36c89d8ba32b2c312f397a37fd1a2dc7cfc ]
+[ Upstream commit 9f6ec8dc574efb7f4f3d7ee9cd59ae307e78f445 ]
 
-I no longer work for Plantronics (aka Poly, aka HP) and do not have
-access to the headsets in order to test. However, as noted by Maxim,
-the other 32xx models that share the same base code set as the 3220
-would need the same quirk. This patch adds the PIDs for the rest of
-the Blackwire 32XX product family that require the quirk.
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
-Plantronics Blackwire 3210 Series (047f:c055)
-Plantronics Blackwire 3215 Series (047f:c057)
-Plantronics Blackwire 3225 Series (047f:c058)
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. We add a new struct
+'amd_geode_priv' to record pointer of the pci_dev and membase, and then
+add missing pci_dev_put() for the normal and error path.
 
-Quote from previous patch by Maxim Mikityanskiy
-Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
-for each volume key press. This patch adds a quirk to hid-plantronics
-for this product ID, which will ignore the second volume key press if
-it happens within 5 ms from the last one that was handled.
-
-The patch was tested on the mentioned model only, it shouldn't affect
-other models, however, this quirk might be needed for them too.
-Auto-repeat (when a key is held pressed) is not affected, because the
-rate is about 3 times per second, which is far less frequent than once
-in 5 ms.
-End quote
-
-Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: ef5d862734b8 ("[PATCH] Add Geode HW RNG driver")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h         | 3 +++
- drivers/hid/hid-plantronics.c | 9 +++++++++
- 2 files changed, 12 insertions(+)
+ drivers/char/hw_random/geode-rng.c | 36 +++++++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 00943ddbe417..2c9597c8ac92 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -908,7 +908,10 @@
- #define USB_DEVICE_ID_ORTEK_IHOME_IMAC_A210S	0x8003
+diff --git a/drivers/char/hw_random/geode-rng.c b/drivers/char/hw_random/geode-rng.c
+index e1d421a36a13..207272979f23 100644
+--- a/drivers/char/hw_random/geode-rng.c
++++ b/drivers/char/hw_random/geode-rng.c
+@@ -51,6 +51,10 @@ static const struct pci_device_id pci_tbl[] = {
+ };
+ MODULE_DEVICE_TABLE(pci, pci_tbl);
  
- #define USB_VENDOR_ID_PLANTRONICS	0x047f
-+#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES	0xc055
- #define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
-+#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES	0xc057
-+#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES	0xc058
++struct amd_geode_priv {
++	struct pci_dev *pcidev;
++	void __iomem *membase;
++};
  
- #define USB_VENDOR_ID_PANASONIC		0x04da
- #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
-diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
-index 460711c1124a..3b75cadd543f 100644
---- a/drivers/hid/hid-plantronics.c
-+++ b/drivers/hid/hid-plantronics.c
-@@ -201,9 +201,18 @@ static int plantronics_probe(struct hid_device *hdev,
+ static int geode_rng_data_read(struct hwrng *rng, u32 *data)
+ {
+@@ -90,6 +94,7 @@ static int __init mod_init(void)
+ 	const struct pci_device_id *ent;
+ 	void __iomem *mem;
+ 	unsigned long rng_base;
++	struct amd_geode_priv *priv;
+ 
+ 	for_each_pci_dev(pdev) {
+ 		ent = pci_match_id(pci_tbl, pdev);
+@@ -97,17 +102,26 @@ static int __init mod_init(void)
+ 			goto found;
+ 	}
+ 	/* Device not found. */
+-	goto out;
++	return err;
+ 
+ found:
++	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	if (!priv) {
++		err = -ENOMEM;
++		goto put_dev;
++	}
++
+ 	rng_base = pci_resource_start(pdev, 0);
+ 	if (rng_base == 0)
+-		goto out;
++		goto free_priv;
+ 	err = -ENOMEM;
+ 	mem = ioremap(rng_base, 0x58);
+ 	if (!mem)
+-		goto out;
+-	geode_rng.priv = (unsigned long)mem;
++		goto free_priv;
++
++	geode_rng.priv = (unsigned long)priv;
++	priv->membase = mem;
++	priv->pcidev = pdev;
+ 
+ 	pr_info("AMD Geode RNG detected\n");
+ 	err = hwrng_register(&geode_rng);
+@@ -116,20 +130,26 @@ static int __init mod_init(void)
+ 		       err);
+ 		goto err_unmap;
+ 	}
+-out:
+ 	return err;
+ 
+ err_unmap:
+ 	iounmap(mem);
+-	goto out;
++free_priv:
++	kfree(priv);
++put_dev:
++	pci_dev_put(pdev);
++	return err;
  }
  
- static const struct hid_device_id plantronics_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
-+					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES),
-+		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
- 					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
- 		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
-+					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES),
-+		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
-+					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES),
-+		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
- 	{ }
- };
+ static void __exit mod_exit(void)
+ {
+-	void __iomem *mem = (void __iomem *)geode_rng.priv;
++	struct amd_geode_priv *priv;
+ 
++	priv = (struct amd_geode_priv *)geode_rng.priv;
+ 	hwrng_unregister(&geode_rng);
+-	iounmap(mem);
++	iounmap(priv->membase);
++	pci_dev_put(priv->pcidev);
++	kfree(priv);
+ }
+ 
+ module_init(mod_init);
 -- 
 2.35.1
 
