@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0F2C66C71E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 914C266C71F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233223AbjAPQ2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:28:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42900 "EHLO
+        id S233193AbjAPQ2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:28:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233098AbjAPQ14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E045F2DE77
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:09 -0800 (PST)
+        with ESMTP id S233208AbjAPQ16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3698336B17
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F677B81063
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970C1C433F0;
-        Mon, 16 Jan 2023 16:16:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5981B80E93
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4110BC433EF;
+        Mon, 16 Jan 2023 16:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885766;
-        bh=YgClZTfl4Wboi/WRdN7yb4EF+gyzh1/BJmTYcfn3xJ4=;
+        s=korg; t=1673885769;
+        bh=+qLxWcGRFB5W7L5glcG71y1t2FLOi/7IgqRf6o58AOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kg0EXxgmcARmZau/h8Lo/dGV1pEe995df8M6gsUmz41QVFAsTjSNCcPliUCjx2B00
-         jNVFuTEjMVGMlr3XmajX3NMFQjEUh4sNWazkch6K15h0YknyIgFn408QnOivvavl0M
-         0+5Q2aRFu+a9w68mIhJP73SXRX+HZiGo5uQH3pAs=
+        b=s262kqnZRYsT0SeoErCzEQF38oRnTMnYKRtL+3dDaxXk63oR5BgP32+Z+uKFAz+qC
+         q1AQ4l0/1Tv5Xs+kEnniC1I7v1Ayo4KASyxv4HalP2q5/XdOMVa5XdkU0oLr4NDN2U
+         YeJ/Whcv+hv1RgzwGUlpmJuq4lqziOnOo4wE4MP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 176/658] wifi: cfg80211: Fix not unregister reg_pdev when load_builtin_regdb_keys() fails
-Date:   Mon, 16 Jan 2023 16:44:24 +0100
-Message-Id: <20230116154917.513287341@linuxfoundation.org>
+Subject: [PATCH 5.4 177/658] regulator: core: fix module refcount leak in set_supply()
+Date:   Mon, 16 Jan 2023 16:44:25 +0100
+Message-Id: <20230116154917.553463592@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,54 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 833a9fd28c9b7ccb39a334721379e992dc1c0c89 ]
+[ Upstream commit da46ee19cbd8344d6860816b4827a7ce95764867 ]
 
-In regulatory_init_db(), when it's going to return a error, reg_pdev
-should be unregistered. When load_builtin_regdb_keys() fails it doesn't
-do it and makes cfg80211 can't be reload with report:
+If create_regulator() fails in set_supply(), the module refcount
+needs be put to keep refcount balanced.
 
-sysfs: cannot create duplicate filename '/devices/platform/regulatory.0'
- ...
- <TASK>
- dump_stack_lvl+0x79/0x9b
- sysfs_warn_dup.cold+0x1c/0x29
- sysfs_create_dir_ns+0x22d/0x290
- kobject_add_internal+0x247/0x800
- kobject_add+0x135/0x1b0
- device_add+0x389/0x1be0
- platform_device_add+0x28f/0x790
- platform_device_register_full+0x376/0x4b0
- regulatory_init+0x9a/0x4b2 [cfg80211]
- cfg80211_init+0x84/0x113 [cfg80211]
- ...
-
-Fixes: 90a53e4432b1 ("cfg80211: implement regdb signature checking")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221109090237.214127-1-chenzhongjin@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: e2c09ae7a74d ("regulator: core: Increase refcount for regulator supply's module")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221201122706.4055992-2-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/regulator/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 4db397db2fb4..1f5ea82b58bf 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -3970,8 +3970,10 @@ static int __init regulatory_init_db(void)
- 		return -EINVAL;
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 9b4783bf63f7..3f2a18536fce 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1431,6 +1431,7 @@ static int set_supply(struct regulator_dev *rdev,
  
- 	err = load_builtin_regdb_keys();
--	if (err)
-+	if (err) {
-+		platform_device_unregister(reg_pdev);
+ 	rdev->supply = create_regulator(supply_rdev, &rdev->dev, "SUPPLY");
+ 	if (rdev->supply == NULL) {
++		module_put(supply_rdev->owner);
+ 		err = -ENOMEM;
  		return err;
-+	}
- 
- 	/* We always try to get an update for the static regdomain */
- 	err = regulatory_hint_core(cfg80211_world_regdom->alpha2);
+ 	}
 -- 
 2.35.1
 
