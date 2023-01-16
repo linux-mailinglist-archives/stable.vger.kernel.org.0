@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F289266CBBB
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 045BA66CBBC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234477AbjAPRQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234408AbjAPRQd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Jan 2023 12:16:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234484AbjAPRPz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49DA23455D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:56 -0800 (PST)
+        with ESMTP id S232958AbjAPRP6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EF743454E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01FE8B8109B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37C61C433EF;
-        Mon, 16 Jan 2023 16:56:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E032061086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED493C433EF;
+        Mon, 16 Jan 2023 16:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888213;
-        bh=WbMpE+0gSzQvijrHMe1ILeN1tMM0zDR9FWTeKEpL6wg=;
+        s=korg; t=1673888216;
+        bh=lBxCpNyF7o6tIax2a+gK/mfkeEi9gQjIQGrDmGlPoms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJsh4T02ICexHhOeHpVKHCIeDfL9JwLPmXrQx7wnpdjpLx3PVeMDQ5YdGt0CARfTe
-         LWwPCdOqfITtdbj/HXw2aEJqONXLSf2MFFaZIfwCARdR4N8dTjAEu2MRSZe56FkRVo
-         TZirjasHNY61ofqkxeJjfohVFY4wYwT0SmUZG06M=
+        b=hiLOYEE4yPw2Rj6c/29dEFtgoSwAeWr7X2jIcbqvW8txcL+eUffyRnkrZh1Kirqze
+         YFtPOR/bW9irK38dhkJwzXKgrxW90YVsQczm1JoNYZc0CqpPYdNDpTuOSj1h8yH1IU
+         LC4jfNEp4yJVURgT8lVKLB6prZ/ReB47Co137MCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anand Parthasarathy <anpartha@meta.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 443/521] bpf: pull before calling skb_postpull_rcsum()
-Date:   Mon, 16 Jan 2023 16:51:45 +0100
-Message-Id: <20230116154906.954022230@linuxfoundation.org>
+Subject: [PATCH 4.19 444/521] qlcnic: prevent ->dcb use-after-free on qlcnic_dcb_enable() failure
+Date:   Mon, 16 Jan 2023 16:51:46 +0100
+Message-Id: <20230116154906.993822693@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -55,59 +55,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Daniil Tatianin <d-tatianin@yandex-team.ru>
 
-[ Upstream commit 54c3f1a81421f85e60ae2eaae7be3727a09916ee ]
+[ Upstream commit 13a7c8964afcd8ca43c0b6001ebb0127baa95362 ]
 
-Anand hit a BUG() when pulling off headers on egress to a SW tunnel.
-We get to skb_checksum_help() with an invalid checksum offset
-(commit d7ea0d9df2a6 ("net: remove two BUG() from skb_checksum_help()")
-converted those BUGs to WARN_ONs()).
-He points out oddness in how skb_postpull_rcsum() gets used.
-Indeed looks like we should pull before "postpull", otherwise
-the CHECKSUM_PARTIAL fixup from skb_postpull_rcsum() will not
-be able to do its job:
+adapter->dcb would get silently freed inside qlcnic_dcb_enable() in
+case qlcnic_dcb_attach() would return an error, which always happens
+under OOM conditions. This would lead to use-after-free because both
+of the existing callers invoke qlcnic_dcb_get_info() on the obtained
+pointer, which is potentially freed at that point.
 
-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-	    skb_checksum_start_offset(skb) < 0)
-		skb->ip_summed = CHECKSUM_NONE;
+Propagate errors from qlcnic_dcb_enable(), and instead free the dcb
+pointer at callsite using qlcnic_dcb_free(). This also removes the now
+unused qlcnic_clear_dcb_ops() helper, which was a simple wrapper around
+kfree() also causing memory leaks for partially initialized dcb.
 
-Reported-by: Anand Parthasarathy <anpartha@meta.com>
-Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/r/20221220004701.402165-1-kuba@kernel.org
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with the SVACE
+static analysis tool.
+
+Fixes: 3c44bba1d270 ("qlcnic: Disable DCB operations from SR-IOV VFs")
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c |  8 +++++++-
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h       | 10 ++--------
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c      |  8 +++++++-
+ 3 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index aa2e7baa13c4..32d0b8f14aab 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -2565,15 +2565,18 @@ static int bpf_skb_generic_push(struct sk_buff *skb, u32 off, u32 len)
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+index 10286215092f..85419b8258b5 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
+@@ -2525,7 +2525,13 @@ int qlcnic_83xx_init(struct qlcnic_adapter *adapter, int pci_using_dac)
+ 		goto disable_mbx_intr;
  
- static int bpf_skb_generic_pop(struct sk_buff *skb, u32 off, u32 len)
- {
-+	void *old_data;
+ 	qlcnic_83xx_clear_function_resources(adapter);
+-	qlcnic_dcb_enable(adapter->dcb);
 +
- 	/* skb_ensure_writable() is not needed here, as we're
- 	 * already working on an uncloned skb.
- 	 */
- 	if (unlikely(!pskb_may_pull(skb, off + len)))
- 		return -ENOMEM;
++	err = qlcnic_dcb_enable(adapter->dcb);
++	if (err) {
++		qlcnic_dcb_free(adapter->dcb);
++		goto disable_mbx_intr;
++	}
++
+ 	qlcnic_83xx_initialize_nic(adapter, 1);
+ 	qlcnic_dcb_get_info(adapter->dcb);
  
--	skb_postpull_rcsum(skb, skb->data + off, len);
--	memmove(skb->data + len, skb->data, off);
-+	old_data = skb->data;
- 	__skb_pull(skb, len);
-+	skb_postpull_rcsum(skb, old_data + off, len);
-+	memmove(skb->data, old_data, off);
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+index 0a9d24e86715..eb8000d9b6d0 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+@@ -42,11 +42,6 @@ struct qlcnic_dcb {
+ 	unsigned long			state;
+ };
  
- 	return 0;
+-static inline void qlcnic_clear_dcb_ops(struct qlcnic_dcb *dcb)
+-{
+-	kfree(dcb);
+-}
+-
+ static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
+ {
+ 	if (dcb && dcb->ops->get_hw_capability)
+@@ -113,9 +108,8 @@ static inline void qlcnic_dcb_init_dcbnl_ops(struct qlcnic_dcb *dcb)
+ 		dcb->ops->init_dcbnl_ops(dcb);
  }
+ 
+-static inline void qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
++static inline int qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
+ {
+-	if (dcb && qlcnic_dcb_attach(dcb))
+-		qlcnic_clear_dcb_ops(dcb);
++	return dcb ? qlcnic_dcb_attach(dcb) : 0;
+ }
+ #endif
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+index 43920374beae..a0c427f3b180 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
+@@ -2638,7 +2638,13 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 			 "Device does not support MSI interrupts\n");
+ 
+ 	if (qlcnic_82xx_check(adapter)) {
+-		qlcnic_dcb_enable(adapter->dcb);
++		err = qlcnic_dcb_enable(adapter->dcb);
++		if (err) {
++			qlcnic_dcb_free(adapter->dcb);
++			dev_err(&pdev->dev, "Failed to enable DCB\n");
++			goto err_out_free_hw;
++		}
++
+ 		qlcnic_dcb_get_info(adapter->dcb);
+ 		err = qlcnic_setup_intr(adapter);
+ 
 -- 
 2.35.1
 
