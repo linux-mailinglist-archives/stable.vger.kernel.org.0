@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C5366C868
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:38:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EF6666C869
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:38:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233569AbjAPQit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:38:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54398 "EHLO
+        id S233389AbjAPQiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:38:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233389AbjAPQi2 (ORCPT
+        with ESMTP id S233396AbjAPQi2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:38:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3CB91CAC1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:15 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81044241E4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34DFEB8107D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F51DC433F0;
-        Mon, 16 Jan 2023 16:27:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E2926104E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BAC9C433D2;
+        Mon, 16 Jan 2023 16:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886432;
-        bh=xadfa5UUa/VvR7/Q+w8xXinb6FW7rp5NXKRfhIxiI8E=;
+        s=korg; t=1673886435;
+        bh=yL4H6Ljv4PDUsYFox5/DrSbySQDKl8rPhplqb010Sf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cgcxSUutnsNaH1qDoXU00Szs4MolDsSFPiqgrB1OidARwkbv8gl89xCd/0JXviggw
-         p8jTFyr8kxo22G+/WDG+G/qrMp90Fx3wwb7BpU8nShwqO95GsEbR2WVbCYYfKCGqFN
-         DAC4uIijGAaR59xxr0BzvJsWm4c+xa1cSPHdi9y0=
+        b=iJm7AhDToOGKs9+mmzwMwPasmMNn8dDf1mH1qvi482NwD3AKufutnltPYprGeKVul
+         nxowOJB1fTGl6+DfD+mytx68Kfof+B+tIiIWY1vaS6uzA6FtdmmOCOX8QjlUOw3rjA
+         x4DplBvosHANoNFipGnL1kvPDNpXK/9xCATLbT70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Mike Marshall <hubcap@omnibond.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 429/658] orangefs: Fix kmemleak in orangefs_{kernel,client}_debug_init()
-Date:   Mon, 16 Jan 2023 16:48:37 +0100
-Message-Id: <20230116154929.175848434@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 430/658] ALSA/ASoC: hda: move/rename snd_hdac_ext_stop_streams to hdac_stream.c
+Date:   Mon, 16 Jan 2023 16:48:38 +0100
+Message-Id: <20230116154929.219904336@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,105 +57,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 31720a2b109b3080eb77e97b8f6f50a27b4ae599 ]
+[ Upstream commit 12054f0ce8be7d2003ec068ab27c9eb608397b98 ]
 
-When insert and remove the orangefs module, there are memory leaked
-as below:
+snd_hdac_ext_stop_streams() has really nothing to do with the
+extension, it just loops over the bus streams.
 
-unreferenced object 0xffff88816b0cc000 (size 2048):
-  comm "insmod", pid 783, jiffies 4294813439 (age 65.512s)
-  hex dump (first 32 bytes):
-    6e 6f 6e 65 0a 00 00 00 00 00 00 00 00 00 00 00  none............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000031ab7788>] kmalloc_trace+0x27/0xa0
-    [<000000005b405fee>] orangefs_debugfs_init.cold+0xaf/0x17f
-    [<00000000e5a0085b>] 0xffffffffa02780f9
-    [<000000004232d9f7>] do_one_initcall+0x87/0x2a0
-    [<0000000054f22384>] do_init_module+0xdf/0x320
-    [<000000003263bdea>] load_module+0x2f98/0x3330
-    [<0000000052cd4153>] __do_sys_finit_module+0x113/0x1b0
-    [<00000000250ae02b>] do_syscall_64+0x35/0x80
-    [<00000000f11c03c7>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
+Move it to the hdac_stream layer and rename to remove the 'ext'
+prefix and add the precision that the chip will also be stopped.
 
-Use the golbal variable as the buffer rather than dynamic allocate to
-slove the problem.
-
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Link: https://lore.kernel.org/r/20211216231128.344321-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Stable-dep-of: 171107237246 ("ASoC: Intel: Skylake: Fix driver hang during shutdown")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/orangefs-debugfs.c | 26 +++-----------------------
- 1 file changed, 3 insertions(+), 23 deletions(-)
+ include/sound/hdaudio.h         |  1 +
+ include/sound/hdaudio_ext.h     |  1 -
+ sound/hda/ext/hdac_ext_stream.c | 17 -----------------
+ sound/hda/hdac_stream.c         | 16 ++++++++++++++++
+ sound/soc/intel/skylake/skl.c   |  4 ++--
+ 5 files changed, 19 insertions(+), 20 deletions(-)
 
-diff --git a/fs/orangefs/orangefs-debugfs.c b/fs/orangefs/orangefs-debugfs.c
-index a848b6ef9599..1b508f543384 100644
---- a/fs/orangefs/orangefs-debugfs.c
-+++ b/fs/orangefs/orangefs-debugfs.c
-@@ -194,15 +194,10 @@ void orangefs_debugfs_init(int debug_mask)
-  */
- static void orangefs_kernel_debug_init(void)
- {
--	int rc = -ENOMEM;
--	char *k_buffer = NULL;
-+	static char k_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
+diff --git a/include/sound/hdaudio.h b/include/sound/hdaudio.h
+index 44e57bcc4a57..53e081bcd8ec 100644
+--- a/include/sound/hdaudio.h
++++ b/include/sound/hdaudio.h
+@@ -555,6 +555,7 @@ int snd_hdac_stream_set_params(struct hdac_stream *azx_dev,
+ void snd_hdac_stream_start(struct hdac_stream *azx_dev, bool fresh_start);
+ void snd_hdac_stream_clear(struct hdac_stream *azx_dev);
+ void snd_hdac_stream_stop(struct hdac_stream *azx_dev);
++void snd_hdac_stop_streams_and_chip(struct hdac_bus *bus);
+ void snd_hdac_stream_reset(struct hdac_stream *azx_dev);
+ void snd_hdac_stream_sync_trigger(struct hdac_stream *azx_dev, bool set,
+ 				  unsigned int streams, unsigned int reg);
+diff --git a/include/sound/hdaudio_ext.h b/include/sound/hdaudio_ext.h
+index 23dc8deac344..91440476319a 100644
+--- a/include/sound/hdaudio_ext.h
++++ b/include/sound/hdaudio_ext.h
+@@ -92,7 +92,6 @@ void snd_hdac_ext_stream_decouple_locked(struct hdac_bus *bus,
+ 				  struct hdac_ext_stream *azx_dev, bool decouple);
+ void snd_hdac_ext_stream_decouple(struct hdac_bus *bus,
+ 				struct hdac_ext_stream *azx_dev, bool decouple);
+-void snd_hdac_ext_stop_streams(struct hdac_bus *bus);
  
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
- 
--	k_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
--	if (!k_buffer)
--		goto out;
--
- 	if (strlen(kernel_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
- 		strcpy(k_buffer, kernel_debug_string);
- 		strcat(k_buffer, "\n");
-@@ -213,9 +208,6 @@ static void orangefs_kernel_debug_init(void)
- 
- 	debugfs_create_file(ORANGEFS_KMOD_DEBUG_FILE, 0444, debug_dir, k_buffer,
- 			    &kernel_debug_fops);
--
--out:
--	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
+ int snd_hdac_ext_stream_set_spib(struct hdac_bus *bus,
+ 				 struct hdac_ext_stream *stream, u32 value);
+diff --git a/sound/hda/ext/hdac_ext_stream.c b/sound/hda/ext/hdac_ext_stream.c
+index 04f4070fbf36..17b34bb9fecd 100644
+--- a/sound/hda/ext/hdac_ext_stream.c
++++ b/sound/hda/ext/hdac_ext_stream.c
+@@ -475,23 +475,6 @@ int snd_hdac_ext_stream_get_spbmaxfifo(struct hdac_bus *bus,
  }
+ EXPORT_SYMBOL_GPL(snd_hdac_ext_stream_get_spbmaxfifo);
  
- 
-@@ -299,18 +291,13 @@ static int help_show(struct seq_file *m, void *v)
- /*
-  * initialize the client-debug file.
-  */
--static int orangefs_client_debug_init(void)
-+static void orangefs_client_debug_init(void)
- {
- 
--	int rc = -ENOMEM;
--	char *c_buffer = NULL;
-+	static char c_buffer[ORANGEFS_MAX_DEBUG_STRING_LEN] = { };
- 
- 	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: start\n", __func__);
- 
--	c_buffer = kzalloc(ORANGEFS_MAX_DEBUG_STRING_LEN, GFP_KERNEL);
--	if (!c_buffer)
--		goto out;
 -
- 	if (strlen(client_debug_string) + 1 < ORANGEFS_MAX_DEBUG_STRING_LEN) {
- 		strcpy(c_buffer, client_debug_string);
- 		strcat(c_buffer, "\n");
-@@ -324,13 +311,6 @@ static int orangefs_client_debug_init(void)
- 						  debug_dir,
- 						  c_buffer,
- 						  &kernel_debug_fops);
+-/**
+- * snd_hdac_ext_stop_streams - stop all stream if running
+- * @bus: HD-audio core bus
+- */
+-void snd_hdac_ext_stop_streams(struct hdac_bus *bus)
+-{
+-	struct hdac_stream *stream;
 -
--	rc = 0;
+-	if (bus->chip_init) {
+-		list_for_each_entry(stream, &bus->stream_list, list)
+-			snd_hdac_stream_stop(stream);
+-		snd_hdac_bus_stop_chip(bus);
+-	}
+-}
+-EXPORT_SYMBOL_GPL(snd_hdac_ext_stop_streams);
 -
--out:
--
--	gossip_debug(GOSSIP_DEBUGFS_DEBUG, "%s: rc:%d:\n", __func__, rc);
--	return rc;
+ /**
+  * snd_hdac_ext_stream_drsm_enable - enable DMA resume for a stream
+  * @bus: HD-audio core bus
+diff --git a/sound/hda/hdac_stream.c b/sound/hda/hdac_stream.c
+index b299b8b7f871..78d2674c7285 100644
+--- a/sound/hda/hdac_stream.c
++++ b/sound/hda/hdac_stream.c
+@@ -142,6 +142,22 @@ void snd_hdac_stream_stop(struct hdac_stream *azx_dev)
  }
+ EXPORT_SYMBOL_GPL(snd_hdac_stream_stop);
  
- /* open ORANGEFS_KMOD_DEBUG_FILE or ORANGEFS_CLIENT_DEBUG_FILE.*/
++/**
++ * snd_hdac_stop_streams_and_chip - stop all streams and chip if running
++ * @bus: HD-audio core bus
++ */
++void snd_hdac_stop_streams_and_chip(struct hdac_bus *bus)
++{
++	struct hdac_stream *stream;
++
++	if (bus->chip_init) {
++		list_for_each_entry(stream, &bus->stream_list, list)
++			snd_hdac_stream_stop(stream);
++		snd_hdac_bus_stop_chip(bus);
++	}
++}
++EXPORT_SYMBOL_GPL(snd_hdac_stop_streams_and_chip);
++
+ /**
+  * snd_hdac_stream_reset - reset a stream
+  * @azx_dev: HD-audio core stream to reset
+diff --git a/sound/soc/intel/skylake/skl.c b/sound/soc/intel/skylake/skl.c
+index 2e5fbd220923..dc6937a59443 100644
+--- a/sound/soc/intel/skylake/skl.c
++++ b/sound/soc/intel/skylake/skl.c
+@@ -438,7 +438,7 @@ static int skl_free(struct hdac_bus *bus)
+ 
+ 	skl->init_done = 0; /* to be sure */
+ 
+-	snd_hdac_ext_stop_streams(bus);
++	snd_hdac_stop_streams_and_chip(bus);
+ 
+ 	if (bus->irq >= 0)
+ 		free_irq(bus->irq, (void *)bus);
+@@ -1116,7 +1116,7 @@ static void skl_shutdown(struct pci_dev *pci)
+ 	if (!skl->init_done)
+ 		return;
+ 
+-	snd_hdac_ext_stop_streams(bus);
++	snd_hdac_stop_streams_and_chip(bus);
+ 	list_for_each_entry(s, &bus->stream_list, list) {
+ 		stream = stream_to_hdac_ext_stream(s);
+ 		snd_hdac_ext_stream_decouple(bus, stream, false);
 -- 
 2.35.1
 
