@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0002C66C96A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94FC966C61F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:15:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233845AbjAPQtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:49:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40016 "EHLO
+        id S232864AbjAPQPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:15:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233846AbjAPQt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 776AD2B2A8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:12 -0800 (PST)
+        with ESMTP id S232867AbjAPQOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:14:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F90241D0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:08:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14C9661047
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27C64C433EF;
-        Mon, 16 Jan 2023 16:36:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4339B81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:08:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C75C433D2;
+        Mon, 16 Jan 2023 16:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886971;
-        bh=YSSrCbG6ZPmoS6q3hGb9luYPWyVKiRq+7nPNcO9wHYg=;
+        s=korg; t=1673885314;
+        bh=yyENZs1sttpQ8zTkdAdxJPfn4YK8pOxic+dNrBuT0WI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FtbZPczt8kgCMRIt/+hQjufiL8Bml0I3cMvbLDrVCTsDuY4OYAub1gdmZKqb/Gg5a
-         I2NhAK8htHUvQIFgh2zTiktMaBWFbnDNgp80GzKdUNr7mtGhylI4Y4c0kZ54kYz87s
-         WAm4vE92sc5k0Vm3bT7bNzIswO28o9gHhiXJ/88I=
+        b=00z8kC/Ez7HXjDh1QiPxL6noTfOGbiiGaYX/7dRjdCS26R5zv6K4YbZ0H6ftKim0k
+         Dy776UaGwLWvV28CueC3BDr6uoUvDYVk0rrrnPAwnInJ0g/4YmBzOtEdnQWSN80Zs/
+         DFVq8me0fGseATjutyFRvO2NvVBjfF3+bHBbt4XM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 5.4 631/658] x86/boot: Avoid using Intel mnemonics in AT&T syntax asm
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Yong Wu <yong.wu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 52/64] iommu/mediatek-v1: Fix an error handling path in mtk_iommu_v1_probe()
 Date:   Mon, 16 Jan 2023 16:51:59 +0100
-Message-Id: <20230116154938.370178146@linuxfoundation.org>
+Message-Id: <20230116154745.370138464@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 7c6dd961d0c8e7e8f9fdc65071fb09ece702e18d upstream.
+[ Upstream commit 142e821f68cf5da79ce722cb9c1323afae30e185 ]
 
-With 'GNU assembler (GNU Binutils for Debian) 2.39.90.20221231' the
-build now reports:
+A clk, prepared and enabled in mtk_iommu_v1_hw_init(), is not released in
+the error handling path of mtk_iommu_v1_probe().
 
-  arch/x86/realmode/rm/../../boot/bioscall.S: Assembler messages:
-  arch/x86/realmode/rm/../../boot/bioscall.S:35: Warning: found `movsd'; assuming `movsl' was meant
-  arch/x86/realmode/rm/../../boot/bioscall.S:70: Warning: found `movsd'; assuming `movsl' was meant
+Add the corresponding clk_disable_unprepare(), as already done in the
+remove function.
 
-  arch/x86/boot/bioscall.S: Assembler messages:
-  arch/x86/boot/bioscall.S:35: Warning: found `movsd'; assuming `movsl' was meant
-  arch/x86/boot/bioscall.S:70: Warning: found `movsd'; assuming `movsl' was meant
-
-Which is due to:
-
-  PR gas/29525
-
-  Note that with the dropped CMPSD and MOVSD Intel Syntax string insn
-  templates taking operands, mixed IsString/non-IsString template groups
-  (with memory operands) cannot occur anymore. With that
-  maybe_adjust_templates() becomes unnecessary (and is hence being
-  removed).
-
-More details: https://sourceware.org/bugzilla/show_bug.cgi?id=29525
-
-Borislav Petkov further explains:
-
-  " the particular problem here is is that the 'd' suffix is
-    "conflicting" in the sense that you can have SSE mnemonics like movsD %xmm...
-    and the same thing also for string ops (which is the case here) so apparently
-    the agreement in binutils land is to use the always accepted suffixes 'l' or 'q'
-    and phase out 'd' slowly... "
-
-Fixes: 7a734e7dd93b ("x86, setup: "glove box" BIOS calls -- infrastructure")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/Y71I3Ex2pvIxMpsP@hirez.programming.kicks-ass.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b17336c55d89 ("iommu/mediatek: add support for mtk iommu generation one HW")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Yong Wu <yong.wu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Link: https://lore.kernel.org/r/593e7b7d97c6e064b29716b091a9d4fd122241fb.1671473163.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/bioscall.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/mtk_iommu_v1.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/boot/bioscall.S
-+++ b/arch/x86/boot/bioscall.S
-@@ -32,7 +32,7 @@ intcall:
- 	movw	%dx, %si
- 	movw	%sp, %di
- 	movw	$11, %cx
--	rep; movsd
-+	rep; movsl
+diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
+index 4ed8bc755f5c..2abbdd71d8d9 100644
+--- a/drivers/iommu/mtk_iommu_v1.c
++++ b/drivers/iommu/mtk_iommu_v1.c
+@@ -618,7 +618,7 @@ static int mtk_iommu_probe(struct platform_device *pdev)
+ 	ret = iommu_device_sysfs_add(&data->iommu, &pdev->dev, NULL,
+ 				     dev_name(&pdev->dev));
+ 	if (ret)
+-		return ret;
++		goto out_clk_unprepare;
  
- 	/* Pop full state from the stack */
- 	popal
-@@ -67,7 +67,7 @@ intcall:
- 	jz	4f
- 	movw	%sp, %si
- 	movw	$11, %cx
--	rep; movsd
-+	rep; movsl
- 4:	addw	$44, %sp
+ 	iommu_device_set_ops(&data->iommu, &mtk_iommu_ops);
  
- 	/* Restore state and return */
+@@ -643,6 +643,8 @@ static int mtk_iommu_probe(struct platform_device *pdev)
+ 	iommu_device_unregister(&data->iommu);
+ out_sysfs_remove:
+ 	iommu_device_sysfs_remove(&data->iommu);
++out_clk_unprepare:
++	clk_disable_unprepare(data->bclk);
+ 	return ret;
+ }
+ 
+-- 
+2.35.1
+
 
 
