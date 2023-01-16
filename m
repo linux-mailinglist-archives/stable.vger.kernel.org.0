@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43AA366CCCD
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F2C66CB54
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:13:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230319AbjAPR3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:29:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50110 "EHLO
+        id S234254AbjAPRNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:13:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234735AbjAPR2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BC9031E14
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:06:22 -0800 (PST)
+        with ESMTP id S234355AbjAPRMh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:12:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C86B4B19D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:52:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEC0061050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D91C433D2;
-        Mon, 16 Jan 2023 17:06:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FA2C61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:52:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E55C433EF;
+        Mon, 16 Jan 2023 16:52:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888781;
-        bh=Jco6Kv89qHg4Kcs9DjaWl//gwSaqwM7T32ZOQF1XK/0=;
+        s=korg; t=1673887961;
+        bh=bxw1oKcwkRxyvO3XZk6huDZQylbjJgHOQQQsf3rKCLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JP+ZhkO4TUmTDLhouw9b48qePSSoth5nUp1eaYvvZoAKD08ZmFlQBmZQnChYhdzhr
-         c0Sm82ttDJi9MJz6biGxOi8ul8qMsz8qGEHeBEGp5BCunFDBR4zM7kanfnF1tGe87Z
-         QGF86/XmOJAc6RL3rDvZF5Ga9WCBtUU4d8IeLeJ8=
+        b=mpGW4hSsQM7dc7J6LePU+jhLGyiBnDwLmOReSZrUhawbuzYkU2mcM/mn6uOz+KmOw
+         JZsO6WIijClujv9cicZH78e/a/EVNEIJCil/GdcQynjfTAQ8AufcTBMO8NT64H3brS
+         HcIe71X82jSxH9556BtKO4qH3001T32pwyMspNOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 136/338] Bluetooth: hci_h5: dont call kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 4.19 347/521] ASoC: mediatek: mt8173-rt5650-rt5514: fix refcount leak in mt8173_rt5650_rt5514_dev_probe()
 Date:   Mon, 16 Jan 2023 16:50:09 +0100
-Message-Id: <20230116154826.753559723@linuxfoundation.org>
+Message-Id: <20230116154902.661674774@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 383630cc6758d619874c2e8bb2f68a61f3f9ef6e ]
+[ Upstream commit 3327d721114c109ba0575f86f8fda3b525404054 ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So replace kfree_skb()
-with dev_kfree_skb_irq() under spin_lock_irqsave().
+The node returned by of_parse_phandle() with refcount incremented,
+of_node_put() needs be called when finish using it. So add it in the
+error path in mt8173_rt5650_rt5514_dev_probe().
 
-Fixes: 43eb12d78960 ("Bluetooth: Fix/implement Three-wire reliable packet sending")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 0d1d7a664288 ("ASoC: mediatek: Refine mt8173 driver and change config option")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Link: https://lore.kernel.org/r/1670234664-24246-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_h5.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
-index c0e4e26dc30d..0a111bee975d 100644
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -264,7 +264,7 @@ static void h5_pkt_cull(struct h5 *h5)
- 			break;
- 
- 		__skb_unlink(skb, &h5->unack);
--		kfree_skb(skb);
-+		dev_kfree_skb_irq(skb);
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
+index cdb394071037..9f8d2a00a1cd 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
+@@ -199,14 +199,16 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
+ 	if (!mt8173_rt5650_rt5514_codecs[0].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out;
  	}
+ 	mt8173_rt5650_rt5514_codecs[1].of_node =
+ 		of_parse_phandle(pdev->dev.of_node, "mediatek,audio-codec", 1);
+ 	if (!mt8173_rt5650_rt5514_codecs[1].of_node) {
+ 		dev_err(&pdev->dev,
+ 			"Property 'audio-codec' missing or invalid\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out;
+ 	}
+ 	mt8173_rt5650_rt5514_codec_conf[0].of_node =
+ 		mt8173_rt5650_rt5514_codecs[1].of_node;
+@@ -218,6 +220,7 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
  
- 	if (skb_queue_empty(&h5->unack))
++out:
+ 	of_node_put(platform_node);
+ 	return ret;
+ }
 -- 
 2.35.1
 
