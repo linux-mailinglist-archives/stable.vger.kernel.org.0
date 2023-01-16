@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED25C66CC5D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46CD566CAE1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234705AbjAPRZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46386 "EHLO
+        id S232404AbjAPRI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:08:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234553AbjAPRYi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:38 -0500
+        with ESMTP id S231224AbjAPRHv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:07:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 637E8402E7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D53BC2A165
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B640B8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73E58C433D2;
-        Mon, 16 Jan 2023 17:02:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30143B81095
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C41AC433EF;
+        Mon, 16 Jan 2023 16:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888522;
-        bh=ZLnyO/TflFe3u2q0nVyOyx6xzsmiikcqfUE9xwC/dGg=;
+        s=korg; t=1673887699;
+        bh=b8SbfTgEmTl8DkZ4JKicSASyVro/9nyCui/U79/opXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kk3FiAN3xAY3wFzePTKf7UH7RUXcYmGMMBdWtwZqSEk1wTXoYENMdbcLfPJPEJHV4
-         LUzXDYoyOk7kJBFQU/gCP1ycJRA+Z8TKPzroXtTLtBYiaH5a5bVkz1GK3GZSXwIRYd
-         zFCdcfanoG5u8/sOpS/Db2oNSzSujSYDY4Erv6jQ=
+        b=aYsw/18PPgtqGK7fvgVYjCHNQbDL/fAiBAyd/fotxUL/aYMb7ViUGJ93o3z7OLbpf
+         jhBtdGJPq7S66EKW/wRSqPRHs31GjExtSUCVDmZM/5tEoiYAoeaiAIyZRLFCpDHpy6
+         yHYe4kgDp+etz5YHgUQVrn6NcF0l39cG7xAOnVTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Dejin Zheng <zhengdejin5@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 037/338] pstore/ram: Fix error return code in ramoops_probe()
+Subject: [PATCH 4.19 248/521] drivers: provide devm_platform_get_and_ioremap_resource()
 Date:   Mon, 16 Jan 2023 16:48:30 +0100
-Message-Id: <20230116154822.387166189@linuxfoundation.org>
+Message-Id: <20230116154858.223545424@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Dejin Zheng <zhengdejin5@gmail.com>
 
-[ Upstream commit e1fce564900f8734edf15b87f028c57e14f6e28d ]
+[ Upstream commit 890cc39a879906b63912482dfc41944579df2dc6 ]
 
-In the if (dev_of_node(dev) && !pdata) path, the "err" may be assigned a
-value of 0, so the error return code -EINVAL may be incorrectly set
-to 0. To fix set valid return code before calling to goto.
+Since commit "drivers: provide devm_platform_ioremap_resource()",
+it was wrap platform_get_resource() and devm_ioremap_resource() as
+single helper devm_platform_ioremap_resource(). but now, many drivers
+still used platform_get_resource() and devm_ioremap_resource()
+together in the kernel tree. The reason can not be replaced is they
+still need use the resource variables obtained by platform_get_resource().
+so provide this helper.
 
-Fixes: 35da60941e44 ("pstore/ram: add Device Tree bindings")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/1669969374-46582-1-git-send-email-wangyufen@huawei.com
+Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Suggested-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
+Link: https://lore.kernel.org/r/20200323160612.17277-2-zhengdejin5@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 2d47b79d2bd3 ("i2c: mux: reg: check return value after calling platform_get_resource()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/ram.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/base/platform.c         | 22 ++++++++++++++++++++++
+ include/linux/platform_device.h |  3 +++
+ 2 files changed, 25 insertions(+)
 
-diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
-index 11c7a171c0a1..dc5a40058c2f 100644
---- a/fs/pstore/ram.c
-+++ b/fs/pstore/ram.c
-@@ -749,6 +749,7 @@ static int ramoops_probe(struct platform_device *pdev)
- 	/* Make sure we didn't get bogus platform data pointer. */
- 	if (!pdata) {
- 		pr_err("NULL platform data\n");
-+		err = -EINVAL;
- 		goto fail_out;
- 	}
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index ea83c279b8a3..c4e398f3de50 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -80,6 +80,28 @@ struct resource *platform_get_resource(struct platform_device *dev,
+ }
+ EXPORT_SYMBOL_GPL(platform_get_resource);
  
-@@ -756,6 +757,7 @@ static int ramoops_probe(struct platform_device *pdev)
- 			!pdata->ftrace_size && !pdata->pmsg_size)) {
- 		pr_err("The memory size and the record/console size must be "
- 			"non-zero\n");
-+		err = -EINVAL;
- 		goto fail_out;
- 	}
- 
++/**
++ * devm_platform_get_and_ioremap_resource - call devm_ioremap_resource() for a
++ *					    platform device and get resource
++ *
++ * @pdev: platform device to use both for memory resource lookup as well as
++ *        resource management
++ * @index: resource index
++ * @res: optional output parameter to store a pointer to the obtained resource.
++ */
++void __iomem *
++devm_platform_get_and_ioremap_resource(struct platform_device *pdev,
++				unsigned int index, struct resource **res)
++{
++	struct resource *r;
++
++	r = platform_get_resource(pdev, IORESOURCE_MEM, index);
++	if (res)
++		*res = r;
++	return devm_ioremap_resource(&pdev->dev, r);
++}
++EXPORT_SYMBOL_GPL(devm_platform_get_and_ioremap_resource);
++
+ /**
+  * devm_platform_ioremap_resource - call devm_ioremap_resource() for a platform
+  *				    device
+diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
+index 9e5c98fcea8c..1de7ea6efdc9 100644
+--- a/include/linux/platform_device.h
++++ b/include/linux/platform_device.h
+@@ -52,6 +52,9 @@ extern void arch_setup_pdev_archdata(struct platform_device *);
+ extern struct resource *platform_get_resource(struct platform_device *,
+ 					      unsigned int, unsigned int);
+ extern void __iomem *
++devm_platform_get_and_ioremap_resource(struct platform_device *pdev,
++				unsigned int index, struct resource **res);
++extern void __iomem *
+ devm_platform_ioremap_resource(struct platform_device *pdev,
+ 			       unsigned int index);
+ extern int platform_get_irq(struct platform_device *, unsigned int);
 -- 
 2.35.1
 
