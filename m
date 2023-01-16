@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF9066CCB9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B540C66CB10
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:10:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234793AbjAPR3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:29:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47988 "EHLO
+        id S234308AbjAPRKO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:10:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234801AbjAPR2d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:33 -0500
+        with ESMTP id S233691AbjAPRJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:09:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E5063864A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39B0130E9D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:50:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B81161085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FC98C433EF;
-        Mon, 16 Jan 2023 17:05:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C59D261055
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:50:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD754C433F0;
+        Mon, 16 Jan 2023 16:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888731;
-        bh=7PL/U7m48sSDKl73aetmCMW3NnucifAm2enbroza2Us=;
+        s=korg; t=1673887805;
+        bh=QLYvJ0WwLCQZxhvKG62aT4C5CL5RyqO7QVN/d//2ExQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nKD1BL6XX+MPx8k4NzzFttL9F6NfqwJ1Bdp6HuIYT1YnwcVlI9ivGdPu/fozFY2Sv
-         tUz61OhKEQdZ8AFhrZvupViSOPOe2PkPNwyEMDbJtLjmUM/yKPFtjRpsu6RTVNzYcZ
-         W+m7gAR8e2XaVf6az2j53g9STPHglXgh2PNNDe9g=
+        b=xiJm1ZOHA+85uQqmKkuWstm6oIOqdv5uj9dYPQfOisjMySsRHBaR9PNId0N3GvieE
+         /Z368g7XzdQAwozoTcuJWzHw3nw5cCdwbJ0xbZY1ge8ml7q/QzNf5+TzlBvsu8dGdF
+         YwVehY9nATRtAHyHXi5cgisvBIvFe2pZh7tmSfO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 076/338] ima: Fix misuse of dereference of pointer in template_desc_init_fields()
-Date:   Mon, 16 Jan 2023 16:49:09 +0100
-Message-Id: <20230116154824.199851460@linuxfoundation.org>
+Subject: [PATCH 4.19 288/521] remoteproc: qcom_q6v5_pas: Fix missing of_node_put() in adsp_alloc_memory_region()
+Date:   Mon, 16 Jan 2023 16:49:10 +0100
+Message-Id: <20230116154900.028829255@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiu Jianfeng <xiujianfeng@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 25369175ce84813dd99d6604e710dc2491f68523 ]
+[ Upstream commit 38e7d9c19276832ebb0277f415b9214bf7baeb37 ]
 
-The input parameter @fields is type of struct ima_template_field ***, so
-when allocates array memory for @fields, the size of element should be
-sizeof(**field) instead of sizeof(*field).
+The pointer node is returned by of_parse_phandle() with refcount
+incremented. We should use of_node_put() on it when done.
 
-Actually the original code would not cause any runtime error, but it's
-better to make it logically right.
-
-Fixes: adf53a778a0a ("ima: new templates management mechanism")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-Reviewed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: b9e718e950c3 ("remoteproc: Introduce Qualcomm ADSP PIL")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221203070639.15128-1-yuancan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_template.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/remoteproc/qcom_q6v5_pas.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/security/integrity/ima/ima_template.c b/security/integrity/ima/ima_template.c
-index 8687882277a1..ff49f9292931 100644
---- a/security/integrity/ima/ima_template.c
-+++ b/security/integrity/ima/ima_template.c
-@@ -196,11 +196,11 @@ static int template_desc_init_fields(const char *template_fmt,
+diff --git a/drivers/remoteproc/qcom_q6v5_pas.c b/drivers/remoteproc/qcom_q6v5_pas.c
+index 2478ef3cd519..d9b0e51ca91f 100644
+--- a/drivers/remoteproc/qcom_q6v5_pas.c
++++ b/drivers/remoteproc/qcom_q6v5_pas.c
+@@ -238,6 +238,7 @@ static int adsp_alloc_memory_region(struct qcom_adsp *adsp)
  	}
  
- 	if (fields && num_fields) {
--		*fields = kmalloc_array(i, sizeof(*fields), GFP_KERNEL);
-+		*fields = kmalloc_array(i, sizeof(**fields), GFP_KERNEL);
- 		if (*fields == NULL)
- 			return -ENOMEM;
- 
--		memcpy(*fields, found_fields, i * sizeof(*fields));
-+		memcpy(*fields, found_fields, i * sizeof(**fields));
- 		*num_fields = i;
- 	}
+ 	ret = of_address_to_resource(node, 0, &r);
++	of_node_put(node);
+ 	if (ret)
+ 		return ret;
  
 -- 
 2.35.1
