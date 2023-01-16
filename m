@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 148F666CA39
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBD9E66C7BD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:34:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234117AbjAPRAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:00:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54580 "EHLO
+        id S233204AbjAPQeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:34:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234173AbjAPRAE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:00:04 -0500
+        with ESMTP id S233282AbjAPQdV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:33:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 900E33E608
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 407E4298E9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:21:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CFDA61084
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40E0BC433D2;
-        Mon, 16 Jan 2023 16:42:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFE5561057
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:21:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E588FC433EF;
+        Mon, 16 Jan 2023 16:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887373;
-        bh=QnmHNQoL289iWqYV8XZsohMG7X0j7Z/XRqU1nDPLOaQ=;
+        s=korg; t=1673886088;
+        bh=jo1sfDpeOL3qf59+8LowlOR+5xRV5Xt2s3fk0H/sSdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQim3HtfVC3Lu3eTXrBZqOJZlLhPyqSDw1AZZhGfN70oHdd1QB74aUBF7Nvk+3vPo
-         YLADx1uoJB+P/DERQFaXJ5+rf5FcA1D6z3N6YSntRU3A0XJ0gVx+3XOWv+GHFTw2de
-         UF88G8B4ROc91k0Sw/K6wpbMv+hpE1tHOnW+eWII=
+        b=HuC6HodtpRABm0rQSUh7ap5wz6Og1TX8TvU45I8AOxnuYGNovIlg9K53vXFX8Mrhp
+         IGiW9wfT+N2wLMcKZ9ionwqnLXCBzsBKkTNjWkwgaalLrayFmaPMOq4SlFvYPbplIY
+         0Xc1Cc+OJKjIL0LvHa2tTiqE8K2pZIT2cZth9W+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 124/521] ALSA: asihpi: fix missing pci_disable_device()
+        patches@lists.linux.dev,
+        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
+        William Breathitt Gray <william.gray@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 298/658] counter: stm32-lptimer-cnt: fix the check on arr and cmp registers update
 Date:   Mon, 16 Jan 2023 16:46:26 +0100
-Message-Id: <20230116154852.818572676@linuxfoundation.org>
+Message-Id: <20230116154923.230823997@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
 
-[ Upstream commit 9d86515c3d4c0564a0c31a2df87d735353a1971e ]
+[ Upstream commit fd5ac974fc25feed084c2d1599d0dddb4e0556bc ]
 
-pci_disable_device() need be called while module exiting, switch to use
-pcim_enable(), pci_disable_device() will be called in pcim_release().
+The ARR (auto reload register) and CMP (compare) registers are
+successively written. The status bits to check the update of these
+registers are polled together with regmap_read_poll_timeout().
+The condition to end the loop may become true, even if one of the register
+isn't correctly updated.
+So ensure both status bits are set before clearing them.
 
-Fixes: 3285ea10e9b0 ("ALSA: asihpi - Interrelated HPI tidy up.")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Link: https://lore.kernel.org/r/20221126021429.3029562-1-liushixin2@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: d8958824cf07 ("iio: counter: Add support for STM32 LPTimer")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+Link: https://lore.kernel.org/r/20221123133609.465614-1-fabrice.gasnier@foss.st.com/
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/asihpi/hpioctl.c | 2 +-
+ drivers/counter/stm32-lptimer-cnt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
-index 3f06986fbecf..d8c244a5dce0 100644
---- a/sound/pci/asihpi/hpioctl.c
-+++ b/sound/pci/asihpi/hpioctl.c
-@@ -359,7 +359,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
- 		pci_dev->device, pci_dev->subsystem_vendor,
- 		pci_dev->subsystem_device, pci_dev->devfn);
+diff --git a/drivers/counter/stm32-lptimer-cnt.c b/drivers/counter/stm32-lptimer-cnt.c
+index bbc930a5962c..95f8f2e217db 100644
+--- a/drivers/counter/stm32-lptimer-cnt.c
++++ b/drivers/counter/stm32-lptimer-cnt.c
+@@ -69,7 +69,7 @@ static int stm32_lptim_set_enable_state(struct stm32_lptim_cnt *priv,
  
--	if (pci_enable_device(pci_dev) < 0) {
-+	if (pcim_enable_device(pci_dev) < 0) {
- 		dev_err(&pci_dev->dev,
- 			"pci_enable_device failed, disabling device\n");
- 		return -EIO;
+ 	/* ensure CMP & ARR registers are properly written */
+ 	ret = regmap_read_poll_timeout(priv->regmap, STM32_LPTIM_ISR, val,
+-				       (val & STM32_LPTIM_CMPOK_ARROK),
++				       (val & STM32_LPTIM_CMPOK_ARROK) == STM32_LPTIM_CMPOK_ARROK,
+ 				       100, 1000);
+ 	if (ret)
+ 		return ret;
 -- 
 2.35.1
 
