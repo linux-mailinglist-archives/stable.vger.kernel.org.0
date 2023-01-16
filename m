@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B32F166C6EE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:26:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0931F66C6EF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:26:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233132AbjAPQ0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:26:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43064 "EHLO
+        id S233166AbjAPQ0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:26:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233094AbjAPQ0E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:26:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 840EC26853
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:14:29 -0800 (PST)
+        with ESMTP id S233076AbjAPQ0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:26:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78788274B1
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:14:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AB2AB81063
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CDE8C433D2;
-        Mon, 16 Jan 2023 16:14:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B907FB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:14:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 269B8C433EF;
+        Mon, 16 Jan 2023 16:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885666;
-        bh=k4xdFczhf4AD8nLjtBxbBJa8V2avXpFxD8RpGCsz2Fg=;
+        s=korg; t=1673885669;
+        bh=nduDFTynn5+kV0dyGAArArcLX8kyf/qFN1DWJTvfPbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STpVJbGluj07rxL0S/0f67Z27jgxSrEZhTrUFX7Vv8zWD7S1f6/bwQ/X6fQKh6c+T
-         iRx2sMkxoLZMLPsynizBpodKK8F+su1ABFVCll2b/GQWPPCpG+smb0dmaisSbBQ6oI
-         1ooKLC7txmzmRctSkudgXjptMZCCtiUuHf0WSM48=
+        b=nuPV6FsvQP0AyhX/6mx/JWPAgkWXrAUpq7/g6nAyjWSV0mugLVgHCXpCrxjy+EysS
+         qHKQcwRQyv9zBU5SlUgRFOKUm+4TDI9RyAGMOE8qmKVq+7Vy3z22Dfojyjmxc02I1t
+         BYvFo7LIixLPMKQuahMBfUZUISCmD7nUJ+VRAqTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        patches@lists.linux.dev, Stanislav Fomichev <sdf@google.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 139/658] media: videobuf-dma-contig: use dma_mmap_coherent
-Date:   Mon, 16 Jan 2023 16:43:47 +0100
-Message-Id: <20230116154915.807716421@linuxfoundation.org>
+Subject: [PATCH 5.4 140/658] bpf: Move skb->len == 0 checks into __bpf_redirect
+Date:   Mon, 16 Jan 2023 16:43:48 +0100
+Message-Id: <20230116154915.856153392@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -52,85 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit b3dc3f8e49577840dc8ac8a365c5b3da4edb10b8 ]
+[ Upstream commit 114039b342014680911c35bd6b72624180fd669a ]
 
-dma_alloc_coherent does not return a physical address, but a DMA address,
-which might be remapped or have an offset.  Passing the DMA address to
-vm_iomap_memory is thus broken.
+To avoid potentially breaking existing users.
 
-Use the proper dma_mmap_coherent helper instead, and stop passing
-__GFP_COMP to dma_alloc_coherent, as the memory management inside the
-DMA allocator is hidden from the callers and does not require it.
+Both mac/no-mac cases have to be amended; mac_header >= network_header
+is not enough (verified with a new test, see next patch).
 
-With this the gfp_t argument to __videobuf_dc_alloc can be removed and
-hard coded to GFP_KERNEL.
-
-Fixes: a8f3c203e19b ("[media] videobuf-dma-contig: add cache support")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: fd1894224407 ("bpf: Don't redirect packets with invalid pkt_len")
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20221121180340.1983627-1-sdf@google.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/videobuf-dma-contig.c | 22 +++++++------------
- 1 file changed, 8 insertions(+), 14 deletions(-)
+ net/bpf/test_run.c | 3 ---
+ net/core/filter.c  | 7 ++++++-
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/videobuf-dma-contig.c b/drivers/media/v4l2-core/videobuf-dma-contig.c
-index aeb2f497c683..6a6cd046cefb 100644
---- a/drivers/media/v4l2-core/videobuf-dma-contig.c
-+++ b/drivers/media/v4l2-core/videobuf-dma-contig.c
-@@ -36,12 +36,11 @@ struct videobuf_dma_contig_memory {
- 
- static int __videobuf_dc_alloc(struct device *dev,
- 			       struct videobuf_dma_contig_memory *mem,
--			       unsigned long size, gfp_t flags)
-+			       unsigned long size)
+diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
+index d78c4cc30a28..591d146a5308 100644
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -201,9 +201,6 @@ static int convert___skb_to_skb(struct sk_buff *skb, struct __sk_buff *__skb)
  {
- 	mem->size = size;
--	mem->vaddr = dma_alloc_coherent(dev, mem->size,
--					&mem->dma_handle, flags);
--
-+	mem->vaddr = dma_alloc_coherent(dev, mem->size, &mem->dma_handle,
-+					GFP_KERNEL);
- 	if (!mem->vaddr) {
- 		dev_err(dev, "memory alloc size %ld failed\n", mem->size);
- 		return -ENOMEM;
-@@ -258,8 +257,7 @@ static int __videobuf_iolock(struct videobuf_queue *q,
- 			return videobuf_dma_contig_user_get(mem, vb);
+ 	struct qdisc_skb_cb *cb = (struct qdisc_skb_cb *)skb->cb;
  
- 		/* allocate memory for the read() method */
--		if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(vb->size),
--					GFP_KERNEL))
-+		if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(vb->size)))
- 			return -ENOMEM;
- 		break;
- 	case V4L2_MEMORY_OVERLAY:
-@@ -295,22 +293,18 @@ static int __videobuf_mmap_mapper(struct videobuf_queue *q,
- 	BUG_ON(!mem);
- 	MAGIC_CHECK(mem->magic, MAGIC_DC_MEM);
- 
--	if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(buf->bsize),
--				GFP_KERNEL | __GFP_COMP))
-+	if (__videobuf_dc_alloc(q->dev, mem, PAGE_ALIGN(buf->bsize)))
- 		goto error;
- 
--	/* Try to remap memory */
--	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+-	if (!skb->len)
+-		return -EINVAL;
 -
- 	/* the "vm_pgoff" is just used in v4l2 to find the
- 	 * corresponding buffer data structure which is allocated
- 	 * earlier and it does not mean the offset from the physical
- 	 * buffer start address as usual. So set it to 0 to pass
--	 * the sanity check in vm_iomap_memory().
-+	 * the sanity check in dma_mmap_coherent().
- 	 */
- 	vma->vm_pgoff = 0;
--
--	retval = vm_iomap_memory(vma, mem->dma_handle, mem->size);
-+	retval = dma_mmap_coherent(q->dev, vma, mem->vaddr, mem->dma_handle,
-+				   mem->size);
- 	if (retval) {
- 		dev_err(q->dev, "mmap: remap failed with error %d. ",
- 			retval);
+ 	if (!__skb)
+ 		return 0;
+ 
+diff --git a/net/core/filter.c b/net/core/filter.c
+index e81f7772161a..6fd9173e18b7 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -2071,6 +2071,11 @@ static int __bpf_redirect_no_mac(struct sk_buff *skb, struct net_device *dev,
+ {
+ 	unsigned int mlen = skb_network_offset(skb);
+ 
++	if (unlikely(skb->len <= mlen)) {
++		kfree_skb(skb);
++		return -ERANGE;
++	}
++
+ 	if (mlen) {
+ 		__skb_pull(skb, mlen);
+ 
+@@ -2092,7 +2097,7 @@ static int __bpf_redirect_common(struct sk_buff *skb, struct net_device *dev,
+ 				 u32 flags)
+ {
+ 	/* Verify that a link layer header is carried */
+-	if (unlikely(skb->mac_header >= skb->network_header)) {
++	if (unlikely(skb->mac_header >= skb->network_header || skb->len == 0)) {
+ 		kfree_skb(skb);
+ 		return -ERANGE;
+ 	}
 -- 
 2.35.1
 
