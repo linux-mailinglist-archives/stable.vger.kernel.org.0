@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 897E666C7C4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:34:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17F8566CA46
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:01:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233098AbjAPQeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:34:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
+        id S234077AbjAPRBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:01:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233243AbjAPQeA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EF3229E12
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:21:50 -0800 (PST)
+        with ESMTP id S231397AbjAPRAc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:00:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9439D530DD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:43:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AC969CE1280
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:21:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B7EBC433EF;
-        Mon, 16 Jan 2023 16:21:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C25E61042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:43:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 266FAC433EF;
+        Mon, 16 Jan 2023 16:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886107;
-        bh=TptDFtEaGDb3Wu49vsPd2NVtX3mBPHmFIouz8ogBZMo=;
+        s=korg; t=1673887394;
+        bh=g8ISu+6Q6M2A5mBB4vhainaaLT5aZ4DeAYmj052L+eQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r0lj4oszg8GUqvAQBPUR0dZWoabnIgY4OxVrcVpoBSBXnI7xCLwmMlddJLZqSj57o
-         yT5sVm6iYfltxd/L7QCFEjbyXe50zXZHyRU0y+BY0ZmRUt04Cxo0zElkk3Gl+yGBJA
-         GAJELop2V5EaqsT6NTHwiP77D51+G5NFzoxP+7f8=
+        b=kDTqEUTzc6T+yyYIWtB1LJPyygnlC6Ptog5JXD2aYwVEoZfhIbTtRWVuO4WQOGnrM
+         /l9c9hdMFxP3qcfmduaU0Y2IjN5UgRveSWXbAuTSq1sM9pi+o2UJwTIOO+zRGc3OFQ
+         CiAo2BDL5MY2IlmAMXMYkLo5X5CEdFwFYaZVz7Ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johannes Thumshirn <jth@kernel.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 304/658] mcb: mcb-parse: fix error handing in chameleon_parse_gdd()
-Date:   Mon, 16 Jan 2023 16:46:32 +0100
-Message-Id: <20230116154923.487074169@linuxfoundation.org>
+Subject: [PATCH 4.19 131/521] regulator: core: fix module refcount leak in set_supply()
+Date:   Mon, 16 Jan 2023 16:46:33 +0100
+Message-Id: <20230116154853.120943679@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +55,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 728ac3389296caf68638628c987aeae6c8851e2d ]
+[ Upstream commit da46ee19cbd8344d6860816b4827a7ce95764867 ]
 
-If mcb_device_register() returns error in chameleon_parse_gdd(), the refcount
-of bus and device name are leaked. Fix this by calling put_device() to give up
-the reference, so they can be released in mcb_release_dev() and kobject_cleanup().
+If create_regulator() fails in set_supply(), the module refcount
+needs be put to keep refcount balanced.
 
-Fixes: 3764e82e5150 ("drivers: Introduce MEN Chameleon Bus")
-Reviewed-by: Johannes Thumshirn <jth@kernel.org>
+Fixes: e2c09ae7a74d ("regulator: core: Increase refcount for regulator supply's module")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
-Link: https://lore.kernel.org/r/ebfb06e39b19272f0197fa9136b5e4b6f34ad732.1669624063.git.johannes.thumshirn@wdc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20221201122706.4055992-2-yangyingliang@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mcb/mcb-parse.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mcb/mcb-parse.c b/drivers/mcb/mcb-parse.c
-index 3b69e6aa3d88..cfe5c95ce0ce 100644
---- a/drivers/mcb/mcb-parse.c
-+++ b/drivers/mcb/mcb-parse.c
-@@ -108,7 +108,7 @@ static int chameleon_parse_gdd(struct mcb_bus *bus,
- 	return 0;
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 07982143ec18..9cf438a37eeb 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1241,6 +1241,7 @@ static int set_supply(struct regulator_dev *rdev,
  
- err:
--	mcb_free_dev(mdev);
-+	put_device(&mdev->dev);
- 
- 	return ret;
- }
+ 	rdev->supply = create_regulator(supply_rdev, &rdev->dev, "SUPPLY");
+ 	if (rdev->supply == NULL) {
++		module_put(supply_rdev->owner);
+ 		err = -ENOMEM;
+ 		return err;
+ 	}
 -- 
 2.35.1
 
