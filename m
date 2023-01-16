@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32EE466C753
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2B7666C9D2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233192AbjAPQ3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43142 "EHLO
+        id S230225AbjAPQ4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:56:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233204AbjAPQ3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 892412DE62
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:54 -0800 (PST)
+        with ESMTP id S234063AbjAPQ4V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED6735249
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C15BB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BA26C433F0;
-        Mon, 16 Jan 2023 16:17:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F667B8108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E77C433D2;
+        Mon, 16 Jan 2023 16:39:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885871;
-        bh=PMDO9hUbwriCNY3n7r/6S8oszdRH27p/kgm2I35DTOE=;
+        s=korg; t=1673887159;
+        bh=1Yi8Us4WxEV3rc8fw5rXqSOfkYWHcaOv09F+nNtLumE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C3a6ppyZeaKDL46dCCajAALIeJDAREM+Vzo69tYB90FGn82GLFXthC869XmpFj/Rb
-         Kx3pXV2W7IKq490T83e4VDAyI+z7gy6eCThTlA0JcqZY8U9cEffk2CoPgTiJmGTy2u
-         hEmcct8SHxTAyTqrEDHYxTuQ3ARAs2XMHseBX2zY=
+        b=fc9bniNf/PkSU+o5QpiwbzUFKdm9IaNN8PMKlTwdN0EDfdkwxeqIQye0aK5jk/vFu
+         HXammRIAhlJjxEya0S77C6N9Z+iqSBeCco7EWWsL06jUu1Rj4vE70gLECZRS4UNfBN
+         gt4umUkdzayXqadyCrsMlw+EeRqSXC9RNn/Bm+zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 188/658] mmc: alcor: fix return value check of mmc_add_host()
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.19 014/521] udf: Fix extending file within last block
 Date:   Mon, 16 Jan 2023 16:44:36 +0100
-Message-Id: <20230116154918.059135519@linuxfoundation.org>
+Message-Id: <20230116154847.909943168@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +51,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit e93d1468f429475a753d6baa79b853b7ee5ef8c0 ]
+commit 1f3868f06855c97a4954c99b36f3fc9eb8f60326 upstream.
 
-mmc_add_host() may return error, if we ignore its return value, the memory
-that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
-crash because of deleting not added device in the remove path.
+When extending file within last block it can happen that the extent is
+already rounded to the blocksize and thus contains the offset we want to
+grow up to. In such case we would mistakenly expand the last extent and
+make it one block longer than it should be, exposing unallocated block
+in a file and causing data corruption. Fix the problem by properly
+detecting this case and bailing out.
 
-So fix this by checking the return value and calling mmc_free_host() in the
-error path.
-
-Fixes: c5413ad815a6 ("mmc: add new Alcor Micro Cardreader SD/MMC driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221101063023.1664968-2-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/alcor.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/udf/inode.c |   32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/mmc/host/alcor.c b/drivers/mmc/host/alcor.c
-index 026ca9194ce5..a8ec2e6fefa8 100644
---- a/drivers/mmc/host/alcor.c
-+++ b/drivers/mmc/host/alcor.c
-@@ -1114,7 +1114,10 @@ static int alcor_pci_sdmmc_drv_probe(struct platform_device *pdev)
- 	alcor_hw_init(host);
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -585,13 +585,17 @@ out:
+ static void udf_do_extend_final_block(struct inode *inode,
+ 				      struct extent_position *last_pos,
+ 				      struct kernel_long_ad *last_ext,
+-				      uint32_t final_block_len)
++				      uint32_t new_elen)
+ {
+-	struct super_block *sb = inode->i_sb;
+ 	uint32_t added_bytes;
  
- 	dev_set_drvdata(&pdev->dev, host);
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto free_host;
-+
- 	return 0;
+-	added_bytes = final_block_len -
+-		      (last_ext->extLength & (sb->s_blocksize - 1));
++	/*
++	 * Extent already large enough? It may be already rounded up to block
++	 * size...
++	 */
++	if (new_elen <= (last_ext->extLength & UDF_EXTENT_LENGTH_MASK))
++		return;
++	added_bytes = (last_ext->extLength & UDF_EXTENT_LENGTH_MASK) - new_elen;
+ 	last_ext->extLength += added_bytes;
+ 	UDF_I(inode)->i_lenExtents += added_bytes;
  
- free_host:
--- 
-2.35.1
-
+@@ -608,12 +612,12 @@ static int udf_extend_file(struct inode
+ 	int8_t etype;
+ 	struct super_block *sb = inode->i_sb;
+ 	sector_t first_block = newsize >> sb->s_blocksize_bits, offset;
+-	unsigned long partial_final_block;
++	loff_t new_elen;
+ 	int adsize;
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 	struct kernel_long_ad extent;
+ 	int err = 0;
+-	int within_final_block;
++	bool within_last_ext;
+ 
+ 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
+ 		adsize = sizeof(struct short_ad);
+@@ -629,9 +633,9 @@ static int udf_extend_file(struct inode
+ 	udf_discard_prealloc(inode);
+ 
+ 	etype = inode_bmap(inode, first_block, &epos, &eloc, &elen, &offset);
+-	within_final_block = (etype != -1);
++	within_last_ext = (etype != -1);
+ 	/* We don't expect extents past EOF... */
+-	WARN_ON_ONCE(etype != -1 &&
++	WARN_ON_ONCE(within_last_ext &&
+ 		     elen > ((loff_t)offset + 1) << inode->i_blkbits);
+ 
+ 	if ((!epos.bh && epos.offset == udf_file_entry_alloc_offset(inode)) ||
+@@ -648,19 +652,17 @@ static int udf_extend_file(struct inode
+ 		extent.extLength |= etype << 30;
+ 	}
+ 
+-	partial_final_block = newsize & (sb->s_blocksize - 1);
++	new_elen = ((loff_t)offset << inode->i_blkbits) |
++					(newsize & (sb->s_blocksize - 1));
+ 
+ 	/* File has extent covering the new size (could happen when extending
+ 	 * inside a block)?
+ 	 */
+-	if (within_final_block) {
++	if (within_last_ext) {
+ 		/* Extending file within the last file block */
+-		udf_do_extend_final_block(inode, &epos, &extent,
+-					  partial_final_block);
++		udf_do_extend_final_block(inode, &epos, &extent, new_elen);
+ 	} else {
+-		loff_t add = ((loff_t)offset << sb->s_blocksize_bits) |
+-			     partial_final_block;
+-		err = udf_do_extend_file(inode, &epos, &extent, add);
++		err = udf_do_extend_file(inode, &epos, &extent, new_elen);
+ 	}
+ 
+ 	if (err < 0)
 
 
