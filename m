@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A4EF66C809
+	by mail.lfdr.de (Postfix) with ESMTP id BBCDB66C80B
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233302AbjAPQgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:36:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53682 "EHLO
+        id S233426AbjAPQgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:36:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233426AbjAPQfs (ORCPT
+        with ESMTP id S233384AbjAPQfs (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:35:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68E8724111
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:23:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F35AF24102
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:23:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05E5F60FE0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15A40C433EF;
-        Mon, 16 Jan 2023 16:23:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 905706102C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:23:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D8DC433EF;
+        Mon, 16 Jan 2023 16:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886227;
-        bh=sEY6deSVYtHW1yiyQhZv/cNOiogxlSsrhThxf5L/ZJk=;
+        s=korg; t=1673886230;
+        bh=6/gB/sqK/YFZmrwqy0pjvyhNvgH9BMXl9wwEiJhU1KE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5r5ZV1yKrpHWtPL4RzngoQ13Tz2JFRDqHUXWxRf/FeaHyOBF/fKahY7df9DgbHG4
-         7NwvbnDt/9ouAf7W4lxVK/6VYIcNyGP5LiZEWsBzDssM2WAIeVGQx1rLSQLAzIvMWL
-         5ZTiaWYLzKFpfx8wSSzrA05vscCGwu5kUQn/Mwzo=
+        b=LRfTq7O4uOcSWooWJ6Q8g2S1h5ZExAkg4IX9LVU1kJu41NyW+N8IsMqQQgCIeN3Um
+         riKqHRCMIE6gnK5/1ngJKqM3+VHM0rYHIsGiw/l/h2GWGXUqBU/wt7wrtPj+pn36Q6
+         rQRadYtROi3o45mrvjKZIW1fn3CLzyrog84hrD00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 320/658] fbdev: uvesafb: Fixes an error handling path in uvesafb_probe()
-Date:   Mon, 16 Jan 2023 16:46:48 +0100
-Message-Id: <20230116154924.205161024@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 321/658] HSI: omap_ssi_core: fix unbalanced pm_runtime_disable()
+Date:   Mon, 16 Jan 2023 16:46:49 +0100
+Message-Id: <20230116154924.249343915@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,37 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit a94371040712031ba129c7e9d8ff04a06a2f8207 ]
+[ Upstream commit f5181c35ed7ba0ceb6e42872aad1334d994b0175 ]
 
-If an error occurs after a successful uvesafb_init_mtrr() call, it must be
-undone by a corresponding arch_phys_wc_del() call, as already done in the
-remove function.
+In error label 'out1' path in ssi_probe(), the pm_runtime_enable()
+has not been called yet, so pm_runtime_disable() is not needed.
 
-This has been added in the remove function in commit 63e28a7a5ffc
-("uvesafb: Clean up MTRR code")
-
-Fixes: 8bdb3a2d7df4 ("uvesafb: the driver core")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: b209e047bc74 ("HSI: Introduce OMAP SSI driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/uvesafb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hsi/controllers/omap_ssi_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/uvesafb.c b/drivers/video/fbdev/uvesafb.c
-index 439565cae7ab..7d3af1d19ad3 100644
---- a/drivers/video/fbdev/uvesafb.c
-+++ b/drivers/video/fbdev/uvesafb.c
-@@ -1756,6 +1756,7 @@ static int uvesafb_probe(struct platform_device *dev)
- out_unmap:
- 	iounmap(info->screen_base);
- out_mem:
-+	arch_phys_wc_del(par->mtrr_handle);
- 	release_mem_region(info->fix.smem_start, info->fix.smem_len);
- out_reg:
- 	release_region(0x3c0, 32);
+diff --git a/drivers/hsi/controllers/omap_ssi_core.c b/drivers/hsi/controllers/omap_ssi_core.c
+index 5aa6955b609f..8b8d25c7dc50 100644
+--- a/drivers/hsi/controllers/omap_ssi_core.c
++++ b/drivers/hsi/controllers/omap_ssi_core.c
+@@ -536,9 +536,9 @@ static int ssi_probe(struct platform_device *pd)
+ 	device_for_each_child(&pd->dev, NULL, ssi_remove_ports);
+ out2:
+ 	ssi_remove_controller(ssi);
++	pm_runtime_disable(&pd->dev);
+ out1:
+ 	platform_set_drvdata(pd, NULL);
+-	pm_runtime_disable(&pd->dev);
+ 
+ 	return err;
+ }
 -- 
 2.35.1
 
