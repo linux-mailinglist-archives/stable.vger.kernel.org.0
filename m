@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F84D66C619
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:14:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E4866C594
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:07:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232853AbjAPQOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:14:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60016 "EHLO
+        id S232084AbjAPQHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:07:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232317AbjAPQOG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:14:06 -0500
+        with ESMTP id S232443AbjAPQHB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:07:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B3E327D4B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:08:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BA4024129
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C954EB8107E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:08:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D32C433EF;
-        Mon, 16 Jan 2023 16:08:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 416A6B8105C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90C69C433F2;
+        Mon, 16 Jan 2023 16:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885301;
-        bh=rW09AEda0b3LQ9QddMJ9fJ9gr++LmqWGVPlQsdQDknc=;
+        s=korg; t=1673885115;
+        bh=j9mrXvhJ8AkLj55szg6EBszhgH5W6srHo8fnsF2dmls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zis0iUtaivQuWV4iEVTpsAXj6Y/NKBIpm1GKi6o0rme+ulWcNU2YIio6VhF3Yxgsk
-         28Aja8PiWD9qnh0467JnwzNxp9/4Nt2Jl634Bv03ZnaurvPGdvjW968XSfXcpzUUpn
-         DtxqVMuAG6jFJ4nD0rqd/xuHzzR9P1kZaX64Buec=
+        b=CZP3l6dS3GVAVZ7LddBp09k6SS3zSjWpLW/kWK06cy/PBJx5VrfytCs1ET0+2UrHF
+         fo3jqBRPAdjw3x1PssjFoPt0Aj85z8Wju70dSrXgDov6iFcff1YlVKdLXeOOguLk0K
+         5dgaZgCIg8aLyyuAUSYj9UEiaBYjFSxh/gZSawXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Li Heng <liheng40@huawei.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 47/64] net/sched: act_mpls: Fix warning during failed attribute validation
+Subject: [PATCH 5.15 80/86] efi: fix NULL-deref in init error path
 Date:   Mon, 16 Jan 2023 16:51:54 +0100
-Message-Id: <20230116154745.219284799@linuxfoundation.org>
+Message-Id: <20230116154750.367296648@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,107 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 9e17f99220d111ea031b44153fdfe364b0024ff2 ]
+[ Upstream commit 703c13fe3c9af557d312f5895ed6a5fda2711104 ]
 
-The 'TCA_MPLS_LABEL' attribute is of 'NLA_U32' type, but has a
-validation type of 'NLA_VALIDATE_FUNCTION'. This is an invalid
-combination according to the comment above 'struct nla_policy':
+In cases where runtime services are not supported or have been disabled,
+the runtime services workqueue will never have been allocated.
 
-"
-Meaning of `validate' field, use via NLA_POLICY_VALIDATE_FN:
-   NLA_BINARY           Validation function called for the attribute.
-   All other            Unused - but note that it's a union
-"
+Do not try to destroy the workqueue unconditionally in the unlikely
+event that EFI initialisation fails to avoid dereferencing a NULL
+pointer.
 
-This can trigger the warning [1] in nla_get_range_unsigned() when
-validation of the attribute fails. Despite being of 'NLA_U32' type, the
-associated 'min'/'max' fields in the policy are negative as they are
-aliased by the 'validate' field.
-
-Fix by changing the attribute type to 'NLA_BINARY' which is consistent
-with the above comment and all other users of NLA_POLICY_VALIDATE_FN().
-As a result, move the length validation to the validation function.
-
-No regressions in MPLS tests:
-
- # ./tdc.py -f tc-tests/actions/mpls.json
- [...]
- # echo $?
- 0
-
-[1]
-WARNING: CPU: 0 PID: 17743 at lib/nlattr.c:118
-nla_get_range_unsigned+0x1d8/0x1e0 lib/nlattr.c:117
-Modules linked in:
-CPU: 0 PID: 17743 Comm: syz-executor.0 Not tainted 6.1.0-rc8 #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.13.0-48-gd9c812dda519-prebuilt.qemu.org 04/01/2014
-RIP: 0010:nla_get_range_unsigned+0x1d8/0x1e0 lib/nlattr.c:117
-[...]
-Call Trace:
- <TASK>
- __netlink_policy_dump_write_attr+0x23d/0x990 net/netlink/policy.c:310
- netlink_policy_dump_write_attr+0x22/0x30 net/netlink/policy.c:411
- netlink_ack_tlv_fill net/netlink/af_netlink.c:2454 [inline]
- netlink_ack+0x546/0x760 net/netlink/af_netlink.c:2506
- netlink_rcv_skb+0x1b7/0x240 net/netlink/af_netlink.c:2546
- rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:6109
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x5e9/0x6b0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x739/0x860 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- ____sys_sendmsg+0x38f/0x500 net/socket.c:2482
- ___sys_sendmsg net/socket.c:2536 [inline]
- __sys_sendmsg+0x197/0x230 net/socket.c:2565
- __do_sys_sendmsg net/socket.c:2574 [inline]
- __se_sys_sendmsg net/socket.c:2572 [inline]
- __x64_sys_sendmsg+0x42/0x50 net/socket.c:2572
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Link: https://lore.kernel.org/netdev/CAO4mrfdmjvRUNbDyP0R03_DrD_eFCLCguz6OxZ2TYRSv0K9gxA@mail.gmail.com/
-Fixes: 2a2ea50870ba ("net: sched: add mpls manipulation actions to TC")
-Reported-by: Wei Chen <harperchen1110@gmail.com>
-Tested-by: Wei Chen <harperchen1110@gmail.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Link: https://lore.kernel.org/r/20230107171004.608436-1-idosch@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 98086df8b70c ("efi: add missed destroy_workqueue when efisubsys_init fails")
+Cc: stable@vger.kernel.org
+Cc: Li Heng <liheng40@huawei.com>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_mpls.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/efi.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/sched/act_mpls.c b/net/sched/act_mpls.c
-index d1486ea496a2..09799412b248 100644
---- a/net/sched/act_mpls.c
-+++ b/net/sched/act_mpls.c
-@@ -133,6 +133,11 @@ static int valid_label(const struct nlattr *attr,
- {
- 	const u32 *label = nla_data(attr);
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index ba03f5a4b30c..a2765d668856 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -385,8 +385,8 @@ static int __init efisubsys_init(void)
+ 	efi_kobj = kobject_create_and_add("efi", firmware_kobj);
+ 	if (!efi_kobj) {
+ 		pr_err("efi: Firmware registration failed.\n");
+-		destroy_workqueue(efi_rts_wq);
+-		return -ENOMEM;
++		error = -ENOMEM;
++		goto err_destroy_wq;
+ 	}
  
-+	if (nla_len(attr) != sizeof(*label)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Invalid MPLS label length");
-+		return -EINVAL;
-+	}
+ 	if (efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE |
+@@ -429,7 +429,10 @@ static int __init efisubsys_init(void)
+ 		generic_ops_unregister();
+ err_put:
+ 	kobject_put(efi_kobj);
+-	destroy_workqueue(efi_rts_wq);
++err_destroy_wq:
++	if (efi_rts_wq)
++		destroy_workqueue(efi_rts_wq);
 +
- 	if (*label & ~MPLS_LABEL_MASK || *label == MPLS_LABEL_IMPLNULL) {
- 		NL_SET_ERR_MSG_MOD(extack, "MPLS label out of range");
- 		return -EINVAL;
-@@ -144,7 +149,8 @@ static int valid_label(const struct nlattr *attr,
- static const struct nla_policy mpls_policy[TCA_MPLS_MAX + 1] = {
- 	[TCA_MPLS_PARMS]	= NLA_POLICY_EXACT_LEN(sizeof(struct tc_mpls)),
- 	[TCA_MPLS_PROTO]	= { .type = NLA_U16 },
--	[TCA_MPLS_LABEL]	= NLA_POLICY_VALIDATE_FN(NLA_U32, valid_label),
-+	[TCA_MPLS_LABEL]	= NLA_POLICY_VALIDATE_FN(NLA_BINARY,
-+							 valid_label),
- 	[TCA_MPLS_TC]		= NLA_POLICY_RANGE(NLA_U8, 0, 7),
- 	[TCA_MPLS_TTL]		= NLA_POLICY_MIN(NLA_U8, 1),
- 	[TCA_MPLS_BOS]		= NLA_POLICY_RANGE(NLA_U8, 0, 1),
+ 	return error;
+ }
+ 
 -- 
 2.35.1
 
