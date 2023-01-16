@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 739B266C4F9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCC5366C57D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231421AbjAPQA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42020 "EHLO
+        id S232110AbjAPQGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:06:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231775AbjAPQAI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:08 -0500
+        with ESMTP id S232243AbjAPQGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96743233C2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED6B23D92
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:04:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27080B8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A7FEC433F1;
-        Mon, 16 Jan 2023 16:00:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED2B3B81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:04:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52588C433EF;
+        Mon, 16 Jan 2023 16:04:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884803;
-        bh=weLb9qUT72LFeVd1nEIh3UGqo0eNlzY5VxB7l3ffpNg=;
+        s=korg; t=1673885073;
+        bh=3xteQ9jQKhn+tRgWq/xoHRCBtd/+9YToqzMGlIwpfdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FOzvJSW1d7wH3GDmFG2GP5N35gnnb/BGBY+xIj4J30XPZG+e72xrQp/RfxZVNmBCY
-         2ipZUV7Z+BSCdQY1dxjjVAa3jWedU7cY3RCrCPRwYsSzylVrSDJBssp5cvTVDNtcPr
-         C1Z9FPLRtRJjuW0aTU6aSd1yYlEWBNswzTP6JjEE=
+        b=XybnsorPOqsbq16oZ9lprjlQ9annWuELYuC6U2S6kIgQTgOp8fiovcaURn/lZ9pdM
+         9QdKiA0QY8IoDCpVjPI/093VpAZNRBGUfhwJ8A9HZHGHDjZWDtzxrDwoDCt5oc3Q/s
+         xUkQ+JADhHzmA0GL4xH5l+JQCgYx/t2xZehNo3c4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Maaz Mombasawala <mombasawalam@vmware.com>,
-        Martin Krastev <krastevm@vmware.com>,
-        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 146/183] drm/vmwgfx: Remove vmwgfx_hashtab
+        patches@lists.linux.dev, Qiang Yu <quic_qianyu@quicinc.com>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 35/86] bus: mhi: host: Fix race between channel preparation and M0 event
 Date:   Mon, 16 Jan 2023 16:51:09 +0100
-Message-Id: <20230116154809.511091289@linuxfoundation.org>
+Message-Id: <20230116154748.547464918@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,460 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maaz Mombasawala <mombasawalam@vmware.com>
+From: Qiang Yu <quic_qianyu@quicinc.com>
 
-[ Upstream commit 9da30cdd6a318595199319708c143ae318f804ef ]
+[ Upstream commit 869a99907faea6d1835b0bd0d0422ae3519c6ea9 ]
 
-The vmwgfx driver has migrated from using the hashtable in vmwgfx_hashtab
-to the linux/hashtable implementation. Remove the vmwgfx_hashtab from the
-driver.
+There is a race condition where mhi_prepare_channel() updates the
+read and write pointers as the base address and in parallel, if
+an M0 transition occurs, the tasklet goes ahead and rings
+doorbells for all channels with a delta in TRE rings assuming
+they are already enabled. This causes a null pointer access. Fix
+it by adding a channel enabled check before ringing channel
+doorbells.
 
-Signed-off-by: Maaz Mombasawala <mombasawalam@vmware.com>
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Reviewed-by: Zack Rusin <zackr@vmware.com>
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221022040236.616490-12-zack@kde.org
-Stable-dep-of: a309c7194e8a ("drm/vmwgfx: Remove rcu locks from user resources")
+Cc: stable@vger.kernel.org # 5.19
+Fixes: a6e2e3522f29 "bus: mhi: core: Add support for PM state transitions"
+Signed-off-by: Qiang Yu <quic_qianyu@quicinc.com>
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Link: https://lore.kernel.org/r/1665889532-13634-1-git-send-email-quic_qianyu@quicinc.com
+[mani: CCed stable list]
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/gpu/todo.rst                 |  11 --
- drivers/gpu/drm/vmwgfx/Makefile            |   2 +-
- drivers/gpu/drm/vmwgfx/ttm_object.c        |   8 +-
- drivers/gpu/drm/vmwgfx/ttm_object.h        |   2 -
- drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c |   4 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.h        |   6 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c    | 199 ---------------------
- drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h    |  83 ---------
- 8 files changed, 12 insertions(+), 303 deletions(-)
- delete mode 100644 drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c
- delete mode 100644 drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h
+ drivers/bus/mhi/core/pm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/gpu/todo.rst b/Documentation/gpu/todo.rst
-index 393d218e4a0c..b2c6aaf1edf2 100644
---- a/Documentation/gpu/todo.rst
-+++ b/Documentation/gpu/todo.rst
-@@ -651,17 +651,6 @@ See drivers/gpu/drm/amd/display/TODO for tasks.
+diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+index 1020268a075a..1a87b9c6c2f8 100644
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -297,7 +297,8 @@ int mhi_pm_m0_transition(struct mhi_controller *mhi_cntrl)
+ 		read_lock_irq(&mhi_chan->lock);
  
- Contact: Harry Wentland, Alex Deucher
- 
--vmwgfx: Replace hashtable with Linux' implementation
------------------------------------------------------
--
--The vmwgfx driver uses its own hashtable implementation. Replace the
--code with Linux' implementation and update the callers. It's mostly a
--refactoring task, but the interfaces are different.
--
--Contact: Zack Rusin, Thomas Zimmermann <tzimmermann@suse.de>
--
--Level: Intermediate
--
- Bootsplash
- ==========
- 
-diff --git a/drivers/gpu/drm/vmwgfx/Makefile b/drivers/gpu/drm/vmwgfx/Makefile
-index eee73b9aa404..68e350f410ad 100644
---- a/drivers/gpu/drm/vmwgfx/Makefile
-+++ b/drivers/gpu/drm/vmwgfx/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
--vmwgfx-y := vmwgfx_execbuf.o vmwgfx_gmr.o vmwgfx_hashtab.o vmwgfx_kms.o vmwgfx_drv.o \
-+vmwgfx-y := vmwgfx_execbuf.o vmwgfx_gmr.o vmwgfx_kms.o vmwgfx_drv.o \
- 	    vmwgfx_ioctl.o vmwgfx_resource.o vmwgfx_ttm_buffer.o \
- 	    vmwgfx_cmd.o vmwgfx_irq.o vmwgfx_ldu.o vmwgfx_ttm_glue.o \
- 	    vmwgfx_overlay.o vmwgfx_gmrid_manager.o vmwgfx_fence.o \
-diff --git a/drivers/gpu/drm/vmwgfx/ttm_object.c b/drivers/gpu/drm/vmwgfx/ttm_object.c
-index c07b81fbc495..932b125ebf3d 100644
---- a/drivers/gpu/drm/vmwgfx/ttm_object.c
-+++ b/drivers/gpu/drm/vmwgfx/ttm_object.c
-@@ -284,7 +284,7 @@ ttm_base_object_noref_lookup(struct ttm_object_file *tfile, uint64_t key)
+ 		/* Only ring DB if ring is not empty */
+-		if (tre_ring->base && tre_ring->wp  != tre_ring->rp)
++		if (tre_ring->base && tre_ring->wp  != tre_ring->rp &&
++		    mhi_chan->ch_state == MHI_CH_STATE_ENABLED)
+ 			mhi_ring_chan_db(mhi_cntrl, mhi_chan);
+ 		read_unlock_irq(&mhi_chan->lock);
  	}
- 
- 	__release(RCU);
--	return drm_hash_entry(hash, struct ttm_ref_object, hash)->obj;
-+	return hlist_entry(hash, struct ttm_ref_object, hash)->obj;
- }
- EXPORT_SYMBOL(ttm_base_object_noref_lookup);
- 
-@@ -299,7 +299,7 @@ struct ttm_base_object *ttm_base_object_lookup(struct ttm_object_file *tfile,
- 	ret = ttm_tfile_find_ref_rcu(tfile, key, &hash);
- 
- 	if (likely(ret == 0)) {
--		base = drm_hash_entry(hash, struct ttm_ref_object, hash)->obj;
-+		base = hlist_entry(hash, struct ttm_ref_object, hash)->obj;
- 		if (!kref_get_unless_zero(&base->refcount))
- 			base = NULL;
- 	}
-@@ -343,7 +343,7 @@ int ttm_ref_object_add(struct ttm_object_file *tfile,
- 		ret = ttm_tfile_find_ref_rcu(tfile, base->handle, &hash);
- 
- 		if (ret == 0) {
--			ref = drm_hash_entry(hash, struct ttm_ref_object, hash);
-+			ref = hlist_entry(hash, struct ttm_ref_object, hash);
- 			if (kref_get_unless_zero(&ref->kref)) {
- 				rcu_read_unlock();
- 				break;
-@@ -407,7 +407,7 @@ int ttm_ref_object_base_unref(struct ttm_object_file *tfile,
- 		spin_unlock(&tfile->lock);
- 		return -EINVAL;
- 	}
--	ref = drm_hash_entry(hash, struct ttm_ref_object, hash);
-+	ref = hlist_entry(hash, struct ttm_ref_object, hash);
- 	kref_put(&ref->kref, ttm_ref_object_release);
- 	spin_unlock(&tfile->lock);
- 	return 0;
-diff --git a/drivers/gpu/drm/vmwgfx/ttm_object.h b/drivers/gpu/drm/vmwgfx/ttm_object.h
-index 67f30d589e27..f0ebbe340ad6 100644
---- a/drivers/gpu/drm/vmwgfx/ttm_object.h
-+++ b/drivers/gpu/drm/vmwgfx/ttm_object.h
-@@ -42,8 +42,6 @@
- #include <linux/list.h>
- #include <linux/rcupdate.h>
- 
--#include "vmwgfx_hashtab.h"
--
- /**
-  * enum ttm_object_type
-  *
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c
-index 142aef686fcd..47bc0b411055 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c
-@@ -88,7 +88,7 @@ vmw_cmdbuf_res_lookup(struct vmw_cmdbuf_res_manager *man,
- 
- 	hash_for_each_possible_rcu(man->resources, hash, head, key) {
- 		if (hash->key == key)
--			return drm_hash_entry(hash, struct vmw_cmdbuf_res, hash)->res;
-+			return hlist_entry(hash, struct vmw_cmdbuf_res, hash)->res;
- 	}
- 	return ERR_PTR(-EINVAL);
- }
-@@ -243,7 +243,7 @@ int vmw_cmdbuf_res_remove(struct vmw_cmdbuf_res_manager *man,
- 
- 	hash_for_each_possible_rcu(man->resources, hash, head, key) {
- 		if (hash->key == key) {
--			entry = drm_hash_entry(hash, struct vmw_cmdbuf_res, hash);
-+			entry = hlist_entry(hash, struct vmw_cmdbuf_res, hash);
- 			break;
- 		}
- 	}
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-index d87aeedb78d0..7c45c3de0dcf 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-@@ -43,7 +43,6 @@
- #include "ttm_object.h"
- 
- #include "vmwgfx_fence.h"
--#include "vmwgfx_hashtab.h"
- #include "vmwgfx_reg.h"
- #include "vmwgfx_validation.h"
- 
-@@ -104,6 +103,11 @@ struct vmw_fpriv {
- 	bool gb_aware; /* user-space is guest-backed aware */
- };
- 
-+struct vmwgfx_hash_item {
-+	struct hlist_node head;
-+	unsigned long key;
-+};
-+
- /**
-  * struct vmw_buffer_object - TTM buffer object with vmwgfx additions
-  * @base: The TTM buffer object
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c b/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c
-deleted file mode 100644
-index 06aebc12774e..000000000000
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c
-+++ /dev/null
-@@ -1,199 +0,0 @@
--/*
-- * Copyright 2006 Tungsten Graphics, Inc., Bismarck, ND. USA.
-- * All Rights Reserved.
-- *
-- * Permission is hereby granted, free of charge, to any person obtaining a
-- * copy of this software and associated documentation files (the
-- * "Software"), to deal in the Software without restriction, including
-- * without limitation the rights to use, copy, modify, merge, publish,
-- * distribute, sub license, and/or sell copies of the Software, and to
-- * permit persons to whom the Software is furnished to do so, subject to
-- * the following conditions:
-- *
-- * The above copyright notice and this permission notice (including the
-- * next paragraph) shall be included in all copies or substantial portions
-- * of the Software.
-- *
-- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
-- * THE COPYRIGHT HOLDERS, AUTHORS AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM,
-- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-- * USE OR OTHER DEALINGS IN THE SOFTWARE.
-- */
--
--/*
-- * Simple open hash tab implementation.
-- *
-- * Authors:
-- * Thomas Hellström <thomas-at-tungstengraphics-dot-com>
-- */
--
--#include <linux/export.h>
--#include <linux/hash.h>
--#include <linux/mm.h>
--#include <linux/rculist.h>
--#include <linux/slab.h>
--#include <linux/vmalloc.h>
--
--#include <drm/drm_print.h>
--
--#include "vmwgfx_hashtab.h"
--
--int vmwgfx_ht_create(struct vmwgfx_open_hash *ht, unsigned int order)
--{
--	unsigned int size = 1 << order;
--
--	ht->order = order;
--	ht->table = NULL;
--	if (size <= PAGE_SIZE / sizeof(*ht->table))
--		ht->table = kcalloc(size, sizeof(*ht->table), GFP_KERNEL);
--	else
--		ht->table = vzalloc(array_size(size, sizeof(*ht->table)));
--	if (!ht->table) {
--		DRM_ERROR("Out of memory for hash table\n");
--		return -ENOMEM;
--	}
--	return 0;
--}
--
--void vmwgfx_ht_verbose_list(struct vmwgfx_open_hash *ht, unsigned long key)
--{
--	struct vmwgfx_hash_item *entry;
--	struct hlist_head *h_list;
--	unsigned int hashed_key;
--	int count = 0;
--
--	hashed_key = hash_long(key, ht->order);
--	DRM_DEBUG("Key is 0x%08lx, Hashed key is 0x%08x\n", key, hashed_key);
--	h_list = &ht->table[hashed_key];
--	hlist_for_each_entry(entry, h_list, head)
--		DRM_DEBUG("count %d, key: 0x%08lx\n", count++, entry->key);
--}
--
--static struct hlist_node *vmwgfx_ht_find_key(struct vmwgfx_open_hash *ht, unsigned long key)
--{
--	struct vmwgfx_hash_item *entry;
--	struct hlist_head *h_list;
--	unsigned int hashed_key;
--
--	hashed_key = hash_long(key, ht->order);
--	h_list = &ht->table[hashed_key];
--	hlist_for_each_entry(entry, h_list, head) {
--		if (entry->key == key)
--			return &entry->head;
--		if (entry->key > key)
--			break;
--	}
--	return NULL;
--}
--
--static struct hlist_node *vmwgfx_ht_find_key_rcu(struct vmwgfx_open_hash *ht, unsigned long key)
--{
--	struct vmwgfx_hash_item *entry;
--	struct hlist_head *h_list;
--	unsigned int hashed_key;
--
--	hashed_key = hash_long(key, ht->order);
--	h_list = &ht->table[hashed_key];
--	hlist_for_each_entry_rcu(entry, h_list, head) {
--		if (entry->key == key)
--			return &entry->head;
--		if (entry->key > key)
--			break;
--	}
--	return NULL;
--}
--
--int vmwgfx_ht_insert_item(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item)
--{
--	struct vmwgfx_hash_item *entry;
--	struct hlist_head *h_list;
--	struct hlist_node *parent;
--	unsigned int hashed_key;
--	unsigned long key = item->key;
--
--	hashed_key = hash_long(key, ht->order);
--	h_list = &ht->table[hashed_key];
--	parent = NULL;
--	hlist_for_each_entry(entry, h_list, head) {
--		if (entry->key == key)
--			return -EINVAL;
--		if (entry->key > key)
--			break;
--		parent = &entry->head;
--	}
--	if (parent)
--		hlist_add_behind_rcu(&item->head, parent);
--	else
--		hlist_add_head_rcu(&item->head, h_list);
--	return 0;
--}
--
--/*
-- * Just insert an item and return any "bits" bit key that hasn't been
-- * used before.
-- */
--int vmwgfx_ht_just_insert_please(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item,
--				 unsigned long seed, int bits, int shift,
--				 unsigned long add)
--{
--	int ret;
--	unsigned long mask = (1UL << bits) - 1;
--	unsigned long first, unshifted_key;
--
--	unshifted_key = hash_long(seed, bits);
--	first = unshifted_key;
--	do {
--		item->key = (unshifted_key << shift) + add;
--		ret = vmwgfx_ht_insert_item(ht, item);
--		if (ret)
--			unshifted_key = (unshifted_key + 1) & mask;
--	} while (ret && (unshifted_key != first));
--
--	if (ret) {
--		DRM_ERROR("Available key bit space exhausted\n");
--		return -EINVAL;
--	}
--	return 0;
--}
--
--int vmwgfx_ht_find_item(struct vmwgfx_open_hash *ht, unsigned long key,
--			struct vmwgfx_hash_item **item)
--{
--	struct hlist_node *list;
--
--	list = vmwgfx_ht_find_key_rcu(ht, key);
--	if (!list)
--		return -EINVAL;
--
--	*item = hlist_entry(list, struct vmwgfx_hash_item, head);
--	return 0;
--}
--
--int vmwgfx_ht_remove_key(struct vmwgfx_open_hash *ht, unsigned long key)
--{
--	struct hlist_node *list;
--
--	list = vmwgfx_ht_find_key(ht, key);
--	if (list) {
--		hlist_del_init_rcu(list);
--		return 0;
--	}
--	return -EINVAL;
--}
--
--int vmwgfx_ht_remove_item(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item)
--{
--	hlist_del_init_rcu(&item->head);
--	return 0;
--}
--
--void vmwgfx_ht_remove(struct vmwgfx_open_hash *ht)
--{
--	if (ht->table) {
--		kvfree(ht->table);
--		ht->table = NULL;
--	}
--}
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h b/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h
-deleted file mode 100644
-index a9ce12922e21..000000000000
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h
-+++ /dev/null
-@@ -1,83 +0,0 @@
--/*
-- * Copyright 2006 Tungsten Graphics, Inc., Bismack, ND. USA.
-- * All Rights Reserved.
-- *
-- * Permission is hereby granted, free of charge, to any person obtaining a
-- * copy of this software and associated documentation files (the
-- * "Software"), to deal in the Software without restriction, including
-- * without limitation the rights to use, copy, modify, merge, publish,
-- * distribute, sub license, and/or sell copies of the Software, and to
-- * permit persons to whom the Software is furnished to do so, subject to
-- * the following conditions:
-- *
-- * The above copyright notice and this permission notice (including the
-- * next paragraph) shall be included in all copies or substantial portions
-- * of the Software.
-- *
-- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
-- * THE COPYRIGHT HOLDERS, AUTHORS AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM,
-- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-- * USE OR OTHER DEALINGS IN THE SOFTWARE.
-- */
--
--/*
-- * Simple open hash tab implementation.
-- *
-- * Authors:
-- * Thomas Hellström <thomas-at-tungstengraphics-dot-com>
-- */
--
--/*
-- * TODO: Replace this hashtable with Linux' generic implementation
-- *       from <linux/hashtable.h>.
-- */
--
--#ifndef VMWGFX_HASHTAB_H
--#define VMWGFX_HASHTAB_H
--
--#include <linux/list.h>
--
--#define drm_hash_entry(_ptr, _type, _member) container_of(_ptr, _type, _member)
--
--struct vmwgfx_hash_item {
--	struct hlist_node head;
--	unsigned long key;
--};
--
--struct vmwgfx_open_hash {
--	struct hlist_head *table;
--	u8 order;
--};
--
--int vmwgfx_ht_create(struct vmwgfx_open_hash *ht, unsigned int order);
--int vmwgfx_ht_insert_item(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item);
--int vmwgfx_ht_just_insert_please(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item,
--				 unsigned long seed, int bits, int shift,
--				 unsigned long add);
--int vmwgfx_ht_find_item(struct vmwgfx_open_hash *ht, unsigned long key,
--			struct vmwgfx_hash_item **item);
--
--void vmwgfx_ht_verbose_list(struct vmwgfx_open_hash *ht, unsigned long key);
--int vmwgfx_ht_remove_key(struct vmwgfx_open_hash *ht, unsigned long key);
--int vmwgfx_ht_remove_item(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item);
--void vmwgfx_ht_remove(struct vmwgfx_open_hash *ht);
--
--/*
-- * RCU-safe interface
-- *
-- * The user of this API needs to make sure that two or more instances of the
-- * hash table manipulation functions are never run simultaneously.
-- * The lookup function vmwgfx_ht_find_item_rcu may, however, run simultaneously
-- * with any of the manipulation functions as long as it's called from within
-- * an RCU read-locked section.
-- */
--#define vmwgfx_ht_insert_item_rcu vmwgfx_ht_insert_item
--#define vmwgfx_ht_just_insert_please_rcu vmwgfx_ht_just_insert_please
--#define vmwgfx_ht_remove_key_rcu vmwgfx_ht_remove_key
--#define vmwgfx_ht_remove_item_rcu vmwgfx_ht_remove_item
--#define vmwgfx_ht_find_item_rcu vmwgfx_ht_find_item
--
--#endif
 -- 
 2.35.1
 
