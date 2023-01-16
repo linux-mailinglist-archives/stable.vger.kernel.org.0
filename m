@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE3766CB95
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D62C66CD23
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234397AbjAPRPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39174 "EHLO
+        id S234898AbjAPRd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:33:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234272AbjAPROi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42FA24C6D5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:22 -0800 (PST)
+        with ESMTP id S234887AbjAPRd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3234D1A4A1
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2F7160F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA5E1C433EF;
-        Mon, 16 Jan 2023 16:55:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E68DFB8107A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A7A4C433F1;
+        Mon, 16 Jan 2023 17:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888121;
-        bh=vxs/uePeqY9uEnTL5udaLloHxcY/GXkuhbWxtSbsUG4=;
+        s=korg; t=1673888974;
+        bh=g2OdSkJ7CtElp7CkAJWGPqxBw7YHK7JjH7rFr2hKfo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f0kQNPVCljCQVaA2fFxmB1R5PIKJc/JOsAtiqgmkyKdTbNmdztw3rkXY3F35a7CQx
-         Jao0/7uq7NyO4LmWePjZ/g48YuGsQBYytZ0w1fDonC/1ibkCoCBT89atjexEf8U9a0
-         ttoP0/n5mITx1so7H0gqOx94rS3x7zF4hYhD0HMc=
+        b=JSPfgLKly5RHT7j2+DDSWNJtA80kSOvbH+jPWgvnsNQgJ5A7D8YFPEmuBZmIk8ThC
+         7XTGrUHhLiLWiQzVjKxUbS1yZMm47VcR68Km9/htd/rOi/IceLJuXfPl6EDssrZS19
+         U4MFloKPkQUKfLx0MhySkCkvtNVd11WeDGHRHYao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wenwen Wang <wenwen@cs.uga.edu>,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH 4.19 391/521] media: dvb-core: Fix double free in dvb_register_device()
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 180/338] usb: storage: Add check for kcalloc
 Date:   Mon, 16 Jan 2023 16:50:53 +0100
-Message-Id: <20230116154904.600476949@linuxfoundation.org>
+Message-Id: <20230116154828.756350088@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 6b0d0477fce747d4137aa65856318b55fba72198 upstream.
+[ Upstream commit c35ca10f53c51eeb610d3f8fbc6dd6d511b58a58 ]
 
-In function dvb_register_device() -> dvb_register_media_device() ->
-dvb_create_media_entity(), dvb->entity is allocated and initialized. If
-the initialization fails, it frees the dvb->entity, and return an error
-code. The caller takes the error code and handles the error by calling
-dvb_media_device_free(), which unregisters the entity and frees the
-field again if it is not NULL. As dvb->entity may not NULLed in
-dvb_create_media_entity() when the allocation of dvbdev->pad fails, a
-double free may occur. This may also cause an Use After free in
-media_device_unregister_entity().
+As kcalloc may return NULL pointer, the return value should
+be checked and return error if fails as same as the ones in
+alauda_read_map.
 
-Fix this by storing NULL to dvb->entity when it is freed.
-
-Link: https://lore.kernel.org/linux-media/20220426052921.2088416-1-keitasuzuki.park@sslab.ics.keio.ac.jp
-Fixes: fcd5ce4b3936 ("media: dvb-core: fix a memory leak bug")
-Cc: stable@vger.kernel.org
-Cc: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: e80b0fade09e ("[PATCH] USB Storage: add alauda support")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20221208110058.12983-1-jiasheng@iscas.ac.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-core/dvbdev.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/storage/alauda.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -345,6 +345,7 @@ static int dvb_create_media_entity(struc
- 				       GFP_KERNEL);
- 		if (!dvbdev->pads) {
- 			kfree(dvbdev->entity);
-+			dvbdev->entity = NULL;
- 			return -ENOMEM;
- 		}
- 	}
+diff --git a/drivers/usb/storage/alauda.c b/drivers/usb/storage/alauda.c
+index 878b4b8761f5..3dbd60540372 100644
+--- a/drivers/usb/storage/alauda.c
++++ b/drivers/usb/storage/alauda.c
+@@ -450,6 +450,8 @@ static int alauda_init_media(struct us_data *us)
+ 		+ MEDIA_INFO(us).blockshift + MEDIA_INFO(us).pageshift);
+ 	MEDIA_INFO(us).pba_to_lba = kcalloc(num_zones, sizeof(u16*), GFP_NOIO);
+ 	MEDIA_INFO(us).lba_to_pba = kcalloc(num_zones, sizeof(u16*), GFP_NOIO);
++	if (MEDIA_INFO(us).pba_to_lba == NULL || MEDIA_INFO(us).lba_to_pba == NULL)
++		return USB_STOR_TRANSPORT_ERROR;
+ 
+ 	if (alauda_reset_media(us) != USB_STOR_XFER_GOOD)
+ 		return USB_STOR_TRANSPORT_ERROR;
+-- 
+2.35.1
+
 
 
