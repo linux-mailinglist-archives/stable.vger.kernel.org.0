@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CC8F66C74C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08C3866C9CB
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233248AbjAPQ3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42826 "EHLO
+        id S233950AbjAPQ40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:56:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233259AbjAPQ3P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0795F2D16D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:37 -0800 (PST)
+        with ESMTP id S234035AbjAPQ4H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD98E33475
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 989F86102D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A846CC433F1;
-        Mon, 16 Jan 2023 16:17:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87CAAB8108F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5045C433D2;
+        Mon, 16 Jan 2023 16:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885856;
-        bh=WQjVpdJ4WFOjzz9gc0FmspoTmoPdllj2TfhUeq1/qho=;
+        s=korg; t=1673887143;
+        bh=UdRqLFL5zMFiyl4XTCz27cDNjAUKdYCaldfdUFfSlgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XhKn5f6WBxsbuptufENWr7iEN1Aihs4D/1NrPsu25QdYIXsRfr03bCWeCNfTkQXQQ
-         SgV3DTX5pegUUVi6UO0c17Jiq8yUqUusZUqnnZDh41MhYPme9fRgssiPUcgoSI+B/j
-         wILwlyr1GRkP430gXyP2bRFpH6Bu+sc/HpbZx9OE=
+        b=DMBxRWFmBtdzxRGIuxL1Scy85kMXI+8w1DxKmozDC9pNH0C/mzxIxDpRPZLMpsbX9
+         DbAbKo8rgdfIk33FDSjU1a/+fe/EKFOVCjpsC8M32AM99jjuUcK7mdqyFFiZpW+w5C
+         mMN4ROQ7l9SPo5xC5CharMydktTt0GRc5/UIIMns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Jihong <yangjihong1@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 209/658] blktrace: Fix output non-blktrace event when blk_classic option enabled
-Date:   Mon, 16 Jan 2023 16:44:57 +0100
-Message-Id: <20230116154919.002855255@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 036/521] ARM: dts: armada-38x: Fix assigned-addresses for every PCIe Root Port
+Date:   Mon, 16 Jan 2023 16:44:58 +0100
+Message-Id: <20230116154848.925130128@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit f596da3efaf4130ff61cd029558845808df9bf99 ]
+[ Upstream commit 44f47b7a8fa4678ce4c38ea74837e4996b9df6d6 ]
 
-When the blk_classic option is enabled, non-blktrace events must be
-filtered out. Otherwise, events of other types are output in the blktrace
-classic format, which is unexpected.
+BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
+(PCI-to-PCI bridge) should match BDF in address part in that DT node name
+as specified resource belongs to Marvell PCIe Root Port itself.
 
-The problem can be triggered in the following ways:
-
-  # echo 1 > /sys/kernel/debug/tracing/options/blk_classic
-  # echo 1 > /sys/kernel/debug/tracing/events/enable
-  # echo blk > /sys/kernel/debug/tracing/current_tracer
-  # cat /sys/kernel/debug/tracing/trace_pipe
-
-Fixes: c71a89615411 ("blktrace: add ftrace plugin")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Link: https://lore.kernel.org/r/20221122040410.85113-1-yangjihong1@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 0d3d96ab0059 ("ARM: mvebu: add Device Tree description of the Armada 380/385 SoCs")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/armada-380.dtsi | 4 ++--
+ arch/arm/boot/dts/armada-385.dtsi | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 749b27851f45..abf5cbbb743b 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -1589,7 +1589,8 @@ blk_trace_event_print_binary(struct trace_iterator *iter, int flags,
- 
- static enum print_line_t blk_tracer_print_line(struct trace_iterator *iter)
- {
--	if (!(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
-+	if ((iter->ent->type != TRACE_BLK) ||
-+	    !(blk_tracer_flags.val & TRACE_BLK_OPT_CLASSIC))
- 		return TRACE_TYPE_UNHANDLED;
- 
- 	return print_one_line(iter, true);
+diff --git a/arch/arm/boot/dts/armada-380.dtsi b/arch/arm/boot/dts/armada-380.dtsi
+index cff1269f3fbf..7146cc8f082a 100644
+--- a/arch/arm/boot/dts/armada-380.dtsi
++++ b/arch/arm/boot/dts/armada-380.dtsi
+@@ -79,7 +79,7 @@ pcie@1,0 {
+ 			/* x1 port */
+ 			pcie@2,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+@@ -98,7 +98,7 @@ pcie@2,0 {
+ 			/* x1 port */
+ 			pcie@3,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
++				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
+ 				reg = <0x1800 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+diff --git a/arch/arm/boot/dts/armada-385.dtsi b/arch/arm/boot/dts/armada-385.dtsi
+index f0022d10c715..f081f7cb66e5 100644
+--- a/arch/arm/boot/dts/armada-385.dtsi
++++ b/arch/arm/boot/dts/armada-385.dtsi
+@@ -84,7 +84,7 @@ pcie1: pcie@1,0 {
+ 			/* x1 port */
+ 			pcie2: pcie@2,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+@@ -103,7 +103,7 @@ pcie2: pcie@2,0 {
+ 			/* x1 port */
+ 			pcie3: pcie@3,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
++				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
+ 				reg = <0x1800 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
+@@ -125,7 +125,7 @@ pcie3: pcie@3,0 {
+ 			 */
+ 			pcie4: pcie@4,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82000800 0 0x48000 0 0x2000>;
++				assigned-addresses = <0x82002000 0 0x48000 0 0x2000>;
+ 				reg = <0x2000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
 -- 
 2.35.1
 
