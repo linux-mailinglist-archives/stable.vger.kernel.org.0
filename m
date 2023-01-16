@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C238C66CC3E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:23:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C474166CAA9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:05:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234334AbjAPRXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:23:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45340 "EHLO
+        id S231479AbjAPRF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:05:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234653AbjAPRWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:22:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 784A034C3B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:00:54 -0800 (PST)
+        with ESMTP id S234214AbjAPRE6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:04:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 540883867A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:46:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82D7760F63
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:00:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9357CC433F2;
-        Mon, 16 Jan 2023 17:00:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF9B0B81092
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:46:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31456C433F0;
+        Mon, 16 Jan 2023 16:46:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888453;
-        bh=YG6J9RgwKZu3Vp7W+2E+iGexVV0TkxyAXehYF1f4VKs=;
+        s=korg; t=1673887605;
+        bh=bKSewYUn7IQyc+mYJUie8YvuMUhfTTA+XTe6nKiQlCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2VtK234I5c6WQWRma07qncUOH1anjGv+b0ir4I6FA2Eam+c0JcAsvd6w22DPvp+qQ
-         zHZyfndLFU6WvFsRHkqmWfrxSLy8q5l0C1Czfa++5qti/f2IntcUJuRMm9GgGmTs+i
-         W0idAN7o/FMz/X3uz7tOaPwNv4ke/7m7XTrtQB5g=
+        b=DzqB9yE4a+gRZTmxjs2ewa+6PKZYbX42j2z/IIiZ0VjYAREsbuTe223Nzw7KDySIp
+         OiJfl3WhWk6OpUFEG5bN08meHqYJGir7X8KgSfs+z2Qh9OXQPxV9x7VFvMQE9oZHSt
+         JCoV5XF8fClv4N249HjcymYBYbizXNPNn2hd+Z8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Shardar Shariff Md <smohammed@nvidia.com>,
+        Krishna Yarlagadda <kyarlagadda@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 002/338] once: add DO_ONCE_SLOW() for sleepable contexts
+Subject: [PATCH 4.19 213/521] serial: tegra: add support to adjust baud rate
 Date:   Mon, 16 Jan 2023 16:47:55 +0100
-Message-Id: <20230116154820.802470217@linuxfoundation.org>
+Message-Id: <20230116154856.699012693@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,142 +53,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Krishna Yarlagadda <kyarlagadda@nvidia.com>
 
-commit 62c07983bef9d3e78e71189441e1a470f0d1e653 upstream.
+[ Upstream commit f04a3cc8d4550463e0c15be59d91177a5def1ca5 ]
 
-Christophe Leroy reported a ~80ms latency spike
-happening at first TCP connect() time.
+Add support to adjust baud rates to fall under supported tolerance
+range through DT.
 
-This is because __inet_hash_connect() uses get_random_once()
-to populate a perturbation table which became quite big
-after commit 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
+Tegra186 chip has a hardware issue resulting in frame errors when
+tolerance level for baud rate is negative. Provided entries to adjust
+baud rate to be within acceptable range and work with devices that
+can send negative baud rate. Also report error when baud rate set is
+out of tolerance range of controller updated in device tree.
 
-get_random_once() uses DO_ONCE(), which block hard irqs for the duration
-of the operation.
-
-This patch adds DO_ONCE_SLOW() which uses a mutex instead of a spinlock
-for operations where we prefer to stay in process context.
-
-Then __inet_hash_connect() can use get_random_slow_once()
-to populate its perturbation table.
-
-Fixes: 4c2c8f03a5ab ("tcp: increase source port perturb table to 2^16")
-Fixes: 190cc82489f4 ("tcp: change source port randomizarion at connect() time")
-Reported-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/netdev/CANn89iLAEYBaoYajy0Y9UmGFff5GPxDUoG-ErVB2jDdRNQ5Tug@mail.gmail.com/T/#t
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Tested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Shardar Shariff Md <smohammed@nvidia.com>
+Signed-off-by: Krishna Yarlagadda <kyarlagadda@nvidia.com>
+Link: https://lore.kernel.org/r/1567572187-29820-11-git-send-email-kyarlagadda@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 109a951a9f1f ("serial: tegra: Read DMA status before terminating")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/once.h       |   28 ++++++++++++++++++++++++++++
- lib/once.c                 |   30 ++++++++++++++++++++++++++++++
- net/ipv4/inet_hashtables.c |    4 ++--
- 3 files changed, 60 insertions(+), 2 deletions(-)
+ drivers/tty/serial/serial-tegra.c | 68 +++++++++++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
 
---- a/include/linux/once.h
-+++ b/include/linux/once.h
-@@ -5,10 +5,18 @@
- #include <linux/types.h>
- #include <linux/jump_label.h>
+diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
+index 6a3c6bf5b964..aae4c167f529 100644
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -91,6 +91,12 @@ struct tegra_uart_chip_data {
+ 	int	max_dma_burst_bytes;
+ };
  
-+/* Helpers used from arbitrary contexts.
-+ * Hard irqs are blocked, be cautious.
-+ */
- bool __do_once_start(bool *done, unsigned long *flags);
- void __do_once_done(bool *done, struct static_key *once_key,
- 		    unsigned long *flags);
- 
-+/* Variant for process contexts only. */
-+bool __do_once_slow_start(bool *done);
-+void __do_once_slow_done(bool *done, struct static_key *once_key,
-+			 struct module *mod);
++struct tegra_baud_tolerance {
++	u32 lower_range_baud;
++	u32 upper_range_baud;
++	s32 tolerance;
++};
 +
- /* Call a function exactly once. The idea of DO_ONCE() is to perform
-  * a function call such as initialization of random seeds, etc, only
-  * once, where DO_ONCE() can live in the fast-path. After @func has
-@@ -52,9 +60,29 @@ void __do_once_done(bool *done, struct s
- 		___ret;							     \
- 	})
+ struct tegra_uart_port {
+ 	struct uart_port			uport;
+ 	const struct tegra_uart_chip_data	*cdata;
+@@ -127,6 +133,8 @@ struct tegra_uart_port {
+ 	dma_cookie_t				rx_cookie;
+ 	unsigned int				tx_bytes_requested;
+ 	unsigned int				rx_bytes_requested;
++	struct tegra_baud_tolerance		*baud_tolerance;
++	int					n_adjustable_baud_rates;
+ };
  
-+/* Variant of DO_ONCE() for process/sleepable contexts. */
-+#define DO_ONCE_SLOW(func, ...)						     \
-+	({								     \
-+		bool ___ret = false;					     \
-+		static bool ___done = false;				     \
-+		static struct static_key ___once_key = STATIC_KEY_INIT_TRUE; \
-+		if (static_key_true(&___once_key)) {		     \
-+			___ret = __do_once_slow_start(&___done);	     \
-+			if (unlikely(___ret)) {				     \
-+				func(__VA_ARGS__);			     \
-+				__do_once_slow_done(&___done, &___once_key,  \
-+						    THIS_MODULE);	     \
-+			}						     \
-+		}							     \
-+		___ret;							     \
-+	})
-+
- #define get_random_once(buf, nbytes)					     \
- 	DO_ONCE(get_random_bytes, (buf), (nbytes))
- #define get_random_once_wait(buf, nbytes)                                    \
- 	DO_ONCE(get_random_bytes_wait, (buf), (nbytes))                      \
- 
-+#define get_random_slow_once(buf, nbytes)				     \
-+	DO_ONCE_SLOW(get_random_bytes, (buf), (nbytes))
-+
- #endif /* _LINUX_ONCE_H */
---- a/lib/once.c
-+++ b/lib/once.c
-@@ -61,3 +61,33 @@ void __do_once_done(bool *done, struct s
- 	once_disable_jump(once_key);
+ static void tegra_uart_start_next_tx(struct tegra_uart_port *tup);
+@@ -295,6 +303,21 @@ static void tegra_uart_fifo_reset(struct tegra_uart_port *tup, u8 fcr_bits)
+ 	tegra_uart_wait_cycle_time(tup, 32);
  }
- EXPORT_SYMBOL(__do_once_done);
-+
-+static DEFINE_MUTEX(once_mutex);
-+
-+bool __do_once_slow_start(bool *done)
-+	__acquires(once_mutex)
+ 
++static long tegra_get_tolerance_rate(struct tegra_uart_port *tup,
++				     unsigned int baud, long rate)
 +{
-+	mutex_lock(&once_mutex);
-+	if (*done) {
-+		mutex_unlock(&once_mutex);
-+		/* Keep sparse happy by restoring an even lock count on
-+		 * this mutex. In case we return here, we don't call into
-+		 * __do_once_done but return early in the DO_ONCE_SLOW() macro.
-+		 */
-+		__acquire(once_mutex);
-+		return false;
++	int i;
++
++	for (i = 0; i < tup->n_adjustable_baud_rates; ++i) {
++		if (baud >= tup->baud_tolerance[i].lower_range_baud &&
++		    baud <= tup->baud_tolerance[i].upper_range_baud)
++			return (rate + (rate *
++				tup->baud_tolerance[i].tolerance) / 10000);
 +	}
 +
-+	return true;
++	return rate;
 +}
-+EXPORT_SYMBOL(__do_once_slow_start);
 +
-+void __do_once_slow_done(bool *done, struct static_key *once_key,
-+			 struct module *mod)
-+	__releases(once_mutex)
-+{
-+	*done = true;
-+	mutex_unlock(&once_mutex);
-+	once_disable_jump(once_key);
-+}
-+EXPORT_SYMBOL(__do_once_slow_done);
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -638,8 +638,8 @@ int __inet_hash_connect(struct inet_time
- 	if (likely(remaining > 1))
- 		remaining &= ~1U;
+ static int tegra_set_baudrate(struct tegra_uart_port *tup, unsigned int baud)
+ {
+ 	unsigned long rate;
+@@ -307,6 +330,9 @@ static int tegra_set_baudrate(struct tegra_uart_port *tup, unsigned int baud)
  
--	net_get_random_once(table_perturb,
--			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
-+	get_random_slow_once(table_perturb,
-+			     INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
- 	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
+ 	if (tup->cdata->support_clk_src_div) {
+ 		rate = baud * 16;
++		if (tup->n_adjustable_baud_rates)
++			rate = tegra_get_tolerance_rate(tup, baud, rate);
++
+ 		ret = clk_set_rate(tup->uart_clk, rate);
+ 		if (ret < 0) {
+ 			dev_err(tup->uport.dev,
+@@ -1250,6 +1276,12 @@ static int tegra_uart_parse_dt(struct platform_device *pdev,
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+ 	int port;
++	int ret;
++	int index;
++	u32 pval;
++	int count;
++	int n_entries;
++
  
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
+ 	port = of_alias_get_id(np, "serial");
+ 	if (port < 0) {
+@@ -1260,6 +1292,42 @@ static int tegra_uart_parse_dt(struct platform_device *pdev,
+ 
+ 	tup->enable_modem_interrupt = of_property_read_bool(np,
+ 					"nvidia,enable-modem-interrupt");
++	n_entries = of_property_count_u32_elems(np, "nvidia,adjust-baud-rates");
++	if (n_entries > 0) {
++		tup->n_adjustable_baud_rates = n_entries / 3;
++		tup->baud_tolerance =
++		devm_kzalloc(&pdev->dev, (tup->n_adjustable_baud_rates) *
++			     sizeof(*tup->baud_tolerance), GFP_KERNEL);
++		if (!tup->baud_tolerance)
++			return -ENOMEM;
++		for (count = 0, index = 0; count < n_entries; count += 3,
++		     index++) {
++			ret =
++			of_property_read_u32_index(np,
++						   "nvidia,adjust-baud-rates",
++						   count, &pval);
++			if (!ret)
++				tup->baud_tolerance[index].lower_range_baud =
++				pval;
++			ret =
++			of_property_read_u32_index(np,
++						   "nvidia,adjust-baud-rates",
++						   count + 1, &pval);
++			if (!ret)
++				tup->baud_tolerance[index].upper_range_baud =
++				pval;
++			ret =
++			of_property_read_u32_index(np,
++						   "nvidia,adjust-baud-rates",
++						   count + 2, &pval);
++			if (!ret)
++				tup->baud_tolerance[index].tolerance =
++				(s32)pval;
++		}
++	} else {
++		tup->n_adjustable_baud_rates = 0;
++	}
++
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
+
 
 
