@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C6D66C6DD
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 315CB66C6B7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:23:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233119AbjAPQZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:25:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
+        id S232821AbjAPQXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:23:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233118AbjAPQZN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:25:13 -0500
+        with ESMTP id S232910AbjAPQXU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:23:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E586624123
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:13:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0902632E47
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8318B61040
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:13:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F776C433D2;
-        Mon, 16 Jan 2023 16:13:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75E1E61031
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BC2CC433F1;
+        Mon, 16 Jan 2023 16:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885637;
-        bh=EPBPYZzHjnyJHl1hul34G7z8MFLjSImA2ubBtyzkDp4=;
+        s=korg; t=1673885561;
+        bh=ggP3ajWo0nwgC6SmpC9atidOUR1X+2poO113chbmYws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m25PQyLELe6YeAe8fggrRl/uGwH75alZSWsjPuPvEc3kF1vR+xMGekmgtZDGlg1qi
-         S+hWMQhpsdC+d+uofWmVJFec9tRJ9Doenffi1EfyqMsWBqJbIwNDLLS9S+jGyiEoKo
-         z2o26z/JqKOxkgTgya7E4x7M+6THeYgwnzgqRnzQ=
+        b=T7/F55HpFLW1zcjUbAh/xaL8qYmnJat8i/RZdOLxQdq6cEfHIRwOkStnhQqhs+ca6
+         RkR85R3KjLhlSyaP3geyJngwcTrjTUnlTc9C5DTnWTr0L/y0auenbYPL9BX9dhQ0tz
+         VSN+PLYArB2Iy3NrVo//w9JP9BkBrPHPVyKUI6IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Cai Xinchen <caixinchen1@huawei.com>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Dan Carpenter <error27@gmail.com>,
-        Jakob Koschel <jakobkoschel@gmail.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Wang Weiyang <wangweiyang2@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/658] rapidio: devices: fix missing put_device in mport_cdev_open
-Date:   Mon, 16 Jan 2023 16:43:06 +0100
-Message-Id: <20230116154914.031642196@linuxfoundation.org>
+Subject: [PATCH 5.4 099/658] wifi: ath9k: hif_usb: fix memory leak of urbs in ath9k_hif_usb_dealloc_tx_urbs()
+Date:   Mon, 16 Jan 2023 16:43:07 +0100
+Message-Id: <20230116154914.079163272@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -60,42 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cai Xinchen <caixinchen1@huawei.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit d5b6e6eba3af11cb2a2791fa36a2524990fcde1a ]
+[ Upstream commit c2a94de38c74e86f49124ac14f093d6a5c377a90 ]
 
-When kfifo_alloc fails, the refcount of chdev->dev is left incremental.
-We should use put_device(&chdev->dev) to decrease the ref count of
-chdev->dev to avoid refcount leak.
+Syzkaller reports a long-known leak of urbs in
+ath9k_hif_usb_dealloc_tx_urbs().
 
-Link: https://lkml.kernel.org/r/20221203085721.13146-1-caixinchen1@huawei.com
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Dan Carpenter <error27@gmail.com>
-Cc: Jakob Koschel <jakobkoschel@gmail.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Wang Weiyang <wangweiyang2@huawei.com>
-Cc: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+The cause of the leak is that usb_get_urb() is called but usb_free_urb()
+(or usb_put_urb()) is not called inside usb_kill_urb() as urb->dev or
+urb->ep fields have not been initialized and usb_kill_urb() returns
+immediately.
+
+The patch removes trying to kill urbs located in hif_dev->tx.tx_buf
+because hif_dev->tx.tx_buf is not supposed to contain urbs which are in
+pending state (the pending urbs are stored in hif_dev->tx.tx_pending).
+The tx.tx_lock is acquired so there should not be any changes in the list.
+
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+
+Fixes: 03fb92a432ea ("ath9k: hif_usb: fix race condition between usb_get_urb() and usb_kill_anchored_urbs()")
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220725151359.283704-1-pchelkin@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/devices/rio_mport_cdev.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
-index 8a420dfd5ee1..2371151bc8fc 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -1915,6 +1915,7 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
- 			  sizeof(struct rio_event) * MPORT_EVENT_DEPTH,
- 			  GFP_KERNEL);
- 	if (ret < 0) {
-+		put_device(&chdev->dev);
- 		dev_err(&chdev->dev, DRV_NAME ": kfifo_alloc failed\n");
- 		ret = -ENOMEM;
- 		goto err_fifo;
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index c8c7afe0e343..4290753a2002 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -781,14 +781,10 @@ static void ath9k_hif_usb_dealloc_tx_urbs(struct hif_device_usb *hif_dev)
+ 	spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	list_for_each_entry_safe(tx_buf, tx_buf_tmp,
+ 				 &hif_dev->tx.tx_buf, list) {
+-		usb_get_urb(tx_buf->urb);
+-		spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+-		usb_kill_urb(tx_buf->urb);
+ 		list_del(&tx_buf->list);
+ 		usb_free_urb(tx_buf->urb);
+ 		kfree(tx_buf->buf);
+ 		kfree(tx_buf);
+-		spin_lock_irqsave(&hif_dev->tx.tx_lock, flags);
+ 	}
+ 	spin_unlock_irqrestore(&hif_dev->tx.tx_lock, flags);
+ 
 -- 
 2.35.1
 
