@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C5CA66C955
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:48:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 739B266C4F9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233906AbjAPQsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:48:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38190 "EHLO
+        id S231421AbjAPQA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:00:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233834AbjAPQrq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:47:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 523B442DC6
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:20 -0800 (PST)
+        with ESMTP id S231775AbjAPQAI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96743233C2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 756F8B81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1583C433EF;
-        Mon, 16 Jan 2023 16:35:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27080B8105F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A7FEC433F1;
+        Mon, 16 Jan 2023 16:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886918;
-        bh=yJqZDOY58FM7cMfBi5K3Pk3mLA4Nv2L/3GnLb/jFm4c=;
+        s=korg; t=1673884803;
+        bh=weLb9qUT72LFeVd1nEIh3UGqo0eNlzY5VxB7l3ffpNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VH0Yd0R6X5ZSRqqXAlEX054o71RkI+nkoaJlQcgeIfXoHWImoUir8TqqHBFFgKCJr
-         RVsbl79XB9iHbMIequktMbTSa74JugSxIrY0tNX8jJGTTyhMQcJ7pe9wFH41iQ6QM7
-         0fWEn0IoaXP6/UW8upSTMkbDuw3IoEC+gVdUVd2o=
+        b=FOzvJSW1d7wH3GDmFG2GP5N35gnnb/BGBY+xIj4J30XPZG+e72xrQp/RfxZVNmBCY
+         2ipZUV7Z+BSCdQY1dxjjVAa3jWedU7cY3RCrCPRwYsSzylVrSDJBssp5cvTVDNtcPr
+         C1Z9FPLRtRJjuW0aTU6aSd1yYlEWBNswzTP6JjEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kyle Zeng <zengyhkyle@gmail.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 581/658] net: sched: cbq: dont intepret cls results when asked to drop
+        patches@lists.linux.dev,
+        Maaz Mombasawala <mombasawalam@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>,
+        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 146/183] drm/vmwgfx: Remove vmwgfx_hashtab
 Date:   Mon, 16 Jan 2023 16:51:09 +0100
-Message-Id: <20230116154936.079077636@linuxfoundation.org>
+Message-Id: <20230116154809.511091289@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,146 +54,460 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamal Hadi Salim <jhs@mojatatu.com>
+From: Maaz Mombasawala <mombasawalam@vmware.com>
 
-[ Upstream commit caa4b35b4317d5147b3ab0fbdc9c075c7d2e9c12 ]
+[ Upstream commit 9da30cdd6a318595199319708c143ae318f804ef ]
 
-If asked to drop a packet via TC_ACT_SHOT it is unsafe to assume that
-res.class contains a valid pointer
+The vmwgfx driver has migrated from using the hashtable in vmwgfx_hashtab
+to the linux/hashtable implementation. Remove the vmwgfx_hashtab from the
+driver.
 
-Sample splat reported by Kyle Zeng
-
-[    5.405624] 0: reclassify loop, rule prio 0, protocol 800
-[    5.406326] ==================================================================
-[    5.407240] BUG: KASAN: slab-out-of-bounds in cbq_enqueue+0x54b/0xea0
-[    5.407987] Read of size 1 at addr ffff88800e3122aa by task poc/299
-[    5.408731]
-[    5.408897] CPU: 0 PID: 299 Comm: poc Not tainted 5.10.155+ #15
-[    5.409516] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS 1.15.0-1 04/01/2014
-[    5.410439] Call Trace:
-[    5.410764]  dump_stack+0x87/0xcd
-[    5.411153]  print_address_description+0x7a/0x6b0
-[    5.411687]  ? vprintk_func+0xb9/0xc0
-[    5.411905]  ? printk+0x76/0x96
-[    5.412110]  ? cbq_enqueue+0x54b/0xea0
-[    5.412323]  kasan_report+0x17d/0x220
-[    5.412591]  ? cbq_enqueue+0x54b/0xea0
-[    5.412803]  __asan_report_load1_noabort+0x10/0x20
-[    5.413119]  cbq_enqueue+0x54b/0xea0
-[    5.413400]  ? __kasan_check_write+0x10/0x20
-[    5.413679]  __dev_queue_xmit+0x9c0/0x1db0
-[    5.413922]  dev_queue_xmit+0xc/0x10
-[    5.414136]  ip_finish_output2+0x8bc/0xcd0
-[    5.414436]  __ip_finish_output+0x472/0x7a0
-[    5.414692]  ip_finish_output+0x5c/0x190
-[    5.414940]  ip_output+0x2d8/0x3c0
-[    5.415150]  ? ip_mc_finish_output+0x320/0x320
-[    5.415429]  __ip_queue_xmit+0x753/0x1760
-[    5.415664]  ip_queue_xmit+0x47/0x60
-[    5.415874]  __tcp_transmit_skb+0x1ef9/0x34c0
-[    5.416129]  tcp_connect+0x1f5e/0x4cb0
-[    5.416347]  tcp_v4_connect+0xc8d/0x18c0
-[    5.416577]  __inet_stream_connect+0x1ae/0xb40
-[    5.416836]  ? local_bh_enable+0x11/0x20
-[    5.417066]  ? lock_sock_nested+0x175/0x1d0
-[    5.417309]  inet_stream_connect+0x5d/0x90
-[    5.417548]  ? __inet_stream_connect+0xb40/0xb40
-[    5.417817]  __sys_connect+0x260/0x2b0
-[    5.418037]  __x64_sys_connect+0x76/0x80
-[    5.418267]  do_syscall_64+0x31/0x50
-[    5.418477]  entry_SYSCALL_64_after_hwframe+0x61/0xc6
-[    5.418770] RIP: 0033:0x473bb7
-[    5.418952] Code: 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00
-00 00 90 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2a 00 00
-00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 18 89 54 24 0c 48 89 34
-24 89
-[    5.420046] RSP: 002b:00007fffd20eb0f8 EFLAGS: 00000246 ORIG_RAX:
-000000000000002a
-[    5.420472] RAX: ffffffffffffffda RBX: 00007fffd20eb578 RCX: 0000000000473bb7
-[    5.420872] RDX: 0000000000000010 RSI: 00007fffd20eb110 RDI: 0000000000000007
-[    5.421271] RBP: 00007fffd20eb150 R08: 0000000000000001 R09: 0000000000000004
-[    5.421671] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
-[    5.422071] R13: 00007fffd20eb568 R14: 00000000004fc740 R15: 0000000000000002
-[    5.422471]
-[    5.422562] Allocated by task 299:
-[    5.422782]  __kasan_kmalloc+0x12d/0x160
-[    5.423007]  kasan_kmalloc+0x5/0x10
-[    5.423208]  kmem_cache_alloc_trace+0x201/0x2e0
-[    5.423492]  tcf_proto_create+0x65/0x290
-[    5.423721]  tc_new_tfilter+0x137e/0x1830
-[    5.423957]  rtnetlink_rcv_msg+0x730/0x9f0
-[    5.424197]  netlink_rcv_skb+0x166/0x300
-[    5.424428]  rtnetlink_rcv+0x11/0x20
-[    5.424639]  netlink_unicast+0x673/0x860
-[    5.424870]  netlink_sendmsg+0x6af/0x9f0
-[    5.425100]  __sys_sendto+0x58d/0x5a0
-[    5.425315]  __x64_sys_sendto+0xda/0xf0
-[    5.425539]  do_syscall_64+0x31/0x50
-[    5.425764]  entry_SYSCALL_64_after_hwframe+0x61/0xc6
-[    5.426065]
-[    5.426157] The buggy address belongs to the object at ffff88800e312200
-[    5.426157]  which belongs to the cache kmalloc-128 of size 128
-[    5.426955] The buggy address is located 42 bytes to the right of
-[    5.426955]  128-byte region [ffff88800e312200, ffff88800e312280)
-[    5.427688] The buggy address belongs to the page:
-[    5.427992] page:000000009875fabc refcount:1 mapcount:0
-mapping:0000000000000000 index:0x0 pfn:0xe312
-[    5.428562] flags: 0x100000000000200(slab)
-[    5.428812] raw: 0100000000000200 dead000000000100 dead000000000122
-ffff888007843680
-[    5.429325] raw: 0000000000000000 0000000000100010 00000001ffffffff
-ffff88800e312401
-[    5.429875] page dumped because: kasan: bad access detected
-[    5.430214] page->mem_cgroup:ffff88800e312401
-[    5.430471]
-[    5.430564] Memory state around the buggy address:
-[    5.430846]  ffff88800e312180: fc fc fc fc fc fc fc fc fc fc fc fc
-fc fc fc fc
-[    5.431267]  ffff88800e312200: 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 fc
-[    5.431705] >ffff88800e312280: fc fc fc fc fc fc fc fc fc fc fc fc
-fc fc fc fc
-[    5.432123]                                   ^
-[    5.432391]  ffff88800e312300: 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 fc
-[    5.432810]  ffff88800e312380: fc fc fc fc fc fc fc fc fc fc fc fc
-fc fc fc fc
-[    5.433229] ==================================================================
-[    5.433648] Disabling lock debugging due to kernel taint
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Kyle Zeng <zengyhkyle@gmail.com>
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Maaz Mombasawala <mombasawalam@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Reviewed-by: Zack Rusin <zackr@vmware.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221022040236.616490-12-zack@kde.org
+Stable-dep-of: a309c7194e8a ("drm/vmwgfx: Remove rcu locks from user resources")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_cbq.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ Documentation/gpu/todo.rst                 |  11 --
+ drivers/gpu/drm/vmwgfx/Makefile            |   2 +-
+ drivers/gpu/drm/vmwgfx/ttm_object.c        |   8 +-
+ drivers/gpu/drm/vmwgfx/ttm_object.h        |   2 -
+ drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c |   4 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.h        |   6 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c    | 199 ---------------------
+ drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h    |  83 ---------
+ 8 files changed, 12 insertions(+), 303 deletions(-)
+ delete mode 100644 drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c
+ delete mode 100644 drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h
 
-diff --git a/net/sched/sch_cbq.c b/net/sched/sch_cbq.c
-index e5972889cd81..12893dac8461 100644
---- a/net/sched/sch_cbq.c
-+++ b/net/sched/sch_cbq.c
-@@ -231,6 +231,8 @@ cbq_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
- 		result = tcf_classify(skb, fl, &res, true);
- 		if (!fl || result < 0)
- 			goto fallback;
-+		if (result == TC_ACT_SHOT)
-+			return NULL;
+diff --git a/Documentation/gpu/todo.rst b/Documentation/gpu/todo.rst
+index 393d218e4a0c..b2c6aaf1edf2 100644
+--- a/Documentation/gpu/todo.rst
++++ b/Documentation/gpu/todo.rst
+@@ -651,17 +651,6 @@ See drivers/gpu/drm/amd/display/TODO for tasks.
  
- 		cl = (void *)res.class;
- 		if (!cl) {
-@@ -251,8 +253,7 @@ cbq_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
- 		case TC_ACT_TRAP:
- 			*qerr = NET_XMIT_SUCCESS | __NET_XMIT_STOLEN;
- 			/* fall through */
--		case TC_ACT_SHOT:
--			return NULL;
-+			fallthrough;
- 		case TC_ACT_RECLASSIFY:
- 			return cbq_reclassify(skb, cl);
+ Contact: Harry Wentland, Alex Deucher
+ 
+-vmwgfx: Replace hashtable with Linux' implementation
+-----------------------------------------------------
+-
+-The vmwgfx driver uses its own hashtable implementation. Replace the
+-code with Linux' implementation and update the callers. It's mostly a
+-refactoring task, but the interfaces are different.
+-
+-Contact: Zack Rusin, Thomas Zimmermann <tzimmermann@suse.de>
+-
+-Level: Intermediate
+-
+ Bootsplash
+ ==========
+ 
+diff --git a/drivers/gpu/drm/vmwgfx/Makefile b/drivers/gpu/drm/vmwgfx/Makefile
+index eee73b9aa404..68e350f410ad 100644
+--- a/drivers/gpu/drm/vmwgfx/Makefile
++++ b/drivers/gpu/drm/vmwgfx/Makefile
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+-vmwgfx-y := vmwgfx_execbuf.o vmwgfx_gmr.o vmwgfx_hashtab.o vmwgfx_kms.o vmwgfx_drv.o \
++vmwgfx-y := vmwgfx_execbuf.o vmwgfx_gmr.o vmwgfx_kms.o vmwgfx_drv.o \
+ 	    vmwgfx_ioctl.o vmwgfx_resource.o vmwgfx_ttm_buffer.o \
+ 	    vmwgfx_cmd.o vmwgfx_irq.o vmwgfx_ldu.o vmwgfx_ttm_glue.o \
+ 	    vmwgfx_overlay.o vmwgfx_gmrid_manager.o vmwgfx_fence.o \
+diff --git a/drivers/gpu/drm/vmwgfx/ttm_object.c b/drivers/gpu/drm/vmwgfx/ttm_object.c
+index c07b81fbc495..932b125ebf3d 100644
+--- a/drivers/gpu/drm/vmwgfx/ttm_object.c
++++ b/drivers/gpu/drm/vmwgfx/ttm_object.c
+@@ -284,7 +284,7 @@ ttm_base_object_noref_lookup(struct ttm_object_file *tfile, uint64_t key)
+ 	}
+ 
+ 	__release(RCU);
+-	return drm_hash_entry(hash, struct ttm_ref_object, hash)->obj;
++	return hlist_entry(hash, struct ttm_ref_object, hash)->obj;
+ }
+ EXPORT_SYMBOL(ttm_base_object_noref_lookup);
+ 
+@@ -299,7 +299,7 @@ struct ttm_base_object *ttm_base_object_lookup(struct ttm_object_file *tfile,
+ 	ret = ttm_tfile_find_ref_rcu(tfile, key, &hash);
+ 
+ 	if (likely(ret == 0)) {
+-		base = drm_hash_entry(hash, struct ttm_ref_object, hash)->obj;
++		base = hlist_entry(hash, struct ttm_ref_object, hash)->obj;
+ 		if (!kref_get_unless_zero(&base->refcount))
+ 			base = NULL;
+ 	}
+@@ -343,7 +343,7 @@ int ttm_ref_object_add(struct ttm_object_file *tfile,
+ 		ret = ttm_tfile_find_ref_rcu(tfile, base->handle, &hash);
+ 
+ 		if (ret == 0) {
+-			ref = drm_hash_entry(hash, struct ttm_ref_object, hash);
++			ref = hlist_entry(hash, struct ttm_ref_object, hash);
+ 			if (kref_get_unless_zero(&ref->kref)) {
+ 				rcu_read_unlock();
+ 				break;
+@@ -407,7 +407,7 @@ int ttm_ref_object_base_unref(struct ttm_object_file *tfile,
+ 		spin_unlock(&tfile->lock);
+ 		return -EINVAL;
+ 	}
+-	ref = drm_hash_entry(hash, struct ttm_ref_object, hash);
++	ref = hlist_entry(hash, struct ttm_ref_object, hash);
+ 	kref_put(&ref->kref, ttm_ref_object_release);
+ 	spin_unlock(&tfile->lock);
+ 	return 0;
+diff --git a/drivers/gpu/drm/vmwgfx/ttm_object.h b/drivers/gpu/drm/vmwgfx/ttm_object.h
+index 67f30d589e27..f0ebbe340ad6 100644
+--- a/drivers/gpu/drm/vmwgfx/ttm_object.h
++++ b/drivers/gpu/drm/vmwgfx/ttm_object.h
+@@ -42,8 +42,6 @@
+ #include <linux/list.h>
+ #include <linux/rcupdate.h>
+ 
+-#include "vmwgfx_hashtab.h"
+-
+ /**
+  * enum ttm_object_type
+  *
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c
+index 142aef686fcd..47bc0b411055 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf_res.c
+@@ -88,7 +88,7 @@ vmw_cmdbuf_res_lookup(struct vmw_cmdbuf_res_manager *man,
+ 
+ 	hash_for_each_possible_rcu(man->resources, hash, head, key) {
+ 		if (hash->key == key)
+-			return drm_hash_entry(hash, struct vmw_cmdbuf_res, hash)->res;
++			return hlist_entry(hash, struct vmw_cmdbuf_res, hash)->res;
+ 	}
+ 	return ERR_PTR(-EINVAL);
+ }
+@@ -243,7 +243,7 @@ int vmw_cmdbuf_res_remove(struct vmw_cmdbuf_res_manager *man,
+ 
+ 	hash_for_each_possible_rcu(man->resources, hash, head, key) {
+ 		if (hash->key == key) {
+-			entry = drm_hash_entry(hash, struct vmw_cmdbuf_res, hash);
++			entry = hlist_entry(hash, struct vmw_cmdbuf_res, hash);
+ 			break;
  		}
+ 	}
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+index d87aeedb78d0..7c45c3de0dcf 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+@@ -43,7 +43,6 @@
+ #include "ttm_object.h"
+ 
+ #include "vmwgfx_fence.h"
+-#include "vmwgfx_hashtab.h"
+ #include "vmwgfx_reg.h"
+ #include "vmwgfx_validation.h"
+ 
+@@ -104,6 +103,11 @@ struct vmw_fpriv {
+ 	bool gb_aware; /* user-space is guest-backed aware */
+ };
+ 
++struct vmwgfx_hash_item {
++	struct hlist_node head;
++	unsigned long key;
++};
++
+ /**
+  * struct vmw_buffer_object - TTM buffer object with vmwgfx additions
+  * @base: The TTM buffer object
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c b/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c
+deleted file mode 100644
+index 06aebc12774e..000000000000
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.c
++++ /dev/null
+@@ -1,199 +0,0 @@
+-/*
+- * Copyright 2006 Tungsten Graphics, Inc., Bismarck, ND. USA.
+- * All Rights Reserved.
+- *
+- * Permission is hereby granted, free of charge, to any person obtaining a
+- * copy of this software and associated documentation files (the
+- * "Software"), to deal in the Software without restriction, including
+- * without limitation the rights to use, copy, modify, merge, publish,
+- * distribute, sub license, and/or sell copies of the Software, and to
+- * permit persons to whom the Software is furnished to do so, subject to
+- * the following conditions:
+- *
+- * The above copyright notice and this permission notice (including the
+- * next paragraph) shall be included in all copies or substantial portions
+- * of the Software.
+- *
+- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
+- * THE COPYRIGHT HOLDERS, AUTHORS AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM,
+- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+- * USE OR OTHER DEALINGS IN THE SOFTWARE.
+- */
+-
+-/*
+- * Simple open hash tab implementation.
+- *
+- * Authors:
+- * Thomas Hellström <thomas-at-tungstengraphics-dot-com>
+- */
+-
+-#include <linux/export.h>
+-#include <linux/hash.h>
+-#include <linux/mm.h>
+-#include <linux/rculist.h>
+-#include <linux/slab.h>
+-#include <linux/vmalloc.h>
+-
+-#include <drm/drm_print.h>
+-
+-#include "vmwgfx_hashtab.h"
+-
+-int vmwgfx_ht_create(struct vmwgfx_open_hash *ht, unsigned int order)
+-{
+-	unsigned int size = 1 << order;
+-
+-	ht->order = order;
+-	ht->table = NULL;
+-	if (size <= PAGE_SIZE / sizeof(*ht->table))
+-		ht->table = kcalloc(size, sizeof(*ht->table), GFP_KERNEL);
+-	else
+-		ht->table = vzalloc(array_size(size, sizeof(*ht->table)));
+-	if (!ht->table) {
+-		DRM_ERROR("Out of memory for hash table\n");
+-		return -ENOMEM;
+-	}
+-	return 0;
+-}
+-
+-void vmwgfx_ht_verbose_list(struct vmwgfx_open_hash *ht, unsigned long key)
+-{
+-	struct vmwgfx_hash_item *entry;
+-	struct hlist_head *h_list;
+-	unsigned int hashed_key;
+-	int count = 0;
+-
+-	hashed_key = hash_long(key, ht->order);
+-	DRM_DEBUG("Key is 0x%08lx, Hashed key is 0x%08x\n", key, hashed_key);
+-	h_list = &ht->table[hashed_key];
+-	hlist_for_each_entry(entry, h_list, head)
+-		DRM_DEBUG("count %d, key: 0x%08lx\n", count++, entry->key);
+-}
+-
+-static struct hlist_node *vmwgfx_ht_find_key(struct vmwgfx_open_hash *ht, unsigned long key)
+-{
+-	struct vmwgfx_hash_item *entry;
+-	struct hlist_head *h_list;
+-	unsigned int hashed_key;
+-
+-	hashed_key = hash_long(key, ht->order);
+-	h_list = &ht->table[hashed_key];
+-	hlist_for_each_entry(entry, h_list, head) {
+-		if (entry->key == key)
+-			return &entry->head;
+-		if (entry->key > key)
+-			break;
+-	}
+-	return NULL;
+-}
+-
+-static struct hlist_node *vmwgfx_ht_find_key_rcu(struct vmwgfx_open_hash *ht, unsigned long key)
+-{
+-	struct vmwgfx_hash_item *entry;
+-	struct hlist_head *h_list;
+-	unsigned int hashed_key;
+-
+-	hashed_key = hash_long(key, ht->order);
+-	h_list = &ht->table[hashed_key];
+-	hlist_for_each_entry_rcu(entry, h_list, head) {
+-		if (entry->key == key)
+-			return &entry->head;
+-		if (entry->key > key)
+-			break;
+-	}
+-	return NULL;
+-}
+-
+-int vmwgfx_ht_insert_item(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item)
+-{
+-	struct vmwgfx_hash_item *entry;
+-	struct hlist_head *h_list;
+-	struct hlist_node *parent;
+-	unsigned int hashed_key;
+-	unsigned long key = item->key;
+-
+-	hashed_key = hash_long(key, ht->order);
+-	h_list = &ht->table[hashed_key];
+-	parent = NULL;
+-	hlist_for_each_entry(entry, h_list, head) {
+-		if (entry->key == key)
+-			return -EINVAL;
+-		if (entry->key > key)
+-			break;
+-		parent = &entry->head;
+-	}
+-	if (parent)
+-		hlist_add_behind_rcu(&item->head, parent);
+-	else
+-		hlist_add_head_rcu(&item->head, h_list);
+-	return 0;
+-}
+-
+-/*
+- * Just insert an item and return any "bits" bit key that hasn't been
+- * used before.
+- */
+-int vmwgfx_ht_just_insert_please(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item,
+-				 unsigned long seed, int bits, int shift,
+-				 unsigned long add)
+-{
+-	int ret;
+-	unsigned long mask = (1UL << bits) - 1;
+-	unsigned long first, unshifted_key;
+-
+-	unshifted_key = hash_long(seed, bits);
+-	first = unshifted_key;
+-	do {
+-		item->key = (unshifted_key << shift) + add;
+-		ret = vmwgfx_ht_insert_item(ht, item);
+-		if (ret)
+-			unshifted_key = (unshifted_key + 1) & mask;
+-	} while (ret && (unshifted_key != first));
+-
+-	if (ret) {
+-		DRM_ERROR("Available key bit space exhausted\n");
+-		return -EINVAL;
+-	}
+-	return 0;
+-}
+-
+-int vmwgfx_ht_find_item(struct vmwgfx_open_hash *ht, unsigned long key,
+-			struct vmwgfx_hash_item **item)
+-{
+-	struct hlist_node *list;
+-
+-	list = vmwgfx_ht_find_key_rcu(ht, key);
+-	if (!list)
+-		return -EINVAL;
+-
+-	*item = hlist_entry(list, struct vmwgfx_hash_item, head);
+-	return 0;
+-}
+-
+-int vmwgfx_ht_remove_key(struct vmwgfx_open_hash *ht, unsigned long key)
+-{
+-	struct hlist_node *list;
+-
+-	list = vmwgfx_ht_find_key(ht, key);
+-	if (list) {
+-		hlist_del_init_rcu(list);
+-		return 0;
+-	}
+-	return -EINVAL;
+-}
+-
+-int vmwgfx_ht_remove_item(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item)
+-{
+-	hlist_del_init_rcu(&item->head);
+-	return 0;
+-}
+-
+-void vmwgfx_ht_remove(struct vmwgfx_open_hash *ht)
+-{
+-	if (ht->table) {
+-		kvfree(ht->table);
+-		ht->table = NULL;
+-	}
+-}
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h b/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h
+deleted file mode 100644
+index a9ce12922e21..000000000000
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_hashtab.h
++++ /dev/null
+@@ -1,83 +0,0 @@
+-/*
+- * Copyright 2006 Tungsten Graphics, Inc., Bismack, ND. USA.
+- * All Rights Reserved.
+- *
+- * Permission is hereby granted, free of charge, to any person obtaining a
+- * copy of this software and associated documentation files (the
+- * "Software"), to deal in the Software without restriction, including
+- * without limitation the rights to use, copy, modify, merge, publish,
+- * distribute, sub license, and/or sell copies of the Software, and to
+- * permit persons to whom the Software is furnished to do so, subject to
+- * the following conditions:
+- *
+- * The above copyright notice and this permission notice (including the
+- * next paragraph) shall be included in all copies or substantial portions
+- * of the Software.
+- *
+- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
+- * THE COPYRIGHT HOLDERS, AUTHORS AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM,
+- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+- * USE OR OTHER DEALINGS IN THE SOFTWARE.
+- */
+-
+-/*
+- * Simple open hash tab implementation.
+- *
+- * Authors:
+- * Thomas Hellström <thomas-at-tungstengraphics-dot-com>
+- */
+-
+-/*
+- * TODO: Replace this hashtable with Linux' generic implementation
+- *       from <linux/hashtable.h>.
+- */
+-
+-#ifndef VMWGFX_HASHTAB_H
+-#define VMWGFX_HASHTAB_H
+-
+-#include <linux/list.h>
+-
+-#define drm_hash_entry(_ptr, _type, _member) container_of(_ptr, _type, _member)
+-
+-struct vmwgfx_hash_item {
+-	struct hlist_node head;
+-	unsigned long key;
+-};
+-
+-struct vmwgfx_open_hash {
+-	struct hlist_head *table;
+-	u8 order;
+-};
+-
+-int vmwgfx_ht_create(struct vmwgfx_open_hash *ht, unsigned int order);
+-int vmwgfx_ht_insert_item(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item);
+-int vmwgfx_ht_just_insert_please(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item,
+-				 unsigned long seed, int bits, int shift,
+-				 unsigned long add);
+-int vmwgfx_ht_find_item(struct vmwgfx_open_hash *ht, unsigned long key,
+-			struct vmwgfx_hash_item **item);
+-
+-void vmwgfx_ht_verbose_list(struct vmwgfx_open_hash *ht, unsigned long key);
+-int vmwgfx_ht_remove_key(struct vmwgfx_open_hash *ht, unsigned long key);
+-int vmwgfx_ht_remove_item(struct vmwgfx_open_hash *ht, struct vmwgfx_hash_item *item);
+-void vmwgfx_ht_remove(struct vmwgfx_open_hash *ht);
+-
+-/*
+- * RCU-safe interface
+- *
+- * The user of this API needs to make sure that two or more instances of the
+- * hash table manipulation functions are never run simultaneously.
+- * The lookup function vmwgfx_ht_find_item_rcu may, however, run simultaneously
+- * with any of the manipulation functions as long as it's called from within
+- * an RCU read-locked section.
+- */
+-#define vmwgfx_ht_insert_item_rcu vmwgfx_ht_insert_item
+-#define vmwgfx_ht_just_insert_please_rcu vmwgfx_ht_just_insert_please
+-#define vmwgfx_ht_remove_key_rcu vmwgfx_ht_remove_key
+-#define vmwgfx_ht_remove_item_rcu vmwgfx_ht_remove_item
+-#define vmwgfx_ht_find_item_rcu vmwgfx_ht_find_item
+-
+-#endif
 -- 
 2.35.1
 
