@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E3D666C539
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:03:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15E6666C4E4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:59:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231974AbjAPQDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:03:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44830 "EHLO
+        id S231679AbjAPP7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:59:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232072AbjAPQC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:02:56 -0500
+        with ESMTP id S231845AbjAPP7X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C258B241F2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6DFF22782
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 207A8B81061
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E7D1C433F0;
-        Mon, 16 Jan 2023 16:02:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 574D5B8106C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB9DEC433EF;
+        Mon, 16 Jan 2023 15:59:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884934;
-        bh=sCzp53A8zK1sw9NNzzJz4deyjZC6vOEcgGIg0IQRrVU=;
+        s=korg; t=1673884749;
+        bh=PXzaomj7tY5lp/w/mQpHcVi8guh732PTklR5dUjsnjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LALGk1oBkadDenlZ/IWJhjIR6AlhHUiJFWMvfvSfNUYrFcpacwVnKvrmq21/8JGsP
-         Vw3XJXgctH+nmCDh/L9rnltVLBdesSrJR81Yo+FCgJLJOMkSjVv95DXshPq7xtl34W
-         2Qm4buYv4EE1Fvmi3wJBEntbgBhuFCQvwymbEy5M=
+        b=l1waqRh5Xbb2kebHiokLfNr3Mg8KLY3zFhxCQP9/z1FhGeplB+xnwv9sw/DNyZpW3
+         IfnJxJ3RVntuxso9Bu0ymOb6GLqfwWskXZfnTJMuIE7mTUXunv0/BevKsb4sKe3pGM
+         w52WFfSF/f9gmrY2RxfnC/7/HefFTcQOc/rrUM3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.15 12/86] s390/kexec: fix ipl report address for kdump
-Date:   Mon, 16 Jan 2023 16:50:46 +0100
-Message-Id: <20230116154747.588551110@linuxfoundation.org>
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Eric Biggers <ebiggers@google.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 124/183] blk-crypto: pass a gendisk to blk_crypto_sysfs_{,un}register
+Date:   Mon, 16 Jan 2023 16:50:47 +0100
+Message-Id: <20230116154808.619939940@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +53,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit c2337a40e04dde1692b5b0a46ecc59f89aaba8a1 upstream.
+[ Upstream commit 450deb93df7d457cdd93594a1987f9650c749b96 ]
 
-This commit addresses the following erroneous situation with file-based
-kdump executed on a system with a valid IPL report.
+Prepare for changes to the block layer sysfs handling by passing the
+readily available gendisk to blk_crypto_sysfs_{,un}register.
 
-On s390, a kdump kernel, its initrd and IPL report if present are loaded
-into a special and reserved on boot memory region - crashkernel. When
-a system crashes and kdump was activated before, the purgatory code
-is entered first which swaps the crashkernel and [0 - crashkernel size]
-memory regions. Only after that the kdump kernel is entered. For this
-reason, the pointer to an IPL report in lowcore must point to the IPL report
-after the swap and not to the address of the IPL report that was located in
-crashkernel memory region before the swap. Failing to do so, makes the
-kdump's decompressor try to read memory from the crashkernel memory region
-which already contains the production's kernel memory.
-
-The situation described above caused spontaneous kdump failures/hangs
-on systems where the Secure IPL is activated because on such systems
-an IPL report is always present. In that case kdump's decompressor tried
-to parse an IPL report which frequently lead to illegal memory accesses
-because an IPL report contains addresses to various data.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to next kernel")
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221114042637.1009333-2-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: 49e4d04f0486 ("block: Drop spurious might_sleep() from blk_put_queue()")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/machine_kexec_file.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ block/blk-crypto-internal.h | 10 ++++++----
+ block/blk-crypto-sysfs.c    |  7 ++++---
+ block/blk-sysfs.c           |  4 ++--
+ 3 files changed, 12 insertions(+), 9 deletions(-)
 
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -185,8 +185,6 @@ static int kexec_file_add_ipl_report(str
+diff --git a/block/blk-crypto-internal.h b/block/blk-crypto-internal.h
+index e6818ffaddbf..b8a00847171f 100644
+--- a/block/blk-crypto-internal.h
++++ b/block/blk-crypto-internal.h
+@@ -21,9 +21,9 @@ extern const struct blk_crypto_mode blk_crypto_modes[];
  
- 	data->memsz = ALIGN(data->memsz, PAGE_SIZE);
- 	buf.mem = data->memsz;
--	if (image->type == KEXEC_TYPE_CRASH)
--		buf.mem += crashk_res.start;
+ #ifdef CONFIG_BLK_INLINE_ENCRYPTION
  
- 	ptr = (void *)ipl_cert_list_addr;
- 	end = ptr + ipl_cert_list_size;
-@@ -223,6 +221,9 @@ static int kexec_file_add_ipl_report(str
- 		data->kernel_buf + offsetof(struct lowcore, ipl_parmblock_ptr);
- 	*lc_ipl_parmblock_ptr = (__u32)buf.mem;
+-int blk_crypto_sysfs_register(struct request_queue *q);
++int blk_crypto_sysfs_register(struct gendisk *disk);
  
-+	if (image->type == KEXEC_TYPE_CRASH)
-+		buf.mem += crashk_res.start;
-+
- 	ret = kexec_add_buffer(&buf);
- out:
- 	return ret;
+-void blk_crypto_sysfs_unregister(struct request_queue *q);
++void blk_crypto_sysfs_unregister(struct gendisk *disk);
+ 
+ void bio_crypt_dun_increment(u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE],
+ 			     unsigned int inc);
+@@ -67,12 +67,14 @@ static inline bool blk_crypto_rq_is_encrypted(struct request *rq)
+ 
+ #else /* CONFIG_BLK_INLINE_ENCRYPTION */
+ 
+-static inline int blk_crypto_sysfs_register(struct request_queue *q)
++static inline int blk_crypto_sysfs_register(struct gendisk *disk)
+ {
+ 	return 0;
+ }
+ 
+-static inline void blk_crypto_sysfs_unregister(struct request_queue *q) { }
++static inline void blk_crypto_sysfs_unregister(struct gendisk *disk)
++{
++}
+ 
+ static inline bool bio_crypt_rq_ctx_compatible(struct request *rq,
+ 					       struct bio *bio)
+diff --git a/block/blk-crypto-sysfs.c b/block/blk-crypto-sysfs.c
+index fd93bd2f33b7..e05f145cd797 100644
+--- a/block/blk-crypto-sysfs.c
++++ b/block/blk-crypto-sysfs.c
+@@ -126,8 +126,9 @@ static struct kobj_type blk_crypto_ktype = {
+  * If the request_queue has a blk_crypto_profile, create the "crypto"
+  * subdirectory in sysfs (/sys/block/$disk/queue/crypto/).
+  */
+-int blk_crypto_sysfs_register(struct request_queue *q)
++int blk_crypto_sysfs_register(struct gendisk *disk)
+ {
++	struct request_queue *q = disk->queue;
+ 	struct blk_crypto_kobj *obj;
+ 	int err;
+ 
+@@ -149,9 +150,9 @@ int blk_crypto_sysfs_register(struct request_queue *q)
+ 	return 0;
+ }
+ 
+-void blk_crypto_sysfs_unregister(struct request_queue *q)
++void blk_crypto_sysfs_unregister(struct gendisk *disk)
+ {
+-	kobject_put(q->crypto_kobject);
++	kobject_put(disk->queue->crypto_kobject);
+ }
+ 
+ static int __init blk_crypto_sysfs_init(void)
+diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
+index e7871665825a..2b1cf0b2a5c7 100644
+--- a/block/blk-sysfs.c
++++ b/block/blk-sysfs.c
+@@ -833,7 +833,7 @@ int blk_register_queue(struct gendisk *disk)
+ 			goto put_dev;
+ 	}
+ 
+-	ret = blk_crypto_sysfs_register(q);
++	ret = blk_crypto_sysfs_register(disk);
+ 	if (ret)
+ 		goto put_dev;
+ 
+@@ -910,7 +910,7 @@ void blk_unregister_queue(struct gendisk *disk)
+ 	 */
+ 	if (queue_is_mq(q))
+ 		blk_mq_sysfs_unregister(disk);
+-	blk_crypto_sysfs_unregister(q);
++	blk_crypto_sysfs_unregister(disk);
+ 
+ 	mutex_lock(&q->sysfs_lock);
+ 	elv_unregister_queue(q);
+-- 
+2.35.1
+
 
 
