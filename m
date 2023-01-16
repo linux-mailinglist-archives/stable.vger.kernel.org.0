@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A5E66C994
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:51:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC67666C995
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:52:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233738AbjAPQvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:51:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44232 "EHLO
+        id S233866AbjAPQwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:52:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234005AbjAPQv1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:51:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0934B755
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:37:05 -0800 (PST)
+        with ESMTP id S233995AbjAPQvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:51:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B30012B623
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:37:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B668C61057
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD52BC433EF;
-        Mon, 16 Jan 2023 16:37:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B30BB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 764D7C433EF;
+        Mon, 16 Jan 2023 16:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887024;
-        bh=zNk/UyHm4X9JQEzkzWklgIfZmd408tfBLvmARygEVTE=;
+        s=korg; t=1673887026;
+        bh=SlrN7PgJCVJHKKrkJ9Zglx1aI+ce2l3aE3FygM0DWPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yFvLv25e0bGu57xCEVu/XgDFq83rJHlDPoXJ+yRNcw2gzc1lNqWNzUN3of/6X9ZAx
-         pc03kpG2iAkZMkzsTb6tTF9yDfeHLmVgcwFT6XAXYPu5AAahnrTBY9dbuIpDwpAdw7
-         CwDGkqFjE1WV0CefkjXBee/XGZ4oV2ev7BtGdKTo=
+        b=ZS57NQntppKDKEhnt2t6iMSc8EMLtBhjGw2FfJ8rC9kBWe3zTNaFXz7uHpFajHaFc
+         xtdITFLD+XJ272st2P36OVr7HiwVev8rB8QghqH8I10V3qnjBw7r3aIwO2An9i3t2C
+         22Gr5Jyn8wQs6gq60bzDUXLYEpNMgq5QBGY/zavk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
-        Ferry Toth <ftoth@exalondelft.nl>
-Subject: [PATCH 5.4 652/658] Revert "usb: ulpi: defer ulpi_register on ulpi_read_id timeout"
-Date:   Mon, 16 Jan 2023 16:52:20 +0100
-Message-Id: <20230116154939.309189909@linuxfoundation.org>
+        patches@lists.linux.dev, Jon Maloy <jon.maloy@ericsson.com>,
+        Tuong Lien <tuong.t.lien@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 653/658] tipc: fix use-after-free in tipc_disc_rcv()
+Date:   Mon, 16 Jan 2023 16:52:21 +0100
+Message-Id: <20230116154939.350511392@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -52,37 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Tuong Lien <tuong.t.lien@dektech.com.au>
 
-commit b659b613cea2ae39746ca8bd2b69d1985dd9d770 upstream.
+commit 31e4ccc99eda8a5a7e6902c98bee6e78ffd3edb9 upstream.
 
-This reverts commit 8a7b31d545d3a15f0e6f5984ae16f0ca4fd76aac.
+In the function 'tipc_disc_rcv()', the 'msg_peer_net_hash()' is called
+to read the header data field but after the message skb has been freed,
+that might result in a garbage value...
 
-This patch results in some qemu test failures, specifically xilinx-zynq-a9
-machine and zynq-zc702 as well as zynq-zed devicetree files, when trying
-to boot from USB drive.
+This commit fixes it by defining a new local variable to store the data
+first, just like the other header fields' handling.
 
-Link: https://lore.kernel.org/lkml/20221220194334.GA942039@roeck-us.net/
-Fixes: 8a7b31d545d3 ("usb: ulpi: defer ulpi_register on ulpi_read_id timeout")
-Cc: stable@vger.kernel.org
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Link: https://lore.kernel.org/r/20221222205302.45761-1-ftoth@exalondelft.nl
+Fixes: f73b12812a3d ("tipc: improve throughput between nodes in netns")
+Acked-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/common/ulpi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tipc/discover.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/common/ulpi.c
-+++ b/drivers/usb/common/ulpi.c
-@@ -207,7 +207,7 @@ static int ulpi_read_id(struct ulpi *ulp
- 	/* Test the interface */
- 	ret = ulpi_write(ulpi, ULPI_SCRATCH, 0xaa);
- 	if (ret < 0)
--		return ret;
-+		goto err;
- 
- 	ret = ulpi_read(ulpi, ULPI_SCRATCH);
- 	if (ret < 0)
+--- a/net/tipc/discover.c
++++ b/net/tipc/discover.c
+@@ -194,6 +194,7 @@ void tipc_disc_rcv(struct net *net, stru
+ {
+ 	struct tipc_net *tn = tipc_net(net);
+ 	struct tipc_msg *hdr = buf_msg(skb);
++	u32 pnet_hash = msg_peer_net_hash(hdr);
+ 	u16 caps = msg_node_capabilities(hdr);
+ 	bool legacy = tn->legacy_addr_format;
+ 	u32 sugg = msg_sugg_node_addr(hdr);
+@@ -245,9 +246,8 @@ void tipc_disc_rcv(struct net *net, stru
+ 		return;
+ 	if (!tipc_in_scope(legacy, b->domain, src))
+ 		return;
+-	tipc_node_check_dest(net, src, peer_id, b, caps, signature,
+-			     msg_peer_net_hash(hdr), &maddr, &respond,
+-			     &dupl_addr);
++	tipc_node_check_dest(net, src, peer_id, b, caps, signature, pnet_hash,
++			     &maddr, &respond, &dupl_addr);
+ 	if (dupl_addr)
+ 		disc_dupl_alert(b, src, &maddr);
+ 	if (!respond)
 
 
