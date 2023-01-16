@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C30966CB3A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59EBC66CB39
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234291AbjAPRMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:12:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36738 "EHLO
+        id S234338AbjAPRL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:11:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234359AbjAPRLb (ORCPT
+        with ESMTP id S229741AbjAPRLb (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C94C4900D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:42 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 229693D0AD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C7F7B8109E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF270C433D2;
-        Mon, 16 Jan 2023 16:51:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D14961037
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74641C433EF;
+        Mon, 16 Jan 2023 16:51:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887900;
-        bh=FpBev2TRlBot6nW8kIO6yuMp+zZp19D+9AzteDvmyig=;
+        s=korg; t=1673887902;
+        bh=V4Wc+ag6ZBSxK/gsAMFtBzi+fvW7brfP0yj43Qrg0qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twKayqH1rvdvJ1GwF+q3+tflHMUlJ8AmvwYlXLOjOv7huYnSpQV156Nojgj/7jMpy
-         VjfvQpp/sIyd1XMwcXq8tQDmYlTZL6XVbzTYZsT/UQUgJL+Nh6lXGfjCXP5yXT7Tvx
-         /vE68DgSt/hS6rTDo0fEmuMmlxzhKwRjCD7WbOKU=
+        b=WhzKMegdO1bOX+P2W7Qz5x+opRUqEPwt0kRee9Qm7tXnA/8d+OnPm6QnbqYniRQXA
+         TMFPz3WR9e0ujuaNbqz/hieJiSKVtJM7Kzbd7v4h38UNXl65ZxjYqgNsLFeTbsohUu
+         2bkNBrapEy02CZGB60PASFpu/dSsVh16heIp6FR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Kees Cook <keescook@chromium.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 323/521] net: ethernet: ti: Fix return type of netcp_ndo_start_xmit()
-Date:   Mon, 16 Jan 2023 16:49:45 +0100
-Message-Id: <20230116154901.593451605@linuxfoundation.org>
+Subject: [PATCH 4.19 324/521] hamradio: baycom_epp: Fix return type of baycom_send_packet()
+Date:   Mon, 16 Jan 2023 16:49:46 +0100
+Message-Id: <20230116154901.643433753@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -56,7 +56,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 63fe6ff674a96cfcfc0fa8df1051a27aa31c70b4 ]
+[ Upstream commit c5733e5b15d91ab679646ec3149e192996a27d5d ]
 
 With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
 indirect call targets are validated against the expected function
@@ -66,39 +66,38 @@ which manifests as either a kernel panic or thread getting killed. A
 proposed warning in clang aims to catch these at compile time, which
 reveals:
 
-  drivers/net/ethernet/ti/netcp_core.c:1944:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = netcp_ndo_start_xmit,
-                                    ^~~~~~~~~~~~~~~~~~~~
+  drivers/net/hamradio/baycom_epp.c:1119:25: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit      = baycom_send_packet,
+                                ^~~~~~~~~~~~~~~~~~
   1 error generated.
 
 ->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of
-netcp_ndo_start_xmit() to match the prototype's to resolve the warning
-and CFI failure.
+'netdev_tx_t', not 'int'. Adjust the return type of baycom_send_packet()
+to match the prototype's to resolve the warning and CFI failure.
 
 Link: https://github.com/ClangBuiltLinux/linux/issues/1750
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102160933.1601260-1-nathan@kernel.org
+Link: https://lore.kernel.org/r/20221102160610.1186145-1-nathan@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/netcp_core.c | 2 +-
+ drivers/net/hamradio/baycom_epp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/ti/netcp_core.c b/drivers/net/ethernet/ti/netcp_core.c
-index 6099865217f2..7fdbd2ff5573 100644
---- a/drivers/net/ethernet/ti/netcp_core.c
-+++ b/drivers/net/ethernet/ti/netcp_core.c
-@@ -1276,7 +1276,7 @@ static int netcp_tx_submit_skb(struct netcp_intf *netcp,
- }
+diff --git a/drivers/net/hamradio/baycom_epp.c b/drivers/net/hamradio/baycom_epp.c
+index 1e62d00732f2..787eaf3f4f13 100644
+--- a/drivers/net/hamradio/baycom_epp.c
++++ b/drivers/net/hamradio/baycom_epp.c
+@@ -772,7 +772,7 @@ static void epp_bh(struct work_struct *work)
+  * ===================== network driver interface =========================
+  */
  
- /* Submit the packet */
--static int netcp_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
-+static netdev_tx_t netcp_ndo_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+-static int baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
  {
- 	struct netcp_intf *netcp = netdev_priv(ndev);
- 	struct netcp_stats *tx_stats = &netcp->stats;
+ 	struct baycom_state *bc = netdev_priv(dev);
+ 
 -- 
 2.35.1
 
