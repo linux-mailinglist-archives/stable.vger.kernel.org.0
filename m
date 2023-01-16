@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 293D066C4AE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B79566C8B5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:42:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231887AbjAPP5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39046 "EHLO
+        id S233639AbjAPQmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:42:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231697AbjAPP5S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF7E6234EB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:00 -0800 (PST)
+        with ESMTP id S233619AbjAPQlZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:41:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A249D2DE70;
+        Mon, 16 Jan 2023 08:29:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 931ECB81052
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:56:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC0DAC433F1;
-        Mon, 16 Jan 2023 15:56:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54F45B8105F;
+        Mon, 16 Jan 2023 16:29:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4EF1C433D2;
+        Mon, 16 Jan 2023 16:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884618;
-        bh=CSjnrmGcOwKxEg3v82J1nM3cCnXwSL8rJzqR53Oq7YQ=;
+        s=korg; t=1673886586;
+        bh=5vqMnOjPB/EzvYDjxxL+uagrVqeIhA4cDaoRhifpY2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I8OPt7CdbIS7cAzflujK8WnStqx5iGOZVnETffqfp2bHotsHNhw2L+u4P72KmG/aV
-         xE6/tlcPA1qCchjzfyRBqhFiWRUb4utKgM+5p7atOKqDCYiMfsCQNk/bBf25VoaHn0
-         XF7KceOfdJTtt/we1GWpFzTiqp7Z9gk0RfXS1ac8=
+        b=tApKEe+Wq2OlEoCe9VB9BkU9akfvU72/0I4JW0P14JhYWYyxLL9Uc47+inVbLHIvR
+         9qkecXvKshGKQwoU31SZS3Mp1AcYtbc/m4SAl/0cVBhNMYJ93o+GvGWMFttB2RVoZj
+         uVRY1H7+KRNWL/BI+Sq/IqDhJ6jnXQAMNdqcU26k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ChiYuan Huang <cy_huang@richtek.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 6.1 044/183] ASoC: rt9120: Make dev PM runtime bind AsoC component PM
+        patches@lists.linux.dev,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-media@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.4 479/658] media: stv0288: use explicitly signed char
 Date:   Mon, 16 Jan 2023 16:49:27 +0100
-Message-Id: <20230116154805.239336956@linuxfoundation.org>
+Message-Id: <20230116154931.397620588@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChiYuan Huang <cy_huang@richtek.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 7161bd540eebebae2bbe8c79de25d8caf12dbf78 upstream.
+commit 7392134428c92a4cb541bd5c8f4f5c8d2e88364d upstream.
 
-RT9120 uses PM runtime autosuspend to decrease the frequently on/off
-spent time. This exists one case, when pcm is closed and dev PM is
-waiting for autosuspend time expired to enter runtime suspend state.
-At the mean time, system is going to enter suspend, dev PM runtime
-suspend won't be called. It makes the rt9120 suspend consumption
-current not as expected.
+With char becoming unsigned by default, and with `char` alone being
+ambiguous and based on architecture, signed chars need to be marked
+explicitly as such. Use `s8` and `u8` types here, since that's what
+surrounding code does. This fixes:
 
-This patch can fix the rt9120 dev PM issue during runtime autosuspend
-and system suspend by binding dev PM runtime and ASoC component PM.
+drivers/media/dvb-frontends/stv0288.c:471 stv0288_set_frontend() warn: assigning (-9) to unsigned variable 'tm'
+drivers/media/dvb-frontends/stv0288.c:471 stv0288_set_frontend() warn: we never enter this loop
 
-Fixes: 80b949f332e3 ("ASoC: rt9120: Use pm_runtime and regcache to optimize 'pwdnn' logic")
-Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-Link: https://lore.kernel.org/r/1672301033-3675-1-git-send-email-u0084500@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-media@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt9120.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/media/dvb-frontends/stv0288.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/rt9120.c b/sound/soc/codecs/rt9120.c
-index 644300e88b4c..fcf4fbaed3c7 100644
---- a/sound/soc/codecs/rt9120.c
-+++ b/sound/soc/codecs/rt9120.c
-@@ -177,8 +177,20 @@ static int rt9120_codec_probe(struct snd_soc_component *comp)
- 	return 0;
- }
+--- a/drivers/media/dvb-frontends/stv0288.c
++++ b/drivers/media/dvb-frontends/stv0288.c
+@@ -440,9 +440,8 @@ static int stv0288_set_frontend(struct d
+ 	struct stv0288_state *state = fe->demodulator_priv;
+ 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
  
-+static int rt9120_codec_suspend(struct snd_soc_component *comp)
-+{
-+	return pm_runtime_force_suspend(comp->dev);
-+}
-+
-+static int rt9120_codec_resume(struct snd_soc_component *comp)
-+{
-+	return pm_runtime_force_resume(comp->dev);
-+}
-+
- static const struct snd_soc_component_driver rt9120_component_driver = {
- 	.probe = rt9120_codec_probe,
-+	.suspend = rt9120_codec_suspend,
-+	.resume = rt9120_codec_resume,
- 	.controls = rt9120_snd_controls,
- 	.num_controls = ARRAY_SIZE(rt9120_snd_controls),
- 	.dapm_widgets = rt9120_dapm_widgets,
--- 
-2.39.0
-
+-	char tm;
+-	unsigned char tda[3];
+-	u8 reg, time_out = 0;
++	u8 tda[3], reg, time_out = 0;
++	s8 tm;
+ 
+ 	dprintk("%s : FE_SET_FRONTEND\n", __func__);
+ 
 
 
