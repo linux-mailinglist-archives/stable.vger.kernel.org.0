@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6796566C120
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:08:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E9766C123
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:08:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231853AbjAPOIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:08:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44244 "EHLO
+        id S232100AbjAPOIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:08:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232019AbjAPOGx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:06:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050DF241CD;
-        Mon, 16 Jan 2023 06:03:35 -0800 (PST)
+        with ESMTP id S231934AbjAPOHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:07:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBC7241D2;
+        Mon, 16 Jan 2023 06:03:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B36D9B80E93;
-        Mon, 16 Jan 2023 14:03:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A353DC433EF;
-        Mon, 16 Jan 2023 14:03:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09C9D60FCB;
+        Mon, 16 Jan 2023 14:03:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD974C4339B;
+        Mon, 16 Jan 2023 14:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877812;
-        bh=R6yTar/B3Xo9uIeT5EjdvrUIcrwvf1xQl6+iIMitEmY=;
+        s=k20201202; t=1673877816;
+        bh=50JsM5P8iufR5LkH0954GZk0lKp+NdSus1Sdgy8HHSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YV0hgZdhc522qjN5DIn2OYnYOwmD5HeQiQzX2uTlMrUOWFd8GYtWhQP4cBwfoKSUS
-         ZTv4uSLI6Q1oFXa3BRwq2pdoGK+/2ie5nPsBrOic9jKOmHwvyIW8WW6FztN51wAJC7
-         NcKn6s8DfGvmER07fQbB6aMGIPhkSkGgGukaDLUPEXKok0fpn91odB6kMSQhtqRxQx
-         bL86ktaj1lGCoafO/Q+FhHx+lr6os2hHxcaRSnxbXiBYb/Srsb0AMYQ7BsTGV6UrUV
-         4IWffjxfPd4IfXvPiRvor+igogXB3Il3dTMwvFBdbCY8m0uN+UH9sLwA1Ba1C1QbDC
-         AoZgJZShp5TWw==
+        b=rWsZSLd2g6Fj7evmxeoVC+lk3laW1uIPWKRXxvMGVJkJepQT24MfJy1csHA3eGI3t
+         1ujCgbvGam+G14U3AQ6mtcAZiAYvsVy1dmyFuOP1AxhoQ3W1LZLih1OpoxCvR09Bon
+         5S0Rf4YIjK7SvmpPJgI7XQhnsfWBP/nDWUFOwaTJaf58qu7l9rSq94yMYQLbeeAKJJ
+         jj93ZsmAom3qr8lG9e9fC+GhGaNFdPHbnAi1VC9ASLUZvr6A6WTzrHUufKCG0aulVY
+         QISFuo8T9Kmw+J/CpeT+ttj0BbMZx4rRaBaeKOYgZ7ecrq9tBCfGbBy4FtXawJEiOy
+         jRmSR6jvC0Gsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yihang Li <liyihang9@huawei.com>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 42/53] scsi: hisi_sas: Set a port invalid only if there are no devices attached when refreshing port id
-Date:   Mon, 16 Jan 2023 09:01:42 -0500
-Message-Id: <20230116140154.114951-42-sashal@kernel.org>
+Cc:     Andre Przywara <andre.przywara@arm.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, hayeswang@realtek.com,
+        jflf_kernel@gmx.com, mkl@pengutronix.de, dober6023@gmail.com,
+        gaul@gaul.org, svenva@chromium.org,
+        wsa+renesas@sang-engineering.com, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 43/53] r8152: add vendor/device ID pair for Microsoft Devkit
+Date:   Mon, 16 Jan 2023 09:01:43 -0500
+Message-Id: <20230116140154.114951-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140154.114951-1-sashal@kernel.org>
 References: <20230116140154.114951-1-sashal@kernel.org>
@@ -57,40 +60,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yihang Li <liyihang9@huawei.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit f58c89700630da6554b24fd3df293a24874c10c1 ]
+[ Upstream commit be53771c87f4e322a9835d3faa9cd73a4ecdec5b ]
 
-Currently the driver sets the port invalid if one phy in the port is not
-enabled, which may cause issues in expander situation. In directly attached
-situation, if phy up doesn't occur in time when refreshing port id, the
-port is incorrectly set to invalid which will also cause disk lost.
+The Microsoft Devkit 2023 is a an ARM64 based machine featuring a
+Realtek 8153 USB3.0-to-GBit Ethernet adapter. As in their other
+machines, Microsoft uses a custom USB device ID.
 
-Therefore set a port invalid only if there are no devices attached to the
-port.
+Add the respective ID values to the driver. This makes Ethernet work on
+the MS Devkit device. The chip has been visually confirmed to be a
+RTL8153.
 
-Signed-off-by: Yihang Li <liyihang9@huawei.com>
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Link: https://lore.kernel.org/r/1672805000-141102-3-git-send-email-chenxiang66@hisilicon.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/20230111133228.190801-1-andre.przywara@arm.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/r8152.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index 34870b3286ab..02fa3c00dccc 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -1334,7 +1334,7 @@ static void hisi_sas_refresh_port_id(struct hisi_hba *hisi_hba)
- 				device->linkrate = phy->sas_phy.linkrate;
- 
- 			hisi_hba->hw->setup_itct(hisi_hba, sas_dev);
--		} else
-+		} else if (!port->port_attached)
- 			port->id = 0xff;
- 	}
- }
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index a481a1d831e2..23da1d9dafd1 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -9836,6 +9836,7 @@ static const struct usb_device_id rtl8152_table[] = {
+ 	REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07ab),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07c6),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x0927),
++	REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x0c5e),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_SAMSUNG, 0xa101),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x304f),
+ 	REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3054),
 -- 
 2.35.1
 
