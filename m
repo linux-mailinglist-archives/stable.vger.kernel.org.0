@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1CE466CC4E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DD7266CC4C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234628AbjAPRYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234681AbjAPRYo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Jan 2023 12:24:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47968 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234632AbjAPRYL (ORCPT
+        with ESMTP id S234628AbjAPRYL (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D2433EFEC
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:25 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B48C53EFDC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5EC84B8109B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD4F3C433EF;
-        Mon, 16 Jan 2023 17:01:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 521E461055
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 635A3C433EF;
+        Mon, 16 Jan 2023 17:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888483;
-        bh=gqVhokfV+LXoYGZTBZtsnjcWTW5Nc8dDQN9XSwnBtjM=;
+        s=korg; t=1673888485;
+        bh=9jOCHAgGAvv3LpWUEljtvSZQ21ynLmnXTWrjbqPf078=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tb+RpBduNnXiRHi4jeylY3tOaPZtQkva3LXQBbXrtYu6mL5HS5fyftUb5ruXTgUmX
-         WIbhXglXgAP+RAIsqQEcdz7yr2assqCjmwfNDkChQpxH+Bd8RJULZFhV10jLV91UPl
-         SACtE3lt3aTj6tVs3n0OHMioJrzfevtVN6hKADg0=
+        b=1MlNkioNAbWpr3bLhMHyhzlaoviAryERxdsk4UGSuZngCnNl9sljoYyXwAKsV25Wx
+         J444c1uDrn7/0PASA42MfIL65nk/RS+daWptQFg8faiP1rEarmOQ7Hu8kWUFQ7eo7r
+         +xoOWyYvqynt/XmRVgOIQjjm/tPFPa5q+j/3Q2AU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>,
+        patches@lists.linux.dev, Luca Weiss <luca@z3ntu.xyz>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 023/338] usb: musb: remove extra check in musb_gadget_vbus_draw
-Date:   Mon, 16 Jan 2023 16:48:16 +0100
-Message-Id: <20230116154821.776132930@linuxfoundation.org>
+Subject: [PATCH 4.14 024/338] ARM: dts: qcom: apq8064: fix coresight compatible
+Date:   Mon, 16 Jan 2023 16:48:17 +0100
+Message-Id: <20230116154821.809526461@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,45 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+From: Luca Weiss <luca@z3ntu.xyz>
 
-[ Upstream commit ecec4b20d29c3d6922dafe7d2555254a454272d2 ]
+[ Upstream commit a42b1ee868361f1cb0492f1bdaefb43e0751e468 ]
 
-The checks for musb->xceiv and musb->xceiv->set_power duplicate those in
-usb_phy_set_power(), so there is no need of them. Moreover, not calling
-usb_phy_set_power() results in usb_phy_set_charger_current() not being
-called, so current USB config max current is not propagated through USB
-charger framework and charger drivers may try to draw more current than
-allowed or possible.
+There's a typo missing the arm, prefix of arm,coresight-etb10. Fix it to
+make devicetree validation happier.
 
-Fix that by removing those extra checks and calling usb_phy_set_power()
-directly.
-
-Tested on Motorola Droid4 and Nokia N900
-
-Fixes: a9081a008f84 ("usb: phy: Add USB charger support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
-Link: https://lore.kernel.org/r/1669400475-4762-1-git-send-email-ivo.g.dimitrov.75@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+Fixes: 7a5c275fd821 ("ARM: dts: qcom: Add apq8064 CoreSight components")
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221013190657.48499-3-luca@z3ntu.xyz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/musb_gadget.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/arm/boot/dts/qcom-apq8064.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/musb/musb_gadget.c b/drivers/usb/musb/musb_gadget.c
-index 8fd68f45a8df..820df5c3e707 100644
---- a/drivers/usb/musb/musb_gadget.c
-+++ b/drivers/usb/musb/musb_gadget.c
-@@ -1661,8 +1661,6 @@ static int musb_gadget_vbus_draw(struct usb_gadget *gadget, unsigned mA)
- {
- 	struct musb	*musb = gadget_to_musb(gadget);
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index 459358b54ab4..dac14153c7bf 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1534,7 +1534,7 @@ wifi {
+ 		};
  
--	if (!musb->xceiv->set_power)
--		return -EOPNOTSUPP;
- 	return usb_phy_set_power(musb->xceiv, mA);
- }
+ 		etb@1a01000 {
+-			compatible = "coresight-etb10", "arm,primecell";
++			compatible = "arm,coresight-etb10", "arm,primecell";
+ 			reg = <0x1a01000 0x1000>;
  
+ 			clocks = <&rpmcc RPM_QDSS_CLK>;
 -- 
 2.35.1
 
