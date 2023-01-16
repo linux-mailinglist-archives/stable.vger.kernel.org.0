@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BAB66C716
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 512CE66C719
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233005AbjAPQ1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:27:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42840 "EHLO
+        id S233056AbjAPQ2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:28:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233002AbjAPQ1S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:18 -0500
+        with ESMTP id S233007AbjAPQ1a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83C1E2C664
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B57BB18B2C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A94DB8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A12FC433D2;
-        Mon, 16 Jan 2023 16:15:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BD0EB8105F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC2B5C433EF;
+        Mon, 16 Jan 2023 16:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885753;
-        bh=/p1Z1H0tll+69nBd8ooQKefOgXAlDFKdsfAKZyQeLpc=;
+        s=korg; t=1673885759;
+        bh=ykiS9gqIOKUeTcu+OBR+7ICt5G8aiKgvRB+1qDg0wAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5QA5eq8Vv1NerPwXnHJB9bEfvQ0kZ4QzLgKMRkw5g3x7SkLGv/anX9thHyiSSSmG
-         26DLPLnaDYkdtpo5oEEkNhtn3LG0UVlGf+P3NV0+TzYdUwcuta+H3EY/wkvM+YPes0
-         27svYy6H1VWEaKrEE1U7hI59v/pP6Z2Fc8q51dIA=
+        b=1Gfi3EmZ+PAZdm1Ho359CtUDu3Kx85P7ycrhVO40YOpIHyX2t3bozjD1R9l+07PR6
+         mdfC7Q0mcnSY/qRt4RMf3rH9U8c+r1S2jd5v1rSDI2Z6M5MipqpvjDC/eRa1k53BkX
+         o5+17Y+04PmYvBWIK8SkFa4pbs3fbK+pvw5e9S9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pengcheng Yang <yangpc@wangsu.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 172/658] bpf, sockmap: Fix data loss caused by using apply_bytes on ingress redirect
-Date:   Mon, 16 Jan 2023 16:44:20 +0100
-Message-Id: <20230116154917.341373020@linuxfoundation.org>
+Subject: [PATCH 5.4 173/658] bonding: uninitialized variable in bond_miimon_inspect()
+Date:   Mon, 16 Jan 2023 16:44:21 +0100
+Message-Id: <20230116154917.392844817@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -54,44 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 9072931f020bfd907d6d89ee21ff1481cd78b407 ]
+[ Upstream commit e5214f363dabca240446272dac54d404501ad5e5 ]
 
-Use apply_bytes on ingress redirect, when apply_bytes is less than
-the length of msg data, some data may be skipped and lost in
-bpf_tcp_ingress().
+The "ignore_updelay" variable needs to be initialized to false.
 
-If there is still data in the scatterlist that has not been consumed,
-we cannot move the msg iter.
-
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/1669718441-2654-4-git-send-email-yangpc@wangsu.com
+Fixes: f8a65ab2f3ff ("bonding: fix link recovery in mode 2 when updelay is nonzero")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/Y4SWJlh3ohJ6EPTL@kili
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/bonding/bond_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 229fa1f2b381..ca49d68a0e04 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -203,8 +203,11 @@ static int bpf_tcp_ingress(struct sock *sk, struct sk_psock *psock,
- 		tmp->sg.end = i;
- 		if (apply) {
- 			apply_bytes -= size;
--			if (!apply_bytes)
-+			if (!apply_bytes) {
-+				if (sge->length)
-+					sk_msg_iter_var_prev(i);
- 				break;
-+			}
- 		}
- 	} while (i != msg->sg.end);
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 0b7994cb9380..0885991347d0 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2102,10 +2102,10 @@ static int bond_slave_info_query(struct net_device *bond_dev, struct ifslave *in
+ /* called with rcu_read_lock() */
+ static int bond_miimon_inspect(struct bonding *bond)
+ {
++	bool ignore_updelay = false;
+ 	int link_state, commit = 0;
+ 	struct list_head *iter;
+ 	struct slave *slave;
+-	bool ignore_updelay;
  
+ 	if (BOND_MODE(bond) == BOND_MODE_ACTIVEBACKUP) {
+ 		ignore_updelay = !rcu_dereference(bond->curr_active_slave);
 -- 
 2.35.1
 
