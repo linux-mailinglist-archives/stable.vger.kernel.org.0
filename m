@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2ED66CD2C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B98CC66CBAC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234872AbjAPReR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:34:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
+        id S234272AbjAPRQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:16:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234813AbjAPRd4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:56 -0500
+        with ESMTP id S234409AbjAPRPY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86343B66D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12F9523C6C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40B9E6108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F94EC433D2;
-        Mon, 16 Jan 2023 17:10:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CD6E60F7C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64FFDC433D2;
+        Mon, 16 Jan 2023 16:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889000;
-        bh=ZdRDM3tV8oPPa4JY8AklPISyzWJJAIz2dupkiHp0Q6k=;
+        s=korg; t=1673888181;
+        bh=qw/KD6iqfHiPywJLPTpFLCt4P14A+piAw5bsN32ygHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VcpLrXp/b/gU84wJ4JZvRZC/F/e2N57pBRTkOQ/7o0s2eHl0aYVBuIdu+ufI8fOdh
-         O1JhvzPGzMRzMEKbtdx6fAwSSSAm1e+cLE3dlMVpYRxg2Ir+J7rDctYC1FhPWEJ0Mk
-         j7oNl0ITTzVytzAsipPcgvd9Yd4ZPdbICkWsip1U=
+        b=SuVyMz65NZsFae7c07l+fzXez5YbC8F4GkBAyAZp3+gNM4wKGNaXaeNXAgE5AHv/J
+         pzr0rDWFrIo5edrdCQqqcjdvSzE4UtvPmvC7cYqPhOGGZ4zZjDrTzCHGL1zwi34agt
+         1iqsKiKhkya7kGwUQz2aiJmK5hiBKVr9NqTv0+PM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zheng Yejian <zhengyejian1@huawei.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Zhang Jinhao <zhangjinhao2@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 221/338] acct: fix potential integer overflow in encode_comp_t()
+        patches@lists.linux.dev, Jason Yan <yanaijie@huawei.com>,
+        Jan Kara <jack@suse.cz>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 432/521] ext4: goto right label failed_mount3a
 Date:   Mon, 16 Jan 2023 16:51:34 +0100
-Message-Id: <20230116154830.670367431@linuxfoundation.org>
+Message-Id: <20230116154906.460965356@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,49 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Jason Yan <yanaijie@huawei.com>
 
-[ Upstream commit c5f31c655bcc01b6da53b836ac951c1556245305 ]
+[ Upstream commit 43bd6f1b49b61f43de4d4e33661b8dbe8c911f14 ]
 
-The integer overflow is descripted with following codes:
-  > 317 static comp_t encode_comp_t(u64 value)
-  > 318 {
-  > 319         int exp, rnd;
-    ......
-  > 341         exp <<= MANTSIZE;
-  > 342         exp += value;
-  > 343         return exp;
-  > 344 }
+Before these two branches neither loaded the journal nor created the
+xattr cache. So the right label to goto is 'failed_mount3a'. Although
+this did not cause any issues because the error handler validated if the
+pointer is null. However this still made me confused when reading
+the code. So it's still worth to modify to goto the right label.
 
-Currently comp_t is defined as type of '__u16', but the variable 'exp' is
-type of 'int', so overflow would happen when variable 'exp' in line 343 is
-greater than 65535.
-
-Link: https://lkml.kernel.org/r/20210515140631.369106-3-zhengyejian1@huawei.com
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Cc: Hanjun Guo <guohanjun@huawei.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220916141527.1012715-2-yanaijie@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Stable-dep-of: 89481b5fa8c0 ("ext4: correct inconsistent error msg in nojournal mode")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/acct.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ext4/super.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/acct.c b/kernel/acct.c
-index 354578d253d5..bec90c267ac6 100644
---- a/kernel/acct.c
-+++ b/kernel/acct.c
-@@ -331,6 +331,8 @@ static comp_t encode_comp_t(unsigned long value)
- 		exp++;
- 	}
- 
-+	if (exp > (((comp_t) ~0U) >> MANTSIZE))
-+		return (comp_t) ~0U;
- 	/*
- 	 * Clean it up and polish it off.
- 	 */
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 796588dc531b..3198c276b434 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4302,30 +4302,30 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 		   ext4_has_feature_journal_needs_recovery(sb)) {
+ 		ext4_msg(sb, KERN_ERR, "required journal recovery "
+ 		       "suppressed and not mounted read-only");
+-		goto failed_mount_wq;
++		goto failed_mount3a;
+ 	} else {
+ 		/* Nojournal mode, all journal mount options are illegal */
+ 		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+ 				 "journal_checksum, fs mounted w/o journal");
+-			goto failed_mount_wq;
++			goto failed_mount3a;
+ 		}
+ 		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+ 				 "journal_async_commit, fs mounted w/o journal");
+-			goto failed_mount_wq;
++			goto failed_mount3a;
+ 		}
+ 		if (sbi->s_commit_interval != JBD2_DEFAULT_MAX_COMMIT_AGE*HZ) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+ 				 "commit=%lu, fs mounted w/o journal",
+ 				 sbi->s_commit_interval / HZ);
+-			goto failed_mount_wq;
++			goto failed_mount3a;
+ 		}
+ 		if (EXT4_MOUNT_DATA_FLAGS &
+ 		    (sbi->s_mount_opt ^ sbi->s_def_mount_opt)) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+ 				 "data=, fs mounted w/o journal");
+-			goto failed_mount_wq;
++			goto failed_mount3a;
+ 		}
+ 		sbi->s_def_mount_opt &= ~EXT4_MOUNT_JOURNAL_CHECKSUM;
+ 		clear_opt(sb, JOURNAL_CHECKSUM);
 -- 
 2.35.1
 
