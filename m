@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18EFF66C74A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8121D66C9C7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233269AbjAPQ3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47496 "EHLO
+        id S233725AbjAPQ4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:56:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233253AbjAPQ3N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4EE6274A5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:31 -0800 (PST)
+        with ESMTP id S233959AbjAPQz5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:55:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 505714B1AF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 522976102A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 693B2C433EF;
-        Mon, 16 Jan 2023 16:17:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AD52B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:38:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62E60C433F1;
+        Mon, 16 Jan 2023 16:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885850;
-        bh=pyQgdqoQ4fEO3b9YE5YqRdec0gF4ixchJRN9AEx6k1w=;
+        s=korg; t=1673887132;
+        bh=Iv+k1qt2dE+P+obIjqCuvMAVgJ6Ys1BAGipPgiyqWjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTA9p0soe/Yeex4+wDsVCueZZ6t+BkiPibRUbQk7AlvNwyUpcrNtam2w1LGDwp7OA
-         Aizn71o4us2OtjavzTPPZDYKf3meD14SBzCnE+c8Nq1HZjXuWw3zJsq4femF7PBM+v
-         7QTvS7CR0SUv1aTNhZEnwxwDCESXM411H57pg9Zc=
+        b=DskqgXXTR7jNB8HkgYOTi5qCAdWpvUEilhwklwlBD4M535E5OAZPq7xwkeacPnVEO
+         JRkMHen7IqOH3h/X379UFffLrC+R9gBi5srdKsbnuqMEBQlMQuAaCxBhp9Xy9KCURA
+         3JRG9V9/bim9qkw98+aoqTdzRhXBPXjp7YaAuiNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 207/658] wifi: rtl8xxxu: Add __packed to struct rtl8723bu_c2h
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 033/521] ARM: dts: armada-370: Fix assigned-addresses for every PCIe Root Port
 Date:   Mon, 16 Jan 2023 16:44:55 +0100
-Message-Id: <20230116154918.913673099@linuxfoundation.org>
+Message-Id: <20230116154848.800364745@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit dd469a754afdb782ba3033cee102147493dc39f4 ]
+[ Upstream commit d9208b0fa2e803d16b28d91bf1d46b7ee9ea13c6 ]
 
-This struct is used to access a sequence of bytes received from the
-wifi chip. It must not have any padding bytes between the members.
+BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
+(PCI-to-PCI bridge) should match BDF in address part in that DT node name
+as specified resource belongs to Marvell PCIe Root Port itself.
 
-This doesn't change anything on my system, possibly because currently
-none of the members need more than byte alignment.
-
-Fixes: b2b43b7837ba ("rtl8xxxu: Initial functionality to handle C2H events for 8723bu")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1a270918-da22-ff5f-29fc-7855f740c5ba@gmail.com
+Fixes: a09a0b7c6ff1 ("arm: mvebu: add PCIe Device Tree informations for Armada 370")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h | 2 +-
+ arch/arm/boot/dts/armada-370.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-index 6858f7de0915..2a02d4d72dec 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-@@ -1178,7 +1178,7 @@ struct rtl8723bu_c2h {
- 			u8 dummy3_0;
- 		} __packed ra_report;
- 	};
--};
-+} __packed;
+diff --git a/arch/arm/boot/dts/armada-370.dtsi b/arch/arm/boot/dts/armada-370.dtsi
+index 46e6d3ed8f35..c042c416a94a 100644
+--- a/arch/arm/boot/dts/armada-370.dtsi
++++ b/arch/arm/boot/dts/armada-370.dtsi
+@@ -74,7 +74,7 @@ pcie0: pcie@1,0 {
  
- struct rtl8xxxu_fileops;
- 
+ 			pcie2: pcie@2,0 {
+ 				device_type = "pci";
+-				assigned-addresses = <0x82002800 0 0x80000 0 0x2000>;
++				assigned-addresses = <0x82001000 0 0x80000 0 0x2000>;
+ 				reg = <0x1000 0 0 0 0>;
+ 				#address-cells = <3>;
+ 				#size-cells = <2>;
 -- 
 2.35.1
 
