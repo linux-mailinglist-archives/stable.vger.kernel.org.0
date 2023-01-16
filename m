@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 865A766CBE2
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:19:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F7FD66CD6D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234566AbjAPRTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:19:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
+        id S234805AbjAPRgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:36:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234567AbjAPRTT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:19:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1998F2CC74
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:58:26 -0800 (PST)
+        with ESMTP id S234612AbjAPRf6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7EE039BBB
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C63BBB80E95
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:58:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C7F0C433EF;
-        Mon, 16 Jan 2023 16:58:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C54261086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ADCAC433EF;
+        Mon, 16 Jan 2023 17:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888303;
-        bh=pkc3/pYeap73gdwbwh8uw9wC+prxCa443T0/SP7EDIA=;
+        s=korg; t=1673889121;
+        bh=b3bQ5CJgUJtHUhr9q+CEWH50TGx+T6U62rC8uBea8NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fHh4EEXbf8nYONFrz4jkr8vWKn4CRf+k4OR4COUmluFDGYaGqkucgmPcm6CNxHgg/
-         YfsJrjoMAHorTp09BJhanc9kB4NTO0FSCMor9ng/pW/TQVCEFdFKTYqjixHD0KYwA3
-         Z1A5al/BEAIi9B9XpRDo0ulC5DtkkgKpa+atZPpQ=
+        b=1Vzl697Zd390emeMjkAlNaS0tsDpPf32IycVMuEONJhOrYjfcjbL6Wim2Zlwiamr4
+         CyI+LLSq7qUSE6y/l7UdcEl5tVnvEozdI+PJBzdymhID8SkfvNo+5qYcGhFCg+9NPH
+         OGbL7BSUTKitHnqdVihd+duTtVuNcBL5uNXuH28A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jian-Hong Pan <jian-hong@endlessm.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 477/521] ALSA: hda/realtek - Enable headset mic of Acer X2660G with ALC662
+        patches@lists.linux.dev, Artem Egorkine <arteme@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 266/338] ALSA: line6: correct midi status byte when receiving data from podxt
 Date:   Mon, 16 Jan 2023 16:52:19 +0100
-Message-Id: <20230116154908.522954302@linuxfoundation.org>
+Message-Id: <20230116154832.687774544@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,61 +52,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jian-hong@endlessm.com>
+From: Artem Egorkine <arteme@gmail.com>
 
-[ Upstream commit d858c706bdca97698752bd26b60c21ec07ef04f2 ]
+commit 8508fa2e7472f673edbeedf1b1d2b7a6bb898ecc upstream.
 
-The Acer desktop X2660G with ALC662 can't detect the headset microphone
-until ALC662_FIXUP_ACER_X2660G_HEADSET_MODE quirk applied.
+A PODxt device sends 0xb2, 0xc2 or 0xf2 as a status byte for MIDI
+messages over USB that should otherwise have a 0xb0, 0xc0 or 0xf0
+status byte. This is usually corrected by the driver on other OSes.
 
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+This fixes MIDI sysex messages sent by PODxt.
+
+[ tiwai: fixed white spaces ]
+
+Signed-off-by: Artem Egorkine <arteme@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200317082806.73194-2-jian-hong@endlessm.com
+Link: https://lore.kernel.org/r/20221225105728.1153989-1-arteme@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Stable-dep-of: 4bf5bf54476d ("ALSA: hda/realtek: Add quirk for Lenovo TianYi510Pro-14IOB")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/usb/line6/driver.c  |    3 ++-
+ sound/usb/line6/midi.c    |    3 ++-
+ sound/usb/line6/midibuf.c |   25 +++++++++++++++++--------
+ sound/usb/line6/midibuf.h |    5 ++++-
+ sound/usb/line6/pod.c     |    3 ++-
+ 5 files changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 375493d3807f..024a7e473e11 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8647,6 +8647,7 @@ enum {
- 	ALC669_FIXUP_ACER_ASPIRE_ETHOS_SUBWOOFER,
- 	ALC669_FIXUP_ACER_ASPIRE_ETHOS_HEADSET,
- 	ALC671_FIXUP_HP_HEADSET_MIC2,
-+	ALC662_FIXUP_ACER_X2660G_HEADSET_MODE,
+--- a/sound/usb/line6/driver.c
++++ b/sound/usb/line6/driver.c
+@@ -311,7 +311,8 @@ static void line6_data_received(struct u
+ 		for (;;) {
+ 			done =
+ 				line6_midibuf_read(mb, line6->buffer_message,
+-						LINE6_MIDI_MESSAGE_MAXLEN);
++						   LINE6_MIDI_MESSAGE_MAXLEN,
++						   LINE6_MIDIBUF_READ_RX);
+ 
+ 			if (done <= 0)
+ 				break;
+--- a/sound/usb/line6/midi.c
++++ b/sound/usb/line6/midi.c
+@@ -60,7 +60,8 @@ static void line6_midi_transmit(struct s
+ 
+ 	for (;;) {
+ 		done = line6_midibuf_read(mb, chunk,
+-					  LINE6_FALLBACK_MAXPACKETSIZE);
++					  LINE6_FALLBACK_MAXPACKETSIZE,
++					  LINE6_MIDIBUF_READ_TX);
+ 
+ 		if (done == 0)
+ 			break;
+--- a/sound/usb/line6/midibuf.c
++++ b/sound/usb/line6/midibuf.c
+@@ -13,6 +13,7 @@
+ 
+ #include "midibuf.h"
+ 
++
+ static int midibuf_message_length(unsigned char code)
+ {
+ 	int message_length;
+@@ -24,12 +25,7 @@ static int midibuf_message_length(unsign
+ 
+ 		message_length = length[(code >> 4) - 8];
+ 	} else {
+-		/*
+-		   Note that according to the MIDI specification 0xf2 is
+-		   the "Song Position Pointer", but this is used by Line 6
+-		   to send sysex messages to the host.
+-		 */
+-		static const int length[] = { -1, 2, -1, 2, -1, -1, 1, 1, 1, 1,
++		static const int length[] = { -1, 2, 2, 2, -1, -1, 1, 1, 1, -1,
+ 			1, 1, 1, -1, 1, 1
+ 		};
+ 		message_length = length[code & 0x0f];
+@@ -129,7 +125,7 @@ int line6_midibuf_write(struct midi_buff
+ }
+ 
+ int line6_midibuf_read(struct midi_buffer *this, unsigned char *data,
+-		       int length)
++		       int length, int read_type)
+ {
+ 	int bytes_used;
+ 	int length1, length2;
+@@ -152,9 +148,22 @@ int line6_midibuf_read(struct midi_buffe
+ 
+ 	length1 = this->size - this->pos_read;
+ 
+-	/* check MIDI command length */
+ 	command = this->buf[this->pos_read];
++	/*
++	   PODxt always has status byte lower nibble set to 0010,
++	   when it means to send 0000, so we correct if here so
++	   that control/program changes come on channel 1 and
++	   sysex message status byte is correct
++	 */
++	if (read_type == LINE6_MIDIBUF_READ_RX) {
++		if (command == 0xb2 || command == 0xc2 || command == 0xf2) {
++			unsigned char fixed = command & 0xf0;
++			this->buf[this->pos_read] = fixed;
++			command = fixed;
++		}
++	}
+ 
++	/* check MIDI command length */
+ 	if (command & 0x80) {
+ 		midi_length = midibuf_message_length(command);
+ 		this->command_prev = command;
+--- a/sound/usb/line6/midibuf.h
++++ b/sound/usb/line6/midibuf.h
+@@ -12,6 +12,9 @@
+ #ifndef MIDIBUF_H
+ #define MIDIBUF_H
+ 
++#define LINE6_MIDIBUF_READ_TX 0
++#define LINE6_MIDIBUF_READ_RX 1
++
+ struct midi_buffer {
+ 	unsigned char *buf;
+ 	int size;
+@@ -27,7 +30,7 @@ extern void line6_midibuf_destroy(struct
+ extern int line6_midibuf_ignore(struct midi_buffer *mb, int length);
+ extern int line6_midibuf_init(struct midi_buffer *mb, int size, int split);
+ extern int line6_midibuf_read(struct midi_buffer *mb, unsigned char *data,
+-			      int length);
++			      int length, int read_type);
+ extern void line6_midibuf_reset(struct midi_buffer *mb);
+ extern int line6_midibuf_write(struct midi_buffer *mb, unsigned char *data,
+ 			       int length);
+--- a/sound/usb/line6/pod.c
++++ b/sound/usb/line6/pod.c
+@@ -169,8 +169,9 @@ static struct line6_pcm_properties pod_p
+ 	.bytes_per_channel = 3 /* SNDRV_PCM_FMTBIT_S24_3LE */
  };
  
- static const struct hda_fixup alc662_fixups[] = {
-@@ -9004,6 +9005,15 @@ static const struct hda_fixup alc662_fixups[] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc671_fixup_hp_headset_mic2,
- 	},
-+	[ALC662_FIXUP_ACER_X2660G_HEADSET_MODE] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x1a, 0x02a1113c }, /* use as headset mic, without its own jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC662_FIXUP_USI_FUNC
-+	},
++
+ static const char pod_version_header[] = {
+-	0xf2, 0x7e, 0x7f, 0x06, 0x02
++	0xf0, 0x7e, 0x7f, 0x06, 0x02
  };
  
- static const struct snd_pci_quirk alc662_fixup_tbl[] = {
-@@ -9015,6 +9025,7 @@ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1025, 0x0349, "eMachines eM250", ALC662_FIXUP_INV_DMIC),
- 	SND_PCI_QUIRK(0x1025, 0x034a, "Gateway LT27", ALC662_FIXUP_INV_DMIC),
- 	SND_PCI_QUIRK(0x1025, 0x038b, "Acer Aspire 8943G", ALC662_FIXUP_ASPIRE),
-+	SND_PCI_QUIRK(0x1025, 0x124e, "Acer 2660G", ALC662_FIXUP_ACER_X2660G_HEADSET_MODE),
- 	SND_PCI_QUIRK(0x1028, 0x05d8, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x05db, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x05fe, "Dell XPS 15", ALC668_FIXUP_DELL_XPS13),
--- 
-2.35.1
-
+ /* forward declarations: */
 
 
