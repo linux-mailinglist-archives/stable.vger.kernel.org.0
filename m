@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 156E366CCE3
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:30:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92C4166CB5E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234732AbjAPRae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:30:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52610 "EHLO
+        id S234328AbjAPROf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:14:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234720AbjAPR3p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:45 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC353A842
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:16 -0800 (PST)
+        with ESMTP id S234392AbjAPRNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01CA4B750
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2EC43CE1021
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D92DC433F0;
-        Mon, 16 Jan 2023 17:07:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52C6EB8109B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA8ACC433D2;
+        Mon, 16 Jan 2023 16:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888833;
-        bh=ncA++PhVmVvgfwpBhLeg+GMwR/sWPznU9XmfMY+1/pE=;
+        s=korg; t=1673888016;
+        bh=R5vC2z2D3RtDn7rkXPKL1h1NguocK1kbknCA9omBTY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qeWqLgXHiw08v4+QMjmQH2MSKmZGIegWPRw5J96A8EjDwoTVz9njmwMxJcyL6C8yT
-         YoG0LXOkMAoeEWnLK3kGXPiHcCixYx3GFG4vJW/YUXzO8E8kc8ONPrQZcl6fmTgEjh
-         1E0pTbCxj+bVmCyIHXhx8XaHzZ99e56qh3CbT1sc=
+        b=Czj2/1Cey9J/IHaqHXjdLsJkXNcdswufzhra4fPJwW2/kQWmtNU9FNH/T6Z1MCNas
+         kHz6OdHZquKM4xAtotqJ3luCHXaSVe0sSQfGlcpSWirCWmo9zJZwH+5OutM61G2U76
+         PI8V87BK1eslFXqoLTLSlc5qUtILuRO2LvqL5aLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 157/338] drivers: dio: fix possible memory leak in dio_init()
-Date:   Mon, 16 Jan 2023 16:50:30 +0100
-Message-Id: <20230116154827.722805444@linuxfoundation.org>
+        patches@lists.linux.dev, Artem Egorkine <arteme@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 369/521] ALSA: line6: fix stack overflow in line6_midi_transmit
+Date:   Mon, 16 Jan 2023 16:50:31 +0100
+Message-Id: <20230116154903.593340348@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,60 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Artem Egorkine <arteme@gmail.com>
 
-[ Upstream commit e63e99397b2613d50a5f4f02ed07307e67a190f1 ]
+commit b8800d324abb50160560c636bfafe2c81001b66c upstream.
 
-If device_register() returns error, the 'dev' and name needs be
-freed. Add a release function, and then call put_device() in the
-error path, so the name is freed in kobject_cleanup() and to the
-'dev' is freed in release function.
+Correctly calculate available space including the size of the chunk
+buffer. This fixes a buffer overflow when multiple MIDI sysex
+messages are sent to a PODxt device.
 
-Fixes: 2e4c77bea3d8 ("m68k: dio - Kill warn_unused_result warnings")
-Fixes: 1fa5ae857bb1 ("driver core: get rid of struct device's bus_id string array")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221109064036.1835346-1-yangyingliang@huawei.com
+Signed-off-by: Artem Egorkine <arteme@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221225105728.1153989-2-arteme@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dio/dio.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/usb/line6/midi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dio/dio.c b/drivers/dio/dio.c
-index 92e78d16b476..fcde602f4902 100644
---- a/drivers/dio/dio.c
-+++ b/drivers/dio/dio.c
-@@ -110,6 +110,12 @@ static char dio_no_name[] = { 0 };
+--- a/sound/usb/line6/midi.c
++++ b/sound/usb/line6/midi.c
+@@ -48,7 +48,8 @@ static void line6_midi_transmit(struct s
+ 	int req, done;
  
- #endif /* CONFIG_DIO_CONSTANTS */
+ 	for (;;) {
+-		req = min(line6_midibuf_bytes_free(mb), line6->max_packet_size);
++		req = min3(line6_midibuf_bytes_free(mb), line6->max_packet_size,
++			   LINE6_FALLBACK_MAXPACKETSIZE);
+ 		done = snd_rawmidi_transmit_peek(substream, chunk, req);
  
-+static void dio_dev_release(struct device *dev)
-+{
-+	struct dio_dev *ddev = container_of(dev, typeof(struct dio_dev), dev);
-+	kfree(ddev);
-+}
-+
- int __init dio_find(int deviceid)
- {
- 	/* Called to find a DIO device before the full bus scan has run.
-@@ -222,6 +228,7 @@ static int __init dio_init(void)
- 		dev->bus = &dio_bus;
- 		dev->dev.parent = &dio_bus.dev;
- 		dev->dev.bus = &dio_bus_type;
-+		dev->dev.release = dio_dev_release;
- 		dev->scode = scode;
- 		dev->resource.start = pa;
- 		dev->resource.end = pa + DIO_SIZE(scode, va);
-@@ -249,6 +256,7 @@ static int __init dio_init(void)
- 		if (error) {
- 			pr_err("DIO: Error registering device %s\n",
- 			       dev->name);
-+			put_device(&dev->dev);
- 			continue;
- 		}
- 		error = dio_create_sysfs_dev_files(dev);
--- 
-2.35.1
-
+ 		if (done == 0)
 
 
