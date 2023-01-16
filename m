@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD89366CD38
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 629E766CBBA
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234903AbjAPRej (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:34:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
+        id S234465AbjAPRQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:16:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234942AbjAPReW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:22 -0500
+        with ESMTP id S234481AbjAPRPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0121530B10
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3046F34540
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94E8061086
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6EEDC433D2;
-        Mon, 16 Jan 2023 17:10:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 769D560F61
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE52C4339B;
+        Mon, 16 Jan 2023 16:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889027;
-        bh=Z7CDVW4Yw0F26NS9hP+a8dKDjTuG/KnVsyi9erOKx04=;
+        s=korg; t=1673888210;
+        bh=lWq+UEYPegfGUV+K0842KsNoQN8PXyOJWfkep4/09OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcGD9vZ3lbyTjrKuH1uMHbTfEJq0WjFW6FKzkc71f4rkCVkalVnC92vqiR97He7Ny
-         bfSE/W2OXdQorWhH13jlNm92LTULzvIP89/4NmGaIheu/ivQjwNKmBOiZ2Di/AAewS
-         f6uwsBv7SoldAVgRRTmMbNy2ixXyoNRZhyO/Jh/k=
+        b=at5rU7/cTRvoppjxFndAO9ZkxJH12XoJdjkzhQFzKz3EVI7SGKpLcFn3ezCmSIV5I
+         PBFqpVYB07zi5aZiIgDjpmbwOw+xT16Jux3Qqtj7F/D/PwBwUQ6h3kMg0Pq1TywqKz
+         eYTCemmrcdQ1H0hToYJSr4yB6YF5PEeXbzwgIUwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
-        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
-        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 230/338] wifi: brcmfmac: Fix potential shift-out-of-bounds in brcmf_fw_alloc_request()
-Date:   Mon, 16 Jan 2023 16:51:43 +0100
-Message-Id: <20230116154831.072581217@linuxfoundation.org>
+        patches@lists.linux.dev, minoura makoto <minoura@valinux.co.jp>,
+        Hiroshi Shimamoto <h-shimamoto@nec.com>,
+        Trond Myklebust <trondmy@hammerspace.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 442/521] SUNRPC: ensure the matching upcall is in-flight upon downcall
+Date:   Mon, 16 Jan 2023 16:51:44 +0100
+Message-Id: <20230116154906.918934110@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,146 +55,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+From: minoura makoto <minoura@valinux.co.jp>
 
-[ Upstream commit 81d17f6f3331f03c8eafdacea68ab773426c1e3c ]
+[ Upstream commit b18cba09e374637a0a3759d856a6bca94c133952 ]
 
-This patch fixes a shift-out-of-bounds in brcmfmac that occurs in
-BIT(chiprev) when a 'chiprev' provided by the device is too large.
-It should also not be equal to or greater than BITS_PER_TYPE(u32)
-as we do bitwise AND with a u32 variable and BIT(chiprev). The patch
-adds a check that makes the function return NULL if that is the case.
-Note that the NULL case is later handled by the bus-specific caller,
-brcmf_usb_probe_cb() or brcmf_usb_reset_resume(), for example.
+Commit 9130b8dbc6ac ("SUNRPC: allow for upcalls for the same uid
+but different gss service") introduced `auth` argument to
+__gss_find_upcall(), but in gss_pipe_downcall() it was left as NULL
+since it (and auth->service) was not (yet) determined.
 
-Found by a modified version of syzkaller.
+When multiple upcalls with the same uid and different service are
+ongoing, it could happen that __gss_find_upcall(), which returns the
+first match found in the pipe->in_downcall list, could not find the
+correct gss_msg corresponding to the downcall we are looking for.
+Moreover, it might return a msg which is not sent to rpc.gssd yet.
 
-UBSAN: shift-out-of-bounds in drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-shift exponent 151055786 is too large for 64-bit type 'long unsigned int'
-CPU: 0 PID: 1885 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Workqueue: usb_hub_wq hub_event
-Call Trace:
- dump_stack_lvl+0x57/0x7d
- ubsan_epilogue+0x5/0x40
- __ubsan_handle_shift_out_of_bounds.cold+0x53/0xdb
- ? lock_chain_count+0x20/0x20
- brcmf_fw_alloc_request.cold+0x19/0x3ea
- ? brcmf_fw_get_firmwares+0x250/0x250
- ? brcmf_usb_ioctl_resp_wait+0x1a7/0x1f0
- brcmf_usb_get_fwname+0x114/0x1a0
- ? brcmf_usb_reset_resume+0x120/0x120
- ? number+0x6c4/0x9a0
- brcmf_c_process_clm_blob+0x168/0x590
- ? put_dec+0x90/0x90
- ? enable_ptr_key_workfn+0x20/0x20
- ? brcmf_common_pd_remove+0x50/0x50
- ? rcu_read_lock_sched_held+0xa1/0xd0
- brcmf_c_preinit_dcmds+0x673/0xc40
- ? brcmf_c_set_joinpref_default+0x100/0x100
- ? rcu_read_lock_sched_held+0xa1/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? lock_acquire+0x19d/0x4e0
- ? find_held_lock+0x2d/0x110
- ? brcmf_usb_deq+0x1cc/0x260
- ? mark_held_locks+0x9f/0xe0
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- ? _raw_spin_unlock_irqrestore+0x47/0x50
- ? trace_hardirqs_on+0x1c/0x120
- ? brcmf_usb_deq+0x1a7/0x260
- ? brcmf_usb_rx_fill_all+0x5a/0xf0
- brcmf_attach+0x246/0xd40
- ? wiphy_new_nm+0x1476/0x1d50
- ? kmemdup+0x30/0x40
- brcmf_usb_probe+0x12de/0x1690
- ? brcmf_usbdev_qinit.constprop.0+0x470/0x470
- usb_probe_interface+0x25f/0x710
- really_probe+0x1be/0xa90
- __driver_probe_device+0x2ab/0x460
- ? usb_match_id.part.0+0x88/0xc0
- driver_probe_device+0x49/0x120
- __device_attach_driver+0x18a/0x250
- ? driver_allows_async_probing+0x120/0x120
- bus_for_each_drv+0x123/0x1a0
- ? bus_rescan_devices+0x20/0x20
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- ? trace_hardirqs_on+0x1c/0x120
- __device_attach+0x207/0x330
- ? device_bind_driver+0xb0/0xb0
- ? kobject_uevent_env+0x230/0x12c0
- bus_probe_device+0x1a2/0x260
- device_add+0xa61/0x1ce0
- ? __mutex_unlock_slowpath+0xe7/0x660
- ? __fw_devlink_link_to_suppliers+0x550/0x550
- usb_set_configuration+0x984/0x1770
- ? kernfs_create_link+0x175/0x230
- usb_generic_driver_probe+0x69/0x90
- usb_probe_device+0x9c/0x220
- really_probe+0x1be/0xa90
- __driver_probe_device+0x2ab/0x460
- driver_probe_device+0x49/0x120
- __device_attach_driver+0x18a/0x250
- ? driver_allows_async_probing+0x120/0x120
- bus_for_each_drv+0x123/0x1a0
- ? bus_rescan_devices+0x20/0x20
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- ? trace_hardirqs_on+0x1c/0x120
- __device_attach+0x207/0x330
- ? device_bind_driver+0xb0/0xb0
- ? kobject_uevent_env+0x230/0x12c0
- bus_probe_device+0x1a2/0x260
- device_add+0xa61/0x1ce0
- ? __fw_devlink_link_to_suppliers+0x550/0x550
- usb_new_device.cold+0x463/0xf66
- ? hub_disconnect+0x400/0x400
- ? _raw_spin_unlock_irq+0x24/0x30
- hub_event+0x10d5/0x3330
- ? hub_port_debounce+0x280/0x280
- ? __lock_acquire+0x1671/0x5790
- ? wq_calc_node_cpumask+0x170/0x2a0
- ? lock_release+0x640/0x640
- ? rcu_read_lock_sched_held+0xa1/0xd0
- ? rcu_read_lock_bh_held+0xb0/0xb0
- ? lockdep_hardirqs_on_prepare+0x273/0x3e0
- process_one_work+0x873/0x13e0
- ? lock_release+0x640/0x640
- ? pwq_dec_nr_in_flight+0x320/0x320
- ? rwlock_bug.part.0+0x90/0x90
- worker_thread+0x8b/0xd10
- ? __kthread_parkme+0xd9/0x1d0
- ? process_one_work+0x13e0/0x13e0
- kthread+0x379/0x450
- ? _raw_spin_unlock_irq+0x24/0x30
- ? set_kthread_struct+0x100/0x100
- ret_from_fork+0x1f/0x30
+We could see mount.nfs process hung in D state with multiple mount.nfs
+are executed in parallel.  The call trace below is of CentOS 7.9
+kernel-3.10.0-1160.24.1.el7.x86_64 but we observed the same hang w/
+elrepo kernel-ml-6.0.7-1.el7.
 
-Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
-Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
-Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20221024071329.504277-1-linuxlovemin@yonsei.ac.kr
+PID: 71258  TASK: ffff91ebd4be0000  CPU: 36  COMMAND: "mount.nfs"
+ #0 [ffff9203ca3234f8] __schedule at ffffffffa3b8899f
+ #1 [ffff9203ca323580] schedule at ffffffffa3b88eb9
+ #2 [ffff9203ca323590] gss_cred_init at ffffffffc0355818 [auth_rpcgss]
+ #3 [ffff9203ca323658] rpcauth_lookup_credcache at ffffffffc0421ebc
+[sunrpc]
+ #4 [ffff9203ca3236d8] gss_lookup_cred at ffffffffc0353633 [auth_rpcgss]
+ #5 [ffff9203ca3236e8] rpcauth_lookupcred at ffffffffc0421581 [sunrpc]
+ #6 [ffff9203ca323740] rpcauth_refreshcred at ffffffffc04223d3 [sunrpc]
+ #7 [ffff9203ca3237a0] call_refresh at ffffffffc04103dc [sunrpc]
+ #8 [ffff9203ca3237b8] __rpc_execute at ffffffffc041e1c9 [sunrpc]
+ #9 [ffff9203ca323820] rpc_execute at ffffffffc0420a48 [sunrpc]
+
+The scenario is like this. Let's say there are two upcalls for
+services A and B, A -> B in pipe->in_downcall, B -> A in pipe->pipe.
+
+When rpc.gssd reads pipe to get the upcall msg corresponding to
+service B from pipe->pipe and then writes the response, in
+gss_pipe_downcall the msg corresponding to service A will be picked
+because only uid is used to find the msg and it is before the one for
+B in pipe->in_downcall.  And the process waiting for the msg
+corresponding to service A will be woken up.
+
+Actual scheduing of that process might be after rpc.gssd processes the
+next msg.  In rpc_pipe_generic_upcall it clears msg->errno (for A).
+The process is scheduled to see gss_msg->ctx == NULL and
+gss_msg->msg.errno == 0, therefore it cannot break the loop in
+gss_create_upcall and is never woken up after that.
+
+This patch adds a simple check to ensure that a msg which is not
+sent to rpc.gssd yet is not chosen as the matching upcall upon
+receiving a downcall.
+
+Signed-off-by: minoura makoto <minoura@valinux.co.jp>
+Signed-off-by: Hiroshi Shimamoto <h-shimamoto@nec.com>
+Tested-by: Hiroshi Shimamoto <h-shimamoto@nec.com>
+Cc: Trond Myklebust <trondmy@hammerspace.com>
+Fixes: 9130b8dbc6ac ("SUNRPC: allow for upcalls for same uid but different gss service")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/linux/sunrpc/rpc_pipe_fs.h |  5 +++++
+ net/sunrpc/auth_gss/auth_gss.c     | 19 +++++++++++++++++--
+ 2 files changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-index 13c25798f39a..6d868b8b441a 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-@@ -572,6 +572,11 @@ int brcmf_fw_map_chip_to_name(u32 chip, u32 chiprev,
- 	u32 i;
- 	char end;
+diff --git a/include/linux/sunrpc/rpc_pipe_fs.h b/include/linux/sunrpc/rpc_pipe_fs.h
+index e90b9bd99ded..396de2ef8767 100644
+--- a/include/linux/sunrpc/rpc_pipe_fs.h
++++ b/include/linux/sunrpc/rpc_pipe_fs.h
+@@ -94,6 +94,11 @@ extern ssize_t rpc_pipe_generic_upcall(struct file *, struct rpc_pipe_msg *,
+ 				       char __user *, size_t);
+ extern int rpc_queue_upcall(struct rpc_pipe *, struct rpc_pipe_msg *);
  
-+	if (chiprev >= BITS_PER_TYPE(u32)) {
-+		brcmf_err("Invalid chip revision %u\n", chiprev);
-+		return NULL;
-+	}
++/* returns true if the msg is in-flight, i.e., already eaten by the peer */
++static inline bool rpc_msg_is_inflight(const struct rpc_pipe_msg *msg) {
++	return (msg->copied != 0 && list_empty(&msg->list));
++}
 +
- 	for (i = 0; i < table_size; i++) {
- 		if (mapping_table[i].chipid == chip &&
- 		    mapping_table[i].revmask & BIT(chiprev))
+ struct rpc_clnt;
+ extern struct dentry *rpc_create_client_dir(struct dentry *, const char *, struct rpc_clnt *);
+ extern int rpc_remove_client_dir(struct rpc_clnt *);
+diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
+index e61c48c1b37d..c11e68539602 100644
+--- a/net/sunrpc/auth_gss/auth_gss.c
++++ b/net/sunrpc/auth_gss/auth_gss.c
+@@ -323,7 +323,7 @@ __gss_find_upcall(struct rpc_pipe *pipe, kuid_t uid, const struct gss_auth *auth
+ 	list_for_each_entry(pos, &pipe->in_downcall, list) {
+ 		if (!uid_eq(pos->uid, uid))
+ 			continue;
+-		if (auth && pos->auth->service != auth->service)
++		if (pos->auth->service != auth->service)
+ 			continue;
+ 		refcount_inc(&pos->count);
+ 		dprintk("RPC:       %s found msg %p\n", __func__, pos);
+@@ -677,6 +677,21 @@ gss_create_upcall(struct gss_auth *gss_auth, struct gss_cred *gss_cred)
+ 	return err;
+ }
+ 
++static struct gss_upcall_msg *
++gss_find_downcall(struct rpc_pipe *pipe, kuid_t uid)
++{
++	struct gss_upcall_msg *pos;
++	list_for_each_entry(pos, &pipe->in_downcall, list) {
++		if (!uid_eq(pos->uid, uid))
++			continue;
++		if (!rpc_msg_is_inflight(&pos->msg))
++			continue;
++		refcount_inc(&pos->count);
++		return pos;
++	}
++	return NULL;
++}
++
+ #define MSG_BUF_MAXSIZE 1024
+ 
+ static ssize_t
+@@ -723,7 +738,7 @@ gss_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
+ 	err = -ENOENT;
+ 	/* Find a matching upcall */
+ 	spin_lock(&pipe->lock);
+-	gss_msg = __gss_find_upcall(pipe, uid, NULL);
++	gss_msg = gss_find_downcall(pipe, uid);
+ 	if (gss_msg == NULL) {
+ 		spin_unlock(&pipe->lock);
+ 		goto err_put_ctx;
 -- 
 2.35.1
 
