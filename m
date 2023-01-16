@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E182866CBAA
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A3766CD10
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234489AbjAPRQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:16:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41164 "EHLO
+        id S234588AbjAPRdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:33:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234491AbjAPRPX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A4EE24482
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:19 -0800 (PST)
+        with ESMTP id S234902AbjAPRcl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DD3D2A149
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCBEDB81091
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DB96C433D2;
-        Mon, 16 Jan 2023 16:56:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EF8526108D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F8D3C433EF;
+        Mon, 16 Jan 2023 17:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888176;
-        bh=GxM+O6M4981o/sjVWHk7g4rBDXjxO7yphADpdbIG6aI=;
+        s=korg; t=1673888935;
+        bh=gbUaiQ8eiOAytPUL8ZXCFHkgrf09cc/Qz3QcWKn+O3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RP7ooNd+uVKl1dkx9MowpI4KTFuCi5Clev8aB2isKfOVhY8IpjSA1JQIIt6T+UuBR
-         N1SuemJGkvyBgoiA/W97eUTklaw0Nj+WKNfi29y3NvrysOC5wUj/+ZqWIViyaPQlte
-         lb2TR1k2uP2o8v0G5F+SUt5MAW523MC3PoqZ6v0A=
+        b=cBqDUoVb/Q5Uf/4g1BOo5tsloDfHE0vrQq/Y/3wR3v+HUIdsECuV+agcoiBtI14uz
+         xfW3AnvOC0x7BPj96AhJ0iJPhRZXx8+vk4xwhfo9BVntztXXWmhqij6qaAIaW1UwqT
+         jFemij0BD3gF2Dlns9rOvuuqYqP7AdGkKDiUz9dQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Yang Jihong <yangjihong1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 389/521] tracing: Fix infinite loop in tracing_read_pipe on overflowed print_trace_line
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 178/338] vme: Fix error not catched in fake_init()
 Date:   Mon, 16 Jan 2023 16:50:51 +0100
-Message-Id: <20230116154904.513926923@linuxfoundation.org>
+Message-Id: <20230116154828.671447588@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit c1ac03af6ed45d05786c219d102f37eb44880f28 upstream.
+[ Upstream commit 7bef797d707f1744f71156b21d41e3b8c946631f ]
 
-print_trace_line may overflow seq_file buffer. If the event is not
-consumed, the while loop keeps peeking this event, causing a infinite loop.
+In fake_init(), __root_device_register() is possible to fail but it's
+ignored, which can cause unregistering vme_root fail when exit.
 
-Link: https://lkml.kernel.org/r/20221129113009.182425-1-yangjihong1@huawei.com
+ general protection fault,
+ probably for non-canonical address 0xdffffc000000008c
+ KASAN: null-ptr-deref in range [0x0000000000000460-0x0000000000000467]
+ RIP: 0010:root_device_unregister+0x26/0x60
+ Call Trace:
+  <TASK>
+  __x64_sys_delete_module+0x34f/0x540
+  do_syscall_64+0x38/0x90
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 088b1e427dbba ("ftrace: pipe fixes")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Return error when __root_device_register() fails.
+
+Fixes: 658bcdae9c67 ("vme: Adding Fake VME driver")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221205084805.147436-1-chenzhongjin@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/vme/bridges/vme_fake.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5803,7 +5803,20 @@ waitagain:
+diff --git a/drivers/vme/bridges/vme_fake.c b/drivers/vme/bridges/vme_fake.c
+index e81ec763b555..150ee8b3507f 100644
+--- a/drivers/vme/bridges/vme_fake.c
++++ b/drivers/vme/bridges/vme_fake.c
+@@ -1077,6 +1077,8 @@ static int __init fake_init(void)
  
- 		ret = print_trace_line(iter);
- 		if (ret == TRACE_TYPE_PARTIAL_LINE) {
--			/* don't print partial lines */
-+			/*
-+			 * If one print_trace_line() fills entire trace_seq in one shot,
-+			 * trace_seq_to_user() will returns -EBUSY because save_len == 0,
-+			 * In this case, we need to consume it, otherwise, loop will peek
-+			 * this event next time, resulting in an infinite loop.
-+			 */
-+			if (save_len == 0) {
-+				iter->seq.full = 0;
-+				trace_seq_puts(&iter->seq, "[LINE TOO BIG]\n");
-+				trace_consume(iter);
-+				break;
-+			}
-+
-+			/* In other cases, don't print partial lines */
- 			iter->seq.seq.len = save_len;
- 			break;
- 		}
+ 	/* We need a fake parent device */
+ 	vme_root = __root_device_register("vme", THIS_MODULE);
++	if (IS_ERR(vme_root))
++		return PTR_ERR(vme_root);
+ 
+ 	/* If we want to support more than one bridge at some point, we need to
+ 	 * dynamically allocate this so we get one per device.
+-- 
+2.35.1
+
 
 
