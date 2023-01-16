@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2325666C7A2
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:33:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F8766CA4D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233286AbjAPQdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:33:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47272 "EHLO
+        id S234172AbjAPRCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:02:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233181AbjAPQcb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:32:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A015430198
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:27 -0800 (PST)
+        with ESMTP id S234005AbjAPRBS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:01:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01E55A37E;
+        Mon, 16 Jan 2023 08:43:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CDABB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF036C433EF;
-        Mon, 16 Jan 2023 16:20:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FFC76108A;
+        Mon, 16 Jan 2023 16:43:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFD1C433D2;
+        Mon, 16 Jan 2023 16:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886025;
-        bh=u2G7KsNvx1t4p0w3cv/P1PjhwpUFctrHwEigoF/gCIw=;
+        s=korg; t=1673887412;
+        bh=4wxufKjU7ZegNh2d9q87jhOAIGrO7e2mCzauAT3i8pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rK0iNtB8h+H0s9JpIXIVcOOWoFPCJnsIB0levX18lX3FElU77yT/O8UtgaTvHoCfU
-         NFd2+I8RWDpSp59FYCvKklRXEzUteTsAl6D8IAiETNc2g7L0NFVksNaFMKKxhuubIW
-         11dBzbvIZPscB4hcGUq6ZJI1CPz24Co0zzyqVmPw=
+        b=fHeFcw9xzoRMLbyRf/YOPbrL36IlnVuIWM00p3lMcaTIv/CErjhxPZF767vjUj1AZ
+         /mi6L6u0snQ9YKY4C2nkra2t+VuJIYjdGq6z7lwIhGuaycS7sCC4+/0PUWW3ZX0Hks
+         blWOH/ulBS8JG2LqJv8tPNCzZ0somzUCMlWtd+5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dragos Tatulea <dtatulea@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org, netdev@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 273/658] IB/IPoIB: Fix queue count inconsistency for PKEY child interfaces
-Date:   Mon, 16 Jan 2023 16:46:01 +0100
-Message-Id: <20230116154922.068045693@linuxfoundation.org>
+Subject: [PATCH 4.19 100/521] net, proc: Provide PROC_FS=n fallback for proc_create_net_single_write()
+Date:   Mon, 16 Jan 2023 16:46:02 +0100
+Message-Id: <20230116154851.724914341@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Tatulea <dtatulea@nvidia.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit dbc94a0fb81771a38733c0e8f2ea8c4fa6934dc1 ]
+[ Upstream commit c3d96f690a790074b508fe183a41e36a00cd7ddd ]
 
-There are 2 ways to create IPoIB PKEY child interfaces:
-1) Writing a PKEY to /sys/class/net/<ib parent interface>/create_child.
-2) Using netlink with iproute.
+Provide a CONFIG_PROC_FS=n fallback for proc_create_net_single_write().
 
-While with sysfs the child interface has the same number of tx and
-rx queues as the parent, with netlink there will always be 1 tx
-and 1 rx queue for the child interface. That's because the
-get_num_tx/rx_queues() netlink ops are missing and the default value
-of 1 is taken for the number of queues (in rtnl_create_link()).
+Also provide a fallback for proc_create_net_data_write().
 
-This change adds the get_num_tx/rx_queues() ops which allows for
-interfaces with multiple queues to be created over netlink. This
-constant only represents the max number of tx and rx queues on that
-net device.
-
-Fixes: 9baa0b036410 ("IB/ipoib: Add rtnl_link_ops support")
-Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-Link: https://lore.kernel.org/r/f4a42c8aa43c02d5ae5559a60c3e5e0f18c82531.1670485816.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Fixes: 564def71765c ("proc: Add a way to make network proc files writable")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+cc: netdev@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/ipoib/ipoib_netlink.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ include/linux/proc_fs.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
-index 5b05cf3837da..28e9b70844e4 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
-@@ -42,6 +42,11 @@ static const struct nla_policy ipoib_policy[IFLA_IPOIB_MAX + 1] = {
- 	[IFLA_IPOIB_UMCAST]	= { .type = NLA_U16 },
- };
+diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
+index 5141657a0f7f..c16352fbbe1f 100644
+--- a/include/linux/proc_fs.h
++++ b/include/linux/proc_fs.h
+@@ -117,8 +117,10 @@ static inline void proc_remove(struct proc_dir_entry *de) {}
+ static inline int remove_proc_subtree(const char *name, struct proc_dir_entry *parent) { return 0; }
  
-+static unsigned int ipoib_get_max_num_queues(void)
-+{
-+	return min_t(unsigned int, num_possible_cpus(), 128);
-+}
-+
- static int ipoib_fill_info(struct sk_buff *skb, const struct net_device *dev)
- {
- 	struct ipoib_dev_priv *priv = ipoib_priv(dev);
-@@ -173,6 +178,8 @@ static struct rtnl_link_ops ipoib_link_ops __read_mostly = {
- 	.changelink	= ipoib_changelink,
- 	.get_size	= ipoib_get_size,
- 	.fill_info	= ipoib_fill_info,
-+	.get_num_rx_queues = ipoib_get_max_num_queues,
-+	.get_num_tx_queues = ipoib_get_max_num_queues,
- };
+ #define proc_create_net_data(name, mode, parent, ops, state_size, data) ({NULL;})
++#define proc_create_net_data_write(name, mode, parent, ops, write, state_size, data) ({NULL;})
+ #define proc_create_net(name, mode, parent, state_size, ops) ({NULL;})
+ #define proc_create_net_single(name, mode, parent, show, data) ({NULL;})
++#define proc_create_net_single_write(name, mode, parent, show, write, data) ({NULL;})
  
- struct rtnl_link_ops *ipoib_get_link_ops(void)
+ #endif /* CONFIG_PROC_FS */
+ 
 -- 
 2.35.1
 
