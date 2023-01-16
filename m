@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E25066CCEE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7BA166CB6B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234747AbjAPRbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:31:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53298 "EHLO
+        id S229977AbjAPROq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:14:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234807AbjAPRai (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:30:38 -0500
+        with ESMTP id S234307AbjAPRNP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED463D080
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1774B762
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B052A61058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C41B9C433D2;
-        Mon, 16 Jan 2023 17:07:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E39B061018
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03329C433EF;
+        Mon, 16 Jan 2023 16:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888862;
-        bh=gl4tJKknsbemXsvsJFKPhl4r00gmBAcGpnTDMPFDXDc=;
+        s=korg; t=1673888045;
+        bh=JusvWpjWxCAj1UyScJG29hqDYgolKv8PEcvu+z9S7DU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIsiTSGP76y2EMgxFmSQ+Qu7oAsqkJ1sGhas/evU4k38F3wD46iVez5V35yBiBaHa
-         xcdy+Fk9hO4yZGAZdiwo09Oj/0+PL/EJrPhWp1ncYIG1ArkJ7khEVL6ChEW5SWbAA1
-         RjXuqnm71NPQY+VzZHSjsysxuexDxgxXW4I96a2M=
+        b=eT/uu4l0v7bzbxWgX5xeAAS0z99VBGq9tpmR0SLtL/NuBRAf14GCJY565fwG1KwbN
+         27d8jnzrrU6ljGBYy3WmHYhz+lSN/SxFI4MkV0vdvRRsmLuCcvbe30ka3AhFUCHD/7
+         K2957QTdEHcU0XCQAwbqrthCPLFxKpcENBIk4iC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 167/338] test_firmware: fix memory leak in test_firmware_init()
-Date:   Mon, 16 Jan 2023 16:50:40 +0100
-Message-Id: <20230116154828.172534279@linuxfoundation.org>
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        kernel test robot <lkp@intel.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.19 379/521] ARM: ux500: do not directly dereference __iomem
+Date:   Mon, 16 Jan 2023 16:50:41 +0100
+Message-Id: <20230116154904.067158645@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 7610615e8cdb3f6f5bbd9d8e7a5d8a63e3cabf2e ]
+commit 65b0e307a1a9193571db12910f382f84195a3d29 upstream.
 
-When misc_register() failed in test_firmware_init(), the memory pointed
-by test_fw_config->name is not released. The memory leak information is
-as follows:
-unreferenced object 0xffff88810a34cb00 (size 32):
-  comm "insmod", pid 7952, jiffies 4294948236 (age 49.060s)
-  hex dump (first 32 bytes):
-    74 65 73 74 2d 66 69 72 6d 77 61 72 65 2e 62 69  test-firmware.bi
-    6e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  n...............
-  backtrace:
-    [<ffffffff81b21fcb>] __kmalloc_node_track_caller+0x4b/0xc0
-    [<ffffffff81affb96>] kstrndup+0x46/0xc0
-    [<ffffffffa0403a49>] __test_firmware_config_init+0x29/0x380 [test_firmware]
-    [<ffffffffa040f068>] 0xffffffffa040f068
-    [<ffffffff81002c41>] do_one_initcall+0x141/0x780
-    [<ffffffff816a72c3>] do_init_module+0x1c3/0x630
-    [<ffffffff816adb9e>] load_module+0x623e/0x76a0
-    [<ffffffff816af471>] __do_sys_finit_module+0x181/0x240
-    [<ffffffff89978f99>] do_syscall_64+0x39/0xb0
-    [<ffffffff89a0008b>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+Sparse reports that calling add_device_randomness() on `uid` is a
+violation of address spaces. And indeed the next usage uses readl()
+properly, but that was left out when passing it toadd_device_
+randomness(). So instead copy the whole thing to the stack first.
 
-Fixes: c92316bf8e94 ("test_firmware: add batched firmware tests")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20221119035721.18268-1-shaozhengchao@huawei.com
+Fixes: 4040d10a3d44 ("ARM: ux500: add DB serial number to entropy pool")
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/all/202210230819.loF90KDh-lkp@intel.com/
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20221108123755.207438-1-Jason@zx2c4.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_firmware.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/ux500/ux500-soc-id.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/lib/test_firmware.c b/lib/test_firmware.c
-index 2e5e18bbfd28..1c5e5246bf10 100644
---- a/lib/test_firmware.c
-+++ b/lib/test_firmware.c
-@@ -903,6 +903,7 @@ static int __init test_firmware_init(void)
+--- a/drivers/soc/ux500/ux500-soc-id.c
++++ b/drivers/soc/ux500/ux500-soc-id.c
+@@ -159,20 +159,18 @@ static ssize_t ux500_get_process(struct
+ static const char *db8500_read_soc_id(struct device_node *backupram)
+ {
+ 	void __iomem *base;
+-	void __iomem *uid;
+ 	const char *retstr;
++	u32 uid[5];
  
- 	rc = misc_register(&test_fw_misc_device);
- 	if (rc) {
-+		__test_firmware_config_free();
- 		kfree(test_fw_config);
- 		pr_err("could not register misc device: %d\n", rc);
- 		return rc;
--- 
-2.35.1
-
+ 	base = of_iomap(backupram, 0);
+ 	if (!base)
+ 		return NULL;
+-	uid = base + 0x1fc0;
++	memcpy_fromio(uid, base + 0x1fc0, sizeof(uid));
+ 
+ 	/* Throw these device-specific numbers into the entropy pool */
+-	add_device_randomness(uid, 0x14);
++	add_device_randomness(uid, sizeof(uid));
+ 	retstr = kasprintf(GFP_KERNEL, "%08x%08x%08x%08x%08x",
+-			 readl((u32 *)uid+0),
+-			 readl((u32 *)uid+1), readl((u32 *)uid+2),
+-			 readl((u32 *)uid+3), readl((u32 *)uid+4));
++			   uid[0], uid[1], uid[2], uid[3], uid[4]);
+ 	iounmap(base);
+ 	return retstr;
+ }
 
 
