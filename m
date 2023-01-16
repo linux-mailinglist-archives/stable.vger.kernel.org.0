@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A622166C8B3
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 036BF66C46A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233487AbjAPQmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:42:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34594 "EHLO
+        id S231295AbjAPPyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:54:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233691AbjAPQlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:41:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A0427493
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:29:41 -0800 (PST)
+        with ESMTP id S231470AbjAPPyl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3DAE22A0B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6889E6104F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:29:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF6CC433D2;
-        Mon, 16 Jan 2023 16:29:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FA7DB81052
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04BB7C433EF;
+        Mon, 16 Jan 2023 15:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886580;
-        bh=A8yQ3XmGtzjz8oyVf9rA0gcFW6xnPnPcPQ+UK5ew3f0=;
+        s=korg; t=1673884474;
+        bh=PmeZbxQ+6S4uH9vuvSdYM118QIROdsv0FbagLLAYx5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SwwQqxclXsdUMj7rsHNbc0cpYrIM3QIJSbJeZJtNqbaFanGsWa6XgzYGxpSNDoEMM
-         VkQaOAmVjLqO1yXxm4sza+83CEelCfQSDDZCQPDFnMa6OpddSXyVNgLjCOIYZ1q4q9
-         69J9nh4iIWFScrCqGMnpDNBJuVVk9iy2m1afFTMg=
+        b=EVVyQ4Ac+lVIJw3j6u304a/ckp0Qq3CpYJz2DCrVGDssWEqpB6SLCXTn2QgEj+Awn
+         Z99hMMmwjDsxQORbGhfo1C16TKoFjvB6KIWdJIRzszeyO/s5VkgAzJZtqphYfO7z/q
+         MyGlbbxEN3zr6+d2mMDfPmv2qUDNGLy+O6VMLOYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 455/658] nvme-pci: add a blank line after declarations
+        patches@lists.linux.dev, "Ivan T. Ivanov" <iivanov@suse.de>,
+        Hector Martin <marcan@marcan.st>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Peter Robinson <pbrobinson@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 6.1 020/183] brcmfmac: Prefer DT board type over DMI board type
 Date:   Mon, 16 Jan 2023 16:49:03 +0100
-Message-Id: <20230116154930.305391332@linuxfoundation.org>
+Message-Id: <20230116154804.257378726@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
+From: Ivan T. Ivanov <iivanov@suse.de>
 
-[ Upstream commit 4e523547e2bf755d40cb10e85795c2f9620ff3fb ]
+commit a5a36720c3f650f859f5e9535dd62d06f13f4f3b upstream.
 
-Add a blank line after declarations to make code more readable.
+The introduction of support for Apple board types inadvertently changed
+the precedence order, causing hybrid SMBIOS+DT platforms to look up the
+firmware using the DMI information instead of the device tree compatible
+to generate the board type. Revert back to the old behavior,
+as affected platforms use firmwares named after the DT compatible.
 
-Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Stable-dep-of: c89a529e823d ("nvme-pci: fix mempool alloc size")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7682de8b3351 ("wifi: brcmfmac: of: Fetch Apple properties")
+
+[1] https://bugzilla.opensuse.org/show_bug.cgi?id=1206697#c13
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
+Reviewed-by: Hector Martin <marcan@marcan.st>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Tested-by: Peter Robinson <pbrobinson@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 5d62d1042c0e..c31fb6902c71 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1076,6 +1076,7 @@ static irqreturn_t nvme_irq(int irq, void *data)
- static irqreturn_t nvme_irq_check(int irq, void *data)
- {
- 	struct nvme_queue *nvmeq = data;
-+
- 	if (nvme_cqe_pending(nvmeq))
- 		return IRQ_WAKE_THREAD;
- 	return IRQ_NONE;
-@@ -1470,6 +1471,7 @@ static int nvme_cmb_qdepth(struct nvme_dev *dev, int nr_io_queues,
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c
+index a83699de01ec..fdd0c9abc1a1 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/of.c
+@@ -79,7 +79,8 @@ void brcmf_of_probe(struct device *dev, enum brcmf_bus_type bus_type,
+ 	/* Apple ARM64 platforms have their own idea of board type, passed in
+ 	 * via the device tree. They also have an antenna SKU parameter
+ 	 */
+-	if (!of_property_read_string(np, "brcm,board-type", &prop))
++	err = of_property_read_string(np, "brcm,board-type", &prop);
++	if (!err)
+ 		settings->board_type = prop;
  
- 	if (q_size_aligned * nr_io_queues > dev->cmb_size) {
- 		u64 mem_per_q = div_u64(dev->cmb_size, nr_io_queues);
-+
- 		mem_per_q = round_down(mem_per_q, dev->ctrl.page_size);
- 		q_depth = div_u64(mem_per_q, entry_size);
+ 	if (!of_property_read_string(np, "apple,antenna-sku", &prop))
+@@ -87,7 +88,7 @@ void brcmf_of_probe(struct device *dev, enum brcmf_bus_type bus_type,
  
-@@ -2940,6 +2942,7 @@ static void nvme_reset_done(struct pci_dev *pdev)
- static void nvme_shutdown(struct pci_dev *pdev)
- {
- 	struct nvme_dev *dev = pci_get_drvdata(pdev);
-+
- 	nvme_disable_prepare_reset(dev, true);
- }
- 
-@@ -3070,6 +3073,7 @@ static int nvme_suspend(struct device *dev)
- static int nvme_simple_suspend(struct device *dev)
- {
- 	struct nvme_dev *ndev = pci_get_drvdata(to_pci_dev(dev));
-+
- 	return nvme_disable_prepare_reset(ndev, true);
- }
+ 	/* Set board-type to the first string of the machine compatible prop */
+ 	root = of_find_node_by_path("/");
+-	if (root && !settings->board_type) {
++	if (root && err) {
+ 		char *board_type;
+ 		const char *tmp;
  
 -- 
-2.35.1
+2.39.0
 
 
 
