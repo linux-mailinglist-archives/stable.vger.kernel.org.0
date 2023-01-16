@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ABBD66CDB3
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8545166CDB4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235038AbjAPRiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:38:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56272 "EHLO
+        id S234959AbjAPRiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:38:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234700AbjAPRhn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1A24996D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:42 -0800 (PST)
+        with ESMTP id S234858AbjAPRhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ED334B1B2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B7D561050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CF02C433D2;
-        Mon, 16 Jan 2023 17:14:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6913CB8109D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0328C433F1;
+        Mon, 16 Jan 2023 17:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889281;
-        bh=XalcQgvmaKEiJxgess2rg5blO9B8KGoVgxoeRmUeb4A=;
+        s=korg; t=1673889284;
+        bh=m+hr9itkdl22VVvwcVGr9bqF7C8fVeomx3FsQxuBlL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMrtULCRmUneFWTf6YINlW1mMfbHlI5fK0lHW03Xu2A2lhINZOAZ+9pKZhi5N0m53
-         24iL/OvN6/PEzCfj5ejESpJj5qDcjKcfeq0Qh2O0KetrUsHVzYORPSUrTL+cMWPZlT
-         IpXAiGaPuM6bKCSUCXQi9heLLnQM7suue0vuqs2M=
+        b=hXuCuaf3+OQ5sPn0jT6UV+JqNty/jcYBnhrhZGaQssDf3wjCOK59V8a513tDxVc0e
+         IdDEtpNJB5z8FZjy/VvuZY/j8dI8Rv62E+ZTF9TpWqTLSOZbPJ+M/3xzGsQWHv0Bi6
+         1Axrb7wA5fzdeAPDfmoB3aXv+khQ8qCpXGVXF0uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 4.14 327/338] s390/percpu: add READ_ONCE() to arch_this_cpu_to_op_simple()
-Date:   Mon, 16 Jan 2023 16:53:20 +0100
-Message-Id: <20230116154835.345742922@linuxfoundation.org>
+        patches@lists.linux.dev, slipper <slipper.alive@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 328/338] net/ulp: prevent ULP without clone op from entering the LISTEN status
+Date:   Mon, 16 Jan 2023 16:53:21 +0100
+Message-Id: <20230116154835.388105788@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,32 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit e3f360db08d55a14112bd27454e616a24296a8b0 upstream.
+commit 2c02d41d71f90a5168391b6a5f2954112ba2307c upstream.
 
-Make sure that *ptr__ within arch_this_cpu_to_op_simple() is only
-dereferenced once by using READ_ONCE(). Otherwise the compiler could
-generate incorrect code.
+When an ULP-enabled socket enters the LISTEN status, the listener ULP data
+pointer is copied inside the child/accepted sockets by sk_clone_lock().
 
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+The relevant ULP can take care of de-duplicating the context pointer via
+the clone() operation, but only MPTCP and SMC implement such op.
+
+Other ULPs may end-up with a double-free at socket disposal time.
+
+We can't simply clear the ULP data at clone time, as TLS replaces the
+socket ops with custom ones assuming a valid TLS ULP context is
+available.
+
+Instead completely prevent clone-less ULP sockets from entering the
+LISTEN status.
+
+Fixes: 734942cc4ea6 ("tcp: ULP infrastructure")
+Reported-by: slipper <slipper.alive@gmail.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/r/4b80c3d1dbe3d0ab072f80450c202d9bc88b4b03.1672740602.git.pabeni@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/percpu.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/inet_connection_sock.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -31,7 +31,7 @@
- 	pcp_op_T__ *ptr__;						\
- 	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
--	prev__ = *ptr__;						\
-+	prev__ = READ_ONCE(*ptr__);					\
- 	do {								\
- 		old__ = prev__;						\
- 		new__ = old__ op (val);					\
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -894,11 +894,25 @@ void inet_csk_prepare_forced_close(struc
+ }
+ EXPORT_SYMBOL(inet_csk_prepare_forced_close);
+ 
++static int inet_ulp_can_listen(const struct sock *sk)
++{
++	const struct inet_connection_sock *icsk = inet_csk(sk);
++
++	if (icsk->icsk_ulp_ops)
++		return -EINVAL;
++
++	return 0;
++}
++
+ int inet_csk_listen_start(struct sock *sk, int backlog)
+ {
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	struct inet_sock *inet = inet_sk(sk);
+-	int err = -EADDRINUSE;
++	int err;
++
++	err = inet_ulp_can_listen(sk);
++	if (unlikely(err))
++		return err;
+ 
+ 	reqsk_queue_alloc(&icsk->icsk_accept_queue);
+ 
 
 
