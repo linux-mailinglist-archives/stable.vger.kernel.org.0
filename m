@@ -2,55 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 221B366C5CA
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:10:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3037A66C4F7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232638AbjAPQK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:10:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50778 "EHLO
+        id S231871AbjAPQAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:00:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232650AbjAPQJ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:09:57 -0500
+        with ESMTP id S231810AbjAPQAD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8BE2886E;
-        Mon, 16 Jan 2023 08:06:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60CDB234F9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 115AFB8107E;
-        Mon, 16 Jan 2023 16:06:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34683C433F0;
-        Mon, 16 Jan 2023 16:06:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E78D8B81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F528C433D2;
+        Mon, 16 Jan 2023 15:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885186;
-        bh=1FMbckGDZKUOmh9B8Qgm6MqJxUC6w9f36GjxU20yXd4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cdkCS5TQHG2Efk8FuJLrZNaPIUuTDzp07+wIKFSy87SoXKaOI6oUac6RkyrHHy0CD
-         C09p+WshTyKoRhthUMjqEuTJVtEC+bTbh3ZDqPLEfRFUU8XmJ3Z2oSVrjz4+9SX4k1
-         kY3Rhqe/Kq7ZVzbvbIyZL1/eoHfx7twPj76YgHc0=
+        s=korg; t=1673884798;
+        bh=Sx9VLz/4mn55dd8YA2uV6kp6cuRAH6GPF+I6aCdzfzk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Jn39jKJgK0TbyibU8TSmb83rwMziiU+CR1zCoYZ5ot715iWDH89O+ht6FJdUJPikj
+         hoQN2Yno4/KmCD2zJfjgh84ANWxDMv4YEoK/Dn8AOZ8I0+v+D7K1o1cz69G7XtvY/q
+         BELUEdUcNZxl2mSj5dLJGmWjdvde1lS+Aqg6cOao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 5.10 00/64] 5.10.164-rc1 review
+        patches@lists.linux.dev,
+        Maaz Mombasawala <mombasawalam@vmware.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>, Zack Rusin <zackr@vmware.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 144/183] drm/vmwgfx: Refactor resource validation hashtable to use linux/hashtable implementation.
 Date:   Mon, 16 Jan 2023 16:51:07 +0100
-Message-Id: <20230116154743.577276578@linuxfoundation.org>
+Message-Id: <20230116154809.429362934@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-MIME-Version: 1.0
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.164-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.164-rc1
-X-KernelTest-Deadline: 2023-01-18T15:47+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,285 +55,378 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.164 release.
-There are 64 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Maaz Mombasawala <mombasawalam@vmware.com>
+
+[ Upstream commit 9e931f2e09701e25744f3d186a4ba13b5342b136 ]
+
+Vmwgfx's hashtab implementation needs to be replaced with linux/hashtable
+to reduce maintenence burden.
+As part of this effort, refactor the res_ht hashtable used for resource
+validation during execbuf execution to use linux/hashtable implementation.
+This also refactors vmw_validation_context to use vmw_sw_context as the
+container for the hashtable, whereas before it used a vmwgfx_open_hash
+directly. This makes vmw_validation_context less generic, but there is
+no functional change since res_ht is the only instance where validation
+context used a hashtable in vmwgfx driver.
+
+Signed-off-by: Maaz Mombasawala <mombasawalam@vmware.com>
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221022040236.616490-6-zack@kde.org
+Stable-dep-of: a309c7194e8a ("drm/vmwgfx: Remove rcu locks from user resources")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.c        | 24 ++++++++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.h        |  5 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c    | 14 ++----
+ drivers/gpu/drm/vmwgfx/vmwgfx_validation.c | 55 +++++++++++-----------
+ drivers/gpu/drm/vmwgfx/vmwgfx_validation.h | 26 +++-------
+ 5 files changed, 58 insertions(+), 66 deletions(-)
+
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+index 13b90273eb77..8d77e79bd904 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+@@ -830,6 +830,22 @@ static void vmw_write_driver_id(struct vmw_private *dev)
+ 	}
+ }
+ 
++static void vmw_sw_context_init(struct vmw_private *dev_priv)
++{
++	struct vmw_sw_context *sw_context = &dev_priv->ctx;
++
++	hash_init(sw_context->res_ht);
++}
++
++static void vmw_sw_context_fini(struct vmw_private *dev_priv)
++{
++	struct vmw_sw_context *sw_context = &dev_priv->ctx;
++
++	vfree(sw_context->cmd_bounce);
++	if (sw_context->staged_bindings)
++		vmw_binding_state_free(sw_context->staged_bindings);
++}
++
+ static int vmw_driver_load(struct vmw_private *dev_priv, u32 pci_id)
+ {
+ 	int ret;
+@@ -839,6 +855,8 @@ static int vmw_driver_load(struct vmw_private *dev_priv, u32 pci_id)
+ 
+ 	dev_priv->drm.dev_private = dev_priv;
+ 
++	vmw_sw_context_init(dev_priv);
++
+ 	mutex_init(&dev_priv->cmdbuf_mutex);
+ 	mutex_init(&dev_priv->binding_mutex);
+ 	spin_lock_init(&dev_priv->resource_lock);
+@@ -1168,9 +1186,7 @@ static void vmw_driver_unload(struct drm_device *dev)
+ 
+ 	unregister_pm_notifier(&dev_priv->pm_nb);
+ 
+-	if (dev_priv->ctx.res_ht_initialized)
+-		vmwgfx_ht_remove(&dev_priv->ctx.res_ht);
+-	vfree(dev_priv->ctx.cmd_bounce);
++	vmw_sw_context_fini(dev_priv);
+ 	if (dev_priv->enable_fb) {
+ 		vmw_fb_off(dev_priv);
+ 		vmw_fb_close(dev_priv);
+@@ -1198,8 +1214,6 @@ static void vmw_driver_unload(struct drm_device *dev)
+ 		vmw_irq_uninstall(&dev_priv->drm);
+ 
+ 	ttm_object_device_release(&dev_priv->tdev);
+-	if (dev_priv->ctx.staged_bindings)
+-		vmw_binding_state_free(dev_priv->ctx.staged_bindings);
+ 
+ 	for (i = vmw_res_context; i < vmw_res_max; ++i)
+ 		idr_destroy(&dev_priv->res_idr[i]);
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+index 09e2d738aa87..d87aeedb78d0 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+@@ -30,6 +30,7 @@
+ 
+ #include <linux/suspend.h>
+ #include <linux/sync_file.h>
++#include <linux/hashtable.h>
+ 
+ #include <drm/drm_auth.h>
+ #include <drm/drm_device.h>
+@@ -93,6 +94,7 @@
+ #define VMW_RES_STREAM ttm_driver_type2
+ #define VMW_RES_FENCE ttm_driver_type3
+ #define VMW_RES_SHADER ttm_driver_type4
++#define VMW_RES_HT_ORDER 12
+ 
+ #define MKSSTAT_CAPACITY_LOG2 5U
+ #define MKSSTAT_CAPACITY (1U << MKSSTAT_CAPACITY_LOG2)
+@@ -425,8 +427,7 @@ struct vmw_ctx_validation_info;
+  * @ctx: The validation context
+  */
+ struct vmw_sw_context{
+-	struct vmwgfx_open_hash res_ht;
+-	bool res_ht_initialized;
++	DECLARE_HASHTABLE(res_ht, VMW_RES_HT_ORDER);
+ 	bool kernel;
+ 	struct vmw_fpriv *fp;
+ 	struct drm_file *filp;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+index f085dbd4736d..c943ab801ca7 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0 OR MIT
+ /**************************************************************************
+  *
+- * Copyright 2009 - 2015 VMware, Inc., Palo Alto, CA., USA
++ * Copyright 2009 - 2022 VMware, Inc., Palo Alto, CA., USA
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a
+  * copy of this software and associated documentation files (the
+@@ -25,6 +25,7 @@
+  *
+  **************************************************************************/
+ #include <linux/sync_file.h>
++#include <linux/hashtable.h>
+ 
+ #include "vmwgfx_drv.h"
+ #include "vmwgfx_reg.h"
+@@ -34,7 +35,6 @@
+ #include "vmwgfx_binding.h"
+ #include "vmwgfx_mksstat.h"
+ 
+-#define VMW_RES_HT_ORDER 12
+ 
+ /*
+  * Helper macro to get dx_ctx_node if available otherwise print an error
+@@ -4101,7 +4101,7 @@ int vmw_execbuf_process(struct drm_file *file_priv,
+ 	int ret;
+ 	int32_t out_fence_fd = -1;
+ 	struct sync_file *sync_file = NULL;
+-	DECLARE_VAL_CONTEXT(val_ctx, &sw_context->res_ht, 1);
++	DECLARE_VAL_CONTEXT(val_ctx, sw_context, 1);
+ 
+ 	if (flags & DRM_VMW_EXECBUF_FLAG_EXPORT_FENCE_FD) {
+ 		out_fence_fd = get_unused_fd_flags(O_CLOEXEC);
+@@ -4164,14 +4164,6 @@ int vmw_execbuf_process(struct drm_file *file_priv,
+ 	if (sw_context->staged_bindings)
+ 		vmw_binding_state_reset(sw_context->staged_bindings);
+ 
+-	if (!sw_context->res_ht_initialized) {
+-		ret = vmwgfx_ht_create(&sw_context->res_ht, VMW_RES_HT_ORDER);
+-		if (unlikely(ret != 0))
+-			goto out_unlock;
+-
+-		sw_context->res_ht_initialized = true;
+-	}
+-
+ 	INIT_LIST_HEAD(&sw_context->staged_cmd_res);
+ 	sw_context->ctx = &val_ctx;
+ 	ret = vmw_execbuf_tie_context(dev_priv, sw_context, dx_context_handle);
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_validation.c b/drivers/gpu/drm/vmwgfx/vmwgfx_validation.c
+index f46891012be3..f5c4a40fb16d 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_validation.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_validation.c
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0 OR MIT
+ /**************************************************************************
+  *
+- * Copyright © 2018 VMware, Inc., Palo Alto, CA., USA
++ * Copyright © 2018 - 2022 VMware, Inc., Palo Alto, CA., USA
+  * All Rights Reserved.
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a
+@@ -180,11 +180,16 @@ vmw_validation_find_bo_dup(struct vmw_validation_context *ctx,
+ 	if (!ctx->merge_dups)
+ 		return NULL;
+ 
+-	if (ctx->ht) {
++	if (ctx->sw_context) {
+ 		struct vmwgfx_hash_item *hash;
++		unsigned long key = (unsigned long) vbo;
+ 
+-		if (!vmwgfx_ht_find_item(ctx->ht, (unsigned long) vbo, &hash))
+-			bo_node = container_of(hash, typeof(*bo_node), hash);
++		hash_for_each_possible_rcu(ctx->sw_context->res_ht, hash, head, key) {
++			if (hash->key == key) {
++				bo_node = container_of(hash, typeof(*bo_node), hash);
++				break;
++			}
++		}
+ 	} else {
+ 		struct  vmw_validation_bo_node *entry;
+ 
+@@ -217,11 +222,16 @@ vmw_validation_find_res_dup(struct vmw_validation_context *ctx,
+ 	if (!ctx->merge_dups)
+ 		return NULL;
+ 
+-	if (ctx->ht) {
++	if (ctx->sw_context) {
+ 		struct vmwgfx_hash_item *hash;
++		unsigned long key = (unsigned long) res;
+ 
+-		if (!vmwgfx_ht_find_item(ctx->ht, (unsigned long) res, &hash))
+-			res_node = container_of(hash, typeof(*res_node), hash);
++		hash_for_each_possible_rcu(ctx->sw_context->res_ht, hash, head, key) {
++			if (hash->key == key) {
++				res_node = container_of(hash, typeof(*res_node), hash);
++				break;
++			}
++		}
+ 	} else {
+ 		struct  vmw_validation_res_node *entry;
+ 
+@@ -269,20 +279,15 @@ int vmw_validation_add_bo(struct vmw_validation_context *ctx,
+ 		}
+ 	} else {
+ 		struct ttm_validate_buffer *val_buf;
+-		int ret;
+ 
+ 		bo_node = vmw_validation_mem_alloc(ctx, sizeof(*bo_node));
+ 		if (!bo_node)
+ 			return -ENOMEM;
+ 
+-		if (ctx->ht) {
++		if (ctx->sw_context) {
+ 			bo_node->hash.key = (unsigned long) vbo;
+-			ret = vmwgfx_ht_insert_item(ctx->ht, &bo_node->hash);
+-			if (ret) {
+-				DRM_ERROR("Failed to initialize a buffer "
+-					  "validation entry.\n");
+-				return ret;
+-			}
++			hash_add_rcu(ctx->sw_context->res_ht, &bo_node->hash.head,
++				bo_node->hash.key);
+ 		}
+ 		val_buf = &bo_node->base;
+ 		val_buf->bo = ttm_bo_get_unless_zero(&vbo->base);
+@@ -316,7 +321,6 @@ int vmw_validation_add_resource(struct vmw_validation_context *ctx,
+ 				bool *first_usage)
+ {
+ 	struct vmw_validation_res_node *node;
+-	int ret;
+ 
+ 	node = vmw_validation_find_res_dup(ctx, res);
+ 	if (node) {
+@@ -330,14 +334,9 @@ int vmw_validation_add_resource(struct vmw_validation_context *ctx,
+ 		return -ENOMEM;
+ 	}
+ 
+-	if (ctx->ht) {
++	if (ctx->sw_context) {
+ 		node->hash.key = (unsigned long) res;
+-		ret = vmwgfx_ht_insert_item(ctx->ht, &node->hash);
+-		if (ret) {
+-			DRM_ERROR("Failed to initialize a resource validation "
+-				  "entry.\n");
+-			return ret;
+-		}
++		hash_add_rcu(ctx->sw_context->res_ht, &node->hash.head, node->hash.key);
+ 	}
+ 	node->res = vmw_resource_reference_unless_doomed(res);
+ 	if (!node->res)
+@@ -681,19 +680,19 @@ void vmw_validation_drop_ht(struct vmw_validation_context *ctx)
+ 	struct vmw_validation_bo_node *entry;
+ 	struct vmw_validation_res_node *val;
+ 
+-	if (!ctx->ht)
++	if (!ctx->sw_context)
+ 		return;
+ 
+ 	list_for_each_entry(entry, &ctx->bo_list, base.head)
+-		(void) vmwgfx_ht_remove_item(ctx->ht, &entry->hash);
++		hash_del_rcu(&entry->hash.head);
+ 
+ 	list_for_each_entry(val, &ctx->resource_list, head)
+-		(void) vmwgfx_ht_remove_item(ctx->ht, &val->hash);
++		hash_del_rcu(&val->hash.head);
+ 
+ 	list_for_each_entry(val, &ctx->resource_ctx_list, head)
+-		(void) vmwgfx_ht_remove_item(ctx->ht, &val->hash);
++		hash_del_rcu(&entry->hash.head);
+ 
+-	ctx->ht = NULL;
++	ctx->sw_context = NULL;
+ }
+ 
+ /**
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_validation.h b/drivers/gpu/drm/vmwgfx/vmwgfx_validation.h
+index f21df053882b..ab9ec226f433 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_validation.h
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_validation.h
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 OR MIT */
+ /**************************************************************************
+  *
+- * Copyright © 2018 VMware, Inc., Palo Alto, CA., USA
++ * Copyright © 2018 - 2022 VMware, Inc., Palo Alto, CA., USA
+  * All Rights Reserved.
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a
+@@ -29,12 +29,11 @@
+ #define _VMWGFX_VALIDATION_H_
+ 
+ #include <linux/list.h>
++#include <linux/hashtable.h>
+ #include <linux/ww_mutex.h>
+ 
+ #include <drm/ttm/ttm_execbuf_util.h>
+ 
+-#include "vmwgfx_hashtab.h"
+-
+ #define VMW_RES_DIRTY_NONE 0
+ #define VMW_RES_DIRTY_SET BIT(0)
+ #define VMW_RES_DIRTY_CLEAR BIT(1)
+@@ -59,7 +58,7 @@
+  * @total_mem: Amount of reserved memory.
+  */
+ struct vmw_validation_context {
+-	struct vmwgfx_open_hash *ht;
++	struct vmw_sw_context *sw_context;
+ 	struct list_head resource_list;
+ 	struct list_head resource_ctx_list;
+ 	struct list_head bo_list;
+@@ -82,16 +81,16 @@ struct vmw_fence_obj;
+ /**
+  * DECLARE_VAL_CONTEXT - Declare a validation context with initialization
+  * @_name: The name of the variable
+- * @_ht: The hash table used to find dups or NULL if none
++ * @_sw_context: Contains the hash table used to find dups or NULL if none
+  * @_merge_dups: Whether to merge duplicate buffer object- or resource
+  * entries. If set to true, ideally a hash table pointer should be supplied
+  * as well unless the number of resources and buffer objects per validation
+  * is known to be very small
+  */
+ #endif
+-#define DECLARE_VAL_CONTEXT(_name, _ht, _merge_dups)			\
++#define DECLARE_VAL_CONTEXT(_name, _sw_context, _merge_dups)		\
+ 	struct vmw_validation_context _name =				\
+-	{ .ht = _ht,							\
++	{ .sw_context = _sw_context,					\
+ 	  .resource_list = LIST_HEAD_INIT((_name).resource_list),	\
+ 	  .resource_ctx_list = LIST_HEAD_INIT((_name).resource_ctx_list), \
+ 	  .bo_list = LIST_HEAD_INIT((_name).bo_list),			\
+@@ -114,19 +113,6 @@ vmw_validation_has_bos(struct vmw_validation_context *ctx)
+ 	return !list_empty(&ctx->bo_list);
+ }
+ 
+-/**
+- * vmw_validation_set_ht - Register a hash table for duplicate finding
+- * @ctx: The validation context
+- * @ht: Pointer to a hash table to use for duplicate finding
+- * This function is intended to be used if the hash table wasn't
+- * available at validation context declaration time
+- */
+-static inline void vmw_validation_set_ht(struct vmw_validation_context *ctx,
+-					 struct vmwgfx_open_hash *ht)
+-{
+-	ctx->ht = ht;
+-}
+-
+ /**
+  * vmw_validation_bo_reserve - Reserve buffer objects registered with a
+  * validation context
+-- 
+2.35.1
 
-Responses should be made by Wed, 18 Jan 2023 15:47:28 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.164-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.164-rc1
-
-Ferry Toth <ftoth@exalondelft.nl>
-    Revert "usb: ulpi: defer ulpi_register on ulpi_read_id timeout"
-
-Jens Axboe <axboe@kernel.dk>
-    io_uring/io-wq: only free worker if it was allocated for creation
-
-Jens Axboe <axboe@kernel.dk>
-    io_uring/io-wq: free worker if task_work creation is canceled
-
-Rob Clark <robdclark@chromium.org>
-    drm/virtio: Fix GEM handle creation UAF
-
-Johan Hovold <johan+linaro@kernel.org>
-    efi: fix NULL-deref in init error path
-
-Mark Rutland <mark.rutland@arm.com>
-    arm64: cmpxchg_double*: hazard against entire exchange variable
-
-Mark Rutland <mark.rutland@arm.com>
-    arm64: atomics: remove LL/SC trampolines
-
-Mark Rutland <mark.rutland@arm.com>
-    arm64: atomics: format whitespace consistently
-
-Peter Newman <peternewman@google.com>
-    x86/resctrl: Fix task CLOSID/RMID update race
-
-Reinette Chatre <reinette.chatre@intel.com>
-    x86/resctrl: Use task_curr() instead of task_struct->on_cpu to prevent unnecessary IPI
-
-Paolo Bonzini <pbonzini@redhat.com>
-    KVM: x86: Do not return host topology information from KVM_GET_SUPPORTED_CPUID
-
-Paolo Bonzini <pbonzini@redhat.com>
-    Documentation: KVM: add API issues section
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    iommu/mediatek-v1: Fix an error handling path in mtk_iommu_v1_probe()
-
-Yong Wu <yong.wu@mediatek.com>
-    iommu/mediatek-v1: Add error handle for mtk_iommu_probe
-
-Aaron Thompson <dev@aaront.org>
-    mm: Always release pages to the buddy allocator in memblock_free_late().
-
-Gavin Li <gavinl@nvidia.com>
-    net/mlx5e: Don't support encap rules with gbp option
-
-Rahul Rameshbabu <rrameshbabu@nvidia.com>
-    net/mlx5: Fix ptp max frequency adjustment range
-
-Ido Schimmel <idosch@nvidia.com>
-    net/sched: act_mpls: Fix warning during failed attribute validation
-
-Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-    nfc: pn533: Wait for out_urb's completion in pn533_usb_send_frame()
-
-Roger Pau Monne <roger.pau@citrix.com>
-    hvc/xen: lock console list traversal
-
-Angela Czubak <aczubak@marvell.com>
-    octeontx2-af: Fix LMAC config in cgx_lmac_rx_tx_enable
-
-Subbaraya Sundeep <sbhatta@marvell.com>
-    octeontx2-af: Map NIX block from CGX connection
-
-Subbaraya Sundeep <sbhatta@marvell.com>
-    octeontx2-af: Update get/set resource count functions
-
-Tung Nguyen <tung.q.nguyen@dektech.com.au>
-    tipc: fix unexpected link reset due to discovery messages
-
-Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
-    ASoC: wm8904: fix wrong outputs volume after power reactivation
-
-Ricardo Ribalda <ribalda@chromium.org>
-    regulator: da9211: Use irq handler when ready
-
-Eliav Farber <farbere@amazon.com>
-    EDAC/device: Fix period calculation in edac_device_reset_delay_period()
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/boot: Avoid using Intel mnemonics in AT&T syntax asm
-
-Kajol Jain <kjain@linux.ibm.com>
-    powerpc/imc-pmu: Fix use of mutex in IRQs disabled section
-
-Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
-    netfilter: ipset: Fix overflow before widen in the bitmap_ip_create() function.
-
-Nicolas Dichtel <nicolas.dichtel@6wind.com>
-    xfrm: fix rcu lock in xfrm_notify_userpolicy()
-
-Ye Bin <yebin10@huawei.com>
-    ext4: fix uninititialized value in 'ext4_evict_inode'
-
-Ferry Toth <ftoth@exalondelft.nl>
-    usb: ulpi: defer ulpi_register on ulpi_read_id timeout
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: Prevent infinite loop in transaction errors recovery for streams
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: move and rename xhci_cleanup_halted_endpoint()
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: store TD status in the td struct instead of passing it along
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: move xhci_td_cleanup so it can be called by more functions
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: Add xhci_reset_halted_ep() helper function
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: adjust parameters passed to cleanup_halted_endpoint()
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: get isochronous ring directly from endpoint structure
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: Avoid parsing transfer events several times
-
-Li Jun <jun.li@nxp.com>
-    clk: imx: imx8mp: add shared clk gate for usb suspend clk
-
-Li Jun <jun.li@nxp.com>
-    dt-bindings: clocks: imx8mp: Add ID for usb suspend clock
-
-Lucas Stach <l.stach@pengutronix.de>
-    clk: imx8mp: add clkout1/2 support
-
-Marek Vasut <marex@denx.de>
-    clk: imx8mp: Add DISP2 pixel clock
-
-Kim Phillips <kim.phillips@amd.com>
-    iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and ivrs_acpihid options
-
-Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-    iommu/amd: Add PCI segment support for ivrs_[ioapic/hpet/acpihid] commands
-
-Qiang Yu <quic_qianyu@quicinc.com>
-    bus: mhi: host: Fix race between channel preparation and M0 event
-
-Herbert Xu <herbert@gondor.apana.org.au>
-    ipv6: raw: Deduct extension header length in rawv6_push_pending_frames
-
-Yang Yingliang <yangyingliang@huawei.com>
-    ixgbe: fix pci device refcount leak
-
-Hans de Goede <hdegoede@redhat.com>
-    platform/x86: sony-laptop: Don't turn off 0x153 keyboard backlight during probe
-
-Kuogee Hsieh <quic_khsieh@quicinc.com>
-    drm/msm/dp: do not complete dp_aux_cmd_fifo_tx() if irq is not for aux transfer
-
-Konrad Dybcio <konrad.dybcio@linaro.org>
-    drm/msm/adreno: Make adreno quirks not overwrite each other
-
-Volker Lendecke <vl@samba.org>
-    cifs: Fix uninitialized memory read for smb311 posix symlink create
-
-Heiko Carstens <hca@linux.ibm.com>
-    s390/percpu: add READ_ONCE() to arch_this_cpu_to_op_simple()
-
-Heiko Carstens <hca@linux.ibm.com>
-    s390/cpum_sf: add READ_ONCE() semantics to compare and swap loops
-
-Brian Norris <computersforpeace@gmail.com>
-    ASoC: qcom: lpass-cpu: Fix fallback SD line index handling
-
-Alexander Egorenkov <egorenar@linux.ibm.com>
-    s390/kexec: fix ipl report address for kdump
-
-Adrian Hunter <adrian.hunter@intel.com>
-    perf auxtrace: Fix address filter duplicate symbol selection
-
-Jonathan Corbet <corbet@lwn.net>
-    docs: Fix the docs build with Sphinx 6.0
-
-Ard Biesheuvel <ardb@kernel.org>
-    efi: tpm: Avoid READ_ONCE() for accessing the event log
-
-Marc Zyngier <maz@kernel.org>
-    KVM: arm64: Fix S1PTW handling on RO memslots
-
-Luka Guzenko <l.guzenko@web.de>
-    ALSA: hda/realtek: Enable mute/micmute LEDs on HP Spectre x360 13-aw0xxx
-
-Pablo Neira Ayuso <pablo@netfilter.org>
-    netfilter: nft_payload: incorrect arithmetics when fetching VLAN header bits
-
-
--------------
-
-Diffstat:
-
- Documentation/admin-guide/kernel-parameters.txt    |  51 +++-
- Documentation/sphinx/load_config.py                |   6 +-
- Documentation/virt/kvm/api.rst                     |  60 +++++
- Makefile                                           |   4 +-
- arch/arm64/include/asm/atomic_ll_sc.h              | 114 ++++----
- arch/arm64/include/asm/atomic_lse.h                |  16 +-
- arch/arm64/include/asm/kvm_emulate.h               |  22 +-
- arch/powerpc/include/asm/imc-pmu.h                 |   2 +-
- arch/powerpc/perf/imc-pmu.c                        | 136 +++++-----
- arch/s390/include/asm/cpu_mf.h                     |  31 ++-
- arch/s390/include/asm/percpu.h                     |   2 +-
- arch/s390/kernel/machine_kexec_file.c              |   5 +-
- arch/s390/kernel/perf_cpum_sf.c                    | 101 ++++---
- arch/x86/boot/bioscall.S                           |   4 +-
- arch/x86/kernel/cpu/resctrl/rdtgroup.c             |  26 +-
- arch/x86/kvm/cpuid.c                               |  32 +--
- drivers/bus/mhi/core/pm.c                          |   3 +-
- drivers/clk/imx/clk-imx8mp.c                       |  23 +-
- drivers/edac/edac_device.c                         |  17 +-
- drivers/edac/edac_module.h                         |   2 +-
- drivers/firmware/efi/efi.c                         |   9 +-
- drivers/gpu/drm/msm/adreno/adreno_gpu.h            |  10 +-
- drivers/gpu/drm/msm/dp/dp_aux.c                    |   4 +
- drivers/gpu/drm/virtio/virtgpu_ioctl.c             |  10 +-
- drivers/iommu/amd/init.c                           |  89 ++++--
- drivers/iommu/mtk_iommu_v1.c                       |  26 +-
- drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c       |  14 +-
- drivers/net/ethernet/marvell/octeontx2/af/cgx.c    |  17 +-
- drivers/net/ethernet/marvell/octeontx2/af/cgx.h    |   6 +-
- drivers/net/ethernet/marvell/octeontx2/af/rvu.c    | 134 ++++++++--
- drivers/net/ethernet/marvell/octeontx2/af/rvu.h    |   4 +
- .../net/ethernet/marvell/octeontx2/af/rvu_cgx.c    |  15 ++
- .../net/ethernet/marvell/octeontx2/af/rvu_nix.c    |  21 +-
- .../ethernet/mellanox/mlx5/core/en/tc_tun_vxlan.c  |   2 +
- .../net/ethernet/mellanox/mlx5/core/lib/clock.c    |   2 +-
- drivers/nfc/pn533/usb.c                            |  44 ++-
- drivers/platform/x86/sony-laptop.c                 |  21 +-
- drivers/regulator/da9211-regulator.c               |  11 +-
- drivers/tty/hvc/hvc_xen.c                          |  46 ++--
- drivers/usb/host/xhci-mem.c                        |   4 +
- drivers/usb/host/xhci-ring.c                       | 297 +++++++++++----------
- drivers/usb/host/xhci.h                            |   6 +-
- fs/cifs/link.c                                     |   1 +
- fs/ext4/super.c                                    |   1 +
- include/dt-bindings/clock/imx8mp-clock.h           |  10 +-
- include/linux/tpm_eventlog.h                       |   4 +-
- io_uring/io-wq.c                                   |   6 +
- mm/memblock.c                                      |   8 +-
- net/ipv6/raw.c                                     |   4 +
- net/netfilter/ipset/ip_set_bitmap_ip.c             |   4 +-
- net/netfilter/nft_payload.c                        |   2 +-
- net/sched/act_mpls.c                               |   8 +-
- net/tipc/node.c                                    |  12 +-
- net/xfrm/xfrm_user.c                               |   7 +-
- sound/pci/hda/patch_realtek.c                      |  23 ++
- sound/soc/codecs/wm8904.c                          |   7 +
- sound/soc/qcom/lpass-cpu.c                         |   5 +-
- tools/perf/util/auxtrace.c                         |   2 +-
- 58 files changed, 1015 insertions(+), 538 deletions(-)
 
 
