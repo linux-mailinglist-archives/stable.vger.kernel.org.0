@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E02566C568
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB8766C936
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232238AbjAPQFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:05:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43752 "EHLO
+        id S233821AbjAPQrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:47:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232298AbjAPQFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:05:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A55E241FD
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:39 -0800 (PST)
+        with ESMTP id S233767AbjAPQqT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8426298F3
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 13DD86101F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27679C433D2;
-        Mon, 16 Jan 2023 16:03:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 461A96105A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DE92C433F2;
+        Mon, 16 Jan 2023 16:34:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885018;
-        bh=KK5nN9UW82lXnsraynq8u1xi3HMXy5blcDMPXgLg+oA=;
+        s=korg; t=1673886859;
+        bh=ew3PR0avQ36xWuY3qsnGh/YZZmNtTnySiuGuTPhvjRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PkJ2FM/1CnfAeaaitaewO+Ks+8wO0SN6RdJlw1NojEI3eq7U/mnEURlaZTYbg4+/x
-         IJ5aAvW0tnBL5Z8Akxri9OuDzg2Y09xUKKW9//CuBt+nTlnI7Obijsga/VUvR65jxE
-         9l8Y9wka1vTpTKHhjdWcB3ex1tiWI8dt4nUryWXA=
+        b=rii82bbyEurqn0gnIOv9m9yxxd/L7fGC+yzjrQCvw4Z/VBtsAxXbD3AVc0Cx5J5ct
+         NwixZjtcrajz9WQJXPCd1AZgK7ICBCSKUNT3kYY2GNM/LxMIOg2VE7OWjb/Uz96tn8
+         tOAsYb4bGfMqhkOA1RHhcqofh7W38Bwsxv43s5lA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Newman <peternewman@google.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Babu Moger <babu.moger@amd.com>, stable@kernel.org
-Subject: [PATCH 5.15 44/86] x86/resctrl: Fix task CLOSID/RMID update race
+        patches@lists.linux.dev, Steve Dickson <steved@redhat.com>,
+        JianHong Yin <yin-jianhong@163.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.4 590/658] nfsd: fix handling of readdir in v4root vs. mount upcall timeout
 Date:   Mon, 16 Jan 2023 16:51:18 +0100
-Message-Id: <20230116154748.894995908@linuxfoundation.org>
+Message-Id: <20230116154936.486893548@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Newman <peternewman@google.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit fe1f0714385fbcf76b0cbceb02b7277d842014fc upstream.
+commit cad853374d85fe678d721512cecfabd7636e51f3 upstream.
 
-When the user moves a running task to a new rdtgroup using the task's
-file interface or by deleting its rdtgroup, the resulting change in
-CLOSID/RMID must be immediately propagated to the PQR_ASSOC MSR on the
-task(s) CPUs.
+If v4 READDIR operation hits a mountpoint and gets back an error,
+then it will include that entry in the reply and set RDATTR_ERROR for it
+to the error.
 
-x86 allows reordering loads with prior stores, so if the task starts
-running between a task_curr() check that the CPU hoisted before the
-stores in the CLOSID/RMID update then it can start running with the old
-CLOSID/RMID until it is switched again because __rdtgroup_move_task()
-failed to determine that it needs to be interrupted to obtain the new
-CLOSID/RMID.
+That's fine for "normal" exported filesystems, but on the v4root, we
+need to be more careful to only expose the existence of dentries that
+lead to exports.
 
-Refer to the diagram below:
+If the mountd upcall times out while checking to see whether a
+mountpoint on the v4root is exported, then we have no recourse other
+than to fail the whole operation.
 
-CPU 0                                   CPU 1
------                                   -----
-__rdtgroup_move_task():
-  curr <- t1->cpu->rq->curr
-                                        __schedule():
-                                          rq->curr <- t1
-                                        resctrl_sched_in():
-                                          t1->{closid,rmid} -> {1,1}
-  t1->{closid,rmid} <- {2,2}
-  if (curr == t1) // false
-   IPI(t1->cpu)
-
-A similar race impacts rdt_move_group_tasks(), which updates tasks in a
-deleted rdtgroup.
-
-In both cases, use smp_mb() to order the task_struct::{closid,rmid}
-stores before the loads in task_curr().  In particular, in the
-rdt_move_group_tasks() case, simply execute an smp_mb() on every
-iteration with a matching task.
-
-It is possible to use a single smp_mb() in rdt_move_group_tasks(), but
-this would require two passes and a means of remembering which
-task_structs were updated in the first loop. However, benchmarking
-results below showed too little performance impact in the simple
-approach to justify implementing the two-pass approach.
-
-Times below were collected using `perf stat` to measure the time to
-remove a group containing a 1600-task, parallel workload.
-
-CPU: Intel(R) Xeon(R) Platinum P-8136 CPU @ 2.00GHz (112 threads)
-
-  # mkdir /sys/fs/resctrl/test
-  # echo $$ > /sys/fs/resctrl/test/tasks
-  # perf bench sched messaging -g 40 -l 100000
-
-task-clock time ranges collected using:
-
-  # perf stat rmdir /sys/fs/resctrl/test
-
-Baseline:                     1.54 - 1.60 ms
-smp_mb() every matching task: 1.57 - 1.67 ms
-
-  [ bp: Massage commit message. ]
-
-Fixes: ae28d1aae48a ("x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR")
-Fixes: 0efc89be9471 ("x86/intel_rdt: Update task closid immediately on CPU in rmdir and unmount")
-Signed-off-by: Peter Newman <peternewman@google.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Babu Moger <babu.moger@amd.com>
-Cc: <stable@kernel.org>
-Link: https://lore.kernel.org/r/20221220161123.432120-1-peternewman@google.com
+Cc: Steve Dickson <steved@redhat.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216777
+Reported-by: JianHong Yin <yin-jianhong@163.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/resctrl/rdtgroup.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/nfsd/nfs4xdr.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -580,8 +580,10 @@ static int __rdtgroup_move_task(struct t
- 	/*
- 	 * Ensure the task's closid and rmid are written before determining if
- 	 * the task is current that will decide if it will be interrupted.
-+	 * This pairs with the full barrier between the rq->curr update and
-+	 * resctrl_sched_in() during context switch.
- 	 */
--	barrier();
-+	smp_mb();
- 
- 	/*
- 	 * By now, the task's closid and rmid are set. If the task is current
-@@ -2364,6 +2366,14 @@ static void rdt_move_group_tasks(struct
- 			WRITE_ONCE(t->rmid, to->mon.rmid);
- 
- 			/*
-+			 * Order the closid/rmid stores above before the loads
-+			 * in task_curr(). This pairs with the full barrier
-+			 * between the rq->curr update and resctrl_sched_in()
-+			 * during context switch.
-+			 */
-+			smp_mb();
-+
-+			/*
- 			 * If the task is on a CPU, set the CPU in the mask.
- 			 * The detection is inaccurate as tasks might move or
- 			 * schedule before the smp function call takes place.
+--- a/fs/nfsd/nfs4xdr.c
++++ b/fs/nfsd/nfs4xdr.c
+@@ -3109,6 +3109,17 @@ nfsd4_encode_dirent(void *ccdv, const ch
+ 	case nfserr_noent:
+ 		xdr_truncate_encode(xdr, start_offset);
+ 		goto skip_entry;
++	case nfserr_jukebox:
++		/*
++		 * The pseudoroot should only display dentries that lead to
++		 * exports. If we get EJUKEBOX here, then we can't tell whether
++		 * this entry should be included. Just fail the whole READDIR
++		 * with NFS4ERR_DELAY in that case, and hope that the situation
++		 * will resolve itself by the client's next attempt.
++		 */
++		if (cd->rd_fhp->fh_export->ex_flags & NFSEXP_V4ROOT)
++			goto fail;
++		fallthrough;
+ 	default:
+ 		/*
+ 		 * If the client requested the RDATTR_ERROR attribute,
 
 
