@@ -2,44 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E90A166CD2B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABC3366CBD1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:18:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234752AbjAPReP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:34:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54900 "EHLO
+        id S234466AbjAPRSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:18:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234663AbjAPRdt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72A623B65A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:56 -0800 (PST)
+        with ESMTP id S234515AbjAPRRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:17:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B964F530ED;
+        Mon, 16 Jan 2023 08:57:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1023860F63
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2011CC433EF;
-        Mon, 16 Jan 2023 17:09:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECBF7B8105D;
+        Mon, 16 Jan 2023 16:57:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B28CC433D2;
+        Mon, 16 Jan 2023 16:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888995;
-        bh=oUcSDubVGe85K8vDTA+JtmRq7LPyNLIwxgmaslc4ykQ=;
+        s=korg; t=1673888258;
+        bh=JXHgnEsoWZeWPLb0O7tMwk9WlvFs6jzSGMct0JgbqeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=heKBDR9FXqzWvDLmhWdrZjfRmNt0+0pnPmzvhvV0eY0BGi6yIxAPJccylIE3sd3y6
-         sfuRWJsR5/xN4jHmFJeZUMIImvSbBKgQwOElY2l5zL1EfFVYaGbj84CwETyLd4avt1
-         OrygVJnciWRLPlSW5sFwXLbHTSjpe2pMiEO1S+kA=
+        b=GLjZgojLbwgFak3UbR92tKCxj+l0SfvDflsHuB7pe/f4HdHVj/vz796RwT36imxSr
+         HYUl0ZbKD2/qMBABRtU99vQnOUCuPAt5Af0QPB3UWlCRlp0y7I8gYVJbwayIIKxb2z
+         VIOHJcpMncXtf4ies++1dYOP1nZNQ47DKSN1wQyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        patches@lists.linux.dev, linux-pm@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Thierry Reding <treding@nvidia.com>,
+        Mark Brown <broonie@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Saravana Kannan <saravanak@google.com>,
+        Todd Kjos <tkjos@google.com>, Len Brown <len.brown@intel.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Kevin Hilman <khilman@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Rob Herring <robh@kernel.org>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        John Stultz <john.stultz@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 219/338] ACPICA: Fix error code path in acpi_ds_call_control_method()
-Date:   Mon, 16 Jan 2023 16:51:32 +0100
-Message-Id: <20230116154830.573421520@linuxfoundation.org>
+Subject: [PATCH 4.19 431/521] driver core: Set deferred_probe_timeout to a longer default if CONFIG_MODULES is set
+Date:   Mon, 16 Jan 2023 16:51:33 +0100
+Message-Id: <20230116154906.411052637@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +66,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: John Stultz <john.stultz@linaro.org>
 
-[ Upstream commit 404ec60438add1afadaffaed34bb5fe4ddcadd40 ]
+[ Upstream commit e2cec7d6853712295cef5377762165a489b2957f ]
 
-A use-after-free in acpi_ps_parse_aml() after a failing invocaion of
-acpi_ds_call_control_method() is reported by KASAN [1] and code
-inspection reveals that next_walk_state pushed to the thread by
-acpi_ds_create_walk_state() is freed on errors, but it is not popped
-from the thread beforehand.  Thus acpi_ds_get_current_walk_state()
-called by acpi_ps_parse_aml() subsequently returns it as the new
-walk state which is incorrect.
+When using modules, its common for the modules not to be loaded
+until quite late by userland. With the current code,
+driver_deferred_probe_check_state() will stop returning
+EPROBE_DEFER after late_initcall, which can cause module
+dependency resolution to fail after that.
 
-To address this, make acpi_ds_call_control_method() call
-acpi_ds_pop_walk_state() to pop next_walk_state from the thread before
-returning an error.
+So allow a longer window of 30 seconds (picked somewhat
+arbitrarily, but influenced by the similar regulator core
+timeout value) in the case where modules are enabled.
 
-Link: https://lore.kernel.org/linux-acpi/20221019073443.248215-1-chenzhongjin@huawei.com/ # [1]
-Reported-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Cc: linux-pm@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Saravana Kannan <saravanak@google.com>
+Cc: Todd Kjos <tkjos@google.com>
+Cc: Len Brown <len.brown@intel.com>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Kevin Hilman <khilman@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Rob Herring <robh@kernel.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Link: https://lore.kernel.org/r/20200225050828.56458-3-john.stultz@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/dsmethod.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/base/dd.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/acpi/acpica/dsmethod.c b/drivers/acpi/acpica/dsmethod.c
-index d7fc36917c67..88e729e24314 100644
---- a/drivers/acpi/acpica/dsmethod.c
-+++ b/drivers/acpi/acpica/dsmethod.c
-@@ -551,7 +551,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
- 	info = ACPI_ALLOCATE_ZEROED(sizeof(struct acpi_evaluate_info));
- 	if (!info) {
- 		status = AE_NO_MEMORY;
--		goto cleanup;
-+		goto pop_walk_state;
- 	}
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 63390a416b44..529d324a0f20 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -220,7 +220,16 @@ static int deferred_devs_show(struct seq_file *s, void *data)
+ }
+ DEFINE_SHOW_ATTRIBUTE(deferred_devs);
  
- 	info->parameters = &this_walk_state->operands[0];
-@@ -563,7 +563,7 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
- 
- 	ACPI_FREE(info);
- 	if (ACPI_FAILURE(status)) {
--		goto cleanup;
-+		goto pop_walk_state;
- 	}
- 
- 	/*
-@@ -595,6 +595,12 @@ acpi_ds_call_control_method(struct acpi_thread_state *thread,
- 
- 	return_ACPI_STATUS(status);
- 
-+pop_walk_state:
-+
-+	/* On error, pop the walk state to be deleted from thread */
-+
-+	acpi_ds_pop_walk_state(thread);
-+
- cleanup:
- 
- 	/* On error, we must terminate the method properly */
++#ifdef CONFIG_MODULES
++/*
++ * In the case of modules, set the default probe timeout to
++ * 30 seconds to give userland some time to load needed modules
++ */
++static int deferred_probe_timeout = 30;
++#else
++/* In the case of !modules, no probe timeout needed */
+ static int deferred_probe_timeout = -1;
++#endif
+ static int __init deferred_probe_timeout_setup(char *str)
+ {
+ 	deferred_probe_timeout = simple_strtol(str, NULL, 10);
 -- 
 2.35.1
 
