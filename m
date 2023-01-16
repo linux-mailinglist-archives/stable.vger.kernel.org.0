@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EAF266C801
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C96066C802
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233373AbjAPQgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:36:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54386 "EHLO
+        id S233339AbjAPQgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:36:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233339AbjAPQfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:35:44 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA5072A983
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:23:32 -0800 (PST)
+        with ESMTP id S233468AbjAPQfp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:35:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E82F430E9B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:23:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EF287CE1281
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:23:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C751EC433D2;
-        Mon, 16 Jan 2023 16:23:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB3CEB81063
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:23:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D7A1C433D2;
+        Mon, 16 Jan 2023 16:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886209;
-        bh=SCqoxRci6v2bRCbqpaYd7JGbv2//+JMt6Q9IyfCuLwA=;
+        s=korg; t=1673886214;
+        bh=fB8yGnaaX2amwdCOVR52A2gAn31TlLkiNTn9seiyPLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ir3lsdshbDNa+V/+NrvmOeLllrO350SBtXkM3+vQ3cLvqy2SjZTy9jP1Jq4Vb3JKa
-         dzoDtOJfB5Bv13cBUx3rDP/Zdjrs6ui0E75JoF/SIecMBMhBqmuMRijXpB5I6ggzhJ
-         8pHuWn+C4C04vbtdE0dFhWsIZN2F/9fBYatup2Tk=
+        b=Cm5+F3nN8myRQsVLgP28f1ti3ScLTL7b9C5Jy/8h/jC5Wpf6ubr9i1tOnnO7NmLR3
+         2EwHHOrM+KPF5efZEQEopHxsVf6ZY1G9QkliITzEfFYAcyvj0/nMAkpd0G7pvZtES1
+         QAIefsV8BGfDbNC+zSdh6iaOcccKtrklroBZK13Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 343/658] rtc: cmos: Call rtc_wake_setup() from cmos_do_probe()
-Date:   Mon, 16 Jan 2023 16:47:11 +0100
-Message-Id: <20230116154925.246075324@linuxfoundation.org>
+Subject: [PATCH 5.4 344/658] rtc: cmos: Eliminate forward declarations of some functions
+Date:   Mon, 16 Jan 2023 16:47:12 +0100
+Message-Id: <20230116154925.300170732@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -58,10 +58,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 375bbba09692fe4c5218eddee8e312dd733fa846 ]
+[ Upstream commit dca4d3b71c8a09a16951add656711fbd6f5bfbb0 ]
 
-To reduce code duplication, move the invocation of rtc_wake_setup()
-into cmos_do_probe() and simplify the callers of the latter.
+Reorder the ACPI-related code before cmos_do_probe() so as to eliminate
+excessive forward declarations of some functions.
+
+While at it, for consistency, add the inline modifier to the
+definitions of empty stub static funtions and remove it from the
+corresponding definitions of functions with non-empty bodies.
 
 No intentional functional impact.
 
@@ -69,88 +73,343 @@ Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Reviewed-by: Zhang Rui <rui.zhang@intel.com>
 Tested-by: Zhang Rui <rui.zhang@intel.com>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/2143522.irdbgypaU6@kreacher
+Link: https://lore.kernel.org/r/13157911.uLZWGnKmhe@kreacher
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Stable-dep-of: 83ebb7b3036d ("rtc: cmos: Disable ACPI RTC event on removal")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
+ drivers/rtc/rtc-cmos.c | 304 ++++++++++++++++++++---------------------
+ 1 file changed, 149 insertions(+), 155 deletions(-)
 
 diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index fa0098390315..27150d86f5ed 100644
+index 27150d86f5ed..bc8f65014025 100644
 --- a/drivers/rtc/rtc-cmos.c
 +++ b/drivers/rtc/rtc-cmos.c
-@@ -698,6 +698,7 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+@@ -698,8 +698,155 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
  		return IRQ_NONE;
  }
  
-+static inline void rtc_wake_setup(struct device *dev);
- static void cmos_wake_setup(struct device *dev);
+-static inline void rtc_wake_setup(struct device *dev);
+-static void cmos_wake_setup(struct device *dev);
++#ifdef	CONFIG_ACPI
++
++#include <linux/acpi.h>
++
++static u32 rtc_handler(void *context)
++{
++	struct device *dev = context;
++	struct cmos_rtc *cmos = dev_get_drvdata(dev);
++	unsigned char rtc_control = 0;
++	unsigned char rtc_intr;
++	unsigned long flags;
++
++
++	/*
++	 * Always update rtc irq when ACPI is used as RTC Alarm.
++	 * Or else, ACPI SCI is enabled during suspend/resume only,
++	 * update rtc irq in that case.
++	 */
++	if (cmos_use_acpi_alarm())
++		cmos_interrupt(0, (void *)cmos->rtc);
++	else {
++		/* Fix me: can we use cmos_interrupt() here as well? */
++		spin_lock_irqsave(&rtc_lock, flags);
++		if (cmos_rtc.suspend_ctrl)
++			rtc_control = CMOS_READ(RTC_CONTROL);
++		if (rtc_control & RTC_AIE) {
++			cmos_rtc.suspend_ctrl &= ~RTC_AIE;
++			CMOS_WRITE(rtc_control, RTC_CONTROL);
++			rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
++			rtc_update_irq(cmos->rtc, 1, rtc_intr);
++		}
++		spin_unlock_irqrestore(&rtc_lock, flags);
++	}
++
++	pm_wakeup_hard_event(dev);
++	acpi_clear_event(ACPI_EVENT_RTC);
++	acpi_disable_event(ACPI_EVENT_RTC, 0);
++	return ACPI_INTERRUPT_HANDLED;
++}
++
++static void rtc_wake_setup(struct device *dev)
++{
++	if (acpi_disabled)
++		return;
++
++	acpi_install_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler, dev);
++	/*
++	 * After the RTC handler is installed, the Fixed_RTC event should
++	 * be disabled. Only when the RTC alarm is set will it be enabled.
++	 */
++	acpi_clear_event(ACPI_EVENT_RTC);
++	acpi_disable_event(ACPI_EVENT_RTC, 0);
++}
++
++static void rtc_wake_on(struct device *dev)
++{
++	acpi_clear_event(ACPI_EVENT_RTC);
++	acpi_enable_event(ACPI_EVENT_RTC, 0);
++}
++
++static void rtc_wake_off(struct device *dev)
++{
++	acpi_disable_event(ACPI_EVENT_RTC, 0);
++}
++
++#ifdef CONFIG_X86
++/* Enable use_acpi_alarm mode for Intel platforms no earlier than 2015 */
++static void use_acpi_alarm_quirks(void)
++{
++	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
++		return;
++
++	if (!is_hpet_enabled())
++		return;
++
++	if (dmi_get_bios_year() < 2015)
++		return;
++
++	use_acpi_alarm = true;
++}
++#else
++static inline void use_acpi_alarm_quirks(void) { }
++#endif
++
++static void cmos_wake_setup(struct device *dev)
++{
++	if (acpi_disabled)
++		return;
++
++	use_acpi_alarm_quirks();
++
++	cmos_rtc.wake_on = rtc_wake_on;
++	cmos_rtc.wake_off = rtc_wake_off;
++
++	/* ACPI tables bug workaround. */
++	if (acpi_gbl_FADT.month_alarm && !acpi_gbl_FADT.day_alarm) {
++		dev_dbg(dev, "bogus FADT month_alarm (%d)\n",
++			acpi_gbl_FADT.month_alarm);
++		acpi_gbl_FADT.month_alarm = 0;
++	}
++
++	cmos_rtc.day_alrm = acpi_gbl_FADT.day_alarm;
++	cmos_rtc.mon_alrm = acpi_gbl_FADT.month_alarm;
++	cmos_rtc.century = acpi_gbl_FADT.century;
++
++	if (acpi_gbl_FADT.flags & ACPI_FADT_S4_RTC_WAKE)
++		dev_info(dev, "RTC can wake from S4\n");
++
++	/* RTC always wakes from S1/S2/S3, and often S4/STD */
++	device_init_wakeup(dev, 1);
++}
++
++static void cmos_check_acpi_rtc_status(struct device *dev,
++					      unsigned char *rtc_control)
++{
++	struct cmos_rtc *cmos = dev_get_drvdata(dev);
++	acpi_event_status rtc_status;
++	acpi_status status;
++
++	if (acpi_gbl_FADT.flags & ACPI_FADT_FIXED_RTC)
++		return;
++
++	status = acpi_get_event_status(ACPI_EVENT_RTC, &rtc_status);
++	if (ACPI_FAILURE(status)) {
++		dev_err(dev, "Could not get RTC status\n");
++	} else if (rtc_status & ACPI_EVENT_FLAG_SET) {
++		unsigned char mask;
++		*rtc_control &= ~RTC_AIE;
++		CMOS_WRITE(*rtc_control, RTC_CONTROL);
++		mask = CMOS_READ(RTC_INTR_FLAGS);
++		rtc_update_irq(cmos->rtc, 1, mask);
++	}
++}
++
++#else /* !CONFIG_ACPI */
++
++static inline void rtc_wake_setup(struct device *dev)
++{
++}
++
++static inline void cmos_wake_setup(struct device *dev)
++{
++}
++
++static inline void cmos_check_acpi_rtc_status(struct device *dev,
++					      unsigned char *rtc_control)
++{
++}
++#endif /* CONFIG_ACPI */
  
  #ifdef	CONFIG_PNP
-@@ -885,6 +886,13 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 	if (rtc_nvmem_register(cmos_rtc.rtc, &nvmem_cfg))
- 		dev_err(dev, "nvmem registration failed\n");
- 
-+	/*
-+	 * Everything has gone well so far, so by default register a handler for
-+	 * the ACPI RTC fixed event.
-+	 */
-+	if (!info)
-+		rtc_wake_setup(dev);
-+
- 	dev_info(dev, "%s%s, %d bytes nvram%s\n",
- 		 !is_valid_irq(rtc_irq) ? "no alarms" :
- 		 cmos_rtc.mon_alrm ? "alarms up to one year" :
-@@ -1300,7 +1308,7 @@ static void rtc_wake_setup(struct device *dev)
- 
- static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
- {
--	int irq, ret;
-+	int irq;
- 
- 	if (pnp_port_start(pnp, 0) == 0x70 && !pnp_irq_valid(pnp, 0)) {
- 		irq = 0;
-@@ -1316,13 +1324,7 @@ static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
- 		irq = pnp_irq(pnp, 0);
+ #define	INITSECTION
+@@ -1083,9 +1230,6 @@ static void cmos_check_wkalrm(struct device *dev)
  	}
- 
--	ret = cmos_do_probe(&pnp->dev, pnp_get_resource(pnp, IORESOURCE_IO, 0), irq);
--	if (ret)
--		return ret;
--
--	rtc_wake_setup(&pnp->dev);
--
--	return 0;
-+	return cmos_do_probe(&pnp->dev, pnp_get_resource(pnp, IORESOURCE_IO, 0), irq);
  }
  
- static void cmos_pnp_remove(struct pnp_dev *pnp)
-@@ -1406,7 +1408,7 @@ static inline void cmos_of_init(struct platform_device *pdev) {}
- static int __init cmos_platform_probe(struct platform_device *pdev)
+-static void cmos_check_acpi_rtc_status(struct device *dev,
+-				       unsigned char *rtc_control);
+-
+ static int __maybe_unused cmos_resume(struct device *dev)
  {
- 	struct resource *resource;
--	int irq, ret;
-+	int irq;
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+@@ -1152,156 +1296,6 @@ static SIMPLE_DEV_PM_OPS(cmos_pm_ops, cmos_suspend, cmos_resume);
+  * predate even PNPBIOS should set up platform_bus devices.
+  */
  
- 	cmos_of_init(pdev);
- 
-@@ -1418,13 +1420,7 @@ static int __init cmos_platform_probe(struct platform_device *pdev)
- 	if (irq < 0)
- 		irq = -1;
- 
--	ret = cmos_do_probe(&pdev->dev, resource, irq);
--	if (ret)
--		return ret;
+-#ifdef	CONFIG_ACPI
 -
--	rtc_wake_setup(&pdev->dev);
+-#include <linux/acpi.h>
 -
--	return 0;
-+	return cmos_do_probe(&pdev->dev, resource, irq);
- }
+-static u32 rtc_handler(void *context)
+-{
+-	struct device *dev = context;
+-	struct cmos_rtc *cmos = dev_get_drvdata(dev);
+-	unsigned char rtc_control = 0;
+-	unsigned char rtc_intr;
+-	unsigned long flags;
+-
+-
+-	/*
+-	 * Always update rtc irq when ACPI is used as RTC Alarm.
+-	 * Or else, ACPI SCI is enabled during suspend/resume only,
+-	 * update rtc irq in that case.
+-	 */
+-	if (cmos_use_acpi_alarm())
+-		cmos_interrupt(0, (void *)cmos->rtc);
+-	else {
+-		/* Fix me: can we use cmos_interrupt() here as well? */
+-		spin_lock_irqsave(&rtc_lock, flags);
+-		if (cmos_rtc.suspend_ctrl)
+-			rtc_control = CMOS_READ(RTC_CONTROL);
+-		if (rtc_control & RTC_AIE) {
+-			cmos_rtc.suspend_ctrl &= ~RTC_AIE;
+-			CMOS_WRITE(rtc_control, RTC_CONTROL);
+-			rtc_intr = CMOS_READ(RTC_INTR_FLAGS);
+-			rtc_update_irq(cmos->rtc, 1, rtc_intr);
+-		}
+-		spin_unlock_irqrestore(&rtc_lock, flags);
+-	}
+-
+-	pm_wakeup_hard_event(dev);
+-	acpi_clear_event(ACPI_EVENT_RTC);
+-	acpi_disable_event(ACPI_EVENT_RTC, 0);
+-	return ACPI_INTERRUPT_HANDLED;
+-}
+-
+-static inline void rtc_wake_setup(struct device *dev)
+-{
+-	if (acpi_disabled)
+-		return;
+-
+-	acpi_install_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler, dev);
+-	/*
+-	 * After the RTC handler is installed, the Fixed_RTC event should
+-	 * be disabled. Only when the RTC alarm is set will it be enabled.
+-	 */
+-	acpi_clear_event(ACPI_EVENT_RTC);
+-	acpi_disable_event(ACPI_EVENT_RTC, 0);
+-}
+-
+-static void rtc_wake_on(struct device *dev)
+-{
+-	acpi_clear_event(ACPI_EVENT_RTC);
+-	acpi_enable_event(ACPI_EVENT_RTC, 0);
+-}
+-
+-static void rtc_wake_off(struct device *dev)
+-{
+-	acpi_disable_event(ACPI_EVENT_RTC, 0);
+-}
+-
+-#ifdef CONFIG_X86
+-/* Enable use_acpi_alarm mode for Intel platforms no earlier than 2015 */
+-static void use_acpi_alarm_quirks(void)
+-{
+-	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
+-		return;
+-
+-	if (!is_hpet_enabled())
+-		return;
+-
+-	if (dmi_get_bios_year() < 2015)
+-		return;
+-
+-	use_acpi_alarm = true;
+-}
+-#else
+-static inline void use_acpi_alarm_quirks(void) { }
+-#endif
+-
+-static void cmos_wake_setup(struct device *dev)
+-{
+-	if (acpi_disabled)
+-		return;
+-
+-	use_acpi_alarm_quirks();
+-
+-	cmos_rtc.wake_on = rtc_wake_on;
+-	cmos_rtc.wake_off = rtc_wake_off;
+-
+-	/* ACPI tables bug workaround. */
+-	if (acpi_gbl_FADT.month_alarm && !acpi_gbl_FADT.day_alarm) {
+-		dev_dbg(dev, "bogus FADT month_alarm (%d)\n",
+-			acpi_gbl_FADT.month_alarm);
+-		acpi_gbl_FADT.month_alarm = 0;
+-	}
+-
+-	cmos_rtc.day_alrm = acpi_gbl_FADT.day_alarm;
+-	cmos_rtc.mon_alrm = acpi_gbl_FADT.month_alarm;
+-	cmos_rtc.century = acpi_gbl_FADT.century;
+-
+-	if (acpi_gbl_FADT.flags & ACPI_FADT_S4_RTC_WAKE)
+-		dev_info(dev, "RTC can wake from S4\n");
+-
+-	/* RTC always wakes from S1/S2/S3, and often S4/STD */
+-	device_init_wakeup(dev, 1);
+-}
+-
+-static void cmos_check_acpi_rtc_status(struct device *dev,
+-				       unsigned char *rtc_control)
+-{
+-	struct cmos_rtc *cmos = dev_get_drvdata(dev);
+-	acpi_event_status rtc_status;
+-	acpi_status status;
+-
+-	if (acpi_gbl_FADT.flags & ACPI_FADT_FIXED_RTC)
+-		return;
+-
+-	status = acpi_get_event_status(ACPI_EVENT_RTC, &rtc_status);
+-	if (ACPI_FAILURE(status)) {
+-		dev_err(dev, "Could not get RTC status\n");
+-	} else if (rtc_status & ACPI_EVENT_FLAG_SET) {
+-		unsigned char mask;
+-		*rtc_control &= ~RTC_AIE;
+-		CMOS_WRITE(*rtc_control, RTC_CONTROL);
+-		mask = CMOS_READ(RTC_INTR_FLAGS);
+-		rtc_update_irq(cmos->rtc, 1, mask);
+-	}
+-}
+-
+-#else
+-
+-static void cmos_wake_setup(struct device *dev)
+-{
+-}
+-
+-static void cmos_check_acpi_rtc_status(struct device *dev,
+-				       unsigned char *rtc_control)
+-{
+-}
+-
+-static void rtc_wake_setup(struct device *dev)
+-{
+-}
+-#endif
+-
+ #ifdef	CONFIG_PNP
  
- static int cmos_platform_remove(struct platform_device *pdev)
+ #include <linux/pnp.h>
 -- 
 2.35.1
 
