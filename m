@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9236B66CA2E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8689666C7E0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:35:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234037AbjAPRAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:00:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54816 "EHLO
+        id S233454AbjAPQfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:35:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234085AbjAPQ7u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61BDC38B5D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:35 -0800 (PST)
+        with ESMTP id S233397AbjAPQeg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9788B24115
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:22:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22E1BB8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A6C5C433EF;
-        Mon, 16 Jan 2023 16:42:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35B0261057
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:22:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A25EC433D2;
+        Mon, 16 Jan 2023 16:22:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887352;
-        bh=dUSdss3pti2Va4BNnGT2IqtQqkF2cY6tnyn3jpnuL4E=;
+        s=korg; t=1673886148;
+        bh=lALA257aza9UChIUWuCJAMEm5wFtLaakyp3iG/S8nOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Py8988Gx5XWcYfQyWMkVIWKO1Df0szC7nXE1Fx7u0srqDDv8dsA3PgBpYVSt3J576
-         NyEmHLPYEW6wMejYAwvRKs2fE8Bcb59ROrTCSf5tUhfbvZZTfdUWG+22ve1+wGS3gi
-         bLhrmIMmQR+t7JaPX/RHDMB5HRxcJKKWdRqH1F9s=
+        b=siwDSyad+lZJPo/6fhWJOGgjJ8dTyDObOIp56V9EXeGCL36LsKnPnHuKwBs77A/xU
+         ZC8dNdpHTpCmQZPZGaJsO6O3RGsZ4C/9RKXbXGZioFP+CWt0lfvOoeCKONv/49AFxE
+         0OEirFYyBd7zWWL+DC/+RtsDki3489ay+Wyus6IQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 117/521] pinctrl: pinconf-generic: add missing of_node_put()
+Subject: [PATCH 5.4 291/658] serial: sunsab: Fix error handling in sunsab_init()
 Date:   Mon, 16 Jan 2023 16:46:19 +0100
-Message-Id: <20230116154852.474594651@linuxfoundation.org>
+Message-Id: <20230116154922.908871373@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Yuan Can <yuancan@huawei.com>
 
-[ Upstream commit 5ead93289815a075d43c415e35c8beafafb801c9 ]
+[ Upstream commit 1a6ec673fb627c26e2267ca0a03849f91dbd9b40 ]
 
-of_node_put() needs to be called when jumping out of the loop, since
-for_each_available_child_of_node() will increase the refcount of node.
+The sunsab_init() returns the platform_driver_register() directly without
+checking its return value, if platform_driver_register() failed, the
+allocated sunsab_ports is leaked.
+Fix by free sunsab_ports and set it to NULL when platform_driver_register()
+failed.
 
-Fixes: c7289500e29d ("pinctrl: pinconf-generic: scan also referenced phandle node")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Link: https://lore.kernel.org/r/20221125070156.3535855-1-zhangpeng362@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: c4d37215a824 ("[SERIAL] sunsab: Convert to of_driver framework.")
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+Link: https://lore.kernel.org/r/20221123061212.52593-1-yuancan@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinconf-generic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/sunsab.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinconf-generic.c b/drivers/pinctrl/pinconf-generic.c
-index 55b56440a5a8..7e946c54681a 100644
---- a/drivers/pinctrl/pinconf-generic.c
-+++ b/drivers/pinctrl/pinconf-generic.c
-@@ -390,8 +390,10 @@ int pinconf_generic_dt_node_to_map(struct pinctrl_dev *pctldev,
- 	for_each_available_child_of_node(np_config, np) {
- 		ret = pinconf_generic_dt_subnode_to_map(pctldev, np, map,
- 					&reserved_maps, num_maps, type);
--		if (ret < 0)
-+		if (ret < 0) {
-+			of_node_put(np);
- 			goto exit;
-+		}
+diff --git a/drivers/tty/serial/sunsab.c b/drivers/tty/serial/sunsab.c
+index 72131b5e132e..beca02c30498 100644
+--- a/drivers/tty/serial/sunsab.c
++++ b/drivers/tty/serial/sunsab.c
+@@ -1140,7 +1140,13 @@ static int __init sunsab_init(void)
+ 		}
  	}
- 	return 0;
  
+-	return platform_driver_register(&sab_driver);
++	err = platform_driver_register(&sab_driver);
++	if (err) {
++		kfree(sunsab_ports);
++		sunsab_ports = NULL;
++	}
++
++	return err;
+ }
+ 
+ static void __exit sunsab_exit(void)
 -- 
 2.35.1
 
