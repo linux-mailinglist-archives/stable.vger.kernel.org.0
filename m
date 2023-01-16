@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2275D66C903
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 426FF66C4B6
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233782AbjAPQpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:45:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34868 "EHLO
+        id S231635AbjAPP5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:57:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233783AbjAPQpB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32B942F7BA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:34 -0800 (PST)
+        with ESMTP id S231684AbjAPP5c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78F2E396
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0437B8106C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 455C6C433EF;
-        Mon, 16 Jan 2023 16:32:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4740761042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ACEBC433EF;
+        Mon, 16 Jan 2023 15:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886751;
-        bh=AipgWh0lSkZV+fTw1vScQ4PtoBkZ3hoHnYYd+w57pTg=;
+        s=korg; t=1673884641;
+        bh=CsKm78zPTazvingQ1Le32COlzZJiD4hVMkvcP/fx/1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=So8+JjlNRT6vU2VZt1/vzwZPslP/r5pqskqAh0214zN0gEmD4fxfJQcVGAxGI6Ocx
-         FNUAx4G59i0sxGySRhKIR2c0z9As9YP+l2SrM1U89oRBVAq1UNyIwZDw2aoxiLmz2s
-         z9rKk0Mj5+eu3J0A+TWfCJg3vpEwOAuXDAEqVByM=
+        b=rvxE9nrSPXf7wq/VyVszHduN4TQbiqDxBsSd3eMW2cQOHyfreWt9dbg/0hycspeGJ
+         RR52Gow0cL8+a0gmat8sPFpjDsT0D7pDS43pA8ZWneTlgKSqhXkhD99t1Dy4pv9/mr
+         FHdhmbVE42pVZwZQoGG8bQri1i1rhtInQHY20fuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 518/658] parisc: led: Fix potential null-ptr-deref in start_task()
-Date:   Mon, 16 Jan 2023 16:50:06 +0100
-Message-Id: <20230116154933.220619720@linuxfoundation.org>
+        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 6.1 084/183] iommu/arm-smmu-v3: Dont unregister on shutdown
+Date:   Mon, 16 Jan 2023 16:50:07 +0100
+Message-Id: <20230116154806.980119335@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 41f563ab3c33698bdfc3403c7c2e6c94e73681e4 upstream.
+commit 32ea2c57dc216b6ad8125fa680d31daa5d421c95 upstream.
 
-start_task() calls create_singlethread_workqueue() and not checked the
-ret value, which may return NULL. And a null-ptr-deref may happen:
+Similar to SMMUv2, this driver calls iommu_device_unregister() from the
+shutdown path, which removes the IOMMU groups with no coordination
+whatsoever with their users - shutdown methods are optional in device
+drivers. This can lead to NULL pointer dereferences in those drivers'
+DMA API calls, or worse.
 
-start_task()
-    create_singlethread_workqueue() # failed, led_wq is NULL
-    queue_delayed_work()
-        queue_delayed_work_on()
-            __queue_delayed_work()  # warning here, but continue
-                __queue_work()      # access wq->flags, null-ptr-deref
+Instead of calling the full arm_smmu_device_remove() from
+arm_smmu_device_shutdown(), let's pick only the relevant function call -
+arm_smmu_device_disable() - more or less the reverse of
+arm_smmu_device_reset() - and call just that from the shutdown path.
 
-Check the ret value and return -ENOMEM if it is NULL.
-
-Fixes: 3499495205a6 ("[PARISC] Use work queue in LED/LCD driver instead of tasklet.")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
+Fixes: 57365a04c921 ("iommu: Move bus setup to IOMMU device registration")
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20221215141251.3688780-2-vladimir.oltean@nxp.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/parisc/led.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/parisc/led.c
-+++ b/drivers/parisc/led.c
-@@ -137,6 +137,9 @@ static int start_task(void)
+--- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
++++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+@@ -3854,7 +3854,9 @@ static int arm_smmu_device_remove(struct
  
- 	/* Create the work queue and queue the LED task */
- 	led_wq = create_singlethread_workqueue("led_wq");	
-+	if (!led_wq)
-+		return -ENOMEM;
+ static void arm_smmu_device_shutdown(struct platform_device *pdev)
+ {
+-	arm_smmu_device_remove(pdev);
++	struct arm_smmu_device *smmu = platform_get_drvdata(pdev);
 +
- 	queue_delayed_work(led_wq, &led_task, 0);
++	arm_smmu_device_disable(smmu);
+ }
  
- 	return 0;
+ static const struct of_device_id arm_smmu_of_match[] = {
 
 
