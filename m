@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3FBD66C50F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:01:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D3066C922
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231470AbjAPQBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:01:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43482 "EHLO
+        id S233750AbjAPQqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:46:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231921AbjAPQBD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:01:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 870C5144B3
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:02 -0800 (PST)
+        with ESMTP id S233816AbjAPQpz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFFA11CACC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2500D60C1B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B32C433D2;
-        Mon, 16 Jan 2023 16:01:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AAAD5B81059
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13742C433EF;
+        Mon, 16 Jan 2023 16:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884861;
-        bh=dlFOpmziZRUU5m6MsqiE3Wyh+VArNTtiq7v1LckFR1c=;
+        s=korg; t=1673886825;
+        bh=iCK/XCW+ajCYDylAXX6zFN0+z3UQJEar7QxRALFhGGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1igfvXJqdnmBPnvcStupSkSP9+qQDa208l4SUFbtmtDUYDtnXbjpt5tj24c7ZmTdF
-         ejERdztrc/3TmYfDVbBbVIx5gIyylyH9slArxBg9KJ00+XW1j50roFp8IMDYG0CXxk
-         Pm8bkhhTELGfkc4mQAmoNtEXf4RzpJyV0JsPpZg4=
+        b=cxCsPIviLX4hpZHs94PKUYqQFSmgOvwROwvtgivwSukOQgMXTRBcJ7Vxyfa2Mf1qs
+         kuk2FMs7hl8j+3u50tPj7Sr0jwiuSUoiAbpT0+5dyZfr0oE0LIkeLMqaSoBndeUiTp
+         hQqUUbNXkCBNAygFVEf0/28WUW6FXQpo8teiomQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 6.1 139/183] ice: Fix potential memory leak in ice_gnss_tty_write()
-Date:   Mon, 16 Jan 2023 16:51:02 +0100
-Message-Id: <20230116154809.234797075@linuxfoundation.org>
+        patches@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 575/658] vhost: fix range used in translate_desc()
+Date:   Mon, 16 Jan 2023 16:51:03 +0100
+Message-Id: <20230116154935.816355454@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit f58985620f55580a07d40062c4115d8c9cf6ae27 ]
+[ Upstream commit 98047313cdb46828093894d0ac8b1183b8b317f9 ]
 
-The ice_gnss_tty_write() return directly if the write_buf alloc failed,
-leaking the cmd_buf.
+vhost_iotlb_itree_first() requires `start` and `last` parameters
+to search for a mapping that overlaps the range.
 
-Fix by free cmd_buf if write_buf alloc failed.
+In translate_desc() we cyclically call vhost_iotlb_itree_first(),
+incrementing `addr` by the amount already translated, so rightly
+we move the `start` parameter passed to vhost_iotlb_itree_first(),
+but we should hold the `last` parameter constant.
 
-Fixes: d6b98c8d242a ("ice: add write functionality for GNSS TTY")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Let's fix it by saving the `last` parameter value before incrementing
+`addr` in the loop.
+
+Fixes: a9709d6874d5 ("vhost: convert pre sorted vhost memory array to interval tree")
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Message-Id: <20221109102503.18816-3-sgarzare@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_gnss.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/vhost/vhost.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_gnss.c b/drivers/net/ethernet/intel/ice/ice_gnss.c
-index b5a7f246d230..a1915551c69a 100644
---- a/drivers/net/ethernet/intel/ice/ice_gnss.c
-+++ b/drivers/net/ethernet/intel/ice/ice_gnss.c
-@@ -363,6 +363,7 @@ ice_gnss_tty_write(struct tty_struct *tty, const unsigned char *buf, int count)
- 	/* Send the data out to a hardware port */
- 	write_buf = kzalloc(sizeof(*write_buf), GFP_KERNEL);
- 	if (!write_buf) {
-+		kfree(cmd_buf);
- 		err = -ENOMEM;
- 		goto exit;
- 	}
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 97be299f0a8d..fdfa399700fe 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2050,7 +2050,7 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
+ 	struct vhost_dev *dev = vq->dev;
+ 	struct vhost_umem *umem = dev->iotlb ? dev->iotlb : dev->umem;
+ 	struct iovec *_iov;
+-	u64 s = 0;
++	u64 s = 0, last = addr + len - 1;
+ 	int ret = 0;
+ 
+ 	while ((u64)len > s) {
+@@ -2061,7 +2061,7 @@ static int translate_desc(struct vhost_virtqueue *vq, u64 addr, u32 len,
+ 		}
+ 
+ 		node = vhost_umem_interval_tree_iter_first(&umem->umem_tree,
+-							addr, addr + len - 1);
++							addr, last);
+ 		if (node == NULL || node->start > addr) {
+ 			if (umem != dev->iotlb) {
+ 				ret = -EFAULT;
 -- 
 2.35.1
 
