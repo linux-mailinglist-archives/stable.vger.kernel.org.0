@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D1F66CC92
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:27:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8695366CB3B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234651AbjAPR1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:27:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50108 "EHLO
+        id S234214AbjAPRMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:12:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234654AbjAPR0z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:26:55 -0500
+        with ESMTP id S234316AbjAPRLd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:33 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CBFD12050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1940F49004
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D819B810A1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A73C433D2;
-        Mon, 16 Jan 2023 17:04:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE1B8B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F09C43396;
+        Mon, 16 Jan 2023 16:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888647;
-        bh=fVc7KMpIxNd7JbjOQtWFEyaNeT/naIME+fqUgktTPkY=;
+        s=korg; t=1673887905;
+        bh=w4p20tUUI8Kv+cdXTqicq/r0voA4FgiU3I0+nCwTAoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+fCdpq5z0HYfZdMXSP1iSW5rWDxTzTar53vcbAHkSUYscr65l8wgAAmRTlwCVCAW
-         sI+ZssHrX5sqBQqwM2OCvXlwePH4BgXhOzs41T1KK3SKXmW8ZjVl1use/sHw5oY5XH
-         NTGDShbCh9oyuflqsd5gwjEZa7jmTNhyghQWgVXk=
+        b=DZUEfT6DhlLbDpLfXtZSz4L5QMTH9rT/RNuhO4ixEpEp/u5DtoIU/pYtPQ+ap+g6/
+         PfqocRp1PiO+FeNtufnsPkNFYqgNKs7iFx5EggB/RAI7LEz7qPg8emZQKY0TV24sSr
+         nOXBIUVfDhmTOM1ms1I5KBA+1SPSlvaoWZXCjc1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com,
-        Gautam Menghani <gautammenghani201@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Dan Aloni <dan.aloni@vastdata.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 086/338] media: imon: fix a race condition in send_packet()
+Subject: [PATCH 4.19 297/521] nfsd: under NFSv4.1, fix double svc_xprt_put on rpc_create failure
 Date:   Mon, 16 Jan 2023 16:49:19 +0100
-Message-Id: <20230116154824.622175039@linuxfoundation.org>
+Message-Id: <20230116154900.411735969@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,77 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gautam Menghani <gautammenghani201@gmail.com>
+From: Dan Aloni <dan.aloni@vastdata.com>
 
-[ Upstream commit 813ceef062b53d68f296aa3cb944b21a091fabdb ]
+[ Upstream commit 3bc8edc98bd43540dbe648e4ef91f443d6d20a24 ]
 
-The function send_packet() has a race condition as follows:
+On error situation `clp->cl_cb_conn.cb_xprt` should not be given
+a reference to the xprt otherwise both client cleanup and the
+error handling path of the caller call to put it. Better to
+delay handing over the reference to a later branch.
 
-func send_packet()
-{
-    // do work
-    call usb_submit_urb()
-    mutex_unlock()
-    wait_for_event_interruptible()  <-- lock gone
-    mutex_lock()
-}
+[   72.530665] refcount_t: underflow; use-after-free.
+[   72.531933] WARNING: CPU: 0 PID: 173 at lib/refcount.c:28 refcount_warn_saturate+0xcf/0x120
+[   72.533075] Modules linked in: nfsd(OE) nfsv4(OE) nfsv3(OE) nfs(OE) lockd(OE) compat_nfs_ssc(OE) nfs_acl(OE) rpcsec_gss_krb5(OE) auth_rpcgss(OE) rpcrdma(OE) dns_resolver fscache netfs grace rdma_cm iw_cm ib_cm sunrpc(OE) mlx5_ib mlx5_core mlxfw pci_hyperv_intf ib_uverbs ib_core xt_MASQUERADE nf_conntrack_netlink nft_counter xt_addrtype nft_compat br_netfilter bridge stp llc nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set overlay nf_tables nfnetlink crct10dif_pclmul crc32_pclmul ghash_clmulni_intel xfs serio_raw virtio_net virtio_blk net_failover failover fuse [last unloaded: sunrpc]
+[   72.540389] CPU: 0 PID: 173 Comm: kworker/u16:5 Tainted: G           OE     5.15.82-dan #1
+[   72.541511] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-3.module+el8.7.0+1084+97b81f61 04/01/2014
+[   72.542717] Workqueue: nfsd4_callbacks nfsd4_run_cb_work [nfsd]
+[   72.543575] RIP: 0010:refcount_warn_saturate+0xcf/0x120
+[   72.544299] Code: 55 00 0f 0b 5d e9 01 50 98 00 80 3d 75 9e 39 08 00 0f 85 74 ff ff ff 48 c7 c7 e8 d1 60 8e c6 05 61 9e 39 08 01 e8 f6 51 55 00 <0f> 0b 5d e9 d9 4f 98 00 80 3d 4b 9e 39 08 00 0f 85 4c ff ff ff 48
+[   72.546666] RSP: 0018:ffffb3f841157cf0 EFLAGS: 00010286
+[   72.547393] RAX: 0000000000000026 RBX: ffff89ac6231d478 RCX: 0000000000000000
+[   72.548324] RDX: ffff89adb7c2c2c0 RSI: ffff89adb7c205c0 RDI: ffff89adb7c205c0
+[   72.549271] RBP: ffffb3f841157cf0 R08: 0000000000000000 R09: c0000000ffefffff
+[   72.550209] R10: 0000000000000001 R11: ffffb3f841157ad0 R12: ffff89ac6231d180
+[   72.551142] R13: ffff89ac6231d478 R14: ffff89ac40c06180 R15: ffff89ac6231d4b0
+[   72.552089] FS:  0000000000000000(0000) GS:ffff89adb7c00000(0000) knlGS:0000000000000000
+[   72.553175] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   72.553934] CR2: 0000563a310506a8 CR3: 0000000109a66000 CR4: 0000000000350ef0
+[   72.554874] Call Trace:
+[   72.555278]  <TASK>
+[   72.555614]  svc_xprt_put+0xaf/0xe0 [sunrpc]
+[   72.556276]  nfsd4_process_cb_update.isra.11+0xb7/0x410 [nfsd]
+[   72.557087]  ? update_load_avg+0x82/0x610
+[   72.557652]  ? cpuacct_charge+0x60/0x70
+[   72.558212]  ? dequeue_entity+0xdb/0x3e0
+[   72.558765]  ? queued_spin_unlock+0x9/0x20
+[   72.559358]  nfsd4_run_cb_work+0xfc/0x270 [nfsd]
+[   72.560031]  process_one_work+0x1df/0x390
+[   72.560600]  worker_thread+0x37/0x3b0
+[   72.561644]  ? process_one_work+0x390/0x390
+[   72.562247]  kthread+0x12f/0x150
+[   72.562710]  ? set_kthread_struct+0x50/0x50
+[   72.563309]  ret_from_fork+0x22/0x30
+[   72.563818]  </TASK>
+[   72.564189] ---[ end trace 031117b1c72ec616 ]---
+[   72.566019] list_add corruption. next->prev should be prev (ffff89ac4977e538), but was ffff89ac4763e018. (next=ffff89ac4763e018).
+[   72.567647] ------------[ cut here ]------------
 
-func vfd_write()
-{
-    mutex_lock()
-    call send_packet()  <- prev call is not completed
-    mutex_unlock()
-}
-
-When the mutex is unlocked and the function send_packet() waits for the
-call to complete, vfd_write() can start another call, which leads to the
-"URB submitted while active" warning in usb_submit_urb().
-Fix this by removing the mutex_unlock() call in send_packet() and using
-mutex_lock_interruptible().
-
-Link: https://syzkaller.appspot.com/bug?id=e378e6a51fbe6c5cc43e34f131cc9a315ef0337e
-
-Fixes: 21677cfc562a ("V4L/DVB: ir-core: add imon driver")
-Reported-by: syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com
-Signed-off-by: Gautam Menghani <gautammenghani201@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: a4abc6b12eb1 ("nfsd: Fix svc_xprt refcnt leak when setup callback client failed")
+Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/imon.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/nfsd/nfs4callback.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/rc/imon.c b/drivers/media/rc/imon.c
-index edf8a7a76e86..50951c31ff5b 100644
---- a/drivers/media/rc/imon.c
-+++ b/drivers/media/rc/imon.c
-@@ -637,15 +637,14 @@ static int send_packet(struct imon_context *ictx)
- 		pr_err_ratelimited("error submitting urb(%d)\n", retval);
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index 7ee417b685e9..519d994c0c4c 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -800,7 +800,6 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
  	} else {
- 		/* Wait for transmission to complete (or abort) */
--		mutex_unlock(&ictx->lock);
- 		retval = wait_for_completion_interruptible(
- 				&ictx->tx.finished);
- 		if (retval) {
- 			usb_kill_urb(ictx->tx_urb);
- 			pr_err_ratelimited("task interrupted\n");
- 		}
--		mutex_lock(&ictx->lock);
- 
-+		ictx->tx.busy = false;
- 		retval = ictx->tx.status;
- 		if (retval)
- 			pr_err_ratelimited("packet tx failed (%d)\n", retval);
-@@ -952,7 +951,8 @@ static ssize_t vfd_write(struct file *file, const char __user *buf,
- 		return -ENODEV;
+ 		if (!conn->cb_xprt)
+ 			return -EINVAL;
+-		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
+ 		clp->cl_cb_session = ses;
+ 		args.bc_xprt = conn->cb_xprt;
+ 		args.prognumber = clp->cl_cb_session->se_cb_prog;
+@@ -820,6 +819,9 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
+ 		rpc_shutdown_client(client);
+ 		return PTR_ERR(cred);
  	}
- 
--	mutex_lock(&ictx->lock);
-+	if (mutex_lock_interruptible(&ictx->lock))
-+		return -ERESTARTSYS;
- 
- 	if (!ictx->dev_present_intf0) {
- 		pr_err_ratelimited("no iMON device present\n");
++
++	if (clp->cl_minorversion != 0)
++		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
+ 	clp->cl_cb_client = client;
+ 	clp->cl_cb_cred = cred;
+ 	return 0;
 -- 
 2.35.1
 
