@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86BF566CA3E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56FB266C7C2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:34:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233287AbjAPRAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:00:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51192 "EHLO
+        id S233387AbjAPQeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:34:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232143AbjAPRAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:00:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C74683E611
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:43:02 -0800 (PST)
+        with ESMTP id S233422AbjAPQdv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:33:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E716236B24
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:21:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03F3B6108A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:43:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14D44C433EF;
-        Mon, 16 Jan 2023 16:43:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95F64B81063
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:21:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07411C433D2;
+        Mon, 16 Jan 2023 16:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887381;
-        bh=cbu0bboSOoh7goJeaI7J3cl8S2vj7//lyv78YhMLiqg=;
+        s=korg; t=1673886101;
+        bh=Oatn0J8E2b0ZdR6cuyNdEmUEGeq1hOB5ApD967FG7lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iN96y49WUv0gSGu9TmgokV4MgO4NnMEs/uKgbSnf0mKhKmX0K/8h479OaZDX3qk0I
-         7qoNkYiPqX+gF0emAt+ttRJ8qFaEq8M0n1+qsu+I/56ktx4dkem453Jsc3jDuZUzKX
-         3LaYkZSSAu8zZCxkp/dDNZfCbkgIsQbb3Cai/4/M=
+        b=QmM9XMPLBzq1rYcSjB7ikREP6EwnJNkRMYgiJCvjPvjtZXPVlq5r1oXZvC6pLvcGW
+         8xgMEwaRfbCiTiCmc+KbptoEBJNgJuYHTw/keddrxW1D/6ROd/Q3MBf0LsCk3wd2ZI
+         7nSgnqykpr996CMaJaOKUvznUv0xcnt2wjCYKI/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        John Keeping <john@metanate.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 127/521] ASoC: pcm512x: Fix PM disable depth imbalance in pcm512x_probe
-Date:   Mon, 16 Jan 2023 16:46:29 +0100
-Message-Id: <20230116154852.956886438@linuxfoundation.org>
+Subject: [PATCH 5.4 302/658] usb: gadget: f_hid: fix refcount leak on error path
+Date:   Mon, 16 Jan 2023 16:46:30 +0100
+Message-Id: <20230116154923.411695770@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: John Keeping <john@metanate.com>
 
-[ Upstream commit 97b801be6f8e53676b9f2b105f54e35c745c1b22 ]
+[ Upstream commit 70a3288a7586526315105c699b687d78cd32559a ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context. We fix it by going to
-err_pm instead of err_clk.
+When failing to allocate report_desc, opts->refcnt has already been
+incremented so it needs to be decremented to avoid leaving the options
+structure permanently locked.
 
-Fixes:f086ba9d5389c ("ASoC: pcm512x: Support mastering BCLK/LRCLK using the PLL")
-
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220928160402.126140-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 21a9476a7ba8 ("usb: gadget: hid: add configfs support")
+Tested-by: Lee Jones <lee@kernel.org>
+Reviewed-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Reviewed-by: Lee Jones <lee@kernel.org>
+Signed-off-by: John Keeping <john@metanate.com>
+Link: https://lore.kernel.org/r/20221122123523.3068034-3-john@metanate.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/pcm512x.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/function/f_hid.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/pcm512x.c b/sound/soc/codecs/pcm512x.c
-index 5272c81641c1..310cfceab41f 100644
---- a/sound/soc/codecs/pcm512x.c
-+++ b/sound/soc/codecs/pcm512x.c
-@@ -1471,7 +1471,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			if (val > 6) {
- 				dev_err(dev, "Invalid pll-in\n");
- 				ret = -EINVAL;
--				goto err_clk;
-+				goto err_pm;
- 			}
- 			pcm512x->pll_in = val;
+diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
+index 464e0b376f7f..c9d61d4dc9f5 100644
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -1298,6 +1298,7 @@ static struct usb_function *hidg_alloc(struct usb_function_instance *fi)
+ 						 GFP_KERNEL);
+ 		if (!hidg->report_desc) {
+ 			put_device(&hidg->dev);
++			--opts->refcnt;
+ 			mutex_unlock(&opts->lock);
+ 			return ERR_PTR(-ENOMEM);
  		}
-@@ -1480,7 +1480,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			if (val > 6) {
- 				dev_err(dev, "Invalid pll-out\n");
- 				ret = -EINVAL;
--				goto err_clk;
-+				goto err_pm;
- 			}
- 			pcm512x->pll_out = val;
- 		}
-@@ -1489,12 +1489,12 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
- 			dev_err(dev,
- 				"Error: both pll-in and pll-out, or none\n");
- 			ret = -EINVAL;
--			goto err_clk;
-+			goto err_pm;
- 		}
- 		if (pcm512x->pll_in && pcm512x->pll_in == pcm512x->pll_out) {
- 			dev_err(dev, "Error: pll-in == pll-out\n");
- 			ret = -EINVAL;
--			goto err_clk;
-+			goto err_pm;
- 		}
- 	}
- #endif
 -- 
 2.35.1
 
