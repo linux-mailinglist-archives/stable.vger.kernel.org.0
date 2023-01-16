@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F2466CCED
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C53066CB86
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234797AbjAPRbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:31:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52612 "EHLO
+        id S234368AbjAPROx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:14:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234788AbjAPRaf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:30:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852FE3B0F0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:40 -0800 (PST)
+        with ESMTP id S233728AbjAPRNP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C904B761
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 255F061077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36FDBC433EF;
-        Mon, 16 Jan 2023 17:07:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 73E0FB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C602DC433D2;
+        Mon, 16 Jan 2023 16:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888859;
-        bh=k798aAGTWGH5F9/JfnxOVI9+auXIhGyUof5pIM0eN6U=;
+        s=korg; t=1673888040;
+        bh=v2aLdgB9JfHAg4tlYhWf6pCUQVqohxa19QFGysmeNk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ML2lWmgqmkllgIkkq3td4hm2Ka5Equvdz+w2LeZ5gwSCPJ0F4PnT7QC1j1xjUyuit
-         gi+SoNrrVcVzMvAbJ7Zzz2/2ZP+J0G6Tba0VwLlHr66duvRyQmEy0zXPyMWfXIY9Zm
-         KcUmZjw+RCrNZSL1LrHKjlDFTjPDz+oMnUUomKeE=
+        b=HLeoprTGPeK0zws3FjDJaPC672eHp9vrvOm9lcrQxaYg25sYzP5dEG5SK0OuGkRb8
+         M+ZTN5Nc0LdyN0S3p1j18Q0a0MNGBi8PbodmhCKIOQUMaxcYRLPaZ8ueZBIIszy3WE
+         G+LGbGbJIhZTqPz9GREzjcqHYTL6O44mBINZCggY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 166/338] serial: sunsab: Fix error handling in sunsab_init()
+        patches@lists.linux.dev, Borislav Petkov <bp@alien8.de>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 4.19 377/521] soc: qcom: Select REMAP_MMIO for LLCC driver
 Date:   Mon, 16 Jan 2023 16:50:39 +0100
-Message-Id: <20230116154828.125104401@linuxfoundation.org>
+Message-Id: <20230116154903.975179209@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,46 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 1a6ec673fb627c26e2267ca0a03849f91dbd9b40 ]
+commit 5d2fe2d7b616b8baa18348ead857b504fc2de336 upstream.
 
-The sunsab_init() returns the platform_driver_register() directly without
-checking its return value, if platform_driver_register() failed, the
-allocated sunsab_ports is leaked.
-Fix by free sunsab_ports and set it to NULL when platform_driver_register()
-failed.
+LLCC driver uses REGMAP_MMIO for accessing the hardware registers. So
+select the dependency in Kconfig. Without this, there will be errors
+while building the driver with COMPILE_TEST only:
 
-Fixes: c4d37215a824 ("[SERIAL] sunsab: Convert to of_driver framework.")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Link: https://lore.kernel.org/r/20221123061212.52593-1-yuancan@huawei.com
+ERROR: modpost: "__devm_regmap_init_mmio_clk" [drivers/soc/qcom/llcc-qcom.ko] undefined!
+make[1]: *** [scripts/Makefile.modpost:126: Module.symvers] Error 1
+make: *** [Makefile:1944: modpost] Error 2
+
+Cc: <stable@vger.kernel.org> # 4.19
+Fixes: a3134fb09e0b ("drivers: soc: Add LLCC driver")
+Reported-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221129071201.30024-2-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sunsab.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/soc/qcom/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/sunsab.c b/drivers/tty/serial/sunsab.c
-index 653a076d89d3..96ba6854a508 100644
---- a/drivers/tty/serial/sunsab.c
-+++ b/drivers/tty/serial/sunsab.c
-@@ -1138,7 +1138,13 @@ static int __init sunsab_init(void)
- 		}
- 	}
- 
--	return platform_driver_register(&sab_driver);
-+	err = platform_driver_register(&sab_driver);
-+	if (err) {
-+		kfree(sunsab_ports);
-+		sunsab_ports = NULL;
-+	}
-+
-+	return err;
- }
- 
- static void __exit sunsab_exit(void)
--- 
-2.35.1
-
+--- a/drivers/soc/qcom/Kconfig
++++ b/drivers/soc/qcom/Kconfig
+@@ -16,6 +16,7 @@ config QCOM_COMMAND_DB
+ config QCOM_GENI_SE
+ 	tristate "QCOM GENI Serial Engine Driver"
+ 	depends on ARCH_QCOM || COMPILE_TEST
++	select REGMAP_MMIO
+ 	help
+ 	  This driver is used to manage Generic Interface (GENI) firmware based
+ 	  Qualcomm Technologies, Inc. Universal Peripheral (QUP) Wrapper. This
 
 
