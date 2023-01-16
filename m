@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 045BA66CBBC
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B7A666CD3C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234408AbjAPRQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:16:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38104 "EHLO
+        id S234785AbjAPRex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232958AbjAPRP6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EF743454E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:57 -0800 (PST)
+        with ESMTP id S234780AbjAPRea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C4A33BD8E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E032061086
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED493C433EF;
-        Mon, 16 Jan 2023 16:56:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3733BB81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FAD6C433D2;
+        Mon, 16 Jan 2023 17:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888216;
-        bh=lBxCpNyF7o6tIax2a+gK/mfkeEi9gQjIQGrDmGlPoms=;
+        s=korg; t=1673889034;
+        bh=MXHyYopZ4S2ODtjoIFP4OUghp3esDJ8iLRzh3BEjY30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiLOYEE4yPw2Rj6c/29dEFtgoSwAeWr7X2jIcbqvW8txcL+eUffyRnkrZh1Kirqze
-         YFtPOR/bW9irK38dhkJwzXKgrxW90YVsQczm1JoNYZc0CqpPYdNDpTuOSj1h8yH1IU
-         LC4jfNEp4yJVURgT8lVKLB6prZ/ReB47Co137MCw=
+        b=enjRHVmz0qgCdRvZMlYABDxlgcOkXxFSa4q3XW2G+cshdZ76VdHxrxJCyiaEQXw4P
+         qsVJY4r0f2QbMpOpcBt+X84OrGgHgS+RCxWrYez0EdRBgvbaw4YBvppCe3CxtjMMku
+         SxjSoq7CPcXPIe4NYPo4ZlzgDYbRnzgt1uyoQjEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
+        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 444/521] qlcnic: prevent ->dcb use-after-free on qlcnic_dcb_enable() failure
+Subject: [PATCH 4.14 233/338] s390/netiucv: Fix return type of netiucv_tx()
 Date:   Mon, 16 Jan 2023 16:51:46 +0100
-Message-Id: <20230116154906.993822693@linuxfoundation.org>
+Message-Id: <20230116154831.207622756@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 13a7c8964afcd8ca43c0b6001ebb0127baa95362 ]
+[ Upstream commit 88d86d18d7cf7e9137c95f9d212bb9fff8a1b4be ]
 
-adapter->dcb would get silently freed inside qlcnic_dcb_enable() in
-case qlcnic_dcb_attach() would return an error, which always happens
-under OOM conditions. This would lead to use-after-free because both
-of the existing callers invoke qlcnic_dcb_get_info() on the obtained
-pointer, which is potentially freed at that point.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-Propagate errors from qlcnic_dcb_enable(), and instead free the dcb
-pointer at callsite using qlcnic_dcb_free(). This also removes the now
-unused qlcnic_clear_dcb_ops() helper, which was a simple wrapper around
-kfree() also causing memory leaks for partially initialized dcb.
+  drivers/s390/net/netiucv.c:1854:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .ndo_start_xmit         = netiucv_tx,
+                                    ^~~~~~~~~~
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
+'netdev_tx_t', not 'int'. Adjust the return type of netiucv_tx() to
+match the prototype's to resolve the warning and potential CFI failure,
+should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
 
-Fixes: 3c44bba1d270 ("qlcnic: Disable DCB operations from SR-IOV VFs")
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
+Additionally, while in the area, remove a comment block that is no
+longer relevant.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c |  8 +++++++-
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h       | 10 ++--------
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c      |  8 +++++++-
- 3 files changed, 16 insertions(+), 10 deletions(-)
+ drivers/s390/net/netiucv.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-index 10286215092f..85419b8258b5 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-@@ -2525,7 +2525,13 @@ int qlcnic_83xx_init(struct qlcnic_adapter *adapter, int pci_using_dac)
- 		goto disable_mbx_intr;
- 
- 	qlcnic_83xx_clear_function_resources(adapter);
--	qlcnic_dcb_enable(adapter->dcb);
-+
-+	err = qlcnic_dcb_enable(adapter->dcb);
-+	if (err) {
-+		qlcnic_dcb_free(adapter->dcb);
-+		goto disable_mbx_intr;
-+	}
-+
- 	qlcnic_83xx_initialize_nic(adapter, 1);
- 	qlcnic_dcb_get_info(adapter->dcb);
- 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-index 0a9d24e86715..eb8000d9b6d0 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-@@ -42,11 +42,6 @@ struct qlcnic_dcb {
- 	unsigned long			state;
- };
- 
--static inline void qlcnic_clear_dcb_ops(struct qlcnic_dcb *dcb)
--{
--	kfree(dcb);
--}
--
- static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
+diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
+index b9c7c1e61da2..b6d123c60742 100644
+--- a/drivers/s390/net/netiucv.c
++++ b/drivers/s390/net/netiucv.c
+@@ -1358,15 +1358,8 @@ static int netiucv_pm_restore_thaw(struct device *dev)
+ /**
+  * Start transmission of a packet.
+  * Called from generic network device layer.
+- *
+- * @param skb Pointer to buffer containing the packet.
+- * @param dev Pointer to interface struct.
+- *
+- * @return 0 if packet consumed, !0 if packet rejected.
+- *         Note: If we return !0, then the packet is free'd by
+- *               the generic network layer.
+  */
+-static int netiucv_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t netiucv_tx(struct sk_buff *skb, struct net_device *dev)
  {
- 	if (dcb && dcb->ops->get_hw_capability)
-@@ -113,9 +108,8 @@ static inline void qlcnic_dcb_init_dcbnl_ops(struct qlcnic_dcb *dcb)
- 		dcb->ops->init_dcbnl_ops(dcb);
- }
- 
--static inline void qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
-+static inline int qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
- {
--	if (dcb && qlcnic_dcb_attach(dcb))
--		qlcnic_clear_dcb_ops(dcb);
-+	return dcb ? qlcnic_dcb_attach(dcb) : 0;
- }
- #endif
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-index 43920374beae..a0c427f3b180 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-@@ -2638,7 +2638,13 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			 "Device does not support MSI interrupts\n");
- 
- 	if (qlcnic_82xx_check(adapter)) {
--		qlcnic_dcb_enable(adapter->dcb);
-+		err = qlcnic_dcb_enable(adapter->dcb);
-+		if (err) {
-+			qlcnic_dcb_free(adapter->dcb);
-+			dev_err(&pdev->dev, "Failed to enable DCB\n");
-+			goto err_out_free_hw;
-+		}
-+
- 		qlcnic_dcb_get_info(adapter->dcb);
- 		err = qlcnic_setup_intr(adapter);
- 
+ 	struct netiucv_priv *privptr = netdev_priv(dev);
+ 	int rc;
 -- 
 2.35.1
 
