@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AA4166CA45
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:01:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 897E666C7C4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:34:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231971AbjAPRBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:01:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50184 "EHLO
+        id S233098AbjAPQeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:34:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231474AbjAPRAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:00:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8286638B7B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:43:14 -0800 (PST)
+        with ESMTP id S233243AbjAPQeA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:00 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EF3229E12
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:21:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33F40B81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:43:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8976DC433EF;
-        Mon, 16 Jan 2023 16:43:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AC969CE1280
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:21:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B7EBC433EF;
+        Mon, 16 Jan 2023 16:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887391;
-        bh=stfLp0VE0MjbuLvjoOMGI/QFcV5Jj4/z25k0KZeamrs=;
+        s=korg; t=1673886107;
+        bh=TptDFtEaGDb3Wu49vsPd2NVtX3mBPHmFIouz8ogBZMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MM/zfamPXWJULD4EmCVSA0GJlqOh61INnNab4Nr7PjuKfYUpvAFQTjkdi7HBIiiJs
-         rLuMmTp9sal7bPpdSuKp+pl245RkvD04FLZpfq/J6SHIlkO5PCWydWrYYs9851vcjt
-         +NyggBV0mcCwcFQyoTmc1FQuASo0TIMs7fdUkSsI=
+        b=r0lj4oszg8GUqvAQBPUR0dZWoabnIgY4OxVrcVpoBSBXnI7xCLwmMlddJLZqSj57o
+         yT5sVm6iYfltxd/L7QCFEjbyXe50zXZHyRU0y+BY0ZmRUt04Cxo0zElkk3Gl+yGBJA
+         GAJELop2V5EaqsT6NTHwiP77D51+G5NFzoxP+7f8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev, Johannes Thumshirn <jth@kernel.org>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 130/521] wifi: cfg80211: Fix not unregister reg_pdev when load_builtin_regdb_keys() fails
+Subject: [PATCH 5.4 304/658] mcb: mcb-parse: fix error handing in chameleon_parse_gdd()
 Date:   Mon, 16 Jan 2023 16:46:32 +0100
-Message-Id: <20230116154853.081504263@linuxfoundation.org>
+Message-Id: <20230116154923.487074169@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 833a9fd28c9b7ccb39a334721379e992dc1c0c89 ]
+[ Upstream commit 728ac3389296caf68638628c987aeae6c8851e2d ]
 
-In regulatory_init_db(), when it's going to return a error, reg_pdev
-should be unregistered. When load_builtin_regdb_keys() fails it doesn't
-do it and makes cfg80211 can't be reload with report:
+If mcb_device_register() returns error in chameleon_parse_gdd(), the refcount
+of bus and device name are leaked. Fix this by calling put_device() to give up
+the reference, so they can be released in mcb_release_dev() and kobject_cleanup().
 
-sysfs: cannot create duplicate filename '/devices/platform/regulatory.0'
- ...
- <TASK>
- dump_stack_lvl+0x79/0x9b
- sysfs_warn_dup.cold+0x1c/0x29
- sysfs_create_dir_ns+0x22d/0x290
- kobject_add_internal+0x247/0x800
- kobject_add+0x135/0x1b0
- device_add+0x389/0x1be0
- platform_device_add+0x28f/0x790
- platform_device_register_full+0x376/0x4b0
- regulatory_init+0x9a/0x4b2 [cfg80211]
- cfg80211_init+0x84/0x113 [cfg80211]
- ...
-
-Fixes: 90a53e4432b1 ("cfg80211: implement regdb signature checking")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221109090237.214127-1-chenzhongjin@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 3764e82e5150 ("drivers: Introduce MEN Chameleon Bus")
+Reviewed-by: Johannes Thumshirn <jth@kernel.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Johannes Thumshirn <jth@kernel.org>
+Link: https://lore.kernel.org/r/ebfb06e39b19272f0197fa9136b5e4b6f34ad732.1669624063.git.johannes.thumshirn@wdc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mcb/mcb-parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 07d053603e3a..beba41f8a178 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -3918,8 +3918,10 @@ static int __init regulatory_init_db(void)
- 		return -EINVAL;
+diff --git a/drivers/mcb/mcb-parse.c b/drivers/mcb/mcb-parse.c
+index 3b69e6aa3d88..cfe5c95ce0ce 100644
+--- a/drivers/mcb/mcb-parse.c
++++ b/drivers/mcb/mcb-parse.c
+@@ -108,7 +108,7 @@ static int chameleon_parse_gdd(struct mcb_bus *bus,
+ 	return 0;
  
- 	err = load_builtin_regdb_keys();
--	if (err)
-+	if (err) {
-+		platform_device_unregister(reg_pdev);
- 		return err;
-+	}
+ err:
+-	mcb_free_dev(mdev);
++	put_device(&mdev->dev);
  
- 	/* We always try to get an update for the static regdomain */
- 	err = regulatory_hint_core(cfg80211_world_regdom->alpha2);
+ 	return ret;
+ }
 -- 
 2.35.1
 
