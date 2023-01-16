@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8499D66C92F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 601DD66C577
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233890AbjAPQqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:46:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38190 "EHLO
+        id S232376AbjAPQGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:06:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233790AbjAPQqH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F19BF23D8A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:08 -0800 (PST)
+        with ESMTP id S232345AbjAPQGK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99FD223C6A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:04:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6504B81059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14375C433EF;
-        Mon, 16 Jan 2023 16:34:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C0D2B8105C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:04:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9936CC433D2;
+        Mon, 16 Jan 2023 16:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886846;
-        bh=ELknwW91AvAoAA8leIEPR/jnP6NKrkXbJ8KkjSWqRLE=;
+        s=korg; t=1673885058;
+        bh=ux3ojm2XgKaV1Hb9Sfquq4Lo26tyuE4J0qmRs9333uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y39HFofiLnbGG5SNq9N/PBH21IUAuDZMBaB6uY6ahlCrNB4e8FpIV80l1Q10cpqCP
-         XT7S1AQPMS48EaMcH8T1v89O4OM0mBOZKnqoAgs8Oioq806cyzKME4+hXIGcKBUNMJ
-         A8RBS/9lyM+gqmcHGORQ65TrXCysEVsU9yQ3ZkyA=
+        b=10AbI2m7BqbwObkoksfMxwQq8sFBfhfBJObHVzafmoZA2hTPaMThnQWHbSQV1tfHj
+         Upin3jXXCAFdLfnDAOXy7iy5EIOdinublbRUND+1OQp4SaFHS3vXesXjcNDm1A1N0w
+         XdDehVTZfZOxzbXDTs9s9be+8XCoYkcvdDpuYpUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 577/658] net: phy: xgmiitorgmii: Fix refcount leak in xgmiitorgmii_probe
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 5.15 31/86] dt-bindings: msm/dsi: Dont require vcca-supply on 14nm PHY
 Date:   Mon, 16 Jan 2023 16:51:05 +0100
-Message-Id: <20230116154935.906821449@linuxfoundation.org>
+Message-Id: <20230116154748.390673908@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit d039535850ee47079d59527e96be18d8e0daa84b ]
+commit a2117773c839a8439a3771e0c040b5c505b083a7 upstream.
 
-of_phy_find_device() return device node with refcount incremented.
-Call put_device() to relese it when not needed anymore.
+On some SoCs (hello SM6115) vcca-supply is not wired to any smd-rpm
+or rpmh regulator, but instead powered by the VDD_MX line, which is
+voted for in the DSI ctrl node.
 
-Fixes: ab4e6ee578e8 ("net: phy: xgmiitorgmii: Check phy_driver ready before accessing")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 8fc939e72ff8 ("dt-bindings: msm: dsi: add yaml schemas for DSI PHY bindings")
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/513555/
+Link: https://lore.kernel.org/r/20221130135807.45028-1-konrad.dybcio@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/xilinx_gmii2rgmii.c | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/display/msm/dsi-phy-14nm.yaml |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/phy/xilinx_gmii2rgmii.c b/drivers/net/phy/xilinx_gmii2rgmii.c
-index 151c2a3f0b3a..7a78dfdfa5bd 100644
---- a/drivers/net/phy/xilinx_gmii2rgmii.c
-+++ b/drivers/net/phy/xilinx_gmii2rgmii.c
-@@ -82,6 +82,7 @@ static int xgmiitorgmii_probe(struct mdio_device *mdiodev)
+--- a/Documentation/devicetree/bindings/display/msm/dsi-phy-14nm.yaml
++++ b/Documentation/devicetree/bindings/display/msm/dsi-phy-14nm.yaml
+@@ -37,7 +37,6 @@ required:
+   - compatible
+   - reg
+   - reg-names
+-  - vcca-supply
  
- 	if (!priv->phy_dev->drv) {
- 		dev_info(dev, "Attached phy not ready\n");
-+		put_device(&priv->phy_dev->mdio.dev);
- 		return -EPROBE_DEFER;
- 	}
+ unevaluatedProperties: false
  
--- 
-2.35.1
-
 
 
