@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A50266CA84
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:04:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56E6266CA87
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:04:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231953AbjAPRD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:03:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54662 "EHLO
+        id S232635AbjAPRED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:04:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234176AbjAPRDQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:03:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE15B3F2B1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:45:31 -0800 (PST)
+        with ESMTP id S234154AbjAPRDS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:03:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 667E82F7A5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:45:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EF20B81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:45:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8B79C433EF;
-        Mon, 16 Jan 2023 16:45:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02C5961042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:45:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13C52C433EF;
+        Mon, 16 Jan 2023 16:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887529;
-        bh=xG26N1aBVjEv0hzWxwCnEQr2GTiXWTZEFPNtGu28cjc=;
+        s=korg; t=1673887534;
+        bh=yfYKLDFR2IdTdgLCIsR/pzu1cmNuilql0g+Fs8bUhXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7UwGIVxPQU+XkemzMTfIRDWDLLPrAsbBO9s1w6pO03STXun1P+2hcqrWI+TihM1R
-         DGk2UpteqZNq4QAiMHmfkbSuIpI/waCyXQOJNaa/zPKA0uuvCCmh+rMSd/owcaEO6Z
-         YqWMDalymcCB9eO+eKGts0uVOhvjID6EzEdHOKvQ=
+        b=h6GCejRJkxZG0kmXhNASyEweHbmDzftB1Yx4AXsjhG+hliEBmQ9i7F02IxErVwpoh
+         GfKeGGqezjkcoSvKR4a/DNQ3ZMtH5Oc27HhBWo3s75+Z6pxHj85wpB0lXyEmCFl/9x
+         HHRnIQiqkdLul2Gf8fhbZJK77u6n3ATNGQDMU3is=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Zhang <markzhang@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 184/521] RDMA/nldev: Return "-EAGAIN" if the cm_id isnt from expected port
-Date:   Mon, 16 Jan 2023 16:47:26 +0100
-Message-Id: <20230116154855.299118475@linuxfoundation.org>
+Subject: [PATCH 4.19 185/521] scsi: scsi_debug: Fix a warning in resp_write_scat()
+Date:   Mon, 16 Jan 2023 16:47:27 +0100
+Message-Id: <20230116154855.338040286@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,49 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markzhang@nvidia.com>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit ecacb3751f254572af0009b9501e2cdc83a30b6a ]
+[ Upstream commit 216e179724c1d9f57a8ababf8bd7aaabef67f01b ]
 
-When filling a cm_id entry, return "-EAGAIN" instead of 0 if the cm_id
-doesn'the have the same port as requested, otherwise an incomplete entry
-may be returned, which causes "rdam res show cm_id" to return an error.
+As 'lbdof_blen' is coming from user, if the size in kzalloc() is >=
+MAX_ORDER then we hit a warning.
 
-For example on a machine with two rdma devices with "rping -C 1 -v -s"
-running background, the "rdma" command fails:
-  $ rdma -V
-  rdma utility, iproute2-5.19.0
-  $ rdma res show cm_id
-  link mlx5_0/- cm-idn 0 state LISTEN ps TCP pid 28056 comm rping src-addr 0.0.0.0:7174
-  error: Protocol not available
+Call trace:
 
-While with this fix it succeeds:
-  $ rdma res show cm_id
-  link mlx5_0/- cm-idn 0 state LISTEN ps TCP pid 26395 comm rping src-addr 0.0.0.0:7174
-  link mlx5_1/- cm-idn 0 state LISTEN ps TCP pid 26395 comm rping src-addr 0.0.0.0:7174
+sg_ioctl
+ sg_ioctl_common
+   scsi_ioctl
+    sg_scsi_ioctl
+     blk_execute_rq
+      blk_mq_sched_insert_request
+       blk_mq_run_hw_queue
+        __blk_mq_delay_run_hw_queue
+         __blk_mq_run_hw_queue
+          blk_mq_sched_dispatch_requests
+           __blk_mq_sched_dispatch_requests
+            blk_mq_dispatch_rq_list
+             scsi_queue_rq
+              scsi_dispatch_cmd
+               scsi_debug_queuecommand
+                schedule_resp
+                 resp_write_scat
 
-Fixes: 00313983cda6 ("RDMA/nldev: provide detailed CM_ID information")
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Link: https://lore.kernel.org/r/a08e898cdac5e28428eb749a99d9d981571b8ea7.1667810736.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+If you try to allocate a memory larger than(>=) MAX_ORDER, then kmalloc()
+will definitely fail.  It creates a stack trace and messes up dmesg.  The
+user controls the size here so if they specify a too large size it will
+fail.
+
+Add __GFP_NOWARN in order to avoid too large allocation warning.  This is
+detected by static analysis using smatch.
+
+Fixes: 481b5e5c7949 ("scsi: scsi_debug: add resp_write_scat function")
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20221111100526.1790533-1-harshit.m.mogalapalli@oracle.com
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/nldev.c | 2 +-
+ drivers/scsi/scsi_debug.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
-index f6fa9b115fda..798bc810b234 100644
---- a/drivers/infiniband/core/nldev.c
-+++ b/drivers/infiniband/core/nldev.c
-@@ -433,7 +433,7 @@ static int fill_res_cm_id_entry(struct sk_buff *msg,
- 	struct nlattr *entry_attr;
- 
- 	if (port && port != cm_id->port_num)
--		return 0;
-+		return -EAGAIN;
- 
- 	entry_attr = nla_nest_start(msg, RDMA_NLDEV_ATTR_RES_CM_ID_ENTRY);
- 	if (!entry_attr)
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index 4d73a7f67dea..0733ecc9f878 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -3156,7 +3156,7 @@ static int resp_write_scat(struct scsi_cmnd *scp,
+ 		mk_sense_buffer(scp, ILLEGAL_REQUEST, INVALID_FIELD_IN_CDB, 0);
+ 		return illegal_condition_result;
+ 	}
+-	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC);
++	lrdp = kzalloc(lbdof_blen, GFP_ATOMIC | __GFP_NOWARN);
+ 	if (lrdp == NULL)
+ 		return SCSI_MLQUEUE_HOST_BUSY;
+ 	if (sdebug_verbose)
 -- 
 2.35.1
 
