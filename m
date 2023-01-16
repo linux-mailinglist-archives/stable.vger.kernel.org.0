@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F5066C79A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:32:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ADC166CA16
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233222AbjAPQcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:32:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48428 "EHLO
+        id S234091AbjAPQ7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:59:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233201AbjAPQb7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:31:59 -0500
+        with ESMTP id S234181AbjAPQ6g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:58:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B9742FCF2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCB4E36B16
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA95961027
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECBABC433F1;
-        Mon, 16 Jan 2023 16:20:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F37EF61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1210DC433EF;
+        Mon, 16 Jan 2023 16:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886009;
-        bh=i1WNOSle0IndEa3fil38DolGiEbRDnH0d0gYsFGg13M=;
+        s=korg; t=1673887295;
+        bh=IeylUQvuYC1AE12XPGPfkLAtDKqoe5IQc6+RBjrD6rU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N8QicqMir8r4zlf54VId4fh0NOeHkH5a9g5VbGRmjPrUuxT66vT53oUFq3vOoMFuk
-         b+OBKPy4PCikcIsMZtwTOasYuWszF0eQJa4fj7Wt6N7r/sMZC2En6FtemG6SBrhPv5
-         mVcPf3cv5SYqkvbf5CcyUBV62Y47Z3I7uwUCMpJU=
+        b=JB4igtCBVocqOCaWDAbu2xfp9mDagdUcrV03TZeeZdgjsAGJQGleMhi084yM+grkg
+         rzC9TL5aX6CcwycFtRltmr5jsMLpzM6lmhNDXzvHm5S4Dyg+twtMSNUtQ4oPlG8FlS
+         6hOW1yh17LpmvAKzs3WlJM4MamjwBd12NcliJMmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Jimmy Assarsson <extja@kvaser.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 268/658] RDMA/hfi1: Fix error return code in parse_platform_config()
+Subject: [PATCH 4.19 094/521] can: kvaser_usb: Compare requested bittiming parameters with actual parameters in do_set_{,data}_bittiming
 Date:   Mon, 16 Jan 2023 16:45:56 +0100
-Message-Id: <20230116154921.832385127@linuxfoundation.org>
+Message-Id: <20230116154851.449490667@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +54,595 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Jimmy Assarsson <extja@kvaser.com>
 
-[ Upstream commit 725349f8ba1e78a146c6ff8f3ee5e2712e517106 ]
+[ Upstream commit 39d3df6b0ea80f9b515c632ca07b39b1c156edee ]
 
-In the previous iteration of the while loop, the "ret" may have been
-assigned a value of 0, so the error return code -EINVAL may have been
-incorrectly set to 0. To fix set valid return code before calling to
-goto.
+The device will respond with a CMD_ERROR_EVENT command, with error_code
+KVASER_USB_{LEAF,HYDRA}_ERROR_EVENT_PARAM, if the CMD_SET_BUSPARAMS_REQ
+contains invalid bittiming parameters.
+However, this command does not contain any channel reference.
 
-Fixes: 97167e813415 ("staging/rdma/hfi1: Tune for unknown channel if configuration file is absent")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Link: https://lore.kernel.org/r/1669953638-11747-1-git-send-email-wangyufen@huawei.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+To check if the CMD_SET_BUSPARAMS_REQ was successful, redback and compare
+the requested bittiming parameters with the device reported parameters.
+
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
+Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Co-developed-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010185237.319219-12-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/firmware.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb.h   |  15 +-
+ .../net/can/usb/kvaser_usb/kvaser_usb_core.c  |  96 ++++++++++-
+ .../net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 150 +++++++++++++++---
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  |  64 ++++++--
+ 4 files changed, 284 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/firmware.c b/drivers/infiniband/hw/hfi1/firmware.c
-index c09080712485..747ec08dec0d 100644
---- a/drivers/infiniband/hw/hfi1/firmware.c
-+++ b/drivers/infiniband/hw/hfi1/firmware.c
-@@ -1786,6 +1786,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
+index cb8018723748..5699531f8787 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb.h
+@@ -119,9 +119,12 @@ struct kvaser_usb_net_priv {
+ 	struct net_device *netdev;
+ 	int channel;
  
- 	if (!dd->platform_config.data) {
- 		dd_dev_err(dd, "%s: Missing config file\n", __func__);
-+		ret = -EINVAL;
- 		goto bail;
+-	struct completion start_comp, stop_comp, flush_comp;
++	struct completion start_comp, stop_comp, flush_comp,
++			  get_busparams_comp;
+ 	struct usb_anchor tx_submitted;
+ 
++	struct kvaser_usb_busparams busparams_nominal, busparams_data;
++
+ 	spinlock_t tx_contexts_lock; /* lock for active_tx_contexts */
+ 	int active_tx_contexts;
+ 	struct kvaser_usb_tx_urb_context tx_contexts[];
+@@ -131,7 +134,9 @@ struct kvaser_usb_net_priv {
+  * struct kvaser_usb_dev_ops - Device specific functions
+  * @dev_set_mode:		used for can.do_set_mode
+  * @dev_set_bittiming:		used for can.do_set_bittiming
++ * @dev_get_busparams:		readback arbitration busparams
+  * @dev_set_data_bittiming:	used for can.do_set_data_bittiming
++ * @dev_get_data_busparams:	readback data busparams
+  * @dev_get_berr_counter:	used for can.do_get_berr_counter
+  *
+  * @dev_setup_endpoints:	setup USB in and out endpoints
+@@ -153,8 +158,12 @@ struct kvaser_usb_net_priv {
+  */
+ struct kvaser_usb_dev_ops {
+ 	int (*dev_set_mode)(struct net_device *netdev, enum can_mode mode);
+-	int (*dev_set_bittiming)(struct net_device *netdev);
+-	int (*dev_set_data_bittiming)(struct net_device *netdev);
++	int (*dev_set_bittiming)(const struct net_device *netdev,
++				 const struct kvaser_usb_busparams *busparams);
++	int (*dev_get_busparams)(struct kvaser_usb_net_priv *priv);
++	int (*dev_set_data_bittiming)(const struct net_device *netdev,
++				      const struct kvaser_usb_busparams *busparams);
++	int (*dev_get_data_busparams)(struct kvaser_usb_net_priv *priv);
+ 	int (*dev_get_berr_counter)(const struct net_device *netdev,
+ 				    struct can_berr_counter *bec);
+ 	int (*dev_setup_endpoints)(struct kvaser_usb *dev);
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
+index e00afb94ec6c..da449d046905 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_core.c
+@@ -416,10 +416,6 @@ static int kvaser_usb_open(struct net_device *netdev)
+ 	if (err)
+ 		return err;
+ 
+-	err = kvaser_usb_setup_rx_urbs(dev);
+-	if (err)
+-		goto error;
+-
+ 	err = ops->dev_set_opt_mode(priv);
+ 	if (err)
+ 		goto error;
+@@ -510,6 +506,93 @@ static int kvaser_usb_close(struct net_device *netdev)
+ 	return 0;
+ }
+ 
++static int kvaser_usb_set_bittiming(struct net_device *netdev)
++{
++	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
++	struct kvaser_usb *dev = priv->dev;
++	const struct kvaser_usb_dev_ops *ops = dev->driver_info->ops;
++	struct can_bittiming *bt = &priv->can.bittiming;
++
++	struct kvaser_usb_busparams busparams;
++	int tseg1 = bt->prop_seg + bt->phase_seg1;
++	int tseg2 = bt->phase_seg2;
++	int sjw = bt->sjw;
++	int err = -EOPNOTSUPP;
++
++	busparams.bitrate = cpu_to_le32(bt->bitrate);
++	busparams.sjw = (u8)sjw;
++	busparams.tseg1 = (u8)tseg1;
++	busparams.tseg2 = (u8)tseg2;
++	if (priv->can.ctrlmode & CAN_CTRLMODE_3_SAMPLES)
++		busparams.nsamples = 3;
++	else
++		busparams.nsamples = 1;
++
++	err = ops->dev_set_bittiming(netdev, &busparams);
++	if (err)
++		return err;
++
++	err = kvaser_usb_setup_rx_urbs(priv->dev);
++	if (err)
++		return err;
++
++	err = ops->dev_get_busparams(priv);
++	if (err) {
++		/* Treat EOPNOTSUPP as success */
++		if (err == -EOPNOTSUPP)
++			err = 0;
++		return err;
++	}
++
++	if (memcmp(&busparams, &priv->busparams_nominal,
++		   sizeof(priv->busparams_nominal)) != 0)
++		err = -EINVAL;
++
++	return err;
++}
++
++static int kvaser_usb_set_data_bittiming(struct net_device *netdev)
++{
++	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
++	struct kvaser_usb *dev = priv->dev;
++	const struct kvaser_usb_dev_ops *ops = dev->driver_info->ops;
++	struct can_bittiming *dbt = &priv->can.data_bittiming;
++
++	struct kvaser_usb_busparams busparams;
++	int tseg1 = dbt->prop_seg + dbt->phase_seg1;
++	int tseg2 = dbt->phase_seg2;
++	int sjw = dbt->sjw;
++	int err;
++
++	if (!ops->dev_set_data_bittiming ||
++	    !ops->dev_get_data_busparams)
++		return -EOPNOTSUPP;
++
++	busparams.bitrate = cpu_to_le32(dbt->bitrate);
++	busparams.sjw = (u8)sjw;
++	busparams.tseg1 = (u8)tseg1;
++	busparams.tseg2 = (u8)tseg2;
++	busparams.nsamples = 1;
++
++	err = ops->dev_set_data_bittiming(netdev, &busparams);
++	if (err)
++		return err;
++
++	err = kvaser_usb_setup_rx_urbs(priv->dev);
++	if (err)
++		return err;
++
++	err = ops->dev_get_data_busparams(priv);
++	if (err)
++		return err;
++
++	if (memcmp(&busparams, &priv->busparams_data,
++		   sizeof(priv->busparams_data)) != 0)
++		err = -EINVAL;
++
++	return err;
++}
++
+ static void kvaser_usb_write_bulk_callback(struct urb *urb)
+ {
+ 	struct kvaser_usb_tx_urb_context *context = urb->context;
+@@ -696,6 +779,7 @@ static int kvaser_usb_init_one(struct kvaser_usb *dev, int channel)
+ 	init_completion(&priv->start_comp);
+ 	init_completion(&priv->stop_comp);
+ 	init_completion(&priv->flush_comp);
++	init_completion(&priv->get_busparams_comp);
+ 	priv->can.ctrlmode_supported = 0;
+ 
+ 	priv->dev = dev;
+@@ -708,7 +792,7 @@ static int kvaser_usb_init_one(struct kvaser_usb *dev, int channel)
+ 	priv->can.state = CAN_STATE_STOPPED;
+ 	priv->can.clock.freq = dev->cfg->clock.freq;
+ 	priv->can.bittiming_const = dev->cfg->bittiming_const;
+-	priv->can.do_set_bittiming = ops->dev_set_bittiming;
++	priv->can.do_set_bittiming = kvaser_usb_set_bittiming;
+ 	priv->can.do_set_mode = ops->dev_set_mode;
+ 	if ((driver_info->quirks & KVASER_USB_QUIRK_HAS_TXRX_ERRORS) ||
+ 	    (priv->dev->card_data.capabilities & KVASER_USB_CAP_BERR_CAP))
+@@ -720,7 +804,7 @@ static int kvaser_usb_init_one(struct kvaser_usb *dev, int channel)
+ 
+ 	if (priv->can.ctrlmode_supported & CAN_CTRLMODE_FD) {
+ 		priv->can.data_bittiming_const = dev->cfg->data_bittiming_const;
+-		priv->can.do_set_data_bittiming = ops->dev_set_data_bittiming;
++		priv->can.do_set_data_bittiming = kvaser_usb_set_data_bittiming;
  	}
- 	ptr = (u32 *)dd->platform_config.data;
-@@ -1794,6 +1795,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 	ptr++;
- 	if (magic_num != PLATFORM_CONFIG_MAGIC_NUM) {
- 		dd_dev_err(dd, "%s: Bad config file\n", __func__);
-+		ret = -EINVAL;
- 		goto bail;
- 	}
  
-@@ -1817,6 +1819,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 	if (file_length > dd->platform_config.size) {
- 		dd_dev_info(dd, "%s:File claims to be larger than read size\n",
- 			    __func__);
-+		ret = -EINVAL;
- 		goto bail;
- 	} else if (file_length < dd->platform_config.size) {
- 		dd_dev_info(dd,
-@@ -1837,6 +1840,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 			dd_dev_err(dd, "%s: Failed validation at offset %ld\n",
- 				   __func__, (ptr - (u32 *)
- 					      dd->platform_config.data));
-+			ret = -EINVAL;
- 			goto bail;
- 		}
+ 	netdev->flags |= IFF_ECHO;
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+index 72c37dc50b6b..2764fdd7e84b 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+@@ -43,6 +43,8 @@ static const struct kvaser_usb_dev_cfg kvaser_usb_hydra_dev_cfg_flexc;
  
-@@ -1883,6 +1887,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 					   __func__, table_type,
- 					   (ptr - (u32 *)
- 					    dd->platform_config.data));
-+				ret = -EINVAL;
- 				goto bail; /* We don't trust this file now */
- 			}
- 			pcfgcache->config_tables[table_type].table = ptr;
-@@ -1907,6 +1912,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 					   __func__, table_type,
- 					   (ptr -
- 					    (u32 *)dd->platform_config.data));
-+				ret = -EINVAL;
- 				goto bail; /* We don't trust this file now */
- 			}
- 			pcfgcache->config_tables[table_type].table_metadata =
+ /* Minihydra command IDs */
+ #define CMD_SET_BUSPARAMS_REQ			16
++#define CMD_GET_BUSPARAMS_REQ			17
++#define CMD_GET_BUSPARAMS_RESP			18
+ #define CMD_GET_CHIP_STATE_REQ			19
+ #define CMD_CHIP_STATE_EVENT			20
+ #define CMD_SET_DRIVERMODE_REQ			21
+@@ -193,13 +195,26 @@ struct kvaser_cmd_chip_state_event {
+ #define KVASER_USB_HYDRA_BUS_MODE_CANFD_ISO	0x01
+ #define KVASER_USB_HYDRA_BUS_MODE_NONISO	0x02
+ struct kvaser_cmd_set_busparams {
+-	struct kvaser_usb_busparams busparams_arb;
++	struct kvaser_usb_busparams busparams_nominal;
+ 	u8 reserved0[4];
+ 	struct kvaser_usb_busparams busparams_data;
+ 	u8 canfd_mode;
+ 	u8 reserved1[7];
+ } __packed;
+ 
++/* Busparam type */
++#define KVASER_USB_HYDRA_BUSPARAM_TYPE_CAN	0x00
++#define KVASER_USB_HYDRA_BUSPARAM_TYPE_CANFD	0x01
++struct kvaser_cmd_get_busparams_req {
++	u8 type;
++	u8 reserved[27];
++} __packed;
++
++struct kvaser_cmd_get_busparams_res {
++	struct kvaser_usb_busparams busparams;
++	u8 reserved[20];
++} __packed;
++
+ /* Ctrl modes */
+ #define KVASER_USB_HYDRA_CTRLMODE_NORMAL	0x01
+ #define KVASER_USB_HYDRA_CTRLMODE_LISTEN	0x02
+@@ -270,6 +285,8 @@ struct kvaser_cmd {
+ 		struct kvaser_cmd_error_event error_event;
+ 
+ 		struct kvaser_cmd_set_busparams set_busparams_req;
++		struct kvaser_cmd_get_busparams_req get_busparams_req;
++		struct kvaser_cmd_get_busparams_res get_busparams_res;
+ 
+ 		struct kvaser_cmd_chip_state_event chip_state_event;
+ 
+@@ -352,6 +369,10 @@ struct kvaser_cmd_ext {
+ 	} __packed;
+ } __packed;
+ 
++struct kvaser_usb_net_hydra_priv {
++	int pending_get_busparams_type;
++};
++
+ static const struct can_bittiming_const kvaser_usb_hydra_kcan_bittiming_c = {
+ 	.name = "kvaser_usb_kcan",
+ 	.tseg1_min = 1,
+@@ -805,6 +826,39 @@ static void kvaser_usb_hydra_flush_queue_reply(const struct kvaser_usb *dev,
+ 	complete(&priv->flush_comp);
+ }
+ 
++static void kvaser_usb_hydra_get_busparams_reply(const struct kvaser_usb *dev,
++						 const struct kvaser_cmd *cmd)
++{
++	struct kvaser_usb_net_priv *priv;
++	struct kvaser_usb_net_hydra_priv *hydra;
++
++	priv = kvaser_usb_hydra_net_priv_from_cmd(dev, cmd);
++	if (!priv)
++		return;
++
++	hydra = priv->sub_priv;
++	if (!hydra)
++		return;
++
++	switch (hydra->pending_get_busparams_type) {
++	case KVASER_USB_HYDRA_BUSPARAM_TYPE_CAN:
++		memcpy(&priv->busparams_nominal, &cmd->get_busparams_res.busparams,
++		       sizeof(priv->busparams_nominal));
++		break;
++	case KVASER_USB_HYDRA_BUSPARAM_TYPE_CANFD:
++		memcpy(&priv->busparams_data, &cmd->get_busparams_res.busparams,
++		       sizeof(priv->busparams_nominal));
++		break;
++	default:
++		dev_warn(&dev->intf->dev, "Unknown get_busparams_type %d\n",
++			 hydra->pending_get_busparams_type);
++		break;
++	}
++	hydra->pending_get_busparams_type = -1;
++
++	complete(&priv->get_busparams_comp);
++}
++
+ static void
+ kvaser_usb_hydra_bus_status_to_can_state(const struct kvaser_usb_net_priv *priv,
+ 					 u8 bus_status,
+@@ -1291,6 +1345,10 @@ static void kvaser_usb_hydra_handle_cmd_std(const struct kvaser_usb *dev,
+ 		kvaser_usb_hydra_state_event(dev, cmd);
+ 		break;
+ 
++	case CMD_GET_BUSPARAMS_RESP:
++		kvaser_usb_hydra_get_busparams_reply(dev, cmd);
++		break;
++
+ 	case CMD_ERROR_EVENT:
+ 		kvaser_usb_hydra_error_event(dev, cmd);
+ 		break;
+@@ -1491,15 +1549,58 @@ static int kvaser_usb_hydra_set_mode(struct net_device *netdev,
+ 	return err;
+ }
+ 
+-static int kvaser_usb_hydra_set_bittiming(struct net_device *netdev)
++static int kvaser_usb_hydra_get_busparams(struct kvaser_usb_net_priv *priv,
++					  int busparams_type)
++{
++	struct kvaser_usb *dev = priv->dev;
++	struct kvaser_usb_net_hydra_priv *hydra = priv->sub_priv;
++	struct kvaser_cmd *cmd;
++	int err;
++
++	if (!hydra)
++		return -EINVAL;
++
++	cmd = kcalloc(1, sizeof(struct kvaser_cmd), GFP_KERNEL);
++	if (!cmd)
++		return -ENOMEM;
++
++	cmd->header.cmd_no = CMD_GET_BUSPARAMS_REQ;
++	kvaser_usb_hydra_set_cmd_dest_he
++		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
++	kvaser_usb_hydra_set_cmd_transid
++				(cmd, kvaser_usb_hydra_get_next_transid(dev));
++	cmd->get_busparams_req.type = busparams_type;
++	hydra->pending_get_busparams_type = busparams_type;
++
++	reinit_completion(&priv->get_busparams_comp);
++
++	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	if (err)
++		return err;
++
++	if (!wait_for_completion_timeout(&priv->get_busparams_comp,
++					 msecs_to_jiffies(KVASER_USB_TIMEOUT)))
++		return -ETIMEDOUT;
++
++	return err;
++}
++
++static int kvaser_usb_hydra_get_nominal_busparams(struct kvaser_usb_net_priv *priv)
++{
++	return kvaser_usb_hydra_get_busparams(priv, KVASER_USB_HYDRA_BUSPARAM_TYPE_CAN);
++}
++
++static int kvaser_usb_hydra_get_data_busparams(struct kvaser_usb_net_priv *priv)
++{
++	return kvaser_usb_hydra_get_busparams(priv, KVASER_USB_HYDRA_BUSPARAM_TYPE_CANFD);
++}
++
++static int kvaser_usb_hydra_set_bittiming(const struct net_device *netdev,
++					  const struct kvaser_usb_busparams *busparams)
+ {
+ 	struct kvaser_cmd *cmd;
+ 	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
+-	struct can_bittiming *bt = &priv->can.bittiming;
+ 	struct kvaser_usb *dev = priv->dev;
+-	int tseg1 = bt->prop_seg + bt->phase_seg1;
+-	int tseg2 = bt->phase_seg2;
+-	int sjw = bt->sjw;
+ 	int err;
+ 
+ 	cmd = kcalloc(1, sizeof(struct kvaser_cmd), GFP_KERNEL);
+@@ -1507,11 +1608,8 @@ static int kvaser_usb_hydra_set_bittiming(struct net_device *netdev)
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_REQ;
+-	cmd->set_busparams_req.busparams_arb.bitrate = cpu_to_le32(bt->bitrate);
+-	cmd->set_busparams_req.busparams_arb.sjw = (u8)sjw;
+-	cmd->set_busparams_req.busparams_arb.tseg1 = (u8)tseg1;
+-	cmd->set_busparams_req.busparams_arb.tseg2 = (u8)tseg2;
+-	cmd->set_busparams_req.busparams_arb.nsamples = 1;
++	memcpy(&cmd->set_busparams_req.busparams_nominal, busparams,
++	       sizeof(cmd->set_busparams_req.busparams_nominal));
+ 
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
+@@ -1525,15 +1623,12 @@ static int kvaser_usb_hydra_set_bittiming(struct net_device *netdev)
+ 	return err;
+ }
+ 
+-static int kvaser_usb_hydra_set_data_bittiming(struct net_device *netdev)
++static int kvaser_usb_hydra_set_data_bittiming(const struct net_device *netdev,
++					       const struct kvaser_usb_busparams *busparams)
+ {
+ 	struct kvaser_cmd *cmd;
+ 	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
+-	struct can_bittiming *dbt = &priv->can.data_bittiming;
+ 	struct kvaser_usb *dev = priv->dev;
+-	int tseg1 = dbt->prop_seg + dbt->phase_seg1;
+-	int tseg2 = dbt->phase_seg2;
+-	int sjw = dbt->sjw;
+ 	int err;
+ 
+ 	cmd = kcalloc(1, sizeof(struct kvaser_cmd), GFP_KERNEL);
+@@ -1541,11 +1636,8 @@ static int kvaser_usb_hydra_set_data_bittiming(struct net_device *netdev)
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_FD_REQ;
+-	cmd->set_busparams_req.busparams_data.bitrate = cpu_to_le32(dbt->bitrate);
+-	cmd->set_busparams_req.busparams_data.sjw = (u8)sjw;
+-	cmd->set_busparams_req.busparams_data.tseg1 = (u8)tseg1;
+-	cmd->set_busparams_req.busparams_data.tseg2 = (u8)tseg2;
+-	cmd->set_busparams_req.busparams_data.nsamples = 1;
++	memcpy(&cmd->set_busparams_req.busparams_data, busparams,
++	       sizeof(cmd->set_busparams_req.busparams_data));
+ 
+ 	if (priv->can.ctrlmode & CAN_CTRLMODE_FD) {
+ 		if (priv->can.ctrlmode & CAN_CTRLMODE_FD_NON_ISO)
+@@ -1652,6 +1744,19 @@ static int kvaser_usb_hydra_init_card(struct kvaser_usb *dev)
+ 	return 0;
+ }
+ 
++static int kvaser_usb_hydra_init_channel(struct kvaser_usb_net_priv *priv)
++{
++	struct kvaser_usb_net_hydra_priv *hydra;
++
++	hydra = devm_kzalloc(&priv->dev->intf->dev, sizeof(*hydra), GFP_KERNEL);
++	if (!hydra)
++		return -ENOMEM;
++
++	priv->sub_priv = hydra;
++
++	return 0;
++}
++
+ static int kvaser_usb_hydra_get_software_info(struct kvaser_usb *dev)
+ {
+ 	struct kvaser_cmd cmd;
+@@ -1994,10 +2099,13 @@ kvaser_usb_hydra_frame_to_cmd(const struct kvaser_usb_net_priv *priv,
+ const struct kvaser_usb_dev_ops kvaser_usb_hydra_dev_ops = {
+ 	.dev_set_mode = kvaser_usb_hydra_set_mode,
+ 	.dev_set_bittiming = kvaser_usb_hydra_set_bittiming,
++	.dev_get_busparams = kvaser_usb_hydra_get_nominal_busparams,
+ 	.dev_set_data_bittiming = kvaser_usb_hydra_set_data_bittiming,
++	.dev_get_data_busparams = kvaser_usb_hydra_get_data_busparams,
+ 	.dev_get_berr_counter = kvaser_usb_hydra_get_berr_counter,
+ 	.dev_setup_endpoints = kvaser_usb_hydra_setup_endpoints,
+ 	.dev_init_card = kvaser_usb_hydra_init_card,
++	.dev_init_channel = kvaser_usb_hydra_init_channel,
+ 	.dev_get_software_info = kvaser_usb_hydra_get_software_info,
+ 	.dev_get_software_details = kvaser_usb_hydra_get_software_details,
+ 	.dev_get_card_info = kvaser_usb_hydra_get_card_info,
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+index 1e2f727a1efb..f06d63db9077 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -56,6 +56,8 @@
+ #define CMD_RX_EXT_MESSAGE		14
+ #define CMD_TX_EXT_MESSAGE		15
+ #define CMD_SET_BUS_PARAMS		16
++#define CMD_GET_BUS_PARAMS		17
++#define CMD_GET_BUS_PARAMS_REPLY	18
+ #define CMD_GET_CHIP_STATE		19
+ #define CMD_CHIP_STATE_EVENT		20
+ #define CMD_SET_CTRL_MODE		21
+@@ -375,6 +377,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
+ 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
+ 	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.can_error_event),
+ 	[CMD_GET_CAPABILITIES_RESP]	= kvaser_fsize(u.leaf.cap_res),
++	[CMD_GET_BUS_PARAMS_REPLY]	= kvaser_fsize(u.busparams),
+ 	[CMD_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
+ 	/* ignored events: */
+ 	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
+@@ -1467,6 +1470,25 @@ static void kvaser_usb_leaf_stop_chip_reply(const struct kvaser_usb *dev,
+ 	complete(&priv->stop_comp);
+ }
+ 
++static void kvaser_usb_leaf_get_busparams_reply(const struct kvaser_usb *dev,
++						const struct kvaser_cmd *cmd)
++{
++	struct kvaser_usb_net_priv *priv;
++	u8 channel = cmd->u.busparams.channel;
++
++	if (channel >= dev->nchannels) {
++		dev_err(&dev->intf->dev,
++			"Invalid channel number (%d)\n", channel);
++		return;
++	}
++
++	priv = dev->nets[channel];
++	memcpy(&priv->busparams_nominal, &cmd->u.busparams.busparams,
++	       sizeof(priv->busparams_nominal));
++
++	complete(&priv->get_busparams_comp);
++}
++
+ static void kvaser_usb_leaf_handle_command(const struct kvaser_usb *dev,
+ 					   const struct kvaser_cmd *cmd)
+ {
+@@ -1509,6 +1531,10 @@ static void kvaser_usb_leaf_handle_command(const struct kvaser_usb *dev,
+ 		kvaser_usb_leaf_error_event(dev, cmd);
+ 		break;
+ 
++	case CMD_GET_BUS_PARAMS_REPLY:
++		kvaser_usb_leaf_get_busparams_reply(dev, cmd);
++		break;
++
+ 	/* Ignored commands */
+ 	case CMD_USBCAN_CLOCK_OVERFLOW_EVENT:
+ 		if (dev->driver_info->family != KVASER_USBCAN)
+@@ -1683,10 +1709,10 @@ static void kvaser_usb_leaf_remove_channel(struct kvaser_usb_net_priv *priv)
+ 		cancel_delayed_work_sync(&leaf->chip_state_req_work);
+ }
+ 
+-static int kvaser_usb_leaf_set_bittiming(struct net_device *netdev)
++static int kvaser_usb_leaf_set_bittiming(const struct net_device *netdev,
++					 const struct kvaser_usb_busparams *busparams)
+ {
+ 	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
+-	struct can_bittiming *bt = &priv->can.bittiming;
+ 	struct kvaser_usb *dev = priv->dev;
+ 	struct kvaser_cmd *cmd;
+ 	int rc;
+@@ -1699,15 +1725,8 @@ static int kvaser_usb_leaf_set_bittiming(struct net_device *netdev)
+ 	cmd->len = CMD_HEADER_LEN + sizeof(struct kvaser_cmd_busparams);
+ 	cmd->u.busparams.channel = priv->channel;
+ 	cmd->u.busparams.tid = 0xff;
+-	cmd->u.busparams.busparams.bitrate = cpu_to_le32(bt->bitrate);
+-	cmd->u.busparams.busparams.sjw = bt->sjw;
+-	cmd->u.busparams.busparams.tseg1 = bt->prop_seg + bt->phase_seg1;
+-	cmd->u.busparams.busparams.tseg2 = bt->phase_seg2;
+-
+-	if (priv->can.ctrlmode & CAN_CTRLMODE_3_SAMPLES)
+-		cmd->u.busparams.busparams.nsamples = 3;
+-	else
+-		cmd->u.busparams.busparams.nsamples = 1;
++	memcpy(&cmd->u.busparams.busparams, busparams,
++	       sizeof(cmd->u.busparams.busparams));
+ 
+ 	rc = kvaser_usb_send_cmd(dev, cmd, cmd->len);
+ 
+@@ -1715,6 +1734,27 @@ static int kvaser_usb_leaf_set_bittiming(struct net_device *netdev)
+ 	return rc;
+ }
+ 
++static int kvaser_usb_leaf_get_busparams(struct kvaser_usb_net_priv *priv)
++{
++	int err;
++
++	if (priv->dev->driver_info->family == KVASER_USBCAN)
++		return -EOPNOTSUPP;
++
++	reinit_completion(&priv->get_busparams_comp);
++
++	err = kvaser_usb_leaf_send_simple_cmd(priv->dev, CMD_GET_BUS_PARAMS,
++					      priv->channel);
++	if (err)
++		return err;
++
++	if (!wait_for_completion_timeout(&priv->get_busparams_comp,
++					 msecs_to_jiffies(KVASER_USB_TIMEOUT)))
++		return -ETIMEDOUT;
++
++	return 0;
++}
++
+ static int kvaser_usb_leaf_set_mode(struct net_device *netdev,
+ 				    enum can_mode mode)
+ {
+@@ -1776,7 +1816,9 @@ static int kvaser_usb_leaf_setup_endpoints(struct kvaser_usb *dev)
+ const struct kvaser_usb_dev_ops kvaser_usb_leaf_dev_ops = {
+ 	.dev_set_mode = kvaser_usb_leaf_set_mode,
+ 	.dev_set_bittiming = kvaser_usb_leaf_set_bittiming,
++	.dev_get_busparams = kvaser_usb_leaf_get_busparams,
+ 	.dev_set_data_bittiming = NULL,
++	.dev_get_data_busparams = NULL,
+ 	.dev_get_berr_counter = kvaser_usb_leaf_get_berr_counter,
+ 	.dev_setup_endpoints = kvaser_usb_leaf_setup_endpoints,
+ 	.dev_init_card = kvaser_usb_leaf_init_card,
 -- 
 2.35.1
 
