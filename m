@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B28EB66C468
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:54:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D30A66C8B2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:42:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231297AbjAPPyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:54:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37054 "EHLO
+        id S233694AbjAPQmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:42:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231406AbjAPPyk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:40 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F34C1D912
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:35 -0800 (PST)
+        with ESMTP id S233487AbjAPQlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:41:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D3AB2DE6A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:29:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6F2FACE122F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45AE7C433EF;
-        Mon, 16 Jan 2023 15:54:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDA2C61057
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:29:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF648C433EF;
+        Mon, 16 Jan 2023 16:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884471;
-        bh=WW0a0qdBtJsJ9yejOmW09xrzyZE7t48zbRGXtsTamR4=;
+        s=korg; t=1673886578;
+        bh=5hcUkI2szNMlWVvpdQxelHJWWwmXSZic9xDKzLAwyO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1jyapVe9Il3iTxWKg4+xlQc5QfvSZfWOZ0P7i0SZ5va6CvY49ThKsedf4LJybvdZi
-         3Y139ArgMSoonsubJIYB8Q/Jvjm29A64XCUq99fnWsY5Mgnr+nVNDFlz5x+vV3zlsG
-         hu9WYcqm8engL7QfxuWS90kj8vWObuzgyMXFDcxA=
+        b=wwkz1CEC/Px14bhgcqwddL0v7+j3KkdgmJ4G+RWfl9SHwYN0jrk9wvg+CpWCMfeuw
+         CVc7duF78omDp2zcFQahIp66lH72AVFbIh4RdlBaZdOghfAfyvOcUHfI4Hk+0OE1ek
+         l2aQqRCfKHyMVUkhkaeXIFuwwrUgMaueuvcjEyR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 6.1 019/183] s390/kexec: fix ipl report address for kdump
+        patches@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
+        Klaus Jensen <k.jensen@samsung.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 454/658] nvme-pci: fix doorbell buffer value endianness
 Date:   Mon, 16 Jan 2023 16:49:02 +0100
-Message-Id: <20230116154804.216791566@linuxfoundation.org>
+Message-Id: <20230116154930.260367978@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +53,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
+From: Klaus Jensen <k.jensen@samsung.com>
 
-commit c2337a40e04dde1692b5b0a46ecc59f89aaba8a1 upstream.
+[ Upstream commit b5f96cb719d8ba220b565ddd3ba4ac0d8bcfb130 ]
 
-This commit addresses the following erroneous situation with file-based
-kdump executed on a system with a valid IPL report.
+When using shadow doorbells, the event index and the doorbell values are
+written to host memory. Prior to this patch, the values written would
+erroneously be written in host endianness. This causes trouble on
+big-endian platforms. Fix this by adding missing endian conversions.
 
-On s390, a kdump kernel, its initrd and IPL report if present are loaded
-into a special and reserved on boot memory region - crashkernel. When
-a system crashes and kdump was activated before, the purgatory code
-is entered first which swaps the crashkernel and [0 - crashkernel size]
-memory regions. Only after that the kdump kernel is entered. For this
-reason, the pointer to an IPL report in lowcore must point to the IPL report
-after the swap and not to the address of the IPL report that was located in
-crashkernel memory region before the swap. Failing to do so, makes the
-kdump's decompressor try to read memory from the crashkernel memory region
-which already contains the production's kernel memory.
+This issue was noticed by Guenter while testing various big-endian
+platforms under QEMU[1]. A similar fix required for hw/nvme in QEMU is
+up for review as well[2].
 
-The situation described above caused spontaneous kdump failures/hangs
-on systems where the Secure IPL is activated because on such systems
-an IPL report is always present. In that case kdump's decompressor tried
-to parse an IPL report which frequently lead to illegal memory accesses
-because an IPL report contains addresses to various data.
+  [1]: https://lore.kernel.org/qemu-devel/20221209110022.GA3396194@roeck-us.net/
+  [2]: https://lore.kernel.org/qemu-devel/20221212114409.34972-4-its@irrelevant.dk/
 
-Cc: <stable@vger.kernel.org>
-Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to next kernel")
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f9f38e33389c ("nvme: improve performance for virtual NVMe devices")
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Klaus Jensen <k.jensen@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/machine_kexec_file.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -187,8 +187,6 @@ static int kexec_file_add_ipl_report(str
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 10fe7a7a2163..5d62d1042c0e 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -117,9 +117,9 @@ struct nvme_dev {
+ 	mempool_t *iod_mempool;
  
- 	data->memsz = ALIGN(data->memsz, PAGE_SIZE);
- 	buf.mem = data->memsz;
--	if (image->type == KEXEC_TYPE_CRASH)
--		buf.mem += crashk_res.start;
+ 	/* shadow doorbell buffer support: */
+-	u32 *dbbuf_dbs;
++	__le32 *dbbuf_dbs;
+ 	dma_addr_t dbbuf_dbs_dma_addr;
+-	u32 *dbbuf_eis;
++	__le32 *dbbuf_eis;
+ 	dma_addr_t dbbuf_eis_dma_addr;
  
- 	ptr = (void *)ipl_cert_list_addr;
- 	end = ptr + ipl_cert_list_size;
-@@ -225,6 +223,9 @@ static int kexec_file_add_ipl_report(str
- 		data->kernel_buf + offsetof(struct lowcore, ipl_parmblock_ptr);
- 	*lc_ipl_parmblock_ptr = (__u32)buf.mem;
+ 	/* host memory buffer support: */
+@@ -187,10 +187,10 @@ struct nvme_queue {
+ #define NVMEQ_SQ_CMB		1
+ #define NVMEQ_DELETE_ERROR	2
+ #define NVMEQ_POLLED		3
+-	u32 *dbbuf_sq_db;
+-	u32 *dbbuf_cq_db;
+-	u32 *dbbuf_sq_ei;
+-	u32 *dbbuf_cq_ei;
++	__le32 *dbbuf_sq_db;
++	__le32 *dbbuf_cq_db;
++	__le32 *dbbuf_sq_ei;
++	__le32 *dbbuf_cq_ei;
+ 	struct completion delete_done;
+ };
  
-+	if (image->type == KEXEC_TYPE_CRASH)
-+		buf.mem += crashk_res.start;
-+
- 	ret = kexec_add_buffer(&buf);
- out:
- 	return ret;
+@@ -311,11 +311,11 @@ static inline int nvme_dbbuf_need_event(u16 event_idx, u16 new_idx, u16 old)
+ }
+ 
+ /* Update dbbuf and return true if an MMIO is required */
+-static bool nvme_dbbuf_update_and_check_event(u16 value, u32 *dbbuf_db,
+-					      volatile u32 *dbbuf_ei)
++static bool nvme_dbbuf_update_and_check_event(u16 value, __le32 *dbbuf_db,
++					      volatile __le32 *dbbuf_ei)
+ {
+ 	if (dbbuf_db) {
+-		u16 old_value;
++		u16 old_value, event_idx;
+ 
+ 		/*
+ 		 * Ensure that the queue is written before updating
+@@ -323,8 +323,8 @@ static bool nvme_dbbuf_update_and_check_event(u16 value, u32 *dbbuf_db,
+ 		 */
+ 		wmb();
+ 
+-		old_value = *dbbuf_db;
+-		*dbbuf_db = value;
++		old_value = le32_to_cpu(*dbbuf_db);
++		*dbbuf_db = cpu_to_le32(value);
+ 
+ 		/*
+ 		 * Ensure that the doorbell is updated before reading the event
+@@ -334,7 +334,8 @@ static bool nvme_dbbuf_update_and_check_event(u16 value, u32 *dbbuf_db,
+ 		 */
+ 		mb();
+ 
+-		if (!nvme_dbbuf_need_event(*dbbuf_ei, value, old_value))
++		event_idx = le32_to_cpu(*dbbuf_ei);
++		if (!nvme_dbbuf_need_event(event_idx, value, old_value))
+ 			return false;
+ 	}
+ 
+-- 
+2.35.1
+
 
 
