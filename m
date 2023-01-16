@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7966266C54A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:04:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D90CD66C4EC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232097AbjAPQEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:04:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44330 "EHLO
+        id S231983AbjAPQAE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:00:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232120AbjAPQDr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:03:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A2E25E22
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:43 -0800 (PST)
+        with ESMTP id S231844AbjAPP7h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED07D2385F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57F3DB80E5A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAACBC433EF;
-        Mon, 16 Jan 2023 16:02:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A22C9B81062
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 057CBC433EF;
+        Mon, 16 Jan 2023 15:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884961;
-        bh=Kenpv//yVaC1hbbREjbg7AMEnjzXeo3nc95/vmj5snw=;
+        s=korg; t=1673884772;
+        bh=zcZbQURYp1IZ9FbIBuVxyn5sgoRJwWItAC98RqVTXAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0c8KF+OfBHgILipmEWrBj6MSQrfYXQl0ruEcOHeBIgrXofyWt8rcNGDTGEQWYPKZK
-         t1zYp5uBqaIlwZxRV+bZe17KsyTBgCuAKrkt6yRo6vX71DeOUxuukf1gkr7MLJCFdS
-         Fq77gFEQ7mxow4PeLAR0tEOdgbzijQpd3MP9cTfk=
+        b=fRXzEu2PMAURdJvB0Jz/+wL15G9E5LxLGCu+PGrshq3Mu0ygrOimPV/i/r+1fewim
+         BZCe62dqoAYD247F6JPTT7PRxtlNPK7gRWYZjZpALYANQocduBMHJMb5IwuSz2aWSY
+         g6G3gnkNiUX6YVvITN020DwtvUShRDwapUATMFxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.15 21/86] platform/surface: aggregator: Ignore command messages not intended for us
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Richard Gobert <richardbgobert@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 132/183] gro: avoid checking for a failed search
 Date:   Mon, 16 Jan 2023 16:50:55 +0100
-Message-Id: <20230116154747.988496322@linuxfoundation.org>
+Message-Id: <20230116154808.964447639@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,79 +54,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Richard Gobert <richardbgobert@gmail.com>
 
-commit ae0fa0a3126a86c801c3220fcd8eefe03aa39f3e upstream.
+[ Upstream commit e081ecf084d31809242fb0b9f35484d5fb3a161a ]
 
-It is possible that we (the host/kernel driver) receive command messages
-that are not intended for us. Ignore those for now.
+After searching for a protocol handler in dev_gro_receive, checking for
+failure is redundant. Skip the failure code after finding the
+corresponding handler.
 
-The whole story is a bit more complicated: It is possible to enable
-debug output on SAM, which is sent via SSH command messages. By default
-this output is sent to a debug connector, with its own target ID
-(TID=0x03). It is possible to override the target of the debug output
-and set it to the host/kernel driver. This, however, does not change the
-original target ID of the message. Meaning, we receive messages with
-TID=0x03 (debug) but expect to only receive messages with TID=0x00
-(host).
-
-The problem is that the different target ID also comes with a different
-scope of request IDs. In particular, these do not follow the standard
-event rules (i.e. do not fall into a set of small reserved values).
-Therefore, current message handling interprets them as responses to
-pending requests and tries to match them up via the request ID. However,
-these debug output messages are not in fact responses, and therefore
-this will at best fail to find the request and at worst pass on the
-wrong data as response for a request.
-
-Therefore ignore any command messages not intended for us (host) for
-now. We can implement support for the debug messages once we have a
-better understanding of them.
-
-Note that this may also provide a bit more stability and avoid some
-driver confusion in case any other targets want to talk to us in the
-future, since we don't yet know what to do with those as well. A warning
-for the dropped messages should suffice for now and also give us a
-chance of discovering new targets if they come along without any
-potential for bugs/instabilities.
-
-Fixes: c167b9c7e3d6 ("platform/surface: Add Surface Aggregator subsystem")
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Link: https://lore.kernel.org/r/20221202223327.690880-2-luzmaximilian@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Richard Gobert <richardbgobert@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20221108123320.GA59373@debian
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Stable-dep-of: 7871f54e3dee ("gro: take care of DODGY packets")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../surface/aggregator/ssh_request_layer.c         | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ net/core/gro.c | 70 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 35 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/platform/surface/aggregator/ssh_request_layer.c b/drivers/platform/surface/aggregator/ssh_request_layer.c
-index f5565570f16c..69132976d297 100644
---- a/drivers/platform/surface/aggregator/ssh_request_layer.c
-+++ b/drivers/platform/surface/aggregator/ssh_request_layer.c
-@@ -916,6 +916,20 @@ static void ssh_rtl_rx_command(struct ssh_ptl *p, const struct ssam_span *data)
- 	if (sshp_parse_command(dev, data, &command, &command_data))
- 		return;
+diff --git a/net/core/gro.c b/net/core/gro.c
+index bc9451743307..8e0fe85a647d 100644
+--- a/net/core/gro.c
++++ b/net/core/gro.c
+@@ -489,45 +489,45 @@ static enum gro_result dev_gro_receive(struct napi_struct *napi, struct sk_buff
  
-+	/*
-+	 * Check if the message was intended for us. If not, drop it.
-+	 *
-+	 * Note: We will need to change this to handle debug messages. On newer
-+	 * generation devices, these seem to be sent to tid_out=0x03. We as
-+	 * host can still receive them as they can be forwarded via an override
-+	 * option on SAM, but doing so does not change tid_out=0x00.
-+	 */
-+	if (command->tid_out != 0x00) {
-+		rtl_warn(rtl, "rtl: dropping message not intended for us (tid = %#04x)\n",
-+			 command->tid_out);
-+		return;
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(ptype, head, list) {
+-		if (ptype->type != type || !ptype->callbacks.gro_receive)
+-			continue;
+-
+-		skb_set_network_header(skb, skb_gro_offset(skb));
+-		skb_reset_mac_len(skb);
+-		BUILD_BUG_ON(sizeof_field(struct napi_gro_cb, zeroed) != sizeof(u32));
+-		BUILD_BUG_ON(!IS_ALIGNED(offsetof(struct napi_gro_cb, zeroed),
+-					 sizeof(u32))); /* Avoid slow unaligned acc */
+-		*(u32 *)&NAPI_GRO_CB(skb)->zeroed = 0;
+-		NAPI_GRO_CB(skb)->flush = skb_has_frag_list(skb);
+-		NAPI_GRO_CB(skb)->is_atomic = 1;
+-		NAPI_GRO_CB(skb)->count = 1;
+-		if (unlikely(skb_is_gso(skb))) {
+-			NAPI_GRO_CB(skb)->count = skb_shinfo(skb)->gso_segs;
+-			/* Only support TCP at the moment. */
+-			if (!skb_is_gso_tcp(skb))
+-				NAPI_GRO_CB(skb)->flush = 1;
+-		}
+-
+-		/* Setup for GRO checksum validation */
+-		switch (skb->ip_summed) {
+-		case CHECKSUM_COMPLETE:
+-			NAPI_GRO_CB(skb)->csum = skb->csum;
+-			NAPI_GRO_CB(skb)->csum_valid = 1;
+-			break;
+-		case CHECKSUM_UNNECESSARY:
+-			NAPI_GRO_CB(skb)->csum_cnt = skb->csum_level + 1;
+-			break;
+-		}
++		if (ptype->type == type && ptype->callbacks.gro_receive)
++			goto found_ptype;
 +	}
++	rcu_read_unlock();
++	goto normal;
 +
- 	if (ssh_rqid_is_event(get_unaligned_le16(&command->rqid)))
- 		ssh_rtl_rx_event(rtl, command, &command_data);
- 	else
++found_ptype:
++	skb_set_network_header(skb, skb_gro_offset(skb));
++	skb_reset_mac_len(skb);
++	BUILD_BUG_ON(sizeof_field(struct napi_gro_cb, zeroed) != sizeof(u32));
++	BUILD_BUG_ON(!IS_ALIGNED(offsetof(struct napi_gro_cb, zeroed),
++					sizeof(u32))); /* Avoid slow unaligned acc */
++	*(u32 *)&NAPI_GRO_CB(skb)->zeroed = 0;
++	NAPI_GRO_CB(skb)->flush = skb_has_frag_list(skb);
++	NAPI_GRO_CB(skb)->is_atomic = 1;
++	NAPI_GRO_CB(skb)->count = 1;
++	if (unlikely(skb_is_gso(skb))) {
++		NAPI_GRO_CB(skb)->count = skb_shinfo(skb)->gso_segs;
++		/* Only support TCP at the moment. */
++		if (!skb_is_gso_tcp(skb))
++			NAPI_GRO_CB(skb)->flush = 1;
++	}
+ 
+-		pp = INDIRECT_CALL_INET(ptype->callbacks.gro_receive,
+-					ipv6_gro_receive, inet_gro_receive,
+-					&gro_list->list, skb);
++	/* Setup for GRO checksum validation */
++	switch (skb->ip_summed) {
++	case CHECKSUM_COMPLETE:
++		NAPI_GRO_CB(skb)->csum = skb->csum;
++		NAPI_GRO_CB(skb)->csum_valid = 1;
++		break;
++	case CHECKSUM_UNNECESSARY:
++		NAPI_GRO_CB(skb)->csum_cnt = skb->csum_level + 1;
+ 		break;
+ 	}
+-	rcu_read_unlock();
+ 
+-	if (&ptype->list == head)
+-		goto normal;
++	pp = INDIRECT_CALL_INET(ptype->callbacks.gro_receive,
++				ipv6_gro_receive, inet_gro_receive,
++				&gro_list->list, skb);
++
++	rcu_read_unlock();
+ 
+ 	if (PTR_ERR(pp) == -EINPROGRESS) {
+ 		ret = GRO_CONSUMED;
 -- 
-2.39.0
+2.35.1
 
 
 
