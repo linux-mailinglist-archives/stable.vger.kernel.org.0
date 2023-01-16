@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB6366C9CD
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5997666C762
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:30:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234046AbjAPQ43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:56:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50766 "EHLO
+        id S233174AbjAPQaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:30:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233940AbjAPQ4M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A4A34550
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:11 -0800 (PST)
+        with ESMTP id S233257AbjAPQ3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57FD52F78D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B68F6B8107D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 185A0C433D2;
-        Mon, 16 Jan 2023 16:39:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3DDEB81063
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E473C433F0;
+        Mon, 16 Jan 2023 16:18:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887148;
-        bh=7cJ7N27bnqqPfBAXpBceW1w8azTVBVnOgWjAmX5Gp3c=;
+        s=korg; t=1673885895;
+        bh=0EZBU+jOBINJ0C8XPYvrDQPUPrSKxPhyN/rlJQXE8hI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1BQ7nlKELm4sgpxJatBZeUDNYhChvBvqB/NcALJ76pTwCRR/UdmmWl0o9YOaWaUg
-         wpdqET9vUDzXNAAxDDhEq1CQzW4sn5/DYoBemABsEfC4CFArmWyubVfGWGEvSe6196
-         c1yt65kDG0PZI993dViq46vtyFjYBDzVixFIsPtU=
+        b=q8MPkbZ45pMzioNCqLYsf3FE/EoLaniYa4Jz2lEp6rn6Cd9mRMRLM3PcMsS0sEYd3
+         +yVDoko3PogMQi8+JpmHCaTM1u3VRFNxEXfo5rkB2B7rLCsENhu6ErqhxDfq/C6475
+         YWCbkHifcPYsgtaiCVoQJHFo5iQodKa9GFXudfDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tony Jones <tonyj@suse.de>,
-        Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Seeteena Thoufeek <s1seetee@linux.vnet.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH 4.19 010/521] perf script python: Remove explicit shebang from tests/attr.c
-Date:   Mon, 16 Jan 2023 16:44:32 +0100
-Message-Id: <20230116154847.726450702@linuxfoundation.org>
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 185/658] xprtrdma: Fix regbuf data not freed in rpcrdma_req_create()
+Date:   Mon, 16 Jan 2023 16:44:33 +0100
+Message-Id: <20230116154917.918263147@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Jones <tonyj@suse.de>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit d72eadbc1d2866fc047edd4535ffb0298fe240be upstream.
+[ Upstream commit 9181f40fb2952fd59ecb75e7158620c9c669eee3 ]
 
-tests/attr.c invokes attr.py via an explicit invocation of Python
-($PYTHON) so there is therefore no need for an explicit shebang.
+If rdma receive buffer allocate failed, should call rpcrdma_regbuf_free()
+to free the send buffer, otherwise, the buffer data will be leaked.
 
-Also most distros follow pep-0394 which recommends that /usr/bin/python
-refer only to v2 and so may not exist on the system (if PYTHON=python3).
-
-Signed-off-by: Tony Jones <tonyj@suse.de>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Cc: Seeteena Thoufeek <s1seetee@linux.vnet.ibm.com>
-Link: http://lkml.kernel.org/r/20190124005229.16146-5-tonyj@suse.de
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bb93a1ae2bf4 ("xprtrdma: Allocate req's regbufs at xprt create time")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/attr.py |    1 -
- 1 file changed, 1 deletion(-)
+ net/sunrpc/xprtrdma/verbs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/perf/tests/attr.py
-+++ b/tools/perf/tests/attr.py
-@@ -1,4 +1,3 @@
--#! /usr/bin/python
- # SPDX-License-Identifier: GPL-2.0
- 
- import os
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index 0f4d39fdb48f..e13115bbe719 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -1037,6 +1037,7 @@ struct rpcrdma_req *rpcrdma_req_create(struct rpcrdma_xprt *r_xprt, size_t size,
+ 	kfree(req->rl_sendbuf);
+ out3:
+ 	kfree(req->rl_rdmabuf);
++	rpcrdma_regbuf_free(req->rl_sendbuf);
+ out2:
+ 	kfree(req);
+ out1:
+-- 
+2.35.1
+
 
 
