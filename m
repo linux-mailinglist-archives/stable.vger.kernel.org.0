@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10B6F66CDBF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA9766CC37
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:23:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234938AbjAPRja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:39:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56296 "EHLO
+        id S234373AbjAPRXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:23:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235134AbjAPRiu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:38:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 864A74E504
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:15:08 -0800 (PST)
+        with ESMTP id S234574AbjAPRWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:22:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E90E599A8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:00:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 269B361086
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:15:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C190C433D2;
-        Mon, 16 Jan 2023 17:15:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18FCEB8109B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:00:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C938C433EF;
+        Mon, 16 Jan 2023 17:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889307;
-        bh=0AEmCcCj/wd3F7GH03MOiuj0OGe1mXXO0IH08JuMGa0=;
+        s=korg; t=1673888439;
+        bh=mamFaROccbxzfggnQvtKuCa2of1T6DSmDeP2qJfKog4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9YMsFRKnuMzmTaDVrBkvK6l7Es1JW9ebmFG0QMZ9t+XVQNuzyEIsGRpLMQpAfcVo
-         DlIMtkjHGj9QqgjQyvoTAcgsEYXqsOhPs34JnHYI+r2UxZqO7scybuE/Ksm9KI3BMF
-         sQ0zqhUVGJl2Zqg0wBLixWEODeNq74O0uIwf9hIY=
+        b=xXvmuE0OS3S5kJoDqOzIBL4Vx39vK0oEhpMMU/HZH+cb4DxdyFgR6gYr6cs6GiPTi
+         XEnbVVtqP+Mzf51nET2YDKkKUDQD+avXvJ97kF37nFBM5XP9GhT2yFwyUnWpHQQNxd
+         Ghyqb1DMjpyxx2A2F+WiwAnYf2f2mgq3pRd1ubfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 310/338] nfc: Fix potential resource leaks
+        patches@lists.linux.dev, Thierry Reding <treding@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH 4.19 521/521] serial: tegra: Only print FIFO error message when an error occurs
 Date:   Mon, 16 Jan 2023 16:53:03 +0100
-Message-Id: <20230116154834.648606865@linuxfoundation.org>
+Message-Id: <20230116154910.496588142@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,127 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit df49908f3c52d211aea5e2a14a93bbe67a2cb3af ]
+commit cc9ca4d95846cbbece48d9cd385550f8fba6a3c1 upstream.
 
-nfc_get_device() take reference for the device, add missing
-nfc_put_device() to release it when not need anymore.
-Also fix the style warnning by use error EOPNOTSUPP instead of
-ENOTSUPP.
+The Tegra serial driver always prints an error message when enabling the
+FIFO for devices that have support for checking the FIFO enable status.
+Fix this by displaying the error message, only when an error occurs.
 
-Fixes: 5ce3f32b5264 ("NFC: netlink: SE API implementation")
-Fixes: 29e76924cf08 ("nfc: netlink: Add capability to reply to vendor_cmd with data")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Finally, update the error message to make it clear that enabling the
+FIFO failed and display the error code.
+
+Fixes: 222dcdff3405 ("serial: tegra: check for FIFO mode enabled status")
+Cc: <stable@vger.kernel.org>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Link: https://lore.kernel.org/r/20210630125643.264264-1-jonathanh@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/netlink.c | 52 ++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 38 insertions(+), 14 deletions(-)
+ drivers/tty/serial/serial-tegra.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index 0320ae7560ad..be06f4e37c43 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1506,6 +1506,7 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	u32 dev_idx, se_idx;
- 	u8 *apdu;
- 	size_t apdu_len;
-+	int rc;
+--- a/drivers/tty/serial/serial-tegra.c
++++ b/drivers/tty/serial/serial-tegra.c
+@@ -991,9 +991,11 @@ static int tegra_uart_hw_init(struct teg
  
- 	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
- 	    !info->attrs[NFC_ATTR_SE_INDEX] ||
-@@ -1519,25 +1520,37 @@ static int nfc_genl_se_io(struct sk_buff *skb, struct genl_info *info)
- 	if (!dev)
- 		return -ENODEV;
- 
--	if (!dev->ops || !dev->ops->se_io)
--		return -ENOTSUPP;
-+	if (!dev->ops || !dev->ops->se_io) {
-+		rc = -EOPNOTSUPP;
-+		goto put_dev;
-+	}
- 
- 	apdu_len = nla_len(info->attrs[NFC_ATTR_SE_APDU]);
--	if (apdu_len == 0)
--		return -EINVAL;
-+	if (apdu_len == 0) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
- 
- 	apdu = nla_data(info->attrs[NFC_ATTR_SE_APDU]);
--	if (!apdu)
--		return -EINVAL;
-+	if (!apdu) {
-+		rc = -EINVAL;
-+		goto put_dev;
-+	}
- 
- 	ctx = kzalloc(sizeof(struct se_io_ctx), GFP_KERNEL);
--	if (!ctx)
--		return -ENOMEM;
-+	if (!ctx) {
-+		rc = -ENOMEM;
-+		goto put_dev;
-+	}
- 
- 	ctx->dev_idx = dev_idx;
- 	ctx->se_idx = se_idx;
- 
--	return nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
-+	rc = nfc_se_io(dev, se_idx, apdu, apdu_len, se_io_cb, ctx);
-+
-+put_dev:
-+	nfc_put_device(dev);
-+	return rc;
- }
- 
- static int nfc_genl_vendor_cmd(struct sk_buff *skb,
-@@ -1560,14 +1573,21 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 	subcmd = nla_get_u32(info->attrs[NFC_ATTR_VENDOR_SUBCMD]);
- 
- 	dev = nfc_get_device(dev_idx);
--	if (!dev || !dev->vendor_cmds || !dev->n_vendor_cmds)
-+	if (!dev)
- 		return -ENODEV;
- 
-+	if (!dev->vendor_cmds || !dev->n_vendor_cmds) {
-+		err = -ENODEV;
-+		goto put_dev;
-+	}
-+
- 	if (info->attrs[NFC_ATTR_VENDOR_DATA]) {
- 		data = nla_data(info->attrs[NFC_ATTR_VENDOR_DATA]);
- 		data_len = nla_len(info->attrs[NFC_ATTR_VENDOR_DATA]);
--		if (data_len == 0)
--			return -EINVAL;
-+		if (data_len == 0) {
-+			err = -EINVAL;
-+			goto put_dev;
+ 	if (tup->cdata->fifo_mode_enable_status) {
+ 		ret = tegra_uart_wait_fifo_mode_enabled(tup);
+-		dev_err(tup->uport.dev, "FIFO mode not enabled\n");
+-		if (ret < 0)
++		if (ret < 0) {
++			dev_err(tup->uport.dev,
++				"Failed to enable FIFO mode: %d\n", ret);
+ 			return ret;
 +		}
  	} else {
- 		data = NULL;
- 		data_len = 0;
-@@ -1582,10 +1602,14 @@ static int nfc_genl_vendor_cmd(struct sk_buff *skb,
- 		dev->cur_cmd_info = info;
- 		err = cmd->doit(dev, data, data_len);
- 		dev->cur_cmd_info = NULL;
--		return err;
-+		goto put_dev;
- 	}
- 
--	return -EOPNOTSUPP;
-+	err = -EOPNOTSUPP;
-+
-+put_dev:
-+	nfc_put_device(dev);
-+	return err;
- }
- 
- /* message building helper */
--- 
-2.35.1
-
+ 		/*
+ 		 * For all tegra devices (up to t210), there is a hardware
 
 
