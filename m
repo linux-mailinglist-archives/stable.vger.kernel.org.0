@@ -2,137 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DAEE66C27A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:44:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B3866C286
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:44:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230213AbjAPOoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:44:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37486 "EHLO
+        id S231270AbjAPOox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:44:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231686AbjAPOna (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:43:30 -0500
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35FFD33474;
-        Mon, 16 Jan 2023 06:21:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673878875; x=1705414875;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=dbOG3OVPmBAW/TJMIKq2qc95eOxoJjSwY5eijzuDWJU=;
-  b=TNxvFfkdM3gkfWPmzUqOiBZFXcR2isgg5T629mIIbc18BZl+EUFyBm1D
-   Bm+nU1aE9GGcR6Z+iFM9CuGUm5SH8THsnTQ99QJYN3FdmdbX7TJKFPumY
-   5m8/Zyk18fZ0xm+olmUJUOzu/pNClEPtfiYTCdwsMTw4BYM8BKd3S+bwN
-   4bgSh+ns96lGWVsD7lKrjnjk1iIlnU5AqSb/j0zK9UUMBYjHtjv5D1hcr
-   Ir5EAmFIb84ueh0bQK6bNmGI7hwGS4quHx0OCHM6jxE2bxOiAFO/xfuqa
-   w4XHm6Tj7V9Yhw3nzRsWl1PVv9OshwFVkSdC3XzgwCgRqnrcczH55sZtK
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10592"; a="312322970"
-X-IronPort-AV: E=Sophos;i="5.97,221,1669104000"; 
-   d="scan'208";a="312322970"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jan 2023 06:21:14 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10592"; a="987817222"
-X-IronPort-AV: E=Sophos;i="5.97,221,1669104000"; 
-   d="scan'208";a="987817222"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
-  by fmsmga005.fm.intel.com with ESMTP; 16 Jan 2023 06:21:13 -0800
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 7/7] xhci: Detect lpm incapable xHC USB3 roothub ports from ACPI tables
-Date:   Mon, 16 Jan 2023 16:22:16 +0200
-Message-Id: <20230116142216.1141605-8-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230116142216.1141605-1-mathias.nyman@linux.intel.com>
-References: <20230116142216.1141605-1-mathias.nyman@linux.intel.com>
+        with ESMTP id S229491AbjAPOoS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:44:18 -0500
+Received: from mx3.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B571241D3;
+        Mon, 16 Jan 2023 06:23:50 -0800 (PST)
+Received: from [141.14.220.45] (g45.guest.molgen.mpg.de [141.14.220.45])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 1BBB561CC457B;
+        Mon, 16 Jan 2023 15:23:47 +0100 (CET)
+Message-ID: <693e9047-f52a-b426-616a-6157505e5165@molgen.mpg.de>
+Date:   Mon, 16 Jan 2023 15:23:46 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Content-Language: en-US
+To:     stable@vger.kernel.org
+Cc:     Greg KH <gregkh@linuxfoundation.org>, regressions@lists.linux.dev,
+        Christoph Hellwig <hch@lst.de>,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        Sathya Prakash <sathya.prakash@broadcom.com>,
+        Suganath Prabu Subramani 
+        <suganath-prabu.subramani@broadcom.com>,
+        MPT-FusionLinux.pdl@broadcom.com,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        John Pittman <jpittman@redhat.com>, linux-scsi@vger.kernel.org,
+        it+linux-scsi@molgen.mpg.de
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+Subject: [5.15] Backport commit 0c25422d34b4 (scsi: mpt3sas: Remove
+ scsi_dma_map() error messages)
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-USB3 ports on xHC hosts may have retimers that cause too long
-exit latency to work with native USB3 U1/U2 link power management states.
+Dear Linux folks,
 
-For now only use usb_acpi_port_lpm_incapable() to evaluate if port lpm
-should be disabled while setting up the USB3 roothub.
 
-Other ways to identify lpm incapable ports can be added here later if
-ACPI _DSM does not exist.
+Could you please apply commit 0c25422d34b4 (scsi: mpt3sas: Remove 
+scsi_dma_map() error messages) to the 5.15.y series?
 
-Limit this to Intel hosts for now, this is to my knowledge only
-an Intel issue.
+commit 0c25422d34b4726b2707d5f38560943155a91b80
+Author: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Date:   Thu Mar 3 19:32:03 2022 +0530
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
----
- drivers/usb/host/xhci-pci.c | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+     scsi: mpt3sas: Remove scsi_dma_map() error messages
 
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index b5016709b26f..fb988e4ea924 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -355,8 +355,38 @@ static void xhci_pme_acpi_rtd3_enable(struct pci_dev *dev)
- 				NULL);
- 	ACPI_FREE(obj);
- }
-+
-+static void xhci_find_lpm_incapable_ports(struct usb_hcd *hcd, struct usb_device *hdev)
-+{
-+	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
-+	struct xhci_hub *rhub = &xhci->usb3_rhub;
-+	int ret;
-+	int i;
-+
-+	/* This is not the usb3 roothub we are looking for */
-+	if (hcd != rhub->hcd)
-+		return;
-+
-+	if (hdev->maxchild > rhub->num_ports) {
-+		dev_err(&hdev->dev, "USB3 roothub port number mismatch\n");
-+		return;
-+	}
-+
-+	for (i = 0; i < hdev->maxchild; i++) {
-+		ret = usb_acpi_port_lpm_incapable(hdev, i);
-+
-+		dev_dbg(&hdev->dev, "port-%d disable U1/U2 _DSM: %d\n", i + 1, ret);
-+
-+		if (ret >= 0) {
-+			rhub->ports[i]->lpm_incapable = ret;
-+			continue;
-+		}
-+	}
-+}
-+
- #else
- static void xhci_pme_acpi_rtd3_enable(struct pci_dev *dev) { }
-+static void xhci_find_lpm_incapable_ports(struct usb_hcd *hcd, struct usb_device *hdev) { }
- #endif /* CONFIG_ACPI */
- 
- /* called during probe() after chip reset completes */
-@@ -392,6 +422,10 @@ static int xhci_pci_setup(struct usb_hcd *hcd)
- static int xhci_pci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
- 				      struct usb_tt *tt, gfp_t mem_flags)
- {
-+	/* Check if acpi claims some USB3 roothub ports are lpm incapable */
-+	if (!hdev->parent)
-+		xhci_find_lpm_incapable_ports(hcd, hdev);
-+
- 	return xhci_update_hub_device(hcd, hdev, tt, mem_flags);
- }
- 
--- 
-2.25.1
+     When scsi_dma_map() fails by returning a sges_left value less than 
+zero,
+     the amount of logging produced can be extremely high.  In a recent 
+end-user
+     environment, 1200 messages per second were being sent to the log 
+buffer.
+     This eventually overwhelmed the system and it stalled.
 
+     These error messages are not needed. Remove them.
+
+     Link: 
+https://lore.kernel.org/r/20220303140203.12642-1-sreekanth.reddy@broadcom.com
+     Suggested-by: Christoph Hellwig <hch@lst.de>
+     Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+     Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+
+We see this regression after upgrading from Linux 5.10 to 5.15 on our 
+file servers with Broadcom/LSI SAS3008 PCI-Express Fusion-MPT SAS-3 
+(mpt3sas) – though luckily our systems do not stall/crash.
+
+The commit message does not say anything about, what commit caused these 
+error to be appearing – the log statements have been there since 
+v4.20-rc1, if I am not mistaken, so it must be something else –, and 
+also do not mention, why these log messages are not needed, but the new 
+error condition is actually expected.
+
+In the Canonical/Ubuntu bug tracker I found the explanation below [2].
+
+> 2. mpt3sas: Remove scsi_dma_map errors messages:
+> When driver set the DMA mask to 32bit then we observe that the
+> SWIOTLB bounce buffers are getting exhausted quickly. For most of the
+> IOs driver observe that scsi_dma_map() API returned with failure
+> status and hence driver was printing below error message. Since this
+> error message is getting printed per IO and if user issues heavy IOs
+> then we observe that kernel overwhelmed with this error message. Also
+> we will observe the kernel panic when the serial console is enabled.
+> So to limit this issue, we removed this error message though this
+> patch.
+> "scsi_dma_map failed: request for 1310720 bytes!"
+
+The Launchpad issue was created in March 2022, and the fixed Linux 
+kernel package 5.15.0-53.59 for Ubuntu 22.04 released on November 15th, 
+2022.
+
+Sreekanth, looking again, you are the patch author, one of the Broadcom 
+maintainers (LSILOGIC MPT FUSION DRIVERS (FC/SAS/SPI)) and created the 
+Launchpad bug report. I am surprised you didn’t get it backported upstream.
+
+
+Kind regards,
+
+Paul
+
+
+[1]: 
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=master&id=0c25422d34b4726b2707d5f38560943155a91b80
+[2]: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1965927
+      "[Ubuntu 22.04] mpt3sas: Request to include latest bug fix patches"
