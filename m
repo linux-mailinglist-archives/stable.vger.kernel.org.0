@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C56DB66C9A8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:54:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0F2C66C71E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233851AbjAPQyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:54:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44268 "EHLO
+        id S233223AbjAPQ2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:28:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234001AbjAPQxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:53:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B584C6DF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:37:51 -0800 (PST)
+        with ESMTP id S233098AbjAPQ14 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E045F2DE77
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52B25B80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9455C433EF;
-        Mon, 16 Jan 2023 16:37:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F677B81063
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 970C1C433F0;
+        Mon, 16 Jan 2023 16:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887069;
-        bh=ceUhaMuaFt0AaD9At5cl0zzqnfnvIA5TB1n19OkATyQ=;
+        s=korg; t=1673885766;
+        bh=YgClZTfl4Wboi/WRdN7yb4EF+gyzh1/BJmTYcfn3xJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDFbQ0veAdMXgX8IrPqLn0dFFlEnQchbrc6jrkQMdpXh4qozZh49ZflSE6owHl7B7
-         vV/Ka5VPPac6f83Q88Sgesju+k+wfvxxTty4z6cFPTsbehfv9GMxVd20d+UIp6e7++
-         RQ8rAxQeUZk1DngxZg13sm/RC2RN7WCjzX8QnH/A=
+        b=kg0EXxgmcARmZau/h8Lo/dGV1pEe995df8M6gsUmz41QVFAsTjSNCcPliUCjx2B00
+         jNVFuTEjMVGMlr3XmajX3NMFQjEUh4sNWazkch6K15h0YknyIgFn408QnOivvavl0M
+         0+5Q2aRFu+a9w68mIhJP73SXRX+HZiGo5uQH3pAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 002/521] mm/khugepaged: invoke MMU notifiers in shmem/file collapse paths
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 176/658] wifi: cfg80211: Fix not unregister reg_pdev when load_builtin_regdb_keys() fails
 Date:   Mon, 16 Jan 2023 16:44:24 +0100
-Message-Id: <20230116154847.353372882@linuxfoundation.org>
+Message-Id: <20230116154917.513287341@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,67 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-commit f268f6cf875f3220afc77bdd0bf1bb136eb54db9 upstream.
+[ Upstream commit 833a9fd28c9b7ccb39a334721379e992dc1c0c89 ]
 
-Any codepath that zaps page table entries must invoke MMU notifiers to
-ensure that secondary MMUs (like KVM) don't keep accessing pages which
-aren't mapped anymore.  Secondary MMUs don't hold their own references to
-pages that are mirrored over, so failing to notify them can lead to page
-use-after-free.
+In regulatory_init_db(), when it's going to return a error, reg_pdev
+should be unregistered. When load_builtin_regdb_keys() fails it doesn't
+do it and makes cfg80211 can't be reload with report:
 
-I'm marking this as addressing an issue introduced in commit f3f0e1d2150b
-("khugepaged: add support of collapse for tmpfs/shmem pages"), but most of
-the security impact of this only came in commit 27e1f8273113 ("khugepaged:
-enable collapse pmd for pte-mapped THP"), which actually omitted flushes
-for the removal of present PTEs, not just for the removal of empty page
-tables.
+sysfs: cannot create duplicate filename '/devices/platform/regulatory.0'
+ ...
+ <TASK>
+ dump_stack_lvl+0x79/0x9b
+ sysfs_warn_dup.cold+0x1c/0x29
+ sysfs_create_dir_ns+0x22d/0x290
+ kobject_add_internal+0x247/0x800
+ kobject_add+0x135/0x1b0
+ device_add+0x389/0x1be0
+ platform_device_add+0x28f/0x790
+ platform_device_register_full+0x376/0x4b0
+ regulatory_init+0x9a/0x4b2 [cfg80211]
+ cfg80211_init+0x84/0x113 [cfg80211]
+ ...
 
-Link: https://lkml.kernel.org/r/20221129154730.2274278-3-jannh@google.com
-Link: https://lkml.kernel.org/r/20221128180252.1684965-3-jannh@google.com
-Link: https://lkml.kernel.org/r/20221125213714.4115729-3-jannh@google.com
-Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-[manual backport: this code was refactored from two copies into a common
-helper between 5.15 and 6.0;
-pmd collapse for PTE-mapped THP was only added in 5.4;
-MMU notifier API changed between 4.19 and 5.4]
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 90a53e4432b1 ("cfg80211: implement regdb signature checking")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221109090237.214127-1-chenzhongjin@huawei.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/khugepaged.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/wireless/reg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1303,13 +1303,20 @@ static void retract_page_tables(struct a
- 		 */
- 		if (down_write_trylock(&mm->mmap_sem)) {
- 			if (!khugepaged_test_exit(mm)) {
--				spinlock_t *ptl = pmd_lock(mm, pmd);
-+				spinlock_t *ptl;
-+				unsigned long end = addr + HPAGE_PMD_SIZE;
-+
-+				mmu_notifier_invalidate_range_start(mm, addr,
-+								    end);
-+				ptl = pmd_lock(mm, pmd);
- 				/* assume page table is clear */
- 				_pmd = pmdp_collapse_flush(vma, addr, pmd);
- 				spin_unlock(ptl);
- 				mm_dec_nr_ptes(mm);
- 				tlb_remove_table_sync_one();
- 				pte_free(mm, pmd_pgtable(_pmd));
-+				mmu_notifier_invalidate_range_end(mm, addr,
-+								  end);
- 			}
- 			up_write(&mm->mmap_sem);
- 		}
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index 4db397db2fb4..1f5ea82b58bf 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -3970,8 +3970,10 @@ static int __init regulatory_init_db(void)
+ 		return -EINVAL;
+ 
+ 	err = load_builtin_regdb_keys();
+-	if (err)
++	if (err) {
++		platform_device_unregister(reg_pdev);
+ 		return err;
++	}
+ 
+ 	/* We always try to get an update for the static regdomain */
+ 	err = regulatory_hint_core(cfg80211_world_regdom->alpha2);
+-- 
+2.35.1
+
 
 
