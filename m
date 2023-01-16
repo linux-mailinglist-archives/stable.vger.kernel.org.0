@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2539566CC78
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:26:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9471366CAFC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234671AbjAPR0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:26:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50096 "EHLO
+        id S234309AbjAPRJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234710AbjAPR0C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:26:02 -0500
+        with ESMTP id S234400AbjAPRJB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:09:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA12139BA5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:03:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD1A1DB8F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:49:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57E1461083
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:03:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71220C433D2;
-        Mon, 16 Jan 2023 17:03:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8975260F61
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:49:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98E8CC43398;
+        Mon, 16 Jan 2023 16:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888590;
-        bh=XZbEQknCyg1jcKzd9RfraxZOjt78kJ1E9oqPv1n3/h4=;
+        s=korg; t=1673887771;
+        bh=0FV5k2cpvXMi4lRQYWlIL9LtIQVRfisqPnRh9p7MKHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2OuWjlpAudSVWMMfsdSOvLAtLbh34YdTuwlRw+eaLM7bzqrU5wb346QINSlzkAgle
-         dUbbCE9rSOLk7zFDzf5kWwKX8b2f+E+yM7W756BeZl1skSz9d5C3XSYlJSXwYWy2sD
-         6UyU3nyq4nKv2zJkBgHH8OqJrZRWy+0xiCGvCKqo=
+        b=uwS55lkSj/FVt8sIK2821ezBOGwP07hINuUQiNLVHue3EiLb+ZYeTvJVQ0L9JG+wY
+         0ZdJj5SZdTc24u38h1MSVlknNXBNhkPfRk2CbcsHrkAuimWdQEbItsHpQDDEb/HDJK
+         FlZ6NRnBlDT1eJc/eCWToU4SmzPPc/TVsUp7tv1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        syzbot+dc3b1cf9111ab5fe98e7@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 064/338] hfs: Fix OOB Write in hfs_asc2mac
-Date:   Mon, 16 Jan 2023 16:48:57 +0100
-Message-Id: <20230116154823.622539680@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 276/521] iommu/amd: Fix pci device refcount leak in ppr_notifier()
+Date:   Mon, 16 Jan 2023 16:48:58 +0100
+Message-Id: <20230116154859.499332461@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit c53ed55cb275344086e32a7080a6b19cb183650b ]
+[ Upstream commit 6cf0981c2233f97d56938d9d61845383d6eb227c ]
 
-Syzbot reported a OOB Write bug:
+As comment of pci_get_domain_bus_and_slot() says, it returns
+a pci device with refcount increment, when finish using it,
+the caller must decrement the reference count by calling
+pci_dev_put(). So call it before returning from ppr_notifier()
+to avoid refcount leak.
 
-loop0: detected capacity change from 0 to 64
-==================================================================
-BUG: KASAN: slab-out-of-bounds in hfs_asc2mac+0x467/0x9a0
-fs/hfs/trans.c:133
-Write of size 1 at addr ffff88801848314e by task syz-executor391/3632
-
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- hfs_asc2mac+0x467/0x9a0 fs/hfs/trans.c:133
- hfs_cat_build_key+0x92/0x170 fs/hfs/catalog.c:28
- hfs_lookup+0x1ab/0x2c0 fs/hfs/dir.c:31
- lookup_open fs/namei.c:3391 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x10e6/0x2df0 fs/namei.c:3710
- do_filp_open+0x264/0x4f0 fs/namei.c:3740
-
-If in->len is much larger than HFS_NAMELEN(31) which is the maximum
-length of an HFS filename, a OOB write could occur in hfs_asc2mac(). In
-that case, when the dst reaches the boundary, the srclen is still
-greater than 0, which causes a OOB write.
-Fix this by adding a check on dstlen in while() before writing to dst
-address.
-
-Link: https://lkml.kernel.org/r/20221202030038.1391945-1-zhangpeng362@huawei.com
-Fixes: 328b92278650 ("[PATCH] hfs: NLS support")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Reported-by: <syzbot+dc3b1cf9111ab5fe98e7@syzkaller.appspotmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: daae2d25a477 ("iommu/amd: Don't copy GCR3 table root pointer")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221118093604.216371-1-yangyingliang@huawei.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/trans.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/amd_iommu_v2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/hfs/trans.c b/fs/hfs/trans.c
-index 39f5e343bf4d..fdb0edb8a607 100644
---- a/fs/hfs/trans.c
-+++ b/fs/hfs/trans.c
-@@ -109,7 +109,7 @@ void hfs_asc2mac(struct super_block *sb, struct hfs_name *out, const struct qstr
- 	if (nls_io) {
- 		wchar_t ch;
+diff --git a/drivers/iommu/amd_iommu_v2.c b/drivers/iommu/amd_iommu_v2.c
+index 7a59a8ebac10..387b72b7e7b3 100644
+--- a/drivers/iommu/amd_iommu_v2.c
++++ b/drivers/iommu/amd_iommu_v2.c
+@@ -626,6 +626,7 @@ static int ppr_notifier(struct notifier_block *nb, unsigned long e, void *data)
+ 	put_device_state(dev_state);
  
--		while (srclen > 0) {
-+		while (srclen > 0 && dstlen > 0) {
- 			size = nls_io->char2uni(src, srclen, &ch);
- 			if (size < 0) {
- 				ch = '?';
+ out:
++	pci_dev_put(pdev);
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
