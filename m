@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7334366CD27
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8633066CBA7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234933AbjAPReG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:34:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55678 "EHLO
+        id S230272AbjAPRPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234730AbjAPRdk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D5B3B641
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:46 -0800 (PST)
+        with ESMTP id S234467AbjAPRPR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C4DD2A98A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98DFF60F7C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB865C433EF;
-        Mon, 16 Jan 2023 17:09:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01AB961042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B44DC433F0;
+        Mon, 16 Jan 2023 16:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888985;
-        bh=lNexJotvUxQyAIKn9DYfX4roNZbST8vF+2nw6cUaxxE=;
+        s=korg; t=1673888168;
+        bh=MsT/chIFBEO21DWmyipZYl+zbSazjOpQTU+blLdbFfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uV/I3psNAph7MBpYA0RKC66L08gHYlCf7k1kCV+g6bCVlgXy4X/xEmi20dpUPY7Zx
-         aeRJ6tXJFr3nKZIiaoSSLv/HI9RTz3gZrrvG/GdlDHfvHg4xLcaw7uoerdH58s7UHF
-         c0rFGAcELD8Wo/9XGPuxd7EQZtpR+tq0JeUyeWoc=
+        b=M4fse+AARpXydovh0PwBUbuSiYgYwvjGriDE1tCOps7CBxx38XM9xpv3IF+0PGde4
+         k0igpsh2nfbQi5VusbhsBaaqnbcldAQhzNrGNlb76Po8AAhtWqBTRQNyADL/ivGXvo
+         tQYCOdtfSuaDn/UP8/yae/c39zrcZXSj7flxgn/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 184/338] fbdev: vermilion: decrease reference count in error path
-Date:   Mon, 16 Jan 2023 16:50:57 +0100
-Message-Id: <20230116154828.960925161@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Jiaming Li <lijiaming30@huawei.com>,
+        Huaxin Lu <luhuaxin1@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 4.19 396/521] ima: Fix a potential NULL pointer access in ima_restore_measurement_list
+Date:   Mon, 16 Jan 2023 16:50:58 +0100
+Message-Id: <20230116154904.798861134@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Huaxin Lu <luhuaxin1@huawei.com>
 
-[ Upstream commit 001f2cdb952a9566c77fb4b5470cc361db5601bb ]
+commit 11220db412edae8dba58853238f53258268bdb88 upstream.
 
-pci_get_device() will increase the reference count for the returned
-pci_dev. For the error path, we need to use pci_dev_put() to decrease
-the reference count.
+In restore_template_fmt, when kstrdup fails, a non-NULL value will still be
+returned, which causes a NULL pointer access in template_desc_init_fields.
 
-Fixes: dbe7e429fedb ("vmlfb: framebuffer driver for Intel Vermilion Range")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c7d09367702e ("ima: support restoring multiple template formats")
+Cc: stable@kernel.org
+Co-developed-by: Jiaming Li <lijiaming30@huawei.com>
+Signed-off-by: Jiaming Li <lijiaming30@huawei.com>
+Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/vermilion/vermilion.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ security/integrity/ima/ima_template.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/vermilion/vermilion.c b/drivers/video/fbdev/vermilion/vermilion.c
-index 6f8d444eb0e3..b732ea6d0be6 100644
---- a/drivers/video/fbdev/vermilion/vermilion.c
-+++ b/drivers/video/fbdev/vermilion/vermilion.c
-@@ -291,8 +291,10 @@ static int vmlfb_get_gpu(struct vml_par *par)
+--- a/security/integrity/ima/ima_template.c
++++ b/security/integrity/ima/ima_template.c
+@@ -266,8 +266,11 @@ static struct ima_template_desc *restore
  
- 	mutex_unlock(&vml_mutex);
- 
--	if (pci_enable_device(par->gpu) < 0)
-+	if (pci_enable_device(par->gpu) < 0) {
-+		pci_dev_put(par->gpu);
- 		return -ENODEV;
+ 	template_desc->name = "";
+ 	template_desc->fmt = kstrdup(template_name, GFP_KERNEL);
+-	if (!template_desc->fmt)
++	if (!template_desc->fmt) {
++		kfree(template_desc);
++		template_desc = NULL;
+ 		goto out;
 +	}
  
- 	return 0;
- }
--- 
-2.35.1
-
+ 	spin_lock(&template_list);
+ 	list_add_tail_rcu(&template_desc->list, &defined_templates);
 
 
