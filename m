@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22DB266CDBE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE76166CDC0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235077AbjAPRj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:39:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56272 "EHLO
+        id S234969AbjAPRjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:39:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235114AbjAPRig (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:38:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBE9F4C0CC
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:15:05 -0800 (PST)
+        with ESMTP id S234982AbjAPRjP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:39:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC80E4C0F4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:15:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DA4461092
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:15:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 975BEC433F2;
-        Mon, 16 Jan 2023 17:15:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C01CB81077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:15:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8F18C433EF;
+        Mon, 16 Jan 2023 17:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889304;
-        bh=hkKlaTDS5zVIsVqmtQpaCq3AfrmnK3DQiV/yatDEVSM=;
+        s=korg; t=1673889310;
+        bh=NG1V1OjiPa8ivM7ZmaAqN/9we+H8Ja4W5HsutwAI8BU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTcn9nGXKEbVaHNXdtsjcIaXId3/EXnvNUDYVI3zAMOi+95yJyObIWC/kmJ8I8Hnq
-         IVuqXynf8X9f9oouLNY/r/TKPtNMTPTW/VRxx2hMNFsE26XpAEOaXzac6IH05F+tzm
-         lI/7PrTM1Q58tEGlGmcGjJY9ctAzJ1MmiXagZeAE=
+        b=bfF35Yc/WTDqlWsf4ekXJfpBLTdr+oQf0HfuA3fzjqZWQfpas1TNjHQ4VLFjU4LS6
+         qyBM7iQz2sfZcMZr8xdmoldp949mDNNVE1DIYjfsEIDjfkENdzp0yIrXg4BdRxOa6+
+         lcI2RGvHDZBog+sob1SV5UMkl3QRZRxk6vOMRMhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
+        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 336/338] hvc/xen: lock console list traversal
-Date:   Mon, 16 Jan 2023 16:53:29 +0100
-Message-Id: <20230116154835.736162064@linuxfoundation.org>
+Subject: [PATCH 4.14 337/338] nfc: pn533: Wait for out_urbs completion in pn533_usb_send_frame()
+Date:   Mon, 16 Jan 2023 16:53:30 +0100
+Message-Id: <20230116154835.779539923@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -55,183 +53,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit c0dccad87cf68fc6012aec7567e354353097ec1a ]
+[ Upstream commit 9dab880d675b9d0dd56c6428e4e8352a3339371d ]
 
-The currently lockless access to the xen console list in
-vtermno_to_xencons() is incorrect, as additions and removals from the
-list can happen anytime, and as such the traversal of the list to get
-the private console data for a given termno needs to happen with the
-lock held.  Note users that modify the list already do so with the
-lock taken.
+Fix a use-after-free that occurs in hcd when in_urb sent from
+pn533_usb_send_frame() is completed earlier than out_urb. Its callback
+frees the skb data in pn533_send_async_complete() that is used as a
+transfer buffer of out_urb. Wait before sending in_urb until the
+callback of out_urb is called. To modify the callback of out_urb alone,
+separate the complete function of out_urb and ack_urb.
 
-Adjust current lock takers to use the _irq{save,restore} helpers,
-since the context in which vtermno_to_xencons() is called can have
-interrupts disabled.  Use the _irq{save,restore} set of helpers to
-switch the current callers to disable interrupts in the locked region.
-I haven't checked if existing users could instead use the _irq
-variant, as I think it's safer to use _irq{save,restore} upfront.
+Found by a modified version of syzkaller.
 
-While there switch from using list_for_each_entry_safe to
-list_for_each_entry: the current entry cursor won't be removed as
-part of the code in the loop body, so using the _safe variant is
-pointless.
+BUG: KASAN: use-after-free in dummy_timer
+Call Trace:
+ memcpy (mm/kasan/shadow.c:65)
+ dummy_perform_transfer (drivers/usb/gadget/udc/dummy_hcd.c:1352)
+ transfer (drivers/usb/gadget/udc/dummy_hcd.c:1453)
+ dummy_timer (drivers/usb/gadget/udc/dummy_hcd.c:1972)
+ arch_static_branch (arch/x86/include/asm/jump_label.h:27)
+ static_key_false (include/linux/jump_label.h:207)
+ timer_expire_exit (include/trace/events/timer.h:127)
+ call_timer_fn (kernel/time/timer.c:1475)
+ expire_timers (kernel/time/timer.c:1519)
+ __run_timers (kernel/time/timer.c:1790)
+ run_timer_softirq (kernel/time/timer.c:1803)
 
-Fixes: 02e19f9c7cac ('hvc_xen: implement multiconsole support')
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20221130163611.14686-1-roger.pau@citrix.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: c46ee38620a2 ("NFC: pn533: add NXP pn533 nfc device driver")
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvc_xen.c | 46 ++++++++++++++++++++++++---------------
- 1 file changed, 29 insertions(+), 17 deletions(-)
+ drivers/nfc/pn533/usb.c |   44 +++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 41 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvc_xen.c b/drivers/tty/hvc/hvc_xen.c
-index 2af089b2a343..625b5660b05f 100644
---- a/drivers/tty/hvc/hvc_xen.c
-+++ b/drivers/tty/hvc/hvc_xen.c
-@@ -65,17 +65,22 @@ static DEFINE_SPINLOCK(xencons_lock);
+--- a/drivers/nfc/pn533/usb.c
++++ b/drivers/nfc/pn533/usb.c
+@@ -165,10 +165,17 @@ static int pn533_usb_send_ack(struct pn5
+ 	return usb_submit_urb(phy->ack_urb, flags);
+ }
  
- static struct xencons_info *vtermno_to_xencons(int vtermno)
++struct pn533_out_arg {
++	struct pn533_usb_phy *phy;
++	struct completion done;
++};
++
+ static int pn533_usb_send_frame(struct pn533 *dev,
+ 				struct sk_buff *out)
  {
--	struct xencons_info *entry, *n, *ret = NULL;
-+	struct xencons_info *entry, *ret = NULL;
-+	unsigned long flags;
+ 	struct pn533_usb_phy *phy = dev->phy;
++	struct pn533_out_arg arg;
++	void *cntx;
+ 	int rc;
  
--	if (list_empty(&xenconsoles))
--			return NULL;
-+	spin_lock_irqsave(&xencons_lock, flags);
-+	if (list_empty(&xenconsoles)) {
-+		spin_unlock_irqrestore(&xencons_lock, flags);
-+		return NULL;
+ 	if (phy->priv == NULL)
+@@ -180,10 +187,17 @@ static int pn533_usb_send_frame(struct p
+ 	print_hex_dump_debug("PN533 TX: ", DUMP_PREFIX_NONE, 16, 1,
+ 			     out->data, out->len, false);
+ 
++	init_completion(&arg.done);
++	cntx = phy->out_urb->context;
++	phy->out_urb->context = &arg;
++
+ 	rc = usb_submit_urb(phy->out_urb, GFP_KERNEL);
+ 	if (rc)
+ 		return rc;
+ 
++	wait_for_completion(&arg.done);
++	phy->out_urb->context = cntx;
++
+ 	if (dev->protocol_type == PN533_PROTO_REQ_RESP) {
+ 		/* request for response for sent packet directly */
+ 		rc = pn533_submit_urb_for_response(phy, GFP_KERNEL);
+@@ -424,7 +438,31 @@ static int pn533_acr122_poweron_rdr(stru
+ 	return arg.rc;
+ }
+ 
+-static void pn533_send_complete(struct urb *urb)
++static void pn533_out_complete(struct urb *urb)
++{
++	struct pn533_out_arg *arg = urb->context;
++	struct pn533_usb_phy *phy = arg->phy;
++
++	switch (urb->status) {
++	case 0:
++		break; /* success */
++	case -ECONNRESET:
++	case -ENOENT:
++		dev_dbg(&phy->udev->dev,
++			"The urb has been stopped (status %d)\n",
++			urb->status);
++		break;
++	case -ESHUTDOWN:
++	default:
++		nfc_err(&phy->udev->dev,
++			"Urb failure (status %d)\n",
++			urb->status);
 +	}
- 
--	list_for_each_entry_safe(entry, n, &xenconsoles, list) {
-+	list_for_each_entry(entry, &xenconsoles, list) {
- 		if (entry->vtermno == vtermno) {
- 			ret  = entry;
- 			break;
- 		}
- 	}
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return ret;
- }
-@@ -236,7 +241,7 @@ static int xen_hvm_console_init(void)
- {
- 	int r;
- 	uint64_t v = 0;
--	unsigned long gfn;
-+	unsigned long gfn, flags;
- 	struct xencons_info *info;
- 
- 	if (!xen_hvm_domain())
-@@ -271,9 +276,9 @@ static int xen_hvm_console_init(void)
- 		goto err;
- 	info->vtermno = HVC_COOKIE;
- 
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_add_tail(&info->list, &xenconsoles);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- err:
-@@ -296,6 +301,7 @@ static int xencons_info_pv_init(struct xencons_info *info, int vtermno)
- static int xen_pv_console_init(void)
- {
- 	struct xencons_info *info;
-+	unsigned long flags;
- 
- 	if (!xen_pv_domain())
- 		return -ENODEV;
-@@ -312,9 +318,9 @@ static int xen_pv_console_init(void)
- 		/* already configured */
- 		return 0;
- 	}
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	xencons_info_pv_init(info, HVC_COOKIE);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- }
-@@ -322,6 +328,7 @@ static int xen_pv_console_init(void)
- static int xen_initial_domain_console_init(void)
- {
- 	struct xencons_info *info;
-+	unsigned long flags;
- 
- 	if (!xen_initial_domain())
- 		return -ENODEV;
-@@ -336,9 +343,9 @@ static int xen_initial_domain_console_init(void)
- 	info->irq = bind_virq_to_irq(VIRQ_CONSOLE, 0, false);
- 	info->vtermno = HVC_COOKIE;
- 
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_add_tail(&info->list, &xenconsoles);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- }
-@@ -393,10 +400,12 @@ static void xencons_free(struct xencons_info *info)
- 
- static int xen_console_remove(struct xencons_info *info)
- {
-+	unsigned long flags;
 +
- 	xencons_disconnect_backend(info);
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_del(&info->list);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 	if (info->xbdev != NULL)
- 		xencons_free(info);
- 	else {
-@@ -477,6 +486,7 @@ static int xencons_probe(struct xenbus_device *dev,
- {
- 	int ret, devid;
- 	struct xencons_info *info;
-+	unsigned long flags;
- 
- 	devid = dev->nodename[strlen(dev->nodename) - 1] - '0';
- 	if (devid == 0)
-@@ -495,9 +505,9 @@ static int xencons_probe(struct xenbus_device *dev,
- 	ret = xencons_connect_backend(dev, info);
- 	if (ret < 0)
- 		goto error;
--	spin_lock(&xencons_lock);
-+	spin_lock_irqsave(&xencons_lock, flags);
- 	list_add_tail(&info->list, &xenconsoles);
--	spin_unlock(&xencons_lock);
-+	spin_unlock_irqrestore(&xencons_lock, flags);
- 
- 	return 0;
- 
-@@ -596,10 +606,12 @@ static int __init xen_hvc_init(void)
- 
- 	info->hvc = hvc_alloc(HVC_COOKIE, info->irq, ops, 256);
- 	if (IS_ERR(info->hvc)) {
-+		unsigned long flags;
++	complete(&arg->done);
++}
 +
- 		r = PTR_ERR(info->hvc);
--		spin_lock(&xencons_lock);
-+		spin_lock_irqsave(&xencons_lock, flags);
- 		list_del(&info->list);
--		spin_unlock(&xencons_lock);
-+		spin_unlock_irqrestore(&xencons_lock, flags);
- 		if (info->irq)
- 			unbind_from_irqhandler(info->irq, NULL);
- 		kfree(info);
--- 
-2.35.1
-
++static void pn533_ack_complete(struct urb *urb)
+ {
+ 	struct pn533_usb_phy *phy = urb->context;
+ 
+@@ -512,10 +550,10 @@ static int pn533_usb_probe(struct usb_in
+ 
+ 	usb_fill_bulk_urb(phy->out_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_out_complete, phy);
+ 	usb_fill_bulk_urb(phy->ack_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_ack_complete, phy);
+ 
+ 	switch (id->driver_info) {
+ 	case PN533_DEVICE_STD:
 
 
