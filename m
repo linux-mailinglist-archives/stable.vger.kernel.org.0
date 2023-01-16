@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B50FA66C57C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF13E66C5A7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231975AbjAPQGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:06:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43890 "EHLO
+        id S231998AbjAPQIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:08:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231992AbjAPQGN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EA1E244A5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:04:33 -0800 (PST)
+        with ESMTP id S232025AbjAPQIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:08:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321FA44B9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 529C6B8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:04:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3269C433F0;
-        Mon, 16 Jan 2023 16:04:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C339961042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5865C433F2;
+        Mon, 16 Jan 2023 16:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885071;
-        bh=RBiS6fcv0YJXok61UF7LsTRXGo9xtxxD/KWz0I85TBw=;
+        s=korg; t=1673885155;
+        bh=ni5T7fZfYL2N8Hz9PTTrAC2eRAsAWVEB9Ghv0+wdLE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAhASoBrzEoy9nPvOv7wqzH1b5a2d/Ewox+3c9m80DAJ48hK/cLJ167MI91bIs2xF
-         vAGVCiv6CT70UfHZ2F4CZioHohCn+xfYWWMSG/ADKKyZZkuM0g867e2RIb0VG7Xwod
-         bGag/Qey/9QDl59TJTHD0cXo2YVWT0sZCBP5bHBw=
+        b=bPBH64R5msA9se0YZ/GesXGJ0JVPfqnq5meSEUFgozDtDiiJODRdf4Uplr3mGGShy
+         S5Ymsi7vghv/K4LNctwlWcgphuZfHm8L5Hvrlga+PwIZYUPR+PVaI7Zd3H+5Gu1Rmv
+         wNNRaZov0vypVnBgsuJdkUkXN+4KDopjprdyzPLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kyle Zeng <zengyhkyle@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 34/86] ipv6: raw: Deduct extension header length in rawv6_push_pending_frames
+        patches@lists.linux.dev, Davide Ornaghi <d.ornaghi97@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 01/64] netfilter: nft_payload: incorrect arithmetics when fetching VLAN header bits
 Date:   Mon, 16 Jan 2023 16:51:08 +0100
-Message-Id: <20230116154748.506557540@linuxfoundation.org>
+Message-Id: <20230116154743.642295197@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,42 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit cb3e9864cdbe35ff6378966660edbcbac955fe17 upstream.
+commit 696e1a48b1a1b01edad542a1ef293665864a4dd0 upstream.
 
-The total cork length created by ip6_append_data includes extension
-headers, so we must exclude them when comparing them against the
-IPV6_CHECKSUM offset which does not include extension headers.
+If the offset + length goes over the ethernet + vlan header, then the
+length is adjusted to copy the bytes that are within the boundaries of
+the vlan_ethhdr scratchpad area. The remaining bytes beyond ethernet +
+vlan header are copied directly from the skbuff data area.
 
-Reported-by: Kyle Zeng <zengyhkyle@gmail.com>
-Fixes: 357b40a18b04 ("[IPV6]: IPV6_CHECKSUM socket option can corrupt kernel memory")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix incorrect arithmetic operator: subtract, not add, the size of the
+vlan header in case of double-tagged packets to adjust the length
+accordingly to address CVE-2023-0179.
+
+Reported-by: Davide Ornaghi <d.ornaghi97@gmail.com>
+Fixes: f6ae9f120dad ("netfilter: nft_payload: add C-VLAN support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/raw.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/netfilter/nft_payload.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -539,6 +539,7 @@ csum_copy_err:
- static int rawv6_push_pending_frames(struct sock *sk, struct flowi6 *fl6,
- 				     struct raw6_sock *rp)
- {
-+	struct ipv6_txoptions *opt;
- 	struct sk_buff *skb;
- 	int err = 0;
- 	int offset;
-@@ -556,6 +557,9 @@ static int rawv6_push_pending_frames(str
+--- a/net/netfilter/nft_payload.c
++++ b/net/netfilter/nft_payload.c
+@@ -62,7 +62,7 @@ nft_payload_copy_vlan(u32 *d, const stru
+ 			return false;
  
- 	offset = rp->offset;
- 	total_len = inet_sk(sk)->cork.base.length;
-+	opt = inet6_sk(sk)->cork.opt;
-+	total_len -= opt ? opt->opt_flen : 0;
-+
- 	if (offset >= total_len - 1) {
- 		err = -EINVAL;
- 		ip6_flush_pending_frames(sk);
+ 		if (offset + len > VLAN_ETH_HLEN + vlan_hlen)
+-			ethlen -= offset + len - VLAN_ETH_HLEN + vlan_hlen;
++			ethlen -= offset + len - VLAN_ETH_HLEN - vlan_hlen;
+ 
+ 		memcpy(dst_u8, vlanh + offset - vlan_hlen, ethlen);
+ 
 
 
