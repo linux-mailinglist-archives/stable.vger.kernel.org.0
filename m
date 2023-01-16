@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D81166CBB1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92F8566CD31
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234104AbjAPRQO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:16:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41524 "EHLO
+        id S234817AbjAPRe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234433AbjAPRPb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5135A32E6C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:35 -0800 (PST)
+        with ESMTP id S234876AbjAPReL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C6A745237
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCA96B80E95
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2758AC433D2;
-        Mon, 16 Jan 2023 16:56:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 850ED6108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91547C433D2;
+        Mon, 16 Jan 2023 17:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888192;
-        bh=mQDpWG2/zKLiIt2rCZhhmOBtAz5WWHJLuf9+NMfhhKo=;
+        s=korg; t=1673889013;
+        bh=aTjcHvXyQs/tqs+Mrj/cng7jBZ/gFHXuLjqMVQaO7+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJ5RtW9wsOVB8Efe90ATJfXQrvc9z7Xt1WbUueEJ0EfnvVTtigMlywzFJ3mTSuHEH
-         CupZfQjfd44indrfiN0PKCHN4Gmwm30xUfgkuKKPzt9bSjFMtD5/3YxlI5IBeSnicI
-         rexwu1AV5W7UGd4qxZ40/iQTmckgPBcz4/CfeWZI=
+        b=viY6GV3ZmG6BO5+DlHKQWJeXK5rW3YXbwWuybhjDdK0bnMbwiAyJtTh1kx6cGGdKx
+         CVWgzYW1/DEd2nNa+e6QuT1B7qvkDxUWZeG5r2M7vy1crA1axNVeT0O/tdp8TISFH5
+         uQ3MtPTZLAH+lzcBAmwolZkQYZ3kFc1REBGlUl/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 436/521] mbcache: add functions to delete entry if unused
-Date:   Mon, 16 Jan 2023 16:51:38 +0100
-Message-Id: <20230116154906.652764799@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
+        Corey Minyard <cminyard@mvista.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 226/338] ipmi: fix memleak when unload ipmi driver
+Date:   Mon, 16 Jan 2023 16:51:39 +0100
+Message-Id: <20230116154830.888780000@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,154 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
 
-[ Upstream commit 3dc96bba65f53daa217f0a8f43edad145286a8f5 ]
+[ Upstream commit 36992eb6b9b83f7f9cdc8e74fb5799d7b52e83e9 ]
 
-Add function mb_cache_entry_delete_or_get() to delete mbcache entry if
-it is unused and also add a function to wait for entry to become unused
-- mb_cache_entry_wait_unused(). We do not share code between the two
-deleting function as one of them will go away soon.
+After the IPMI disconnect problem, the memory kept rising and we tried
+to unload the driver to free the memory. However, only part of the
+free memory is recovered after the driver is uninstalled. Using
+ebpf to hook free functions, we find that neither ipmi_user nor
+ipmi_smi_msg is free, only ipmi_recv_msg is free.
 
-CC: stable@vger.kernel.org
-Fixes: 82939d7999df ("ext4: convert to mbcache2")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220712105436.32204-2-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Stable-dep-of: a44e84a9b776 ("ext4: fix deadlock due to mbcache entry corruption")
+We find that the deliver_smi_err_response call in clean_smi_msgs does
+the destroy processing on each message from the xmit_msg queue without
+checking the return value and free ipmi_smi_msg.
+
+deliver_smi_err_response is called only at this location. Adding the
+free handling has no effect.
+
+To verify, try using ebpf to trace the free function.
+
+  $ bpftrace -e 'kretprobe:ipmi_alloc_recv_msg {printf("alloc rcv
+      %p\n",retval);} kprobe:free_recv_msg {printf("free recv %p\n",
+      arg0)} kretprobe:ipmi_alloc_smi_msg {printf("alloc smi %p\n",
+        retval);} kprobe:free_smi_msg {printf("free smi  %p\n",arg0)}'
+
+Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+Message-Id: <20221007092617.87597-4-zhangyuchen.lcr@bytedance.com>
+[Fixed the comment above handle_one_recv_msg().]
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/mbcache.c            | 66 +++++++++++++++++++++++++++++++++++++++--
- include/linux/mbcache.h | 10 ++++++-
- 2 files changed, 73 insertions(+), 3 deletions(-)
+ drivers/char/ipmi/ipmi_msghandler.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/mbcache.c b/fs/mbcache.c
-index 12203e5a91e7..c76030e20d92 100644
---- a/fs/mbcache.c
-+++ b/fs/mbcache.c
-@@ -10,7 +10,7 @@
- /*
-  * Mbcache is a simple key-value store. Keys need not be unique, however
-  * key-value pairs are expected to be unique (we use this fact in
-- * mb_cache_entry_delete()).
-+ * mb_cache_entry_delete_or_get()).
-  *
-  * Ext2 and ext4 use this cache for deduplication of extended attribute blocks.
-  * Ext4 also uses it for deduplication of xattr values stored in inodes.
-@@ -124,6 +124,19 @@ void __mb_cache_entry_free(struct mb_cache_entry *entry)
- }
- EXPORT_SYMBOL(__mb_cache_entry_free);
- 
-+/*
-+ * mb_cache_entry_wait_unused - wait to be the last user of the entry
-+ *
-+ * @entry - entry to work on
-+ *
-+ * Wait to be the last user of the entry.
-+ */
-+void mb_cache_entry_wait_unused(struct mb_cache_entry *entry)
-+{
-+	wait_var_event(&entry->e_refcnt, atomic_read(&entry->e_refcnt) <= 3);
-+}
-+EXPORT_SYMBOL(mb_cache_entry_wait_unused);
-+
- static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
- 					   struct mb_cache_entry *entry,
- 					   u32 key)
-@@ -216,7 +229,7 @@ struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
- }
- EXPORT_SYMBOL(mb_cache_entry_get);
- 
--/* mb_cache_entry_delete - remove a cache entry
-+/* mb_cache_entry_delete - try to remove a cache entry
-  * @cache - cache we work with
-  * @key - key
-  * @value - value
-@@ -253,6 +266,55 @@ void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value)
- }
- EXPORT_SYMBOL(mb_cache_entry_delete);
- 
-+/* mb_cache_entry_delete_or_get - remove a cache entry if it has no users
-+ * @cache - cache we work with
-+ * @key - key
-+ * @value - value
-+ *
-+ * Remove entry from cache @cache with key @key and value @value. The removal
-+ * happens only if the entry is unused. The function returns NULL in case the
-+ * entry was successfully removed or there's no entry in cache. Otherwise the
-+ * function grabs reference of the entry that we failed to delete because it
-+ * still has users and return it.
-+ */
-+struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
-+						    u32 key, u64 value)
-+{
-+	struct hlist_bl_node *node;
-+	struct hlist_bl_head *head;
-+	struct mb_cache_entry *entry;
-+
-+	head = mb_cache_entry_head(cache, key);
-+	hlist_bl_lock(head);
-+	hlist_bl_for_each_entry(entry, node, head, e_hash_list) {
-+		if (entry->e_key == key && entry->e_value == value) {
-+			if (atomic_read(&entry->e_refcnt) > 2) {
-+				atomic_inc(&entry->e_refcnt);
-+				hlist_bl_unlock(head);
-+				return entry;
-+			}
-+			/* We keep hash list reference to keep entry alive */
-+			hlist_bl_del_init(&entry->e_hash_list);
-+			hlist_bl_unlock(head);
-+			spin_lock(&cache->c_list_lock);
-+			if (!list_empty(&entry->e_list)) {
-+				list_del_init(&entry->e_list);
-+				if (!WARN_ONCE(cache->c_entry_count == 0,
-+		"mbcache: attempt to decrement c_entry_count past zero"))
-+					cache->c_entry_count--;
-+				atomic_dec(&entry->e_refcnt);
-+			}
-+			spin_unlock(&cache->c_list_lock);
-+			mb_cache_entry_put(cache, entry);
-+			return NULL;
-+		}
-+	}
-+	hlist_bl_unlock(head);
-+
-+	return NULL;
-+}
-+EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
-+
- /* mb_cache_entry_touch - cache entry got used
-  * @cache - cache the entry belongs to
-  * @entry - entry that got used
-diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
-index 20f1e3ff6013..8eca7f25c432 100644
---- a/include/linux/mbcache.h
-+++ b/include/linux/mbcache.h
-@@ -30,15 +30,23 @@ void mb_cache_destroy(struct mb_cache *cache);
- int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
- 			  u64 value, bool reusable);
- void __mb_cache_entry_free(struct mb_cache_entry *entry);
-+void mb_cache_entry_wait_unused(struct mb_cache_entry *entry);
- static inline int mb_cache_entry_put(struct mb_cache *cache,
- 				     struct mb_cache_entry *entry)
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index f72a272eeb9b..de03c5c07896 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -2931,12 +2931,16 @@ static void deliver_smi_err_response(ipmi_smi_t intf,
+ 				     struct ipmi_smi_msg *msg,
+ 				     unsigned char err)
  {
--	if (!atomic_dec_and_test(&entry->e_refcnt))
-+	unsigned int cnt = atomic_dec_return(&entry->e_refcnt);
++	int rv;
+ 	msg->rsp[0] = msg->data[0] | 4;
+ 	msg->rsp[1] = msg->data[1];
+ 	msg->rsp[2] = err;
+ 	msg->rsp_size = 3;
+-	/* It's an error, so it will never requeue, no need to check return. */
+-	handle_one_recv_msg(intf, msg);
 +
-+	if (cnt > 0) {
-+		if (cnt <= 3)
-+			wake_up_var(&entry->e_refcnt);
- 		return 0;
-+	}
- 	__mb_cache_entry_free(entry);
- 	return 1;
++	/* This will never requeue, but it may ask us to free the message. */
++	rv = handle_one_recv_msg(intf, msg);
++	if (rv == 0)
++		ipmi_free_smi_msg(msg);
  }
  
-+struct mb_cache_entry *mb_cache_entry_delete_or_get(struct mb_cache *cache,
-+						    u32 key, u64 value);
- void mb_cache_entry_delete(struct mb_cache *cache, u32 key, u64 value);
- struct mb_cache_entry *mb_cache_entry_get(struct mb_cache *cache, u32 key,
- 					  u64 value);
+ static void cleanup_smi_msgs(ipmi_smi_t intf)
 -- 
 2.35.1
 
