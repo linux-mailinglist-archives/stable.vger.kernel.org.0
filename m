@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5151E66CCC6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E542F66CB4B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234694AbjAPR31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:29:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52216 "EHLO
+        id S234380AbjAPRMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:12:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234613AbjAPR2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:45 -0500
+        with ESMTP id S233691AbjAPRMF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:12:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 855E9301B2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:06:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4EF249943
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:52:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E73961058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26BD2C433F0;
-        Mon, 16 Jan 2023 17:06:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 245BA61086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:52:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D2AC433F0;
+        Mon, 16 Jan 2023 16:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888765;
-        bh=up8QLzduKkxwDef/hnCFXqkWnl5SbYRMBEud3DDGgOk=;
+        s=korg; t=1673887942;
+        bh=3ptt4x1QO6Oa6YakayJezGEpSKUVTYNbXUAgLDfh708=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F/T6sAPOmTgp8O5N94erEq/fBYbTFVmi3haYwnIsguy1NJP591vrr8z3nTO/i9KXo
-         wd3LjR0jVYWg8SrOjwpRdNm87j4uLFtTgV+Ls2jvhdJUPqrIEXhSVWwDLavPlwAtyk
-         oD9f1/Dd+FiWmVxjkuGG4jmxw8kh+YGdzAvTjRNs=
+        b=fJ3Grtzk8vCVnEIi8KMRZ2mzGOsvhMmJvcgKjrOY60eqEI+HbrT4JVky95TzyZKvL
+         Wqc1az3+Q4k9c69A9VmXWU+PdlbUul30NeaUZnL9QBQHtqEbpZZ/GjQRMjaS+qMHwQ
+         wlIxMYrbCl0Le2J2o22bzRRByewudIpb4sXTKBg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 130/338] net: amd: lance: dont call dev_kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 4.19 341/521] mmc: f-sdh30: Add quirks for broken timeout clock capability
 Date:   Mon, 16 Jan 2023 16:50:03 +0100
-Message-Id: <20230116154826.496880655@linuxfoundation.org>
+Message-Id: <20230116154902.431188638@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 6151d105dfce8c23edf30eed35e97f3d9b96a35c ]
+[ Upstream commit aae9d3a440736691b3c1cb09ae2c32c4f1ee2e67 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+There is a case where the timeout clock is not supplied to the capability.
+Add a quirk for that.
 
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
-
-In these two cases, dev_kfree_skb() is called consume the xmited SKB,
-so replace it with dev_consume_skb_irq().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Acked-by: Jassi Brar <jaswinder.singh@linaro.org>
+Link: https://lore.kernel.org/r/20221111081033.3813-7-hayashi.kunihiko@socionext.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/atarilance.c | 2 +-
- drivers/net/ethernet/amd/lance.c      | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci_f_sdh30.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/amd/atarilance.c b/drivers/net/ethernet/amd/atarilance.c
-index d3d44e07afbc..414b990827e8 100644
---- a/drivers/net/ethernet/amd/atarilance.c
-+++ b/drivers/net/ethernet/amd/atarilance.c
-@@ -825,7 +825,7 @@ lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	lp->memcpy_f( PKTBUF_ADDR(head), (void *)skb->data, skb->len );
- 	head->flag = TMD1_OWN_CHIP | TMD1_ENP | TMD1_STP;
- 	dev->stats.tx_bytes += skb->len;
--	dev_kfree_skb( skb );
-+	dev_consume_skb_irq(skb);
- 	lp->cur_tx++;
- 	while( lp->cur_tx >= TX_RING_SIZE && lp->dirty_tx >= TX_RING_SIZE ) {
- 		lp->cur_tx -= TX_RING_SIZE;
-diff --git a/drivers/net/ethernet/amd/lance.c b/drivers/net/ethernet/amd/lance.c
-index 12a6a93d221b..45c15c6ffc1b 100644
---- a/drivers/net/ethernet/amd/lance.c
-+++ b/drivers/net/ethernet/amd/lance.c
-@@ -997,7 +997,7 @@ static netdev_tx_t lance_start_xmit(struct sk_buff *skb,
- 		skb_copy_from_linear_data(skb, &lp->tx_bounce_buffs[entry], skb->len);
- 		lp->tx_ring[entry].base =
- 			((u32)isa_virt_to_bus((lp->tx_bounce_buffs + entry)) & 0xffffff) | 0x83000000;
--		dev_kfree_skb(skb);
-+		dev_consume_skb_irq(skb);
- 	} else {
- 		lp->tx_skbuff[entry] = skb;
- 		lp->tx_ring[entry].base = ((u32)isa_virt_to_bus(skb->data) & 0xffffff) | 0x83000000;
+diff --git a/drivers/mmc/host/sdhci_f_sdh30.c b/drivers/mmc/host/sdhci_f_sdh30.c
+index 485f7591fae4..ca9e05440da1 100644
+--- a/drivers/mmc/host/sdhci_f_sdh30.c
++++ b/drivers/mmc/host/sdhci_f_sdh30.c
+@@ -199,6 +199,9 @@ static int sdhci_f_sdh30_probe(struct platform_device *pdev)
+ 	if (reg & SDHCI_CAN_DO_8BIT)
+ 		priv->vendor_hs200 = F_SDH30_EMMC_HS200;
+ 
++	if (!(reg & SDHCI_TIMEOUT_CLK_MASK))
++		host->quirks |= SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK;
++
+ 	ret = sdhci_add_host(host);
+ 	if (ret)
+ 		goto err_add_host;
 -- 
 2.35.1
 
