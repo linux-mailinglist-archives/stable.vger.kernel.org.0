@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0478966C18B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2F7D66C194
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232388AbjAPOMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:12:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56416 "EHLO
+        id S232224AbjAPOND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:13:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232280AbjAPOLt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:11:49 -0500
+        with ESMTP id S232334AbjAPOMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:12:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14C1D21A10;
-        Mon, 16 Jan 2023 06:04:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55CB72BF24;
+        Mon, 16 Jan 2023 06:04:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6799B80F91;
-        Mon, 16 Jan 2023 14:04:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85A25C433D2;
-        Mon, 16 Jan 2023 14:04:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCA23B80E93;
+        Mon, 16 Jan 2023 14:04:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7140AC433F2;
+        Mon, 16 Jan 2023 14:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877879;
-        bh=qEeeNhqywjQZyLbtQAV7sC+j639HI+TioMbDyrRQs0E=;
+        s=k20201202; t=1673877882;
+        bh=wGOzJL29GJYJd5eJYqgiIGm2R4h4WfIptHWTivlXHO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJ7qfY6m57MKYyr2myahYlgGqgE09O5f/3Ge2ICz681aujOgUtKp/mMXsrKBZUVsd
-         20QCOujeb3G9gTB031RXakiypD4VNn1z5hoVIjsn+I3WbpWOU8dBbxefgYMU4IDJ6s
-         TQ1TuH6mQAvjMt3MVjcHlIayMFgM1qJhKKpzWaUdOeiVB6KqXGvb0A4pYeT4OFXsYp
-         2gkoNgZKZS1io6kpRgdy6qsExBooyp8cUKFzf/hjXEjg4J6rKU9hIgP/EMTMnmtutP
-         2yCWoFDMZ+OHpeQYVS9giX8iim/5GTvLWg7UrKjCyCYVsOxCqC6zyelBoUGmKpITLx
-         PFDp1ypf59Uqw==
+        b=ozj1DVL3CSLGP5h6fl/oJCHZSax48dhCkeGxs0iEZLbSIMbg1bGy+9vhQLreyiyCy
+         BE3lAxJ1JsLFO6X8NKlTuVza5i2FYs6dzITlFLD2E54kK4vSkQYcmWKMu9U91Hd9RR
+         nBHUT4ebgS8YevKimAxvkj857p87zeeURl7Ijnk1eGhKCpEWbEvA6YW9c8qKFX3h6g
+         Jdkib5xpUohsUXqY/u6dHOF2t+rYpDU1UD8kLB0MWrNREAxVCrmUqvYVUMwFw1Vf6e
+         9IJBqldf2rTJjX89Z/sG8548aE/jRNHAclyKXvRU4bVbrQsPSnBB8nTSp+nUCByjPR
+         6jYoDoJxgH1Vg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Nemcev Aleksey <Nemcev_Aleksey@inbox.ru>,
-        Sasha Levin <sashal@kernel.org>, corentin.chary@gmail.com,
-        markgross@kernel.org, acpi4asus-user@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 22/24] platform/x86: asus-nb-wmi: Add alternate mapping for KEY_SCREENLOCK
-Date:   Mon, 16 Jan 2023 09:03:57 -0500
-Message-Id: <20230116140359.115716-22-sashal@kernel.org>
+Cc:     Mateusz Guzik <mjguzik@gmail.com>, Tony Luck <tony.luck@intel.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, ubizjak@gmail.com
+Subject: [PATCH AUTOSEL 5.15 23/24] lockref: stop doing cpu_relax in the cmpxchg loop
+Date:   Mon, 16 Jan 2023 09:03:58 -0500
+Message-Id: <20230116140359.115716-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140359.115716-1-sashal@kernel.org>
 References: <20230116140359.115716-1-sashal@kernel.org>
@@ -57,32 +58,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Mateusz Guzik <mjguzik@gmail.com>
 
-[ Upstream commit db9494895b405bf318dc7e563dee6daa51b3b6ed ]
+[ Upstream commit f5fe24ef17b5fbe6db49534163e77499fb10ae8c ]
 
-The 0x33 keycode is emitted by Fn + F6 on a ASUS FX705GE laptop.
+On the x86-64 architecture even a failing cmpxchg grants exclusive
+access to the cacheline, making it preferable to retry the failed op
+immediately instead of stalling with the pause instruction.
 
-Reported-by: Nemcev Aleksey <Nemcev_Aleksey@inbox.ru>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230112181841.84652-1-hdegoede@redhat.com
+To illustrate the impact, below are benchmark results obtained by
+running various will-it-scale tests on top of the 6.2-rc3 kernel and
+Cascade Lake (2 sockets * 24 cores * 2 threads) CPU.
+
+All results in ops/s.  Note there is some variance in re-runs, but the
+code is consistently faster when contention is present.
+
+  open3 ("Same file open/close"):
+  proc          stock       no-pause
+     1         805603         814942       (+%1)
+     2        1054980        1054781       (-0%)
+     8        1544802        1822858      (+18%)
+    24        1191064        2199665      (+84%)
+    48         851582        1469860      (+72%)
+    96         609481        1427170     (+134%)
+
+  fstat2 ("Same file fstat"):
+  proc          stock       no-pause
+     1        3013872        3047636       (+1%)
+     2        4284687        4400421       (+2%)
+     8        3257721        5530156      (+69%)
+    24        2239819        5466127     (+144%)
+    48        1701072        5256609     (+209%)
+    96        1269157        6649326     (+423%)
+
+Additionally, a kernel with a private patch to help access() scalability:
+access2 ("Same file access"):
+
+  proc          stock        patched      patched
+                                         +nopause
+    24        2378041        2005501      5370335  (-15% / +125%)
+
+That is, fixing the problems in access itself *reduces* scalability
+after the cacheline ping-pong only happens in lockref with the pause
+instruction.
+
+Note that fstat and access benchmarks are not currently integrated into
+will-it-scale, but interested parties can find them in pull requests to
+said project.
+
+Code at hand has a rather tortured history.  First modification showed
+up in commit d472d9d98b46 ("lockref: Relax in cmpxchg loop"), written
+with Itanium in mind.  Later it got patched up to use an arch-dependent
+macro to stop doing it on s390 where it caused a significant regression.
+Said macro had undergone revisions and was ultimately eliminated later,
+going back to cpu_relax.
+
+While I intended to only remove cpu_relax for x86-64, I got the
+following comment from Linus:
+
+    I would actually prefer just removing it entirely and see if
+    somebody else hollers. You have the numbers to prove it hurts on
+    real hardware, and I don't think we have any numbers to the
+    contrary.
+
+    So I think it's better to trust the numbers and remove it as a
+    failure, than say "let's just remove it on x86-64 and leave
+    everybody else with the potentially broken code"
+
+Additionally, Will Deacon (maintainer of the arm64 port, one of the
+architectures previously benchmarked):
+
+    So, from the arm64 side of the fence, I'm perfectly happy just
+    removing the cpu_relax() calls from lockref.
+
+As such, come back full circle in history and whack it altogether.
+
+Signed-off-by: Mateusz Guzik <mjguzik@gmail.com>
+Link: https://lore.kernel.org/all/CAGudoHHx0Nqg6DE70zAVA75eV-HXfWyhVMWZ-aSeOofkA_=WdA@mail.gmail.com/
+Acked-by: Tony Luck <tony.luck@intel.com> # ia64
+Acked-by: Nicholas Piggin <npiggin@gmail.com> # powerpc
+Acked-by: Will Deacon <will@kernel.org> # arm64
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ lib/lockref.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index a81dc4b191b7..4d7327b67a7d 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -521,6 +521,7 @@ static const struct key_entry asus_nb_wmi_keymap[] = {
- 	{ KE_KEY, 0x30, { KEY_VOLUMEUP } },
- 	{ KE_KEY, 0x31, { KEY_VOLUMEDOWN } },
- 	{ KE_KEY, 0x32, { KEY_MUTE } },
-+	{ KE_KEY, 0x33, { KEY_SCREENLOCK } },
- 	{ KE_KEY, 0x35, { KEY_SCREENLOCK } },
- 	{ KE_KEY, 0x40, { KEY_PREVIOUSSONG } },
- 	{ KE_KEY, 0x41, { KEY_NEXTSONG } },
+diff --git a/lib/lockref.c b/lib/lockref.c
+index 5b34bbd3eba8..81ac5f355242 100644
+--- a/lib/lockref.c
++++ b/lib/lockref.c
+@@ -24,7 +24,6 @@
+ 		}								\
+ 		if (!--retry)							\
+ 			break;							\
+-		cpu_relax();							\
+ 	}									\
+ } while (0)
+ 
 -- 
 2.35.1
 
