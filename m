@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92D7966C555
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD5B66C925
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232284AbjAPQFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:05:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43886 "EHLO
+        id S233829AbjAPQq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:46:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232243AbjAPQEX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6624926843
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:00 -0800 (PST)
+        with ESMTP id S233708AbjAPQp7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CBED1CAE0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05D3A6101F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2002AC433EF;
-        Mon, 16 Jan 2023 16:02:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D65F6B81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 437F8C433EF;
+        Mon, 16 Jan 2023 16:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884979;
-        bh=q3I9oyNPuyaG204omZYQ7JfhSGA8eH56E/F4qYmFTME=;
+        s=korg; t=1673886830;
+        bh=ioj/wcY0L5oR6C5L9dl5nOG2HlnBATpBuUIiZbQ64Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=adC3rgkDse2c+XlMnuPKYDhg+sMSAZj3P9uknI4/6MxslBsv1GqnvBkwlv33jZG0w
-         p2e2Y1fmLy/Xpsn092jl4Aki1gWtagwmWBM8aNa5wdaR+2HBWYew81aRRB6v5hldEl
-         1gPDojNX+3zZdaMDNIutCeiwgK8URMtk9qp+Fjgo=
+        b=G5Fa8vS54MGRvDf3JFwmv3YvjJBI1StXJvDyvc3XzA0/QR34guR7YlBbSzw25/vBE
+         03E3UWJHxggHVLaxDE9ZIcDDwJMqnG2H3ecpLqhV2qtOpp18RHO4GnaARiZPlQeeK4
+         03qp5mSdisPLnt3azFMGyF2cAzDAieNYxtAXh9Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuchi Yang <yangyuchi66@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 03/86] ALSA: hda/realtek - Turn on power early
+        patches@lists.linux.dev, Xiaoyao Li <xiaoyao.li@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 549/658] KVM: VMX: Rename NMI_PENDING to NMI_WINDOW
 Date:   Mon, 16 Jan 2023 16:50:37 +0100
-Message-Id: <20230116154747.201472242@linuxfoundation.org>
+Message-Id: <20230116154934.646368339@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,81 +53,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuchi Yang <yangyuchi66@gmail.com>
+From: Xiaoyao Li <xiaoyao.li@intel.com>
 
-commit 1f680609bf1beac20e2a31ddcb1b88874123c39f upstream.
+[ Upstream commit 4e2a0bc56ad197e5ccfab8395649b681067fe8cb ]
 
-Turn on power early to avoid wrong state for power relation register.
-This can earlier update JD state when resume back.
+Rename the NMI-window exiting related definitions to match the latest
+Intel SDM. No functional changes.
 
-Signed-off-by: Yuchi Yang <yangyuchi66@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/e35d8f4fa18f4448a2315cc7d4a3715f@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Xiaoyao Li <xiaoyao.li@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Stable-dep-of: 31de69f4eea7 ("KVM: nVMX: Properly expose ENABLE_USR_WAIT_PAUSE control to L1")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+ arch/x86/include/asm/vmx.h                       |  2 +-
+ arch/x86/kvm/vmx/nested.c                        | 12 ++++++------
+ arch/x86/kvm/vmx/vmx.c                           |  4 ++--
+ tools/testing/selftests/kvm/include/x86_64/vmx.h |  2 +-
+ 4 files changed, 10 insertions(+), 10 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3558,6 +3558,15 @@ static void alc256_init(struct hda_codec
- 	hda_nid_t hp_pin = alc_get_hp_pin(spec);
- 	bool hp_pin_sense;
+diff --git a/arch/x86/include/asm/vmx.h b/arch/x86/include/asm/vmx.h
+index 5acda8d9b9a7..06d4420508c5 100644
+--- a/arch/x86/include/asm/vmx.h
++++ b/arch/x86/include/asm/vmx.h
+@@ -31,7 +31,7 @@
+ #define CPU_BASED_CR8_LOAD_EXITING              0x00080000
+ #define CPU_BASED_CR8_STORE_EXITING             0x00100000
+ #define CPU_BASED_TPR_SHADOW                    0x00200000
+-#define CPU_BASED_VIRTUAL_NMI_PENDING		0x00400000
++#define CPU_BASED_NMI_WINDOW_EXITING		0x00400000
+ #define CPU_BASED_MOV_DR_EXITING                0x00800000
+ #define CPU_BASED_UNCOND_IO_EXITING             0x01000000
+ #define CPU_BASED_USE_IO_BITMAPS                0x02000000
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index ee768f977a0a..dca2c78db5d0 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2074,7 +2074,7 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct vmcs12 *vmcs12)
+ 	 */
+ 	exec_control = vmx_exec_control(vmx); /* L0's desires */
+ 	exec_control &= ~CPU_BASED_INTR_WINDOW_EXITING;
+-	exec_control &= ~CPU_BASED_VIRTUAL_NMI_PENDING;
++	exec_control &= ~CPU_BASED_NMI_WINDOW_EXITING;
+ 	exec_control &= ~CPU_BASED_TPR_SHADOW;
+ 	exec_control |= vmcs12->cpu_based_vm_exec_control;
  
-+	if (spec->ultra_low_power) {
-+		alc_update_coef_idx(codec, 0x03, 1<<1, 1<<1);
-+		alc_update_coef_idx(codec, 0x08, 3<<2, 3<<2);
-+		alc_update_coef_idx(codec, 0x08, 7<<4, 0);
-+		alc_update_coef_idx(codec, 0x3b, 1<<15, 0);
-+		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
-+		msleep(30);
-+	}
-+
- 	if (!hp_pin)
- 		hp_pin = 0x21;
+@@ -2459,7 +2459,7 @@ static int nested_vmx_check_nmi_controls(struct vmcs12 *vmcs12)
+ 		return -EINVAL;
  
-@@ -3569,14 +3578,6 @@ static void alc256_init(struct hda_codec
- 		msleep(2);
+ 	if (CC(!nested_cpu_has_virtual_nmis(vmcs12) &&
+-	       nested_cpu_has(vmcs12, CPU_BASED_VIRTUAL_NMI_PENDING)))
++	       nested_cpu_has(vmcs12, CPU_BASED_NMI_WINDOW_EXITING)))
+ 		return -EINVAL;
  
- 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x1); /* Low power */
--	if (spec->ultra_low_power) {
--		alc_update_coef_idx(codec, 0x03, 1<<1, 1<<1);
--		alc_update_coef_idx(codec, 0x08, 3<<2, 3<<2);
--		alc_update_coef_idx(codec, 0x08, 7<<4, 0);
--		alc_update_coef_idx(codec, 0x3b, 1<<15, 0);
--		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
--		msleep(30);
--	}
+ 	return 0;
+@@ -3039,7 +3039,7 @@ enum nvmx_vmentry_status nested_vmx_enter_non_root_mode(struct kvm_vcpu *vcpu,
+ 	u32 exit_qual;
  
- 	snd_hda_codec_write(codec, hp_pin, 0,
- 			    AC_VERB_SET_AMP_GAIN_MUTE, AMP_OUT_MUTE);
-@@ -3707,6 +3708,13 @@ static void alc225_init(struct hda_codec
- 	hda_nid_t hp_pin = alc_get_hp_pin(spec);
- 	bool hp1_pin_sense, hp2_pin_sense;
+ 	evaluate_pending_interrupts = exec_controls_get(vmx) &
+-		(CPU_BASED_INTR_WINDOW_EXITING | CPU_BASED_VIRTUAL_NMI_PENDING);
++		(CPU_BASED_INTR_WINDOW_EXITING | CPU_BASED_NMI_WINDOW_EXITING);
+ 	if (likely(!evaluate_pending_interrupts) && kvm_vcpu_apicv_active(vcpu))
+ 		evaluate_pending_interrupts |= vmx_has_apicv_interrupt(vcpu);
  
-+	if (spec->ultra_low_power) {
-+		alc_update_coef_idx(codec, 0x08, 0x0f << 2, 3<<2);
-+		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
-+		alc_update_coef_idx(codec, 0x33, 1<<11, 0);
-+		msleep(30);
-+	}
-+
- 	if (spec->codec_variant != ALC269_TYPE_ALC287 &&
- 		spec->codec_variant != ALC269_TYPE_ALC245)
- 		/* required only at boot or S3 and S4 resume time */
-@@ -3728,12 +3736,6 @@ static void alc225_init(struct hda_codec
- 		msleep(2);
+@@ -3267,7 +3267,7 @@ static int nested_vmx_run(struct kvm_vcpu *vcpu, bool launch)
+ 	 */
+ 	if ((vmcs12->guest_activity_state == GUEST_ACTIVITY_HLT) &&
+ 	    !(vmcs12->vm_entry_intr_info_field & INTR_INFO_VALID_MASK) &&
+-	    !(vmcs12->cpu_based_vm_exec_control & CPU_BASED_VIRTUAL_NMI_PENDING) &&
++	    !(vmcs12->cpu_based_vm_exec_control & CPU_BASED_NMI_WINDOW_EXITING) &&
+ 	    !((vmcs12->cpu_based_vm_exec_control & CPU_BASED_INTR_WINDOW_EXITING) &&
+ 	      (vmcs12->guest_rflags & X86_EFLAGS_IF))) {
+ 		vmx->nested.nested_run_pending = 0;
+@@ -5379,7 +5379,7 @@ bool nested_vmx_exit_reflected(struct kvm_vcpu *vcpu, u32 exit_reason)
+ 	case EXIT_REASON_INTERRUPT_WINDOW:
+ 		return nested_cpu_has(vmcs12, CPU_BASED_INTR_WINDOW_EXITING);
+ 	case EXIT_REASON_NMI_WINDOW:
+-		return nested_cpu_has(vmcs12, CPU_BASED_VIRTUAL_NMI_PENDING);
++		return nested_cpu_has(vmcs12, CPU_BASED_NMI_WINDOW_EXITING);
+ 	case EXIT_REASON_TASK_SWITCH:
+ 		return true;
+ 	case EXIT_REASON_CPUID:
+@@ -5870,7 +5870,7 @@ void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps)
+ 		CPU_BASED_ALWAYSON_WITHOUT_TRUE_MSR;
+ 	msrs->procbased_ctls_high &=
+ 		CPU_BASED_INTR_WINDOW_EXITING |
+-		CPU_BASED_VIRTUAL_NMI_PENDING | CPU_BASED_USE_TSC_OFFSETING |
++		CPU_BASED_NMI_WINDOW_EXITING | CPU_BASED_USE_TSC_OFFSETING |
+ 		CPU_BASED_HLT_EXITING | CPU_BASED_INVLPG_EXITING |
+ 		CPU_BASED_MWAIT_EXITING | CPU_BASED_CR3_LOAD_EXITING |
+ 		CPU_BASED_CR3_STORE_EXITING |
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 51aa5851011c..470a8f9a0046 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -4469,7 +4469,7 @@ static void enable_nmi_window(struct kvm_vcpu *vcpu)
+ 		return;
+ 	}
  
- 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x1); /* Low power */
--	if (spec->ultra_low_power) {
--		alc_update_coef_idx(codec, 0x08, 0x0f << 2, 3<<2);
--		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
--		alc_update_coef_idx(codec, 0x33, 1<<11, 0);
--		msleep(30);
--	}
+-	exec_controls_setbit(to_vmx(vcpu), CPU_BASED_VIRTUAL_NMI_PENDING);
++	exec_controls_setbit(to_vmx(vcpu), CPU_BASED_NMI_WINDOW_EXITING);
+ }
  
- 	if (hp1_pin_sense || spec->ultra_low_power)
- 		snd_hda_codec_write(codec, hp_pin, 0,
+ static void vmx_inject_irq(struct kvm_vcpu *vcpu)
+@@ -5295,7 +5295,7 @@ static int handle_ept_misconfig(struct kvm_vcpu *vcpu)
+ static int handle_nmi_window(struct kvm_vcpu *vcpu)
+ {
+ 	WARN_ON_ONCE(!enable_vnmi);
+-	exec_controls_clearbit(to_vmx(vcpu), CPU_BASED_VIRTUAL_NMI_PENDING);
++	exec_controls_clearbit(to_vmx(vcpu), CPU_BASED_NMI_WINDOW_EXITING);
+ 	++vcpu->stat.nmi_window_exits;
+ 	kvm_make_request(KVM_REQ_EVENT, vcpu);
+ 
+diff --git a/tools/testing/selftests/kvm/include/x86_64/vmx.h b/tools/testing/selftests/kvm/include/x86_64/vmx.h
+index c6e442d7a241..7eb38451c359 100644
+--- a/tools/testing/selftests/kvm/include/x86_64/vmx.h
++++ b/tools/testing/selftests/kvm/include/x86_64/vmx.h
+@@ -30,7 +30,7 @@
+ #define CPU_BASED_CR8_LOAD_EXITING		0x00080000
+ #define CPU_BASED_CR8_STORE_EXITING		0x00100000
+ #define CPU_BASED_TPR_SHADOW			0x00200000
+-#define CPU_BASED_VIRTUAL_NMI_PENDING		0x00400000
++#define CPU_BASED_NMI_WINDOW_EXITING		0x00400000
+ #define CPU_BASED_MOV_DR_EXITING		0x00800000
+ #define CPU_BASED_UNCOND_IO_EXITING		0x01000000
+ #define CPU_BASED_USE_IO_BITMAPS		0x02000000
+-- 
+2.35.1
+
 
 
