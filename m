@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 440FD66C9FB
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:58:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AF7F66C9FD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234081AbjAPQ61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:58:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49430 "EHLO
+        id S229530AbjAPQ6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:58:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234080AbjAPQ5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:45 -0500
+        with ESMTP id S233996AbjAPQ5u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325022CFC3
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D6530182
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D73FCB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37B9DC433F1;
-        Mon, 16 Jan 2023 16:40:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B887B8108F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8DFDC433D2;
+        Mon, 16 Jan 2023 16:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887242;
-        bh=J0ZzyXlZxdigl9/g8y6215mycZOIitAb4cxa5nztVMQ=;
+        s=korg; t=1673887245;
+        bh=ZK5uK7N8HlTp6L1yuhG51HpCQp5kal8ByCHMF0hWgGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IRxJo867/4xOHeUasKbxHslzgBF/yBTUeHFVmuBPJRVZV72ERgjubBPbu9SgKlg2A
-         j22WeY4Q+K2XlLkQnrFOsAdEx+gLBtdPr2yfh+3CdlEcnFl00OdtZ8OlQLfF/rItAd
-         1RcD9VOrN5eV2Huii7JRwQxr4NFPridMdILDB5Ws=
+        b=jPiyztzN83hRxBoVCjrKhKGmQCzFt0vaxqLhouyhAWB8fTiPt8HdNVtfpOfI3BZld
+         zH4Tja/jRB51qgHxbNSGGicSmrV8KOOfbo7ZgMJH3RoNPV1SZrHy927T7TLznFjCsO
+         Md7dr5NDDedUhfRNrbmB9PeRELdMOXjJkWcaG7JE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Pitt <mpitt@redhat.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        patches@lists.linux.dev, Yipeng Zou <zouyipeng@huawei.com>,
+        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 046/521] fs: dont audit the capability check in simple_xattr_list()
-Date:   Mon, 16 Jan 2023 16:45:08 +0100
-Message-Id: <20230116154849.316620930@linuxfoundation.org>
+Subject: [PATCH 4.19 047/521] selftests/ftrace: event_triggers: wait longer for test_event_enable
+Date:   Mon, 16 Jan 2023 16:45:09 +0100
+Message-Id: <20230116154849.357210169@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -55,52 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Yipeng Zou <zouyipeng@huawei.com>
 
-[ Upstream commit e7eda157c4071cd1e69f4b1687b0fbe1ae5e6f46 ]
+[ Upstream commit a1d6cd88c8973cfb08ee85722488b1d6d5d16327 ]
 
-The check being unconditional may lead to unwanted denials reported by
-LSMs when a process has the capability granted by DAC, but denied by an
-LSM. In the case of SELinux such denials are a problem, since they can't
-be effectively filtered out via the policy and when not silenced, they
-produce noise that may hide a true problem or an attack.
+In some platform, the schedule event may came slowly, delay 100ms can't
+cover it.
 
-Checking for the capability only if any trusted xattr is actually
-present wouldn't really address the issue, since calling listxattr(2) on
-such node on its own doesn't indicate an explicit attempt to see the
-trusted xattrs. Additionally, it could potentially leak the presence of
-trusted xattrs to an unprivileged user if they can check for the denials
-(e.g. through dmesg).
+I was notice that on my board which running in low cpu_freq,and this
+selftests allways gose fail.
 
-Therefore, it's best (and simplest) to keep the check unconditional and
-instead use ns_capable_noaudit() that will silence any associated LSM
-denials.
+So maybe we can check more times here to wait longer.
 
-Fixes: 38f38657444d ("xattr: extract simple_xattr code from tmpfs")
-Reported-by: Martin Pitt <mpitt@redhat.com>
-Suggested-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Reviewed-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Fixes: 43bb45da82f9 ("selftests: ftrace: Add a selftest to test event enable/disable func trigger")
+Signed-off-by: Yipeng Zou <zouyipeng@huawei.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../ftrace/test.d/ftrace/func_event_triggers.tc   | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 470ee0af3200..5c3407e18e15 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -1012,7 +1012,7 @@ static int xattr_list_one(char **buffer, ssize_t *remaining_size,
- ssize_t simple_xattr_list(struct inode *inode, struct simple_xattrs *xattrs,
- 			  char *buffer, size_t size)
- {
--	bool trusted = capable(CAP_SYS_ADMIN);
-+	bool trusted = ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN);
- 	struct simple_xattr *xattr;
- 	ssize_t remaining_size = size;
- 	int err = 0;
+diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
+index 6fed4cf2db81..79d614f1fe8e 100644
+--- a/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
++++ b/tools/testing/selftests/ftrace/test.d/ftrace/func_event_triggers.tc
+@@ -45,11 +45,18 @@ cnt_trace() {
+ 
+ test_event_enabled() {
+     val=$1
++    check_times=10		# wait for 10 * SLEEP_TIME at most
+ 
+-    e=`cat $EVENT_ENABLE`
+-    if [ "$e" != $val ]; then
+-	fail "Expected $val but found $e"
+-    fi
++    while [ $check_times -ne 0 ]; do
++	e=`cat $EVENT_ENABLE`
++	if [ "$e" == $val ]; then
++	    return 0
++	fi
++	sleep $SLEEP_TIME
++	check_times=$((check_times - 1))
++    done
++
++    fail "Expected $val but found $e"
+ }
+ 
+ run_enable_disable() {
 -- 
 2.35.1
 
