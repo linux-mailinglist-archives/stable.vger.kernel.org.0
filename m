@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86BA966CA19
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52E5366C7A0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:33:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234113AbjAPQ7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:59:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49440 "EHLO
+        id S233259AbjAPQc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:32:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234220AbjAPQ6q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:58:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D633436B17
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:41 -0800 (PST)
+        with ESMTP id S233282AbjAPQc3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:32:29 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 707053018D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D49461050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA96C433EF;
-        Mon, 16 Jan 2023 16:41:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A33BFCE1280
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 860D3C433D2;
+        Mon, 16 Jan 2023 16:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887300;
-        bh=JqfA0O+X2XBZDhZg+p5elc6buO1bmVDwiTEnZHPdLRI=;
+        s=korg; t=1673886019;
+        bh=kF+UJ2+GxPrysisT/BDB8fHKcqKuKNa+EmWQ2Nb8Tuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zB0eLjFyU2TE5Z1FjlZPiVkeWFSXBqdc3zjqLmvtTygDi8yf4ApwGN0BnQ66Vn6gO
-         KecGLZiLuEhz0PvN/O59yezrrmHg0aP8Gw013VABDxRL+VmUbj7AurrjYd3LIM8UAf
-         9Xaiv4fneO5BRP/dX8k9bQYIlSCfyASqNoISIv6g=
+        b=LQNvFnj84528M/ULDtRfWWCYCDDcmj1oRFJ5YwiFBK/pxTKYQ0eTy5qp1IqUvULOu
+         cXUIy6YrLc+RuzKytdh90HaAnFh8qsSYPh9BOHeVnJX20yNTi4qEAduU/F/fbqfe0N
+         5WpladEL7cCRmmePNMlXBTs+oalHw18yytlynlfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 096/521] media: vivid: fix compose size exceed boundary
-Date:   Mon, 16 Jan 2023 16:45:58 +0100
-Message-Id: <20230116154851.520360080@linuxfoundation.org>
+Subject: [PATCH 5.4 271/658] hwrng: amd - Fix PCI device refcount leak
+Date:   Mon, 16 Jan 2023 16:45:59 +0100
+Message-Id: <20230116154921.970926325@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 94a7ad9283464b75b12516c5512541d467cefcf8 ]
+[ Upstream commit ecadb5b0111ea19fc7c240bb25d424a94471eb7d ]
 
-syzkaller found a bug:
+for_each_pci_dev() is implemented by pci_get_device(). The comment of
+pci_get_device() says that it will increase the reference count for the
+returned pci_dev and also decrease the reference count for the input
+pci_dev @from if it is not NULL.
 
- BUG: unable to handle page fault for address: ffffc9000a3b1000
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 100000067 P4D 100000067 PUD 10015f067 PMD 1121ca067 PTE 0
- Oops: 0002 [#1] PREEMPT SMP
- CPU: 0 PID: 23489 Comm: vivid-000-vid-c Not tainted 6.1.0-rc1+ #512
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
- RIP: 0010:memcpy_erms+0x6/0x10
-[...]
- Call Trace:
-  <TASK>
-  ? tpg_fill_plane_buffer+0x856/0x15b0
-  vivid_fillbuff+0x8ac/0x1110
-  vivid_thread_vid_cap_tick+0x361/0xc90
-  vivid_thread_vid_cap+0x21a/0x3a0
-  kthread+0x143/0x180
-  ret_from_fork+0x1f/0x30
-  </TASK>
+If we break for_each_pci_dev() loop with pdev not NULL, we need to call
+pci_dev_put() to decrease the reference count. Add the missing
+pci_dev_put() for the normal and error path.
 
-This is because we forget to check boundary after adjust compose->height
-int V4L2_SEL_TGT_CROP case. Add v4l2_rect_map_inside() to fix this problem
-for this case.
-
-Fixes: ef834f7836ec ("[media] vivid: add the video capture and output parts")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 96d63c0297cc ("[PATCH] Add AMD HW RNG driver")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vivid/vivid-vid-cap.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/hw_random/amd-rng.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/platform/vivid/vivid-vid-cap.c b/drivers/media/platform/vivid/vivid-vid-cap.c
-index 48f2c9c96fc9..ded48b7ad774 100644
---- a/drivers/media/platform/vivid/vivid-vid-cap.c
-+++ b/drivers/media/platform/vivid/vivid-vid-cap.c
-@@ -923,6 +923,7 @@ int vivid_vid_cap_s_selection(struct file *file, void *fh, struct v4l2_selection
- 			if (dev->has_compose_cap) {
- 				v4l2_rect_set_min_size(compose, &min_rect);
- 				v4l2_rect_set_max_size(compose, &max_rect);
-+				v4l2_rect_map_inside(compose, &fmt);
- 			}
- 			dev->fmt_cap_rect = fmt;
- 			tpg_s_buf_height(&dev->tpg, fmt.height);
+diff --git a/drivers/char/hw_random/amd-rng.c b/drivers/char/hw_random/amd-rng.c
+index 9959c762da2f..db3dd467194c 100644
+--- a/drivers/char/hw_random/amd-rng.c
++++ b/drivers/char/hw_random/amd-rng.c
+@@ -143,15 +143,19 @@ static int __init mod_init(void)
+ found:
+ 	err = pci_read_config_dword(pdev, 0x58, &pmbase);
+ 	if (err)
+-		return err;
++		goto put_dev;
+ 
+ 	pmbase &= 0x0000FF00;
+-	if (pmbase == 0)
+-		return -EIO;
++	if (pmbase == 0) {
++		err = -EIO;
++		goto put_dev;
++	}
+ 
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv)
+-		return -ENOMEM;
++	if (!priv) {
++		err = -ENOMEM;
++		goto put_dev;
++	}
+ 
+ 	if (!request_region(pmbase + PMBASE_OFFSET, PMBASE_SIZE, DRV_NAME)) {
+ 		dev_err(&pdev->dev, DRV_NAME " region 0x%x already in use!\n",
+@@ -185,6 +189,8 @@ static int __init mod_init(void)
+ 	release_region(pmbase + PMBASE_OFFSET, PMBASE_SIZE);
+ out:
+ 	kfree(priv);
++put_dev:
++	pci_dev_put(pdev);
+ 	return err;
+ }
+ 
+@@ -200,6 +206,8 @@ static void __exit mod_exit(void)
+ 
+ 	release_region(priv->pmbase + PMBASE_OFFSET, PMBASE_SIZE);
+ 
++	pci_dev_put(priv->pcidev);
++
+ 	kfree(priv);
+ }
+ 
 -- 
 2.35.1
 
