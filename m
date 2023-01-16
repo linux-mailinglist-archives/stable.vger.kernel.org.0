@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE47E66CCE6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92FDB66CB6A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234824AbjAPRal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:30:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52216 "EHLO
+        id S234103AbjAPROm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:14:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234801AbjAPR3x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD5173B0DB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:23 -0800 (PST)
+        with ESMTP id S234402AbjAPRNL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AF5B4B754
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DDD4B81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF514C433D2;
-        Mon, 16 Jan 2023 17:07:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18DDF61042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31735C433EF;
+        Mon, 16 Jan 2023 16:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888841;
-        bh=f/ZV4kgNP10g1Hlemvi+WmA7nSiPVUDv4yX1PWg9l3c=;
+        s=korg; t=1673888021;
+        bh=93CeXYmbGwE9z4QaiD/dCMVcYGEbq7GRYdKlG07Gq8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdKWz/5j739jobWUFrIwM+dbu/NOs5kgxGFGVifv29lLnoQhR8lQbJXDAFdG6WFpN
-         YXvXE7QJLr1E5llff21bA/X9UARVi2jXgSQfaUic4XPOkwvDY+HW8Xu349FYveAPIU
-         xiTEENkKqLzjQt/L0fg8ZRei65JF6LZBQwqkTFmw=
+        b=POk3ODi+gOMHXmAbuiIAXYutw3jh23TnkTNUchFhSif3Tpg8qMWu+utd4c6B/91NK
+         9YR1Cd+4BS44iAzatvzfEw+uWyIMIudYXT4f//LeWkyeSkqzKgoq7P4qzKXm5qB6Rc
+         JVyhUEa23i46pzLrlzmpSBGZtkeKCJjd1HuywhDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rafael Mendonca <rafaelmendsr@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 160/338] uio: uio_dmem_genirq: Fix missing unlock in irq configuration
+        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
+        Song Liu <song@kernel.org>
+Subject: [PATCH 4.19 371/521] md: fix a crash in mempool_free
 Date:   Mon, 16 Jan 2023 16:50:33 +0100
-Message-Id: <20230116154827.861231018@linuxfoundation.org>
+Message-Id: <20230116154903.675868414@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,127 +52,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael Mendonca <rafaelmendsr@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 9de255c461d1b3f0242b3ad1450c3323a3e00b34 ]
+commit 341097ee53573e06ab9fc675d96a052385b851fa upstream.
 
-Commit b74351287d4b ("uio: fix a sleep-in-atomic-context bug in
-uio_dmem_genirq_irqcontrol()") started calling disable_irq() without
-holding the spinlock because it can sleep. However, that fix introduced
-another bug: if interrupt is already disabled and a new disable request
-comes in, then the spinlock is not unlocked:
+There's a crash in mempool_free when running the lvm test
+shell/lvchange-rebuild-raid.sh.
 
-root@localhost:~# printf '\x00\x00\x00\x00' > /dev/uio0
-root@localhost:~# printf '\x00\x00\x00\x00' > /dev/uio0
-root@localhost:~# [   14.851538] BUG: scheduling while atomic: bash/223/0x00000002
-[   14.851991] Modules linked in: uio_dmem_genirq uio myfpga(OE) bochs drm_vram_helper drm_ttm_helper ttm drm_kms_helper drm snd_pcm ppdev joydev psmouse snd_timer snd e1000fb_sys_fops syscopyarea parport sysfillrect soundcore sysimgblt input_leds pcspkr i2c_piix4 serio_raw floppy evbug qemu_fw_cfg mac_hid pata_acpi ip_tables x_tables autofs4 [last unloaded: parport_pc]
-[   14.854206] CPU: 0 PID: 223 Comm: bash Tainted: G           OE      6.0.0-rc7 #21
-[   14.854786] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-[   14.855664] Call Trace:
-[   14.855861]  <TASK>
-[   14.856025]  dump_stack_lvl+0x4d/0x67
-[   14.856325]  dump_stack+0x14/0x1a
-[   14.856583]  __schedule_bug.cold+0x4b/0x5c
-[   14.856915]  __schedule+0xe81/0x13d0
-[   14.857199]  ? idr_find+0x13/0x20
-[   14.857456]  ? get_work_pool+0x2d/0x50
-[   14.857756]  ? __flush_work+0x233/0x280
-[   14.858068]  ? __schedule+0xa95/0x13d0
-[   14.858307]  ? idr_find+0x13/0x20
-[   14.858519]  ? get_work_pool+0x2d/0x50
-[   14.858798]  schedule+0x6c/0x100
-[   14.859009]  schedule_hrtimeout_range_clock+0xff/0x110
-[   14.859335]  ? tty_write_room+0x1f/0x30
-[   14.859598]  ? n_tty_poll+0x1ec/0x220
-[   14.859830]  ? tty_ldisc_deref+0x1a/0x20
-[   14.860090]  schedule_hrtimeout_range+0x17/0x20
-[   14.860373]  do_select+0x596/0x840
-[   14.860627]  ? __kernel_text_address+0x16/0x50
-[   14.860954]  ? poll_freewait+0xb0/0xb0
-[   14.861235]  ? poll_freewait+0xb0/0xb0
-[   14.861517]  ? rpm_resume+0x49d/0x780
-[   14.861798]  ? common_interrupt+0x59/0xa0
-[   14.862127]  ? asm_common_interrupt+0x2b/0x40
-[   14.862511]  ? __uart_start.isra.0+0x61/0x70
-[   14.862902]  ? __check_object_size+0x61/0x280
-[   14.863255]  core_sys_select+0x1c6/0x400
-[   14.863575]  ? vfs_write+0x1c9/0x3d0
-[   14.863853]  ? vfs_write+0x1c9/0x3d0
-[   14.864121]  ? _copy_from_user+0x45/0x70
-[   14.864526]  do_pselect.constprop.0+0xb3/0xf0
-[   14.864893]  ? do_syscall_64+0x6d/0x90
-[   14.865228]  ? do_syscall_64+0x6d/0x90
-[   14.865556]  __x64_sys_pselect6+0x76/0xa0
-[   14.865906]  do_syscall_64+0x60/0x90
-[   14.866214]  ? syscall_exit_to_user_mode+0x2a/0x50
-[   14.866640]  ? do_syscall_64+0x6d/0x90
-[   14.866972]  ? do_syscall_64+0x6d/0x90
-[   14.867286]  ? do_syscall_64+0x6d/0x90
-[   14.867626]  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-[...] stripped
-[   14.872959]  </TASK>
+The reason for the crash is this:
+* super_written calls atomic_dec_and_test(&mddev->pending_writes) and
+  wake_up(&mddev->sb_wait). Then it calls rdev_dec_pending(rdev, mddev)
+  and bio_put(bio).
+* so, the process that waited on sb_wait and that is woken up is racing
+  with bio_put(bio).
+* if the process wins the race, it calls bioset_exit before bio_put(bio)
+  is executed.
+* bio_put(bio) attempts to free a bio into a destroyed bio set - causing
+  a crash in mempool_free.
 
-('myfpga' is a simple 'uio_dmem_genirq' driver I wrote to test this)
+We fix this bug by moving bio_put before atomic_dec_and_test.
 
-The implementation of "uio_dmem_genirq" was based on "uio_pdrv_genirq" and
-it is used in a similar manner to the "uio_pdrv_genirq" driver with respect
-to interrupt configuration and handling. At the time "uio_dmem_genirq" was
-introduced, both had the same implementation of the 'uio_info' handlers
-irqcontrol() and handler(). Then commit 34cb27528398 ("UIO: Fix concurrency
-issue"), which was only applied to "uio_pdrv_genirq", ended up making them
-a little different. That commit, among other things, changed disable_irq()
-to disable_irq_nosync() in the implementation of irqcontrol(). The
-motivation there was to avoid a deadlock between irqcontrol() and
-handler(), since it added a spinlock in the irq handler, and disable_irq()
-waits for the completion of the irq handler.
+We also move rdev_dec_pending before atomic_dec_and_test as suggested by
+Neil Brown.
 
-By changing disable_irq() to disable_irq_nosync() in irqcontrol(), we also
-avoid the sleeping-while-atomic bug that commit b74351287d4b ("uio: fix a
-sleep-in-atomic-context bug in uio_dmem_genirq_irqcontrol()") was trying to
-fix. Thus, this fixes the missing unlock in irqcontrol() by importing the
-implementation of irqcontrol() handler from the "uio_pdrv_genirq" driver.
-In the end, it reverts commit b74351287d4b ("uio: fix a
-sleep-in-atomic-context bug in uio_dmem_genirq_irqcontrol()") and change
-disable_irq() to disable_irq_nosync().
+The function md_end_flush has a similar bug - we must call bio_put before
+we decrement the number of in-progress bios.
 
-It is worth noting that this still does not address the concurrency issue
-fixed by commit 34cb27528398 ("UIO: Fix concurrency issue"). It will be
-addressed separately in the next commits.
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 11557f0067 P4D 11557f0067 PUD 0
+ Oops: 0002 [#1] PREEMPT SMP
+ CPU: 0 PID: 73 Comm: kworker/0:1 Not tainted 6.1.0-rc3 #5
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+ Workqueue: kdelayd flush_expired_bios [dm_delay]
+ RIP: 0010:mempool_free+0x47/0x80
+ Code: 48 89 ef 5b 5d ff e0 f3 c3 48 89 f7 e8 32 45 3f 00 48 63 53 08 48 89 c6 3b 53 04 7d 2d 48 8b 43 10 8d 4a 01 48 89 df 89 4b 08 <48> 89 2c d0 e8 b0 45 3f 00 48 8d 7b 30 5b 5d 31 c9 ba 01 00 00 00
+ RSP: 0018:ffff88910036bda8 EFLAGS: 00010093
+ RAX: 0000000000000000 RBX: ffff8891037b65d8 RCX: 0000000000000001
+ RDX: 0000000000000000 RSI: 0000000000000202 RDI: ffff8891037b65d8
+ RBP: ffff8891447ba240 R08: 0000000000012908 R09: 00000000003d0900
+ R10: 0000000000000000 R11: 0000000000173544 R12: ffff889101a14000
+ R13: ffff8891562ac300 R14: ffff889102b41440 R15: ffffe8ffffa00d05
+ FS:  0000000000000000(0000) GS:ffff88942fa00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000000 CR3: 0000001102e99000 CR4: 00000000000006b0
+ Call Trace:
+  <TASK>
+  clone_endio+0xf4/0x1c0 [dm_mod]
+  clone_endio+0xf4/0x1c0 [dm_mod]
+  __submit_bio+0x76/0x120
+  submit_bio_noacct_nocheck+0xb6/0x2a0
+  flush_expired_bios+0x28/0x2f [dm_delay]
+  process_one_work+0x1b4/0x300
+  worker_thread+0x45/0x3e0
+  ? rescuer_thread+0x380/0x380
+  kthread+0xc2/0x100
+  ? kthread_complete_and_exit+0x20/0x20
+  ret_from_fork+0x1f/0x30
+  </TASK>
+ Modules linked in: brd dm_delay dm_raid dm_mod af_packet uvesafb cfbfillrect cfbimgblt cn cfbcopyarea fb font fbdev tun autofs4 binfmt_misc configfs ipv6 virtio_rng virtio_balloon rng_core virtio_net pcspkr net_failover failover qemu_fw_cfg button mousedev raid10 raid456 libcrc32c async_raid6_recov async_memcpy async_pq raid6_pq async_xor xor async_tx raid1 raid0 md_mod sd_mod t10_pi crc64_rocksoft crc64 virtio_scsi scsi_mod evdev psmouse bsg scsi_common [last unloaded: brd]
+ CR2: 0000000000000000
+ ---[ end trace 0000000000000000 ]---
 
-Split out from commit 34cb27528398 ("UIO: Fix concurrency issue").
-
-Fixes: b74351287d4b ("uio: fix a sleep-in-atomic-context bug in uio_dmem_genirq_irqcontrol()")
-Signed-off-by: Rafael Mendonca <rafaelmendsr@gmail.com>
-Link: https://lore.kernel.org/r/20220930224100.816175-2-rafaelmendsr@gmail.com
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/uio/uio_dmem_genirq.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/md/md.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/uio/uio_dmem_genirq.c b/drivers/uio/uio_dmem_genirq.c
-index a00b4aee6c79..c25a6bcb2d21 100644
---- a/drivers/uio/uio_dmem_genirq.c
-+++ b/drivers/uio/uio_dmem_genirq.c
-@@ -135,13 +135,11 @@ static int uio_dmem_genirq_irqcontrol(struct uio_info *dev_info, s32 irq_on)
- 	if (irq_on) {
- 		if (test_and_clear_bit(0, &priv->flags))
- 			enable_irq(dev_info->irq);
--		spin_unlock_irqrestore(&priv->lock, flags);
- 	} else {
--		if (!test_and_set_bit(0, &priv->flags)) {
--			spin_unlock_irqrestore(&priv->lock, flags);
--			disable_irq(dev_info->irq);
--		}
-+		if (!test_and_set_bit(0, &priv->flags))
-+			disable_irq_nosync(dev_info->irq);
- 	}
-+	spin_unlock_irqrestore(&priv->lock, flags);
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -417,13 +417,14 @@ static void md_end_flush(struct bio *bio
+ 	struct md_rdev *rdev = bio->bi_private;
+ 	struct mddev *mddev = rdev->mddev;
  
- 	return 0;
++	bio_put(bio);
++
+ 	rdev_dec_pending(rdev, mddev);
+ 
+ 	if (atomic_dec_and_test(&mddev->flush_pending)) {
+ 		/* The pre-request flush has finished */
+ 		queue_work(md_wq, &mddev->flush_work);
+ 	}
+-	bio_put(bio);
  }
--- 
-2.35.1
-
+ 
+ static void md_submit_flush_data(struct work_struct *ws);
+@@ -821,10 +822,12 @@ static void super_written(struct bio *bi
+ 	} else
+ 		clear_bit(LastDev, &rdev->flags);
+ 
++	bio_put(bio);
++
++	rdev_dec_pending(rdev, mddev);
++
+ 	if (atomic_dec_and_test(&mddev->pending_writes))
+ 		wake_up(&mddev->sb_wait);
+-	rdev_dec_pending(rdev, mddev);
+-	bio_put(bio);
+ }
+ 
+ void md_super_write(struct mddev *mddev, struct md_rdev *rdev,
 
 
