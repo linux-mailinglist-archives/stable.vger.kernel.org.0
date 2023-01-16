@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A5E66C8E8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9752766C4BE
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233735AbjAPQoX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:44:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38188 "EHLO
+        id S231135AbjAPP6A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:58:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233822AbjAPQnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:45 -0500
+        with ESMTP id S231895AbjAPP5k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBB0539BA8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42127A5F5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 786546106E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BFB9C433EF;
-        Mon, 16 Jan 2023 16:31:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1F486102A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8CD9C433D2;
+        Mon, 16 Jan 2023 15:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886685;
-        bh=xOvi7aIxPjKXJsKEx5kQQgW2dp3oENq6smwAh6Mly+Y=;
+        s=korg; t=1673884657;
+        bh=hZZYq+zgBp6jnJCJp99jRdvG759Q47Fb0q3E2vpXnsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2DTvesiQVzY/bJdyYAyPpSOAov5icjWjtZ2d1a+CDrdK9bUqto3Z+gnkOoBuCgx90
-         3Fw2PmwUyYcaDRLMHmOcYt38LOKlLHlGVCI8Uo7WIObIKGHQ8rh700EGZdUI5aZ1Je
-         hA80eVW6LGZIJ+bjlkGAoCiBa/E0zbwHgP/Fxf5w=
+        b=twjAjK9QSeDRVruzO5XMIKqgnO0z8J8w8ntYlFgQgZ4/2ZLftGKpozr14TxMIj7PN
+         PjMzPVbAeV/I84hqm/YX2XISpGxC6xejJ2CFaJ6PzxrxREgEPT4oK/ejfhdAMrm3Gj
+         FEwMmohoRjcgjKNSxhyPsQo13kUg/FuMPzorXL0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.4 524/658] ext4: add EXT4_IGET_BAD flag to prevent unexpected bad inode
+        patches@lists.linux.dev,
+        "Ilia.Gavrilov" <Ilia.Gavrilov@infotecs.ru>,
+        Simon Horman <simon.horman@corigine.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 6.1 089/183] netfilter: ipset: Fix overflow before widen in the bitmap_ip_create() function.
 Date:   Mon, 16 Jan 2023 16:50:12 +0100
-Message-Id: <20230116154933.511427664@linuxfoundation.org>
+Message-Id: <20230116154807.175983754@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
 
-commit 63b1e9bccb71fe7d7e3ddc9877dbdc85e5d2d023 upstream.
+commit 9ea4b476cea1b7d461d16dda25ca3c7e616e2d15 upstream.
 
-There are many places that will get unhappy (and crash) when ext4_iget()
-returns a bad inode. However, if iget the boot loader inode, allows a bad
-inode to be returned, because the inode may not be initialized. This
-mechanism can be used to bypass some checks and cause panic. To solve this
-problem, we add a special iget flag EXT4_IGET_BAD. Only with this flag
-we'd be returning bad inode from ext4_iget(), otherwise we always return
-the error code if the inode is bad inode.(suggested by Jan Kara)
+When first_ip is 0, last_ip is 0xFFFFFFFF, and netmask is 31, the value of
+an arithmetic expression 2 << (netmask - mask_bits - 1) is subject
+to overflow due to a failure casting operands to a larger data type
+before performing the arithmetic.
 
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221026042310.3839669-4-libaokun1@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Note that it's harmless since the value will be checked at the next step.
+
+Found by InfoTeCS on behalf of Linux Verification Center
+(linuxtesting.org) with SVACE.
+
+Fixes: b9fed748185a ("netfilter: ipset: Check and reject crazy /0 input parameters")
+Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h  |    3 ++-
- fs/ext4/inode.c |    8 +++++++-
- fs/ext4/ioctl.c |    3 ++-
- 3 files changed, 11 insertions(+), 3 deletions(-)
+ net/netfilter/ipset/ip_set_bitmap_ip.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2608,7 +2608,8 @@ int do_journal_get_write_access(handle_t
- typedef enum {
- 	EXT4_IGET_NORMAL =	0,
- 	EXT4_IGET_SPECIAL =	0x0001, /* OK to iget a system inode */
--	EXT4_IGET_HANDLE = 	0x0002	/* Inode # is from a handle */
-+	EXT4_IGET_HANDLE = 	0x0002,	/* Inode # is from a handle */
-+	EXT4_IGET_BAD =		0x0004  /* Allow to iget a bad inode */
- } ext4_iget_flags;
+--- a/net/netfilter/ipset/ip_set_bitmap_ip.c
++++ b/net/netfilter/ipset/ip_set_bitmap_ip.c
+@@ -308,8 +308,8 @@ bitmap_ip_create(struct net *net, struct
+ 			return -IPSET_ERR_BITMAP_RANGE;
  
- extern struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5192,8 +5192,14 @@ struct inode *__ext4_iget(struct super_b
- 	if (IS_CASEFOLDED(inode) && !ext4_has_feature_casefold(inode->i_sb))
- 		ext4_error_inode(inode, function, line, 0,
- 				 "casefold flag without casefold feature");
--	brelse(iloc.bh);
-+	if (is_bad_inode(inode) && !(flags & EXT4_IGET_BAD)) {
-+		ext4_error_inode(inode, function, line, 0,
-+				 "bad inode without EXT4_IGET_BAD flag");
-+		ret = -EUCLEAN;
-+		goto bad_inode;
-+	}
- 
-+	brelse(iloc.bh);
- 	unlock_new_inode(inode);
- 	return inode;
- 
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -121,7 +121,8 @@ static long swap_inode_boot_loader(struc
- 	blkcnt_t blocks;
- 	unsigned short bytes;
- 
--	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO, EXT4_IGET_SPECIAL);
-+	inode_bl = ext4_iget(sb, EXT4_BOOT_LOADER_INO,
-+			EXT4_IGET_SPECIAL | EXT4_IGET_BAD);
- 	if (IS_ERR(inode_bl))
- 		return PTR_ERR(inode_bl);
- 	ei_bl = EXT4_I(inode_bl);
+ 		pr_debug("mask_bits %u, netmask %u\n", mask_bits, netmask);
+-		hosts = 2 << (32 - netmask - 1);
+-		elements = 2 << (netmask - mask_bits - 1);
++		hosts = 2U << (32 - netmask - 1);
++		elements = 2UL << (netmask - mask_bits - 1);
+ 	}
+ 	if (elements > IPSET_BITMAP_MAX_RANGE + 1)
+ 		return -IPSET_ERR_BITMAP_RANGE_SIZE;
 
 
