@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99BC166C4E3
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:59:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C584966C90F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231734AbjAPP7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:59:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41560 "EHLO
+        id S233768AbjAPQqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:46:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231817AbjAPP7X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E19201EFE0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:12 -0800 (PST)
+        with ESMTP id S233700AbjAPQpc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 139871D90A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C14661046
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F17FC433EF;
-        Mon, 16 Jan 2023 15:59:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF6D9B8106C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22756C433D2;
+        Mon, 16 Jan 2023 16:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884751;
-        bh=+sFcWTnzXxw2Z/9Yhn9jvTSH4XT80svuIVzg4otibCY=;
+        s=korg; t=1673886780;
+        bh=Al9B5woCyN4vPNuoYSpJTVd27cmI97/a3CPKo+rilBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTyKVCZAq+dW9RVONe/ON0PeuByWb1mDRh/ITodHoQht02JlBmD7Ca3igYPu/tTrk
-         3RpGlJVBBGlBPOSJCZfI9u9eC0UAE7Lg7Vo6bwCIdDqTD/DfHO3B9LwwHGt9Swhop7
-         PAOvCqIHlv08M/78zXAuj51mOsV+l67Y162ja3qw=
+        b=xkmKXKnDpUELgXz8FvGFwQwqg6UH/OejUYMUiyWWQ4dVWTBnmR9xC7+oGdWPrRtCx
+         ZHmpAoK9HyOqerI/CiVeeD5uRWMsUEwYSnsESwJQLVq94FHWziOOu1cA1t1haPh406
+         xBKNbetrs5QEipsfoxB2AJ/RmbZUC/3V0X8bRQb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 125/183] block: factor out a blk_debugfs_remove helper
+        patches@lists.linux.dev, Shuqi Zhang <zhangshuqi3@huawei.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 560/658] ext4: use kmemdup() to replace kmalloc + memcpy
 Date:   Mon, 16 Jan 2023 16:50:48 +0100
-Message-Id: <20230116154808.659224860@linuxfoundation.org>
+Message-Id: <20230116154935.111925421@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,59 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Shuqi Zhang <zhangshuqi3@huawei.com>
 
-[ Upstream commit 6fc75f309d291d328b4ea2f91bef0ff56e4bc7c2 ]
+[ Upstream commit 4efd9f0d120c55b08852ee5605dbb02a77089a5d ]
 
-Split the debugfs removal from blk_unregister_queue into a helper so that
-the it can be reused for blk_register_queue error handling.
+Replace kmalloc + memcpy with kmemdup()
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20221114042637.1009333-3-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: 49e4d04f0486 ("block: Drop spurious might_sleep() from blk_put_queue()")
+Signed-off-by: Shuqi Zhang <zhangshuqi3@huawei.com>
+Reviewed-by: Ritesh Harjani <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220525030120.803330-1-zhangshuqi3@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Stable-dep-of: a44e84a9b776 ("ext4: fix deadlock due to mbcache entry corruption")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-sysfs.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ fs/ext4/xattr.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index 2b1cf0b2a5c7..3d6951a0b4e7 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -797,6 +797,19 @@ struct kobj_type blk_queue_ktype = {
- 	.release	= blk_release_queue,
- };
+diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+index 0081eab74b20..8f0e8b60ea20 100644
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -1907,11 +1907,10 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
  
-+static void blk_debugfs_remove(struct gendisk *disk)
-+{
-+	struct request_queue *q = disk->queue;
-+
-+	mutex_lock(&q->debugfs_mutex);
-+	blk_trace_shutdown(q);
-+	debugfs_remove_recursive(q->debugfs_dir);
-+	q->debugfs_dir = NULL;
-+	q->sched_debugfs_dir = NULL;
-+	q->rqos_debugfs_dir = NULL;
-+	mutex_unlock(&q->debugfs_mutex);
-+}
-+
- /**
-  * blk_register_queue - register a block layer queue with sysfs
-  * @disk: Disk of which the request queue should be registered with sysfs.
-@@ -922,11 +935,5 @@ void blk_unregister_queue(struct gendisk *disk)
- 	kobject_del(&q->kobj);
- 	mutex_unlock(&q->sysfs_dir_lock);
- 
--	mutex_lock(&q->debugfs_mutex);
--	blk_trace_shutdown(q);
--	debugfs_remove_recursive(q->debugfs_dir);
--	q->debugfs_dir = NULL;
--	q->sched_debugfs_dir = NULL;
--	q->rqos_debugfs_dir = NULL;
--	mutex_unlock(&q->debugfs_mutex);
-+	blk_debugfs_remove(disk);
- }
+ 			unlock_buffer(bs->bh);
+ 			ea_bdebug(bs->bh, "cloning");
+-			s->base = kmalloc(bs->bh->b_size, GFP_NOFS);
++			s->base = kmemdup(BHDR(bs->bh), bs->bh->b_size, GFP_NOFS);
+ 			error = -ENOMEM;
+ 			if (s->base == NULL)
+ 				goto cleanup;
+-			memcpy(s->base, BHDR(bs->bh), bs->bh->b_size);
+ 			s->first = ENTRY(header(s->base)+1);
+ 			header(s->base)->h_refcount = cpu_to_le32(1);
+ 			s->here = ENTRY(s->base + offset);
 -- 
 2.35.1
 
