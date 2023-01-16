@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E6CC66C525
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:02:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A6466C98B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232098AbjAPQCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:02:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43696 "EHLO
+        id S233863AbjAPQvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:51:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232005AbjAPQBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:01:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3E5E227B8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:35 -0800 (PST)
+        with ESMTP id S233882AbjAPQup (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:50:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BAD031E2F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54147B8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABC0AC433F0;
-        Mon, 16 Jan 2023 16:01:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDC176105A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE73C433EF;
+        Mon, 16 Jan 2023 16:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884893;
-        bh=EAj5/06oEFDmmIEA1jaaaod16OnjAifokg9IgmuQtZg=;
+        s=korg; t=1673887008;
+        bh=aRgzOab1q0uZC5w5aX+WGocSRGgAkOrzCYkdW2BFEy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ni0WLOj18HieXVcbJs+14JNBBapl47YaDKETGjE5bQ/zEkjweeAYlatoRNxywytZG
-         dEmCH7HuC4ci/LyuxdAktk/L3H6AWtCBB1homqVxBRKh/+Z6wUTvDXb/pga5E7B3jq
-         /l/AoCugsfh1ZsPOXhbCGIWlMO/usdKl0J4DSpqU=
+        b=w1dZHsILzAEcIkwDqaCtcX4gYJCEEEzRPp5i/7Ea/1BOKhhzbRbHxDv2Js8Ept2Fx
+         zLtE1YmxbH/BOIW+pNbXjH7PviNmyZNeqJ8+w5AcREsUqHQThw5mfKd9qSzX+1YTWR
+         H2RKyyN7V8LE1ASCh+diT1BNPdc7VQVPeaZatcY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+d56ec896af3637bdb7e4@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.1 180/183] io_uring/io-wq: only free worker if it was allocated for creation
+        patches@lists.linux.dev, Michael Walle <michael@walle.cc>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 615/658] wifi: wilc1000: sdio: fix module autoloading
 Date:   Mon, 16 Jan 2023 16:51:43 +0100
-Message-Id: <20230116154810.900952472@linuxfoundation.org>
+Message-Id: <20230116154937.639195062@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Michael Walle <michael@walle.cc>
 
-commit e6db6f9398dadcbc06318a133d4c44a2d3844e61 upstream.
+[ Upstream commit 57d545b5a3d6ce3a8fb6b093f02bfcbb908973f3 ]
 
-We have two types of task_work based creation, one is using an existing
-worker to setup a new one (eg when going to sleep and we have no free
-workers), and the other is allocating a new worker. Only the latter
-should be freed when we cancel task_work creation for a new worker.
+There are no SDIO module aliases included in the driver, therefore,
+module autoloading isn't working. Add the proper MODULE_DEVICE_TABLE().
 
-Fixes: af82425c6a2d ("io_uring/io-wq: free worker if task_work creation is canceled")
-Reported-by: syzbot+d56ec896af3637bdb7e4@syzkaller.appspotmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221027171221.491937-1-michael@walle.cc
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io-wq.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/staging/wilc1000/wilc_sdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/io_uring/io-wq.c
-+++ b/io_uring/io-wq.c
-@@ -1230,7 +1230,12 @@ static void io_wq_cancel_tw_create(struc
+diff --git a/drivers/staging/wilc1000/wilc_sdio.c b/drivers/staging/wilc1000/wilc_sdio.c
+index c787c5da8f2b..22a30da011e1 100644
+--- a/drivers/staging/wilc1000/wilc_sdio.c
++++ b/drivers/staging/wilc1000/wilc_sdio.c
+@@ -20,6 +20,7 @@ static const struct sdio_device_id wilc_sdio_ids[] = {
+ 	{ SDIO_DEVICE(SDIO_VENDOR_ID_WILC, SDIO_DEVICE_ID_WILC) },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(sdio, wilc_sdio_ids);
  
- 		worker = container_of(cb, struct io_worker, create_work);
- 		io_worker_cancel_cb(worker);
--		kfree(worker);
-+		/*
-+		 * Only the worker continuation helper has worker allocated and
-+		 * hence needs freeing.
-+		 */
-+		if (cb->func == create_worker_cont)
-+			kfree(worker);
- 	}
- }
+ #define WILC_SDIO_BLOCK_SIZE 512
  
+-- 
+2.35.1
+
 
 
