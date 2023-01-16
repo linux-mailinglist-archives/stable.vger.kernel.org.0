@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 230CC66C983
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:50:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1E066C5A5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233957AbjAPQur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:50:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39796 "EHLO
+        id S232568AbjAPQIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:08:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233982AbjAPQuH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:50:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E1E743462
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:35 -0800 (PST)
+        with ESMTP id S232244AbjAPQHl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:07:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F6F027D64
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE68FB8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27410C433EF;
-        Mon, 16 Jan 2023 16:36:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B154761042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6BE0C433EF;
+        Mon, 16 Jan 2023 16:05:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886992;
-        bh=a53/eUHxy72XcCYBLtUpnQKgGU2JMxW/qnRZYW/NP7g=;
+        s=korg; t=1673885142;
+        bh=7NtsNkiy6I8Bo08AC+C1iUXJg2+S5FRpeyeYohkHdgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbqlkVJ91AMFu/VS5Oul0xqELxTamDwiFUYVTuVxLnbYsJ2MvcVmAhJgwcONwniJe
-         pPH+h3+s5bCYZnSgEX3o0Jn/yU3Q7epC2F5unciOVGqra4CGAJZIl5yTHSXLFJEbLZ
-         MAmT3Jh5iuKjzZ0IjORuvrZHYLQYlpT646QnyzGo=
+        b=rFOCg3GHkefj7/164ZFtAj/xKkYyXS7isk8aER6Fz3L/5DSOF4bkZ0JvRL+VLSNiE
+         fGoHEaPMI6Ov1uAqgV+AJ6zAvMTurzcq5D03uosjVdaEsMgTk9nnp4YI96geEdxUV9
+         ANqvf9wJE07X6fNcVObm5hXPusfNIN8zU0J+usKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Mattia Dongili <malattia@linux.it>
-Subject: [PATCH 5.4 612/658] platform/x86: sony-laptop: Dont turn off 0x153 keyboard backlight during probe
+        patches@lists.linux.dev, Willy Tarreau <w@1wt.eu>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 66/86] tools/nolibc: fix the O_* fcntl/open macro definitions for riscv
 Date:   Mon, 16 Jan 2023 16:51:40 +0100
-Message-Id: <20230116154937.504549436@linuxfoundation.org>
+Message-Id: <20230116154749.785473332@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Willy Tarreau <w@1wt.eu>
 
-commit ad75bd85b1db69c97eefea07b375567821f6ef58 upstream.
+[ Upstream commit 00b18da4089330196906b9fe075c581c17eb726c ]
 
-The 0x153 version of the kbd backlight control SNC handle has no separate
-address to probe if the backlight is there.
+When RISCV port was imported in 5.2, the O_* macros were taken with
+their octal value and written as-is in hex, resulting in the getdents64()
+to fail in nolibc-test.
 
-This turns the probe call into a set keyboard backlight call with a value
-of 0 turning off the keyboard backlight.
-
-Skip probing when there is no separate probe address to avoid this.
-
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1583752
-Fixes: 800f20170dcf ("Keyboard backlight control for some Vaio Fit models")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Mattia Dongili <malattia@linux.it>
-Link: https://lore.kernel.org/r/20221213122943.11123-1-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 582e84f7b779 ("tool headers nolibc: add RISCV support") #5.2
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/sony-laptop.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ tools/include/nolibc/arch-riscv.h | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/platform/x86/sony-laptop.c
-+++ b/drivers/platform/x86/sony-laptop.c
-@@ -1899,14 +1899,21 @@ static int sony_nc_kbd_backlight_setup(s
- 		break;
- 	}
+diff --git a/tools/include/nolibc/arch-riscv.h b/tools/include/nolibc/arch-riscv.h
+index 511d67fc534e..8c0cb1abb29f 100644
+--- a/tools/include/nolibc/arch-riscv.h
++++ b/tools/include/nolibc/arch-riscv.h
+@@ -11,13 +11,13 @@
+ #define O_RDONLY            0
+ #define O_WRONLY            1
+ #define O_RDWR              2
+-#define O_CREAT         0x100
+-#define O_EXCL          0x200
+-#define O_NOCTTY        0x400
+-#define O_TRUNC        0x1000
+-#define O_APPEND       0x2000
+-#define O_NONBLOCK     0x4000
+-#define O_DIRECTORY  0x200000
++#define O_CREAT          0x40
++#define O_EXCL           0x80
++#define O_NOCTTY        0x100
++#define O_TRUNC         0x200
++#define O_APPEND        0x400
++#define O_NONBLOCK      0x800
++#define O_DIRECTORY   0x10000
  
--	ret = sony_call_snc_handle(handle, probe_base, &result);
--	if (ret)
--		return ret;
-+	/*
-+	 * Only probe if there is a separate probe_base, otherwise the probe call
-+	 * is equivalent to __sony_nc_kbd_backlight_mode_set(0), resulting in
-+	 * the keyboard backlight being turned off.
-+	 */
-+	if (probe_base) {
-+		ret = sony_call_snc_handle(handle, probe_base, &result);
-+		if (ret)
-+			return ret;
- 
--	if ((handle == 0x0137 && !(result & 0x02)) ||
--			!(result & 0x01)) {
--		dprintk("no backlight keyboard found\n");
--		return 0;
-+		if ((handle == 0x0137 && !(result & 0x02)) ||
-+				!(result & 0x01)) {
-+			dprintk("no backlight keyboard found\n");
-+			return 0;
-+		}
- 	}
- 
- 	kbdbl_ctl = kzalloc(sizeof(*kbdbl_ctl), GFP_KERNEL);
+ struct sys_stat_struct {
+ 	unsigned long	st_dev;		/* Device.  */
+-- 
+2.35.1
+
 
 
