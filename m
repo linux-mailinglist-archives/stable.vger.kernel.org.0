@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5BB666CC28
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:22:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0E1966CD99
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234470AbjAPRWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:22:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45454 "EHLO
+        id S234946AbjAPRhn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:37:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234593AbjAPRW0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:22:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 101335A371
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:00:08 -0800 (PST)
+        with ESMTP id S234928AbjAPRhJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20F8523D93
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E65E60F61
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:00:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0354C433EF;
-        Mon, 16 Jan 2023 17:00:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D01E7B8108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3532CC433D2;
+        Mon, 16 Jan 2023 17:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888407;
-        bh=Yr0DvrpDO605IOmGGzySm0bXFY3ZxoaZJxxugPVjwoc=;
+        s=korg; t=1673889226;
+        bh=wBKxZmG349uxzszzewuZj5eTp7kBrI/4+z86tF8EWw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGV7ZNUaqb+KWLK/AHU8VSn4sfKDRAdzNOLZN0AYoiosghW63CbYEsd3y77x8ueyK
-         wTzFzMw34+7h1zvZofYUrUvxIwg2JWHAP8yHYeYYnFk2bvmI7hNU6qO89Mdi2Otmdf
-         Z8vtdv6Z7cw/NEpzxGj/3XGqke9GKVDNKDfbbqYY=
+        b=u44upGGaTHNBNALzvrxYtXb4+AvVkg0ALv2nrP+tInPy7mdscQ1W3H3aGqJLlvQ5t
+         kFMyPiZH47Ijz0H1dwJRTAsoAmu7OLl9ZnzliuLNxHSz2H23aBechRi3ceKXFfKGo7
+         fy65zZPDGqWBjI57urel4AddlLM8HUYaVm7SpVmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH 4.19 516/521] tty: serial: tegra: Handle RX transfer in PIO mode if DMA wasnt started
+        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
+        Jan Kara <jack@suse.cz>, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 305/338] ext4: avoid unaccounted block allocation when expanding inode
 Date:   Mon, 16 Jan 2023 16:52:58 +0100
-Message-Id: <20230116154910.302197118@linuxfoundation.org>
+Message-Id: <20230116154834.403985650@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,94 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 1f69a1273b3f204a9c00dc3bbdcc4afcd0787428 upstream.
+commit 8994d11395f8165b3deca1971946f549f0822630 upstream.
 
-It is possible to get an instant RX timeout or end-of-transfer interrupt
-before RX DMA was started, if transaction is less than 16 bytes. Transfer
-should be handled in PIO mode in this case because DMA can't handle it.
-This patch brings back the original behaviour of the driver that was
-changed by accident by a previous commit, it fixes occasional Bluetooth HW
-initialization failures which I started to notice recently.
+When expanding inode space in ext4_expand_extra_isize_ea() we may need
+to allocate external xattr block. If quota is not initialized for the
+inode, the block allocation will not be accounted into quota usage. Make
+sure the quota is initialized before we try to expand inode space.
 
-Fixes: d5e3fadb7012 ("tty: serial: tegra: Activate RX DMA transfer by request")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20200209164415.9632-1-digetx@gmail.com
+Reported-by: Pengfei Xu <pengfei.xu@intel.com>
+Link: https://lore.kernel.org/all/Y5BT+k6xWqthZc1P@xpf.sh.intel.com
+Signed-off-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20221207115937.26601-2-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/serial-tegra.c |   35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ fs/ext4/inode.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -638,11 +638,22 @@ static void tegra_uart_copy_rx_to_tty(st
- 				TEGRA_UART_RX_DMA_BUFFER_SIZE, DMA_TO_DEVICE);
- }
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5905,6 +5905,14 @@ static int __ext4_expand_extra_isize(str
+ 		return 0;
+ 	}
  
-+static void do_handle_rx_pio(struct tegra_uart_port *tup)
-+{
-+	struct tty_struct *tty = tty_port_tty_get(&tup->uport.state->port);
-+	struct tty_port *port = &tup->uport.state->port;
++	/*
++	 * We may need to allocate external xattr block so we need quotas
++	 * initialized. Here we can be called with various locks held so we
++	 * cannot affort to initialize quotas ourselves. So just bail.
++	 */
++	if (dquot_initialize_needed(inode))
++		return -EAGAIN;
 +
-+	tegra_uart_handle_rx_pio(tup, port);
-+	if (tty) {
-+		tty_flip_buffer_push(port);
-+		tty_kref_put(tty);
-+	}
-+}
-+
- static void tegra_uart_rx_buffer_push(struct tegra_uart_port *tup,
- 				      unsigned int residue)
- {
- 	struct tty_port *port = &tup->uport.state->port;
--	struct tty_struct *tty = tty_port_tty_get(port);
- 	unsigned int count;
- 
- 	async_tx_ack(tup->rx_dma_desc);
-@@ -651,11 +662,7 @@ static void tegra_uart_rx_buffer_push(st
- 	/* If we are here, DMA is stopped */
- 	tegra_uart_copy_rx_to_tty(tup, port, count);
- 
--	tegra_uart_handle_rx_pio(tup, port);
--	if (tty) {
--		tty_flip_buffer_push(port);
--		tty_kref_put(tty);
--	}
-+	do_handle_rx_pio(tup);
- }
- 
- static void tegra_uart_rx_dma_complete(void *args)
-@@ -695,8 +702,10 @@ static void tegra_uart_terminate_rx_dma(
- {
- 	struct dma_tx_state state;
- 
--	if (!tup->rx_dma_active)
-+	if (!tup->rx_dma_active) {
-+		do_handle_rx_pio(tup);
- 		return;
-+	}
- 
- 	dmaengine_pause(tup->rx_dma_chan);
- 	dmaengine_tx_status(tup->rx_dma_chan, tup->rx_cookie, &state);
-@@ -765,18 +774,6 @@ static void tegra_uart_handle_modem_sign
- 		uart_handle_cts_change(&tup->uport, msr & UART_MSR_CTS);
- }
- 
--static void do_handle_rx_pio(struct tegra_uart_port *tup)
--{
--	struct tty_struct *tty = tty_port_tty_get(&tup->uport.state->port);
--	struct tty_port *port = &tup->uport.state->port;
--
--	tegra_uart_handle_rx_pio(tup, port);
--	if (tty) {
--		tty_flip_buffer_push(port);
--		tty_kref_put(tty);
--	}
--}
--
- static irqreturn_t tegra_uart_isr(int irq, void *data)
- {
- 	struct tegra_uart_port *tup = data;
+ 	/* try to expand with EAs present */
+ 	error = ext4_expand_extra_isize_ea(inode, new_extra_isize,
+ 					   raw_inode, handle);
 
 
