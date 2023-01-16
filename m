@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7714166C738
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17DFF66C9B8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:55:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233277AbjAPQ3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
+        id S234007AbjAPQzw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:55:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233301AbjAPQ2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 234772DE72
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:02 -0800 (PST)
+        with ESMTP id S234020AbjAPQze (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:55:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D34333455
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7889A6102D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ABDCC433F0;
-        Mon, 16 Jan 2023 16:17:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A535B8107D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:38:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98424C433EF;
+        Mon, 16 Jan 2023 16:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885821;
-        bh=1ZQ6+/fuRCxh9DqWHM9P3dLdWAyJxLUDJHaysaLu7W8=;
+        s=korg; t=1673887104;
+        bh=9+dSP2NiaydUweH9BbYDOiRdfmA3H/tFKbB9Qj0VaHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WCgfyXhPhg4rmgUQ9ncRfbJ9wXR5XTZdcBH3bENAx533Gs+pb+vNPB6VrT/q4Icob
-         a7tl8+ip8e+udbu4//ozcVcCjMuBT9402xmOFiWiLiKU1c8kUBX+4juEpjq0lBQNLh
-         jpqwFhlBa2YmFu70rRnWC4vApcvZfxh/4st+0Ah8=
+        b=DmHd5Etg4xqHHAHlk8OOPur1jeRCJ7NNI0NA9u/cjHc5ppbfS2k1i1wEbaz4eUMMa
+         rjfWVst6CWK9Y8fMhk0OCEkojGvL2vvwTrQjZ4rbU8k5Ve2wwen4pNsM0php1nGniV
+         Q1Aigz5Q3JP8Ao7bbon7VSl9j32AJwAFRXXFxTBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        patches@lists.linux.dev, Luca Weiss <luca@z3ntu.xyz>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 197/658] mmc: omap_hsmmc: fix return value check of mmc_add_host()
+Subject: [PATCH 4.19 023/521] ARM: dts: qcom: apq8064: fix coresight compatible
 Date:   Mon, 16 Jan 2023 16:44:45 +0100
-Message-Id: <20230116154918.445987939@linuxfoundation.org>
+Message-Id: <20230116154848.323463706@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Luca Weiss <luca@z3ntu.xyz>
 
-[ Upstream commit a525cad241c339ca00bf7ebf03c5180f2a9b767c ]
+[ Upstream commit a42b1ee868361f1cb0492f1bdaefb43e0751e468 ]
 
-mmc_add_host() may return error, if we ignore its return value,
-it will lead two issues:
-1. The memory that allocated in mmc_alloc_host() is leaked.
-2. In the remove() path, mmc_remove_host() will be called to
-   delete device, but it's not added yet, it will lead a kernel
-   crash because of null-ptr-deref in device_del().
+There's a typo missing the arm, prefix of arm,coresight-etb10. Fix it to
+make devicetree validation happier.
 
-Fix this by checking the return value and goto error path wihch
-will call mmc_free_host().
-
-Fixes: a45c6cb81647 ("[ARM] 5369/1: omap mmc: Add new omap hsmmc controller for 2430 and 34xx, v3")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221108121316.340354-1-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+Fixes: 7a5c275fd821 ("ARM: dts: qcom: Add apq8064 CoreSight components")
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221013190657.48499-3-luca@z3ntu.xyz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/omap_hsmmc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-apq8064.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
-index d0df054b0b47..ee9edf817a32 100644
---- a/drivers/mmc/host/omap_hsmmc.c
-+++ b/drivers/mmc/host/omap_hsmmc.c
-@@ -1998,7 +1998,9 @@ static int omap_hsmmc_probe(struct platform_device *pdev)
- 	if (!ret)
- 		mmc->caps |= MMC_CAP_SDIO_IRQ;
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index 00daa844bf8c..3b9d70eadeb9 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1604,7 +1604,7 @@ wifi {
+ 		};
  
--	mmc_add_host(mmc);
-+	ret = mmc_add_host(mmc);
-+	if (ret)
-+		goto err_irq;
+ 		etb@1a01000 {
+-			compatible = "coresight-etb10", "arm,primecell";
++			compatible = "arm,coresight-etb10", "arm,primecell";
+ 			reg = <0x1a01000 0x1000>;
  
- 	if (mmc_pdata(host)->name != NULL) {
- 		ret = device_create_file(&mmc->class_dev, &dev_attr_slot_name);
+ 			clocks = <&rpmcc RPM_QDSS_CLK>;
 -- 
 2.35.1
 
