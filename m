@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F089766CBF1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:20:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FE9066CD7C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234495AbjAPRUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:20:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41682 "EHLO
+        id S234914AbjAPRgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:36:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234459AbjAPRTq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:19:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 092F82F7BE
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:59:00 -0800 (PST)
+        with ESMTP id S234994AbjAPRgQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1032F3C2A4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7BA2B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:58:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08439C4339B;
-        Mon, 16 Jan 2023 16:58:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D0AF60F63
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC1DC433D2;
+        Mon, 16 Jan 2023 17:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888337;
-        bh=hU4662M6YQX6OR5tBCuRr2EM/H2kuefWhIXMxCZVt0U=;
+        s=korg; t=1673889155;
+        bh=NJ3egBCaytDsuzH7PX5b8qsmsCf8nLRqStSTw5U1Azc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cDqzSewm7sALySmIzc7ytnj3yixV/rDPyo1DoLvcPNqydBFhPUQJFRdTU7fcekEPR
-         ehhURyyvOfgPJhr5h3iSxTuYlYHbQ920PHyTQgvOQvUrx5dccQxEfvZtquECNRz2cY
-         E9VomxVIt776qMGQmkvn21tjqiR5xskK6CcMw/1E=
+        b=Jd0S1iLThdPppo2Wqg5us1vhs55t6rB3w5kJ5TvLuSchAU51fT5E0iwAuO1kPj5VA
+         G2w4dYQ4WfqLF1AmVfiLNo+Q3zZpt1axkH7DEDJQDPGhCYFrZnD2xXc+eZLzey4SQ+
+         a6pMq/nUejUvoH0M1tkEB8/4sWqTz/or7rpJpj44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable@kernel.org,
-        Mike Galbraith <efault@gmx.de>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 460/521] mbcache: Avoid nesting of cache->c_list_lock under bit locks
-Date:   Mon, 16 Jan 2023 16:52:02 +0100
-Message-Id: <20230116154907.708507249@linuxfoundation.org>
+        patches@lists.linux.dev, Wang Jingjin <wangjingjin1@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 250/338] ASoC: rockchip: pdm: Add missing clk_disable_unprepare() in rockchip_pdm_runtime_resume()
+Date:   Mon, 16 Jan 2023 16:52:03 +0100
+Message-Id: <20230116154831.964136873@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Wang Jingjin <wangjingjin1@huawei.com>
 
-commit 5fc4cbd9fde5d4630494fd6ffc884148fb618087 upstream.
+[ Upstream commit ef0a098efb36660326c133af9b5a04a96a00e3ca ]
 
-Commit 307af6c87937 ("mbcache: automatically delete entries from cache
-on freeing") started nesting cache->c_list_lock under the bit locks
-protecting hash buckets of the mbcache hash table in
-mb_cache_entry_create(). This causes problems for real-time kernels
-because there spinlocks are sleeping locks while bitlocks stay atomic.
-Luckily the nesting is easy to avoid by holding entry reference until
-the entry is added to the LRU list. This makes sure we cannot race with
-entry deletion.
+The clk_disable_unprepare() should be called in the error handling of
+rockchip_pdm_runtime_resume().
 
-Cc: stable@kernel.org
-Fixes: 307af6c87937 ("mbcache: automatically delete entries from cache on freeing")
-Reported-by: Mike Galbraith <efault@gmx.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220908091032.10513-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fc05a5b22253 ("ASoC: rockchip: add support for pdm controller")
+Signed-off-by: Wang Jingjin <wangjingjin1@huawei.com>
+Link: https://lore.kernel.org/r/20221205032802.2422983-1-wangjingjin1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/mbcache.c |   17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ sound/soc/rockchip/rockchip_pdm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/mbcache.c
-+++ b/fs/mbcache.c
-@@ -89,8 +89,14 @@ int mb_cache_entry_create(struct mb_cach
- 		return -ENOMEM;
+diff --git a/sound/soc/rockchip/rockchip_pdm.c b/sound/soc/rockchip/rockchip_pdm.c
+index ad16c8310dd3..7dfd1e6b2c25 100644
+--- a/sound/soc/rockchip/rockchip_pdm.c
++++ b/sound/soc/rockchip/rockchip_pdm.c
+@@ -303,6 +303,7 @@ static int rockchip_pdm_runtime_resume(struct device *dev)
  
- 	INIT_LIST_HEAD(&entry->e_list);
--	/* Initial hash reference */
--	atomic_set(&entry->e_refcnt, 1);
-+	/*
-+	 * We create entry with two references. One reference is kept by the
-+	 * hash table, the other reference is used to protect us from
-+	 * mb_cache_entry_delete_or_get() until the entry is fully setup. This
-+	 * avoids nesting of cache->c_list_lock into hash table bit locks which
-+	 * is problematic for RT.
-+	 */
-+	atomic_set(&entry->e_refcnt, 2);
- 	entry->e_key = key;
- 	entry->e_value = value;
- 	entry->e_flags = 0;
-@@ -106,15 +112,12 @@ int mb_cache_entry_create(struct mb_cach
- 		}
+ 	ret = clk_prepare_enable(pdm->hclk);
+ 	if (ret) {
++		clk_disable_unprepare(pdm->clk);
+ 		dev_err(pdm->dev, "hclock enable failed %d\n", ret);
+ 		return ret;
  	}
- 	hlist_bl_add_head(&entry->e_hash_list, head);
--	/*
--	 * Add entry to LRU list before it can be found by
--	 * mb_cache_entry_delete() to avoid races
--	 */
-+	hlist_bl_unlock(head);
- 	spin_lock(&cache->c_list_lock);
- 	list_add_tail(&entry->e_list, &cache->c_list);
- 	cache->c_entry_count++;
- 	spin_unlock(&cache->c_list_lock);
--	hlist_bl_unlock(head);
-+	mb_cache_entry_put(cache, entry);
- 
- 	return 0;
- }
+-- 
+2.35.1
+
 
 
