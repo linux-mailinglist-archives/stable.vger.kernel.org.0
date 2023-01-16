@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B4AB66C735
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1CB466C9D0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233232AbjAPQ3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47406 "EHLO
+        id S233687AbjAPQ4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:56:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233267AbjAPQ2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 807112D14F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:56 -0800 (PST)
+        with ESMTP id S234002AbjAPQ4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB6C2BF15
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C25EB80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86FA7C433EF;
-        Mon, 16 Jan 2023 16:16:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA73AB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5446AC433EF;
+        Mon, 16 Jan 2023 16:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885813;
-        bh=IyXG2EepHfyo8Fk7TQ9ltHxf8Z7mjl01f2oYFFIjIRE=;
+        s=korg; t=1673887153;
+        bh=hky+L9OqszPzzfyyNFRtDqP5ZOd/0ysZcJ2HNj/l+b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bDaDulOm8bobFKLMYZE/WqRXUjBEPfiKWW7opA6UditKTL42LU5ALmK3mbzDQ9BTx
-         2Bsq1qO0gViRPXr/BASETXSP0htr8j+rG+tF5U+e8gERMvmYr9SsngthH+2s4pZVz0
-         l7xvnqEIPKFqCpgpv4FkStSon0UXaMXH+8HkMzqM=
+        b=Ql+sCX1Dh2WBoAsv0tG+/hdoD+YeVM+78frM5zlO/mdxhHTKcTLhPvjQw7lTy+am7
+         4E3uC+IU6FsDHKGjLDojAKpl6ULBVG93N/28Eov7TOAcJPZTnOuBKZNn0Bv6qYDMoS
+         J35pQgi7bvIqsKXLW4MMzthqOe1e4h7SlgffQ5bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 186/658] SUNRPC: Fix missing release socket in rpc_sockname()
+        patches@lists.linux.dev, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.19 012/521] udf: Fix preallocation discarding at indirect extent boundary
 Date:   Mon, 16 Jan 2023 16:44:34 +0100
-Message-Id: <20230116154917.968503763@linuxfoundation.org>
+Message-Id: <20230116154847.819377181@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +51,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 50fa355bc0d75911fe9d5072a5ba52cdb803aff7 ]
+commit cfe4c1b25dd6d2f056afc00b7c98bcb3dd0b1fc3 upstream.
 
-socket dynamically created is not released when getting an unintended
-address family type in rpc_sockname(), direct to out_release for calling
-sock_release().
+When preallocation extent is the first one in the extent block, the
+code would corrupt extent tree header instead. Fix the problem and use
+udf_delete_aext() for deleting extent to avoid some code duplication.
 
-Fixes: 2e738fdce22f ("SUNRPC: Add API to acquire source address")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/clnt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/udf/truncate.c |   45 +++++++++++++--------------------------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index 1893203cc94f..012b0504264d 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1354,7 +1354,7 @@ static int rpc_sockname(struct net *net, struct sockaddr *sap, size_t salen,
- 		break;
- 	default:
- 		err = -EAFNOSUPPORT;
--		goto out;
-+		goto out_release;
+--- a/fs/udf/truncate.c
++++ b/fs/udf/truncate.c
+@@ -120,60 +120,41 @@ void udf_truncate_tail_extent(struct ino
+ 
+ void udf_discard_prealloc(struct inode *inode)
+ {
+-	struct extent_position epos = { NULL, 0, {0, 0} };
++	struct extent_position epos = {};
++	struct extent_position prev_epos = {};
+ 	struct kernel_lb_addr eloc;
+ 	uint32_t elen;
+ 	uint64_t lbcount = 0;
+ 	int8_t etype = -1, netype;
+-	int adsize;
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 
+ 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB ||
+ 	    inode->i_size == iinfo->i_lenExtents)
+ 		return;
+ 
+-	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
+-		adsize = sizeof(struct short_ad);
+-	else if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_LONG)
+-		adsize = sizeof(struct long_ad);
+-	else
+-		adsize = 0;
+-
+ 	epos.block = iinfo->i_location;
+ 
+ 	/* Find the last extent in the file */
+-	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 1)) != -1) {
+-		etype = netype;
++	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 0)) != -1) {
++		brelse(prev_epos.bh);
++		prev_epos = epos;
++		if (prev_epos.bh)
++			get_bh(prev_epos.bh);
++
++		etype = udf_next_aext(inode, &epos, &eloc, &elen, 1);
+ 		lbcount += elen;
  	}
- 	if (err < 0) {
- 		dprintk("RPC:       can't bind UDP socket (%d)\n", err);
--- 
-2.35.1
-
+ 	if (etype == (EXT_NOT_RECORDED_ALLOCATED >> 30)) {
+-		epos.offset -= adsize;
+ 		lbcount -= elen;
+-		extent_trunc(inode, &epos, &eloc, etype, elen, 0);
+-		if (!epos.bh) {
+-			iinfo->i_lenAlloc =
+-				epos.offset -
+-				udf_file_entry_alloc_offset(inode);
+-			mark_inode_dirty(inode);
+-		} else {
+-			struct allocExtDesc *aed =
+-				(struct allocExtDesc *)(epos.bh->b_data);
+-			aed->lengthAllocDescs =
+-				cpu_to_le32(epos.offset -
+-					    sizeof(struct allocExtDesc));
+-			if (!UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_STRICT) ||
+-			    UDF_SB(inode->i_sb)->s_udfrev >= 0x0201)
+-				udf_update_tag(epos.bh->b_data, epos.offset);
+-			else
+-				udf_update_tag(epos.bh->b_data,
+-					       sizeof(struct allocExtDesc));
+-			mark_buffer_dirty_inode(epos.bh, inode);
+-		}
++		udf_delete_aext(inode, prev_epos);
++		udf_free_blocks(inode->i_sb, inode, &eloc, 0,
++				DIV_ROUND_UP(elen, 1 << inode->i_blkbits));
+ 	}
+ 	/* This inode entry is in-memory only and thus we don't have to mark
+ 	 * the inode dirty */
+ 	iinfo->i_lenExtents = lbcount;
+ 	brelse(epos.bh);
++	brelse(prev_epos.bh);
+ }
+ 
+ static void udf_update_alloc_ext_desc(struct inode *inode,
 
 
