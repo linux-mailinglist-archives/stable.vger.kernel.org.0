@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C906366CDAF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A2566CDB0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234949AbjAPRiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:38:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
+        id S235075AbjAPRiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:38:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234832AbjAPRhi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925F22203C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:34 -0800 (PST)
+        with ESMTP id S235012AbjAPRhk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D7323842
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 307FF60F63
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46FDAC433D2;
-        Mon, 16 Jan 2023 17:14:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9062DB81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E641AC433EF;
+        Mon, 16 Jan 2023 17:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889273;
-        bh=eQN7xGxWa+wFIeq3fR7PmEe3M1mX/uC1YU1nir2Ub7U=;
+        s=korg; t=1673889276;
+        bh=JhJDu4OPqyzDuO/6UUTMkTmNSEiamMsWkFSaQkhAQDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vm9/3VahQE5hznHZSlqY6120k1tGyT56dJD5u4zOvTgAQICnVIS33quB1L61108Lj
-         H/c/iXI8rJ3GZlnMu852YMWKbVX95UHNQhMQvWEupnP3o+BFqEihaccXEINYgVBsgP
-         MZ8Y+ojHoPTT5yGLN14G5qLI5y91eJOlgp5Bo+Qw=
+        b=lrXLtFmXeYy6IHgUf5YdG4SVDikCvd14pnXjaTlR3wr3qOzaDSkf0R2nhtvoCWqv1
+         Ym7DGosET4M35nyR2IhnSg0dULPfDj/vwaWo5Y0dYUgtsd/eSjw5mpoo13eIJOsABW
+         5v+TPhNNq6y0A1txOOG0tkV+qqLipdS+uCQk8X1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Martin=20Li=C5=A1ka?= <mliska@suse.cz>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 4.14 325/338] docs: Fix the docs build with Sphinx 6.0
-Date:   Mon, 16 Jan 2023 16:53:18 +0100
-Message-Id: <20230116154835.264240067@linuxfoundation.org>
+        patches@lists.linux.dev, Dmitrii Dolgov <9erthalion6@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.14 326/338] perf auxtrace: Fix address filter duplicate symbol selection
+Date:   Mon, 16 Jan 2023 16:53:19 +0100
+Message-Id: <20230116154835.314347026@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -53,46 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Corbet <corbet@lwn.net>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 0283189e8f3d0917e2ac399688df85211f48447b upstream.
+commit cf129830ee820f7fc90b98df193cd49d49344d09 upstream.
 
-Sphinx 6.0 removed the execfile_() function, which we use as part of the
-configuration process.  They *did* warn us...  Just open-code the
-functionality as is done in Sphinx itself.
+When a match has been made to the nth duplicate symbol, return
+success not error.
 
-Tested (using SPHINX_CONF, since this code is only executed with an
-alternative config file) on various Sphinx versions from 2.5 through 6.0.
+Example:
 
-Reported-by: Martin Liška <mliska@suse.cz>
+  Before:
+
+    $ cat file.c
+    cat: file.c: No such file or directory
+    $ cat file1.c
+    #include <stdio.h>
+
+    static void func(void)
+    {
+            printf("First func\n");
+    }
+
+    void other(void);
+
+    int main()
+    {
+            func();
+            other();
+            return 0;
+    }
+    $ cat file2.c
+    #include <stdio.h>
+
+    static void func(void)
+    {
+            printf("Second func\n");
+    }
+
+    void other(void)
+    {
+            func();
+    }
+
+    $ gcc -Wall -Wextra -o test file1.c file2.c
+    $ perf record -e intel_pt//u --filter 'filter func @ ./test' -- ./test
+    Multiple symbols with name 'func'
+    #1      0x1149  l       func
+                    which is near           main
+    #2      0x1179  l       func
+                    which is near           other
+    Disambiguate symbol name by inserting #n after the name e.g. func #2
+    Or select a global symbol by inserting #0 or #g or #G
+    Failed to parse address filter: 'filter func @ ./test'
+    Filter format is: filter|start|stop|tracestop <start symbol or address> [/ <end symbol or size>] [@<file name>]
+    Where multiple filters are separated by space or comma.
+    $ perf record -e intel_pt//u --filter 'filter func #2 @ ./test' -- ./test
+    Failed to parse address filter: 'filter func #2 @ ./test'
+    Filter format is: filter|start|stop|tracestop <start symbol or address> [/ <end symbol or size>] [@<file name>]
+    Where multiple filters are separated by space or comma.
+
+  After:
+
+    $ perf record -e intel_pt//u --filter 'filter func #2 @ ./test' -- ./test
+    First func
+    Second func
+    [ perf record: Woken up 1 times to write data ]
+    [ perf record: Captured and wrote 0.016 MB perf.data ]
+    $ perf script --itrace=b -Ftime,flags,ip,sym,addr --ns
+    1231062.526977619:   tr strt                               0 [unknown] =>     558495708179 func
+    1231062.526977619:   tr end  call               558495708188 func =>     558495708050 _init
+    1231062.526979286:   tr strt                               0 [unknown] =>     55849570818d func
+    1231062.526979286:   tr end  return             55849570818f func =>     55849570819d other
+
+Fixes: 1b36c03e356936d6 ("perf record: Add support for using symbols in address filters")
+Reported-by: Dmitrii Dolgov <9erthalion6@gmail.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Dmitry Dolgov <9erthalion6@gmail.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Link: https://lore.kernel.org/r/20230110185659.15979-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/sphinx/load_config.py |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/perf/util/auxtrace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/sphinx/load_config.py
-+++ b/Documentation/sphinx/load_config.py
-@@ -3,7 +3,7 @@
- 
- import os
- import sys
--from sphinx.util.pycompat import execfile_
-+from sphinx.util.osutil import fs_encoding
- 
- # ------------------------------------------------------------------------------
- def loadConfig(namespace):
-@@ -25,7 +25,9 @@ def loadConfig(namespace):
-             sys.stdout.write("load additional sphinx-config: %s\n" % config_file)
-             config = namespace.copy()
-             config['__file__'] = config_file
--            execfile_(config_file, config)
-+            with open(config_file, 'rb') as f:
-+                code = compile(f.read(), fs_encoding, 'exec')
-+                exec(code, config)
-             del config['__file__']
-             namespace.update(config)
-         else:
+--- a/tools/perf/util/auxtrace.c
++++ b/tools/perf/util/auxtrace.c
+@@ -1945,7 +1945,7 @@ static int find_dso_sym(struct dso *dso,
+ 				*size = sym->start - *start;
+ 			if (idx > 0) {
+ 				if (*size)
+-					return 1;
++					return 0;
+ 			} else if (dso_sym_match(sym, sym_name, &cnt, idx)) {
+ 				print_duplicate_syms(dso, sym_name);
+ 				return -EINVAL;
 
 
