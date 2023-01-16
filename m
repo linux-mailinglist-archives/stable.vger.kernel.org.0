@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCED266CC57
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4526366CACD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234447AbjAPRZU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47746 "EHLO
+        id S232349AbjAPRHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:07:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234413AbjAPRYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:23 -0500
+        with ESMTP id S234227AbjAPRHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:07:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AAFA39B89
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C2F12A168
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D918C61083
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA88FC433EF;
-        Mon, 16 Jan 2023 17:01:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3432061057
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B8CCC433D2;
+        Mon, 16 Jan 2023 16:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888512;
-        bh=e57jkr2Sx5K9DUL/Lko2+9PfYTAyX7jH74mpGE/pcnk=;
+        s=korg; t=1673887686;
+        bh=5dyIveQccTfcAJWUhuO6CtGavwCW5XThzT5Jsp/7enU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sorLNzZZD/WVyy2YhAxms5EW2Xwei18h4b1DTxzzA8x3Z1ReEz/J9oYX+SoDdYrcY
-         YEtSG4KLdt1/mUXnwg/VH7XvsC3sNhrG84n/HlCLgBRDJMxZxqhKa+WK5oEZzCi2lV
-         gPQt13MWxnr5X7He6DRjV3hYCr4ElJ++HM/yQ+Z4=
+        b=pFyFnEbFsrHCcxsrPaR5OKemM/w965sJ/CYympjv2QGyT53NyFUDR9K0/XNETeIo5
+         zbBwtQTZAKqs0nNiJ2hQNOHEQU9Mj4VmrAkeEujyk3inRFr809ErfBaudeQospwojb
+         n7Z75XGvSm2h8N3YYjIeGgkh3a3S6Kag0hRzq4Ns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 033/338] ARM: dts: armada-38x: Fix assigned-addresses for every PCIe Root Port
+Subject: [PATCH 4.19 244/521] staging: rtl8192u: Fix use after free in ieee80211_rx()
 Date:   Mon, 16 Jan 2023 16:48:26 +0100
-Message-Id: <20230116154822.222442461@linuxfoundation.org>
+Message-Id: <20230116154858.060629174@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit 44f47b7a8fa4678ce4c38ea74837e4996b9df6d6 ]
+[ Upstream commit bcc5e2dcf09089b337b76fc1a589f6ff95ca19ac ]
 
-BDF of resource in DT assigned-addresses property of Marvell PCIe Root Port
-(PCI-to-PCI bridge) should match BDF in address part in that DT node name
-as specified resource belongs to Marvell PCIe Root Port itself.
+We cannot dereference the "skb" pointer after calling
+ieee80211_monitor_rx(), because it is a use after free.
 
-Fixes: 0d3d96ab0059 ("ARM: mvebu: add Device Tree description of the Armada 380/385 SoCs")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Link: https://lore.kernel.org/r/Y33BArx3k/aw6yv/@kili
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-380.dtsi | 4 ++--
- arch/arm/boot/dts/armada-385.dtsi | 6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/armada-380.dtsi b/arch/arm/boot/dts/armada-380.dtsi
-index 132596fd0860..91dbf11ef0f9 100644
---- a/arch/arm/boot/dts/armada-380.dtsi
-+++ b/arch/arm/boot/dts/armada-380.dtsi
-@@ -116,7 +116,7 @@ pcie@1,0 {
- 			/* x1 port */
- 			pcie@2,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
-+				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
- 				reg = <0x1000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -135,7 +135,7 @@ pcie@2,0 {
- 			/* x1 port */
- 			pcie@3,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
-+				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
- 				reg = <0x1800 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-diff --git a/arch/arm/boot/dts/armada-385.dtsi b/arch/arm/boot/dts/armada-385.dtsi
-index 74863aff01c6..1f047dc7739e 100644
---- a/arch/arm/boot/dts/armada-385.dtsi
-+++ b/arch/arm/boot/dts/armada-385.dtsi
-@@ -121,7 +121,7 @@ pcie1: pcie@1,0 {
- 			/* x1 port */
- 			pcie2: pcie@2,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x40000 0 0x2000>;
-+				assigned-addresses = <0x82001000 0 0x40000 0 0x2000>;
- 				reg = <0x1000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -140,7 +140,7 @@ pcie2: pcie@2,0 {
- 			/* x1 port */
- 			pcie3: pcie@3,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x44000 0 0x2000>;
-+				assigned-addresses = <0x82001800 0 0x44000 0 0x2000>;
- 				reg = <0x1800 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
-@@ -162,7 +162,7 @@ pcie3: pcie@3,0 {
- 			 */
- 			pcie4: pcie@4,0 {
- 				device_type = "pci";
--				assigned-addresses = <0x82000800 0 0x48000 0 0x2000>;
-+				assigned-addresses = <0x82002000 0 0x48000 0 0x2000>;
- 				reg = <0x2000 0 0 0 0>;
- 				#address-cells = <3>;
- 				#size-cells = <2>;
+diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
+index fb824c517449..14b3daa5f17e 100644
+--- a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
++++ b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
+@@ -961,9 +961,11 @@ int ieee80211_rx(struct ieee80211_device *ieee, struct sk_buff *skb,
+ #endif
+ 
+ 	if (ieee->iw_mode == IW_MODE_MONITOR) {
++		unsigned int len = skb->len;
++
+ 		ieee80211_monitor_rx(ieee, skb, rx_stats);
+ 		stats->rx_packets++;
+-		stats->rx_bytes += skb->len;
++		stats->rx_bytes += len;
+ 		return 1;
+ 	}
+ 
 -- 
 2.35.1
 
