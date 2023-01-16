@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A4B66CD70
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 581F266CBE5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:19:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234904AbjAPRgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:36:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57960 "EHLO
+        id S234346AbjAPRT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:19:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234941AbjAPRgC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6928B3BD95
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:12 -0800 (PST)
+        with ESMTP id S234447AbjAPRTf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:19:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FAD955B0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:58:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1351CB81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70507C433EF;
-        Mon, 16 Jan 2023 17:12:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9CC661085
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:58:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD291C433EF;
+        Mon, 16 Jan 2023 16:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889129;
-        bh=8mVIRO0feaIorpGIu2mgwzy8841OkHPcpJl8XE4ChIg=;
+        s=korg; t=1673888311;
+        bh=uArzIMCYonl/dTiiMOCfG1Vk0dqzA/SLfe8sJmRBmAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFZQrbINX2puwAlumZfcZ0cLp9kbHUzod52qTjeA7EVRRtm2q/n24tiBKlSA9YjHp
-         n5sPqCv8hAx8wI2snmkTQ2Aky7BmIqm2iTvMk46ExtBPfNUZdmpi4TeFWwTZj8K1Qb
-         gNTLxbPiGaNX/vVPSoKkNe4p/CYW7R17GqDnO8eQ=
+        b=GOW5jvqqRS1ZVF7LuvCgcdetp/oJKbiPo6TBmnLkMSt5PH1oXKA8o5Uu80Cvfwb5g
+         sIFfmqXQNBsceFOqLKL9nxqlsLxOunkSJOfNcqyw3FXzWWpQcBgpXatjs301xzo+MO
+         JKagH4PefvqjOjYu84c/S5FDGg/iF02pTz4Wzr+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 4.14 269/338] md: fix a crash in mempool_free
+        patches@lists.linux.dev, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        msd <msd.mmq@gmail.com>
+Subject: [PATCH 4.19 480/521] ALSA: hda/realtek: Fix the mic type detection issue for ASUS G551JW
 Date:   Mon, 16 Jan 2023 16:52:22 +0100
-Message-Id: <20230116154832.832128723@linuxfoundation.org>
+Message-Id: <20230116154908.667717575@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,109 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 341097ee53573e06ab9fc675d96a052385b851fa upstream.
+[ Upstream commit a3fd1a986e499a06ac5ef95c3a39aa4611e7444c ]
 
-There's a crash in mempool_free when running the lvm test
-shell/lvchange-rebuild-raid.sh.
+We need to define the codec pin 0x1b to be the mic, but somehow
+the mic doesn't support hot plugging detection, and Windows also has
+this issue, so we set it to phantom headset-mic.
 
-The reason for the crash is this:
-* super_written calls atomic_dec_and_test(&mddev->pending_writes) and
-  wake_up(&mddev->sb_wait). Then it calls rdev_dec_pending(rdev, mddev)
-  and bio_put(bio).
-* so, the process that waited on sb_wait and that is woken up is racing
-  with bio_put(bio).
-* if the process wins the race, it calls bioset_exit before bio_put(bio)
-  is executed.
-* bio_put(bio) attempts to free a bio into a destroyed bio set - causing
-  a crash in mempool_free.
+Also the determine_headset_type() often returns the omtp type by a
+mistake when we plug a ctia headset, this makes the mic can't record
+sound at all. Because most of the headset are ctia type nowadays and
+some machines have the fixed ctia type audio jack, it is possible this
+machine has the fixed ctia jack too. Here we set this mic jack to
+fixed ctia type, this could avoid the mic type detection mistake and
+make the ctia headset work stable.
 
-We fix this bug by moving bio_put before atomic_dec_and_test.
-
-We also move rdev_dec_pending before atomic_dec_and_test as suggested by
-Neil Brown.
-
-The function md_end_flush has a similar bug - we must call bio_put before
-we decrement the number of in-progress bios.
-
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 11557f0067 P4D 11557f0067 PUD 0
- Oops: 0002 [#1] PREEMPT SMP
- CPU: 0 PID: 73 Comm: kworker/0:1 Not tainted 6.1.0-rc3 #5
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
- Workqueue: kdelayd flush_expired_bios [dm_delay]
- RIP: 0010:mempool_free+0x47/0x80
- Code: 48 89 ef 5b 5d ff e0 f3 c3 48 89 f7 e8 32 45 3f 00 48 63 53 08 48 89 c6 3b 53 04 7d 2d 48 8b 43 10 8d 4a 01 48 89 df 89 4b 08 <48> 89 2c d0 e8 b0 45 3f 00 48 8d 7b 30 5b 5d 31 c9 ba 01 00 00 00
- RSP: 0018:ffff88910036bda8 EFLAGS: 00010093
- RAX: 0000000000000000 RBX: ffff8891037b65d8 RCX: 0000000000000001
- RDX: 0000000000000000 RSI: 0000000000000202 RDI: ffff8891037b65d8
- RBP: ffff8891447ba240 R08: 0000000000012908 R09: 00000000003d0900
- R10: 0000000000000000 R11: 0000000000173544 R12: ffff889101a14000
- R13: ffff8891562ac300 R14: ffff889102b41440 R15: ffffe8ffffa00d05
- FS:  0000000000000000(0000) GS:ffff88942fa00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000000 CR3: 0000001102e99000 CR4: 00000000000006b0
- Call Trace:
-  <TASK>
-  clone_endio+0xf4/0x1c0 [dm_mod]
-  clone_endio+0xf4/0x1c0 [dm_mod]
-  __submit_bio+0x76/0x120
-  submit_bio_noacct_nocheck+0xb6/0x2a0
-  flush_expired_bios+0x28/0x2f [dm_delay]
-  process_one_work+0x1b4/0x300
-  worker_thread+0x45/0x3e0
-  ? rescuer_thread+0x380/0x380
-  kthread+0xc2/0x100
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork+0x1f/0x30
-  </TASK>
- Modules linked in: brd dm_delay dm_raid dm_mod af_packet uvesafb cfbfillrect cfbimgblt cn cfbcopyarea fb font fbdev tun autofs4 binfmt_misc configfs ipv6 virtio_rng virtio_balloon rng_core virtio_net pcspkr net_failover failover qemu_fw_cfg button mousedev raid10 raid456 libcrc32c async_raid6_recov async_memcpy async_pq raid6_pq async_xor xor async_tx raid1 raid0 md_mod sd_mod t10_pi crc64_rocksoft crc64 virtio_scsi scsi_mod evdev psmouse bsg scsi_common [last unloaded: brd]
- CR2: 0000000000000000
- ---[ end trace 0000000000000000 ]---
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214537
+Reported-and-tested-by: msd <msd.mmq@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20211012114748.5238-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Stable-dep-of: 4bf5bf54476d ("ALSA: hda/realtek: Add quirk for Lenovo TianYi510Pro-14IOB")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -418,13 +418,14 @@ static void md_end_flush(struct bio *bio
- 	struct md_rdev *rdev = bio->bi_private;
- 	struct mddev *mddev = rdev->mddev;
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index a3cc5cc0d668..566d5ea74c62 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8649,6 +8649,9 @@ enum {
+ 	ALC671_FIXUP_HP_HEADSET_MIC2,
+ 	ALC662_FIXUP_ACER_X2660G_HEADSET_MODE,
+ 	ALC662_FIXUP_ACER_NITRO_HEADSET_MODE,
++	ALC668_FIXUP_ASUS_NO_HEADSET_MIC,
++	ALC668_FIXUP_HEADSET_MIC,
++	ALC668_FIXUP_MIC_DET_COEF,
+ };
  
-+	bio_put(bio);
-+
- 	rdev_dec_pending(rdev, mddev);
+ static const struct hda_fixup alc662_fixups[] = {
+@@ -9025,6 +9028,29 @@ static const struct hda_fixup alc662_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC662_FIXUP_USI_FUNC
+ 	},
++	[ALC668_FIXUP_ASUS_NO_HEADSET_MIC] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x1b, 0x04a1112c },
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC668_FIXUP_HEADSET_MIC
++	},
++	[ALC668_FIXUP_HEADSET_MIC] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc269_fixup_headset_mic,
++		.chained = true,
++		.chain_id = ALC668_FIXUP_MIC_DET_COEF
++	},
++	[ALC668_FIXUP_MIC_DET_COEF] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x15 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0d60 },
++			{}
++		},
++	},
+ };
  
- 	if (atomic_dec_and_test(&mddev->flush_pending)) {
- 		/* The pre-request flush has finished */
- 		queue_work(md_wq, &mddev->flush_work);
- 	}
--	bio_put(bio);
- }
- 
- static void md_submit_flush_data(struct work_struct *ws);
-@@ -805,10 +806,12 @@ static void super_written(struct bio *bi
- 	} else
- 		clear_bit(LastDev, &rdev->flags);
- 
-+	bio_put(bio);
-+
-+	rdev_dec_pending(rdev, mddev);
-+
- 	if (atomic_dec_and_test(&mddev->pending_writes))
- 		wake_up(&mddev->sb_wait);
--	rdev_dec_pending(rdev, mddev);
--	bio_put(bio);
- }
- 
- void md_super_write(struct mddev *mddev, struct md_rdev *rdev,
+ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+@@ -9059,6 +9085,7 @@ static const struct snd_pci_quirk alc662_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1043, 0x15a7, "ASUS UX51VZH", ALC662_FIXUP_BASS_16),
+ 	SND_PCI_QUIRK(0x1043, 0x177d, "ASUS N551", ALC668_FIXUP_ASUS_Nx51),
+ 	SND_PCI_QUIRK(0x1043, 0x17bd, "ASUS N751", ALC668_FIXUP_ASUS_Nx51),
++	SND_PCI_QUIRK(0x1043, 0x185d, "ASUS G551JW", ALC668_FIXUP_ASUS_NO_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1963, "ASUS X71SL", ALC662_FIXUP_ASUS_MODE8),
+ 	SND_PCI_QUIRK(0x1043, 0x1b73, "ASUS N55SF", ALC662_FIXUP_BASS_16),
+ 	SND_PCI_QUIRK(0x1043, 0x1bf3, "ASUS N76VZ", ALC662_FIXUP_BASS_MODE4_CHMAP),
+-- 
+2.35.1
+
 
 
