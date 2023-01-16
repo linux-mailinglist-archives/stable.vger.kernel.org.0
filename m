@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A70566CC76
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:26:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E29B766CAFB
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234600AbjAPR0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:26:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49900 "EHLO
+        id S234302AbjAPRJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234654AbjAPRZ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:25:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3959B39BBF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:03:08 -0800 (PST)
+        with ESMTP id S234386AbjAPRJA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:09:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99AAE1E5D5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:49:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF716B8107A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BBAEC433EF;
-        Mon, 16 Jan 2023 17:03:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E70CB8109B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:49:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70641C4339B;
+        Mon, 16 Jan 2023 16:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888585;
-        bh=b9PguJmoUZmhPzFwXtt6HcyBQhefYR2OffN23ckAeAM=;
+        s=korg; t=1673887765;
+        bh=jqHg8aD7g3vhlbaDffaF6JJTgh8z2O11Zvyxl/vGrSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YoXnGH1ipTZ61z2d4BoCQ5X4gsxR1RH9Vg5H7f1sgm0xJTUKmRdFSI96Z63fLj23T
-         su/6+otRSl3IndQjoEHAvaw1wGlrUpn5MrehL/Y0MXt55jDpss6lKOm5CKhO7x0vaT
-         F3IhT/T1tIzBVXszq1XOcQkQ9cR2S2EEnLgoMO/8=
+        b=UdkmTOXITTp/Xz65YkS2bjOqHqeYe4pi726YaHp7unqypfykiGmYhAMp08Q/e6P49
+         ReSdiEorY25ehWfMu/zeeqopCOv0RG7DoJcpUrQeFYIcKzxSbgnA07UaA7dmq1cOS+
+         UiMbVZFTNznDNOUtIYz5ZyyRsel1+O7WvzugVhxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Dan Carpenter <error27@gmail.com>,
-        Jakob Koschel <jakobkoschel@gmail.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        patches@lists.linux.dev,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 062/338] rapidio: fix possible UAF when kfifo_alloc() fails
-Date:   Mon, 16 Jan 2023 16:48:55 +0100
-Message-Id: <20230116154823.532854005@linuxfoundation.org>
+Subject: [PATCH 4.19 274/521] rtc: cmos: Disable ACPI RTC event on removal
+Date:   Mon, 16 Jan 2023 16:48:56 +0100
+Message-Id: <20230116154859.408585245@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,56 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Weiyang <wangweiyang2@huawei.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 02d7d89f816951e0862147d751b1150d67aaebdd ]
+[ Upstream commit 83ebb7b3036d151ee39a4a752018665648fc3bd4 ]
 
-If kfifo_alloc() fails in mport_cdev_open(), goto err_fifo and just free
-priv. But priv is still in the chdev->file_list, then list traversal
-may cause UAF. This fixes the following smatch warning:
+Make cmos_do_remove() drop the ACPI RTC fixed event handler so as to
+prevent it from operating on stale data in case the event triggers
+after driver removal.
 
-drivers/rapidio/devices/rio_mport_cdev.c:1930 mport_cdev_open() warn: '&priv->list' not removed from list
-
-Link: https://lkml.kernel.org/r/20221123095147.52408-1-wangweiyang2@huawei.com
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Dan Carpenter <error27@gmail.com>
-Cc: Jakob Koschel <jakobkoschel@gmail.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Zhang Rui <rui.zhang@intel.com>
+Tested-by: Zhang Rui <rui.zhang@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/2224609.iZASKD2KPV@kreacher
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/devices/rio_mport_cdev.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-cmos.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
-index ce12b5c25b8c..d6d223b63313 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -1963,10 +1963,6 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 0c035c5a5ae6..5354c12f6b2a 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -756,6 +756,14 @@ static void acpi_rtc_event_setup(struct device *dev)
+ 	acpi_disable_event(ACPI_EVENT_RTC, 0);
+ }
  
- 	priv->md = chdev;
++static void acpi_rtc_event_cleanup(void)
++{
++	if (acpi_disabled)
++		return;
++
++	acpi_remove_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler);
++}
++
+ static void rtc_wake_on(struct device *dev)
+ {
+ 	acpi_clear_event(ACPI_EVENT_RTC);
+@@ -842,6 +850,10 @@ static inline void acpi_rtc_event_setup(struct device *dev)
+ {
+ }
  
--	mutex_lock(&chdev->file_mutex);
--	list_add_tail(&priv->list, &chdev->file_list);
--	mutex_unlock(&chdev->file_mutex);
--
- 	INIT_LIST_HEAD(&priv->db_filters);
- 	INIT_LIST_HEAD(&priv->pw_filters);
- 	spin_lock_init(&priv->fifo_lock);
-@@ -1986,6 +1982,9 @@ static int mport_cdev_open(struct inode *inode, struct file *filp)
- 	spin_lock_init(&priv->req_lock);
- 	mutex_init(&priv->dma_lock);
- #endif
-+	mutex_lock(&chdev->file_mutex);
-+	list_add_tail(&priv->list, &chdev->file_list);
-+	mutex_unlock(&chdev->file_mutex);
++static inline void acpi_rtc_event_cleanup(void)
++{
++}
++
+ static inline void acpi_cmos_wake_setup(struct device *dev)
+ {
+ }
+@@ -1089,6 +1101,9 @@ static void cmos_do_remove(struct device *dev)
+ 			hpet_unregister_irq_handler(cmos_interrupt);
+ 	}
  
- 	filp->private_data = priv;
- 	goto out;
++	if (!dev_get_platdata(dev))
++		acpi_rtc_event_cleanup();
++
+ 	cmos->rtc = NULL;
+ 
+ 	ports = cmos->iomem;
 -- 
 2.35.1
 
