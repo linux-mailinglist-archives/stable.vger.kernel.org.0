@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51AF366CCA1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D12E366CB26
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234746AbjAPR2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:28:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49336 "EHLO
+        id S234300AbjAPRLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:11:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233996AbjAPR1w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:27:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E8B512586
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:40 -0800 (PST)
+        with ESMTP id S234241AbjAPRKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:10:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5197126BC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:50:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE99561058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1814C433D2;
-        Mon, 16 Jan 2023 17:04:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E547861050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:50:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07926C433EF;
+        Mon, 16 Jan 2023 16:50:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888679;
-        bh=Snoqf9VpvTgWOlojbJjZCtq0GETXBSR8Y1yfNZTxW94=;
+        s=korg; t=1673887855;
+        bh=YeiEnBgefAVDPlgEJZNzbFQutHMM+49j9vYXx74iP94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymNaGTfyy9+o2nCFBwTY0WQQNbMB8UJ35txePN+I5jZ8sLKmJisFRuolAr72YiSdP
-         i2iM3wXyh17eiMe4DL/GKKtddu4rpQIvO0F6LJs/lS16wA87Y9iHNZAKtbOErfRrk8
-         1PpAp/Lhj6+AqmOyLZDuT31unoo3LALbS/XE4HCA=
+        b=M1GN0VVHtDpRHmJ/SQoqZnf9bawaETf4YHS+a41mbXC5sAJrv5cUm4IgrCqSXeVPg
+         DJ9ZhFEPc1Auo5Slgm8JC9sGoPzTjX1rz56wNuZzkXQAZITPl/RY0hUAaUHKpvKi8O
+         vDpR1XgGFciEnq1xjTM7PO2O93RI3wqmdBdSVnU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 097/338] wifi: mac80211: fix memory leak in ieee80211_if_add()
+Subject: [PATCH 4.19 308/521] myri10ge: Fix an error handling path in myri10ge_probe()
 Date:   Mon, 16 Jan 2023 16:49:30 +0100
-Message-Id: <20230116154825.125747074@linuxfoundation.org>
+Message-Id: <20230116154900.886012054@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 13e5afd3d773c6fc6ca2b89027befaaaa1ea7293 ]
+[ Upstream commit d83b950d44d2982c0e62e3d81b0f35ab09431008 ]
 
-When register_netdevice() failed in ieee80211_if_add(), ndev->tstats
-isn't released. Fix it.
+Some memory allocated in myri10ge_probe_slices() is not released in the
+error handling path of myri10ge_probe().
 
-Fixes: 5a490510ba5f ("mac80211: use per-CPU TX/RX statistics")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Link: https://lore.kernel.org/r/20221117064500.319983-1-shaozhengchao@huawei.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Add the corresponding kfree(), as already done in the remove function.
+
+Fixes: 0dcffac1a329 ("myri10ge: add multislices support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/iface.c | 1 +
+ drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
-index adafa29d3021..69af1d1ae33c 100644
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -1902,6 +1902,7 @@ int ieee80211_if_add(struct ieee80211_local *local, const char *name,
+diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+index 3bc570c46f81..8296b0aa42a9 100644
+--- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
++++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
+@@ -3960,6 +3960,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	myri10ge_free_slices(mgp);
  
- 		ret = register_netdevice(ndev);
- 		if (ret) {
-+			ieee80211_if_free(ndev);
- 			free_netdev(ndev);
- 			return ret;
- 		}
+ abort_with_firmware:
++	kfree(mgp->msix_vectors);
+ 	myri10ge_dummy_rdma(mgp, 0);
+ 
+ abort_with_ioremap:
 -- 
 2.35.1
 
