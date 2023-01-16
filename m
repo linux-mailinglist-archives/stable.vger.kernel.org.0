@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B30D66C4BD
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8077466C8D4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:43:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231716AbjAPP56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38412 "EHLO
+        id S233618AbjAPQnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:43:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231855AbjAPP5j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F2322DED
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:37 -0800 (PST)
+        with ESMTP id S233581AbjAPQma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:42:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D6338B68
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:30:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEFA1B81059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A773C433D2;
-        Mon, 16 Jan 2023 15:57:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D57A1B80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:30:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 364E5C433EF;
+        Mon, 16 Jan 2023 16:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884654;
-        bh=JEE2X1uW1c0hu/JNEICMQRHE5RO2ntKZC7PV2IvJrQc=;
+        s=korg; t=1673886640;
+        bh=zTKwboUjmAA9qMHLleIRkAo8yo8UG9vXsk//FqsdKdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJUqY6z+WmDfNsvFCME66xXmcgkwCb26z8Pzmv9Y7EIBzauTLM+pUwpnKcXrfiSUJ
-         nMlV8pXkZVlxJSz5tSzb9vBDgu2ovl0bybur34cwN6N4HiPkdLYsvCPxduCuGwhWxt
-         Nym5QbmigTtpC0bnD430y0m6IikG4pzuouYNGiEI=
+        b=VW94TT70tgh2JIAFqh+jt0WCqOi0KSWXdF8/f90r9v8y4gpuqZRn+t2HbrCY7H2xX
+         MaVHZHjLTuehJ5PQ0IZMfkkAU+qjUH2TIsoXapyzuDT/1guNHfmdX/2xssu6u4pOUP
+         eJBcUdUnY3m1+PEvWA1uDPEgM4FXAiEEPeq771k8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kyle Zeng <zengyhkyle@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 6.1 071/183] ipv6: raw: Deduct extension header length in rawv6_push_pending_frames
+        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.4 506/658] cifs: fix confusing debug message
 Date:   Mon, 16 Jan 2023 16:49:54 +0100
-Message-Id: <20230116154806.372895612@linuxfoundation.org>
+Message-Id: <20230116154932.655999336@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit cb3e9864cdbe35ff6378966660edbcbac955fe17 upstream.
+commit a85ceafd41927e41a4103d228a993df7edd8823b upstream.
 
-The total cork length created by ip6_append_data includes extension
-headers, so we must exclude them when comparing them against the
-IPV6_CHECKSUM offset which does not include extension headers.
+Since rc was initialised to -ENOMEM in cifs_get_smb_ses(), when an
+existing smb session was found, free_xid() would be called and then
+print
 
-Reported-by: Kyle Zeng <zengyhkyle@gmail.com>
-Fixes: 357b40a18b04 ("[IPV6]: IPV6_CHECKSUM socket option can corrupt kernel memory")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  CIFS: fs/cifs/connect.c: Existing tcp session with server found
+  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 44 with uid: 0
+  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
+  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 44) rc = -12
+
+Fix this by initialising rc to 0 and then let free_xid() print this
+instead
+
+  CIFS: fs/cifs/connect.c: Existing tcp session with server found
+  CIFS: fs/cifs/connect.c: VFS: in cifs_get_smb_ses as Xid: 14 with uid: 0
+  CIFS: fs/cifs/connect.c: Existing smb sess found (status=1)
+  CIFS: fs/cifs/connect.c: VFS: leaving cifs_get_smb_ses (xid = 14) rc = 0
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/raw.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/cifs/connect.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -505,6 +505,7 @@ csum_copy_err:
- static int rawv6_push_pending_frames(struct sock *sk, struct flowi6 *fl6,
- 				     struct raw6_sock *rp)
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -3235,7 +3235,7 @@ cifs_set_cifscreds(struct smb_vol *vol _
+ struct cifs_ses *
+ cifs_get_smb_ses(struct TCP_Server_Info *server, struct smb_vol *volume_info)
  {
-+	struct ipv6_txoptions *opt;
- 	struct sk_buff *skb;
- 	int err = 0;
- 	int offset;
-@@ -522,6 +523,9 @@ static int rawv6_push_pending_frames(str
+-	int rc = -ENOMEM;
++	int rc = 0;
+ 	unsigned int xid;
+ 	struct cifs_ses *ses;
+ 	struct sockaddr_in *addr = (struct sockaddr_in *)&server->dstaddr;
+@@ -3277,6 +3277,8 @@ cifs_get_smb_ses(struct TCP_Server_Info
+ 		return ses;
+ 	}
  
- 	offset = rp->offset;
- 	total_len = inet_sk(sk)->cork.base.length;
-+	opt = inet6_sk(sk)->cork.opt;
-+	total_len -= opt ? opt->opt_flen : 0;
++	rc = -ENOMEM;
 +
- 	if (offset >= total_len - 1) {
- 		err = -EINVAL;
- 		ip6_flush_pending_frames(sk);
+ 	cifs_dbg(FYI, "Existing smb sess not found\n");
+ 	ses = sesInfoAlloc();
+ 	if (ses == NULL)
 
 
