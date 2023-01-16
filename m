@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 537A966C97D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:50:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC30066C60B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:14:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233986AbjAPQuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:50:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39790 "EHLO
+        id S232565AbjAPQOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:14:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233923AbjAPQtk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18FCE23DAE
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:23 -0800 (PST)
+        with ESMTP id S232576AbjAPQNZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:13:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94A742BEC1
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:08:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F6E261058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB50C433F2;
-        Mon, 16 Jan 2023 16:36:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 236A661053
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:08:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30CE4C433EF;
+        Mon, 16 Jan 2023 16:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886982;
-        bh=3kxkkP2sI8X+p+wWn5He7TTs4Cdki1DVWwPMBK0W8KY=;
+        s=korg; t=1673885280;
+        bh=0hGH4B2VkM+NL14BNPHk5RYrQY+T4BeucIqjS8scYjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1ICBx7LfSy0C6F/2zaadBEGyzLwZpkFr/yxNZRu2mRBRAadU0fkVgXU2IMH95eN3
-         jPEtR4oq24AiMsfepYElVnEv8T/JrnPRj4ZkUa0x4fNYh5AmGUB6irerMD99DcQH5Z
-         VuWfnJvqMF9g/9zPhLiVU1n3ghL4b+SZ/1SOnJbI=
+        b=Vp46RKMGfsb9i3bMulEmC7xqW6JEGy7K4ltL5B8nG+3ywx7w0CB62Upl1MTTX0P2P
+         GL0suvIls5Ubrf/irWniw/kwFopzz/pv1M371Tw7rnjQ//CwjA1mtU5WbrLQWAbtMM
+         M2gzlKvi4ytikv7Lq0b7AESnp5QxulPf2ozZtob4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jon Maloy <jon.maloy@ericsson.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 635/658] tipc: eliminate checking netns if node established
-Date:   Mon, 16 Jan 2023 16:52:03 +0100
-Message-Id: <20230116154938.538566611@linuxfoundation.org>
+Subject: [PATCH 5.10 57/64] arm64: atomics: format whitespace consistently
+Date:   Mon, 16 Jan 2023 16:52:04 +0100
+Message-Id: <20230116154745.562438572@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +56,274 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit d408bef4bfa60bac665b6e7239269570039a968b ]
+[ Upstream commit 8e6082e94aac6d0338883b5953631b662a5a9188 ]
 
-Currently, we scan over all network namespaces at each received
-discovery message in order to check if the sending peer might be
-present in a host local namespaces.
+The code for the atomic ops is formatted inconsistently, and while this
+is not a functional problem it is rather distracting when working on
+them.
 
-This is unnecessary since we can assume that a peer will not change its
-location during an established session.
+Some have ops have consistent indentation, e.g.
 
-We now improve the condition for this testing so that we don't perform
-any redundant scans.
+| #define ATOMIC_OP_ADD_RETURN(name, mb, cl...)                           \
+| static inline int __lse_atomic_add_return##name(int i, atomic_t *v)     \
+| {                                                                       \
+|         u32 tmp;                                                        \
+|                                                                         \
+|         asm volatile(                                                   \
+|         __LSE_PREAMBLE                                                  \
+|         "       ldadd" #mb "    %w[i], %w[tmp], %[v]\n"                 \
+|         "       add     %w[i], %w[i], %w[tmp]"                          \
+|         : [i] "+r" (i), [v] "+Q" (v->counter), [tmp] "=&r" (tmp)        \
+|         : "r" (v)                                                       \
+|         : cl);                                                          \
+|                                                                         \
+|         return i;                                                       \
+| }
 
-Fixes: f73b12812a3d ("tipc: improve throughput between nodes in netns")
-Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: c244c092f1ed ("tipc: fix unexpected link reset due to discovery messages")
+While others have negative indentation for some lines, and/or have
+misaligned trailing backslashes, e.g.
+
+| static inline void __lse_atomic_##op(int i, atomic_t *v)                        \
+| {                                                                       \
+|         asm volatile(                                                   \
+|         __LSE_PREAMBLE                                                  \
+| "       " #asm_op "     %w[i], %[v]\n"                                  \
+|         : [i] "+r" (i), [v] "+Q" (v->counter)                           \
+|         : "r" (v));                                                     \
+| }
+
+This patch makes the indentation consistent and also aligns the trailing
+backslashes. This makes the code easier to read for those (like myself)
+who are easily distracted by these inconsistencies.
+
+This is intended as a cleanup.
+There should be no functional change as a result of this patch.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Will Deacon <will@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20211210151410.2782645-2-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Stable-dep-of: 031af50045ea ("arm64: cmpxchg_double*: hazard against entire exchange variable")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/node.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ arch/arm64/include/asm/atomic_ll_sc.h | 86 +++++++++++++--------------
+ arch/arm64/include/asm/atomic_lse.h   | 14 ++---
+ 2 files changed, 50 insertions(+), 50 deletions(-)
 
-diff --git a/net/tipc/node.c b/net/tipc/node.c
-index 3136e2a777fd..81fe8d051ba4 100644
---- a/net/tipc/node.c
-+++ b/net/tipc/node.c
-@@ -472,10 +472,6 @@ static struct tipc_node *tipc_node_create(struct net *net, u32 addr,
- 				 tipc_bc_sndlink(net),
- 				 &n->bc_entry.link)) {
- 		pr_warn("Broadcast rcv link creation failed, no memory\n");
--		if (n->peer_net) {
--			n->peer_net = NULL;
--			n->peer_hash_mix = 0;
--		}
- 		kfree(n);
- 		n = NULL;
- 		goto exit;
-@@ -1068,6 +1064,9 @@ void tipc_node_check_dest(struct net *net, u32 addr,
- 	if (sign_match && addr_match && link_up) {
- 		/* All is fine. Do nothing. */
- 		reset = false;
-+		/* Peer node is not a container/local namespace */
-+		if (!n->peer_hash_mix)
-+			n->peer_hash_mix = hash_mixes;
- 	} else if (sign_match && addr_match && !link_up) {
- 		/* Respond. The link will come up in due time */
- 		*respond = true;
-@@ -1393,11 +1392,8 @@ static void node_lost_contact(struct tipc_node *n,
+diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
+index 13869b76b58c..fe0db8d416fb 100644
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -44,11 +44,11 @@ __ll_sc_atomic_##op(int i, atomic_t *v)					\
+ 									\
+ 	asm volatile("// atomic_" #op "\n"				\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %2\n"					\
+-"1:	ldxr	%w0, %2\n"						\
+-"	" #asm_op "	%w0, %w0, %w3\n"				\
+-"	stxr	%w1, %w0, %2\n"						\
+-"	cbnz	%w1, 1b\n")						\
++	"	prfm	pstl1strm, %2\n"				\
++	"1:	ldxr	%w0, %2\n"					\
++	"	" #asm_op "	%w0, %w0, %w3\n"			\
++	"	stxr	%w1, %w0, %2\n"					\
++	"	cbnz	%w1, 1b\n")					\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i));				\
+ }
+@@ -62,12 +62,12 @@ __ll_sc_atomic_##op##_return##name(int i, atomic_t *v)			\
+ 									\
+ 	asm volatile("// atomic_" #op "_return" #name "\n"		\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %2\n"					\
+-"1:	ld" #acq "xr	%w0, %2\n"					\
+-"	" #asm_op "	%w0, %w0, %w3\n"				\
+-"	st" #rel "xr	%w1, %w0, %2\n"					\
+-"	cbnz	%w1, 1b\n"						\
+-"	" #mb )								\
++	"	prfm	pstl1strm, %2\n"				\
++	"1:	ld" #acq "xr	%w0, %2\n"				\
++	"	" #asm_op "	%w0, %w0, %w3\n"			\
++	"	st" #rel "xr	%w1, %w0, %2\n"				\
++	"	cbnz	%w1, 1b\n"					\
++	"	" #mb )							\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -84,12 +84,12 @@ __ll_sc_atomic_fetch_##op##name(int i, atomic_t *v)			\
+ 									\
+ 	asm volatile("// atomic_fetch_" #op #name "\n"			\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %3\n"					\
+-"1:	ld" #acq "xr	%w0, %3\n"					\
+-"	" #asm_op "	%w1, %w0, %w4\n"				\
+-"	st" #rel "xr	%w2, %w1, %3\n"					\
+-"	cbnz	%w2, 1b\n"						\
+-"	" #mb )								\
++	"	prfm	pstl1strm, %3\n"				\
++	"1:	ld" #acq "xr	%w0, %3\n"				\
++	"	" #asm_op "	%w1, %w0, %w4\n"			\
++	"	st" #rel "xr	%w2, %w1, %3\n"				\
++	"	cbnz	%w2, 1b\n"					\
++	"	" #mb )							\
+ 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -143,11 +143,11 @@ __ll_sc_atomic64_##op(s64 i, atomic64_t *v)				\
+ 									\
+ 	asm volatile("// atomic64_" #op "\n"				\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %2\n"					\
+-"1:	ldxr	%0, %2\n"						\
+-"	" #asm_op "	%0, %0, %3\n"					\
+-"	stxr	%w1, %0, %2\n"						\
+-"	cbnz	%w1, 1b")						\
++	"	prfm	pstl1strm, %2\n"				\
++	"1:	ldxr	%0, %2\n"					\
++	"	" #asm_op "	%0, %0, %3\n"				\
++	"	stxr	%w1, %0, %2\n"					\
++	"	cbnz	%w1, 1b")					\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i));				\
+ }
+@@ -161,12 +161,12 @@ __ll_sc_atomic64_##op##_return##name(s64 i, atomic64_t *v)		\
+ 									\
+ 	asm volatile("// atomic64_" #op "_return" #name "\n"		\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %2\n"					\
+-"1:	ld" #acq "xr	%0, %2\n"					\
+-"	" #asm_op "	%0, %0, %3\n"					\
+-"	st" #rel "xr	%w1, %0, %2\n"					\
+-"	cbnz	%w1, 1b\n"						\
+-"	" #mb )								\
++	"	prfm	pstl1strm, %2\n"				\
++	"1:	ld" #acq "xr	%0, %2\n"				\
++	"	" #asm_op "	%0, %0, %3\n"				\
++	"	st" #rel "xr	%w1, %0, %2\n"				\
++	"	cbnz	%w1, 1b\n"					\
++	"	" #mb )							\
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -176,19 +176,19 @@ __ll_sc_atomic64_##op##_return##name(s64 i, atomic64_t *v)		\
  
- 	/* Notify publications from this node */
- 	n->action_flags |= TIPC_NOTIFY_NODE_DOWN;
--
--	if (n->peer_net) {
--		n->peer_net = NULL;
--		n->peer_hash_mix = 0;
--	}
-+	n->peer_net = NULL;
-+	n->peer_hash_mix = 0;
- 	/* Notify sockets connected to node */
- 	list_for_each_entry_safe(conn, safe, conns, list) {
- 		skb = tipc_msg_create(TIPC_CRITICAL_IMPORTANCE, TIPC_CONN_MSG,
+ #define ATOMIC64_FETCH_OP(name, mb, acq, rel, cl, op, asm_op, constraint)\
+ static inline long							\
+-__ll_sc_atomic64_fetch_##op##name(s64 i, atomic64_t *v)		\
++__ll_sc_atomic64_fetch_##op##name(s64 i, atomic64_t *v)			\
+ {									\
+ 	s64 result, val;						\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile("// atomic64_fetch_" #op #name "\n"		\
+ 	__LL_SC_FALLBACK(						\
+-"	prfm	pstl1strm, %3\n"					\
+-"1:	ld" #acq "xr	%0, %3\n"					\
+-"	" #asm_op "	%1, %0, %4\n"					\
+-"	st" #rel "xr	%w2, %1, %3\n"					\
+-"	cbnz	%w2, 1b\n"						\
+-"	" #mb )								\
++	"	prfm	pstl1strm, %3\n"				\
++	"1:	ld" #acq "xr	%0, %3\n"				\
++	"	" #asm_op "	%1, %0, %4\n"				\
++	"	st" #rel "xr	%w2, %1, %3\n"				\
++	"	cbnz	%w2, 1b\n"					\
++	"	" #mb )							\
+ 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
+ 	: __stringify(constraint) "r" (i)				\
+ 	: cl);								\
+@@ -241,14 +241,14 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
+ 
+ 	asm volatile("// atomic64_dec_if_positive\n"
+ 	__LL_SC_FALLBACK(
+-"	prfm	pstl1strm, %2\n"
+-"1:	ldxr	%0, %2\n"
+-"	subs	%0, %0, #1\n"
+-"	b.lt	2f\n"
+-"	stlxr	%w1, %0, %2\n"
+-"	cbnz	%w1, 1b\n"
+-"	dmb	ish\n"
+-"2:")
++	"	prfm	pstl1strm, %2\n"
++	"1:	ldxr	%0, %2\n"
++	"	subs	%0, %0, #1\n"
++	"	b.lt	2f\n"
++	"	stlxr	%w1, %0, %2\n"
++	"	cbnz	%w1, 1b\n"
++	"	dmb	ish\n"
++	"2:")
+ 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)
+ 	:
+ 	: "cc", "memory");
+diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
+index da3280f639cd..ab661375835e 100644
+--- a/arch/arm64/include/asm/atomic_lse.h
++++ b/arch/arm64/include/asm/atomic_lse.h
+@@ -11,11 +11,11 @@
+ #define __ASM_ATOMIC_LSE_H
+ 
+ #define ATOMIC_OP(op, asm_op)						\
+-static inline void __lse_atomic_##op(int i, atomic_t *v)			\
++static inline void __lse_atomic_##op(int i, atomic_t *v)		\
+ {									\
+ 	asm volatile(							\
+ 	__LSE_PREAMBLE							\
+-"	" #asm_op "	%w[i], %[v]\n"					\
++	"	" #asm_op "	%w[i], %[v]\n"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v));							\
+ }
+@@ -32,7 +32,7 @@ static inline int __lse_atomic_fetch_##op##name(int i, atomic_t *v)	\
+ {									\
+ 	asm volatile(							\
+ 	__LSE_PREAMBLE							\
+-"	" #asm_op #mb "	%w[i], %w[i], %[v]"				\
++	"	" #asm_op #mb "	%w[i], %w[i], %[v]"			\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v)							\
+ 	: cl);								\
+@@ -130,7 +130,7 @@ static inline int __lse_atomic_sub_return##name(int i, atomic_t *v)	\
+ 	"	add	%w[i], %w[i], %w[tmp]"				\
+ 	: [i] "+&r" (i), [v] "+Q" (v->counter), [tmp] "=&r" (tmp)	\
+ 	: "r" (v)							\
+-	: cl);							\
++	: cl);								\
+ 									\
+ 	return i;							\
+ }
+@@ -168,7 +168,7 @@ static inline void __lse_atomic64_##op(s64 i, atomic64_t *v)		\
+ {									\
+ 	asm volatile(							\
+ 	__LSE_PREAMBLE							\
+-"	" #asm_op "	%[i], %[v]\n"					\
++	"	" #asm_op "	%[i], %[v]\n"				\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v));							\
+ }
+@@ -185,7 +185,7 @@ static inline long __lse_atomic64_fetch_##op##name(s64 i, atomic64_t *v)\
+ {									\
+ 	asm volatile(							\
+ 	__LSE_PREAMBLE							\
+-"	" #asm_op #mb "	%[i], %[i], %[v]"				\
++	"	" #asm_op #mb "	%[i], %[i], %[v]"			\
+ 	: [i] "+r" (i), [v] "+Q" (v->counter)				\
+ 	: "r" (v)							\
+ 	: cl);								\
+@@ -272,7 +272,7 @@ static inline void __lse_atomic64_sub(s64 i, atomic64_t *v)
+ }
+ 
+ #define ATOMIC64_OP_SUB_RETURN(name, mb, cl...)				\
+-static inline long __lse_atomic64_sub_return##name(s64 i, atomic64_t *v)	\
++static inline long __lse_atomic64_sub_return##name(s64 i, atomic64_t *v)\
+ {									\
+ 	unsigned long tmp;						\
+ 									\
 -- 
 2.35.1
 
