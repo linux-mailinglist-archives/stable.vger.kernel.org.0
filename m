@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C2066C77A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8DDD66C77B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233343AbjAPQbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:31:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47498 "EHLO
+        id S233260AbjAPQbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:31:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233260AbjAPQai (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B77274A2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:19:02 -0800 (PST)
+        with ESMTP id S233227AbjAPQam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5FF27483
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:19:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EA97B80E93
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:19:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7423C433EF;
-        Mon, 16 Jan 2023 16:18:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 616E261047
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:19:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78021C433D2;
+        Mon, 16 Jan 2023 16:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885940;
-        bh=i4k2ZwvbD9IJURw7w4ZOAiHgvLriCC+reWbns7UJ0jI=;
+        s=korg; t=1673885942;
+        bh=iLMIcUGoaR1oXnyAtOIdmloOVHjHTAhXBqkrlpMB/wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMtwCYmv++bPDYEMWy//9gLd8pKcLGznazSDITt9+jHs4z/mPBGq8Esq5utTh9lFH
-         7zx3Mrxj5SJknhIrFH+uOdE7pgC9ICtnuZEBDF5fWhA4t/vi+WzcOewwCENARgabbW
-         9Vq0Oo4pjGg+yXOk/xs+6KxWE1DcWSy36u24ShdI=
+        b=UA9ZQYneaiSikC9BuybjsQJzGiy+tTfZ065/iM7Or1R4VIc/VLMFBmmE+BWOUWu3B
+         wXoxJEBxiZTMzGLyIfe+l9B4X3fHibmrPEBZM3bXjOh+iO+sDTXkxodi0HACf/mcPa
+         EX1kIOkTz6zFur5jCrxrUukAe/rDHJO54NT7MSFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 241/658] apparmor: fix lockdep warning when removing a namespace
-Date:   Mon, 16 Jan 2023 16:45:29 +0100
-Message-Id: <20230116154920.587881459@linuxfoundation.org>
+Subject: [PATCH 5.4 242/658] apparmor: Fix abi check to include v8 abi
+Date:   Mon, 16 Jan 2023 16:45:30 +0100
+Message-Id: <20230116154920.637544700@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -55,52 +55,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: John Johansen <john.johansen@canonical.com>
 
-[ Upstream commit 9c4557efc558a68e4cd973490fd936d6e3414db8 ]
+[ Upstream commit 1b5a6198f5a9d0aa5497da0dc4bcd4fc166ee516 ]
 
-Fix the following lockdep warning
+The v8 abi is supported by the kernel but the userspace supported
+version check does not allow for it. This was missed when v8 was added
+due to a bug in the userspace compiler which was setting an older abi
+version for v8 encoding (which is forward compatible except on the
+network encoding). However it is possible to detect the network
+encoding by checking the policydb network support which the code
+does. The end result was that missing the abi flag worked until
+userspace was fixed and began correctly checking for the v8 abi
+version.
 
-[ 1119.158984] ============================================
-[ 1119.158988] WARNING: possible recursive locking detected
-[ 1119.158996] 6.0.0-rc1+ #257 Tainted: G            E    N
-[ 1119.158999] --------------------------------------------
-[ 1119.159001] bash/80100 is trying to acquire lock:
-[ 1119.159007] ffff88803e79b4a0 (&ns->lock/1){+.+.}-{4:4}, at: destroy_ns.part.0+0x43/0x140
-[ 1119.159028]
-               but task is already holding lock:
-[ 1119.159030] ffff8881009764a0 (&ns->lock/1){+.+.}-{4:4}, at: aa_remove_profiles+0x3f0/0x640
-[ 1119.159040]
-               other info that might help us debug this:
-[ 1119.159042]  Possible unsafe locking scenario:
-
-[ 1119.159043]        CPU0
-[ 1119.159045]        ----
-[ 1119.159047]   lock(&ns->lock/1);
-[ 1119.159051]   lock(&ns->lock/1);
-[ 1119.159055]
-                *** DEADLOCK ***
-
-Which is caused by an incorrect lockdep nesting notation
-
-Fixes: feb3c766a3ab ("apparmor: fix possible recursive lock warning in __aa_create_ns")
+Fixes: 56974a6fcfef ("apparmor: add base infastructure for socket mediation")
 Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/policy.c | 2 +-
+ security/apparmor/policy_unpack.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/apparmor/policy.c b/security/apparmor/policy.c
-index 06355717ee84..e38ceba39200 100644
---- a/security/apparmor/policy.c
-+++ b/security/apparmor/policy.c
-@@ -1123,7 +1123,7 @@ ssize_t aa_remove_profiles(struct aa_ns *policy_ns, struct aa_label *subj,
- 
- 	if (!name) {
- 		/* remove namespace - can only happen if fqname[0] == ':' */
--		mutex_lock_nested(&ns->parent->lock, ns->level);
-+		mutex_lock_nested(&ns->parent->lock, ns->parent->level);
- 		__aa_bump_ns_revision(ns);
- 		__aa_remove_ns(ns);
- 		mutex_unlock(&ns->parent->lock);
+diff --git a/security/apparmor/policy_unpack.c b/security/apparmor/policy_unpack.c
+index 8cfc9493eefc..7e32c09249b1 100644
+--- a/security/apparmor/policy_unpack.c
++++ b/security/apparmor/policy_unpack.c
+@@ -955,7 +955,7 @@ static int verify_header(struct aa_ext *e, int required, const char **ns)
+ 	 * if not specified use previous version
+ 	 * Mask off everything that is not kernel abi version
+ 	 */
+-	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v7)) {
++	if (VERSION_LT(e->version, v5) || VERSION_GT(e->version, v8)) {
+ 		audit_iface(NULL, NULL, NULL, "unsupported interface version",
+ 			    e, error);
+ 		return error;
 -- 
 2.35.1
 
