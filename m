@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C3C66CD9C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D33966CD9D
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:37:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235054AbjAPRhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:37:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56274 "EHLO
+        id S234928AbjAPRhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:37:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234999AbjAPRhM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:12 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B85BD46720
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:57 -0800 (PST)
+        with ESMTP id S235011AbjAPRhN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:37:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22B834900D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:13:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3430DCE1285
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C5BC433D2;
-        Mon, 16 Jan 2023 17:13:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0D7461086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:13:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0A1FC433EF;
+        Mon, 16 Jan 2023 17:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889234;
-        bh=ZfmykpwAoNzEuy5u7TG7Uv8Os7sFrJIRWmMX1RBXSeA=;
+        s=korg; t=1673889237;
+        bh=8sWsOqejoezgnhqD5YJS9mEOBp86fgGRNlJtUvgepmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GloqmfbusMEGEmulQ3Kt5mQD1zUGGSVkgR/2JHqEOLwbMZTxpNr4iW2eWDZUs8Emp
-         jRdMHVrLQAisoaq3ho951AqNgUTRMpg/DJtUusR+KdjE4GtMkPs43nZgUev0CUP9W6
-         MpA1oOmUc840SBvMszQkxznI7Owf2SnD/DpIUIpc=
+        b=RvgIpROtcl8rwWLO8G4Nnn9cg/9L8qCU7TyT/26M0PyD4m17jzisjncEKtpJI3+W+
+         Mdy7wcFEIuKLzZyvr9EOHhBkwQTcO/s1B6OeR0LLqBneNOLDmMYObGOLvj/pw/E87P
+         urlde8QXot3GH1VNl2sb8k3Y0kbXHNHKU7b8mt74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Luo Meng <luomeng12@huawei.com>,
         Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.14 279/338] dm thin: Fix UAF in run_timer_softirq()
-Date:   Mon, 16 Jan 2023 16:52:32 +0100
-Message-Id: <20230116154833.248985920@linuxfoundation.org>
+Subject: [PATCH 4.14 280/338] dm cache: Fix UAF in destroy()
+Date:   Mon, 16 Jan 2023 16:52:33 +0100
+Message-Id: <20230116154833.298596042@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -54,98 +54,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luo Meng <luomeng12@huawei.com>
 
-commit 88430ebcbc0ec637b710b947738839848c20feff upstream.
+commit 6a459d8edbdbe7b24db42a5a9f21e6aa9e00c2aa upstream.
 
-When dm_resume() and dm_destroy() are concurrent, it will
-lead to UAF, as follows:
+Dm_cache also has the same UAF problem when dm_resume()
+and dm_destroy() are concurrent.
 
- BUG: KASAN: use-after-free in __run_timers+0x173/0x710
- Write of size 8 at addr ffff88816d9490f0 by task swapper/0/0
-<snip>
- Call Trace:
-  <IRQ>
-  dump_stack_lvl+0x73/0x9f
-  print_report.cold+0x132/0xaa2
-  _raw_spin_lock_irqsave+0xcd/0x160
-  __run_timers+0x173/0x710
-  kasan_report+0xad/0x110
-  __run_timers+0x173/0x710
-  __asan_store8+0x9c/0x140
-  __run_timers+0x173/0x710
-  call_timer_fn+0x310/0x310
-  pvclock_clocksource_read+0xfa/0x250
-  kvm_clock_read+0x2c/0x70
-  kvm_clock_get_cycles+0xd/0x20
-  ktime_get+0x5c/0x110
-  lapic_next_event+0x38/0x50
-  clockevents_program_event+0xf1/0x1e0
-  run_timer_softirq+0x49/0x90
-  __do_softirq+0x16e/0x62c
-  __irq_exit_rcu+0x1fa/0x270
-  irq_exit_rcu+0x12/0x20
-  sysvec_apic_timer_interrupt+0x8e/0xc0
-
-One of the concurrency UAF can be shown as below:
-
-        use                                  free
-do_resume                           |
-  __find_device_hash_cell           |
-    dm_get                          |
-      atomic_inc(&md->holders)      |
-                                    | dm_destroy
-                                    |   __dm_destroy
-                                    |     if (!dm_suspended_md(md))
-                                    |     atomic_read(&md->holders)
-                                    |     msleep(1)
-  dm_resume                         |
-    __dm_resume                     |
-      dm_table_resume_targets       |
-        pool_resume                 |
-          do_waker  #add delay work |
-  dm_put                            |
-    atomic_dec(&md->holders)        |
-                                    |     dm_table_destroy
-                                    |       pool_dtr
-                                    |         __pool_dec
-                                    |           __pool_destroy
-                                    |             destroy_workqueue
-                                    |             kfree(pool) # free pool
-        time out
-__do_softirq
-  run_timer_softirq # pool has already been freed
-
-This can be easily reproduced using:
-  1. create thin-pool
-  2. dmsetup suspend pool
-  3. dmsetup resume pool
-  4. dmsetup remove_all # Concurrent with 3
-
-The root cause of this UAF bug is that dm_resume() adds timer after
-dm_destroy() skips cancelling the timer because of suspend status.
-After timeout, it will call run_timer_softirq(), however pool has
-already been freed. The concurrency UAF bug will happen.
-
-Therefore, cancelling timer again in __pool_destroy().
+Therefore, cancelling timer again in destroy().
 
 Cc: stable@vger.kernel.org
-Fixes: 991d9fa02da0d ("dm: add thin provisioning target")
+Fixes: c6b4fcbad044e ("dm: add cache target")
 Signed-off-by: Luo Meng <luomeng12@huawei.com>
 Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-thin.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm-cache-target.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/dm-thin.c
-+++ b/drivers/md/dm-thin.c
-@@ -2932,6 +2932,8 @@ static void __pool_destroy(struct pool *
- 	dm_bio_prison_destroy(pool->prison);
- 	dm_kcopyd_client_destroy(pool->copier);
+--- a/drivers/md/dm-cache-target.c
++++ b/drivers/md/dm-cache-target.c
+@@ -2034,6 +2034,7 @@ static void destroy(struct cache *cache)
+ 	if (cache->prison)
+ 		dm_bio_prison_destroy_v2(cache->prison);
  
-+	cancel_delayed_work_sync(&pool->waker);
-+	cancel_delayed_work_sync(&pool->no_space_timeout);
- 	if (pool->wq)
- 		destroy_workqueue(pool->wq);
++	cancel_delayed_work_sync(&cache->waker);
+ 	if (cache->wq)
+ 		destroy_workqueue(cache->wq);
  
 
 
