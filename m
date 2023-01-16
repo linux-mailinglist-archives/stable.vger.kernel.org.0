@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04FB966C57F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:07:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D7A666C4FB
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231965AbjAPQGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:06:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44820 "EHLO
+        id S231752AbjAPQAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:00:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232397AbjAPQGR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E1D23DBC
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:04:39 -0800 (PST)
+        with ESMTP id S231924AbjAPQAN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD4702386F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60F3661048
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:04:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79D0FC433EF;
-        Mon, 16 Jan 2023 16:04:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F030B8105F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D61B3C43392;
+        Mon, 16 Jan 2023 16:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885078;
-        bh=V5Na7RThr0Rb0XUgY3epO5DtmYIA6cse1GiLo/TXo3c=;
+        s=korg; t=1673884809;
+        bh=/h5fWSuxsqiNTXEEbscCA8wfmUrTlCuDJsa6ZUCAWU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h81zdMNNCrgM/rTOCutiPcicNYw0AKajtSLJF1eZGdb7rmEKsrGbM6LNKB8C/Wr2h
-         gPP7zS1rrWj/yA0ebPXzjbzQGZV2/ZCCvACipXwOy8mwcLL/shqxQ08U80cNnQLV3r
-         lMSZdAvmVeeZAqwXyBky8Ij8xN/hqma3NMWZiBhk=
+        b=RsQ5iXGomNf3uvX7iCjUAQTNgAl83gS68o+Jsii3uVu9PVyDiFCjduJx6NjwNslpV
+         9ektdiwjvVmkc8SyJmpVU+XmByg2edjYxTfGVUhUMF8PKskc8uWeaU0juvoV7XxiWy
+         Oi2CbU0DiNvI0CdHRzzBkDQPzy/nSx9nMP+rKbJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        jianjiao zeng <jianjiao.zeng@mediatek.com>,
-        Yunfei Wang <yf.wang@mediatek.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.15 37/86] iommu/iova: Fix alloc iova overflows issue
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 148/183] net/sched: act_mpls: Fix warning during failed attribute validation
 Date:   Mon, 16 Jan 2023 16:51:11 +0100
-Message-Id: <20230116154748.627449646@linuxfoundation.org>
+Message-Id: <20230116154809.597348840@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +55,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Wang <yf.wang@mediatek.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit dcdb3ba7e2a8caae7bfefd603bc22fd0ce9a389c upstream.
+[ Upstream commit 9e17f99220d111ea031b44153fdfe364b0024ff2 ]
 
-In __alloc_and_insert_iova_range, there is an issue that retry_pfn
-overflows. The value of iovad->anchor.pfn_hi is ~0UL, then when
-iovad->cached_node is iovad->anchor, curr_iova->pfn_hi + 1 will
-overflow. As a result, if the retry logic is executed, low_pfn is
-updated to 0, and then new_pfn < low_pfn returns false to make the
-allocation successful.
+The 'TCA_MPLS_LABEL' attribute is of 'NLA_U32' type, but has a
+validation type of 'NLA_VALIDATE_FUNCTION'. This is an invalid
+combination according to the comment above 'struct nla_policy':
 
-This issue occurs in the following two situations:
-1. The first iova size exceeds the domain size. When initializing
-iova domain, iovad->cached_node is assigned as iovad->anchor. For
-example, the iova domain size is 10M, start_pfn is 0x1_F000_0000,
-and the iova size allocated for the first time is 11M. The
-following is the log information, new->pfn_lo is smaller than
-iovad->cached_node.
+"
+Meaning of `validate' field, use via NLA_POLICY_VALIDATE_FN:
+   NLA_BINARY           Validation function called for the attribute.
+   All other            Unused - but note that it's a union
+"
 
-Example log as follows:
-[  223.798112][T1705487] sh: [name:iova&]__alloc_and_insert_iova_range
-start_pfn:0x1f0000,retry_pfn:0x0,size:0xb00,limit_pfn:0x1f0a00
-[  223.799590][T1705487] sh: [name:iova&]__alloc_and_insert_iova_range
-success start_pfn:0x1f0000,new->pfn_lo:0x1efe00,new->pfn_hi:0x1f08ff
+This can trigger the warning [1] in nla_get_range_unsigned() when
+validation of the attribute fails. Despite being of 'NLA_U32' type, the
+associated 'min'/'max' fields in the policy are negative as they are
+aliased by the 'validate' field.
 
-2. The node with the largest iova->pfn_lo value in the iova domain
-is deleted, iovad->cached_node will be updated to iovad->anchor,
-and then the alloc iova size exceeds the maximum iova size that can
-be allocated in the domain.
+Fix by changing the attribute type to 'NLA_BINARY' which is consistent
+with the above comment and all other users of NLA_POLICY_VALIDATE_FN().
+As a result, move the length validation to the validation function.
 
-After judging that retry_pfn is less than limit_pfn, call retry_pfn+1
-to fix the overflow issue.
+No regressions in MPLS tests:
 
-Signed-off-by: jianjiao zeng <jianjiao.zeng@mediatek.com>
-Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
-Cc: <stable@vger.kernel.org> # 5.15.*
-Fixes: 4e89dce72521 ("iommu/iova: Retry from last rb tree node if iova search fails")
-Acked-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20230111063801.25107-1-yf.wang@mediatek.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ # ./tdc.py -f tc-tests/actions/mpls.json
+ [...]
+ # echo $?
+ 0
+
+[1]
+WARNING: CPU: 0 PID: 17743 at lib/nlattr.c:118
+nla_get_range_unsigned+0x1d8/0x1e0 lib/nlattr.c:117
+Modules linked in:
+CPU: 0 PID: 17743 Comm: syz-executor.0 Not tainted 6.1.0-rc8 #3
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.13.0-48-gd9c812dda519-prebuilt.qemu.org 04/01/2014
+RIP: 0010:nla_get_range_unsigned+0x1d8/0x1e0 lib/nlattr.c:117
+[...]
+Call Trace:
+ <TASK>
+ __netlink_policy_dump_write_attr+0x23d/0x990 net/netlink/policy.c:310
+ netlink_policy_dump_write_attr+0x22/0x30 net/netlink/policy.c:411
+ netlink_ack_tlv_fill net/netlink/af_netlink.c:2454 [inline]
+ netlink_ack+0x546/0x760 net/netlink/af_netlink.c:2506
+ netlink_rcv_skb+0x1b7/0x240 net/netlink/af_netlink.c:2546
+ rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:6109
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x5e9/0x6b0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x739/0x860 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0x38f/0x500 net/socket.c:2482
+ ___sys_sendmsg net/socket.c:2536 [inline]
+ __sys_sendmsg+0x197/0x230 net/socket.c:2565
+ __do_sys_sendmsg net/socket.c:2574 [inline]
+ __se_sys_sendmsg net/socket.c:2572 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2572
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Link: https://lore.kernel.org/netdev/CAO4mrfdmjvRUNbDyP0R03_DrD_eFCLCguz6OxZ2TYRSv0K9gxA@mail.gmail.com/
+Fixes: 2a2ea50870ba ("net: sched: add mpls manipulation actions to TC")
+Reported-by: Wei Chen <harperchen1110@gmail.com>
+Tested-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Link: https://lore.kernel.org/r/20230107171004.608436-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iova.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sched/act_mpls.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -252,7 +252,7 @@ static int __alloc_and_insert_iova_range
+diff --git a/net/sched/act_mpls.c b/net/sched/act_mpls.c
+index 8ad25cc8ccd5..ea5959094adb 100644
+--- a/net/sched/act_mpls.c
++++ b/net/sched/act_mpls.c
+@@ -132,6 +132,11 @@ static int valid_label(const struct nlattr *attr,
+ {
+ 	const u32 *label = nla_data(attr);
  
- 	curr = __get_cached_rbnode(iovad, limit_pfn);
- 	curr_iova = to_iova(curr);
--	retry_pfn = curr_iova->pfn_hi + 1;
-+	retry_pfn = curr_iova->pfn_hi;
- 
- retry:
- 	do {
-@@ -266,7 +266,7 @@ retry:
- 	if (high_pfn < size || new_pfn < low_pfn) {
- 		if (low_pfn == iovad->start_pfn && retry_pfn < limit_pfn) {
- 			high_pfn = limit_pfn;
--			low_pfn = retry_pfn;
-+			low_pfn = retry_pfn + 1;
- 			curr = iova_find_limit(iovad, limit_pfn);
- 			curr_iova = to_iova(curr);
- 			goto retry;
++	if (nla_len(attr) != sizeof(*label)) {
++		NL_SET_ERR_MSG_MOD(extack, "Invalid MPLS label length");
++		return -EINVAL;
++	}
++
+ 	if (*label & ~MPLS_LABEL_MASK || *label == MPLS_LABEL_IMPLNULL) {
+ 		NL_SET_ERR_MSG_MOD(extack, "MPLS label out of range");
+ 		return -EINVAL;
+@@ -143,7 +148,8 @@ static int valid_label(const struct nlattr *attr,
+ static const struct nla_policy mpls_policy[TCA_MPLS_MAX + 1] = {
+ 	[TCA_MPLS_PARMS]	= NLA_POLICY_EXACT_LEN(sizeof(struct tc_mpls)),
+ 	[TCA_MPLS_PROTO]	= { .type = NLA_U16 },
+-	[TCA_MPLS_LABEL]	= NLA_POLICY_VALIDATE_FN(NLA_U32, valid_label),
++	[TCA_MPLS_LABEL]	= NLA_POLICY_VALIDATE_FN(NLA_BINARY,
++							 valid_label),
+ 	[TCA_MPLS_TC]		= NLA_POLICY_RANGE(NLA_U8, 0, 7),
+ 	[TCA_MPLS_TTL]		= NLA_POLICY_MIN(NLA_U8, 1),
+ 	[TCA_MPLS_BOS]		= NLA_POLICY_RANGE(NLA_U8, 0, 1),
+-- 
+2.35.1
+
 
 
