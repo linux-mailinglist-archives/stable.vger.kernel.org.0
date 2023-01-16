@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05BA266C562
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56F2E66C958
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232009AbjAPQFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:05:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45068 "EHLO
+        id S233625AbjAPQtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:49:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232202AbjAPQE6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5183A24113
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:21 -0800 (PST)
+        with ESMTP id S233835AbjAPQsI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:48:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6D242DF0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2A9961031
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0161AC433D2;
-        Mon, 16 Jan 2023 16:03:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D484B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BD1CC433F0;
+        Mon, 16 Jan 2023 16:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885000;
-        bh=JGlEy+4M/1OZTo0zHsn1ym9DVZMv4jzdVZX6Eu4KR+k=;
+        s=korg; t=1673886932;
+        bh=8OaY/HseMpgGU4W05F1fpxZqw5gjv4fsDAfVjTOR3QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wNiNNqZNoKbqtRtw4/TykL3wMU9N8rfEZ9PBXrbQLv/NwS6ZbgcXfvCPo1Cu4iNBE
-         lvXCJJhkuq1jm79alebq2n+NNl0QevEIlAOQpB9POvJyqt8+7YDoI4G0ijh7kBNSzA
-         2h1AutTYR7Ab+WTepnlZ6ooJipfIbpeQm1cXjLhU=
+        b=qW98AQeT5RM3i1yRSB8ABC2orOQsmqRQh0cf3Y1AafAK/9CsXI/GeOqJMyLE+GPB4
+         gtxC/dynYVyZNAteuXaXd/3zKDK8t1Gv4X3j0cUQ5Q6p4FCjfH7SYOUXpSfMmUfDfG
+         T+94nqpqNtGEMz+mnlkDCTpdP1FZxQCnZJpgbHLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Subject: [PATCH 5.15 29/86] drm/msm/dp: do not complete dp_aux_cmd_fifo_tx() if irq is not for aux transfer
-Date:   Mon, 16 Jan 2023 16:51:03 +0100
-Message-Id: <20230116154748.311325665@linuxfoundation.org>
+        patches@lists.linux.dev, Jiguang Xiao <jiguang.xiao@windriver.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 576/658] net: amd-xgbe: add missed tasklet_kill
+Date:   Mon, 16 Jan 2023 16:51:04 +0100
+Message-Id: <20230116154935.867732911@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Jiguang Xiao <jiguang.xiao@windriver.com>
 
-commit 1cba0d150fa102439114a91b3e215909efc9f169 upstream.
+[ Upstream commit d530ece70f16f912e1d1bfeea694246ab78b0a4b ]
 
-There are 3 possible interrupt sources are handled by DP controller,
-HPDstatus, Controller state changes and Aux read/write transaction.
-At every irq, DP controller have to check isr status of every interrupt
-sources and service the interrupt if its isr status bits shows interrupts
-are pending. There is potential race condition may happen at current aux
-isr handler implementation since it is always complete dp_aux_cmd_fifo_tx()
-even irq is not for aux read or write transaction. This may cause aux read
-transaction return premature if host aux data read is in the middle of
-waiting for sink to complete transferring data to host while irq happen.
-This will cause host's receiving buffer contains unexpected data. This
-patch fixes this problem by checking aux isr and return immediately at
-aux isr handler if there are no any isr status bits set.
+The driver does not call tasklet_kill in several places.
+Add the calls to fix it.
 
-Current there is a bug report regrading eDP edid corruption happen during
-system booting up. After lengthy debugging to found that VIDEO_READY
-interrupt was continuously firing during system booting up which cause
-dp_aux_isr() to complete dp_aux_cmd_fifo_tx() prematurely to retrieve data
-from aux hardware buffer which is not yet contains complete data transfer
-from sink. This cause edid corruption.
-
-Follows are the signature at kernel logs when problem happen,
-EDID has corrupt header
-panel-simple-dp-aux aux-aea0000.edp: Couldn't identify panel via EDID
-
-Changes in v2:
--- do complete if (ret == IRQ_HANDLED) ay dp-aux_isr()
--- add more commit text
-
-Changes in v3:
--- add Stephen suggested
--- dp_aux_isr() return IRQ_XXX back to caller
--- dp_ctrl_isr() return IRQ_XXX back to caller
-
-Changes in v4:
--- split into two patches
-
-Changes in v5:
--- delete empty line between tags
-
-Changes in v6:
--- remove extra "that" and fixed line more than 75 char at commit text
-
-Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/516121/
-Link: https://lore.kernel.org/r/1672193785-11003-2-git-send-email-quic_khsieh@quicinc.com
-Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 85b85c853401 ("amd-xgbe: Re-issue interrupt if interrupt status not cleared")
+Signed-off-by: Jiguang Xiao <jiguang.xiao@windriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_aux.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/amd/xgbe/xgbe-drv.c  | 3 +++
+ drivers/net/ethernet/amd/xgbe/xgbe-i2c.c  | 4 +++-
+ drivers/net/ethernet/amd/xgbe/xgbe-mdio.c | 4 +++-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/msm/dp/dp_aux.c
-+++ b/drivers/gpu/drm/msm/dp/dp_aux.c
-@@ -406,6 +406,10 @@ void dp_aux_isr(struct drm_dp_aux *dp_au
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+index 0442d7e1cd20..7f705483c1c5 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+@@ -1139,6 +1139,9 @@ static void xgbe_free_irqs(struct xgbe_prv_data *pdata)
  
- 	isr = dp_catalog_aux_get_irq(aux->catalog);
+ 	devm_free_irq(pdata->dev, pdata->dev_irq, pdata);
  
-+	/* no interrupts pending, return immediately */
-+	if (!isr)
-+		return;
++	tasklet_kill(&pdata->tasklet_dev);
++	tasklet_kill(&pdata->tasklet_ecc);
 +
- 	if (!aux->cmd_busy)
- 		return;
+ 	if (pdata->vdata->ecc_support && (pdata->dev_irq != pdata->ecc_irq))
+ 		devm_free_irq(pdata->dev, pdata->ecc_irq, pdata);
  
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
+index 4d9062d35930..530043742a07 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
+@@ -447,8 +447,10 @@ static void xgbe_i2c_stop(struct xgbe_prv_data *pdata)
+ 	xgbe_i2c_disable(pdata);
+ 	xgbe_i2c_clear_all_interrupts(pdata);
+ 
+-	if (pdata->dev_irq != pdata->i2c_irq)
++	if (pdata->dev_irq != pdata->i2c_irq) {
+ 		devm_free_irq(pdata->dev, pdata->i2c_irq, pdata);
++		tasklet_kill(&pdata->tasklet_i2c);
++	}
+ }
+ 
+ static int xgbe_i2c_start(struct xgbe_prv_data *pdata)
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+index 156a0bc8ab01..97167fc9bebe 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+@@ -1390,8 +1390,10 @@ static void xgbe_phy_stop(struct xgbe_prv_data *pdata)
+ 	/* Disable auto-negotiation */
+ 	xgbe_an_disable_all(pdata);
+ 
+-	if (pdata->dev_irq != pdata->an_irq)
++	if (pdata->dev_irq != pdata->an_irq) {
+ 		devm_free_irq(pdata->dev, pdata->an_irq, pdata);
++		tasklet_kill(&pdata->tasklet_an);
++	}
+ 
+ 	pdata->phy_if.phy_impl.stop(pdata);
+ 
+-- 
+2.35.1
+
 
 
