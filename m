@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E3AE66C9B3
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:55:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2400666C9B4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:55:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233994AbjAPQz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:55:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47198 "EHLO
+        id S233922AbjAPQzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:55:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233954AbjAPQyc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:54:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E298568BA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:11 -0800 (PST)
+        with ESMTP id S233917AbjAPQyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:54:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92FBD58299
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24EED61085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:38:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C161C433F0;
-        Mon, 16 Jan 2023 16:38:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83517B80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:38:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE0F0C433D2;
+        Mon, 16 Jan 2023 16:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887090;
-        bh=xtoi+cL5e9Hl7BG0Y7UVhfjTsNzzC+GciBM14Jm1VT0=;
+        s=korg; t=1673887093;
+        bh=Nk0UU05SlVqC22UnMeONzRQVTOyBD6Jh7WSeZaO6dl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pkcp+7MIb7LwCe9i7Uy/6PgR7QSw4jlOFQgFZisqy3U5pGn16ycwUeZ1F//tD4yYr
-         hpbkqmhr0J+pKFN8svglWp2aI+3TAsh/iTp8VE7HAtEoKMT+SLREwNlwDcY49E90Ai
-         jgP9/FA+XLkEGsj+l7e8V8YdbpHZ4obGnJohj39A=
+        b=IOFXp+jzXeef9JyctPRlBJmIS4pxGKxqEZv6EH5Kjo8JIUf/FymdUjmmtrwTSRkck
+         LnchpehmXfN0RqYTVDToz26rNlVLauWldAxGKvS5TWy1LhGhc9ufPK/CMju33B1SR0
+         Nfsowiay0CYUwxZeinx1oXJc4zNgXqCCSzjBYKAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 018/521] USB: serial: f81534: fix division by zero on line-speed change
-Date:   Mon, 16 Jan 2023 16:44:40 +0100
-Message-Id: <20230116154848.086090930@linuxfoundation.org>
+        patches@lists.linux.dev, Akihiko Odaki <akihiko.odaki@daynix.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 019/521] igb: Initialize mailbox message for VF reset
+Date:   Mon, 16 Jan 2023 16:44:41 +0100
+Message-Id: <20230116154848.138270242@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,52 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-commit 188c9c2e0c7f4ae864113f80c40bafb394062271 upstream.
+commit de5dc44370fbd6b46bd7f1a1e00369be54a041c8 upstream.
 
-The driver leaves the line speed unchanged in case a requested speed is
-not supported. Make sure to handle the case where the current speed is
-B0 (hangup) without dividing by zero when determining the clock source.
+When a MAC address is not assigned to the VF, that portion of the message
+sent to the VF is not set. The memory, however, is allocated from the
+stack meaning that information may be leaked to the VM. Initialize the
+message buffer to 0 so that no information is passed to the VM in this
+case.
 
-Fixes: 3aacac02f385 ("USB: serial: f81534: add high baud rate support")
-Cc: stable@vger.kernel.org      # 4.16
-Cc: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 6ddbc4cf1f4d ("igb: Indicate failure on vf reset for empty mac address")
+Reported-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20221212190031.3983342-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/f81534.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/f81534.c
-+++ b/drivers/usb/serial/f81534.c
-@@ -538,9 +538,6 @@ static int f81534_submit_writer(struct u
- 
- static u32 f81534_calc_baud_divisor(u32 baudrate, u32 clockrate)
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -7165,7 +7165,7 @@ static void igb_vf_reset_msg(struct igb_
  {
--	if (!baudrate)
--		return 0;
--
- 	/* Round to nearest divisor */
- 	return DIV_ROUND_CLOSEST(clockrate, baudrate);
- }
-@@ -570,9 +567,14 @@ static int f81534_set_port_config(struct
- 	u32 baud_list[] = {baudrate, old_baudrate, F81534_DEFAULT_BAUD_RATE};
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	unsigned char *vf_mac = adapter->vf_data[vf].vf_mac_addresses;
+-	u32 reg, msgbuf[3];
++	u32 reg, msgbuf[3] = {};
+ 	u8 *addr = (u8 *)(&msgbuf[1]);
  
- 	for (i = 0; i < ARRAY_SIZE(baud_list); ++i) {
--		idx = f81534_find_clk(baud_list[i]);
-+		baudrate = baud_list[i];
-+		if (baudrate == 0) {
-+			tty_encode_baud_rate(tty, 0, 0);
-+			return 0;
-+		}
-+
-+		idx = f81534_find_clk(baudrate);
- 		if (idx >= 0) {
--			baudrate = baud_list[i];
- 			tty_encode_baud_rate(tty, baudrate, baudrate);
- 			break;
- 		}
+ 	/* process all the same items cleared in a function level reset */
 
 
