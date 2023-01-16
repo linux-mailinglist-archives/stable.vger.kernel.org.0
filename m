@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A3FC66C85B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE4766C85C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:38:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233604AbjAPQi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:38:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52156 "EHLO
+        id S233385AbjAPQil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:38:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233603AbjAPQhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:37:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4771B32E68
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:26:42 -0800 (PST)
+        with ESMTP id S233401AbjAPQhq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:37:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80DC33465
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:26:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D89CC61049
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA1C9C433EF;
-        Mon, 16 Jan 2023 16:26:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84FF561070
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:26:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EBEC433EF;
+        Mon, 16 Jan 2023 16:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886401;
-        bh=psW9D7HuHQR8IbgKxb7fKgnTBW7O+7/ybDF+u7UdMx0=;
+        s=korg; t=1673886404;
+        bh=Y7QUCuIeT36PPyWNZwZPgzNoFAeSyVVRpGZ7GZi+7cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZNxAvwwJfsnKRDu7F8JmA6IOz9K12KyZgB4kXQCC45z7P0sWIdIhm8q+y2yVQ29T
-         ++fwCQQpop68Nxw54OJATz2WDX0bO0BbJFynGfm0bD/4UJ4GIzdk/D29XpSdlQbSao
-         NKow8pxdbEAdmf7MkhePJisafaTacACiAb3/20/g=
+        b=RCUVFiXzu1XkxDXZ/tqPrqimgnk89ZxCPXy+n18Bxh3zjK9k9XYHDO8KUwYpjUNtQ
+         61BFpqK1j23742Peo1sv9f0tiFb4s6Vw9fyePZsQBpId08tcTc63ETGxMxKi95WpNf
+         FwteVcGunoLMTOvCwXzbfPihQs13Lid8R3RLTCGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zqiang <qiang1.zhang@intel.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 386/658] rcu: Fix __this_cpu_read() lockdep warning in rcu_force_quiescent_state()
-Date:   Mon, 16 Jan 2023 16:47:54 +0100
-Message-Id: <20230116154927.218408039@linuxfoundation.org>
+Subject: [PATCH 5.4 387/658] binfmt_misc: fix shift-out-of-bounds in check_special_flags
+Date:   Mon, 16 Jan 2023 16:47:55 +0100
+Message-Id: <20230116154927.268022120@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -54,57 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang1.zhang@intel.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit ceb1c8c9b8aa9199da46a0f29d2d5f08d9b44c15 ]
+[ Upstream commit 6a46bf558803dd2b959ca7435a5c143efe837217 ]
 
-Running rcutorture with non-zero fqs_duration module parameter in a
-kernel built with CONFIG_PREEMPTION=y results in the following splat:
+UBSAN reported a shift-out-of-bounds warning:
 
-BUG: using __this_cpu_read() in preemptible [00000000]
-code: rcu_torture_fqs/398
-caller is __this_cpu_preempt_check+0x13/0x20
-CPU: 3 PID: 398 Comm: rcu_torture_fqs Not tainted 6.0.0-rc1-yoctodev-standard+
-Call Trace:
-<TASK>
-dump_stack_lvl+0x5b/0x86
-dump_stack+0x10/0x16
-check_preemption_disabled+0xe5/0xf0
-__this_cpu_preempt_check+0x13/0x20
-rcu_force_quiescent_state.part.0+0x1c/0x170
-rcu_force_quiescent_state+0x1e/0x30
-rcu_torture_fqs+0xca/0x160
-? rcu_torture_boost+0x430/0x430
-kthread+0x192/0x1d0
-? kthread_complete_and_exit+0x30/0x30
-ret_from_fork+0x22/0x30
-</TASK>
+ left shift of 1 by 31 places cannot be represented in type 'int'
+ Call Trace:
+  <TASK>
+  __dump_stack lib/dump_stack.c:88 [inline]
+  dump_stack_lvl+0x8d/0xcf lib/dump_stack.c:106
+  ubsan_epilogue+0xa/0x44 lib/ubsan.c:151
+  __ubsan_handle_shift_out_of_bounds+0x1e7/0x208 lib/ubsan.c:322
+  check_special_flags fs/binfmt_misc.c:241 [inline]
+  create_entry fs/binfmt_misc.c:456 [inline]
+  bm_register_write+0x9d3/0xa20 fs/binfmt_misc.c:654
+  vfs_write+0x11e/0x580 fs/read_write.c:582
+  ksys_write+0xcf/0x120 fs/read_write.c:637
+  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+  do_syscall_64+0x34/0x80 arch/x86/entry/common.c:80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0033:0x4194e1
 
-The problem is that rcu_force_quiescent_state() uses __this_cpu_read()
-in preemptible code instead of the proper raw_cpu_read().  This commit
-therefore changes __this_cpu_read() to raw_cpu_read().
+Since the type of Node's flags is unsigned long, we should define these
+macros with same type too.
 
-Signed-off-by: Zqiang <qiang1.zhang@intel.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102025123.1117184-1-liushixin2@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/binfmt_misc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 5797cf2909b0..615283404d9d 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -2317,7 +2317,7 @@ void rcu_force_quiescent_state(void)
- 	struct rcu_node *rnp_old = NULL;
+diff --git a/fs/binfmt_misc.c b/fs/binfmt_misc.c
+index 056a68292e15..23b563ff0dd7 100644
+--- a/fs/binfmt_misc.c
++++ b/fs/binfmt_misc.c
+@@ -44,10 +44,10 @@ static LIST_HEAD(entries);
+ static int enabled = 1;
  
- 	/* Funnel through hierarchy to reduce memory contention. */
--	rnp = __this_cpu_read(rcu_data.mynode);
-+	rnp = raw_cpu_read(rcu_data.mynode);
- 	for (; rnp != NULL; rnp = rnp->parent) {
- 		ret = (READ_ONCE(rcu_state.gp_flags) & RCU_GP_FLAG_FQS) ||
- 		      !raw_spin_trylock(&rnp->fqslock);
+ enum {Enabled, Magic};
+-#define MISC_FMT_PRESERVE_ARGV0 (1 << 31)
+-#define MISC_FMT_OPEN_BINARY (1 << 30)
+-#define MISC_FMT_CREDENTIALS (1 << 29)
+-#define MISC_FMT_OPEN_FILE (1 << 28)
++#define MISC_FMT_PRESERVE_ARGV0 (1UL << 31)
++#define MISC_FMT_OPEN_BINARY (1UL << 30)
++#define MISC_FMT_CREDENTIALS (1UL << 29)
++#define MISC_FMT_OPEN_FILE (1UL << 28)
+ 
+ typedef struct {
+ 	struct list_head list;
 -- 
 2.35.1
 
