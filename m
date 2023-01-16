@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A6D66CCC9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B771166CB50
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234733AbjAPR32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:29:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
+        id S234389AbjAPRNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:13:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234765AbjAPR2r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3783B29E04
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:06:15 -0800 (PST)
+        with ESMTP id S234219AbjAPRMY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:12:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 698CD32E50
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:52:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A67E6B81091
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0629EC433EF;
-        Mon, 16 Jan 2023 17:06:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20369B8109E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:52:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 772C7C433F0;
+        Mon, 16 Jan 2023 16:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888773;
-        bh=Q8rncSI+4rHr0CXWmX/4RICRFM19nIATsAv+pcyqdEc=;
+        s=korg; t=1673887955;
+        bh=YC6NFdZApVFnmBvGmfZ6TnSpwxagnpr1gmbJh/ixmlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WAmG8+7qpRXCDfAWISyWtWDEmberCQKeCabHgc+O20euEby91UgW803OUc08SRxxr
-         MqqHit3VjdF2+sN+TkJSkVPr69Xfwtm2XcLJpCdx9ua9k8hdF13SoYYKvekakJFS6K
-         tAM6Bwx6uV97cPi85vn6ixAxEe3rEhFywsrRpzNU=
+        b=IzTE4HRrgT10HPgdldbzY0hbf5GsY4IFXvg75FPAskixybqGt4ZGAP9bcYF7sCUoV
+         CmotfR48xLq89lHgRc73osIufCVd3hDZHox79DKuqGKUgR3RrstHiemg8tWTc5A9ia
+         bxR6vbKbJ7PoYTtXqZOuav/M7mosT3ZGFb92g+Wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Pilmore <epilmore@gigaio.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 133/338] ntb_netdev: Use dev_kfree_skb_any() in interrupt context
-Date:   Mon, 16 Jan 2023 16:50:06 +0100
-Message-Id: <20230116154826.632153963@linuxfoundation.org>
+Subject: [PATCH 4.19 345/521] drm/sti: Fix return type of sti_{dvo,hda,hdmi}_connector_mode_valid()
+Date:   Mon, 16 Jan 2023 16:50:07 +0100
+Message-Id: <20230116154902.589430980@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Pilmore <epilmore@gigaio.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 5f7d78b2b12a9d561f48fa00bab29b40f4616dad ]
+[ Upstream commit 0ad811cc08a937d875cbad0149c1bab17f84ba05 ]
 
-TX/RX callback handlers (ntb_netdev_tx_handler(),
-ntb_netdev_rx_handler()) can be called in interrupt
-context via the DMA framework when the respective
-DMA operations have completed. As such, any calls
-by these routines to free skb's, should use the
-interrupt context safe dev_kfree_skb_any() function.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed. A
+proposed warning in clang aims to catch these at compile time, which
+reveals:
 
-Previously, these callback handlers would call the
-interrupt unsafe version of dev_kfree_skb(). This has
-not presented an issue on Intel IOAT DMA engines as
-that driver utilizes tasklets rather than a hard
-interrupt handler, like the AMD PTDMA DMA driver.
-On AMD systems, a kernel WARNING message is
-encountered, which is being issued from
-skb_release_head_state() due to in_hardirq()
-being true.
+  drivers/gpu/drm/sti/sti_hda.c:637:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = sti_hda_connector_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  drivers/gpu/drm/sti/sti_dvo.c:376:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = sti_dvo_connector_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  drivers/gpu/drm/sti/sti_hdmi.c:1035:16: error: incompatible function pointer types initializing 'enum drm_mode_status (*)(struct drm_connector *, struct drm_display_mode *)' with an expression of type 'int (struct drm_connector *, struct drm_display_mode *)' [-Werror,-Wincompatible-function-pointer-types-strict]
+          .mode_valid = sti_hdmi_connector_mode_valid,
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Besides the user visible WARNING from the kernel,
-the other symptom of this bug was that TCP/IP performance
-across the ntb_netdev interface was very poor, i.e.
-approximately an order of magnitude below what was
-expected. With the repair to use dev_kfree_skb_any(),
-kernel WARNINGs from skb_release_head_state() ceased
-and TCP/IP performance, as measured by iperf, was on
-par with expected results, approximately 20 Gb/s on
-AMD Milan based server. Note that this performance
-is comparable with Intel based servers.
+->mode_valid() in 'struct drm_connector_helper_funcs' expects a return
+type of 'enum drm_mode_status', not 'int'. Adjust the return type of
+sti_{dvo,hda,hdmi}_connector_mode_valid() to match the prototype's to
+resolve the warning and CFI failure.
 
-Fixes: 765ccc7bc3d91 ("ntb_netdev: correct skb leak")
-Fixes: 548c237c0a997 ("net: Add support for NTB virtual ethernet device")
-Signed-off-by: Eric Pilmore <epilmore@gigaio.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20221209000659.8318-1-epilmore@gigaio.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1750
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221102155623.3042869-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ntb_netdev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/sti/sti_dvo.c  | 5 +++--
+ drivers/gpu/drm/sti/sti_hda.c  | 5 +++--
+ drivers/gpu/drm/sti/sti_hdmi.c | 5 +++--
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ntb_netdev.c b/drivers/net/ntb_netdev.c
-index 5f941e20f199..beab00c273b2 100644
---- a/drivers/net/ntb_netdev.c
-+++ b/drivers/net/ntb_netdev.c
-@@ -140,7 +140,7 @@ static void ntb_netdev_rx_handler(struct ntb_transport_qp *qp, void *qp_data,
- enqueue_again:
- 	rc = ntb_transport_rx_enqueue(qp, skb, skb->data, ndev->mtu + ETH_HLEN);
- 	if (rc) {
--		dev_kfree_skb(skb);
-+		dev_kfree_skb_any(skb);
- 		ndev->stats.rx_errors++;
- 		ndev->stats.rx_fifo_errors++;
- 	}
-@@ -195,7 +195,7 @@ static void ntb_netdev_tx_handler(struct ntb_transport_qp *qp, void *qp_data,
- 		ndev->stats.tx_aborted_errors++;
- 	}
+diff --git a/drivers/gpu/drm/sti/sti_dvo.c b/drivers/gpu/drm/sti/sti_dvo.c
+index a3f01721c552..794ac057a55c 100644
+--- a/drivers/gpu/drm/sti/sti_dvo.c
++++ b/drivers/gpu/drm/sti/sti_dvo.c
+@@ -346,8 +346,9 @@ static int sti_dvo_connector_get_modes(struct drm_connector *connector)
  
--	dev_kfree_skb(skb);
-+	dev_kfree_skb_any(skb);
+ #define CLK_TOLERANCE_HZ 50
  
- 	if (ntb_transport_tx_free_entry(dev->qp) >= tx_start) {
- 		/* Make sure anybody stopping the queue after this sees the new
+-static int sti_dvo_connector_mode_valid(struct drm_connector *connector,
+-					struct drm_display_mode *mode)
++static enum drm_mode_status
++sti_dvo_connector_mode_valid(struct drm_connector *connector,
++			     struct drm_display_mode *mode)
+ {
+ 	int target = mode->clock * 1000;
+ 	int target_min = target - CLK_TOLERANCE_HZ;
+diff --git a/drivers/gpu/drm/sti/sti_hda.c b/drivers/gpu/drm/sti/sti_hda.c
+index 33c9efa06f68..cf5b6dbe86b0 100644
+--- a/drivers/gpu/drm/sti/sti_hda.c
++++ b/drivers/gpu/drm/sti/sti_hda.c
+@@ -596,8 +596,9 @@ static int sti_hda_connector_get_modes(struct drm_connector *connector)
+ 
+ #define CLK_TOLERANCE_HZ 50
+ 
+-static int sti_hda_connector_mode_valid(struct drm_connector *connector,
+-					struct drm_display_mode *mode)
++static enum drm_mode_status
++sti_hda_connector_mode_valid(struct drm_connector *connector,
++			     struct drm_display_mode *mode)
+ {
+ 	int target = mode->clock * 1000;
+ 	int target_min = target - CLK_TOLERANCE_HZ;
+diff --git a/drivers/gpu/drm/sti/sti_hdmi.c b/drivers/gpu/drm/sti/sti_hdmi.c
+index 3acf044ba366..c4bc09c9d0b5 100644
+--- a/drivers/gpu/drm/sti/sti_hdmi.c
++++ b/drivers/gpu/drm/sti/sti_hdmi.c
+@@ -989,8 +989,9 @@ static int sti_hdmi_connector_get_modes(struct drm_connector *connector)
+ 
+ #define CLK_TOLERANCE_HZ 50
+ 
+-static int sti_hdmi_connector_mode_valid(struct drm_connector *connector,
+-					struct drm_display_mode *mode)
++static enum drm_mode_status
++sti_hdmi_connector_mode_valid(struct drm_connector *connector,
++			      struct drm_display_mode *mode)
+ {
+ 	int target = mode->clock * 1000;
+ 	int target_min = target - CLK_TOLERANCE_HZ;
 -- 
 2.35.1
 
