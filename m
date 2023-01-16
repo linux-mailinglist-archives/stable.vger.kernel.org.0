@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4175366C558
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A7E266C92C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232234AbjAPQFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:05:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44830 "EHLO
+        id S233702AbjAPQqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:46:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231962AbjAPQEj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B373C26857
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:08 -0800 (PST)
+        with ESMTP id S233796AbjAPQqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2606621A11
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0E8E61031
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5124C433EF;
-        Mon, 16 Jan 2023 16:03:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2B81B81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31AC0C433EF;
+        Mon, 16 Jan 2023 16:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884987;
-        bh=A8e5zLPLqxa7YcOIHon/d4PfntYS2PPjo1gGHQprKYo=;
+        s=korg; t=1673886838;
+        bh=n9TA3IJ9yb8oW+tVcp14zCUDX2M2BrmFPZWmjhZCHaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s0XvuAvcweGh85G0JdHpmSXb2PdCLC4e0D7Nvr1ESVRyj6hCQX6z3oLNrHFxLl99S
-         XY20+L3/1kV/Y9C2qRrBFFQnxLFYv/u79b9t+/NT1vkFw2w5TSK8j78Lu0d6Zlj1EA
-         AGStHYzQqNDXzWgwRgPcrGaDYHckdnwBB6cie3hQ=
+        b=VUbmuRT9q3FSfWOsL2owbiDItntnK0O4gekrWLLYZa/3lV5FZS1pRGPLh8PK07RBT
+         i3OTdkpltryyWT4J+qnNL00v3P/zXhvXAg1BxV38f/l/OBGo9qxu6EDQG9iw4LWDQW
+         sL0GHj2flOeBFTS0goHKCNZ6Qe7nsn2hIN3sV0JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Denis Nikitin <denik@chromium.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH 5.15 06/86] KVM: arm64: nvhe: Fix build with profile optimization
+        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 552/658] ravb: Fix "failed to switch device to config mode" message during unbind
 Date:   Mon, 16 Jan 2023 16:50:40 +0100
-Message-Id: <20230116154747.331758988@linuxfoundation.org>
+Message-Id: <20230116154934.772918517@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Nikitin <denik@chromium.org>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-commit bde971a83bbff78561458ded236605a365411b87 upstream.
+[ Upstream commit c72a7e42592b2e18d862cf120876070947000d7a ]
 
-Kernel build with clang and KCFLAGS=-fprofile-sample-use=<profile> fails with:
+This patch fixes the error "ravb 11c20000.ethernet eth0: failed to switch
+device to config mode" during unbind.
 
-error: arch/arm64/kvm/hyp/nvhe/kvm_nvhe.tmp.o: Unexpected SHT_REL
-section ".rel.llvm.call-graph-profile"
+We are doing register access after pm_runtime_put_sync().
 
-Starting from 13.0.0 llvm can generate SHT_REL section, see
-https://reviews.llvm.org/rGca3bdb57fa1ac98b711a735de048c12b5fdd8086.
-gen-hyprel does not support SHT_REL relocation section.
+We usually do cleanup in reverse order of init. Currently in
+remove(), the "pm_runtime_put_sync" is not in reverse order.
 
-Filter out profile use flags to fix the build with profile optimization.
+Probe
+	reset_control_deassert(rstc);
+	pm_runtime_enable(&pdev->dev);
+	pm_runtime_get_sync(&pdev->dev);
 
-Signed-off-by: Denis Nikitin <denik@chromium.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20221014184532.3153551-1-denik@chromium.org
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+remove
+	pm_runtime_put_sync(&pdev->dev);
+	unregister_netdev(ndev);
+	..
+	ravb_mdio_release(priv);
+	pm_runtime_disable(&pdev->dev);
+
+Consider the call to unregister_netdev()
+unregister_netdev->unregister_netdevice_queue->rollback_registered_many
+that calls the below functions which access the registers after
+pm_runtime_put_sync()
+ 1) ravb_get_stats
+ 2) ravb_close
+
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Cc: stable@vger.kernel.org
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20221214105118.2495313-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/hyp/nvhe/Makefile |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/renesas/ravb_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/kvm/hyp/nvhe/Makefile
-+++ b/arch/arm64/kvm/hyp/nvhe/Makefile
-@@ -83,6 +83,10 @@ quiet_cmd_hypcopy = HYPCOPY $@
- # Remove ftrace, Shadow Call Stack, and CFI CFLAGS.
- # This is equivalent to the 'notrace', '__noscs', and '__nocfi' annotations.
- KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_FTRACE) $(CC_FLAGS_SCS) $(CC_FLAGS_CFI), $(KBUILD_CFLAGS))
-+# Starting from 13.0.0 llvm emits SHT_REL section '.llvm.call-graph-profile'
-+# when profile optimization is applied. gen-hyprel does not support SHT_REL and
-+# causes a build failure. Remove profile optimization flags.
-+KBUILD_CFLAGS := $(filter-out -fprofile-sample-use=% -fprofile-use=%, $(KBUILD_CFLAGS))
- 
- # KVM nVHE code is run at a different exception code with a different map, so
- # compiler instrumentation that inserts callbacks or checks into the code may
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index 95fd1f2d5439..3fd5155bdd5f 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -2216,11 +2216,11 @@ static int ravb_remove(struct platform_device *pdev)
+ 			  priv->desc_bat_dma);
+ 	/* Set reset mode */
+ 	ravb_write(ndev, CCC_OPC_RESET, CCC);
+-	pm_runtime_put_sync(&pdev->dev);
+ 	unregister_netdev(ndev);
+ 	netif_napi_del(&priv->napi[RAVB_NC]);
+ 	netif_napi_del(&priv->napi[RAVB_BE]);
+ 	ravb_mdio_release(priv);
++	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	free_netdev(ndev);
+ 	platform_set_drvdata(pdev, NULL);
+-- 
+2.35.1
+
 
 
