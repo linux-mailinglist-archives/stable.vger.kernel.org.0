@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0092D66CCA5
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:28:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45A4166CB2B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234762AbjAPR23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:28:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52278 "EHLO
+        id S231219AbjAPRLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:11:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234672AbjAPR15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:27:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FCEC41B73
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:52 -0800 (PST)
+        with ESMTP id S234275AbjAPRKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:10:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0241423305
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37426B810A0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AD7AC433D2;
-        Mon, 16 Jan 2023 17:04:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F05A60F61
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E0E2C433EF;
+        Mon, 16 Jan 2023 16:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888689;
-        bh=OamEo90pKqOyzsGlytq3uZloKmX9IZyH4Cayp8iHaBk=;
+        s=korg; t=1673887865;
+        bh=h+H1qseuxVLRhU1Yi6c9mf2Ohw86jTrUKsjmPEc5668=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ezM7mcZJ+fd//UPMz7n5Jl0QDfVDQq9WA2GZAZspuqDk5WelckgF4ac0iqooDJcuo
-         0zqTNrVbpkK3bpR09nLoZEwtEymneWnYjI7mpAHSVvv35WLr5tyO5ksojK525pwKBj
-         P8mGY6+U6hHObWqJit7AsaaUwAEXfB0TWlVfRH/0=
+        b=rYAKgTKG9bbQnXldxnqPd6fegxuuINMDAmL4eFF3Ij9YQsyOK7ZV/q30So3hpXydq
+         OQ2ySOGG1TnjJ4d5b3GRMWdMinL7pHkAS/JNlvXVsk3/VAt67wOE/rmPWWL2mPHttg
+         0l79HggueSSts8Y6QA+O93vqNL7qwAijT/T+aRjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev,
+        syzbot+7902cd7684bc35306224@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/338] SUNRPC: Fix missing release socket in rpc_sockname()
+Subject: [PATCH 4.19 312/521] udf: Avoid double brelse() in udf_rename()
 Date:   Mon, 16 Jan 2023 16:49:34 +0100
-Message-Id: <20230116154825.288168809@linuxfoundation.org>
+Message-Id: <20230116154901.077647340@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit 50fa355bc0d75911fe9d5072a5ba52cdb803aff7 ]
+[ Upstream commit c791730f2554a9ebb8f18df9368dc27d4ebc38c2 ]
 
-socket dynamically created is not released when getting an unintended
-address family type in rpc_sockname(), direct to out_release for calling
-sock_release().
+syzbot reported a warning like below [1]:
 
-Fixes: 2e738fdce22f ("SUNRPC: Add API to acquire source address")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+VFS: brelse: Trying to free free buffer
+WARNING: CPU: 2 PID: 7301 at fs/buffer.c:1145 __brelse+0x67/0xa0
+...
+Call Trace:
+ <TASK>
+ invalidate_bh_lru+0x99/0x150
+ smp_call_function_many_cond+0xe2a/0x10c0
+ ? generic_remap_file_range_prep+0x50/0x50
+ ? __brelse+0xa0/0xa0
+ ? __mutex_lock+0x21c/0x12d0
+ ? smp_call_on_cpu+0x250/0x250
+ ? rcu_read_lock_sched_held+0xb/0x60
+ ? lock_release+0x587/0x810
+ ? __brelse+0xa0/0xa0
+ ? generic_remap_file_range_prep+0x50/0x50
+ on_each_cpu_cond_mask+0x3c/0x80
+ blkdev_flush_mapping+0x13a/0x2f0
+ blkdev_put_whole+0xd3/0xf0
+ blkdev_put+0x222/0x760
+ deactivate_locked_super+0x96/0x160
+ deactivate_super+0xda/0x100
+ cleanup_mnt+0x222/0x3d0
+ task_work_run+0x149/0x240
+ ? task_work_cancel+0x30/0x30
+ do_exit+0xb29/0x2a40
+ ? reacquire_held_locks+0x4a0/0x4a0
+ ? do_raw_spin_lock+0x12a/0x2b0
+ ? mm_update_next_owner+0x7c0/0x7c0
+ ? rwlock_bug.part.0+0x90/0x90
+ ? zap_other_threads+0x234/0x2d0
+ do_group_exit+0xd0/0x2a0
+ __x64_sys_exit_group+0x3a/0x50
+ do_syscall_64+0x34/0xb0
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+The cause of the issue is that brelse() is called on both ofibh.sbh
+and ofibh.ebh by udf_find_entry() when it returns NULL.  However,
+brelse() is called by udf_rename(), too.  So, b_count on buffer_head
+becomes unbalanced.
+
+This patch fixes the issue by not calling brelse() by udf_rename()
+when udf_find_entry() returns NULL.
+
+Link: https://syzkaller.appspot.com/bug?id=8297f45698159c6bca8a1f87dc983667c1a1c851 [1]
+Reported-by: syzbot+7902cd7684bc35306224@syzkaller.appspotmail.com
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221023095741.271430-1-syoshida@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/udf/namei.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index 9259529e0412..411925b043cc 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1267,7 +1267,7 @@ static int rpc_sockname(struct net *net, struct sockaddr *sap, size_t salen,
- 		break;
- 	default:
- 		err = -EAFNOSUPPORT;
--		goto out;
-+		goto out_release;
+diff --git a/fs/udf/namei.c b/fs/udf/namei.c
+index d13ded8e2c30..ef251622da13 100644
+--- a/fs/udf/namei.c
++++ b/fs/udf/namei.c
+@@ -1106,8 +1106,9 @@ static int udf_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		return -EINVAL;
+ 
+ 	ofi = udf_find_entry(old_dir, &old_dentry->d_name, &ofibh, &ocfi);
+-	if (IS_ERR(ofi)) {
+-		retval = PTR_ERR(ofi);
++	if (!ofi || IS_ERR(ofi)) {
++		if (IS_ERR(ofi))
++			retval = PTR_ERR(ofi);
+ 		goto end_rename;
  	}
- 	if (err < 0) {
- 		dprintk("RPC:       can't bind UDP socket (%d)\n", err);
+ 
+@@ -1116,8 +1117,7 @@ static int udf_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 
+ 	brelse(ofibh.sbh);
+ 	tloc = lelb_to_cpu(ocfi.icb.extLocation);
+-	if (!ofi || udf_get_lb_pblock(old_dir->i_sb, &tloc, 0)
+-	    != old_inode->i_ino)
++	if (udf_get_lb_pblock(old_dir->i_sb, &tloc, 0) != old_inode->i_ino)
+ 		goto end_rename;
+ 
+ 	nfi = udf_find_entry(new_dir, &new_dentry->d_name, &nfibh, &ncfi);
 -- 
 2.35.1
 
