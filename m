@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E8166CB47
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2821666CCC1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234283AbjAPRMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:12:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38102 "EHLO
+        id S234815AbjAPR3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234293AbjAPRLq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1E173251A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:52:12 -0800 (PST)
+        with ESMTP id S234833AbjAPR2l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68C64252AA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E74B61018
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:52:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93491C433D2;
-        Mon, 16 Jan 2023 16:52:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03B7B61058
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1754CC433EF;
+        Mon, 16 Jan 2023 17:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887931;
-        bh=tNJKQ7d3gfx/BqjRAW+Qy25spt6hzqQ71FUsKLkcovI=;
+        s=korg; t=1673888752;
+        bh=h//9EotYv3dtzkJSDz/tI+erI32wjaz/uYI5ud5aVgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoBUOvCnKDkHsSHXHsQyOGlcVx77WastFJeyHlYChJ8RCc223MmW++qdz2t4DGnTk
-         3rEqOciSVLUDPKFGrBsMuyNaSgFrelU1IUGf04OBTodrxupIjqXnZD6aI53CAouV5W
-         mbISu5WOtn0pksuYNWzMtmGeJgiP59XRHZ1UCXiw=
+        b=kJ3HJKkx3u9CsdnzJ6C4lvEweaWHlg3b34lWLyTDaQdaoeCkS/IltyUplkAS161Ym
+         FgcA+w+8bcSmsgwxQSZCL7Bfs33CBRz54yAqTJXD9zEIUM48maEwL8VZhziOQyiJ9g
+         E1/ZpAtmkbXEdsOInGVoPXt+u9zp6KLcrNZdYu+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lin Ma <linma@zju.edu.cn>,
-        kernel test robot <lkp@intel.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 337/521] media: dvbdev: adopts refcnt to avoid UAF
+Subject: [PATCH 4.14 126/338] net: apple: bmac: dont call dev_kfree_skb() under spin_lock_irqsave()
 Date:   Mon, 16 Jan 2023 16:49:59 +0100
-Message-Id: <20230116154902.257140111@linuxfoundation.org>
+Message-Id: <20230116154826.331566022@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,208 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 0fc044b2b5e2d05a1fa1fb0d7f270367a7855d79 ]
+[ Upstream commit 5fe02e046e6422c4adfdbc50206ec7186077da24 ]
 
-dvb_unregister_device() is known that prone to use-after-free.
-That is, the cleanup from dvb_unregister_device() releases the dvb_device
-even if there are pointers stored in file->private_data still refer to it.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-This patch adds a reference counter into struct dvb_device and delays its
-deallocation until no pointer refers to the object.
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
 
-Link: https://lore.kernel.org/linux-media/20220807145952.10368-1-linma@zju.edu.cn
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+In this case, dev_kfree_skb() is called in bmac_tx_timeout() to drop
+the SKB, when tx timeout, so replace it with dev_kfree_skb_irq().
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-core/dvb_ca_en50221.c |  2 +-
- drivers/media/dvb-core/dvb_frontend.c   |  2 +-
- drivers/media/dvb-core/dvbdev.c         | 32 +++++++++++++++++++------
- include/media/dvbdev.h                  | 31 +++++++++++++-----------
- 4 files changed, 44 insertions(+), 23 deletions(-)
+ drivers/net/ethernet/apple/bmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-core/dvb_ca_en50221.c b/drivers/media/dvb-core/dvb_ca_en50221.c
-index 4d371cea0d5d..36afcea709a7 100644
---- a/drivers/media/dvb-core/dvb_ca_en50221.c
-+++ b/drivers/media/dvb-core/dvb_ca_en50221.c
-@@ -168,7 +168,7 @@ static void dvb_ca_private_free(struct dvb_ca_private *ca)
- {
- 	unsigned int i;
- 
--	dvb_free_device(ca->dvbdev);
-+	dvb_device_put(ca->dvbdev);
- 	for (i = 0; i < ca->slot_count; i++)
- 		vfree(ca->slot_info[i].rx_buffer.data);
- 
-diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index 1768c1b515b3..e0650bc2df61 100644
---- a/drivers/media/dvb-core/dvb_frontend.c
-+++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -147,7 +147,7 @@ static void __dvb_frontend_free(struct dvb_frontend *fe)
- 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
- 
- 	if (fepriv)
--		dvb_free_device(fepriv->dvbdev);
-+		dvb_device_put(fepriv->dvbdev);
- 
- 	dvb_frontend_invoke_release(fe, fe->ops.release);
- 
-diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
-index d8f19a4d214a..bf527eda6f05 100644
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -107,7 +107,7 @@ static int dvb_device_open(struct inode *inode, struct file *file)
- 		new_fops = fops_get(dvbdev->fops);
- 		if (!new_fops)
- 			goto fail;
--		file->private_data = dvbdev;
-+		file->private_data = dvb_device_get(dvbdev);
- 		replace_fops(file, new_fops);
- 		if (file->f_op->open)
- 			err = file->f_op->open(inode, file);
-@@ -171,6 +171,9 @@ int dvb_generic_release(struct inode *inode, struct file *file)
- 	}
- 
- 	dvbdev->users++;
-+
-+	dvb_device_put(dvbdev);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(dvb_generic_release);
-@@ -487,6 +490,7 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
- 		return -ENOMEM;
- 	}
- 
-+	kref_init(&dvbdev->ref);
- 	memcpy(dvbdev, template, sizeof(struct dvb_device));
- 	dvbdev->type = type;
- 	dvbdev->id = id;
-@@ -518,7 +522,7 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
- #endif
- 
- 	dvbdev->minor = minor;
--	dvb_minors[minor] = dvbdev;
-+	dvb_minors[minor] = dvb_device_get(dvbdev);
- 	up_write(&minor_rwsem);
- 
- 	ret = dvb_register_media_device(dvbdev, type, minor, demux_sink_pads);
-@@ -559,6 +563,7 @@ void dvb_remove_device(struct dvb_device *dvbdev)
- 
- 	down_write(&minor_rwsem);
- 	dvb_minors[dvbdev->minor] = NULL;
-+	dvb_device_put(dvbdev);
- 	up_write(&minor_rwsem);
- 
- 	dvb_media_device_free(dvbdev);
-@@ -570,21 +575,34 @@ void dvb_remove_device(struct dvb_device *dvbdev)
- EXPORT_SYMBOL(dvb_remove_device);
- 
- 
--void dvb_free_device(struct dvb_device *dvbdev)
-+static void dvb_free_device(struct kref *ref)
- {
--	if (!dvbdev)
--		return;
-+	struct dvb_device *dvbdev = container_of(ref, struct dvb_device, ref);
- 
- 	kfree (dvbdev->fops);
- 	kfree (dvbdev);
- }
--EXPORT_SYMBOL(dvb_free_device);
-+
-+
-+struct dvb_device *dvb_device_get(struct dvb_device *dvbdev)
-+{
-+	kref_get(&dvbdev->ref);
-+	return dvbdev;
-+}
-+EXPORT_SYMBOL(dvb_device_get);
-+
-+
-+void dvb_device_put(struct dvb_device *dvbdev)
-+{
-+	if (dvbdev)
-+		kref_put(&dvbdev->ref, dvb_free_device);
-+}
- 
- 
- void dvb_unregister_device(struct dvb_device *dvbdev)
- {
- 	dvb_remove_device(dvbdev);
--	dvb_free_device(dvbdev);
-+	dvb_device_put(dvbdev);
- }
- EXPORT_SYMBOL(dvb_unregister_device);
- 
-diff --git a/include/media/dvbdev.h b/include/media/dvbdev.h
-index 881ca461b7bb..6a0d22c4c3d8 100644
---- a/include/media/dvbdev.h
-+++ b/include/media/dvbdev.h
-@@ -156,6 +156,7 @@ struct dvb_adapter {
-  */
- struct dvb_device {
- 	struct list_head list_head;
-+	struct kref ref;
- 	const struct file_operations *fops;
- 	struct dvb_adapter *adapter;
- 	enum dvb_device_type type;
-@@ -187,6 +188,20 @@ struct dvb_device {
- 	void *priv;
- };
- 
-+/**
-+ * dvb_device_get - Increase dvb_device reference
-+ *
-+ * @dvbdev:	pointer to struct dvb_device
-+ */
-+struct dvb_device *dvb_device_get(struct dvb_device *dvbdev);
-+
-+/**
-+ * dvb_device_get - Decrease dvb_device reference
-+ *
-+ * @dvbdev:	pointer to struct dvb_device
-+ */
-+void dvb_device_put(struct dvb_device *dvbdev);
-+
- /**
-  * dvb_register_adapter - Registers a new DVB adapter
-  *
-@@ -231,29 +246,17 @@ int dvb_register_device(struct dvb_adapter *adap,
- /**
-  * dvb_remove_device - Remove a registered DVB device
-  *
-- * This does not free memory.  To do that, call dvb_free_device().
-+ * This does not free memory. dvb_free_device() will do that when
-+ * reference counter is empty
-  *
-  * @dvbdev:	pointer to struct dvb_device
-  */
- void dvb_remove_device(struct dvb_device *dvbdev);
- 
--/**
-- * dvb_free_device - Free memory occupied by a DVB device.
-- *
-- * Call dvb_unregister_device() before calling this function.
-- *
-- * @dvbdev:	pointer to struct dvb_device
-- */
--void dvb_free_device(struct dvb_device *dvbdev);
- 
- /**
-  * dvb_unregister_device - Unregisters a DVB device
-  *
-- * This is a combination of dvb_remove_device() and dvb_free_device().
-- * Using this function is usually a mistake, and is often an indicator
-- * for a use-after-free bug (when a userspace process keeps a file
-- * handle to a detached device).
-- *
-  * @dvbdev:	pointer to struct dvb_device
-  */
- void dvb_unregister_device(struct dvb_device *dvbdev);
+diff --git a/drivers/net/ethernet/apple/bmac.c b/drivers/net/ethernet/apple/bmac.c
+index a8b462e1beba..7e4567c7bcae 100644
+--- a/drivers/net/ethernet/apple/bmac.c
++++ b/drivers/net/ethernet/apple/bmac.c
+@@ -1516,7 +1516,7 @@ static void bmac_tx_timeout(unsigned long data)
+ 	i = bp->tx_empty;
+ 	++dev->stats.tx_errors;
+ 	if (i != bp->tx_fill) {
+-		dev_kfree_skb(bp->tx_bufs[i]);
++		dev_kfree_skb_irq(bp->tx_bufs[i]);
+ 		bp->tx_bufs[i] = NULL;
+ 		if (++i >= N_TX_RING) i = 0;
+ 		bp->tx_empty = i;
 -- 
 2.35.1
 
