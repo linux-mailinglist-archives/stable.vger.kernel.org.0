@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A56AF66C901
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 914CD66C4B5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233775AbjAPQpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:45:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34870 "EHLO
+        id S231570AbjAPP5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:57:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233777AbjAPQpA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC2528869
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:29 -0800 (PST)
+        with ESMTP id S231635AbjAPP5a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145AC22A1D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A9626104D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E864C433D2;
-        Mon, 16 Jan 2023 16:32:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C90D2B8105C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2B2C433D2;
+        Mon, 16 Jan 2023 15:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886749;
-        bh=6vRi5zWnUkTOpQroL8nflk3446aqTKa+yyRLY4JqaCU=;
+        s=korg; t=1673884636;
+        bh=YVp3f9E2+pN+zcOjlI8OkwKwm7GNcyKW0KGiHPtapp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZR8cSx0zrfz8Kb0nS20HDeVaK0CMpb9qqc1D/jp4jjBxNEvhgDJgfa8kgd4YD8Abl
-         V3u9g3sRgU5aXMG3dXfO4h095aELnIIOdg2LNEk4cNgXCWx3fPhjH0pwtjiV2kpOKW
-         lPhsk2TrXWaYYRn4PFG9vgQUfcY0Ldl7HAKJMfFU=
+        b=Zglko3W89+f0cBnQiFghTkQ+BmFFLnsKTzJmffgyUtSaIiwfN60k2JU8Z88/SHFOV
+         HgXssI47b1yR8zYuh5qnfp4hXgowic3P4a7exzwZa4ihe5s2pIy6QXKeweqgdiQB58
+         Q2AoT8r6ez9Es9K1pOom1W4k+6CnSgjca/vAm+Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kim Phillips <kim.phillips@amd.com>,
-        Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.4 517/658] iommu/amd: Fix ivrs_acpihid cmdline parsing code
+        patches@lists.linux.dev, Aaron Thompson <dev@aaront.org>,
+        "Mike Rapoport (IBM)" <rppt@kernel.org>
+Subject: [PATCH 6.1 082/183] mm: Always release pages to the buddy allocator in memblock_free_late().
 Date:   Mon, 16 Jan 2023 16:50:05 +0100
-Message-Id: <20230116154933.170621462@linuxfoundation.org>
+Message-Id: <20230116154806.899773400@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +52,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Aaron Thompson <dev@aaront.org>
 
-commit 5f18e9f8868c6d4eae71678e7ebd4977b7d8c8cf upstream.
+commit 115d9d77bb0f9152c60b6e8646369fa7f6167593 upstream.
 
-The second (UID) strcmp in acpi_dev_hid_uid_match considers
-"0" and "00" different, which can prevent device registration.
+If CONFIG_DEFERRED_STRUCT_PAGE_INIT is enabled, memblock_free_pages()
+only releases pages to the buddy allocator if they are not in the
+deferred range. This is correct for free pages (as defined by
+for_each_free_mem_pfn_range_in_zone()) because free pages in the
+deferred range will be initialized and released as part of the deferred
+init process. memblock_free_pages() is called by memblock_free_late(),
+which is used to free reserved ranges after memblock_free_all() has
+run. All pages in reserved ranges have been initialized at that point,
+and accordingly, those pages are not touched by the deferred init
+process. This means that currently, if the pages that
+memblock_free_late() intends to release are in the deferred range, they
+will never be released to the buddy allocator. They will forever be
+reserved.
 
-Have the AMD IOMMU driver's ivrs_acpihid parsing code remove
-any leading zeroes to make the UID strcmp succeed.  Now users
-can safely specify "AMDxxxxx:00" or "AMDxxxxx:0" and expect
-the same behaviour.
+In addition, memblock_free_pages() calls kmsan_memblock_free_pages(),
+which is also correct for free pages but is not correct for reserved
+pages. KMSAN metadata for reserved pages is initialized by
+kmsan_init_shadow(), which runs shortly before memblock_free_all().
 
-Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Cc: stable@vger.kernel.org
-Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20220919155638.391481-1-kim.phillips@amd.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+For both of these reasons, memblock_free_pages() should only be called
+for free pages, and memblock_free_late() should call __free_pages_core()
+directly instead.
+
+One case where this issue can occur in the wild is EFI boot on
+x86_64. The x86 EFI code reserves all EFI boot services memory ranges
+via memblock_reserve() and frees them later via memblock_free_late()
+(efi_reserve_boot_services() and efi_free_boot_services(),
+respectively). If any of those ranges happens to fall within the
+deferred init range, the pages will not be released and that memory will
+be unavailable.
+
+For example, on an Amazon EC2 t3.micro VM (1 GB) booting via EFI:
+
+v6.2-rc2:
+  # grep -E 'Node|spanned|present|managed' /proc/zoneinfo
+  Node 0, zone      DMA
+          spanned  4095
+          present  3999
+          managed  3840
+  Node 0, zone    DMA32
+          spanned  246652
+          present  245868
+          managed  178867
+
+v6.2-rc2 + patch:
+  # grep -E 'Node|spanned|present|managed' /proc/zoneinfo
+  Node 0, zone      DMA
+          spanned  4095
+          present  3999
+          managed  3840
+  Node 0, zone    DMA32
+          spanned  246652
+          present  245868
+          managed  222816   # +43,949 pages
+
+Fixes: 3a80a7fa7989 ("mm: meminit: initialise a subset of struct pages if CONFIG_DEFERRED_STRUCT_PAGE_INIT is set")
+Signed-off-by: Aaron Thompson <dev@aaront.org>
+Link: https://lore.kernel.org/r/01010185892de53e-e379acfb-7044-4b24-b30a-e2657c1ba989-000000@us-west-2.amazonses.com
+Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/amd_iommu_init.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ mm/memblock.c                     |    8 +++++++-
+ tools/testing/memblock/internal.h |    4 ++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -3051,6 +3051,13 @@ static int __init parse_ivrs_acpihid(cha
- 		return 1;
- 	}
+--- a/mm/memblock.c
++++ b/mm/memblock.c
+@@ -1640,7 +1640,13 @@ void __init memblock_free_late(phys_addr
+ 	end = PFN_DOWN(base + size);
  
-+	/*
-+	 * Ignore leading zeroes after ':', so e.g., AMDI0095:00
-+	 * will match AMDI0095:0 in the second strcmp in acpi_dev_hid_uid_match
-+	 */
-+	while (*uid == '0' && *(uid + 1))
-+		uid++;
+ 	for (; cursor < end; cursor++) {
+-		memblock_free_pages(pfn_to_page(cursor), cursor, 0);
++		/*
++		 * Reserved pages are always initialized by the end of
++		 * memblock_free_all() (by memmap_init() and, if deferred
++		 * initialization is enabled, memmap_init_reserved_pages()), so
++		 * these pages can be released directly to the buddy allocator.
++		 */
++		__free_pages_core(pfn_to_page(cursor), 0);
+ 		totalram_pages_inc();
+ 	}
+ }
+--- a/tools/testing/memblock/internal.h
++++ b/tools/testing/memblock/internal.h
+@@ -15,6 +15,10 @@ bool mirrored_kernelcore = false;
+ 
+ struct page {};
+ 
++void __free_pages_core(struct page *page, unsigned int order)
++{
++}
 +
- 	i = early_acpihid_map_size++;
- 	memcpy(early_acpihid_map[i].hid, hid, strlen(hid));
- 	memcpy(early_acpihid_map[i].uid, uid, strlen(uid));
+ void memblock_free_pages(struct page *page, unsigned long pfn,
+ 			 unsigned int order)
+ {
 
 
