@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5205F66C69F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:22:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF11A66C6A0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233059AbjAPQWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:22:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37064 "EHLO
+        id S233069AbjAPQWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:22:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233034AbjAPQVe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:21:34 -0500
+        with ESMTP id S231453AbjAPQVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:21:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522D129E1E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:11:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7E62A168
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E2DFF61040
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:11:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 029D5C433EF;
-        Mon, 16 Jan 2023 16:11:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8856C61040
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95C86C433EF;
+        Mon, 16 Jan 2023 16:11:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885517;
-        bh=Vd1udb+ONyCuj7ysZ0UH3+MsB5Bladp1dC1FTrfIyoA=;
+        s=korg; t=1673885520;
+        bh=ZMVOeR6uBXNkAa2vimZzQdvpFutDlDze+1vF9SwMg20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjMNb4AdfMNJFwTramufv+ZAMlgPlIOyale2r7QZdW0S9TOyNQvKvukQzrueKQtsa
-         njFaPBGKykqhiIHiH3ygrJXQkqy6CJgB39BIcn2UvqGEz7s2b85EDJJLtn9GjF2c7r
-         AoX+n8tTzEoq4+689VVBUyrwqmJORy5JzaWiorFA=
+        b=PQ/BLBG7QqEdM3WVUbICr/ITL58QY1yDw+Mi1U0LSWhTHc3GnjJrgfe0LjLQivmCy
+         7bIJnemEgq48fKC4Pt0eeaY9d+hFOzG5OBWY4uBXl1Mts0+cLqukx8KkEdOcCtNWPl
+         VNBmrg++SpPYTo+2ylAri64EyjDE4sehlPtvhbeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 081/658] clocksource/drivers/sh_cmt: Make sure channel clock supply is enabled
-Date:   Mon, 16 Jan 2023 16:42:49 +0100
-Message-Id: <20230116154913.316532956@linuxfoundation.org>
+Subject: [PATCH 5.4 082/658] ACPICA: Fix use-after-free in acpi_ut_copy_ipackage_to_ipackage()
+Date:   Mon, 16 Jan 2023 16:42:50 +0100
+Message-Id: <20230116154913.356987525@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -56,102 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Li Zetao <lizetao1@huawei.com>
 
-[ Upstream commit 2a97d55333e4299f32c98cca6dc5c4db1c5855fc ]
+[ Upstream commit 470188b09e92d83c5a997f25f0e8fb8cd2bc3469 ]
 
-The Renesas Compare Match Timer 0 and 1 (CMT0/1) variants have a
-register to control the clock supply to the individual channels.
-Currently the driver does not touch this register, and relies on the
-documented initial value, which has the clock supply enabled for all
-channels present.
+There is an use-after-free reported by KASAN:
 
-However, when Linux starts on the APE6-EVM development board, only the
-clock supply to the first CMT1 channel is enabled.  Hence the first
-channel (used as a clockevent) works, while the second channel (used as
-a clocksource) does not.  Note that the default system clocksource is
-the Cortex-A15 architectured timer, and the user needs to manually
-switch to the CMT1 clocksource to trigger the broken behavior.
+  BUG: KASAN: use-after-free in acpi_ut_remove_reference+0x3b/0x82
+  Read of size 1 at addr ffff888112afc460 by task modprobe/2111
+  CPU: 0 PID: 2111 Comm: modprobe Not tainted 6.1.0-rc7-dirty
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+  Call Trace:
+   <TASK>
+   kasan_report+0xae/0xe0
+   acpi_ut_remove_reference+0x3b/0x82
+   acpi_ut_copy_iobject_to_iobject+0x3be/0x3d5
+   acpi_ds_store_object_to_local+0x15d/0x3a0
+   acpi_ex_store+0x78d/0x7fd
+   acpi_ex_opcode_1A_1T_1R+0xbe4/0xf9b
+   acpi_ps_parse_aml+0x217/0x8d5
+   ...
+   </TASK>
 
-Fix this by removing the fragile dependency on implicit reset and/or
-boot loader state, and by enabling the clock supply explicitly for all
-channels used instead.  This requires postponing the clk_disable() call,
-else the timer's registers cannot be accessed in sh_cmt_setup_channel().
+The root cause of the problem is that the acpi_operand_object
+is freed when acpi_ut_walk_package_tree() fails in
+acpi_ut_copy_ipackage_to_ipackage(), lead to repeated release in
+acpi_ut_copy_iobject_to_iobject(). The problem was introduced
+by "8aa5e56eeb61" commit, this commit is to fix memory leak in
+acpi_ut_copy_iobject_to_iobject(), repeatedly adding remove
+operation, lead to "acpi_operand_object" used after free.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201210194648.2901899-1-geert+renesas@glider.be
+Fix it by removing acpi_ut_remove_reference() in
+acpi_ut_copy_ipackage_to_ipackage(). acpi_ut_copy_ipackage_to_ipackage()
+is called to copy an internal package object into another internal
+package object, when it fails, the memory of acpi_operand_object
+should be freed by the caller.
+
+Fixes: 8aa5e56eeb61 ("ACPICA: Utilities: Fix memory leak in acpi_ut_copy_iobject_to_iobject")
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/sh_cmt.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/acpi/acpica/utcopy.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
-index a0570213170d..b1ec79ddb7f2 100644
---- a/drivers/clocksource/sh_cmt.c
-+++ b/drivers/clocksource/sh_cmt.c
-@@ -231,6 +231,8 @@ static const struct sh_cmt_info sh_cmt_info[] = {
- #define CMCNT 1 /* channel register */
- #define CMCOR 2 /* channel register */
- 
-+#define CMCLKE	0x1000	/* CLK Enable Register (R-Car Gen2) */
-+
- static inline u32 sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
- {
- 	if (ch->iostart)
-@@ -845,6 +847,7 @@ static int sh_cmt_setup_channel(struct sh_cmt_channel *ch, unsigned int index,
- 				unsigned int hwidx, bool clockevent,
- 				bool clocksource, struct sh_cmt_device *cmt)
- {
-+	u32 value;
- 	int ret;
- 
- 	/* Skip unused channels. */
-@@ -874,6 +877,11 @@ static int sh_cmt_setup_channel(struct sh_cmt_channel *ch, unsigned int index,
- 		ch->iostart = cmt->mapbase + ch->hwidx * 0x100;
- 		ch->ioctrl = ch->iostart + 0x10;
- 		ch->timer_bit = 0;
-+
-+		/* Enable the clock supply to the channel */
-+		value = ioread32(cmt->mapbase + CMCLKE);
-+		value |= BIT(hwidx);
-+		iowrite32(value, cmt->mapbase + CMCLKE);
- 		break;
- 	}
- 
-@@ -1006,12 +1014,10 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
- 	else
- 		cmt->rate = clk_get_rate(cmt->clk) / 8;
- 
--	clk_disable(cmt->clk);
+diff --git a/drivers/acpi/acpica/utcopy.c b/drivers/acpi/acpica/utcopy.c
+index 1fb8327f3c3b..9c0b94d1c4ba 100644
+--- a/drivers/acpi/acpica/utcopy.c
++++ b/drivers/acpi/acpica/utcopy.c
+@@ -916,13 +916,6 @@ acpi_ut_copy_ipackage_to_ipackage(union acpi_operand_object *source_obj,
+ 	status = acpi_ut_walk_package_tree(source_obj, dest_obj,
+ 					   acpi_ut_copy_ielement_to_ielement,
+ 					   walk_state);
+-	if (ACPI_FAILURE(status)) {
 -
- 	/* Map the memory resource(s). */
- 	ret = sh_cmt_map_memory(cmt);
- 	if (ret < 0)
--		goto err_clk_unprepare;
-+		goto err_clk_disable;
+-		/* On failure, delete the destination package object */
+-
+-		acpi_ut_remove_reference(dest_obj);
+-	}
+-
+ 	return_ACPI_STATUS(status);
+ }
  
- 	/* Allocate and setup the channels. */
- 	cmt->num_channels = hweight8(cmt->hw_channels);
-@@ -1039,6 +1045,8 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
- 		mask &= ~(1 << hwidx);
- 	}
- 
-+	clk_disable(cmt->clk);
-+
- 	platform_set_drvdata(pdev, cmt);
- 
- 	return 0;
-@@ -1046,6 +1054,8 @@ static int sh_cmt_setup(struct sh_cmt_device *cmt, struct platform_device *pdev)
- err_unmap:
- 	kfree(cmt->channels);
- 	iounmap(cmt->mapbase);
-+err_clk_disable:
-+	clk_disable(cmt->clk);
- err_clk_unprepare:
- 	clk_unprepare(cmt->clk);
- err_clk_put:
 -- 
 2.35.1
 
