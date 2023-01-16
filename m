@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D67EF66C5DE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:11:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0B7D66C5E1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232598AbjAPQLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:11:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49218 "EHLO
+        id S232626AbjAPQLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:11:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232530AbjAPQKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:10:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10ABB2A143
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:58 -0800 (PST)
+        with ESMTP id S232544AbjAPQKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:10:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97F125E2E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C066EB81065
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 207FDC433D2;
-        Mon, 16 Jan 2023 16:06:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4548E61042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B713C433F1;
+        Mon, 16 Jan 2023 16:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885215;
-        bh=ca/884h1XqBxmIeeq7O99mIBfacr4tCARFCwPmw3ebU=;
+        s=korg; t=1673885220;
+        bh=OZ9cZjt1/BAdhfm5x8Pdi8D0sHck+hndBwG2k/m1334=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpKlYF1j1GbKKsY9dmh09LcCVw8qdxsW7jh6MOKPmzInUTnHO6HbftNF1cAqqQTD3
-         0Gi62C6oJHueAa+O/tGFizynoVf5jjEx/qXMT75O2NRFr48gKh8jEuPmbnB7zQkY2k
-         rF+AtRAThRb8eWNR/HpkNpEbxNA70IdyDeLXVckw=
+        b=fZ3bbR1KPO3EyXYvTzQR5tVP4r/w3AQasJUQx9ReWzaXHGbxwsLRSLd75PSVLsJBt
+         Xk6evKTfJ12Qeh98juJ/OkIDAaHPqWRf5mZXGgRCFBX/5QZrwtOzLNy34UfPeTqZzv
+         tQrza8gJbWnS2UqZE2Oxn7b6syecK/MDD8qeOtDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Ferry Toth <ftoth@exalondelft.nl>,
+        syzbot+57b25da729eb0b88177d@syzkaller.appspotmail.com,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 32/64] usb: ulpi: defer ulpi_register on ulpi_read_id timeout
-Date:   Mon, 16 Jan 2023 16:51:39 +0100
-Message-Id: <20230116154744.689460305@linuxfoundation.org>
+Subject: [PATCH 5.10 33/64] ext4: fix uninititialized value in ext4_evict_inode
+Date:   Mon, 16 Jan 2023 16:51:40 +0100
+Message-Id: <20230116154744.720046420@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
 References: <20230116154743.577276578@linuxfoundation.org>
@@ -54,47 +56,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 8a7b31d545d3a15f0e6f5984ae16f0ca4fd76aac ]
+[ Upstream commit 7ea71af94eaaaf6d9aed24bc94a05b977a741cb9 ]
 
-Since commit 0f0101719138 ("usb: dwc3: Don't switch OTG -> peripheral
-if extcon is present") Dual Role support on Intel Merrifield platform
-broke due to rearranging the call to dwc3_get_extcon().
+Syzbot found the following issue:
+=====================================================
+BUG: KMSAN: uninit-value in ext4_evict_inode+0xdd/0x26b0 fs/ext4/inode.c:180
+ ext4_evict_inode+0xdd/0x26b0 fs/ext4/inode.c:180
+ evict+0x365/0x9a0 fs/inode.c:664
+ iput_final fs/inode.c:1747 [inline]
+ iput+0x985/0xdd0 fs/inode.c:1773
+ __ext4_new_inode+0xe54/0x7ec0 fs/ext4/ialloc.c:1361
+ ext4_mknod+0x376/0x840 fs/ext4/namei.c:2844
+ vfs_mknod+0x79d/0x830 fs/namei.c:3914
+ do_mknodat+0x47d/0xaa0
+ __do_sys_mknodat fs/namei.c:3992 [inline]
+ __se_sys_mknodat fs/namei.c:3989 [inline]
+ __ia32_sys_mknodat+0xeb/0x150 fs/namei.c:3989
+ do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+ __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
+ do_fast_syscall_32+0x33/0x70 arch/x86/entry/common.c:203
+ do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:246
+ entry_SYSENTER_compat_after_hwframe+0x70/0x82
 
-It appears to be caused by ulpi_read_id() on the first test write failing
-with -ETIMEDOUT. Currently ulpi_read_id() expects to discover the phy via
-DT when the test write fails and returns 0 in that case, even if DT does not
-provide the phy. As a result usb probe completes without phy.
+Uninit was created at:
+ __alloc_pages+0x9f1/0xe80 mm/page_alloc.c:5578
+ alloc_pages+0xaae/0xd80 mm/mempolicy.c:2285
+ alloc_slab_page mm/slub.c:1794 [inline]
+ allocate_slab+0x1b5/0x1010 mm/slub.c:1939
+ new_slab mm/slub.c:1992 [inline]
+ ___slab_alloc+0x10c3/0x2d60 mm/slub.c:3180
+ __slab_alloc mm/slub.c:3279 [inline]
+ slab_alloc_node mm/slub.c:3364 [inline]
+ slab_alloc mm/slub.c:3406 [inline]
+ __kmem_cache_alloc_lru mm/slub.c:3413 [inline]
+ kmem_cache_alloc_lru+0x6f3/0xb30 mm/slub.c:3429
+ alloc_inode_sb include/linux/fs.h:3117 [inline]
+ ext4_alloc_inode+0x5f/0x860 fs/ext4/super.c:1321
+ alloc_inode+0x83/0x440 fs/inode.c:259
+ new_inode_pseudo fs/inode.c:1018 [inline]
+ new_inode+0x3b/0x430 fs/inode.c:1046
+ __ext4_new_inode+0x2a7/0x7ec0 fs/ext4/ialloc.c:959
+ ext4_mkdir+0x4d5/0x1560 fs/ext4/namei.c:2992
+ vfs_mkdir+0x62a/0x870 fs/namei.c:4035
+ do_mkdirat+0x466/0x7b0 fs/namei.c:4060
+ __do_sys_mkdirat fs/namei.c:4075 [inline]
+ __se_sys_mkdirat fs/namei.c:4073 [inline]
+ __ia32_sys_mkdirat+0xc4/0x120 fs/namei.c:4073
+ do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+ __do_fast_syscall_32+0xa2/0x100 arch/x86/entry/common.c:178
+ do_fast_syscall_32+0x33/0x70 arch/x86/entry/common.c:203
+ do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:246
+ entry_SYSENTER_compat_after_hwframe+0x70/0x82
 
-Make ulpi_read_id() return -ETIMEDOUT to its user if the first test write
-fails. The user should then handle it appropriately. A follow up patch
-will make dwc3_core_init() set -EPROBE_DEFER in this case and bail out.
+CPU: 1 PID: 4625 Comm: syz-executor.2 Not tainted 6.1.0-rc4-syzkaller-62821-gcb231e2f67ec #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+=====================================================
 
-Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
-Cc: stable@vger.kernel.org
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Link: https://lore.kernel.org/r/20221205201527.13525-2-ftoth@exalondelft.nl
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Now, 'ext4_alloc_inode()' didn't init 'ei->i_flags'. If new inode failed
+before set 'ei->i_flags' in '__ext4_new_inode()', then do 'iput()'. As after
+6bc0d63dad7f commit will access 'ei->i_flags' in 'ext4_evict_inode()' which
+will lead to access uninit-value.
+To solve above issue just init 'ei->i_flags' in 'ext4_alloc_inode()'.
+
+Reported-by: syzbot+57b25da729eb0b88177d@syzkaller.appspotmail.com
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Fixes: 6bc0d63dad7f ("ext4: remove EA inode entry from mbcache on inode eviction")
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20221117073603.2598882-1-yebin@huaweicloud.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/common/ulpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/super.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/common/ulpi.c b/drivers/usb/common/ulpi.c
-index 3c705f1bead8..1f077f2ea40f 100644
---- a/drivers/usb/common/ulpi.c
-+++ b/drivers/usb/common/ulpi.c
-@@ -208,7 +208,7 @@ static int ulpi_read_id(struct ulpi *ulpi)
- 	/* Test the interface */
- 	ret = ulpi_write(ulpi, ULPI_SCRATCH, 0xaa);
- 	if (ret < 0)
--		goto err;
-+		return ret;
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 935589579b8f..e940fb07ef2e 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1279,6 +1279,7 @@ static struct inode *ext4_alloc_inode(struct super_block *sb)
+ 		return NULL;
  
- 	ret = ulpi_read(ulpi, ULPI_SCRATCH);
- 	if (ret < 0)
+ 	inode_set_iversion(&ei->vfs_inode, 1);
++	ei->i_flags = 0;
+ 	spin_lock_init(&ei->i_raw_lock);
+ 	INIT_LIST_HEAD(&ei->i_prealloc_list);
+ 	atomic_set(&ei->i_prealloc_active, 0);
 -- 
 2.35.1
 
