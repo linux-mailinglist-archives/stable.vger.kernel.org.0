@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF4366C4D0
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3465E66C8D3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:43:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231621AbjAPP6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:58:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
+        id S233638AbjAPQnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:43:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231671AbjAPP60 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:58:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9301BAF8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:58:25 -0800 (PST)
+        with ESMTP id S233608AbjAPQm1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:42:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D471738B72
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:30:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1764F61042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:58:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA77C433F1;
-        Mon, 16 Jan 2023 15:58:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7065B61049
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:30:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82198C433D2;
+        Mon, 16 Jan 2023 16:30:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884704;
-        bh=21Z3JeefnVAA+pdXmW2IOI6bQnbL7bINEAW0gbd1WK0=;
+        s=korg; t=1673886637;
+        bh=V2+5Utq5rvpIASzoVumuev2HLEK4R4cNo7y/avz5NGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owxFTl8adxD3SJt7TF0Wv4WlGz8A7ktnRDnI2wVpQ2PREebAhAXtQqbw3Fgsez1KA
-         FEo3DMOn2RvTEUJC0TXNf0JFhcm7AwL5I4FewTabY3pe4xLo92NReWjiuKhn6L81P5
-         WCmeEFlfdQCx1bnn3I8A1BmizAmloHD5BXQGlnj8=
+        b=lV5sKW5u2gJOpvp52l2+NpZpz8A9DNoMjXOBaFCwPttRLpqxbtzZynndxf5KhhALl
+         OFjrivjurW0z9e/4rw0B9B9hcSdfruu+kEgSU6RE0R/cR8pTTKS8GU8hmIoJ+acd38
+         0INwFk41rhucSKziWBIhhwIBvAdP9gyE/OL8nnQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Mattia Dongili <malattia@linux.it>
-Subject: [PATCH 6.1 069/183] platform/x86: sony-laptop: Dont turn off 0x153 keyboard backlight during probe
-Date:   Mon, 16 Jan 2023 16:49:52 +0100
-Message-Id: <20230116154806.271920769@linuxfoundation.org>
+        patches@lists.linux.dev, Hyunwoo Kim <imv4bel@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Subject: [PATCH 5.4 505/658] media: dvb-core: Fix UAF due to refcount races at releasing
+Date:   Mon, 16 Jan 2023 16:49:53 +0100
+Message-Id: <20230116154932.609163844@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ad75bd85b1db69c97eefea07b375567821f6ef58 upstream.
+commit fd3d91ab1c6ab0628fe642dd570b56302c30a792 upstream.
 
-The 0x153 version of the kbd backlight control SNC handle has no separate
-address to probe if the backlight is there.
+The dvb-core tries to sync the releases of opened files at
+dvb_dmxdev_release() with two refcounts: dvbdev->users and
+dvr_dvbdev->users.  A problem is present in those two syncs: when yet
+another dvb_demux_open() is called during those sync waits,
+dvb_demux_open() continues to process even if the device is being
+closed.  This includes the increment of the former refcount, resulting
+in the leftover refcount after the sync of the latter refcount at
+dvb_dmxdev_release().  It ends up with use-after-free, since the
+function believes that all usages were gone and releases the
+resources.
 
-This turns the probe call into a set keyboard backlight call with a value
-of 0 turning off the keyboard backlight.
+This patch addresses the problem by adding the check of dmxdev->exit
+flag at dvb_demux_open(), just like dvb_dvr_open() already does.  With
+the exit flag check, the second call of dvb_demux_open() fails, hence
+the further corruption can be avoided.
 
-Skip probing when there is no separate probe address to avoid this.
+Also for avoiding the races of the dmxdev->exit flag reference, this
+patch serializes the dmxdev->exit set up and the sync waits with the
+dmxdev->mutex lock at dvb_dmxdev_release().  Without the mutex lock,
+dvb_demux_open() (or dvb_dvr_open()) may run concurrently with
+dvb_dmxdev_release(), which allows to skip the exit flag check and
+continue the open process that is being closed.
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1583752
-Fixes: 800f20170dcf ("Keyboard backlight control for some Vaio Fit models")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Mattia Dongili <malattia@linux.it>
-Link: https://lore.kernel.org/r/20221213122943.11123-1-hdegoede@redhat.com
+CVE-2022-41218 is assigned to those bugs above.
+
+Reported-by: Hyunwoo Kim <imv4bel@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/20220908132754.30532-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/sony-laptop.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/media/dvb-core/dmxdev.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/platform/x86/sony-laptop.c
-+++ b/drivers/platform/x86/sony-laptop.c
-@@ -1888,14 +1888,21 @@ static int sony_nc_kbd_backlight_setup(s
- 		break;
- 	}
+--- a/drivers/media/dvb-core/dmxdev.c
++++ b/drivers/media/dvb-core/dmxdev.c
+@@ -800,6 +800,11 @@ static int dvb_demux_open(struct inode *
+ 	if (mutex_lock_interruptible(&dmxdev->mutex))
+ 		return -ERESTARTSYS;
  
--	ret = sony_call_snc_handle(handle, probe_base, &result);
--	if (ret)
--		return ret;
-+	/*
-+	 * Only probe if there is a separate probe_base, otherwise the probe call
-+	 * is equivalent to __sony_nc_kbd_backlight_mode_set(0), resulting in
-+	 * the keyboard backlight being turned off.
-+	 */
-+	if (probe_base) {
-+		ret = sony_call_snc_handle(handle, probe_base, &result);
-+		if (ret)
-+			return ret;
++	if (dmxdev->exit) {
++		mutex_unlock(&dmxdev->mutex);
++		return -ENODEV;
++	}
++
+ 	for (i = 0; i < dmxdev->filternum; i++)
+ 		if (dmxdev->filter[i].state == DMXDEV_STATE_FREE)
+ 			break;
+@@ -1458,7 +1463,10 @@ EXPORT_SYMBOL(dvb_dmxdev_init);
  
--	if ((handle == 0x0137 && !(result & 0x02)) ||
--			!(result & 0x01)) {
--		dprintk("no backlight keyboard found\n");
--		return 0;
-+		if ((handle == 0x0137 && !(result & 0x02)) ||
-+				!(result & 0x01)) {
-+			dprintk("no backlight keyboard found\n");
-+			return 0;
-+		}
- 	}
- 
- 	kbdbl_ctl = kzalloc(sizeof(*kbdbl_ctl), GFP_KERNEL);
+ void dvb_dmxdev_release(struct dmxdev *dmxdev)
+ {
++	mutex_lock(&dmxdev->mutex);
+ 	dmxdev->exit = 1;
++	mutex_unlock(&dmxdev->mutex);
++
+ 	if (dmxdev->dvbdev->users > 1) {
+ 		wait_event(dmxdev->dvbdev->wait_queue,
+ 				dmxdev->dvbdev->users == 1);
 
 
