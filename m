@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 442AF66C48D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:56:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85F1266C8E1
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231366AbjAPP4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:56:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37216 "EHLO
+        id S233704AbjAPQoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:44:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231409AbjAPPz4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 826C31CF78
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:55 -0800 (PST)
+        with ESMTP id S233708AbjAPQnU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D596439B9E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F2F6B8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9141AC433EF;
-        Mon, 16 Jan 2023 15:55:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1A65B8107A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26808C433D2;
+        Mon, 16 Jan 2023 16:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884552;
-        bh=LG4frrVJORsNpCZ6nTILE+NzxiZUgNPrZQQkD3/1uo4=;
+        s=korg; t=1673886667;
+        bh=95S2qaX0OlxaCTD8FOj8mwDKG8Q73ShQ4ntrm2dKBLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWq6VAGoykAYcLDB9YZN4uEHquVo3vlR7AgSZX8OXr7ZKYRlSD7XpJUKQjC8tPw0V
-         FWoAmhlOJLoGOw9Vq5Fty8HUJqwj0B853S1VCSZYW5BKQ3L+Hg7YEppW1aXTc8RRDL
-         fXiLmyatu7V7IoCqLMqM++N3d2LOUX5zJ7T3qfVk=
+        b=0WbsoFFBGnOFO1eplwvs9jwzdGQv6fh0zCQhJxAK1reg9wbeZGphjww1Y44Pj3Lil
+         Yfp3zJwIIz7LE2Gm51lHYbbnOMwfG64sxp8OlNRPVzpE+4C8jbmf5RmDjA8fQhM9zc
+         h46K/XsxLeiKIxcdUIkX35WuFdFO/4Rs3rKSRAzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 6.1 050/183] platform/x86: asus-wmi: Dont load fan curves without fan
-Date:   Mon, 16 Jan 2023 16:49:33 +0100
-Message-Id: <20230116154805.481130975@linuxfoundation.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Steev Klimaszewski <steev@kali.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 5.4 486/658] arm64: dts: qcom: sdm850-lenovo-yoga-c630: correct I2C12 pins drive strength
+Date:   Mon, 16 Jan 2023 16:49:34 +0100
+Message-Id: <20230116154931.761695926@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 01fd7e7851ba2275662f771ee17d1f80e7bbfa52 upstream.
+commit fd49776d8f458bba5499384131eddc0b8bcaf50c upstream.
 
-If we do not have a fan it does not make sense to load curves for it.
-This removes the following warnings from the kernel log:
+The pin configuration (done with generic pin controller helpers and
+as expressed by bindings) requires children nodes with either:
+1. "pins" property and the actual configuration,
+2. another set of nodes with above point.
 
-asus_wmi: fan_curve_get_factory_default (0x00110024) failed: -19
-asus_wmi: fan_curve_get_factory_default (0x00110025) failed: -19
+The qup_i2c12_default pin configuration used second method - with a
+"pinmux" child.
 
-Fixes: a2bdf10ce96e ("platform/x86: asus-wmi: Increase FAN_CURVE_BUF_LEN to 32")
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Link: https://lore.kernel.org/r/20221221-asus-fan-v1-3-e07f3949725b@weissschuh.net
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 44acee207844 ("arm64: dts: qcom: Add Lenovo Yoga C630")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20220930192039.240486-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/asus-wmi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -2436,6 +2436,9 @@ static int fan_curve_check_present(struc
+--- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
++++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+@@ -298,8 +298,10 @@
+ };
  
- 	*available = false;
+ &qup_i2c12_default {
+-	drive-strength = <2>;
+-	bias-disable;
++	pinmux {
++		drive-strength = <2>;
++		bias-disable;
++	};
+ };
  
-+	if (asus->fan_type == FAN_TYPE_NONE)
-+		return 0;
-+
- 	err = fan_curve_get_factory_default(asus, fan_dev);
- 	if (err) {
- 		return 0;
+ &qup_uart6_default {
 
 
