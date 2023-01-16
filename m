@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB86B66C9C1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8361A66C746
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233967AbjAPQ4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:56:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47236 "EHLO
+        id S233184AbjAPQ3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:29:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233932AbjAPQzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:55:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 825D1279BF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:47 -0800 (PST)
+        with ESMTP id S233227AbjAPQ3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5877A36FE4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34F77B8108F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:38:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83681C433EF;
-        Mon, 16 Jan 2023 16:38:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C07756104D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D46CCC433F0;
+        Mon, 16 Jan 2023 16:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887124;
-        bh=rFYQliizlLXtqt3cIQPTJO+HoY1bHgfJWRUU5MHFMl8=;
+        s=korg; t=1673885840;
+        bh=pYmBLVih8lOnWahmwFGPCYDZ2yohEGGqh7oBYOXZIP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Csmd/LIq5oMQnhDng1ZK5INsomd2EN1lb6cYRdK5KE9AZCClYFnUchVBd5RiVitxe
-         X1kiWGpW3QwW6NMAolilqepwb4i+P94wtW2pCZGdg0zp3r7R5nxiqXTu5SZf5qrZWl
-         dLSaMrF3p4pO1XdkfYFYIMDSM0fbeMmFQ+U7Zz9M=
+        b=qyDtOSYyMLTMuwD43o+j9DbVKRlWs6yvSKR2xP1WJkx99VoPYq8YnrafKv3oWzggD
+         TfTAlrhl5EDNprihMGya78wsiGVxN0Kc+1GVkgb7s30/CWjy/yfG2iPQKRjBhtdYEt
+         IWr5lsPkDo8wxLBWk4vsPqeZDgjZQhmkCPyUdRjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 030/521] arm64: dts: mt2712-evb: Fix vproc fixed regulators unit names
+Subject: [PATCH 5.4 204/658] media: coda: Add check for kmalloc
 Date:   Mon, 16 Jan 2023 16:44:52 +0100
-Message-Id: <20230116154848.660287655@linuxfoundation.org>
+Message-Id: <20230116154918.778825813@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 377063156893bf6c088309ac799fe5c6dce2822d ]
+[ Upstream commit 6e5e5defdb8b0186312c2f855ace175aee6daf9b ]
 
-Update the names to regulator-vproc-buck{0,1} to fix unit_addres_vs_reg
-warnings for those.
+As the kmalloc may return NULL pointer,
+it should be better to check the return value
+in order to avoid NULL poineter dereference,
+same as the others.
 
-Fixes: f75dd8bdd344 ("arm64: dts: mediatek: add mt2712 cpufreq related device nodes")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20221013152212.416661-6-angelogioacchino.delregno@collabora.com
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: cb1d3a336371 ("[media] coda: add CODA7541 JPEG support")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt2712-evb.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/coda/coda-bit.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-index 4ce9d6ca0bf7..424c22a266c4 100644
---- a/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt2712-evb.dts
-@@ -25,14 +25,14 @@ chosen {
- 		stdout-path = "serial0:921600n8";
- 	};
+diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
+index 6dc59d7fe8df..73023d34d920 100644
+--- a/drivers/media/platform/coda/coda-bit.c
++++ b/drivers/media/platform/coda/coda-bit.c
+@@ -1082,10 +1082,16 @@ static int coda_start_encoding(struct coda_ctx *ctx)
+ 	}
  
--	cpus_fixed_vproc0: fixedregulator@0 {
-+	cpus_fixed_vproc0: regulator-vproc-buck0 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vproc_buck0";
- 		regulator-min-microvolt = <1000000>;
- 		regulator-max-microvolt = <1000000>;
- 	};
+ 	if (dst_fourcc == V4L2_PIX_FMT_JPEG) {
+-		if (!ctx->params.jpeg_qmat_tab[0])
++		if (!ctx->params.jpeg_qmat_tab[0]) {
+ 			ctx->params.jpeg_qmat_tab[0] = kmalloc(64, GFP_KERNEL);
+-		if (!ctx->params.jpeg_qmat_tab[1])
++			if (!ctx->params.jpeg_qmat_tab[0])
++				return -ENOMEM;
++		}
++		if (!ctx->params.jpeg_qmat_tab[1]) {
+ 			ctx->params.jpeg_qmat_tab[1] = kmalloc(64, GFP_KERNEL);
++			if (!ctx->params.jpeg_qmat_tab[1])
++				return -ENOMEM;
++		}
+ 		coda_set_jpeg_compression_quality(ctx, ctx->params.jpeg_quality);
+ 	}
  
--	cpus_fixed_vproc1: fixedregulator@1 {
-+	cpus_fixed_vproc1: regulator-vproc-buck1 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vproc_buck1";
- 		regulator-min-microvolt = <1000000>;
 -- 
 2.35.1
 
