@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AEAC66C5F7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D62266C95E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232604AbjAPQMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:12:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50830 "EHLO
+        id S233835AbjAPQt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:49:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232702AbjAPQL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:11:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C70624102
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:30 -0800 (PST)
+        with ESMTP id S233967AbjAPQsf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:48:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 699A9302BE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE7106102D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01ACDC433D2;
-        Mon, 16 Jan 2023 16:07:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2417CB81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 725C7C433D2;
+        Mon, 16 Jan 2023 16:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885249;
-        bh=HCMmZuGcGoNoNakOvdHn5cYz7xR7FcG3jSUdokJ3VCM=;
+        s=korg; t=1673886947;
+        bh=Pbir8vl/RLwXHarvuo9OOB/LtcPSiVtcdLDDndWzy54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqE2tLfqlIOsDOgO/OqE5xWKLvdJqoAqYrtza7KeNI5wG86i3g4skvC2mKp3bJ+ZI
-         fgZMtePMFMsDgvx9LypUg7U146cx9GwEdwTZbsAiHONjpXq8eMA081B8Siia6UmPqh
-         rsWSoB0BPK2KhTJks+94SYdjmfJOChW6EtK0hQ5A=
+        b=twvy4/Ec67UG922+XsBJId01/xTOQQ1m6/iVMUdrmMBBQN+dL79r524Wc4kE7RJi/
+         ABxUjCAw939ocB3HlA4uMST82T83udFr+ZRA/6mF9+i3vZb/MoEbHugqV8WJRP6U63
+         8zm+yTBV8UImtLArB34PvuL3wy3kza0B7bgiL4I4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        Rakesh Babu <rsaladi2@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 43/64] octeontx2-af: Map NIX block from CGX connection
-Date:   Mon, 16 Jan 2023 16:51:50 +0100
-Message-Id: <20230116154745.050400367@linuxfoundation.org>
+        patches@lists.linux.dev, Bixuan Cui <cuibixuan@linux.alibaba.com>,
+        Jason Yan <yanaijie@huawei.com>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 623/658] jbd2: use the correct print format
+Date:   Mon, 16 Jan 2023 16:51:51 +0100
+Message-Id: <20230116154937.991514558@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,276 +53,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Bixuan Cui <cuibixuan@linux.alibaba.com>
 
-[ Upstream commit c5a73b632b901c4b07d156bb8a8a2c5517678f35 ]
+[ Upstream commit d87a7b4c77a997d5388566dd511ca8e6b8e8a0a8 ]
 
-Firmware configures NIX block mapping for all CGXs
-to achieve maximum throughput. This patch reads
-the configuration and create mapping between RVU
-PF and NIX blocks. And for LBK VFs assign NIX0 for
-even numbered VFs and NIX1 for odd numbered VFs.
+The print format error was found when using ftrace event:
+    <...>-1406 [000] .... 23599442.895823: jbd2_end_commit: dev 252,8 transaction -1866216965 sync 0 head -1866217368
+    <...>-1406 [000] .... 23599442.896299: jbd2_start_commit: dev 252,8 transaction -1866216964 sync 0
 
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: Rakesh Babu <rsaladi2@marvell.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: b4e9b8763e41 ("octeontx2-af: Fix LMAC config in cgx_lmac_rx_tx_enable")
+Use the correct print format for transaction, head and tid.
+
+Fixes: 879c5e6b7cb4 ('jbd2: convert instrumentation from markers to tracepoints')
+Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Link: https://lore.kernel.org/r/1665488024-95172-1-git-send-email-cuibixuan@linux.alibaba.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/marvell/octeontx2/af/cgx.c   | 13 +++-
- .../net/ethernet/marvell/octeontx2/af/cgx.h   |  5 ++
- .../net/ethernet/marvell/octeontx2/af/rvu.c   | 61 ++++++++++++++++++-
- .../net/ethernet/marvell/octeontx2/af/rvu.h   |  2 +
- .../ethernet/marvell/octeontx2/af/rvu_cgx.c   | 15 +++++
- .../ethernet/marvell/octeontx2/af/rvu_nix.c   | 21 +++++--
- 6 files changed, 107 insertions(+), 10 deletions(-)
+ include/trace/events/jbd2.h | 40 ++++++++++++++++++-------------------
+ 1 file changed, 20 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/cgx.c b/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
-index fc27a40202c6..1a8f5a039d50 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
-@@ -145,6 +145,16 @@ int cgx_get_cgxid(void *cgxd)
- 	return cgx->cgx_id;
- }
+diff --git a/include/trace/events/jbd2.h b/include/trace/events/jbd2.h
+index 2310b259329f..c9fb7b987a3a 100644
+--- a/include/trace/events/jbd2.h
++++ b/include/trace/events/jbd2.h
+@@ -40,7 +40,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
+ 	TP_STRUCT__entry(
+ 		__field(	dev_t,	dev			)
+ 		__field(	char,	sync_commit		  )
+-		__field(	int,	transaction		  )
++		__field(	tid_t,	transaction		  )
+ 	),
  
-+u8 cgx_lmac_get_p2x(int cgx_id, int lmac_id)
-+{
-+	struct cgx *cgx_dev = cgx_get_pdata(cgx_id);
-+	u64 cfg;
-+
-+	cfg = cgx_read(cgx_dev, lmac_id, CGXX_CMRX_CFG);
-+
-+	return (cfg & CMR_P2X_SEL_MASK) >> CMR_P2X_SEL_SHIFT;
-+}
-+
- /* Ensure the required lock for event queue(where asynchronous events are
-  * posted) is acquired before calling this API. Else an asynchronous event(with
-  * latest link status) can reach the destination before this function returns
-@@ -814,8 +824,7 @@ static int cgx_lmac_verify_fwi_version(struct cgx *cgx)
- 	minor_ver = FIELD_GET(RESP_MINOR_VER, resp);
- 	dev_dbg(dev, "Firmware command interface version = %d.%d\n",
- 		major_ver, minor_ver);
--	if (major_ver != CGX_FIRMWARE_MAJOR_VER ||
--	    minor_ver != CGX_FIRMWARE_MINOR_VER)
-+	if (major_ver != CGX_FIRMWARE_MAJOR_VER)
- 		return -EIO;
- 	else
- 		return 0;
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/cgx.h b/drivers/net/ethernet/marvell/octeontx2/af/cgx.h
-index 27ca3291682b..bcfc3e5f66bb 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/cgx.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/cgx.h
-@@ -27,6 +27,10 @@
+ 	TP_fast_assign(
+@@ -49,7 +49,7 @@ DECLARE_EVENT_CLASS(jbd2_commit,
+ 		__entry->transaction	= commit_transaction->t_tid;
+ 	),
  
- /* Registers */
- #define CGXX_CMRX_CFG			0x00
-+#define CMR_P2X_SEL_MASK		GENMASK_ULL(61, 59)
-+#define CMR_P2X_SEL_SHIFT		59ULL
-+#define CMR_P2X_SEL_NIX0		1ULL
-+#define CMR_P2X_SEL_NIX1		2ULL
- #define CMR_EN				BIT_ULL(55)
- #define DATA_PKT_TX_EN			BIT_ULL(53)
- #define DATA_PKT_RX_EN			BIT_ULL(54)
-@@ -142,5 +146,6 @@ int cgx_lmac_get_pause_frm(void *cgxd, int lmac_id,
- int cgx_lmac_set_pause_frm(void *cgxd, int lmac_id,
- 			   u8 tx_pause, u8 rx_pause);
- void cgx_lmac_ptp_config(void *cgxd, int lmac_id, bool enable);
-+u8 cgx_lmac_get_p2x(int cgx_id, int lmac_id);
+-	TP_printk("dev %d,%d transaction %d sync %d",
++	TP_printk("dev %d,%d transaction %u sync %d",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev),
+ 		  __entry->transaction, __entry->sync_commit)
+ );
+@@ -97,8 +97,8 @@ TRACE_EVENT(jbd2_end_commit,
+ 	TP_STRUCT__entry(
+ 		__field(	dev_t,	dev			)
+ 		__field(	char,	sync_commit		  )
+-		__field(	int,	transaction		  )
+-		__field(	int,	head		  	  )
++		__field(	tid_t,	transaction		  )
++		__field(	tid_t,	head		  	  )
+ 	),
  
- #endif /* CGX_H */
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-index 9bab525ecd86..acbc67074f59 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
-@@ -1208,6 +1208,58 @@ int rvu_mbox_handler_detach_resources(struct rvu *rvu,
- 	return rvu_detach_rsrcs(rvu, detach, detach->hdr.pcifunc);
- }
+ 	TP_fast_assign(
+@@ -108,7 +108,7 @@ TRACE_EVENT(jbd2_end_commit,
+ 		__entry->head		= journal->j_tail_sequence;
+ 	),
  
-+static int rvu_get_nix_blkaddr(struct rvu *rvu, u16 pcifunc)
-+{
-+	struct rvu_pfvf *pfvf = rvu_get_pfvf(rvu, pcifunc);
-+	int blkaddr = BLKADDR_NIX0, vf;
-+	struct rvu_pfvf *pf;
-+
-+	/* All CGX mapped PFs are set with assigned NIX block during init */
-+	if (is_pf_cgxmapped(rvu, rvu_get_pf(pcifunc))) {
-+		pf = rvu_get_pfvf(rvu, pcifunc & ~RVU_PFVF_FUNC_MASK);
-+		blkaddr = pf->nix_blkaddr;
-+	} else if (is_afvf(pcifunc)) {
-+		vf = pcifunc - 1;
-+		/* Assign NIX based on VF number. All even numbered VFs get
-+		 * NIX0 and odd numbered gets NIX1
-+		 */
-+		blkaddr = (vf & 1) ? BLKADDR_NIX1 : BLKADDR_NIX0;
-+		/* NIX1 is not present on all silicons */
-+		if (!is_block_implemented(rvu->hw, BLKADDR_NIX1))
-+			blkaddr = BLKADDR_NIX0;
-+	}
-+
-+	switch (blkaddr) {
-+	case BLKADDR_NIX1:
-+		pfvf->nix_blkaddr = BLKADDR_NIX1;
-+		break;
-+	case BLKADDR_NIX0:
-+	default:
-+		pfvf->nix_blkaddr = BLKADDR_NIX0;
-+		break;
-+	}
-+
-+	return pfvf->nix_blkaddr;
-+}
-+
-+static int rvu_get_attach_blkaddr(struct rvu *rvu, int blktype, u16 pcifunc)
-+{
-+	int blkaddr;
-+
-+	switch (blktype) {
-+	case BLKTYPE_NIX:
-+		blkaddr = rvu_get_nix_blkaddr(rvu, pcifunc);
-+		break;
-+	default:
-+		return rvu_get_blkaddr(rvu, blktype, 0);
-+	};
-+
-+	if (is_block_implemented(rvu->hw, blkaddr))
-+		return blkaddr;
-+
-+	return -ENODEV;
-+}
-+
- static void rvu_attach_block(struct rvu *rvu, int pcifunc,
- 			     int blktype, int num_lfs)
- {
-@@ -1221,7 +1273,7 @@ static void rvu_attach_block(struct rvu *rvu, int pcifunc,
- 	if (!num_lfs)
- 		return;
+-	TP_printk("dev %d,%d transaction %d sync %d head %d",
++	TP_printk("dev %d,%d transaction %u sync %d head %u",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev),
+ 		  __entry->transaction, __entry->sync_commit, __entry->head)
+ );
+@@ -134,14 +134,14 @@ TRACE_EVENT(jbd2_submit_inode_data,
+ );
  
--	blkaddr = rvu_get_blkaddr(rvu, blktype, 0);
-+	blkaddr = rvu_get_attach_blkaddr(rvu, blktype, pcifunc);
- 	if (blkaddr < 0)
- 		return;
+ TRACE_EVENT(jbd2_handle_start,
+-	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
++	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
+ 		 unsigned int line_no, int requested_blocks),
  
-@@ -1250,9 +1302,9 @@ static int rvu_check_rsrc_availability(struct rvu *rvu,
- 				       struct rsrc_attach *req, u16 pcifunc)
- {
- 	struct rvu_pfvf *pfvf = rvu_get_pfvf(rvu, pcifunc);
-+	int free_lfs, mappedlfs, blkaddr;
- 	struct rvu_hwinfo *hw = rvu->hw;
- 	struct rvu_block *block;
--	int free_lfs, mappedlfs;
+ 	TP_ARGS(dev, tid, type, line_no, requested_blocks),
  
- 	/* Only one NPA LF can be attached */
- 	if (req->npalf && !is_blktype_attached(pfvf, BLKTYPE_NPA)) {
-@@ -1269,7 +1321,10 @@ static int rvu_check_rsrc_availability(struct rvu *rvu,
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	 unsigned int,	type		)
+ 		__field(	 unsigned int,	line_no		)
+ 		__field(		  int,	requested_blocks)
+@@ -155,14 +155,14 @@ TRACE_EVENT(jbd2_handle_start,
+ 		__entry->requested_blocks = requested_blocks;
+ 	),
  
- 	/* Only one NIX LF can be attached */
- 	if (req->nixlf && !is_blktype_attached(pfvf, BLKTYPE_NIX)) {
--		block = &hw->block[BLKADDR_NIX0];
-+		blkaddr = rvu_get_attach_blkaddr(rvu, BLKTYPE_NIX, pcifunc);
-+		if (blkaddr < 0)
-+			return blkaddr;
-+		block = &hw->block[blkaddr];
- 		free_lfs = rvu_rsrc_free_count(&block->lf);
- 		if (!free_lfs)
- 			goto fail;
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu.h b/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
-index 0cb5093744fe..fc6d785b98dd 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.h
-@@ -183,6 +183,8 @@ struct rvu_pfvf {
+-	TP_printk("dev %d,%d tid %lu type %u line_no %u "
++	TP_printk("dev %d,%d tid %u type %u line_no %u "
+ 		  "requested_blocks %d",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+ 		  __entry->type, __entry->line_no, __entry->requested_blocks)
+ );
  
- 	bool	cgx_in_use; /* this PF/VF using CGX? */
- 	int	cgx_users;  /* number of cgx users - used only by PFs */
-+
-+	u8	nix_blkaddr; /* BLKADDR_NIX0/1 assigned to this PF */
- };
+ TRACE_EVENT(jbd2_handle_extend,
+-	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
++	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
+ 		 unsigned int line_no, int buffer_credits,
+ 		 int requested_blocks),
  
- struct nix_txsch {
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c
-index f4ecc755eaff..6c6b411e78fd 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cgx.c
-@@ -74,6 +74,20 @@ void *rvu_cgx_pdata(u8 cgx_id, struct rvu *rvu)
- 	return rvu->cgx_idmap[cgx_id];
- }
+@@ -170,7 +170,7 @@ TRACE_EVENT(jbd2_handle_extend,
  
-+/* Based on P2X connectivity find mapped NIX block for a PF */
-+static void rvu_map_cgx_nix_block(struct rvu *rvu, int pf,
-+				  int cgx_id, int lmac_id)
-+{
-+	struct rvu_pfvf *pfvf = &rvu->pf[pf];
-+	u8 p2x;
-+
-+	p2x = cgx_lmac_get_p2x(cgx_id, lmac_id);
-+	/* Firmware sets P2X_SELECT as either NIX0 or NIX1 */
-+	pfvf->nix_blkaddr = BLKADDR_NIX0;
-+	if (p2x == CMR_P2X_SEL_NIX1)
-+		pfvf->nix_blkaddr = BLKADDR_NIX1;
-+}
-+
- static int rvu_map_cgx_lmac_pf(struct rvu *rvu)
- {
- 	struct npc_pkind *pkind = &rvu->hw->pkind;
-@@ -117,6 +131,7 @@ static int rvu_map_cgx_lmac_pf(struct rvu *rvu)
- 			rvu->cgxlmac2pf_map[CGX_OFFSET(cgx) + lmac] = 1 << pf;
- 			free_pkind = rvu_alloc_rsrc(&pkind->rsrc);
- 			pkind->pfchan_map[free_pkind] = ((pf) & 0x3F) << 16;
-+			rvu_map_cgx_nix_block(rvu, pf, cgx, lmac);
- 			rvu->cgx_mapped_pfs++;
- 		}
- 	}
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-index f6a3cf3e6f23..9886a30e9723 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-@@ -187,8 +187,8 @@ static bool is_valid_txschq(struct rvu *rvu, int blkaddr,
- static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
- {
- 	struct rvu_pfvf *pfvf = rvu_get_pfvf(rvu, pcifunc);
-+	int pkind, pf, vf, lbkid;
- 	u8 cgx_id, lmac_id;
--	int pkind, pf, vf;
- 	int err;
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	 unsigned int,	type		)
+ 		__field(	 unsigned int,	line_no		)
+ 		__field(		  int,	buffer_credits  )
+@@ -186,7 +186,7 @@ TRACE_EVENT(jbd2_handle_extend,
+ 		__entry->requested_blocks = requested_blocks;
+ 	),
  
- 	pf = rvu_get_pf(pcifunc);
-@@ -221,13 +221,24 @@ static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
- 	case NIX_INTF_TYPE_LBK:
- 		vf = (pcifunc & RVU_PFVF_FUNC_MASK) - 1;
+-	TP_printk("dev %d,%d tid %lu type %u line_no %u "
++	TP_printk("dev %d,%d tid %u type %u line_no %u "
+ 		  "buffer_credits %d requested_blocks %d",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+ 		  __entry->type, __entry->line_no, __entry->buffer_credits,
+@@ -194,7 +194,7 @@ TRACE_EVENT(jbd2_handle_extend,
+ );
  
-+		/* If NIX1 block is present on the silicon then NIXes are
-+		 * assigned alternatively for lbk interfaces. NIX0 should
-+		 * send packets on lbk link 1 channels and NIX1 should send
-+		 * on lbk link 0 channels for the communication between
-+		 * NIX0 and NIX1.
-+		 */
-+		lbkid = 0;
-+		if (rvu->hw->lbk_links > 1)
-+			lbkid = vf & 0x1 ? 0 : 1;
-+
- 		/* Note that AF's VFs work in pairs and talk over consecutive
- 		 * loopback channels.Therefore if odd number of AF VFs are
- 		 * enabled then the last VF remains with no pair.
- 		 */
--		pfvf->rx_chan_base = NIX_CHAN_LBK_CHX(0, vf);
--		pfvf->tx_chan_base = vf & 0x1 ? NIX_CHAN_LBK_CHX(0, vf - 1) :
--						NIX_CHAN_LBK_CHX(0, vf + 1);
-+		pfvf->rx_chan_base = NIX_CHAN_LBK_CHX(lbkid, vf);
-+		pfvf->tx_chan_base = vf & 0x1 ?
-+					NIX_CHAN_LBK_CHX(lbkid, vf - 1) :
-+					NIX_CHAN_LBK_CHX(lbkid, vf + 1);
- 		pfvf->rx_chan_cnt = 1;
- 		pfvf->tx_chan_cnt = 1;
- 		rvu_npc_install_promisc_entry(rvu, pcifunc, nixlf,
-@@ -3157,7 +3168,7 @@ int rvu_nix_init(struct rvu *rvu)
- 	hw->cgx = (cfg >> 12) & 0xF;
- 	hw->lmac_per_cgx = (cfg >> 8) & 0xF;
- 	hw->cgx_links = hw->cgx * hw->lmac_per_cgx;
--	hw->lbk_links = 1;
-+	hw->lbk_links = (cfg >> 24) & 0xF;
- 	hw->sdp_links = 1;
+ TRACE_EVENT(jbd2_handle_stats,
+-	TP_PROTO(dev_t dev, unsigned long tid, unsigned int type,
++	TP_PROTO(dev_t dev, tid_t tid, unsigned int type,
+ 		 unsigned int line_no, int interval, int sync,
+ 		 int requested_blocks, int dirtied_blocks),
  
- 	/* Initialize admin queue */
+@@ -203,7 +203,7 @@ TRACE_EVENT(jbd2_handle_stats,
+ 
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	 unsigned int,	type		)
+ 		__field(	 unsigned int,	line_no		)
+ 		__field(		  int,	interval	)
+@@ -223,7 +223,7 @@ TRACE_EVENT(jbd2_handle_stats,
+ 		__entry->dirtied_blocks	  = dirtied_blocks;
+ 	),
+ 
+-	TP_printk("dev %d,%d tid %lu type %u line_no %u interval %d "
++	TP_printk("dev %d,%d tid %u type %u line_no %u interval %d "
+ 		  "sync %d requested_blocks %d dirtied_blocks %d",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+ 		  __entry->type, __entry->line_no, __entry->interval,
+@@ -232,14 +232,14 @@ TRACE_EVENT(jbd2_handle_stats,
+ );
+ 
+ TRACE_EVENT(jbd2_run_stats,
+-	TP_PROTO(dev_t dev, unsigned long tid,
++	TP_PROTO(dev_t dev, tid_t tid,
+ 		 struct transaction_run_stats_s *stats),
+ 
+ 	TP_ARGS(dev, tid, stats),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	unsigned long,	wait		)
+ 		__field(	unsigned long,	request_delay	)
+ 		__field(	unsigned long,	running		)
+@@ -265,7 +265,7 @@ TRACE_EVENT(jbd2_run_stats,
+ 		__entry->blocks_logged	= stats->rs_blocks_logged;
+ 	),
+ 
+-	TP_printk("dev %d,%d tid %lu wait %u request_delay %u running %u "
++	TP_printk("dev %d,%d tid %u wait %u request_delay %u running %u "
+ 		  "locked %u flushing %u logging %u handle_count %u "
+ 		  "blocks %u blocks_logged %u",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+@@ -280,14 +280,14 @@ TRACE_EVENT(jbd2_run_stats,
+ );
+ 
+ TRACE_EVENT(jbd2_checkpoint_stats,
+-	TP_PROTO(dev_t dev, unsigned long tid,
++	TP_PROTO(dev_t dev, tid_t tid,
+ 		 struct transaction_chp_stats_s *stats),
+ 
+ 	TP_ARGS(dev, tid, stats),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(		dev_t,	dev		)
+-		__field(	unsigned long,	tid		)
++		__field(		tid_t,	tid		)
+ 		__field(	unsigned long,	chp_time	)
+ 		__field(		__u32,	forced_to_close	)
+ 		__field(		__u32,	written		)
+@@ -303,7 +303,7 @@ TRACE_EVENT(jbd2_checkpoint_stats,
+ 		__entry->dropped	= stats->cs_dropped;
+ 	),
+ 
+-	TP_printk("dev %d,%d tid %lu chp_time %u forced_to_close %u "
++	TP_printk("dev %d,%d tid %u chp_time %u forced_to_close %u "
+ 		  "written %u dropped %u",
+ 		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->tid,
+ 		  jiffies_to_msecs(__entry->chp_time),
 -- 
 2.35.1
 
