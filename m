@@ -2,43 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 117CB66C943
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8818866C528
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:02:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233902AbjAPQrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:47:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38606 "EHLO
+        id S231978AbjAPQCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:02:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233845AbjAPQq7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8173B0D6
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:52 -0800 (PST)
+        with ESMTP id S231977AbjAPQBr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:01:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A72A2333A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36AFE6106E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49CFDC433F0;
-        Mon, 16 Jan 2023 16:34:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C173EB81061
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F260DC433EF;
+        Mon, 16 Jan 2023 16:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886891;
-        bh=IN41O2u8NXoeA6QCFZqS/m70Mz2F9VCWIIt7SPGU5r0=;
+        s=korg; t=1673884903;
+        bh=kudM798/kcei4T9wKUjSprpmfWS0PRt+yng+0kWIehA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iyd7D7wX/NXAXci4nthNGDwmeuBg17eCXXTlbWvmLBNbYxGks/TX1ymE5vvbK92Ut
-         BeY7kuS04sXZgTOXIzhQEJESwxfT6tHTHhGQBeZxYLQjSrqQpUrZedA6v/1b53Ft95
-         fbJqfZso8EhKwD+q8u70y59MATLwR0l7eDKSC65A=
+        b=z9cDcpBEttgOvVrc43PcL3yJlgYh9BCfnV90BPeQi5xt9yJeo+u4PFdEocGCYb/Q3
+         4ROK1U/YByyhLvCwLFQuyDs+nUagrlrkzcgniqDWO5YpEnA1Vn21w48cgCgfVXNrZq
+         49EEP34rNuHs5jZX4ZAbMqKYmvlT/tRXpDPdjK8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Oliver Upton <oliver.upton@linux.dev>,
-        Ard Biesheuvel <ardb@kernel.org>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 601/658] KVM: arm64: Fix S1PTW handling on RO memslots
+        patches@lists.linux.dev, Ravi Bangoria <ravi.bangoria@amd.com>,
+        James Clark <james.clark@arm.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 166/183] perf kmem: Support legacy tracepoints
 Date:   Mon, 16 Jan 2023 16:51:29 +0100
-Message-Id: <20230116154936.983855105@linuxfoundation.org>
+Message-Id: <20230116154810.314865374@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,81 +62,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Leo Yan <leo.yan@linaro.org>
 
-commit 406504c7b0405d74d74c15a667cd4c4620c3e7a9 upstream.
+[ Upstream commit b3719108ae60169eda5c941ca5e1be1faa371c57 ]
 
-A recent development on the EFI front has resulted in guests having
-their page tables baked in the firmware binary, and mapped into the
-IPA space as part of a read-only memslot. Not only is this legitimate,
-but it also results in added security, so thumbs up.
+Commit 11e9734bcb6a7361 ("mm/slab_common: unify NUMA and UMA version of
+tracepoints") removed tracepoints 'kmalloc_node' and
+'kmem_cache_alloc_node', we need to consider the tool should be backward
+compatible.
 
-It is possible to take an S1PTW translation fault if the S1 PTs are
-unmapped at stage-2. However, KVM unconditionally treats S1PTW as a
-write to correctly handle hardware AF/DB updates to the S1 PTs.
-Furthermore, KVM injects an exception into the guest for S1PTW writes.
-In the aforementioned case this results in the guest taking an abort
-it won't recover from, as the S1 PTs mapping the vectors suffer from
-the same problem.
+If it detect the tracepoint "kmem:kmalloc_node", this patch enables the
+legacy tracepoints, otherwise, it will ignore them.
 
-So clearly our handling is... wrong.
-
-Instead, switch to a two-pronged approach:
-
-- On S1PTW translation fault, handle the fault as a read
-
-- On S1PTW permission fault, handle the fault as a write
-
-This is of no consequence to SW that *writes* to its PTs (the write
-will trigger a non-S1PTW fault), and SW that uses RO PTs will not
-use HW-assisted AF/DB anyway, as that'd be wrong.
-
-Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
-fault on S1PTW permission fault on instruction fetch") do we end-up
-with two back-to-back faults (page being evicted and faulted back).
-I don't think this is a case worth optimising for.
-
-Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
-Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Regression-tested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 11e9734bcb6a7361 ("mm/slab_common: unify NUMA and UMA version of tracepoints")
+Reported-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Link: https://lore.kernel.org/r/20230108062400.250690-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/kvm_emulate.h |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ tools/perf/builtin-kmem.c | 29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/include/asm/kvm_emulate.h
-+++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -378,8 +378,26 @@ static inline int kvm_vcpu_sys_get_rt(st
+diff --git a/tools/perf/builtin-kmem.c b/tools/perf/builtin-kmem.c
+index ebfab2ca1702..63c759edb8bc 100644
+--- a/tools/perf/builtin-kmem.c
++++ b/tools/perf/builtin-kmem.c
+@@ -1823,6 +1823,19 @@ static int parse_line_opt(const struct option *opt __maybe_unused,
+ 	return 0;
+ }
  
- static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
++static bool slab_legacy_tp_is_exposed(void)
++{
++	/*
++	 * The tracepoints "kmem:kmalloc_node" and
++	 * "kmem:kmem_cache_alloc_node" have been removed on the latest
++	 * kernel, if the tracepoint "kmem:kmalloc_node" is existed it
++	 * means the tool is running on an old kernel, we need to
++	 * rollback to support these legacy tracepoints.
++	 */
++	return IS_ERR(trace_event__tp_format("kmem", "kmalloc_node")) ?
++		false : true;
++}
++
+ static int __cmd_record(int argc, const char **argv)
  {
--	if (kvm_vcpu_abt_iss1tw(vcpu))
--		return true;
-+	if (kvm_vcpu_abt_iss1tw(vcpu)) {
-+		/*
-+		 * Only a permission fault on a S1PTW should be
-+		 * considered as a write. Otherwise, page tables baked
-+		 * in a read-only memslot will result in an exception
-+		 * being delivered in the guest.
-+		 *
-+		 * The drawback is that we end-up faulting twice if the
-+		 * guest is using any of HW AF/DB: a translation fault
-+		 * to map the page containing the PT (read only at
-+		 * first), then a permission fault to allow the flags
-+		 * to be set.
-+		 */
-+		switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
-+		case ESR_ELx_FSC_PERM:
-+			return true;
-+		default:
-+			return false;
-+		}
-+	}
+ 	const char * const record_args[] = {
+@@ -1830,22 +1843,28 @@ static int __cmd_record(int argc, const char **argv)
+ 	};
+ 	const char * const slab_events[] = {
+ 	"-e", "kmem:kmalloc",
+-	"-e", "kmem:kmalloc_node",
+ 	"-e", "kmem:kfree",
+ 	"-e", "kmem:kmem_cache_alloc",
+-	"-e", "kmem:kmem_cache_alloc_node",
+ 	"-e", "kmem:kmem_cache_free",
+ 	};
++	const char * const slab_legacy_events[] = {
++	"-e", "kmem:kmalloc_node",
++	"-e", "kmem:kmem_cache_alloc_node",
++	};
+ 	const char * const page_events[] = {
+ 	"-e", "kmem:mm_page_alloc",
+ 	"-e", "kmem:mm_page_free",
+ 	};
+ 	unsigned int rec_argc, i, j;
+ 	const char **rec_argv;
++	unsigned int slab_legacy_tp_exposed = slab_legacy_tp_is_exposed();
  
- 	if (kvm_vcpu_trap_is_iabt(vcpu))
- 		return false;
+ 	rec_argc = ARRAY_SIZE(record_args) + argc - 1;
+-	if (kmem_slab)
++	if (kmem_slab) {
+ 		rec_argc += ARRAY_SIZE(slab_events);
++		if (slab_legacy_tp_exposed)
++			rec_argc += ARRAY_SIZE(slab_legacy_events);
++	}
+ 	if (kmem_page)
+ 		rec_argc += ARRAY_SIZE(page_events) + 1; /* for -g */
+ 
+@@ -1860,6 +1879,10 @@ static int __cmd_record(int argc, const char **argv)
+ 	if (kmem_slab) {
+ 		for (j = 0; j < ARRAY_SIZE(slab_events); j++, i++)
+ 			rec_argv[i] = strdup(slab_events[j]);
++		if (slab_legacy_tp_exposed) {
++			for (j = 0; j < ARRAY_SIZE(slab_legacy_events); j++, i++)
++				rec_argv[i] = strdup(slab_legacy_events[j]);
++		}
+ 	}
+ 	if (kmem_page) {
+ 		rec_argv[i++] = strdup("-g");
+-- 
+2.35.1
+
 
 
