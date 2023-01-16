@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FDC266C76D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:31:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B99166C9E6
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:57:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233257AbjAPQa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:30:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
+        id S234084AbjAPQ5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:57:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233288AbjAPQaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:30:23 -0500
+        with ESMTP id S234052AbjAPQ5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD91339BAD
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A6B423DBE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30521B80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF2AC433EF;
-        Mon, 16 Jan 2023 16:18:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1765B81095
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F513C433D2;
+        Mon, 16 Jan 2023 16:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885913;
-        bh=q1a0u40gg7U/WYTjZG8Xrxx60+9i+lHMWN8t0UnslDM=;
+        s=korg; t=1673887198;
+        bh=9mDxAFpNGfgrOcJ/WWl5MB+Jb9itMWI7SUJ8esDI+DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMH1K5P7FQPNH4IIqz9HcNTZgroCxYANa0w5KNVvDO1KKN1uh6IPQT/+vs66YlQsG
-         rV4GyTtdpRkJhI5EMx4el9/CofAjNEAhV0lQSND/DjKlXNGVgB92pUvGuaxOrPoRHg
-         4YJyO+2o9AYrjLMHzUqgWnKqrBNMO6TmCpyju9IQ=
+        b=sA1e5AEn83BRao7/Nna2KIyDAe6rXrsi+qgsgcYfYRU2lE+A7YrS3GOAsgM4JPipM
+         2IY6FlLGISIp/WTXoqz+tKgW4TQkd5jlQSCGuQQRr1I9OJfXW+2VwVfQ9q0MuS1PZD
+         AbMAVlFKKnsJmLM3Gemh3hAbBqgs9ar8bT5m1Z/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Akinobu Mita <akinobu.mita@gmail.com>,
+        Zhao Gongyi <zhaogongyi@huawei.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Oscar Salvador <osalvador@suse.de>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 232/658] Bluetooth: btusb: dont call kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 4.19 058/521] libfs: add DEFINE_SIMPLE_ATTRIBUTE_SIGNED for signed value
 Date:   Mon, 16 Jan 2023 16:45:20 +0100
-Message-Id: <20230116154920.148102072@linuxfoundation.org>
+Message-Id: <20230116154849.847035150@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +62,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Akinobu Mita <akinobu.mita@gmail.com>
 
-[ Upstream commit b15a6bd3c80c77faec8317319b97f976b1a08332 ]
+[ Upstream commit 2e41f274f9aa71cdcc69dc1f26a3f9304a651804 ]
 
-It is not allowed to call kfree_skb() from hardware interrupt
-context or with interrupts being disabled. So replace kfree_skb()
-with dev_kfree_skb_irq() under spin_lock_irqsave().
+Patch series "fix error when writing negative value to simple attribute
+files".
 
-Fixes: 803b58367ffb ("Bluetooth: btusb: Implement driver internal packet reassembly")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+The simple attribute files do not accept a negative value since the commit
+488dac0c9237 ("libfs: fix error cast of negative value in
+simple_attr_write()"), but some attribute files want to accept a negative
+value.
+
+This patch (of 3):
+
+The simple attribute files do not accept a negative value since the commit
+488dac0c9237 ("libfs: fix error cast of negative value in
+simple_attr_write()"), so we have to use a 64-bit value to write a
+negative value.
+
+This adds DEFINE_SIMPLE_ATTRIBUTE_SIGNED for a signed value.
+
+Link: https://lkml.kernel.org/r/20220919172418.45257-1-akinobu.mita@gmail.com
+Link: https://lkml.kernel.org/r/20220919172418.45257-2-akinobu.mita@gmail.com
+Fixes: 488dac0c9237 ("libfs: fix error cast of negative value in simple_attr_write()")
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Reported-by: Zhao Gongyi <zhaogongyi@huawei.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Rafael J. Wysocki <rafael@kernel.org>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: Yicong Yang <yangyicong@hisilicon.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/libfs.c         | 22 +++++++++++++++++++---
+ include/linux/fs.h | 12 ++++++++++--
+ 2 files changed, 29 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index c8f2b991e9cf..79f77315854f 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -563,13 +563,13 @@ static inline void btusb_free_frags(struct btusb_data *data)
+diff --git a/fs/libfs.c b/fs/libfs.c
+index be57e64834e5..fd5f6c106059 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -864,8 +864,8 @@ ssize_t simple_attr_read(struct file *file, char __user *buf,
+ EXPORT_SYMBOL_GPL(simple_attr_read);
  
- 	spin_lock_irqsave(&data->rxlock, flags);
+ /* interpret the buffer as a number to call the set function with */
+-ssize_t simple_attr_write(struct file *file, const char __user *buf,
+-			  size_t len, loff_t *ppos)
++static ssize_t simple_attr_write_xsigned(struct file *file, const char __user *buf,
++			  size_t len, loff_t *ppos, bool is_signed)
+ {
+ 	struct simple_attr *attr;
+ 	unsigned long long val;
+@@ -886,7 +886,10 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
+ 		goto out;
  
--	kfree_skb(data->evt_skb);
-+	dev_kfree_skb_irq(data->evt_skb);
- 	data->evt_skb = NULL;
+ 	attr->set_buf[size] = '\0';
+-	ret = kstrtoull(attr->set_buf, 0, &val);
++	if (is_signed)
++		ret = kstrtoll(attr->set_buf, 0, &val);
++	else
++		ret = kstrtoull(attr->set_buf, 0, &val);
+ 	if (ret)
+ 		goto out;
+ 	ret = attr->set(attr->data, val);
+@@ -896,8 +899,21 @@ ssize_t simple_attr_write(struct file *file, const char __user *buf,
+ 	mutex_unlock(&attr->mutex);
+ 	return ret;
+ }
++
++ssize_t simple_attr_write(struct file *file, const char __user *buf,
++			  size_t len, loff_t *ppos)
++{
++	return simple_attr_write_xsigned(file, buf, len, ppos, false);
++}
+ EXPORT_SYMBOL_GPL(simple_attr_write);
  
--	kfree_skb(data->acl_skb);
-+	dev_kfree_skb_irq(data->acl_skb);
- 	data->acl_skb = NULL;
++ssize_t simple_attr_write_signed(struct file *file, const char __user *buf,
++			  size_t len, loff_t *ppos)
++{
++	return simple_attr_write_xsigned(file, buf, len, ppos, true);
++}
++EXPORT_SYMBOL_GPL(simple_attr_write_signed);
++
+ /**
+  * generic_fh_to_dentry - generic helper for the fh_to_dentry export operation
+  * @sb:		filesystem to do the file handle conversion on
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 86f884e78b6b..95b8ef09b76c 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -3353,7 +3353,7 @@ void simple_transaction_set(struct file *file, size_t n);
+  * All attributes contain a text representation of a numeric value
+  * that are accessed with the get() and set() functions.
+  */
+-#define DEFINE_SIMPLE_ATTRIBUTE(__fops, __get, __set, __fmt)		\
++#define DEFINE_SIMPLE_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, __is_signed)	\
+ static int __fops ## _open(struct inode *inode, struct file *file)	\
+ {									\
+ 	__simple_attr_check_format(__fmt, 0ull);			\
+@@ -3364,10 +3364,16 @@ static const struct file_operations __fops = {				\
+ 	.open	 = __fops ## _open,					\
+ 	.release = simple_attr_release,					\
+ 	.read	 = simple_attr_read,					\
+-	.write	 = simple_attr_write,					\
++	.write	 = (__is_signed) ? simple_attr_write_signed : simple_attr_write,	\
+ 	.llseek	 = generic_file_llseek,					\
+ }
  
--	kfree_skb(data->sco_skb);
-+	dev_kfree_skb_irq(data->sco_skb);
- 	data->sco_skb = NULL;
++#define DEFINE_SIMPLE_ATTRIBUTE(__fops, __get, __set, __fmt)		\
++	DEFINE_SIMPLE_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, false)
++
++#define DEFINE_SIMPLE_ATTRIBUTE_SIGNED(__fops, __get, __set, __fmt)	\
++	DEFINE_SIMPLE_ATTRIBUTE_XSIGNED(__fops, __get, __set, __fmt, true)
++
+ static inline __printf(1, 2)
+ void __simple_attr_check_format(const char *fmt, ...)
+ {
+@@ -3382,6 +3388,8 @@ ssize_t simple_attr_read(struct file *file, char __user *buf,
+ 			 size_t len, loff_t *ppos);
+ ssize_t simple_attr_write(struct file *file, const char __user *buf,
+ 			  size_t len, loff_t *ppos);
++ssize_t simple_attr_write_signed(struct file *file, const char __user *buf,
++				 size_t len, loff_t *ppos);
  
- 	spin_unlock_irqrestore(&data->rxlock, flags);
+ struct ctl_table;
+ int proc_nr_files(struct ctl_table *table, int write,
 -- 
 2.35.1
 
