@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D264066C7E1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:35:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B01266CA52
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:02:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233274AbjAPQff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:35:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48458 "EHLO
+        id S234131AbjAPRCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:02:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233363AbjAPQeo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D25A02A155
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:22:34 -0800 (PST)
+        with ESMTP id S234138AbjAPRBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:01:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246433E62A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:43:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EF4A6104D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:22:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8206DC433EF;
-        Mon, 16 Jan 2023 16:22:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5E0C61086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:43:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C815DC433D2;
+        Mon, 16 Jan 2023 16:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886153;
-        bh=IoBwvQBfnAWsNK+WzDnaiuMJlvW27xC2l5fId9zx01M=;
+        s=korg; t=1673887418;
+        bh=ZN8ONw36rZJDZ7az9/HXLyKvW4dttB0PaWD1aB0rCIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CHi4B3S8lu6oSfXDQmdIAQK4txFARFItfxnfizpvJFh+pGRWMtEF1sWgGP6fyH/FW
-         FYmpGlLR1Uf1MG1mRPBxN7FXxNMV+yf1gIxtCMSDdpcQiLEXaVr9olLl0gOckF7Wal
-         9yFIN3ghsUsZyd/BX1Ag/gxsEbVwg6tyVRE/KX10=
+        b=uSqBSBF29/ecusVtWaYlwRmeoSVYOeZFQ+6W0aekonwGuoqaeS+v2sw9VGK6bUUQ5
+         BqVXwvl+PnxiYWjSJ7fY5IkfGVAk0Oz6auDzR0hFNil2dggyEJUtlkgFXggW70Ceca
+         JyeOpmHnA2NBwrT7kTQpOjFXkclhRZqrER6V2imI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 315/658] samples: vfio-mdev: Fix missing pci_disable_device() in mdpy_fb_probe()
-Date:   Mon, 16 Jan 2023 16:46:43 +0100
-Message-Id: <20230116154923.972819944@linuxfoundation.org>
+Subject: [PATCH 4.19 142/521] mmc: atmel-mci: fix return value check of mmc_add_host()
+Date:   Mon, 16 Jan 2023 16:46:44 +0100
+Message-Id: <20230116154853.617378861@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d1f0f50fbbbbca1e3e8157e51934613bf88f6d44 ]
+[ Upstream commit 9e6e8c43726673ca2abcaac87640b9215fd72f4c ]
 
-Add missing pci_disable_device() in fail path of mdpy_fb_probe().
-Besides, fix missing release functions in mdpy_fb_remove().
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-Fixes: cacade1946a4 ("sample: vfio mdev display - guest driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Link: https://lore.kernel.org/r/20221208013341.3999-1-shangxiaojing@huawei.com
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+So fix this by checking the return value and calling mmc_free_host()
+in the error path.
+
+Fixes: 7d2be0749a59 ("atmel-mci: Driver for Atmel on-chip MMC controllers")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221108122819.429975-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/vfio-mdev/mdpy-fb.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/mmc/host/atmel-mci.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/samples/vfio-mdev/mdpy-fb.c b/samples/vfio-mdev/mdpy-fb.c
-index a760e130bd0d..8ad1aa13ddd9 100644
---- a/samples/vfio-mdev/mdpy-fb.c
-+++ b/samples/vfio-mdev/mdpy-fb.c
-@@ -109,7 +109,7 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
+diff --git a/drivers/mmc/host/atmel-mci.c b/drivers/mmc/host/atmel-mci.c
+index fbc56ee99682..d40bab3d9f4a 100644
+--- a/drivers/mmc/host/atmel-mci.c
++++ b/drivers/mmc/host/atmel-mci.c
+@@ -2262,6 +2262,7 @@ static int atmci_init_slot(struct atmel_mci *host,
+ {
+ 	struct mmc_host			*mmc;
+ 	struct atmel_mci_slot		*slot;
++	int ret;
  
- 	ret = pci_request_regions(pdev, "mdpy-fb");
- 	if (ret < 0)
--		return ret;
-+		goto err_disable_dev;
+ 	mmc = mmc_alloc_host(sizeof(struct atmel_mci_slot), &host->pdev->dev);
+ 	if (!mmc)
+@@ -2342,11 +2343,13 @@ static int atmci_init_slot(struct atmel_mci *host,
  
- 	pci_read_config_dword(pdev, MDPY_FORMAT_OFFSET, &format);
- 	pci_read_config_dword(pdev, MDPY_WIDTH_OFFSET,	&width);
-@@ -191,6 +191,9 @@ static int mdpy_fb_probe(struct pci_dev *pdev,
- err_release_regions:
- 	pci_release_regions(pdev);
+ 	host->slot[id] = slot;
+ 	mmc_regulator_get_supply(mmc);
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret) {
++		mmc_free_host(mmc);
++		return ret;
++	}
  
-+err_disable_dev:
-+	pci_disable_device(pdev);
-+
- 	return ret;
- }
+ 	if (gpio_is_valid(slot->detect_pin)) {
+-		int ret;
+-
+ 		timer_setup(&slot->detect_timer, atmci_detect_change, 0);
  
-@@ -199,7 +202,10 @@ static void mdpy_fb_remove(struct pci_dev *pdev)
- 	struct fb_info *info = pci_get_drvdata(pdev);
- 
- 	unregister_framebuffer(info);
-+	iounmap(info->screen_base);
- 	framebuffer_release(info);
-+	pci_release_regions(pdev);
-+	pci_disable_device(pdev);
- }
- 
- static struct pci_device_id mdpy_fb_pci_table[] = {
+ 		ret = request_irq(gpio_to_irq(slot->detect_pin),
 -- 
 2.35.1
 
