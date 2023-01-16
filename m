@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EFD366CC52
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3636166CAC8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:07:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234604AbjAPRZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48022 "EHLO
+        id S234235AbjAPRHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:07:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234673AbjAPRYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3448634C31
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:36 -0800 (PST)
+        with ESMTP id S230272AbjAPRHB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:07:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632F83A86F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:47:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1B68B8109B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EDF9C433EF;
-        Mon, 16 Jan 2023 17:01:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8297D61084
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B21C433D2;
+        Mon, 16 Jan 2023 16:47:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888493;
-        bh=LXBLItRc/+5jPBgwXoBvtPKakfN+lHWcYfipXqIBxj8=;
+        s=korg; t=1673887670;
+        bh=cu8Tc4ulYpC6xsu1UaAG0/QGhYAdc9Fc6yxXzGH5ILI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ijx2cisaPpufLQ8jCGzlutm168hXzsT/NDfaQzs8CkbQand/jL9v6h9vkbutMpqNi
-         JIljxZn7Pzp9LsSxgF/9lQ1sigYF144ty0tNMT9aMM79wFMf3/7Bc52TOj4nqYSEjR
-         iyDtI/VV/uBjElTF6vo3VWEjmscvdzBqJN89gXY0=
+        b=fBWEu8E6+JUpbuGj3n+Nu8khqSJ1Sc5PEzIkKTi6akbIsDLPzkLF8UIbKJCJoOvbw
+         b63HX15yoz4fZroquTA4sI7QZg+5lanF3qs6+9TS7xZTVaRaH+MRwucz7aFXdNgyEh
+         N+iaFcRk1YdfQI2gjmWCPDmKkY326NP5PE4gK9lA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 027/338] soc: ti: smartreflex: Fix PM disable depth imbalance in omap_sr_probe
+        patches@lists.linux.dev, Lee Jones <lee@kernel.org>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        John Keeping <john@metanate.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 238/521] usb: gadget: f_hid: fix f_hidg lifetime vs cdev
 Date:   Mon, 16 Jan 2023 16:48:20 +0100
-Message-Id: <20230116154821.946699805@linuxfoundation.org>
+Message-Id: <20230116154857.773901805@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +54,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: John Keeping <john@metanate.com>
 
-[ Upstream commit 69460e68eb662064ab4188d4e129ff31c1f23ed9 ]
+[ Upstream commit 89ff3dfac604614287ad5aad9370c3f984ea3f4b ]
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context.
+The embedded struct cdev does not have its lifetime correctly tied to
+the enclosing struct f_hidg, so there is a use-after-free if /dev/hidgN
+is held open while the gadget is deleted.
 
-Fixes: 984aa6dbf4ca ("OMAP3: PM: Adding smartreflex driver support.")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20221108080322.52268-3-zhangqilong3@huawei.com
+This can readily be replicated with libusbgx's example programs (for
+conciseness - operating directly via configfs is equivalent):
+
+	gadget-hid
+	exec 3<> /dev/hidg0
+	gadget-vid-pid-remove
+	exec 3<&-
+
+Pull the existing device up in to struct f_hidg and make use of the
+cdev_device_{add,del}() helpers.  This changes the lifetime of the
+device object to match struct f_hidg, but note that it is still added
+and deleted at the same time.
+
+Fixes: 71adf1189469 ("USB: gadget: add HID gadget driver")
+Tested-by: Lee Jones <lee@kernel.org>
+Reviewed-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Reviewed-by: Lee Jones <lee@kernel.org>
+Signed-off-by: John Keeping <john@metanate.com>
+Link: https://lore.kernel.org/r/20221122123523.3068034-2-john@metanate.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/avs/smartreflex.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/function/f_hid.c | 52 ++++++++++++++++-------------
+ 1 file changed, 28 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/power/avs/smartreflex.c b/drivers/power/avs/smartreflex.c
-index 4b6fddc18394..401dbeccd0c7 100644
---- a/drivers/power/avs/smartreflex.c
-+++ b/drivers/power/avs/smartreflex.c
-@@ -971,6 +971,7 @@ static int __init omap_sr_probe(struct platform_device *pdev)
- err_debugfs:
- 	debugfs_remove_recursive(sr_info->dbg_dir);
- err_list_del:
-+	pm_runtime_disable(&pdev->dev);
- 	list_del(&sr_info->node);
- 	return ret;
+diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
+index 0c200f152036..2aaa3ea74e5a 100644
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -71,7 +71,7 @@ struct f_hidg {
+ 	wait_queue_head_t		write_queue;
+ 	struct usb_request		*req;
+ 
+-	int				minor;
++	struct device			dev;
+ 	struct cdev			cdev;
+ 	struct usb_function		func;
+ 
+@@ -84,6 +84,14 @@ static inline struct f_hidg *func_to_hidg(struct usb_function *f)
+ 	return container_of(f, struct f_hidg, func);
  }
+ 
++static void hidg_release(struct device *dev)
++{
++	struct f_hidg *hidg = container_of(dev, struct f_hidg, dev);
++
++	kfree(hidg->set_report_buf);
++	kfree(hidg);
++}
++
+ /*-------------------------------------------------------------------------*/
+ /*                           Static descriptors                            */
+ 
+@@ -910,9 +918,7 @@ static int hidg_bind(struct usb_configuration *c, struct usb_function *f)
+ 	struct usb_ep		*ep;
+ 	struct f_hidg		*hidg = func_to_hidg(f);
+ 	struct usb_string	*us;
+-	struct device		*device;
+ 	int			status;
+-	dev_t			dev;
+ 
+ 	/* maybe allocate device-global string IDs, and patch descriptors */
+ 	us = usb_gstrings_attach(c->cdev, ct_func_strings,
+@@ -1005,21 +1011,11 @@ static int hidg_bind(struct usb_configuration *c, struct usb_function *f)
+ 
+ 	/* create char device */
+ 	cdev_init(&hidg->cdev, &f_hidg_fops);
+-	dev = MKDEV(major, hidg->minor);
+-	status = cdev_add(&hidg->cdev, dev, 1);
++	status = cdev_device_add(&hidg->cdev, &hidg->dev);
+ 	if (status)
+ 		goto fail_free_descs;
+ 
+-	device = device_create(hidg_class, NULL, dev, NULL,
+-			       "%s%d", "hidg", hidg->minor);
+-	if (IS_ERR(device)) {
+-		status = PTR_ERR(device);
+-		goto del;
+-	}
+-
+ 	return 0;
+-del:
+-	cdev_del(&hidg->cdev);
+ fail_free_descs:
+ 	usb_free_all_descriptors(f);
+ fail:
+@@ -1250,9 +1246,7 @@ static void hidg_free(struct usb_function *f)
+ 
+ 	hidg = func_to_hidg(f);
+ 	opts = container_of(f->fi, struct f_hid_opts, func_inst);
+-	kfree(hidg->report_desc);
+-	kfree(hidg->set_report_buf);
+-	kfree(hidg);
++	put_device(&hidg->dev);
+ 	mutex_lock(&opts->lock);
+ 	--opts->refcnt;
+ 	mutex_unlock(&opts->lock);
+@@ -1262,8 +1256,7 @@ static void hidg_unbind(struct usb_configuration *c, struct usb_function *f)
+ {
+ 	struct f_hidg *hidg = func_to_hidg(f);
+ 
+-	device_destroy(hidg_class, MKDEV(major, hidg->minor));
+-	cdev_del(&hidg->cdev);
++	cdev_device_del(&hidg->cdev, &hidg->dev);
+ 
+ 	usb_free_all_descriptors(f);
+ }
+@@ -1272,6 +1265,7 @@ static struct usb_function *hidg_alloc(struct usb_function_instance *fi)
+ {
+ 	struct f_hidg *hidg;
+ 	struct f_hid_opts *opts;
++	int ret;
+ 
+ 	/* allocate and initialize one new instance */
+ 	hidg = kzalloc(sizeof(*hidg), GFP_KERNEL);
+@@ -1283,17 +1277,27 @@ static struct usb_function *hidg_alloc(struct usb_function_instance *fi)
+ 	mutex_lock(&opts->lock);
+ 	++opts->refcnt;
+ 
+-	hidg->minor = opts->minor;
++	device_initialize(&hidg->dev);
++	hidg->dev.release = hidg_release;
++	hidg->dev.class = hidg_class;
++	hidg->dev.devt = MKDEV(major, opts->minor);
++	ret = dev_set_name(&hidg->dev, "hidg%d", opts->minor);
++	if (ret) {
++		--opts->refcnt;
++		mutex_unlock(&opts->lock);
++		return ERR_PTR(ret);
++	}
++
+ 	hidg->bInterfaceSubClass = opts->subclass;
+ 	hidg->bInterfaceProtocol = opts->protocol;
+ 	hidg->report_length = opts->report_length;
+ 	hidg->report_desc_length = opts->report_desc_length;
+ 	if (opts->report_desc) {
+-		hidg->report_desc = kmemdup(opts->report_desc,
+-					    opts->report_desc_length,
+-					    GFP_KERNEL);
++		hidg->report_desc = devm_kmemdup(&hidg->dev, opts->report_desc,
++						 opts->report_desc_length,
++						 GFP_KERNEL);
+ 		if (!hidg->report_desc) {
+-			kfree(hidg);
++			put_device(&hidg->dev);
+ 			mutex_unlock(&opts->lock);
+ 			return ERR_PTR(-ENOMEM);
+ 		}
 -- 
 2.35.1
 
