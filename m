@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3037A66C4F7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AB2F66C949
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231871AbjAPQAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
+        id S233707AbjAPQrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:47:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231810AbjAPQAD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60CDB234F9
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:01 -0800 (PST)
+        with ESMTP id S233789AbjAPQrS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:47:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0D040BE7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E78D8B81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F528C433D2;
-        Mon, 16 Jan 2023 15:59:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E2D5B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 749BAC433F0;
+        Mon, 16 Jan 2023 16:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884798;
-        bh=Sx9VLz/4mn55dd8YA2uV6kp6cuRAH6GPF+I6aCdzfzk=;
+        s=korg; t=1673886904;
+        bh=Ur1zzifJ0EdszjHxG57ay8JI+Q+cgtcSUc0EFVQmraY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jn39jKJgK0TbyibU8TSmb83rwMziiU+CR1zCoYZ5ot715iWDH89O+ht6FJdUJPikj
-         hoQN2Yno4/KmCD2zJfjgh84ANWxDMv4YEoK/Dn8AOZ8I0+v+D7K1o1cz69G7XtvY/q
-         BELUEdUcNZxl2mSj5dLJGmWjdvde1lS+Aqg6cOao=
+        b=YBQTVYZ8Nn/DI1KkR2SQ4ZyTJb174pwIArGbXP8aE4x/zIxgQw8vqB5GkEpIYbQbp
+         KS8n2RD8AAgklTGj83Ut1oc8mOheqkn3mltMBPXrUvxPJak/+T3ZEEO8lAgeKC7S0Y
+         lkSvSbiEBtNmmLX1dW+1Aax8vkt2KQVUY21PphoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Maaz Mombasawala <mombasawalam@vmware.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>, Zack Rusin <zackr@vmware.com>,
+        patches@lists.linux.dev, Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 144/183] drm/vmwgfx: Refactor resource validation hashtable to use linux/hashtable implementation.
+Subject: [PATCH 5.4 579/658] RDMA/mlx5: Fix validation of max_rd_atomic caps for DC
 Date:   Mon, 16 Jan 2023 16:51:07 +0100
-Message-Id: <20230116154809.429362934@linuxfoundation.org>
+Message-Id: <20230116154935.981041377@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,376 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maaz Mombasawala <mombasawalam@vmware.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 9e931f2e09701e25744f3d186a4ba13b5342b136 ]
+[ Upstream commit 8de8482fe5732fbef4f5af82bc0c0362c804cd1f ]
 
-Vmwgfx's hashtab implementation needs to be replaced with linux/hashtable
-to reduce maintenence burden.
-As part of this effort, refactor the res_ht hashtable used for resource
-validation during execbuf execution to use linux/hashtable implementation.
-This also refactors vmw_validation_context to use vmw_sw_context as the
-container for the hashtable, whereas before it used a vmwgfx_open_hash
-directly. This makes vmw_validation_context less generic, but there is
-no functional change since res_ht is the only instance where validation
-context used a hashtable in vmwgfx driver.
+Currently, when modifying DC, we validate max_rd_atomic user attribute
+against the RC cap, validate against DC. RC and DC QP types have different
+device limitations.
 
-Signed-off-by: Maaz Mombasawala <mombasawalam@vmware.com>
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221022040236.616490-6-zack@kde.org
-Stable-dep-of: a309c7194e8a ("drm/vmwgfx: Remove rcu locks from user resources")
+This can cause userspace created DC QPs to malfunction.
+
+Fixes: c32a4f296e1d ("IB/mlx5: Add support for DC Initiator QP")
+Link: https://lore.kernel.org/r/0c5aee72cea188c3bb770f4207cce7abc9b6fc74.1672231736.git.leonro@nvidia.com
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.c        | 24 ++++++++--
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.h        |  5 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c    | 14 ++----
- drivers/gpu/drm/vmwgfx/vmwgfx_validation.c | 55 +++++++++++-----------
- drivers/gpu/drm/vmwgfx/vmwgfx_validation.h | 26 +++-------
- 5 files changed, 58 insertions(+), 66 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c | 49 +++++++++++++++++++++++----------
+ 1 file changed, 35 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-index 13b90273eb77..8d77e79bd904 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-@@ -830,6 +830,22 @@ static void vmw_write_driver_id(struct vmw_private *dev)
- 	}
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index 634f29cb7395..6edd30c92156 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -3890,6 +3890,40 @@ static int mlx5_ib_modify_dct(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 	return err;
  }
  
-+static void vmw_sw_context_init(struct vmw_private *dev_priv)
++static int validate_rd_atomic(struct mlx5_ib_dev *dev, struct ib_qp_attr *attr,
++			      int attr_mask, enum ib_qp_type qp_type)
 +{
-+	struct vmw_sw_context *sw_context = &dev_priv->ctx;
++	int log_max_ra_res;
++	int log_max_ra_req;
 +
-+	hash_init(sw_context->res_ht);
++	if (qp_type == MLX5_IB_QPT_DCI) {
++		log_max_ra_res = 1 << MLX5_CAP_GEN(dev->mdev,
++						   log_max_ra_res_dc);
++		log_max_ra_req = 1 << MLX5_CAP_GEN(dev->mdev,
++						   log_max_ra_req_dc);
++	} else {
++		log_max_ra_res = 1 << MLX5_CAP_GEN(dev->mdev,
++						   log_max_ra_res_qp);
++		log_max_ra_req = 1 << MLX5_CAP_GEN(dev->mdev,
++						   log_max_ra_req_qp);
++	}
++
++	if (attr_mask & IB_QP_MAX_QP_RD_ATOMIC &&
++	    attr->max_rd_atomic > log_max_ra_res) {
++		mlx5_ib_dbg(dev, "invalid max_rd_atomic value %d\n",
++			    attr->max_rd_atomic);
++		return false;
++	}
++
++	if (attr_mask & IB_QP_MAX_DEST_RD_ATOMIC &&
++	    attr->max_dest_rd_atomic > log_max_ra_req) {
++		mlx5_ib_dbg(dev, "invalid max_dest_rd_atomic value %d\n",
++			    attr->max_dest_rd_atomic);
++		return false;
++	}
++	return true;
 +}
 +
-+static void vmw_sw_context_fini(struct vmw_private *dev_priv)
-+{
-+	struct vmw_sw_context *sw_context = &dev_priv->ctx;
-+
-+	vfree(sw_context->cmd_bounce);
-+	if (sw_context->staged_bindings)
-+		vmw_binding_state_free(sw_context->staged_bindings);
-+}
-+
- static int vmw_driver_load(struct vmw_private *dev_priv, u32 pci_id)
+ int mlx5_ib_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 		      int attr_mask, struct ib_udata *udata)
  {
- 	int ret;
-@@ -839,6 +855,8 @@ static int vmw_driver_load(struct vmw_private *dev_priv, u32 pci_id)
+@@ -3986,21 +4020,8 @@ int mlx5_ib_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 		}
+ 	}
  
- 	dev_priv->drm.dev_private = dev_priv;
- 
-+	vmw_sw_context_init(dev_priv);
-+
- 	mutex_init(&dev_priv->cmdbuf_mutex);
- 	mutex_init(&dev_priv->binding_mutex);
- 	spin_lock_init(&dev_priv->resource_lock);
-@@ -1168,9 +1186,7 @@ static void vmw_driver_unload(struct drm_device *dev)
- 
- 	unregister_pm_notifier(&dev_priv->pm_nb);
- 
--	if (dev_priv->ctx.res_ht_initialized)
--		vmwgfx_ht_remove(&dev_priv->ctx.res_ht);
--	vfree(dev_priv->ctx.cmd_bounce);
-+	vmw_sw_context_fini(dev_priv);
- 	if (dev_priv->enable_fb) {
- 		vmw_fb_off(dev_priv);
- 		vmw_fb_close(dev_priv);
-@@ -1198,8 +1214,6 @@ static void vmw_driver_unload(struct drm_device *dev)
- 		vmw_irq_uninstall(&dev_priv->drm);
- 
- 	ttm_object_device_release(&dev_priv->tdev);
--	if (dev_priv->ctx.staged_bindings)
--		vmw_binding_state_free(dev_priv->ctx.staged_bindings);
- 
- 	for (i = vmw_res_context; i < vmw_res_max; ++i)
- 		idr_destroy(&dev_priv->res_idr[i]);
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-index 09e2d738aa87..d87aeedb78d0 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-@@ -30,6 +30,7 @@
- 
- #include <linux/suspend.h>
- #include <linux/sync_file.h>
-+#include <linux/hashtable.h>
- 
- #include <drm/drm_auth.h>
- #include <drm/drm_device.h>
-@@ -93,6 +94,7 @@
- #define VMW_RES_STREAM ttm_driver_type2
- #define VMW_RES_FENCE ttm_driver_type3
- #define VMW_RES_SHADER ttm_driver_type4
-+#define VMW_RES_HT_ORDER 12
- 
- #define MKSSTAT_CAPACITY_LOG2 5U
- #define MKSSTAT_CAPACITY (1U << MKSSTAT_CAPACITY_LOG2)
-@@ -425,8 +427,7 @@ struct vmw_ctx_validation_info;
-  * @ctx: The validation context
-  */
- struct vmw_sw_context{
--	struct vmwgfx_open_hash res_ht;
--	bool res_ht_initialized;
-+	DECLARE_HASHTABLE(res_ht, VMW_RES_HT_ORDER);
- 	bool kernel;
- 	struct vmw_fpriv *fp;
- 	struct drm_file *filp;
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-index f085dbd4736d..c943ab801ca7 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0 OR MIT
- /**************************************************************************
-  *
-- * Copyright 2009 - 2015 VMware, Inc., Palo Alto, CA., USA
-+ * Copyright 2009 - 2022 VMware, Inc., Palo Alto, CA., USA
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a
-  * copy of this software and associated documentation files (the
-@@ -25,6 +25,7 @@
-  *
-  **************************************************************************/
- #include <linux/sync_file.h>
-+#include <linux/hashtable.h>
- 
- #include "vmwgfx_drv.h"
- #include "vmwgfx_reg.h"
-@@ -34,7 +35,6 @@
- #include "vmwgfx_binding.h"
- #include "vmwgfx_mksstat.h"
- 
--#define VMW_RES_HT_ORDER 12
- 
- /*
-  * Helper macro to get dx_ctx_node if available otherwise print an error
-@@ -4101,7 +4101,7 @@ int vmw_execbuf_process(struct drm_file *file_priv,
- 	int ret;
- 	int32_t out_fence_fd = -1;
- 	struct sync_file *sync_file = NULL;
--	DECLARE_VAL_CONTEXT(val_ctx, &sw_context->res_ht, 1);
-+	DECLARE_VAL_CONTEXT(val_ctx, sw_context, 1);
- 
- 	if (flags & DRM_VMW_EXECBUF_FLAG_EXPORT_FENCE_FD) {
- 		out_fence_fd = get_unused_fd_flags(O_CLOEXEC);
-@@ -4164,14 +4164,6 @@ int vmw_execbuf_process(struct drm_file *file_priv,
- 	if (sw_context->staged_bindings)
- 		vmw_binding_state_reset(sw_context->staged_bindings);
- 
--	if (!sw_context->res_ht_initialized) {
--		ret = vmwgfx_ht_create(&sw_context->res_ht, VMW_RES_HT_ORDER);
--		if (unlikely(ret != 0))
--			goto out_unlock;
--
--		sw_context->res_ht_initialized = true;
+-	if (attr_mask & IB_QP_MAX_QP_RD_ATOMIC &&
+-	    attr->max_rd_atomic >
+-	    (1 << MLX5_CAP_GEN(dev->mdev, log_max_ra_res_qp))) {
+-		mlx5_ib_dbg(dev, "invalid max_rd_atomic value %d\n",
+-			    attr->max_rd_atomic);
+-		goto out;
 -	}
 -
- 	INIT_LIST_HEAD(&sw_context->staged_cmd_res);
- 	sw_context->ctx = &val_ctx;
- 	ret = vmw_execbuf_tie_context(dev_priv, sw_context, dx_context_handle);
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_validation.c b/drivers/gpu/drm/vmwgfx/vmwgfx_validation.c
-index f46891012be3..f5c4a40fb16d 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_validation.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_validation.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0 OR MIT
- /**************************************************************************
-  *
-- * Copyright © 2018 VMware, Inc., Palo Alto, CA., USA
-+ * Copyright © 2018 - 2022 VMware, Inc., Palo Alto, CA., USA
-  * All Rights Reserved.
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a
-@@ -180,11 +180,16 @@ vmw_validation_find_bo_dup(struct vmw_validation_context *ctx,
- 	if (!ctx->merge_dups)
- 		return NULL;
+-	if (attr_mask & IB_QP_MAX_DEST_RD_ATOMIC &&
+-	    attr->max_dest_rd_atomic >
+-	    (1 << MLX5_CAP_GEN(dev->mdev, log_max_ra_req_qp))) {
+-		mlx5_ib_dbg(dev, "invalid max_dest_rd_atomic value %d\n",
+-			    attr->max_dest_rd_atomic);
++	if (!validate_rd_atomic(dev, attr, attr_mask, qp_type))
+ 		goto out;
+-	}
  
--	if (ctx->ht) {
-+	if (ctx->sw_context) {
- 		struct vmwgfx_hash_item *hash;
-+		unsigned long key = (unsigned long) vbo;
- 
--		if (!vmwgfx_ht_find_item(ctx->ht, (unsigned long) vbo, &hash))
--			bo_node = container_of(hash, typeof(*bo_node), hash);
-+		hash_for_each_possible_rcu(ctx->sw_context->res_ht, hash, head, key) {
-+			if (hash->key == key) {
-+				bo_node = container_of(hash, typeof(*bo_node), hash);
-+				break;
-+			}
-+		}
- 	} else {
- 		struct  vmw_validation_bo_node *entry;
- 
-@@ -217,11 +222,16 @@ vmw_validation_find_res_dup(struct vmw_validation_context *ctx,
- 	if (!ctx->merge_dups)
- 		return NULL;
- 
--	if (ctx->ht) {
-+	if (ctx->sw_context) {
- 		struct vmwgfx_hash_item *hash;
-+		unsigned long key = (unsigned long) res;
- 
--		if (!vmwgfx_ht_find_item(ctx->ht, (unsigned long) res, &hash))
--			res_node = container_of(hash, typeof(*res_node), hash);
-+		hash_for_each_possible_rcu(ctx->sw_context->res_ht, hash, head, key) {
-+			if (hash->key == key) {
-+				res_node = container_of(hash, typeof(*res_node), hash);
-+				break;
-+			}
-+		}
- 	} else {
- 		struct  vmw_validation_res_node *entry;
- 
-@@ -269,20 +279,15 @@ int vmw_validation_add_bo(struct vmw_validation_context *ctx,
- 		}
- 	} else {
- 		struct ttm_validate_buffer *val_buf;
--		int ret;
- 
- 		bo_node = vmw_validation_mem_alloc(ctx, sizeof(*bo_node));
- 		if (!bo_node)
- 			return -ENOMEM;
- 
--		if (ctx->ht) {
-+		if (ctx->sw_context) {
- 			bo_node->hash.key = (unsigned long) vbo;
--			ret = vmwgfx_ht_insert_item(ctx->ht, &bo_node->hash);
--			if (ret) {
--				DRM_ERROR("Failed to initialize a buffer "
--					  "validation entry.\n");
--				return ret;
--			}
-+			hash_add_rcu(ctx->sw_context->res_ht, &bo_node->hash.head,
-+				bo_node->hash.key);
- 		}
- 		val_buf = &bo_node->base;
- 		val_buf->bo = ttm_bo_get_unless_zero(&vbo->base);
-@@ -316,7 +321,6 @@ int vmw_validation_add_resource(struct vmw_validation_context *ctx,
- 				bool *first_usage)
- {
- 	struct vmw_validation_res_node *node;
--	int ret;
- 
- 	node = vmw_validation_find_res_dup(ctx, res);
- 	if (node) {
-@@ -330,14 +334,9 @@ int vmw_validation_add_resource(struct vmw_validation_context *ctx,
- 		return -ENOMEM;
- 	}
- 
--	if (ctx->ht) {
-+	if (ctx->sw_context) {
- 		node->hash.key = (unsigned long) res;
--		ret = vmwgfx_ht_insert_item(ctx->ht, &node->hash);
--		if (ret) {
--			DRM_ERROR("Failed to initialize a resource validation "
--				  "entry.\n");
--			return ret;
--		}
-+		hash_add_rcu(ctx->sw_context->res_ht, &node->hash.head, node->hash.key);
- 	}
- 	node->res = vmw_resource_reference_unless_doomed(res);
- 	if (!node->res)
-@@ -681,19 +680,19 @@ void vmw_validation_drop_ht(struct vmw_validation_context *ctx)
- 	struct vmw_validation_bo_node *entry;
- 	struct vmw_validation_res_node *val;
- 
--	if (!ctx->ht)
-+	if (!ctx->sw_context)
- 		return;
- 
- 	list_for_each_entry(entry, &ctx->bo_list, base.head)
--		(void) vmwgfx_ht_remove_item(ctx->ht, &entry->hash);
-+		hash_del_rcu(&entry->hash.head);
- 
- 	list_for_each_entry(val, &ctx->resource_list, head)
--		(void) vmwgfx_ht_remove_item(ctx->ht, &val->hash);
-+		hash_del_rcu(&val->hash.head);
- 
- 	list_for_each_entry(val, &ctx->resource_ctx_list, head)
--		(void) vmwgfx_ht_remove_item(ctx->ht, &val->hash);
-+		hash_del_rcu(&entry->hash.head);
- 
--	ctx->ht = NULL;
-+	ctx->sw_context = NULL;
- }
- 
- /**
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_validation.h b/drivers/gpu/drm/vmwgfx/vmwgfx_validation.h
-index f21df053882b..ab9ec226f433 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_validation.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_validation.h
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 OR MIT */
- /**************************************************************************
-  *
-- * Copyright © 2018 VMware, Inc., Palo Alto, CA., USA
-+ * Copyright © 2018 - 2022 VMware, Inc., Palo Alto, CA., USA
-  * All Rights Reserved.
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a
-@@ -29,12 +29,11 @@
- #define _VMWGFX_VALIDATION_H_
- 
- #include <linux/list.h>
-+#include <linux/hashtable.h>
- #include <linux/ww_mutex.h>
- 
- #include <drm/ttm/ttm_execbuf_util.h>
- 
--#include "vmwgfx_hashtab.h"
--
- #define VMW_RES_DIRTY_NONE 0
- #define VMW_RES_DIRTY_SET BIT(0)
- #define VMW_RES_DIRTY_CLEAR BIT(1)
-@@ -59,7 +58,7 @@
-  * @total_mem: Amount of reserved memory.
-  */
- struct vmw_validation_context {
--	struct vmwgfx_open_hash *ht;
-+	struct vmw_sw_context *sw_context;
- 	struct list_head resource_list;
- 	struct list_head resource_ctx_list;
- 	struct list_head bo_list;
-@@ -82,16 +81,16 @@ struct vmw_fence_obj;
- /**
-  * DECLARE_VAL_CONTEXT - Declare a validation context with initialization
-  * @_name: The name of the variable
-- * @_ht: The hash table used to find dups or NULL if none
-+ * @_sw_context: Contains the hash table used to find dups or NULL if none
-  * @_merge_dups: Whether to merge duplicate buffer object- or resource
-  * entries. If set to true, ideally a hash table pointer should be supplied
-  * as well unless the number of resources and buffer objects per validation
-  * is known to be very small
-  */
- #endif
--#define DECLARE_VAL_CONTEXT(_name, _ht, _merge_dups)			\
-+#define DECLARE_VAL_CONTEXT(_name, _sw_context, _merge_dups)		\
- 	struct vmw_validation_context _name =				\
--	{ .ht = _ht,							\
-+	{ .sw_context = _sw_context,					\
- 	  .resource_list = LIST_HEAD_INIT((_name).resource_list),	\
- 	  .resource_ctx_list = LIST_HEAD_INIT((_name).resource_ctx_list), \
- 	  .bo_list = LIST_HEAD_INIT((_name).bo_list),			\
-@@ -114,19 +113,6 @@ vmw_validation_has_bos(struct vmw_validation_context *ctx)
- 	return !list_empty(&ctx->bo_list);
- }
- 
--/**
-- * vmw_validation_set_ht - Register a hash table for duplicate finding
-- * @ctx: The validation context
-- * @ht: Pointer to a hash table to use for duplicate finding
-- * This function is intended to be used if the hash table wasn't
-- * available at validation context declaration time
-- */
--static inline void vmw_validation_set_ht(struct vmw_validation_context *ctx,
--					 struct vmwgfx_open_hash *ht)
--{
--	ctx->ht = ht;
--}
--
- /**
-  * vmw_validation_bo_reserve - Reserve buffer objects registered with a
-  * validation context
+ 	if (cur_state == new_state && cur_state == IB_QPS_RESET) {
+ 		err = 0;
 -- 
 2.35.1
 
