@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B30E266CC84
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:26:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D0166CB06
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234657AbjAPR0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:26:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
+        id S234205AbjAPRJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234652AbjAPR0R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:26:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 369323F281
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:03:35 -0800 (PST)
+        with ESMTP id S234215AbjAPRJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:09:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C5D3265A9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:49:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C07BB61047
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:03:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D48C0C433EF;
-        Mon, 16 Jan 2023 17:03:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DEEF6108C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:49:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6B4AC433D2;
+        Mon, 16 Jan 2023 16:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888614;
-        bh=DmOeBVURhgQZUtdGiTSTtdig7+VQ8PjyIJxorsBgMrk=;
+        s=korg; t=1673887792;
+        bh=WJUcanwjyblsc1ntcBylx4M4TKLiAvggkHBKzf8gpc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RATZhMtrbcsoZVjxOhabyY+gZkTJYQiXYI6O7RNnXZ+58vcIWaiTgKQe1UOK7f5H/
-         rbBZbm2SxzJq48sMag2PS9oeLYMM0a5YHP4K+oO2HD+KHA4BDdaDkoTzFFYra3qr0D
-         ZO6hBEnCe0AA0xm/0ZotEOfvTDY4iFnQaHuSWM0s=
+        b=vGTPwxnyTnKvOvu+s3DFb4ywpkMIfxrtiq+MpVfYyE1IFmczJxMkO/YnT3Z0Dz1A8
+         /8DJUSFvYtE1T1Q72iBLf6k3E854AakFvk+XP13EFEabLdRwoVAs6xfyB7KWCFuNn6
+         P3N9WEi6rdJuWG2h/axE0Ef7wSAW6rm3ZIIwqntw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Robert Foss <robert.foss@linaro.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 072/338] media: camss: Clean up received buffers on failed start of streaming
+Subject: [PATCH 4.19 283/521] powerpc/perf: callchain validate kernel stack pointer bounds
 Date:   Mon, 16 Jan 2023 16:49:05 +0100
-Message-Id: <20230116154824.011050880@linuxfoundation.org>
+Message-Id: <20230116154859.807901927@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit c8f3582345e6a69da65ab588f7c4c2d1685b0e80 ]
+[ Upstream commit 32c5209214bd8d4f8c4e9d9b630ef4c671f58e79 ]
 
-It is required to return the received buffers, if streaming can not be
-started. For instance media_pipeline_start() may fail with EPIPE, if
-a link validation between entities is not passed, and in such a case
-a user gets a kernel warning:
+The interrupt frame detection and loads from the hypothetical pt_regs
+are not bounds-checked. The next-frame validation only bounds-checks
+STACK_FRAME_OVERHEAD, which does not include the pt_regs. Add another
+test for this.
 
-  WARNING: CPU: 1 PID: 520 at drivers/media/common/videobuf2/videobuf2-core.c:1592 vb2_start_streaming+0xec/0x160
-  <snip>
-  Call trace:
-   vb2_start_streaming+0xec/0x160
-   vb2_core_streamon+0x9c/0x1a0
-   vb2_ioctl_streamon+0x68/0xbc
-   v4l_streamon+0x30/0x3c
-   __video_do_ioctl+0x184/0x3e0
-   video_usercopy+0x37c/0x7b0
-   video_ioctl2+0x24/0x40
-   v4l2_ioctl+0x4c/0x70
+The user could set r1 to be equal to the address matching the first
+interrupt frame - STACK_INT_FRAME_SIZE, which is in the previous page
+due to the kernel redzone, and induce the kernel to load the marker from
+there. Possibly this could cause a crash at least. If the user could
+induce the previous page to contain a valid marker, then it might be
+able to direct perf to read specific memory addresses in a way that
+could be transmitted back to the user in the perf data.
 
-The fix is to correct the error path in video_start_streaming() of camss.
-
-Fixes: 0ac2586c410f ("media: camss: Add files which handle the video device nodes")
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: 20002ded4d93 ("perf_counter: powerpc: Add callchain support")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221127124942.1665522-4-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/camss-8x16/camss-video.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/perf/callchain.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/qcom/camss-8x16/camss-video.c b/drivers/media/platform/qcom/camss-8x16/camss-video.c
-index cf4219e871bd..53a0df638324 100644
---- a/drivers/media/platform/qcom/camss-8x16/camss-video.c
-+++ b/drivers/media/platform/qcom/camss-8x16/camss-video.c
-@@ -353,7 +353,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
+diff --git a/arch/powerpc/perf/callchain.c b/arch/powerpc/perf/callchain.c
+index 0af051a1974e..26a31a3b661e 100644
+--- a/arch/powerpc/perf/callchain.c
++++ b/arch/powerpc/perf/callchain.c
+@@ -68,6 +68,7 @@ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *re
+ 		next_sp = fp[0];
  
- 	ret = media_pipeline_start(&vdev->entity, &video->pipe);
- 	if (ret < 0)
--		return ret;
-+		goto flush_buffers;
- 
- 	ret = video_check_format(video);
- 	if (ret < 0)
-@@ -382,6 +382,7 @@ static int video_start_streaming(struct vb2_queue *q, unsigned int count)
- error:
- 	media_pipeline_stop(&vdev->entity);
- 
-+flush_buffers:
- 	video->ops->flush_buffers(video, VB2_BUF_STATE_QUEUED);
- 
- 	return ret;
+ 		if (next_sp == sp + STACK_INT_FRAME_SIZE &&
++		    validate_sp(sp, current, STACK_INT_FRAME_SIZE) &&
+ 		    fp[STACK_FRAME_MARKER] == STACK_FRAME_REGS_MARKER) {
+ 			/*
+ 			 * This looks like an interrupt frame for an
 -- 
 2.35.1
 
