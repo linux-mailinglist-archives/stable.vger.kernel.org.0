@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB1566C56D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 795F466C56E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232351AbjAPQGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:06:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45734 "EHLO
+        id S232167AbjAPQGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:06:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232369AbjAPQFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:05:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1D2D27497
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:54 -0800 (PST)
+        with ESMTP id S232095AbjAPQFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:05:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77912274A8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3BEFB8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD76C433EF;
-        Mon, 16 Jan 2023 16:03:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89E05B8107A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D91E8C433D2;
+        Mon, 16 Jan 2023 16:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885031;
-        bh=sGJdYjJNPDoRFrHLO5o0S9DTPlxUbg/fa4ZPpgGjrdE=;
+        s=korg; t=1673885034;
+        bh=GYgbG5xoDHe9eBJ9jinrgt2ZnyOXR0VHDFi0ySDDrkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NhCkjR13kWB/aDs6EFIJf90fWO3CMZLNUu7Vazodb5vukOXdWeSxbfKF9KDBRM9gk
-         BYnWyV89fTe/mwGvzOXmTWgxgAT3qX8w7W1wBKXqesHTf2wsY0mdDsdBSx07Kuz9ID
-         v0Jkdat9PrXkqP259fHEoZDwqPuYb7YYzEB7SeM0=
+        b=HL7za7cnIADLYKeKJ0Fw1ByuAUldM/MH9XE+3yNXzS14Lm63s4NLa/nrlkSfxk1rT
+         PPo9vZnsgGyj15P7RNYXZrJNywTS1nfT88F4CIGDUTnB7oVWnCU9+dCR7di6fc3Jlb
+         zL6El2x+r0AEJ82BYh19CJPAwhzgbZFsJtCw92QM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Wang <peter.wang@mediatek.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev,
+        Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 48/86] scsi: ufs: core: WLUN suspend SSU/enter hibern8 fail recovery
-Date:   Mon, 16 Jan 2023 16:51:22 +0100
-Message-Id: <20230116154749.065766175@linuxfoundation.org>
+Subject: [PATCH 5.15 49/86] ASoC: wm8904: fix wrong outputs volume after power reactivation
+Date:   Mon, 16 Jan 2023 16:51:23 +0100
+Message-Id: <20230116154749.112211752@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
 References: <20230116154747.036911298@linuxfoundation.org>
@@ -56,77 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Wang <peter.wang@mediatek.com>
+From: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
 
-[ Upstream commit 1a5665fc8d7a000671ebd3fe69c6f9acf1e0dcd9 ]
+[ Upstream commit 472a6309c6467af89dbf660a8310369cc9cb041f ]
 
-When SSU/enter hibern8 fail in WLUN suspend flow, trigger the error handler
-and return busy to break the suspend.  Otherwise the consumer will get
-stuck in runtime suspend status.
+Restore volume after charge pump and PGA activation to ensure
+that volume settings are correctly applied when re-enabling codec
+from SND_SOC_BIAS_OFF state.
+CLASS_W, CHARGE_PUMP and POWER_MANAGEMENT_2 register configuration
+affect how the volume register are applied and must be configured first.
 
-Fixes: b294ff3e3449 ("scsi: ufs: core: Enable power management for wlun")
-Signed-off-by: Peter Wang <peter.wang@mediatek.com>
-Link: https://lore.kernel.org/r/20221208072520.26210-1-peter.wang@mediatek.com
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: a91eb199e4dc ("ASoC: Initial WM8904 CODEC driver")
+Link: https://lore.kernel.org/all/c7864c35-738c-a867-a6a6-ddf9f98df7e7@gmail.com/
+Signed-off-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20221223080247.7258-1-francesco@dolcini.it
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ sound/soc/codecs/wm8904.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 6dd341674110..0b06223f5714 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5909,6 +5909,14 @@ static inline void ufshcd_schedule_eh_work(struct ufs_hba *hba)
- 	}
- }
+diff --git a/sound/soc/codecs/wm8904.c b/sound/soc/codecs/wm8904.c
+index a02a77fef360..6759ce7e09ff 100644
+--- a/sound/soc/codecs/wm8904.c
++++ b/sound/soc/codecs/wm8904.c
+@@ -697,6 +697,7 @@ static int out_pga_event(struct snd_soc_dapm_widget *w,
+ 	int dcs_mask;
+ 	int dcs_l, dcs_r;
+ 	int dcs_l_reg, dcs_r_reg;
++	int an_out_reg;
+ 	int timeout;
+ 	int pwr_reg;
  
-+static void ufshcd_force_error_recovery(struct ufs_hba *hba)
-+{
-+	spin_lock_irq(hba->host->host_lock);
-+	hba->force_reset = true;
-+	ufshcd_schedule_eh_work(hba);
-+	spin_unlock_irq(hba->host->host_lock);
-+}
+@@ -712,6 +713,7 @@ static int out_pga_event(struct snd_soc_dapm_widget *w,
+ 		dcs_mask = WM8904_DCS_ENA_CHAN_0 | WM8904_DCS_ENA_CHAN_1;
+ 		dcs_r_reg = WM8904_DC_SERVO_8;
+ 		dcs_l_reg = WM8904_DC_SERVO_9;
++		an_out_reg = WM8904_ANALOGUE_OUT1_LEFT;
+ 		dcs_l = 0;
+ 		dcs_r = 1;
+ 		break;
+@@ -720,6 +722,7 @@ static int out_pga_event(struct snd_soc_dapm_widget *w,
+ 		dcs_mask = WM8904_DCS_ENA_CHAN_2 | WM8904_DCS_ENA_CHAN_3;
+ 		dcs_r_reg = WM8904_DC_SERVO_6;
+ 		dcs_l_reg = WM8904_DC_SERVO_7;
++		an_out_reg = WM8904_ANALOGUE_OUT2_LEFT;
+ 		dcs_l = 2;
+ 		dcs_r = 3;
+ 		break;
+@@ -792,6 +795,10 @@ static int out_pga_event(struct snd_soc_dapm_widget *w,
+ 		snd_soc_component_update_bits(component, reg,
+ 				    WM8904_HPL_ENA_OUTP | WM8904_HPR_ENA_OUTP,
+ 				    WM8904_HPL_ENA_OUTP | WM8904_HPR_ENA_OUTP);
 +
- static void ufshcd_clk_scaling_allow(struct ufs_hba *hba, bool allow)
- {
- 	down_write(&hba->clk_scaling_lock);
-@@ -8775,6 +8783,15 @@ static int __ufshcd_wl_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
++		/* Update volume, requires PGA to be powered */
++		val = snd_soc_component_read(component, an_out_reg);
++		snd_soc_component_write(component, an_out_reg, val);
+ 		break;
  
- 		if (!hba->dev_info.b_rpm_dev_flush_capable) {
- 			ret = ufshcd_set_dev_pwr_mode(hba, req_dev_pwr_mode);
-+			if (ret && pm_op != UFS_SHUTDOWN_PM) {
-+				/*
-+				 * If return err in suspend flow, IO will hang.
-+				 * Trigger error handler and break suspend for
-+				 * error recovery.
-+				 */
-+				ufshcd_force_error_recovery(hba);
-+				ret = -EBUSY;
-+			}
- 			if (ret)
- 				goto enable_scaling;
- 		}
-@@ -8786,6 +8803,15 @@ static int __ufshcd_wl_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
- 	 */
- 	check_for_bkops = !ufshcd_is_ufs_dev_deepsleep(hba);
- 	ret = ufshcd_link_state_transition(hba, req_link_state, check_for_bkops);
-+	if (ret && pm_op != UFS_SHUTDOWN_PM) {
-+		/*
-+		 * If return err in suspend flow, IO will hang.
-+		 * Trigger error handler and break suspend for
-+		 * error recovery.
-+		 */
-+		ufshcd_force_error_recovery(hba);
-+		ret = -EBUSY;
-+	}
- 	if (ret)
- 		goto set_dev_active;
- 
+ 	case SND_SOC_DAPM_POST_PMU:
 -- 
 2.35.1
 
