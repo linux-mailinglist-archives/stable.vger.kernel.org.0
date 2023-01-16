@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A73A66C892
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:40:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5494966C46C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:54:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233511AbjAPQkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:40:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34328 "EHLO
+        id S231410AbjAPPy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:54:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233401AbjAPQkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767902D140
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:28:29 -0800 (PST)
+        with ESMTP id S231135AbjAPPyn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 163DB1E5C3
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31A56B8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:28:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81FA1C433D2;
-        Mon, 16 Jan 2023 16:28:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6802B8105C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2370DC433EF;
+        Mon, 16 Jan 2023 15:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886506;
-        bh=Mhrg3v0lwqLPTxKdO7ns6AG/aZn7Eb9JpOuAWMOEh6c=;
+        s=korg; t=1673884479;
+        bh=6Euv0hRlUA9F+6G0BURS03utW9dU/cYlLb1MvjMczGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PkbimxxIU1ct71pp+B1w/WKI0Jeq6mtij2b57bZViN6PdxJJyc5UhPxR8D+FoL37T
-         tO1TawJo8ukJkWda5fJXYqfSMt94CE5281RZ4GcWLhpfznjVEveVqZ2QMhyX4+DSBm
-         u0+obHt4oPA+UxD8W4nwUBlVouivuHQ++tpXgMFw=
+        b=yu9KUxJukE5iIkPrzf5TJ1Vk2OO1DzXc+2/z9eqZGPclrjdS+hnwmMJ4bEpPggDpO
+         /Qz4L9whDK0WcmdOTwJwCuOoPKVjFOi63rLZiY7By8ZNalvdkEC+jLxgx321OWIxlZ
+         qvAwj4kRls3oX5OKmClMKprIMm2qZwbwD04QkU8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adam Vodopjan <grozzly@protonmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 457/658] ata: ahci: Fix PCS quirk application for suspend
+        patches@lists.linux.dev, Catalin Marinas <catalin.marinas@arm.com>,
+        Seth Jenkins <sethjenkins@google.com>,
+        Will Deacon <will@kernel.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 6.1 022/183] elfcore: Add a cprm parameter to elf_core_extra_{phdrs,data_size}
 Date:   Mon, 16 Jan 2023 16:49:05 +0100
-Message-Id: <20230116154930.401674855@linuxfoundation.org>
+Message-Id: <20230116154804.335882746@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,148 +55,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Vodopjan <grozzly@protonmail.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-[ Upstream commit 37e14e4f3715428b809e4df9a9958baa64c77d51 ]
+commit 19e183b54528f11fafeca60fc6d0821e29ff281e upstream.
 
-Since kernel 5.3.4 my laptop (ICH8M controller) does not see Kingston
-SV300S37A60G SSD disk connected into a SATA connector on wake from
-suspend.  The problem was introduced in c312ef176399 ("libata/ahci: Drop
-PCS quirk for Denverton and beyond"): the quirk is not applied on wake
-from suspend as it originally was.
+A subsequent fix for arm64 will use this parameter to parse the vma
+information from the snapshot created by dump_vma_snapshot() rather than
+traversing the vma list without the mmap_lock.
 
-It is worth to mention the commit contained another bug: the quirk is
-not applied at all to controllers which require it. The fix commit
-09d6ac8dc51a ("libata/ahci: Fix PCS quirk application") landed in 5.3.8.
-So testing my patch anywhere between commits c312ef176399 and
-09d6ac8dc51a is pointless.
-
-Not all disks trigger the problem. For example nothing bad happens with
-Western Digital WD5000LPCX HDD.
-
-Test hardware:
-- Acer 5920G with ICH8M SATA controller
-- sda: some SATA HDD connnected into the DVD drive IDE port with a
-  SATA-IDE caddy. It is a boot disk
-- sdb: Kingston SV300S37A60G SSD connected into the only SATA port
-
-Sample "dmesg --notime | grep -E '^(sd |ata)'" output on wake:
-
-sd 0:0:0:0: [sda] Starting disk
-sd 2:0:0:0: [sdb] Starting disk
-ata4: SATA link down (SStatus 4 SControl 300)
-ata3: SATA link down (SStatus 4 SControl 300)
-ata1.00: ACPI cmd ef/03:0c:00:00:00:a0 (SET FEATURES) filtered out
-ata1.00: ACPI cmd ef/03:42:00:00:00:a0 (SET FEATURES) filtered out
-ata1: FORCE: cable set to 80c
-ata5: SATA link down (SStatus 0 SControl 300)
-ata3: SATA link down (SStatus 4 SControl 300)
-ata3: SATA link down (SStatus 4 SControl 300)
-ata3.00: disabled
-sd 2:0:0:0: rejecting I/O to offline device
-ata3.00: detaching (SCSI 2:0:0:0)
-sd 2:0:0:0: [sdb] Start/Stop Unit failed: Result: hostbyte=DID_NO_CONNECT
-	driverbyte=DRIVER_OK
-sd 2:0:0:0: [sdb] Synchronizing SCSI cache
-sd 2:0:0:0: [sdb] Synchronize Cache(10) failed: Result:
-	hostbyte=DID_BAD_TARGET driverbyte=DRIVER_OK
-sd 2:0:0:0: [sdb] Stopping disk
-sd 2:0:0:0: [sdb] Start/Stop Unit failed: Result: hostbyte=DID_BAD_TARGET
-	driverbyte=DRIVER_OK
-
-Commit c312ef176399 dropped ahci_pci_reset_controller() which internally
-calls ahci_reset_controller() and applies the PCS quirk if needed after
-that. It was called each time a reset was required instead of just
-ahci_reset_controller(). This patch puts the function back in place.
-
-Fixes: c312ef176399 ("libata/ahci: Drop PCS quirk for Denverton and beyond")
-Signed-off-by: Adam Vodopjan <grozzly@protonmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6dd8b1a0b6cb ("arm64: mte: Dump the MTE tags in the core file")
+Cc: <stable@vger.kernel.org> # 5.18.x
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: Seth Jenkins <sethjenkins@google.com>
+Suggested-by: Seth Jenkins <sethjenkins@google.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221222181251.1345752-3-catalin.marinas@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/ahci.c | 32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+ arch/arm64/kernel/elfcore.c |    4 ++--
+ arch/ia64/kernel/elfcore.c  |    4 ++--
+ arch/x86/um/elfcore.c       |    4 ++--
+ fs/binfmt_elf.c             |    4 ++--
+ fs/binfmt_elf_fdpic.c       |    4 ++--
+ include/linux/elfcore.h     |    8 ++++----
+ 6 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 6f572967b555..4069c2a79daa 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -81,6 +81,7 @@ enum board_ids {
- static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent);
- static void ahci_remove_one(struct pci_dev *dev);
- static void ahci_shutdown_one(struct pci_dev *dev);
-+static void ahci_intel_pcs_quirk(struct pci_dev *pdev, struct ahci_host_priv *hpriv);
- static int ahci_vt8251_hardreset(struct ata_link *link, unsigned int *class,
- 				 unsigned long deadline);
- static int ahci_avn_hardreset(struct ata_link *link, unsigned int *class,
-@@ -639,6 +640,25 @@ static void ahci_pci_save_initial_config(struct pci_dev *pdev,
- 	ahci_save_initial_config(&pdev->dev, hpriv);
+--- a/arch/arm64/kernel/elfcore.c
++++ b/arch/arm64/kernel/elfcore.c
+@@ -75,7 +75,7 @@ static int mte_dump_tag_range(struct cor
+ 	return ret;
  }
  
-+static int ahci_pci_reset_controller(struct ata_host *host)
-+{
-+	struct pci_dev *pdev = to_pci_dev(host->dev);
-+	struct ahci_host_priv *hpriv = host->private_data;
-+	int rc;
-+
-+	rc = ahci_reset_controller(host);
-+	if (rc)
-+		return rc;
-+
-+	/*
-+	 * If platform firmware failed to enable ports, try to enable
-+	 * them here.
-+	 */
-+	ahci_intel_pcs_quirk(pdev, hpriv);
-+
-+	return 0;
-+}
-+
- static void ahci_pci_init_controller(struct ata_host *host)
+-Elf_Half elf_core_extra_phdrs(void)
++Elf_Half elf_core_extra_phdrs(struct coredump_params *cprm)
  {
- 	struct ahci_host_priv *hpriv = host->private_data;
-@@ -841,7 +861,7 @@ static int ahci_pci_device_runtime_resume(struct device *dev)
- 	struct ata_host *host = pci_get_drvdata(pdev);
- 	int rc;
+ 	int i;
+ 	struct core_vma_metadata *m;
+@@ -112,7 +112,7 @@ int elf_core_write_extra_phdrs(struct co
+ 	return 1;
+ }
  
--	rc = ahci_reset_controller(host);
-+	rc = ahci_pci_reset_controller(host);
- 	if (rc)
- 		return rc;
- 	ahci_pci_init_controller(host);
-@@ -876,7 +896,7 @@ static int ahci_pci_device_resume(struct device *dev)
- 		ahci_mcp89_apple_enable(pdev);
+-size_t elf_core_extra_data_size(void)
++size_t elf_core_extra_data_size(struct coredump_params *cprm)
+ {
+ 	int i;
+ 	struct core_vma_metadata *m;
+--- a/arch/ia64/kernel/elfcore.c
++++ b/arch/ia64/kernel/elfcore.c
+@@ -7,7 +7,7 @@
+ #include <asm/elf.h>
  
- 	if (pdev->dev.power.power_state.event == PM_EVENT_SUSPEND) {
--		rc = ahci_reset_controller(host);
-+		rc = ahci_pci_reset_controller(host);
- 		if (rc)
- 			return rc;
  
-@@ -1741,12 +1761,6 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	/* save initial config */
- 	ahci_pci_save_initial_config(pdev, hpriv);
+-Elf64_Half elf_core_extra_phdrs(void)
++Elf64_Half elf_core_extra_phdrs(struct coredump_params *cprm)
+ {
+ 	return GATE_EHDR->e_phnum;
+ }
+@@ -60,7 +60,7 @@ int elf_core_write_extra_data(struct cor
+ 	return 1;
+ }
  
--	/*
--	 * If platform firmware failed to enable ports, try to enable
--	 * them here.
--	 */
--	ahci_intel_pcs_quirk(pdev, hpriv);
--
- 	/* prepare host */
- 	if (hpriv->cap & HOST_CAP_NCQ) {
- 		pi.flags |= ATA_FLAG_NCQ;
-@@ -1856,7 +1870,7 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (rc)
- 		return rc;
+-size_t elf_core_extra_data_size(void)
++size_t elf_core_extra_data_size(struct coredump_params *cprm)
+ {
+ 	const struct elf_phdr *const gate_phdrs =
+ 		(const struct elf_phdr *) (GATE_ADDR + GATE_EHDR->e_phoff);
+--- a/arch/x86/um/elfcore.c
++++ b/arch/x86/um/elfcore.c
+@@ -7,7 +7,7 @@
+ #include <asm/elf.h>
  
--	rc = ahci_reset_controller(host);
-+	rc = ahci_pci_reset_controller(host);
- 	if (rc)
- 		return rc;
  
--- 
-2.35.1
-
+-Elf32_Half elf_core_extra_phdrs(void)
++Elf32_Half elf_core_extra_phdrs(struct coredump_params *cprm)
+ {
+ 	return vsyscall_ehdr ? (((struct elfhdr *)vsyscall_ehdr)->e_phnum) : 0;
+ }
+@@ -60,7 +60,7 @@ int elf_core_write_extra_data(struct cor
+ 	return 1;
+ }
+ 
+-size_t elf_core_extra_data_size(void)
++size_t elf_core_extra_data_size(struct coredump_params *cprm)
+ {
+ 	if ( vsyscall_ehdr ) {
+ 		const struct elfhdr *const ehdrp =
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -2209,7 +2209,7 @@ static int elf_core_dump(struct coredump
+ 	 * The number of segs are recored into ELF header as 16bit value.
+ 	 * Please check DEFAULT_MAX_MAP_COUNT definition when you modify here.
+ 	 */
+-	segs = cprm->vma_count + elf_core_extra_phdrs();
++	segs = cprm->vma_count + elf_core_extra_phdrs(cprm);
+ 
+ 	/* for notes section */
+ 	segs++;
+@@ -2249,7 +2249,7 @@ static int elf_core_dump(struct coredump
+ 	dataoff = offset = roundup(offset, ELF_EXEC_PAGESIZE);
+ 
+ 	offset += cprm->vma_data_size;
+-	offset += elf_core_extra_data_size();
++	offset += elf_core_extra_data_size(cprm);
+ 	e_shoff = offset;
+ 
+ 	if (e_phnum == PN_XNUM) {
+--- a/fs/binfmt_elf_fdpic.c
++++ b/fs/binfmt_elf_fdpic.c
+@@ -1509,7 +1509,7 @@ static int elf_fdpic_core_dump(struct co
+ 	tmp->next = thread_list;
+ 	thread_list = tmp;
+ 
+-	segs = cprm->vma_count + elf_core_extra_phdrs();
++	segs = cprm->vma_count + elf_core_extra_phdrs(cprm);
+ 
+ 	/* for notes section */
+ 	segs++;
+@@ -1555,7 +1555,7 @@ static int elf_fdpic_core_dump(struct co
+ 	dataoff = offset = roundup(offset, ELF_EXEC_PAGESIZE);
+ 
+ 	offset += cprm->vma_data_size;
+-	offset += elf_core_extra_data_size();
++	offset += elf_core_extra_data_size(cprm);
+ 	e_shoff = offset;
+ 
+ 	if (e_phnum == PN_XNUM) {
+--- a/include/linux/elfcore.h
++++ b/include/linux/elfcore.h
+@@ -114,14 +114,14 @@ static inline int elf_core_copy_task_fpr
+  * Dumping its extra ELF program headers includes all the other information
+  * a debugger needs to easily find how the gate DSO was being used.
+  */
+-extern Elf_Half elf_core_extra_phdrs(void);
++extern Elf_Half elf_core_extra_phdrs(struct coredump_params *cprm);
+ extern int
+ elf_core_write_extra_phdrs(struct coredump_params *cprm, loff_t offset);
+ extern int
+ elf_core_write_extra_data(struct coredump_params *cprm);
+-extern size_t elf_core_extra_data_size(void);
++extern size_t elf_core_extra_data_size(struct coredump_params *cprm);
+ #else
+-static inline Elf_Half elf_core_extra_phdrs(void)
++static inline Elf_Half elf_core_extra_phdrs(struct coredump_params *cprm)
+ {
+ 	return 0;
+ }
+@@ -136,7 +136,7 @@ static inline int elf_core_write_extra_d
+ 	return 1;
+ }
+ 
+-static inline size_t elf_core_extra_data_size(void)
++static inline size_t elf_core_extra_data_size(struct coredump_params *cprm)
+ {
+ 	return 0;
+ }
 
 
