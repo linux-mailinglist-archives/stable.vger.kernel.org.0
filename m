@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 859FC66C8A7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:41:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3012666C8A8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233488AbjAPQlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:41:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32956 "EHLO
+        id S233595AbjAPQll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:41:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233642AbjAPQk4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 266962687E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:29:10 -0800 (PST)
+        with ESMTP id S233676AbjAPQk6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7349F2DE49
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:29:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B74F161062
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:29:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCEFEC43392;
-        Mon, 16 Jan 2023 16:29:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AFEEB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:29:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76633C433D2;
+        Mon, 16 Jan 2023 16:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886549;
-        bh=YDLBgVbFGlpp5Fh17+mb4ujeyfkabmdhBH6RYqk33BY=;
+        s=korg; t=1673886551;
+        bh=KCXNKdNnGCvwv7UhPIhQEaaJqCNCvCLh8bS2TEuILeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GEoCQE/BGo9jMusY+SDixkBOQA8+/lbOsKTWIa2DmOx/wTnM+yMdQEGFUZ/DkfpjF
-         OYyCz1QA58WbuHgxiTfxR+cL3Tqg+SvNkAbRL0Vk4OuG0MhZZNJb1U1BMFN3O9G8AD
-         ODAXC75GOtzjEOg0nhahnU9yKNHXX9pXClYEYOXM=
+        b=pZxpAj/HF2wfYISizTyjphq8L31ZQBwDfJ8p1jS340K3CtIXvZtX5oC9OOZKLjLi5
+         Vg3cwv+8UnXefpLhynsUWmR+LKAch4m6tU/+UmG2gf+fUr+FuhdZgaEt++rIS4E0/c
+         fZychd2t5vrMvWDwq6mg5ychkrLngeYtCc4RAqLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Machek <pavel@denx.de>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 472/658] f2fs: should put a page when checking the summary info
-Date:   Mon, 16 Jan 2023 16:49:20 +0100
-Message-Id: <20230116154931.086580004@linuxfoundation.org>
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 473/658] mmc: vub300: fix warning - do not call blocking ops when !TASK_RUNNING
+Date:   Mon, 16 Jan 2023 16:49:21 +0100
+Message-Id: <20230116154931.134619756@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -52,31 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@denx.de>
+From: Deren Wu <deren.wu@mediatek.com>
 
-commit c3db3c2fd9992c08f49aa93752d3c103c3a4f6aa upstream.
+commit 4a44cd249604e29e7b90ae796d7692f5773dd348 upstream.
 
-The commit introduces another bug.
+vub300_enable_sdio_irq() works with mutex and need TASK_RUNNING here.
+Ensure that we mark current as TASK_RUNNING for sleepable context.
 
+[   77.554641] do not call blocking ops when !TASK_RUNNING; state=1 set at [<ffffffff92a72c1d>] sdio_irq_thread+0x17d/0x5b0
+[   77.554652] WARNING: CPU: 2 PID: 1983 at kernel/sched/core.c:9813 __might_sleep+0x116/0x160
+[   77.554905] CPU: 2 PID: 1983 Comm: ksdioirqd/mmc1 Tainted: G           OE      6.1.0-rc5 #1
+[   77.554910] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, BIOS BECFL357.86A.0081.2020.0504.1834 05/04/2020
+[   77.554912] RIP: 0010:__might_sleep+0x116/0x160
+[   77.554920] RSP: 0018:ffff888107b7fdb8 EFLAGS: 00010282
+[   77.554923] RAX: 0000000000000000 RBX: ffff888118c1b740 RCX: 0000000000000000
+[   77.554926] RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffed1020f6ffa9
+[   77.554928] RBP: ffff888107b7fde0 R08: 0000000000000001 R09: ffffed1043ea60ba
+[   77.554930] R10: ffff88821f5305cb R11: ffffed1043ea60b9 R12: ffffffff93aa3a60
+[   77.554932] R13: 000000000000011b R14: 7fffffffffffffff R15: ffffffffc0558660
+[   77.554934] FS:  0000000000000000(0000) GS:ffff88821f500000(0000) knlGS:0000000000000000
+[   77.554937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   77.554939] CR2: 00007f8a44010d68 CR3: 000000024421a003 CR4: 00000000003706e0
+[   77.554942] Call Trace:
+[   77.554944]  <TASK>
+[   77.554952]  mutex_lock+0x78/0xf0
+[   77.554973]  vub300_enable_sdio_irq+0x103/0x3c0 [vub300]
+[   77.554981]  sdio_irq_thread+0x25c/0x5b0
+[   77.555006]  kthread+0x2b8/0x370
+[   77.555017]  ret_from_fork+0x1f/0x30
+[   77.555023]  </TASK>
+[   77.555025] ---[ end trace 0000000000000000 ]---
+
+Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
 Cc: stable@vger.kernel.org
-Fixes: c6ad7fd16657e ("f2fs: fix to do sanity check on summary info")
-Signed-off-by: Pavel Machek <pavel@denx.de>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lore.kernel.org/r/87dc45b122d26d63c80532976813c9365d7160b3.1670140888.git.deren.wu@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/gc.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/vub300.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -643,6 +643,7 @@ static bool is_alive(struct f2fs_sb_info
- 	if (ofs_in_node >= max_addrs) {
- 		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
- 			ofs_in_node, dni->ino, dni->nid, max_addrs);
-+		f2fs_put_page(node_page, 1);
- 		return false;
+--- a/drivers/mmc/host/vub300.c
++++ b/drivers/mmc/host/vub300.c
+@@ -2049,6 +2049,7 @@ static void vub300_enable_sdio_irq(struc
+ 		return;
+ 	kref_get(&vub300->kref);
+ 	if (enable) {
++		set_current_state(TASK_RUNNING);
+ 		mutex_lock(&vub300->irq_mutex);
+ 		if (vub300->irqs_queued) {
+ 			vub300->irqs_queued -= 1;
+@@ -2064,6 +2065,7 @@ static void vub300_enable_sdio_irq(struc
+ 			vub300_queue_poll_work(vub300, 0);
+ 		}
+ 		mutex_unlock(&vub300->irq_mutex);
++		set_current_state(TASK_INTERRUPTIBLE);
+ 	} else {
+ 		vub300->irq_enabled = 0;
  	}
- 
 
 
