@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA8066C633
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:16:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7867166C634
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:16:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232839AbjAPQQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:16:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32840 "EHLO
+        id S232636AbjAPQQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:16:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232786AbjAPQP1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:15:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 087DF2CFC3
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:09:18 -0800 (PST)
+        with ESMTP id S232607AbjAPQPq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:15:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D482CFEA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:09:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A10B2B81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:09:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F32BFC433EF;
-        Mon, 16 Jan 2023 16:09:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32373B81059
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:09:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89609C433F0;
+        Mon, 16 Jan 2023 16:09:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885356;
-        bh=3PPmK0XukrCIAah+48WUKCeca9Rba7NcTzMPF8tzlQs=;
+        s=korg; t=1673885358;
+        bh=UfQFZ1kFbheT04pu4059mhNdTGUTAfToZHA4cG/rGkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ob1gfQTqx9F4xTudqh1iG0skWc3dkJI/588jNfu6VCECnOdk2SqKt3U1lGPhv1zfY
-         cj9Awju8lo/GLcHkf84nwW226vg4SZ1pRLxNPshamFw+Vf5VPtPkWmPhx2ejGShzUg
-         7cApG0gE3+LOHb72xdyn4p9MKrgTUG+Z0W6EOEbE=
+        b=ll2/3XV2f0gH8u0LWS63CrZ/tZMRwUKdbkxW2n0c3SDhax1biKn2nSGqlvHA1XJGK
+         mpo/vHHC6m2r6tOntKiowHOnNucfSfJLHWAftOm2g/XoY9tgn5AF/w9Kl3LWZhXygq
+         19fy63t6IXqBdEg8/wHVK/FZwh0JdPG132J30n5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Weiss <luca@z3ntu.xyz>,
+        patches@lists.linux.dev,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 020/658] ARM: dts: qcom: apq8064: fix coresight compatible
-Date:   Mon, 16 Jan 2023 16:41:48 +0100
-Message-Id: <20230116154910.572780136@linuxfoundation.org>
+Subject: [PATCH 5.4 021/658] arm64: dts: qcom: sdm845-cheza: fix AP suspend pin bias
+Date:   Mon, 16 Jan 2023 16:41:49 +0100
+Message-Id: <20230116154910.604281422@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -55,37 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca@z3ntu.xyz>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit a42b1ee868361f1cb0492f1bdaefb43e0751e468 ]
+[ Upstream commit 9bce41fab14da8f21027dc9847535ef5e22cbe8b ]
 
-There's a typo missing the arm, prefix of arm,coresight-etb10. Fix it to
-make devicetree validation happier.
+There is no "bias-no-pull" property.  Assume intentions were disabling
+bias.
 
-Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
-Fixes: 7a5c275fd821 ("ARM: dts: qcom: Add apq8064 CoreSight components")
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Fixes: 79e7739f7b87 ("arm64: dts: qcom: sdm845-cheza: add initial cheza dt")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221013190657.48499-3-luca@z3ntu.xyz
+Link: https://lore.kernel.org/r/20221010114417.29859-3-krzysztof.kozlowski@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-apq8064.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
-index 764984c95c68..8c8a576ab9c0 100644
---- a/arch/arm/boot/dts/qcom-apq8064.dtsi
-+++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
-@@ -1570,7 +1570,7 @@ wifi {
+diff --git a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
+index 99a28d64ee62..2b7923f1f0ec 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
+@@ -1310,7 +1310,7 @@ ap_suspend_l_assert: ap_suspend_l_assert {
+ 		config {
+ 			pins = "gpio126";
+ 			function = "gpio";
+-			bias-no-pull;
++			bias-disable;
+ 			drive-strength = <2>;
+ 			output-low;
  		};
- 
- 		etb@1a01000 {
--			compatible = "coresight-etb10", "arm,primecell";
-+			compatible = "arm,coresight-etb10", "arm,primecell";
- 			reg = <0x1a01000 0x1000>;
- 
- 			clocks = <&rpmcc RPM_QDSS_CLK>;
+@@ -1320,7 +1320,7 @@ ap_suspend_l_deassert: ap_suspend_l_deassert {
+ 		config {
+ 			pins = "gpio126";
+ 			function = "gpio";
+-			bias-no-pull;
++			bias-disable;
+ 			drive-strength = <2>;
+ 			output-high;
+ 		};
 -- 
 2.35.1
 
