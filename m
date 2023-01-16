@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF2D66C676
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:20:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B39466C67B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:21:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233032AbjAPQUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:20:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38052 "EHLO
+        id S232948AbjAPQVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:21:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232889AbjAPQUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:20:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06DFB30290
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:10:50 -0800 (PST)
+        with ESMTP id S232950AbjAPQUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:20:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF9CE4ED4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:10:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CD9E61042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:10:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0847C433D2;
-        Mon, 16 Jan 2023 16:10:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A9CEB8107E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:10:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C88C433D2;
+        Mon, 16 Jan 2023 16:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885449;
-        bh=pbr4YQbDOx2OnTSbt+QSJgL6Z8hJbA0q+TEd1BnVZHg=;
+        s=korg; t=1673885454;
+        bh=8buAUihA0KsplwC4rHJmW4jrw8mQC5n+V9B900/ouNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uA+LmLJ8ouEyRsa8lOJYAImr0cjxKU8hQczxZy4bWfOY0fS3VX+oQUtxraWrsxFaf
-         IWzLVjFpRYKwvOtvFLu6bGoeanNjZk+XshP9fMnn0RvjO8030s53rhkMOmpf74DUT5
-         uFqNemVqnWAwEPvrfM/i3Ny/MESH8OV1keaMIZOg=
+        b=yMen+FYOaHohXGAu1zYO8kB3wNIUQ5Z6K+d419utfH/S5bgxytKDEmLtxnwbiEOcl
+         qsserbezvkaYd1lb+kesURAY5KzDDVeN11f1nyQV/YF9eKnjIzcuLBjpFjf0ol1f23
+         pocYpkpcfYjT1NmR3ar5NZPjfUrttslfaOimnyPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        patches@lists.linux.dev, Zqiang <qiang.zhang@windriver.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Waiman Long <longman@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/658] perf: Fix possible memleak in pmu_dev_alloc()
-Date:   Mon, 16 Jan 2023 16:42:23 +0100
-Message-Id: <20230116154912.178942898@linuxfoundation.org>
+Subject: [PATCH 5.4 056/658] debugobjects: Free per CPU pool after CPU unplug
+Date:   Mon, 16 Jan 2023 16:42:24 +0100
+Message-Id: <20230116154912.229874030@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,69 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Zqiang <qiang.zhang@windriver.com>
 
-[ Upstream commit e8d7a90c08ce963c592fb49845f2ccc606a2ac21 ]
+[ Upstream commit 88451f2cd3cec2abc30debdf129422d2699d1eba ]
 
-In pmu_dev_alloc(), when dev_set_name() failed, it will goto free_dev
-and call put_device(pmu->dev) to release it.
-However pmu->dev->release is assigned after this, which makes warning
-and memleak.
-Call dev_set_name() after pmu->dev->release = pmu_dev_release to fix it.
+If a CPU is offlined the debug objects per CPU pool is not cleaned up. If
+the CPU is never onlined again then the objects in the pool are wasted.
 
-  Device '(null)' does not have a release() function...
-  WARNING: CPU: 2 PID: 441 at drivers/base/core.c:2332 device_release+0x1b9/0x240
-  ...
-  Call Trace:
-    <TASK>
-    kobject_put+0x17f/0x460
-    put_device+0x20/0x30
-    pmu_dev_alloc+0x152/0x400
-    perf_pmu_register+0x96b/0xee0
-    ...
-  kmemleak: 1 new suspected memory leaks (see /sys/kernel/debug/kmemleak)
-  unreferenced object 0xffff888014759000 (size 2048):
-    comm "modprobe", pid 441, jiffies 4294931444 (age 38.332s)
-    backtrace:
-      [<0000000005aed3b4>] kmalloc_trace+0x27/0x110
-      [<000000006b38f9b8>] pmu_dev_alloc+0x50/0x400
-      [<00000000735f17be>] perf_pmu_register+0x96b/0xee0
-      [<00000000e38477f1>] 0xffffffffc0ad8603
-      [<000000004e162216>] do_one_initcall+0xd0/0x4e0
-      ...
+Add a CPU hotplug callback which is invoked after the CPU is dead to free
+the pool.
 
-Fixes: abe43400579d ("perf: Sysfs enumeration")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20221111103653.91058-1-chenzhongjin@huawei.com
+[ tglx: Massaged changelog and added comment about remote access safety ]
+
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Waiman Long <longman@redhat.com>
+Link: https://lore.kernel.org/r/20200908062709.11441-1-qiang.zhang@windriver.com
+Stable-dep-of: eabb7f1ace53 ("lib/debugobjects: fix stat count and optimize debug_objects_mem_init")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ include/linux/cpuhotplug.h |  1 +
+ lib/debugobjects.c         | 25 +++++++++++++++++++++++++
+ 2 files changed, 26 insertions(+)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 0a54780e0942..a1c89b675b0b 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -10035,13 +10035,15 @@ static int pmu_dev_alloc(struct pmu *pmu)
+diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
+index 15835f37bd5f..970b47fcd6ff 100644
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -36,6 +36,7 @@ enum cpuhp_state {
+ 	CPUHP_X86_MCE_DEAD,
+ 	CPUHP_VIRT_NET_DEAD,
+ 	CPUHP_SLUB_DEAD,
++	CPUHP_DEBUG_OBJ_DEAD,
+ 	CPUHP_MM_WRITEBACK_DEAD,
+ 	CPUHP_MM_VMSTAT_DEAD,
+ 	CPUHP_SOFTIRQ_DEAD,
+diff --git a/lib/debugobjects.c b/lib/debugobjects.c
+index 48054dbf1b51..746b632792b5 100644
+--- a/lib/debugobjects.c
++++ b/lib/debugobjects.c
+@@ -19,6 +19,7 @@
+ #include <linux/slab.h>
+ #include <linux/hash.h>
+ #include <linux/kmemleak.h>
++#include <linux/cpu.h>
  
- 	pmu->dev->groups = pmu->attr_groups;
- 	device_initialize(pmu->dev);
--	ret = dev_set_name(pmu->dev, "%s", pmu->name);
--	if (ret)
--		goto free_dev;
+ #define ODEBUG_HASH_BITS	14
+ #define ODEBUG_HASH_SIZE	(1 << ODEBUG_HASH_BITS)
+@@ -433,6 +434,25 @@ static void free_object(struct debug_obj *obj)
+ 	}
+ }
  
- 	dev_set_drvdata(pmu->dev, pmu);
- 	pmu->dev->bus = &pmu_bus;
- 	pmu->dev->release = pmu_dev_release;
++#ifdef CONFIG_HOTPLUG_CPU
++static int object_cpu_offline(unsigned int cpu)
++{
++	struct debug_percpu_free *percpu_pool;
++	struct hlist_node *tmp;
++	struct debug_obj *obj;
 +
-+	ret = dev_set_name(pmu->dev, "%s", pmu->name);
-+	if (ret)
-+		goto free_dev;
++	/* Remote access is safe as the CPU is dead already */
++	percpu_pool = per_cpu_ptr(&percpu_obj_pool, cpu);
++	hlist_for_each_entry_safe(obj, tmp, &percpu_pool->free_objs, node) {
++		hlist_del(&obj->node);
++		kmem_cache_free(obj_cache, obj);
++	}
++	percpu_pool->obj_free = 0;
 +
- 	ret = device_add(pmu->dev);
- 	if (ret)
- 		goto free_dev;
++	return 0;
++}
++#endif
++
+ /*
+  * We run out of memory. That means we probably have tons of objects
+  * allocated.
+@@ -1378,6 +1398,11 @@ void __init debug_objects_mem_init(void)
+ 	} else
+ 		debug_objects_selftest();
+ 
++#ifdef CONFIG_HOTPLUG_CPU
++	cpuhp_setup_state_nocalls(CPUHP_DEBUG_OBJ_DEAD, "object:offline", NULL,
++					object_cpu_offline);
++#endif
++
+ 	/*
+ 	 * Increase the thresholds for allocating and freeing objects
+ 	 * according to the number of possible CPUs available in the system.
 -- 
 2.35.1
 
