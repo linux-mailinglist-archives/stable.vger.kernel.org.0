@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E087766CA21
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65CEC66C79E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232212AbjAPQ7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:59:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51246 "EHLO
+        id S233354AbjAPQcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:32:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234051AbjAPQ71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A39732DE58
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:07 -0800 (PST)
+        with ESMTP id S233258AbjAPQcY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:32:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8494730189
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 403726104F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D8AC433EF;
-        Mon, 16 Jan 2023 16:42:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0D19B80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 564ACC433D2;
+        Mon, 16 Jan 2023 16:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887326;
-        bh=XZbEQknCyg1jcKzd9RfraxZOjt78kJ1E9oqPv1n3/h4=;
+        s=korg; t=1673886014;
+        bh=ML5vo3j0nkDa20/8EPHhFd0OxAHfSsqFXDntkfnDeQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YS3J/qjTOi0IAIJeSEdT5wk9HYDPm7RPqcJFfadDpjMr2lBFagLhmvUx1mpSHM4vh
-         V3Du1fnggx+9oZ4a5malhxQkcUqW/Bc5RFLwr8LDffpRuqY8i0ShVtx42pbptuZfoV
-         fIq8xeKTQ7lsWRxUaUfFi6xuyO8O/GFSZaWrTsUo=
+        b=y8nl6S3iJ50wrtireiGltGNICJ8Ktw322zyECDvIB0TktaE7fsy884ZBljK0P0VfE
+         Z4jIw8YNrPTwUOrIjrl8NhRi+BL5poYIAWZHTUhooVBvPYW/Bq53KOz7wdepidlBTX
+         5c3cvc2JVfU0fi1ptKLGAHOMHDjOGGX2eb6HD604=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        syzbot+dc3b1cf9111ab5fe98e7@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 078/521] hfs: Fix OOB Write in hfs_asc2mac
+        patches@lists.linux.dev, Zeng Heng <zengheng4@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 252/658] PCI: Check for alloc failure in pci_request_irq()
 Date:   Mon, 16 Jan 2023 16:45:40 +0100
-Message-Id: <20230116154850.721795543@linuxfoundation.org>
+Message-Id: <20230116154921.090608218@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Zeng Heng <zengheng4@huawei.com>
 
-[ Upstream commit c53ed55cb275344086e32a7080a6b19cb183650b ]
+[ Upstream commit 2d9cd957d40c3ac491b358e7cff0515bb07a3a9c ]
 
-Syzbot reported a OOB Write bug:
+When kvasprintf() fails to allocate memory, it returns a NULL pointer.
+Return error from pci_request_irq() so we don't dereference it.
 
-loop0: detected capacity change from 0 to 64
-==================================================================
-BUG: KASAN: slab-out-of-bounds in hfs_asc2mac+0x467/0x9a0
-fs/hfs/trans.c:133
-Write of size 1 at addr ffff88801848314e by task syz-executor391/3632
-
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- hfs_asc2mac+0x467/0x9a0 fs/hfs/trans.c:133
- hfs_cat_build_key+0x92/0x170 fs/hfs/catalog.c:28
- hfs_lookup+0x1ab/0x2c0 fs/hfs/dir.c:31
- lookup_open fs/namei.c:3391 [inline]
- open_last_lookups fs/namei.c:3481 [inline]
- path_openat+0x10e6/0x2df0 fs/namei.c:3710
- do_filp_open+0x264/0x4f0 fs/namei.c:3740
-
-If in->len is much larger than HFS_NAMELEN(31) which is the maximum
-length of an HFS filename, a OOB write could occur in hfs_asc2mac(). In
-that case, when the dst reaches the boundary, the srclen is still
-greater than 0, which causes a OOB write.
-Fix this by adding a check on dstlen in while() before writing to dst
-address.
-
-Link: https://lkml.kernel.org/r/20221202030038.1391945-1-zhangpeng362@huawei.com
-Fixes: 328b92278650 ("[PATCH] hfs: NLS support")
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Reported-by: <syzbot+dc3b1cf9111ab5fe98e7@syzkaller.appspotmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[bhelgaas: commit log]
+Fixes: 704e8953d3e9 ("PCI/irq: Add pci_request_irq() and pci_free_irq() helpers")
+Link: https://lore.kernel.org/r/20221121020029.3759444-1-zengheng4@huawei.com
+Signed-off-by: Zeng Heng <zengheng4@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/trans.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/irq.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/hfs/trans.c b/fs/hfs/trans.c
-index 39f5e343bf4d..fdb0edb8a607 100644
---- a/fs/hfs/trans.c
-+++ b/fs/hfs/trans.c
-@@ -109,7 +109,7 @@ void hfs_asc2mac(struct super_block *sb, struct hfs_name *out, const struct qstr
- 	if (nls_io) {
- 		wchar_t ch;
+diff --git a/drivers/pci/irq.c b/drivers/pci/irq.c
+index a1de501a2729..3f6a5d520259 100644
+--- a/drivers/pci/irq.c
++++ b/drivers/pci/irq.c
+@@ -94,6 +94,8 @@ int pci_request_irq(struct pci_dev *dev, unsigned int nr, irq_handler_t handler,
+ 	va_start(ap, fmt);
+ 	devname = kvasprintf(GFP_KERNEL, fmt, ap);
+ 	va_end(ap);
++	if (!devname)
++		return -ENOMEM;
  
--		while (srclen > 0) {
-+		while (srclen > 0 && dstlen > 0) {
- 			size = nls_io->char2uni(src, srclen, &ch);
- 			if (size < 0) {
- 				ch = '?';
+ 	ret = request_threaded_irq(pci_irq_vector(dev, nr), handler, thread_fn,
+ 				   irqflags, devname, dev_id);
 -- 
 2.35.1
 
