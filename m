@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0772E66C7A5
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:33:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33CCE66C7A6
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:33:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233362AbjAPQdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:33:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47442 "EHLO
+        id S233310AbjAPQdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:33:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233360AbjAPQcf (ORCPT
+        with ESMTP id S233361AbjAPQcf (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:32:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B684298DB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:35 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13300298CB
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 399AEB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 912B6C433F2;
-        Mon, 16 Jan 2023 16:20:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C6CFCB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36D91C433D2;
+        Mon, 16 Jan 2023 16:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886032;
-        bh=rNSWNQAQBvfuTZAQgGi/cY5PzQiF7/taTywf4l8R6yg=;
+        s=korg; t=1673886035;
+        bh=S3vZxJ90YJtVZwPd8Jukxnmgihr87DRZLdONQwVCO90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0vmdgzoZQqaL+G59JCMRNzaXKE2gAQLiOntcSLZkmYmb5sO2McOKXnPBvGp6/bT33
-         07/ry2DGcsW09wpYaaMUvyBnrE7bg4mnrB1wP+IptnuiAUFR8DUv0psawi0OEtB3PT
-         ebMRKsdal/7c+MYfi6KLJGq2XFUXAcmaAy4/k5wY=
+        b=BSa6UaKMovCS909MLny5w8eF7Y4ChyeQVa/QTquvgsqons0Js/fEK0FbuxRmIw5QK
+         17WlpN6zJtaybSK6ZC6PudYCnJnclcp1VnU1e8JWRbqAyiUwWo1baFkj1qKZpoiVlM
+         qvbSVSH6aI/zSUT5L5SeBlt424kTtr6BmDzGQdUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jon Hunter <jonathanh@nvidia.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Akhil R <akhilrajeev@nvidia.com>, Kartik <kkartik@nvidia.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 276/658] serial: tegra: Read DMA status before terminating
-Date:   Mon, 16 Jan 2023 16:46:04 +0100
-Message-Id: <20230116154922.214752410@linuxfoundation.org>
+Subject: [PATCH 5.4 277/658] class: fix possible memory leak in __class_register()
+Date:   Mon, 16 Jan 2023 16:46:05 +0100
+Message-Id: <20230116154922.264609139@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -55,55 +52,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kartik <kkartik@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 109a951a9f1fd8a34ebd1896cbbd5d5cede880a7 ]
+[ Upstream commit 8c3e8a6bdb5253b97ad532570f8b5db5f7a06407 ]
 
-Read the DMA status before terminating the DMA, as doing so deletes
-the DMA desc.
+If class_add_groups() returns error, the 'cp->subsys' need be
+unregister, and the 'cp' need be freed.
 
-Also, to get the correct transfer status information, pause the DMA
-using dmaengine_pause() before reading the DMA status.
+We can not call kset_unregister() here, because the 'cls' will
+be freed in callback function class_release() and it's also
+freed in caller's error path, it will cause double free.
 
-Fixes: e9ea096dd225 ("serial: tegra: add serial driver")
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
-Signed-off-by: Kartik <kkartik@nvidia.com>
-Link: https://lore.kernel.org/r/1666105086-17326-1-git-send-email-kkartik@nvidia.com
+So fix this by calling kobject_del() and kfree_const(name) to
+cleanup kobject. Besides, call kfree() to free the 'cp'.
+
+Fault injection test can trigger this:
+
+unreferenced object 0xffff888102fa8190 (size 8):
+  comm "modprobe", pid 502, jiffies 4294906074 (age 49.296s)
+  hex dump (first 8 bytes):
+    70 6b 74 63 64 76 64 00                          pktcdvd.
+  backtrace:
+    [<00000000e7c7703d>] __kmalloc_track_caller+0x1ae/0x320
+    [<000000005e4d70bc>] kstrdup+0x3a/0x70
+    [<00000000c2e5e85a>] kstrdup_const+0x68/0x80
+    [<000000000049a8c7>] kvasprintf_const+0x10b/0x190
+    [<0000000029123163>] kobject_set_name_vargs+0x56/0x150
+    [<00000000747219c9>] kobject_set_name+0xab/0xe0
+    [<0000000005f1ea4e>] __class_register+0x15c/0x49a
+
+unreferenced object 0xffff888037274000 (size 1024):
+  comm "modprobe", pid 502, jiffies 4294906074 (age 49.296s)
+  hex dump (first 32 bytes):
+    00 40 27 37 80 88 ff ff 00 40 27 37 80 88 ff ff  .@'7.....@'7....
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+  backtrace:
+    [<00000000151f9600>] kmem_cache_alloc_trace+0x17c/0x2f0
+    [<00000000ecf3dd95>] __class_register+0x86/0x49a
+
+Fixes: ced6473e7486 ("driver core: class: add class_groups support")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221026082803.3458760-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial-tegra.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/base/class.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
-index 431edb89e90f..aa67ca08fb26 100644
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -613,8 +613,9 @@ static void tegra_uart_stop_tx(struct uart_port *u)
- 	if (tup->tx_in_progress != TEGRA_UART_TX_DMA)
- 		return;
- 
--	dmaengine_terminate_all(tup->tx_dma_chan);
-+	dmaengine_pause(tup->tx_dma_chan);
- 	dmaengine_tx_status(tup->tx_dma_chan, tup->tx_cookie, &state);
-+	dmaengine_terminate_all(tup->tx_dma_chan);
- 	count = tup->tx_bytes_requested - state.residue;
- 	async_tx_ack(tup->tx_dma_desc);
- 	uart_xmit_advance(&tup->uport, count);
-@@ -753,8 +754,9 @@ static void tegra_uart_terminate_rx_dma(struct tegra_uart_port *tup)
- 	if (!tup->rx_dma_active)
- 		return;
- 
--	dmaengine_terminate_all(tup->rx_dma_chan);
-+	dmaengine_pause(tup->rx_dma_chan);
- 	dmaengine_tx_status(tup->rx_dma_chan, tup->rx_cookie, &state);
-+	dmaengine_terminate_all(tup->rx_dma_chan);
- 
- 	tegra_uart_rx_buffer_push(tup, state.residue);
- 	tup->rx_dma_active = false;
+diff --git a/drivers/base/class.c b/drivers/base/class.c
+index d8a6a5864c2e..61784503ca40 100644
+--- a/drivers/base/class.c
++++ b/drivers/base/class.c
+@@ -191,6 +191,11 @@ int __class_register(struct class *cls, struct lock_class_key *key)
+ 	}
+ 	error = class_add_groups(class_get(cls), cls->class_groups);
+ 	class_put(cls);
++	if (error) {
++		kobject_del(&cp->subsys.kobj);
++		kfree_const(cp->subsys.kobj.name);
++		kfree(cp);
++	}
+ 	return error;
+ }
+ EXPORT_SYMBOL_GPL(__class_register);
 -- 
 2.35.1
 
