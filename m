@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A61B66CAE9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D613066CAEB
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232348AbjAPRJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:09:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32890 "EHLO
+        id S232512AbjAPRJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232468AbjAPRIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:16 -0500
+        with ESMTP id S234275AbjAPRI2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27E32E0D6
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C32E2E0DC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65E7EB81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF181C433EF;
-        Mon, 16 Jan 2023 16:48:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 337D9B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B194C433D2;
+        Mon, 16 Jan 2023 16:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887718;
-        bh=ExXX4NPP+/iSRI8flXLqrYMF47wf8fkrtShGuX5ILjs=;
+        s=korg; t=1673887720;
+        bh=6jyFf/BSudBbpYuXhRKlhC+t2ALdnOY62FMXjHQ/yis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e7fHwdYW/zCodnk2JLT5detM8OMuHyZV0Fn4bTd8KF9k0gc43SMk4kARDlQOKL/6H
-         /VafahDZlZm/hH3r+pjOMB7LyjJI4dqgv7fXi8Al7ZCpA31/DykVZAQENPtVbJ460X
-         gFJvC9nt6gPVSFDMnkx9JrEEoTtNzVcmqiA60ezc=
+        b=I0LY/1Az2hrtXtjrAIBh9SUXOla/roAhvN+lVs8ZMPCiVeVDMJ1pOshyIYfFImTjH
+         x6WYWmMHtstkWuC6i7EYHyJM7uQ1BB553VfQF4L7tHnsTQNdTdSnwB/gUaLdMbnCu0
+         hQ5AOfgoBhI/N6qgrUPK2O012dUP7evLTFD8LEy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 255/521] fbdev: pm2fb: fix missing pci_disable_device()
-Date:   Mon, 16 Jan 2023 16:48:37 +0100
-Message-Id: <20230116154858.543632845@linuxfoundation.org>
+Subject: [PATCH 4.19 256/521] fbdev: via: Fix error in via_core_init()
+Date:   Mon, 16 Jan 2023 16:48:38 +0100
+Message-Id: <20230116154858.584696709@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -52,54 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit ed359a464846b48f76ea6cc5cd8257e545ac97f4 ]
+[ Upstream commit 5886b130de953cfb8826f7771ec8640a79934a7f ]
 
-Add missing pci_disable_device() in error path of probe() and remove() path.
+via_core_init() won't exit the driver when pci_register_driver() failed.
+Exit the viafb-i2c and the viafb-gpio in failed path to prevent error.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+VIA Graphics Integration Chipset framebuffer 2.4 initializing
+Error: Driver 'viafb-i2c' is already registered, aborting...
+Error: Driver 'viafb-gpio' is already registered, aborting...
+
+Fixes: 7582eb9be85f ("viafb: Turn GPIO and i2c into proper platform devices")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/pm2fb.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/via/via-core.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
-index 8ae010f07d7d..0ec4be2f2e8c 100644
---- a/drivers/video/fbdev/pm2fb.c
-+++ b/drivers/video/fbdev/pm2fb.c
-@@ -1529,8 +1529,10 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	}
- 
- 	info = framebuffer_alloc(sizeof(struct pm2fb_par), &pdev->dev);
--	if (!info)
--		return -ENOMEM;
-+	if (!info) {
-+		err = -ENOMEM;
-+		goto err_exit_disable;
+diff --git a/drivers/video/fbdev/via/via-core.c b/drivers/video/fbdev/via/via-core.c
+index b041eb27a9bf..3f74bc8af7b3 100644
+--- a/drivers/video/fbdev/via/via-core.c
++++ b/drivers/video/fbdev/via/via-core.c
+@@ -774,7 +774,14 @@ static int __init via_core_init(void)
+ 		return ret;
+ 	viafb_i2c_init();
+ 	viafb_gpio_init();
+-	return pci_register_driver(&via_driver);
++	ret = pci_register_driver(&via_driver);
++	if (ret) {
++		viafb_gpio_exit();
++		viafb_i2c_exit();
++		return ret;
 +	}
- 	default_par = info->par;
- 
- 	switch (pdev->device) {
-@@ -1711,6 +1713,8 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	release_mem_region(pm2fb_fix.mmio_start, pm2fb_fix.mmio_len);
-  err_exit_neither:
- 	framebuffer_release(info);
-+ err_exit_disable:
-+	pci_disable_device(pdev);
- 	return retval;
++
++	return 0;
  }
  
-@@ -1737,6 +1741,7 @@ static void pm2fb_remove(struct pci_dev *pdev)
- 	fb_dealloc_cmap(&info->cmap);
- 	kfree(info->pixmap.addr);
- 	framebuffer_release(info);
-+	pci_disable_device(pdev);
- }
- 
- static const struct pci_device_id pm2fb_id_table[] = {
+ static void __exit via_core_exit(void)
 -- 
 2.35.1
 
