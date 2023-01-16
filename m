@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94D3566C506
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C6866C5DF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:11:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231892AbjAPQAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41598 "EHLO
+        id S232711AbjAPQLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:11:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231882AbjAPQAk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:40 -0500
+        with ESMTP id S232566AbjAPQKd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:10:33 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07C472384A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD51298F8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C29F61041
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4723C433D2;
-        Mon, 16 Jan 2023 16:00:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADD936102F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB5F9C433F0;
+        Mon, 16 Jan 2023 16:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884838;
-        bh=sTaXPOaojZDW4YNXnTZJ16OOWJgW6/SPpMTNC1sc81k=;
+        s=korg; t=1673885218;
+        bh=vJsMHeeUtKC2u/GnnPPQpiqI9n/VJUWuh6dJlRjtdn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aK3NxrtwQmk6S0aNXU/Kso4pYwHGQjli8LB5uUwCJgKoBiaJrSjoetkyRGS2FJGpx
-         eRYu1pCOzMHbCKPQ3iTJ/BBAj8YffnObGlFkRMNXaILThjs2831u3TmhdiqQE5ZeEW
-         8Re4JxUAwDlTgtHTleuGMyEeQgYNPdoSSiuXpt+I=
+        b=D97KAueBtQpKk753sepWAH9z9eiyYnmXjmZDn/X+yNLXKnrr4cJPcGZBvaF/L49w9
+         /ljBgnfjMWwaVeOm2T2h74HYKpWWFK8hoPPINjx/D2mJLvv/cp0hEzQMwsTapMlc1m
+         +YFIfxTFxHP6VjfSRXjmC+arIIeVPZB/5rfk9NaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gavin Li <gavinl@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 158/183] net/mlx5e: Dont support encap rules with gbp option
-Date:   Mon, 16 Jan 2023 16:51:21 +0100
-Message-Id: <20230116154809.980985478@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 5.10 15/64] ixgbe: fix pci device refcount leak
+Date:   Mon, 16 Jan 2023 16:51:22 +0100
+Message-Id: <20230116154744.163326075@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Li <gavinl@nvidia.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d515d63cae2cd186acf40deaa8ef33067bb7f637 ]
+commit b93fb4405fcb5112c5739c5349afb52ec7f15c07 upstream.
 
-Previously, encap rules with gbp option would be offloaded by mistake but
-driver does not support gbp option offload.
+As the comment of pci_get_domain_bus_and_slot() says, it
+returns a PCI device with refcount incremented, when finish
+using it, the caller must decrement the reference count by
+calling pci_dev_put().
 
-To fix this issue, check if the encap rule has gbp option and don't
-offload the rule
+In ixgbe_get_first_secondary_devfn() and ixgbe_x550em_a_has_mii(),
+pci_dev_put() is called to avoid leak.
 
-Fixes: d8f9dfae49ce ("net: sched: allow flower to match vxlan options")
-Signed-off-by: Gavin Li <gavinl@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8fa10ef01260 ("ixgbe: register a mdiobus")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_vxlan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_vxlan.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_vxlan.c
-index fd07c4cbfd1d..1f62c702b625 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_vxlan.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_vxlan.c
-@@ -88,6 +88,8 @@ static int mlx5e_gen_ip_tunnel_header_vxlan(char buf[],
- 	struct udphdr *udp = (struct udphdr *)(buf);
- 	struct vxlanhdr *vxh;
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c
+@@ -851,9 +851,11 @@ static struct pci_dev *ixgbe_get_first_s
+ 	rp_pdev = pci_get_domain_bus_and_slot(0, 0, devfn);
+ 	if (rp_pdev && rp_pdev->subordinate) {
+ 		bus = rp_pdev->subordinate->number;
++		pci_dev_put(rp_pdev);
+ 		return pci_get_domain_bus_and_slot(0, bus, 0);
+ 	}
  
-+	if (tun_key->tun_flags & TUNNEL_VXLAN_OPT)
-+		return -EOPNOTSUPP;
- 	vxh = (struct vxlanhdr *)((char *)udp + sizeof(struct udphdr));
- 	*ip_proto = IPPROTO_UDP;
++	pci_dev_put(rp_pdev);
+ 	return NULL;
+ }
  
--- 
-2.35.1
-
+@@ -870,6 +872,7 @@ static bool ixgbe_x550em_a_has_mii(struc
+ 	struct ixgbe_adapter *adapter = hw->back;
+ 	struct pci_dev *pdev = adapter->pdev;
+ 	struct pci_dev *func0_pdev;
++	bool has_mii = false;
+ 
+ 	/* For the C3000 family of SoCs (x550em_a) the internal ixgbe devices
+ 	 * are always downstream of root ports @ 0000:00:16.0 & 0000:00:17.0
+@@ -880,15 +883,16 @@ static bool ixgbe_x550em_a_has_mii(struc
+ 	func0_pdev = ixgbe_get_first_secondary_devfn(PCI_DEVFN(0x16, 0));
+ 	if (func0_pdev) {
+ 		if (func0_pdev == pdev)
+-			return true;
+-		else
+-			return false;
++			has_mii = true;
++		goto out;
+ 	}
+ 	func0_pdev = ixgbe_get_first_secondary_devfn(PCI_DEVFN(0x17, 0));
+ 	if (func0_pdev == pdev)
+-		return true;
++		has_mii = true;
+ 
+-	return false;
++out:
++	pci_dev_put(func0_pdev);
++	return has_mii;
+ }
+ 
+ /**
 
 
