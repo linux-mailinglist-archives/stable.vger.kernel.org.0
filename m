@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1438466C792
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:32:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9119366CA05
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233272AbjAPQcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:32:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48490 "EHLO
+        id S234001AbjAPQ7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:59:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233098AbjAPQbf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:31:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 084362F7B5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:19:54 -0800 (PST)
+        with ESMTP id S234125AbjAPQ62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:58:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25559367E7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 988F161049
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:19:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFCAAC433EF;
-        Mon, 16 Jan 2023 16:19:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A24F61042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD6F2C433EF;
+        Mon, 16 Jan 2023 16:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885993;
-        bh=8s/vp6AkS7HuL7ZgLGkrRdpu6V2qVLyzeX98IjuUPag=;
+        s=korg; t=1673887277;
+        bh=kbu1vVHx9t7b1FIZZW/ZmvZBmnndYlTOUDbH3KYCrGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E71NGxwKPQrIR/y5W4Nz80fwCB2NuP9LHYP2XKaKU+5YH9pcPH2KMmk3MimLxkTNd
-         AoxBd+Hj+TWj7bHkoXbJLzsI1uNcloX+yFYSNZHeiQ2wNkQDTEW+DRMXiuhP6FlxfA
-         dt5OOfImWeBe7kI2Cd0GM5WaTLKH4wTT1d9CzXIc=
+        b=2ctqHSjxoiiwXAAlvz10Jdg1i+A/o2Ee0KheuXVMHwhhTzL9Acxbu3Rbu4xyDiytw
+         9NKxf05x/OCP0Li0MnUnS3X1yOqAGGQRZuSv74KyHyY0Dfx+YQirbzUCyWNPJug1ov
+         S7czbxg3xe1ORVhaFYh16DbHGH3HtRcQ8G1GmA5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        patches@lists.linux.dev, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Jimmy Assarsson <extja@kvaser.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 262/658] scsi: ipr: Fix WARNING in ipr_init()
+Subject: [PATCH 4.19 088/521] can: kvaser_usb: kvaser_usb_leaf: Handle CMD_ERROR_EVENT
 Date:   Mon, 16 Jan 2023 16:45:50 +0100
-Message-Id: <20230116154921.581286966@linuxfoundation.org>
+Message-Id: <20230116154851.164498124@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +54,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Jimmy Assarsson <extja@kvaser.com>
 
-[ Upstream commit e6f108bffc3708ddcff72324f7d40dfcd0204894 ]
+[ Upstream commit b24cb2d169e0c9dce664a959e1f2aa9781285dc9 ]
 
-ipr_init() will not call unregister_reboot_notifier() when
-pci_register_driver() fails, which causes a WARNING. Call
-unregister_reboot_notifier() when pci_register_driver() fails.
+The device will send an error event command, to indicate certain errors.
+This indicates a misbehaving driver, and should never occur.
 
-notifier callback ipr_halt [ipr] already registered
-WARNING: CPU: 3 PID: 299 at kernel/notifier.c:29
-notifier_chain_register+0x16d/0x230
-Modules linked in: ipr(+) xhci_pci_renesas xhci_hcd ehci_hcd usbcore
-led_class gpu_sched drm_buddy video wmi drm_ttm_helper ttm
-drm_display_helper drm_kms_helper drm drm_panel_orientation_quirks
-agpgart cfbft
-CPU: 3 PID: 299 Comm: modprobe Tainted: G        W
-6.1.0-rc1-00190-g39508d23b672-dirty #332
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-RIP: 0010:notifier_chain_register+0x16d/0x230
-Call Trace:
- <TASK>
- __blocking_notifier_chain_register+0x73/0xb0
- ipr_init+0x30/0x1000 [ipr]
- do_one_initcall+0xdb/0x480
- do_init_module+0x1cf/0x680
- load_module+0x6a50/0x70a0
- __do_sys_finit_module+0x12f/0x1c0
- do_syscall_64+0x3f/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: f72919ec2bbb ("[SCSI] ipr: implement shutdown changes and remove obsolete write cache parameter")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Link: https://lore.kernel.org/r/20221113064513.14028-1-shangxiaojing@huawei.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
+Tested-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Co-developed-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Link: https://lore.kernel.org/all/20221010185237.319219-5-extja@kvaser.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ipr.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 99 +++++++++++++++++++
+ 1 file changed, 99 insertions(+)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index a163fd9331b3..a42837340edf 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -10843,11 +10843,19 @@ static struct notifier_block ipr_notifier = {
-  **/
- static int __init ipr_init(void)
- {
-+	int rc;
-+
- 	ipr_info("IBM Power RAID SCSI Device Driver version: %s %s\n",
- 		 IPR_DRIVER_VERSION, IPR_DRIVER_DATE);
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+index 4f3d1150b2b2..3c3e78992b55 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
+@@ -69,6 +69,7 @@
+ #define CMD_GET_CARD_INFO_REPLY		35
+ #define CMD_GET_SOFTWARE_INFO		38
+ #define CMD_GET_SOFTWARE_INFO_REPLY	39
++#define CMD_ERROR_EVENT			45
+ #define CMD_FLUSH_QUEUE			48
+ #define CMD_TX_ACKNOWLEDGE		50
+ #define CMD_CAN_ERROR_EVENT		51
+@@ -257,6 +258,28 @@ struct usbcan_cmd_can_error_event {
+ 	__le16 time;
+ } __packed;
  
- 	register_reboot_notifier(&ipr_notifier);
--	return pci_register_driver(&ipr_driver);
-+	rc = pci_register_driver(&ipr_driver);
-+	if (rc) {
-+		unregister_reboot_notifier(&ipr_notifier);
-+		return rc;
-+	}
++/* CMD_ERROR_EVENT error codes */
++#define KVASER_USB_LEAF_ERROR_EVENT_TX_QUEUE_FULL 0x8
++#define KVASER_USB_LEAF_ERROR_EVENT_PARAM 0x9
 +
-+	return 0;
++struct leaf_cmd_error_event {
++	u8 tid;
++	u8 error_code;
++	__le16 timestamp[3];
++	__le16 padding;
++	__le16 info1;
++	__le16 info2;
++} __packed;
++
++struct usbcan_cmd_error_event {
++	u8 tid;
++	u8 error_code;
++	__le16 info1;
++	__le16 info2;
++	__le16 timestamp;
++	__le16 padding;
++} __packed;
++
+ struct kvaser_cmd_ctrl_mode {
+ 	u8 tid;
+ 	u8 channel;
+@@ -320,6 +343,7 @@ struct kvaser_cmd {
+ 			struct leaf_cmd_chip_state_event chip_state_event;
+ 			struct leaf_cmd_can_error_event can_error_event;
+ 			struct leaf_cmd_log_message log_message;
++			struct leaf_cmd_error_event error_event;
+ 			struct kvaser_cmd_cap_req cap_req;
+ 			struct kvaser_cmd_cap_res cap_res;
+ 		} __packed leaf;
+@@ -329,6 +353,7 @@ struct kvaser_cmd {
+ 			struct usbcan_cmd_rx_can rx_can;
+ 			struct usbcan_cmd_chip_state_event chip_state_event;
+ 			struct usbcan_cmd_can_error_event can_error_event;
++			struct usbcan_cmd_error_event error_event;
+ 		} __packed usbcan;
+ 
+ 		struct kvaser_cmd_tx_can tx_can;
+@@ -352,6 +377,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_leaf[] = {
+ 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.leaf.chip_state_event),
+ 	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.leaf.can_error_event),
+ 	[CMD_GET_CAPABILITIES_RESP]	= kvaser_fsize(u.leaf.cap_res),
++	[CMD_ERROR_EVENT]		= kvaser_fsize(u.leaf.error_event),
+ 	/* ignored events: */
+ 	[CMD_FLUSH_QUEUE_REPLY]		= CMD_SIZE_ANY,
+ };
+@@ -366,6 +392,7 @@ static const u8 kvaser_usb_leaf_cmd_sizes_usbcan[] = {
+ 	[CMD_RX_EXT_MESSAGE]		= kvaser_fsize(u.usbcan.rx_can),
+ 	[CMD_CHIP_STATE_EVENT]		= kvaser_fsize(u.usbcan.chip_state_event),
+ 	[CMD_CAN_ERROR_EVENT]		= kvaser_fsize(u.usbcan.can_error_event),
++	[CMD_ERROR_EVENT]		= kvaser_fsize(u.usbcan.error_event),
+ 	/* ignored events: */
+ 	[CMD_USBCAN_CLOCK_OVERFLOW_EVENT] = CMD_SIZE_ANY,
+ };
+@@ -1308,6 +1335,74 @@ static void kvaser_usb_leaf_rx_can_msg(const struct kvaser_usb *dev,
+ 	netif_rx(skb);
  }
  
- /**
++static void kvaser_usb_leaf_error_event_parameter(const struct kvaser_usb *dev,
++						  const struct kvaser_cmd *cmd)
++{
++	u16 info1 = 0;
++
++	switch (dev->driver_info->family) {
++	case KVASER_LEAF:
++		info1 = le16_to_cpu(cmd->u.leaf.error_event.info1);
++		break;
++	case KVASER_USBCAN:
++		info1 = le16_to_cpu(cmd->u.usbcan.error_event.info1);
++		break;
++	}
++
++	/* info1 will contain the offending cmd_no */
++	switch (info1) {
++	case CMD_SET_CTRL_MODE:
++		dev_warn(&dev->intf->dev,
++			 "CMD_SET_CTRL_MODE error in parameter\n");
++		break;
++
++	case CMD_SET_BUS_PARAMS:
++		dev_warn(&dev->intf->dev,
++			 "CMD_SET_BUS_PARAMS error in parameter\n");
++		break;
++
++	default:
++		dev_warn(&dev->intf->dev,
++			 "Unhandled parameter error event cmd_no (%u)\n",
++			 info1);
++		break;
++	}
++}
++
++static void kvaser_usb_leaf_error_event(const struct kvaser_usb *dev,
++					const struct kvaser_cmd *cmd)
++{
++	u8 error_code = 0;
++
++	switch (dev->driver_info->family) {
++	case KVASER_LEAF:
++		error_code = cmd->u.leaf.error_event.error_code;
++		break;
++	case KVASER_USBCAN:
++		error_code = cmd->u.usbcan.error_event.error_code;
++		break;
++	}
++
++	switch (error_code) {
++	case KVASER_USB_LEAF_ERROR_EVENT_TX_QUEUE_FULL:
++		/* Received additional CAN message, when firmware TX queue is
++		 * already full. Something is wrong with the driver.
++		 * This should never happen!
++		 */
++		dev_err(&dev->intf->dev,
++			"Received error event TX_QUEUE_FULL\n");
++		break;
++	case KVASER_USB_LEAF_ERROR_EVENT_PARAM:
++		kvaser_usb_leaf_error_event_parameter(dev, cmd);
++		break;
++
++	default:
++		dev_warn(&dev->intf->dev,
++			 "Unhandled error event (%d)\n", error_code);
++		break;
++	}
++}
++
+ static void kvaser_usb_leaf_start_chip_reply(const struct kvaser_usb *dev,
+ 					     const struct kvaser_cmd *cmd)
+ {
+@@ -1386,6 +1481,10 @@ static void kvaser_usb_leaf_handle_command(const struct kvaser_usb *dev,
+ 		kvaser_usb_leaf_tx_acknowledge(dev, cmd);
+ 		break;
+ 
++	case CMD_ERROR_EVENT:
++		kvaser_usb_leaf_error_event(dev, cmd);
++		break;
++
+ 	/* Ignored commands */
+ 	case CMD_USBCAN_CLOCK_OVERFLOW_EVENT:
+ 		if (dev->driver_info->family != KVASER_USBCAN)
 -- 
 2.35.1
 
