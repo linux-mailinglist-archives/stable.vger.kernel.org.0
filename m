@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A32EE66C4AF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D635866C8D5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:43:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231727AbjAPP5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39072 "EHLO
+        id S233544AbjAPQnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:43:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231751AbjAPP5T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C3B234DB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:01 -0800 (PST)
+        with ESMTP id S233663AbjAPQmf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:42:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 479453E623
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:30:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F88961031
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 839F2C433F1;
-        Mon, 16 Jan 2023 15:57:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE5496104D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:30:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8925C433A7;
+        Mon, 16 Jan 2023 16:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884620;
-        bh=REm43g9/hhxTTixIY3YK/AGtqEdZNUCXFeFsyxNv7iQ=;
+        s=korg; t=1673886646;
+        bh=wOKuDHVECY4NMc8h8q0uuxZf5TFXR29eTmuJOlt4U3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cif2kwv5uI0Y21NSG424WqNofHaUmMpB1pu1weALE82klhMAWwTjNBpzdoWKr3j60
-         bVUnspIG16KgM21XCO3zqkyndjwrBPhLfsUbCg4mY6iX9WXk+5xBzRFbx6fZIqYmqs
-         3OFgM/VYH86CzAuT+5Hi71+BKvyRJjrzzG0DPreQ=
+        b=X4t/kxvthbUCIn8hAu67r0FYvqDIfjYgIpSA87wZAW0bc7N0BOt+K2UoEegbnz2q0
+         KHK+MqMopDi0RYR/3kwMtXm/jL7baLT8RinrIl4Pp0W8h/Raqh7fu3GbdR6Teebsc/
+         CxK4+Ya/VoTZzECzZgwLzwTqwIjWh4RQZMEFSmpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 6.1 045/183] ACPI: video: Allow selecting NVidia-WMI-EC or Apple GMUX backlight from the cmdline
-Date:   Mon, 16 Jan 2023 16:49:28 +0100
-Message-Id: <20230116154805.278150158@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "John Warthog9 Hawley (VMware)" <warthog9@eaglescrag.net>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 5.4 481/658] kest.pl: Fix grub2 menu handling for rebooting
+Date:   Mon, 16 Jan 2023 16:49:29 +0100
+Message-Id: <20230116154931.501078237@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,43 +53,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Steven Rostedt <rostedt@goodmis.org>
 
-commit 420a1116aef0e8e12c305508f45ce73e5ae30a09 upstream.
+commit 26df05a8c1420ad3de314fdd407e7fc2058cc7aa upstream.
 
-The patches adding NVidia-WMI-EC and Apple GMUX backlight detection
-support to acpi_video_get_backlight_type(), forgot to update
-acpi_video_parse_cmdline() to allow manually selecting these from
-the commandline.
+grub2 has submenus where to use grub-reboot, it requires:
 
-Add support for these to acpi_video_parse_cmdline().
+  grub-reboot X>Y
 
-Fixes: fe7aebb40d42 ("ACPI: video: Add Nvidia WMI EC brightness control detection (v3)")
-Fixes: 21245df307cb ("ACPI: video: Add Apple GMUX brightness control detection")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+where X is the main index and Y is the submenu. Thus if you have:
+
+menuentry 'Debian GNU/Linux' --class debian --class gnu-linux ...
+	[...]
+}
+submenu 'Advanced options for Debian GNU/Linux' $menuentry_id_option ...
+        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64' --class debian --class gnu-linux ...
+                [...]
+        }
+        menuentry 'Debian GNU/Linux, with Linux 6.0.0-4-amd64 (recovery mode)' --class debian --class gnu-linux ...
+		[...]
+        }
+        menuentry 'Debian GNU/Linux, with Linux test' --class debian --class gnu-linux ...
+                [...]
+        }
+
+And wanted to boot to the "Linux test" kernel, you need to run:
+
+ # grub-reboot 1>2
+
+As 1 is the second top menu (the submenu) and 2 is the third of the sub
+menu entries.
+
+Have the grub.cfg parsing for grub2 handle such cases.
+
+Cc: stable@vger.kernel.org
+Fixes: a15ba91361d46 ("ktest: Add support for grub2")
+Reviewed-by: John 'Warthog9' Hawley (VMware) <warthog9@eaglescrag.net>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/video_detect.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/testing/ktest/ktest.pl |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-index 1b78c7434492..8a541efc5675 100644
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -50,6 +50,10 @@ static void acpi_video_parse_cmdline(void)
- 		acpi_backlight_cmdline = acpi_backlight_video;
- 	if (!strcmp("native", acpi_video_backlight_string))
- 		acpi_backlight_cmdline = acpi_backlight_native;
-+	if (!strcmp("nvidia_wmi_ec", acpi_video_backlight_string))
-+		acpi_backlight_cmdline = acpi_backlight_nvidia_wmi_ec;
-+	if (!strcmp("apple_gmux", acpi_video_backlight_string))
-+		acpi_backlight_cmdline = acpi_backlight_apple_gmux;
- 	if (!strcmp("none", acpi_video_backlight_string))
- 		acpi_backlight_cmdline = acpi_backlight_none;
+--- a/tools/testing/ktest/ktest.pl
++++ b/tools/testing/ktest/ktest.pl
+@@ -1881,7 +1881,7 @@ sub run_scp_mod {
+ 
+ sub _get_grub_index {
+ 
+-    my ($command, $target, $skip) = @_;
++    my ($command, $target, $skip, $submenu) = @_;
+ 
+     return if (defined($grub_number) && defined($last_grub_menu) &&
+ 	       $last_grub_menu eq $grub_menu && defined($last_machine) &&
+@@ -1898,11 +1898,16 @@ sub _get_grub_index {
+ 
+     my $found = 0;
+ 
++    my $submenu_number = 0;
++
+     while (<IN>) {
+ 	if (/$target/) {
+ 	    $grub_number++;
+ 	    $found = 1;
+ 	    last;
++	} elsif (defined($submenu) && /$submenu/) {
++		$submenu_number++;
++		$grub_number = -1;
+ 	} elsif (/$skip/) {
+ 	    $grub_number++;
+ 	}
+@@ -1911,6 +1916,9 @@ sub _get_grub_index {
+ 
+     dodie "Could not find '$grub_menu' through $command on $machine"
+ 	if (!$found);
++    if ($submenu_number > 0) {
++	$grub_number = "$submenu_number>$grub_number";
++    }
+     doprint "$grub_number\n";
+     $last_grub_menu = $grub_menu;
+     $last_machine = $machine;
+@@ -1921,6 +1929,7 @@ sub get_grub_index {
+     my $command;
+     my $target;
+     my $skip;
++    my $submenu;
+     my $grub_menu_qt;
+ 
+     if ($reboot_type !~ /^grub/) {
+@@ -1935,8 +1944,9 @@ sub get_grub_index {
+ 	$skip = '^\s*title\s';
+     } elsif ($reboot_type eq "grub2") {
+ 	$command = "cat $grub_file";
+-	$target = '^menuentry.*' . $grub_menu_qt;
+-	$skip = '^menuentry\s|^submenu\s';
++	$target = '^\s*menuentry.*' . $grub_menu_qt;
++	$skip = '^\s*menuentry';
++	$submenu = '^\s*submenu\s';
+     } elsif ($reboot_type eq "grub2bls") {
+         $command = $grub_bls_get;
+         $target = '^title=.*' . $grub_menu_qt;
+@@ -1945,7 +1955,7 @@ sub get_grub_index {
+ 	return;
+     }
+ 
+-    _get_grub_index($command, $target, $skip);
++    _get_grub_index($command, $target, $skip, $submenu);
  }
--- 
-2.39.0
-
+ 
+ sub wait_for_input
+@@ -2009,7 +2019,7 @@ sub reboot_to {
+     if ($reboot_type eq "grub") {
+ 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
+     } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
+-	run_ssh "$grub_reboot $grub_number";
++	run_ssh "$grub_reboot \"'$grub_number'\"";
+     } elsif ($reboot_type eq "syslinux") {
+ 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
+     } elsif (defined $reboot_script) {
 
 
