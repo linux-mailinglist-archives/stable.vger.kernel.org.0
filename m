@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAA466CB8F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81F5966CB75
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234432AbjAPRPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36456 "EHLO
+        id S234424AbjAPRPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234460AbjAPROS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:18 -0500
+        with ESMTP id S234470AbjAPROW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A9D02B099
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 158D44C0C3
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1AF02B81091
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76380C433D2;
-        Mon, 16 Jan 2023 16:54:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B28E1B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13FDEC433D2;
+        Mon, 16 Jan 2023 16:54:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888076;
-        bh=JFv5UQjC1zr43VIevODFp4eM6dUcpoUpWz86JDUU4TM=;
+        s=korg; t=1673888079;
+        bh=gLHa8wPVNasYI+GMR7fWgGDvdoezUkTB1n1PKg3VzD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2fgZWipdJ3uCHfzxeFS4BHqORXntAnu/LZunV4a58GGzu5QaQEBZtFmq3yEWuKVf
-         2Dr3RYa7GksfW6TIhIwgd25ITQEoCXU9Md6UbjoReNzCy/pMS2mZAWnEfs+AL1YhoC
-         IcDQR1BcJbMC723G5SuVtTfqURIyFutHlJoYd5RM=
+        b=vR0MCTtBwTLsUyD3y/kfKsPyLHnAjIlfEz6L/Yf+x3mxP2KpZI4gm/3KHLhx0vwQA
+         /akT6EtskKedwnnK29rPOrFMRcXHwe2f1YLxPtDmKgiiDIcUu3s6yI+6K3IC/HiKkJ
+         b8o4H5FVclGXPSjD2j2PPdNG2vhl0A9GTwNJraUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adam Vodopjan <grozzly@protonmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 362/521] ata: ahci: Fix PCS quirk application for suspend
-Date:   Mon, 16 Jan 2023 16:50:24 +0100
-Message-Id: <20230116154903.275696109@linuxfoundation.org>
+Subject: [PATCH 4.19 363/521] powerpc/rtas: avoid device tree lookups in rtas_os_term()
+Date:   Mon, 16 Jan 2023 16:50:25 +0100
+Message-Id: <20230116154903.322554321@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,146 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Vodopjan <grozzly@protonmail.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit 37e14e4f3715428b809e4df9a9958baa64c77d51 ]
+[ Upstream commit ed2213bfb192ab51f09f12e9b49b5d482c6493f3 ]
 
-Since kernel 5.3.4 my laptop (ICH8M controller) does not see Kingston
-SV300S37A60G SSD disk connected into a SATA connector on wake from
-suspend.  The problem was introduced in c312ef176399 ("libata/ahci: Drop
-PCS quirk for Denverton and beyond"): the quirk is not applied on wake
-from suspend as it originally was.
+rtas_os_term() is called during panic. Its behavior depends on a couple
+of conditions in the /rtas node of the device tree, the traversal of
+which entails locking and local IRQ state changes. If the kernel panics
+while devtree_lock is held, rtas_os_term() as currently written could
+hang.
 
-It is worth to mention the commit contained another bug: the quirk is
-not applied at all to controllers which require it. The fix commit
-09d6ac8dc51a ("libata/ahci: Fix PCS quirk application") landed in 5.3.8.
-So testing my patch anywhere between commits c312ef176399 and
-09d6ac8dc51a is pointless.
+Instead of discovering the relevant characteristics at panic time,
+cache them in file-static variables at boot. Note the lookup for
+"ibm,extended-os-term" is converted to of_property_read_bool() since it
+is a boolean property, not an RTAS function token.
 
-Not all disks trigger the problem. For example nothing bad happens with
-Western Digital WD5000LPCX HDD.
-
-Test hardware:
-- Acer 5920G with ICH8M SATA controller
-- sda: some SATA HDD connnected into the DVD drive IDE port with a
-  SATA-IDE caddy. It is a boot disk
-- sdb: Kingston SV300S37A60G SSD connected into the only SATA port
-
-Sample "dmesg --notime | grep -E '^(sd |ata)'" output on wake:
-
-sd 0:0:0:0: [sda] Starting disk
-sd 2:0:0:0: [sdb] Starting disk
-ata4: SATA link down (SStatus 4 SControl 300)
-ata3: SATA link down (SStatus 4 SControl 300)
-ata1.00: ACPI cmd ef/03:0c:00:00:00:a0 (SET FEATURES) filtered out
-ata1.00: ACPI cmd ef/03:42:00:00:00:a0 (SET FEATURES) filtered out
-ata1: FORCE: cable set to 80c
-ata5: SATA link down (SStatus 0 SControl 300)
-ata3: SATA link down (SStatus 4 SControl 300)
-ata3: SATA link down (SStatus 4 SControl 300)
-ata3.00: disabled
-sd 2:0:0:0: rejecting I/O to offline device
-ata3.00: detaching (SCSI 2:0:0:0)
-sd 2:0:0:0: [sdb] Start/Stop Unit failed: Result: hostbyte=DID_NO_CONNECT
-	driverbyte=DRIVER_OK
-sd 2:0:0:0: [sdb] Synchronizing SCSI cache
-sd 2:0:0:0: [sdb] Synchronize Cache(10) failed: Result:
-	hostbyte=DID_BAD_TARGET driverbyte=DRIVER_OK
-sd 2:0:0:0: [sdb] Stopping disk
-sd 2:0:0:0: [sdb] Start/Stop Unit failed: Result: hostbyte=DID_BAD_TARGET
-	driverbyte=DRIVER_OK
-
-Commit c312ef176399 dropped ahci_pci_reset_controller() which internally
-calls ahci_reset_controller() and applies the PCS quirk if needed after
-that. It was called each time a reset was required instead of just
-ahci_reset_controller(). This patch puts the function back in place.
-
-Fixes: c312ef176399 ("libata/ahci: Drop PCS quirk for Denverton and beyond")
-Signed-off-by: Adam Vodopjan <grozzly@protonmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+[mpe: Incorporate suggested change from Nick]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20221118150751.469393-4-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/ahci.c | 32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+ arch/powerpc/kernel/rtas.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 505920d4530f..13fb983b3413 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -97,6 +97,7 @@ enum board_ids {
- static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent);
- static void ahci_remove_one(struct pci_dev *dev);
- static void ahci_shutdown_one(struct pci_dev *dev);
-+static void ahci_intel_pcs_quirk(struct pci_dev *pdev, struct ahci_host_priv *hpriv);
- static int ahci_vt8251_hardreset(struct ata_link *link, unsigned int *class,
- 				 unsigned long deadline);
- static int ahci_avn_hardreset(struct ata_link *link, unsigned int *class,
-@@ -655,6 +656,25 @@ static void ahci_pci_save_initial_config(struct pci_dev *pdev,
- 	ahci_save_initial_config(&pdev->dev, hpriv);
- }
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index b492cb1c36fd..4c9ed28465b3 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -717,6 +717,7 @@ void __noreturn rtas_halt(void)
  
-+static int ahci_pci_reset_controller(struct ata_host *host)
-+{
-+	struct pci_dev *pdev = to_pci_dev(host->dev);
-+	struct ahci_host_priv *hpriv = host->private_data;
-+	int rc;
-+
-+	rc = ahci_reset_controller(host);
-+	if (rc)
-+		return rc;
-+
-+	/*
-+	 * If platform firmware failed to enable ports, try to enable
-+	 * them here.
-+	 */
-+	ahci_intel_pcs_quirk(pdev, hpriv);
-+
-+	return 0;
-+}
-+
- static void ahci_pci_init_controller(struct ata_host *host)
+ /* Must be in the RMO region, so we place it here */
+ static char rtas_os_term_buf[2048];
++static s32 ibm_os_term_token = RTAS_UNKNOWN_SERVICE;
+ 
+ void rtas_os_term(char *str)
  {
- 	struct ahci_host_priv *hpriv = host->private_data;
-@@ -857,7 +877,7 @@ static int ahci_pci_device_runtime_resume(struct device *dev)
- 	struct ata_host *host = pci_get_drvdata(pdev);
- 	int rc;
+@@ -728,14 +729,13 @@ void rtas_os_term(char *str)
+ 	 * this property may terminate the partition which we want to avoid
+ 	 * since it interferes with panic_timeout.
+ 	 */
+-	if (RTAS_UNKNOWN_SERVICE == rtas_token("ibm,os-term") ||
+-	    RTAS_UNKNOWN_SERVICE == rtas_token("ibm,extended-os-term"))
++	if (ibm_os_term_token == RTAS_UNKNOWN_SERVICE)
+ 		return;
  
--	rc = ahci_reset_controller(host);
-+	rc = ahci_pci_reset_controller(host);
- 	if (rc)
- 		return rc;
- 	ahci_pci_init_controller(host);
-@@ -892,7 +912,7 @@ static int ahci_pci_device_resume(struct device *dev)
- 		ahci_mcp89_apple_enable(pdev);
+ 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
  
- 	if (pdev->dev.power.power_state.event == PM_EVENT_SUSPEND) {
--		rc = ahci_reset_controller(host);
-+		rc = ahci_pci_reset_controller(host);
- 		if (rc)
- 			return rc;
+ 	do {
+-		status = rtas_call(rtas_token("ibm,os-term"), 1, 1, NULL,
++		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
+ 				   __pa(rtas_os_term_buf));
+ 	} while (rtas_busy_delay(status));
  
-@@ -1769,12 +1789,6 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	/* save initial config */
- 	ahci_pci_save_initial_config(pdev, hpriv);
+@@ -1332,6 +1332,13 @@ void __init rtas_initialize(void)
+ 	no_entry = of_property_read_u32(rtas.dev, "linux,rtas-entry", &entry);
+ 	rtas.entry = no_entry ? rtas.base : entry;
  
--	/*
--	 * If platform firmware failed to enable ports, try to enable
--	 * them here.
--	 */
--	ahci_intel_pcs_quirk(pdev, hpriv);
--
- 	/* prepare host */
- 	if (hpriv->cap & HOST_CAP_NCQ) {
- 		pi.flags |= ATA_FLAG_NCQ;
-@@ -1884,7 +1898,7 @@ static int ahci_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (rc)
- 		return rc;
- 
--	rc = ahci_reset_controller(host);
-+	rc = ahci_pci_reset_controller(host);
- 	if (rc)
- 		return rc;
- 
++	/*
++	 * Discover these now to avoid device tree lookups in the
++	 * panic path.
++	 */
++	if (of_property_read_bool(rtas.dev, "ibm,extended-os-term"))
++		ibm_os_term_token = rtas_token("ibm,os-term");
++
+ 	/* If RTAS was found, allocate the RMO buffer for it and look for
+ 	 * the stop-self token if any
+ 	 */
 -- 
 2.35.1
 
