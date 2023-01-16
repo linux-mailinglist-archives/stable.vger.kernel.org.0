@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8B366C91D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B17FD66C554
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233526AbjAPQqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:46:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38634 "EHLO
+        id S232252AbjAPQE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:04:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233814AbjAPQps (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E9741A941
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:40 -0800 (PST)
+        with ESMTP id S231967AbjAPQEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5D9024104
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD26BB8107E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35EF1C433EF;
-        Mon, 16 Jan 2023 16:33:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75F0661041
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 845D1C433EF;
+        Mon, 16 Jan 2023 16:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886817;
-        bh=qugvvYTITLF5sG704mudwVQt72T2WE0ZkQGQZvDZ1jM=;
+        s=korg; t=1673884976;
+        bh=6fLssQ/s1VSbaN6gXqdv5ZoIhxuJQvygjg1PTi+2Rvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tW+9PO6tlilRnkeE9proP4xCinRZCnf8RphRni3EyLte3AGE11USNfh0oYEl/sr3D
-         oVgspd9vgunso2gL9oFiaQOOYM9N+8cqLlWv74DElvqOXNdgWrUPU7OBMJg6eM+Ddv
-         Y6pIYVMKYiW0elb9wZ6zK2E8vD/iK1RGwx3Y06Yc=
+        b=CwHHP/CoVGB+MGqKuE0LaWr06c2ls0WKVySe9zZNedJ8QdVEsS5JENmjNCGqBmTE6
+         ib4Z9dz5C+DpZVJKl/1Kwc7hUFBiVcnHqHJ8nVkMlEtEGlTLvW02rHkCLdwp6RZ+Ml
+         HVyp+rVtXWkLLkmHMvTlxHVw2Vyofm3ewdvn3YeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 573/658] qlcnic: prevent ->dcb use-after-free on qlcnic_dcb_enable() failure
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 5.15 27/86] dt-bindings: msm: dsi-phy-28nm: Add missing qcom, dsi-phy-regulator-ldo-mode
 Date:   Mon, 16 Jan 2023 16:51:01 +0100
-Message-Id: <20230116154935.719693233@linuxfoundation.org>
+Message-Id: <20230116154748.230276294@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,103 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit 13a7c8964afcd8ca43c0b6001ebb0127baa95362 ]
+commit be79f805a1e1b95605c825f1c513bdd2c8b167ed upstream.
 
-adapter->dcb would get silently freed inside qlcnic_dcb_enable() in
-case qlcnic_dcb_attach() would return an error, which always happens
-under OOM conditions. This would lead to use-after-free because both
-of the existing callers invoke qlcnic_dcb_get_info() on the obtained
-pointer, which is potentially freed at that point.
+Add in missing qcom,dsi-phy-regulator-ldo-mode to the 28nm DSI PHY.
+When converting from .txt to .yaml we missed this one.
 
-Propagate errors from qlcnic_dcb_enable(), and instead free the dcb
-pointer at callsite using qlcnic_dcb_free(). This also removes the now
-unused qlcnic_clear_dcb_ops() helper, which was a simple wrapper around
-kfree() also causing memory leaks for partially initialized dcb.
-
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
-
-Fixes: 3c44bba1d270 ("qlcnic: Disable DCB operations from SR-IOV VFs")
-Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4dbe55c97741 ("dt-bindings: msm: dsi: add yaml schemas for DSI bindings")
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/516205/
+Link: https://lore.kernel.org/r/20221229124438.504770-2-bryan.odonoghue@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c |  8 +++++++-
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h       | 10 ++--------
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c      |  8 +++++++-
- 3 files changed, 16 insertions(+), 10 deletions(-)
+ .../devicetree/bindings/display/msm/dsi-phy-28nm.yaml         | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-index 10286215092f..85419b8258b5 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c
-@@ -2525,7 +2525,13 @@ int qlcnic_83xx_init(struct qlcnic_adapter *adapter, int pci_using_dac)
- 		goto disable_mbx_intr;
+diff --git a/Documentation/devicetree/bindings/display/msm/dsi-phy-28nm.yaml b/Documentation/devicetree/bindings/display/msm/dsi-phy-28nm.yaml
+index 3d8540a06fe2..2f1fd140c87d 100644
+--- a/Documentation/devicetree/bindings/display/msm/dsi-phy-28nm.yaml
++++ b/Documentation/devicetree/bindings/display/msm/dsi-phy-28nm.yaml
+@@ -34,6 +34,10 @@ properties:
+   vddio-supply:
+     description: Phandle to vdd-io regulator device node.
  
- 	qlcnic_83xx_clear_function_resources(adapter);
--	qlcnic_dcb_enable(adapter->dcb);
++  qcom,dsi-phy-regulator-ldo-mode:
++    type: boolean
++    description: Indicates if the LDO mode PHY regulator is wanted.
 +
-+	err = qlcnic_dcb_enable(adapter->dcb);
-+	if (err) {
-+		qlcnic_dcb_free(adapter->dcb);
-+		goto disable_mbx_intr;
-+	}
-+
- 	qlcnic_83xx_initialize_nic(adapter, 1);
- 	qlcnic_dcb_get_info(adapter->dcb);
- 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-index 0a9d24e86715..eb8000d9b6d0 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-@@ -42,11 +42,6 @@ struct qlcnic_dcb {
- 	unsigned long			state;
- };
- 
--static inline void qlcnic_clear_dcb_ops(struct qlcnic_dcb *dcb)
--{
--	kfree(dcb);
--}
--
- static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
- {
- 	if (dcb && dcb->ops->get_hw_capability)
-@@ -113,9 +108,8 @@ static inline void qlcnic_dcb_init_dcbnl_ops(struct qlcnic_dcb *dcb)
- 		dcb->ops->init_dcbnl_ops(dcb);
- }
- 
--static inline void qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
-+static inline int qlcnic_dcb_enable(struct qlcnic_dcb *dcb)
- {
--	if (dcb && qlcnic_dcb_attach(dcb))
--		qlcnic_clear_dcb_ops(dcb);
-+	return dcb ? qlcnic_dcb_attach(dcb) : 0;
- }
- #endif
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-index 3a96fd6deef7..9d5b74c804b5 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-@@ -2639,7 +2639,13 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			 "Device does not support MSI interrupts\n");
- 
- 	if (qlcnic_82xx_check(adapter)) {
--		qlcnic_dcb_enable(adapter->dcb);
-+		err = qlcnic_dcb_enable(adapter->dcb);
-+		if (err) {
-+			qlcnic_dcb_free(adapter->dcb);
-+			dev_err(&pdev->dev, "Failed to enable DCB\n");
-+			goto err_out_free_hw;
-+		}
-+
- 		qlcnic_dcb_get_info(adapter->dcb);
- 		err = qlcnic_setup_intr(adapter);
- 
+ required:
+   - compatible
+   - reg
 -- 
-2.35.1
+2.39.0
 
 
 
