@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F58966C6FE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2288366C700
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233190AbjAPQ1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:27:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41932 "EHLO
+        id S232956AbjAPQ1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:27:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233076AbjAPQ0z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:26:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1F8A27D5E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:14:59 -0800 (PST)
+        with ESMTP id S232950AbjAPQ04 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:26:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A35BC241E4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DC7661047
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:14:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FF81C433D2;
-        Mon, 16 Jan 2023 16:14:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D465B80E93
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF79DC433F0;
+        Mon, 16 Jan 2023 16:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885698;
-        bh=RScG6qbIiAaJyKMRis498fY8i0Uj2iXn0n9nNBzupp0=;
+        s=korg; t=1673885704;
+        bh=7hj+My+ZmdmllQE/aQurLvg1UTWjEsw60JBnmJ4fdzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7ObJ8awjUmux0TQ3lT9M4WvZCeNRtkdnZ2Yw2+jqdb19x2BKQUGtOPAFA/tuNjFY
-         rzgikrG10R2q+yr5e0LuctF2+uutWpIpVxVDJCeqQy0me5LBmRafEnY6zaUrWcRgam
-         oH+pfvfDSxOnRXQtIXX/3ZBsCS7RGY/6PeqyCfFc=
+        b=wuXnOHQB+50BpdI82tXTjULac7bOg8KJ1wTteUBNESB07RJRRHo0s6sHdhCjDT70F
+         A8kL0AVhNuReDB2ZS5+hf/LWS0UE48Oe+8iwEkOQzucyFYIOL73vCx5hbTWlkGu0aq
+         dDD2lnM3Tcz53wJnG8xA7pFZxuSuPoH+SFmOJ0mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com,
-        Gautam Menghani <gautammenghani201@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        patches@lists.linux.dev, Li Jun <jun.li@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 150/658] media: imon: fix a race condition in send_packet()
-Date:   Mon, 16 Jan 2023 16:43:58 +0100
-Message-Id: <20230116154916.318442102@linuxfoundation.org>
+Subject: [PATCH 5.4 151/658] clk: imx8mn: correct the usb1_ctrl parent to be usb_bus
+Date:   Mon, 16 Jan 2023 16:43:59 +0100
+Message-Id: <20230116154916.355339437@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -56,77 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gautam Menghani <gautammenghani201@gmail.com>
+From: Li Jun <jun.li@nxp.com>
 
-[ Upstream commit 813ceef062b53d68f296aa3cb944b21a091fabdb ]
+[ Upstream commit 134d43bb1ff09a696996f16ed8b28d404b770c8a ]
 
-The function send_packet() has a race condition as follows:
+Per latest imx8mn datasheet of CCM, the parent of usb1_ctrl_root_clk
+should be usb_bus.
 
-func send_packet()
-{
-    // do work
-    call usb_submit_urb()
-    mutex_unlock()
-    wait_for_event_interruptible()  <-- lock gone
-    mutex_lock()
-}
-
-func vfd_write()
-{
-    mutex_lock()
-    call send_packet()  <- prev call is not completed
-    mutex_unlock()
-}
-
-When the mutex is unlocked and the function send_packet() waits for the
-call to complete, vfd_write() can start another call, which leads to the
-"URB submitted while active" warning in usb_submit_urb().
-Fix this by removing the mutex_unlock() call in send_packet() and using
-mutex_lock_interruptible().
-
-Link: https://syzkaller.appspot.com/bug?id=e378e6a51fbe6c5cc43e34f131cc9a315ef0337e
-
-Fixes: 21677cfc562a ("V4L/DVB: ir-core: add imon driver")
-Reported-by: syzbot+0c3cb6dc05fbbdc3ad66@syzkaller.appspotmail.com
-Signed-off-by: Gautam Menghani <gautammenghani201@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/imon.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/imx/clk-imx8mn.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/rc/imon.c b/drivers/media/rc/imon.c
-index c683a244b9fa..d8401ef9b0a7 100644
---- a/drivers/media/rc/imon.c
-+++ b/drivers/media/rc/imon.c
-@@ -604,15 +604,14 @@ static int send_packet(struct imon_context *ictx)
- 		pr_err_ratelimited("error submitting urb(%d)\n", retval);
- 	} else {
- 		/* Wait for transmission to complete (or abort) */
--		mutex_unlock(&ictx->lock);
- 		retval = wait_for_completion_interruptible(
- 				&ictx->tx.finished);
- 		if (retval) {
- 			usb_kill_urb(ictx->tx_urb);
- 			pr_err_ratelimited("task interrupted\n");
- 		}
--		mutex_lock(&ictx->lock);
- 
-+		ictx->tx.busy = false;
- 		retval = ictx->tx.status;
- 		if (retval)
- 			pr_err_ratelimited("packet tx failed (%d)\n", retval);
-@@ -919,7 +918,8 @@ static ssize_t vfd_write(struct file *file, const char __user *buf,
- 		return -ENODEV;
- 	}
- 
--	mutex_lock(&ictx->lock);
-+	if (mutex_lock_interruptible(&ictx->lock))
-+		return -ERESTARTSYS;
- 
- 	if (!ictx->dev_present_intf0) {
- 		pr_err_ratelimited("no iMON device present\n");
+diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
+index 882b42efd258..d520a8c5eabb 100644
+--- a/drivers/clk/imx/clk-imx8mn.c
++++ b/drivers/clk/imx/clk-imx8mn.c
+@@ -582,7 +582,7 @@ static int imx8mn_clocks_probe(struct platform_device *pdev)
+ 	clks[IMX8MN_CLK_UART2_ROOT] = imx_clk_gate4("uart2_root_clk", "uart2", base + 0x44a0, 0);
+ 	clks[IMX8MN_CLK_UART3_ROOT] = imx_clk_gate4("uart3_root_clk", "uart3", base + 0x44b0, 0);
+ 	clks[IMX8MN_CLK_UART4_ROOT] = imx_clk_gate4("uart4_root_clk", "uart4", base + 0x44c0, 0);
+-	clks[IMX8MN_CLK_USB1_CTRL_ROOT] = imx_clk_gate4("usb1_ctrl_root_clk", "usb_core_ref", base + 0x44d0, 0);
++	clks[IMX8MN_CLK_USB1_CTRL_ROOT] = imx_clk_gate4("usb1_ctrl_root_clk", "usb_bus", base + 0x44d0, 0);
+ 	clks[IMX8MN_CLK_GPU_CORE_ROOT] = imx_clk_gate4("gpu_core_root_clk", "gpu_core_div", base + 0x44f0, 0);
+ 	clks[IMX8MN_CLK_USDHC1_ROOT] = imx_clk_gate4("usdhc1_root_clk", "usdhc1", base + 0x4510, 0);
+ 	clks[IMX8MN_CLK_USDHC2_ROOT] = imx_clk_gate4("usdhc2_root_clk", "usdhc2", base + 0x4520, 0);
 -- 
 2.35.1
 
