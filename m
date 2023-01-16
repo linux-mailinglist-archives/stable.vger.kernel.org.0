@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B423A66C8F9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F232166C4EF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233778AbjAPQpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:45:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34764 "EHLO
+        id S231766AbjAPQAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:00:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233719AbjAPQoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:44:55 -0500
+        with ESMTP id S231897AbjAPP7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5769140BC1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246A523110
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1FC1B8107A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D9FC433F1;
-        Mon, 16 Jan 2023 16:32:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D335DB8105C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EA49C433D2;
+        Mon, 16 Jan 2023 15:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886730;
-        bh=ti/gOEb0TGYTflAzqk8ORiXtrE8l3RH0js4K/wx68NM=;
+        s=korg; t=1673884777;
+        bh=y7dXr5pG0p/Qty7nDP+Q2gmP8RhIcnT37aUyQ4YtKH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjEUb0Z4xUhvHg2S1AxBoV3PWivXdi0FPOAbQPn6gsQcav2B6bXcmFfD8pcVa4xQl
-         90QZ23Lq9aoaB4bC975ccufOtltBmvVE64zcw2Pp03TTVoxtZoRS6wGoTGFe+oRgxn
-         I4f3We+xY5DyhbVDgUnJeh5ll6m/5MZMUQuC+54w=
+        b=X0bB9fUISI8+LcxEg2bjRtcoIUo661LxCy5cLGRSF4JbVDhSigF0j7fIzLWhpSSZ4
+         +iPpfLNGwUGfqab6E7V5XijVc3Q6d1NH2Yrlm2a00WNylbCXAJ+K7ZKmfyMc2h0w4V
+         V7TuFPoN2KTRP5dXzms7iobbV/AITk9MoqJiR3pY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-fsd@tesla.com,
-        Smitha T Murthy <smitha.t@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 540/658] media: s5p-mfc: Fix to handle reference queue during finishing
+Subject: [PATCH 6.1 105/183] drm/msm/dpu: Fix memory leak in msm_mdss_parse_data_bus_icc_path
 Date:   Mon, 16 Jan 2023 16:50:28 +0100
-Message-Id: <20230116154934.234744616@linuxfoundation.org>
+Message-Id: <20230116154807.812400820@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Smitha T Murthy <smitha.t@samsung.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit d8a46bc4e1e0446459daa77c4ce14218d32dacf9 ]
+[ Upstream commit 45dac1352b55b1d8cb17f218936b2bc2bc1fb4ee ]
 
-On receiving last buffer driver puts MFC to MFCINST_FINISHING state which
-in turn skips transferring of frame from SRC to REF queue. This causes
-driver to stop MFC encoding and last frame is lost.
+of_icc_get() alloc resources for path1, we should release it when not
+need anymore. Early return when IS_ERR_OR_NULL(path0) may leak path1.
+Defer getting path1 to fix this.
 
-This patch guarantees safe handling of frames during MFCINST_FINISHING and
-correct clearing of workbit to avoid early stopping of encoding.
-
-Fixes: af9357467810 ("[media] MFC: Add MFC 5.1 V4L2 driver")
-
-Cc: stable@vger.kernel.org
-Cc: linux-fsd@tesla.com
-Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: b9364eed9232 ("drm/msm/dpu: Move min BW request and full BW disable back to mdss")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/514264/
+Link: https://lore.kernel.org/r/20221207065922.2086368-1-linmq006@gmail.com
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_enc.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/msm_mdss.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_enc.c b/drivers/media/platform/s5p-mfc/s5p_mfc_enc.c
-index 912fe0c5ab18..6ed3df5ae5bb 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_enc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_enc.c
-@@ -1212,6 +1212,7 @@ static int enc_post_frame_start(struct s5p_mfc_ctx *ctx)
- 	unsigned long mb_y_addr, mb_c_addr;
- 	int slice_type;
- 	unsigned int strm_size;
-+	bool src_ready;
+diff --git a/drivers/gpu/drm/msm/msm_mdss.c b/drivers/gpu/drm/msm/msm_mdss.c
+index e13c5c12b775..3b8d6991b04e 100644
+--- a/drivers/gpu/drm/msm/msm_mdss.c
++++ b/drivers/gpu/drm/msm/msm_mdss.c
+@@ -46,15 +46,17 @@ struct msm_mdss {
+ static int msm_mdss_parse_data_bus_icc_path(struct device *dev,
+ 					    struct msm_mdss *msm_mdss)
+ {
+-	struct icc_path *path0 = of_icc_get(dev, "mdp0-mem");
+-	struct icc_path *path1 = of_icc_get(dev, "mdp1-mem");
++	struct icc_path *path0;
++	struct icc_path *path1;
  
- 	slice_type = s5p_mfc_hw_call(dev->mfc_ops, get_enc_slice_type, dev);
- 	strm_size = s5p_mfc_hw_call(dev->mfc_ops, get_enc_strm_size, dev);
-@@ -1251,7 +1252,8 @@ static int enc_post_frame_start(struct s5p_mfc_ctx *ctx)
- 			}
- 		}
- 	}
--	if ((ctx->src_queue_cnt > 0) && (ctx->state == MFCINST_RUNNING)) {
-+	if (ctx->src_queue_cnt > 0 && (ctx->state == MFCINST_RUNNING ||
-+				       ctx->state == MFCINST_FINISHING)) {
- 		mb_entry = list_entry(ctx->src_queue.next, struct s5p_mfc_buf,
- 									list);
- 		if (mb_entry->flags & MFC_BUF_FLAG_USED) {
-@@ -1282,7 +1284,13 @@ static int enc_post_frame_start(struct s5p_mfc_ctx *ctx)
- 		vb2_set_plane_payload(&mb_entry->b->vb2_buf, 0, strm_size);
- 		vb2_buffer_done(&mb_entry->b->vb2_buf, VB2_BUF_STATE_DONE);
- 	}
--	if ((ctx->src_queue_cnt == 0) || (ctx->dst_queue_cnt == 0))
-+
-+	src_ready = true;
-+	if (ctx->state == MFCINST_RUNNING && ctx->src_queue_cnt == 0)
-+		src_ready = false;
-+	if (ctx->state == MFCINST_FINISHING && ctx->ref_queue_cnt == 0)
-+		src_ready = false;
-+	if (!src_ready || ctx->dst_queue_cnt == 0)
- 		clear_work_bit(ctx);
++	path0 = of_icc_get(dev, "mdp0-mem");
+ 	if (IS_ERR_OR_NULL(path0))
+ 		return PTR_ERR_OR_ZERO(path0);
  
- 	return 0;
+ 	msm_mdss->path[0] = path0;
+ 	msm_mdss->num_paths = 1;
+ 
++	path1 = of_icc_get(dev, "mdp1-mem");
+ 	if (!IS_ERR_OR_NULL(path1)) {
+ 		msm_mdss->path[1] = path1;
+ 		msm_mdss->num_paths++;
 -- 
 2.35.1
 
