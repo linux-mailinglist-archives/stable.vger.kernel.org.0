@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8169E66C479
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4F4E66C47A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231689AbjAPPzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:55:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37070 "EHLO
+        id S231715AbjAPPze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:55:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231366AbjAPPzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 301E022798
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:04 -0800 (PST)
+        with ESMTP id S231553AbjAPPzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABA7822A0C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D9526102D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2134FC433EF;
-        Mon, 16 Jan 2023 15:55:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 589B8B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE422C433F1;
+        Mon, 16 Jan 2023 15:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884503;
-        bh=8qRTdXvIvxl0/gerX2qxYxM0dkK3Mf/RxEFqs2Rw+T8=;
+        s=korg; t=1673884506;
+        bh=jaG+zHzcA6RDUPTWM3bKzkaP+3TsmEuIuLc2VeFcI8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FS+117yzegP93yp4CxlFZqiEk0MDh31VKGyGlx7MgCAhQR6JQlKjmP/fryzLZVXzA
-         FkqY9tlRcFqMOhZ2nP7KMuVpyPrU0rhTYvGLOd7FL6k4M490/KCAKU38Du0nuWrnCW
-         k4wEbFQFgNg174C2LOiaHiOE9muhEb+A5TKwusbw=
+        b=TJJ43Wz6mK1y4VU+Rn0Ux9d0QW0LQX7zgo+dJvBBBIGIPV/WUeWkZ6CqFNQUw4QhD
+         hXMTrBczGWGTlgxmNP7holKwpMJGNSiGOChMMpgcGUT6CLbGNsCOlI5AYRExXmUhxH
+         EGeX8NNX2VFe45pV4cFpLLZRI1Hmxmxy0P7wwPBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Nirmoy Das <nirmoy.das@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
+        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 6.1 030/183] drm/i915: Reserve enough fence slot for i915_vma_unbind_async
-Date:   Mon, 16 Jan 2023 16:49:13 +0100
-Message-Id: <20230116154804.633702520@linuxfoundation.org>
+Subject: [PATCH 6.1 031/183] drm/i915: Fix potential context UAFs
+Date:   Mon, 16 Jan 2023 16:49:14 +0100
+Message-Id: <20230116154804.670690616@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
 References: <20230116154803.321528435@linuxfoundation.org>
@@ -56,48 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@intel.com>
+From: Rob Clark <robdclark@chromium.org>
 
-commit 476fdcdaaae7b06c780cdfc234c704107f16c529 upstream.
+commit afce71ff6daa9c0f852df0727fe32c6fb107f0fa upstream.
 
-A nested dma_resv_reserve_fences(1) will not reserve slot from the
-2nd call onwards and folowing dma_resv_add_fence() might hit the
-"BUG_ON(fobj->num_fences >= fobj->max_fences)" check.
+gem_context_register() makes the context visible to userspace, and which
+point a separate thread can trigger the I915_GEM_CONTEXT_DESTROY ioctl.
+So we need to ensure that nothing uses the ctx ptr after this.  And we
+need to ensure that adding the ctx to the xarray is the *last* thing
+that gem_context_register() does with the ctx pointer.
 
-I915 hit above nested dma_resv case in ttm_bo_handle_move_mem() with
-async unbind:
-
-dma_resv_reserve_fences() from --> ttm_bo_handle_move_mem()
-        dma_resv_reserve_fences() from --> i915_vma_unbind_async()
-        dma_resv_add_fence() from --> i915_vma_unbind_async()
-dma_resv_add_fence() from -->ttm_bo_move_accel_cleanup()
-
-Resolve this by adding an extra fence in i915_vma_unbind_async().
-
-Suggested-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Fixes: 2f6b90da9192 ("drm/i915: Use vma resources for async unbinding")
-Cc: <stable@vger.kernel.org> # v5.18+
-Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221223092011.11657-1-nirmoy.das@intel.com
-(cherry picked from commit 4f0755c2faf7388616109717facc5bbde6850e60)
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: eb4dedae920a ("drm/i915/gem: Delay tracking the GEM context until it is registered")
+Fixes: a4c1cdd34e2c ("drm/i915/gem: Delay context creation (v3)")
+Fixes: 49bd54b390c2 ("drm/i915: Track all user contexts per client")
+Cc: <stable@vger.kernel.org> # v5.10+
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+[tursulin: Stable and fixes tags add/tidy.]
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230103234948.1218393-1-robdclark@gmail.com
+(cherry picked from commit bed4b455cf5374e68879be56971c1da563bcd90c)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/i915_vma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gem/i915_gem_context.c |   24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_vma.c
-+++ b/drivers/gpu/drm/i915/i915_vma.c
-@@ -2114,7 +2114,7 @@ int i915_vma_unbind_async(struct i915_vm
- 	if (!obj->mm.rsgt)
- 		return -EBUSY;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+@@ -1688,6 +1688,10 @@ void i915_gem_init__contexts(struct drm_
+ 	init_contexts(&i915->gem.contexts);
+ }
  
--	err = dma_resv_reserve_fences(obj->base.resv, 1);
-+	err = dma_resv_reserve_fences(obj->base.resv, 2);
- 	if (err)
- 		return -EBUSY;
++/*
++ * Note that this implicitly consumes the ctx reference, by placing
++ * the ctx in the context_xa.
++ */
+ static void gem_context_register(struct i915_gem_context *ctx,
+ 				 struct drm_i915_file_private *fpriv,
+ 				 u32 id)
+@@ -1703,10 +1707,6 @@ static void gem_context_register(struct
+ 	snprintf(ctx->name, sizeof(ctx->name), "%s[%d]",
+ 		 current->comm, pid_nr(ctx->pid));
  
+-	/* And finally expose ourselves to userspace via the idr */
+-	old = xa_store(&fpriv->context_xa, id, ctx, GFP_KERNEL);
+-	WARN_ON(old);
+-
+ 	spin_lock(&ctx->client->ctx_lock);
+ 	list_add_tail_rcu(&ctx->client_link, &ctx->client->ctx_list);
+ 	spin_unlock(&ctx->client->ctx_lock);
+@@ -1714,6 +1714,10 @@ static void gem_context_register(struct
+ 	spin_lock(&i915->gem.contexts.lock);
+ 	list_add_tail(&ctx->link, &i915->gem.contexts.list);
+ 	spin_unlock(&i915->gem.contexts.lock);
++
++	/* And finally expose ourselves to userspace via the idr */
++	old = xa_store(&fpriv->context_xa, id, ctx, GFP_KERNEL);
++	WARN_ON(old);
+ }
+ 
+ int i915_gem_context_open(struct drm_i915_private *i915,
+@@ -2199,14 +2203,22 @@ finalize_create_context_locked(struct dr
+ 	if (IS_ERR(ctx))
+ 		return ctx;
+ 
++	/*
++	 * One for the xarray and one for the caller.  We need to grab
++	 * the reference *prior* to making the ctx visble to userspace
++	 * in gem_context_register(), as at any point after that
++	 * userspace can try to race us with another thread destroying
++	 * the context under our feet.
++	 */
++	i915_gem_context_get(ctx);
++
+ 	gem_context_register(ctx, file_priv, id);
+ 
+ 	old = xa_erase(&file_priv->proto_context_xa, id);
+ 	GEM_BUG_ON(old != pc);
+ 	proto_context_close(file_priv->dev_priv, pc);
+ 
+-	/* One for the xarray and one for the caller */
+-	return i915_gem_context_get(ctx);
++	return ctx;
+ }
+ 
+ struct i915_gem_context *
 
 
