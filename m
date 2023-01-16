@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8300D66CB36
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:11:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8332166CCDD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:30:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234218AbjAPRLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:11:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33990 "EHLO
+        id S234764AbjAPR35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234270AbjAPRLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE5873D0B9
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:34 -0800 (PST)
+        with ESMTP id S234813AbjAPR30 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C53FA38EBF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99693B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05D85C433D2;
-        Mon, 16 Jan 2023 16:51:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DA89B81091
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72458C433D2;
+        Mon, 16 Jan 2023 17:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887892;
-        bh=LtT4wh0HgSOrfm1wIad160b2or6MP8wnEZ3ZyYOvlZY=;
+        s=korg; t=1673888817;
+        bh=Nc5/dNcnK6xnlpb22rnwKGlS+2WzYHwjHxt1bg/WPRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d250KzIu7U3Q85vsfn8UiL+QjrLMJjThDujrK1PP595MGgyvyG/bGpW9PWIi1sHZM
-         e7aywrpnzg9L/ZrmHcycuMbpgQnNqZGZHd2sgZZQXOs8mtodmV3pzbBNcSZU8ALogF
-         2GURUkhrHMh4+/vSKo4HAZf46OCz4mrAkUt3X0C8=
+        b=OajU+1v/tWtKkAjMpq2XNzTG6rXRAb9WvUD/FZXJq8NqefIx4ffjw5Hzqkh8LCDlA
+         sKiIKqjirL86VLAcw1aoEuHxLu04LUnOC2PBuz2xipY3eJhdmd8COkn05g/Gergqwa
+         NenC+Lb4Lv1xeNNvfTbi0xOgFjg/ndInxg0ba1Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
-        Corey Minyard <cminyard@mvista.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 321/521] ipmi: fix memleak when unload ipmi driver
+Subject: [PATCH 4.14 110/338] mmc: wbsd: fix return value check of mmc_add_host()
 Date:   Mon, 16 Jan 2023 16:49:43 +0100
-Message-Id: <20230116154901.507345275@linuxfoundation.org>
+Message-Id: <20230116154825.653397101@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 36992eb6b9b83f7f9cdc8e74fb5799d7b52e83e9 ]
+[ Upstream commit dc5b9b50fc9d1334407e316e6e29a5097ef833bd ]
 
-After the IPMI disconnect problem, the memory kept rising and we tried
-to unload the driver to free the memory. However, only part of the
-free memory is recovered after the driver is uninstalled. Using
-ebpf to hook free functions, we find that neither ipmi_user nor
-ipmi_smi_msg is free, only ipmi_recv_msg is free.
+mmc_add_host() may return error, if we ignore its return value,
+it will lead two issues:
+1. The memory that allocated in mmc_alloc_host() is leaked.
+2. In the remove() path, mmc_remove_host() will be called to
+   delete device, but it's not added yet, it will lead a kernel
+   crash because of null-ptr-deref in device_del().
 
-We find that the deliver_smi_err_response call in clean_smi_msgs does
-the destroy processing on each message from the xmit_msg queue without
-checking the return value and free ipmi_smi_msg.
+So fix this by checking the return value and goto error path which
+will call mmc_free_host(), besides, other resources also need be
+released.
 
-deliver_smi_err_response is called only at this location. Adding the
-free handling has no effect.
-
-To verify, try using ebpf to trace the free function.
-
-  $ bpftrace -e 'kretprobe:ipmi_alloc_recv_msg {printf("alloc rcv
-      %p\n",retval);} kprobe:free_recv_msg {printf("free recv %p\n",
-      arg0)} kretprobe:ipmi_alloc_smi_msg {printf("alloc smi %p\n",
-        retval);} kprobe:free_smi_msg {printf("free smi  %p\n",arg0)}'
-
-Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
-Message-Id: <20221007092617.87597-4-zhangyuchen.lcr@bytedance.com>
-[Fixed the comment above handle_one_recv_msg().]
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221109133237.3273558-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/mmc/host/wbsd.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index 4cf3ef4ddec3..8cfc7e6ab645 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -3461,12 +3461,16 @@ static void deliver_smi_err_response(struct ipmi_smi *intf,
- 				     struct ipmi_smi_msg *msg,
- 				     unsigned char err)
- {
-+	int rv;
- 	msg->rsp[0] = msg->data[0] | 4;
- 	msg->rsp[1] = msg->data[1];
- 	msg->rsp[2] = err;
- 	msg->rsp_size = 3;
--	/* It's an error, so it will never requeue, no need to check return. */
--	handle_one_recv_msg(intf, msg);
-+
-+	/* This will never requeue, but it may ask us to free the message. */
-+	rv = handle_one_recv_msg(intf, msg);
-+	if (rv == 0)
-+		ipmi_free_smi_msg(msg);
- }
+diff --git a/drivers/mmc/host/wbsd.c b/drivers/mmc/host/wbsd.c
+index 546aaf8d1507..6e0f37f373e0 100644
+--- a/drivers/mmc/host/wbsd.c
++++ b/drivers/mmc/host/wbsd.c
+@@ -1716,7 +1716,17 @@ static int wbsd_init(struct device *dev, int base, int irq, int dma,
+ 	 */
+ 	wbsd_init_device(host);
  
- static void cleanup_smi_msgs(struct ipmi_smi *intf)
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret) {
++		if (!pnp)
++			wbsd_chip_poweroff(host);
++
++		wbsd_release_resources(host);
++		wbsd_free_mmc(dev);
++
++		mmc_free_host(mmc);
++		return ret;
++	}
+ 
+ 	pr_info("%s: W83L51xD", mmc_hostname(mmc));
+ 	if (host->chip_id != 0)
 -- 
 2.35.1
 
