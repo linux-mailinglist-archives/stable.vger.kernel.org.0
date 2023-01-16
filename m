@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D2AC66CB3F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D3F266CC96
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:27:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234262AbjAPRMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:12:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33638 "EHLO
+        id S234726AbjAPR1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:27:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234259AbjAPRLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:40 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC25949027
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:59 -0800 (PST)
+        with ESMTP id S234645AbjAPR1Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:27:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3E814490
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:04:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 07EADCE129D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC9EFC433D2;
-        Mon, 16 Jan 2023 16:51:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E180D6108F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:04:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 047CDC433EF;
+        Mon, 16 Jan 2023 17:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887916;
-        bh=BgJ0v9rgSO82qdHCpX3SDyoy2LNAE7DHXQtBfRd0Rqc=;
+        s=korg; t=1673888658;
+        bh=Vc4v8h4MbMMysvq5oMdCkdG6Yi5MZQtRJf3f93Qa7G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCflUKxHK1Fx5I3o4iRSb+Ac/3hRU/yunLxQax0B1ODQNzMUrt8KW12ayjGdrsCns
-         QInb5gqcOE1/OOORkk7U8szY7tuMlTm7UrXmZKvO8EbWf6j7Pcnyb5zUFJVblwyGD1
-         4zchzUFIyytEovJ88UWLQPEMpZNYJbnpw7+u5ft4=
+        b=ft7iPYrbqx3LdbceoTgE2u8OzAKZtsfp0XsTKjhX+N8LVdGDa2+EqzLXN/Jqby7eP
+         YNrrri+6IqjKaXSHQjvFZ1adpctajyYUu6Xgb3nUb5h76MORVRXsQd7GdmMYXCQ8P6
+         ZzvpqgamVjzBMHkpicNC529iKRwwziFTpAAnJBRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 301/521] nfc: pn533: Clear nfc_target before being used
+Subject: [PATCH 4.14 090/338] NFSv4.2: Fix a memory stomp in decode_attr_security_label
 Date:   Mon, 16 Jan 2023 16:49:23 +0100
-Message-Id: <20230116154900.567638490@linuxfoundation.org>
+Message-Id: <20230116154824.808524246@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 9f28157778ede0d4f183f7ab3b46995bb400abbe ]
+[ Upstream commit 43c1031f7110967c240cb6e922adcfc4b8899183 ]
 
-Fix a slab-out-of-bounds read that occurs in nla_put() called from
-nfc_genl_send_target() when target->sensb_res_len, which is duplicated
-from an nfc_target in pn533, is too large as the nfc_target is not
-properly initialized and retains garbage values. Clear nfc_targets with
-memset() before they are used.
+We must not change the value of label->len if it is zero, since that
+indicates we stored a label.
 
-Found by a modified version of syzkaller.
-
-BUG: KASAN: slab-out-of-bounds in nla_put
-Call Trace:
- memcpy
- nla_put
- nfc_genl_dump_targets
- genl_lock_dumpit
- netlink_dump
- __netlink_dump_start
- genl_family_rcv_msg_dumpit
- genl_rcv_msg
- netlink_rcv_skb
- genl_rcv
- netlink_unicast
- netlink_sendmsg
- sock_sendmsg
- ____sys_sendmsg
- ___sys_sendmsg
- __sys_sendmsg
- do_syscall_64
-
-Fixes: 673088fb42d0 ("NFC: pn533: Send ATR_REQ directly for active device detection")
-Fixes: 361f3cb7f9cf ("NFC: DEP link hook implementation for pn533")
-Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221214015139.119673-1-linuxlovemin@yonsei.ac.kr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b4487b935452 ("nfs: Fix getxattr kernel panic and memory overflow")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533/pn533.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfs/nfs4xdr.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nfc/pn533/pn533.c b/drivers/nfc/pn533/pn533.c
-index 79bf8e1bd39c..b7f5db3a6aa0 100644
---- a/drivers/nfc/pn533/pn533.c
-+++ b/drivers/nfc/pn533/pn533.c
-@@ -1305,6 +1305,8 @@ static int pn533_poll_dep_complete(struct pn533 *dev, void *arg,
- 	if (IS_ERR(resp))
- 		return PTR_ERR(resp);
- 
-+	memset(&nfc_target, 0, sizeof(struct nfc_target));
-+
- 	rsp = (struct pn533_cmd_jump_dep_response *)resp->data;
- 
- 	rc = rsp->status & PN533_CMD_RET_MASK;
-@@ -1786,6 +1788,8 @@ static int pn533_in_dep_link_up_complete(struct pn533 *dev, void *arg,
- 
- 		dev_dbg(dev->dev, "Creating new target\n");
- 
-+		memset(&nfc_target, 0, sizeof(struct nfc_target));
-+
- 		nfc_target.supported_protocols = NFC_PROTO_NFC_DEP_MASK;
- 		nfc_target.nfcid1_len = 10;
- 		memcpy(nfc_target.nfcid1, rsp->nfcid3t, nfc_target.nfcid1_len);
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index ccdc0ca699c3..e604c0e02f4d 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -4255,12 +4255,10 @@ static int decode_attr_security_label(struct xdr_stream *xdr, uint32_t *bitmap,
+ 		if (unlikely(!p))
+ 			goto out_overflow;
+ 		if (len < NFS4_MAXLABELLEN) {
+-			if (label) {
+-				if (label->len) {
+-					if (label->len < len)
+-						return -ERANGE;
+-					memcpy(label->label, p, len);
+-				}
++			if (label && label->len) {
++				if (label->len < len)
++					return -ERANGE;
++				memcpy(label->label, p, len);
+ 				label->len = len;
+ 				label->pi = pi;
+ 				label->lfs = lfs;
 -- 
 2.35.1
 
