@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEE7366CDBA
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C8C66CDBC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229739AbjAPRjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:39:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60916 "EHLO
+        id S234957AbjAPRjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:39:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235036AbjAPRiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:38:18 -0500
+        with ESMTP id S235048AbjAPRiW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:38:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289A4305D2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:14:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCC1E305F0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:15:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B389361086
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:14:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8611C433F1;
-        Mon, 16 Jan 2023 17:14:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56A5961050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69326C433EF;
+        Mon, 16 Jan 2023 17:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889297;
-        bh=HVzxMLyn3rcyoX8oN2/qx564qZ+DfW0ZR5/sOHVsmXU=;
+        s=korg; t=1673889299;
+        bh=EOIkK71oPEcYimMfZ+unnaVKkHdMnF3btNm6vMz2ayY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbmTnCjQv6mPhUE4m4fB+4LwfztqIoAgomPXxPcylGmk2jFv+8p0B0/iOcx2DwVFN
-         YndpcF1yrO39BN5+y4uIvb/+Jzpf2U5mEqD9pFL2a/sgYhvcnSG3vTnoa3xFXD8pnA
-         BTr9z2UjRolVQT9KM4td4CxFhuzDW54F8OvHmfBo=
+        b=SfZgrrRlAsFKvcEHNpRdTfpzzexdwatpiU87s0YlwtoceRg2OsPNSK/T1Kb6dRXWR
+         iyyf6F+sBsksBllynTl112kfktTlBoBwUfPflWJ/EhWYh4IvDDcbk76i2Ekin0r/wH
+         qlUvlPc8bba40HyJoF52zz4lEH6KP9aezILv/TbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 4.14 333/338] x86/boot: Avoid using Intel mnemonics in AT&T syntax asm
-Date:   Mon, 16 Jan 2023 16:53:26 +0100
-Message-Id: <20230116154835.609143067@linuxfoundation.org>
+        patches@lists.linux.dev, Eliav Farber <farbere@amazon.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>, stable@kernel.org
+Subject: [PATCH 4.14 334/338] EDAC/device: Fix period calculation in edac_device_reset_delay_period()
+Date:   Mon, 16 Jan 2023 16:53:27 +0100
+Message-Id: <20230116154835.660609825@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -54,70 +52,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Eliav Farber <farbere@amazon.com>
 
-commit 7c6dd961d0c8e7e8f9fdc65071fb09ece702e18d upstream.
+commit e84077437902ec99eba0a6b516df772653f142c7 upstream.
 
-With 'GNU assembler (GNU Binutils for Debian) 2.39.90.20221231' the
-build now reports:
+Fix period calculation in case user sets a value of 1000.  The input of
+round_jiffies_relative() should be in jiffies and not in milli-seconds.
 
-  arch/x86/realmode/rm/../../boot/bioscall.S: Assembler messages:
-  arch/x86/realmode/rm/../../boot/bioscall.S:35: Warning: found `movsd'; assuming `movsl' was meant
-  arch/x86/realmode/rm/../../boot/bioscall.S:70: Warning: found `movsd'; assuming `movsl' was meant
+  [ bp: Use the same code pattern as in edac_device_workq_setup() for
+    clarity. ]
 
-  arch/x86/boot/bioscall.S: Assembler messages:
-  arch/x86/boot/bioscall.S:35: Warning: found `movsd'; assuming `movsl' was meant
-  arch/x86/boot/bioscall.S:70: Warning: found `movsd'; assuming `movsl' was meant
-
-Which is due to:
-
-  PR gas/29525
-
-  Note that with the dropped CMPSD and MOVSD Intel Syntax string insn
-  templates taking operands, mixed IsString/non-IsString template groups
-  (with memory operands) cannot occur anymore. With that
-  maybe_adjust_templates() becomes unnecessary (and is hence being
-  removed).
-
-More details: https://sourceware.org/bugzilla/show_bug.cgi?id=29525
-
-Borislav Petkov further explains:
-
-  " the particular problem here is is that the 'd' suffix is
-    "conflicting" in the sense that you can have SSE mnemonics like movsD %xmm...
-    and the same thing also for string ops (which is the case here) so apparently
-    the agreement in binutils land is to use the always accepted suffixes 'l' or 'q'
-    and phase out 'd' slowly... "
-
-Fixes: 7a734e7dd93b ("x86, setup: "glove box" BIOS calls -- infrastructure")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/Y71I3Ex2pvIxMpsP@hirez.programming.kicks-ass.net
+Fixes: c4cf3b454eca ("EDAC: Rework workqueue handling")
+Signed-off-by: Eliav Farber <farbere@amazon.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Cc: <stable@kernel.org>
+Link: https://lore.kernel.org/r/20221020124458.22153-1-farbere@amazon.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/boot/bioscall.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/edac/edac_device.c |   17 ++++++++---------
+ drivers/edac/edac_module.h |    2 +-
+ 2 files changed, 9 insertions(+), 10 deletions(-)
 
---- a/arch/x86/boot/bioscall.S
-+++ b/arch/x86/boot/bioscall.S
-@@ -35,7 +35,7 @@ intcall:
- 	movw	%dx, %si
- 	movw	%sp, %di
- 	movw	$11, %cx
--	rep; movsd
-+	rep; movsl
+--- a/drivers/edac/edac_device.c
++++ b/drivers/edac/edac_device.c
+@@ -424,17 +424,16 @@ static void edac_device_workq_teardown(s
+  *	Then restart the workq on the new delay
+  */
+ void edac_device_reset_delay_period(struct edac_device_ctl_info *edac_dev,
+-					unsigned long value)
++				    unsigned long msec)
+ {
+-	unsigned long jiffs = msecs_to_jiffies(value);
++	edac_dev->poll_msec = msec;
++	edac_dev->delay	    = msecs_to_jiffies(msec);
  
- 	/* Pop full state from the stack */
- 	popal
-@@ -70,7 +70,7 @@ intcall:
- 	jz	4f
- 	movw	%sp, %si
- 	movw	$11, %cx
--	rep; movsd
-+	rep; movsl
- 4:	addw	$44, %sp
+-	if (value == 1000)
+-		jiffs = round_jiffies_relative(value);
+-
+-	edac_dev->poll_msec = value;
+-	edac_dev->delay	    = jiffs;
+-
+-	edac_mod_work(&edac_dev->work, jiffs);
++	/* See comment in edac_device_workq_setup() above */
++	if (edac_dev->poll_msec == 1000)
++		edac_mod_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
++	else
++		edac_mod_work(&edac_dev->work, edac_dev->delay);
+ }
  
- 	/* Restore state and return */
+ int edac_device_alloc_index(void)
+--- a/drivers/edac/edac_module.h
++++ b/drivers/edac/edac_module.h
+@@ -57,7 +57,7 @@ bool edac_stop_work(struct delayed_work
+ bool edac_mod_work(struct delayed_work *work, unsigned long delay);
+ 
+ extern void edac_device_reset_delay_period(struct edac_device_ctl_info
+-					   *edac_dev, unsigned long value);
++					   *edac_dev, unsigned long msec);
+ extern void edac_mc_reset_delay_period(unsigned long value);
+ 
+ extern void *edac_align_ptr(void **p, unsigned size, int n_elems);
 
 
