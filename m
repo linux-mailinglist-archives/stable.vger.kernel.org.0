@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8082166C69A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:21:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C2866C6A8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:22:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232271AbjAPQVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:21:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38000 "EHLO
+        id S233034AbjAPQWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:22:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233005AbjAPQVL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:21:11 -0500
+        with ESMTP id S232887AbjAPQWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:22:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BFB129E12
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:11:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 428AB30E90
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:12:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CE15B81085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:11:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83D82C433EF;
-        Mon, 16 Jan 2023 16:11:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E638CB8107E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:12:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23D6FC433D2;
+        Mon, 16 Jan 2023 16:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885506;
-        bh=qW74oFhQ2eYJgxioQ+AylW3SNA9tbf1SCQbNnEHbrDM=;
+        s=korg; t=1673885535;
+        bh=mXjnHWVHhG28PjDLbgg85wCY82fxxKGZ0PncxTnan/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yvr6CQS1lX1D5ax2h0Tg8mKmYgAozLSEjZpB0QCFQauFwhVxZNV5Jw1pblr5j0t+3
-         gFl42Jv5Qo5LRIIwSH4Oh8ZrLiKR3x6gQnTTBFGkH8Ftot8GXHGoSD6hTeRgfhEdhR
-         D6g7jkiXOovzSnU6YgKgXDn3SXPtfCwkOl9P6Uk0=
+        b=lyOa9BrGlMLH3EP3l9SbXY1WcSOqq+X9CoZigfgZm5e5BCpNs2AuzWAWqoCmaYJx9
+         qwguijd2Ju9jBhywq03HoboZ6kTEO+smjzl6QPZ59qjYbCKA2yRuOCqA6Cg9HduJcn
+         5lu5/xgRPRuYAJpgOYyBUm4v81Mi5anx0nD56qPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 060/658] lib/fonts: fix undefined behavior in bit shift for get_default_font
-Date:   Mon, 16 Jan 2023 16:42:28 +0100
-Message-Id: <20230116154912.420708940@linuxfoundation.org>
+Subject: [PATCH 5.4 061/658] ocfs2: fix memory leak in ocfs2_stack_glue_init()
+Date:   Mon, 16 Jan 2023 16:42:29 +0100
+Message-Id: <20230116154912.467257414@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,77 +59,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 6fe888c4d2fb174408e4540bb2d5602b9f507f90 ]
+[ Upstream commit 13b6269dd022aaa69ca8d1df374ab327504121cf ]
 
-Shifting signed 32-bit value by 31 bits is undefined, so changing
-significant bit to unsigned.  The UBSAN warning calltrace like below:
+ocfs2_table_header should be free in ocfs2_stack_glue_init() if
+ocfs2_sysfs_init() failed, otherwise kmemleak will report memleak.
 
-UBSAN: shift-out-of-bounds in lib/fonts/fonts.c:139:20
-left shift of 1 by 31 places cannot be represented in type 'int'
- <TASK>
- dump_stack_lvl+0x7d/0xa5
- dump_stack+0x15/0x1b
- ubsan_epilogue+0xe/0x4e
- __ubsan_handle_shift_out_of_bounds+0x1e7/0x20c
- get_default_font+0x1c7/0x1f0
- fbcon_startup+0x347/0x3a0
- do_take_over_console+0xce/0x270
- do_fbcon_takeover+0xa1/0x170
- do_fb_registered+0x2a8/0x340
- fbcon_fb_registered+0x47/0xe0
- register_framebuffer+0x294/0x4a0
- __drm_fb_helper_initial_config_and_unlock+0x43c/0x880 [drm_kms_helper]
- drm_fb_helper_initial_config+0x52/0x80 [drm_kms_helper]
- drm_fbdev_client_hotplug+0x156/0x1b0 [drm_kms_helper]
- drm_fbdev_generic_setup+0xfc/0x290 [drm_kms_helper]
- bochs_pci_probe+0x6ca/0x772 [bochs]
- local_pci_probe+0x4d/0xb0
- pci_device_probe+0x119/0x320
- really_probe+0x181/0x550
- __driver_probe_device+0xc6/0x220
- driver_probe_device+0x32/0x100
- __driver_attach+0x195/0x200
- bus_for_each_dev+0xbb/0x120
- driver_attach+0x27/0x30
- bus_add_driver+0x22e/0x2f0
- driver_register+0xa9/0x190
- __pci_register_driver+0x90/0xa0
- bochs_pci_driver_init+0x52/0x1000 [bochs]
- do_one_initcall+0x76/0x430
- do_init_module+0x61/0x28a
- load_module+0x1f82/0x2e50
- __do_sys_finit_module+0xf8/0x190
- __x64_sys_finit_module+0x23/0x30
- do_syscall_64+0x58/0x80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
- </TASK>
+BUG: memory leak
+unreferenced object 0xffff88810eeb5800 (size 128):
+  comm "modprobe", pid 4507, jiffies 4296182506 (age 55.888s)
+  hex dump (first 32 bytes):
+    c0 40 14 a0 ff ff ff ff 00 00 00 00 01 00 00 00  .@..............
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000001e59e1cd>] __register_sysctl_table+0xca/0xef0
+    [<00000000c04f70f7>] 0xffffffffa0050037
+    [<000000001bd12912>] do_one_initcall+0xdb/0x480
+    [<0000000064f766c9>] do_init_module+0x1cf/0x680
+    [<000000002ba52db0>] load_module+0x6441/0x6f20
+    [<000000009772580d>] __do_sys_finit_module+0x12f/0x1c0
+    [<00000000380c1f22>] do_syscall_64+0x3f/0x90
+    [<000000004cf473bc>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Link: https://lkml.kernel.org/r/20221031113829.4183153-1-cuigaosheng1@huawei.com
-Fixes: c81f717cb9e0 ("fbcon: Fix typo and bogus logic in get_default_font")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Link: https://lkml.kernel.org/r/41651ca1-432a-db34-eb97-d35744559de1@linux.alibaba.com
+Fixes: 3878f110f71a ("ocfs2: Move the hb_ctl_path sysctl into the stack glue.")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/fonts/fonts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ocfs2/stackglue.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/lib/fonts/fonts.c b/lib/fonts/fonts.c
-index e7258d8c252b..4da9707ad33d 100644
---- a/lib/fonts/fonts.c
-+++ b/lib/fonts/fonts.c
-@@ -132,8 +132,8 @@ const struct font_desc *get_default_font(int xres, int yres, u32 font_w,
- 		if (res > 20)
- 			c += 20 - res;
+diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
+index 188038760136..9f0326672af6 100644
+--- a/fs/ocfs2/stackglue.c
++++ b/fs/ocfs2/stackglue.c
+@@ -707,6 +707,8 @@ static struct ctl_table_header *ocfs2_table_header;
  
--		if ((font_w & (1 << (f->width - 1))) &&
--		    (font_h & (1 << (f->height - 1))))
-+		if ((font_w & (1U << (f->width - 1))) &&
-+		    (font_h & (1U << (f->height - 1))))
- 			c += 1000;
+ static int __init ocfs2_stack_glue_init(void)
+ {
++	int ret;
++
+ 	strcpy(cluster_stack_name, OCFS2_STACK_PLUGIN_O2CB);
  
- 		if (c > cc) {
+ 	ocfs2_table_header = register_sysctl_table(ocfs2_root_table);
+@@ -716,7 +718,11 @@ static int __init ocfs2_stack_glue_init(void)
+ 		return -ENOMEM; /* or something. */
+ 	}
+ 
+-	return ocfs2_sysfs_init();
++	ret = ocfs2_sysfs_init();
++	if (ret)
++		unregister_sysctl_table(ocfs2_table_header);
++
++	return ret;
+ }
+ 
+ static void __exit ocfs2_stack_glue_exit(void)
 -- 
 2.35.1
 
