@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF11166C4B1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B30D66C4BD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231560AbjAPP5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38586 "EHLO
+        id S231716AbjAPP56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:57:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231766AbjAPP5W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCFAF234E6
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:08 -0800 (PST)
+        with ESMTP id S231855AbjAPP5j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F2322DED
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77633B81059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63F2C433D2;
-        Mon, 16 Jan 2023 15:57:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEFA1B81059
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A773C433D2;
+        Mon, 16 Jan 2023 15:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884626;
-        bh=p4Sbr1+I9ttFCLR0Tb168e7EZbLr0+yL75HP8U+Uh+8=;
+        s=korg; t=1673884654;
+        bh=JEE2X1uW1c0hu/JNEICMQRHE5RO2ntKZC7PV2IvJrQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lAG0a5TMp86EYFee17b2T089iOFOS2JYWYCVxGq052P3RWRJBWIsPyYuqTpGvBkOL
-         8H+/E5nqURTBbLesLZ5q3YbBVFjll63BqEc42YKcpzaq1wJqfAO/J+HiOKwh6kfleB
-         KT4blVEzwo2lWuuciapBfCDrCrLjni2K+8cnu45A=
+        b=LJUqY6z+WmDfNsvFCME66xXmcgkwCb26z8Pzmv9Y7EIBzauTLM+pUwpnKcXrfiSUJ
+         nMlV8pXkZVlxJSz5tSzb9vBDgu2ovl0bybur34cwN6N4HiPkdLYsvCPxduCuGwhWxt
+         Nym5QbmigTtpC0bnD430y0m6IikG4pzuouYNGiEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 6.1 070/183] ixgbe: fix pci device refcount leak
-Date:   Mon, 16 Jan 2023 16:49:53 +0100
-Message-Id: <20230116154806.321733141@linuxfoundation.org>
+        patches@lists.linux.dev, Kyle Zeng <zengyhkyle@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 6.1 071/183] ipv6: raw: Deduct extension header length in rawv6_push_pending_frames
+Date:   Mon, 16 Jan 2023 16:49:54 +0100
+Message-Id: <20230116154806.372895612@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
 References: <20230116154803.321528435@linuxfoundation.org>
@@ -53,70 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit b93fb4405fcb5112c5739c5349afb52ec7f15c07 upstream.
+commit cb3e9864cdbe35ff6378966660edbcbac955fe17 upstream.
 
-As the comment of pci_get_domain_bus_and_slot() says, it
-returns a PCI device with refcount incremented, when finish
-using it, the caller must decrement the reference count by
-calling pci_dev_put().
+The total cork length created by ip6_append_data includes extension
+headers, so we must exclude them when comparing them against the
+IPV6_CHECKSUM offset which does not include extension headers.
 
-In ixgbe_get_first_secondary_devfn() and ixgbe_x550em_a_has_mii(),
-pci_dev_put() is called to avoid leak.
-
-Fixes: 8fa10ef01260 ("ixgbe: register a mdiobus")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reported-by: Kyle Zeng <zengyhkyle@gmail.com>
+Fixes: 357b40a18b04 ("[IPV6]: IPV6_CHECKSUM socket option can corrupt kernel memory")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ net/ipv6/raw.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.c
-@@ -855,9 +855,11 @@ static struct pci_dev *ixgbe_get_first_s
- 	rp_pdev = pci_get_domain_bus_and_slot(0, 0, devfn);
- 	if (rp_pdev && rp_pdev->subordinate) {
- 		bus = rp_pdev->subordinate->number;
-+		pci_dev_put(rp_pdev);
- 		return pci_get_domain_bus_and_slot(0, bus, 0);
- 	}
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -505,6 +505,7 @@ csum_copy_err:
+ static int rawv6_push_pending_frames(struct sock *sk, struct flowi6 *fl6,
+ 				     struct raw6_sock *rp)
+ {
++	struct ipv6_txoptions *opt;
+ 	struct sk_buff *skb;
+ 	int err = 0;
+ 	int offset;
+@@ -522,6 +523,9 @@ static int rawv6_push_pending_frames(str
  
-+	pci_dev_put(rp_pdev);
- 	return NULL;
- }
- 
-@@ -874,6 +876,7 @@ static bool ixgbe_x550em_a_has_mii(struc
- 	struct ixgbe_adapter *adapter = hw->back;
- 	struct pci_dev *pdev = adapter->pdev;
- 	struct pci_dev *func0_pdev;
-+	bool has_mii = false;
- 
- 	/* For the C3000 family of SoCs (x550em_a) the internal ixgbe devices
- 	 * are always downstream of root ports @ 0000:00:16.0 & 0000:00:17.0
-@@ -884,15 +887,16 @@ static bool ixgbe_x550em_a_has_mii(struc
- 	func0_pdev = ixgbe_get_first_secondary_devfn(PCI_DEVFN(0x16, 0));
- 	if (func0_pdev) {
- 		if (func0_pdev == pdev)
--			return true;
--		else
--			return false;
-+			has_mii = true;
-+		goto out;
- 	}
- 	func0_pdev = ixgbe_get_first_secondary_devfn(PCI_DEVFN(0x17, 0));
- 	if (func0_pdev == pdev)
--		return true;
-+		has_mii = true;
- 
--	return false;
-+out:
-+	pci_dev_put(func0_pdev);
-+	return has_mii;
- }
- 
- /**
+ 	offset = rp->offset;
+ 	total_len = inet_sk(sk)->cork.base.length;
++	opt = inet6_sk(sk)->cork.opt;
++	total_len -= opt ? opt->opt_flen : 0;
++
+ 	if (offset >= total_len - 1) {
+ 		err = -EINVAL;
+ 		ip6_flush_pending_frames(sk);
 
 
