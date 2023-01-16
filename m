@@ -2,86 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA0A66D0BB
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 22:10:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AE4466D0F5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 22:30:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233921AbjAPVKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 16:10:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56512 "EHLO
+        id S233093AbjAPVam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 16:30:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233847AbjAPVKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 16:10:21 -0500
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 358171CAE3;
-        Mon, 16 Jan 2023 13:10:21 -0800 (PST)
-Received: from fedcomp.intra.ispras.ru (unknown [46.242.14.200])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 6242740D403D;
-        Mon, 16 Jan 2023 21:10:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru 6242740D403D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ispras.ru;
-        s=default; t=1673903419;
-        bh=JgF6PdGUqUIiW+PcAMJiQ/9RP2j3tExghwoZn9wrIig=;
-        h=From:To:Cc:Subject:Date:From;
-        b=KkhWXRfpLeToZU3rkquVnGfm4EHcU1i5LWLYoWHWDVaJtlye4kq/ORrphzAFEKAgt
-         oyzHOsXFLo/2ECq0WOjp58mpa1Dk0AbvotogEbFlnB4XhP5EnWIS4aW5xF4M3dc9+A
-         HTJznExyVaTW8+VfGSzj4IS2Z1kygMCmEAYH2fXg=
-From:   Fedor Pchelkin <pchelkin@ispras.ru>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Fedor Pchelkin <pchelkin@ispras.ru>, Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@lst.de>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: [PATCH 4.19] block: fix and cleanup bio_check_ro
-Date:   Tue, 17 Jan 2023 00:10:13 +0300
-Message-Id: <20230116211013.822998-1-pchelkin@ispras.ru>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S234626AbjAPVaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 16:30:23 -0500
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117FF2B63B;
+        Mon, 16 Jan 2023 13:30:19 -0800 (PST)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 0ECD51C09F4; Mon, 16 Jan 2023 22:30:17 +0100 (CET)
+Date:   Mon, 16 Jan 2023 22:30:16 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.10 00/64] 5.10.164-rc1 review
+Message-ID: <Y8XB6E5t/qcKnQb7@duo.ucw.cz>
+References: <20230116154743.577276578@linuxfoundation.org>
+ <CAEUSe786JgSDJOtCU_tB81ddYxJk_sSfgzM33r7iFccsU7O5QA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="H5Vb37xdFkf30kEd"
+Content-Disposition: inline
+In-Reply-To: <CAEUSe786JgSDJOtCU_tB81ddYxJk_sSfgzM33r7iFccsU7O5QA@mail.gmail.com>
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
 
-commit 57e95e4670d1126c103305bcf34a9442f49f6d6a upstream.
+--H5Vb37xdFkf30kEd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Don't use a WARN_ONCE when printing a potentially user triggered
-condition.
+Hi!
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20220304180105.409765-2-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
----
- block/blk-core.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+> On Mon, 16 Jan 2023 at 10:06, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.10.164 release.
+> > There are 64 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed, 18 Jan 2023 15:47:28 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patc=
+h-5.10.164-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git linux-5.10.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+>=20
+> Preliminarily,
+>=20
+> | /builds/linux/drivers/gpu/drm/msm/dp/dp_aux.c: In function 'dp_aux_isr':
+> | /builds/linux/drivers/gpu/drm/msm/dp/dp_aux.c:427:14: error: 'isr'
+> undeclared (first use in this function); did you mean 'idr'?
+> |   427 |         if (!isr)
+> |       |              ^~~
+> |       |              idr
+>=20
+> It's currently failing for arm, arm64, (not i386) and x86, with GCC 8,
+> 10, 11, 12; Clang 15 and nightly. We'll test the extended set of
+> architectures and update momentarily.
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 80f3e729fdd4..4fbf915d9cb0 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -2179,10 +2179,7 @@ static inline bool bio_check_ro(struct bio *bio, struct hd_struct *part)
- 
- 		if (op_is_flush(bio->bi_opf) && !bio_sectors(bio))
- 			return false;
--
--		WARN_ONCE(1,
--		       "generic_make_request: Trying to write "
--			"to read-only block-device %s (partno %d)\n",
-+		pr_warn("Trying to write to read-only block-device %s (partno %d)\n",
- 			bio_devname(bio, b), part->partno);
- 		/* Older lvm-tools actually trigger this */
- 		return false;
--- 
-2.34.1
+CIP testing sees the same build problem:
 
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/7=
+48630506
+
+  CC [M]  drivers/gpu/drm/msm/dp/dp_display.o
+6758drivers/gpu/drm/msm/dp/dp_aux.c: In function 'dp_aux_isr':
+6759drivers/gpu/drm/msm/dp/dp_aux.c:427:7: error: 'isr' undeclared (first u=
+se in this function); did you mean 'idr'?
+6760  427 |  if (!isr)
+6761      |       ^~~
+6762      |       idr
+6763drivers/gpu/drm/msm/dp/dp_aux.c:427:7: note: each undeclared identifier=
+ is reported only once for each function it appears in
+6764make[4]: *** [scripts/Makefile.build:286: drivers/gpu/drm/msm/dp/dp_aux=
+=2Eo] Error 1
+6765make[4]: *** Waiting for unfinished jobs....
+6766
+
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--H5Vb37xdFkf30kEd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY8XB6AAKCRAw5/Bqldv6
+8iloAJ9LoMMCTNXlZWHlhrtunrUHp/OADwCeMzhdXd643Eo2lnCkeaQK/W0yfyQ=
+=NKME
+-----END PGP SIGNATURE-----
+
+--H5Vb37xdFkf30kEd--
