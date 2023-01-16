@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1AC666C749
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18EFF66C74A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:29:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233188AbjAPQ3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:29:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47494 "EHLO
+        id S233269AbjAPQ3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:29:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233252AbjAPQ3N (ORCPT
+        with ESMTP id S233253AbjAPQ3N (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1CCB27485
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:30 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4EE6274A5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:17:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 662EAB80E93
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC077C433F0;
-        Mon, 16 Jan 2023 16:17:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 522976102A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:17:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 693B2C433EF;
+        Mon, 16 Jan 2023 16:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885848;
-        bh=xSuSUAasYCp98YQTYGI48uYqoA4vMXFpSR5usBPDZ8s=;
+        s=korg; t=1673885850;
+        bh=pyQgdqoQ4fEO3b9YE5YqRdec0gF4ixchJRN9AEx6k1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AF3XBV8KuOnYQdcdMXICVEpwr1gn7nJH6aBJr+xTg+q38H6DDiTVETxv+Zf2wyAlO
-         GMU+o76uF21uwLvx7KRdXIt4jrJgE0IDTxEY3LDn1MudgI1UE0k+GAC0nB7e+Ou9mS
-         xX7uYy+GiAYq8j8jn5JKkgJrkOzLS2R05nnFuI5I=
+        b=TTA9p0soe/Yeex4+wDsVCueZZ6t+BkiPibRUbQk7AlvNwyUpcrNtam2w1LGDwp7OA
+         Aizn71o4us2OtjavzTPPZDYKf3meD14SBzCnE+c8Nq1HZjXuWw3zJsq4femF7PBM+v
+         7QTvS7CR0SUv1aTNhZEnwxwDCESXM411H57pg9Zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kris Bahnsen <kris@embeddedTS.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 206/658] spi: spi-gpio: Dont set MOSI as an input if not 3WIRE mode
-Date:   Mon, 16 Jan 2023 16:44:54 +0100
-Message-Id: <20230116154918.872435427@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 207/658] wifi: rtl8xxxu: Add __packed to struct rtl8723bu_c2h
+Date:   Mon, 16 Jan 2023 16:44:55 +0100
+Message-Id: <20230116154918.913673099@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,62 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kris Bahnsen <kris@embeddedTS.com>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-[ Upstream commit 3a6f994f848a69deb2bf3cd9d130dd0c09730e55 ]
+[ Upstream commit dd469a754afdb782ba3033cee102147493dc39f4 ]
 
-The addition of 3WIRE support would affect MOSI direction even
-when still in standard (4 wire) mode. This can lead to MOSI being
-at an invalid logic level when a device driver sets an SPI
-message with a NULL tx_buf.
+This struct is used to access a sequence of bytes received from the
+wifi chip. It must not have any padding bytes between the members.
 
-spi.h states that if tx_buf is NULL then "zeros will be shifted
-out ... " If MOSI is tristated then the data shifted out is subject
-to pull resistors, keepers, or in the absence of those, noise.
+This doesn't change anything on my system, possibly because currently
+none of the members need more than byte alignment.
 
-This issue came to light when using spi-gpio connected to an
-ADS7843 touchscreen controller. MOSI pulled high when clocking
-MISO data in caused the SPI device to interpret this as a command
-which would put the device in an unexpected and non-functional
-state.
-
-Fixes: 4b859db2c606 ("spi: spi-gpio: add SPI_3WIRE support")
-Fixes: 5132b3d28371 ("spi: gpio: Support 3WIRE high-impedance turn-around")
-Signed-off-by: Kris Bahnsen <kris@embeddedTS.com>
-Link: https://lore.kernel.org/r/20221207230853.6174-1-kris@embeddedTS.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b2b43b7837ba ("rtl8xxxu: Initial functionality to handle C2H events for 8723bu")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1a270918-da22-ff5f-29fc-7855f740c5ba@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-gpio.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-gpio.c b/drivers/spi/spi-gpio.c
-index e7dc1fad4a87..282c5ee41a62 100644
---- a/drivers/spi/spi-gpio.c
-+++ b/drivers/spi/spi-gpio.c
-@@ -244,9 +244,19 @@ static int spi_gpio_set_direction(struct spi_device *spi, bool output)
- 	if (output)
- 		return gpiod_direction_output(spi_gpio->mosi, 1);
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+index 6858f7de0915..2a02d4d72dec 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+@@ -1178,7 +1178,7 @@ struct rtl8723bu_c2h {
+ 			u8 dummy3_0;
+ 		} __packed ra_report;
+ 	};
+-};
++} __packed;
  
--	ret = gpiod_direction_input(spi_gpio->mosi);
--	if (ret)
--		return ret;
-+	/*
-+	 * Only change MOSI to an input if using 3WIRE mode.
-+	 * Otherwise, MOSI could be left floating if there is
-+	 * no pull resistor connected to the I/O pin, or could
-+	 * be left logic high if there is a pull-up. Transmitting
-+	 * logic high when only clocking MISO data in can put some
-+	 * SPI devices in to a bad state.
-+	 */
-+	if (spi->mode & SPI_3WIRE) {
-+		ret = gpiod_direction_input(spi_gpio->mosi);
-+		if (ret)
-+			return ret;
-+	}
- 	/*
- 	 * Send a turnaround high impedance cycle when switching
- 	 * from output to input. Theoretically there should be
+ struct rtl8xxxu_fileops;
+ 
 -- 
 2.35.1
 
