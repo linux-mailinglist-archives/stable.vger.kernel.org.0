@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BF1E66C93F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB8566C50C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233884AbjAPQrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:47:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
+        id S231845AbjAPQBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:01:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233885AbjAPQqi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED32729E29
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:41 -0800 (PST)
+        with ESMTP id S231908AbjAPQA7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5846919B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BE0E6104D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1B3AC433F0;
-        Mon, 16 Jan 2023 16:34:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 173E8B8105F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F2ACC433EF;
+        Mon, 16 Jan 2023 16:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886881;
-        bh=D8VCu5XfzvY2eONbKg3wH65azwDdtbojeCpGAiI1RVM=;
+        s=korg; t=1673884853;
+        bh=e2MSWj94IR5+M3v5Wv/qjLDQZ8/vs4jUFWSZe/1Uxvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFqhVdUonAIFApEWZeAkzav7Ou6GDM5jH56UGrF/RNQ5QJGM9C5w5y4oewjYCmUMn
-         cc8j8s0SnpW341A+naX7Fa5rEILT8XXuD8sI1hkgqCoowHZz7P41UIb77PwQ+SOrYq
-         69jKEg2C1f8Av5qETBUTg3BKJk8upYxDfvqJHx4Q=
+        b=gUHVhzrlUM+VfBkt3vkpoKlVS9h2+W2Y91l4wfnpgwjzc1fPCzEh/1KdYo71n+AHF
+         vDWvKdyUIOxwXb/O61NEf7ke5UPCEgANWd2K7yjtcqXCdWS+c6bqm46kR4H7UQAPTe
+         8O66sIeUnGlOddepZ+mYBZZKkKxkwmXYjaRG/oVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>,
-        "Tyler Hicks (Microsoft)" <code@tyhicks.com>
-Subject: [PATCH 5.4 597/658] selftests: Fix kselftest O=objdir build from cluttering top level objdir
-Date:   Mon, 16 Jan 2023 16:51:25 +0100
-Message-Id: <20230116154936.778261547@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
+        Guillaume Nault <gnault@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 163/183] selftests/net: l2_tos_ttl_inherit.sh: Ensure environment cleanup on failure.
+Date:   Mon, 16 Jan 2023 16:51:26 +0100
+Message-Id: <20230116154810.198183048@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit 29e911ef7b706215caf02a82b0d3076611d6abe8 upstream.
+[ Upstream commit d68ff8ad3351b8fc8d6f14b9a4f5cc8ba3e8bd13 ]
 
-make kselftest-all O=objdir builds create generated objects in objdir.
-This clutters the top level directory with kselftest objects. Fix it
-to create sub-directory under objdir for kselftest objects.
+Use 'set -e' and an exit handler to stop the script if a command fails
+and ensure the test environment is cleaned up in any case. Also, handle
+the case where the script is interrupted by SIGINT.
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The only command that's expected to fail is 'wait $ping_pid', since
+it's killed by the script. Handle this case with '|| true' to make it
+play well with 'set -e'.
+
+Finally, return the Kselftest SKIP code (4) when the script breaks
+because of an environment problem or a command line failure. The 0 and
+1 return codes should now reliably indicate that all tests have been
+run (0: all tests run and passed, 1: all tests run but at least one
+failed, 4: test script didn't run completely).
+
+Fixes: b690842d12fd ("selftests/net: test l2 tunnel TOS/TTL inheriting")
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/Makefile |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../selftests/net/l2_tos_ttl_inherit.sh       | 40 +++++++++++++++++--
+ 1 file changed, 36 insertions(+), 4 deletions(-)
 
---- a/tools/testing/selftests/Makefile
-+++ b/tools/testing/selftests/Makefile
-@@ -78,7 +78,7 @@ override LDFLAGS =
- override MAKEFLAGS =
- endif
+diff --git a/tools/testing/selftests/net/l2_tos_ttl_inherit.sh b/tools/testing/selftests/net/l2_tos_ttl_inherit.sh
+index cf56680d598f..f11756e7df2f 100755
+--- a/tools/testing/selftests/net/l2_tos_ttl_inherit.sh
++++ b/tools/testing/selftests/net/l2_tos_ttl_inherit.sh
+@@ -12,13 +12,16 @@
+ # In addition this script also checks if forcing a specific field in the
+ # outer header is working.
  
--# Append kselftest to KBUILD_OUTPUT to avoid cluttering
-+# Append kselftest to KBUILD_OUTPUT and O to avoid cluttering
- # KBUILD_OUTPUT with selftest objects and headers installed
- # by selftests Makefile or lib.mk.
- ifdef building_out_of_srctree
-@@ -86,7 +86,7 @@ override LDFLAGS =
- endif
++# Return 4 by default (Kselftest SKIP code)
++ERR=4
++
+ if [ "$(id -u)" != "0" ]; then
+ 	echo "Please run as root."
+-	exit 0
++	exit $ERR
+ fi
+ if ! which tcpdump > /dev/null 2>&1; then
+ 	echo "No tcpdump found. Required for this test."
+-	exit 0
++	exit $ERR
+ fi
  
- ifneq ($(O),)
--	BUILD := $(O)
-+	BUILD := $(O)/kselftest
- else
- 	ifneq ($(KBUILD_OUTPUT),)
- 		BUILD := $(KBUILD_OUTPUT)/kselftest
+ expected_tos="0x00"
+@@ -340,7 +343,7 @@ verify() {
+ 		fi
+ 	fi
+ 	kill -9 $ping_pid
+-	wait $ping_pid 2>/dev/null
++	wait $ping_pid 2>/dev/null || true
+ 	result="FAIL"
+ 	if [ "$outer" = "4" ]; then
+ 		captured_ttl="$(get_field "ttl" "$out")"
+@@ -380,6 +383,31 @@ cleanup() {
+ 	ip netns del "${NS1}" 2>/dev/null
+ }
+ 
++exit_handler() {
++	# Don't exit immediately if one of the intermediate commands fails.
++	# We might be called at the end of the script, when the network
++	# namespaces have already been deleted. So cleanup() may fail, but we
++	# still need to run until 'exit $ERR' or the script won't return the
++	# correct error code.
++	set +e
++
++	cleanup
++
++	exit $ERR
++}
++
++# Restore the default SIGINT handler (just in case) and exit.
++# The exit handler will take care of cleaning everything up.
++interrupted() {
++	trap - INT
++
++	exit $ERR
++}
++
++set -e
++trap exit_handler EXIT
++trap interrupted INT
++
+ printf "┌────────┬───────┬───────┬──────────────┬"
+ printf "──────────────┬───────┬────────┐\n"
+ for type in gre vxlan geneve; do
+@@ -409,6 +437,10 @@ done
+ printf "└────────┴───────┴───────┴──────────────┴"
+ printf "──────────────┴───────┴────────┘\n"
+ 
++# All tests done.
++# Set ERR appropriately: it will be returned by the exit handler.
+ if $failed; then
+-	exit 1
++	ERR=1
++else
++	ERR=0
+ fi
+-- 
+2.35.1
+
 
 
