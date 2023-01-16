@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 238C566CCDE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:30:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E94A66CB68
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:14:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234822AbjAPRaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:30:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52540 "EHLO
+        id S234362AbjAPROk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:14:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234738AbjAPR3a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:30 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD013A586
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:03 -0800 (PST)
+        with ESMTP id S234325AbjAPRM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:12:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB884B197
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 20EC6CE1021
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1376BC433D2;
-        Mon, 16 Jan 2023 17:06:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE9ECB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 419B3C433D2;
+        Mon, 16 Jan 2023 16:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888820;
-        bh=6Giu9Kvk/Sp9xBAkU8cq2Gg7H3GtVSmSZEvW7p65OfI=;
+        s=korg; t=1673887984;
+        bh=TeGx9OE4jFvILCtiScl1JRq5wR9c3CWZKJSnEQNDCv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dw1drM+M4K4XHDNMHCsbjvJ/4h1vK+LfO9YXoxr6sf/BDpZn3nieolu6duCAadl2E
-         9xEz06QdFPa7ujAY1X6hvqD1NZ9ejfDGf9qT97WGI56JweXNANWLn7ZoEG+XAf6yx6
-         eyAqcWzze/rD+y+XOFCU8y/OCOodj/KcbY0sMSaA=
+        b=btAXof3X7HP0eRuSq1ZmhL8J53Gjmj44aVHwdL7wDVEK6jcXZLOSjVp0b991d5rx5
+         G0tNNRuZCGvHbpQTSBJyDDlTY2FdDDY2hyvMKVfokAH7fQFfa7lU3xTg8/uyPvcpfI
+         IKmjpWvDtLe6I5dB5lU9ygsi0TBtRkdqumxb5A/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 144/338] RDMA/rxe: Fix NULL-ptr-deref in rxe_qp_do_cleanup() when socket create failed
+        patches@lists.linux.dev, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Ferry Toth <ftoth@exalondelft.nl>
+Subject: [PATCH 4.19 355/521] usb: dwc3: core: defer probe on ulpi_read_id timeout
 Date:   Mon, 16 Jan 2023 16:50:17 +0100
-Message-Id: <20230116154827.125638813@linuxfoundation.org>
+Message-Id: <20230116154902.987677881@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Ferry Toth <ftoth@exalondelft.nl>
 
-[ Upstream commit f67376d801499f4fa0838c18c1efcad8840e550d ]
+commit 63130462c919ece0ad0d9bb5a1f795ef8d79687e upstream.
 
-There is a null-ptr-deref when mount.cifs over rdma:
+Since commit 0f0101719138 ("usb: dwc3: Don't switch OTG -> peripheral
+if extcon is present"), Dual Role support on Intel Merrifield platform
+broke due to rearranging the call to dwc3_get_extcon().
 
-  BUG: KASAN: null-ptr-deref in rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
-  Read of size 8 at addr 0000000000000018 by task mount.cifs/3046
+It appears to be caused by ulpi_read_id() masking the timeout on the first
+test write. In the past dwc3 probe continued by calling dwc3_core_soft_reset()
+followed by dwc3_get_extcon() which happend to return -EPROBE_DEFER.
+On deferred probe ulpi_read_id() finally succeeded. Due to above mentioned
+rearranging -EPROBE_DEFER is not returned and probe completes without phy.
 
-  CPU: 2 PID: 3046 Comm: mount.cifs Not tainted 6.1.0-rc5+ #62
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc3
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x34/0x44
-   kasan_report+0xad/0x130
-   rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
-   execute_in_process_context+0x25/0x90
-   __rxe_cleanup+0x101/0x1d0 [rdma_rxe]
-   rxe_create_qp+0x16a/0x180 [rdma_rxe]
-   create_qp.part.0+0x27d/0x340
-   ib_create_qp_kernel+0x73/0x160
-   rdma_create_qp+0x100/0x230
-   _smbd_get_connection+0x752/0x20f0
-   smbd_get_connection+0x21/0x40
-   cifs_get_tcp_session+0x8ef/0xda0
-   mount_get_conns+0x60/0x750
-   cifs_mount+0x103/0xd00
-   cifs_smb3_do_mount+0x1dd/0xcb0
-   smb3_get_tree+0x1d5/0x300
-   vfs_get_tree+0x41/0xf0
-   path_mount+0x9b3/0xdd0
-   __x64_sys_mount+0x190/0x1d0
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+On Intel Merrifield the timeout on the first test write issue is reproducible
+but it is difficult to find the root cause. Using a mainline kernel and
+rootfs with buildroot ulpi_read_id() succeeds. As soon as adding
+ftrace / bootconfig to find out why, ulpi_read_id() fails and we can't
+analyze the flow. Using another rootfs ulpi_read_id() fails even without
+adding ftrace. We suspect the issue is some kind of timing / race, but
+merely retrying ulpi_read_id() does not resolve the issue.
 
-The root cause of the issue is the socket create failed in
-rxe_qp_init_req().
+As we now changed ulpi_read_id() to return -ETIMEDOUT in this case, we
+need to handle the error by calling dwc3_core_soft_reset() and request
+-EPROBE_DEFER. On deferred probe ulpi_read_id() is retried and succeeds.
 
-So move the reset rxe_qp_do_cleanup() after the NULL ptr check.
-
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20221122151437.1057671-1-zhangxiaoxu5@huawei.com
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ef6a7bcfb01c ("usb: ulpi: Support device discovery via DT")
+Cc: stable@vger.kernel.org
+Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
+Link: https://lore.kernel.org/r/20221205201527.13525-3-ftoth@exalondelft.nl
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/sw/rxe/rxe_qp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 2391b0e698a9..9bd99bd693fd 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -866,12 +866,12 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
- 		qp->resp.mr = NULL;
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -914,8 +914,13 @@ static int dwc3_core_init(struct dwc3 *d
+ 
+ 	if (!dwc->ulpi_ready) {
+ 		ret = dwc3_core_ulpi_init(dwc);
+-		if (ret)
++		if (ret) {
++			if (ret == -ETIMEDOUT) {
++				dwc3_core_soft_reset(dwc);
++				ret = -EPROBE_DEFER;
++			}
+ 			goto err0;
++		}
+ 		dwc->ulpi_ready = true;
  	}
  
--	if (qp_type(qp) == IB_QPT_RC)
--		sk_dst_reset(qp->sk->sk);
--
- 	free_rd_atomic_resources(qp);
- 
- 	if (qp->sk) {
-+		if (qp_type(qp) == IB_QPT_RC)
-+			sk_dst_reset(qp->sk->sk);
-+
- 		kernel_sock_shutdown(qp->sk, SHUT_RDWR);
- 		sock_release(qp->sk);
- 	}
--- 
-2.35.1
-
 
 
