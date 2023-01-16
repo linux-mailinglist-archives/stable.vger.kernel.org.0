@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5298066C896
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:40:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7F8466C475
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233655AbjAPQkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:40:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54386 "EHLO
+        id S229883AbjAPPzH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:55:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233616AbjAPQka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1399236B15
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:28:40 -0800 (PST)
+        with ESMTP id S231367AbjAPPyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:54:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B24E02195A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:54:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9158B81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:28:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1862BC433EF;
-        Mon, 16 Jan 2023 16:28:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52C516102D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63DA1C433D2;
+        Mon, 16 Jan 2023 15:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886517;
-        bh=yQp9gey/p9XrE0TJ4o/A319/sCYc9ly1bfKqcGAOxg8=;
+        s=korg; t=1673884492;
+        bh=udqs3vuQ0CNX9wfM+YX9/Q0Ew6jLRe8a4KEfyjRwNMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oePChVwbVt1qKKjmPQ1TbzMc0HSYg2z4TwMqzp0xBbYRVgtWJUN4bCxbKDrZHW86N
-         X3wVHZJRMGBKCIGKw6RGlQsP70dVUVIvrHaISvTLw1dmGFOa6ZCrAnIIA1WeAvyVB3
-         DnoWlsyxP4nKG6b/TK3flB+8FOayNEoqZLrKUd04=
+        b=oBRTLA32INGWec/sSlwuTTdcZ7PnOKBtA/2X47KnWRJmnIZYPjXWPB3d4kY/B22Eb
+         Gvhj76J6vuj+FiWVflWfY+3GToFLPXLLHsTKWSZG2QHwSu7qTnHJtxEjljNyeuCktl
+         K+3eUsd65oJ0RAVpealZEad7V5esi69XhUZNr3rI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Lynch <nathanl@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 461/658] powerpc/rtas: avoid device tree lookups in rtas_os_term()
+        patches@lists.linux.dev, Rob Clark <robdclark@chromium.org>,
+        Chia-I Wu <olvaffe@gmail.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Subject: [PATCH 6.1 026/183] drm/virtio: Fix GEM handle creation UAF
 Date:   Mon, 16 Jan 2023 16:49:09 +0100
-Message-Id: <20230116154930.594933066@linuxfoundation.org>
+Message-Id: <20230116154804.472956980@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit ed2213bfb192ab51f09f12e9b49b5d482c6493f3 ]
+commit 52531258318ed59a2dc5a43df2eaf0eb1d65438e upstream.
 
-rtas_os_term() is called during panic. Its behavior depends on a couple
-of conditions in the /rtas node of the device tree, the traversal of
-which entails locking and local IRQ state changes. If the kernel panics
-while devtree_lock is held, rtas_os_term() as currently written could
-hang.
+Userspace can guess the handle value and try to race GEM object creation
+with handle close, resulting in a use-after-free if we dereference the
+object after dropping the handle's reference.  For that reason, dropping
+the handle's reference must be done *after* we are done dereferencing
+the object.
 
-Instead of discovering the relevant characteristics at panic time,
-cache them in file-static variables at boot. Note the lookup for
-"ibm,extended-os-term" is converted to of_property_read_bool() since it
-is a boolean property, not an RTAS function token.
-
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
-[mpe: Incorporate suggested change from Nick]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221118150751.469393-4-nathanl@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
+Fixes: 62fb7a5e1096 ("virtio-gpu: add 3d/virgl support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221216233355.542197-2-robdclark@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/rtas.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index 35e246e39705..8ec69ea81fb4 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -714,6 +714,7 @@ void __noreturn rtas_halt(void)
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -358,10 +358,18 @@ static int virtio_gpu_resource_create_io
+ 		drm_gem_object_release(obj);
+ 		return ret;
+ 	}
+-	drm_gem_object_put(obj);
  
- /* Must be in the RMO region, so we place it here */
- static char rtas_os_term_buf[2048];
-+static s32 ibm_os_term_token = RTAS_UNKNOWN_SERVICE;
+ 	rc->res_handle = qobj->hw_res_handle; /* similiar to a VM address */
+ 	rc->bo_handle = handle;
++
++	/*
++	 * The handle owns the reference now.  But we must drop our
++	 * remaining reference *after* we no longer need to dereference
++	 * the obj.  Otherwise userspace could guess the handle and
++	 * race closing it from another thread.
++	 */
++	drm_gem_object_put(obj);
++
+ 	return 0;
+ }
  
- void rtas_os_term(char *str)
- {
-@@ -725,14 +726,13 @@ void rtas_os_term(char *str)
- 	 * this property may terminate the partition which we want to avoid
- 	 * since it interferes with panic_timeout.
- 	 */
--	if (RTAS_UNKNOWN_SERVICE == rtas_token("ibm,os-term") ||
--	    RTAS_UNKNOWN_SERVICE == rtas_token("ibm,extended-os-term"))
-+	if (ibm_os_term_token == RTAS_UNKNOWN_SERVICE)
- 		return;
+@@ -723,11 +731,18 @@ static int virtio_gpu_resource_create_bl
+ 		drm_gem_object_release(obj);
+ 		return ret;
+ 	}
+-	drm_gem_object_put(obj);
  
- 	snprintf(rtas_os_term_buf, 2048, "OS panic: %s", str);
- 
- 	do {
--		status = rtas_call(rtas_token("ibm,os-term"), 1, 1, NULL,
-+		status = rtas_call(ibm_os_term_token, 1, 1, NULL,
- 				   __pa(rtas_os_term_buf));
- 	} while (rtas_busy_delay(status));
- 
-@@ -1215,6 +1215,13 @@ void __init rtas_initialize(void)
- 	no_entry = of_property_read_u32(rtas.dev, "linux,rtas-entry", &entry);
- 	rtas.entry = no_entry ? rtas.base : entry;
+ 	rc_blob->res_handle = bo->hw_res_handle;
+ 	rc_blob->bo_handle = handle;
  
 +	/*
-+	 * Discover these now to avoid device tree lookups in the
-+	 * panic path.
++	 * The handle owns the reference now.  But we must drop our
++	 * remaining reference *after* we no longer need to dereference
++	 * the obj.  Otherwise userspace could guess the handle and
++	 * race closing it from another thread.
 +	 */
-+	if (of_property_read_bool(rtas.dev, "ibm,extended-os-term"))
-+		ibm_os_term_token = rtas_token("ibm,os-term");
++	drm_gem_object_put(obj);
 +
- 	/* If RTAS was found, allocate the RMO buffer for it and look for
- 	 * the stop-self token if any
- 	 */
--- 
-2.35.1
-
+ 	return 0;
+ }
+ 
 
 
