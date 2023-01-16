@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E6866C844
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:37:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4746866C852
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:38:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233281AbjAPQhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:37:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52566 "EHLO
+        id S233592AbjAPQiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:38:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233340AbjAPQgp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:36:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFCD232E4E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:25:54 -0800 (PST)
+        with ESMTP id S233501AbjAPQh0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:37:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61727265BB
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:26:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C45161058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:25:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B3D9C433D2;
-        Mon, 16 Jan 2023 16:25:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE581B81077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:26:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D23FC433D2;
+        Mon, 16 Jan 2023 16:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886353;
-        bh=pD2z6FAPXJAf/77WjOxmvfrAFPzRtp5z1bM7n+jRkFw=;
+        s=korg; t=1673886382;
+        bh=I6sMuE1ogJuYiIWpdS4InycTJH1lueI8UdpaR2yGMUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1u2CCsTuBkdK5GHyFQeL8ZKRqxBVehHbAiGSIgqF6ETaULEgesSzBw4as6Q/uc6F
-         uowwB7t2f8SBDngW68ho8jTfu2U5rvW1v8rUoeM6YuHFBz0faHSaGXB9g+KJ4AJhT8
-         pMiAMhzWtV08fn3Sn+1Dy2hH5tlZk+MBsG2RSGV4=
+        b=MuFw0+7nkean6nqrTfwDGRvLBtb/lxreT+JdKxG4wwgIxoHP7ROPYZNRl6BIQl/zZ
+         HJJuSPSqTOvon9LNgiP0xZ/HGH4ZBAWCP8vVP8CqENR+qNlmhyBSsLXOLktkq4HGDo
+         /8A/OYeePIl/LBoidlpf89oe5cz/L8byWe6ec4Pk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 381/658] mailbox: zynq-ipi: fix error handling while device_register() fails
-Date:   Mon, 16 Jan 2023 16:47:49 +0100
-Message-Id: <20230116154926.967800096@linuxfoundation.org>
+        patches@lists.linux.dev, Jun Nie <jun.nie@linaro.org>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 382/658] net_sched: reject TCF_EM_SIMPLE case for complex ematch module
+Date:   Mon, 16 Jan 2023 16:47:50 +0100
+Message-Id: <20230116154927.020574043@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,50 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit a6792a0cdef0b1c2d77920246283a72537e60e94 ]
+[ Upstream commit 9cd3fd2054c3b3055163accbf2f31a4426f10317 ]
 
-If device_register() fails, it has two issues:
-1. The name allocated by dev_set_name() is leaked.
-2. The parent of device is not NULL, device_unregister() is called
-   in zynqmp_ipi_free_mboxes(), it will lead a kernel crash because
-   of removing not added device.
+When TCF_EM_SIMPLE was introduced, it is supposed to be convenient
+for ematch implementation:
 
-Call put_device() to give up the reference, so the name is freed in
-kobject_cleanup(). Add device registered check in zynqmp_ipi_free_mboxes()
-to avoid null-ptr-deref.
+https://lore.kernel.org/all/20050105110048.GO26856@postel.suug.ch/
 
-Fixes: 4981b82ba2ff ("mailbox: ZynqMP IPI mailbox controller")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+"You don't have to, providing a 32bit data chunk without TCF_EM_SIMPLE
+set will simply result in allocating & copy. It's an optimization,
+nothing more."
+
+So if an ematch module provides ops->datalen that means it wants a
+complex data structure (saved in its em->data) instead of a simple u32
+value. We should simply reject such a combination, otherwise this u32
+could be misinterpreted as a pointer.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
+Reported-by: Jun Nie <jun.nie@linaro.org>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/zynqmp-ipi-mailbox.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sched/ematch.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mailbox/zynqmp-ipi-mailbox.c b/drivers/mailbox/zynqmp-ipi-mailbox.c
-index f9cc674ba9b7..1d0b8abbafc3 100644
---- a/drivers/mailbox/zynqmp-ipi-mailbox.c
-+++ b/drivers/mailbox/zynqmp-ipi-mailbox.c
-@@ -493,6 +493,7 @@ static int zynqmp_ipi_mbox_probe(struct zynqmp_ipi_mbox *ipi_mbox,
- 	ret = device_register(&ipi_mbox->dev);
- 	if (ret) {
- 		dev_err(dev, "Failed to register ipi mbox dev.\n");
-+		put_device(&ipi_mbox->dev);
- 		return ret;
- 	}
- 	mdev = &ipi_mbox->dev;
-@@ -619,7 +620,8 @@ static void zynqmp_ipi_free_mboxes(struct zynqmp_ipi_pdata *pdata)
- 		ipi_mbox = &pdata->ipi_mboxes[i];
- 		if (ipi_mbox->dev.parent) {
- 			mbox_controller_unregister(&ipi_mbox->mbox);
--			device_unregister(&ipi_mbox->dev);
-+			if (device_is_registered(&ipi_mbox->dev))
-+				device_unregister(&ipi_mbox->dev);
- 		}
- 	}
- }
+diff --git a/net/sched/ematch.c b/net/sched/ematch.c
+index dd3b8c11a2e0..43bfb33629e9 100644
+--- a/net/sched/ematch.c
++++ b/net/sched/ematch.c
+@@ -255,6 +255,8 @@ static int tcf_em_validate(struct tcf_proto *tp,
+ 			 * the value carried.
+ 			 */
+ 			if (em_hdr->flags & TCF_EM_SIMPLE) {
++				if (em->ops->datalen > 0)
++					goto errout;
+ 				if (data_len < sizeof(u32))
+ 					goto errout;
+ 				em->data = *(u32 *) data;
 -- 
 2.35.1
 
