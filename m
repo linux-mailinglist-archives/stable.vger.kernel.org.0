@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D34966C498
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:56:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6BA366C8B8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:42:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231827AbjAPP4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:56:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38518 "EHLO
+        id S233736AbjAPQmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:42:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231573AbjAPP4K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:56:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C888822A00
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:56:08 -0800 (PST)
+        with ESMTP id S233702AbjAPQll (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:41:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039892ED42
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:29:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45906B81061
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:56:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68329C433D2;
-        Mon, 16 Jan 2023 15:56:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95C806104F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:29:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6CBBC433D2;
+        Mon, 16 Jan 2023 16:29:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884565;
-        bh=wOjUQIm/KTlg+uAV5LlkY1FUxIHBQg/2Hq1IbpPB1pI=;
+        s=korg; t=1673886594;
+        bh=NXswxeOoOqrl7fJ+kl1oTll+1U75tTxuR8+wlOzjJcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvOmofh9YcXrJQj3AFRvh0Mg70d2U0x9Mpt+C4UxSO2zaoUurvCt7xudg2OskVSff
-         2SQTGW+2aSzOKq2vDwlNhCHkAzUFD4LIXRzqloTgX0vj/8R7D1gcZAfRSuww6VabNC
-         xb0i1TpuEJm6b7DIM435/1qunzWdDb0Pt5dQoaKE=
+        b=AI+6ZRHi6ChxQRVdYry//Ap/mr4BLrELWX0tRvsb5eANxzEX+2kqrYnSj6NCg/sIh
+         xlhIzf1ZZjdo5TBWeg/RbS0CRHtnGibsTT2ct6jCeZYImB8/RGjZrUoau9SlghTSRp
+         IYvexTn2vYg94Q0pZhq40sPQ9BasDURq5Q6bcuxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hector Martin <marcan@marcan.st>,
-        Marc Zyngier <maz@kernel.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 6.1 055/183] firmware/psci: Dont register with debugfs if PSCI isnt available
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 490/658] binfmt: Fix error return code in load_elf_fdpic_binary()
 Date:   Mon, 16 Jan 2023 16:49:38 +0100
-Message-Id: <20230116154805.680573579@linuxfoundation.org>
+Message-Id: <20230116154931.944502415@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,58 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Wang Yufen <wangyufen@huawei.com>
 
-commit cef139299fd86098c6e3dbd389d1d0b2462d7710 upstream.
+[ Upstream commit e7f703ff2507f4e9f496da96cd4b78fd3026120c ]
 
-Contrary to popular belief, PSCI is not a universal property of an
-ARM/arm64 system. There is a garden variety of systems out there
-that don't (or even cannot) implement it.
+Fix to return a negative error code from create_elf_fdpic_tables()
+instead of 0.
 
-I'm the first one deplore such a situation, but hey...
-
-On such systems, a "cat /sys/kernel/debug/psci" results in
-fireworks, as no invocation callback is registered.
-
-Check for the invoke_psci_fn and psci_ops.get_version pointers
-before registering with the debugfs subsystem, avoiding the
-issue altogether.
-
-Fixes: 3137f2e60098 ("firmware/psci: Add debugfs support to ease debugging")
-Reported-by: Hector Martin <marcan@marcan.st>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Reviewed-by: Hector Martin <marcan@marcan.st>
-Acked-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/20230105090834.630238-1-maz@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/1669945261-30271-1-git-send-email-wangyufen@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/psci/psci.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/binfmt_elf_fdpic.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/psci/psci.c b/drivers/firmware/psci/psci.c
-index e7bcfca4159f..447ee4ea5c90 100644
---- a/drivers/firmware/psci/psci.c
-+++ b/drivers/firmware/psci/psci.c
-@@ -440,6 +440,9 @@ static const struct file_operations psci_debugfs_ops = {
+diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
+index 9f785627009c..39bcbfab386d 100644
+--- a/fs/binfmt_elf_fdpic.c
++++ b/fs/binfmt_elf_fdpic.c
+@@ -435,8 +435,9 @@ static int load_elf_fdpic_binary(struct linux_binprm *bprm)
+ 	current->mm->start_stack = current->mm->start_brk + stack_size;
+ #endif
  
- static int __init psci_debugfs_init(void)
- {
-+	if (!invoke_psci_fn || !psci_ops.get_version)
-+		return 0;
-+
- 	return PTR_ERR_OR_ZERO(debugfs_create_file("psci", 0444, NULL, NULL,
- 						   &psci_debugfs_ops));
- }
+-	if (create_elf_fdpic_tables(bprm, current->mm,
+-				    &exec_params, &interp_params) < 0)
++	retval = create_elf_fdpic_tables(bprm, current->mm, &exec_params,
++					 &interp_params);
++	if (retval < 0)
+ 		goto error;
+ 
+ 	kdebug("- start_code  %lx", current->mm->start_code);
 -- 
-2.39.0
+2.35.1
 
 
 
