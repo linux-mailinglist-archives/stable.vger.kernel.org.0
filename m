@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D8A66CD48
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3F3A66CBB9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234889AbjAPRf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:35:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54266 "EHLO
+        id S234536AbjAPRQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:16:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234855AbjAPRel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:41 -0500
+        with ESMTP id S234447AbjAPRPv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:51 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA2E3BDB2
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AF4D33471
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AF356108D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A6E9C433D2;
-        Mon, 16 Jan 2023 17:10:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF46560F7C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCACCC433D2;
+        Mon, 16 Jan 2023 16:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889050;
-        bh=aZ0JKpZUSDhGF4muQfj/pOfCpHaLsON8A2w+yYEIG1A=;
+        s=korg; t=1673888208;
+        bh=aDP1JkHuENaxlzZ3YHazEmWGO3RHBiUcGMnhNk42KYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxgL/ByfeaK9D/ar4yf/Ee+JXCit6zufQvYZp1TkXP3eKmAZqfvgoivqUnEuAKhyw
-         Bod+t3kG/C7DM0Sep3NWFDok132IP57Fdd2/lD+GXRqg9cQqj2Xv1tcExdtNgVk9ZG
-         kWztaqaPgcNi797Nak+ewGL3JQLisslKtDbNd3WY=
+        b=HOIDNYCWs5ZyC+RUqE9pmrnfXVy8ZZcbZCEwqQ3ABjOitNeaxhTJ+inytC54RSf6z
+         sJnhmbNNWlYkHcKokh0meUTGr1VtsDsd44okP8bLzAoXt/TfJZBT3p6ctlqA0whwdY
+         REM7ZzPNp2hZoTHj+BFTe+BDyHLkhN/bcJ/eH5wQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jun Nie <jun.nie@linaro.org>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 212/338] net_sched: reject TCF_EM_SIMPLE case for complex ematch module
-Date:   Mon, 16 Jan 2023 16:51:25 +0100
-Message-Id: <20230116154830.266662295@linuxfoundation.org>
+        patches@lists.linux.dev, Luo Meng <luomeng12@huawei.com>,
+        Mike Snitzer <snitzer@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 424/521] dm thin: resume even if in FAIL mode
+Date:   Mon, 16 Jan 2023 16:51:26 +0100
+Message-Id: <20230116154906.094766608@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Luo Meng <luomeng12@huawei.com>
 
-[ Upstream commit 9cd3fd2054c3b3055163accbf2f31a4426f10317 ]
+[ Upstream commit 19eb1650afeb1aa86151f61900e9e5f1de5d8d02 ]
 
-When TCF_EM_SIMPLE was introduced, it is supposed to be convenient
-for ematch implementation:
+If a thinpool set fail_io while suspending, resume will fail with:
+ device-mapper: resume ioctl on vg-thinpool  failed: Invalid argument
 
-https://lore.kernel.org/all/20050105110048.GO26856@postel.suug.ch/
+The thin-pool also can't be removed if an in-flight bio is in the
+deferred list.
 
-"You don't have to, providing a 32bit data chunk without TCF_EM_SIMPLE
-set will simply result in allocating & copy. It's an optimization,
-nothing more."
+This can be easily reproduced using:
 
-So if an ematch module provides ops->datalen that means it wants a
-complex data structure (saved in its em->data) instead of a simple u32
-value. We should simply reject such a combination, otherwise this u32
-could be misinterpreted as a pointer.
+  echo "offline" > /sys/block/sda/device/state
+  dd if=/dev/zero of=/dev/mapper/thin bs=4K count=1
+  dmsetup suspend /dev/mapper/pool
+  mkfs.ext4 /dev/mapper/thin
+  dmsetup resume /dev/mapper/pool
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+4caeae4c7103813598ae@syzkaller.appspotmail.com
-Reported-by: Jun Nie <jun.nie@linaro.org>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The root cause is maybe_resize_data_dev() will check fail_io and return
+error before called dm_resume.
+
+Fix this by adding FAIL mode check at the end of pool_preresume().
+
+Cc: stable@vger.kernel.org
+Fixes: da105ed5fd7e ("dm thin metadata: introduce dm_pool_abort_metadata")
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/ematch.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm-thin.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/net/sched/ematch.c b/net/sched/ematch.c
-index a48dca26f178..e6078a3da76a 100644
---- a/net/sched/ematch.c
-+++ b/net/sched/ematch.c
-@@ -259,6 +259,8 @@ static int tcf_em_validate(struct tcf_proto *tp,
- 			 * the value carried.
- 			 */
- 			if (em_hdr->flags & TCF_EM_SIMPLE) {
-+				if (em->ops->datalen > 0)
-+					goto errout;
- 				if (data_len < sizeof(u32))
- 					goto errout;
- 				em->data = *(u32 *) data;
+diff --git a/drivers/md/dm-thin.c b/drivers/md/dm-thin.c
+index 1916becc20e0..386cb3395378 100644
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -3549,20 +3549,28 @@ static int pool_preresume(struct dm_target *ti)
+ 	 */
+ 	r = bind_control_target(pool, ti);
+ 	if (r)
+-		return r;
++		goto out;
+ 
+ 	r = maybe_resize_data_dev(ti, &need_commit1);
+ 	if (r)
+-		return r;
++		goto out;
+ 
+ 	r = maybe_resize_metadata_dev(ti, &need_commit2);
+ 	if (r)
+-		return r;
++		goto out;
+ 
+ 	if (need_commit1 || need_commit2)
+ 		(void) commit(pool);
++out:
++	/*
++	 * When a thin-pool is PM_FAIL, it cannot be rebuilt if
++	 * bio is in deferred list. Therefore need to return 0
++	 * to allow pool_resume() to flush IO.
++	 */
++	if (r && get_pool_mode(pool) == PM_FAIL)
++		r = 0;
+ 
+-	return 0;
++	return r;
+ }
+ 
+ static void pool_suspend_active_thins(struct pool *pool)
 -- 
 2.35.1
 
