@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8185666CABA
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:06:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3CD666CABB
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:06:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234206AbjAPRGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:06:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60478 "EHLO
+        id S232805AbjAPRGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:06:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234014AbjAPRFw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:05:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2449929E01
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:47:18 -0800 (PST)
+        with ESMTP id S234238AbjAPRGI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:06:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E11542BE0
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:47:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 927F761042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A217FC433D2;
-        Mon, 16 Jan 2023 16:47:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9444B81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:47:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FAAEC433EF;
+        Mon, 16 Jan 2023 16:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887637;
-        bh=g1xzYZGHnsk2ynsRHCNsTmMhklLz6nWuou1CptJl40U=;
+        s=korg; t=1673887639;
+        bh=iRzJhdQM19Snj7Ql47odLVgpgkoNLHvo0jIoM1n/So8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgO2U2OuikLQOfLQfpxYqtDfTqUKNUm9h2ZS6jeFI7HwLbRbyRVDMVMtEH5wQ2gt9
-         YLzooH/Mi3tMJnjpCh9H/la98UXvyg0IjSt3z7xnSjwb5F/iFXFCfhXlIewkJfcBzX
-         WVRyXH6q6NZizixTSGYxuzJDOd30gnrLB8rDuYGg=
+        b=M30I/PnJct5BQLrCxEP8M2QORQcCRd81RMbux2UP3ZmHtzuEDxWOFcsnEdIPOv+RY
+         Bi0KcxJ95Ct/4tZD/0JY7P8ejy7M+vZmMzrPYk+XOpxspRAs+H2MSFvJbVX4oeeSmJ
+         dSNSqqRFQy5NxZvfqB9M34zYnZ0mxgzJNAEplRP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sven Peter <sven@svenpeter.dev>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        patches@lists.linux.dev, Jiamei Xie <jiamei.xie@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 224/521] usb: typec: Check for ops->exit instead of ops->enter in altmode_exit
-Date:   Mon, 16 Jan 2023 16:48:06 +0100
-Message-Id: <20230116154857.185267869@linuxfoundation.org>
+Subject: [PATCH 4.19 225/521] serial: amba-pl011: avoid SBSA UART accessing DMACR register
+Date:   Mon, 16 Jan 2023 16:48:07 +0100
+Message-Id: <20230116154857.228891855@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,37 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Peter <sven@svenpeter.dev>
+From: Jiamei Xie <jiamei.xie@arm.com>
 
-[ Upstream commit b6ddd180e3d9f92c1e482b3cdeec7dda086b1341 ]
+[ Upstream commit 94cdb9f33698478b0e7062586633c42c6158a786 ]
 
-typec_altmode_exit checks if ops->enter is not NULL but then calls
-ops->exit a few lines below. Fix that and check for the function
-pointer it's about to call instead.
+Chapter "B Generic UART" in "ARM Server Base System Architecture" [1]
+documentation describes a generic UART interface. Such generic UART
+does not support DMA. In current code, sbsa_uart_pops and
+amba_pl011_pops share the same stop_rx operation, which will invoke
+pl011_dma_rx_stop, leading to an access of the DMACR register. This
+commit adds a using_rx_dma check in pl011_dma_rx_stop to avoid the
+access to DMACR register for SBSA UARTs which does not support DMA.
 
-Fixes: 8a37d87d72f0 ("usb: typec: Bus type for alternate modes")
-Signed-off-by: Sven Peter <sven@svenpeter.dev>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20221114165924.33487-1-sven@svenpeter.dev
+When the kernel enables DMA engine with "CONFIG_DMA_ENGINE=y", Linux
+SBSA PL011 driver will access PL011 DMACR register in some functions.
+For most real SBSA Pl011 hardware implementations, the DMACR write
+behaviour will be ignored. So these DMACR operations will not cause
+obvious problems. But for some virtual SBSA PL011 hardware, like Xen
+virtual SBSA PL011 (vpl011) device, the behaviour might be different.
+Xen vpl011 emulation will inject a data abort to guest, when guest is
+accessing an unimplemented UART register. As Xen VPL011 is SBSA
+compatible, it will not implement DMACR register. So when Linux SBSA
+PL011 driver access DMACR register, it will get an unhandled data abort
+fault and the application will get a segmentation fault:
+Unhandled fault at 0xffffffc00944d048
+Mem abort info:
+  ESR = 0x96000000
+  EC = 0x25: DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+  FSC = 0x00: ttbr address size fault
+Data abort info:
+  ISV = 0, ISS = 0x00000000
+  CM = 0, WnR = 0
+swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000020e2e000
+[ffffffc00944d048] pgd=100000003ffff803, p4d=100000003ffff803, pud=100000003ffff803, pmd=100000003fffa803, pte=006800009c090f13
+Internal error: ttbr address size fault: 96000000 [#1] PREEMPT SMP
+...
+Call trace:
+ pl011_stop_rx+0x70/0x80
+ tty_port_shutdown+0x7c/0xb4
+ tty_port_close+0x60/0xcc
+ uart_close+0x34/0x8c
+ tty_release+0x144/0x4c0
+ __fput+0x78/0x220
+ ____fput+0x1c/0x30
+ task_work_run+0x88/0xc0
+ do_notify_resume+0x8d0/0x123c
+ el0_svc+0xa8/0xc0
+ el0t_64_sync_handler+0xa4/0x130
+ el0t_64_sync+0x1a0/0x1a4
+Code: b9000083 b901f001 794038a0 8b000042 (b9000041)
+---[ end trace 83dd93df15c3216f ]---
+note: bootlogd[132] exited with preempt_count 1
+/etc/rcS.d/S07bootlogd: line 47: 132 Segmentation fault start-stop-daemon
+
+This has been discussed in the Xen community, and we think it should fix
+this in Linux. See [2] for more information.
+
+[1] https://developer.arm.com/documentation/den0094/c/?lang=en
+[2] https://lists.xenproject.org/archives/html/xen-devel/2022-11/msg00543.html
+
+Fixes: 0dd1e247fd39 (drivers: PL011: add support for the ARM SBSA generic UART)
+Signed-off-by: Jiamei Xie <jiamei.xie@arm.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/20221117103237.86856-1-jiamei.xie@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/amba-pl011.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/typec/bus.c b/drivers/usb/typec/bus.c
-index 76299b6ff06d..7605963f71ed 100644
---- a/drivers/usb/typec/bus.c
-+++ b/drivers/usb/typec/bus.c
-@@ -126,7 +126,7 @@ int typec_altmode_exit(struct typec_altmode *adev)
- 	if (!adev || !adev->active)
- 		return 0;
- 
--	if (!pdev->ops || !pdev->ops->enter)
-+	if (!pdev->ops || !pdev->ops->exit)
- 		return -EOPNOTSUPP;
- 
- 	/* Moving to USB Safe State */
+diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
+index 7de4bed1ddba..87d9bfafc82e 100644
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -1053,6 +1053,9 @@ static void pl011_dma_rx_callback(void *data)
+  */
+ static inline void pl011_dma_rx_stop(struct uart_amba_port *uap)
+ {
++	if (!uap->using_rx_dma)
++		return;
++
+ 	/* FIXME.  Just disable the DMA enable */
+ 	uap->dmacr &= ~UART011_RXDMAE;
+ 	pl011_write(uap->dmacr, uap, REG_DMACR);
 -- 
 2.35.1
 
