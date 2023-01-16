@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 882BF66CAA1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:04:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD08A66CAAC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:05:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234028AbjAPREk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:04:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
+        id S234125AbjAPRFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:05:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234151AbjAPRD6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:03:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 261BA301B8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:46:27 -0800 (PST)
+        with ESMTP id S232582AbjAPRFX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:05:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1989838EAC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:46:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD532B81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:46:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31ABBC433EF;
-        Mon, 16 Jan 2023 16:46:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6721B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:46:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AC38C433D2;
+        Mon, 16 Jan 2023 16:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887584;
-        bh=z9iVHJppx3GvHW1iCPsgtSV1bm749rN3R5mckyyLKqE=;
+        s=korg; t=1673887613;
+        bh=tzSOTSA0HP8n3RgsL4EscEvLzrTLGfxDw45WANuCjio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2MnM15FR3OW6czPPz+EwAXAvXewnn56BiCcLg2ZvUnWNy9wyeojk/+exa/78TwCGJ
-         yFweYDKwTd6QvvqRFMUpZLZ0oFzoHYIA+af3HtdzyqGGneeiDBaDPF7MN9rfrRbuBR
-         L9MExqNvn53V3fjaL04NDcEVp5AYZKRnbwoJqydI=
+        b=tbxiieLhEoVSBnwjmdR74dFFdbPH5dYAppuoG72jeYul+TUYK/mtIBNtxzqczS/Ja
+         l10W0biL7VJfiFbYGZ8A9jYxJpJu+CEsSKKn81rpEArdWk3eksUEMAF7RDE0LVtYik
+         ENL0OIxQ5Yd4RgDcBeGxcckCP+qH6hBnw2AfaIvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 197/521] scsi: hpsa: Fix possible memory leak in hpsa_add_sas_device()
-Date:   Mon, 16 Jan 2023 16:47:39 +0100
-Message-Id: <20230116154855.898444472@linuxfoundation.org>
+Subject: [PATCH 4.19 198/521] scsi: fcoe: Fix possible name leak when device_register() fails
+Date:   Mon, 16 Jan 2023 16:47:40 +0100
+Message-Id: <20230116154855.948911788@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -55,39 +55,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit fda34a5d304d0b98cc967e8763b52221b66dc202 ]
+[ Upstream commit 47b6a122c7b69a876c7ee2fc064a26b09627de9d ]
 
-If hpsa_sas_port_add_rphy() returns an error, the 'rphy' allocated in
-sas_end_device_alloc() needs to be freed. Address this by calling
-sas_rphy_free() in the error path.
+If device_register() returns an error, the name allocated by dev_set_name()
+needs to be freed. As the comment of device_register() says, one should use
+put_device() to give up the reference in the error path. Fix this by
+calling put_device(), then the name can be freed in kobject_cleanup().
 
-Fixes: d04e62b9d63a ("hpsa: add in sas transport class")
+The 'fcf' is freed in fcoe_fcf_device_release(), so the kfree() in the
+error path can be removed.
+
+The 'ctlr' is freed in fcoe_ctlr_device_release(), so don't use the error
+label, just return NULL after calling put_device().
+
+Fixes: 9a74e884ee71 ("[SCSI] libfcoe: Add fcoe_sysfs")
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221111043012.1074466-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20221112094310.3633291-1-yangyingliang@huawei.com
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/fcoe/fcoe_sysfs.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index 392dfc8f3cbb..13931c5c0eff 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -9737,10 +9737,12 @@ static int hpsa_add_sas_device(struct hpsa_sas_node *hpsa_sas_node,
+diff --git a/drivers/scsi/fcoe/fcoe_sysfs.c b/drivers/scsi/fcoe/fcoe_sysfs.c
+index 5c8310bade61..dab025e3ed27 100644
+--- a/drivers/scsi/fcoe/fcoe_sysfs.c
++++ b/drivers/scsi/fcoe/fcoe_sysfs.c
+@@ -831,14 +831,15 @@ struct fcoe_ctlr_device *fcoe_ctlr_device_add(struct device *parent,
  
- 	rc = hpsa_sas_port_add_rphy(hpsa_sas_port, rphy);
- 	if (rc)
--		goto free_sas_port;
-+		goto free_sas_rphy;
+ 	dev_set_name(&ctlr->dev, "ctlr_%d", ctlr->id);
+ 	error = device_register(&ctlr->dev);
+-	if (error)
+-		goto out_del_q2;
++	if (error) {
++		destroy_workqueue(ctlr->devloss_work_q);
++		destroy_workqueue(ctlr->work_q);
++		put_device(&ctlr->dev);
++		return NULL;
++	}
  
- 	return 0;
+ 	return ctlr;
  
-+free_sas_rphy:
-+	sas_rphy_free(rphy);
- free_sas_port:
- 	hpsa_free_sas_port(hpsa_sas_port);
- 	device->sas_port = NULL;
+-out_del_q2:
+-	destroy_workqueue(ctlr->devloss_work_q);
+-	ctlr->devloss_work_q = NULL;
+ out_del_q:
+ 	destroy_workqueue(ctlr->work_q);
+ 	ctlr->work_q = NULL;
+@@ -1037,16 +1038,16 @@ struct fcoe_fcf_device *fcoe_fcf_device_add(struct fcoe_ctlr_device *ctlr,
+ 	fcf->selected = new_fcf->selected;
+ 
+ 	error = device_register(&fcf->dev);
+-	if (error)
+-		goto out_del;
++	if (error) {
++		put_device(&fcf->dev);
++		goto out;
++	}
+ 
+ 	fcf->state = FCOE_FCF_STATE_CONNECTED;
+ 	list_add_tail(&fcf->peers, &ctlr->fcfs);
+ 
+ 	return fcf;
+ 
+-out_del:
+-	kfree(fcf);
+ out:
+ 	return NULL;
+ }
 -- 
 2.35.1
 
