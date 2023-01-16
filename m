@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6FA966C50A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1AD366C5FC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:13:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231894AbjAPQAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42990 "EHLO
+        id S232752AbjAPQNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:13:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231869AbjAPQAw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AF64234D1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:51 -0800 (PST)
+        with ESMTP id S232530AbjAPQMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:12:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB942A9B8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4A50B8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 473FBC433EF;
-        Mon, 16 Jan 2023 16:00:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55A65B81077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3F03C433D2;
+        Mon, 16 Jan 2023 16:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884848;
-        bh=QxfTTK4YAka9/BvrIa5Gwqrzx9bVHYkWX7/D8qvsie0=;
+        s=korg; t=1673885257;
+        bh=9yUbqhO6HDPS1BlPTIuWkk18+nDnbezK4s38zw/kmYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GKriVWRk+KMa+adN1XcOOot6I7RDVrIhwKTbGQZQtVBPzUNSX/JV7uDrA6PgoLQ3d
-         +bNf2jZHyWIBNAhOlUllNGDvnDFa0V7Jh5ypgp26xp2Qe2IXE+j4LBFhPBIkzVHZIS
-         +CFfTK2EF9F3y55wWvSH4cPRlOFqKibEqSfrrN+0=
+        b=iodd7vTUSC+JPwjWQNd1O1YhnB4HtFEf0MuAcLGE/onFj+gmhbK/vVsEH+Ji3taEp
+         7rmi0f6d83ndyONiXx3/TtB9hSshc8eTYyC47QCZWPsjTMk21EBKKyqxIStoD8Tj1u
+         Ac5Y+cvM5SDYGPmoyJUWP1/PeGaOsI83EJG8Lwe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        Guillaume Nault <gnault@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 162/183] selftests/net: l2_tos_ttl_inherit.sh: Run tests in their own netns.
+        patches@lists.linux.dev, Vasant Hegde <vasant.hegde@amd.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 18/64] iommu/amd: Add PCI segment support for ivrs_[ioapic/hpet/acpihid] commands
 Date:   Mon, 16 Jan 2023 16:51:25 +0100
-Message-Id: <20230116154810.148243028@linuxfoundation.org>
+Message-Id: <20230116154744.254125014@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,307 +53,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit c53cb00f7983a5474f2d36967f84908b85af9159 ]
+[ Upstream commit bbe3a106580c21bc883fb0c9fa3da01534392fe8 ]
 
-This selftest currently runs half in the current namespace and half in
-a netns of its own. Therefore, the test can fail if the current
-namespace is already configured with incompatible parameters (for
-example if it already has a veth0 interface).
+By default, PCI segment is zero and can be omitted. To support system
+with non-zero PCI segment ID, modify the parsing functions to allow
+PCI segment ID.
 
-Adapt the script to put both ends of the veth pair in their own netns.
-Now veth0 is created in NS0 instead of the current namespace, while
-veth1 is set up in NS1 (instead of the 'testing' netns).
-
-The user visible netns names are randomised to minimise the risk of
-conflicts with already existing namespaces. The cleanup() function
-doesn't need to remove the virtual interface anymore: deleting NS0 and
-NS1 automatically removes the virtual interfaces they contained.
-
-We can remove $ns, which was only used to run ip commands in the
-'testing' netns (let's use the builtin "-netns" option instead).
-However, we still need a similar functionality as ping and tcpdump
-now need to run in NS0. So we now have $RUN_NS0 for that.
-
-Fixes: b690842d12fd ("selftests/net: test l2 tunnel TOS/TTL inheriting")
-Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Co-developed-by: Vasant Hegde <vasant.hegde@amd.com>
+Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20220706113825.25582-33-vasant.hegde@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Stable-dep-of: 1198d2316dc4 ("iommu/amd: Fix ill-formed ivrs_ioapic, ivrs_hpet and ivrs_acpihid options")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/net/l2_tos_ttl_inherit.sh       | 162 ++++++++++--------
- 1 file changed, 93 insertions(+), 69 deletions(-)
+ .../admin-guide/kernel-parameters.txt         | 34 ++++++++++----
+ drivers/iommu/amd/init.c                      | 44 ++++++++++++-------
+ 2 files changed, 52 insertions(+), 26 deletions(-)
 
-diff --git a/tools/testing/selftests/net/l2_tos_ttl_inherit.sh b/tools/testing/selftests/net/l2_tos_ttl_inherit.sh
-index e2574b08eabc..cf56680d598f 100755
---- a/tools/testing/selftests/net/l2_tos_ttl_inherit.sh
-+++ b/tools/testing/selftests/net/l2_tos_ttl_inherit.sh
-@@ -25,6 +25,11 @@ expected_tos="0x00"
- expected_ttl="0"
- failed=false
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index f577c29f2093..ce93bb358bc1 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -2103,23 +2103,39 @@
  
-+readonly NS0=$(mktemp -u ns0-XXXXXXXX)
-+readonly NS1=$(mktemp -u ns1-XXXXXXXX)
+ 	ivrs_ioapic	[HW,X86-64]
+ 			Provide an override to the IOAPIC-ID<->DEVICE-ID
+-			mapping provided in the IVRS ACPI table. For
+-			example, to map IOAPIC-ID decimal 10 to
+-			PCI device 00:14.0 write the parameter as:
++			mapping provided in the IVRS ACPI table.
++			By default, PCI segment is 0, and can be omitted.
++			For example:
++			* To map IOAPIC-ID decimal 10 to PCI device 00:14.0
++			  write the parameter as:
+ 				ivrs_ioapic[10]=00:14.0
++			* To map IOAPIC-ID decimal 10 to PCI segment 0x1 and
++			  PCI device 00:14.0 write the parameter as:
++				ivrs_ioapic[10]=0001:00:14.0
+ 
+ 	ivrs_hpet	[HW,X86-64]
+ 			Provide an override to the HPET-ID<->DEVICE-ID
+-			mapping provided in the IVRS ACPI table. For
+-			example, to map HPET-ID decimal 0 to
+-			PCI device 00:14.0 write the parameter as:
++			mapping provided in the IVRS ACPI table.
++			By default, PCI segment is 0, and can be omitted.
++			For example:
++			* To map HPET-ID decimal 0 to PCI device 00:14.0
++			  write the parameter as:
+ 				ivrs_hpet[0]=00:14.0
++			* To map HPET-ID decimal 10 to PCI segment 0x1 and
++			  PCI device 00:14.0 write the parameter as:
++				ivrs_ioapic[10]=0001:00:14.0
+ 
+ 	ivrs_acpihid	[HW,X86-64]
+ 			Provide an override to the ACPI-HID:UID<->DEVICE-ID
+-			mapping provided in the IVRS ACPI table. For
+-			example, to map UART-HID:UID AMD0020:0 to
+-			PCI device 00:14.5 write the parameter as:
++			mapping provided in the IVRS ACPI table.
 +
-+RUN_NS0="ip netns exec ${NS0}"
++			For example, to map UART-HID:UID AMD0020:0 to
++			PCI segment 0x1 and PCI device ID 00:14.5,
++			write the parameter as:
++				ivrs_acpihid[0001:00:14.5]=AMD0020:0
 +
- get_random_tos() {
- 	# Get a random hex tos value between 0x00 and 0xfc, a multiple of 4
- 	echo "0x$(tr -dc '0-9a-f' < /dev/urandom | head -c 1)\
-@@ -61,7 +66,6 @@ setup() {
- 	local vlan="$5"
- 	local test_tos="0x00"
- 	local test_ttl="0"
--	local ns="ip netns exec testing"
++			By default, PCI segment is 0, and can be omitted.
++			For example, PCI device 00:14.5 write the parameter as:
+ 				ivrs_acpihid[00:14.5]=AMD0020:0
  
- 	# We don't want a test-tos of 0x00,
- 	# because this is the value that we get when no tos is set.
-@@ -94,14 +98,15 @@ setup() {
- 	printf "│%7s │%6s │%6s │%13s │%13s │%6s │" \
- 	"$type" "$outer" "$inner" "$tos" "$ttl" "$vlan"
+ 	js=		[HW,JOY] Analog joystick
+diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
+index 310ab24d003a..85370f305aa8 100644
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -85,6 +85,10 @@
+ #define ACPI_DEVFLAG_ATSDIS             0x10000000
  
--	# Create 'testing' netns, veth pair and connect main ns with testing ns
--	ip netns add testing
--	ip link add type veth
--	ip link set veth1 netns testing
--	ip link set veth0 up
--	$ns ip link set veth1 up
--	ip addr flush dev veth0
--	$ns ip addr flush dev veth1
-+	# Create netns NS0 and NS1 and connect them with a veth pair
-+	ip netns add "${NS0}"
-+	ip netns add "${NS1}"
-+	ip link add name veth0 netns "${NS0}" type veth \
-+		peer name veth1 netns "${NS1}"
-+	ip -netns "${NS0}" link set dev veth0 up
-+	ip -netns "${NS1}" link set dev veth1 up
-+	ip -netns "${NS0}" address flush dev veth0
-+	ip -netns "${NS1}" address flush dev veth1
+ #define LOOP_TIMEOUT	2000000
++
++#define IVRS_GET_SBDF_ID(seg, bus, dev, fd)	(((seg & 0xffff) << 16) | ((bus & 0xff) << 8) \
++						 | ((dev & 0x1f) << 3) | (fn & 0x7))
++
+ /*
+  * ACPI table definitions
+  *
+@@ -3046,15 +3050,17 @@ static int __init parse_amd_iommu_options(char *str)
  
- 	local local_addr1=""
- 	local local_addr2=""
-@@ -127,51 +132,59 @@ setup() {
- 		if [ "$type" = "gre" ]; then
- 			type="gretap"
- 		fi
--		ip addr add 198.18.0.1/24 dev veth0
--		$ns ip addr add 198.18.0.2/24 dev veth1
--		ip link add name tep0 type $type $local_addr1 remote \
--		198.18.0.2 tos $test_tos ttl $test_ttl $vxlan $geneve
--		$ns ip link add name tep1 type $type $local_addr2 remote \
--		198.18.0.1 tos $test_tos ttl $test_ttl $vxlan $geneve
-+		ip -netns "${NS0}" address add 198.18.0.1/24 dev veth0
-+		ip -netns "${NS1}" address add 198.18.0.2/24 dev veth1
-+		ip -netns "${NS0}" link add name tep0 type $type $local_addr1 \
-+			remote 198.18.0.2 tos $test_tos ttl $test_ttl         \
-+			$vxlan $geneve
-+		ip -netns "${NS1}" link add name tep1 type $type $local_addr2 \
-+			remote 198.18.0.1 tos $test_tos ttl $test_ttl         \
-+			$vxlan $geneve
- 	elif [ "$outer" = "6" ]; then
- 		if [ "$type" = "gre" ]; then
- 			type="ip6gretap"
- 		fi
--		ip addr add fdd1:ced0:5d88:3fce::1/64 dev veth0 nodad
--		$ns ip addr add fdd1:ced0:5d88:3fce::2/64 dev veth1 nodad
--		ip link add name tep0 type $type $local_addr1 \
--		remote fdd1:ced0:5d88:3fce::2 tos $test_tos ttl $test_ttl \
--		$vxlan $geneve
--		$ns ip link add name tep1 type $type $local_addr2 \
--		remote fdd1:ced0:5d88:3fce::1 tos $test_tos ttl $test_ttl \
--		$vxlan $geneve
-+		ip -netns "${NS0}" address add fdd1:ced0:5d88:3fce::1/64 \
-+			dev veth0 nodad
-+		ip -netns "${NS1}" address add fdd1:ced0:5d88:3fce::2/64 \
-+			dev veth1 nodad
-+		ip -netns "${NS0}" link add name tep0 type $type $local_addr1 \
-+			remote fdd1:ced0:5d88:3fce::2 tos $test_tos           \
-+			ttl $test_ttl $vxlan $geneve
-+		ip -netns "${NS1}" link add name tep1 type $type $local_addr2 \
-+			remote fdd1:ced0:5d88:3fce::1 tos $test_tos           \
-+			ttl $test_ttl $vxlan $geneve
- 	fi
+ static int __init parse_ivrs_ioapic(char *str)
+ {
+-	unsigned int bus, dev, fn;
++	u32 seg = 0, bus, dev, fn;
+ 	int ret, id, i;
+-	u16 devid;
++	u32 devid;
  
- 	# Bring L2-tunnel link up and create VLAN on top
--	ip link set tep0 up
--	$ns ip link set tep1 up
--	ip addr flush dev tep0
--	$ns ip addr flush dev tep1
-+	ip -netns "${NS0}" link set tep0 up
-+	ip -netns "${NS1}" link set tep1 up
-+	ip -netns "${NS0}" address flush dev tep0
-+	ip -netns "${NS1}" address flush dev tep1
- 	local parent
- 	if $vlan; then
- 		parent="vlan99-"
--		ip link add link tep0 name ${parent}0 type vlan id 99
--		$ns ip link add link tep1 name ${parent}1 type vlan id 99
--		ip link set ${parent}0 up
--		$ns ip link set ${parent}1 up
--		ip addr flush dev ${parent}0
--		$ns ip addr flush dev ${parent}1
-+		ip -netns "${NS0}" link add link tep0 name ${parent}0 \
-+			type vlan id 99
-+		ip -netns "${NS1}" link add link tep1 name ${parent}1 \
-+			type vlan id 99
-+		ip -netns "${NS0}" link set dev ${parent}0 up
-+		ip -netns "${NS1}" link set dev ${parent}1 up
-+		ip -netns "${NS0}" address flush dev ${parent}0
-+		ip -netns "${NS1}" address flush dev ${parent}1
- 	else
- 		parent="tep"
- 	fi
+ 	ret = sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn);
+-
+ 	if (ret != 4) {
+-		pr_err("Invalid command line: ivrs_ioapic%s\n", str);
+-		return 1;
++		ret = sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn);
++		if (ret != 5) {
++			pr_err("Invalid command line: ivrs_ioapic%s\n", str);
++			return 1;
++		}
+ 	}
  
- 	# Assign inner IPv4/IPv6 addresses
- 	if [ "$inner" = "4" ] || [ "$inner" = "other" ]; then
--		ip addr add 198.19.0.1/24 brd + dev ${parent}0
--		$ns ip addr add 198.19.0.2/24 brd + dev ${parent}1
-+		ip -netns "${NS0}" address add 198.19.0.1/24 brd + dev ${parent}0
-+		ip -netns "${NS1}" address add 198.19.0.2/24 brd + dev ${parent}1
- 	elif [ "$inner" = "6" ]; then
--		ip addr add fdd4:96cf:4eae:443b::1/64 dev ${parent}0 nodad
--		$ns ip addr add fdd4:96cf:4eae:443b::2/64 dev ${parent}1 nodad
-+		ip -netns "${NS0}" address add fdd4:96cf:4eae:443b::1/64 \
-+			dev ${parent}0 nodad
-+		ip -netns "${NS1}" address add fdd4:96cf:4eae:443b::2/64 \
-+			dev ${parent}1 nodad
- 	fi
- }
+ 	if (early_ioapic_map_size == EARLY_MAP_SIZE) {
+@@ -3063,7 +3069,7 @@ static int __init parse_ivrs_ioapic(char *str)
+ 		return 1;
+ 	}
  
-@@ -192,10 +205,10 @@ verify() {
- 		ping_dst="198.19.0.3" # Generates ARPs which are not IPv4/IPv6
- 	fi
- 	if [ "$tos_ttl" = "inherit" ]; then
--		ping -i 0.1 $ping_dst -Q "$expected_tos" -t "$expected_ttl" \
--		2>/dev/null 1>&2 & ping_pid="$!"
-+		${RUN_NS0} ping -i 0.1 $ping_dst -Q "$expected_tos"          \
-+			 -t "$expected_ttl" 2>/dev/null 1>&2 & ping_pid="$!"
- 	else
--		ping -i 0.1 $ping_dst 2>/dev/null 1>&2 & ping_pid="$!"
-+		${RUN_NS0} ping -i 0.1 $ping_dst 2>/dev/null 1>&2 & ping_pid="$!"
- 	fi
- 	local tunnel_type_offset tunnel_type_proto req_proto_offset req_offset
- 	if [ "$type" = "gre" ]; then
-@@ -216,10 +229,12 @@ verify() {
- 				req_proto_offset="$((req_proto_offset + 4))"
- 				req_offset="$((req_offset + 4))"
- 			fi
--			out="$(tcpdump --immediate-mode -p -c 1 -v -i veth0 -n \
--			ip[$tunnel_type_offset] = $tunnel_type_proto and \
--			ip[$req_proto_offset] = 0x01 and \
--			ip[$req_offset] = 0x08 2>/dev/null | head -n 1)"
-+			out="$(${RUN_NS0} tcpdump --immediate-mode -p -c 1 -v \
-+				-i veth0 -n                                   \
-+				ip[$tunnel_type_offset] = $tunnel_type_proto and \
-+				ip[$req_proto_offset] = 0x01 and              \
-+				ip[$req_offset] = 0x08 2>/dev/null            \
-+				| head -n 1)"
- 		elif [ "$inner" = "6" ]; then
- 			req_proto_offset="44"
- 			req_offset="78"
-@@ -231,10 +246,12 @@ verify() {
- 				req_proto_offset="$((req_proto_offset + 4))"
- 				req_offset="$((req_offset + 4))"
- 			fi
--			out="$(tcpdump --immediate-mode -p -c 1 -v -i veth0 -n \
--			ip[$tunnel_type_offset] = $tunnel_type_proto and \
--			ip[$req_proto_offset] = 0x3a and \
--			ip[$req_offset] = 0x80 2>/dev/null | head -n 1)"
-+			out="$(${RUN_NS0} tcpdump --immediate-mode -p -c 1 -v \
-+				-i veth0 -n                                   \
-+				ip[$tunnel_type_offset] = $tunnel_type_proto and \
-+				ip[$req_proto_offset] = 0x3a and              \
-+				ip[$req_offset] = 0x80 2>/dev/null            \
-+				| head -n 1)"
- 		elif [ "$inner" = "other" ]; then
- 			req_proto_offset="36"
- 			req_offset="45"
-@@ -250,11 +267,13 @@ verify() {
- 				expected_tos="0x00"
- 				expected_ttl="64"
- 			fi
--			out="$(tcpdump --immediate-mode -p -c 1 -v -i veth0 -n \
--			ip[$tunnel_type_offset] = $tunnel_type_proto and \
--			ip[$req_proto_offset] = 0x08 and \
--			ip[$((req_proto_offset + 1))] = 0x06 and \
--			ip[$req_offset] = 0x01 2>/dev/null | head -n 1)"
-+			out="$(${RUN_NS0} tcpdump --immediate-mode -p -c 1 -v \
-+				-i veth0 -n                                   \
-+				ip[$tunnel_type_offset] = $tunnel_type_proto and \
-+				ip[$req_proto_offset] = 0x08 and              \
-+				ip[$((req_proto_offset + 1))] = 0x06 and      \
-+				ip[$req_offset] = 0x01 2>/dev/null            \
-+				| head -n 1)"
- 		fi
- 	elif [ "$outer" = "6" ]; then
- 		if [ "$type" = "gre" ]; then
-@@ -273,10 +292,12 @@ verify() {
- 				req_proto_offset="$((req_proto_offset + 4))"
- 				req_offset="$((req_offset + 4))"
- 			fi
--			out="$(tcpdump --immediate-mode -p -c 1 -v -i veth0 -n \
--			ip6[$tunnel_type_offset] = $tunnel_type_proto and \
--			ip6[$req_proto_offset] = 0x01 and \
--			ip6[$req_offset] = 0x08 2>/dev/null | head -n 1)"
-+			out="$(${RUN_NS0} tcpdump --immediate-mode -p -c 1 -v \
-+				-i veth0 -n                                   \
-+				ip6[$tunnel_type_offset] = $tunnel_type_proto and \
-+				ip6[$req_proto_offset] = 0x01 and             \
-+				ip6[$req_offset] = 0x08 2>/dev/null           \
-+				| head -n 1)"
- 		elif [ "$inner" = "6" ]; then
- 			local req_proto_offset="72"
- 			local req_offset="106"
-@@ -288,10 +309,12 @@ verify() {
- 				req_proto_offset="$((req_proto_offset + 4))"
- 				req_offset="$((req_offset + 4))"
- 			fi
--			out="$(tcpdump --immediate-mode -p -c 1 -v -i veth0 -n \
--			ip6[$tunnel_type_offset] = $tunnel_type_proto and \
--			ip6[$req_proto_offset] = 0x3a and \
--			ip6[$req_offset] = 0x80 2>/dev/null | head -n 1)"
-+			out="$(${RUN_NS0} tcpdump --immediate-mode -p -c 1 -v \
-+				-i veth0 -n                                   \
-+				ip6[$tunnel_type_offset] = $tunnel_type_proto and \
-+				ip6[$req_proto_offset] = 0x3a and             \
-+				ip6[$req_offset] = 0x80 2>/dev/null           \
-+				| head -n 1)"
- 		elif [ "$inner" = "other" ]; then
- 			local req_proto_offset="64"
- 			local req_offset="73"
-@@ -307,11 +330,13 @@ verify() {
- 				expected_tos="0x00"
- 				expected_ttl="64"
- 			fi
--			out="$(tcpdump --immediate-mode -p -c 1 -v -i veth0 -n \
--			ip6[$tunnel_type_offset] = $tunnel_type_proto and \
--			ip6[$req_proto_offset] = 0x08 and \
--			ip6[$((req_proto_offset + 1))] = 0x06 and \
--			ip6[$req_offset] = 0x01 2>/dev/null | head -n 1)"
-+			out="$(${RUN_NS0} tcpdump --immediate-mode -p -c 1 -v \
-+				-i veth0 -n                                   \
-+				ip6[$tunnel_type_offset] = $tunnel_type_proto and \
-+				ip6[$req_proto_offset] = 0x08 and             \
-+				ip6[$((req_proto_offset + 1))] = 0x06 and     \
-+				ip6[$req_offset] = 0x01 2>/dev/null           \
-+				| head -n 1)"
- 		fi
- 	fi
- 	kill -9 $ping_pid
-@@ -351,9 +376,8 @@ verify() {
- }
+-	devid = ((bus & 0xff) << 8) | ((dev & 0x1f) << 3) | (fn & 0x7);
++	devid = IVRS_GET_SBDF_ID(seg, bus, dev, fn);
  
- cleanup() {
--	ip link del veth0 2>/dev/null
--	ip netns del testing 2>/dev/null
--	ip link del tep0 2>/dev/null
-+	ip netns del "${NS0}" 2>/dev/null
-+	ip netns del "${NS1}" 2>/dev/null
- }
+ 	cmdline_maps			= true;
+ 	i				= early_ioapic_map_size++;
+@@ -3076,15 +3082,17 @@ static int __init parse_ivrs_ioapic(char *str)
  
- printf "┌────────┬───────┬───────┬──────────────┬"
+ static int __init parse_ivrs_hpet(char *str)
+ {
+-	unsigned int bus, dev, fn;
++	u32 seg = 0, bus, dev, fn;
+ 	int ret, id, i;
+-	u16 devid;
++	u32 devid;
+ 
+ 	ret = sscanf(str, "[%d]=%x:%x.%x", &id, &bus, &dev, &fn);
+-
+ 	if (ret != 4) {
+-		pr_err("Invalid command line: ivrs_hpet%s\n", str);
+-		return 1;
++		ret = sscanf(str, "[%d]=%x:%x:%x.%x", &id, &seg, &bus, &dev, &fn);
++		if (ret != 5) {
++			pr_err("Invalid command line: ivrs_hpet%s\n", str);
++			return 1;
++		}
+ 	}
+ 
+ 	if (early_hpet_map_size == EARLY_MAP_SIZE) {
+@@ -3093,7 +3101,7 @@ static int __init parse_ivrs_hpet(char *str)
+ 		return 1;
+ 	}
+ 
+-	devid = ((bus & 0xff) << 8) | ((dev & 0x1f) << 3) | (fn & 0x7);
++	devid = IVRS_GET_SBDF_ID(seg, bus, dev, fn);
+ 
+ 	cmdline_maps			= true;
+ 	i				= early_hpet_map_size++;
+@@ -3106,15 +3114,18 @@ static int __init parse_ivrs_hpet(char *str)
+ 
+ static int __init parse_ivrs_acpihid(char *str)
+ {
+-	u32 bus, dev, fn;
++	u32 seg = 0, bus, dev, fn;
+ 	char *hid, *uid, *p;
+ 	char acpiid[ACPIHID_UID_LEN + ACPIHID_HID_LEN] = {0};
+ 	int ret, i;
+ 
+ 	ret = sscanf(str, "[%x:%x.%x]=%s", &bus, &dev, &fn, acpiid);
+ 	if (ret != 4) {
+-		pr_err("Invalid command line: ivrs_acpihid(%s)\n", str);
+-		return 1;
++		ret = sscanf(str, "[%x:%x:%x.%x]=%s", &seg, &bus, &dev, &fn, acpiid);
++		if (ret != 5) {
++			pr_err("Invalid command line: ivrs_acpihid(%s)\n", str);
++			return 1;
++		}
+ 	}
+ 
+ 	p = acpiid;
+@@ -3136,8 +3147,7 @@ static int __init parse_ivrs_acpihid(char *str)
+ 	i = early_acpihid_map_size++;
+ 	memcpy(early_acpihid_map[i].hid, hid, strlen(hid));
+ 	memcpy(early_acpihid_map[i].uid, uid, strlen(uid));
+-	early_acpihid_map[i].devid =
+-		((bus & 0xff) << 8) | ((dev & 0x1f) << 3) | (fn & 0x7);
++	early_acpihid_map[i].devid = IVRS_GET_SBDF_ID(seg, bus, dev, fn);
+ 	early_acpihid_map[i].cmd_line	= true;
+ 
+ 	return 1;
 -- 
 2.35.1
 
