@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A9E266C4F0
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 868C666C8FD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231905AbjAPQAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41416 "EHLO
+        id S233785AbjAPQpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:45:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231917AbjAPP7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:59:44 -0500
+        with ESMTP id S233789AbjAPQo6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:44:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD3F7234D1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:59:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CC482F7A5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AE3060C1B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:59:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 721C9C433D2;
-        Mon, 16 Jan 2023 15:59:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 081476105A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E2F0C433EF;
+        Mon, 16 Jan 2023 16:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884782;
-        bh=Kg7o9ILd9umfJqg+NIOsUPFefo2+2Ad+dmy4JUz8HOY=;
+        s=korg; t=1673886738;
+        bh=E197O7xsWe5SHEN6MKBjY0u10uLKWwpkAH016H4KgbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AKrjRHApIzcdZAvEQgQo/ehBdEwohkgCZvOOIVgtkSFUOod8+hkutJm4uuixYLHoy
-         QW1yNFBxO70wJI+x+an0WJ5TfvWUY97g9cTH+EFmcCI9cutCx0PxtbOH5kFCiuCetJ
-         jvP+sZLPytIWKerdnLaiSDTEqHtGeRWXDlPZTJkw=
+        b=IM8tCMmc4nFjsvYapO1BVZHDiUHlHm4OX+7wzQvzbJ3vnSRZFnJltFwQYEiGqmLKf
+         Cvxk2LnbLffSzmH4qWzENVvbANg3A4DJ7uGSuSz5eauRKT8We+uskwRunqLUbhwO0X
+         Qv1BQuopXKNamYAm2rjMEDlFOMuipgy9L6cmDmmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Mikhail Zhilkin <csharper2005@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        patches@lists.linux.dev, linux-fsd@tesla.com,
+        Smitha T Murthy <smitha.t@samsung.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 107/183] mtd: parsers: scpart: fix __udivdi3 undefined on mips
+Subject: [PATCH 5.4 542/658] media: s5p-mfc: Fix in register read and write for H264
 Date:   Mon, 16 Jan 2023 16:50:30 +0100
-Message-Id: <20230116154807.888936474@linuxfoundation.org>
+Message-Id: <20230116154934.325354551@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikhail Zhilkin <csharper2005@gmail.com>
+From: Smitha T Murthy <smitha.t@samsung.com>
 
-[ Upstream commit 105c14b84d93168431abba5d55e6c26fa4b65abb ]
+[ Upstream commit 06710cd5d2436135046898d7e4b9408c8bb99446 ]
 
-This fixes the following compile error on mips architecture with clang
-version 16.0.0 reported by the 0-DAY CI Kernel Test Service:
-   ld.lld: error: undefined symbol: __udivdi3
-   referenced by scpart.c
-   mtd/parsers/scpart.o:(scpart_parse) in archive drivers/built-in.a
+Few of the H264 encoder registers written were not getting reflected
+since the read values were not stored and getting overwritten.
 
-As a workaround this makes 'offs' a 32-bit type. This is enough, because
-the mtd containing partition table practically does not exceed 1 MB. We
-can revert this when the [Link] has been resolved.
+Fixes: 6a9c6f681257 ("[media] s5p-mfc: Add variants to access mfc registers")
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1635
-Fixes: 9b78ef0c7997 ("mtd: parsers: add support for Sercomm partitions")
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Mikhail Zhilkin <csharper2005@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/805fe58e-690f-6a3f-5ebf-2f6f6e6e4599@gmail.com
+Cc: stable@vger.kernel.org
+Cc: linux-fsd@tesla.com
+Signed-off-by: Smitha T Murthy <smitha.t@samsung.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/parsers/scpart.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mtd/parsers/scpart.c b/drivers/mtd/parsers/scpart.c
-index 02601bb33de4..6e5e11c37078 100644
---- a/drivers/mtd/parsers/scpart.c
-+++ b/drivers/mtd/parsers/scpart.c
-@@ -50,7 +50,7 @@ static int scpart_scan_partmap(struct mtd_info *master, loff_t partmap_offs,
- 	int cnt = 0;
- 	int res = 0;
- 	int res2;
--	loff_t offs;
-+	uint32_t offs;
- 	size_t retlen;
- 	struct sc_part_desc *pdesc = NULL;
- 	struct sc_part_desc *tmpdesc;
+diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c b/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
+index a1453053e31a..ef8169f6c428 100644
+--- a/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
++++ b/drivers/media/platform/s5p-mfc/s5p_mfc_opr_v6.c
+@@ -1060,7 +1060,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 	}
+ 
+ 	/* aspect ratio VUI */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 5);
+ 	reg |= ((p_h264->vui_sar & 0x1) << 5);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1083,7 +1083,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 
+ 	/* intra picture period for H.264 open GOP */
+ 	/* control */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 4);
+ 	reg |= ((p_h264->open_gop & 0x1) << 4);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1097,23 +1097,23 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 	}
+ 
+ 	/* 'WEIGHTED_BI_PREDICTION' for B is disable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x3 << 9);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* 'CONSTRAINED_INTRA_PRED_ENABLE' is disable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 14);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* ASO */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 6);
+ 	reg |= ((p_h264->aso & 0x1) << 6);
+ 	writel(reg, mfc_regs->e_h264_options);
+ 
+ 	/* hier qp enable */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 8);
+ 	reg |= ((p_h264->open_gop & 0x1) << 8);
+ 	writel(reg, mfc_regs->e_h264_options);
+@@ -1134,7 +1134,7 @@ static int s5p_mfc_set_enc_params_h264(struct s5p_mfc_ctx *ctx)
+ 	writel(reg, mfc_regs->e_h264_num_t_layer);
+ 
+ 	/* frame packing SEI generation */
+-	readl(mfc_regs->e_h264_options);
++	reg = readl(mfc_regs->e_h264_options);
+ 	reg &= ~(0x1 << 25);
+ 	reg |= ((p_h264->sei_frame_packing & 0x1) << 25);
+ 	writel(reg, mfc_regs->e_h264_options);
 -- 
 2.35.1
 
