@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBE9D66CD74
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1036566CD76
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234992AbjAPRga (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:36:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54862 "EHLO
+        id S234954AbjAPRgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:36:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234790AbjAPRgG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 152ED3251A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:22 -0800 (PST)
+        with ESMTP id S234970AbjAPRgI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:36:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DAE3BDB9;
+        Mon, 16 Jan 2023 09:12:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F429B810A1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7782C433EF;
-        Mon, 16 Jan 2023 17:12:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72E5361086;
+        Mon, 16 Jan 2023 17:12:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8847CC433EF;
+        Mon, 16 Jan 2023 17:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889140;
-        bh=YcW6EGOuhnnMMLC0NQuNnIn+RmsUiq4Wev7oxqWGiLM=;
+        s=korg; t=1673889142;
+        bh=lrN+0GPbj8ygztJuBup/ObdsdtF1D8BgqFpPmEfnrJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GbeuDpfHaSGXVcYwjmYRP4BtjuXRPjpua7MUguGplHkoTsFLEH3gk/DDUYX9COOxy
-         Nv7NKUCXe30rIm4c4r9xIa6BLD5YAmHjUf0ksbbTN42TYtNt+bVdDgwu2rFc5CE/RA
-         uD19cHUErWv+F4gp0TY9cc4Ty72Y/VRI6Y+EiJiA=
+        b=TzCh07aFKSenoVOBRDvPsizB5XuH1VD+xhzSaQGdJ4JR0PMpgC1YBtawhV4Wy1o9h
+         sosFSCzuKnsR9GtsAg8stCIShj+2cceo73Cl0PD5Zr9eF3sJNKqovBxGrra3X25B3y
+         KFFs+vDUBvErSummQbdd/7q9h+EM808BTL675zA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hanjun Guo <guohanjun@huawei.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 4.14 272/338] tpm: tpm_tis: Add the missed acpi_put_table() to fix memory leak
-Date:   Mon, 16 Jan 2023 16:52:25 +0100
-Message-Id: <20230116154832.960108134@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-media@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.14 273/338] media: stv0288: use explicitly signed char
+Date:   Mon, 16 Jan 2023 16:52:26 +0100
+Message-Id: <20230116154832.992710161@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -52,55 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit db9622f762104459ff87ecdf885cc42c18053fd9 upstream.
+commit 7392134428c92a4cb541bd5c8f4f5c8d2e88364d upstream.
 
-In check_acpi_tpm2(), we get the TPM2 table just to make
-sure the table is there, not used after the init, so the
-acpi_put_table() should be added to release the ACPI memory.
+With char becoming unsigned by default, and with `char` alone being
+ambiguous and based on architecture, signed chars need to be marked
+explicitly as such. Use `s8` and `u8` types here, since that's what
+surrounding code does. This fixes:
 
-Fixes: 4cb586a188d4 ("tpm_tis: Consolidate the platform and acpi probe flow")
+drivers/media/dvb-frontends/stv0288.c:471 stv0288_set_frontend() warn: assigning (-9) to unsigned variable 'tm'
+drivers/media/dvb-frontends/stv0288.c:471 stv0288_set_frontend() warn: we never enter this loop
+
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-media@vger.kernel.org
 Cc: stable@vger.kernel.org
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_tis.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/media/dvb-frontends/stv0288.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/char/tpm/tpm_tis.c
-+++ b/drivers/char/tpm/tpm_tis.c
-@@ -105,6 +105,7 @@ static int check_acpi_tpm2(struct device
- 	const struct acpi_device_id *aid = acpi_match_device(tpm_acpi_tbl, dev);
- 	struct acpi_table_tpm2 *tbl;
- 	acpi_status st;
-+	int ret = 0;
+--- a/drivers/media/dvb-frontends/stv0288.c
++++ b/drivers/media/dvb-frontends/stv0288.c
+@@ -458,9 +458,8 @@ static int stv0288_set_frontend(struct d
+ 	struct stv0288_state *state = fe->demodulator_priv;
+ 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
  
- 	if (!aid || aid->driver_data != DEVICE_IS_TPM2)
- 		return 0;
-@@ -112,8 +113,7 @@ static int check_acpi_tpm2(struct device
- 	/* If the ACPI TPM2 signature is matched then a global ACPI_SIG_TPM2
- 	 * table is mandatory
- 	 */
--	st =
--	    acpi_get_table(ACPI_SIG_TPM2, 1, (struct acpi_table_header **)&tbl);
-+	st = acpi_get_table(ACPI_SIG_TPM2, 1, (struct acpi_table_header **)&tbl);
- 	if (ACPI_FAILURE(st) || tbl->header.length < sizeof(*tbl)) {
- 		dev_err(dev, FW_BUG "failed to get TPM2 ACPI table\n");
- 		return -EINVAL;
-@@ -121,9 +121,10 @@ static int check_acpi_tpm2(struct device
+-	char tm;
+-	unsigned char tda[3];
+-	u8 reg, time_out = 0;
++	u8 tda[3], reg, time_out = 0;
++	s8 tm;
  
- 	/* The tpm2_crb driver handles this device */
- 	if (tbl->start_method != ACPI_TPM2_MEMORY_MAPPED)
--		return -ENODEV;
-+		ret = -ENODEV;
+ 	dprintk("%s : FE_SET_FRONTEND\n", __func__);
  
--	return 0;
-+	acpi_put_table((struct acpi_table_header *)tbl);
-+	return ret;
- }
- #else
- static int check_acpi_tpm2(struct device *dev)
 
 
