@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3D9A66C954
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:48:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2F9766C5C0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:10:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233913AbjAPQsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:48:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38200 "EHLO
+        id S232580AbjAPQKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:10:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233793AbjAPQrs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:47:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D2E242DD1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:24 -0800 (PST)
+        with ESMTP id S232120AbjAPQJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:09:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B31CD27D79
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A99D6108B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A1B3C433EF;
-        Mon, 16 Jan 2023 16:35:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A027B81081
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0657C433D2;
+        Mon, 16 Jan 2023 16:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886923;
-        bh=a1zDYgg3OFV2ghETo/NBYZxc8BXe2XeaslW5LB49eQ8=;
+        s=korg; t=1673885171;
+        bh=QdC4cgQODGkKUIbrNESF99GYx8pGTR1ixjbIP1YIP3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZmXYO8OWkCWrrV5BZJ2ETIJMtyW7judQ+mPIj6vNvcYm5qwTXDALhJV71EB2deYQU
-         zFyMgvtrqIFaKMOr/jrV65Tf49NQshR5C660z03hIFXhgTtxgNJPyKFDUoTEJ3uxyQ
-         c6E1AHgMB1AAyzTSW1HWSCEFCg9ToaQjn6nhei8Y=
+        b=Wzb72IReM2nDWFXvelQV+7mtKJznHK/aLyWYBM09JQcHaTf9SJc8BkKfYzNP7TLvD
+         Y76MKaI2w8wWDuqgtuWcRSfDFhEQ49K25LcsQPItxyyigb3Y7+qRP6l740nE6IDz1e
+         06F87i1B/+yGQmgm+gJ5NvhpdbiqlfX5SFKHb8yE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniil Tatianin <d-tatianin@yandex-team.ru>,
-        Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 583/658] drivers/net/bonding/bond_3ad: return when theres no aggregator
+        patches@lists.linux.dev, Peter Jones <pjones@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Matthew Garrett <mjg59@srcf.ucam.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.10 04/64] efi: tpm: Avoid READ_ONCE() for accessing the event log
 Date:   Mon, 16 Jan 2023 16:51:11 +0100
-Message-Id: <20230116154936.165530372@linuxfoundation.org>
+Message-Id: <20230116154743.781733607@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniil Tatianin <d-tatianin@yandex-team.ru>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 9c807965483f42df1d053b7436eedd6cf28ece6f ]
+commit d3f450533bbcb6dd4d7d59cadc9b61b7321e4ac1 upstream.
 
-Otherwise we would dereference a NULL aggregator pointer when calling
-__set_agg_ports_ready on the line below.
+Nathan reports that recent kernels built with LTO will crash when doing
+EFI boot using Fedora's GRUB and SHIM. The culprit turns out to be a
+misaligned load from the TPM event log, which is annotated with
+READ_ONCE(), and under LTO, this gets translated into a LDAR instruction
+which does not tolerate misaligned accesses.
 
-Found by Linux Verification Center (linuxtesting.org) with the SVACE
-static analysis tool.
+Interestingly, this does not happen when booting the same kernel
+straight from the UEFI shell, and so the fact that the event log may
+appear misaligned in memory may be caused by a bug in GRUB or SHIM.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Daniil Tatianin <d-tatianin@yandex-team.ru>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, using READ_ONCE() to access firmware tables is slightly unusual
+in any case, and here, we only need to ensure that 'event' is not
+dereferenced again after it gets unmapped, but this is already taken
+care of by the implicit barrier() semantics of the early_memunmap()
+call.
+
+Cc: <stable@vger.kernel.org>
+Cc: Peter Jones <pjones@redhat.com>
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1782
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_3ad.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/tpm_eventlog.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
-index 0d6cd2a4cc41..0c4e6fcac58e 100644
---- a/drivers/net/bonding/bond_3ad.c
-+++ b/drivers/net/bonding/bond_3ad.c
-@@ -1529,6 +1529,7 @@ static void ad_port_selection_logic(struct port *port, bool *update_slave_arr)
- 			slave_err(bond->dev, port->slave->dev,
- 				  "Port %d did not find a suitable aggregator\n",
- 				  port->actor_port_number);
-+			return;
- 		}
- 	}
- 	/* if all aggregator's ports are READY_N == TRUE, set ready=TRUE
--- 
-2.35.1
-
+--- a/include/linux/tpm_eventlog.h
++++ b/include/linux/tpm_eventlog.h
+@@ -198,8 +198,8 @@ static __always_inline int __calc_tpm2_e
+ 	 * The loop below will unmap these fields if the log is larger than
+ 	 * one page, so save them here for reference:
+ 	 */
+-	count = READ_ONCE(event->count);
+-	event_type = READ_ONCE(event->event_type);
++	count = event->count;
++	event_type = event->event_type;
+ 
+ 	/* Verify that it's the log header */
+ 	if (event_header->pcr_idx != 0 ||
 
 
