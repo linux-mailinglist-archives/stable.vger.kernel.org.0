@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6BB66C918
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:46:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7966266C54A
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:04:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233681AbjAPQqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:46:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38212 "EHLO
+        id S232097AbjAPQEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:04:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233832AbjAPQpn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2BFE301A9
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:33:22 -0800 (PST)
+        with ESMTP id S232120AbjAPQDr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:03:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A2E25E22
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:02:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EAE96105A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:33:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92549C433D2;
-        Mon, 16 Jan 2023 16:33:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57F3DB80E5A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:02:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAACBC433EF;
+        Mon, 16 Jan 2023 16:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886801;
-        bh=mXLPQOEYcFNX0+vJjeAQoNYcY+TAOjcXRV/Zzev5ruo=;
+        s=korg; t=1673884961;
+        bh=Kenpv//yVaC1hbbREjbg7AMEnjzXeo3nc95/vmj5snw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tintYiqFlhAGhxloaokYvVvW97F6AnE5JPatw3phmzPthP9ZkXkaUaiM/8XRm0v99
-         VpTZlbyGpa8l4NHUZr0RUAanSrtoMrNpDLxjt3U+4EftLvNHs53AyH3iJP2Esr6CX8
-         XTwhJI4BgluI6LCIxSL/bcKuC0xnBkTCFcd6Ad6E=
+        b=0c8KF+OfBHgILipmEWrBj6MSQrfYXQl0ruEcOHeBIgrXofyWt8rcNGDTGEQWYPKZK
+         t1zYp5uBqaIlwZxRV+bZe17KsyTBgCuAKrkt6yRo6vX71DeOUxuukf1gkr7MLJCFdS
+         Fq77gFEQ7mxow4PeLAR0tEOdgbzijQpd3MP9cTfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thilo Fromm <t-lo@linux.microsoft.com>,
-        Jan Kara <jack@suse.cz>, Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Subject: [PATCH 5.4 567/658] ext4: fix deadlock due to mbcache entry corruption
+        patches@lists.linux.dev, Maximilian Luz <luzmaximilian@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.15 21/86] platform/surface: aggregator: Ignore command messages not intended for us
 Date:   Mon, 16 Jan 2023 16:50:55 +0100
-Message-Id: <20230116154935.440784061@linuxfoundation.org>
+Message-Id: <20230116154747.988496322@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,143 +52,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit a44e84a9b7764c72896f7241a0ec9ac7e7ef38dd ]
+commit ae0fa0a3126a86c801c3220fcd8eefe03aa39f3e upstream.
 
-When manipulating xattr blocks, we can deadlock infinitely looping
-inside ext4_xattr_block_set() where we constantly keep finding xattr
-block for reuse in mbcache but we are unable to reuse it because its
-reference count is too big. This happens because cache entry for the
-xattr block is marked as reusable (e_reusable set) although its
-reference count is too big. When this inconsistency happens, this
-inconsistent state is kept indefinitely and so ext4_xattr_block_set()
-keeps retrying indefinitely.
+It is possible that we (the host/kernel driver) receive command messages
+that are not intended for us. Ignore those for now.
 
-The inconsistent state is caused by non-atomic update of e_reusable bit.
-e_reusable is part of a bitfield and e_reusable update can race with
-update of e_referenced bit in the same bitfield resulting in loss of one
-of the updates. Fix the problem by using atomic bitops instead.
+The whole story is a bit more complicated: It is possible to enable
+debug output on SAM, which is sent via SSH command messages. By default
+this output is sent to a debug connector, with its own target ID
+(TID=0x03). It is possible to override the target of the debug output
+and set it to the host/kernel driver. This, however, does not change the
+original target ID of the message. Meaning, we receive messages with
+TID=0x03 (debug) but expect to only receive messages with TID=0x00
+(host).
 
-This bug has been around for many years, but it became *much* easier
-to hit after commit 65f8b80053a1 ("ext4: fix race when reusing xattr
-blocks").
+The problem is that the different target ID also comes with a different
+scope of request IDs. In particular, these do not follow the standard
+event rules (i.e. do not fall into a set of small reserved values).
+Therefore, current message handling interprets them as responses to
+pending requests and tries to match them up via the request ID. However,
+these debug output messages are not in fact responses, and therefore
+this will at best fail to find the request and at worst pass on the
+wrong data as response for a request.
 
-Cc: stable@vger.kernel.org
-Fixes: 6048c64b2609 ("mbcache: add reusable flag to cache entries")
-Fixes: 65f8b80053a1 ("ext4: fix race when reusing xattr blocks")
-Reported-and-tested-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Reported-by: Thilo Fromm <t-lo@linux.microsoft.com>
-Link: https://lore.kernel.org/r/c77bf00f-4618-7149-56f1-b8d1664b9d07@linux.microsoft.com/
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20221123193950.16758-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Therefore ignore any command messages not intended for us (host) for
+now. We can implement support for the debug messages once we have a
+better understanding of them.
+
+Note that this may also provide a bit more stability and avoid some
+driver confusion in case any other targets want to talk to us in the
+future, since we don't yet know what to do with those as well. A warning
+for the dropped messages should suffice for now and also give us a
+chance of discovering new targets if they come along without any
+potential for bugs/instabilities.
+
+Fixes: c167b9c7e3d6 ("platform/surface: Add Surface Aggregator subsystem")
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Link: https://lore.kernel.org/r/20221202223327.690880-2-luzmaximilian@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/xattr.c         |  4 ++--
- fs/mbcache.c            | 14 ++++++++------
- include/linux/mbcache.h |  9 +++++++--
- 3 files changed, 17 insertions(+), 10 deletions(-)
+ .../surface/aggregator/ssh_request_layer.c         | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index 131de3fcd2be..78df2d65998e 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1293,7 +1293,7 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
- 				ce = mb_cache_entry_get(ea_block_cache, hash,
- 							bh->b_blocknr);
- 				if (ce) {
--					ce->e_reusable = 1;
-+					set_bit(MBE_REUSABLE_B, &ce->e_flags);
- 					mb_cache_entry_put(ea_block_cache, ce);
- 				}
- 			}
-@@ -2054,7 +2054,7 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- 				}
- 				BHDR(new_bh)->h_refcount = cpu_to_le32(ref);
- 				if (ref == EXT4_XATTR_REFCOUNT_MAX)
--					ce->e_reusable = 0;
-+					clear_bit(MBE_REUSABLE_B, &ce->e_flags);
- 				ea_bdebug(new_bh, "reusing; refcount now=%d",
- 					  ref);
- 				ext4_xattr_block_csum_set(inode, new_bh);
-diff --git a/fs/mbcache.c b/fs/mbcache.c
-index 950f1829a7fd..7a12ae87c806 100644
---- a/fs/mbcache.c
-+++ b/fs/mbcache.c
-@@ -94,8 +94,9 @@ int mb_cache_entry_create(struct mb_cache *cache, gfp_t mask, u32 key,
- 	atomic_set(&entry->e_refcnt, 1);
- 	entry->e_key = key;
- 	entry->e_value = value;
--	entry->e_reusable = reusable;
--	entry->e_referenced = 0;
-+	entry->e_flags = 0;
-+	if (reusable)
-+		set_bit(MBE_REUSABLE_B, &entry->e_flags);
- 	head = mb_cache_entry_head(cache, key);
- 	hlist_bl_lock(head);
- 	hlist_bl_for_each_entry(dup, dup_node, head, e_hash_list) {
-@@ -162,7 +163,8 @@ static struct mb_cache_entry *__entry_find(struct mb_cache *cache,
- 	while (node) {
- 		entry = hlist_bl_entry(node, struct mb_cache_entry,
- 				       e_hash_list);
--		if (entry->e_key == key && entry->e_reusable &&
-+		if (entry->e_key == key &&
-+		    test_bit(MBE_REUSABLE_B, &entry->e_flags) &&
- 		    atomic_inc_not_zero(&entry->e_refcnt))
- 			goto out;
- 		node = node->next;
-@@ -318,7 +320,7 @@ EXPORT_SYMBOL(mb_cache_entry_delete_or_get);
- void mb_cache_entry_touch(struct mb_cache *cache,
- 			  struct mb_cache_entry *entry)
- {
--	entry->e_referenced = 1;
-+	set_bit(MBE_REFERENCED_B, &entry->e_flags);
- }
- EXPORT_SYMBOL(mb_cache_entry_touch);
+diff --git a/drivers/platform/surface/aggregator/ssh_request_layer.c b/drivers/platform/surface/aggregator/ssh_request_layer.c
+index f5565570f16c..69132976d297 100644
+--- a/drivers/platform/surface/aggregator/ssh_request_layer.c
++++ b/drivers/platform/surface/aggregator/ssh_request_layer.c
+@@ -916,6 +916,20 @@ static void ssh_rtl_rx_command(struct ssh_ptl *p, const struct ssam_span *data)
+ 	if (sshp_parse_command(dev, data, &command, &command_data))
+ 		return;
  
-@@ -343,9 +345,9 @@ static unsigned long mb_cache_shrink(struct mb_cache *cache,
- 		entry = list_first_entry(&cache->c_list,
- 					 struct mb_cache_entry, e_list);
- 		/* Drop initial hash reference if there is no user */
--		if (entry->e_referenced ||
-+		if (test_bit(MBE_REFERENCED_B, &entry->e_flags) ||
- 		    atomic_cmpxchg(&entry->e_refcnt, 1, 0) != 1) {
--			entry->e_referenced = 0;
-+			clear_bit(MBE_REFERENCED_B, &entry->e_flags);
- 			list_move_tail(&entry->e_list, &cache->c_list);
- 			continue;
- 		}
-diff --git a/include/linux/mbcache.h b/include/linux/mbcache.h
-index e9d5ece87794..591bc4cefe1d 100644
---- a/include/linux/mbcache.h
-+++ b/include/linux/mbcache.h
-@@ -10,6 +10,12 @@
- 
- struct mb_cache;
- 
-+/* Cache entry flags */
-+enum {
-+	MBE_REFERENCED_B = 0,
-+	MBE_REUSABLE_B
-+};
++	/*
++	 * Check if the message was intended for us. If not, drop it.
++	 *
++	 * Note: We will need to change this to handle debug messages. On newer
++	 * generation devices, these seem to be sent to tid_out=0x03. We as
++	 * host can still receive them as they can be forwarded via an override
++	 * option on SAM, but doing so does not change tid_out=0x00.
++	 */
++	if (command->tid_out != 0x00) {
++		rtl_warn(rtl, "rtl: dropping message not intended for us (tid = %#04x)\n",
++			 command->tid_out);
++		return;
++	}
 +
- struct mb_cache_entry {
- 	/* List of entries in cache - protected by cache->c_list_lock */
- 	struct list_head	e_list;
-@@ -26,8 +32,7 @@ struct mb_cache_entry {
- 	atomic_t		e_refcnt;
- 	/* Key in hash - stable during lifetime of the entry */
- 	u32			e_key;
--	u32			e_referenced:1;
--	u32			e_reusable:1;
-+	unsigned long		e_flags;
- 	/* User provided value - stable during lifetime of the entry */
- 	u64			e_value;
- };
+ 	if (ssh_rqid_is_event(get_unaligned_le16(&command->rqid)))
+ 		ssh_rtl_rx_event(rtl, command, &command_data);
+ 	else
 -- 
-2.35.1
+2.39.0
 
 
 
