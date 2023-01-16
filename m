@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C332666CC4B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C6866CAF0
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234667AbjAPRYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:24:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47532 "EHLO
+        id S234187AbjAPRJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234591AbjAPRYH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:24:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 787A059E5F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:01:21 -0800 (PST)
+        with ESMTP id S234319AbjAPRIu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10DC42E0E7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 173C861085
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:01:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2746BC433EF;
-        Mon, 16 Jan 2023 17:01:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4318B81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 290D1C433EF;
+        Mon, 16 Jan 2023 16:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888480;
-        bh=+8+Ux6nDxDfufnP+0mYx0tNmTaU1NGMLxRJgPue+i+I=;
+        s=korg; t=1673887736;
+        bh=5p9BKXAPPxjt7yjuJmohSVC6uSy3ssFZcJxZO9Q+h04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IXc8NLyuOZvCxC6OiCyU8WFjj3YBpq8p7/wBXd4DunW3MMcx1fiZR3xnjXD8rET4l
-         UJLivTOGqfq/qCo1jHQzySqab4kxlr+Td9hr9zWVygUkBn3lZAoj3RglJtOHjEH2IJ
-         rQ2tOg5LDqVEgPloDPcUCg7N7cW+urKslaCfO0E0=
+        b=kve2wnwEOspi4GDoml3e2gde16saNA7kq64Q5St3jaXUB5HLRkHjaaVVH0E5SUrJb
+         6g6w5bk3ZjHC6W+dZgI58xPcVjhkT/JmtkEcqtVt5CmLLppR02DctSoPKL5zwbZeku
+         BXuHju0f6uSKjHwa51OoIsPY7HUegPH6YEWpOrIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, ruanjinjie <ruanjinjie@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/338] net: loopback: use NET_NAME_PREDICTABLE for name_assign_type
+Subject: [PATCH 4.19 233/521] misc: tifm: fix possible memory leak in tifm_7xx1_switch_media()
 Date:   Mon, 16 Jan 2023 16:48:15 +0100
-Message-Id: <20230116154821.724496012@linuxfoundation.org>
+Message-Id: <20230116154857.554993782@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: ruanjinjie <ruanjinjie@huawei.com>
 
-[ Upstream commit 31d929de5a112ee1b977a89c57de74710894bbbf ]
+[ Upstream commit fd2c930cf6a5b9176382c15f9acb1996e76e25ad ]
 
-When the name_assign_type attribute was introduced (commit
-685343fc3ba6, "net: add name_assign_type netdev attribute"), the
-loopback device was explicitly mentioned as one which would make use
-of NET_NAME_PREDICTABLE:
+If device_register() returns error in tifm_7xx1_switch_media(),
+name of kobject which is allocated in dev_set_name() called in device_add()
+is leaked.
 
-    The name_assign_type attribute gives hints where the interface name of a
-    given net-device comes from. These values are currently defined:
-...
-      NET_NAME_PREDICTABLE:
-        The ifname has been assigned by the kernel in a predictable way
-        that is guaranteed to avoid reuse and always be the same for a
-        given device. Examples include statically created devices like
-        the loopback device [...]
+Never directly free @dev after calling device_register(), even
+if it returned an error! Always use put_device() to give up the
+reference initialized.
 
-Switch to that so that reading /sys/class/net/lo/name_assign_type
-produces something sensible instead of returning -EINVAL.
-
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2428a8fe2261 ("tifm: move common device management tasks from tifm_7xx1 to tifm_core")
+Signed-off-by: ruanjinjie <ruanjinjie@huawei.com>
+Link: https://lore.kernel.org/r/20221117064725.3478402-1-ruanjinjie@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/loopback.c | 2 +-
+ drivers/misc/tifm_7xx1.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/loopback.c b/drivers/net/loopback.c
-index 30612497643c..daef41ce2349 100644
---- a/drivers/net/loopback.c
-+++ b/drivers/net/loopback.c
-@@ -206,7 +206,7 @@ static __net_init int loopback_net_init(struct net *net)
- 	int err;
- 
- 	err = -ENOMEM;
--	dev = alloc_netdev(0, "lo", NET_NAME_UNKNOWN, loopback_setup);
-+	dev = alloc_netdev(0, "lo", NET_NAME_PREDICTABLE, loopback_setup);
- 	if (!dev)
- 		goto out;
- 
+diff --git a/drivers/misc/tifm_7xx1.c b/drivers/misc/tifm_7xx1.c
+index 9ac95b48ef92..1d33c4facd44 100644
+--- a/drivers/misc/tifm_7xx1.c
++++ b/drivers/misc/tifm_7xx1.c
+@@ -194,7 +194,7 @@ static void tifm_7xx1_switch_media(struct work_struct *work)
+ 				spin_unlock_irqrestore(&fm->lock, flags);
+ 			}
+ 			if (sock)
+-				tifm_free_device(&sock->dev);
++				put_device(&sock->dev);
+ 		}
+ 		spin_lock_irqsave(&fm->lock, flags);
+ 	}
 -- 
 2.35.1
 
