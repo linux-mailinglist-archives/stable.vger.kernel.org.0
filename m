@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8C566CBD8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:19:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C40C866CBD9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:19:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234509AbjAPRTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:19:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45330 "EHLO
+        id S234534AbjAPRTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:19:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234435AbjAPRSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:18:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D2FA2C663
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:58 -0800 (PST)
+        with ESMTP id S234577AbjAPRSs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:18:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CECB53FAC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:58:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8A1C61055
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C464EC433D2;
-        Mon, 16 Jan 2023 16:57:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13C8DB8109B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:58:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60393C433D2;
+        Mon, 16 Jan 2023 16:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888277;
-        bh=ermBIJuKq6MVNzmRSivKUMIfW6T7kHME4U41VF0/+iE=;
+        s=korg; t=1673888279;
+        bh=sDvIKzbSqb150C25OgqUQy6/y91r98BM56o+mFKv6p0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FttSDPwXKyptUUDMibx1RBTYEu6kQ8i72MW4ldabkMTeEEDBnolYZLOjqytHtIxvi
-         VuhBXyS9E38MNYsSjgxlWy3TTHCAfE3jJNNDNncNZhqDYMdOhQwV3v4hNjhN+bYQm9
-         bEinxFOKEAViGTPQ4Qu1DH+SZuYXAqcSN6FIsKU8=
+        b=Mp5yeUjTE+2Ie0UnelC9xUKGBCBYWj3dvjtwF1Pfk7zBYgV8Uwjo6RbNzPDn5sxAz
+         kU6yWFWY41gOAgvRnYKFzyRhzfkYDfXLz3rlgQI3d5fslGW2jNXdcwQ8W4J8eXs6Hj
+         gC0/dgOShy/K9mtjyY4+YWA9cOae6jSOmcco5/rM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Clement Lecigne <clecigne@google.com>,
-        Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>,
-        stable@kernel.org
-Subject: [PATCH 4.19 468/521] ALSA: pcm: Move rwsem lock inside snd_ctl_elem_read to prevent UAF
-Date:   Mon, 16 Jan 2023 16:52:10 +0100
-Message-Id: <20230116154908.118583798@linuxfoundation.org>
+        patches@lists.linux.dev, Volker Lendecke <vl@samba.org>,
+        Tom Talpey <tom@talpey.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.19 469/521] cifs: Fix uninitialized memory read for smb311 posix symlink create
+Date:   Mon, 16 Jan 2023 16:52:11 +0100
+Message-Id: <20230116154908.154868379@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,64 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clement Lecigne <clecigne@google.com>
+From: Volker Lendecke <vl@samba.org>
 
-[ Note: this is a fix that works around the bug equivalently as the
-  two upstream commits:
-   1fa4445f9adf ("ALSA: control - introduce snd_ctl_notify_one() helper")
-   56b88b50565c ("ALSA: pcm: Move rwsem lock inside snd_ctl_elem_read to prevent UAF")
-  but in a simpler way to fit with older stable trees -- tiwai ]
+commit a152d05ae4a71d802d50cf9177dba34e8bb09f68 upstream.
 
-Add missing locking in ctl_elem_read_user/ctl_elem_write_user which can be
-easily triggered and turned into an use-after-free.
+If smb311 posix is enabled, we send the intended mode for file
+creation in the posix create context. Instead of using what's there on
+the stack, create the mfsymlink file with 0644.
 
-Example code paths with SNDRV_CTL_IOCTL_ELEM_READ:
-
-64-bits:
-snd_ctl_ioctl
-  snd_ctl_elem_read_user
-    [takes controls_rwsem]
-    snd_ctl_elem_read [lock properly held, all good]
-    [drops controls_rwsem]
-
-32-bits (compat):
-snd_ctl_ioctl_compat
-  snd_ctl_elem_write_read_compat
-    ctl_elem_write_read
-      snd_ctl_elem_read [missing lock, not good]
-
-CVE-2023-0266 was assigned for this issue.
-
-Signed-off-by: Clement Lecigne <clecigne@google.com>
-Cc: stable@kernel.org # 5.12 and older
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Fixes: ce558b0e17f8a ("smb3: Add posix create context for smb3.11 posix mounts")
+Cc: stable@vger.kernel.org
+Signed-off-by: Volker Lendecke <vl@samba.org>
+Reviewed-by: Tom Talpey <tom@talpey.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/control_compat.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/cifs/link.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/control_compat.c
-+++ b/sound/core/control_compat.c
-@@ -319,7 +319,9 @@ static int ctl_elem_read_user(struct snd
- 	err = snd_power_wait(card, SNDRV_CTL_POWER_D0);
- 	if (err < 0)
- 		goto error;
-+	down_read(&card->controls_rwsem);
- 	err = snd_ctl_elem_read(card, data);
-+	up_read(&card->controls_rwsem);
- 	if (err < 0)
- 		goto error;
- 	err = copy_ctl_value_to_user(userdata, valuep, data, type, count);
-@@ -347,7 +349,9 @@ static int ctl_elem_write_user(struct sn
- 	err = snd_power_wait(card, SNDRV_CTL_POWER_D0);
- 	if (err < 0)
- 		goto error;
-+	down_write(&card->controls_rwsem);
- 	err = snd_ctl_elem_write(card, file, data);
-+	up_write(&card->controls_rwsem);
- 	if (err < 0)
- 		goto error;
- 	err = copy_ctl_value_to_user(userdata, valuep, data, type, count);
+--- a/fs/cifs/link.c
++++ b/fs/cifs/link.c
+@@ -481,6 +481,7 @@ smb3_create_mf_symlink(unsigned int xid,
+ 	oparms.disposition = FILE_CREATE;
+ 	oparms.fid = &fid;
+ 	oparms.reconnect = false;
++	oparms.mode = 0644;
+ 
+ 	rc = SMB2_open(xid, &oparms, utf16_path, &oplock, NULL, NULL,
+ 		       NULL);
 
 
