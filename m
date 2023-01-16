@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB8566C50C
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 275CA66C940
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:47:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231845AbjAPQBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:01:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43206 "EHLO
+        id S233501AbjAPQrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:47:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231908AbjAPQA7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5846919B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:56 -0800 (PST)
+        with ESMTP id S233755AbjAPQqu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:46:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BEF29E2A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:34:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 173E8B8105F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F2ACC433EF;
-        Mon, 16 Jan 2023 16:00:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EA166104D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:34:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CEA7C433F1;
+        Mon, 16 Jan 2023 16:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884853;
-        bh=e2MSWj94IR5+M3v5Wv/qjLDQZ8/vs4jUFWSZe/1Uxvk=;
+        s=korg; t=1673886883;
+        bh=txBP2PrgBe3hyFn+LIhA4zMDPNpc4vBoKDCQGrRe8zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gUHVhzrlUM+VfBkt3vkpoKlVS9h2+W2Y91l4wfnpgwjzc1fPCzEh/1KdYo71n+AHF
-         vDWvKdyUIOxwXb/O61NEf7ke5UPCEgANWd2K7yjtcqXCdWS+c6bqm46kR4H7UQAPTe
-         8O66sIeUnGlOddepZ+mYBZZKkKxkwmXYjaRG/oVU=
+        b=cV6Cy2GQLv5dvd/jiY5/GYgdtVhQK3HYbC+pMWVCdeFfFrg84ljzUGsyFJ3RqmcAL
+         5vaHwh+9n9QwodhjJeWyyXvPkteYgQy3AryouS5h+69iNpTl40VSEJY1Y8AfX2OXXa
+         Ij2XR1lPDYiqBD00xcemWCZ7QzpPDphe3zj34lyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        Guillaume Nault <gnault@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 163/183] selftests/net: l2_tos_ttl_inherit.sh: Ensure environment cleanup on failure.
+        Muhammad Usama Anjum <usama.anjum@collabora.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        "Tyler Hicks (Microsoft)" <code@tyhicks.com>
+Subject: [PATCH 5.4 598/658] selftests: set the BUILD variable to absolute path
 Date:   Mon, 16 Jan 2023 16:51:26 +0100
-Message-Id: <20230116154810.198183048@linuxfoundation.org>
+Message-Id: <20230116154936.829811094@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,112 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Muhammad Usama Anjum <usama.anjum@collabora.com>
 
-[ Upstream commit d68ff8ad3351b8fc8d6f14b9a4f5cc8ba3e8bd13 ]
+commit 5ad51ab618de5d05f4e692ebabeb6fe6289aaa57 upstream.
 
-Use 'set -e' and an exit handler to stop the script if a command fails
-and ensure the test environment is cleaned up in any case. Also, handle
-the case where the script is interrupted by SIGINT.
+The build of kselftests fails if relative path is specified through
+KBUILD_OUTPUT or O=<path> method. BUILD variable is used to determine
+the path of the output objects. When make is run from other directories
+with relative paths, the exact path of the build objects is ambiguous
+and build fails.
 
-The only command that's expected to fail is 'wait $ping_pid', since
-it's killed by the script. Handle this case with '|| true' to make it
-play well with 'set -e'.
+	make[1]: Entering directory '/home/usama/repos/kernel/linux_mainline2/tools/testing/selftests/alsa'
+	gcc     mixer-test.c -L/usr/lib/x86_64-linux-gnu -lasound  -o build/kselftest/alsa/mixer-test
+	/usr/bin/ld: cannot open output file build/kselftest/alsa/mixer-test
 
-Finally, return the Kselftest SKIP code (4) when the script breaks
-because of an environment problem or a command line failure. The 0 and
-1 return codes should now reliably indicate that all tests have been
-run (0: all tests run and passed, 1: all tests run but at least one
-failed, 4: test script didn't run completely).
+Set the BUILD variable to the absolute path of the output directory.
+Make the logic readable and easy to follow. Use spaces instead of tabs
+for indentation as if with tab indentation is considered recipe in make.
 
-Fixes: b690842d12fd ("selftests/net: test l2 tunnel TOS/TTL inheriting")
-Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Tyler Hicks (Microsoft) <code@tyhicks.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../selftests/net/l2_tos_ttl_inherit.sh       | 40 +++++++++++++++++--
- 1 file changed, 36 insertions(+), 4 deletions(-)
+ tools/testing/selftests/Makefile |   26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
 
-diff --git a/tools/testing/selftests/net/l2_tos_ttl_inherit.sh b/tools/testing/selftests/net/l2_tos_ttl_inherit.sh
-index cf56680d598f..f11756e7df2f 100755
---- a/tools/testing/selftests/net/l2_tos_ttl_inherit.sh
-+++ b/tools/testing/selftests/net/l2_tos_ttl_inherit.sh
-@@ -12,13 +12,16 @@
- # In addition this script also checks if forcing a specific field in the
- # outer header is working.
+--- a/tools/testing/selftests/Makefile
++++ b/tools/testing/selftests/Makefile
+@@ -85,19 +85,27 @@ ifdef building_out_of_srctree
+ override LDFLAGS =
+ endif
  
-+# Return 4 by default (Kselftest SKIP code)
-+ERR=4
+-ifneq ($(O),)
+-	BUILD := $(O)/kselftest
++top_srcdir ?= ../../..
 +
- if [ "$(id -u)" != "0" ]; then
- 	echo "Please run as root."
--	exit 0
-+	exit $ERR
- fi
- if ! which tcpdump > /dev/null 2>&1; then
- 	echo "No tcpdump found. Required for this test."
--	exit 0
-+	exit $ERR
- fi
++ifeq ("$(origin O)", "command line")
++  KBUILD_OUTPUT := $(O)
++endif
++
++ifneq ($(KBUILD_OUTPUT),)
++  # Make's built-in functions such as $(abspath ...), $(realpath ...) cannot
++  # expand a shell special character '~'. We use a somewhat tedious way here.
++  abs_objtree := $(shell cd $(top_srcdir) && mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) && pwd)
++  $(if $(abs_objtree),, \
++    $(error failed to create output directory "$(KBUILD_OUTPUT)"))
++  # $(realpath ...) resolves symlinks
++  abs_objtree := $(realpath $(abs_objtree))
++  BUILD := $(abs_objtree)/kselftest
+ else
+-	ifneq ($(KBUILD_OUTPUT),)
+-		BUILD := $(KBUILD_OUTPUT)/kselftest
+-	else
+-		BUILD := $(shell pwd)
+-		DEFAULT_INSTALL_HDR_PATH := 1
+-	endif
++  BUILD := $(CURDIR)
++  DEFAULT_INSTALL_HDR_PATH := 1
+ endif
  
- expected_tos="0x00"
-@@ -340,7 +343,7 @@ verify() {
- 		fi
- 	fi
- 	kill -9 $ping_pid
--	wait $ping_pid 2>/dev/null
-+	wait $ping_pid 2>/dev/null || true
- 	result="FAIL"
- 	if [ "$outer" = "4" ]; then
- 		captured_ttl="$(get_field "ttl" "$out")"
-@@ -380,6 +383,31 @@ cleanup() {
- 	ip netns del "${NS1}" 2>/dev/null
- }
- 
-+exit_handler() {
-+	# Don't exit immediately if one of the intermediate commands fails.
-+	# We might be called at the end of the script, when the network
-+	# namespaces have already been deleted. So cleanup() may fail, but we
-+	# still need to run until 'exit $ERR' or the script won't return the
-+	# correct error code.
-+	set +e
-+
-+	cleanup
-+
-+	exit $ERR
-+}
-+
-+# Restore the default SIGINT handler (just in case) and exit.
-+# The exit handler will take care of cleaning everything up.
-+interrupted() {
-+	trap - INT
-+
-+	exit $ERR
-+}
-+
-+set -e
-+trap exit_handler EXIT
-+trap interrupted INT
-+
- printf "┌────────┬───────┬───────┬──────────────┬"
- printf "──────────────┬───────┬────────┐\n"
- for type in gre vxlan geneve; do
-@@ -409,6 +437,10 @@ done
- printf "└────────┴───────┴───────┴──────────────┴"
- printf "──────────────┴───────┴────────┘\n"
- 
-+# All tests done.
-+# Set ERR appropriately: it will be returned by the exit handler.
- if $failed; then
--	exit 1
-+	ERR=1
-+else
-+	ERR=0
- fi
--- 
-2.35.1
-
+ # Prepare for headers install
+-top_srcdir ?= ../../..
+ include $(top_srcdir)/scripts/subarch.include
+ ARCH           ?= $(SUBARCH)
+ export KSFT_KHDR_INSTALL_DONE := 1
 
 
