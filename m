@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0979C66CD54
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C82766CD52
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234893AbjAPRfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234916AbjAPRfu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 Jan 2023 12:35:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55932 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234730AbjAPRez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBD422FCCB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:04 -0800 (PST)
+        with ESMTP id S234893AbjAPRey (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA3E2F784
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7E49B81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:11:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2792FC433EF;
-        Mon, 16 Jan 2023 17:11:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9897E61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:11:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE7E8C433F0;
+        Mon, 16 Jan 2023 17:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889061;
-        bh=OoW8VUbKC52UUtN1Go7s0jgxmsXceXm5aKqYcj9KV3g=;
+        s=korg; t=1673889064;
+        bh=1CI8S7Nt+M90kAhGGwRJq0j/mgHHFQz0/+V047auClU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0p15qElaN5M6tis3xecYGnhwQhvPtNXSQFdZOEX7Xl2XQm+MwbUceMEhtCpddaDnD
-         5hVGMhXSp1f2QnRtf5cEbDhoIq0amJ6Pbcsq+FNP1agB0d4foeQbV6HM5u018KcrwF
-         HT7E7XenyT+NzxQsVVhRNutkHgoOvoa4PlooS7pc=
+        b=dUCeYjE8vBzz6DictuUNpWloIfo+rnD5mEQCmtsBx6Bc7ZxUuqC+Km1MiUDKX9VBa
+         gd7OToqkAZkZFpajSPB9/bjT75EYiqWSzBVZHhLrvvvmPDRMcmks6HQItkc/I02xyQ
+         hBKSUDV8ZQAXCq0rlm9dK+fEXpnWtYAM+HWcMRdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        patches@lists.linux.dev, Changheon Lee <darklight2357@icloud.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 213/338] myri10ge: Fix an error handling path in myri10ge_probe()
-Date:   Mon, 16 Jan 2023 16:51:26 +0100
-Message-Id: <20230116154830.316911062@linuxfoundation.org>
+Subject: [PATCH 4.14 214/338] net: stream: purge sk_error_queue in sk_stream_kill_queues()
+Date:   Mon, 16 Jan 2023 16:51:27 +0100
+Message-Id: <20230116154830.358860871@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -54,35 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d83b950d44d2982c0e62e3d81b0f35ab09431008 ]
+[ Upstream commit e0c8bccd40fc1c19e1d246c39bcf79e357e1ada3 ]
 
-Some memory allocated in myri10ge_probe_slices() is not released in the
-error handling path of myri10ge_probe().
+Changheon Lee reported TCP socket leaks, with a nice repro.
 
-Add the corresponding kfree(), as already done in the remove function.
+It seems we leak TCP sockets with the following sequence:
 
-Fixes: 0dcffac1a329 ("myri10ge: add multislices support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+1) SOF_TIMESTAMPING_TX_ACK is enabled on the socket.
+
+   Each ACK will cook an skb put in error queue, from __skb_tstamp_tx().
+   __skb_tstamp_tx() is using skb_clone(), unless
+   SOF_TIMESTAMPING_OPT_TSONLY was also requested.
+
+2) If the application is also using MSG_ZEROCOPY, then we put in the
+   error queue cloned skbs that had a struct ubuf_info attached to them.
+
+   Whenever an struct ubuf_info is allocated, sock_zerocopy_alloc()
+   does a sock_hold().
+
+   As long as the cloned skbs are still in sk_error_queue,
+   socket refcount is kept elevated.
+
+3) Application closes the socket, while error queue is not empty.
+
+Since tcp_close() no longer purges the socket error queue,
+we might end up with a TCP socket with at least one skb in
+error queue keeping the socket alive forever.
+
+This bug can be (ab)used to consume all kernel memory
+and freeze the host.
+
+We need to purge the error queue, with proper synchronization
+against concurrent writers.
+
+Fixes: 24bcbe1cc69f ("net: stream: don't purge sk_error_queue in sk_stream_kill_queues()")
+Reported-by: Changheon Lee <darklight2357@icloud.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/stream.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-index 1ac2bc75edb1..1aadfc16a453 100644
---- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-+++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-@@ -3961,6 +3961,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	myri10ge_free_slices(mgp);
+diff --git a/net/core/stream.c b/net/core/stream.c
+index e5c6c9e5e0aa..448100f51bf4 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -196,6 +196,12 @@ void sk_stream_kill_queues(struct sock *sk)
+ 	/* First the read buffer. */
+ 	__skb_queue_purge(&sk->sk_receive_queue);
  
- abort_with_firmware:
-+	kfree(mgp->msix_vectors);
- 	myri10ge_dummy_rdma(mgp, 0);
++	/* Next, the error queue.
++	 * We need to use queue lock, because other threads might
++	 * add packets to the queue without socket lock being held.
++	 */
++	skb_queue_purge(&sk->sk_error_queue);
++
+ 	/* Next, the write queue. */
+ 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
  
- abort_with_ioremap:
 -- 
 2.35.1
 
