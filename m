@@ -2,50 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0513366CD5E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C2B66CBD6
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:19:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234855AbjAPRgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:36:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54756 "EHLO
+        id S234414AbjAPRTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:19:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234863AbjAPRfb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4422B31E3E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:28 -0800 (PST)
+        with ESMTP id S234413AbjAPRSJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:18:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FC0653F8A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B3D161050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:11:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 496E8C433EF;
-        Mon, 16 Jan 2023 17:11:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19E02B81091
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62662C433EF;
+        Mon, 16 Jan 2023 16:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889087;
-        bh=26V1S1kH4evNJIaFICZXesihf6vws02FRB76sceQdWg=;
+        s=korg; t=1673888271;
+        bh=XalcQgvmaKEiJxgess2rg5blO9B8KGoVgxoeRmUeb4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIGyOEN6Qu/V0eriHSSOUSqT80YuDbw0GaDM0Mf2zWDFo7HPt4jJClwyTp9A4BKvk
-         zwS5xc8BszUGY172AHYbnH8F1YpZpPGgxUhx9XsXO35m+BJE5gWaxRUWNvk5hMsR7E
-         0Xb5ZQ46hghX34preO0Wckaw1tea426hOsJPrO24=
+        b=2XOmO+o4oDJnUFycc7luqRRFUzec9wCRMRxulXlaYRDdfZTs6hFHwSqaMXzzbQE3l
+         80osQNAr5k5hRmNyaYmPFjSNBmu3JYagOEM4egfD+Nsf39gUirA0qn3lCkZjH86N2c
+         UzFO6tJ7OGKmleYJiDfHvG/gmRGyzcmlAsXad4oU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Wei Wang <wvw@google.com>,
-        Midas Chien <midaschieh@google.com>,
-        Connor OBrien <connoro@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Anton Vorontsov <anton@enomsg.org>,
-        Colin Cross <ccross@android.com>,
-        Tony Luck <tony.luck@intel.com>, kernel-team@android.com,
-        John Stultz <jstultz@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 254/338] pstore: Switch pmsg_lock to an rt_mutex to avoid priority inversion
-Date:   Mon, 16 Jan 2023 16:52:07 +0100
-Message-Id: <20230116154832.151831651@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.19 466/521] s390/percpu: add READ_ONCE() to arch_this_cpu_to_op_simple()
+Date:   Mon, 16 Jan 2023 16:52:08 +0100
+Message-Id: <20230116154908.018724552@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,70 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <jstultz@google.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 76d62f24db07f22ccf9bc18ca793c27d4ebef721 ]
+commit e3f360db08d55a14112bd27454e616a24296a8b0 upstream.
 
-Wei Wang reported seeing priority inversion caused latencies
-caused by contention on pmsg_lock, and suggested it be switched
-to a rt_mutex.
+Make sure that *ptr__ within arch_this_cpu_to_op_simple() is only
+dereferenced once by using READ_ONCE(). Otherwise the compiler could
+generate incorrect code.
 
-I was initially hesitant this would help, as the tasks in that
-trace all seemed to be SCHED_NORMAL, so the benefit would be
-limited to only nice boosting.
-
-However, another similar issue was raised where the priority
-inversion was seen did involve a blocked RT task so it is clear
-this would be helpful in that case.
-
-Cc: Wei Wang <wvw@google.com>
-Cc: Midas Chien<midaschieh@google.com>
-Cc: Connor O'Brien <connoro@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Anton Vorontsov <anton@enomsg.org>
-Cc: Colin Cross <ccross@android.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: kernel-team@android.com
-Fixes: 9d5438f462ab ("pstore: Add pmsg - user-space accessible pstore object")
-Reported-by: Wei Wang <wvw@google.com>
-Signed-off-by: John Stultz <jstultz@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221214231834.3711880-1-jstultz@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pstore/pmsg.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/percpu.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/pstore/pmsg.c b/fs/pstore/pmsg.c
-index 24db02de1787..ffc13ea196d2 100644
---- a/fs/pstore/pmsg.c
-+++ b/fs/pstore/pmsg.c
-@@ -15,9 +15,10 @@
- #include <linux/device.h>
- #include <linux/fs.h>
- #include <linux/uaccess.h>
-+#include <linux/rtmutex.h>
- #include "internal.h"
- 
--static DEFINE_MUTEX(pmsg_lock);
-+static DEFINE_RT_MUTEX(pmsg_lock);
- 
- static ssize_t write_pmsg(struct file *file, const char __user *buf,
- 			  size_t count, loff_t *ppos)
-@@ -36,9 +37,9 @@ static ssize_t write_pmsg(struct file *file, const char __user *buf,
- 	if (!access_ok(VERIFY_READ, buf, count))
- 		return -EFAULT;
- 
--	mutex_lock(&pmsg_lock);
-+	rt_mutex_lock(&pmsg_lock);
- 	ret = psinfo->write_user(&record, buf);
--	mutex_unlock(&pmsg_lock);
-+	rt_mutex_unlock(&pmsg_lock);
- 	return ret ? ret : count;
- }
- 
--- 
-2.35.1
-
+--- a/arch/s390/include/asm/percpu.h
++++ b/arch/s390/include/asm/percpu.h
+@@ -31,7 +31,7 @@
+ 	pcp_op_T__ *ptr__;						\
+ 	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+-	prev__ = *ptr__;						\
++	prev__ = READ_ONCE(*ptr__);					\
+ 	do {								\
+ 		old__ = prev__;						\
+ 		new__ = old__ op (val);					\
 
 
