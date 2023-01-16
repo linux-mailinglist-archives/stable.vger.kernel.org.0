@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EBA966C8C7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:43:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F73066C4A5
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233505AbjAPQm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:42:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35610 "EHLO
+        id S231644AbjAPP5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:57:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233690AbjAPQmQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:42:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7FC636FF8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:30:21 -0800 (PST)
+        with ESMTP id S231649AbjAPP4n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:56:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7275E234D1
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:56:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83F2961057
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:30:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9174CC433D2;
-        Mon, 16 Jan 2023 16:30:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23BCDB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:56:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73165C433D2;
+        Mon, 16 Jan 2023 15:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886620;
-        bh=CqPLXb4MeevH9rAuUmhtmJb/7rA6yBdSbEaqzTuKjWc=;
+        s=korg; t=1673884594;
+        bh=HunJVoJrF7ZlDAtfoBMu3YMO+F3WCy/IKfBjDMahwp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tcS01gCFY0pbLKFk5n621WIDXl2o0H4x+NqqMaOQhbElvKzSAScuTBlZgXHh2ZJf/
-         lCJoSgxFv65pL13p4hmXCkmfNte6YqLlHGQ+W3yk9xb0Y7Lck3Mav7zM0rDQhSBQwG
-         hqkgKAhUtVm5Mdg5cZ+1a6ULu+g5EeWo/mU/xi90=
+        b=keJrar1ppJcs2IVLw2uXowWk4Wqh/Apq4Q5le1Mu4bx76ogFcjDWptHWPH9n4dkC0
+         KG1wTLXmT7/pO50zctBRQ7bw8ueL3yVP+iQDu7MyahZZUeDGp6YQGDtcX4+JnD13b6
+         00xZxVB7kVSnZZFXHYB1gYFkjtXgzIxEF8nJisiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, mhiramat@kernel.org, zanussi@kernel.org,
-        Zheng Yejian <zhengyejian1@huawei.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 499/658] tracing/hist: Fix out-of-bound write on action_data.var_ref_idx
-Date:   Mon, 16 Jan 2023 16:49:47 +0100
-Message-Id: <20230116154932.327272244@linuxfoundation.org>
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 6.1 065/183] platform/x86: ideapad-laptop: Add Legion 5 15ARH05 DMI id to set_fn_lock_led_list[]
+Date:   Mon, 16 Jan 2023 16:49:48 +0100
+Message-Id: <20230116154806.097214103@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,153 +51,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yejian <zhengyejian1@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 82470f7d9044842618c847a7166de2b7458157a7 upstream.
+commit f4b7f8febd4d9b615fbec2a06bf352b9c3729b11 upstream.
 
-When generate a synthetic event with many params and then create a trace
-action for it [1], kernel panic happened [2].
+The Lenovo Legion 5 15ARH05 needs ideapad-laptop to call SALS_FNLOCK_ON /
+SALS_FNLOCK_OFF on Fn-lock state change to get the LED in the Fn key to
+correctly reflect the Fn-lock state.
 
-It is because that in trace_action_create() 'data->n_params' is up to
-SYNTH_FIELDS_MAX (current value is 64), and array 'data->var_ref_idx'
-keeps indices into array 'hist_data->var_refs' for each synthetic event
-param, but the length of 'data->var_ref_idx' is TRACING_MAP_VARS_MAX
-(current value is 16), so out-of-bound write happened when 'data->n_params'
-more than 16. In this case, 'data->match_data.event' is overwritten and
-eventually cause the panic.
+Add a DMI match for the Legion 5 15ARH05 to the set_fn_lock_led_list[]
+table for this.
 
-To solve the issue, adjust the length of 'data->var_ref_idx' to be
-SYNTH_FIELDS_MAX and add sanity checks to avoid out-of-bound write.
-
-[1]
- # cd /sys/kernel/tracing/
- # echo "my_synth_event int v1; int v2; int v3; int v4; int v5; int v6;\
-int v7; int v8; int v9; int v10; int v11; int v12; int v13; int v14;\
-int v15; int v16; int v17; int v18; int v19; int v20; int v21; int v22;\
-int v23; int v24; int v25; int v26; int v27; int v28; int v29; int v30;\
-int v31; int v32; int v33; int v34; int v35; int v36; int v37; int v38;\
-int v39; int v40; int v41; int v42; int v43; int v44; int v45; int v46;\
-int v47; int v48; int v49; int v50; int v51; int v52; int v53; int v54;\
-int v55; int v56; int v57; int v58; int v59; int v60; int v61; int v62;\
-int v63" >> synthetic_events
- # echo 'hist:keys=pid:ts0=common_timestamp.usecs if comm=="bash"' >> \
-events/sched/sched_waking/trigger
- # echo "hist:keys=next_pid:onmatch(sched.sched_waking).my_synth_event(\
-pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,\
-pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,\
-pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,pid,\
-pid,pid,pid,pid,pid,pid,pid,pid,pid)" >> events/sched/sched_switch/trigger
-
-[2]
-BUG: unable to handle page fault for address: ffff91c900000000
-PGD 61001067 P4D 61001067 PUD 0
-Oops: 0000 [#1] PREEMPT SMP NOPTI
-CPU: 2 PID: 322 Comm: bash Tainted: G        W          6.1.0-rc8+ #229
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-RIP: 0010:strcmp+0xc/0x30
-Code: 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee
-c3 cc cc cc cc 0f 1f 00 31 c0 eb 08 48 83 c0 01 84 d2 74 13 <0f> b6 14
-07 3a 14 06 74 ef 19 c0 83 c8 01 c3 cc cc cc cc 31 c3
-RSP: 0018:ffff9b3b00f53c48 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffffffffba958a68 RCX: 0000000000000000
-RDX: 0000000000000010 RSI: ffff91c943d33a90 RDI: ffff91c900000000
-RBP: ffff91c900000000 R08: 00000018d604b529 R09: 0000000000000000
-R10: ffff91c9483eddb1 R11: ffff91ca483eddab R12: ffff91c946171580
-R13: ffff91c9479f0538 R14: ffff91c9457c2848 R15: ffff91c9479f0538
-FS:  00007f1d1cfbe740(0000) GS:ffff91c9bdc80000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff91c900000000 CR3: 0000000006316000 CR4: 00000000000006e0
-Call Trace:
- <TASK>
- __find_event_file+0x55/0x90
- action_create+0x76c/0x1060
- event_hist_trigger_parse+0x146d/0x2060
- ? event_trigger_write+0x31/0xd0
- trigger_process_regex+0xbb/0x110
- event_trigger_write+0x6b/0xd0
- vfs_write+0xc8/0x3e0
- ? alloc_fd+0xc0/0x160
- ? preempt_count_add+0x4d/0xa0
- ? preempt_count_add+0x70/0xa0
- ksys_write+0x5f/0xe0
- do_syscall_64+0x3b/0x90
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f1d1d0cf077
-Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e
-fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00
-f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74
-RSP: 002b:00007ffcebb0e568 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 0000000000000143 RCX: 00007f1d1d0cf077
-RDX: 0000000000000143 RSI: 00005639265aa7e0 RDI: 0000000000000001
-RBP: 00005639265aa7e0 R08: 000000000000000a R09: 0000000000000142
-R10: 000056392639c017 R11: 0000000000000246 R12: 0000000000000143
-R13: 00007f1d1d1ae6a0 R14: 00007f1d1d1aa4a0 R15: 00007f1d1d1a98a0
- </TASK>
-Modules linked in:
-CR2: ffff91c900000000
----[ end trace 0000000000000000 ]---
-RIP: 0010:strcmp+0xc/0x30
-Code: 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee
-c3 cc cc cc cc 0f 1f 00 31 c0 eb 08 48 83 c0 01 84 d2 74 13 <0f> b6 14
-07 3a 14 06 74 ef 19 c0 83 c8 01 c3 cc cc cc cc 31 c3
-RSP: 0018:ffff9b3b00f53c48 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffffffffba958a68 RCX: 0000000000000000
-RDX: 0000000000000010 RSI: ffff91c943d33a90 RDI: ffff91c900000000
-RBP: ffff91c900000000 R08: 00000018d604b529 R09: 0000000000000000
-R10: ffff91c9483eddb1 R11: ffff91ca483eddab R12: ffff91c946171580
-R13: ffff91c9479f0538 R14: ffff91c9457c2848 R15: ffff91c9479f0538
-FS:  00007f1d1cfbe740(0000) GS:ffff91c9bdc80000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff91c900000000 CR3: 0000000006316000 CR4: 00000000000006e0
-
-Link: https://lore.kernel.org/linux-trace-kernel/20221207035143.2278781-1-zhengyejian1@huawei.com
-
-Cc: <mhiramat@kernel.org>
-Cc: <zanussi@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: d380dcde9a07 ("tracing: Fix now invalid var_ref_vals assumption in trace action")
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: 81a5603a0f50 ("platform/x86: ideapad-laptop: Fix interrupt storm on fn-lock toggle on some Yoga laptops")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221215154357.123876-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/platform/x86/ideapad-laptop.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -479,7 +479,7 @@ struct action_data {
- 	 * event param, and is passed to the synthetic event
- 	 * invocation.
- 	 */
--	unsigned int		var_ref_idx[TRACING_MAP_VARS_MAX];
-+	unsigned int		var_ref_idx[SYNTH_FIELDS_MAX];
- 	struct synth_event	*synth_event;
- 	bool			use_trace_keyword;
- 	char			*synth_event_name;
-@@ -2752,7 +2752,9 @@ static struct hist_field *create_var_ref
- 			return ref_field;
+--- a/drivers/platform/x86/ideapad-laptop.c
++++ b/drivers/platform/x86/ideapad-laptop.c
+@@ -1615,6 +1615,12 @@ static const struct dmi_system_id set_fn
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo Legion R7000P2020H"),
  		}
- 	}
--
-+	/* Sanity check to avoid out-of-bound write on 'hist_data->var_refs' */
-+	if (hist_data->n_var_refs >= TRACING_MAP_VARS_MAX)
-+		return NULL;
- 	ref_field = create_hist_field(var_field->hist_data, NULL, flags, NULL);
- 	if (ref_field) {
- 		if (init_var_ref(ref_field, var_field, system, event_name)) {
-@@ -4338,6 +4340,10 @@ static int trace_action_create(struct hi
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo Legion 5 15ARH05"),
++		}
++	},
+ 	{}
+ };
  
- 	lockdep_assert_held(&event_mutex);
- 
-+	/* Sanity check to avoid out-of-bound write on 'data->var_ref_idx' */
-+	if (data->n_params > SYNTH_FIELDS_MAX)
-+		return -EINVAL;
-+
- 	if (data->use_trace_keyword)
- 		synth_event_name = data->synth_event_name;
- 	else
 
 
