@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA9766CC37
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:23:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 626E066CDC2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:39:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234373AbjAPRXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:23:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46368 "EHLO
+        id S235048AbjAPRjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:39:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234574AbjAPRWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:22:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E90E599A8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:00:42 -0800 (PST)
+        with ESMTP id S235059AbjAPRjY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:39:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E60CA4E531
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:15:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18FCEB8109B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:00:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C938C433EF;
-        Mon, 16 Jan 2023 17:00:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94578B8109D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:15:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0145DC433EF;
+        Mon, 16 Jan 2023 17:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888439;
-        bh=mamFaROccbxzfggnQvtKuCa2of1T6DSmDeP2qJfKog4=;
+        s=korg; t=1673889315;
+        bh=TbgLibqWRT0eoFdY1kvRJrn4HcRCFHsV1dj3kiNjfYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXvmuE0OS3S5kJoDqOzIBL4Vx39vK0oEhpMMU/HZH+cb4DxdyFgR6gYr6cs6GiPTi
-         XEnbVVtqP+Mzf51nET2YDKkKUDQD+avXvJ97kF37nFBM5XP9GhT2yFwyUnWpHQQNxd
-         Ghyqb1DMjpyxx2A2F+WiwAnYf2f2mgq3pRd1ubfM=
+        b=vG0FF8b0SNorzIRBZWMYcnKAWECtFvMsp7Q+aYHC7ynLC5s+CrlSDMgCGMUj9Oze8
+         lulGARPkbVy2HGtTZGVQthxoCQS7liTTJqEkqyflpHTQQIGkqQQ9EtlY0tHYJLBkMM
+         Vvv55eCJi1CEukku7YoLOLtQcSzJ2vBYIU8INQl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thierry Reding <treding@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>
-Subject: [PATCH 4.19 521/521] serial: tegra: Only print FIFO error message when an error occurs
-Date:   Mon, 16 Jan 2023 16:53:03 +0100
-Message-Id: <20230116154910.496588142@linuxfoundation.org>
+        patches@lists.linux.dev, Jiguang Xiao <jiguang.xiao@windriver.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 311/338] net: amd-xgbe: add missed tasklet_kill
+Date:   Mon, 16 Jan 2023 16:53:04 +0100
+Message-Id: <20230116154834.700955047@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Jiguang Xiao <jiguang.xiao@windriver.com>
 
-commit cc9ca4d95846cbbece48d9cd385550f8fba6a3c1 upstream.
+[ Upstream commit d530ece70f16f912e1d1bfeea694246ab78b0a4b ]
 
-The Tegra serial driver always prints an error message when enabling the
-FIFO for devices that have support for checking the FIFO enable status.
-Fix this by displaying the error message, only when an error occurs.
+The driver does not call tasklet_kill in several places.
+Add the calls to fix it.
 
-Finally, update the error message to make it clear that enabling the
-FIFO failed and display the error code.
-
-Fixes: 222dcdff3405 ("serial: tegra: check for FIFO mode enabled status")
-Cc: <stable@vger.kernel.org>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20210630125643.264264-1-jonathanh@nvidia.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 85b85c853401 ("amd-xgbe: Re-issue interrupt if interrupt status not cleared")
+Signed-off-by: Jiguang Xiao <jiguang.xiao@windriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial-tegra.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-drv.c  | 3 +++
+ drivers/net/ethernet/amd/xgbe/xgbe-i2c.c  | 4 +++-
+ drivers/net/ethernet/amd/xgbe/xgbe-mdio.c | 4 +++-
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -991,9 +991,11 @@ static int tegra_uart_hw_init(struct teg
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+index 78412d6024aa..ad6f193fac95 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+@@ -1142,6 +1142,9 @@ static void xgbe_free_irqs(struct xgbe_prv_data *pdata)
  
- 	if (tup->cdata->fifo_mode_enable_status) {
- 		ret = tegra_uart_wait_fifo_mode_enabled(tup);
--		dev_err(tup->uport.dev, "FIFO mode not enabled\n");
--		if (ret < 0)
-+		if (ret < 0) {
-+			dev_err(tup->uport.dev,
-+				"Failed to enable FIFO mode: %d\n", ret);
- 			return ret;
-+		}
- 	} else {
- 		/*
- 		 * For all tegra devices (up to t210), there is a hardware
+ 	devm_free_irq(pdata->dev, pdata->dev_irq, pdata);
+ 
++	tasklet_kill(&pdata->tasklet_dev);
++	tasklet_kill(&pdata->tasklet_ecc);
++
+ 	if (pdata->vdata->ecc_support && (pdata->dev_irq != pdata->ecc_irq))
+ 		devm_free_irq(pdata->dev, pdata->ecc_irq, pdata);
+ 
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
+index 4d9062d35930..530043742a07 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-i2c.c
+@@ -447,8 +447,10 @@ static void xgbe_i2c_stop(struct xgbe_prv_data *pdata)
+ 	xgbe_i2c_disable(pdata);
+ 	xgbe_i2c_clear_all_interrupts(pdata);
+ 
+-	if (pdata->dev_irq != pdata->i2c_irq)
++	if (pdata->dev_irq != pdata->i2c_irq) {
+ 		devm_free_irq(pdata->dev, pdata->i2c_irq, pdata);
++		tasklet_kill(&pdata->tasklet_i2c);
++	}
+ }
+ 
+ static int xgbe_i2c_start(struct xgbe_prv_data *pdata)
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+index 20ac6db6437b..bbb93c2637f3 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+@@ -1400,8 +1400,10 @@ static void xgbe_phy_stop(struct xgbe_prv_data *pdata)
+ 	/* Disable auto-negotiation */
+ 	xgbe_an_disable_all(pdata);
+ 
+-	if (pdata->dev_irq != pdata->an_irq)
++	if (pdata->dev_irq != pdata->an_irq) {
+ 		devm_free_irq(pdata->dev, pdata->an_irq, pdata);
++		tasklet_kill(&pdata->tasklet_an);
++	}
+ 
+ 	pdata->phy_if.phy_impl.stop(pdata);
+ 
+-- 
+2.35.1
+
 
 
