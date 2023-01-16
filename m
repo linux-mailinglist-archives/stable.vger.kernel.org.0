@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DDF266C7DE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:35:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 256E366CA2C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233456AbjAPQfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:35:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48364 "EHLO
+        id S234112AbjAPRAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:00:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233331AbjAPQef (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE86329E24
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:22:21 -0800 (PST)
+        with ESMTP id S234152AbjAPQ7n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD99936FD6
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68B9F6104F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:22:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C3FEC433F0;
-        Mon, 16 Jan 2023 16:22:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E708AB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40C61C433EF;
+        Mon, 16 Jan 2023 16:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886140;
-        bh=oirjHvUm/24DGQLv4pPofWFz6LgNO1j6+Bh8e6KtH1I=;
+        s=korg; t=1673887347;
+        bh=GWetDyaV9MsbkXIJYuM1k3LAHE6mFz1MD2EPiMZvaxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZt/dzXapxVP/zuKqHNWjH7/MVDtCQyZXwuBEH0nOdlqNYrAGmU6P2Nkql4+dhkab
-         wle9U4MeeHCbvfa1XW/LFUppqkfTRtrnwV8SgVBYFwIFYhC456t4yCwbbKQeec8ksv
-         v1fYg17krDKosIkWiq4FJlO037u9IgTLBQ3ZN4Kk=
+        b=xbdCXuUWQXSfF6JEnlmrBykZWTb0+6IQHC0EEetbBup42ZoA54lUldRqPOtepj+MS
+         ks1zSvorFMXEQ7jOO8E4S8ubM/b6QtUmrFO+YR6RNyyvrXSCy6lzn1VFC17kZ/UGxI
+         bqrH2e+373ANnziRLn3Y+xSpWYcY8Bz0Hofxp/JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tobias Klauser <tklauser@distanz.ch>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 288/658] tty: serial: clean up stop-tx part in altera_uart_tx_chars()
-Date:   Mon, 16 Jan 2023 16:46:16 +0100
-Message-Id: <20230116154922.767465666@linuxfoundation.org>
+        patches@lists.linux.dev, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 115/521] drbd: remove call to memset before free device/resource/connection
+Date:   Mon, 16 Jan 2023 16:46:17 +0100
+Message-Id: <20230116154852.375175560@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +52,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit d9c128117da41cf4cb0e80ae565b5d3ac79dffac ]
+[ Upstream commit 6e7b854e4c1b02dba00760dfa79d8dbf6cce561e ]
 
-The "stop TX" path in altera_uart_tx_chars() is open-coded, so:
-* use uart_circ_empty() to check if the buffer is empty, and
-* when true, call altera_uart_stop_tx().
+This revert c2258ffc56f2 ("drbd: poison free'd device, resource and
+connection structs"), add memset is odd here for debugging, there are
+some methods to accurately show what happened, such as kdump.
 
-Cc: Tobias Klauser <tklauser@distanz.ch>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Acked-by: Tobias Klauser <tklauser@distanz.ch>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220920052049.20507-3-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: 1307c5d33cce ("serial: altera_uart: fix locking in polling mode")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Link: https://lore.kernel.org/r/20221124015817.2729789-2-bobo.shaobowang@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/altera_uart.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/block/drbd/drbd_main.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/tty/serial/altera_uart.c b/drivers/tty/serial/altera_uart.c
-index 0e487ce091ac..508a3c2b7781 100644
---- a/drivers/tty/serial/altera_uart.c
-+++ b/drivers/tty/serial/altera_uart.c
-@@ -274,10 +274,8 @@ static void altera_uart_tx_chars(struct altera_uart *pp)
- 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
- 		uart_write_wakeup(port);
- 
--	if (xmit->head == xmit->tail) {
--		pp->imr &= ~ALTERA_UART_CONTROL_TRDY_MSK;
--		altera_uart_update_ctrl_reg(pp);
--	}
-+	if (uart_circ_empty(xmit))
-+		altera_uart_stop_tx(port);
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 3ae718aa6b39..1ff5af6c4f3f 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -2258,7 +2258,6 @@ void drbd_destroy_device(struct kref *kref)
+ 		kref_put(&peer_device->connection->kref, drbd_destroy_connection);
+ 		kfree(peer_device);
+ 	}
+-	memset(device, 0xfd, sizeof(*device));
+ 	kfree(device);
+ 	kref_put(&resource->kref, drbd_destroy_resource);
+ }
+@@ -2351,7 +2350,6 @@ void drbd_destroy_resource(struct kref *kref)
+ 	idr_destroy(&resource->devices);
+ 	free_cpumask_var(resource->cpu_mask);
+ 	kfree(resource->name);
+-	memset(resource, 0xf2, sizeof(*resource));
+ 	kfree(resource);
  }
  
- static irqreturn_t altera_uart_interrupt(int irq, void *data)
+@@ -2748,7 +2746,6 @@ void drbd_destroy_connection(struct kref *kref)
+ 	drbd_free_socket(&connection->data);
+ 	kfree(connection->int_dig_in);
+ 	kfree(connection->int_dig_vv);
+-	memset(connection, 0xfc, sizeof(*connection));
+ 	kfree(connection);
+ 	kref_put(&resource->kref, drbd_destroy_resource);
+ }
 -- 
 2.35.1
 
