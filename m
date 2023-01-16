@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3685F66C480
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6731F66C87B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:39:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231510AbjAPPzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:55:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37660 "EHLO
+        id S233622AbjAPQjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:39:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231560AbjAPPzg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF7D22A13
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:22 -0800 (PST)
+        with ESMTP id S233661AbjAPQjU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:39:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2587817CE8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:27:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AF2161037
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D434C433EF;
-        Mon, 16 Jan 2023 15:55:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 822BC61062
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:27:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97509C433F0;
+        Mon, 16 Jan 2023 16:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884521;
-        bh=8gmOXsZb7oZX3nG6DPNGFrNcpXg6mIOCjCtCLzFLO30=;
+        s=korg; t=1673886475;
+        bh=1lFtNkUfgExkNrAfpV7RNJeHL4xlyWEIlA4y8vv6YOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyLDjOtNOorg/aT0DiZZpIroGUSW9GvUhIK/ioOwN1h2hvO86VLhaKA411K17RLL2
-         KSpRhhXbk+muQjXTiPY6Hz34lifDWDIxgNpE+Hi+nFurRO6zO8FShlLCBgrtpotwdy
-         yYm4g61plE7Zi/Vo84anpif/otVjTCIEC3VJ455g=
+        b=bnc2N2nQCBi0c8kNZbGYzVXuxs6iohevC48luMi1ig8UnLwqOeA4jIU89XjivF3m3
+         Lm1xzjIp66R/C6XfearDsQnlm6Skh2OpHQ30bidLcdk5KRNj6YIRUDTmEBiZJ5XFOZ
+         QVe4dHKTkTPT61MPRPL0jy0XF+ShIzFDzvwfHdhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Oliver Upton <oliver.upton@linux.dev>,
-        Ard Biesheuvel <ardb@kernel.org>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 6.1 008/183] KVM: arm64: Fix S1PTW handling on RO memslots
+        patches@lists.linux.dev, Jiao Zhou <jiaozhou@google.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 443/658] ALSA: hda/hdmi: Add HP Device 0x8711 to force connect list
 Date:   Mon, 16 Jan 2023 16:48:51 +0100
-Message-Id: <20230116154803.729431636@linuxfoundation.org>
+Message-Id: <20230116154929.790464767@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,81 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Jiao Zhou <jiaozhou@google.com>
 
-commit 406504c7b0405d74d74c15a667cd4c4620c3e7a9 upstream.
+commit 31b573946ea55e1ea0e08ae8e83bcf879b30f83a upstream.
 
-A recent development on the EFI front has resulted in guests having
-their page tables baked in the firmware binary, and mapped into the
-IPA space as part of a read-only memslot. Not only is this legitimate,
-but it also results in added security, so thumbs up.
+HDMI audio is not working on the HP EliteDesk 800 G6 because the pin is
+unconnected. This issue can be resolved by using the 'hdajackretask'
+tool to override the unconnected pin to force it to connect.
 
-It is possible to take an S1PTW translation fault if the S1 PTs are
-unmapped at stage-2. However, KVM unconditionally treats S1PTW as a
-write to correctly handle hardware AF/DB updates to the S1 PTs.
-Furthermore, KVM injects an exception into the guest for S1PTW writes.
-In the aforementioned case this results in the guest taking an abort
-it won't recover from, as the S1 PTs mapping the vectors suffer from
-the same problem.
-
-So clearly our handling is... wrong.
-
-Instead, switch to a two-pronged approach:
-
-- On S1PTW translation fault, handle the fault as a read
-
-- On S1PTW permission fault, handle the fault as a write
-
-This is of no consequence to SW that *writes* to its PTs (the write
-will trigger a non-S1PTW fault), and SW that uses RO PTs will not
-use HW-assisted AF/DB anyway, as that'd be wrong.
-
-Only in the case described in c4ad98e4b72c ("KVM: arm64: Assume write
-fault on S1PTW permission fault on instruction fetch") do we end-up
-with two back-to-back faults (page being evicted and faulted back).
-I don't think this is a case worth optimising for.
-
-Fixes: c4ad98e4b72c ("KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch")
-Reviewed-by: Oliver Upton <oliver.upton@linux.dev>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Regression-tested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
+Signed-off-by: Jiao Zhou <jiaozhou@google.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20221206185311.3669950-1-jiaozhou@google.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/kvm_emulate.h |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_hdmi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/include/asm/kvm_emulate.h
-+++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -373,8 +373,26 @@ static __always_inline int kvm_vcpu_sys_
- 
- static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
- {
--	if (kvm_vcpu_abt_iss1tw(vcpu))
--		return true;
-+	if (kvm_vcpu_abt_iss1tw(vcpu)) {
-+		/*
-+		 * Only a permission fault on a S1PTW should be
-+		 * considered as a write. Otherwise, page tables baked
-+		 * in a read-only memslot will result in an exception
-+		 * being delivered in the guest.
-+		 *
-+		 * The drawback is that we end-up faulting twice if the
-+		 * guest is using any of HW AF/DB: a translation fault
-+		 * to map the page containing the PT (read only at
-+		 * first), then a permission fault to allow the flags
-+		 * to be set.
-+		 */
-+		switch (kvm_vcpu_trap_get_fault_type(vcpu)) {
-+		case ESR_ELx_FSC_PERM:
-+			return true;
-+		default:
-+			return false;
-+		}
-+	}
- 
- 	if (kvm_vcpu_trap_is_iabt(vcpu))
- 		return false;
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1820,6 +1820,7 @@ static int hdmi_add_cvt(struct hda_codec
+ static const struct snd_pci_quirk force_connect_list[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x870f, "HP", 1),
+ 	SND_PCI_QUIRK(0x103c, 0x871a, "HP", 1),
++	SND_PCI_QUIRK(0x103c, 0x8711, "HP", 1),
+ 	SND_PCI_QUIRK(0x1462, 0xec94, "MS-7C94", 1),
+ 	{}
+ };
 
 
