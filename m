@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61A9066C8E2
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B705D66C48F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:56:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbjAPQoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:44:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33022 "EHLO
+        id S231488AbjAPP4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:56:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233625AbjAPQnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9090244AE
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:12 -0800 (PST)
+        with ESMTP id S231572AbjAPP4A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:56:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1804CA5F5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C120B80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE256C433EF;
-        Mon, 16 Jan 2023 16:31:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A31D861040
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B276DC433EF;
+        Mon, 16 Jan 2023 15:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886670;
-        bh=W5NGfxoJwuCFZ8PaPL+/+vrjZDBNkqfoseKUAUk97wo=;
+        s=korg; t=1673884558;
+        bh=c02ktNMsOPqj1DcBGfy4olfsu9rckusVQhg+n6RGST4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOxtuuKyEJKBIfrxQIC8p4rI4EnC+UPuv3H77rHxe3HYBZdmZwgu2VkCuuMztj5ux
-         30917nba6QomlIt/Gi87jt+ZHdAuFVVIgIM1/7Qr/K4hERKB9rccEDNAM19FNwY8sT
-         ItSyYf/loEZ/m6Ob4NyUKYnLelGkvGVvB8iNfRmw=
+        b=F5u+5JJiZUV8XlH2t571f1rjP50op85Wzw37e5SronxR/LupAR9TzslbjTrsvOuAq
+         m4Nq9tTeooWTDcpjBeRc9BTYMpvdKFieqn0sb8WCTG+F0Mjj8BiTaEaSamFhvko8Q5
+         ZH0ogM8AgR/qOYVxWJFpQVdkwcDeQ9D9smz7K3do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [PATCH 5.4 487/658] selftests: Use optional USERCFLAGS and USERLDFLAGS
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>
+Subject: [PATCH 6.1 052/183] dt-bindings: msm: dsi-controller-main: Fix operating-points-v2 constraint
 Date:   Mon, 16 Jan 2023 16:49:35 +0100
-Message-Id: <20230116154931.801269901@linuxfoundation.org>
+Message-Id: <20230116154805.557317861@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mickaël Salaün <mic@digikod.net>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit de3ee3f63400a23954e7c1ad1cb8c20f29ab6fe3 upstream.
+commit cdf64343f91a1225e9e3d4ce4261962cd41b4ddd upstream.
 
-This change enables to extend CFLAGS and LDFLAGS from command line, e.g.
-to extend compiler checks: make USERCFLAGS=-Werror USERLDFLAGS=-static
+The existing msm8916.dtsi does not depend on nor require operating points.
 
-USERCFLAGS and USERLDFLAGS are documented in
-Documentation/kbuild/makefiles.rst and Documentation/kbuild/kbuild.rst
-
-This should be backported (down to 5.10) to improve previous kernel
-versions testing as well.
-
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
-Link: https://lore.kernel.org/r/20220909103901.1503436-1-mic@digikod.net
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 4dbe55c97741 ("dt-bindings: msm: dsi: add yaml schemas for DSI bindings")
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/515940/
+Link: https://lore.kernel.org/r/20221223021025.1646636-2-bryan.odonoghue@linaro.org
+Signed-off-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/lib.mk |    5 +++++
- 1 file changed, 5 insertions(+)
+ Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/tools/testing/selftests/lib.mk
-+++ b/tools/testing/selftests/lib.mk
-@@ -130,6 +130,11 @@ endef
- clean:
- 	$(CLEAN)
+--- a/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
++++ b/Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml
+@@ -135,7 +135,6 @@ required:
+   - assigned-clocks
+   - assigned-clock-parents
+   - power-domains
+-  - operating-points-v2
+   - ports
  
-+# Enables to extend CFLAGS and LDFLAGS from command line, e.g.
-+# make USERCFLAGS=-Werror USERLDFLAGS=-static
-+CFLAGS += $(USERCFLAGS)
-+LDFLAGS += $(USERLDFLAGS)
-+
- # When make O= with kselftest target from main level
- # the following aren't defined.
- #
+ additionalProperties: false
 
 
