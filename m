@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B48B566C5A4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:08:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6250566C964
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232438AbjAPQIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:08:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45734 "EHLO
+        id S233916AbjAPQtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:49:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232105AbjAPQHl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:07:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B25927D5F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:42 -0800 (PST)
+        with ESMTP id S234060AbjAPQtS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374C22A98C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:36:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFAF2B8107D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38FECC433D2;
-        Mon, 16 Jan 2023 16:05:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9CAFB80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A0F5C433D2;
+        Mon, 16 Jan 2023 16:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885139;
-        bh=+vMm84llW0ldy7b0SOEWmyn973X4w9FDka0RM6nxWk0=;
+        s=korg; t=1673886963;
+        bh=OB5LrUrjmsSfhrns86hwpqaAH4TNSO1lszxIGuEq56Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nqKmfuO6fy1yib1+Q49Mtjwh8ZVcEYY0lrGxeC1fr1SToFlBPwpLGkjZ5mTe7Q9/A
-         jeizAdQHqgXNbknSnqs0u16x5XESFUQ7YR44Y2hKvkJzghsfaO8NHIqGPRIhhjsLXq
-         AwDUOeHvjG87hSEAQaM7N0VhI7yyEFRx7DnzTLkY=
+        b=SGChM7Ar+ihYuEN63/Muk/1cXR/wuuFHnhCiJSr0nj9g29PCvNU6ynYxa5mSTWUVf
+         Zvmh+ApxKBePU8aC1l4QJSCSptgjS4WlIEtcdQ6GW8N9cQGXGa9EC6ZEc1Skeqcp0j
+         L2yY4jAMtPen8wsLhipQk4CVA7ObFuLED+fJExuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Willy Tarreau <w@1wt.eu>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 65/86] tools/nolibc: restore mips branch ordering in the _start block
+        patches@lists.linux.dev,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Rob Clark <robdclark@gmail.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Akhil P Oommen <quic_akhilpo@quicinc.com>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.4 611/658] drm/msm/adreno: Make adreno quirks not overwrite each other
 Date:   Mon, 16 Jan 2023 16:51:39 +0100
-Message-Id: <20230116154749.749364999@linuxfoundation.org>
+Message-Id: <20230116154937.454780787@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 184177c3d6e023da934761e198c281344d7dd65b ]
+commit 13ef096e342b00e30b95a90c6c13eee1f0bec4c5 upstream.
 
-Depending on the compiler used and the optimization options, the sbrk()
-test was crashing, both on real hardware (mips-24kc) and in qemu. One
-such example is kernel.org toolchain in version 11.3 optimizing at -Os.
+So far the adreno quirks have all been assigned with an OR operator,
+which is problematic, because they were assigned consecutive integer
+values, which makes checking them with an AND operator kind of no bueno..
 
-Inspecting the sys_brk() call shows the following code:
+Switch to using BIT(n) so that only the quirks that the programmer chose
+are taken into account when evaluating info->quirks & ADRENO_QUIRK_...
 
-  0040047c <sys_brk>:
-    40047c:       24020fcd        li      v0,4045
-    400480:       27bdffe0        addiu   sp,sp,-32
-    400484:       0000000c        syscall
-    400488:       27bd0020        addiu   sp,sp,32
-    40048c:       10e00001        beqz    a3,400494 <sys_brk+0x18>
-    400490:       00021023        negu    v0,v0
-    400494:       03e00008        jr      ra
-
-It is obviously wrong, the "negu" instruction is placed in beqz's
-delayed slot, and worse, there's no nop nor instruction after the
-return, so the next function's first instruction (addiu sip,sip,-32)
-will also be executed as part of the delayed slot that follows the
-return.
-
-This is caused by the ".set noreorder" directive in the _start block,
-that applies to the whole program. The compiler emits code without the
-delayed slots and relies on the compiler to swap instructions when this
-option is not set. Removing the option would require to change the
-startup code in a way that wouldn't make it look like the resulting
-code, which would not be easy to debug. Instead let's just save the
-default ordering before changing it, and restore it at the end of the
-_start block. Now the code is correct:
-
-  0040047c <sys_brk>:
-    40047c:       24020fcd        li      v0,4045
-    400480:       27bdffe0        addiu   sp,sp,-32
-    400484:       0000000c        syscall
-    400488:       10e00002        beqz    a3,400494 <sys_brk+0x18>
-    40048c:       27bd0020        addiu   sp,sp,32
-    400490:       00021023        negu    v0,v0
-    400494:       03e00008        jr      ra
-    400498:       00000000        nop
-
-Fixes: 66b6f755ad45 ("rcutorture: Import a copy of nolibc") #5.0
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 370063ee427a ("drm/msm/adreno: Add A540 support")
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: Rob Clark <robdclark@gmail.com>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+Reviewed-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
+Patchwork: https://patchwork.freedesktop.org/patch/516456/
+Link: https://lore.kernel.org/r/20230102100201.77286-1-konrad.dybcio@linaro.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/include/nolibc/arch-mips.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/msm/adreno/adreno_gpu.h |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/tools/include/nolibc/arch-mips.h b/tools/include/nolibc/arch-mips.h
-index 1a124790c99f..5d647afa42e6 100644
---- a/tools/include/nolibc/arch-mips.h
-+++ b/tools/include/nolibc/arch-mips.h
-@@ -192,6 +192,7 @@ struct sys_stat_struct {
- asm(".section .text\n"
-     ".weak __start\n"
-     ".set nomips16\n"
-+    ".set push\n"
-     ".set    noreorder\n"
-     ".option pic0\n"
-     ".ent __start\n"
-@@ -210,6 +211,7 @@ asm(".section .text\n"
-     "li $v0, 4001\n"              // NR_exit == 4001
-     "syscall\n"
-     ".end __start\n"
-+    ".set pop\n"
-     "");
+--- a/drivers/gpu/drm/msm/adreno/adreno_gpu.h
++++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.h
+@@ -47,11 +47,9 @@ enum {
+ 	ADRENO_FW_MAX,
+ };
  
- #endif // _NOLIBC_ARCH_MIPS_H
--- 
-2.35.1
-
+-enum adreno_quirks {
+-	ADRENO_QUIRK_TWO_PASS_USE_WFI = 1,
+-	ADRENO_QUIRK_FAULT_DETECT_MASK = 2,
+-	ADRENO_QUIRK_LMLOADKILL_DISABLE = 3,
+-};
++#define ADRENO_QUIRK_TWO_PASS_USE_WFI		BIT(0)
++#define ADRENO_QUIRK_FAULT_DETECT_MASK		BIT(1)
++#define ADRENO_QUIRK_LMLOADKILL_DISABLE		BIT(2)
+ 
+ struct adreno_rev {
+ 	uint8_t  core;
+@@ -74,7 +72,7 @@ struct adreno_info {
+ 	const char *name;
+ 	const char *fw[ADRENO_FW_MAX];
+ 	uint32_t gmem;
+-	enum adreno_quirks quirks;
++	u64 quirks;
+ 	struct msm_gpu *(*init)(struct drm_device *dev);
+ 	const char *zapfw;
+ 	u32 inactive_period;
 
 
