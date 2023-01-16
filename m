@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E50A66CB5B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:13:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB79866CCD3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234257AbjAPRNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:13:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39502 "EHLO
+        id S234771AbjAPR3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234240AbjAPRMt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:12:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 179191CF54
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:52:54 -0800 (PST)
+        with ESMTP id S234768AbjAPR3N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6689629E2A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:06:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6E08B8109B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B40CC433D2;
-        Mon, 16 Jan 2023 16:52:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEAAC61089
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3DB2C433EF;
+        Mon, 16 Jan 2023 17:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887971;
-        bh=BSVmVEcOgHV3Ea3iGeO3NCIIf3O1IrZ0Omux/mn7ygc=;
+        s=korg; t=1673888794;
+        bh=+66WApJqfd+acrA5sIN1STwd+hEIpNji0sDmDpFZ35M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sN/ZkgH79oEvTzIC7iIbX+VRktzp+r+5UaJnmeBceQAVc2+OVMq8gtBtnVru8ZW+m
-         KY4JlLnlm/oRn3+WvjvQ9Ajq0iRXtaQvGxprVsIYPd6pn5e1E2/8j/yy/nFjO5/SUq
-         I1RjEx7upKml3P4SZZU9QtgPjCvtF1ekgxetgGzA=
+        b=lpyan23IXPXLdx7GuWe2uO9JYIYmT6Fc3i3nTP4NsMu7s4EFSRgzjTObHbwBMxoNY
+         2gpdvBtN38QJxmOi5s0zFvWJ8CBPZP/Bn3sy44e13TBg/8jbERFhuDWw/iNxomt2GC
+         Y9Bj6znfG0FcI5Yddzxx/7woMVsB97o/tgDYS3YA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Piergiorgio Beruto <piergiorgio.beruto@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 351/521] ASoC: rt5670: Remove unbalanced pm_runtime_put()
+Subject: [PATCH 4.14 140/338] stmmac: fix potential division by 0
 Date:   Mon, 16 Jan 2023 16:50:13 +0100
-Message-Id: <20230116154902.838567019@linuxfoundation.org>
+Message-Id: <20230116154826.947036198@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Piergiorgio Beruto <piergiorgio.beruto@gmail.com>
 
-[ Upstream commit 6c900dcc3f7331a67ed29739d74524e428d137fb ]
+[ Upstream commit ede5a389852d3640a28e7187fb32b7f204380901 ]
 
-For some reason rt5670_i2c_probe() does a pm_runtime_put() at the end
-of a successful probe. But it has never done a pm_runtime_get() leading
-to the following error being logged into dmesg:
+When the MAC is connected to a 10 Mb/s PHY and the PTP clock is derived
+from the MAC reference clock (default), the clk_ptp_rate becomes too
+small and the calculated sub second increment becomes 0 when computed by
+the stmmac_config_sub_second_increment() function within
+stmmac_init_tstamp_counter().
 
- rt5670 i2c-10EC5640:00: Runtime PM usage count underflow!
+Therefore, the subsequent div_u64 in stmmac_init_tstamp_counter()
+operation triggers a divide by 0 exception as shown below.
 
-Fix this by removing the unnecessary pm_runtime_put().
+[   95.062067] socfpga-dwmac ff700000.ethernet eth0: Register MEM_TYPE_PAGE_POOL RxQ-0
+[   95.076440] socfpga-dwmac ff700000.ethernet eth0: PHY [stmmac-0:08] driver [NCN26000] (irq=49)
+[   95.095964] dwmac1000: Master AXI performs any burst length
+[   95.101588] socfpga-dwmac ff700000.ethernet eth0: No Safety Features support found
+[   95.109428] Division by zero in kernel.
+[   95.113447] CPU: 0 PID: 239 Comm: ifconfig Not tainted 6.1.0-rc7-centurion3-1.0.3.0-01574-gb624218205b7-dirty #77
+[   95.123686] Hardware name: Altera SOCFPGA
+[   95.127695]  unwind_backtrace from show_stack+0x10/0x14
+[   95.132938]  show_stack from dump_stack_lvl+0x40/0x4c
+[   95.137992]  dump_stack_lvl from Ldiv0+0x8/0x10
+[   95.142527]  Ldiv0 from __aeabi_uidivmod+0x8/0x18
+[   95.147232]  __aeabi_uidivmod from div_u64_rem+0x1c/0x40
+[   95.152552]  div_u64_rem from stmmac_init_tstamp_counter+0xd0/0x164
+[   95.158826]  stmmac_init_tstamp_counter from stmmac_hw_setup+0x430/0xf00
+[   95.165533]  stmmac_hw_setup from __stmmac_open+0x214/0x2d4
+[   95.171117]  __stmmac_open from stmmac_open+0x30/0x44
+[   95.176182]  stmmac_open from __dev_open+0x11c/0x134
+[   95.181172]  __dev_open from __dev_change_flags+0x168/0x17c
+[   95.186750]  __dev_change_flags from dev_change_flags+0x14/0x50
+[   95.192662]  dev_change_flags from devinet_ioctl+0x2b4/0x604
+[   95.198321]  devinet_ioctl from inet_ioctl+0x1ec/0x214
+[   95.203462]  inet_ioctl from sock_ioctl+0x14c/0x3c4
+[   95.208354]  sock_ioctl from vfs_ioctl+0x20/0x38
+[   95.212984]  vfs_ioctl from sys_ioctl+0x250/0x844
+[   95.217691]  sys_ioctl from ret_fast_syscall+0x0/0x4c
+[   95.222743] Exception stack(0xd0ee1fa8 to 0xd0ee1ff0)
+[   95.227790] 1fa0:                   00574c4f be9aeca4 00000003 00008914 be9aeca4 be9aec50
+[   95.235945] 1fc0: 00574c4f be9aeca4 0059f078 00000036 be9aee8c be9aef7a 00000015 00000000
+[   95.244096] 1fe0: 005a01f0 be9aec38 004d7484 b6e67d74
 
-Fixes: 64e89e5f5548 ("ASoC: rt5670: Add runtime PM support")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221213123319.11285-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Piergiorgio Beruto <piergiorgio.beruto@gmail.com>
+Fixes: 91a2559c1dc5 ("net: stmmac: Fix sub-second increment")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/de4c64ccac9084952c56a06a8171d738604c4770.1670678513.git.piergiorgio.beruto@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5670.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c | 3 ++-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h      | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5670.c b/sound/soc/codecs/rt5670.c
-index 6a2a58e107e3..9dd99d123e44 100644
---- a/sound/soc/codecs/rt5670.c
-+++ b/sound/soc/codecs/rt5670.c
-@@ -3217,8 +3217,6 @@ static int rt5670_i2c_probe(struct i2c_client *i2c,
- 	if (ret < 0)
- 		goto err;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+index ccf7381c8bae..8f2bbc1e92d8 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+@@ -53,7 +53,8 @@ static u32 stmmac_config_sub_second_increment(void __iomem *ioaddr,
+ 	if (!(value & PTP_TCR_TSCTRLSSR))
+ 		data = (data * 1000) / 465;
  
--	pm_runtime_put(&i2c->dev);
--
- 	return 0;
- err:
- 	pm_runtime_disable(&i2c->dev);
+-	data &= PTP_SSIR_SSINC_MASK;
++	if (data > PTP_SSIR_SSINC_MAX)
++		data = PTP_SSIR_SSINC_MAX;
+ 
+ 	reg_value = data;
+ 	if (gmac4)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h
+index f4b31d69f60e..36b58c4866e6 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.h
+@@ -65,7 +65,7 @@
+ #define	PTP_TCR_TSENMACADDR	BIT(18)
+ 
+ /* SSIR defines */
+-#define	PTP_SSIR_SSINC_MASK		0xff
++#define	PTP_SSIR_SSINC_MAX		0xff
+ #define	GMAC4_PTP_SSIR_SSINC_SHIFT	16
+ 
+ #endif	/* __STMMAC_PTP_H__ */
 -- 
 2.35.1
 
