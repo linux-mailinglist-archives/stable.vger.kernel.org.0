@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A52BE66C84A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF03166C84B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:37:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233508AbjAPQha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:37:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54012 "EHLO
+        id S233567AbjAPQhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:37:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233420AbjAPQhE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:37:04 -0500
+        with ESMTP id S233533AbjAPQhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:37:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F200B234F1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:26:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15A60252A2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:26:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1451FB8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:26:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BBFAC433D2;
-        Mon, 16 Jan 2023 16:26:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA2A0B8107D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:26:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15A3FC433EF;
+        Mon, 16 Jan 2023 16:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886366;
-        bh=j33FzNOjty8cwb7uB4R6TuLexzKBjCt16wxLrBMyoo8=;
+        s=korg; t=1673886369;
+        bh=XkpHaj9eqaKvP0O4Lp0HGAT5XYfLoAu5RyUxI5NKDmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QW+/t8x5SJqCaOTLBj4mrDY+jvvaCSjBiqyW53tQbXBbTCgRcvri8iIPNAdNwhoJ+
-         SJACK9pEWiaFFapripOLMNFyzNLmRZqi6PZAMcw3rqcqT+TGKW5yQHHfXzHesmhRwp
-         DlVeksnSZE0xL5BBLXBT6D+nzOUcMpd9pa0CCd0c=
+        b=PiszefMwfqQ8DO9s6XMX7BF6Y8dGtu6ksQsCNm+3qARrq5Y0f+h4eg9PUn5ZVtZYJ
+         aGLtZvL/yfye8UwrnlC7qh60z5AkmZX1v/qg1XYqOZBSeBn77zLMoMOk3v+xnBQt7w
+         Z946bPoc9oXsci//89o7twXt/bXDfzib0xZt/vzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 403/658] hamradio: baycom_epp: Fix return type of baycom_send_packet()
-Date:   Mon, 16 Jan 2023 16:48:11 +0100
-Message-Id: <20230116154928.026583992@linuxfoundation.org>
+        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 404/658] wifi: brcmfmac: Fix potential shift-out-of-bounds in brcmf_fw_alloc_request()
+Date:   Mon, 16 Jan 2023 16:48:12 +0100
+Message-Id: <20230116154928.068906147@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -54,50 +54,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit c5733e5b15d91ab679646ec3149e192996a27d5d ]
+[ Upstream commit 81d17f6f3331f03c8eafdacea68ab773426c1e3c ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+This patch fixes a shift-out-of-bounds in brcmfmac that occurs in
+BIT(chiprev) when a 'chiprev' provided by the device is too large.
+It should also not be equal to or greater than BITS_PER_TYPE(u32)
+as we do bitwise AND with a u32 variable and BIT(chiprev). The patch
+adds a check that makes the function return NULL if that is the case.
+Note that the NULL case is later handled by the bus-specific caller,
+brcmf_usb_probe_cb() or brcmf_usb_reset_resume(), for example.
 
-  drivers/net/hamradio/baycom_epp.c:1119:25: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit      = baycom_send_packet,
-                                ^~~~~~~~~~~~~~~~~~
-  1 error generated.
+Found by a modified version of syzkaller.
 
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of baycom_send_packet()
-to match the prototype's to resolve the warning and CFI failure.
+UBSAN: shift-out-of-bounds in drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+shift exponent 151055786 is too large for 64-bit type 'long unsigned int'
+CPU: 0 PID: 1885 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ dump_stack_lvl+0x57/0x7d
+ ubsan_epilogue+0x5/0x40
+ __ubsan_handle_shift_out_of_bounds.cold+0x53/0xdb
+ ? lock_chain_count+0x20/0x20
+ brcmf_fw_alloc_request.cold+0x19/0x3ea
+ ? brcmf_fw_get_firmwares+0x250/0x250
+ ? brcmf_usb_ioctl_resp_wait+0x1a7/0x1f0
+ brcmf_usb_get_fwname+0x114/0x1a0
+ ? brcmf_usb_reset_resume+0x120/0x120
+ ? number+0x6c4/0x9a0
+ brcmf_c_process_clm_blob+0x168/0x590
+ ? put_dec+0x90/0x90
+ ? enable_ptr_key_workfn+0x20/0x20
+ ? brcmf_common_pd_remove+0x50/0x50
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ brcmf_c_preinit_dcmds+0x673/0xc40
+ ? brcmf_c_set_joinpref_default+0x100/0x100
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? lock_acquire+0x19d/0x4e0
+ ? find_held_lock+0x2d/0x110
+ ? brcmf_usb_deq+0x1cc/0x260
+ ? mark_held_locks+0x9f/0xe0
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ ? _raw_spin_unlock_irqrestore+0x47/0x50
+ ? trace_hardirqs_on+0x1c/0x120
+ ? brcmf_usb_deq+0x1a7/0x260
+ ? brcmf_usb_rx_fill_all+0x5a/0xf0
+ brcmf_attach+0x246/0xd40
+ ? wiphy_new_nm+0x1476/0x1d50
+ ? kmemdup+0x30/0x40
+ brcmf_usb_probe+0x12de/0x1690
+ ? brcmf_usbdev_qinit.constprop.0+0x470/0x470
+ usb_probe_interface+0x25f/0x710
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ ? usb_match_id.part.0+0x88/0xc0
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ ? driver_allows_async_probing+0x120/0x120
+ bus_for_each_drv+0x123/0x1a0
+ ? bus_rescan_devices+0x20/0x20
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ ? trace_hardirqs_on+0x1c/0x120
+ __device_attach+0x207/0x330
+ ? device_bind_driver+0xb0/0xb0
+ ? kobject_uevent_env+0x230/0x12c0
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ ? __mutex_unlock_slowpath+0xe7/0x660
+ ? __fw_devlink_link_to_suppliers+0x550/0x550
+ usb_set_configuration+0x984/0x1770
+ ? kernfs_create_link+0x175/0x230
+ usb_generic_driver_probe+0x69/0x90
+ usb_probe_device+0x9c/0x220
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ ? driver_allows_async_probing+0x120/0x120
+ bus_for_each_drv+0x123/0x1a0
+ ? bus_rescan_devices+0x20/0x20
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ ? trace_hardirqs_on+0x1c/0x120
+ __device_attach+0x207/0x330
+ ? device_bind_driver+0xb0/0xb0
+ ? kobject_uevent_env+0x230/0x12c0
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ ? __fw_devlink_link_to_suppliers+0x550/0x550
+ usb_new_device.cold+0x463/0xf66
+ ? hub_disconnect+0x400/0x400
+ ? _raw_spin_unlock_irq+0x24/0x30
+ hub_event+0x10d5/0x3330
+ ? hub_port_debounce+0x280/0x280
+ ? __lock_acquire+0x1671/0x5790
+ ? wq_calc_node_cpumask+0x170/0x2a0
+ ? lock_release+0x640/0x640
+ ? rcu_read_lock_sched_held+0xa1/0xd0
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+ process_one_work+0x873/0x13e0
+ ? lock_release+0x640/0x640
+ ? pwq_dec_nr_in_flight+0x320/0x320
+ ? rwlock_bug.part.0+0x90/0x90
+ worker_thread+0x8b/0xd10
+ ? __kthread_parkme+0xd9/0x1d0
+ ? process_one_work+0x13e0/0x13e0
+ kthread+0x379/0x450
+ ? _raw_spin_unlock_irq+0x24/0x30
+ ? set_kthread_struct+0x100/0x100
+ ret_from_fork+0x1f/0x30
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221102160610.1186145-1-nathan@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221024071329.504277-1-linuxlovemin@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/baycom_epp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/hamradio/baycom_epp.c b/drivers/net/hamradio/baycom_epp.c
-index 4476491b58f9..c5495ca5e8e6 100644
---- a/drivers/net/hamradio/baycom_epp.c
-+++ b/drivers/net/hamradio/baycom_epp.c
-@@ -758,7 +758,7 @@ static void epp_bh(struct work_struct *work)
-  * ===================== network driver interface =========================
-  */
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+index 544ad80629a9..47e33fe53eeb 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+@@ -703,6 +703,11 @@ brcmf_fw_alloc_request(u32 chip, u32 chiprev,
+ 	u32 i, j;
+ 	char end = '\0';
  
--static int baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t baycom_send_packet(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct baycom_state *bc = netdev_priv(dev);
- 
++	if (chiprev >= BITS_PER_TYPE(u32)) {
++		brcmf_err("Invalid chip revision %u\n", chiprev);
++		return NULL;
++	}
++
+ 	for (i = 0; i < table_size; i++) {
+ 		if (mapping_table[i].chipid == chip &&
+ 		    mapping_table[i].revmask & BIT(chiprev))
 -- 
 2.35.1
 
