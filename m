@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A72A66C816
+	by mail.lfdr.de (Postfix) with ESMTP id AEF9566C817
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233403AbjAPQgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:36:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54456 "EHLO
+        id S233258AbjAPQgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:36:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233469AbjAPQgB (ORCPT
+        with ESMTP id S233501AbjAPQgB (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:36:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E124A31E0B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70ECD2A9BA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6219A61050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A5FC433EF;
-        Mon, 16 Jan 2023 16:24:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0489161058
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16876C433EF;
+        Mon, 16 Jan 2023 16:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886250;
-        bh=m7Cs7PtQTDJ9azT61YVLPH9M3zV/gyDEGAiUie6ovp8=;
+        s=korg; t=1673886253;
+        bh=AOgJp2rz1eHJsmVjxa/9tV4yqO2H9rRxOebxHhWHsXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTWBWoVic215z/KBFVrOrn/dfIA2ZtDeONEe8l4ivjOyQRST7y0Td1XktD4RD5pw1
-         Zs9ZAJEwifVmTROnCKQYYvIuyQZYJdK3UDxjDfmvGGiE4Cd0Xoey/Rzq4q3EgHTzP9
-         3RYEwrEAwXdl1PppeQJLmisKzRP/F/2fywapRSDA=
+        b=LyvBrJbjQqBuRAB/gw/q4YGdsfUR4mcJK3HO/iRwFAvYx/odWWsq0sGz4hNWc8aY4
+         MSKr56c2ujxbUGi38zgU2UQUb9a270xXyA+cfDVK2H/EaZa4bYq/Ql9vpTy/Gzy+C0
+         oRoDJU4jLQWTvIDyG9PtmRC4KOquBm5C0YE0Voas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Emil Renner Berthing <emil.renner.berthing@canonical.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 360/658] pwm: sifive: Call pwm_sifive_update_clock() while mutex is held
-Date:   Mon, 16 Jan 2023 16:47:28 +0100
-Message-Id: <20230116154926.054900962@linuxfoundation.org>
+Subject: [PATCH 5.4 361/658] remoteproc: sysmon: fix memory leak in qcom_add_sysmon_subdev()
+Date:   Mon, 16 Jan 2023 16:47:29 +0100
+Message-Id: <20230116154926.104936230@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -56,45 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-[ Upstream commit 45558b3abb87eeb2cedb8a59cb2699c120b5102a ]
+[ Upstream commit e01ce676aaef3b13d02343d7e70f9637d93a3367 ]
 
-As was documented in commit 0f02f491b786 ("pwm: sifive: Reduce time the
-controller lock is held") a caller of pwm_sifive_update_clock() must
-hold the mutex. So fix pwm_sifive_clock_notifier() to grab the lock.
+The kfree() should be called when of_irq_get_byname() fails or
+devm_request_threaded_irq() fails in qcom_add_sysmon_subdev(),
+otherwise there will be a memory leak, so add kfree() to fix it.
 
-While this necessity was only documented later, the race exists since
-the driver was introduced.
-
-Fixes: 9e37a53eb051 ("pwm: sifive: Add a driver for SiFive SoC PWM")
-Reported-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Reviewed-by: Emil Renner Berthing <emil.renner.berthing@canonical.com>
-Link: https://lore.kernel.org/r/20221018061656.1428111-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: 027045a6e2b7 ("remoteproc: qcom: Add shutdown-ack irq")
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221129105650.1539187-1-cuigaosheng1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-sifive.c | 5 ++++-
+ drivers/remoteproc/qcom_sysmon.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-sifive.c b/drivers/pwm/pwm-sifive.c
-index cc63f9baa481..538297ef8255 100644
---- a/drivers/pwm/pwm-sifive.c
-+++ b/drivers/pwm/pwm-sifive.c
-@@ -221,8 +221,11 @@ static int pwm_sifive_clock_notifier(struct notifier_block *nb,
- 	struct pwm_sifive_ddata *ddata =
- 		container_of(nb, struct pwm_sifive_ddata, notifier);
- 
--	if (event == POST_RATE_CHANGE)
-+	if (event == POST_RATE_CHANGE) {
-+		mutex_lock(&ddata->lock);
- 		pwm_sifive_update_clock(ddata, ndata->new_rate);
-+		mutex_unlock(&ddata->lock);
-+	}
- 
- 	return NOTIFY_OK;
- }
+diff --git a/drivers/remoteproc/qcom_sysmon.c b/drivers/remoteproc/qcom_sysmon.c
+index c231314eab66..b7d0c35c5058 100644
+--- a/drivers/remoteproc/qcom_sysmon.c
++++ b/drivers/remoteproc/qcom_sysmon.c
+@@ -518,7 +518,9 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
+ 		if (sysmon->shutdown_irq != -ENODATA) {
+ 			dev_err(sysmon->dev,
+ 				"failed to retrieve shutdown-ack IRQ\n");
+-			return ERR_PTR(sysmon->shutdown_irq);
++			ret = sysmon->shutdown_irq;
++			kfree(sysmon);
++			return ERR_PTR(ret);
+ 		}
+ 	} else {
+ 		ret = devm_request_threaded_irq(sysmon->dev,
+@@ -529,6 +531,7 @@ struct qcom_sysmon *qcom_add_sysmon_subdev(struct rproc *rproc,
+ 		if (ret) {
+ 			dev_err(sysmon->dev,
+ 				"failed to acquire shutdown-ack IRQ\n");
++			kfree(sysmon);
+ 			return ERR_PTR(ret);
+ 		}
+ 	}
 -- 
 2.35.1
 
