@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA9E166CB8A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBD1966CCE2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:30:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234456AbjAPRPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39390 "EHLO
+        id S234618AbjAPRad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:30:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234488AbjAPROZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61DF4B188
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:54:49 -0800 (PST)
+        with ESMTP id S234768AbjAPR3k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD2B93A5B4
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F410B81091
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:54:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC52EC433D2;
-        Mon, 16 Jan 2023 16:54:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6883A61085
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E863C433D2;
+        Mon, 16 Jan 2023 17:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888087;
-        bh=iej5SzVVe/+7WPmbKdX4DiLDJTi6jsnUCG5+qtbjSEA=;
+        s=korg; t=1673888830;
+        bh=81YOOqJxHzXGX46MJjzbKCgw/sduZ2mhvrBXCGkFEGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v7y9CkDFfH026eeGfS4WhaNCrf6q5EaoGOkQkcGi3DcFS1Q7FTzIL0Dz5I4Y+UHZ0
-         9R0TDVBvNv9FEkksQJKNyUuA/0bzh3clc1lUZoPaAcv2EtnXjjonGHDudIzPD4DyUv
-         j/cl/xqt2pg0OIwru1JtvjdFL2rAB5QfpqfQR3nY=
+        b=UB9538UaR1+nWS9xmW1Y56mFxqbkYEOsiCJXz6eE1w0Dl+f7ODVQ+OHm0dzYMlA5K
+         1L9H1n/wpYYa5rFILGhc9yS7ZeTYfiNO+uUTKR0t7tFPl+vVb4QVEd2IcjmVfb7dQU
+         GLgP0B8PfJUhbO5uDdhS2eHaCzQoiflVJTJrTkAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aditya Garg <gargaditya08@live.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 366/521] hfsplus: fix bug causing custom uid and gid being unable to be assigned with mount
-Date:   Mon, 16 Jan 2023 16:50:28 +0100
-Message-Id: <20230116154903.463585562@linuxfoundation.org>
+        patches@lists.linux.dev, Dragos Tatulea <dtatulea@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 156/338] IB/IPoIB: Fix queue count inconsistency for PKEY child interfaces
+Date:   Mon, 16 Jan 2023 16:50:29 +0100
+Message-Id: <20230116154827.671547035@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Dragos Tatulea <dtatulea@nvidia.com>
 
-commit 9f2b5debc07073e6dfdd774e3594d0224b991927 upstream.
+[ Upstream commit dbc94a0fb81771a38733c0e8f2ea8c4fa6934dc1 ]
 
-Despite specifying UID and GID in mount command, the specified UID and GID
-were not being assigned. This patch fixes this issue.
+There are 2 ways to create IPoIB PKEY child interfaces:
+1) Writing a PKEY to /sys/class/net/<ib parent interface>/create_child.
+2) Using netlink with iproute.
 
-Link: https://lkml.kernel.org/r/C0264BF5-059C-45CF-B8DA-3A3BD2C803A2@live.com
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While with sysfs the child interface has the same number of tx and
+rx queues as the parent, with netlink there will always be 1 tx
+and 1 rx queue for the child interface. That's because the
+get_num_tx/rx_queues() netlink ops are missing and the default value
+of 1 is taken for the number of queues (in rtnl_create_link()).
+
+This change adds the get_num_tx/rx_queues() ops which allows for
+interfaces with multiple queues to be created over netlink. This
+constant only represents the max number of tx and rx queues on that
+net device.
+
+Fixes: 9baa0b036410 ("IB/ipoib: Add rtnl_link_ops support")
+Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+Link: https://lore.kernel.org/r/f4a42c8aa43c02d5ae5559a60c3e5e0f18c82531.1670485816.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/hfsplus_fs.h |    2 ++
- fs/hfsplus/inode.c      |    4 ++--
- fs/hfsplus/options.c    |    4 ++++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/ipoib/ipoib_netlink.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/hfsplus/hfsplus_fs.h
-+++ b/fs/hfsplus/hfsplus_fs.h
-@@ -198,6 +198,8 @@ struct hfsplus_sb_info {
- #define HFSPLUS_SB_HFSX		3
- #define HFSPLUS_SB_CASEFOLD	4
- #define HFSPLUS_SB_NOBARRIER	5
-+#define HFSPLUS_SB_UID		6
-+#define HFSPLUS_SB_GID		7
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
+index 3e44087935ae..5119bb52b469 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_netlink.c
+@@ -42,6 +42,11 @@ static const struct nla_policy ipoib_policy[IFLA_IPOIB_MAX + 1] = {
+ 	[IFLA_IPOIB_UMCAST]	= { .type = NLA_U16 },
+ };
  
- static inline struct hfsplus_sb_info *HFSPLUS_SB(struct super_block *sb)
++static unsigned int ipoib_get_max_num_queues(void)
++{
++	return min_t(unsigned int, num_possible_cpus(), 128);
++}
++
+ static int ipoib_fill_info(struct sk_buff *skb, const struct net_device *dev)
  {
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -187,11 +187,11 @@ static void hfsplus_get_perms(struct ino
- 	mode = be16_to_cpu(perms->mode);
+ 	struct ipoib_dev_priv *priv = ipoib_priv(dev);
+@@ -170,6 +175,8 @@ static struct rtnl_link_ops ipoib_link_ops __read_mostly = {
+ 	.dellink	= ipoib_unregister_child_dev,
+ 	.get_size	= ipoib_get_size,
+ 	.fill_info	= ipoib_fill_info,
++	.get_num_rx_queues = ipoib_get_max_num_queues,
++	.get_num_tx_queues = ipoib_get_max_num_queues,
+ };
  
- 	i_uid_write(inode, be32_to_cpu(perms->owner));
--	if (!i_uid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_UID, &sbi->flags)) || (!i_uid_read(inode) && !mode))
- 		inode->i_uid = sbi->uid;
- 
- 	i_gid_write(inode, be32_to_cpu(perms->group));
--	if (!i_gid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_GID, &sbi->flags)) || (!i_gid_read(inode) && !mode))
- 		inode->i_gid = sbi->gid;
- 
- 	if (dir) {
---- a/fs/hfsplus/options.c
-+++ b/fs/hfsplus/options.c
-@@ -140,6 +140,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!uid_valid(sbi->uid)) {
- 				pr_err("invalid uid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_UID, &sbi->flags);
- 			}
- 			break;
- 		case opt_gid:
-@@ -151,6 +153,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!gid_valid(sbi->gid)) {
- 				pr_err("invalid gid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_GID, &sbi->flags);
- 			}
- 			break;
- 		case opt_part:
+ int __init ipoib_netlink_init(void)
+-- 
+2.35.1
+
 
 
