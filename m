@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE9266C608
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC63666C961
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232333AbjAPQOG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:14:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60014 "EHLO
+        id S233805AbjAPQt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:49:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232840AbjAPQND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:13:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DD822B62F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:55 -0800 (PST)
+        with ESMTP id S234019AbjAPQtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D62B1E5D5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1461EB8107E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CDF4C433EF;
-        Mon, 16 Jan 2023 16:07:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01F8AB81059
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57DB6C433D2;
+        Mon, 16 Jan 2023 16:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885272;
-        bh=NlwaFl4fCSE4di+67CjcjEObbgnj08iaMsqqOMThHQY=;
+        s=korg; t=1673886955;
+        bh=9P4DgY0/cYzI0DgASwfWHzwO0PKAPibVadtM/YULXks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+/5mmNQBcjY79KD5AMsAvXsYNy3xlZYwIyzVvObVyAVRCcoxcRVsJ0UGQ25g5Fq+
-         rUsHVkE13tzAzzXhBhX2D50TZnlwzHheoKZSlOFqJs66S7moSHBrM94U+RXARD9Iiw
-         f+E/10rBtEef5+475oOQVKuYeCLHGJ1jNBaIQPFI=
+        b=PFbtaVS9FgMj2CdK5PJPjJKni1npoaol5EJB45UNKYs5hj2+sfGuY7mVeR8vBGcJ7
+         xWTgZrGgPmNRSedHhcdGqWtxexKCOv49zb28D9/al5qatKJD2v3ggpuFxs1sRiP+mp
+         eF+A1W8ozfTPJvnePoI/DPl29BDlfMIYR9lL6V94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 46/64] nfc: pn533: Wait for out_urbs completion in pn533_usb_send_frame()
-Date:   Mon, 16 Jan 2023 16:51:53 +0100
-Message-Id: <20230116154745.169141969@linuxfoundation.org>
+        patches@lists.linux.dev, zhengliang <zhengliang6@huawei.com>,
+        Andreas Dilger <adilger@dilger.ca>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 626/658] ext4: lost matching-pair of trace in ext4_truncate
+Date:   Mon, 16 Jan 2023 16:51:54 +0100
+Message-Id: <20230116154938.139391266@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
-References: <20230116154743.577276578@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,127 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+From: zhengliang <zhengliang6@huawei.com>
 
-[ Upstream commit 9dab880d675b9d0dd56c6428e4e8352a3339371d ]
+[ Upstream commit 9a5d265fed014115f35e598022c956e5d2fb863e ]
 
-Fix a use-after-free that occurs in hcd when in_urb sent from
-pn533_usb_send_frame() is completed earlier than out_urb. Its callback
-frees the skb data in pn533_send_async_complete() that is used as a
-transfer buffer of out_urb. Wait before sending in_urb until the
-callback of out_urb is called. To modify the callback of out_urb alone,
-separate the complete function of out_urb and ack_urb.
+It should call trace exit in all return path for ext4_truncate.
 
-Found by a modified version of syzkaller.
-
-BUG: KASAN: use-after-free in dummy_timer
-Call Trace:
- memcpy (mm/kasan/shadow.c:65)
- dummy_perform_transfer (drivers/usb/gadget/udc/dummy_hcd.c:1352)
- transfer (drivers/usb/gadget/udc/dummy_hcd.c:1453)
- dummy_timer (drivers/usb/gadget/udc/dummy_hcd.c:1972)
- arch_static_branch (arch/x86/include/asm/jump_label.h:27)
- static_key_false (include/linux/jump_label.h:207)
- timer_expire_exit (include/trace/events/timer.h:127)
- call_timer_fn (kernel/time/timer.c:1475)
- expire_timers (kernel/time/timer.c:1519)
- __run_timers (kernel/time/timer.c:1790)
- run_timer_softirq (kernel/time/timer.c:1803)
-
-Fixes: c46ee38620a2 ("NFC: pn533: add NXP pn533 nfc device driver")
-Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: zhengliang <zhengliang6@huawei.com>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200701083027.45996-1-zhengliang6@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Stable-dep-of: a71248b1accb ("ext4: fix use-after-free in ext4_orphan_cleanup")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533/usb.c | 44 ++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 41 insertions(+), 3 deletions(-)
+ fs/ext4/inode.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
-index 84f2983bf384..57b07446bb76 100644
---- a/drivers/nfc/pn533/usb.c
-+++ b/drivers/nfc/pn533/usb.c
-@@ -153,10 +153,17 @@ static int pn533_usb_send_ack(struct pn533 *dev, gfp_t flags)
- 	return usb_submit_urb(phy->ack_urb, flags);
- }
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index a39567e03580..5eb1d9ac269c 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4513,7 +4513,7 @@ int ext4_truncate(struct inode *inode)
+ 	trace_ext4_truncate_enter(inode);
  
-+struct pn533_out_arg {
-+	struct pn533_usb_phy *phy;
-+	struct completion done;
-+};
-+
- static int pn533_usb_send_frame(struct pn533 *dev,
- 				struct sk_buff *out)
- {
- 	struct pn533_usb_phy *phy = dev->phy;
-+	struct pn533_out_arg arg;
-+	void *cntx;
- 	int rc;
+ 	if (!ext4_can_truncate(inode))
+-		return 0;
++		goto out_trace;
  
- 	if (phy->priv == NULL)
-@@ -168,10 +175,17 @@ static int pn533_usb_send_frame(struct pn533 *dev,
- 	print_hex_dump_debug("PN533 TX: ", DUMP_PREFIX_NONE, 16, 1,
- 			     out->data, out->len, false);
+ 	ext4_clear_inode_flag(inode, EXT4_INODE_EOFBLOCKS);
  
-+	init_completion(&arg.done);
-+	cntx = phy->out_urb->context;
-+	phy->out_urb->context = &arg;
-+
- 	rc = usb_submit_urb(phy->out_urb, GFP_KERNEL);
- 	if (rc)
- 		return rc;
+@@ -4524,16 +4524,14 @@ int ext4_truncate(struct inode *inode)
+ 		int has_inline = 1;
  
-+	wait_for_completion(&arg.done);
-+	phy->out_urb->context = cntx;
-+
- 	if (dev->protocol_type == PN533_PROTO_REQ_RESP) {
- 		/* request for response for sent packet directly */
- 		rc = pn533_submit_urb_for_response(phy, GFP_KERNEL);
-@@ -412,7 +426,31 @@ static int pn533_acr122_poweron_rdr(struct pn533_usb_phy *phy)
- 	return arg.rc;
- }
+ 		err = ext4_inline_data_truncate(inode, &has_inline);
+-		if (err)
+-			return err;
+-		if (has_inline)
+-			return 0;
++		if (err || has_inline)
++			goto out_trace;
+ 	}
  
--static void pn533_send_complete(struct urb *urb)
-+static void pn533_out_complete(struct urb *urb)
-+{
-+	struct pn533_out_arg *arg = urb->context;
-+	struct pn533_usb_phy *phy = arg->phy;
-+
-+	switch (urb->status) {
-+	case 0:
-+		break; /* success */
-+	case -ECONNRESET:
-+	case -ENOENT:
-+		dev_dbg(&phy->udev->dev,
-+			"The urb has been stopped (status %d)\n",
-+			urb->status);
-+		break;
-+	case -ESHUTDOWN:
-+	default:
-+		nfc_err(&phy->udev->dev,
-+			"Urb failure (status %d)\n",
-+			urb->status);
+ 	/* If we zero-out tail of the page, we have to create jinode for jbd2 */
+ 	if (inode->i_size & (inode->i_sb->s_blocksize - 1)) {
+ 		if (ext4_inode_attach_jinode(inode) < 0)
+-			return 0;
++			goto out_trace;
+ 	}
+ 
+ 	if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
+@@ -4542,8 +4540,10 @@ int ext4_truncate(struct inode *inode)
+ 		credits = ext4_blocks_for_truncate(inode);
+ 
+ 	handle = ext4_journal_start(inode, EXT4_HT_TRUNCATE, credits);
+-	if (IS_ERR(handle))
+-		return PTR_ERR(handle);
++	if (IS_ERR(handle)) {
++		err = PTR_ERR(handle);
++		goto out_trace;
 +	}
-+
-+	complete(&arg->done);
-+}
-+
-+static void pn533_ack_complete(struct urb *urb)
- {
- 	struct pn533_usb_phy *phy = urb->context;
  
-@@ -500,10 +538,10 @@ static int pn533_usb_probe(struct usb_interface *interface,
+ 	if (inode->i_size & (inode->i_sb->s_blocksize - 1))
+ 		ext4_block_truncate_page(handle, mapping, inode->i_size);
+@@ -4592,6 +4592,7 @@ int ext4_truncate(struct inode *inode)
+ 	ext4_mark_inode_dirty(handle, inode);
+ 	ext4_journal_stop(handle);
  
- 	usb_fill_bulk_urb(phy->out_urb, phy->udev,
- 			  usb_sndbulkpipe(phy->udev, out_endpoint),
--			  NULL, 0, pn533_send_complete, phy);
-+			  NULL, 0, pn533_out_complete, phy);
- 	usb_fill_bulk_urb(phy->ack_urb, phy->udev,
- 			  usb_sndbulkpipe(phy->udev, out_endpoint),
--			  NULL, 0, pn533_send_complete, phy);
-+			  NULL, 0, pn533_ack_complete, phy);
- 
- 	switch (id->driver_info) {
- 	case PN533_DEVICE_STD:
++out_trace:
+ 	trace_ext4_truncate_exit(inode);
+ 	return err;
+ }
 -- 
 2.35.1
 
