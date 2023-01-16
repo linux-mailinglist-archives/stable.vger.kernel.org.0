@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8689666C7E0
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:35:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B1F66C7B8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:34:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233454AbjAPQfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:35:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48380 "EHLO
+        id S233308AbjAPQeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:34:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233397AbjAPQeg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9788B24115
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:22:29 -0800 (PST)
+        with ESMTP id S233339AbjAPQdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:33:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305492C645
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:21:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35B0261057
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:22:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A25EC433D2;
-        Mon, 16 Jan 2023 16:22:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA9EAB81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:21:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36889C433F0;
+        Mon, 16 Jan 2023 16:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886148;
-        bh=lALA257aza9UChIUWuCJAMEm5wFtLaakyp3iG/S8nOg=;
+        s=korg; t=1673886072;
+        bh=wKvVCLFDg1m3wSKj5ckC6IK3CnIj1yWSWv9yWDc3/WM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=siwDSyad+lZJPo/6fhWJOGgjJ8dTyDObOIp56V9EXeGCL36LsKnPnHuKwBs77A/xU
-         ZC8dNdpHTpCmQZPZGaJsO6O3RGsZ4C/9RKXbXGZioFP+CWt0lfvOoeCKONv/49AFxE
-         0OEirFYyBd7zWWL+DC/+RtsDki3489ay+Wyus6IQ=
+        b=RhmtbUu+9rA4ulQkfU/BVTWg0pu/UIJtsAA7Qx9kfF3arosU5V23MjFjYlIXk9cJU
+         SIctysaKs2tsg8VtXUy15+gt8Fp+ddTJjALKkPHH6VyvluyAIb+ycYtKWV5jlIggYp
+         AhyurGuCGoOrYZcmX5n6gNVaYgSyGNTvehaVpK8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
+        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 291/658] serial: sunsab: Fix error handling in sunsab_init()
-Date:   Mon, 16 Jan 2023 16:46:19 +0100
-Message-Id: <20230116154922.908871373@linuxfoundation.org>
+Subject: [PATCH 5.4 292/658] test_firmware: fix memory leak in test_firmware_init()
+Date:   Mon, 16 Jan 2023 16:46:20 +0100
+Message-Id: <20230116154922.961371662@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -52,44 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Zhengchao Shao <shaozhengchao@huawei.com>
 
-[ Upstream commit 1a6ec673fb627c26e2267ca0a03849f91dbd9b40 ]
+[ Upstream commit 7610615e8cdb3f6f5bbd9d8e7a5d8a63e3cabf2e ]
 
-The sunsab_init() returns the platform_driver_register() directly without
-checking its return value, if platform_driver_register() failed, the
-allocated sunsab_ports is leaked.
-Fix by free sunsab_ports and set it to NULL when platform_driver_register()
-failed.
+When misc_register() failed in test_firmware_init(), the memory pointed
+by test_fw_config->name is not released. The memory leak information is
+as follows:
+unreferenced object 0xffff88810a34cb00 (size 32):
+  comm "insmod", pid 7952, jiffies 4294948236 (age 49.060s)
+  hex dump (first 32 bytes):
+    74 65 73 74 2d 66 69 72 6d 77 61 72 65 2e 62 69  test-firmware.bi
+    6e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  n...............
+  backtrace:
+    [<ffffffff81b21fcb>] __kmalloc_node_track_caller+0x4b/0xc0
+    [<ffffffff81affb96>] kstrndup+0x46/0xc0
+    [<ffffffffa0403a49>] __test_firmware_config_init+0x29/0x380 [test_firmware]
+    [<ffffffffa040f068>] 0xffffffffa040f068
+    [<ffffffff81002c41>] do_one_initcall+0x141/0x780
+    [<ffffffff816a72c3>] do_init_module+0x1c3/0x630
+    [<ffffffff816adb9e>] load_module+0x623e/0x76a0
+    [<ffffffff816af471>] __do_sys_finit_module+0x181/0x240
+    [<ffffffff89978f99>] do_syscall_64+0x39/0xb0
+    [<ffffffff89a0008b>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Fixes: c4d37215a824 ("[SERIAL] sunsab: Convert to of_driver framework.")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Link: https://lore.kernel.org/r/20221123061212.52593-1-yuancan@huawei.com
+Fixes: c92316bf8e94 ("test_firmware: add batched firmware tests")
+Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20221119035721.18268-1-shaozhengchao@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sunsab.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ lib/test_firmware.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/sunsab.c b/drivers/tty/serial/sunsab.c
-index 72131b5e132e..beca02c30498 100644
---- a/drivers/tty/serial/sunsab.c
-+++ b/drivers/tty/serial/sunsab.c
-@@ -1140,7 +1140,13 @@ static int __init sunsab_init(void)
- 		}
- 	}
+diff --git a/lib/test_firmware.c b/lib/test_firmware.c
+index 251213c872b5..0169073ec2b9 100644
+--- a/lib/test_firmware.c
++++ b/lib/test_firmware.c
+@@ -940,6 +940,7 @@ static int __init test_firmware_init(void)
  
--	return platform_driver_register(&sab_driver);
-+	err = platform_driver_register(&sab_driver);
-+	if (err) {
-+		kfree(sunsab_ports);
-+		sunsab_ports = NULL;
-+	}
-+
-+	return err;
- }
- 
- static void __exit sunsab_exit(void)
+ 	rc = misc_register(&test_fw_misc_device);
+ 	if (rc) {
++		__test_firmware_config_free();
+ 		kfree(test_fw_config);
+ 		pr_err("could not register misc device: %d\n", rc);
+ 		return rc;
 -- 
 2.35.1
 
