@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 752B166C5AF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:08:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 539C666C52F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:02:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232196AbjAPQIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:08:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50790 "EHLO
+        id S231991AbjAPQCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:02:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232431AbjAPQIN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:08:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D0C724486
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:55 -0800 (PST)
+        with ESMTP id S232119AbjAPQCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:02:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A0023C7D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E26D8B8107D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD77C433F2;
-        Mon, 16 Jan 2023 16:05:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7B4CB81060
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2867AC433D2;
+        Mon, 16 Jan 2023 16:01:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885152;
-        bh=s0Hrw008Y5mWfgu2417VP5FHSLsAOjsocD+gR4QxLNc=;
+        s=korg; t=1673884916;
+        bh=AtDXUXTep2VDDNmGKsPCXJkv6DS9oTrhh+ZSMB8DqW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yBBhrGMFWJWIKEs8cggiJHeuCCalBRYKu8GVUsDdl8h7/Uir01a+0ip4Dy/3Xjzdd
-         DgvrRYo2WRZ5fBbDVNwMtbmiwXNvMdnadEfm0eQ0caoiv+YDk0BU2b3+W5rVHNOHsl
-         N2w83Nez6jclhWlvEGR8gUa/nFwR1esn0yOSryrQ=
+        b=rwnvsl6cr/+VWRIWyt5z1+0xBa+yx0TnKvlxFfdbzSzRmXU4CRKtwXHrZMdKILFtN
+         n0cEo0S9qDskLNE+ode4U8rBTE3144GblbI5nalE9sOvRHTRYb3b4jWSWQhvgRY1Z+
+         4JaaMltsl2QaJTj8GMO/zJi1xXDJBpWCY1A9E+KA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Willy Tarreau <w@1wt.eu>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        patches@lists.linux.dev, Andy Gospodarek <gospo@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 60/86] tools/nolibc/std: move the standard type definitions to std.h
+Subject: [PATCH 6.1 171/183] bnxt: make sure we return pages to the pool
 Date:   Mon, 16 Jan 2023 16:51:34 +0100
-Message-Id: <20230116154749.556503305@linuxfoundation.org>
+Message-Id: <20230116154810.521164006@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,152 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 967cce191f50090d5cbd3841ee2bbb7835afeae2 ]
+[ Upstream commit 97f5e03a4a27d27ee4fed0cdb1658c81cf2784db ]
 
-The ordering of includes and definitions for now is a bit of a mess, as
-for example asm/signal.h is included after int definitions, but plenty of
-structures are defined later as they rely on other includes.
+Before the commit under Fixes the page would have been released
+from the pool before the napi_alloc_skb() call, so normal page
+freeing was fine (released page == no longer in the pool).
 
-Let's move the standard type definitions to a dedicated file that is
-included first. We also move NULL there. This way all other includes
-are aware of it, and we can bring asm/signal.h back to the top of the
-file.
+After the change we just mark the page for recycling so it's still
+in the pool if the skb alloc fails, we need to recycle.
 
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Stable-dep-of: 184177c3d6e0 ("tools/nolibc: restore mips branch ordering in the _start block")
+Same commit added the same bug in the new bnxt_rx_multi_page_skb().
+
+Fixes: 1dc4c557bfed ("bnxt: adding bnxt_xdp_build_skb to build skb from multibuffer xdp_buff")
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Link: https://lore.kernel.org/r/20230111042547.987749-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/include/nolibc/nolibc.h | 42 ++++--------------------------
- tools/include/nolibc/std.h    | 49 +++++++++++++++++++++++++++++++++++
- 2 files changed, 54 insertions(+), 37 deletions(-)
- create mode 100644 tools/include/nolibc/std.h
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/include/nolibc/nolibc.h b/tools/include/nolibc/nolibc.h
-index 7ba180651b17..41eb7e647238 100644
---- a/tools/include/nolibc/nolibc.h
-+++ b/tools/include/nolibc/nolibc.h
-@@ -81,7 +81,12 @@
-  *
-  */
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index f5a8bae8d79a..edca16b5f9e3 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -990,7 +990,7 @@ static struct sk_buff *bnxt_rx_multi_page_skb(struct bnxt *bp,
+ 			     DMA_ATTR_WEAK_ORDERING);
+ 	skb = build_skb(page_address(page), PAGE_SIZE);
+ 	if (!skb) {
+-		__free_page(page);
++		page_pool_recycle_direct(rxr->page_pool, page);
+ 		return NULL;
+ 	}
+ 	skb_mark_for_recycle(skb);
+@@ -1028,7 +1028,7 @@ static struct sk_buff *bnxt_rx_page_skb(struct bnxt *bp,
  
-+/* standard type definitions */
-+#include "std.h"
-+
-+/* system includes */
- #include <asm/unistd.h>
-+#include <asm/signal.h>  // for SIGCHLD
- #include <asm/ioctls.h>
- #include <asm/errno.h>
- #include <linux/fs.h>
-@@ -104,40 +109,6 @@ static int errno;
-  */
- #define MAX_ERRNO 4095
+ 	skb = napi_alloc_skb(&rxr->bnapi->napi, payload);
+ 	if (!skb) {
+-		__free_page(page);
++		page_pool_recycle_direct(rxr->page_pool, page);
+ 		return NULL;
+ 	}
  
--/* Declare a few quite common macros and types that usually are in stdlib.h,
-- * stdint.h, ctype.h, unistd.h and a few other common locations.
-- */
--
--#define NULL ((void *)0)
--
--/* stdint types */
--typedef unsigned char       uint8_t;
--typedef   signed char        int8_t;
--typedef unsigned short     uint16_t;
--typedef   signed short      int16_t;
--typedef unsigned int       uint32_t;
--typedef   signed int        int32_t;
--typedef unsigned long long uint64_t;
--typedef   signed long long  int64_t;
--typedef unsigned long        size_t;
--typedef   signed long       ssize_t;
--typedef unsigned long     uintptr_t;
--typedef   signed long      intptr_t;
--typedef   signed long     ptrdiff_t;
--
--/* for stat() */
--typedef unsigned int          dev_t;
--typedef unsigned long         ino_t;
--typedef unsigned int         mode_t;
--typedef   signed int          pid_t;
--typedef unsigned int          uid_t;
--typedef unsigned int          gid_t;
--typedef unsigned long       nlink_t;
--typedef   signed long         off_t;
--typedef   signed long     blksize_t;
--typedef   signed long      blkcnt_t;
--typedef   signed long        time_t;
--
- /* for poll() */
- struct pollfd {
- 	int fd;
-@@ -246,9 +217,6 @@ struct stat {
- #define WEXITSTATUS(status)   (((status) & 0xff00) >> 8)
- #define WIFEXITED(status)     (((status) & 0x7f) == 0)
- 
--/* for SIGCHLD */
--#include <asm/signal.h>
--
- /* Below comes the architecture-specific code. For each architecture, we have
-  * the syscall declarations and the _start code definition. This is the only
-  * global part. On all architectures the kernel puts everything in the stack
-diff --git a/tools/include/nolibc/std.h b/tools/include/nolibc/std.h
-new file mode 100644
-index 000000000000..1747ae125392
---- /dev/null
-+++ b/tools/include/nolibc/std.h
-@@ -0,0 +1,49 @@
-+/* SPDX-License-Identifier: LGPL-2.1 OR MIT */
-+/*
-+ * Standard definitions and types for NOLIBC
-+ * Copyright (C) 2017-2021 Willy Tarreau <w@1wt.eu>
-+ */
-+
-+#ifndef _NOLIBC_STD_H
-+#define _NOLIBC_STD_H
-+
-+/* Declare a few quite common macros and types that usually are in stdlib.h,
-+ * stdint.h, ctype.h, unistd.h and a few other common locations. Please place
-+ * integer type definitions and generic macros here, but avoid OS-specific and
-+ * syscall-specific stuff, as this file is expected to be included very early.
-+ */
-+
-+/* note: may already be defined */
-+#ifndef NULL
-+#define NULL ((void *)0)
-+#endif
-+
-+/* stdint types */
-+typedef unsigned char       uint8_t;
-+typedef   signed char        int8_t;
-+typedef unsigned short     uint16_t;
-+typedef   signed short      int16_t;
-+typedef unsigned int       uint32_t;
-+typedef   signed int        int32_t;
-+typedef unsigned long long uint64_t;
-+typedef   signed long long  int64_t;
-+typedef unsigned long        size_t;
-+typedef   signed long       ssize_t;
-+typedef unsigned long     uintptr_t;
-+typedef   signed long      intptr_t;
-+typedef   signed long     ptrdiff_t;
-+
-+/* those are commonly provided by sys/types.h */
-+typedef unsigned int          dev_t;
-+typedef unsigned long         ino_t;
-+typedef unsigned int         mode_t;
-+typedef   signed int          pid_t;
-+typedef unsigned int          uid_t;
-+typedef unsigned int          gid_t;
-+typedef unsigned long       nlink_t;
-+typedef   signed long         off_t;
-+typedef   signed long     blksize_t;
-+typedef   signed long      blkcnt_t;
-+typedef   signed long        time_t;
-+
-+#endif /* _NOLIBC_STD_H */
 -- 
 2.35.1
 
