@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 426FF66C4B6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D32E66C902
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231635AbjAPP5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38742 "EHLO
+        id S233810AbjAPQpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:45:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231684AbjAPP5c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78F2E396
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:22 -0800 (PST)
+        with ESMTP id S233496AbjAPQpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3DBB2887C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4740761042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ACEBC433EF;
-        Mon, 16 Jan 2023 15:57:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FF7FB8106C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB04DC433EF;
+        Mon, 16 Jan 2023 16:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884641;
-        bh=CsKm78zPTazvingQ1Le32COlzZJiD4hVMkvcP/fx/1I=;
+        s=korg; t=1673886754;
+        bh=IMhPDgoMua3/pfTr93a5hVT6RV/EuEvuU9h8g/LBjLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvxE9nrSPXf7wq/VyVszHduN4TQbiqDxBsSd3eMW2cQOHyfreWt9dbg/0hycspeGJ
-         RR52Gow0cL8+a0gmat8sPFpjDsT0D7pDS43pA8ZWneTlgKSqhXkhD99t1Dy4pv9/mr
-         FHdhmbVE42pVZwZQoGG8bQri1i1rhtInQHY20fuw=
+        b=awPG8sW3epqXtMYsQk2J0vbkONsdUrQim0Ur+CBKLmzTD/ope1yXmdeNqutjeIV+M
+         4jXOGT6ECBFIU/4AuUuTuOhmTPd3+h3uITeVWcXBdT97R9k9b9b8+IZ7ob6oRnJGdU
+         cfXjIcdJAAADsNbIloBBR76iNZFxmJQA1Nof3+iQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 6.1 084/183] iommu/arm-smmu-v3: Dont unregister on shutdown
+        patches@lists.linux.dev, Wang Weiyang <wangweiyang2@huawei.com>,
+        Aristeu Rozanski <aris@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.4 519/658] device_cgroup: Roll back to original exceptions after copy failure
 Date:   Mon, 16 Jan 2023 16:50:07 +0100
-Message-Id: <20230116154806.980119335@linuxfoundation.org>
+Message-Id: <20230116154933.271638690@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Wang Weiyang <wangweiyang2@huawei.com>
 
-commit 32ea2c57dc216b6ad8125fa680d31daa5d421c95 upstream.
+commit e68bfbd3b3c3a0ec3cf8c230996ad8cabe90322f upstream.
 
-Similar to SMMUv2, this driver calls iommu_device_unregister() from the
-shutdown path, which removes the IOMMU groups with no coordination
-whatsoever with their users - shutdown methods are optional in device
-drivers. This can lead to NULL pointer dereferences in those drivers'
-DMA API calls, or worse.
+When add the 'a *:* rwm' entry to devcgroup A's whitelist, at first A's
+exceptions will be cleaned and A's behavior is changed to
+DEVCG_DEFAULT_ALLOW. Then parent's exceptions will be copyed to A's
+whitelist. If copy failure occurs, just return leaving A to grant
+permissions to all devices. And A may grant more permissions than
+parent.
 
-Instead of calling the full arm_smmu_device_remove() from
-arm_smmu_device_shutdown(), let's pick only the relevant function call -
-arm_smmu_device_disable() - more or less the reverse of
-arm_smmu_device_reset() - and call just that from the shutdown path.
+Backup A's whitelist and recover original exceptions after copy
+failure.
 
-Fixes: 57365a04c921 ("iommu: Move bus setup to IOMMU device registration")
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20221215141251.3688780-2-vladimir.oltean@nxp.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 4cef7299b478 ("device_cgroup: add proper checking when changing default behavior")
+Signed-off-by: Wang Weiyang <wangweiyang2@huawei.com>
+Reviewed-by: Aristeu Rozanski <aris@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ security/device_cgroup.c |   33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
---- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-+++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-@@ -3854,7 +3854,9 @@ static int arm_smmu_device_remove(struct
- 
- static void arm_smmu_device_shutdown(struct platform_device *pdev)
- {
--	arm_smmu_device_remove(pdev);
-+	struct arm_smmu_device *smmu = platform_get_drvdata(pdev);
-+
-+	arm_smmu_device_disable(smmu);
+--- a/security/device_cgroup.c
++++ b/security/device_cgroup.c
+@@ -79,6 +79,17 @@ free_and_exit:
+ 	return -ENOMEM;
  }
  
- static const struct of_device_id arm_smmu_of_match[] = {
++static void dev_exceptions_move(struct list_head *dest, struct list_head *orig)
++{
++	struct dev_exception_item *ex, *tmp;
++
++	lockdep_assert_held(&devcgroup_mutex);
++
++	list_for_each_entry_safe(ex, tmp, orig, list) {
++		list_move_tail(&ex->list, dest);
++	}
++}
++
+ /*
+  * called under devcgroup_mutex
+  */
+@@ -601,11 +612,13 @@ static int devcgroup_update_access(struc
+ 	int count, rc = 0;
+ 	struct dev_exception_item ex;
+ 	struct dev_cgroup *parent = css_to_devcgroup(devcgroup->css.parent);
++	struct dev_cgroup tmp_devcgrp;
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
+ 	memset(&ex, 0, sizeof(ex));
++	memset(&tmp_devcgrp, 0, sizeof(tmp_devcgrp));
+ 	b = buffer;
+ 
+ 	switch (*b) {
+@@ -617,15 +630,27 @@ static int devcgroup_update_access(struc
+ 
+ 			if (!may_allow_all(parent))
+ 				return -EPERM;
+-			dev_exception_clean(devcgroup);
+-			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
+-			if (!parent)
++			if (!parent) {
++				devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
++				dev_exception_clean(devcgroup);
+ 				break;
++			}
+ 
++			INIT_LIST_HEAD(&tmp_devcgrp.exceptions);
++			rc = dev_exceptions_copy(&tmp_devcgrp.exceptions,
++						 &devcgroup->exceptions);
++			if (rc)
++				return rc;
++			dev_exception_clean(devcgroup);
+ 			rc = dev_exceptions_copy(&devcgroup->exceptions,
+ 						 &parent->exceptions);
+-			if (rc)
++			if (rc) {
++				dev_exceptions_move(&devcgroup->exceptions,
++						    &tmp_devcgrp.exceptions);
+ 				return rc;
++			}
++			devcgroup->behavior = DEVCG_DEFAULT_ALLOW;
++			dev_exception_clean(&tmp_devcgrp);
+ 			break;
+ 		case DEVCG_DENY:
+ 			if (css_has_online_children(&devcgroup->css))
 
 
