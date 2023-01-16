@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC5366C57D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9925066C5BD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:09:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232110AbjAPQGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:06:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44772 "EHLO
+        id S232614AbjAPQJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:09:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232243AbjAPQGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED6B23D92
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:04:36 -0800 (PST)
+        with ESMTP id S232613AbjAPQIi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:08:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B2727496
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED2B3B81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:04:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52588C433EF;
-        Mon, 16 Jan 2023 16:04:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA80FB8107D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42096C433EF;
+        Mon, 16 Jan 2023 16:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885073;
-        bh=3xteQ9jQKhn+tRgWq/xoHRCBtd/+9YToqzMGlIwpfdY=;
+        s=korg; t=1673885165;
+        bh=KWZzOKF6kiJx81B2msFd5oplX8IQ1Kx9F0lzqzUuSPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XybnsorPOqsbq16oZ9lprjlQ9annWuELYuC6U2S6kIgQTgOp8fiovcaURn/lZ9pdM
-         9QdKiA0QY8IoDCpVjPI/093VpAZNRBGUfhwJ8A9HZHGHDjZWDtzxrDwoDCt5oc3Q/s
-         xUkQ+JADhHzmA0GL4xH5l+JQCgYx/t2xZehNo3c4=
+        b=d5Y9frBB2IebLtsy+R0Pfy/A5+I6mFI0HYy8ImoPB01R8fZS7JaEJd73biEqjPUa5
+         7fZ3uRrfrOEWOEFa3f3c+obLPvYJLXP4SYl8gw/JMNoZj4Ojp9/8e+WToju6lUaVbX
+         ZQ5jD+TNJNZA8GZ0n1SWtEX/nEMaO0obrjkrhkjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qiang Yu <quic_qianyu@quicinc.com>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 35/86] bus: mhi: host: Fix race between channel preparation and M0 event
+        patches@lists.linux.dev, Luka Guzenko <l.guzenko@web.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 02/64] ALSA: hda/realtek: Enable mute/micmute LEDs on HP Spectre x360 13-aw0xxx
 Date:   Mon, 16 Jan 2023 16:51:09 +0100
-Message-Id: <20230116154748.547464918@linuxfoundation.org>
+Message-Id: <20230116154743.683851640@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +52,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <quic_qianyu@quicinc.com>
+From: Luka Guzenko <l.guzenko@web.de>
 
-[ Upstream commit 869a99907faea6d1835b0bd0d0422ae3519c6ea9 ]
+commit ca88eeb308a221c2dcd4a64031d2e5fcd3db9eaa upstream.
 
-There is a race condition where mhi_prepare_channel() updates the
-read and write pointers as the base address and in parallel, if
-an M0 transition occurs, the tasklet goes ahead and rings
-doorbells for all channels with a delta in TRE rings assuming
-they are already enabled. This causes a null pointer access. Fix
-it by adding a channel enabled check before ringing channel
-doorbells.
+The HP Spectre x360 13-aw0xxx devices use the ALC285 codec with GPIO 0x04
+controlling the micmute LED and COEF 0x0b index 8 controlling the mute LED.
+A quirk was added to make these work as well as a fixup.
 
-Cc: stable@vger.kernel.org # 5.19
-Fixes: a6e2e3522f29 "bus: mhi: core: Add support for PM state transitions"
-Signed-off-by: Qiang Yu <quic_qianyu@quicinc.com>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Link: https://lore.kernel.org/r/1665889532-13634-1-git-send-email-quic_qianyu@quicinc.com
-[mani: CCed stable list]
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Luka Guzenko <l.guzenko@web.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230110202514.2792-1-l.guzenko@web.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/core/pm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index 1020268a075a..1a87b9c6c2f8 100644
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -297,7 +297,8 @@ int mhi_pm_m0_transition(struct mhi_controller *mhi_cntrl)
- 		read_lock_irq(&mhi_chan->lock);
- 
- 		/* Only ring DB if ring is not empty */
--		if (tre_ring->base && tre_ring->wp  != tre_ring->rp)
-+		if (tre_ring->base && tre_ring->wp  != tre_ring->rp &&
-+		    mhi_chan->ch_state == MHI_CH_STATE_ENABLED)
- 			mhi_ring_chan_db(mhi_cntrl, mhi_chan);
- 		read_unlock_irq(&mhi_chan->lock);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4581,6 +4581,16 @@ static void alc285_fixup_hp_coef_micmute
  	}
--- 
-2.35.1
-
+ }
+ 
++static void alc285_fixup_hp_gpio_micmute_led(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	struct alc_spec *spec = codec->spec;
++
++	if (action == HDA_FIXUP_ACT_PRE_PROBE)
++		spec->micmute_led_polarity = 1;
++	alc_fixup_hp_gpio_led(codec, action, 0, 0x04);
++}
++
+ static void alc236_fixup_hp_coef_micmute_led(struct hda_codec *codec,
+ 				const struct hda_fixup *fix, int action)
+ {
+@@ -4602,6 +4612,13 @@ static void alc285_fixup_hp_mute_led(str
+ 	alc285_fixup_hp_coef_micmute_led(codec, fix, action);
+ }
+ 
++static void alc285_fixup_hp_spectre_x360_mute_led(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	alc285_fixup_hp_mute_led_coefbit(codec, fix, action);
++	alc285_fixup_hp_gpio_micmute_led(codec, fix, action);
++}
++
+ static void alc236_fixup_hp_mute_led(struct hda_codec *codec,
+ 				const struct hda_fixup *fix, int action)
+ {
+@@ -6856,6 +6873,7 @@ enum {
+ 	ALC285_FIXUP_ASUS_G533Z_PINS,
+ 	ALC285_FIXUP_HP_GPIO_LED,
+ 	ALC285_FIXUP_HP_MUTE_LED,
++	ALC285_FIXUP_HP_SPECTRE_X360_MUTE_LED,
+ 	ALC236_FIXUP_HP_GPIO_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
+@@ -8224,6 +8242,10 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc285_fixup_hp_mute_led,
+ 	},
++	[ALC285_FIXUP_HP_SPECTRE_X360_MUTE_LED] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_hp_spectre_x360_mute_led,
++	},
+ 	[ALC236_FIXUP_HP_GPIO_LED] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc236_fixup_hp_gpio_led,
+@@ -8936,6 +8958,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
+ 	SND_PCI_QUIRK(0x103c, 0x86e7, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
+ 	SND_PCI_QUIRK(0x103c, 0x86e8, "HP Spectre x360 15-eb0xxx", ALC285_FIXUP_HP_SPECTRE_X360_EB1),
++	SND_PCI_QUIRK(0x103c, 0x86f9, "HP Spectre x360 13-aw0xxx", ALC285_FIXUP_HP_SPECTRE_X360_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8716, "HP Elite Dragonfly G2 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8720, "HP EliteBook x360 1040 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
 
 
