@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41A9866CCBE
+	by mail.lfdr.de (Postfix) with ESMTP id CBE3A66CCBF
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234818AbjAPR3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:29:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52616 "EHLO
+        id S234632AbjAPR3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234825AbjAPR2h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE3323D99
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:45 -0800 (PST)
+        with ESMTP id S234830AbjAPR2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:28:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B58E623DB2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:05:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1925F61058
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DE87C433EF;
-        Mon, 16 Jan 2023 17:05:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76113B81091
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:05:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4CD0C433EF;
+        Mon, 16 Jan 2023 17:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888744;
-        bh=ZSqTaZsaViMiaB+kQCVCuYD641i+qFiX5nYTpj6eric=;
+        s=korg; t=1673888747;
+        bh=2sBOC1WkmsMdI0+iAcpl5T/DLCTGmUbfrW2u4KFMtJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FUrbtXQJJjaIl9ErKxDGmKePbTIHPMdeHHDDm9dQf5UhwHCTSh9HMHyDT3XKD7pO5
-         iNE7kIKJPDb13b11s4lUDYWRjHVvM3AM25wLGWPZYnL2VOqT9VWUVt7XjvZE/aMjMO
-         Pfns/oEdgkpmyrAEIPfSmD+XxYqCt8SRm5ZKQjL4=
+        b=iR1aFnUkWN9FQQpwNCSkpv/f7iXgXq0+pjQHEz27PBh5gBssTdyWXv7+4A7YUCQ6G
+         zBMyxLTrUL+YZFxpK2nxO8p3Z7O+8Iq/xUWKyRqh3FcHsebRAqKcUVBRfzQ3LgLLlw
+         EBHS6RN5aDpbpFOQejLH4b6kAGt9waUlDNfk4qrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Li Zetao <lizetao1@huawei.com>,
+        patches@lists.linux.dev, Jianlin Shi <jishi@redhat.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
         Jiri Pirko <jiri@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 123/338] net: farsync: Fix kmemleak when rmmods farsync
-Date:   Mon, 16 Jan 2023 16:49:56 +0100
-Message-Id: <20230116154826.211728341@linuxfoundation.org>
+Subject: [PATCH 4.14 124/338] net/tunnel: wait until all sk_user_data reader finish before releasing the sock
+Date:   Mon, 16 Jan 2023 16:49:57 +0100
+Message-Id: <20230116154826.250153306@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -54,73 +56,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zetao <lizetao1@huawei.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 2f623aaf9f31de968dea6169849706a2f9be444c ]
+[ Upstream commit 3cf7203ca620682165706f70a1b12b5194607dce ]
 
-There are two memory leaks reported by kmemleak:
+There is a race condition in vxlan that when deleting a vxlan device
+during receiving packets, there is a possibility that the sock is
+released after getting vxlan_sock vs from sk_user_data. Then in
+later vxlan_ecn_decapsulate(), vxlan_get_sk_family() we will got
+NULL pointer dereference. e.g.
 
-  unreferenced object 0xffff888114b20200 (size 128):
-    comm "modprobe", pid 4846, jiffies 4295146524 (age 401.345s)
-    hex dump (first 32 bytes):
-      e0 62 57 09 81 88 ff ff e0 62 57 09 81 88 ff ff  .bW......bW.....
-      01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
-      [<ffffffff83d35c78>] __hw_addr_add_ex+0x198/0x6c0
-      [<ffffffff83d3989d>] dev_addr_init+0x13d/0x230
-      [<ffffffff83d1063d>] alloc_netdev_mqs+0x10d/0xe50
-      [<ffffffff82b4a06e>] alloc_hdlcdev+0x2e/0x80
-      [<ffffffffa016a741>] fst_add_one+0x601/0x10e0 [farsync]
-      ...
+   #0 [ffffa25ec6978a38] machine_kexec at ffffffff8c669757
+   #1 [ffffa25ec6978a90] __crash_kexec at ffffffff8c7c0a4d
+   #2 [ffffa25ec6978b58] crash_kexec at ffffffff8c7c1c48
+   #3 [ffffa25ec6978b60] oops_end at ffffffff8c627f2b
+   #4 [ffffa25ec6978b80] page_fault_oops at ffffffff8c678fcb
+   #5 [ffffa25ec6978bd8] exc_page_fault at ffffffff8d109542
+   #6 [ffffa25ec6978c00] asm_exc_page_fault at ffffffff8d200b62
+      [exception RIP: vxlan_ecn_decapsulate+0x3b]
+      RIP: ffffffffc1014e7b  RSP: ffffa25ec6978cb0  RFLAGS: 00010246
+      RAX: 0000000000000008  RBX: ffff8aa000888000  RCX: 0000000000000000
+      RDX: 000000000000000e  RSI: ffff8a9fc7ab803e  RDI: ffff8a9fd1168700
+      RBP: ffff8a9fc7ab803e   R8: 0000000000700000   R9: 00000000000010ae
+      R10: ffff8a9fcb748980  R11: 0000000000000000  R12: ffff8a9fd1168700
+      R13: ffff8aa000888000  R14: 00000000002a0000  R15: 00000000000010ae
+      ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+   #7 [ffffa25ec6978ce8] vxlan_rcv at ffffffffc10189cd [vxlan]
+   #8 [ffffa25ec6978d90] udp_queue_rcv_one_skb at ffffffff8cfb6507
+   #9 [ffffa25ec6978dc0] udp_unicast_rcv_skb at ffffffff8cfb6e45
+  #10 [ffffa25ec6978dc8] __udp4_lib_rcv at ffffffff8cfb8807
+  #11 [ffffa25ec6978e20] ip_protocol_deliver_rcu at ffffffff8cf76951
+  #12 [ffffa25ec6978e48] ip_local_deliver at ffffffff8cf76bde
+  #13 [ffffa25ec6978ea0] __netif_receive_skb_one_core at ffffffff8cecde9b
+  #14 [ffffa25ec6978ec8] process_backlog at ffffffff8cece139
+  #15 [ffffa25ec6978f00] __napi_poll at ffffffff8ceced1a
+  #16 [ffffa25ec6978f28] net_rx_action at ffffffff8cecf1f3
+  #17 [ffffa25ec6978fa0] __softirqentry_text_start at ffffffff8d4000ca
+  #18 [ffffa25ec6978ff0] do_softirq at ffffffff8c6fbdc3
 
-  unreferenced object 0xffff88810b85b000 (size 1024):
-    comm "modprobe", pid 4846, jiffies 4295146523 (age 401.346s)
-    hex dump (first 32 bytes):
-      00 00 b0 02 00 c9 ff ff 00 70 0a 00 00 c9 ff ff  .........p......
-      00 00 00 f2 00 00 00 f3 0a 00 00 00 02 00 00 00  ................
-    backtrace:
-      [<ffffffff815bcd82>] kmalloc_trace+0x22/0x60
-      [<ffffffffa016a294>] fst_add_one+0x154/0x10e0 [farsync]
-      [<ffffffff82060e83>] local_pci_probe+0xd3/0x170
-      ...
+Reproducer: https://github.com/Mellanox/ovs-tests/blob/master/test-ovs-vxlan-remove-tunnel-during-traffic.sh
 
-The root cause is traced to the netdev and fst_card_info are not freed
-when removes one fst in fst_remove_one(), which may trigger oom if
-repeated insmod and rmmod module.
+Fix this by waiting for all sk_user_data reader to finish before
+releasing the sock.
 
-Fix it by adding free_netdev() and kfree() in fst_remove_one(), just as
-the operations on the error handling path in fst_add_one().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Li Zetao <lizetao1@huawei.com>
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Suggested-by: Jakub Sitnicki <jakub@cloudflare.com>
+Fixes: 6a93cc905274 ("udp-tunnel: Add a few more UDP tunnel APIs")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/farsync.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/udp_tunnel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wan/farsync.c b/drivers/net/wan/farsync.c
-index bd46b2552980..6284e8906e36 100644
---- a/drivers/net/wan/farsync.c
-+++ b/drivers/net/wan/farsync.c
-@@ -2619,6 +2619,7 @@ fst_remove_one(struct pci_dev *pdev)
- 	for (i = 0; i < card->nports; i++) {
- 		struct net_device *dev = port_to_dev(&card->ports[i]);
- 		unregister_hdlc_device(dev);
-+		free_netdev(dev);
- 	}
- 
- 	fst_disable_intr(card);
-@@ -2639,6 +2640,7 @@ fst_remove_one(struct pci_dev *pdev)
- 				    card->tx_dma_handle_card);
- 	}
- 	fst_card_array[card->card_no] = NULL;
-+	kfree(card);
+diff --git a/net/ipv4/udp_tunnel.c b/net/ipv4/udp_tunnel.c
+index 6539ff15e9a3..d03d74388870 100644
+--- a/net/ipv4/udp_tunnel.c
++++ b/net/ipv4/udp_tunnel.c
+@@ -186,6 +186,7 @@ EXPORT_SYMBOL_GPL(udp_tunnel_xmit_skb);
+ void udp_tunnel_sock_release(struct socket *sock)
+ {
+ 	rcu_assign_sk_user_data(sock->sk, NULL);
++	synchronize_rcu();
+ 	kernel_sock_shutdown(sock, SHUT_RDWR);
+ 	sock_release(sock);
  }
- 
- static struct pci_driver fst_driver = {
 -- 
 2.35.1
 
