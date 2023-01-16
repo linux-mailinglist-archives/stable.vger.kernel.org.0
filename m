@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5180E66C1E5
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:16:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7003D66C1F4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:16:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232548AbjAPOQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:16:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40974 "EHLO
+        id S232649AbjAPOQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:16:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232784AbjAPOOj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:14:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43DD82ED7E;
-        Mon, 16 Jan 2023 06:05:39 -0800 (PST)
+        with ESMTP id S232098AbjAPOOu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:14:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4BD32FCDD;
+        Mon, 16 Jan 2023 06:05:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3248060FD2;
-        Mon, 16 Jan 2023 14:05:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F5F7C433EF;
-        Mon, 16 Jan 2023 14:05:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F6D7B80E93;
+        Mon, 16 Jan 2023 14:05:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FA7BC433F1;
+        Mon, 16 Jan 2023 14:05:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877938;
-        bh=jiR9o06vTGhhfdLJwvNevFXIKBYSDNLWdr9P0n0xhW8=;
+        s=k20201202; t=1673877940;
+        bh=gVlEbhMRJccI0To3vf98R0QiVDMGDOSQFbQT4bZGtbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqN48pos5k8M4EsTU4ntzcIgGBX9unlxGHBcu4Y/gdPKPCBoQf8QjYYDllpFPHH01
-         2Z3AzNE36ZALqNmq4EG2xT1U9DSaaQuagccH/RzBtTI3JarRL5dmQOvWh10dFxAMQE
-         56OAFLwPPVd/wCm00P2qxKQF5cuKMnLk1CsNjfpPTEISDbT1I4OSbbosQo9VpFDGg0
-         cr8/LnrbduM7G2qOKuhnowy8xIPTj0U8ap49UAgs5z+09E/2dAlyh/lcbx3cEuQECz
-         ZZ7DnTy4OOYl6J7LZ0sbXisM96ZHpYQDfba92QdJzH8r0UDn6mVaTpwoO7mJkVvMO3
-         rpDIZvceFsyHw==
+        b=TjQd8JniZ+Vg4RcwLdlEZVdNJQZWnDII1AY7Plli6y9akBcbiUZasy40lAgzIWltx
+         QfBpawoxIUSvLfvpa2vR+XuMmMfKpIiCF9p4eN2+qkQTe/G8oT4lZL9sWfuZanwPAM
+         nodgx47epZyG3H7LtJp70bAvuoRKCFbFt+ddFxTwEGss2AWv2FOUl6lQ543yvugGpJ
+         TB9e25P4qRvqSitSBH3Ml6WPPm4EyDUt3Xy9wX+fdOlOi2PYoMYBRXXdgoY/fcB2i5
+         P+OUnxVAMT3DG5xwaS5U7D3A1cMBRykkO1oDcWRPk/zlJq+m8f/kHkXWoJA+CMiRfz
+         1j3OLeeLtal/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 10/16] spi: spidev: remove debug messages that access spidev->spi without locking
-Date:   Mon, 16 Jan 2023 09:05:13 -0500
-Message-Id: <20230116140520.116257-10-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, frankja@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 11/16] KVM: s390: interrupt: use READ_ONCE() before cmpxchg()
+Date:   Mon, 16 Jan 2023 09:05:14 -0500
+Message-Id: <20230116140520.116257-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140520.116257-1-sashal@kernel.org>
 References: <20230116140520.116257-1-sashal@kernel.org>
@@ -55,43 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 6b35b173dbc1711f8d272e3f322d2ad697015919 ]
+[ Upstream commit 42400d99e9f0728c17240edb9645637ead40f6b9 ]
 
-The two debug messages in spidev_open() dereference spidev->spi without
-taking the lock and without checking if it's not null. This can lead to
-a crash. Drop the messages as they're not needed - the user-space will
-get informed about ENOMEM with the syscall return value.
+Use READ_ONCE() before cmpxchg() to prevent that the compiler generates
+code that fetches the to be compared old value several times from memory.
 
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Link: https://lore.kernel.org/r/20230106100719.196243-2-brgl@bgdev.pl
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20230109145456.2895385-1-hca@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/s390/kvm/interrupt.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index a360dabdcb8b..74d13de15ca0 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -579,7 +579,6 @@ static int spidev_open(struct inode *inode, struct file *filp)
- 	if (!spidev->tx_buffer) {
- 		spidev->tx_buffer = kmalloc(bufsiz, GFP_KERNEL);
- 		if (!spidev->tx_buffer) {
--			dev_dbg(&spidev->spi->dev, "open/ENOMEM\n");
- 			status = -ENOMEM;
- 			goto err_find_dev;
- 		}
-@@ -588,7 +587,6 @@ static int spidev_open(struct inode *inode, struct file *filp)
- 	if (!spidev->rx_buffer) {
- 		spidev->rx_buffer = kmalloc(bufsiz, GFP_KERNEL);
- 		if (!spidev->rx_buffer) {
--			dev_dbg(&spidev->spi->dev, "open/ENOMEM\n");
- 			status = -ENOMEM;
- 			goto err_alloc_rx_buf;
- 		}
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 8be5750fe5ac..a180fe54dc68 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -81,8 +81,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+ 		union esca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union esca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
++		union esca_sigp_ctrl new_val = {0}, old_val;
+ 
++		old_val = READ_ONCE(*sigp_ctrl);
+ 		new_val.scn = src_id;
+ 		new_val.c = 1;
+ 		old_val.c = 0;
+@@ -93,8 +94,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+ 		struct bsca_block *sca = vcpu->kvm->arch.sca;
+ 		union bsca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union bsca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
++		union bsca_sigp_ctrl new_val = {0}, old_val;
+ 
++		old_val = READ_ONCE(*sigp_ctrl);
+ 		new_val.scn = src_id;
+ 		new_val.c = 1;
+ 		old_val.c = 0;
+@@ -124,16 +126,18 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
+ 		struct esca_block *sca = vcpu->kvm->arch.sca;
+ 		union esca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union esca_sigp_ctrl old = *sigp_ctrl;
++		union esca_sigp_ctrl old;
+ 
++		old = READ_ONCE(*sigp_ctrl);
+ 		expect = old.value;
+ 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
+ 	} else {
+ 		struct bsca_block *sca = vcpu->kvm->arch.sca;
+ 		union bsca_sigp_ctrl *sigp_ctrl =
+ 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+-		union bsca_sigp_ctrl old = *sigp_ctrl;
++		union bsca_sigp_ctrl old;
+ 
++		old = READ_ONCE(*sigp_ctrl);
+ 		expect = old.value;
+ 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
+ 	}
 -- 
 2.35.1
 
