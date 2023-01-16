@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 914CD66C4B5
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1F9C66C4B7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231570AbjAPP5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37818 "EHLO
+        id S231567AbjAPP5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:57:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231635AbjAPP5a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145AC22A1D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:19 -0800 (PST)
+        with ESMTP id S231648AbjAPP5b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 290261EFC3
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C90D2B8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2B2C433D2;
-        Mon, 16 Jan 2023 15:57:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB59561043
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE170C433D2;
+        Mon, 16 Jan 2023 15:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884636;
-        bh=YVp3f9E2+pN+zcOjlI8OkwKwm7GNcyKW0KGiHPtapp4=;
+        s=korg; t=1673884639;
+        bh=rLuGTVHTJIk3M2IlQc0GL/2gpd1ktQ6uLCeAUWqKeGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zglko3W89+f0cBnQiFghTkQ+BmFFLnsKTzJmffgyUtSaIiwfN60k2JU8Z88/SHFOV
-         HgXssI47b1yR8zYuh5qnfp4hXgowic3P4a7exzwZa4ihe5s2pIy6QXKeweqgdiQB58
-         Q2AoT8r6ez9Es9K1pOom1W4k+6CnSgjca/vAm+Dw=
+        b=UxtJKD8GtmKhyXbLiPN5JUKoY/lSPCtbYqkUKv/p3JysSGGA5OhSd/E6BojDhbz6j
+         WCFQsbp/yVkJIlef3cmA1WXyLt3Skqpjy1GPYPeeFcnJVhv4PBymuIxYRm3eM/wPOD
+         q8iWOIfUbA8ge6TJSeC8Id205PsrqD9WbEdSCbLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aaron Thompson <dev@aaront.org>,
-        "Mike Rapoport (IBM)" <rppt@kernel.org>
-Subject: [PATCH 6.1 082/183] mm: Always release pages to the buddy allocator in memblock_free_late().
-Date:   Mon, 16 Jan 2023 16:50:05 +0100
-Message-Id: <20230116154806.899773400@linuxfoundation.org>
+        patches@lists.linux.dev,
+        jianjiao zeng <jianjiao.zeng@mediatek.com>,
+        Yunfei Wang <yf.wang@mediatek.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 6.1 083/183] iommu/iova: Fix alloc iova overflows issue
+Date:   Mon, 16 Jan 2023 16:50:06 +0100
+Message-Id: <20230116154806.949144694@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
 References: <20230116154803.321528435@linuxfoundation.org>
@@ -52,104 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Thompson <dev@aaront.org>
+From: Yunfei Wang <yf.wang@mediatek.com>
 
-commit 115d9d77bb0f9152c60b6e8646369fa7f6167593 upstream.
+commit dcdb3ba7e2a8caae7bfefd603bc22fd0ce9a389c upstream.
 
-If CONFIG_DEFERRED_STRUCT_PAGE_INIT is enabled, memblock_free_pages()
-only releases pages to the buddy allocator if they are not in the
-deferred range. This is correct for free pages (as defined by
-for_each_free_mem_pfn_range_in_zone()) because free pages in the
-deferred range will be initialized and released as part of the deferred
-init process. memblock_free_pages() is called by memblock_free_late(),
-which is used to free reserved ranges after memblock_free_all() has
-run. All pages in reserved ranges have been initialized at that point,
-and accordingly, those pages are not touched by the deferred init
-process. This means that currently, if the pages that
-memblock_free_late() intends to release are in the deferred range, they
-will never be released to the buddy allocator. They will forever be
-reserved.
+In __alloc_and_insert_iova_range, there is an issue that retry_pfn
+overflows. The value of iovad->anchor.pfn_hi is ~0UL, then when
+iovad->cached_node is iovad->anchor, curr_iova->pfn_hi + 1 will
+overflow. As a result, if the retry logic is executed, low_pfn is
+updated to 0, and then new_pfn < low_pfn returns false to make the
+allocation successful.
 
-In addition, memblock_free_pages() calls kmsan_memblock_free_pages(),
-which is also correct for free pages but is not correct for reserved
-pages. KMSAN metadata for reserved pages is initialized by
-kmsan_init_shadow(), which runs shortly before memblock_free_all().
+This issue occurs in the following two situations:
+1. The first iova size exceeds the domain size. When initializing
+iova domain, iovad->cached_node is assigned as iovad->anchor. For
+example, the iova domain size is 10M, start_pfn is 0x1_F000_0000,
+and the iova size allocated for the first time is 11M. The
+following is the log information, new->pfn_lo is smaller than
+iovad->cached_node.
 
-For both of these reasons, memblock_free_pages() should only be called
-for free pages, and memblock_free_late() should call __free_pages_core()
-directly instead.
+Example log as follows:
+[  223.798112][T1705487] sh: [name:iova&]__alloc_and_insert_iova_range
+start_pfn:0x1f0000,retry_pfn:0x0,size:0xb00,limit_pfn:0x1f0a00
+[  223.799590][T1705487] sh: [name:iova&]__alloc_and_insert_iova_range
+success start_pfn:0x1f0000,new->pfn_lo:0x1efe00,new->pfn_hi:0x1f08ff
 
-One case where this issue can occur in the wild is EFI boot on
-x86_64. The x86 EFI code reserves all EFI boot services memory ranges
-via memblock_reserve() and frees them later via memblock_free_late()
-(efi_reserve_boot_services() and efi_free_boot_services(),
-respectively). If any of those ranges happens to fall within the
-deferred init range, the pages will not be released and that memory will
-be unavailable.
+2. The node with the largest iova->pfn_lo value in the iova domain
+is deleted, iovad->cached_node will be updated to iovad->anchor,
+and then the alloc iova size exceeds the maximum iova size that can
+be allocated in the domain.
 
-For example, on an Amazon EC2 t3.micro VM (1 GB) booting via EFI:
+After judging that retry_pfn is less than limit_pfn, call retry_pfn+1
+to fix the overflow issue.
 
-v6.2-rc2:
-  # grep -E 'Node|spanned|present|managed' /proc/zoneinfo
-  Node 0, zone      DMA
-          spanned  4095
-          present  3999
-          managed  3840
-  Node 0, zone    DMA32
-          spanned  246652
-          present  245868
-          managed  178867
-
-v6.2-rc2 + patch:
-  # grep -E 'Node|spanned|present|managed' /proc/zoneinfo
-  Node 0, zone      DMA
-          spanned  4095
-          present  3999
-          managed  3840
-  Node 0, zone    DMA32
-          spanned  246652
-          present  245868
-          managed  222816   # +43,949 pages
-
-Fixes: 3a80a7fa7989 ("mm: meminit: initialise a subset of struct pages if CONFIG_DEFERRED_STRUCT_PAGE_INIT is set")
-Signed-off-by: Aaron Thompson <dev@aaront.org>
-Link: https://lore.kernel.org/r/01010185892de53e-e379acfb-7044-4b24-b30a-e2657c1ba989-000000@us-west-2.amazonses.com
-Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
+Signed-off-by: jianjiao zeng <jianjiao.zeng@mediatek.com>
+Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
+Cc: <stable@vger.kernel.org> # 5.15.*
+Fixes: 4e89dce72521 ("iommu/iova: Retry from last rb tree node if iova search fails")
+Acked-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/20230111063801.25107-1-yf.wang@mediatek.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memblock.c                     |    8 +++++++-
- tools/testing/memblock/internal.h |    4 ++++
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ drivers/iommu/iova.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1640,7 +1640,13 @@ void __init memblock_free_late(phys_addr
- 	end = PFN_DOWN(base + size);
+--- a/drivers/iommu/iova.c
++++ b/drivers/iommu/iova.c
+@@ -197,7 +197,7 @@ static int __alloc_and_insert_iova_range
  
- 	for (; cursor < end; cursor++) {
--		memblock_free_pages(pfn_to_page(cursor), cursor, 0);
-+		/*
-+		 * Reserved pages are always initialized by the end of
-+		 * memblock_free_all() (by memmap_init() and, if deferred
-+		 * initialization is enabled, memmap_init_reserved_pages()), so
-+		 * these pages can be released directly to the buddy allocator.
-+		 */
-+		__free_pages_core(pfn_to_page(cursor), 0);
- 		totalram_pages_inc();
- 	}
- }
---- a/tools/testing/memblock/internal.h
-+++ b/tools/testing/memblock/internal.h
-@@ -15,6 +15,10 @@ bool mirrored_kernelcore = false;
+ 	curr = __get_cached_rbnode(iovad, limit_pfn);
+ 	curr_iova = to_iova(curr);
+-	retry_pfn = curr_iova->pfn_hi + 1;
++	retry_pfn = curr_iova->pfn_hi;
  
- struct page {};
- 
-+void __free_pages_core(struct page *page, unsigned int order)
-+{
-+}
-+
- void memblock_free_pages(struct page *page, unsigned long pfn,
- 			 unsigned int order)
- {
+ retry:
+ 	do {
+@@ -211,7 +211,7 @@ retry:
+ 	if (high_pfn < size || new_pfn < low_pfn) {
+ 		if (low_pfn == iovad->start_pfn && retry_pfn < limit_pfn) {
+ 			high_pfn = limit_pfn;
+-			low_pfn = retry_pfn;
++			low_pfn = retry_pfn + 1;
+ 			curr = iova_find_limit(iovad, limit_pfn);
+ 			curr_iova = to_iova(curr);
+ 			goto retry;
 
 
