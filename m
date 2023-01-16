@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC14F66CA6B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:03:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D45B66CA6F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:03:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234175AbjAPRDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:03:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54652 "EHLO
+        id S234209AbjAPRDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:03:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234176AbjAPRCx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:02:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A530E3F288
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:44:34 -0800 (PST)
+        with ESMTP id S234104AbjAPRC7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:02:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0E039BBD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:44:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E47061042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:44:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 514C1C433D2;
-        Mon, 16 Jan 2023 16:44:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BDB561042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:44:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E39FC433EF;
+        Mon, 16 Jan 2023 16:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887473;
-        bh=AuNaN0GCNftC9YQnKfcyFAmqeTbq0UJ+hXMp2BC8PX8=;
+        s=korg; t=1673887484;
+        bh=gKLD9ZWWuo/UinEmfFH5+PYIvivA1C8VvjWP41wq1Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIob2lW37pP1/3lrmqzSY3fVNbPuRIW/mCrz/bT3aiCUJyeMWnNnFbqW/Cb0c2urA
-         qtyW2jlq9NHH72uK2j1iUHCVwFD+rTmGxFH9Bya288rq4NPiVgIo8C6PhzKMePISBo
-         afOERy9Xx0/MHHlOR1X3FjjIb5mCRnQiifHdKouk=
+        b=2A1fMWhzDtBelSwjn85v1uN05nhkPGoPPkrZIkvuRkvvRwgdyC0pWwQNeH5urKOu6
+         dJqj22TtZyMcYeo5ES1lxM61prZrz8bBVXb4S7oykSHYKYKXwn2MjMVspoFalY5YBS
+         EoVDnljoZ579VRiPZIaRZ1Dm4Eab2v1zSDiymtqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 135/521] NFSv4.x: Fail client initialisation if state manager thread cant run
-Date:   Mon, 16 Jan 2023 16:46:37 +0100
-Message-Id: <20230116154853.300153469@linuxfoundation.org>
+Subject: [PATCH 4.19 136/521] mmc: moxart: fix return value check of mmc_add_host()
+Date:   Mon, 16 Jan 2023 16:46:38 +0100
+Message-Id: <20230116154853.347640355@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,35 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b4e4f66901658fae0614dea5bf91062a5387eda7 ]
+[ Upstream commit 0ca18d09c744fb030ae9bc5836c3e357e0237dea ]
 
-If the state manager thread fails to start, then we should just mark the
-client initialisation as failed so that other processes or threads don't
-get stuck in nfs_wait_client_init_complete().
+mmc_add_host() may return error, if we ignore its return value, the memory
+that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
+crash because of deleting not added device in the remove path.
 
-Reported-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Fixes: 4697bd5e9419 ("NFSv4: Fix a race in the net namespace mount notification")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+So fix this by checking the return value and goto error path which will call
+mmc_free_host().
+
+Fixes: 1b66e94e6b99 ("mmc: moxart: Add MOXA ART SD/MMC driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221101063023.1664968-3-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/moxart-mmc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 5ab021f87ecf..b9fbd01ef4cf 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -1247,6 +1247,8 @@ void nfs4_schedule_state_manager(struct nfs_client *clp)
- 	if (IS_ERR(task)) {
- 		printk(KERN_ERR "%s: kthread_run: %ld\n",
- 			__func__, PTR_ERR(task));
-+		if (!nfs_client_init_is_complete(clp))
-+			nfs_mark_client_ready(clp, PTR_ERR(task));
- 		nfs4_clear_state_manager_bit(clp);
- 		nfs_put_client(clp);
- 		module_put(THIS_MODULE);
+diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
+index 1552d1f09c5c..52307dce08ba 100644
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -660,7 +660,9 @@ static int moxart_probe(struct platform_device *pdev)
+ 		goto out;
+ 
+ 	dev_set_drvdata(dev, mmc);
+-	mmc_add_host(mmc);
++	ret = mmc_add_host(mmc);
++	if (ret)
++		goto out;
+ 
+ 	dev_dbg(dev, "IRQ=%d, FIFO is %d bytes\n", irq, host->fifo_width);
+ 
 -- 
 2.35.1
 
