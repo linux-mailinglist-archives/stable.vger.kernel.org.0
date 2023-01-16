@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F5966CD4F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6086866CBC9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:17:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234956AbjAPRft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:35:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54890 "EHLO
+        id S234400AbjAPRR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:17:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234955AbjAPRew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:52 -0500
+        with ESMTP id S234433AbjAPRQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:16:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03CAA10413
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86A6F442DE
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E18A6108F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FCB6C433EF;
-        Mon, 16 Jan 2023 17:10:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2391F60F7C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3587EC433EF;
+        Mon, 16 Jan 2023 16:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889058;
-        bh=1fXw6PcYdInX4Nm7rj3luK2/XN9nXHIR1RetC55iRxc=;
+        s=korg; t=1673888242;
+        bh=TY5NK1qBT2eMr+FBpOmmadlYnAQpRq4kzyvVqAWGzP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6XegBVjopwiQUeC1KYajj7QwzmQQXekYMmKfFRyxW3q7GRC7wPE19cznHXf3IN8E
-         zaaHe3Gt045w9EZ7QQLajtRva2GbGUPyHBZ42N8xyw2WKk7sVYk2JPOJioVL9qfJMw
-         Tjqw7qWT2g56xW63V3Ky0YsU6VHEFLbK7OrvhN4Y=
+        b=en2/aWI4eLs9b9Wgs0qFHtn1kfA+4IaZ4K7jPuFy64zqJ4xXI2uxX0hzm+5eGEf+n
+         sR8sotAIvqQypsNovLF0HeHLqYTMTrbY7y4bauBZY//kyBT6AVryTpFO9tBVNssF28
+         52P5BM95zaEnJS7O6ZEMvnp0sOgTY3rfVkv+yFAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mazin Al Haddad <mazinalhaddad05@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+f66dd31987e6740657be@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 241/338] media: dvb-usb: fix memory leak in dvb_usb_adapter_init()
-Date:   Mon, 16 Jan 2023 16:51:54 +0100
-Message-Id: <20230116154831.563008119@linuxfoundation.org>
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 453/521] ASoC: Intel: bytcr_rt5640: Add quirk for the Advantech MICA-071 tablet
+Date:   Mon, 16 Jan 2023 16:51:55 +0100
+Message-Id: <20230116154907.379236226@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,95 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mazin Al Haddad <mazinalhaddad05@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 94d90fb06b94a90c176270d38861bcba34ce377d ]
+[ Upstream commit a1dec9d70b6ad97087b60b81d2492134a84208c6 ]
 
-Syzbot reports a memory leak in "dvb_usb_adapter_init()".
-The leak is due to not accounting for and freeing current iteration's
-adapter->priv in case of an error. Currently if an error occurs,
-it will exit before incrementing "num_adapters_initalized",
-which is used as a reference counter to free all adap->priv
-in "dvb_usb_adapter_exit()". There are multiple error paths that
-can exit from before incrementing the counter. Including the
-error handling paths for "dvb_usb_adapter_stream_init()",
-"dvb_usb_adapter_dvb_init()" and "dvb_usb_adapter_frontend_init()"
-within "dvb_usb_adapter_init()".
+The Advantech MICA-071 tablet deviates from the defaults for
+a non CR Bay Trail based tablet in several ways:
 
-This means that in case of an error in any of these functions the
-current iteration is not accounted for and the current iteration's
-adap->priv is not freed.
+1. It uses an analog MIC on IN3 rather then using DMIC1
+2. It only has 1 speaker
+3. It needs the OVCD current threshold to be set to 1500uA instead of
+   the default 2000uA to reliable differentiate between headphones vs
+   headsets
 
-Fix this by freeing the current iteration's adap->priv in the
-"stream_init_err:" label in the error path. The rest of the
-(accounted for) adap->priv objects are freed in dvb_usb_adapter_exit()
-as expected using the num_adapters_initalized variable.
+Add a quirk with these settings for this tablet.
 
-Syzbot report:
-
-BUG: memory leak
-unreferenced object 0xffff8881172f1a00 (size 512):
-  comm "kworker/0:2", pid 139, jiffies 4294994873 (age 10.960s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-backtrace:
-    [<ffffffff844af012>] dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:75 [inline]
-    [<ffffffff844af012>] dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
-    [<ffffffff844af012>] dvb_usb_device_init.cold+0x4e5/0x79e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
-    [<ffffffff830db21d>] dib0700_probe+0x8d/0x1b0 drivers/media/usb/dvb-usb/dib0700_core.c:883
-    [<ffffffff82d3fdc7>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff8274ab37>] call_driver_probe drivers/base/dd.c:542 [inline]
-    [<ffffffff8274ab37>] really_probe.part.0+0xe7/0x310 drivers/base/dd.c:621
-    [<ffffffff8274ae6c>] really_probe drivers/base/dd.c:583 [inline]
-    [<ffffffff8274ae6c>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:752
-    [<ffffffff8274af6a>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:782
-    [<ffffffff8274b786>] __device_attach_driver+0xf6/0x140 drivers/base/dd.c:899
-    [<ffffffff82747c87>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff8274b352>] __device_attach+0x122/0x260 drivers/base/dd.c:970
-    [<ffffffff827498f6>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff82745cdb>] device_add+0x5fb/0xdf0 drivers/base/core.c:3405
-    [<ffffffff82d3d202>] usb_set_configuration+0x8f2/0xb80 drivers/usb/core/message.c:2170
-    [<ffffffff82d4dbfc>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-    [<ffffffff82d3f49c>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
-    [<ffffffff8274ab37>] call_driver_probe drivers/base/dd.c:542 [inline]
-    [<ffffffff8274ab37>] really_probe.part.0+0xe7/0x310 drivers/base/dd.c:621
-    [<ffffffff8274ae6c>] really_probe drivers/base/dd.c:583 [inline]
-    [<ffffffff8274ae6c>] __driver_probe_device+0x10c/0x1e0 drivers/base/dd.c:752
-
-Link: https://syzkaller.appspot.com/bug?extid=f66dd31987e6740657be
-Reported-and-tested-by: syzbot+f66dd31987e6740657be@syzkaller.appspotmail.com
-
-Link: https://lore.kernel.org/linux-media/20220824012152.539788-1-mazinalhaddad05@gmail.com
-Signed-off-by: Mazin Al Haddad <mazinalhaddad05@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20221213123246.11226-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dvb-usb-init.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/dvb-usb-init.c b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-index 690c1e06fbfa..28077f3c9edf 100644
---- a/drivers/media/usb/dvb-usb/dvb-usb-init.c
-+++ b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-@@ -84,7 +84,7 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
- 
- 		ret = dvb_usb_adapter_stream_init(adap);
- 		if (ret)
--			return ret;
-+			goto stream_init_err;
- 
- 		ret = dvb_usb_adapter_dvb_init(adap, adapter_nrs);
- 		if (ret)
-@@ -117,6 +117,8 @@ static int dvb_usb_adapter_init(struct dvb_usb_device *d, short *adapter_nrs)
- 	dvb_usb_adapter_dvb_exit(adap);
- dvb_init_err:
- 	dvb_usb_adapter_stream_exit(adap);
-+stream_init_err:
-+	kfree(adap->priv);
- 	return ret;
- }
- 
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index c4d19b88d17d..2001bc774c64 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -437,6 +437,21 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_SSP0_AIF1 |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{
++		/* Advantech MICA-071 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Advantech"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MICA-071"),
++		},
++		/* OVCD Th = 1500uA to reliable detect head-phones vs -set */
++		.driver_data = (void *)(BYT_RT5640_IN3_MAP |
++					BYT_RT5640_JD_SRC_JD2_IN4N |
++					BYT_RT5640_OVCD_TH_1500UA |
++					BYT_RT5640_OVCD_SF_0P75 |
++					BYT_RT5640_MONO_SPEAKER |
++					BYT_RT5640_DIFF_MIC |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ARCHOS"),
 -- 
 2.35.1
 
