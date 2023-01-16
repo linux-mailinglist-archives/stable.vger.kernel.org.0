@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F7FD66CD6D
+	by mail.lfdr.de (Postfix) with ESMTP id 97F3666CD6E
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234805AbjAPRgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:36:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
+        id S234838AbjAPRgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:36:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234612AbjAPRf6 (ORCPT
+        with ESMTP id S234769AbjAPRf6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7EE039BBB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52C1D3B3E8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:12:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C54261086
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ADCAC433EF;
-        Mon, 16 Jan 2023 17:12:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4BA86108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:12:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0408FC433EF;
+        Mon, 16 Jan 2023 17:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889121;
-        bh=b3bQ5CJgUJtHUhr9q+CEWH50TGx+T6U62rC8uBea8NQ=;
+        s=korg; t=1673889124;
+        bh=R5vC2z2D3RtDn7rkXPKL1h1NguocK1kbknCA9omBTY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Vzl697Zd390emeMjkAlNaS0tsDpPf32IycVMuEONJhOrYjfcjbL6Wim2Zlwiamr4
-         CyI+LLSq7qUSE6y/l7UdcEl5tVnvEozdI+PJBzdymhID8SkfvNo+5qYcGhFCg+9NPH
-         OGbL7BSUTKitHnqdVihd+duTtVuNcBL5uNXuH28A=
+        b=egC/5Fm2oibzTd1zUqXurlZZFvnKG9RyySmuWy4+B9sokoKH4MVQpq+uAkF9Z4DRT
+         qREdrJOu+8p9nEH0q9tloG/5d1MeWFR9R8HoELwrYqgyeXgL60A+11V6RmInWeaVKQ
+         CrUh31LAf/qgBiAHcj7ebCABghAalejweNWv4gHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Artem Egorkine <arteme@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 266/338] ALSA: line6: correct midi status byte when receiving data from podxt
-Date:   Mon, 16 Jan 2023 16:52:19 +0100
-Message-Id: <20230116154832.687774544@linuxfoundation.org>
+Subject: [PATCH 4.14 267/338] ALSA: line6: fix stack overflow in line6_midi_transmit
+Date:   Mon, 16 Jan 2023 16:52:20 +0100
+Message-Id: <20230116154832.738591677@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -54,143 +54,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Artem Egorkine <arteme@gmail.com>
 
-commit 8508fa2e7472f673edbeedf1b1d2b7a6bb898ecc upstream.
+commit b8800d324abb50160560c636bfafe2c81001b66c upstream.
 
-A PODxt device sends 0xb2, 0xc2 or 0xf2 as a status byte for MIDI
-messages over USB that should otherwise have a 0xb0, 0xc0 or 0xf0
-status byte. This is usually corrected by the driver on other OSes.
-
-This fixes MIDI sysex messages sent by PODxt.
-
-[ tiwai: fixed white spaces ]
+Correctly calculate available space including the size of the chunk
+buffer. This fixes a buffer overflow when multiple MIDI sysex
+messages are sent to a PODxt device.
 
 Signed-off-by: Artem Egorkine <arteme@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20221225105728.1153989-1-arteme@gmail.com
+Link: https://lore.kernel.org/r/20221225105728.1153989-2-arteme@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/line6/driver.c  |    3 ++-
- sound/usb/line6/midi.c    |    3 ++-
- sound/usb/line6/midibuf.c |   25 +++++++++++++++++--------
- sound/usb/line6/midibuf.h |    5 ++++-
- sound/usb/line6/pod.c     |    3 ++-
- 5 files changed, 27 insertions(+), 12 deletions(-)
+ sound/usb/line6/midi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -311,7 +311,8 @@ static void line6_data_received(struct u
- 		for (;;) {
- 			done =
- 				line6_midibuf_read(mb, line6->buffer_message,
--						LINE6_MIDI_MESSAGE_MAXLEN);
-+						   LINE6_MIDI_MESSAGE_MAXLEN,
-+						   LINE6_MIDIBUF_READ_RX);
- 
- 			if (done <= 0)
- 				break;
 --- a/sound/usb/line6/midi.c
 +++ b/sound/usb/line6/midi.c
-@@ -60,7 +60,8 @@ static void line6_midi_transmit(struct s
+@@ -48,7 +48,8 @@ static void line6_midi_transmit(struct s
+ 	int req, done;
  
  	for (;;) {
- 		done = line6_midibuf_read(mb, chunk,
--					  LINE6_FALLBACK_MAXPACKETSIZE);
-+					  LINE6_FALLBACK_MAXPACKETSIZE,
-+					  LINE6_MIDIBUF_READ_TX);
+-		req = min(line6_midibuf_bytes_free(mb), line6->max_packet_size);
++		req = min3(line6_midibuf_bytes_free(mb), line6->max_packet_size,
++			   LINE6_FALLBACK_MAXPACKETSIZE);
+ 		done = snd_rawmidi_transmit_peek(substream, chunk, req);
  
  		if (done == 0)
- 			break;
---- a/sound/usb/line6/midibuf.c
-+++ b/sound/usb/line6/midibuf.c
-@@ -13,6 +13,7 @@
- 
- #include "midibuf.h"
- 
-+
- static int midibuf_message_length(unsigned char code)
- {
- 	int message_length;
-@@ -24,12 +25,7 @@ static int midibuf_message_length(unsign
- 
- 		message_length = length[(code >> 4) - 8];
- 	} else {
--		/*
--		   Note that according to the MIDI specification 0xf2 is
--		   the "Song Position Pointer", but this is used by Line 6
--		   to send sysex messages to the host.
--		 */
--		static const int length[] = { -1, 2, -1, 2, -1, -1, 1, 1, 1, 1,
-+		static const int length[] = { -1, 2, 2, 2, -1, -1, 1, 1, 1, -1,
- 			1, 1, 1, -1, 1, 1
- 		};
- 		message_length = length[code & 0x0f];
-@@ -129,7 +125,7 @@ int line6_midibuf_write(struct midi_buff
- }
- 
- int line6_midibuf_read(struct midi_buffer *this, unsigned char *data,
--		       int length)
-+		       int length, int read_type)
- {
- 	int bytes_used;
- 	int length1, length2;
-@@ -152,9 +148,22 @@ int line6_midibuf_read(struct midi_buffe
- 
- 	length1 = this->size - this->pos_read;
- 
--	/* check MIDI command length */
- 	command = this->buf[this->pos_read];
-+	/*
-+	   PODxt always has status byte lower nibble set to 0010,
-+	   when it means to send 0000, so we correct if here so
-+	   that control/program changes come on channel 1 and
-+	   sysex message status byte is correct
-+	 */
-+	if (read_type == LINE6_MIDIBUF_READ_RX) {
-+		if (command == 0xb2 || command == 0xc2 || command == 0xf2) {
-+			unsigned char fixed = command & 0xf0;
-+			this->buf[this->pos_read] = fixed;
-+			command = fixed;
-+		}
-+	}
- 
-+	/* check MIDI command length */
- 	if (command & 0x80) {
- 		midi_length = midibuf_message_length(command);
- 		this->command_prev = command;
---- a/sound/usb/line6/midibuf.h
-+++ b/sound/usb/line6/midibuf.h
-@@ -12,6 +12,9 @@
- #ifndef MIDIBUF_H
- #define MIDIBUF_H
- 
-+#define LINE6_MIDIBUF_READ_TX 0
-+#define LINE6_MIDIBUF_READ_RX 1
-+
- struct midi_buffer {
- 	unsigned char *buf;
- 	int size;
-@@ -27,7 +30,7 @@ extern void line6_midibuf_destroy(struct
- extern int line6_midibuf_ignore(struct midi_buffer *mb, int length);
- extern int line6_midibuf_init(struct midi_buffer *mb, int size, int split);
- extern int line6_midibuf_read(struct midi_buffer *mb, unsigned char *data,
--			      int length);
-+			      int length, int read_type);
- extern void line6_midibuf_reset(struct midi_buffer *mb);
- extern int line6_midibuf_write(struct midi_buffer *mb, unsigned char *data,
- 			       int length);
---- a/sound/usb/line6/pod.c
-+++ b/sound/usb/line6/pod.c
-@@ -169,8 +169,9 @@ static struct line6_pcm_properties pod_p
- 	.bytes_per_channel = 3 /* SNDRV_PCM_FMTBIT_S24_3LE */
- };
- 
-+
- static const char pod_version_header[] = {
--	0xf2, 0x7e, 0x7f, 0x06, 0x02
-+	0xf0, 0x7e, 0x7f, 0x06, 0x02
- };
- 
- /* forward declarations: */
 
 
