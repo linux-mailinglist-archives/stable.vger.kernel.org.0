@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAA9B66C899
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:40:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8169E66C479
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233420AbjAPQk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:40:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32936 "EHLO
+        id S231689AbjAPPzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 10:55:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233340AbjAPQkf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:35 -0500
+        with ESMTP id S231366AbjAPPzH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1B362D148
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:28:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 301E022798
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F16161084
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:28:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81A27C433EF;
-        Mon, 16 Jan 2023 16:28:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D9526102D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2134FC433EF;
+        Mon, 16 Jan 2023 15:55:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886527;
-        bh=iej5SzVVe/+7WPmbKdX4DiLDJTi6jsnUCG5+qtbjSEA=;
+        s=korg; t=1673884503;
+        bh=8qRTdXvIvxl0/gerX2qxYxM0dkK3Mf/RxEFqs2Rw+T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QWj4QkambkR4Cc9BkcAs3F6K3FXQJqMNwetUBzXSaWhggKW2KIyMKujIF8wavGpVs
-         IDcck6Loc9E5CXq599nBWhqwkNHw6WyGhoj8EDay67O0MQuyXRnu1pq/DQM5C0umc/
-         iS1PnUL4gtcPz5JfcQiRl8SOpriFPbz3+C4py8BM=
+        b=FS+117yzegP93yp4CxlFZqiEk0MDh31VKGyGlx7MgCAhQR6JQlKjmP/fryzLZVXzA
+         FkqY9tlRcFqMOhZ2nP7KMuVpyPrU0rhTYvGLOd7FL6k4M490/KCAKU38Du0nuWrnCW
+         k4wEbFQFgNg174C2LOiaHiOE9muhEb+A5TKwusbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aditya Garg <gargaditya08@live.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 465/658] hfsplus: fix bug causing custom uid and gid being unable to be assigned with mount
+        patches@lists.linux.dev,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Nirmoy Das <nirmoy.das@intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 6.1 030/183] drm/i915: Reserve enough fence slot for i915_vma_unbind_async
 Date:   Mon, 16 Jan 2023 16:49:13 +0100
-Message-Id: <20230116154930.761984171@linuxfoundation.org>
+Message-Id: <20230116154804.633702520@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+References: <20230116154803.321528435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+From: Nirmoy Das <nirmoy.das@intel.com>
 
-commit 9f2b5debc07073e6dfdd774e3594d0224b991927 upstream.
+commit 476fdcdaaae7b06c780cdfc234c704107f16c529 upstream.
 
-Despite specifying UID and GID in mount command, the specified UID and GID
-were not being assigned. This patch fixes this issue.
+A nested dma_resv_reserve_fences(1) will not reserve slot from the
+2nd call onwards and folowing dma_resv_add_fence() might hit the
+"BUG_ON(fobj->num_fences >= fobj->max_fences)" check.
 
-Link: https://lkml.kernel.org/r/C0264BF5-059C-45CF-B8DA-3A3BD2C803A2@live.com
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Reviewed-by: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+I915 hit above nested dma_resv case in ttm_bo_handle_move_mem() with
+async unbind:
+
+dma_resv_reserve_fences() from --> ttm_bo_handle_move_mem()
+        dma_resv_reserve_fences() from --> i915_vma_unbind_async()
+        dma_resv_add_fence() from --> i915_vma_unbind_async()
+dma_resv_add_fence() from -->ttm_bo_move_accel_cleanup()
+
+Resolve this by adding an extra fence in i915_vma_unbind_async().
+
+Suggested-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Fixes: 2f6b90da9192 ("drm/i915: Use vma resources for async unbinding")
+Cc: <stable@vger.kernel.org> # v5.18+
+Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221223092011.11657-1-nirmoy.das@intel.com
+(cherry picked from commit 4f0755c2faf7388616109717facc5bbde6850e60)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hfsplus/hfsplus_fs.h |    2 ++
- fs/hfsplus/inode.c      |    4 ++--
- fs/hfsplus/options.c    |    4 ++++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/i915_vma.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/hfsplus/hfsplus_fs.h
-+++ b/fs/hfsplus/hfsplus_fs.h
-@@ -198,6 +198,8 @@ struct hfsplus_sb_info {
- #define HFSPLUS_SB_HFSX		3
- #define HFSPLUS_SB_CASEFOLD	4
- #define HFSPLUS_SB_NOBARRIER	5
-+#define HFSPLUS_SB_UID		6
-+#define HFSPLUS_SB_GID		7
+--- a/drivers/gpu/drm/i915/i915_vma.c
++++ b/drivers/gpu/drm/i915/i915_vma.c
+@@ -2114,7 +2114,7 @@ int i915_vma_unbind_async(struct i915_vm
+ 	if (!obj->mm.rsgt)
+ 		return -EBUSY;
  
- static inline struct hfsplus_sb_info *HFSPLUS_SB(struct super_block *sb)
- {
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -187,11 +187,11 @@ static void hfsplus_get_perms(struct ino
- 	mode = be16_to_cpu(perms->mode);
+-	err = dma_resv_reserve_fences(obj->base.resv, 1);
++	err = dma_resv_reserve_fences(obj->base.resv, 2);
+ 	if (err)
+ 		return -EBUSY;
  
- 	i_uid_write(inode, be32_to_cpu(perms->owner));
--	if (!i_uid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_UID, &sbi->flags)) || (!i_uid_read(inode) && !mode))
- 		inode->i_uid = sbi->uid;
- 
- 	i_gid_write(inode, be32_to_cpu(perms->group));
--	if (!i_gid_read(inode) && !mode)
-+	if ((test_bit(HFSPLUS_SB_GID, &sbi->flags)) || (!i_gid_read(inode) && !mode))
- 		inode->i_gid = sbi->gid;
- 
- 	if (dir) {
---- a/fs/hfsplus/options.c
-+++ b/fs/hfsplus/options.c
-@@ -140,6 +140,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!uid_valid(sbi->uid)) {
- 				pr_err("invalid uid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_UID, &sbi->flags);
- 			}
- 			break;
- 		case opt_gid:
-@@ -151,6 +153,8 @@ int hfsplus_parse_options(char *input, s
- 			if (!gid_valid(sbi->gid)) {
- 				pr_err("invalid gid specified\n");
- 				return 0;
-+			} else {
-+				set_bit(HFSPLUS_SB_GID, &sbi->flags);
- 			}
- 			break;
- 		case opt_part:
 
 
