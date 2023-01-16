@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF7E666CBA6
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7334366CD27
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234287AbjAPRPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39090 "EHLO
+        id S234933AbjAPReG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234270AbjAPRPQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:16 -0500
+        with ESMTP id S234730AbjAPRdk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:40 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95072C644
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08D5B3B641
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D1F561086
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80066C43392;
-        Mon, 16 Jan 2023 16:56:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98DFF60F7C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB865C433EF;
+        Mon, 16 Jan 2023 17:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888165;
-        bh=nOPLihvQ6d/5U4RIcg0Btoph0GScMPaaWQ4yLov8oqk=;
+        s=korg; t=1673888985;
+        bh=lNexJotvUxQyAIKn9DYfX4roNZbST8vF+2nw6cUaxxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zvXCHOF3Bvq35HcyG67pnzCC3jwaQA5527wHPQF7Vs8sv/CdMtv/GZbsihM+YMhSC
-         UFpd5GGI0JnlyAeWK8nVp6dKdN4zMZItuGfWWBwe4UH/NJUFaDRUu+zBfh5UJ6TeXE
-         ucaYsF9ZlQfAyWD7W64+TOZwLITm4IOBnb16TS2Y=
+        b=uV/I3psNAph7MBpYA0RKC66L08gHYlCf7k1kCV+g6bCVlgXy4X/xEmi20dpUPY7Zx
+         aeRJ6tXJFr3nKZIiaoSSLv/HI9RTz3gZrrvG/GdlDHfvHg4xLcaw7uoerdH58s7UHF
+         c0rFGAcELD8Wo/9XGPuxd7EQZtpR+tq0JeUyeWoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Zhang Yuchen <zhangyuchen.lcr@bytedance.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 4.19 395/521] ipmi: fix long wait in unload when IPMI disconnect
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 184/338] fbdev: vermilion: decrease reference count in error path
 Date:   Mon, 16 Jan 2023 16:50:57 +0100
-Message-Id: <20230116154904.760422150@linuxfoundation.org>
+Message-Id: <20230116154828.960925161@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,94 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit f6f1234d98cce69578bfac79df147a1f6660596c upstream.
+[ Upstream commit 001f2cdb952a9566c77fb4b5470cc361db5601bb ]
 
-When fixing the problem mentioned in PATCH1, we also found
-the following problem:
+pci_get_device() will increase the reference count for the returned
+pci_dev. For the error path, we need to use pci_dev_put() to decrease
+the reference count.
 
-If the IPMI is disconnected and in the sending process, the
-uninstallation driver will be stuck for a long time.
-
-The main problem is that uninstalling the driver waits for curr_msg to
-be sent or HOSED. After stopping tasklet, the only place to trigger the
-timeout mechanism is the circular poll in shutdown_smi.
-
-The poll function delays 10us and calls smi_event_handler(smi_info,10).
-Smi_event_handler deducts 10us from kcs->ibf_timeout.
-
-But the poll func is followed by schedule_timeout_uninterruptible(1).
-The time consumed here is not counted in kcs->ibf_timeout.
-
-So when 10us is deducted from kcs->ibf_timeout, at least 1 jiffies has
-actually passed. The waiting time has increased by more than a
-hundredfold.
-
-Now instead of calling poll(). call smi_event_handler() directly and
-calculate the elapsed time.
-
-For verification, you can directly use ebpf to check the kcs->
-ibf_timeout for each call to kcs_event() when IPMI is disconnected.
-Decrement at normal rate before unloading. The decrement rate becomes
-very slow after unloading.
-
-  $ bpftrace -e 'kprobe:kcs_event {printf("kcs->ibftimeout : %d\n",
-      *(arg0+584));}'
-
-Signed-off-by: Zhang Yuchen <zhangyuchen.lcr@bytedance.com>
-Message-Id: <20221007092617.87597-3-zhangyuchen.lcr@bytedance.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: dbe7e429fedb ("vmlfb: framebuffer driver for Intel Vermilion Range")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_si_intf.c |   27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/video/fbdev/vermilion/vermilion.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/char/ipmi/ipmi_si_intf.c
-+++ b/drivers/char/ipmi/ipmi_si_intf.c
-@@ -2187,6 +2187,20 @@ skip_fallback_noirq:
- }
- module_init(init_ipmi_si);
+diff --git a/drivers/video/fbdev/vermilion/vermilion.c b/drivers/video/fbdev/vermilion/vermilion.c
+index 6f8d444eb0e3..b732ea6d0be6 100644
+--- a/drivers/video/fbdev/vermilion/vermilion.c
++++ b/drivers/video/fbdev/vermilion/vermilion.c
+@@ -291,8 +291,10 @@ static int vmlfb_get_gpu(struct vml_par *par)
  
-+static void wait_msg_processed(struct smi_info *smi_info)
-+{
-+	unsigned long jiffies_now;
-+	long time_diff;
-+
-+	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
-+		jiffies_now = jiffies;
-+		time_diff = (((long)jiffies_now - (long)smi_info->last_timeout_jiffies)
-+		     * SI_USEC_PER_JIFFY);
-+		smi_event_handler(smi_info, time_diff);
-+		schedule_timeout_uninterruptible(1);
+ 	mutex_unlock(&vml_mutex);
+ 
+-	if (pci_enable_device(par->gpu) < 0)
++	if (pci_enable_device(par->gpu) < 0) {
++		pci_dev_put(par->gpu);
+ 		return -ENODEV;
 +	}
-+}
-+
- static void shutdown_smi(void *send_info)
- {
- 	struct smi_info *smi_info = send_info;
-@@ -2221,16 +2235,13 @@ static void shutdown_smi(void *send_info
- 	 * in the BMC.  Note that timers and CPU interrupts are off,
- 	 * so no need for locks.
- 	 */
--	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
--		poll(smi_info);
--		schedule_timeout_uninterruptible(1);
--	}
-+	wait_msg_processed(smi_info);
-+
- 	if (smi_info->handlers)
- 		disable_si_irq(smi_info);
--	while (smi_info->curr_msg || (smi_info->si_state != SI_NORMAL)) {
--		poll(smi_info);
--		schedule_timeout_uninterruptible(1);
--	}
-+
-+	wait_msg_processed(smi_info);
-+
- 	if (smi_info->handlers)
- 		smi_info->handlers->cleanup(smi_info->si_sm);
  
+ 	return 0;
+ }
+-- 
+2.35.1
+
 
 
