@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB86266C9D4
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:56:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC4E566C727
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:28:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233927AbjAPQ4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:56:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47180 "EHLO
+        id S233055AbjAPQ21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:28:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233915AbjAPQ4Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:56:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61072C653
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:39:26 -0800 (PST)
+        with ESMTP id S233120AbjAPQ2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:28:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C74236B1E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:16:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89F6AB8108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:39:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF38BC433EF;
-        Mon, 16 Jan 2023 16:39:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B6F560FDF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:16:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 234F7C433D2;
+        Mon, 16 Jan 2023 16:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887164;
-        bh=QogS6A8iV526B7dswgRoPBegnlhOhmHELTrFwFukxXY=;
+        s=korg; t=1673885779;
+        bh=7fDL6ifeWM7ucuXChkgoQZqGTDnl1pjDLbz2deqESaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxuMBdliFNDoaP9VtqnljQtU2g3ikE1ewNW3m5A5z8ySrT+PMKbXQmf/0k0hbNemP
-         leZOej4wdd+h6vt0ztRpo9jyUjyZbCNs/GKzzPeFfpk4BbWbDEuoOz5tBeKIypluX6
-         DJLDo9+WENK433DsuzlAhRKZWnmbDkUkB36Qdqug=
+        b=gAQptAFrjK6aR4hTpx7yXG3jVeOUdq+f4H7ipxG9Hs+IgqVMiQqzPaXt0xjZYhHav
+         Mq0gpxVgNmh1bdg82S55OloOXOhXclJGHWa5/lw3Rbqv+Qb7LRUvOFzoOOxySA9O9u
+         DgdqVt0JssAuGM4HMfE7s48LgP0jEtbcPqoKvEys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 006/521] pinctrl: meditatek: Startup with the IRQs disabled
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 180/658] configfs: fix possible memory leak in configfs_create_dir()
 Date:   Mon, 16 Jan 2023 16:44:28 +0100
-Message-Id: <20230116154847.544314593@linuxfoundation.org>
+Message-Id: <20230116154917.688062360@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,100 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 11780e37565db4dd064d3243ca68f755c13f65b4 ]
+[ Upstream commit c65234b283a65cfbfc94619655e820a5e55199eb ]
 
-If the system is restarted via kexec(), the peripherals do not start
-with a known state.
+kmemleak reported memory leaks in configfs_create_dir():
 
-If the previous system had enabled an IRQs we will receive unexected
-IRQs that can lock the system.
+unreferenced object 0xffff888009f6af00 (size 192):
+  comm "modprobe", pid 3777, jiffies 4295537735 (age 233.784s)
+  backtrace:
+    kmem_cache_alloc (mm/slub.c:3250 mm/slub.c:3256 mm/slub.c:3263 mm/slub.c:3273)
+    new_fragment (./include/linux/slab.h:600 fs/configfs/dir.c:163)
+    configfs_register_subsystem (fs/configfs/dir.c:1857)
+    basic_write (drivers/hwtracing/stm/p_basic.c:14) stm_p_basic
+    do_one_initcall (init/main.c:1296)
+    do_init_module (kernel/module/main.c:2455)
+    ...
 
-[   28.109251] watchdog: BUG: soft lockup - CPU#0 stuck for 26s!
-[swapper/0:0]
-[   28.109263] Modules linked in:
-[   28.109273] CPU: 0 PID: 0 Comm: swapper/0 Not tainted
-5.15.79-14458-g4b9edf7b1ac6 #1 9f2e76613148af94acccd64c609a552fb4b4354b
-[   28.109284] Hardware name: Google Elm (DT)
-[   28.109290] pstate: 40400005 (nZcv daif +PAN -UAO -TCO -DIT -SSBS
-		BTYPE=--)
-[   28.109298] pc : __do_softirq+0xa0/0x388
-[   28.109309] lr : __do_softirq+0x70/0x388
-[   28.109316] sp : ffffffc008003ee0
-[   28.109321] x29: ffffffc008003f00 x28: 000000000000000a x27:
-0000000000000080
-[   28.109334] x26: 0000000000000001 x25: ffffffefa7b350c0 x24:
-ffffffefa7b47480
-[   28.109346] x23: ffffffefa7b3d000 x22: 0000000000000000 x21:
-ffffffefa7b0fa40
-[   28.109358] x20: ffffffefa7b005b0 x19: ffffffefa7b47480 x18:
-0000000000065b6b
-[   28.109370] x17: ffffffefa749c8b0 x16: 000000000000018c x15:
-00000000000001b8
-[   28.109382] x14: 00000000000d3b6b x13: 0000000000000006 x12:
-0000000000057e91
-[   28.109394] x11: 0000000000000000 x10: 0000000000000000 x9 :
-ffffffefa7b47480
-[   28.109406] x8 : 00000000000000e0 x7 : 000000000f424000 x6 :
-0000000000000000
-[   28.109418] x5 : ffffffefa7dfaca0 x4 : ffffffefa7dfadf0 x3 :
-000000000000000f
-[   28.109429] x2 : 0000000000000000 x1 : 0000000000000100 x0 :
-0000000001ac65c5
-[   28.109441] Call trace:
-[   28.109447]  __do_softirq+0xa0/0x388
-[   28.109454]  irq_exit+0xc0/0xe0
-[   28.109464]  handle_domain_irq+0x68/0x90
-[   28.109473]  gic_handle_irq+0xac/0xf0
-[   28.109480]  call_on_irq_stack+0x28/0x50
-[   28.109488]  do_interrupt_handler+0x44/0x58
-[   28.109496]  el1_interrupt+0x30/0x58
-[   28.109506]  el1h_64_irq_handler+0x18/0x24
-[   28.109512]  el1h_64_irq+0x7c/0x80
-[   28.109519]  arch_local_irq_enable+0xc/0x18
-[   28.109529]  default_idle_call+0x40/0x140
-[   28.109539]  do_idle+0x108/0x290
-[   28.109547]  cpu_startup_entry+0x2c/0x30
-[   28.109554]  rest_init+0xe8/0xf8
-[   28.109562]  arch_call_rest_init+0x18/0x24
-[   28.109571]  start_kernel+0x338/0x42c
-[   28.109578]  __primary_switched+0xbc/0xc4
-[   28.109588] Kernel panic - not syncing: softlockup: hung tasks
+unreferenced object 0xffff888003ba7180 (size 96):
+  comm "modprobe", pid 3777, jiffies 4295537735 (age 233.784s)
+  backtrace:
+    kmem_cache_alloc (mm/slub.c:3250 mm/slub.c:3256 mm/slub.c:3263 mm/slub.c:3273)
+    configfs_new_dirent (./include/linux/slab.h:723 fs/configfs/dir.c:194)
+    configfs_make_dirent (fs/configfs/dir.c:248)
+    configfs_create_dir (fs/configfs/dir.c:296)
+    configfs_attach_group.isra.28 (fs/configfs/dir.c:816 fs/configfs/dir.c:852)
+    configfs_register_subsystem (fs/configfs/dir.c:1881)
+    basic_write (drivers/hwtracing/stm/p_basic.c:14) stm_p_basic
+    do_one_initcall (init/main.c:1296)
+    do_init_module (kernel/module/main.c:2455)
+    ...
 
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Link: https://lore.kernel.org/r/20221122-mtk-pinctrl-v1-1-bedf5655a3d2@chromium.org
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This is because the refcount is not correct in configfs_make_dirent().
+For normal stage, the refcount is changing as:
+
+configfs_register_subsystem()
+  configfs_create_dir()
+    configfs_make_dirent()
+      configfs_new_dirent() # set s_count = 1
+      dentry->d_fsdata = configfs_get(sd); # s_count = 2
+...
+configfs_unregister_subsystem()
+  configfs_remove_dir()
+    remove_dir()
+      configfs_remove_dirent() # s_count = 1
+    dput() ...
+      *dentry_unlink_inode()*
+        configfs_d_iput() # s_count = 0, release
+
+However, if we failed in configfs_create():
+
+configfs_register_subsystem()
+  configfs_create_dir()
+    configfs_make_dirent() # s_count = 2
+    ...
+    configfs_create() # fail
+    ->out_remove:
+    configfs_remove_dirent(dentry)
+      configfs_put(sd) # s_count = 1
+      return PTR_ERR(inode);
+
+There is no inode in the error path, so the configfs_d_iput() is lost
+and makes sd and fragment memory leaked.
+
+To fix this, when we failed in configfs_create(), manually call
+configfs_put(sd) to keep the refcount correct.
+
+Fixes: 7063fbf22611 ("[PATCH] configfs: User-driven configuration filesystem")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/mtk-eint.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/configfs/dir.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/mediatek/mtk-eint.c b/drivers/pinctrl/mediatek/mtk-eint.c
-index 564cfaee129d..55e3305ede81 100644
---- a/drivers/pinctrl/mediatek/mtk-eint.c
-+++ b/drivers/pinctrl/mediatek/mtk-eint.c
-@@ -277,12 +277,15 @@ static struct irq_chip mtk_eint_irq_chip = {
- 
- static unsigned int mtk_eint_hw_init(struct mtk_eint *eint)
- {
--	void __iomem *reg = eint->base + eint->regs->dom_en;
-+	void __iomem *dom_en = eint->base + eint->regs->dom_en;
-+	void __iomem *mask_set = eint->base + eint->regs->mask_set;
- 	unsigned int i;
- 
- 	for (i = 0; i < eint->hw->ap_num; i += 32) {
--		writel(0xffffffff, reg);
--		reg += 4;
-+		writel(0xffffffff, dom_en);
-+		writel(0xffffffff, mask_set);
-+		dom_en += 4;
-+		mask_set += 4;
- 	}
- 
+diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
+index d73d88d9c259..bc27e3ad97ff 100644
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -317,6 +317,7 @@ static int configfs_create_dir(struct config_item *item, struct dentry *dentry,
  	return 0;
+ 
+ out_remove:
++	configfs_put(dentry->d_fsdata);
+ 	configfs_remove_dirent(dentry);
+ 	return PTR_ERR(inode);
+ }
+@@ -383,6 +384,7 @@ int configfs_create_link(struct configfs_dirent *target, struct dentry *parent,
+ 	return 0;
+ 
+ out_remove:
++	configfs_put(dentry->d_fsdata);
+ 	configfs_remove_dirent(dentry);
+ 	return PTR_ERR(inode);
+ }
 -- 
 2.35.1
 
