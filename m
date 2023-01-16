@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C82766CD52
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75D6A66CBC7
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:17:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234916AbjAPRfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:35:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56192 "EHLO
+        id S234549AbjAPRRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:17:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234893AbjAPRey (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:54 -0500
+        with ESMTP id S234386AbjAPRQm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:16:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA3E2F784
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 554EA3FF2A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9897E61050
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:11:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE7E8C433F0;
-        Mon, 16 Jan 2023 17:11:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E944461086
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3DF3C433D2;
+        Mon, 16 Jan 2023 16:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889064;
-        bh=1CI8S7Nt+M90kAhGGwRJq0j/mgHHFQz0/+V047auClU=;
+        s=korg; t=1673888237;
+        bh=CWKN4ecTqNUqHsp84U3ofto2zEEfSyClrv6O5eYdfk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUCeYjE8vBzz6DictuUNpWloIfo+rnD5mEQCmtsBx6Bc7ZxUuqC+Km1MiUDKX9VBa
-         gd7OToqkAZkZFpajSPB9/bjT75EYiqWSzBVZHhLrvvvmPDRMcmks6HQItkc/I02xyQ
-         hBKSUDV8ZQAXCq0rlm9dK+fEXpnWtYAM+HWcMRdw=
+        b=zGBcCNwka3N975nPcIrnz3DW1eIKmgk2iTa6LOWzfjPkcdhLXa+1gGvG8sUTamIRy
+         lT6Lc/DibsehIpMyVuf6htU29eUo5Hn7MC73lrNbPH2U+7REXAXNW8zoyI+fmTkDOe
+         Ul6vdxHEZGRMBHmJH54KiKNlFBj1CCzEMhBKdvAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Changheon Lee <darklight2357@icloud.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 214/338] net: stream: purge sk_error_queue in sk_stream_kill_queues()
+Subject: [PATCH 4.19 425/521] perf probe: Use dwarf_attr_integrate as generic DWARF attr accessor
 Date:   Mon, 16 Jan 2023 16:51:27 +0100
-Message-Id: <20230116154830.358860871@linuxfoundation.org>
+Message-Id: <20230116154906.136525028@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +59,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-[ Upstream commit e0c8bccd40fc1c19e1d246c39bcf79e357e1ada3 ]
+[ Upstream commit f828929ab7f0dc3353e4a617f94f297fa8f3dec3 ]
 
-Changheon Lee reported TCP socket leaks, with a nice repro.
+Use dwarf_attr_integrate() instead of dwarf_attr() for generic attribute
+acccessor functions, so that it can find the specified attribute from
+abstact origin DIE etc.
 
-It seems we leak TCP sockets with the following sequence:
-
-1) SOF_TIMESTAMPING_TX_ACK is enabled on the socket.
-
-   Each ACK will cook an skb put in error queue, from __skb_tstamp_tx().
-   __skb_tstamp_tx() is using skb_clone(), unless
-   SOF_TIMESTAMPING_OPT_TSONLY was also requested.
-
-2) If the application is also using MSG_ZEROCOPY, then we put in the
-   error queue cloned skbs that had a struct ubuf_info attached to them.
-
-   Whenever an struct ubuf_info is allocated, sock_zerocopy_alloc()
-   does a sock_hold().
-
-   As long as the cloned skbs are still in sk_error_queue,
-   socket refcount is kept elevated.
-
-3) Application closes the socket, while error queue is not empty.
-
-Since tcp_close() no longer purges the socket error queue,
-we might end up with a TCP socket with at least one skb in
-error queue keeping the socket alive forever.
-
-This bug can be (ab)used to consume all kernel memory
-and freeze the host.
-
-We need to purge the error queue, with proper synchronization
-against concurrent writers.
-
-Fixes: 24bcbe1cc69f ("net: stream: don't purge sk_error_queue in sk_stream_kill_queues()")
-Reported-by: Changheon Lee <darklight2357@icloud.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lore.kernel.org/r/166731051988.2100653.13595339994343449770.stgit@devnote3
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Stable-dep-of: a9dfc46c67b5 ("perf probe: Fix to get the DW_AT_decl_file and DW_AT_call_file as unsinged data")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/stream.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/perf/util/dwarf-aux.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/stream.c b/net/core/stream.c
-index e5c6c9e5e0aa..448100f51bf4 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -196,6 +196,12 @@ void sk_stream_kill_queues(struct sock *sk)
- 	/* First the read buffer. */
- 	__skb_queue_purge(&sk->sk_receive_queue);
+diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
+index 230e94bf7775..3b7386527794 100644
+--- a/tools/perf/util/dwarf-aux.c
++++ b/tools/perf/util/dwarf-aux.c
+@@ -267,7 +267,7 @@ static int die_get_attr_udata(Dwarf_Die *tp_die, unsigned int attr_name,
+ {
+ 	Dwarf_Attribute attr;
  
-+	/* Next, the error queue.
-+	 * We need to use queue lock, because other threads might
-+	 * add packets to the queue without socket lock being held.
-+	 */
-+	skb_queue_purge(&sk->sk_error_queue);
-+
- 	/* Next, the write queue. */
- 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
+-	if (dwarf_attr(tp_die, attr_name, &attr) == NULL ||
++	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
+ 	    dwarf_formudata(&attr, result) != 0)
+ 		return -ENOENT;
+ 
+@@ -280,7 +280,7 @@ static int die_get_attr_sdata(Dwarf_Die *tp_die, unsigned int attr_name,
+ {
+ 	Dwarf_Attribute attr;
+ 
+-	if (dwarf_attr(tp_die, attr_name, &attr) == NULL ||
++	if (dwarf_attr_integrate(tp_die, attr_name, &attr) == NULL ||
+ 	    dwarf_formsdata(&attr, result) != 0)
+ 		return -ENOENT;
  
 -- 
 2.35.1
