@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AADFD66CD02
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:32:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 238C566CCDE
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:30:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234812AbjAPRcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:32:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53216 "EHLO
+        id S234822AbjAPRaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:30:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233621AbjAPRcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61705C0E0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:26 -0800 (PST)
+        with ESMTP id S234738AbjAPR3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:30 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD013A586
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B0DAB81071
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAA2FC433D2;
-        Mon, 16 Jan 2023 17:08:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 20EC6CE1021
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1376BC433D2;
+        Mon, 16 Jan 2023 17:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888904;
-        bh=UbKVBFU9Ywr743QmUPda4Sp9iLAyTxKIp9WUp37yn28=;
+        s=korg; t=1673888820;
+        bh=6Giu9Kvk/Sp9xBAkU8cq2Gg7H3GtVSmSZEvW7p65OfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJqIbhFTkoQ5POdCVb4Trk96MUCvIRf5QEgM6t6m6ZMXScgaUQ/PegnwnAG9aKsYI
-         +FgdzcwGP5WLWflat3XdJJAiAgpFQVdwilmhfOsxkYXrD+IxoMEPFlznFNrx1sm6y5
-         ELwvgTVU9iNNou1tmTVJ2rpqS3N0H8P0B6rXdmp8=
+        b=Dw1drM+M4K4XHDNMHCsbjvJ/4h1vK+LfO9YXoxr6sf/BDpZn3nieolu6duCAadl2E
+         9xEz06QdFPa7ujAY1X6hvqD1NZ9ejfDGf9qT97WGI56JweXNANWLn7ZoEG+XAf6yx6
+         eyAqcWzze/rD+y+XOFCU8y/OCOodj/KcbY0sMSaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 143/338] RDMA/hfi: Decrease PCI device reference count in error path
-Date:   Mon, 16 Jan 2023 16:50:16 +0100
-Message-Id: <20230116154827.085493581@linuxfoundation.org>
+Subject: [PATCH 4.14 144/338] RDMA/rxe: Fix NULL-ptr-deref in rxe_qp_do_cleanup() when socket create failed
+Date:   Mon, 16 Jan 2023 16:50:17 +0100
+Message-Id: <20230116154827.125638813@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -54,40 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 9b51d072da1d27e1193e84708201c48e385ad912 ]
+[ Upstream commit f67376d801499f4fa0838c18c1efcad8840e550d ]
 
-pci_get_device() will increase the reference count for the returned
-pci_dev, and also decrease the reference count for the input parameter
-*from* if it is not NULL.
+There is a null-ptr-deref when mount.cifs over rdma:
 
-If we break out the loop in node_affinity_init() with 'dev' not NULL, we
-need to call pci_dev_put() to decrease the reference count. Add missing
-pci_dev_put() in error path.
+  BUG: KASAN: null-ptr-deref in rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
+  Read of size 8 at addr 0000000000000018 by task mount.cifs/3046
 
-Fixes: c513de490f80 ("IB/hfi1: Invalid NUMA node information can cause a divide by zero")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221117131546.113280-1-wangxiongfeng2@huawei.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+  CPU: 2 PID: 3046 Comm: mount.cifs Not tainted 6.1.0-rc5+ #62
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1.fc3
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   kasan_report+0xad/0x130
+   rxe_qp_do_cleanup+0x2f3/0x360 [rdma_rxe]
+   execute_in_process_context+0x25/0x90
+   __rxe_cleanup+0x101/0x1d0 [rdma_rxe]
+   rxe_create_qp+0x16a/0x180 [rdma_rxe]
+   create_qp.part.0+0x27d/0x340
+   ib_create_qp_kernel+0x73/0x160
+   rdma_create_qp+0x100/0x230
+   _smbd_get_connection+0x752/0x20f0
+   smbd_get_connection+0x21/0x40
+   cifs_get_tcp_session+0x8ef/0xda0
+   mount_get_conns+0x60/0x750
+   cifs_mount+0x103/0xd00
+   cifs_smb3_do_mount+0x1dd/0xcb0
+   smb3_get_tree+0x1d5/0x300
+   vfs_get_tree+0x41/0xf0
+   path_mount+0x9b3/0xdd0
+   __x64_sys_mount+0x190/0x1d0
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+
+The root cause of the issue is the socket create failed in
+rxe_qp_init_req().
+
+So move the reset rxe_qp_do_cleanup() after the NULL ptr check.
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20221122151437.1057671-1-zhangxiaoxu5@huawei.com
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/affinity.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/affinity.c b/drivers/infiniband/hw/hfi1/affinity.c
-index b197e925fe36..4cc7f67ea54c 100644
---- a/drivers/infiniband/hw/hfi1/affinity.c
-+++ b/drivers/infiniband/hw/hfi1/affinity.c
-@@ -165,6 +165,8 @@ int node_affinity_init(void)
- 	for (node = 0; node < node_affinity.num_possible_nodes; node++)
- 		hfi1_per_node_cntr[node] = 1;
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 2391b0e698a9..9bd99bd693fd 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -866,12 +866,12 @@ static void rxe_qp_do_cleanup(struct work_struct *work)
+ 		qp->resp.mr = NULL;
+ 	}
  
-+	pci_dev_put(dev);
+-	if (qp_type(qp) == IB_QPT_RC)
+-		sk_dst_reset(qp->sk->sk);
+-
+ 	free_rd_atomic_resources(qp);
+ 
+ 	if (qp->sk) {
++		if (qp_type(qp) == IB_QPT_RC)
++			sk_dst_reset(qp->sk->sk);
 +
- 	return 0;
- }
- 
+ 		kernel_sock_shutdown(qp->sk, SHUT_RDWR);
+ 		sock_release(qp->sk);
+ 	}
 -- 
 2.35.1
 
