@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC2066CD2E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E6B66CBAD
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234798AbjAPReS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:34:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53196 "EHLO
+        id S234316AbjAPRQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:16:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234863AbjAPRd5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:33:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 963822E0D1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:10:04 -0800 (PST)
+        with ESMTP id S234234AbjAPRPZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1233227D62
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03B5D6108E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B24C433EF;
-        Mon, 16 Jan 2023 17:10:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2641B8109B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EBF1C433EF;
+        Mon, 16 Jan 2023 16:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889003;
-        bh=38EAfbkzB3VV+rS/8+C2uqiecC3F86T6jGjAon2tZbw=;
+        s=korg; t=1673888184;
+        bh=9G0nLRMySXw9bUmK/C8xLny5bZrXqKp76uqpErQlh7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lz2o9pPnJyQVbOmI4RkEsLe4rjgo6Y/UMZ65IYPuX/bcGIzo1RiEqW/NDx5hqAy5+
-         n8LLcNpKDQtGtNBTNbIoMzeKiGfPWKFT231oJSXbSqa27N9OmiMNaaSaE+QLBbvySU
-         v2+s8A2z5sKMFtwhZXMfeYKEeH0N7Qz+a4qOlXbE=
+        b=WHxpgDnnfYycchcyLoKmfj3k71gC+E7/tn/TIXQ1yuZ+5DdA2FV8NY6iRs8XEDVEr
+         l+kFyYH6RTkXPKiEp5kS6OVYeSXiFW1xu9OFKu27UwMEFVqgPROS16qiJS2BVSWkj7
+         zHrCyE7JC4mkn1seUWYgyizY5iQJgARhfdL5KACM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, ZhangPeng <zhangpeng362@huawei.com>,
-        syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Nanyong Sun <sunnanyong@huawei.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 222/338] hfs: fix OOB Read in __hfs_brec_find
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 433/521] ext4: correct inconsistent error msg in nojournal mode
 Date:   Mon, 16 Jan 2023 16:51:35 +0100
-Message-Id: <20230116154830.710392354@linuxfoundation.org>
+Message-Id: <20230116154906.511159883@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,79 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangPeng <zhangpeng362@huawei.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 8d824e69d9f3fa3121b2dda25053bae71e2460d2 ]
+[ Upstream commit 89481b5fa8c0640e62ba84c6020cee895f7ac643 ]
 
-Syzbot reported a OOB read bug:
+When we used the journal_async_commit mounting option in nojournal mode,
+the kernel told me that "can't mount with journal_checksum", was very
+confusing. I find that when we mount with journal_async_commit, both the
+JOURNAL_ASYNC_COMMIT and EXPLICIT_JOURNAL_CHECKSUM flags are set. However,
+in the error branch, CHECKSUM is checked before ASYNC_COMMIT. As a result,
+the above inconsistency occurs, and the ASYNC_COMMIT branch becomes dead
+code that cannot be executed. Therefore, we exchange the positions of the
+two judgments to make the error msg more accurate.
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in hfs_strcmp+0x117/0x190
-fs/hfs/string.c:84
-Read of size 1 at addr ffff88807eb62c4e by task kworker/u4:1/11
-CPU: 1 PID: 11 Comm: kworker/u4:1 Not tainted
-6.1.0-rc6-syzkaller-00308-g644e9524388a #0
-Workqueue: writeback wb_workfn (flush-7:0)
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x1b1/0x28e lib/dump_stack.c:106
- print_address_description+0x74/0x340 mm/kasan/report.c:284
- print_report+0x107/0x1f0 mm/kasan/report.c:395
- kasan_report+0xcd/0x100 mm/kasan/report.c:495
- hfs_strcmp+0x117/0x190 fs/hfs/string.c:84
- __hfs_brec_find+0x213/0x5c0 fs/hfs/bfind.c:75
- hfs_brec_find+0x276/0x520 fs/hfs/bfind.c:138
- hfs_write_inode+0x34c/0xb40 fs/hfs/inode.c:462
- write_inode fs/fs-writeback.c:1440 [inline]
-
-If the input inode of hfs_write_inode() is incorrect:
-struct inode
-  struct hfs_inode_info
-    struct hfs_cat_key
-      struct hfs_name
-        u8 len # len is greater than HFS_NAMELEN(31) which is the
-maximum length of an HFS filename
-
-OOB read occurred:
-hfs_write_inode()
-  hfs_brec_find()
-    __hfs_brec_find()
-      hfs_cat_keycmp()
-        hfs_strcmp() # OOB read occurred due to len is too large
-
-Fix this by adding a Check on len in hfs_write_inode() before calling
-hfs_brec_find().
-
-Link: https://lkml.kernel.org/r/20221130065959.2168236-1-zhangpeng362@huawei.com
-Signed-off-by: ZhangPeng <zhangpeng362@huawei.com>
-Reported-by: <syzbot+e836ff7133ac02be825f@syzkaller.appspotmail.com>
-Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jeff Layton <jlayton@kernel.org>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Nanyong Sun <sunnanyong@huawei.com>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221109074343.4184862-1-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ext4/super.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
-index 350afd67bd69..4e795c8d697d 100644
---- a/fs/hfs/inode.c
-+++ b/fs/hfs/inode.c
-@@ -453,6 +453,8 @@ int hfs_write_inode(struct inode *inode, struct writeback_control *wbc)
- 		/* panic? */
- 		return -EIO;
- 
-+	if (HFS_I(main_inode)->cat_key.CName.len > HFS_NAMELEN)
-+		return -EIO;
- 	fd.search_key->cat = HFS_I(main_inode)->cat_key;
- 	if (hfs_brec_find(&fd))
- 		/* panic? */
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 3198c276b434..e0d597719133 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4305,14 +4305,15 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+ 		goto failed_mount3a;
+ 	} else {
+ 		/* Nojournal mode, all journal mount options are illegal */
+-		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
++		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+-				 "journal_checksum, fs mounted w/o journal");
++				 "journal_async_commit, fs mounted w/o journal");
+ 			goto failed_mount3a;
+ 		}
+-		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
++
++		if (test_opt2(sb, EXPLICIT_JOURNAL_CHECKSUM)) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+-				 "journal_async_commit, fs mounted w/o journal");
++				 "journal_checksum, fs mounted w/o journal");
+ 			goto failed_mount3a;
+ 		}
+ 		if (sbi->s_commit_interval != JBD2_DEFAULT_MAX_COMMIT_AGE*HZ) {
 -- 
 2.35.1
 
