@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3814666C7A1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:33:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2473B66CA1B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233266AbjAPQc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:32:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47310 "EHLO
+        id S234109AbjAPQ7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:59:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233286AbjAPQca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:32:30 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02DD6301BC
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:20:26 -0800 (PST)
+        with ESMTP id S234237AbjAPQ6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:58:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB30B2ED49
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 36390CE1281
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:20:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B984C433D2;
-        Mon, 16 Jan 2023 16:20:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 686BA61077
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C221C433F0;
+        Mon, 16 Jan 2023 16:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886022;
-        bh=3umGfoUesU0Bpc2kWu35atFs2Nf2q8EV/o6o+K/LdK0=;
+        s=korg; t=1673887305;
+        bh=ME87X208WEto+PejbuUwKQ/S1/Z6JfzWqiueL35CMgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3doF/f8zD8+M1g8msynVjvy9lE57X+Q0HPMGK5Knb19BfovLhFB15tyO6eRttVuz
-         u2cN7mRuaV89FAl2iyRvDlniNN3evwWjZL0g6JAoht1BfZ4sq54WTjsPt1XzUploWg
-         Ou29Lhc+sbrDQMW4p2NHydaPw0YhwJYWUs03/mGI=
+        b=hje0utAicSPXJRYzRNt6/suaz+7aI4+2rDFce7bfPJbnEY2+B5YzNmBMgQ1x4xpxR
+         S+K+rU+ZS2WWTH46WdtoW6cWqIa71oYErJWPlLOTvBXuocuDCg/Gq+MdFiKZBlzrFH
+         AhBu58uh2EkoEwicXIL6y2zXDOGlD+lj0iTH20Jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 272/658] hwrng: geode - Fix PCI device refcount leak
+        patches@lists.linux.dev, Marek Vasut <marex@denx.de>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 098/521] wifi: rsi: Fix handling of 802.3 EAPOL frames sent via control port
 Date:   Mon, 16 Jan 2023 16:46:00 +0100
-Message-Id: <20230116154922.016853773@linuxfoundation.org>
+Message-Id: <20230116154851.619573704@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,113 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 9f6ec8dc574efb7f4f3d7ee9cd59ae307e78f445 ]
+[ Upstream commit b8f6efccbb9dc0ff5dee7e20d69a4747298ee603 ]
 
-for_each_pci_dev() is implemented by pci_get_device(). The comment of
-pci_get_device() says that it will increase the reference count for the
-returned pci_dev and also decrease the reference count for the input
-pci_dev @from if it is not NULL.
+When using wpa_supplicant v2.10, this driver is no longer able to
+associate with any AP and fails in the EAPOL 4-way handshake while
+sending the 2/4 message to the AP. The problem is not present in
+wpa_supplicant v2.9 or older. The problem stems from HostAP commit
+144314eaa ("wpa_supplicant: Send EAPOL frames over nl80211 where available")
+which changes the way EAPOL frames are sent, from them being send
+at L2 frames to them being sent via nl80211 control port.
 
-If we break for_each_pci_dev() loop with pdev not NULL, we need to call
-pci_dev_put() to decrease the reference count. We add a new struct
-'amd_geode_priv' to record pointer of the pci_dev and membase, and then
-add missing pci_dev_put() for the normal and error path.
+An EAPOL frame sent as L2 frame is passed to the WiFi driver with
+skb->protocol ETH_P_PAE, while EAPOL frame sent via nl80211 control
+port has skb->protocol set to ETH_P_802_3 . The later happens in
+ieee80211_tx_control_port(), where the EAPOL frame is encapsulated
+into 802.3 frame.
 
-Fixes: ef5d862734b8 ("[PATCH] Add Geode HW RNG driver")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The rsi_91x driver handles ETH_P_PAE EAPOL frames as high-priority
+frames and sends them via highest-priority transmit queue, while
+the ETH_P_802_3 frames are sent as regular frames. The EAPOL 4-way
+handshake frames must be sent as highest-priority, otherwise the
+4-way handshake times out.
+
+Therefore, to fix this problem, inspect the skb control flags and
+if flag IEEE80211_TX_CTRL_PORT_CTRL_PROTO is set, assume this is
+an EAPOL frame and transmit the frame via high-priority queue just
+like other ETH_P_PAE frames.
+
+Fixes: 0eb42586cf87 ("rsi: data packet descriptor enhancements")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221104163339.227432-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/geode-rng.c | 36 +++++++++++++++++++++++-------
- 1 file changed, 28 insertions(+), 8 deletions(-)
+ drivers/net/wireless/rsi/rsi_91x_core.c | 4 +++-
+ drivers/net/wireless/rsi/rsi_91x_hal.c  | 6 +++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/hw_random/geode-rng.c b/drivers/char/hw_random/geode-rng.c
-index e1d421a36a13..207272979f23 100644
---- a/drivers/char/hw_random/geode-rng.c
-+++ b/drivers/char/hw_random/geode-rng.c
-@@ -51,6 +51,10 @@ static const struct pci_device_id pci_tbl[] = {
- };
- MODULE_DEVICE_TABLE(pci, pci_tbl);
- 
-+struct amd_geode_priv {
-+	struct pci_dev *pcidev;
-+	void __iomem *membase;
-+};
- 
- static int geode_rng_data_read(struct hwrng *rng, u32 *data)
- {
-@@ -90,6 +94,7 @@ static int __init mod_init(void)
- 	const struct pci_device_id *ent;
- 	void __iomem *mem;
- 	unsigned long rng_base;
-+	struct amd_geode_priv *priv;
- 
- 	for_each_pci_dev(pdev) {
- 		ent = pci_match_id(pci_tbl, pdev);
-@@ -97,17 +102,26 @@ static int __init mod_init(void)
- 			goto found;
- 	}
- 	/* Device not found. */
--	goto out;
-+	return err;
- 
- found:
-+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-+	if (!priv) {
-+		err = -ENOMEM;
-+		goto put_dev;
-+	}
+diff --git a/drivers/net/wireless/rsi/rsi_91x_core.c b/drivers/net/wireless/rsi/rsi_91x_core.c
+index c6c29034b2ea..a939b552a8e4 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_core.c
++++ b/drivers/net/wireless/rsi/rsi_91x_core.c
+@@ -466,7 +466,9 @@ void rsi_core_xmit(struct rsi_common *common, struct sk_buff *skb)
+ 							      tid, 0);
+ 			}
+ 		}
+-		if (skb->protocol == cpu_to_be16(ETH_P_PAE)) {
 +
- 	rng_base = pci_resource_start(pdev, 0);
- 	if (rng_base == 0)
--		goto out;
-+		goto free_priv;
- 	err = -ENOMEM;
- 	mem = ioremap(rng_base, 0x58);
- 	if (!mem)
--		goto out;
--	geode_rng.priv = (unsigned long)mem;
-+		goto free_priv;
++		if (IEEE80211_SKB_CB(skb)->control.flags &
++		    IEEE80211_TX_CTRL_PORT_CTRL_PROTO) {
+ 			q_num = MGMT_SOFT_Q;
+ 			skb->priority = q_num;
+ 		}
+diff --git a/drivers/net/wireless/rsi/rsi_91x_hal.c b/drivers/net/wireless/rsi/rsi_91x_hal.c
+index 2cb7cca4ec2d..b445a52fbfbd 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_hal.c
++++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
+@@ -152,12 +152,16 @@ int rsi_prepare_data_desc(struct rsi_common *common, struct sk_buff *skb)
+ 	u8 header_size;
+ 	u8 vap_id = 0;
+ 	u8 dword_align_bytes;
++	bool tx_eapol;
+ 	u16 seq_num;
+ 
+ 	info = IEEE80211_SKB_CB(skb);
+ 	vif = info->control.vif;
+ 	tx_params = (struct skb_info *)info->driver_data;
+ 
++	tx_eapol = IEEE80211_SKB_CB(skb)->control.flags &
++		   IEEE80211_TX_CTRL_PORT_CTRL_PROTO;
 +
-+	geode_rng.priv = (unsigned long)priv;
-+	priv->membase = mem;
-+	priv->pcidev = pdev;
- 
- 	pr_info("AMD Geode RNG detected\n");
- 	err = hwrng_register(&geode_rng);
-@@ -116,20 +130,26 @@ static int __init mod_init(void)
- 		       err);
- 		goto err_unmap;
+ 	header_size = FRAME_DESC_SZ + sizeof(struct rsi_xtended_desc);
+ 	if (header_size > skb_headroom(skb)) {
+ 		rsi_dbg(ERR_ZONE, "%s: Unable to send pkt\n", __func__);
+@@ -221,7 +225,7 @@ int rsi_prepare_data_desc(struct rsi_common *common, struct sk_buff *skb)
+ 		}
  	}
--out:
- 	return err;
  
- err_unmap:
- 	iounmap(mem);
--	goto out;
-+free_priv:
-+	kfree(priv);
-+put_dev:
-+	pci_dev_put(pdev);
-+	return err;
- }
+-	if (skb->protocol == cpu_to_be16(ETH_P_PAE)) {
++	if (tx_eapol) {
+ 		rsi_dbg(INFO_ZONE, "*** Tx EAPOL ***\n");
  
- static void __exit mod_exit(void)
- {
--	void __iomem *mem = (void __iomem *)geode_rng.priv;
-+	struct amd_geode_priv *priv;
- 
-+	priv = (struct amd_geode_priv *)geode_rng.priv;
- 	hwrng_unregister(&geode_rng);
--	iounmap(mem);
-+	iounmap(priv->membase);
-+	pci_dev_put(priv->pcidev);
-+	kfree(priv);
- }
- 
- module_init(mod_init);
+ 		data_desc->frame_info = cpu_to_le16(RATE_INFO_ENABLE);
 -- 
 2.35.1
 
