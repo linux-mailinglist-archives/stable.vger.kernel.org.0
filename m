@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBDC266CB7E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0635D66CCEC
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234324AbjAPROt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:14:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
+        id S234699AbjAPRbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:31:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234371AbjAPRNO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3FA4B763;
-        Mon, 16 Jan 2023 08:53:55 -0800 (PST)
+        with ESMTP id S234850AbjAPRaZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:30:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1EE33A879
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:07:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DB8B61085;
-        Mon, 16 Jan 2023 16:53:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9381AC433EF;
-        Mon, 16 Jan 2023 16:53:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F0AC60F7C
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:07:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 915BBC433F0;
+        Mon, 16 Jan 2023 17:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888034;
-        bh=HTV6jjPSwVPA1txeBglso98Z39K0t4Xs2ZOnCMiE7bM=;
+        s=korg; t=1673888856;
+        bh=rIhEumZRG5HRZ/YeNEY2VLMWYpEt89+Q9cowJ5ubhMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZJNv4sLtV0B1IUAnRcGO33YKH2J5bx7XxB7RjsEcKGft+xjSy8X9SFtxq/yMylxu
-         Z2ThjrhPUerMif4vv85pMnvcfPPyT2aQsphUuroml9BG7bJFSYowFQFy56EF30HpA2
-         x460EQOg435sDaD1/Y5VIIWV0bNfu9VLrX4iCevM=
+        b=syEptfOGQsSI3f9NUHuh5ptMk5Fxw96JsuP4rwusmcbbKxiTIUWwlt8k/riiIoRWC
+         1C3RZi/znGhYJGtotaLWjGG5Ioj0VjDrzMuk20sd/YTPDWhzfgDzMk+R4kqN/Pp8+o
+         tpA5nipGzO6h0/yeSWEOurWkZVEFEX3ArEbPywJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 376/521] media: stv0288: use explicitly signed char
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 165/338] serial: pch: Fix PCI device refcount leak in pch_request_dma()
 Date:   Mon, 16 Jan 2023 16:50:38 +0100
-Message-Id: <20230116154903.926770708@linuxfoundation.org>
+Message-Id: <20230116154828.080065855@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit 7392134428c92a4cb541bd5c8f4f5c8d2e88364d upstream.
+[ Upstream commit 8be3a7bf773700534a6e8f87f6ed2ed111254be5 ]
 
-With char becoming unsigned by default, and with `char` alone being
-ambiguous and based on architecture, signed chars need to be marked
-explicitly as such. Use `s8` and `u8` types here, since that's what
-surrounding code does. This fixes:
+As comment of pci_get_slot() says, it returns a pci_device with its
+refcount increased. The caller must decrement the reference count by
+calling pci_dev_put().
 
-drivers/media/dvb-frontends/stv0288.c:471 stv0288_set_frontend() warn: assigning (-9) to unsigned variable 'tm'
-drivers/media/dvb-frontends/stv0288.c:471 stv0288_set_frontend() warn: we never enter this loop
+Since 'dma_dev' is only used to filter the channel in filter(), we can
+call pci_dev_put() before exiting from pch_request_dma(). Add the
+missing pci_dev_put() for the normal and error path.
 
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-media@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: 3c6a483275f4 ("Serial: EG20T: add PCH_UART driver")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/20221122114559.27692-1-wangxiongfeng2@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/stv0288.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/tty/serial/pch_uart.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/media/dvb-frontends/stv0288.c
-+++ b/drivers/media/dvb-frontends/stv0288.c
-@@ -452,9 +452,8 @@ static int stv0288_set_frontend(struct d
- 	struct stv0288_state *state = fe->demodulator_priv;
- 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
+index 15ddcbd1f9d2..472cbd851188 100644
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -748,6 +748,7 @@ static void pch_request_dma(struct uart_port *port)
+ 	if (!chan) {
+ 		dev_err(priv->port.dev, "%s:dma_request_channel FAILS(Tx)\n",
+ 			__func__);
++		pci_dev_put(dma_dev);
+ 		return;
+ 	}
+ 	priv->chan_tx = chan;
+@@ -764,6 +765,7 @@ static void pch_request_dma(struct uart_port *port)
+ 			__func__);
+ 		dma_release_channel(priv->chan_tx);
+ 		priv->chan_tx = NULL;
++		pci_dev_put(dma_dev);
+ 		return;
+ 	}
  
--	char tm;
--	unsigned char tda[3];
--	u8 reg, time_out = 0;
-+	u8 tda[3], reg, time_out = 0;
-+	s8 tm;
+@@ -771,6 +773,8 @@ static void pch_request_dma(struct uart_port *port)
+ 	priv->rx_buf_virt = dma_alloc_coherent(port->dev, port->fifosize,
+ 				    &priv->rx_buf_dma, GFP_KERNEL);
+ 	priv->chan_rx = chan;
++
++	pci_dev_put(dma_dev);
+ }
  
- 	dprintk("%s : FE_SET_FRONTEND\n", __func__);
- 
+ static void pch_dma_rx_complete(void *arg)
+-- 
+2.35.1
+
 
 
