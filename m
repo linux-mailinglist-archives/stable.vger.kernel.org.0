@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCB5E66CA10
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF9AE66CA13
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:59:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229551AbjAPQ7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:59:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51192 "EHLO
+        id S234059AbjAPQ7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:59:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234151AbjAPQ6c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:58:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105CC367F4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:30 -0800 (PST)
+        with ESMTP id S234156AbjAPQ6d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:58:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611302D172
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:41:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B69ACB8108F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14B6FC433D2;
-        Mon, 16 Jan 2023 16:41:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92E766104F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:41:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EE19C433F0;
+        Mon, 16 Jan 2023 16:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887287;
-        bh=wA0G5byM636sJIrKub+f227/nNyZfblbWNlqiiVVnTg=;
+        s=korg; t=1673887290;
+        bh=qtJCI59zFNOMEJQgJZdiKXWcmVFMQp9ZnuuOUa0cmSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ewewn96Z5k9sHVer9Or7v0mtWNEkfkIusSii974vDq9acpF/mvRXQvsIMM5misOBV
-         mpE9dwR2WH/jqO1thGVN+iu6t8ynhVKVKNNEy6I/KuLug5xpOSMzVQe8oQreQBDVR+
-         nXKTtxiSy4U/9ZQ/Cnk0s1/SpQHP4F2h1gXDEOW0=
+        b=1ByqH26BybuTyk6FidJYxDL88ems/aATOkWdem/CB77FM6h9O/volSNTjwXHY0mTk
+         UgP0jJSoIOdHHhfhbFfoBqKKycACueANu4b+VSgOoCD0NqEEAv8GoEmUYvD0sOCbkz
+         X2w6LAHI+6sD1C22H2/Z/lLdP6lwP3lOIrsGT/ZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Anssi Hannula <anssi.hannula@bitwise.fi>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 091/521] can: kvaser_usb_leaf: Fix wrong CAN state after stopping
-Date:   Mon, 16 Jan 2023 16:45:53 +0100
-Message-Id: <20230116154851.312099438@linuxfoundation.org>
+Subject: [PATCH 4.19 092/521] can: kvaser_usb_leaf: Fix bogus restart events
+Date:   Mon, 16 Jan 2023 16:45:54 +0100
+Message-Id: <20230116154851.353228062@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -56,41 +56,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-[ Upstream commit a11249acf802341294557895d8e5f6aef080253f ]
+[ Upstream commit 90904d326269a38fe5dd895fb2db7c03199654c4 ]
 
-0bfd:0124 Kvaser Mini PCI Express 2xHS FW 4.18.778 sends a
-CMD_CHIP_STATE_EVENT indicating bus-off after stopping the device,
-causing a stopped device to appear as CAN_STATE_BUS_OFF instead of
-CAN_STATE_STOPPED.
+When auto-restart is enabled, the kvaser_usb_leaf driver considers
+transition from any state >= CAN_STATE_BUS_OFF as a bus-off recovery
+event (restart).
 
-Fix that by not handling error events on stopped devices.
+However, these events may occur at interface startup time before
+kvaser_usb_open() has set the state to CAN_STATE_ERROR_ACTIVE, causing
+restarts counter to increase and CAN_ERR_RESTARTED to be sent despite no
+actual restart having occurred.
+
+Fix that by making the auto-restart condition checks more strict so that
+they only trigger when the interface was actually in the BUS_OFF state.
 
 Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
 Tested-by: Jimmy Assarsson <extja@kvaser.com>
 Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
 Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Link: https://lore.kernel.org/all/20221010185237.319219-8-extja@kvaser.com
+Link: https://lore.kernel.org/all/20221010185237.319219-10-extja@kvaser.com
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index 6d45ae6f2a08..52ac6446634d 100644
+index 52ac6446634d..d1877ff2ff71 100644
 --- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
 +++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -1049,6 +1049,10 @@ static void kvaser_usb_leaf_rx_error(const struct kvaser_usb *dev,
- 	leaf = priv->sub_priv;
- 	stats = &priv->netdev->stats;
+@@ -899,7 +899,7 @@ static void kvaser_usb_leaf_tx_acknowledge(const struct kvaser_usb *dev,
+ 	context = &priv->tx_contexts[tid % dev->max_tx_urbs];
  
-+	/* Ignore e.g. state change to bus-off reported just after stopping */
-+	if (!netif_running(priv->netdev))
-+		return;
-+
- 	/* Update all of the CAN interface's state and error counters before
- 	 * trying any memory allocation that can actually fail with -ENOMEM.
- 	 *
+ 	/* Sometimes the state change doesn't come after a bus-off event */
+-	if (priv->can.restart_ms && priv->can.state >= CAN_STATE_BUS_OFF) {
++	if (priv->can.restart_ms && priv->can.state == CAN_STATE_BUS_OFF) {
+ 		struct sk_buff *skb;
+ 		struct can_frame *cf;
+ 
+@@ -1002,7 +1002,7 @@ kvaser_usb_leaf_rx_error_update_can_state(struct kvaser_usb_net_priv *priv,
+ 	}
+ 
+ 	if (priv->can.restart_ms &&
+-	    cur_state >= CAN_STATE_BUS_OFF &&
++	    cur_state == CAN_STATE_BUS_OFF &&
+ 	    new_state < CAN_STATE_BUS_OFF)
+ 		priv->can.can_stats.restarts++;
+ 
+@@ -1092,7 +1092,7 @@ static void kvaser_usb_leaf_rx_error(const struct kvaser_usb *dev,
+ 		}
+ 
+ 		if (priv->can.restart_ms &&
+-		    old_state >= CAN_STATE_BUS_OFF &&
++		    old_state == CAN_STATE_BUS_OFF &&
+ 		    new_state < CAN_STATE_BUS_OFF) {
+ 			cf->can_id |= CAN_ERR_RESTARTED;
+ 			netif_carrier_on(priv->netdev);
 -- 
 2.35.1
 
