@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3E666C9B5
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:55:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8401E66C761
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:30:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234034AbjAPQzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:55:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46950 "EHLO
+        id S233255AbjAPQaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:30:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234038AbjAPQyk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:54:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B6DF58298
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:38:17 -0800 (PST)
+        with ESMTP id S233310AbjAPQ3r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF0D236FFC
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A792B8108F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:38:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE4DC433EF;
-        Mon, 16 Jan 2023 16:38:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 681356102D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D6C9C43392;
+        Mon, 16 Jan 2023 16:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887095;
-        bh=eiCfIRMdbE8pkOzxRpMs6zkbpeaB+spZT5DgtWEvpyY=;
+        s=korg; t=1673885892;
+        bh=0g3tAZtvTRB1jTtiX10Zy7WeNjcE+dFdwc+AO9NB8Hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h13EVcz6fBV1rz2FOi/ssXqRGnCOSa9X2pBZ7ZwumRlibEiKRscYuAAJXLE1Wczn0
-         5698gVHEuqCTlHgDz/2aEponus5jQ1M0C6p8IPtkmZg5Hxpx594CItZqjJQYEDljx6
-         vV4ffCrIrYf9pmofTkeAQ1k1o4Bm3ai+CzfSY88I=
+        b=IdC2tXAdMjP9Y84GHzJErEE7dqbne/SUOgkomuQXyQoKdGcoiCdyvO4TzvaKSdEPm
+         rDH3cK+U71FvT5VrrRhwAHcZdFeiRNDkWXjBLeagyxRcaoWlgIku/1qZoH5lGOB1zr
+         xb0nXqM7shO0gFfbFmQbY0iowgSo2dtkya3PU7NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sungwoo Kim <iam@sung-woo.kim>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 020/521] Bluetooth: L2CAP: Fix u8 overflow
+Subject: [PATCH 5.4 194/658] mmc: vub300: fix return value check of mmc_add_host()
 Date:   Mon, 16 Jan 2023 16:44:42 +0100
-Message-Id: <20230116154848.189123555@linuxfoundation.org>
+Message-Id: <20230116154918.318360820@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungwoo Kim <iam@sung-woo.kim>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit bcd70260ef56e0aee8a4fc6cd214a419900b0765 ]
+[ Upstream commit 0613ad2401f88bdeae5594c30afe318e93b14676 ]
 
-By keep sending L2CAP_CONF_REQ packets, chan->num_conf_rsp increases
-multiple times and eventually it will wrap around the maximum number
-(i.e., 255).
-This patch prevents this by adding a boundary check with
-L2CAP_MAX_CONF_RSP
+mmc_add_host() may return error, if we ignore its return value, the memory
+that allocated in mmc_alloc_host() will be leaked and it will lead a kernel
+crash because of deleting not added device in the remove path.
 
-Btmon log:
-Bluetooth monitor ver 5.64
-= Note: Linux version 6.1.0-rc2 (x86_64)                               0.264594
-= Note: Bluetooth subsystem version 2.22                               0.264636
-@ MGMT Open: btmon (privileged) version 1.22                  {0x0001} 0.272191
-= New Index: 00:00:00:00:00:00 (Primary,Virtual,hci0)          [hci0] 13.877604
-@ RAW Open: 9496 (privileged) version 2.22                   {0x0002} 13.890741
-= Open Index: 00:00:00:00:00:00                                [hci0] 13.900426
-(...)
-> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #32 [hci0] 14.273106
-        invalid packet size (12 != 1033)
-        08 00 01 00 02 01 04 00 01 10 ff ff              ............
-> ACL Data RX: Handle 200 flags 0x00 dlen 1547             #33 [hci0] 14.273561
-        invalid packet size (14 != 1547)
-        0a 00 01 00 04 01 06 00 40 00 00 00 00 00        ........@.....
-> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #34 [hci0] 14.274390
-        invalid packet size (16 != 2061)
-        0c 00 01 00 04 01 08 00 40 00 00 00 00 00 00 04  ........@.......
-> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #35 [hci0] 14.274932
-        invalid packet size (16 != 2061)
-        0c 00 01 00 04 01 08 00 40 00 00 00 07 00 03 00  ........@.......
-= bluetoothd: Bluetooth daemon 5.43                                   14.401828
-> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #36 [hci0] 14.275753
-        invalid packet size (12 != 1033)
-        08 00 01 00 04 01 04 00 40 00 00 00              ........@...
+So fix this by checking the return value and goto error path which will call
+mmc_free_host(), besides, the timer added before mmc_add_host() needs be del.
 
-Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+And this patch fixes another missing call mmc_free_host() if usb_control_msg()
+fails.
+
+Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221101063023.1664968-9-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/vub300.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index fd6cd47a6c5a..fd95631205a6 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -4193,7 +4193,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
- 
- 	chan->ident = cmd->ident;
- 	l2cap_send_cmd(conn, cmd->ident, L2CAP_CONF_RSP, len, rsp);
--	chan->num_conf_rsp++;
-+	if (chan->num_conf_rsp < L2CAP_CONF_MAX_CONF_RSP)
-+		chan->num_conf_rsp++;
- 
- 	/* Reset config buffer. */
- 	chan->conf_len = 0;
+diff --git a/drivers/mmc/host/vub300.c b/drivers/mmc/host/vub300.c
+index 5e1d7025dbf7..a02cc091a978 100644
+--- a/drivers/mmc/host/vub300.c
++++ b/drivers/mmc/host/vub300.c
+@@ -2306,14 +2306,14 @@ static int vub300_probe(struct usb_interface *interface,
+ 				0x0000, 0x0000, &vub300->system_port_status,
+ 				sizeof(vub300->system_port_status), 1000);
+ 	if (retval < 0) {
+-		goto error4;
++		goto error5;
+ 	} else if (sizeof(vub300->system_port_status) == retval) {
+ 		vub300->card_present =
+ 			(0x0001 & vub300->system_port_status.port_flags) ? 1 : 0;
+ 		vub300->read_only =
+ 			(0x0010 & vub300->system_port_status.port_flags) ? 1 : 0;
+ 	} else {
+-		goto error4;
++		goto error5;
+ 	}
+ 	usb_set_intfdata(interface, vub300);
+ 	INIT_DELAYED_WORK(&vub300->pollwork, vub300_pollwork_thread);
+@@ -2336,8 +2336,13 @@ static int vub300_probe(struct usb_interface *interface,
+ 			 "USB vub300 remote SDIO host controller[%d]"
+ 			 "connected with no SD/SDIO card inserted\n",
+ 			 interface_to_InterfaceNumber(interface));
+-	mmc_add_host(mmc);
++	retval = mmc_add_host(mmc);
++	if (retval)
++		goto error6;
++
+ 	return 0;
++error6:
++	del_timer_sync(&vub300->inactivity_timer);
+ error5:
+ 	mmc_free_host(mmc);
+ 	/*
 -- 
 2.35.1
 
