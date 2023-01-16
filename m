@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B8766CD61
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F8C566CBD8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:19:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234930AbjAPRgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:36:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54900 "EHLO
+        id S234509AbjAPRTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:19:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234946AbjAPRfs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ECF831E3F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:38 -0800 (PST)
+        with ESMTP id S234435AbjAPRSO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:18:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D2FA2C663
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:57:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC685B8107A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:11:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4200AC433D2;
-        Mon, 16 Jan 2023 17:11:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8A1C61055
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:57:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C464EC433D2;
+        Mon, 16 Jan 2023 16:57:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889095;
-        bh=1pbLZP3c/zvrGVSOodZKbl8mtRX3HloMrftM0hlwY4o=;
+        s=korg; t=1673888277;
+        bh=ermBIJuKq6MVNzmRSivKUMIfW6T7kHME4U41VF0/+iE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Auvx33hwQmi6jjiyNldIJAOnR5zheXeGkm9b1yI99xk9b+5vWPRvPwXFcUPCVuDUC
-         nDu64yZtbXyL627aSY0TzD78kXpOB9dSc5HYVZ/HCeGth6xMluLBPOvrrayZgqH1xw
-         LYNgmkTqy/4+pPGz+S3OgODg1YqpWJFi/LJmiuQI=
+        b=FttSDPwXKyptUUDMibx1RBTYEu6kQ8i72MW4ldabkMTeEEDBnolYZLOjqytHtIxvi
+         VuhBXyS9E38MNYsSjgxlWy3TTHCAfE3jJNNDNncNZhqDYMdOhQwV3v4hNjhN+bYQm9
+         bEinxFOKEAViGTPQ4Qu1DH+SZuYXAqcSN6FIsKU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Gerecke <jason.gerecke@wacom.com>,
-        Tatsunosuke Tobita <tatsunosuke.tobita@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.14 257/338] HID: wacom: Ensure bootloader PID is usable in hidraw mode
+        patches@lists.linux.dev, Clement Lecigne <clecigne@google.com>,
+        Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>,
+        stable@kernel.org
+Subject: [PATCH 4.19 468/521] ALSA: pcm: Move rwsem lock inside snd_ctl_elem_read to prevent UAF
 Date:   Mon, 16 Jan 2023 16:52:10 +0100
-Message-Id: <20230116154832.289963805@linuxfoundation.org>
+Message-Id: <20230116154908.118583798@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Clement Lecigne <clecigne@google.com>
 
-commit 1db1f392591aff13fd643f0ec7c1d5e27391d700 upstream.
+[ Note: this is a fix that works around the bug equivalently as the
+  two upstream commits:
+   1fa4445f9adf ("ALSA: control - introduce snd_ctl_notify_one() helper")
+   56b88b50565c ("ALSA: pcm: Move rwsem lock inside snd_ctl_elem_read to prevent UAF")
+  but in a simpler way to fit with older stable trees -- tiwai ]
 
-Some Wacom devices have a special "bootloader" mode that is used for
-firmware flashing. When operating in this mode, the device cannot be
-used for input, and the HID descriptor is not able to be processed by
-the driver. The driver generates an "Unknown device_type" warning and
-then returns an error code from wacom_probe(). This is a problem because
-userspace still needs to be able to interact with the device via hidraw
-to perform the firmware flash.
+Add missing locking in ctl_elem_read_user/ctl_elem_write_user which can be
+easily triggered and turned into an use-after-free.
 
-This commit adds a non-generic device definition for 056a:0094 which
-is used when devices are in "bootloader" mode. It marks the devices
-with a special BOOTLOADER type that is recognized by wacom_probe() and
-wacom_raw_event(). When we see this type we ensure a hidraw device is
-created and otherwise keep our hands off so that userspace is in full
-control.
+Example code paths with SNDRV_CTL_IOCTL_ELEM_READ:
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Tested-by: Tatsunosuke Tobita <tatsunosuke.tobita@wacom.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+64-bits:
+snd_ctl_ioctl
+  snd_ctl_elem_read_user
+    [takes controls_rwsem]
+    snd_ctl_elem_read [lock properly held, all good]
+    [drops controls_rwsem]
+
+32-bits (compat):
+snd_ctl_ioctl_compat
+  snd_ctl_elem_write_read_compat
+    ctl_elem_write_read
+      snd_ctl_elem_read [missing lock, not good]
+
+CVE-2023-0266 was assigned for this issue.
+
+Signed-off-by: Clement Lecigne <clecigne@google.com>
+Cc: stable@kernel.org # 5.12 and older
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_sys.c |    8 ++++++++
- drivers/hid/wacom_wac.c |    4 ++++
- drivers/hid/wacom_wac.h |    1 +
- 3 files changed, 13 insertions(+)
+ sound/core/control_compat.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -61,6 +61,9 @@ static int wacom_raw_event(struct hid_de
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 
-+	if (wacom->wacom_wac.features.type == BOOTLOADER)
-+		return 0;
-+
- 	if (size > WACOM_PKGLEN_MAX)
- 		return 1;
- 
-@@ -2616,6 +2619,11 @@ static int wacom_probe(struct hid_device
- 		goto fail;
- 	}
- 
-+	if (features->type == BOOTLOADER) {
-+		hid_warn(hdev, "Using device in hidraw-only mode");
-+		return hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	}
-+
- 	error = wacom_parse_and_register(wacom, false);
- 	if (error)
- 		goto fail;
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -4477,6 +4477,9 @@ static const struct wacom_features wacom
- static const struct wacom_features wacom_features_HID_ANY_ID =
- 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
- 
-+static const struct wacom_features wacom_features_0x94 =
-+	{ "Wacom Bootloader", .type = BOOTLOADER };
-+
- #define USB_DEVICE_WACOM(prod)						\
- 	HID_DEVICE(BUS_USB, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
- 	.driver_data = (kernel_ulong_t)&wacom_features_##prod
-@@ -4550,6 +4553,7 @@ const struct hid_device_id wacom_ids[] =
- 	{ USB_DEVICE_WACOM(0x84) },
- 	{ USB_DEVICE_WACOM(0x90) },
- 	{ USB_DEVICE_WACOM(0x93) },
-+	{ USB_DEVICE_WACOM(0x94) },
- 	{ USB_DEVICE_WACOM(0x97) },
- 	{ USB_DEVICE_WACOM(0x9A) },
- 	{ USB_DEVICE_WACOM(0x9F) },
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -237,6 +237,7 @@ enum {
- 	MTTPC,
- 	MTTPC_B,
- 	HID_GENERIC,
-+	BOOTLOADER,
- 	MAX_TYPE
- };
- 
+--- a/sound/core/control_compat.c
++++ b/sound/core/control_compat.c
+@@ -319,7 +319,9 @@ static int ctl_elem_read_user(struct snd
+ 	err = snd_power_wait(card, SNDRV_CTL_POWER_D0);
+ 	if (err < 0)
+ 		goto error;
++	down_read(&card->controls_rwsem);
+ 	err = snd_ctl_elem_read(card, data);
++	up_read(&card->controls_rwsem);
+ 	if (err < 0)
+ 		goto error;
+ 	err = copy_ctl_value_to_user(userdata, valuep, data, type, count);
+@@ -347,7 +349,9 @@ static int ctl_elem_write_user(struct sn
+ 	err = snd_power_wait(card, SNDRV_CTL_POWER_D0);
+ 	if (err < 0)
+ 		goto error;
++	down_write(&card->controls_rwsem);
+ 	err = snd_ctl_elem_write(card, file, data);
++	up_write(&card->controls_rwsem);
+ 	if (err < 0)
+ 		goto error;
+ 	err = copy_ctl_value_to_user(userdata, valuep, data, type, count);
 
 
