@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E731C66C58F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:07:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE9266C608
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232373AbjAPQHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:07:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49948 "EHLO
+        id S232333AbjAPQOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:14:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232168AbjAPQHA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:07:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBD3D24121
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:05:12 -0800 (PST)
+        with ESMTP id S232840AbjAPQND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:13:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DD822B62F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:07:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97A8EB80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:05:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 060D5C433F1;
-        Mon, 16 Jan 2023 16:05:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1461EB8107E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:07:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CDF4C433EF;
+        Mon, 16 Jan 2023 16:07:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885110;
-        bh=g/WFoRpxRsA6vp0cxrDYqzka2EGFkj3kK+wqN+aoGGg=;
+        s=korg; t=1673885272;
+        bh=NlwaFl4fCSE4di+67CjcjEObbgnj08iaMsqqOMThHQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwSyzwloPoNV18I9dYeJAkPqKPuqM7SaLM3uqKMF67RlWXAsT5dhltu1atiCa9v00
-         kcxzwo3BVsamzpq4UOclxb6lR0Ewr/2os5sdPn9ryGYMWE10lDBKW0uq2+IGUusItD
-         ehQFelnqbd2tB7aSMEN7GKdDEf86WNuUbRJVoWWQ=
+        b=W+/5mmNQBcjY79KD5AMsAvXsYNy3xlZYwIyzVvObVyAVRCcoxcRVsJ0UGQ25g5Fq+
+         rUsHVkE13tzAzzXhBhX2D50TZnlwzHheoKZSlOFqJs66S7moSHBrM94U+RXARD9Iiw
+         f+E/10rBtEef5+475oOQVKuYeCLHGJ1jNBaIQPFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Boqun Feng <boqun.feng@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Steve Capper <steve.capper@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 79/86] arm64: cmpxchg_double*: hazard against entire exchange variable
+        patches@lists.linux.dev, Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 46/64] nfc: pn533: Wait for out_urbs completion in pn533_usb_send_frame()
 Date:   Mon, 16 Jan 2023 16:51:53 +0100
-Message-Id: <20230116154750.324903482@linuxfoundation.org>
+Message-Id: <20230116154745.169141969@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,183 +53,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-[ Upstream commit 031af50045ea97ed4386eb3751ca2c134d0fc911 ]
+[ Upstream commit 9dab880d675b9d0dd56c6428e4e8352a3339371d ]
 
-The inline assembly for arm64's cmpxchg_double*() implementations use a
-+Q constraint to hazard against other accesses to the memory location
-being exchanged. However, the pointer passed to the constraint is a
-pointer to unsigned long, and thus the hazard only applies to the first
-8 bytes of the location.
+Fix a use-after-free that occurs in hcd when in_urb sent from
+pn533_usb_send_frame() is completed earlier than out_urb. Its callback
+frees the skb data in pn533_send_async_complete() that is used as a
+transfer buffer of out_urb. Wait before sending in_urb until the
+callback of out_urb is called. To modify the callback of out_urb alone,
+separate the complete function of out_urb and ack_urb.
 
-GCC can take advantage of this, assuming that other portions of the
-location are unchanged, leading to a number of potential problems.
+Found by a modified version of syzkaller.
 
-This is similar to what we fixed back in commit:
+BUG: KASAN: use-after-free in dummy_timer
+Call Trace:
+ memcpy (mm/kasan/shadow.c:65)
+ dummy_perform_transfer (drivers/usb/gadget/udc/dummy_hcd.c:1352)
+ transfer (drivers/usb/gadget/udc/dummy_hcd.c:1453)
+ dummy_timer (drivers/usb/gadget/udc/dummy_hcd.c:1972)
+ arch_static_branch (arch/x86/include/asm/jump_label.h:27)
+ static_key_false (include/linux/jump_label.h:207)
+ timer_expire_exit (include/trace/events/timer.h:127)
+ call_timer_fn (kernel/time/timer.c:1475)
+ expire_timers (kernel/time/timer.c:1519)
+ __run_timers (kernel/time/timer.c:1790)
+ run_timer_softirq (kernel/time/timer.c:1803)
 
-  fee960bed5e857eb ("arm64: xchg: hazard against entire exchange variable")
-
-... but we forgot to adjust cmpxchg_double*() similarly at the same
-time.
-
-The same problem applies, as demonstrated with the following test:
-
-| struct big {
-|         u64 lo, hi;
-| } __aligned(128);
-|
-| unsigned long foo(struct big *b)
-| {
-|         u64 hi_old, hi_new;
-|
-|         hi_old = b->hi;
-|         cmpxchg_double_local(&b->lo, &b->hi, 0x12, 0x34, 0x56, 0x78);
-|         hi_new = b->hi;
-|
-|         return hi_old ^ hi_new;
-| }
-
-... which GCC 12.1.0 compiles as:
-
-| 0000000000000000 <foo>:
-|    0:   d503233f        paciasp
-|    4:   aa0003e4        mov     x4, x0
-|    8:   1400000e        b       40 <foo+0x40>
-|    c:   d2800240        mov     x0, #0x12                       // #18
-|   10:   d2800681        mov     x1, #0x34                       // #52
-|   14:   aa0003e5        mov     x5, x0
-|   18:   aa0103e6        mov     x6, x1
-|   1c:   d2800ac2        mov     x2, #0x56                       // #86
-|   20:   d2800f03        mov     x3, #0x78                       // #120
-|   24:   48207c82        casp    x0, x1, x2, x3, [x4]
-|   28:   ca050000        eor     x0, x0, x5
-|   2c:   ca060021        eor     x1, x1, x6
-|   30:   aa010000        orr     x0, x0, x1
-|   34:   d2800000        mov     x0, #0x0                        // #0    <--- BANG
-|   38:   d50323bf        autiasp
-|   3c:   d65f03c0        ret
-|   40:   d2800240        mov     x0, #0x12                       // #18
-|   44:   d2800681        mov     x1, #0x34                       // #52
-|   48:   d2800ac2        mov     x2, #0x56                       // #86
-|   4c:   d2800f03        mov     x3, #0x78                       // #120
-|   50:   f9800091        prfm    pstl1strm, [x4]
-|   54:   c87f1885        ldxp    x5, x6, [x4]
-|   58:   ca0000a5        eor     x5, x5, x0
-|   5c:   ca0100c6        eor     x6, x6, x1
-|   60:   aa0600a6        orr     x6, x5, x6
-|   64:   b5000066        cbnz    x6, 70 <foo+0x70>
-|   68:   c8250c82        stxp    w5, x2, x3, [x4]
-|   6c:   35ffff45        cbnz    w5, 54 <foo+0x54>
-|   70:   d2800000        mov     x0, #0x0                        // #0     <--- BANG
-|   74:   d50323bf        autiasp
-|   78:   d65f03c0        ret
-
-Notice that at the lines with "BANG" comments, GCC has assumed that the
-higher 8 bytes are unchanged by the cmpxchg_double() call, and that
-`hi_old ^ hi_new` can be reduced to a constant zero, for both LSE and
-LL/SC versions of cmpxchg_double().
-
-This patch fixes the issue by passing a pointer to __uint128_t into the
-+Q constraint, ensuring that the compiler hazards against the entire 16
-bytes being modified.
-
-With this change, GCC 12.1.0 compiles the above test as:
-
-| 0000000000000000 <foo>:
-|    0:   f9400407        ldr     x7, [x0, #8]
-|    4:   d503233f        paciasp
-|    8:   aa0003e4        mov     x4, x0
-|    c:   1400000f        b       48 <foo+0x48>
-|   10:   d2800240        mov     x0, #0x12                       // #18
-|   14:   d2800681        mov     x1, #0x34                       // #52
-|   18:   aa0003e5        mov     x5, x0
-|   1c:   aa0103e6        mov     x6, x1
-|   20:   d2800ac2        mov     x2, #0x56                       // #86
-|   24:   d2800f03        mov     x3, #0x78                       // #120
-|   28:   48207c82        casp    x0, x1, x2, x3, [x4]
-|   2c:   ca050000        eor     x0, x0, x5
-|   30:   ca060021        eor     x1, x1, x6
-|   34:   aa010000        orr     x0, x0, x1
-|   38:   f9400480        ldr     x0, [x4, #8]
-|   3c:   d50323bf        autiasp
-|   40:   ca0000e0        eor     x0, x7, x0
-|   44:   d65f03c0        ret
-|   48:   d2800240        mov     x0, #0x12                       // #18
-|   4c:   d2800681        mov     x1, #0x34                       // #52
-|   50:   d2800ac2        mov     x2, #0x56                       // #86
-|   54:   d2800f03        mov     x3, #0x78                       // #120
-|   58:   f9800091        prfm    pstl1strm, [x4]
-|   5c:   c87f1885        ldxp    x5, x6, [x4]
-|   60:   ca0000a5        eor     x5, x5, x0
-|   64:   ca0100c6        eor     x6, x6, x1
-|   68:   aa0600a6        orr     x6, x5, x6
-|   6c:   b5000066        cbnz    x6, 78 <foo+0x78>
-|   70:   c8250c82        stxp    w5, x2, x3, [x4]
-|   74:   35ffff45        cbnz    w5, 5c <foo+0x5c>
-|   78:   f9400480        ldr     x0, [x4, #8]
-|   7c:   d50323bf        autiasp
-|   80:   ca0000e0        eor     x0, x7, x0
-|   84:   d65f03c0        ret
-
-... sampling the high 8 bytes before and after the cmpxchg, and
-performing an EOR, as we'd expect.
-
-For backporting, I've tested this atop linux-4.9.y with GCC 5.5.0. Note
-that linux-4.9.y is oldest currently supported stable release, and
-mandates GCC 5.1+. Unfortunately I couldn't get a GCC 5.1 binary to run
-on my machines due to library incompatibilities.
-
-I've also used a standalone test to check that we can use a __uint128_t
-pointer in a +Q constraint at least as far back as GCC 4.8.5 and LLVM
-3.9.1.
-
-Fixes: 5284e1b4bc8a ("arm64: xchg: Implement cmpxchg_double")
-Fixes: e9a4b795652f ("arm64: cmpxchg_dbl: patch in lse instructions when supported by the CPU")
-Reported-by: Boqun Feng <boqun.feng@gmail.com>
-Link: https://lore.kernel.org/lkml/Y6DEfQXymYVgL3oJ@boqun-archlinux/
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/lkml/Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net/
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20230104151626.3262137-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: c46ee38620a2 ("NFC: pn533: add NXP pn533 nfc device driver")
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/atomic_ll_sc.h | 2 +-
- arch/arm64/include/asm/atomic_lse.h   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/nfc/pn533/usb.c | 44 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 41 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
-index 906e2d8c254c..abd302e521c0 100644
---- a/arch/arm64/include/asm/atomic_ll_sc.h
-+++ b/arch/arm64/include/asm/atomic_ll_sc.h
-@@ -315,7 +315,7 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
- 	"	cbnz	%w0, 1b\n"					\
- 	"	" #mb "\n"						\
- 	"2:"								\
--	: "=&r" (tmp), "=&r" (ret), "+Q" (*(unsigned long *)ptr)	\
-+	: "=&r" (tmp), "=&r" (ret), "+Q" (*(__uint128_t *)ptr)		\
- 	: "r" (old1), "r" (old2), "r" (new1), "r" (new2)		\
- 	: cl);								\
- 									\
-diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
-index ab661375835e..28e96118c1e5 100644
---- a/arch/arm64/include/asm/atomic_lse.h
-+++ b/arch/arm64/include/asm/atomic_lse.h
-@@ -403,7 +403,7 @@ __lse__cmpxchg_double##name(unsigned long old1,				\
- 	"	eor	%[old2], %[old2], %[oldval2]\n"			\
- 	"	orr	%[old1], %[old1], %[old2]"			\
- 	: [old1] "+&r" (x0), [old2] "+&r" (x1),				\
--	  [v] "+Q" (*(unsigned long *)ptr)				\
-+	  [v] "+Q" (*(__uint128_t *)ptr)				\
- 	: [new1] "r" (x2), [new2] "r" (x3), [ptr] "r" (x4),		\
- 	  [oldval1] "r" (oldval1), [oldval2] "r" (oldval2)		\
- 	: cl);								\
+diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
+index 84f2983bf384..57b07446bb76 100644
+--- a/drivers/nfc/pn533/usb.c
++++ b/drivers/nfc/pn533/usb.c
+@@ -153,10 +153,17 @@ static int pn533_usb_send_ack(struct pn533 *dev, gfp_t flags)
+ 	return usb_submit_urb(phy->ack_urb, flags);
+ }
+ 
++struct pn533_out_arg {
++	struct pn533_usb_phy *phy;
++	struct completion done;
++};
++
+ static int pn533_usb_send_frame(struct pn533 *dev,
+ 				struct sk_buff *out)
+ {
+ 	struct pn533_usb_phy *phy = dev->phy;
++	struct pn533_out_arg arg;
++	void *cntx;
+ 	int rc;
+ 
+ 	if (phy->priv == NULL)
+@@ -168,10 +175,17 @@ static int pn533_usb_send_frame(struct pn533 *dev,
+ 	print_hex_dump_debug("PN533 TX: ", DUMP_PREFIX_NONE, 16, 1,
+ 			     out->data, out->len, false);
+ 
++	init_completion(&arg.done);
++	cntx = phy->out_urb->context;
++	phy->out_urb->context = &arg;
++
+ 	rc = usb_submit_urb(phy->out_urb, GFP_KERNEL);
+ 	if (rc)
+ 		return rc;
+ 
++	wait_for_completion(&arg.done);
++	phy->out_urb->context = cntx;
++
+ 	if (dev->protocol_type == PN533_PROTO_REQ_RESP) {
+ 		/* request for response for sent packet directly */
+ 		rc = pn533_submit_urb_for_response(phy, GFP_KERNEL);
+@@ -412,7 +426,31 @@ static int pn533_acr122_poweron_rdr(struct pn533_usb_phy *phy)
+ 	return arg.rc;
+ }
+ 
+-static void pn533_send_complete(struct urb *urb)
++static void pn533_out_complete(struct urb *urb)
++{
++	struct pn533_out_arg *arg = urb->context;
++	struct pn533_usb_phy *phy = arg->phy;
++
++	switch (urb->status) {
++	case 0:
++		break; /* success */
++	case -ECONNRESET:
++	case -ENOENT:
++		dev_dbg(&phy->udev->dev,
++			"The urb has been stopped (status %d)\n",
++			urb->status);
++		break;
++	case -ESHUTDOWN:
++	default:
++		nfc_err(&phy->udev->dev,
++			"Urb failure (status %d)\n",
++			urb->status);
++	}
++
++	complete(&arg->done);
++}
++
++static void pn533_ack_complete(struct urb *urb)
+ {
+ 	struct pn533_usb_phy *phy = urb->context;
+ 
+@@ -500,10 +538,10 @@ static int pn533_usb_probe(struct usb_interface *interface,
+ 
+ 	usb_fill_bulk_urb(phy->out_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_out_complete, phy);
+ 	usb_fill_bulk_urb(phy->ack_urb, phy->udev,
+ 			  usb_sndbulkpipe(phy->udev, out_endpoint),
+-			  NULL, 0, pn533_send_complete, phy);
++			  NULL, 0, pn533_ack_complete, phy);
+ 
+ 	switch (id->driver_info) {
+ 	case PN533_DEVICE_STD:
 -- 
 2.35.1
 
