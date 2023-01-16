@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D3FA66C4CE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:58:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4503766C8E4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231625AbjAPP62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:58:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38322 "EHLO
+        id S233726AbjAPQoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:44:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231612AbjAPP6U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:58:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4860515543
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:58:19 -0800 (PST)
+        with ESMTP id S233615AbjAPQn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 540AD34571
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A071B8105C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:58:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61017C433EF;
-        Mon, 16 Jan 2023 15:58:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E564661047
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 076B1C433D2;
+        Mon, 16 Jan 2023 16:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884696;
-        bh=k9/yn1qX9AeyRCE+EJ+zJyIjAOBaC5vdQe2eUwZA/Zc=;
+        s=korg; t=1673886675;
+        bh=Mrgzz4Ow62v7HfHjwdSSv2oj6OasGgS0n0jIyFeV9g4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ov9wopbL7ehfeRryTkKLsd5E49zZDKxfXPpdzylfRYxNGuaZx9Jy1XyCnrN1iBteO
-         cRotl+5/l7mx7+Twc4bD4YJ+og8DIGbFgMRZ9EMykSkCeHjQvNFatGERSXgDm26NFJ
-         O5AEZhBvshUPKOr0YXO8Lb8rpMHRezc3QMjBEiNM=
+        b=I86X4QtHsIzE0lbPAbaSeu4bA+VJB56FRZJsXVgSgyllw/TsKHpV1hGbWwFD5J37U
+         k5chr0NqAecXiaD6mG9qV6S6KBWFrBFngCwHiBzEuA56uCG5XK4SA5PoSSn4VtD1QH
+         ReHx7SaZiqSwutHcwbGknKrJNmR6fcMz52FidyUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Candice Li <candice.li@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 076/183] drm/amd/pm: Enable bad memory page/channel recording support for smu v13_0_0
-Date:   Mon, 16 Jan 2023 16:49:59 +0100
-Message-Id: <20230116154806.618497173@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Jiaming Li <lijiaming30@huawei.com>,
+        Huaxin Lu <luhuaxin1@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.4 512/658] ima: Fix a potential NULL pointer access in ima_restore_measurement_list
+Date:   Mon, 16 Jan 2023 16:50:00 +0100
+Message-Id: <20230116154932.931586672@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,123 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Candice Li <candice.li@amd.com>
+From: Huaxin Lu <luhuaxin1@huawei.com>
 
-[ Upstream commit 48aa62f07467c8fcd4b4ec7851e13c83e89a1558 ]
+commit 11220db412edae8dba58853238f53258268bdb88 upstream.
 
-Send message to SMU to update bad memory page and bad channel info.
+In restore_template_fmt, when kstrdup fails, a non-NULL value will still be
+returned, which causes a NULL pointer access in template_desc_init_fields.
 
-Signed-off-by: Candice Li <candice.li@amd.com>
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Stable-dep-of: 1794f6a9535b ("drm/amd/pm: enable GPO dynamic control support for SMU13.0.0")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c7d09367702e ("ima: support restoring multiple template formats")
+Cc: stable@kernel.org
+Co-developed-by: Jiaming Li <lijiaming30@huawei.com>
+Signed-off-by: Jiaming Li <lijiaming30@huawei.com>
+Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../pm/swsmu/inc/pmfw_if/smu_v13_0_0_ppsmc.h  |  8 +++-
- drivers/gpu/drm/amd/pm/swsmu/inc/smu_types.h  |  4 +-
- .../drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c  | 39 +++++++++++++++++++
- 3 files changed, 49 insertions(+), 2 deletions(-)
+ security/integrity/ima/ima_template.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu_v13_0_0_ppsmc.h b/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu_v13_0_0_ppsmc.h
-index 9ebb8f39732a..8b8266890a10 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu_v13_0_0_ppsmc.h
-+++ b/drivers/gpu/drm/amd/pm/swsmu/inc/pmfw_if/smu_v13_0_0_ppsmc.h
-@@ -131,7 +131,13 @@
- #define PPSMC_MSG_EnableAudioStutterWA           0x44
- #define PPSMC_MSG_PowerUpUmsch                   0x45
- #define PPSMC_MSG_PowerDownUmsch                 0x46
--#define PPSMC_Message_Count                      0x47
-+#define PPSMC_MSG_SetDcsArch                     0x47
-+#define PPSMC_MSG_TriggerVFFLR                   0x48
-+#define PPSMC_MSG_SetNumBadMemoryPagesRetired    0x49
-+#define PPSMC_MSG_SetBadMemoryPagesRetiredFlagsPerChannel 0x4A
-+#define PPSMC_MSG_SetPriorityDeltaGain           0x4B
-+#define PPSMC_MSG_AllowIHHostInterrupt           0x4C
-+#define PPSMC_Message_Count                      0x4D
+--- a/security/integrity/ima/ima_template.c
++++ b/security/integrity/ima/ima_template.c
+@@ -292,8 +292,11 @@ static struct ima_template_desc *restore
  
- //Debug Dump Message
- #define DEBUGSMC_MSG_TestMessage                    0x1
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_types.h b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_types.h
-index 58098b82df66..a4e3425b1027 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/inc/smu_types.h
-+++ b/drivers/gpu/drm/amd/pm/swsmu/inc/smu_types.h
-@@ -239,7 +239,9 @@
- 	__SMU_DUMMY_MAP(DriverMode2Reset), \
- 	__SMU_DUMMY_MAP(GetGfxOffStatus),		 \
- 	__SMU_DUMMY_MAP(GetGfxOffEntryCount),		 \
--	__SMU_DUMMY_MAP(LogGfxOffResidency),
-+	__SMU_DUMMY_MAP(LogGfxOffResidency),			\
-+	__SMU_DUMMY_MAP(SetNumBadMemoryPagesRetired),		\
-+	__SMU_DUMMY_MAP(SetBadMemoryPagesRetiredFlagsPerChannel),
+ 	template_desc->name = "";
+ 	template_desc->fmt = kstrdup(template_name, GFP_KERNEL);
+-	if (!template_desc->fmt)
++	if (!template_desc->fmt) {
++		kfree(template_desc);
++		template_desc = NULL;
+ 		goto out;
++	}
  
- #undef __SMU_DUMMY_MAP
- #define __SMU_DUMMY_MAP(type)	SMU_MSG_##type
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-index 73bae7eaefa2..884d4176b412 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0_0_ppt.c
-@@ -141,6 +141,9 @@ static struct cmn2asic_msg_mapping smu_v13_0_0_message_map[SMU_MSG_MAX_COUNT] =
- 	MSG_MAP(PrepareMp1ForUnload,		PPSMC_MSG_PrepareMp1ForUnload,         0),
- 	MSG_MAP(DFCstateControl,		PPSMC_MSG_SetExternalClientDfCstateAllow, 0),
- 	MSG_MAP(ArmD3,				PPSMC_MSG_ArmD3,                       0),
-+	MSG_MAP(SetNumBadMemoryPagesRetired,	PPSMC_MSG_SetNumBadMemoryPagesRetired,   0),
-+	MSG_MAP(SetBadMemoryPagesRetiredFlagsPerChannel,
-+			    PPSMC_MSG_SetBadMemoryPagesRetiredFlagsPerChannel,   0),
- };
- 
- static struct cmn2asic_mapping smu_v13_0_0_clk_map[SMU_CLK_COUNT] = {
-@@ -1928,6 +1931,40 @@ static void smu_v13_0_0_set_smu_mailbox_registers(struct smu_context *smu)
- 	smu->debug_resp_reg = SOC15_REG_OFFSET(MP1, 0, mmMP1_SMN_C2PMSG_54);
- }
- 
-+static int smu_v13_0_0_smu_send_bad_mem_page_num(struct smu_context *smu,
-+		uint32_t size)
-+{
-+	int ret = 0;
-+
-+	/* message SMU to update the bad page number on SMUBUS */
-+	ret = smu_cmn_send_smc_msg_with_param(smu,
-+					  SMU_MSG_SetNumBadMemoryPagesRetired,
-+					  size, NULL);
-+	if (ret)
-+		dev_err(smu->adev->dev,
-+			  "[%s] failed to message SMU to update bad memory pages number\n",
-+			  __func__);
-+
-+	return ret;
-+}
-+
-+static int smu_v13_0_0_send_bad_mem_channel_flag(struct smu_context *smu,
-+		uint32_t size)
-+{
-+	int ret = 0;
-+
-+	/* message SMU to update the bad channel info on SMUBUS */
-+	ret = smu_cmn_send_smc_msg_with_param(smu,
-+				  SMU_MSG_SetBadMemoryPagesRetiredFlagsPerChannel,
-+				  size, NULL);
-+	if (ret)
-+		dev_err(smu->adev->dev,
-+			  "[%s] failed to message SMU to update bad memory pages channel info\n",
-+			  __func__);
-+
-+	return ret;
-+}
-+
- static const struct pptable_funcs smu_v13_0_0_ppt_funcs = {
- 	.get_allowed_feature_mask = smu_v13_0_0_get_allowed_feature_mask,
- 	.set_default_dpm_table = smu_v13_0_0_set_default_dpm_table,
-@@ -1998,6 +2035,8 @@ static const struct pptable_funcs smu_v13_0_0_ppt_funcs = {
- 	.mode1_reset = smu_v13_0_0_mode1_reset,
- 	.set_mp1_state = smu_v13_0_0_set_mp1_state,
- 	.set_df_cstate = smu_v13_0_0_set_df_cstate,
-+	.send_hbm_bad_pages_num = smu_v13_0_0_smu_send_bad_mem_page_num,
-+	.send_hbm_bad_channel_flag = smu_v13_0_0_send_bad_mem_channel_flag,
- };
- 
- void smu_v13_0_0_set_ppt_funcs(struct smu_context *smu)
--- 
-2.35.1
-
+ 	spin_lock(&template_list);
+ 	list_add_tail_rcu(&template_desc->list, &defined_templates);
 
 
