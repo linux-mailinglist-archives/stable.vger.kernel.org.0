@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65A8366C711
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A25866C712
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:27:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233136AbjAPQ1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:27:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41642 "EHLO
+        id S233131AbjAPQ1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:27:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233161AbjAPQ1M (ORCPT
+        with ESMTP id S233168AbjAPQ1M (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:27:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E44702BEEF
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:45 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0329234FB
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:15:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D4C6B80DC7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 073A7C433EF;
-        Mon, 16 Jan 2023 16:15:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AD8161040
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:15:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BABCC433EF;
+        Mon, 16 Jan 2023 16:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885743;
-        bh=hvJCXs7xPmPRFEE7il306VXh5QV8uKHex6xYJJEO3CE=;
+        s=korg; t=1673885746;
+        bh=C+x/lFBImlDa7QHFW2fL/dMmYf/EP4trOiZOFCYflGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qaWrtkhI75iRTx5gIFIOs7KvX7wg0NEVsDzZDAMadPj4zdIZl5hQ9eL7JZxHwFUVX
-         GuNUajMmhxBRggTAk4Nsdz89yH/Jqw8ZXs8mqF8gY1e98/vOuv37UA11/dm0OJcJIf
-         dSREsKgDVukmZlI0GiLPiikH6bH5TanTCBVtzuGQ=
+        b=Yiilo0y7PeFs6J7Vm3hoJYUg5aqFxoL0MvnZD5SSGRHfZtUPfPUq84rgn7NQBzQnV
+         xkltvmS0zG2efHa8dXzziJldINXcdXF7rkNbnNiucvLjkEBL+O076s5Tr56NdMCigJ
+         l3oO3xG0Lu2pqhIYBrUzb6Pr23+jKS0URZzDC4m8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 168/658] drm/amdgpu: Fix PCI device refcount leak in amdgpu_atrm_get_bios()
-Date:   Mon, 16 Jan 2023 16:44:16 +0100
-Message-Id: <20230116154917.169470208@linuxfoundation.org>
+Subject: [PATCH 5.4 169/658] ASoC: pcm512x: Fix PM disable depth imbalance in pcm512x_probe
+Date:   Mon, 16 Jan 2023 16:44:17 +0100
+Message-Id: <20230116154917.218989151@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -54,38 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit ca54639c7752edf1304d92ff4d0c049d4efc9ba0 ]
+[ Upstream commit 97b801be6f8e53676b9f2b105f54e35c745c1b22 ]
 
-As comment of pci_get_class() says, it returns a pci_device with its
-refcount increased and decreased the refcount for the input parameter
-@from if it is not NULL.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context. We fix it by going to
+err_pm instead of err_clk.
 
-If we break the loop in amdgpu_atrm_get_bios() with 'pdev' not NULL, we
-need to call pci_dev_put() to decrease the refcount. Add the missing
-pci_dev_put() to avoid refcount leak.
+Fixes:f086ba9d5389c ("ASoC: pcm512x: Support mastering BCLK/LRCLK using the PLL")
 
-Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20220928160402.126140-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/pcm512x.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
-index b1172d93c99c..ba604985cad9 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
-@@ -313,6 +313,7 @@ static bool amdgpu_atrm_get_bios(struct amdgpu_device *adev)
- 
- 	if (!found)
- 		return false;
-+	pci_dev_put(pdev);
- 
- 	adev->bios = kmalloc(size, GFP_KERNEL);
- 	if (!adev->bios) {
+diff --git a/sound/soc/codecs/pcm512x.c b/sound/soc/codecs/pcm512x.c
+index 4cbef9affffd..feb590a20544 100644
+--- a/sound/soc/codecs/pcm512x.c
++++ b/sound/soc/codecs/pcm512x.c
+@@ -1598,7 +1598,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
+ 			if (val > 6) {
+ 				dev_err(dev, "Invalid pll-in\n");
+ 				ret = -EINVAL;
+-				goto err_clk;
++				goto err_pm;
+ 			}
+ 			pcm512x->pll_in = val;
+ 		}
+@@ -1607,7 +1607,7 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
+ 			if (val > 6) {
+ 				dev_err(dev, "Invalid pll-out\n");
+ 				ret = -EINVAL;
+-				goto err_clk;
++				goto err_pm;
+ 			}
+ 			pcm512x->pll_out = val;
+ 		}
+@@ -1616,12 +1616,12 @@ int pcm512x_probe(struct device *dev, struct regmap *regmap)
+ 			dev_err(dev,
+ 				"Error: both pll-in and pll-out, or none\n");
+ 			ret = -EINVAL;
+-			goto err_clk;
++			goto err_pm;
+ 		}
+ 		if (pcm512x->pll_in && pcm512x->pll_in == pcm512x->pll_out) {
+ 			dev_err(dev, "Error: pll-in == pll-out\n");
+ 			ret = -EINVAL;
+-			goto err_clk;
++			goto err_pm;
+ 		}
+ 	}
+ #endif
 -- 
 2.35.1
 
