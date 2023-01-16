@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A4B366C486
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:56:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2543266C89B
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:41:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231463AbjAPP4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:56:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37740 "EHLO
+        id S233534AbjAPQk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:40:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231669AbjAPPzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FF6227BB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:35 -0800 (PST)
+        with ESMTP id S233496AbjAPQkg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67EC32D152
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:28:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A90E6102F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:55:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B98DC433EF;
-        Mon, 16 Jan 2023 15:55:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0323361062
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:28:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BA58C433EF;
+        Mon, 16 Jan 2023 16:28:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884534;
-        bh=G+v7Arj7mrk8/hwC5RJ1tHg1N5wxVNo4pcEpsK2Pm6M=;
+        s=korg; t=1673886530;
+        bh=vpGOJlZnWCJdFYng8MLp/+dOFaVdXuNXoAZVa0P53kI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=geMkH0cKO0qyI5RdebI0WOBZVWfQop0iXM1wfBGluC4YkRA6wQcviKlA2mSEEPaCT
-         n1u5gChlrLglxwQccjh0dw+4sY9Sw4gt0bxbRaO6yh+V83BC7rdZ37PSWrt3OQxy64
-         NUWN7q3i14a6pSGBrRGm5JI/xNVB5arOONj9yfg8=
+        b=U+LAKyexENorsjaRwJ9fgwjzJuor12VWzOcEEpFVuqGudvpK20iVD9BuR+1+89w23
+         gL8k4SD42B+J3/JyqpehEZsz1/5WHegsHT1wDkroidcoJXGaDOg/th0lm2gcYZXmE1
+         NOZleWv/+l9QAhteGd3OX5hInBnvTj3oOaBrntfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Catalin Marinas <catalin.marinas@arm.com>,
-        Seth Jenkins <sethjenkins@google.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 6.1 013/183] arm64: mte: Fix double-freeing of the temporary tag storage during coredump
+        patches@lists.linux.dev,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 448/658] iio: adc128s052: add proper .data members in adc128_of_match table
 Date:   Mon, 16 Jan 2023 16:48:56 +0100
-Message-Id: <20230116154803.962077994@linuxfoundation.org>
+Message-Id: <20230116154929.992545761@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit 736eedc974eaafbf4360e0ea85fc892cea72a223 upstream.
+commit e2af60f5900c6ade53477b494ffb54690eee11f5 upstream.
 
-Commit 16decce22efa ("arm64: mte: Fix the stack frame size warning in
-mte_dump_tag_range()") moved the temporary tag storage array from the
-stack to slab but it also introduced an error in double freeing this
-object. Remove the in-loop freeing.
+Prior to commit bd5d54e4d49d ("iio: adc128s052: add ACPI _HID
+AANT1280"), the driver unconditionally used spi_get_device_id() to get
+the index into the adc128_config array.
 
-Fixes: 16decce22efa ("arm64: mte: Fix the stack frame size warning in mte_dump_tag_range()")
-Cc: <stable@vger.kernel.org> # 5.18.x
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Reported-by: Seth Jenkins <sethjenkins@google.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20221222181251.1345752-2-catalin.marinas@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+However, with that commit, OF-based boards now incorrectly treat all
+supported sensors as if they are an adc128s052, because all the .data
+members of the adc128_of_match table are implicitly 0. Our board,
+which has an adc122s021, thus exposes 8 channels whereas it really
+only has two.
+
+Fixes: bd5d54e4d49d ("iio: adc128s052: add ACPI _HID AANT1280")
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20221115132324.1078169-1-linux@rasmusvillemoes.dk
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/elfcore.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/adc/ti-adc128s052.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/kernel/elfcore.c
-+++ b/arch/arm64/kernel/elfcore.c
-@@ -65,7 +65,6 @@ static int mte_dump_tag_range(struct cor
- 		mte_save_page_tags(page_address(page), tags);
- 		put_page(page);
- 		if (!dump_emit(cprm, tags, MTE_PAGE_TAG_STORAGE)) {
--			mte_free_tag_storage(tags);
- 			ret = 0;
- 			break;
- 		}
+--- a/drivers/iio/adc/ti-adc128s052.c
++++ b/drivers/iio/adc/ti-adc128s052.c
+@@ -194,13 +194,13 @@ static int adc128_remove(struct spi_devi
+ }
+ 
+ static const struct of_device_id adc128_of_match[] = {
+-	{ .compatible = "ti,adc128s052", },
+-	{ .compatible = "ti,adc122s021", },
+-	{ .compatible = "ti,adc122s051", },
+-	{ .compatible = "ti,adc122s101", },
+-	{ .compatible = "ti,adc124s021", },
+-	{ .compatible = "ti,adc124s051", },
+-	{ .compatible = "ti,adc124s101", },
++	{ .compatible = "ti,adc128s052", .data = (void*)0L, },
++	{ .compatible = "ti,adc122s021", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s051", .data = (void*)1L, },
++	{ .compatible = "ti,adc122s101", .data = (void*)1L, },
++	{ .compatible = "ti,adc124s021", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s051", .data = (void*)2L, },
++	{ .compatible = "ti,adc124s101", .data = (void*)2L, },
+ 	{ /* sentinel */ },
+ };
+ MODULE_DEVICE_TABLE(of, adc128_of_match);
 
 
