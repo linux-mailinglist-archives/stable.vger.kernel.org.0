@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64E8866C67F
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:21:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 309AC66C681
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:21:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233041AbjAPQVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:21:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37962 "EHLO
+        id S232996AbjAPQVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:21:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233001AbjAPQUZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:20:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B661DB95
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:11:03 -0800 (PST)
+        with ESMTP id S232989AbjAPQU1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:20:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E263222784
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:11:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C50D261047
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:11:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB1CDC433D2;
-        Mon, 16 Jan 2023 16:11:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30E40B81065
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:11:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DCEBC433AE;
+        Mon, 16 Jan 2023 16:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885462;
-        bh=uyUqZKuheL/XAU7IrfDmjYPVPE2AktbTQyrptVQ53nM=;
+        s=korg; t=1673885464;
+        bh=VltIisFUUuYuCpL5yOKKjlDbxchjeYUr6ax2bUXkh0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KE1iVFXcxY70rwEYpX2radhED89024Xgr1ejTX1P0ChwD3S72ngKXOQO8VF/7GZ8N
-         N2u09LDCt6u0S/7OC9B0dfC42gMAKC95u3G34MOcb1ZToiRUtY50FvO7+XeRHwYyGp
-         nj7QGlsKrkz7VKUzwfGg9gF42TsBPujN12iQMbpM=
+        b=xX5lpzF8t9wHn4nGA68BUwZatHXm/LuV1VBQYBDX+GwXNUgL60nblh6lmLTV/4jhg
+         jXTSvlOx8+SQUMXheIgL3eaSaELRb+rCI0/ZR3TrYrPYRVE59hqux6umyYbQaXhcsT
+         sJ69SqADg3ahZ0wACDkyp8qnFRAmzE/ntmQtnsak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Punit Agrawal <punit.agrawal@bytedance.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 031/658] perf/smmuv3: Fix hotplug callback leak in arm_smmu_pmu_init()
-Date:   Mon, 16 Jan 2023 16:41:59 +0100
-Message-Id: <20230116154911.037040242@linuxfoundation.org>
+        patches@lists.linux.dev,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 032/658] arm64: dts: mt2712e: Fix unit_address_vs_reg warning for oscillators
+Date:   Mon, 16 Jan 2023 16:42:00 +0100
+Message-Id: <20230116154911.079975013@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,53 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 6f2d566b46436a50a80d6445e82879686b89588c ]
+[ Upstream commit e4495a0a8b3d84816c9a46edf3ce060bbf267475 ]
 
-arm_smmu_pmu_init() won't remove the callback added by
-cpuhp_setup_state_multi() when platform_driver_register() failed. Remove
-the callback by cpuhp_remove_multi_state() in fail path.
+Rename the fixed-clock oscillators to remove the unit address.
 
-Similar to the handling of arm_ccn_init() in commit 26242b330093 ("bus:
-arm-ccn: Prevent hotplug callback leak")
+This solves unit_address_vs_reg warnings.
 
-Fixes: 7d839b4b9e00 ("perf/smmuv3: Add arm64 smmuv3 pmu driver")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Reviewed-by: Punit Agrawal <punit.agrawal@bytedance.com>
-Link: https://lore.kernel.org/r/20221115115540.6245-3-shangxiaojing@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 5d4839709c8e ("arm64: dts: mt2712: Add clock controller device nodes")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221013152212.416661-4-angelogioacchino.delregno@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm_smmuv3_pmu.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/mediatek/mt2712e.dtsi | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/perf/arm_smmuv3_pmu.c b/drivers/perf/arm_smmuv3_pmu.c
-index 6a3fa1f69e68..0b6af7719641 100644
---- a/drivers/perf/arm_smmuv3_pmu.c
-+++ b/drivers/perf/arm_smmuv3_pmu.c
-@@ -872,6 +872,8 @@ static struct platform_driver smmu_pmu_driver = {
+diff --git a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+index 43307bad3f0d..ff870b638edf 100644
+--- a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+@@ -160,70 +160,70 @@ sys_clk: dummyclk {
+ 		#clock-cells = <0>;
+ 	};
  
- static int __init arm_smmu_pmu_init(void)
- {
-+	int ret;
-+
- 	cpuhp_state_num = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN,
- 						  "perf/arm/pmcg:online",
- 						  NULL,
-@@ -879,7 +881,11 @@ static int __init arm_smmu_pmu_init(void)
- 	if (cpuhp_state_num < 0)
- 		return cpuhp_state_num;
+-	clk26m: oscillator@0 {
++	clk26m: oscillator-26m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <26000000>;
+ 		clock-output-names = "clk26m";
+ 	};
  
--	return platform_driver_register(&smmu_pmu_driver);
-+	ret = platform_driver_register(&smmu_pmu_driver);
-+	if (ret)
-+		cpuhp_remove_multi_state(cpuhp_state_num);
-+
-+	return ret;
- }
- module_init(arm_smmu_pmu_init);
+-	clk32k: oscillator@1 {
++	clk32k: oscillator-32k {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <32768>;
+ 		clock-output-names = "clk32k";
+ 	};
  
+-	clkfpc: oscillator@2 {
++	clkfpc: oscillator-50m {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <50000000>;
+ 		clock-output-names = "clkfpc";
+ 	};
+ 
+-	clkaud_ext_i_0: oscillator@3 {
++	clkaud_ext_i_0: oscillator-aud0 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <6500000>;
+ 		clock-output-names = "clkaud_ext_i_0";
+ 	};
+ 
+-	clkaud_ext_i_1: oscillator@4 {
++	clkaud_ext_i_1: oscillator-aud1 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <196608000>;
+ 		clock-output-names = "clkaud_ext_i_1";
+ 	};
+ 
+-	clkaud_ext_i_2: oscillator@5 {
++	clkaud_ext_i_2: oscillator-aud2 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <180633600>;
+ 		clock-output-names = "clkaud_ext_i_2";
+ 	};
+ 
+-	clki2si0_mck_i: oscillator@6 {
++	clki2si0_mck_i: oscillator-i2s0 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
+ 		clock-output-names = "clki2si0_mck_i";
+ 	};
+ 
+-	clki2si1_mck_i: oscillator@7 {
++	clki2si1_mck_i: oscillator-i2s1 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
+ 		clock-output-names = "clki2si1_mck_i";
+ 	};
+ 
+-	clki2si2_mck_i: oscillator@8 {
++	clki2si2_mck_i: oscillator-i2s2 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
+ 		clock-output-names = "clki2si2_mck_i";
+ 	};
+ 
+-	clktdmin_mclk_i: oscillator@9 {
++	clktdmin_mclk_i: oscillator-mclk {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <30000000>;
 -- 
 2.35.1
 
