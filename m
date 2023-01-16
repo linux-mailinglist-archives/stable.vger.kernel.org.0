@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C5A666CAEF
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CADD766CC6C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:26:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234119AbjAPRJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:09:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33406 "EHLO
+        id S234724AbjAPR0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:26:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234309AbjAPRIt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DED8A2E0E4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:54 -0800 (PST)
+        with ESMTP id S234467AbjAPRZh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:25:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B438274BB
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D9E061037
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8335FC433EF;
-        Mon, 16 Jan 2023 16:48:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D887CB8108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4438FC433F1;
+        Mon, 16 Jan 2023 17:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887733;
-        bh=4egZIMYlZb6BBOSH4JS0tYwXsZtXp2iKIdAmbHPM49w=;
+        s=korg; t=1673888559;
+        bh=zCWgfGEKB53D+rsTM6YQqAirDWNCbJ91GkCecbug6ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=11cLtu+1uCGiRaK1+dSvWKv0emvyAzrITQut3iwrXrIiBxQRlitwOR8w5lTnv42T/
-         ohheFfaTni9tLvjfEnkgYQagdO/lO/NbjNQShgjSdh3b21A37Y9FQHF4ZgYKJzoPhF
-         e3uyBziaumyZwc0VNdE4l00/s6ZOkFXuLdkbItrE=
+        b=XS+3sJ+1Bf8i58akipD8y0iJ+5zDVU4YBJW0IeRZvmjEqV9EojBU7w0nN0UoKM7Gx
+         QXFmTI96oxkx7+QgrcFrT2EDrdSO/mmfgj+b4dwS+DfTDCWBIYwgeR2MFtquxriI4Z
+         UbHDqbMkLGj/YJ0vLNKVPL0xDgfGPBPKLuQUJ24I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
+        patches@lists.linux.dev, Sungwoo Kim <iam@sung-woo.kim>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 232/521] test_firmware: fix memory leak in test_firmware_init()
+Subject: [PATCH 4.14 021/338] Bluetooth: L2CAP: Fix u8 overflow
 Date:   Mon, 16 Jan 2023 16:48:14 +0100
-Message-Id: <20230116154857.520225941@linuxfoundation.org>
+Message-Id: <20230116154821.683124589@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Sungwoo Kim <iam@sung-woo.kim>
 
-[ Upstream commit 7610615e8cdb3f6f5bbd9d8e7a5d8a63e3cabf2e ]
+[ Upstream commit bcd70260ef56e0aee8a4fc6cd214a419900b0765 ]
 
-When misc_register() failed in test_firmware_init(), the memory pointed
-by test_fw_config->name is not released. The memory leak information is
-as follows:
-unreferenced object 0xffff88810a34cb00 (size 32):
-  comm "insmod", pid 7952, jiffies 4294948236 (age 49.060s)
-  hex dump (first 32 bytes):
-    74 65 73 74 2d 66 69 72 6d 77 61 72 65 2e 62 69  test-firmware.bi
-    6e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  n...............
-  backtrace:
-    [<ffffffff81b21fcb>] __kmalloc_node_track_caller+0x4b/0xc0
-    [<ffffffff81affb96>] kstrndup+0x46/0xc0
-    [<ffffffffa0403a49>] __test_firmware_config_init+0x29/0x380 [test_firmware]
-    [<ffffffffa040f068>] 0xffffffffa040f068
-    [<ffffffff81002c41>] do_one_initcall+0x141/0x780
-    [<ffffffff816a72c3>] do_init_module+0x1c3/0x630
-    [<ffffffff816adb9e>] load_module+0x623e/0x76a0
-    [<ffffffff816af471>] __do_sys_finit_module+0x181/0x240
-    [<ffffffff89978f99>] do_syscall_64+0x39/0xb0
-    [<ffffffff89a0008b>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+By keep sending L2CAP_CONF_REQ packets, chan->num_conf_rsp increases
+multiple times and eventually it will wrap around the maximum number
+(i.e., 255).
+This patch prevents this by adding a boundary check with
+L2CAP_MAX_CONF_RSP
 
-Fixes: c92316bf8e94 ("test_firmware: add batched firmware tests")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20221119035721.18268-1-shaozhengchao@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Btmon log:
+Bluetooth monitor ver 5.64
+= Note: Linux version 6.1.0-rc2 (x86_64)                               0.264594
+= Note: Bluetooth subsystem version 2.22                               0.264636
+@ MGMT Open: btmon (privileged) version 1.22                  {0x0001} 0.272191
+= New Index: 00:00:00:00:00:00 (Primary,Virtual,hci0)          [hci0] 13.877604
+@ RAW Open: 9496 (privileged) version 2.22                   {0x0002} 13.890741
+= Open Index: 00:00:00:00:00:00                                [hci0] 13.900426
+(...)
+> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #32 [hci0] 14.273106
+        invalid packet size (12 != 1033)
+        08 00 01 00 02 01 04 00 01 10 ff ff              ............
+> ACL Data RX: Handle 200 flags 0x00 dlen 1547             #33 [hci0] 14.273561
+        invalid packet size (14 != 1547)
+        0a 00 01 00 04 01 06 00 40 00 00 00 00 00        ........@.....
+> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #34 [hci0] 14.274390
+        invalid packet size (16 != 2061)
+        0c 00 01 00 04 01 08 00 40 00 00 00 00 00 00 04  ........@.......
+> ACL Data RX: Handle 200 flags 0x00 dlen 2061             #35 [hci0] 14.274932
+        invalid packet size (16 != 2061)
+        0c 00 01 00 04 01 08 00 40 00 00 00 07 00 03 00  ........@.......
+= bluetoothd: Bluetooth daemon 5.43                                   14.401828
+> ACL Data RX: Handle 200 flags 0x00 dlen 1033             #36 [hci0] 14.275753
+        invalid packet size (12 != 1033)
+        08 00 01 00 04 01 04 00 40 00 00 00              ........@...
+
+Signed-off-by: Sungwoo Kim <iam@sung-woo.kim>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_firmware.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/bluetooth/l2cap_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/lib/test_firmware.c b/lib/test_firmware.c
-index a74b1aae7461..f4cc874021da 100644
---- a/lib/test_firmware.c
-+++ b/lib/test_firmware.c
-@@ -902,6 +902,7 @@ static int __init test_firmware_init(void)
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 494f3a7b9cf8..a5a19be51aff 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4193,7 +4193,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
  
- 	rc = misc_register(&test_fw_misc_device);
- 	if (rc) {
-+		__test_firmware_config_free();
- 		kfree(test_fw_config);
- 		pr_err("could not register misc device: %d\n", rc);
- 		return rc;
+ 	chan->ident = cmd->ident;
+ 	l2cap_send_cmd(conn, cmd->ident, L2CAP_CONF_RSP, len, rsp);
+-	chan->num_conf_rsp++;
++	if (chan->num_conf_rsp < L2CAP_CONF_MAX_CONF_RSP)
++		chan->num_conf_rsp++;
+ 
+ 	/* Reset config buffer. */
+ 	chan->conf_len = 0;
 -- 
 2.35.1
 
