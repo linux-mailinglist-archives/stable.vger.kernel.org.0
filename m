@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A0A66C52E
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:02:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB9DE66C579
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:06:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232076AbjAPQCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:02:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44772 "EHLO
+        id S232416AbjAPQGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:06:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232110AbjAPQCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:02:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D61710DA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:01:56 -0800 (PST)
+        with ESMTP id S232116AbjAPQGM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:06:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BA471F5F3
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:04:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39969B81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:01:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D9B2C433D2;
-        Mon, 16 Jan 2023 16:01:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDAD26104A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:04:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4A46C433EF;
+        Mon, 16 Jan 2023 16:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884913;
-        bh=WBTYunhz8NWBUBkBPvZTdgu/H0Mtpc49kJZrVQI3NPM=;
+        s=korg; t=1673885063;
+        bh=Ge97t+TTVjA0hpwZ3TDdeoduf5ulGCCignRy3QoDCW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qg+70EmEY4khnNLpFOfmUsge0Bp+ME9wpuV9sBAJ7K8tKSDwFLM58VHiRfToU9ZHy
-         PaiWp6OQEjRF1YtSMTsGch6aoy9GGJw7DxnAHs7GXFX8VJAL2zoId6NxDCikR9LTik
-         Letmtaf8rxqixkVqVhwltVyop9RXieRffLaE5k/g=
+        b=lmq2WraY0oc2Y81Y6D3+rRtrGBtbIk7jsvmbdfpHYU11w59hb0C4bfwS9cTjiOOve
+         kpPf8c85jSGjAvsoyZGriVSN0Fc6Gfb8tUKKvsJuxQANebRSQKJOU1oUK3I82l1BcR
+         PytpKUxnrIfSwdxP2Uf8TxvJpfCecvMwBeKpv3oQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jie Wang <wangjie125@huawei.com>,
-        Hao Lan <lanhao@huawei.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Willy Tarreau <w@1wt.eu>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 170/183] net: hns3: fix wrong use of rss size during VF rss config
+Subject: [PATCH 5.15 59/86] tools/nolibc: use pselect6 on RISCV
 Date:   Mon, 16 Jan 2023 16:51:33 +0100
-Message-Id: <20230116154810.483036507@linuxfoundation.org>
+Message-Id: <20230116154749.510888703@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+References: <20230116154747.036911298@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Wang <wangjie125@huawei.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit ae9f29fdfd827ad06c1ae8155c042245a9d00757 ]
+[ Upstream commit 9c2970fbb425cca0256ecf0f96490e4f253fda24 ]
 
-Currently, it used old rss size to get current tc mode. As a result, the
-rss size is updated, but the tc mode is still configured based on the old
-rss size.
+This arch doesn't provide the old-style select() syscall, we have to
+use pselect6().
 
-So this patch fixes it by using the new rss size in both process.
-
-Fixes: 93969dc14fcd ("net: hns3: refactor VF rss init APIs with new common rss init APIs")
-Signed-off-by: Jie Wang <wangjie125@huawei.com>
-Signed-off-by: Hao Lan <lanhao@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Link: https://lore.kernel.org/r/20230110115359.10163-1-lanhao@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Stable-dep-of: 184177c3d6e0 ("tools/nolibc: restore mips branch ordering in the _start block")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/include/nolibc/nolibc.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 081bd2c3f289..e84e5be8e59e 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -3130,7 +3130,7 @@ static int hclgevf_set_channels(struct hnae3_handle *handle, u32 new_tqps_num,
+diff --git a/tools/include/nolibc/nolibc.h b/tools/include/nolibc/nolibc.h
+index 676fe5d92875..7ba180651b17 100644
+--- a/tools/include/nolibc/nolibc.h
++++ b/tools/include/nolibc/nolibc.h
+@@ -1256,7 +1256,10 @@ struct sys_stat_struct {
+  *   - the arguments are cast to long and assigned into the target
+  *     registers which are then simply passed as registers to the asm code,
+  *     so that we don't have to experience issues with register constraints.
++ *
++ * On riscv, select() is not implemented so we have to use pselect6().
+  */
++#define __ARCH_WANT_SYS_PSELECT6
  
- 	hclgevf_update_rss_size(handle, new_tqps_num);
- 
--	hclge_comm_get_rss_tc_info(cur_rss_size, hdev->hw_tc_map,
-+	hclge_comm_get_rss_tc_info(kinfo->rss_size, hdev->hw_tc_map,
- 				   tc_offset, tc_valid, tc_size);
- 	ret = hclge_comm_set_rss_tc_mode(&hdev->hw.hw, tc_offset,
- 					 tc_valid, tc_size);
+ #define my_syscall0(num)                                                      \
+ ({                                                                            \
 -- 
 2.35.1
 
