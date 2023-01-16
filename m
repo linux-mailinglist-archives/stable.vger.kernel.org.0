@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E46EB66CBA1
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B4E266CBA2
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234457AbjAPRPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:15:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36708 "EHLO
+        id S234343AbjAPRPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234446AbjAPRPH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:07 -0500
+        with ESMTP id S234452AbjAPRPI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE502BEE1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F264CF76B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18C90B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74265C433EF;
-        Mon, 16 Jan 2023 16:55:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1870B80E95
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A9BEC433EF;
+        Mon, 16 Jan 2023 16:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888152;
-        bh=mushRrHwKvH8DJJVvJ14e1foLV58aaATPvYifLMZ6jk=;
+        s=korg; t=1673888155;
+        bh=TkCHzohUPlzyQLwONlqXBHNNlTGDGT5nySft9D7EbTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cYwM9IstCHlR/+lH5Tb1e3byR1qwC7sH3SIkYQ32d/7i4CzQx4BDhvArz+5n9mHmE
-         AfiGpmkwVJCcX8/k40Vb9muc4MEeIpfX7WQOnpabUHzRsM/Uu1TCgpj4Mdb6RHtw4S
-         OL1gz0+rftjN+39j0FuNW003ZNBljHu3MUQJ0dHI=
+        b=S85FKfR/8n0Ow/kpP08MJEGN6JW5KBxEAfNzSmrIMiGwuq8AcIRawNZZYsMG0zhn1
+         ZOWsor4MDOOJ0suUelmUm1+iw4wHdKiGx8SFEWv9jZ2kCmKvBO2JcB1WKKYmb6cD5j
+         YgLeTzTUOknLLYqu3ee2Pbjh7QSr3UeMCP17Ubvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Filipe Manana <fdmanana@suse.com>,
+        patches@lists.linux.dev,
+        Artem Chernyshev <artem.chernyshev@red-soft.ru>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 419/521] btrfs: send: avoid unnecessary backref lookups when finding clone source
-Date:   Mon, 16 Jan 2023 16:51:21 +0100
-Message-Id: <20230116154905.869390084@linuxfoundation.org>
+Subject: [PATCH 4.19 420/521] btrfs: replace strncpy() with strscpy()
+Date:   Mon, 16 Jan 2023 16:51:22 +0100
+Message-Id: <20230116154905.913186409@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -53,104 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+[ Upstream commit 63d5429f68a3d4c4aa27e65a05196c17f86c41d6 ]
 
-[ Upstream commit 22a3c0ac8ed0043af209a15928ae4c4855b0a4c4 ]
+Using strncpy() on NUL-terminated strings are deprecated.  To avoid
+possible forming of non-terminated string strscpy() should be used.
 
-At find_extent_clone(), unless we are given an inline extent, a file
-extent item that represents hole or an extent that starts beyond the
-i_size, we always do backref walking to look for clone sources, unless
-if we have more than SEND_MAX_EXTENT_REFS (64) known references on the
-extent.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-However if we know we only have one reference in the extent item and only
-one clone source (the send root), then it's pointless to do the backref
-walking to search for clone sources, as we can't clone from any other
-root. So skip the backref walking in that case.
-
-The following test was run on a non-debug kernel (Debian's default kernel
-config):
-
-   $ cat test.sh
-   #!/bin/bash
-
-   DEV=/dev/sdi
-   MNT=/mnt/sdi
-
-   mkfs.btrfs -f $DEV
-   mount $DEV $MNT
-
-   # Create an extent tree that's not too small and none of the
-   # extents is shared.
-   for ((i = 1; i <= 50000; i++)); do
-      xfs_io -f -c "pwrite 0 4K" $MNT/file_$i > /dev/null
-      echo -ne "\r$i files created..."
-   done
-   echo
-
-   btrfs subvolume snapshot -r $MNT $MNT/snap
-
-   start=$(date +%s%N)
-   btrfs send $MNT/snap > /dev/null
-   end=$(date +%s%N)
-
-   dur=$(( (end - start) / 1000000 ))
-   echo -e "\nsend took $dur milliseconds"
-
-   umount $MNT
-
-Before this change:
-
-   send took 5389 milliseconds
-
-After this change:
-
-   send took 4519 milliseconds  (-16.1%)
-
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Artem Chernyshev <artem.chernyshev@red-soft.ru>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
-Stable-dep-of: 63d5429f68a3 ("btrfs: replace strncpy() with strscpy()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/send.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/btrfs/ioctl.c      | 9 +++------
+ fs/btrfs/rcu-string.h | 6 +++++-
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-index eb2f8e84ffc9..80d248e88761 100644
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -1306,6 +1306,7 @@ static int find_extent_clone(struct send_ctx *sctx,
- 	u64 disk_byte;
- 	u64 num_bytes;
- 	u64 extent_item_pos;
-+	u64 extent_refs;
- 	u64 flags = 0;
- 	struct btrfs_file_extent_item *fi;
- 	struct extent_buffer *eb = path->nodes[0];
-@@ -1373,14 +1374,22 @@ static int find_extent_clone(struct send_ctx *sctx,
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index 752b5d265284..4f2513388567 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -3234,13 +3234,10 @@ static long btrfs_ioctl_dev_info(struct btrfs_fs_info *fs_info,
+ 	di_args->bytes_used = btrfs_device_get_bytes_used(dev);
+ 	di_args->total_bytes = btrfs_device_get_total_bytes(dev);
+ 	memcpy(di_args->uuid, dev->uuid, sizeof(di_args->uuid));
+-	if (dev->name) {
+-		strncpy(di_args->path, rcu_str_deref(dev->name),
+-				sizeof(di_args->path) - 1);
+-		di_args->path[sizeof(di_args->path) - 1] = 0;
+-	} else {
++	if (dev->name)
++		strscpy(di_args->path, rcu_str_deref(dev->name), sizeof(di_args->path));
++	else
+ 		di_args->path[0] = '\0';
+-	}
  
- 	ei = btrfs_item_ptr(tmp_path->nodes[0], tmp_path->slots[0],
- 			    struct btrfs_extent_item);
-+	extent_refs = btrfs_extent_refs(tmp_path->nodes[0], ei);
- 	/*
- 	 * Backreference walking (iterate_extent_inodes() below) is currently
- 	 * too expensive when an extent has a large number of references, both
- 	 * in time spent and used memory. So for now just fallback to write
- 	 * operations instead of clone operations when an extent has more than
- 	 * a certain amount of references.
-+	 *
-+	 * Also, if we have only one reference and only the send root as a clone
-+	 * source - meaning no clone roots were given in the struct
-+	 * btrfs_ioctl_send_args passed to the send ioctl - then it's our
-+	 * reference and there's no point in doing backref walking which is
-+	 * expensive, so exit early.
- 	 */
--	if (btrfs_extent_refs(tmp_path->nodes[0], ei) > SEND_MAX_EXTENT_REFS) {
-+	if ((extent_refs == 1 && sctx->clone_roots_cnt == 1) ||
-+	    extent_refs > SEND_MAX_EXTENT_REFS) {
- 		ret = -ENOENT;
- 		goto out;
- 	}
+ out:
+ 	rcu_read_unlock();
+diff --git a/fs/btrfs/rcu-string.h b/fs/btrfs/rcu-string.h
+index a97dc74a4d3d..02f15321cecc 100644
+--- a/fs/btrfs/rcu-string.h
++++ b/fs/btrfs/rcu-string.h
+@@ -18,7 +18,11 @@ static inline struct rcu_string *rcu_string_strdup(const char *src, gfp_t mask)
+ 					 (len * sizeof(char)), mask);
+ 	if (!ret)
+ 		return ret;
+-	strncpy(ret->str, src, len);
++	/* Warn if the source got unexpectedly truncated. */
++	if (WARN_ON(strscpy(ret->str, src, len) < 0)) {
++		kfree(ret);
++		return NULL;
++	}
+ 	return ret;
+ }
+ 
 -- 
 2.35.1
 
