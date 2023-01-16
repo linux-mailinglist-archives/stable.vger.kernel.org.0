@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3398366C66D
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:20:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C03866C66F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:20:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233011AbjAPQUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:20:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37068 "EHLO
+        id S232934AbjAPQUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:20:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232547AbjAPQTi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:19:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D09BB30189
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:10:40 -0800 (PST)
+        with ESMTP id S232944AbjAPQTl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:19:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA5D72FCE9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:10:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BCFDB81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:10:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2F36C433EF;
-        Mon, 16 Jan 2023 16:10:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8792660FDF
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0FA9C433D2;
+        Mon, 16 Jan 2023 16:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885438;
-        bh=vNOX5CTowkEPEot9OLMSd2AJ/J3CXBga3HhFTdyCRBQ=;
+        s=korg; t=1673885441;
+        bh=EPGwsnmI2cCSq2FZmtgkZDVlbHhNuGc5wdCx//jrdwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G6icJyVdA4PZslUaPGPbbv3q5qrYcYkXPcubnhpDq0Ab0F4PVr21RVX53IV+NmtDn
-         VsRFqD4VEA904DvR92vc5TkNBKFitZTiUZhD/ja/TH2Inb7ifUHDEC0iA6FAOshp/K
-         ySKNIdYLIayacVlegBEbeF9EpoF3FlaO36KJG9R0=
+        b=edEJLLo8ZxVt7XuSC8XhQzbuGzzq+kDVQ4sI0odFHHqjfZe0mhXNyi3IM/JxDZ7vt
+         H6U/SgLwCBJaCt2v0ubqFrSwtaeuAlYjsi5F1ujKOdlqjy7hpS3NZEKDo+pzKbr/ai
+         1Yae1f5rrjxh0VPlhgVLFST0qRh4PsT1dTvoZJI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
+        patches@lists.linux.dev, xiongxin <xiongxin@kylinos.cn>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 051/658] alpha: fix syscall entry in !AUDUT_SYSCALL case
-Date:   Mon, 16 Jan 2023 16:42:19 +0100
-Message-Id: <20230116154911.981621016@linuxfoundation.org>
+Subject: [PATCH 5.4 052/658] PM: hibernate: Fix mistake in kerneldoc comment
+Date:   Mon, 16 Jan 2023 16:42:20 +0100
+Message-Id: <20230116154912.034521873@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -52,38 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: xiongxin <xiongxin@kylinos.cn>
 
-[ Upstream commit f7b2431a6d22f7a91c567708e071dfcd6d66db14 ]
+[ Upstream commit 6e5d7300cbe7c3541bc31f16db3e9266e6027b4b ]
 
-We only want to take the slow path if SYSCALL_TRACE or SYSCALL_AUDIT is
-set; on !AUDIT_SYSCALL configs the current tree hits it whenever _any_
-thread flag (including NEED_RESCHED, NOTIFY_SIGNAL, etc.) happens to
-be set.
+The actual maximum image size formula in hibernate_preallocate_memory()
+is as follows:
 
-Fixes: a9302e843944 "alpha: Enable system-call auditing support"
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+max_size = (count - (size + PAGES_FOR_IO)) / 2
+	    - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE);
+
+but the one in the kerneldoc comment of the function is different and
+incorrect.
+
+Fixes: ddeb64870810 ("PM / Hibernate: Add sysfs knob to control size of memory for drivers")
+Signed-off-by: xiongxin <xiongxin@kylinos.cn>
+[ rjw: Subject and changelog rewrite ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/entry.S | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/power/snapshot.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/alpha/kernel/entry.S b/arch/alpha/kernel/entry.S
-index 2e09248f8324..c27d01232799 100644
---- a/arch/alpha/kernel/entry.S
-+++ b/arch/alpha/kernel/entry.S
-@@ -469,8 +469,10 @@ entSys:
- #ifdef CONFIG_AUDITSYSCALL
- 	lda     $6, _TIF_SYSCALL_TRACE | _TIF_SYSCALL_AUDIT
- 	and     $3, $6, $3
--#endif
- 	bne     $3, strace
-+#else
-+	blbs    $3, strace		/* check for SYSCALL_TRACE in disguise */
-+#endif
- 	beq	$4, 1f
- 	ldq	$27, 0($5)
- 1:	jsr	$26, ($27), sys_ni_syscall
+diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
+index 46455aa7951e..5092b8bfa1db 100644
+--- a/kernel/power/snapshot.c
++++ b/kernel/power/snapshot.c
+@@ -1680,8 +1680,8 @@ static unsigned long minimum_image_size(unsigned long saveable)
+  * /sys/power/reserved_size, respectively).  To make this happen, we compute the
+  * total number of available page frames and allocate at least
+  *
+- * ([page frames total] + PAGES_FOR_IO + [metadata pages]) / 2
+- *  + 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
++ * ([page frames total] - PAGES_FOR_IO - [metadata pages]) / 2
++ *  - 2 * DIV_ROUND_UP(reserved_size, PAGE_SIZE)
+  *
+  * of them, which corresponds to the maximum size of a hibernation image.
+  *
 -- 
 2.35.1
 
