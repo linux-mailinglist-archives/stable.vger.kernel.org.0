@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 629E766CBBA
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:16:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2279B66CD39
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234465AbjAPRQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:16:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41682 "EHLO
+        id S234909AbjAPRen (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:34:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234481AbjAPRPx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:15:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3046F34540
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:56:51 -0800 (PST)
+        with ESMTP id S234720AbjAPReZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:34:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B8230E94;
+        Mon, 16 Jan 2023 09:10:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 769D560F61
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:56:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE52C4339B;
-        Mon, 16 Jan 2023 16:56:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D759CB8107A;
+        Mon, 16 Jan 2023 17:10:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18A2AC433F0;
+        Mon, 16 Jan 2023 17:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888210;
-        bh=lWq+UEYPegfGUV+K0842KsNoQN8PXyOJWfkep4/09OE=;
+        s=korg; t=1673889029;
+        bh=BNm5SNxOTyJIY1k9U//KXsAwGgHWDnCWhJ6OxhROpTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=at5rU7/cTRvoppjxFndAO9ZkxJH12XoJdjkzhQFzKz3EVI7SGKpLcFn3ezCmSIV5I
-         PBFqpVYB07zi5aZiIgDjpmbwOw+xT16Jux3Qqtj7F/D/PwBwUQ6h3kMg0Pq1TywqKz
-         eYTCemmrcdQ1H0hToYJSr4yB6YF5PEeXbzwgIUwg=
+        b=qoS5td2BNss9Ibx9cjARqS4ydtiD9PeJ6UZQ0l6kkByQnuADbDPCJufzJG2D8PfRR
+         l9dyjGGKhvs9DFsioeodQOOU2kwIKHHbxdTfPy9qrQQf4pApJ2EJLFOBe4n6xnSXbd
+         NzJB0a5IxNInxS/7eujYCGBj9fo0uc7BME5rJMwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, minoura makoto <minoura@valinux.co.jp>,
-        Hiroshi Shimamoto <h-shimamoto@nec.com>,
-        Trond Myklebust <trondmy@hammerspace.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 442/521] SUNRPC: ensure the matching upcall is in-flight upon downcall
+        patches@lists.linux.dev,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 4.14 231/338] igb: Do not free q_vector unless new one was allocated
 Date:   Mon, 16 Jan 2023 16:51:44 +0100
-Message-Id: <20230116154906.918934110@linuxfoundation.org>
+Message-Id: <20230116154831.114401657@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,131 +63,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: minoura makoto <minoura@valinux.co.jp>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit b18cba09e374637a0a3759d856a6bca94c133952 ]
+[ Upstream commit 0668716506ca66f90d395f36ccdaebc3e0e84801 ]
 
-Commit 9130b8dbc6ac ("SUNRPC: allow for upcalls for the same uid
-but different gss service") introduced `auth` argument to
-__gss_find_upcall(), but in gss_pipe_downcall() it was left as NULL
-since it (and auth->service) was not (yet) determined.
+Avoid potential use-after-free condition under memory pressure. If the
+kzalloc() fails, q_vector will be freed but left in the original
+adapter->q_vector[v_idx] array position.
 
-When multiple upcalls with the same uid and different service are
-ongoing, it could happen that __gss_find_upcall(), which returns the
-first match found in the pipe->in_downcall list, could not find the
-correct gss_msg corresponding to the downcall we are looking for.
-Moreover, it might return a msg which is not sent to rpc.gssd yet.
-
-We could see mount.nfs process hung in D state with multiple mount.nfs
-are executed in parallel.  The call trace below is of CentOS 7.9
-kernel-3.10.0-1160.24.1.el7.x86_64 but we observed the same hang w/
-elrepo kernel-ml-6.0.7-1.el7.
-
-PID: 71258  TASK: ffff91ebd4be0000  CPU: 36  COMMAND: "mount.nfs"
- #0 [ffff9203ca3234f8] __schedule at ffffffffa3b8899f
- #1 [ffff9203ca323580] schedule at ffffffffa3b88eb9
- #2 [ffff9203ca323590] gss_cred_init at ffffffffc0355818 [auth_rpcgss]
- #3 [ffff9203ca323658] rpcauth_lookup_credcache at ffffffffc0421ebc
-[sunrpc]
- #4 [ffff9203ca3236d8] gss_lookup_cred at ffffffffc0353633 [auth_rpcgss]
- #5 [ffff9203ca3236e8] rpcauth_lookupcred at ffffffffc0421581 [sunrpc]
- #6 [ffff9203ca323740] rpcauth_refreshcred at ffffffffc04223d3 [sunrpc]
- #7 [ffff9203ca3237a0] call_refresh at ffffffffc04103dc [sunrpc]
- #8 [ffff9203ca3237b8] __rpc_execute at ffffffffc041e1c9 [sunrpc]
- #9 [ffff9203ca323820] rpc_execute at ffffffffc0420a48 [sunrpc]
-
-The scenario is like this. Let's say there are two upcalls for
-services A and B, A -> B in pipe->in_downcall, B -> A in pipe->pipe.
-
-When rpc.gssd reads pipe to get the upcall msg corresponding to
-service B from pipe->pipe and then writes the response, in
-gss_pipe_downcall the msg corresponding to service A will be picked
-because only uid is used to find the msg and it is before the one for
-B in pipe->in_downcall.  And the process waiting for the msg
-corresponding to service A will be woken up.
-
-Actual scheduing of that process might be after rpc.gssd processes the
-next msg.  In rpc_pipe_generic_upcall it clears msg->errno (for A).
-The process is scheduled to see gss_msg->ctx == NULL and
-gss_msg->msg.errno == 0, therefore it cannot break the loop in
-gss_create_upcall and is never woken up after that.
-
-This patch adds a simple check to ensure that a msg which is not
-sent to rpc.gssd yet is not chosen as the matching upcall upon
-receiving a downcall.
-
-Signed-off-by: minoura makoto <minoura@valinux.co.jp>
-Signed-off-by: Hiroshi Shimamoto <h-shimamoto@nec.com>
-Tested-by: Hiroshi Shimamoto <h-shimamoto@nec.com>
-Cc: Trond Myklebust <trondmy@hammerspace.com>
-Fixes: 9130b8dbc6ac ("SUNRPC: allow for upcalls for same uid but different gss service")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Cc: Tony Nguyen <anthony.l.nguyen@intel.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: intel-wired-lan@lists.osuosl.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/rpc_pipe_fs.h |  5 +++++
- net/sunrpc/auth_gss/auth_gss.c     | 19 +++++++++++++++++--
- 2 files changed, 22 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/sunrpc/rpc_pipe_fs.h b/include/linux/sunrpc/rpc_pipe_fs.h
-index e90b9bd99ded..396de2ef8767 100644
---- a/include/linux/sunrpc/rpc_pipe_fs.h
-+++ b/include/linux/sunrpc/rpc_pipe_fs.h
-@@ -94,6 +94,11 @@ extern ssize_t rpc_pipe_generic_upcall(struct file *, struct rpc_pipe_msg *,
- 				       char __user *, size_t);
- extern int rpc_queue_upcall(struct rpc_pipe *, struct rpc_pipe_msg *);
- 
-+/* returns true if the msg is in-flight, i.e., already eaten by the peer */
-+static inline bool rpc_msg_is_inflight(const struct rpc_pipe_msg *msg) {
-+	return (msg->copied != 0 && list_empty(&msg->list));
-+}
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 2c1e3ea8f745..e6799913ca0b 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -1222,8 +1222,12 @@ static int igb_alloc_q_vector(struct igb_adapter *adapter,
+ 	if (!q_vector) {
+ 		q_vector = kzalloc(size, GFP_KERNEL);
+ 	} else if (size > ksize(q_vector)) {
+-		kfree_rcu(q_vector, rcu);
+-		q_vector = kzalloc(size, GFP_KERNEL);
++		struct igb_q_vector *new_q_vector;
 +
- struct rpc_clnt;
- extern struct dentry *rpc_create_client_dir(struct dentry *, const char *, struct rpc_clnt *);
- extern int rpc_remove_client_dir(struct rpc_clnt *);
-diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
-index e61c48c1b37d..c11e68539602 100644
---- a/net/sunrpc/auth_gss/auth_gss.c
-+++ b/net/sunrpc/auth_gss/auth_gss.c
-@@ -323,7 +323,7 @@ __gss_find_upcall(struct rpc_pipe *pipe, kuid_t uid, const struct gss_auth *auth
- 	list_for_each_entry(pos, &pipe->in_downcall, list) {
- 		if (!uid_eq(pos->uid, uid))
- 			continue;
--		if (auth && pos->auth->service != auth->service)
-+		if (pos->auth->service != auth->service)
- 			continue;
- 		refcount_inc(&pos->count);
- 		dprintk("RPC:       %s found msg %p\n", __func__, pos);
-@@ -677,6 +677,21 @@ gss_create_upcall(struct gss_auth *gss_auth, struct gss_cred *gss_cred)
- 	return err;
- }
- 
-+static struct gss_upcall_msg *
-+gss_find_downcall(struct rpc_pipe *pipe, kuid_t uid)
-+{
-+	struct gss_upcall_msg *pos;
-+	list_for_each_entry(pos, &pipe->in_downcall, list) {
-+		if (!uid_eq(pos->uid, uid))
-+			continue;
-+		if (!rpc_msg_is_inflight(&pos->msg))
-+			continue;
-+		refcount_inc(&pos->count);
-+		return pos;
-+	}
-+	return NULL;
-+}
-+
- #define MSG_BUF_MAXSIZE 1024
- 
- static ssize_t
-@@ -723,7 +738,7 @@ gss_pipe_downcall(struct file *filp, const char __user *src, size_t mlen)
- 	err = -ENOENT;
- 	/* Find a matching upcall */
- 	spin_lock(&pipe->lock);
--	gss_msg = __gss_find_upcall(pipe, uid, NULL);
-+	gss_msg = gss_find_downcall(pipe, uid);
- 	if (gss_msg == NULL) {
- 		spin_unlock(&pipe->lock);
- 		goto err_put_ctx;
++		new_q_vector = kzalloc(size, GFP_KERNEL);
++		if (new_q_vector)
++			kfree_rcu(q_vector, rcu);
++		q_vector = new_q_vector;
+ 	} else {
+ 		memset(q_vector, 0, size);
+ 	}
 -- 
 2.35.1
 
