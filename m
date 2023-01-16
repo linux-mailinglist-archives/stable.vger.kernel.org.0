@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE94366CD5A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:35:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF08C66CD66
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:36:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234983AbjAPRfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:35:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56258 "EHLO
+        id S234834AbjAPRgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:36:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233621AbjAPRfC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB2423324
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:20 -0800 (PST)
+        with ESMTP id S234959AbjAPRfx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:35:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 813BF36B00
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:11:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E1DF6108F
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:11:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EC3FC433EF;
-        Mon, 16 Jan 2023 17:11:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2910DB8108E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D77BC433D2;
+        Mon, 16 Jan 2023 17:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673889079;
-        bh=yPl+W0vivCeUr4WZMW40HE08Gc6NkZUO0IEisN3YrCY=;
+        s=korg; t=1673889108;
+        bh=noPrCegBTp9PV+M7uhFDhcaViqTvtzP0b7QtO8g6MaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnO9x1NBjyi010TUi2nKwIGvkTk4j+lU7Rg0alZRqm5fAixshb5+X+mHRx8MiReXm
-         1893MDjCktZOjDbz9Xu4pMhA5d2II7ie9bFomZIYZpGj0i+ET4//plcmktfm0r1OUK
-         9I2rRzGBV+N+VRjHEK4aqGIsI48Qe7AoiDSZj7GM=
+        b=VxoSdUmD21dIxuA9YYPrBg6BfHJEDlafOZ2039V5nXIbTu6XRtVhPBh1F3y+v6y5t
+         8xnoMWWM3WO22X0phEA54wdeyzQ0q7kRL7aF2TTM9cMUfOBygdDxrGCNOQCsQG6TKi
+         3rwpNmVOymMeKisnaNCbFkLzNZf+FhsAjK15p19g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com,
+        Shigeru Yoshida <syoshida@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 243/338] mmc: f-sdh30: Add quirks for broken timeout clock capability
-Date:   Mon, 16 Jan 2023 16:51:56 +0100
-Message-Id: <20230116154831.662928567@linuxfoundation.org>
+Subject: [PATCH 4.14 244/338] media: si470x: Fix use-after-free in si470x_int_in_callback()
+Date:   Mon, 16 Jan 2023 16:51:57 +0100
+Message-Id: <20230116154831.716520640@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
 References: <20230116154820.689115727@linuxfoundation.org>
@@ -55,36 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Shigeru Yoshida <syoshida@redhat.com>
 
-[ Upstream commit aae9d3a440736691b3c1cb09ae2c32c4f1ee2e67 ]
+[ Upstream commit 7d21e0b1b41b21d628bf2afce777727bd4479aa5 ]
 
-There is a case where the timeout clock is not supplied to the capability.
-Add a quirk for that.
+syzbot reported use-after-free in si470x_int_in_callback() [1].  This
+indicates that urb->context, which contains struct si470x_device
+object, is freed when si470x_int_in_callback() is called.
 
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Acked-by: Jassi Brar <jaswinder.singh@linaro.org>
-Link: https://lore.kernel.org/r/20221111081033.3813-7-hayashi.kunihiko@socionext.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+The cause of this issue is that si470x_int_in_callback() is called for
+freed urb.
+
+si470x_usb_driver_probe() calls si470x_start_usb(), which then calls
+usb_submit_urb() and si470x_start().  If si470x_start_usb() fails,
+si470x_usb_driver_probe() doesn't kill urb, but it just frees struct
+si470x_device object, as depicted below:
+
+si470x_usb_driver_probe()
+  ...
+  si470x_start_usb()
+    ...
+    usb_submit_urb()
+    retval = si470x_start()
+    return retval
+  if (retval < 0)
+    free struct si470x_device object, but don't kill urb
+
+This patch fixes this issue by killing urb when si470x_start_usb()
+fails and urb is submitted.  If si470x_start_usb() fails and urb is
+not submitted, i.e. submitting usb fails, it just frees struct
+si470x_device object.
+
+Reported-by: syzbot+9ca7a12fd736d93e0232@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=94ed6dddd5a55e90fd4bab942aa4bb297741d977 [1]
+Signed-off-by: Shigeru Yoshida <syoshida@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci_f_sdh30.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/radio/si470x/radio-si470x-usb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci_f_sdh30.c b/drivers/mmc/host/sdhci_f_sdh30.c
-index 111b66f5439b..43e787954293 100644
---- a/drivers/mmc/host/sdhci_f_sdh30.c
-+++ b/drivers/mmc/host/sdhci_f_sdh30.c
-@@ -180,6 +180,9 @@ static int sdhci_f_sdh30_probe(struct platform_device *pdev)
- 	if (reg & SDHCI_CAN_DO_8BIT)
- 		priv->vendor_hs200 = F_SDH30_EMMC_HS200;
+diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
+index 95581a847619..5710f362a26d 100644
+--- a/drivers/media/radio/si470x/radio-si470x-usb.c
++++ b/drivers/media/radio/si470x/radio-si470x-usb.c
+@@ -736,8 +736,10 @@ static int si470x_usb_driver_probe(struct usb_interface *intf,
  
-+	if (!(reg & SDHCI_TIMEOUT_CLK_MASK))
-+		host->quirks |= SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK;
-+
- 	ret = sdhci_add_host(host);
- 	if (ret)
- 		goto err_add_host;
+ 	/* start radio */
+ 	retval = si470x_start_usb(radio);
+-	if (retval < 0)
++	if (retval < 0 && !radio->int_in_running)
+ 		goto err_buf;
++	else if (retval < 0)	/* in case of radio->int_in_running == 1 */
++		goto err_all;
+ 
+ 	/* set initial frequency */
+ 	si470x_set_freq(radio, 87.5 * FREQ_MUL); /* available in all regions */
 -- 
 2.35.1
 
