@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C433066C477
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:55:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B34D66C898
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231616AbjAPPzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:55:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37054 "EHLO
+        id S233613AbjAPQkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:40:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231488AbjAPPzC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:55:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 876CB22A00
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:55:00 -0800 (PST)
+        with ESMTP id S233446AbjAPQkd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:40:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F17236B19
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:28:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AFD0B81059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:54:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95AABC433F0;
-        Mon, 16 Jan 2023 15:54:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C1E361084
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:28:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CAE3C433EF;
+        Mon, 16 Jan 2023 16:28:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884497;
-        bh=yBWUZxEUKOQLK1gTS3IxwiG6EM/K5H18kRuE5kQ/9qM=;
+        s=korg; t=1673886522;
+        bh=2GcRly9AVDUC27HN7Zqofi6oG8Jv56e1hzoEUsWjzC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vti8ZJEHHWyGFR2mavYfOYYJKrHzAITBvZxbIyIY6pO5t07is+J3uXcju25dpSho0
-         82zYj5UcBNNnebEwwfVSEwcw9o9sjB60ksYYzioyyoWhSMhWONfY185hg0/Txy/O+D
-         trm9O9o3QGFdB5bmcyNF8irtQaMxQUCA9cRQsLgQ=
+        b=nW87NMA6iXp8w4GDKCuYjTY0cuhvfhVipP3OXbvEk98PW0TTq+kCr7aGyt2KfIP0e
+         pHDUfCdJjH/4j18H3luHxNK2gaD6pnf1Vvbvra0O70Dmo4zkIV2azMe1hcvv4kyxx9
+         MghcfL7c8dkNy32mlMGYOTTa/XTUM0+pybhHPuys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Matthew Auld <matthew.auld@intel.com>
-Subject: [PATCH 6.1 028/183] drm: Optimize drm buddy top-down allocation method
+        patches@lists.linux.dev, Akito <the@akito.ooo>,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 463/658] HID: multitouch: fix Asus ExpertBook P2 P2451FA trackpoint
 Date:   Mon, 16 Jan 2023 16:49:11 +0100
-Message-Id: <20230116154804.560156805@linuxfoundation.org>
+Message-Id: <20230116154930.685714729@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,170 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-commit 5640e81607152d7f2d2558227c0f6cb78b8f39cf upstream.
+[ Upstream commit 4eab1c2fe06c98a4dff258dd64800b6986c101e9 ]
 
-We are observing performance drop in many usecases which include
-games, 3D benchmark applications,etc.. To solve this problem, We
-are strictly not allowing top down flag enabled allocations to
-steal the memory space from cpu visible region.
+The HID descriptor of this device contains two mouse collections, one
+for mouse emulation and the other for the trackpoint.
 
-The idea is, we are sorting each order list entries in
-ascending order and compare the last entry of each order
-list in the freelist and return the max block.
+Both collections get merged and, because the first one defines X and Y,
+the movemenent events reported by the trackpoint collection are
+ignored.
 
-This patch improves the 3D benchmark scores and solves
-fragmentation issues.
+Set the MT_CLS_WIN_8_FORCE_MULTI_INPUT class for this device to be able
+to receive its reports.
 
-All drm buddy selftests are verfied.
-drm_buddy: pass:6 fail:0 skip:0 total:6
+This fix is similar to/based on commit 40d5bb87377a ("HID: multitouch:
+enable multi-input as a quirk for some devices").
 
-Signed-off-by: Arunpravin Paneer Selvam <Arunpravin.PaneerSelvam@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230112120027.3072-1-Arunpravin.PaneerSelvam@amd.com
-Signed-off-by: Christian König <christian.koenig@amd.com>
-CC: Cc: stable@vger.kernel.org # 5.18+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/825
+Reported-by: Akito <the@akito.ooo>
+Tested-by: Akito <the@akito.ooo>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_buddy.c |   83 +++++++++++++++++++++++++++++---------------
- 1 file changed, 55 insertions(+), 28 deletions(-)
+ drivers/hid/hid-multitouch.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/drm_buddy.c
-+++ b/drivers/gpu/drm/drm_buddy.c
-@@ -38,6 +38,25 @@ static void drm_block_free(struct drm_bu
- 	kmem_cache_free(slab_blocks, block);
- }
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 463a8deae37e..9db327654580 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1953,6 +1953,10 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+ 			USB_VENDOR_ID_ELAN, 0x313a) },
  
-+static void list_insert_sorted(struct drm_buddy *mm,
-+			       struct drm_buddy_block *block)
-+{
-+	struct drm_buddy_block *node;
-+	struct list_head *head;
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_ELAN, 0x3148) },
 +
-+	head = &mm->free_list[drm_buddy_block_order(block)];
-+	if (list_empty(head)) {
-+		list_add(&block->link, head);
-+		return;
-+	}
-+
-+	list_for_each_entry(node, head, link)
-+		if (drm_buddy_block_offset(block) < drm_buddy_block_offset(node))
-+			break;
-+
-+	__list_add(&block->link, node->link.prev, &node->link);
-+}
-+
- static void mark_allocated(struct drm_buddy_block *block)
- {
- 	block->header &= ~DRM_BUDDY_HEADER_STATE;
-@@ -52,8 +71,7 @@ static void mark_free(struct drm_buddy *
- 	block->header &= ~DRM_BUDDY_HEADER_STATE;
- 	block->header |= DRM_BUDDY_FREE;
- 
--	list_add(&block->link,
--		 &mm->free_list[drm_buddy_block_order(block)]);
-+	list_insert_sorted(mm, block);
- }
- 
- static void mark_split(struct drm_buddy_block *block)
-@@ -387,20 +405,26 @@ err_undo:
- }
- 
- static struct drm_buddy_block *
--get_maxblock(struct list_head *head)
-+get_maxblock(struct drm_buddy *mm, unsigned int order)
- {
- 	struct drm_buddy_block *max_block = NULL, *node;
-+	unsigned int i;
- 
--	max_block = list_first_entry_or_null(head,
--					     struct drm_buddy_block,
--					     link);
--	if (!max_block)
--		return NULL;
--
--	list_for_each_entry(node, head, link) {
--		if (drm_buddy_block_offset(node) >
--		    drm_buddy_block_offset(max_block))
--			max_block = node;
-+	for (i = order; i <= mm->max_order; ++i) {
-+		if (!list_empty(&mm->free_list[i])) {
-+			node = list_last_entry(&mm->free_list[i],
-+					       struct drm_buddy_block,
-+					       link);
-+			if (!max_block) {
-+				max_block = node;
-+				continue;
-+			}
-+
-+			if (drm_buddy_block_offset(node) >
-+			    drm_buddy_block_offset(max_block)) {
-+				max_block = node;
-+			}
-+		}
- 	}
- 
- 	return max_block;
-@@ -412,20 +436,23 @@ alloc_from_freelist(struct drm_buddy *mm
- 		    unsigned long flags)
- {
- 	struct drm_buddy_block *block = NULL;
--	unsigned int i;
-+	unsigned int tmp;
- 	int err;
- 
--	for (i = order; i <= mm->max_order; ++i) {
--		if (flags & DRM_BUDDY_TOPDOWN_ALLOCATION) {
--			block = get_maxblock(&mm->free_list[i]);
--			if (block)
--				break;
--		} else {
--			block = list_first_entry_or_null(&mm->free_list[i],
--							 struct drm_buddy_block,
--							 link);
--			if (block)
--				break;
-+	if (flags & DRM_BUDDY_TOPDOWN_ALLOCATION) {
-+		block = get_maxblock(mm, order);
-+		if (block)
-+			/* Store the obtained block order */
-+			tmp = drm_buddy_block_order(block);
-+	} else {
-+		for (tmp = order; tmp <= mm->max_order; ++tmp) {
-+			if (!list_empty(&mm->free_list[tmp])) {
-+				block = list_last_entry(&mm->free_list[tmp],
-+							struct drm_buddy_block,
-+							link);
-+				if (block)
-+					break;
-+			}
- 		}
- 	}
- 
-@@ -434,18 +461,18 @@ alloc_from_freelist(struct drm_buddy *mm
- 
- 	BUG_ON(!drm_buddy_block_is_free(block));
- 
--	while (i != order) {
-+	while (tmp != order) {
- 		err = split_block(mm, block);
- 		if (unlikely(err))
- 			goto err_undo;
- 
- 		block = block->right;
--		i--;
-+		tmp--;
- 	}
- 	return block;
- 
- err_undo:
--	if (i != order)
-+	if (tmp != order)
- 		__drm_buddy_free(mm, block);
- 	return ERR_PTR(err);
- }
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
+-- 
+2.35.1
+
 
 
