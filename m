@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC63666C961
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:49:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F84D66C619
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233805AbjAPQt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:49:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38496 "EHLO
+        id S232853AbjAPQOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:14:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234019AbjAPQtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:49:09 -0500
+        with ESMTP id S232317AbjAPQOG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:14:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D62B1E5D5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:35:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B3E327D4B
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:08:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01F8AB81059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:35:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57DB6C433D2;
-        Mon, 16 Jan 2023 16:35:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C954EB8107E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:08:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D32C433EF;
+        Mon, 16 Jan 2023 16:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886955;
-        bh=9P4DgY0/cYzI0DgASwfWHzwO0PKAPibVadtM/YULXks=;
+        s=korg; t=1673885301;
+        bh=rW09AEda0b3LQ9QddMJ9fJ9gr++LmqWGVPlQsdQDknc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PFbtaVS9FgMj2CdK5PJPjJKni1npoaol5EJB45UNKYs5hj2+sfGuY7mVeR8vBGcJ7
-         xWTgZrGgPmNRSedHhcdGqWtxexKCOv49zb28D9/al5qatKJD2v3ggpuFxs1sRiP+mp
-         eF+A1W8ozfTPJvnePoI/DPl29BDlfMIYR9lL6V94=
+        b=Zis0iUtaivQuWV4iEVTpsAXj6Y/NKBIpm1GKi6o0rme+ulWcNU2YIio6VhF3Yxgsk
+         28Aja8PiWD9qnh0467JnwzNxp9/4Nt2Jl634Bv03ZnaurvPGdvjW968XSfXcpzUUpn
+         DtxqVMuAG6jFJ4nD0rqd/xuHzzR9P1kZaX64Buec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, zhengliang <zhengliang6@huawei.com>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 626/658] ext4: lost matching-pair of trace in ext4_truncate
+        patches@lists.linux.dev, Wei Chen <harperchen1110@gmail.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 47/64] net/sched: act_mpls: Fix warning during failed attribute validation
 Date:   Mon, 16 Jan 2023 16:51:54 +0100
-Message-Id: <20230116154938.139391266@linuxfoundation.org>
+Message-Id: <20230116154745.219284799@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhengliang <zhengliang6@huawei.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 9a5d265fed014115f35e598022c956e5d2fb863e ]
+[ Upstream commit 9e17f99220d111ea031b44153fdfe364b0024ff2 ]
 
-It should call trace exit in all return path for ext4_truncate.
+The 'TCA_MPLS_LABEL' attribute is of 'NLA_U32' type, but has a
+validation type of 'NLA_VALIDATE_FUNCTION'. This is an invalid
+combination according to the comment above 'struct nla_policy':
 
-Signed-off-by: zhengliang <zhengliang6@huawei.com>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200701083027.45996-1-zhengliang6@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Stable-dep-of: a71248b1accb ("ext4: fix use-after-free in ext4_orphan_cleanup")
+"
+Meaning of `validate' field, use via NLA_POLICY_VALIDATE_FN:
+   NLA_BINARY           Validation function called for the attribute.
+   All other            Unused - but note that it's a union
+"
+
+This can trigger the warning [1] in nla_get_range_unsigned() when
+validation of the attribute fails. Despite being of 'NLA_U32' type, the
+associated 'min'/'max' fields in the policy are negative as they are
+aliased by the 'validate' field.
+
+Fix by changing the attribute type to 'NLA_BINARY' which is consistent
+with the above comment and all other users of NLA_POLICY_VALIDATE_FN().
+As a result, move the length validation to the validation function.
+
+No regressions in MPLS tests:
+
+ # ./tdc.py -f tc-tests/actions/mpls.json
+ [...]
+ # echo $?
+ 0
+
+[1]
+WARNING: CPU: 0 PID: 17743 at lib/nlattr.c:118
+nla_get_range_unsigned+0x1d8/0x1e0 lib/nlattr.c:117
+Modules linked in:
+CPU: 0 PID: 17743 Comm: syz-executor.0 Not tainted 6.1.0-rc8 #3
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.13.0-48-gd9c812dda519-prebuilt.qemu.org 04/01/2014
+RIP: 0010:nla_get_range_unsigned+0x1d8/0x1e0 lib/nlattr.c:117
+[...]
+Call Trace:
+ <TASK>
+ __netlink_policy_dump_write_attr+0x23d/0x990 net/netlink/policy.c:310
+ netlink_policy_dump_write_attr+0x22/0x30 net/netlink/policy.c:411
+ netlink_ack_tlv_fill net/netlink/af_netlink.c:2454 [inline]
+ netlink_ack+0x546/0x760 net/netlink/af_netlink.c:2506
+ netlink_rcv_skb+0x1b7/0x240 net/netlink/af_netlink.c:2546
+ rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:6109
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x5e9/0x6b0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x739/0x860 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ sock_sendmsg net/socket.c:734 [inline]
+ ____sys_sendmsg+0x38f/0x500 net/socket.c:2482
+ ___sys_sendmsg net/socket.c:2536 [inline]
+ __sys_sendmsg+0x197/0x230 net/socket.c:2565
+ __do_sys_sendmsg net/socket.c:2574 [inline]
+ __se_sys_sendmsg net/socket.c:2572 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2572
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Link: https://lore.kernel.org/netdev/CAO4mrfdmjvRUNbDyP0R03_DrD_eFCLCguz6OxZ2TYRSv0K9gxA@mail.gmail.com/
+Fixes: 2a2ea50870ba ("net: sched: add mpls manipulation actions to TC")
+Reported-by: Wei Chen <harperchen1110@gmail.com>
+Tested-by: Wei Chen <harperchen1110@gmail.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Link: https://lore.kernel.org/r/20230107171004.608436-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ net/sched/act_mpls.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index a39567e03580..5eb1d9ac269c 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4513,7 +4513,7 @@ int ext4_truncate(struct inode *inode)
- 	trace_ext4_truncate_enter(inode);
+diff --git a/net/sched/act_mpls.c b/net/sched/act_mpls.c
+index d1486ea496a2..09799412b248 100644
+--- a/net/sched/act_mpls.c
++++ b/net/sched/act_mpls.c
+@@ -133,6 +133,11 @@ static int valid_label(const struct nlattr *attr,
+ {
+ 	const u32 *label = nla_data(attr);
  
- 	if (!ext4_can_truncate(inode))
--		return 0;
-+		goto out_trace;
- 
- 	ext4_clear_inode_flag(inode, EXT4_INODE_EOFBLOCKS);
- 
-@@ -4524,16 +4524,14 @@ int ext4_truncate(struct inode *inode)
- 		int has_inline = 1;
- 
- 		err = ext4_inline_data_truncate(inode, &has_inline);
--		if (err)
--			return err;
--		if (has_inline)
--			return 0;
-+		if (err || has_inline)
-+			goto out_trace;
- 	}
- 
- 	/* If we zero-out tail of the page, we have to create jinode for jbd2 */
- 	if (inode->i_size & (inode->i_sb->s_blocksize - 1)) {
- 		if (ext4_inode_attach_jinode(inode) < 0)
--			return 0;
-+			goto out_trace;
- 	}
- 
- 	if (ext4_test_inode_flag(inode, EXT4_INODE_EXTENTS))
-@@ -4542,8 +4540,10 @@ int ext4_truncate(struct inode *inode)
- 		credits = ext4_blocks_for_truncate(inode);
- 
- 	handle = ext4_journal_start(inode, EXT4_HT_TRUNCATE, credits);
--	if (IS_ERR(handle))
--		return PTR_ERR(handle);
-+	if (IS_ERR(handle)) {
-+		err = PTR_ERR(handle);
-+		goto out_trace;
++	if (nla_len(attr) != sizeof(*label)) {
++		NL_SET_ERR_MSG_MOD(extack, "Invalid MPLS label length");
++		return -EINVAL;
 +	}
- 
- 	if (inode->i_size & (inode->i_sb->s_blocksize - 1))
- 		ext4_block_truncate_page(handle, mapping, inode->i_size);
-@@ -4592,6 +4592,7 @@ int ext4_truncate(struct inode *inode)
- 	ext4_mark_inode_dirty(handle, inode);
- 	ext4_journal_stop(handle);
- 
-+out_trace:
- 	trace_ext4_truncate_exit(inode);
- 	return err;
- }
++
+ 	if (*label & ~MPLS_LABEL_MASK || *label == MPLS_LABEL_IMPLNULL) {
+ 		NL_SET_ERR_MSG_MOD(extack, "MPLS label out of range");
+ 		return -EINVAL;
+@@ -144,7 +149,8 @@ static int valid_label(const struct nlattr *attr,
+ static const struct nla_policy mpls_policy[TCA_MPLS_MAX + 1] = {
+ 	[TCA_MPLS_PARMS]	= NLA_POLICY_EXACT_LEN(sizeof(struct tc_mpls)),
+ 	[TCA_MPLS_PROTO]	= { .type = NLA_U16 },
+-	[TCA_MPLS_LABEL]	= NLA_POLICY_VALIDATE_FN(NLA_U32, valid_label),
++	[TCA_MPLS_LABEL]	= NLA_POLICY_VALIDATE_FN(NLA_BINARY,
++							 valid_label),
+ 	[TCA_MPLS_TC]		= NLA_POLICY_RANGE(NLA_U8, 0, 7),
+ 	[TCA_MPLS_TTL]		= NLA_POLICY_MIN(NLA_U8, 1),
+ 	[TCA_MPLS_BOS]		= NLA_POLICY_RANGE(NLA_U8, 0, 1),
 -- 
 2.35.1
 
