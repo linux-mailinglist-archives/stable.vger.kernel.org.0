@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3245A66CB77
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A934966CCF8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:31:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234153AbjAPROw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:14:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36504 "EHLO
+        id S234846AbjAPRbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:31:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234368AbjAPRNF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3B14B744
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:29 -0800 (PST)
+        with ESMTP id S234792AbjAPRbO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:31:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5169E42BF9
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:08:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB65D60F61
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCE28C433EF;
-        Mon, 16 Jan 2023 16:53:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E437561050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:08:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F33A7C433D2;
+        Mon, 16 Jan 2023 17:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888008;
-        bh=FJCBcj41NbfWOae+dftFoaVsClbyqWdAXtAyeaQ6J8A=;
+        s=korg; t=1673888888;
+        bh=tzSOTSA0HP8n3RgsL4EscEvLzrTLGfxDw45WANuCjio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gdZJxLku167nk/JJ0CDt4xl9bvLWmr6tWzpnCUoToHBE2fd1U8Gd9wLf+tF2hda6K
-         3djjxVQlJcq2X1c1ZJvRmpZHUV/Y3LvsA/hwUCPyNsIVszJ7YEKW6DnmdYD0GOuV3W
-         l2H8qP0Q/IMvu23OO2bU4lyMU6r7rkdQKF+8rV2k=
+        b=SmsCF/0ie3H7d3C+XGqEHv6HdFoYcFrEj0TBbmsGhmX9yLHpgJw9N+1ubwfCWlDO/
+         0kx42y6vNAEOyQAhUki+cayP6h10vCWSFLeq0iyvE8nI+4EP4EcV2LTSd+vrgUFvH2
+         eq8y1IfArqzC3ORD10JDMCy5JbgvLfyrzw0OcVxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.19 358/521] iio: adc: ad_sigma_delta: do not use internal iio_dev lock
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 147/338] scsi: fcoe: Fix possible name leak when device_register() fails
 Date:   Mon, 16 Jan 2023 16:50:20 +0100
-Message-Id: <20230116154903.099093042@linuxfoundation.org>
+Message-Id: <20230116154827.264083776@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 20228a1d5a55e7db0c6720840f2c7d2b48c55f69 upstream.
+[ Upstream commit 47b6a122c7b69a876c7ee2fc064a26b09627de9d ]
 
-Drop 'mlock' usage by making use of iio_device_claim_direct_mode().
-This change actually makes sure we cannot do a single conversion while
-buffering is enable. Note there was a potential race in the previous
-code since we were only acquiring the lock after checking if the bus is
-enabled.
+If device_register() returns an error, the name allocated by dev_set_name()
+needs to be freed. As the comment of device_register() says, one should use
+put_device() to give up the reference in the error path. Fix this by
+calling put_device(), then the name can be freed in kobject_cleanup().
 
-Fixes: af3008485ea0 ("iio:adc: Add common code for ADI Sigma Delta devices")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: <Stable@vger.kernel.org> #No rush as race is very old.
-Link: https://lore.kernel.org/r/20220920112821.975359-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The 'fcf' is freed in fcoe_fcf_device_release(), so the kfree() in the
+error path can be removed.
+
+The 'ctlr' is freed in fcoe_ctlr_device_release(), so don't use the error
+label, just return NULL after calling put_device().
+
+Fixes: 9a74e884ee71 ("[SCSI] libfcoe: Add fcoe_sysfs")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221112094310.3633291-1-yangyingliang@huawei.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad_sigma_delta.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/fcoe/fcoe_sysfs.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/iio/adc/ad_sigma_delta.c
-+++ b/drivers/iio/adc/ad_sigma_delta.c
-@@ -283,10 +283,10 @@ int ad_sigma_delta_single_conversion(str
- 	unsigned int sample, raw_sample;
- 	int ret = 0;
+diff --git a/drivers/scsi/fcoe/fcoe_sysfs.c b/drivers/scsi/fcoe/fcoe_sysfs.c
+index 5c8310bade61..dab025e3ed27 100644
+--- a/drivers/scsi/fcoe/fcoe_sysfs.c
++++ b/drivers/scsi/fcoe/fcoe_sysfs.c
+@@ -831,14 +831,15 @@ struct fcoe_ctlr_device *fcoe_ctlr_device_add(struct device *parent,
  
--	if (iio_buffer_enabled(indio_dev))
--		return -EBUSY;
-+	ret = iio_device_claim_direct_mode(indio_dev);
-+	if (ret)
-+		return ret;
+ 	dev_set_name(&ctlr->dev, "ctlr_%d", ctlr->id);
+ 	error = device_register(&ctlr->dev);
+-	if (error)
+-		goto out_del_q2;
++	if (error) {
++		destroy_workqueue(ctlr->devloss_work_q);
++		destroy_workqueue(ctlr->work_q);
++		put_device(&ctlr->dev);
++		return NULL;
++	}
  
--	mutex_lock(&indio_dev->mlock);
- 	ad_sigma_delta_set_channel(sigma_delta, chan->address);
+ 	return ctlr;
  
- 	spi_bus_lock(sigma_delta->spi->master);
-@@ -320,7 +320,7 @@ out:
- 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
- 	sigma_delta->bus_locked = false;
- 	spi_bus_unlock(sigma_delta->spi->master);
--	mutex_unlock(&indio_dev->mlock);
-+	iio_device_release_direct_mode(indio_dev);
+-out_del_q2:
+-	destroy_workqueue(ctlr->devloss_work_q);
+-	ctlr->devloss_work_q = NULL;
+ out_del_q:
+ 	destroy_workqueue(ctlr->work_q);
+ 	ctlr->work_q = NULL;
+@@ -1037,16 +1038,16 @@ struct fcoe_fcf_device *fcoe_fcf_device_add(struct fcoe_ctlr_device *ctlr,
+ 	fcf->selected = new_fcf->selected;
  
- 	if (ret)
- 		return ret;
+ 	error = device_register(&fcf->dev);
+-	if (error)
+-		goto out_del;
++	if (error) {
++		put_device(&fcf->dev);
++		goto out;
++	}
+ 
+ 	fcf->state = FCOE_FCF_STATE_CONNECTED;
+ 	list_add_tail(&fcf->peers, &ctlr->fcfs);
+ 
+ 	return fcf;
+ 
+-out_del:
+-	kfree(fcf);
+ out:
+ 	return NULL;
+ }
+-- 
+2.35.1
+
 
 
