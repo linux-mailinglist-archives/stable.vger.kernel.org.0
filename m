@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 213AE66CC80
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:26:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8998F66CB08
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234713AbjAPR0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:26:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48008 "EHLO
+        id S231682AbjAPRJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234735AbjAPR0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:26:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 331EB28868
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:03:29 -0800 (PST)
+        with ESMTP id S232398AbjAPRJN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:09:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C8EF265AA
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:49:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9542B81014
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:03:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E14AC433F2;
-        Mon, 16 Jan 2023 17:03:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD53160F63
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:49:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE6EEC433D2;
+        Mon, 16 Jan 2023 16:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888606;
-        bh=4ACBcbDJ6Ctcg/srlEdFd2WrfFh78XgoTZQLLlxPVTQ=;
+        s=korg; t=1673887784;
+        bh=TbCpINvWp0CKrrPTkJS/DMyD036gVi7Qg6haYZw8mkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xUlmte77S0sDii6Wps6kmDYud1blgrY2a3+JvtCOK8P0zQEBsKxHh5R1XDi6GYfHE
-         +Ha7lMfrldBqFn/ea/m10UWUAVTEhadOZOW1Xe0t96zSNfnEk6E7SKmmMRHbSUVlvr
-         GydHNp9eQV+WgXhkS76qrsmCMVxtXFwDaZYev/ok=
+        b=HU2etTVao/Iekj92zFF8MQV+7udOirT+8EPtpaPsNhi8bThMQjqwS3LoblN7BbXcq
+         rq11k9paHEXNodk726+nEzRK0HIfQ2LKmwR/Bxe2vziy8shRI5951XzDMkQVuFx96A
+         1UG0HXqW7cJSBSkXYX9dCz4EBSrb7N/BvbRkDVxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Mark Brown <broonie@kernel.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/338] spi: Update reference to struct spi_controller
+Subject: [PATCH 4.19 280/521] powerpc/52xx: Fix a resource leak in an error handling path
 Date:   Mon, 16 Jan 2023 16:49:02 +0100
-Message-Id: <20230116154823.874459242@linuxfoundation.org>
+Message-Id: <20230116154859.683765690@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit bf585ccee22faf469d82727cf375868105b362f7 ]
+[ Upstream commit 5836947613ef33d311b4eff6a32d019580a214f5 ]
 
-struct spi_master has been renamed to struct spi_controller. Update the
-reference in spi.rst to make it clickable again.
+The error handling path of mpc52xx_lpbfifo_probe() has a request_irq()
+that is not balanced by a corresponding free_irq().
 
-Fixes: 8caab75fd2c2 ("spi: Generalize SPI "master" to "controller"")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Link: https://lore.kernel.org/r/20221101173252.1069294-1-j.neuschaefer@gmx.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Add the missing call, as already done in the remove function.
+
+Fixes: 3c9059d79f5e ("powerpc/5200: add LocalPlus bus FIFO device driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/dec1496d46ccd5311d0f6e9f9ca4238be11bf6a6.1643440531.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/spi.rst | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/driver-api/spi.rst b/Documentation/driver-api/spi.rst
-index f64cb666498a..f28887045049 100644
---- a/Documentation/driver-api/spi.rst
-+++ b/Documentation/driver-api/spi.rst
-@@ -25,8 +25,8 @@ hardware, which may be as simple as a set of GPIO pins or as complex as
- a pair of FIFOs connected to dual DMA engines on the other side of the
- SPI shift register (maximizing throughput). Such drivers bridge between
- whatever bus they sit on (often the platform bus) and SPI, and expose
--the SPI side of their device as a :c:type:`struct spi_master
--<spi_master>`. SPI devices are children of that master,
-+the SPI side of their device as a :c:type:`struct spi_controller
-+<spi_controller>`. SPI devices are children of that master,
- represented as a :c:type:`struct spi_device <spi_device>` and
- manufactured from :c:type:`struct spi_board_info
- <spi_board_info>` descriptors which are usually provided by
+diff --git a/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c b/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
+index 7bb42a0100de..caaaaf2bea52 100644
+--- a/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
++++ b/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c
+@@ -531,6 +531,7 @@ static int mpc52xx_lpbfifo_probe(struct platform_device *op)
+  err_bcom_rx_irq:
+ 	bcom_gen_bd_rx_release(lpbfifo.bcom_rx_task);
+  err_bcom_rx:
++	free_irq(lpbfifo.irq, &lpbfifo);
+  err_irq:
+ 	iounmap(lpbfifo.regs);
+ 	lpbfifo.regs = NULL;
 -- 
 2.35.1
 
