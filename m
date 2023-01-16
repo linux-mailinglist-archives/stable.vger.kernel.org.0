@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AD3E66C823
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C290266C822
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:36:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233416AbjAPQgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:36:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54012 "EHLO
+        id S232949AbjAPQgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:36:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233522AbjAPQgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:36:09 -0500
+        with ESMTP id S233527AbjAPQgK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:36:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54AD730EA8
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17552B0B8
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:24:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1276B81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41452C433EF;
-        Mon, 16 Jan 2023 16:24:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 818F2B8107E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:24:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7393C433D2;
+        Mon, 16 Jan 2023 16:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886282;
-        bh=AMocFMS+Hs77VOqRO1Sz6eVAXrViQyU/xeojGcUNQb4=;
+        s=korg; t=1673886285;
+        bh=5QvBZFQ9NgOoWuCITjYQrr8Cr2laW+2PrldDW7NZY/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jj/2O4hCsdRP/5VKlGIjXoNBLeOKFgCgzq/thGj/xd9dkUQ7yDYLk10lfodo98Xxo
-         +tDK4ZHRXUq5Jthu58jmDpUpS9HdKumuArpsOnVO/H3rkYPBGNM6v58a2axu4hrPHz
-         KcXxpfjmzHeJa4WfqDNmr04nK/SROmHZNSZjls/w=
+        b=tbWPX61q8tZ4YSHphl6mXBRRBGoKaDwLpoSjTMlHL++AZ2bCx/VVg/4V4xlR0rBEB
+         JWGgjGaZCKNvpQFpBAhNn6GLDqgtrLK9gSZbBdle+F7SdNogMYOPrpvwHIB5gn9fEe
+         sqxl43M/G0j3//iv6GFVu8rRp8fD5wdATcuTPVG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kbuild test robot <lkp@intel.com>,
+        patches@lists.linux.dev, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Dan Aloni <dan.aloni@vastdata.com>,
+        Jeff Layton <jlayton@kernel.org>,
         Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 371/658] NFSD: Add tracepoints to NFSDs duplicate reply cache
-Date:   Mon, 16 Jan 2023 16:47:39 +0100
-Message-Id: <20230116154926.548347449@linuxfoundation.org>
+Subject: [PATCH 5.4 372/658] nfsd: under NFSv4.1, fix double svc_xprt_put on rpc_create failure
+Date:   Mon, 16 Jan 2023 16:47:40 +0100
+Message-Id: <20230116154926.592482860@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,242 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Dan Aloni <dan.aloni@vastdata.com>
 
-[ Upstream commit 0b175b18648ebedfe255b11a7792f1d76848a8f7 ]
+[ Upstream commit 3bc8edc98bd43540dbe648e4ef91f443d6d20a24 ]
 
-Try to capture DRC failures.
+On error situation `clp->cl_cb_conn.cb_xprt` should not be given
+a reference to the xprt otherwise both client cleanup and the
+error handling path of the caller call to put it. Better to
+delay handing over the reference to a later branch.
 
-Two additional clean-ups:
-- Introduce Doxygen-style comments for the main entry points
-- Remove a dprintk that fires for an allocation failure. This was
-  the only dprintk in the REPCACHE class.
+[   72.530665] refcount_t: underflow; use-after-free.
+[   72.531933] WARNING: CPU: 0 PID: 173 at lib/refcount.c:28 refcount_warn_saturate+0xcf/0x120
+[   72.533075] Modules linked in: nfsd(OE) nfsv4(OE) nfsv3(OE) nfs(OE) lockd(OE) compat_nfs_ssc(OE) nfs_acl(OE) rpcsec_gss_krb5(OE) auth_rpcgss(OE) rpcrdma(OE) dns_resolver fscache netfs grace rdma_cm iw_cm ib_cm sunrpc(OE) mlx5_ib mlx5_core mlxfw pci_hyperv_intf ib_uverbs ib_core xt_MASQUERADE nf_conntrack_netlink nft_counter xt_addrtype nft_compat br_netfilter bridge stp llc nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set overlay nf_tables nfnetlink crct10dif_pclmul crc32_pclmul ghash_clmulni_intel xfs serio_raw virtio_net virtio_blk net_failover failover fuse [last unloaded: sunrpc]
+[   72.540389] CPU: 0 PID: 173 Comm: kworker/u16:5 Tainted: G           OE     5.15.82-dan #1
+[   72.541511] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-3.module+el8.7.0+1084+97b81f61 04/01/2014
+[   72.542717] Workqueue: nfsd4_callbacks nfsd4_run_cb_work [nfsd]
+[   72.543575] RIP: 0010:refcount_warn_saturate+0xcf/0x120
+[   72.544299] Code: 55 00 0f 0b 5d e9 01 50 98 00 80 3d 75 9e 39 08 00 0f 85 74 ff ff ff 48 c7 c7 e8 d1 60 8e c6 05 61 9e 39 08 01 e8 f6 51 55 00 <0f> 0b 5d e9 d9 4f 98 00 80 3d 4b 9e 39 08 00 0f 85 4c ff ff ff 48
+[   72.546666] RSP: 0018:ffffb3f841157cf0 EFLAGS: 00010286
+[   72.547393] RAX: 0000000000000026 RBX: ffff89ac6231d478 RCX: 0000000000000000
+[   72.548324] RDX: ffff89adb7c2c2c0 RSI: ffff89adb7c205c0 RDI: ffff89adb7c205c0
+[   72.549271] RBP: ffffb3f841157cf0 R08: 0000000000000000 R09: c0000000ffefffff
+[   72.550209] R10: 0000000000000001 R11: ffffb3f841157ad0 R12: ffff89ac6231d180
+[   72.551142] R13: ffff89ac6231d478 R14: ffff89ac40c06180 R15: ffff89ac6231d4b0
+[   72.552089] FS:  0000000000000000(0000) GS:ffff89adb7c00000(0000) knlGS:0000000000000000
+[   72.553175] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   72.553934] CR2: 0000563a310506a8 CR3: 0000000109a66000 CR4: 0000000000350ef0
+[   72.554874] Call Trace:
+[   72.555278]  <TASK>
+[   72.555614]  svc_xprt_put+0xaf/0xe0 [sunrpc]
+[   72.556276]  nfsd4_process_cb_update.isra.11+0xb7/0x410 [nfsd]
+[   72.557087]  ? update_load_avg+0x82/0x610
+[   72.557652]  ? cpuacct_charge+0x60/0x70
+[   72.558212]  ? dequeue_entity+0xdb/0x3e0
+[   72.558765]  ? queued_spin_unlock+0x9/0x20
+[   72.559358]  nfsd4_run_cb_work+0xfc/0x270 [nfsd]
+[   72.560031]  process_one_work+0x1df/0x390
+[   72.560600]  worker_thread+0x37/0x3b0
+[   72.561644]  ? process_one_work+0x390/0x390
+[   72.562247]  kthread+0x12f/0x150
+[   72.562710]  ? set_kthread_struct+0x50/0x50
+[   72.563309]  ret_from_fork+0x22/0x30
+[   72.563818]  </TASK>
+[   72.564189] ---[ end trace 031117b1c72ec616 ]---
+[   72.566019] list_add corruption. next->prev should be prev (ffff89ac4977e538), but was ffff89ac4763e018. (next=ffff89ac4763e018).
+[   72.567647] ------------[ cut here ]------------
 
-Reported-by: kbuild test robot <lkp@intel.com>
-[ cel: force typecast for display of checksum values ]
+Fixes: a4abc6b12eb1 ("nfsd: Fix svc_xprt refcnt leak when setup callback client failed")
+Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Stable-dep-of: 3bc8edc98bd4 ("nfsd: under NFSv4.1, fix double svc_xprt_put on rpc_create failure")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfscache.c | 57 +++++++++++++++++++++++++++-----------------
- fs/nfsd/trace.h    | 59 ++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 94 insertions(+), 22 deletions(-)
+ fs/nfsd/nfs4callback.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfscache.c b/fs/nfsd/nfscache.c
-index 670e97dd67f0..80c90fc231a5 100644
---- a/fs/nfsd/nfscache.c
-+++ b/fs/nfsd/nfscache.c
-@@ -20,8 +20,7 @@
- 
- #include "nfsd.h"
- #include "cache.h"
--
--#define NFSDDBG_FACILITY	NFSDDBG_REPCACHE
-+#include "trace.h"
- 
- /*
-  * We use this value to determine the number of hash buckets from the max
-@@ -324,8 +323,10 @@ nfsd_cache_key_cmp(const struct svc_cacherep *key,
- 			const struct svc_cacherep *rp, struct nfsd_net *nn)
- {
- 	if (key->c_key.k_xid == rp->c_key.k_xid &&
--	    key->c_key.k_csum != rp->c_key.k_csum)
-+	    key->c_key.k_csum != rp->c_key.k_csum) {
- 		++nn->payload_misses;
-+		trace_nfsd_drc_mismatch(nn, key, rp);
-+	}
- 
- 	return memcmp(&key->c_key, &rp->c_key, sizeof(key->c_key));
- }
-@@ -378,15 +379,22 @@ nfsd_cache_insert(struct nfsd_drc_bucket *b, struct svc_cacherep *key,
- 	return ret;
- }
- 
--/*
-+/**
-+ * nfsd_cache_lookup - Find an entry in the duplicate reply cache
-+ * @rqstp: Incoming Call to find
-+ *
-  * Try to find an entry matching the current call in the cache. When none
-  * is found, we try to grab the oldest expired entry off the LRU list. If
-  * a suitable one isn't there, then drop the cache_lock and allocate a
-  * new one, then search again in case one got inserted while this thread
-  * didn't hold the lock.
-+ *
-+ * Return values:
-+ *   %RC_DOIT: Process the request normally
-+ *   %RC_REPLY: Reply from cache
-+ *   %RC_DROPIT: Do not process the request further
-  */
--int
--nfsd_cache_lookup(struct svc_rqst *rqstp)
-+int nfsd_cache_lookup(struct svc_rqst *rqstp)
- {
- 	struct nfsd_net *nn = net_generic(SVC_NET(rqstp), nfsd_net_id);
- 	struct svc_cacherep	*rp, *found;
-@@ -400,7 +408,7 @@ nfsd_cache_lookup(struct svc_rqst *rqstp)
- 	rqstp->rq_cacherep = NULL;
- 	if (type == RC_NOCACHE) {
- 		nfsdstats.rcnocache++;
--		return rtn;
-+		goto out;
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index 3c50d18fe8a9..ffc2b838b123 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -880,7 +880,6 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
+ 	} else {
+ 		if (!conn->cb_xprt)
+ 			return -EINVAL;
+-		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
+ 		clp->cl_cb_session = ses;
+ 		args.bc_xprt = conn->cb_xprt;
+ 		args.prognumber = clp->cl_cb_session->se_cb_prog;
+@@ -900,6 +899,9 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
+ 		rpc_shutdown_client(client);
+ 		return -ENOMEM;
  	}
- 
- 	csum = nfsd_cache_csum(rqstp);
-@@ -410,10 +418,8 @@ nfsd_cache_lookup(struct svc_rqst *rqstp)
- 	 * preallocate an entry.
- 	 */
- 	rp = nfsd_reply_cache_alloc(rqstp, csum, nn);
--	if (!rp) {
--		dprintk("nfsd: unable to allocate DRC entry!\n");
--		return rtn;
--	}
-+	if (!rp)
-+		goto out;
- 
- 	spin_lock(&b->cache_lock);
- 	found = nfsd_cache_insert(b, rp, nn);
-@@ -432,8 +438,10 @@ nfsd_cache_lookup(struct svc_rqst *rqstp)
- 
- 	/* go ahead and prune the cache */
- 	prune_bucket(b, nn);
-- out:
 +
-+out_unlock:
- 	spin_unlock(&b->cache_lock);
-+out:
- 	return rtn;
- 
- found_entry:
-@@ -443,13 +451,13 @@ nfsd_cache_lookup(struct svc_rqst *rqstp)
- 
- 	/* Request being processed */
- 	if (rp->c_state == RC_INPROG)
--		goto out;
-+		goto out_trace;
- 
- 	/* From the hall of fame of impractical attacks:
- 	 * Is this a user who tries to snoop on the cache? */
- 	rtn = RC_DOIT;
- 	if (!test_bit(RQ_SECURE, &rqstp->rq_flags) && rp->c_secure)
--		goto out;
-+		goto out_trace;
- 
- 	/* Compose RPC reply header */
- 	switch (rp->c_type) {
-@@ -461,20 +469,26 @@ nfsd_cache_lookup(struct svc_rqst *rqstp)
- 		break;
- 	case RC_REPLBUFF:
- 		if (!nfsd_cache_append(rqstp, &rp->c_replvec))
--			goto out;	/* should not happen */
-+			goto out_unlock; /* should not happen */
- 		rtn = RC_REPLY;
- 		break;
- 	default:
- 		WARN_ONCE(1, "nfsd: bad repcache type %d\n", rp->c_type);
- 	}
- 
--	goto out;
-+out_trace:
-+	trace_nfsd_drc_found(nn, rqstp, rtn);
-+	goto out_unlock;
- }
- 
--/*
-- * Update a cache entry. This is called from nfsd_dispatch when
-- * the procedure has been executed and the complete reply is in
-- * rqstp->rq_res.
-+/**
-+ * nfsd_cache_update - Update an entry in the duplicate reply cache.
-+ * @rqstp: svc_rqst with a finished Reply
-+ * @cachetype: which cache to update
-+ * @statp: Reply's status code
-+ *
-+ * This is called from nfsd_dispatch when the procedure has been
-+ * executed and the complete reply is in rqstp->rq_res.
-  *
-  * We're copying around data here rather than swapping buffers because
-  * the toplevel loop requires max-sized buffers, which would be a waste
-@@ -487,8 +501,7 @@ nfsd_cache_lookup(struct svc_rqst *rqstp)
-  * nfsd failed to encode a reply that otherwise would have been cached.
-  * In this case, nfsd_cache_update is called with statp == NULL.
-  */
--void
--nfsd_cache_update(struct svc_rqst *rqstp, int cachetype, __be32 *statp)
-+void nfsd_cache_update(struct svc_rqst *rqstp, int cachetype, __be32 *statp)
- {
- 	struct nfsd_net *nn = net_generic(SVC_NET(rqstp), nfsd_net_id);
- 	struct svc_cacherep *rp = rqstp->rq_cacherep;
-diff --git a/fs/nfsd/trace.h b/fs/nfsd/trace.h
-index dc6aae4ef41d..9d37d09d7ca8 100644
---- a/fs/nfsd/trace.h
-+++ b/fs/nfsd/trace.h
-@@ -310,6 +310,65 @@ TRACE_EVENT(nfsd_file_fsnotify_handle_event,
- 			__entry->nlink, __entry->mode, __entry->mask)
- );
- 
-+#include "cache.h"
-+
-+TRACE_DEFINE_ENUM(RC_DROPIT);
-+TRACE_DEFINE_ENUM(RC_REPLY);
-+TRACE_DEFINE_ENUM(RC_DOIT);
-+
-+#define show_drc_retval(x)						\
-+	__print_symbolic(x,						\
-+		{ RC_DROPIT, "DROPIT" },				\
-+		{ RC_REPLY, "REPLY" },					\
-+		{ RC_DOIT, "DOIT" })
-+
-+TRACE_EVENT(nfsd_drc_found,
-+	TP_PROTO(
-+		const struct nfsd_net *nn,
-+		const struct svc_rqst *rqstp,
-+		int result
-+	),
-+	TP_ARGS(nn, rqstp, result),
-+	TP_STRUCT__entry(
-+		__field(unsigned long long, boot_time)
-+		__field(unsigned long, result)
-+		__field(u32, xid)
-+	),
-+	TP_fast_assign(
-+		__entry->boot_time = nn->boot_time;
-+		__entry->result = result;
-+		__entry->xid = be32_to_cpu(rqstp->rq_xid);
-+	),
-+	TP_printk("boot_time=%16llx xid=0x%08x result=%s",
-+		__entry->boot_time, __entry->xid,
-+		show_drc_retval(__entry->result))
-+
-+);
-+
-+TRACE_EVENT(nfsd_drc_mismatch,
-+	TP_PROTO(
-+		const struct nfsd_net *nn,
-+		const struct svc_cacherep *key,
-+		const struct svc_cacherep *rp
-+	),
-+	TP_ARGS(nn, key, rp),
-+	TP_STRUCT__entry(
-+		__field(unsigned long long, boot_time)
-+		__field(u32, xid)
-+		__field(u32, cached)
-+		__field(u32, ingress)
-+	),
-+	TP_fast_assign(
-+		__entry->boot_time = nn->boot_time;
-+		__entry->xid = be32_to_cpu(key->c_key.k_xid);
-+		__entry->cached = (__force u32)key->c_key.k_csum;
-+		__entry->ingress = (__force u32)rp->c_key.k_csum;
-+	),
-+	TP_printk("boot_time=%16llx xid=0x%08x cached-csum=0x%08x ingress-csum=0x%08x",
-+		__entry->boot_time, __entry->xid, __entry->cached,
-+		__entry->ingress)
-+);
-+
- #endif /* _NFSD_TRACE_H */
- 
- #undef TRACE_INCLUDE_PATH
++	if (clp->cl_minorversion != 0)
++		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
+ 	clp->cl_cb_client = client;
+ 	clp->cl_cb_cred = cred;
+ 	return 0;
 -- 
 2.35.1
 
