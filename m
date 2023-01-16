@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66DAB66C763
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:30:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C3BB66C9F8
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:58:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232889AbjAPQaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:30:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47024 "EHLO
+        id S232939AbjAPQ6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:58:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233175AbjAPQ3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:29:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E37A38B5C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:18:19 -0800 (PST)
+        with ESMTP id S233948AbjAPQ5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:57:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B21F52CC7F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:40:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0E6661031
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBF40C433EF;
-        Mon, 16 Jan 2023 16:18:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63ABAB8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BABA2C433EF;
+        Mon, 16 Jan 2023 16:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885898;
-        bh=E9I6p4faWwlAtUJ556ot8cO4m9gCRlf+PNsdP9j8FvM=;
+        s=korg; t=1673887237;
+        bh=R5m+meuX56lK8qqvJMnFyVFAEiJUbiZ90m0DHPeDlvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rp4MaEzvBVltsPbeCnnTAYt5s6icQfD/3n9Uko7W2plDwBmZcR7uvHaQFR6b8K6sP
-         BmaEnsTX/NtZdYfiqrJNAc9lescK8gTv+0OuOJct5LZTo1NYIHj5vAMidwcnkpCmtu
-         wDcs629Fl5sCPEjbKJydwrDx8hHgnrJuu+lmp1PE=
+        b=YnbzVMvare2ZziJCeuz6K1GNIKRDmE9kCZBtomVykaL1DJxwbAqAV+Cl3GYCo/osi
+         UF1urslLt2pJ1QnofOrovHiWlQA08MasFYHVv/BFFUpMECf/WzWaRWF+weQDRWarJ6
+         F/F9am53nUccuSP21Wc7/qD24HwiDxb4umSRG0Ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Ulf Hansson <ulf.hansson@linaro.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 218/658] ethernet: s2io: dont call dev_kfree_skb() under spin_lock_irqsave()
+Subject: [PATCH 4.19 044/521] cpuidle: dt: Return the correct numbers of parsed idle states
 Date:   Mon, 16 Jan 2023 16:45:06 +0100
-Message-Id: <20230116154919.453280793@linuxfoundation.org>
+Message-Id: <20230116154849.234259252@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 6cee96e09df54ae17784c0f38a49e0ed8229b825 ]
+[ Upstream commit ee3c2c8ad6ba6785f14a60e4081d7c82e88162a2 ]
 
-It is not allowed to call kfree_skb() or consume_skb() from hardware
-interrupt context or with hardware interrupts being disabled.
+While we correctly skips to initialize an idle state from a disabled idle
+state node in DT, the returned value from dt_init_idle_driver() don't get
+adjusted accordingly. Instead the number of found idle state nodes are
+returned, while the callers are expecting the number of successfully
+initialized idle states from DT.
 
-It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
-The difference between them is free reason, dev_kfree_skb_irq() means
-the SKB is dropped in error and dev_consume_skb_irq() means the SKB
-is consumed in normal.
+This leads to cpuidle drivers unnecessarily continues to initialize their
+idle state specific data. Moreover, in the case when all idle states have
+been disabled in DT, we would end up registering a cpuidle driver, rather
+than relying on the default arch specific idle call.
 
-In this case, dev_kfree_skb() is called in free_tx_buffers() to drop
-the SKBs in tx buffers, when the card is down, so replace it with
-dev_kfree_skb_irq() here.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9f14da345599 ("drivers: cpuidle: implement DT based idle states infrastructure")
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/neterion/s2io.c | 2 +-
+ drivers/cpuidle/dt_idle_states.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/neterion/s2io.c b/drivers/net/ethernet/neterion/s2io.c
-index 69316ddcf067..496052a6b9b8 100644
---- a/drivers/net/ethernet/neterion/s2io.c
-+++ b/drivers/net/ethernet/neterion/s2io.c
-@@ -2375,7 +2375,7 @@ static void free_tx_buffers(struct s2io_nic *nic)
- 			skb = s2io_txdl_getskb(&mac_control->fifos[i], txdp, j);
- 			if (skb) {
- 				swstats->mem_freed += skb->truesize;
--				dev_kfree_skb(skb);
-+				dev_kfree_skb_irq(skb);
- 				cnt++;
- 			}
- 		}
+diff --git a/drivers/cpuidle/dt_idle_states.c b/drivers/cpuidle/dt_idle_states.c
+index 53342b7f1010..ea3c59d3fdad 100644
+--- a/drivers/cpuidle/dt_idle_states.c
++++ b/drivers/cpuidle/dt_idle_states.c
+@@ -224,6 +224,6 @@ int dt_init_idle_driver(struct cpuidle_driver *drv,
+ 	 * also be 0 on platforms with missing DT idle states or legacy DT
+ 	 * configuration predating the DT idle states bindings.
+ 	 */
+-	return i;
++	return state_idx - start_idx;
+ }
+ EXPORT_SYMBOL_GPL(dt_init_idle_driver);
 -- 
 2.35.1
 
