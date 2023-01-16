@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F78D66C7C8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:34:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D13F466C7C9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:34:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233333AbjAPQei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:34:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48362 "EHLO
+        id S233369AbjAPQep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:34:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233357AbjAPQeI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:08 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6018A3B0D4
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:21:55 -0800 (PST)
+        with ESMTP id S233285AbjAPQeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AD0326586
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:21:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C9545CE1280
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:21:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C09DCC433F0;
-        Mon, 16 Jan 2023 16:21:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 147C0B80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:21:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63BF6C433D2;
+        Mon, 16 Jan 2023 16:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886112;
-        bh=2s8+8v+kwfXxbFXzf6BDPF3hKKV7A9BpshUDpveIOhI=;
+        s=korg; t=1673886114;
+        bh=YVCGzrOzSEJipdm3dTxZVy8eDWMdNgLk5+TKjoFfW9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMPVczJpg5blTHMQBr21/5CQjyUZ1VP2kYi7zUWhz25H2cU4WSKRpAbb54YYxQAa2
-         jGVfhEHKx0FjCIsyGlEn+9ESXWFWPCuWRwHdEp6k3sCFaL0ER9QrPKuT4K1+qmMUg9
-         kqSKAV1UJ98e7VIeE85QXm1ytZI2SH7iCLr4Dew4=
+        b=i8VK+CXXcODfrpu+dtVi5WcMyWBqKxrO3NkX5lC71hqIRJo2edBorwKnuK9dD3y9K
+         R19DXSOmetL0mU5WdXXOuqmlQGocIB9Olp1EFVmsDvoRgaPNQD//J16lFIzoexLc+g
+         ondqZ37SFuXd5IfykUn8YTXStWi+Kq9DM4UVBsnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hui Tang <tanghui20@huawei.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 306/658] i2c: pxa-pci: fix missing pci_disable_device() on error in ce4100_i2c_probe
-Date:   Mon, 16 Jan 2023 16:46:34 +0100
-Message-Id: <20230116154923.580498004@linuxfoundation.org>
+        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 307/658] staging: rtl8192u: Fix use after free in ieee80211_rx()
+Date:   Mon, 16 Jan 2023 16:46:35 +0100
+Message-Id: <20230116154923.623408565@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -52,54 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Tang <tanghui20@huawei.com>
+From: Dan Carpenter <error27@gmail.com>
 
-[ Upstream commit d78a167332e1ca8113268ed922c1212fd71b73ad ]
+[ Upstream commit bcc5e2dcf09089b337b76fc1a589f6ff95ca19ac ]
 
-Using pcim_enable_device() to avoid missing pci_disable_device().
+We cannot dereference the "skb" pointer after calling
+ieee80211_monitor_rx(), because it is a use after free.
 
-Fixes: 7e94dd154e93 ("i2c-pxa2xx: Add PCI support for PXA I2C controller")
-Signed-off-by: Hui Tang <tanghui20@huawei.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
+Signed-off-by: Dan Carpenter <error27@gmail.com>
+Link: https://lore.kernel.org/r/Y33BArx3k/aw6yv/@kili
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-pxa-pci.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
-index f614cade432b..30e38bc8b6db 100644
---- a/drivers/i2c/busses/i2c-pxa-pci.c
-+++ b/drivers/i2c/busses/i2c-pxa-pci.c
-@@ -105,7 +105,7 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
- 	int i;
- 	struct ce4100_devices *sds;
+diff --git a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
+index 00e34c392a38..d51f734aca26 100644
+--- a/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
++++ b/drivers/staging/rtl8192u/ieee80211/ieee80211_rx.c
+@@ -943,9 +943,11 @@ int ieee80211_rx(struct ieee80211_device *ieee, struct sk_buff *skb,
+ #endif
  
--	ret = pci_enable_device_mem(dev);
-+	ret = pcim_enable_device(dev);
- 	if (ret)
- 		return ret;
- 
-@@ -114,10 +114,8 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
- 		return -EINVAL;
+ 	if (ieee->iw_mode == IW_MODE_MONITOR) {
++		unsigned int len = skb->len;
++
+ 		ieee80211_monitor_rx(ieee, skb, rx_stats);
+ 		stats->rx_packets++;
+-		stats->rx_bytes += skb->len;
++		stats->rx_bytes += len;
+ 		return 1;
  	}
- 	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
--	if (!sds) {
--		ret = -ENOMEM;
--		goto err_mem;
--	}
-+	if (!sds)
-+		return -ENOMEM;
- 
- 	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++) {
- 		sds->pdev[i] = add_i2c_device(dev, i);
-@@ -133,8 +131,6 @@ static int ce4100_i2c_probe(struct pci_dev *dev,
- 
- err_dev_add:
- 	kfree(sds);
--err_mem:
--	pci_disable_device(dev);
- 	return ret;
- }
  
 -- 
 2.35.1
