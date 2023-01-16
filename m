@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E070266C4FE
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:00:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B09E66C5C4
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231861AbjAPQAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:00:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42164 "EHLO
+        id S232492AbjAPQKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:10:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231951AbjAPQAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:00:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1815423C5C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:00:17 -0800 (PST)
+        with ESMTP id S232603AbjAPQJb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:09:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F02B628856
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:06:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0BFCB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:00:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23DDDC433EF;
-        Mon, 16 Jan 2023 16:00:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78B5E6102A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:06:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80CB9C433F1;
+        Mon, 16 Jan 2023 16:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884814;
-        bh=t85UF9TupQ/VaXI7mH4PDfmG9rJfJWkOdJVHF8qO2T0=;
+        s=korg; t=1673885178;
+        bh=sCzp53A8zK1sw9NNzzJz4deyjZC6vOEcgGIg0IQRrVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JRVilRExUXNH/XaomvLRUskAZ+Mvo61w3n9Oz6KsL3OrWSKFX1ZbSL38VdWKG4OwA
-         mkz9o933nx/R/O01peazN3DmqaJfMK8rEyYdDfEHr6BZ8xGBBNIAnhTlQm7baTiD+f
-         V+mLgUbCGMlUYRyR9YWviNJeuUph0UKWLQyuIo6o=
+        b=R2JiHUeabwq+9Wyv3n13+E0dhXqz+VBIilCg0gi8GJcZp5vokN/+GGYe9DXmwWBjJ
+         guDJocr4i5Ra+pWImFym7pHNPH1njuUtrtL1SrL+zpp+LX5rXOETeKTG9LX0VDfbkR
+         AM3pWtIEqPIWBiMKFHym6QqP/pURT9oUBYcNLfhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ariel Levkovich <lariel@nvidia.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 150/183] net/mlx5: check attr pointer validity before dereferencing it
-Date:   Mon, 16 Jan 2023 16:51:13 +0100
-Message-Id: <20230116154809.675932768@linuxfoundation.org>
+        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.10 07/64] s390/kexec: fix ipl report address for kdump
+Date:   Mon, 16 Jan 2023 16:51:14 +0100
+Message-Id: <20230116154743.915495128@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154743.577276578@linuxfoundation.org>
+References: <20230116154743.577276578@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ariel Levkovich <lariel@nvidia.com>
+From: Alexander Egorenkov <egorenar@linux.ibm.com>
 
-[ Upstream commit e0bf81bf0d3d4747c146e0bf44774d3d881d7137 ]
+commit c2337a40e04dde1692b5b0a46ecc59f89aaba8a1 upstream.
 
-Fix attr pointer validity checks after it was already
-dereferenced.
+This commit addresses the following erroneous situation with file-based
+kdump executed on a system with a valid IPL report.
 
-Fixes: cb0d54cbf948 ("net/mlx5e: Fix wrong source vport matching on tunnel rule")
-Signed-off-by: Ariel Levkovich <lariel@nvidia.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+On s390, a kdump kernel, its initrd and IPL report if present are loaded
+into a special and reserved on boot memory region - crashkernel. When
+a system crashes and kdump was activated before, the purgatory code
+is entered first which swaps the crashkernel and [0 - crashkernel size]
+memory regions. Only after that the kdump kernel is entered. For this
+reason, the pointer to an IPL report in lowcore must point to the IPL report
+after the swap and not to the address of the IPL report that was located in
+crashkernel memory region before the swap. Failing to do so, makes the
+kdump's decompressor try to read memory from the crashkernel memory region
+which already contains the production's kernel memory.
+
+The situation described above caused spontaneous kdump failures/hangs
+on systems where the Secure IPL is activated because on such systems
+an IPL report is always present. In that case kdump's decompressor tried
+to parse an IPL report which frequently lead to illegal memory accesses
+because an IPL report contains addresses to various data.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to next kernel")
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/machine_kexec_file.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-index 8c6c9bcb3dc3..b4e263e8cfb8 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-@@ -142,7 +142,7 @@ mlx5_eswitch_set_rule_source_port(struct mlx5_eswitch *esw,
- 		if (mlx5_esw_indir_table_decap_vport(attr))
- 			vport = mlx5_esw_indir_table_decap_vport(attr);
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -185,8 +185,6 @@ static int kexec_file_add_ipl_report(str
  
--		if (attr && !attr->chain && esw_attr->int_port)
-+		if (!attr->chain && esw_attr && esw_attr->int_port)
- 			metadata =
- 				mlx5e_tc_int_port_get_metadata_for_match(esw_attr->int_port);
- 		else
--- 
-2.35.1
-
+ 	data->memsz = ALIGN(data->memsz, PAGE_SIZE);
+ 	buf.mem = data->memsz;
+-	if (image->type == KEXEC_TYPE_CRASH)
+-		buf.mem += crashk_res.start;
+ 
+ 	ptr = (void *)ipl_cert_list_addr;
+ 	end = ptr + ipl_cert_list_size;
+@@ -223,6 +221,9 @@ static int kexec_file_add_ipl_report(str
+ 		data->kernel_buf + offsetof(struct lowcore, ipl_parmblock_ptr);
+ 	*lc_ipl_parmblock_ptr = (__u32)buf.mem;
+ 
++	if (image->type == KEXEC_TYPE_CRASH)
++		buf.mem += crashk_res.start;
++
+ 	ret = kexec_add_buffer(&buf);
+ out:
+ 	return ret;
 
 
