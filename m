@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92FDB66CB6A
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:14:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03E7866CB8E
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234103AbjAPROm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:14:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39502 "EHLO
+        id S234307AbjAPROr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:14:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234402AbjAPRNL (ORCPT
+        with ESMTP id S234405AbjAPRNL (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:13:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AF5B4B754
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A2474B758
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18DDF61042
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31735C433EF;
-        Mon, 16 Jan 2023 16:53:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD2F060F61
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFC2EC433D2;
+        Mon, 16 Jan 2023 16:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888021;
-        bh=93CeXYmbGwE9z4QaiD/dCMVcYGEbq7GRYdKlG07Gq8E=;
+        s=korg; t=1673888024;
+        bh=anJBOgthcO90W+a3IhkS9w2Kfos0vFd6Fpt1aKZn/sE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=POk3ODi+gOMHXmAbuiIAXYutw3jh23TnkTNUchFhSif3Tpg8qMWu+utd4c6B/91NK
-         9YR1Cd+4BS44iAzatvzfEw+uWyIMIudYXT4f//LeWkyeSkqzKgoq7P4qzKXm5qB6Rc
-         JVyhUEa23i46pzLrlzmpSBGZtkeKCJjd1HuywhDE=
+        b=1VUbqDXcBDCxKqDojiD+rMGcU03Xf++oJbg5fZeA3Gyu8ZWY6lBpRpEgzuTjREt56
+         x+LbvdDC+Don8nNWyM/1O6xtE2Ot4j5pxQlDceHBs6lBe1Rp9kBQEPvyxqdYGT2sRe
+         W+0yAVwUBc+eua/K+NhXUGEdu1P3K46dwnC1uDz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mikulas Patocka <mpatocka@redhat.com>,
-        Song Liu <song@kernel.org>
-Subject: [PATCH 4.19 371/521] md: fix a crash in mempool_free
-Date:   Mon, 16 Jan 2023 16:50:33 +0100
-Message-Id: <20230116154903.675868414@linuxfoundation.org>
+        patches@lists.linux.dev, Deren Wu <deren.wu@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 372/521] mmc: vub300: fix warning - do not call blocking ops when !TASK_RUNNING
+Date:   Mon, 16 Jan 2023 16:50:34 +0100
+Message-Id: <20230116154903.724368183@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -52,109 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-commit 341097ee53573e06ab9fc675d96a052385b851fa upstream.
+commit 4a44cd249604e29e7b90ae796d7692f5773dd348 upstream.
 
-There's a crash in mempool_free when running the lvm test
-shell/lvchange-rebuild-raid.sh.
+vub300_enable_sdio_irq() works with mutex and need TASK_RUNNING here.
+Ensure that we mark current as TASK_RUNNING for sleepable context.
 
-The reason for the crash is this:
-* super_written calls atomic_dec_and_test(&mddev->pending_writes) and
-  wake_up(&mddev->sb_wait). Then it calls rdev_dec_pending(rdev, mddev)
-  and bio_put(bio).
-* so, the process that waited on sb_wait and that is woken up is racing
-  with bio_put(bio).
-* if the process wins the race, it calls bioset_exit before bio_put(bio)
-  is executed.
-* bio_put(bio) attempts to free a bio into a destroyed bio set - causing
-  a crash in mempool_free.
+[   77.554641] do not call blocking ops when !TASK_RUNNING; state=1 set at [<ffffffff92a72c1d>] sdio_irq_thread+0x17d/0x5b0
+[   77.554652] WARNING: CPU: 2 PID: 1983 at kernel/sched/core.c:9813 __might_sleep+0x116/0x160
+[   77.554905] CPU: 2 PID: 1983 Comm: ksdioirqd/mmc1 Tainted: G           OE      6.1.0-rc5 #1
+[   77.554910] Hardware name: Intel(R) Client Systems NUC8i7BEH/NUC8BEB, BIOS BECFL357.86A.0081.2020.0504.1834 05/04/2020
+[   77.554912] RIP: 0010:__might_sleep+0x116/0x160
+[   77.554920] RSP: 0018:ffff888107b7fdb8 EFLAGS: 00010282
+[   77.554923] RAX: 0000000000000000 RBX: ffff888118c1b740 RCX: 0000000000000000
+[   77.554926] RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffed1020f6ffa9
+[   77.554928] RBP: ffff888107b7fde0 R08: 0000000000000001 R09: ffffed1043ea60ba
+[   77.554930] R10: ffff88821f5305cb R11: ffffed1043ea60b9 R12: ffffffff93aa3a60
+[   77.554932] R13: 000000000000011b R14: 7fffffffffffffff R15: ffffffffc0558660
+[   77.554934] FS:  0000000000000000(0000) GS:ffff88821f500000(0000) knlGS:0000000000000000
+[   77.554937] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   77.554939] CR2: 00007f8a44010d68 CR3: 000000024421a003 CR4: 00000000003706e0
+[   77.554942] Call Trace:
+[   77.554944]  <TASK>
+[   77.554952]  mutex_lock+0x78/0xf0
+[   77.554973]  vub300_enable_sdio_irq+0x103/0x3c0 [vub300]
+[   77.554981]  sdio_irq_thread+0x25c/0x5b0
+[   77.555006]  kthread+0x2b8/0x370
+[   77.555017]  ret_from_fork+0x1f/0x30
+[   77.555023]  </TASK>
+[   77.555025] ---[ end trace 0000000000000000 ]---
 
-We fix this bug by moving bio_put before atomic_dec_and_test.
-
-We also move rdev_dec_pending before atomic_dec_and_test as suggested by
-Neil Brown.
-
-The function md_end_flush has a similar bug - we must call bio_put before
-we decrement the number of in-progress bios.
-
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 11557f0067 P4D 11557f0067 PUD 0
- Oops: 0002 [#1] PREEMPT SMP
- CPU: 0 PID: 73 Comm: kworker/0:1 Not tainted 6.1.0-rc3 #5
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
- Workqueue: kdelayd flush_expired_bios [dm_delay]
- RIP: 0010:mempool_free+0x47/0x80
- Code: 48 89 ef 5b 5d ff e0 f3 c3 48 89 f7 e8 32 45 3f 00 48 63 53 08 48 89 c6 3b 53 04 7d 2d 48 8b 43 10 8d 4a 01 48 89 df 89 4b 08 <48> 89 2c d0 e8 b0 45 3f 00 48 8d 7b 30 5b 5d 31 c9 ba 01 00 00 00
- RSP: 0018:ffff88910036bda8 EFLAGS: 00010093
- RAX: 0000000000000000 RBX: ffff8891037b65d8 RCX: 0000000000000001
- RDX: 0000000000000000 RSI: 0000000000000202 RDI: ffff8891037b65d8
- RBP: ffff8891447ba240 R08: 0000000000012908 R09: 00000000003d0900
- R10: 0000000000000000 R11: 0000000000173544 R12: ffff889101a14000
- R13: ffff8891562ac300 R14: ffff889102b41440 R15: ffffe8ffffa00d05
- FS:  0000000000000000(0000) GS:ffff88942fa00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000000 CR3: 0000001102e99000 CR4: 00000000000006b0
- Call Trace:
-  <TASK>
-  clone_endio+0xf4/0x1c0 [dm_mod]
-  clone_endio+0xf4/0x1c0 [dm_mod]
-  __submit_bio+0x76/0x120
-  submit_bio_noacct_nocheck+0xb6/0x2a0
-  flush_expired_bios+0x28/0x2f [dm_delay]
-  process_one_work+0x1b4/0x300
-  worker_thread+0x45/0x3e0
-  ? rescuer_thread+0x380/0x380
-  kthread+0xc2/0x100
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork+0x1f/0x30
-  </TASK>
- Modules linked in: brd dm_delay dm_raid dm_mod af_packet uvesafb cfbfillrect cfbimgblt cn cfbcopyarea fb font fbdev tun autofs4 binfmt_misc configfs ipv6 virtio_rng virtio_balloon rng_core virtio_net pcspkr net_failover failover qemu_fw_cfg button mousedev raid10 raid456 libcrc32c async_raid6_recov async_memcpy async_pq raid6_pq async_xor xor async_tx raid1 raid0 md_mod sd_mod t10_pi crc64_rocksoft crc64 virtio_scsi scsi_mod evdev psmouse bsg scsi_common [last unloaded: brd]
- CR2: 0000000000000000
- ---[ end trace 0000000000000000 ]---
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Song Liu <song@kernel.org>
+Link: https://lore.kernel.org/r/87dc45b122d26d63c80532976813c9365d7160b3.1670140888.git.deren.wu@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/mmc/host/vub300.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -417,13 +417,14 @@ static void md_end_flush(struct bio *bio
- 	struct md_rdev *rdev = bio->bi_private;
- 	struct mddev *mddev = rdev->mddev;
- 
-+	bio_put(bio);
-+
- 	rdev_dec_pending(rdev, mddev);
- 
- 	if (atomic_dec_and_test(&mddev->flush_pending)) {
- 		/* The pre-request flush has finished */
- 		queue_work(md_wq, &mddev->flush_work);
+--- a/drivers/mmc/host/vub300.c
++++ b/drivers/mmc/host/vub300.c
+@@ -2052,6 +2052,7 @@ static void vub300_enable_sdio_irq(struc
+ 		return;
+ 	kref_get(&vub300->kref);
+ 	if (enable) {
++		set_current_state(TASK_RUNNING);
+ 		mutex_lock(&vub300->irq_mutex);
+ 		if (vub300->irqs_queued) {
+ 			vub300->irqs_queued -= 1;
+@@ -2067,6 +2068,7 @@ static void vub300_enable_sdio_irq(struc
+ 			vub300_queue_poll_work(vub300, 0);
+ 		}
+ 		mutex_unlock(&vub300->irq_mutex);
++		set_current_state(TASK_INTERRUPTIBLE);
+ 	} else {
+ 		vub300->irq_enabled = 0;
  	}
--	bio_put(bio);
- }
- 
- static void md_submit_flush_data(struct work_struct *ws);
-@@ -821,10 +822,12 @@ static void super_written(struct bio *bi
- 	} else
- 		clear_bit(LastDev, &rdev->flags);
- 
-+	bio_put(bio);
-+
-+	rdev_dec_pending(rdev, mddev);
-+
- 	if (atomic_dec_and_test(&mddev->pending_writes))
- 		wake_up(&mddev->sb_wait);
--	rdev_dec_pending(rdev, mddev);
--	bio_put(bio);
- }
- 
- void md_super_write(struct mddev *mddev, struct md_rdev *rdev,
 
 
