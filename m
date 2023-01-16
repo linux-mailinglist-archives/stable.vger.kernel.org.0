@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7867166C634
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EE2F66C636
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:16:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232636AbjAPQQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:16:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57252 "EHLO
+        id S232790AbjAPQQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:16:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232607AbjAPQPq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:15:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D482CFEA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:09:21 -0800 (PST)
+        with ESMTP id S232156AbjAPQPv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:15:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2452D149
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:09:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32373B81059
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:09:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89609C433F0;
-        Mon, 16 Jan 2023 16:09:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C339CB8107A
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:09:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29B0EC433EF;
+        Mon, 16 Jan 2023 16:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885358;
-        bh=UfQFZ1kFbheT04pu4059mhNdTGUTAfToZHA4cG/rGkU=;
+        s=korg; t=1673885361;
+        bh=z+fvUpmj38j8B1IpJQB5YzQydRPN0lvlSgn0iSJlb/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ll2/3XV2f0gH8u0LWS63CrZ/tZMRwUKdbkxW2n0c3SDhax1biKn2nSGqlvHA1XJGK
-         mpo/vHHC6m2r6tOntKiowHOnNucfSfJLHWAftOm2g/XoY9tgn5AF/w9Kl3LWZhXygq
-         19fy63t6IXqBdEg8/wHVK/FZwh0JdPG132J30n5I=
+        b=InxBv330L26Qr3O9avQM1ViuYsuJ6YMyoXo2IbUG72rPG/ffzCfXhQufK1/igS4yN
+         xYdAKe/ke47LhoNyS/tHfGNbQgONyYpKXk1+veUkndzlEQA6ADYk/hQfU3+ohTEcEQ
+         +lewHKd09I93we/9plPJE6GYMBsMpMtKgcEWKbJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/658] arm64: dts: qcom: sdm845-cheza: fix AP suspend pin bias
-Date:   Mon, 16 Jan 2023 16:41:49 +0100
-Message-Id: <20230116154910.604281422@linuxfoundation.org>
+        patches@lists.linux.dev, Chen Jiahao <chenjiahao16@huawei.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 022/658] drivers: soc: ti: knav_qmss_queue: Mark knav_acc_firmwares as static
+Date:   Mon, 16 Jan 2023 16:41:50 +0100
+Message-Id: <20230116154910.651793528@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -55,45 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Chen Jiahao <chenjiahao16@huawei.com>
 
-[ Upstream commit 9bce41fab14da8f21027dc9847535ef5e22cbe8b ]
+[ Upstream commit adf85adc2a7199b41e7a4da083bd17274a3d6969 ]
 
-There is no "bias-no-pull" property.  Assume intentions were disabling
-bias.
+There is a sparse warning shown below:
 
-Fixes: 79e7739f7b87 ("arm64: dts: qcom: sdm845-cheza: add initial cheza dt")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221010114417.29859-3-krzysztof.kozlowski@linaro.org
+drivers/soc/ti/knav_qmss_queue.c:70:12: warning: symbol
+'knav_acc_firmwares' was not declared. Should it be static?
+
+Since 'knav_acc_firmwares' is only called within knav_qmss_queue.c,
+mark it as static to fix the warning.
+
+Fixes: 96ee19becc3b ("soc: ti: add firmware file name as part of the driver")
+Signed-off-by: Chen Jiahao <chenjiahao16@huawei.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20221019153212.72350-1-chenjiahao16@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/soc/ti/knav_qmss_queue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-index 99a28d64ee62..2b7923f1f0ec 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-@@ -1310,7 +1310,7 @@ ap_suspend_l_assert: ap_suspend_l_assert {
- 		config {
- 			pins = "gpio126";
- 			function = "gpio";
--			bias-no-pull;
-+			bias-disable;
- 			drive-strength = <2>;
- 			output-low;
- 		};
-@@ -1320,7 +1320,7 @@ ap_suspend_l_deassert: ap_suspend_l_deassert {
- 		config {
- 			pins = "gpio126";
- 			function = "gpio";
--			bias-no-pull;
-+			bias-disable;
- 			drive-strength = <2>;
- 			output-high;
- 		};
+diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
+index b8210479ec99..d5fc00979628 100644
+--- a/drivers/soc/ti/knav_qmss_queue.c
++++ b/drivers/soc/ti/knav_qmss_queue.c
+@@ -64,7 +64,7 @@ static DEFINE_MUTEX(knav_dev_lock);
+  * Newest followed by older ones. Search is done from start of the array
+  * until a firmware file is found.
+  */
+-const char *knav_acc_firmwares[] = {"ks2_qmss_pdsp_acc48.bin"};
++static const char * const knav_acc_firmwares[] = {"ks2_qmss_pdsp_acc48.bin"};
+ 
+ static bool device_ready;
+ bool knav_qmss_device_ready(void)
 -- 
 2.35.1
 
