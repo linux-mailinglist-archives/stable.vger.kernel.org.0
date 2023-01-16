@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43B1F66C7B8
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:34:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C2A66CA2F
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:00:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233308AbjAPQeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:34:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
+        id S234128AbjAPRAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:00:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233339AbjAPQdR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:33:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305492C645
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:21:15 -0800 (PST)
+        with ESMTP id S234158AbjAPQ7w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:59:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E98AF3B0E1
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:42:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA9EAB81060
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:21:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36889C433F0;
-        Mon, 16 Jan 2023 16:21:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2FC7B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:42:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E7BFC433D2;
+        Mon, 16 Jan 2023 16:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886072;
-        bh=wKvVCLFDg1m3wSKj5ckC6IK3CnIj1yWSWv9yWDc3/WM=;
+        s=korg; t=1673887355;
+        bh=K+JGQNojVIM/sXm0g6HJdB0AB2YLi0tqCFvWb5muwyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhmtbUu+9rA4ulQkfU/BVTWg0pu/UIJtsAA7Qx9kfF3arosU5V23MjFjYlIXk9cJU
-         SIctysaKs2tsg8VtXUy15+gt8Fp+ddTJjALKkPHH6VyvluyAIb+ycYtKWV5jlIggYp
-         AhyurGuCGoOrYZcmX5n6gNVaYgSyGNTvehaVpK8g=
+        b=O5ty1Y+r/AE+v8aLjcjM8ApXNpW7opP5Hi4OM0hSXkBnmPk7+8MXO1P3bSwxbx991
+         QZ76ifKLLfAToRWZKV6tvO0JihlI8A1/ZUwy1HcGT0T76+b6ivnrjDdPXacyJe/nl1
+         xfYX5NlQ/Izf9L+Jmm3Gew2vWJzEKVovYcBXqYVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 292/658] test_firmware: fix memory leak in test_firmware_init()
+Subject: [PATCH 4.19 118/521] media: dvb-core: Fix ignored return value in dvb_register_frontend()
 Date:   Mon, 16 Jan 2023 16:46:20 +0100
-Message-Id: <20230116154922.961371662@linuxfoundation.org>
+Message-Id: <20230116154852.523896625@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
-References: <20230116154909.645460653@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 7610615e8cdb3f6f5bbd9d8e7a5d8a63e3cabf2e ]
+[ Upstream commit a574359e2e71ce16be212df3a082ed60a4bd2c5f ]
 
-When misc_register() failed in test_firmware_init(), the memory pointed
-by test_fw_config->name is not released. The memory leak information is
-as follows:
-unreferenced object 0xffff88810a34cb00 (size 32):
-  comm "insmod", pid 7952, jiffies 4294948236 (age 49.060s)
-  hex dump (first 32 bytes):
-    74 65 73 74 2d 66 69 72 6d 77 61 72 65 2e 62 69  test-firmware.bi
-    6e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  n...............
-  backtrace:
-    [<ffffffff81b21fcb>] __kmalloc_node_track_caller+0x4b/0xc0
-    [<ffffffff81affb96>] kstrndup+0x46/0xc0
-    [<ffffffffa0403a49>] __test_firmware_config_init+0x29/0x380 [test_firmware]
-    [<ffffffffa040f068>] 0xffffffffa040f068
-    [<ffffffff81002c41>] do_one_initcall+0x141/0x780
-    [<ffffffff816a72c3>] do_init_module+0x1c3/0x630
-    [<ffffffff816adb9e>] load_module+0x623e/0x76a0
-    [<ffffffff816af471>] __do_sys_finit_module+0x181/0x240
-    [<ffffffff89978f99>] do_syscall_64+0x39/0xb0
-    [<ffffffff89a0008b>] entry_SYSCALL_64_after_hwframe+0x63/0xcd
+In dvb_register_frontend(), dvb_register_device() is possible to fail
+but its return value is ignored.
 
-Fixes: c92316bf8e94 ("test_firmware: add batched firmware tests")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20221119035721.18268-1-shaozhengchao@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It will cause use-after-free when module is removed, because in
+dvb_unregister_frontend() it tries to unregister a not registered
+device.
+
+BUG: KASAN: use-after-free in dvb_remove_device+0x18b/0x1f0 [dvb_core]
+Read of size 4 at addr ffff88800dff4824 by task rmmod/428
+CPU: 3 PID: 428 Comm: rmmod
+Call Trace:
+ <TASK>
+ ...
+ dvb_remove_device+0x18b/0x1f0 [dvb_core]
+ dvb_unregister_frontend+0x7b/0x130 [dvb_core]
+ vidtv_bridge_remove+0x6e/0x160 [dvb_vidtv_bridge]
+ ...
+
+Fix this by catching return value of dvb_register_device().
+However the fe->refcount can't be put to zero immediately, because
+there are still modules calling dvb_frontend_detach() when
+dvb_register_frontend() fails.
+
+Link: https://lore.kernel.org/linux-media/20221108033005.169095-1-chenzhongjin@huawei.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_firmware.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/dvb-core/dvb_frontend.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/lib/test_firmware.c b/lib/test_firmware.c
-index 251213c872b5..0169073ec2b9 100644
---- a/lib/test_firmware.c
-+++ b/lib/test_firmware.c
-@@ -940,6 +940,7 @@ static int __init test_firmware_init(void)
+diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
+index 8a61150ee249..1768c1b515b3 100644
+--- a/drivers/media/dvb-core/dvb_frontend.c
++++ b/drivers/media/dvb-core/dvb_frontend.c
+@@ -2956,6 +2956,7 @@ int dvb_register_frontend(struct dvb_adapter *dvb,
+ 		.name = fe->ops.info.name,
+ #endif
+ 	};
++	int ret;
  
- 	rc = misc_register(&test_fw_misc_device);
- 	if (rc) {
-+		__test_firmware_config_free();
- 		kfree(test_fw_config);
- 		pr_err("could not register misc device: %d\n", rc);
- 		return rc;
+ 	dev_dbg(dvb->device, "%s:\n", __func__);
+ 
+@@ -2989,8 +2990,13 @@ int dvb_register_frontend(struct dvb_adapter *dvb,
+ 		 "DVB: registering adapter %i frontend %i (%s)...\n",
+ 		 fe->dvb->num, fe->id, fe->ops.info.name);
+ 
+-	dvb_register_device(fe->dvb, &fepriv->dvbdev, &dvbdev_template,
++	ret = dvb_register_device(fe->dvb, &fepriv->dvbdev, &dvbdev_template,
+ 			    fe, DVB_DEVICE_FRONTEND, 0);
++	if (ret) {
++		dvb_frontend_put(fe);
++		mutex_unlock(&frontend_mutex);
++		return ret;
++	}
+ 
+ 	/*
+ 	 * Initialize the cache to the proper values according with the
 -- 
 2.35.1
 
