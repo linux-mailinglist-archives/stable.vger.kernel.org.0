@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 480DC66C9A2
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:53:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A86F66C9A3
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233988AbjAPQxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:53:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44352 "EHLO
+        id S233799AbjAPQxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:53:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234002AbjAPQwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:52:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C8C64C6E0
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:37:35 -0800 (PST)
+        with ESMTP id S233982AbjAPQwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:52:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7A24C6FB
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:37:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8685AB81091
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6140C43392;
-        Mon, 16 Jan 2023 16:37:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BD28B80DC7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:37:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C908C433EF;
+        Mon, 16 Jan 2023 16:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887053;
-        bh=YBcwUdIBkr7u2NZ3dyu5Ihmf/CSV58jHPrJbBffrW9o=;
+        s=korg; t=1673887055;
+        bh=g/WFoRpxRsA6vp0cxrDYqzka2EGFkj3kK+wqN+aoGGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FR4d0h0RUeC+z+5kOTHFi4FhxRNYmbX3rKBJX/u133/2r6lAj0Q+afgr/5Iqosqh5
-         q3l/o2Rn6KzerQIORjwkbqmGOGVgOJj6gh9tu12pkipJXxi2c19smhxHJm0RC+23yk
-         Zflpnyz61A5UukyvIk8XrIFvZyetID33MHI7/Up4=
+        b=tAuwpvBFfnuwnKZux8umQJKdvkEPcFt/tGCIyHYwedKlinqVhz7XgKU138iUV8yD3
+         ToeV37FsQZd1bGgxmWeR4r/ZuZuDyTUxspagAW+HZcJ/lEFPQmazZau+fHxQWDr8I3
+         jRGTtGomiRSWDJ6vTv/wg3pd2D89GAz5CIbWJKFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
+        patches@lists.linux.dev, Boqun Feng <boqun.feng@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
         Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 648/658] arm64: atomics: remove LL/SC trampolines
-Date:   Mon, 16 Jan 2023 16:52:16 +0100
-Message-Id: <20230116154939.133482799@linuxfoundation.org>
+        Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 649/658] arm64: cmpxchg_double*: hazard against entire exchange variable
+Date:   Mon, 16 Jan 2023 16:52:17 +0100
+Message-Id: <20230116154939.174179135@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -56,269 +59,180 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit b2c3ccbd0011bb3b51d0fec24cb3a5812b1ec8ea ]
+[ Upstream commit 031af50045ea97ed4386eb3751ca2c134d0fc911 ]
 
-When CONFIG_ARM64_LSE_ATOMICS=y, each use of an LL/SC atomic results in
-a fragment of code being generated in a subsection without a clear
-association with its caller. A trampoline in the caller branches to the
-LL/SC atomic with with a direct branch, and the atomic directly branches
-back into its trampoline.
+The inline assembly for arm64's cmpxchg_double*() implementations use a
++Q constraint to hazard against other accesses to the memory location
+being exchanged. However, the pointer passed to the constraint is a
+pointer to unsigned long, and thus the hazard only applies to the first
+8 bytes of the location.
 
-This breaks backtracing, as any PC within the out-of-line fragment will
-be symbolized as an offset from the nearest prior symbol (which may not
-be the function using the atomic), and since the atomic returns with a
-direct branch, the caller's PC may be missing from the backtrace.
+GCC can take advantage of this, assuming that other portions of the
+location are unchanged, leading to a number of potential problems.
 
-For example, with secondary_start_kernel() hacked to contain
-atomic_inc(NULL), the resulting exception can be reported as being taken
-from cpus_are_stuck_in_kernel():
+This is similar to what we fixed back in commit:
 
-| Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-| Mem abort info:
-|   ESR = 0x0000000096000004
-|   EC = 0x25: DABT (current EL), IL = 32 bits
-|   SET = 0, FnV = 0
-|   EA = 0, S1PTW = 0
-|   FSC = 0x04: level 0 translation fault
-| Data abort info:
-|   ISV = 0, ISS = 0x00000004
-|   CM = 0, WnR = 0
-| [0000000000000000] user address but active_mm is swapper
-| Internal error: Oops: 96000004 [#1] PREEMPT SMP
-| Modules linked in:
-| CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.19.0-11219-geb555cb5b794-dirty #3
-| Hardware name: linux,dummy-virt (DT)
-| pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-| pc : cpus_are_stuck_in_kernel+0xa4/0x120
-| lr : secondary_start_kernel+0x164/0x170
-| sp : ffff80000a4cbe90
-| x29: ffff80000a4cbe90 x28: 0000000000000000 x27: 0000000000000000
-| x26: 0000000000000000 x25: 0000000000000000 x24: 0000000000000000
-| x23: 0000000000000000 x22: 0000000000000000 x21: 0000000000000000
-| x20: 0000000000000001 x19: 0000000000000001 x18: 0000000000000008
-| x17: 3030383832343030 x16: 3030303030307830 x15: ffff80000a4cbab0
-| x14: 0000000000000001 x13: 5d31666130663133 x12: 3478305b20313030
-| x11: 3030303030303078 x10: 3020726f73736563 x9 : 726f737365636f72
-| x8 : ffff800009ff2ef0 x7 : 0000000000000003 x6 : 0000000000000000
-| x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000100
-| x2 : 0000000000000000 x1 : ffff0000029bd880 x0 : 0000000000000000
-| Call trace:
-|  cpus_are_stuck_in_kernel+0xa4/0x120
-|  __secondary_switched+0xb0/0xb4
-| Code: 35ffffa3 17fffc6c d53cd040 f9800011 (885f7c01)
-| ---[ end trace 0000000000000000 ]---
+  fee960bed5e857eb ("arm64: xchg: hazard against entire exchange variable")
 
-This is confusing and hinders debugging, and will be problematic for
-CONFIG_LIVEPATCH as these cases cannot be unwound reliably.
+... but we forgot to adjust cmpxchg_double*() similarly at the same
+time.
 
-This is very similar to recent issues with out-of-line exception fixups,
-which were removed in commits:
+The same problem applies, as demonstrated with the following test:
 
-  35d67794b8828333 ("arm64: lib: __arch_clear_user(): fold fixups into body")
-  4012e0e22739eef9 ("arm64: lib: __arch_copy_from_user(): fold fixups into body")
-  139f9ab73d60cf76 ("arm64: lib: __arch_copy_to_user(): fold fixups into body")
+| struct big {
+|         u64 lo, hi;
+| } __aligned(128);
+|
+| unsigned long foo(struct big *b)
+| {
+|         u64 hi_old, hi_new;
+|
+|         hi_old = b->hi;
+|         cmpxchg_double_local(&b->lo, &b->hi, 0x12, 0x34, 0x56, 0x78);
+|         hi_new = b->hi;
+|
+|         return hi_old ^ hi_new;
+| }
 
-When the trampolines were introduced in commit:
+... which GCC 12.1.0 compiles as:
 
-  addfc38672c73efd ("arm64: atomics: avoid out-of-line ll/sc atomics")
+| 0000000000000000 <foo>:
+|    0:   d503233f        paciasp
+|    4:   aa0003e4        mov     x4, x0
+|    8:   1400000e        b       40 <foo+0x40>
+|    c:   d2800240        mov     x0, #0x12                       // #18
+|   10:   d2800681        mov     x1, #0x34                       // #52
+|   14:   aa0003e5        mov     x5, x0
+|   18:   aa0103e6        mov     x6, x1
+|   1c:   d2800ac2        mov     x2, #0x56                       // #86
+|   20:   d2800f03        mov     x3, #0x78                       // #120
+|   24:   48207c82        casp    x0, x1, x2, x3, [x4]
+|   28:   ca050000        eor     x0, x0, x5
+|   2c:   ca060021        eor     x1, x1, x6
+|   30:   aa010000        orr     x0, x0, x1
+|   34:   d2800000        mov     x0, #0x0                        // #0    <--- BANG
+|   38:   d50323bf        autiasp
+|   3c:   d65f03c0        ret
+|   40:   d2800240        mov     x0, #0x12                       // #18
+|   44:   d2800681        mov     x1, #0x34                       // #52
+|   48:   d2800ac2        mov     x2, #0x56                       // #86
+|   4c:   d2800f03        mov     x3, #0x78                       // #120
+|   50:   f9800091        prfm    pstl1strm, [x4]
+|   54:   c87f1885        ldxp    x5, x6, [x4]
+|   58:   ca0000a5        eor     x5, x5, x0
+|   5c:   ca0100c6        eor     x6, x6, x1
+|   60:   aa0600a6        orr     x6, x5, x6
+|   64:   b5000066        cbnz    x6, 70 <foo+0x70>
+|   68:   c8250c82        stxp    w5, x2, x3, [x4]
+|   6c:   35ffff45        cbnz    w5, 54 <foo+0x54>
+|   70:   d2800000        mov     x0, #0x0                        // #0     <--- BANG
+|   74:   d50323bf        autiasp
+|   78:   d65f03c0        ret
 
-The rationale was to improve icache performance by grouping the LL/SC
-atomics together. This has never been measured, and this theoretical
-benefit is outweighed by other factors:
+Notice that at the lines with "BANG" comments, GCC has assumed that the
+higher 8 bytes are unchanged by the cmpxchg_double() call, and that
+`hi_old ^ hi_new` can be reduced to a constant zero, for both LSE and
+LL/SC versions of cmpxchg_double().
 
-* As the subsections are collapsed into sections at object file
-  granularity, these are spread out throughout the kernel and can share
-  cachelines with unrelated code regardless.
+This patch fixes the issue by passing a pointer to __uint128_t into the
++Q constraint, ensuring that the compiler hazards against the entire 16
+bytes being modified.
 
-* GCC 12.1.0 has been observed to place the trampoline out-of-line in
-  specialised __ll_sc_*() functions, introducing more branching than was
-  intended.
+With this change, GCC 12.1.0 compiles the above test as:
 
-* Removing the trampolines has been observed to shrink a defconfig
-  kernel Image by 64KiB when building with GCC 12.1.0.
+| 0000000000000000 <foo>:
+|    0:   f9400407        ldr     x7, [x0, #8]
+|    4:   d503233f        paciasp
+|    8:   aa0003e4        mov     x4, x0
+|    c:   1400000f        b       48 <foo+0x48>
+|   10:   d2800240        mov     x0, #0x12                       // #18
+|   14:   d2800681        mov     x1, #0x34                       // #52
+|   18:   aa0003e5        mov     x5, x0
+|   1c:   aa0103e6        mov     x6, x1
+|   20:   d2800ac2        mov     x2, #0x56                       // #86
+|   24:   d2800f03        mov     x3, #0x78                       // #120
+|   28:   48207c82        casp    x0, x1, x2, x3, [x4]
+|   2c:   ca050000        eor     x0, x0, x5
+|   30:   ca060021        eor     x1, x1, x6
+|   34:   aa010000        orr     x0, x0, x1
+|   38:   f9400480        ldr     x0, [x4, #8]
+|   3c:   d50323bf        autiasp
+|   40:   ca0000e0        eor     x0, x7, x0
+|   44:   d65f03c0        ret
+|   48:   d2800240        mov     x0, #0x12                       // #18
+|   4c:   d2800681        mov     x1, #0x34                       // #52
+|   50:   d2800ac2        mov     x2, #0x56                       // #86
+|   54:   d2800f03        mov     x3, #0x78                       // #120
+|   58:   f9800091        prfm    pstl1strm, [x4]
+|   5c:   c87f1885        ldxp    x5, x6, [x4]
+|   60:   ca0000a5        eor     x5, x5, x0
+|   64:   ca0100c6        eor     x6, x6, x1
+|   68:   aa0600a6        orr     x6, x5, x6
+|   6c:   b5000066        cbnz    x6, 78 <foo+0x78>
+|   70:   c8250c82        stxp    w5, x2, x3, [x4]
+|   74:   35ffff45        cbnz    w5, 5c <foo+0x5c>
+|   78:   f9400480        ldr     x0, [x4, #8]
+|   7c:   d50323bf        autiasp
+|   80:   ca0000e0        eor     x0, x7, x0
+|   84:   d65f03c0        ret
 
-This patch removes the LL/SC trampolines, meaning that the LL/SC atomics
-will be inlined into their callers (or placed in out-of line functions
-using regular BL/RET pairs). When CONFIG_ARM64_LSE_ATOMICS=y, the LL/SC
-atomics are always called in an unlikely branch, and will be placed in a
-cold portion of the function, so this should have minimal impact to the
-hot paths.
+... sampling the high 8 bytes before and after the cmpxchg, and
+performing an EOR, as we'd expect.
 
-Other than the improved backtracing, there should be no functional
-change as a result of this patch.
+For backporting, I've tested this atop linux-4.9.y with GCC 5.5.0. Note
+that linux-4.9.y is oldest currently supported stable release, and
+mandates GCC 5.1+. Unfortunately I couldn't get a GCC 5.1 binary to run
+on my machines due to library incompatibilities.
 
+I've also used a standalone test to check that we can use a __uint128_t
+pointer in a +Q constraint at least as far back as GCC 4.8.5 and LLVM
+3.9.1.
+
+Fixes: 5284e1b4bc8a ("arm64: xchg: Implement cmpxchg_double")
+Fixes: e9a4b795652f ("arm64: cmpxchg_dbl: patch in lse instructions when supported by the CPU")
+Reported-by: Boqun Feng <boqun.feng@gmail.com>
+Link: https://lore.kernel.org/lkml/Y6DEfQXymYVgL3oJ@boqun-archlinux/
+Reported-by: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/lkml/Y6GXoO4qmH9OIZ5Q@hirez.programming.kicks-ass.net/
 Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: stable@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Steve Capper <steve.capper@arm.com>
 Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220817155914.3975112-2-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Stable-dep-of: 031af50045ea ("arm64: cmpxchg_double*: hazard against entire exchange variable")
+Link: https://lore.kernel.org/r/20230104151626.3262137-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/atomic_ll_sc.h | 40 ++++++---------------------
- 1 file changed, 9 insertions(+), 31 deletions(-)
+ arch/arm64/include/asm/atomic_ll_sc.h | 2 +-
+ arch/arm64/include/asm/atomic_lse.h   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
-index f5743c911303..906e2d8c254c 100644
+index 906e2d8c254c..abd302e521c0 100644
 --- a/arch/arm64/include/asm/atomic_ll_sc.h
 +++ b/arch/arm64/include/asm/atomic_ll_sc.h
-@@ -12,19 +12,6 @@
- 
- #include <linux/stringify.h>
- 
--#if IS_ENABLED(CONFIG_ARM64_LSE_ATOMICS) && IS_ENABLED(CONFIG_AS_LSE)
--#define __LL_SC_FALLBACK(asm_ops)					\
--"	b	3f\n"							\
--"	.subsection	1\n"						\
--"3:\n"									\
--asm_ops "\n"								\
--"	b	4f\n"							\
--"	.previous\n"							\
--"4:\n"
--#else
--#define __LL_SC_FALLBACK(asm_ops) asm_ops
--#endif
--
- #ifndef CONFIG_CC_HAS_K_CONSTRAINT
- #define K
- #endif
-@@ -43,12 +30,11 @@ __ll_sc_atomic_##op(int i, atomic_t *v)					\
- 	int result;							\
- 									\
- 	asm volatile("// atomic_" #op "\n"				\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ldxr	%w0, %2\n"					\
- 	"	" #asm_op "	%w0, %w0, %w3\n"			\
- 	"	stxr	%w1, %w0, %2\n"					\
--	"	cbnz	%w1, 1b\n")					\
-+	"	cbnz	%w1, 1b\n"					\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
- 	: __stringify(constraint) "r" (i));				\
- }
-@@ -61,13 +47,12 @@ __ll_sc_atomic_##op##_return##name(int i, atomic_t *v)			\
- 	int result;							\
- 									\
- 	asm volatile("// atomic_" #op "_return" #name "\n"		\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ld" #acq "xr	%w0, %2\n"				\
- 	"	" #asm_op "	%w0, %w0, %w3\n"			\
- 	"	st" #rel "xr	%w1, %w0, %2\n"				\
- 	"	cbnz	%w1, 1b\n"					\
--	"	" #mb )							\
-+	"	" #mb							\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
- 	: __stringify(constraint) "r" (i)				\
- 	: cl);								\
-@@ -83,13 +68,12 @@ __ll_sc_atomic_fetch_##op##name(int i, atomic_t *v)			\
- 	int val, result;						\
- 									\
- 	asm volatile("// atomic_fetch_" #op #name "\n"			\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %3\n"				\
- 	"1:	ld" #acq "xr	%w0, %3\n"				\
- 	"	" #asm_op "	%w1, %w0, %w4\n"			\
- 	"	st" #rel "xr	%w2, %w1, %3\n"				\
- 	"	cbnz	%w2, 1b\n"					\
--	"	" #mb )							\
-+	"	" #mb							\
- 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
- 	: __stringify(constraint) "r" (i)				\
- 	: cl);								\
-@@ -142,12 +126,11 @@ __ll_sc_atomic64_##op(s64 i, atomic64_t *v)				\
- 	unsigned long tmp;						\
- 									\
- 	asm volatile("// atomic64_" #op "\n"				\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ldxr	%0, %2\n"					\
- 	"	" #asm_op "	%0, %0, %3\n"				\
- 	"	stxr	%w1, %0, %2\n"					\
--	"	cbnz	%w1, 1b")					\
-+	"	cbnz	%w1, 1b"					\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
- 	: __stringify(constraint) "r" (i));				\
- }
-@@ -160,13 +143,12 @@ __ll_sc_atomic64_##op##_return##name(s64 i, atomic64_t *v)		\
- 	unsigned long tmp;						\
- 									\
- 	asm volatile("// atomic64_" #op "_return" #name "\n"		\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ld" #acq "xr	%0, %2\n"				\
- 	"	" #asm_op "	%0, %0, %3\n"				\
- 	"	st" #rel "xr	%w1, %0, %2\n"				\
- 	"	cbnz	%w1, 1b\n"					\
--	"	" #mb )							\
-+	"	" #mb							\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
- 	: __stringify(constraint) "r" (i)				\
- 	: cl);								\
-@@ -182,13 +164,12 @@ __ll_sc_atomic64_fetch_##op##name(s64 i, atomic64_t *v)			\
- 	unsigned long tmp;						\
- 									\
- 	asm volatile("// atomic64_fetch_" #op #name "\n"		\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %3\n"				\
- 	"1:	ld" #acq "xr	%0, %3\n"				\
- 	"	" #asm_op "	%1, %0, %4\n"				\
- 	"	st" #rel "xr	%w2, %1, %3\n"				\
- 	"	cbnz	%w2, 1b\n"					\
--	"	" #mb )							\
-+	"	" #mb							\
- 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
- 	: __stringify(constraint) "r" (i)				\
- 	: cl);								\
-@@ -240,7 +221,6 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
- 	unsigned long tmp;
- 
- 	asm volatile("// atomic64_dec_if_positive\n"
--	__LL_SC_FALLBACK(
- 	"	prfm	pstl1strm, %2\n"
- 	"1:	ldxr	%0, %2\n"
- 	"	subs	%0, %0, #1\n"
-@@ -248,7 +228,7 @@ __ll_sc_atomic64_dec_if_positive(atomic64_t *v)
- 	"	stlxr	%w1, %0, %2\n"
- 	"	cbnz	%w1, 1b\n"
- 	"	dmb	ish\n"
--	"2:")
-+	"2:"
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)
- 	:
- 	: "cc", "memory");
-@@ -274,7 +254,6 @@ __ll_sc__cmpxchg_case_##name##sz(volatile void *ptr,			\
- 		old = (u##sz)old;					\
- 									\
- 	asm volatile(							\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %[v]\n"				\
- 	"1:	ld" #acq "xr" #sfx "\t%" #w "[oldval], %[v]\n"		\
- 	"	eor	%" #w "[tmp], %" #w "[oldval], %" #w "[old]\n"	\
-@@ -282,7 +261,7 @@ __ll_sc__cmpxchg_case_##name##sz(volatile void *ptr,			\
- 	"	st" #rel "xr" #sfx "\t%w[tmp], %" #w "[new], %[v]\n"	\
- 	"	cbnz	%w[tmp], 1b\n"					\
- 	"	" #mb "\n"						\
--	"2:")								\
-+	"2:"								\
- 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
- 	  [v] "+Q" (*(u##sz *)ptr)					\
- 	: [old] __stringify(constraint) "r" (old), [new] "r" (new)	\
-@@ -326,7 +305,6 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
- 	unsigned long tmp, ret;						\
- 									\
- 	asm volatile("// __cmpxchg_double" #name "\n"			\
--	__LL_SC_FALLBACK(						\
- 	"	prfm	pstl1strm, %2\n"				\
- 	"1:	ldxp	%0, %1, %2\n"					\
- 	"	eor	%0, %0, %3\n"					\
-@@ -336,7 +314,7 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
- 	"	st" #rel "xp	%w0, %5, %6, %2\n"			\
+@@ -315,7 +315,7 @@ __ll_sc__cmpxchg_double##name(unsigned long old1,			\
  	"	cbnz	%w0, 1b\n"					\
  	"	" #mb "\n"						\
--	"2:")								\
-+	"2:"								\
- 	: "=&r" (tmp), "=&r" (ret), "+Q" (*(unsigned long *)ptr)	\
+ 	"2:"								\
+-	: "=&r" (tmp), "=&r" (ret), "+Q" (*(unsigned long *)ptr)	\
++	: "=&r" (tmp), "=&r" (ret), "+Q" (*(__uint128_t *)ptr)		\
  	: "r" (old1), "r" (old2), "r" (new1), "r" (new2)		\
+ 	: cl);								\
+ 									\
+diff --git a/arch/arm64/include/asm/atomic_lse.h b/arch/arm64/include/asm/atomic_lse.h
+index ab661375835e..28e96118c1e5 100644
+--- a/arch/arm64/include/asm/atomic_lse.h
++++ b/arch/arm64/include/asm/atomic_lse.h
+@@ -403,7 +403,7 @@ __lse__cmpxchg_double##name(unsigned long old1,				\
+ 	"	eor	%[old2], %[old2], %[oldval2]\n"			\
+ 	"	orr	%[old1], %[old1], %[old2]"			\
+ 	: [old1] "+&r" (x0), [old2] "+&r" (x1),				\
+-	  [v] "+Q" (*(unsigned long *)ptr)				\
++	  [v] "+Q" (*(__uint128_t *)ptr)				\
+ 	: [new1] "r" (x2), [new2] "r" (x3), [ptr] "r" (x4),		\
+ 	  [oldval1] "r" (oldval1), [oldval2] "r" (oldval2)		\
  	: cl);								\
 -- 
 2.35.1
