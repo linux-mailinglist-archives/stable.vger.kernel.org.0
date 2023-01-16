@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9767266C698
+	by mail.lfdr.de (Postfix) with ESMTP id E2D0866C699
 	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:21:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232925AbjAPQVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:21:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37972 "EHLO
+        id S233020AbjAPQVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:21:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233046AbjAPQVI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:21:08 -0500
+        with ESMTP id S232987AbjAPQVK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:21:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 490B5252AA
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:11:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D688725E24
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:11:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE1E3B8107E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:11:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21297C433F0;
-        Mon, 16 Jan 2023 16:11:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89D05B81087
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:11:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4274C433F1;
+        Mon, 16 Jan 2023 16:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885501;
-        bh=RJyORvhLRhQrMNV00q54wreXrP1fCoBnJevya5XH9GE=;
+        s=korg; t=1673885504;
+        bh=GyBSvLiSyxK6VcnYbzJGlHSO98O3h0uC7NSwX+9QAw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TeXKhiLbshLM8WAJdnzD19lRmYs8QN0fqMsMyD5yRnJE7MXluVToTArSdTqbWhndM
-         lNbBUV+RRRh8zfqEW1Lqx80qkAjatGrLGHwixnDcxa/D/R24i5BeUyv6wzXYEQcNkp
-         Ujyg8ufYgcgaU3UA88kkzjj4Hq1Qsx6bqJiETC1s=
+        b=pvNiyx2MBhQo+ZH210HR3GWImm0z3fyYcvuAHlqYuUQizZfJbK62Y6xXtnEFNOcZN
+         UXFEFQMYKLKZxMjS2F02EZcf0kFpq3FtP+DqgDP+b+Ik3hHXGcq/UpNrw0BF2q17sB
+         w2LTL5VTePEFSKqfkSnAVptr9xwKRDf8bP6FaG0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -40,9 +40,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mark Fasheh <mark@fasheh.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/658] ocfs2: ocfs2_mount_volume does cleanup job before return error
-Date:   Mon, 16 Jan 2023 16:42:44 +0100
-Message-Id: <20230116154913.101118079@linuxfoundation.org>
+Subject: [PATCH 5.4 077/658] ocfs2: rewrite error handling of ocfs2_fill_super
+Date:   Mon, 16 Jan 2023 16:42:45 +0100
+Message-Id: <20230116154913.155810112@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -61,12 +61,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
 
-[ Upstream commit 0737e01de9c411e4db87dcedf4a9789d41b1c5c1 ]
+[ Upstream commit f1e75d128b46e3b066e7b2e7cfca10491109d44d ]
 
-After this patch, when error, ocfs2_fill_super doesn't take care to
-release resources which are allocated in ocfs2_mount_volume.
+Current ocfs2_fill_super() uses one goto label "read_super_error" to
+handle all error cases.  And with previous serial patches, the error
+handling should fork more branches to handle different error cases.  This
+patch rewrite the error handling of ocfs2_fill_super.
 
-Link: https://lkml.kernel.org/r/20220424130952.2436-5-heming.zhao@suse.com
+Link: https://lkml.kernel.org/r/20220424130952.2436-6-heming.zhao@suse.com
 Signed-off-by: Heming Zhao <heming.zhao@suse.com>
 Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 Cc: Changwei Ge <gechangwei@live.cn>
@@ -79,93 +81,176 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Stable-dep-of: ce2fcf1516d6 ("ocfs2: fix memory leak in ocfs2_mount_volume()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/super.c | 35 +++++++++++++++++++++++------------
- 1 file changed, 23 insertions(+), 12 deletions(-)
+ fs/ocfs2/super.c | 67 +++++++++++++++++++++++-------------------------
+ 1 file changed, 32 insertions(+), 35 deletions(-)
 
 diff --git a/fs/ocfs2/super.c b/fs/ocfs2/super.c
-index c1cf67b24c19..ead43f95bb43 100644
+index ead43f95bb43..38e51868c2d3 100644
 --- a/fs/ocfs2/super.c
 +++ b/fs/ocfs2/super.c
-@@ -1787,11 +1787,10 @@ static int ocfs2_get_sector(struct super_block *sb,
- static int ocfs2_mount_volume(struct super_block *sb)
- {
- 	int status = 0;
--	int unlock_super = 0;
- 	struct ocfs2_super *osb = OCFS2_SB(sb);
+@@ -984,28 +984,27 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
  
- 	if (ocfs2_is_hard_readonly(osb))
--		goto leave;
-+		goto out;
- 
- 	mutex_init(&osb->obs_trim_fs_mutex);
- 
-@@ -1801,44 +1800,56 @@ static int ocfs2_mount_volume(struct super_block *sb)
- 		if (status == -EBADR && ocfs2_userspace_stack(osb))
- 			mlog(ML_ERROR, "couldn't mount because cluster name on"
- 			" disk does not match the running cluster name.\n");
--		goto leave;
+ 	if (!ocfs2_parse_options(sb, data, &parsed_options, 0)) {
+ 		status = -EINVAL;
+-		goto read_super_error;
 +		goto out;
  	}
  
- 	status = ocfs2_super_lock(osb, 1);
+ 	/* probe for superblock */
+ 	status = ocfs2_sb_probe(sb, &bh, &sector_size, &stats);
  	if (status < 0) {
- 		mlog_errno(status);
--		goto leave;
-+		goto out_dlm;
- 	}
--	unlock_super = 1;
- 
- 	/* This will load up the node map and add ourselves to it. */
- 	status = ocfs2_find_slot(osb);
- 	if (status < 0) {
- 		mlog_errno(status);
--		goto leave;
-+		goto out_super_lock;
+ 		mlog(ML_ERROR, "superblock probe failed!\n");
+-		goto read_super_error;
++		goto out;
  	}
  
- 	/* load all node-local system inodes */
- 	status = ocfs2_init_local_system_inodes(osb);
- 	if (status < 0) {
- 		mlog_errno(status);
--		goto leave;
-+		goto out_super_lock;
+ 	status = ocfs2_initialize_super(sb, bh, sector_size, &stats);
+-	osb = OCFS2_SB(sb);
+-	if (status < 0) {
+-		mlog_errno(status);
+-		goto read_super_error;
+-	}
+ 	brelse(bh);
+ 	bh = NULL;
++	if (status < 0)
++		goto out;
++
++	osb = OCFS2_SB(sb);
+ 
+ 	if (!ocfs2_check_set_options(sb, &parsed_options)) {
+ 		status = -EINVAL;
+-		goto read_super_error;
++		goto out_super;
+ 	}
+ 	osb->s_mount_opt = parsed_options.mount_opt;
+ 	osb->s_atime_quantum = parsed_options.atime_quantum;
+@@ -1022,7 +1021,7 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 
+ 	status = ocfs2_verify_userspace_stack(osb, &parsed_options);
+ 	if (status)
+-		goto read_super_error;
++		goto out_super;
+ 
+ 	sb->s_magic = OCFS2_SUPER_MAGIC;
+ 
+@@ -1036,7 +1035,7 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 			status = -EACCES;
+ 			mlog(ML_ERROR, "Readonly device detected but readonly "
+ 			     "mount was not specified.\n");
+-			goto read_super_error;
++			goto out_super;
+ 		}
+ 
+ 		/* You should not be able to start a local heartbeat
+@@ -1045,7 +1044,7 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 			status = -EROFS;
+ 			mlog(ML_ERROR, "Local heartbeat specified on readonly "
+ 			     "device.\n");
+-			goto read_super_error;
++			goto out_super;
+ 		}
+ 
+ 		status = ocfs2_check_journals_nolocks(osb);
+@@ -1054,9 +1053,7 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 				mlog(ML_ERROR, "Recovery required on readonly "
+ 				     "file system, but write access is "
+ 				     "unavailable.\n");
+-			else
+-				mlog_errno(status);
+-			goto read_super_error;
++			goto out_super;
+ 		}
+ 
+ 		ocfs2_set_ro_flag(osb, 1);
+@@ -1072,10 +1069,8 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
  	}
  
- 	status = ocfs2_check_volume(osb);
- 	if (status < 0) {
- 		mlog_errno(status);
--		goto leave;
-+		goto out_system_inodes;
+ 	status = ocfs2_verify_heartbeat(osb);
+-	if (status < 0) {
+-		mlog_errno(status);
+-		goto read_super_error;
+-	}
++	if (status < 0)
++		goto out_super;
+ 
+ 	osb->osb_debug_root = debugfs_create_dir(osb->uuid_str,
+ 						 ocfs2_debugfs_root);
+@@ -1089,15 +1084,14 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 
+ 	status = ocfs2_mount_volume(sb);
+ 	if (status < 0)
+-		goto read_super_error;
++		goto out_debugfs;
+ 
+ 	if (osb->root_inode)
+ 		inode = igrab(osb->root_inode);
+ 
+ 	if (!inode) {
+ 		status = -EIO;
+-		mlog_errno(status);
+-		goto read_super_error;
++		goto out_dismount;
  	}
  
- 	status = ocfs2_truncate_log_init(osb);
--	if (status < 0)
-+	if (status < 0) {
- 		mlog_errno(status);
-+		goto out_system_inodes;
-+	}
+ 	osb->osb_dev_kset = kset_create_and_add(sb->s_id, NULL,
+@@ -1105,7 +1099,7 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 	if (!osb->osb_dev_kset) {
+ 		status = -ENOMEM;
+ 		mlog(ML_ERROR, "Unable to create device kset %s.\n", sb->s_id);
+-		goto read_super_error;
++		goto out_dismount;
+ 	}
  
--leave:
--	if (unlock_super)
--		ocfs2_super_unlock(osb, 1);
-+	ocfs2_super_unlock(osb, 1);
-+	return 0;
+ 	/* Create filecheck sysfs related directories/files at
+@@ -1114,14 +1108,13 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 		status = -ENOMEM;
+ 		mlog(ML_ERROR, "Unable to create filecheck sysfs directory at "
+ 			"/sys/fs/ocfs2/%s/filecheck.\n", sb->s_id);
+-		goto read_super_error;
++		goto out_dismount;
+ 	}
  
-+out_system_inodes:
-+	if (osb->local_alloc_state == OCFS2_LA_ENABLED)
-+		ocfs2_shutdown_local_alloc(osb);
+ 	root = d_make_root(inode);
+ 	if (!root) {
+ 		status = -ENOMEM;
+-		mlog_errno(status);
+-		goto read_super_error;
++		goto out_dismount;
+ 	}
+ 
+ 	sb->s_root = root;
+@@ -1168,17 +1161,21 @@ static int ocfs2_fill_super(struct super_block *sb, void *data, int silent)
+ 
+ 	return status;
+ 
+-read_super_error:
+-	brelse(bh);
+-
+-	if (status)
+-		mlog_errno(status);
++out_dismount:
++	atomic_set(&osb->vol_state, VOLUME_DISABLED);
++	wake_up(&osb->osb_mount_event);
++	ocfs2_dismount_volume(sb, 1);
++	goto out;
+ 
+-	if (osb) {
+-		atomic_set(&osb->vol_state, VOLUME_DISABLED);
+-		wake_up(&osb->osb_mount_event);
+-		ocfs2_dismount_volume(sb, 1);
+-	}
++out_debugfs:
++	debugfs_remove_recursive(osb->osb_debug_root);
++out_super:
 +	ocfs2_release_system_inodes(osb);
-+	/* before journal shutdown, we should release slot_info */
-+	ocfs2_free_slot_info(osb);
-+	ocfs2_journal_shutdown(osb);
-+out_super_lock:
-+	ocfs2_super_unlock(osb, 1);
-+out_dlm:
-+	ocfs2_dlm_shutdown(osb, 0);
++	kfree(osb->recovery_map);
++	ocfs2_delete_osb(osb);
++	kfree(osb);
 +out:
++	mlog_errno(status);
+ 
  	return status;
  }
- 
 -- 
 2.35.1
 
