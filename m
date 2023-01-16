@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61D0966C7D7
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:35:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C8266C7D9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:35:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233283AbjAPQfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:35:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52548 "EHLO
+        id S233412AbjAPQfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:35:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233250AbjAPQeV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B92BF3D084
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:22:07 -0800 (PST)
+        with ESMTP id S233010AbjAPQed (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:34:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0099B29E3E
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:22:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 793E6B81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:22:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF0DC433D2;
-        Mon, 16 Jan 2023 16:22:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0566B81065
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:22:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 129DDC433EF;
+        Mon, 16 Jan 2023 16:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673886125;
-        bh=YddT8CkmL8sYD/JOVbIJ6UtMDZwVmFhNFBCyMs+C5fQ=;
+        s=korg; t=1673886130;
+        bh=hUJLgkBtsTE1VfLT5iooF/G6cX0CM77OkU4MaRVMmbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSJOwibXVtr4hzs0TfixuH3eJ98XwaW/G2UCo8QnIPzsonSfhGlstCz1JYI7wChmf
-         4CRZjrwo1tRAkKPb/SPGaYgxIy9c2ZiCtg/PxNHtT/YLzIGgYT0D9/H7/Lsbm4MPqZ
-         JFV18kmVdYgrVNAwmokCVpAwN0JXQ6NHubRtIXJQ=
+        b=JPUp374RMpUBO1ITaqGGqj9vq30hQ63DOset4gW8N7EVdwN+obyW/023AUaAT3zus
+         GS3PX57xPt9sb9nRp87uCpwo2L9cB0yMiKo0iB4LXRDFsi11cey0keFJmHdU65TF8k
+         9s9/LoCcgsgDK36yu+/0VBu6arbpP2SXm4o1ItIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        patches@lists.linux.dev, Zheyu Ma <zheyuma97@gmail.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 311/658] i2c: mux: reg: check return value after calling platform_get_resource()
-Date:   Mon, 16 Jan 2023 16:46:39 +0100
-Message-Id: <20230116154923.810751509@linuxfoundation.org>
+Subject: [PATCH 5.4 312/658] i2c: ismt: Fix an out-of-bounds bug in ismt_access()
+Date:   Mon, 16 Jan 2023 16:46:40 +0100
+Message-Id: <20230116154923.851852764@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -52,43 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 2d47b79d2bd39cc6369eccf94a06568d84c906ae ]
+[ Upstream commit 39244cc754829bf707dccd12e2ce37510f5b1f8d ]
 
-It will cause null-ptr-deref in resource_size(), if platform_get_resource()
-returns NULL, move calling resource_size() after devm_ioremap_resource() that
-will check 'res' to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+When the driver does not check the data from the user, the variable
+'data->block[0]' may be very large to cause an out-of-bounds bug.
 
-Fixes: b3fdd32799d8 ("i2c: mux: Add register-based mux i2c-mux-reg")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+The following log can reveal it:
+
+[   33.995542] i2c i2c-1: ioctl, cmd=0x720, arg=0x7ffcb3dc3a20
+[   33.995978] ismt_smbus 0000:00:05.0: I2C_SMBUS_BLOCK_DATA:  WRITE
+[   33.996475] ==================================================================
+[   33.996995] BUG: KASAN: out-of-bounds in ismt_access.cold+0x374/0x214b
+[   33.997473] Read of size 18446744073709551615 at addr ffff88810efcfdb1 by task ismt_poc/485
+[   33.999450] Call Trace:
+[   34.001849]  memcpy+0x20/0x60
+[   34.002077]  ismt_access.cold+0x374/0x214b
+[   34.003382]  __i2c_smbus_xfer+0x44f/0xfb0
+[   34.004007]  i2c_smbus_xfer+0x10a/0x390
+[   34.004291]  i2cdev_ioctl_smbus+0x2c8/0x710
+[   34.005196]  i2cdev_ioctl+0x5ec/0x74c
+
+Fix this bug by checking the size of 'data->block[0]' first.
+
+Fixes: 13f35ac14cd0 ("i2c: Adding support for Intel iSMT SMBus 2.0 host controller")
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/muxes/i2c-mux-reg.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-ismt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
-index b59a62f8d7a6..ac7971c776fa 100644
---- a/drivers/i2c/muxes/i2c-mux-reg.c
-+++ b/drivers/i2c/muxes/i2c-mux-reg.c
-@@ -187,13 +187,12 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
- 	if (!mux->data.reg) {
- 		dev_info(&pdev->dev,
- 			"Register not set, using platform resource\n");
--		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--		mux->data.reg_size = resource_size(res);
--		mux->data.reg = devm_ioremap_resource(&pdev->dev, res);
-+		mux->data.reg = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 		if (IS_ERR(mux->data.reg)) {
- 			ret = PTR_ERR(mux->data.reg);
- 			goto err_put_parent;
- 		}
-+		mux->data.reg_size = resource_size(res);
- 	}
- 
- 	if (mux->data.reg_size != 4 && mux->data.reg_size != 2 &&
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index 53325419ec13..e69f79246606 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -506,6 +506,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* Block Write */
+ 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  WRITE\n");
++			if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++				return -EINVAL;
++
+ 			dma_size = data->block[0] + 1;
+ 			dma_direction = DMA_TO_DEVICE;
+ 			desc->wr_len_cmd = dma_size;
 -- 
 2.35.1
 
