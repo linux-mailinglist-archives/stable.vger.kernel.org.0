@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F151466C63B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:16:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1435A66C63C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232785AbjAPQQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:16:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59220 "EHLO
+        id S232848AbjAPQQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:16:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232860AbjAPQQN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:16:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC7532D14C
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:09:34 -0800 (PST)
+        with ESMTP id S232312AbjAPQQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:16:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3833527498
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:09:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A04ACB81077
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:09:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05D3FC433F0;
-        Mon, 16 Jan 2023 16:09:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9268461042
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:09:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1F59C433EF;
+        Mon, 16 Jan 2023 16:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673885372;
-        bh=hky+L9OqszPzzfyyNFRtDqP5ZOd/0ysZcJ2HNj/l+b4=;
+        s=korg; t=1673885375;
+        bh=T6ogtEA/k+38oJHMiRWvj7T+7+jE5E9D0h7SCn0qiRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uklBN41bHP1/nYbZXgWz8YyQSPfNRrmtY8y9G3vghmJvX5jvL77fHI3tWA6hwy2Uy
-         htJ7RKK7wXowEncazZMzZ3Xbq5XLpPohoHzqhAKjjZAawwVcwG3EhF6rJhgCZNNuiD
-         lAO3MjKeGZqLAMl+dUjKyU6dHdQ56QeCZpC3rRw0=
+        b=wkPkrtYKxB/rd1tGp3VFHGQwXnhQ4TOQPRcs7Jc/rJQTxfSqvWFYP7fXZzWiHU97V
+         JRMeJsG0EOp7DdO8fYsbkc4/O41Bt7FjjME8/rFZLjwerJNTm3NOyubfIMjIvIyTCp
+         MLOou+4WooCUicBXFms8z8o4uA2CTKdeByQacTQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.4 003/658] udf: Fix preallocation discarding at indirect extent boundary
-Date:   Mon, 16 Jan 2023 16:41:31 +0100
-Message-Id: <20230116154909.820623910@linuxfoundation.org>
+Subject: [PATCH 5.4 004/658] udf: Do not bother looking for prealloc extents if i_lenExtents matches i_size
+Date:   Mon, 16 Jan 2023 16:41:32 +0100
+Message-Id: <20230116154909.860885821@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
 References: <20230116154909.645460653@linuxfoundation.org>
@@ -53,94 +53,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit cfe4c1b25dd6d2f056afc00b7c98bcb3dd0b1fc3 upstream.
+commit 6ad53f0f71c52871202a7bf096feb2c59db33fc5 upstream.
 
-When preallocation extent is the first one in the extent block, the
-code would corrupt extent tree header instead. Fix the problem and use
-udf_delete_aext() for deleting extent to avoid some code duplication.
+If rounded block-rounded i_lenExtents matches block rounded i_size,
+there are no preallocation extents. Do not bother walking extent linked
+list.
 
 CC: stable@vger.kernel.org
 Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/truncate.c |   45 +++++++++++++--------------------------------
- 1 file changed, 13 insertions(+), 32 deletions(-)
+ fs/udf/truncate.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/fs/udf/truncate.c
 +++ b/fs/udf/truncate.c
-@@ -120,60 +120,41 @@ void udf_truncate_tail_extent(struct ino
- 
- void udf_discard_prealloc(struct inode *inode)
- {
--	struct extent_position epos = { NULL, 0, {0, 0} };
-+	struct extent_position epos = {};
-+	struct extent_position prev_epos = {};
- 	struct kernel_lb_addr eloc;
- 	uint32_t elen;
+@@ -127,9 +127,10 @@ void udf_discard_prealloc(struct inode *
  	uint64_t lbcount = 0;
  	int8_t etype = -1, netype;
--	int adsize;
  	struct udf_inode_info *iinfo = UDF_I(inode);
++	int bsize = 1 << inode->i_blkbits;
  
  	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_IN_ICB ||
- 	    inode->i_size == iinfo->i_lenExtents)
+-	    inode->i_size == iinfo->i_lenExtents)
++	    ALIGN(inode->i_size, bsize) == ALIGN(iinfo->i_lenExtents, bsize))
  		return;
  
--	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
--		adsize = sizeof(struct short_ad);
--	else if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_LONG)
--		adsize = sizeof(struct long_ad);
--	else
--		adsize = 0;
--
  	epos.block = iinfo->i_location;
- 
- 	/* Find the last extent in the file */
--	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 1)) != -1) {
--		etype = netype;
-+	while ((netype = udf_next_aext(inode, &epos, &eloc, &elen, 0)) != -1) {
-+		brelse(prev_epos.bh);
-+		prev_epos = epos;
-+		if (prev_epos.bh)
-+			get_bh(prev_epos.bh);
-+
-+		etype = udf_next_aext(inode, &epos, &eloc, &elen, 1);
- 		lbcount += elen;
- 	}
- 	if (etype == (EXT_NOT_RECORDED_ALLOCATED >> 30)) {
--		epos.offset -= adsize;
- 		lbcount -= elen;
--		extent_trunc(inode, &epos, &eloc, etype, elen, 0);
--		if (!epos.bh) {
--			iinfo->i_lenAlloc =
--				epos.offset -
--				udf_file_entry_alloc_offset(inode);
--			mark_inode_dirty(inode);
--		} else {
--			struct allocExtDesc *aed =
--				(struct allocExtDesc *)(epos.bh->b_data);
--			aed->lengthAllocDescs =
--				cpu_to_le32(epos.offset -
--					    sizeof(struct allocExtDesc));
--			if (!UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_STRICT) ||
--			    UDF_SB(inode->i_sb)->s_udfrev >= 0x0201)
--				udf_update_tag(epos.bh->b_data, epos.offset);
--			else
--				udf_update_tag(epos.bh->b_data,
--					       sizeof(struct allocExtDesc));
--			mark_buffer_dirty_inode(epos.bh, inode);
--		}
-+		udf_delete_aext(inode, prev_epos);
-+		udf_free_blocks(inode->i_sb, inode, &eloc, 0,
-+				DIV_ROUND_UP(elen, 1 << inode->i_blkbits));
- 	}
- 	/* This inode entry is in-memory only and thus we don't have to mark
- 	 * the inode dirty */
- 	iinfo->i_lenExtents = lbcount;
- 	brelse(epos.bh);
-+	brelse(prev_epos.bh);
- }
- 
- static void udf_update_alloc_ext_desc(struct inode *inode,
 
 
