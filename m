@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 044CE66CD14
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:33:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6333966CB96
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:15:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234837AbjAPRdM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:33:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52216 "EHLO
+        id S234326AbjAPRPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:15:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234863AbjAPRco (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:32:44 -0500
+        with ESMTP id S234399AbjAPROi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:14:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6082E0D7
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:09:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D0164C6DD
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:55:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E3C2B810A1
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:09:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3949C4339C;
-        Mon, 16 Jan 2023 17:09:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39F91B8105D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:55:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90267C433EF;
+        Mon, 16 Jan 2023 16:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888943;
-        bh=0qYRCxNp3oqgKWE4HrTO3ZC/wlJzFWBHHsUY+kfT8xE=;
+        s=korg; t=1673888123;
+        bh=gVPOEQfuwNWTXcuf8glSoOgdI3mcoEL/km21iXPLRIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CzUFa4Gu+zDot7/6y4heoVGui8LgK2iBOpOyVx7v98BD/DYV48GoJjAjnp3+/9RvI
-         YPQ1CIDNtpXSqNn3KP8kyxSJNnWeURx2Oczzh4RpGCv2XsdT0e0wvJG57qtRC7DzsY
-         v7RapNKA/14NlPMfvtPHr7R4x6wRHUsAroZQwbRI=
+        b=vPU0Hm2pl7wFSP0+D4zpLoHmqPXLAc7os4MsrcOVDxz7pvP2rIUj6jUXmfcQyDQM6
+         HXqsmohnhyNBoR05kqepKu06PbDT4fWrBZwjOUF3S21hqb4eVeGhat0J8UhrSHcmjC
+         pXoBhFAP4fbn95rEwrEvRZKufXCkx+ZVI8jkTm8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 198/338] powerpc/xive: add missing iounmap() in error path in xive_spapr_populate_irq_data()
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.19 409/521] ext4: fix bug_on in __es_tree_search caused by bad boot loader inode
 Date:   Mon, 16 Jan 2023 16:51:11 +0100
-Message-Id: <20230116154829.596074890@linuxfoundation.org>
+Message-Id: <20230116154905.391576987@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 8b49670f3bb3f10cd4d5a6dca17f5a31b173ecdc ]
+commit 991ed014de0840c5dc405b679168924afb2952ac upstream.
 
-If remapping 'data->trig_page' fails, the 'data->eoi_mmio' need be unmapped
-before returning from xive_spapr_populate_irq_data().
+We got a issue as fllows:
+==================================================================
+ kernel BUG at fs/ext4/extents_status.c:203!
+ invalid opcode: 0000 [#1] PREEMPT SMP
+ CPU: 1 PID: 945 Comm: cat Not tainted 6.0.0-next-20221007-dirty #349
+ RIP: 0010:ext4_es_end.isra.0+0x34/0x42
+ RSP: 0018:ffffc9000143b768 EFLAGS: 00010203
+ RAX: 0000000000000000 RBX: ffff8881769cd0b8 RCX: 0000000000000000
+ RDX: 0000000000000000 RSI: ffffffff8fc27cf7 RDI: 00000000ffffffff
+ RBP: ffff8881769cd0bc R08: 0000000000000000 R09: ffffc9000143b5f8
+ R10: 0000000000000001 R11: 0000000000000001 R12: ffff8881769cd0a0
+ R13: ffff8881768e5668 R14: 00000000768e52f0 R15: 0000000000000000
+ FS: 00007f359f7f05c0(0000)GS:ffff88842fd00000(0000)knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007f359f5a2000 CR3: 000000017130c000 CR4: 00000000000006e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  <TASK>
+  __es_tree_search.isra.0+0x6d/0xf5
+  ext4_es_cache_extent+0xfa/0x230
+  ext4_cache_extents+0xd2/0x110
+  ext4_find_extent+0x5d5/0x8c0
+  ext4_ext_map_blocks+0x9c/0x1d30
+  ext4_map_blocks+0x431/0xa50
+  ext4_mpage_readpages+0x48e/0xe40
+  ext4_readahead+0x47/0x50
+  read_pages+0x82/0x530
+  page_cache_ra_unbounded+0x199/0x2a0
+  do_page_cache_ra+0x47/0x70
+  page_cache_ra_order+0x242/0x400
+  ondemand_readahead+0x1e8/0x4b0
+  page_cache_sync_ra+0xf4/0x110
+  filemap_get_pages+0x131/0xb20
+  filemap_read+0xda/0x4b0
+  generic_file_read_iter+0x13a/0x250
+  ext4_file_read_iter+0x59/0x1d0
+  vfs_read+0x28f/0x460
+  ksys_read+0x73/0x160
+  __x64_sys_read+0x1e/0x30
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  </TASK>
+==================================================================
 
-Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20221017032333.1852406-1-yangyingliang@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In the above issue, ioctl invokes the swap_inode_boot_loader function to
+swap inode<5> and inode<12>. However, inode<5> contain incorrect imode and
+disordered extents, and i_nlink is set to 1. The extents check for inode in
+the ext4_iget function can be bypassed bacause 5 is EXT4_BOOT_LOADER_INO.
+While links_count is set to 1, the extents are not initialized in
+swap_inode_boot_loader. After the ioctl command is executed successfully,
+the extents are swapped to inode<12>, in this case, run the `cat` command
+to view inode<12>. And Bug_ON is triggered due to the incorrect extents.
+
+When the boot loader inode is not initialized, its imode can be one of the
+following:
+1) the imode is a bad type, which is marked as bad_inode in ext4_iget and
+   set to S_IFREG.
+2) the imode is good type but not S_IFREG.
+3) the imode is S_IFREG.
+
+The BUG_ON may be triggered by bypassing the check in cases 1 and 2.
+Therefore, when the boot loader inode is bad_inode or its imode is not
+S_IFREG, initialize the inode to avoid triggering the BUG.
+
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20221026042310.3839669-5-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/sysdev/xive/spapr.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/sysdev/xive/spapr.c b/arch/powerpc/sysdev/xive/spapr.c
-index e9b8e06c9dce..be1619c9b726 100644
---- a/arch/powerpc/sysdev/xive/spapr.c
-+++ b/arch/powerpc/sysdev/xive/spapr.c
-@@ -323,6 +323,7 @@ static int xive_spapr_populate_irq_data(u32 hw_irq, struct xive_irq_data *data)
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -169,7 +169,7 @@ static long swap_inode_boot_loader(struc
+ 	/* Protect extent tree against block allocations via delalloc */
+ 	ext4_double_down_write_data_sem(inode, inode_bl);
  
- 	data->trig_mmio = ioremap(data->trig_page, 1u << data->esb_shift);
- 	if (!data->trig_mmio) {
-+		iounmap(data->eoi_mmio);
- 		pr_err("Failed to map trigger page for irq 0x%x\n", hw_irq);
- 		return -ENOMEM;
- 	}
--- 
-2.35.1
-
+-	if (inode_bl->i_nlink == 0) {
++	if (is_bad_inode(inode_bl) || !S_ISREG(inode_bl->i_mode)) {
+ 		/* this inode has never been used as a BOOT_LOADER */
+ 		set_nlink(inode_bl, 1);
+ 		i_uid_write(inode_bl, 0);
 
 
