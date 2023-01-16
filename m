@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3C5E66C0ED
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3553866C0EF
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 15:06:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231872AbjAPOGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 09:06:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45580 "EHLO
+        id S231676AbjAPOGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 09:06:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231878AbjAPOFC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:05:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CD32197F;
-        Mon, 16 Jan 2023 06:03:14 -0800 (PST)
+        with ESMTP id S231858AbjAPOFE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 09:05:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CEB227A8;
+        Mon, 16 Jan 2023 06:03:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4A5E60FD8;
-        Mon, 16 Jan 2023 14:03:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E844C43392;
-        Mon, 16 Jan 2023 14:03:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5161460FD3;
+        Mon, 16 Jan 2023 14:03:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 229CFC433D2;
+        Mon, 16 Jan 2023 14:03:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673877793;
-        bh=IbuQFBkpWU0KOypHqfp9y1VKkrrZt+r+mVeye6h3CGM=;
+        s=k20201202; t=1673877794;
+        bh=fbIIfrqgLnFzf7qmBh7osG4T9uei9BB7Woeb6fp4REI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrjeTB5GE2WooanInmuOa3rwwtzbxZFEpDj25ZRhjc8DkcWpZc+rCz4Mpu/edjooC
-         l4Ez8Mn2eeyyjWKc7h9AI1T2kbvxC65JBYO22Rf6/5AM/kY3bi7NtTXIYmv1uNjnxF
-         OG4SAjM/EqIf6K8G/YZRUG8ftal7zInbgYkEYlGtLTwE3wZjyYWdkQbe+km8PnkTA8
-         z4+QjS9Z24/fB9O6o5JyCReXobmUPlurQlGy2HzregNb2V/t26hB7NkA+rlyzL5AjI
-         Rbt/y2gDw/ChKkRVDyIol0x4FDvA2DVgAm1P8NzvrVca8FiE9/tvMNk00aeGdL94HA
-         wUrnoYgjmgrjQ==
+        b=SZPQmfeIVXopShbBUfaDdCFJSdwQySAC9+VrEGe0eW6yduvr9IopyjV/DMbpovy0W
+         o5I9M6kelYdHFC6plY48J/i27gnrzot2V4cimeMnSLMBxgUEHqrpT+Ya4xlVhfr9Nl
+         1B/7lJ/n/yQktq65Y52VgI7EqA69nljE3UljpdxXHwGgo07WrwUzGUMhiK00fTtFuR
+         ceI7e/Wd2AH8pkgsfVwBFDkPogNVgAaZOIr1e76MWDXZcfKfNX/mVGjZXTmGxm/o88
+         9vpuv/Fj+liF4nvhxE8UuCLwtXHNkIOOXsiq0oY9fo7dm6+tJVfrIhhF97Cze1EG45
+         pvbbQjLSUImUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Warner Losh <imp@bsdimp.com>, Willy Tarreau <w@1wt.eu>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
+Cc:     Willy Tarreau <w@1wt.eu>, "Paul E . McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 6.1 28/53] tools/nolibc: Fix S_ISxxx macros
-Date:   Mon, 16 Jan 2023 09:01:28 -0500
-Message-Id: <20230116140154.114951-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 29/53] tools/nolibc: fix missing includes causing build issues at -O0
+Date:   Mon, 16 Jan 2023 09:01:29 -0500
+Message-Id: <20230116140154.114951-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230116140154.114951-1-sashal@kernel.org>
 References: <20230116140154.114951-1-sashal@kernel.org>
@@ -55,50 +54,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Warner Losh <imp@bsdimp.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit 16f5cea74179b5795af7ce359971f5128d10f80e ]
+[ Upstream commit 55abdd1f5e1e07418bf4a46c233a92f83cb5ae97 ]
 
-The mode field has the type encoded as an value in a field, not as a bit
-mask. Mask the mode with S_IFMT instead of each type to test. Otherwise,
-false positives are possible: eg S_ISDIR will return true for block
-devices because S_IFDIR = 0040000 and S_IFBLK = 0060000 since mode is
-masked with S_IFDIR instead of S_IFMT. These macros now match the
-similar definitions in tools/include/uapi/linux/stat.h.
+After the nolibc includes were split to facilitate portability from
+standard libcs, programs that include only what they need may miss
+some symbols which are needed by libgcc. This is the case for raise()
+which is needed by the divide by zero code in some architectures for
+example.
 
-Signed-off-by: Warner Losh <imp@bsdimp.com>
+Regardless, being able to include only the apparently needed files is
+convenient.
+
+Instead of trying to move all exported definitions to a single file,
+since this can change over time, this patch takes another approach
+consisting in including the nolibc header at the end of all standard
+include files. This way their types and functions are already known
+at the moment of inclusion, and including any single one of them is
+sufficient to bring all the required ones.
+
 Signed-off-by: Willy Tarreau <w@1wt.eu>
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/include/nolibc/types.h | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ tools/include/nolibc/ctype.h  | 3 +++
+ tools/include/nolibc/errno.h  | 3 +++
+ tools/include/nolibc/signal.h | 3 +++
+ tools/include/nolibc/stdio.h  | 3 +++
+ tools/include/nolibc/stdlib.h | 3 +++
+ tools/include/nolibc/string.h | 3 +++
+ tools/include/nolibc/sys.h    | 2 ++
+ tools/include/nolibc/time.h   | 3 +++
+ tools/include/nolibc/types.h  | 3 +++
+ tools/include/nolibc/unistd.h | 3 +++
+ 10 files changed, 29 insertions(+)
 
+diff --git a/tools/include/nolibc/ctype.h b/tools/include/nolibc/ctype.h
+index e3000b2992d7..6f90706d0644 100644
+--- a/tools/include/nolibc/ctype.h
++++ b/tools/include/nolibc/ctype.h
+@@ -96,4 +96,7 @@ int ispunct(int c)
+ 	return isgraph(c) && !isalnum(c);
+ }
+ 
++/* make sure to include all global symbols */
++#include "nolibc.h"
++
+ #endif /* _NOLIBC_CTYPE_H */
+diff --git a/tools/include/nolibc/errno.h b/tools/include/nolibc/errno.h
+index 06893d6dfb7a..9dc4919c769b 100644
+--- a/tools/include/nolibc/errno.h
++++ b/tools/include/nolibc/errno.h
+@@ -24,4 +24,7 @@ static int errno;
+  */
+ #define MAX_ERRNO 4095
+ 
++/* make sure to include all global symbols */
++#include "nolibc.h"
++
+ #endif /* _NOLIBC_ERRNO_H */
+diff --git a/tools/include/nolibc/signal.h b/tools/include/nolibc/signal.h
+index ef47e71e2be3..137552216e46 100644
+--- a/tools/include/nolibc/signal.h
++++ b/tools/include/nolibc/signal.h
+@@ -19,4 +19,7 @@ int raise(int signal)
+ 	return sys_kill(sys_getpid(), signal);
+ }
+ 
++/* make sure to include all global symbols */
++#include "nolibc.h"
++
+ #endif /* _NOLIBC_SIGNAL_H */
+diff --git a/tools/include/nolibc/stdio.h b/tools/include/nolibc/stdio.h
+index a3cebc4bc3ac..96ac8afc5aee 100644
+--- a/tools/include/nolibc/stdio.h
++++ b/tools/include/nolibc/stdio.h
+@@ -303,4 +303,7 @@ void perror(const char *msg)
+ 	fprintf(stderr, "%s%serrno=%d\n", (msg && *msg) ? msg : "", (msg && *msg) ? ": " : "", errno);
+ }
+ 
++/* make sure to include all global symbols */
++#include "nolibc.h"
++
+ #endif /* _NOLIBC_STDIO_H */
+diff --git a/tools/include/nolibc/stdlib.h b/tools/include/nolibc/stdlib.h
+index 92378c4b9660..a24000d1e822 100644
+--- a/tools/include/nolibc/stdlib.h
++++ b/tools/include/nolibc/stdlib.h
+@@ -419,4 +419,7 @@ char *u64toa(uint64_t in)
+ 	return itoa_buffer;
+ }
+ 
++/* make sure to include all global symbols */
++#include "nolibc.h"
++
+ #endif /* _NOLIBC_STDLIB_H */
+diff --git a/tools/include/nolibc/string.h b/tools/include/nolibc/string.h
+index ad97c0d522b8..0932db3817d2 100644
+--- a/tools/include/nolibc/string.h
++++ b/tools/include/nolibc/string.h
+@@ -285,4 +285,7 @@ char *strrchr(const char *s, int c)
+ 	return (char *)ret;
+ }
+ 
++/* make sure to include all global symbols */
++#include "nolibc.h"
++
+ #endif /* _NOLIBC_STRING_H */
+diff --git a/tools/include/nolibc/sys.h b/tools/include/nolibc/sys.h
+index ce3ee03aa679..78473d34e27c 100644
+--- a/tools/include/nolibc/sys.h
++++ b/tools/include/nolibc/sys.h
+@@ -1243,5 +1243,7 @@ ssize_t write(int fd, const void *buf, size_t count)
+ 	return ret;
+ }
+ 
++/* make sure to include all global symbols */
++#include "nolibc.h"
+ 
+ #endif /* _NOLIBC_SYS_H */
+diff --git a/tools/include/nolibc/time.h b/tools/include/nolibc/time.h
+index d18b7661fdd7..84655361b9ad 100644
+--- a/tools/include/nolibc/time.h
++++ b/tools/include/nolibc/time.h
+@@ -25,4 +25,7 @@ time_t time(time_t *tptr)
+ 	return tv.tv_sec;
+ }
+ 
++/* make sure to include all global symbols */
++#include "nolibc.h"
++
+ #endif /* _NOLIBC_TIME_H */
 diff --git a/tools/include/nolibc/types.h b/tools/include/nolibc/types.h
-index 300e0ff1cd58..f1d64fca7cf0 100644
+index f1d64fca7cf0..fbbc0e68c001 100644
 --- a/tools/include/nolibc/types.h
 +++ b/tools/include/nolibc/types.h
-@@ -26,13 +26,13 @@
- #define S_IFSOCK       0140000
- #define S_IFMT         0170000
+@@ -209,4 +209,7 @@ struct stat {
+ })
+ #endif
  
--#define S_ISDIR(mode)  (((mode) & S_IFDIR)  == S_IFDIR)
--#define S_ISCHR(mode)  (((mode) & S_IFCHR)  == S_IFCHR)
--#define S_ISBLK(mode)  (((mode) & S_IFBLK)  == S_IFBLK)
--#define S_ISREG(mode)  (((mode) & S_IFREG)  == S_IFREG)
--#define S_ISFIFO(mode) (((mode) & S_IFIFO)  == S_IFIFO)
--#define S_ISLNK(mode)  (((mode) & S_IFLNK)  == S_IFLNK)
--#define S_ISSOCK(mode) (((mode) & S_IFSOCK) == S_IFSOCK)
-+#define S_ISDIR(mode)  (((mode) & S_IFMT) == S_IFDIR)
-+#define S_ISCHR(mode)  (((mode) & S_IFMT) == S_IFCHR)
-+#define S_ISBLK(mode)  (((mode) & S_IFMT) == S_IFBLK)
-+#define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
-+#define S_ISFIFO(mode) (((mode) & S_IFMT) == S_IFIFO)
-+#define S_ISLNK(mode)  (((mode) & S_IFMT) == S_IFLNK)
-+#define S_ISSOCK(mode) (((mode) & S_IFMT) == S_IFSOCK)
++/* make sure to include all global symbols */
++#include "nolibc.h"
++
+ #endif /* _NOLIBC_TYPES_H */
+diff --git a/tools/include/nolibc/unistd.h b/tools/include/nolibc/unistd.h
+index 1c25e20ee360..1cfcd52106a4 100644
+--- a/tools/include/nolibc/unistd.h
++++ b/tools/include/nolibc/unistd.h
+@@ -51,4 +51,7 @@ int tcsetpgrp(int fd, pid_t pid)
+ 	return ioctl(fd, TIOCSPGRP, &pid);
+ }
  
- /* dirent types */
- #define DT_UNKNOWN     0x0
++/* make sure to include all global symbols */
++#include "nolibc.h"
++
+ #endif /* _NOLIBC_UNISTD_H */
 -- 
 2.35.1
 
