@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 515DD66C55B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:05:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 424AB66C908
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:45:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbjAPQFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 11:05:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46104 "EHLO
+        id S233813AbjAPQpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:45:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbjAPQEs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:04:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7FA2686B
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:03:12 -0800 (PST)
+        with ESMTP id S233814AbjAPQpW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:45:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4C4A2FCD2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:32:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23615B80DF9
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:03:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AF9BC433EF;
-        Mon, 16 Jan 2023 16:03:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 432456104F
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:32:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 580D2C433EF;
+        Mon, 16 Jan 2023 16:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884989;
-        bh=pvltEXSiUFC9diafDbsx26spIIwbWPkznqU+5td83ng=;
+        s=korg; t=1673886764;
+        bh=sD2m3vyQeMIxfk24pCLtW8bLlWyWK5XhPhZQimMREZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XmdQBuKw6f61gmjQqcdPMBrn+nBrRK3mP6ITZvbf6ghmx1x0WtN4fl89kXd/oEC0g
-         kjoNAL8swmcZ7FT5nszu7H5E/VzECnUUbT3lIwgcPAZk8i+ZtG5QzbnJcoQUqn9h2t
-         4vthg2wPwe+J8EjxDJ9XdkRChQpmedZknVq4UGig=
+        b=BZ4beBhFriyocZ8tI7wxCFIpR/YfzdkBIZbPkUs4L34CKuMOWNeg33nuozobQZBXA
+         Q+kR9TjAYMpBLmtS2reLHmD7A5HRtgrwU3921YYYWJG38jly5Kr3hQM2nHNq48oGH0
+         eSVP9rdui5lAXdkvvKifCAV/By8EwpU65vGDL4YI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jinrong Liang <cloudliang@tencent.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Subject: [PATCH 5.15 07/86] selftests: kvm: Fix a compile error in selftests/kvm/rseq_test.c
-Date:   Mon, 16 Jan 2023 16:50:41 +0100
-Message-Id: <20230116154747.362531821@linuxfoundation.org>
+        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 554/658] riscv: stacktrace: Fixup ftrace_graph_ret_addr retp argument
+Date:   Mon, 16 Jan 2023 16:50:42 +0100
+Message-Id: <20230116154934.858231691@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-References: <20230116154747.036911298@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinrong Liang <cloudliang@tencent.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit 561cafebb2cf97b0927b4fb0eba22de6200f682e upstream.
+[ Upstream commit 5c3022e4a616d800cf5f4c3a981d7992179e44a1 ]
 
-The following warning appears when executing:
-	make -C tools/testing/selftests/kvm
+The 'retp' is a pointer to the return address on the stack, so we
+must pass the current return address pointer as the 'retp'
+argument to ftrace_push_return_trace(). Not parent function's
+return address on the stack.
 
-rseq_test.c: In function ‘main’:
-rseq_test.c:237:33: warning: implicit declaration of function ‘gettid’; did you mean ‘getgid’? [-Wimplicit-function-declaration]
-          (void *)(unsigned long)gettid());
-                                 ^~~~~~
-                                 getgid
-/usr/bin/ld: /tmp/ccr5mMko.o: in function `main':
-../kvm/tools/testing/selftests/kvm/rseq_test.c:237: undefined reference to `gettid'
-collect2: error: ld returned 1 exit status
-make: *** [../lib.mk:173: ../kvm/tools/testing/selftests/kvm/rseq_test] Error 1
-
-Use the more compatible syscall(SYS_gettid) instead of gettid() to fix it.
-More subsequent reuse may cause it to be wrapped in a lib file.
-
-Signed-off-by: Jinrong Liang <cloudliang@tencent.com>
-Message-Id: <20220802071240.84626-1-cloudliang@tencent.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b785ec129bd9 ("riscv/ftrace: Add HAVE_FUNCTION_GRAPH_RET_ADDR_PTR support")
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20221109064937.3643993-2-guoren@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/rseq_test.c |    2 +-
+ arch/riscv/kernel/stacktrace.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/kvm/rseq_test.c
-+++ b/tools/testing/selftests/kvm/rseq_test.c
-@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
- 	ucall_init(vm, NULL);
+diff --git a/arch/riscv/kernel/stacktrace.c b/arch/riscv/kernel/stacktrace.c
+index 1a512a24879e..a1ee7f33c205 100644
+--- a/arch/riscv/kernel/stacktrace.c
++++ b/arch/riscv/kernel/stacktrace.c
+@@ -61,7 +61,7 @@ void notrace walk_stackframe(struct task_struct *task, struct pt_regs *regs,
+ 		} else {
+ 			fp = frame->fp;
+ 			pc = ftrace_graph_ret_addr(current, NULL, frame->ra,
+-						   (unsigned long *)(fp - 8));
++						   &frame->ra);
+ 		}
  
- 	pthread_create(&migration_thread, NULL, migration_worker,
--		       (void *)(unsigned long)gettid());
-+		       (void *)(unsigned long)syscall(SYS_gettid));
- 
- 	for (i = 0; !done; i++) {
- 		vcpu_run(vm, VCPU_ID);
+ 	}
+-- 
+2.35.1
+
 
 
