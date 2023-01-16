@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD14466CB59
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:13:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9727266CCDA
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:29:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231267AbjAPRNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:13:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39570 "EHLO
+        id S234827AbjAPR3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:29:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234297AbjAPRMz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:12:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC55C32E4D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:53:02 -0800 (PST)
+        with ESMTP id S234616AbjAPR3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:29:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8234938EA7
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:06:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 890B360F61
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C64FC433D2;
-        Mon, 16 Jan 2023 16:53:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C731B8109D
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:06:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D351C433D2;
+        Mon, 16 Jan 2023 17:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887982;
-        bh=qOPw7XVMj+sDj4eoK34iXqAjnMa2edDiY2EjBLGWibU=;
+        s=korg; t=1673888810;
+        bh=4O/hHmUufiN0IfaFVEdvaFr0S0gSvuOkZ+BRWGb9BFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13oowcuFgBv0hvOUSds2m890sm5DChr745sQ6LiSfp720iTYNW0MQN15DfUiEW7Pg
-         Dn3s0nSdyV+/seJYBMolgr5hURXmJlOA6CPM4J7eD7TNkrpZ0NTF8GAx3K05tcXufH
-         xfgo/Lh2ItwInMmKnv1ox8J78b+thY+h/cikNlCU=
+        b=fqL9QEWZ+2X3nlKajBKIofpV1n5HJ+EvB4qHRseLWgVsHalWem8H8AAKWYOOq1UhN
+         3ExAaBcPjZoNY5Dx/k8HFAdb8oWaPPaMPy3ppqseK4WEE8dIbEg/qVF960WRk3o75H
+         nExSCGRb+thlR9zN9E+7Gx7bxUGMT87NRq7Ve+QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexandra Winter <wintera@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 328/521] s390/ctcm: Fix return type of ctc{mp,}m_tx()
+        patches@lists.linux.dev, Wang Yufen <wangyufen@huawei.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 117/338] wifi: brcmfmac: Fix error return code in brcmf_sdio_download_firmware()
 Date:   Mon, 16 Jan 2023 16:49:50 +0100
-Message-Id: <20230116154901.835859863@linuxfoundation.org>
+Message-Id: <20230116154825.942426518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
-References: <20230116154847.246743274@linuxfoundation.org>
+In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
+References: <20230116154820.689115727@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit aa5bf80c3c067b82b4362cd6e8e2194623bcaca6 ]
+[ Upstream commit c2f2924bc7f9ea75ef8d95863e710168f8196256 ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed. A
-proposed warning in clang aims to catch these at compile time, which
-reveals:
+Fix to return a negative error code instead of 0 when
+brcmf_chip_set_active() fails. In addition, change the return
+value for brcmf_pcie_exit_download_state() to keep consistent.
 
-  drivers/s390/net/ctcm_main.c:1064:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = ctcm_tx,
-                                    ^~~~~~~
-  drivers/s390/net/ctcm_main.c:1072:21: error: incompatible function pointer types initializing 'netdev_tx_t (*)(struct sk_buff *, struct net_device *)' (aka 'enum netdev_tx (*)(struct sk_buff *, struct net_device *)') with an expression of type 'int (struct sk_buff *, struct net_device *)' [-Werror,-Wincompatible-function-pointer-types-strict]
-          .ndo_start_xmit         = ctcmpc_tx,
-                                    ^~~~~~~~~
-
-->ndo_start_xmit() in 'struct net_device_ops' expects a return type of
-'netdev_tx_t', not 'int'. Adjust the return type of ctc{mp,}m_tx() to
-match the prototype's to resolve the warning and potential CFI failure,
-should s390 select ARCH_SUPPORTS_CFI_CLANG in the future.
-
-Additionally, while in the area, remove a comment block that is no
-longer relevant.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1750
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d380ebc9b6fb ("brcmfmac: rename chip download functions")
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/1669959342-27144-1-git-send-email-wangyufen@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/ctcm_main.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 2 +-
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index f63c5c871d3d..d9fdcdd6760b 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -867,16 +867,9 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- /**
-  * Start transmission of a packet.
-  * Called from generic network device layer.
-- *
-- *  skb		Pointer to buffer containing the packet.
-- *  dev		Pointer to interface struct.
-- *
-- * returns 0 if packet consumed, !0 if packet rejected.
-- *         Note: If we return !0, then the packet is free'd by
-- *               the generic network layer.
-  */
- /* first merge version - leaving both functions separated */
--static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t ctcm_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct ctcm_priv *priv = dev->ml_priv;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index fbaec4ea5988..4aa199be0df3 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -599,7 +599,7 @@ static int brcmf_pcie_exit_download_state(struct brcmf_pciedev_info *devinfo,
+ 	}
  
-@@ -919,7 +912,7 @@ static int ctcm_tx(struct sk_buff *skb, struct net_device *dev)
+ 	if (!brcmf_chip_set_active(devinfo->ci, resetintr))
+-		return -EINVAL;
++		return -EIO;
+ 	return 0;
  }
  
- /* unmerged MPC variant of ctcm_tx */
--static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	int len = 0;
- 	struct ctcm_priv *priv = dev->ml_priv;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index 8fa4ffff7c32..aa21bdb3f371 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -3326,6 +3326,7 @@ static int brcmf_sdio_download_firmware(struct brcmf_sdio *bus,
+ 	/* Take arm out of reset */
+ 	if (!brcmf_chip_set_active(bus->ci, rstvec)) {
+ 		brcmf_err("error getting out of ARM core reset\n");
++		bcmerror = -EIO;
+ 		goto err;
+ 	}
+ 
 -- 
 2.35.1
 
