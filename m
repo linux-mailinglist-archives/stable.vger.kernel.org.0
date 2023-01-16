@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBBC766C4B9
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 16:57:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2B7A66C8E6
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 17:44:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbjAPP5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 10:57:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38918 "EHLO
+        id S233731AbjAPQoV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 11:44:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231717AbjAPP5e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 10:57:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC6EB2195A
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 07:57:27 -0800 (PST)
+        with ESMTP id S233782AbjAPQnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 11:43:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5731274A2
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:31:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7969E61031
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 15:57:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C517C433D2;
-        Mon, 16 Jan 2023 15:57:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B53761027
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:31:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2BBC433D2;
+        Mon, 16 Jan 2023 16:31:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673884646;
-        bh=7S7sPXus9ya8WM6wu3x/h7oGMZkWi720jOhNxYYUaa0=;
+        s=korg; t=1673886680;
+        bh=Y9RWcW1VgmubagI5cNB3sq4m2+G3DXXWEuHTO2zFGcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfCEvwR5E0SCmyKjtMJNqrDlffCivEQP9s8gXZvRCJCXwgRST1LH1040E6FAywVp5
-         JUgLGupPqvT3lE8Se6CqTxuBXEUSkCiVlilupu+k6blPehOslbX0xAepJuzpFBx9+X
-         WWNdbDIQ4/Rtyjyh8RiGLuqI5Vwg06GsptnQWNv0=
+        b=jSh4+v+pvHCaVPocdm3JGNVGBIk6BlB4+FOlqn2th/1gOBZ8kLq6k0VZZljt8f2Fi
+         GY3dr4AATkHqHINZpu7vRYHWNNX7eEy4E5iwW3+Hohqa/Q+FAGsvMhFC0HoGJUu++E
+         qfbtec8+hZ4NXyuPSsPD8aUkWBuXWqoZya8JPfqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Walle <michael@walle.cc>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 6.1 086/183] iommu/arm-smmu: Dont unregister on shutdown
-Date:   Mon, 16 Jan 2023 16:50:09 +0100
-Message-Id: <20230116154807.051527046@linuxfoundation.org>
+        patches@lists.linux.dev, stable@kernel.org,
+        Baokun Li <libaokun1@huawei.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 522/658] ext4: add inode table check in __ext4_get_inode_loc to aovid possible infinite loop
+Date:   Mon, 16 Jan 2023 16:50:10 +0100
+Message-Id: <20230116154933.420425401@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154909.645460653@linuxfoundation.org>
+References: <20230116154909.645460653@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,198 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit ce31e6ca68bd7639bd3e5ef97be215031842bbab upstream.
+commit eee22187b53611e173161e38f61de1c7ecbeb876 upstream.
 
-Michael Walle says he noticed the following stack trace while performing
-a shutdown with "reboot -f". He suggests he got "lucky" and just hit the
-correct spot for the reboot while there was a packet transmission in
-flight.
+In do_writepages, if the value returned by ext4_writepages is "-ENOMEM"
+and "wbc->sync_mode == WB_SYNC_ALL", retry until the condition is not met.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000098
-CPU: 0 PID: 23 Comm: kworker/0:1 Not tainted 6.1.0-rc5-00088-gf3600ff8e322 #1930
-Hardware name: Kontron KBox A-230-LS (DT)
-pc : iommu_get_dma_domain+0x14/0x20
-lr : iommu_dma_map_page+0x9c/0x254
-Call trace:
- iommu_get_dma_domain+0x14/0x20
- dma_map_page_attrs+0x1ec/0x250
- enetc_start_xmit+0x14c/0x10b0
- enetc_xmit+0x60/0xdc
- dev_hard_start_xmit+0xb8/0x210
- sch_direct_xmit+0x11c/0x420
- __dev_queue_xmit+0x354/0xb20
- ip6_finish_output2+0x280/0x5b0
- __ip6_finish_output+0x15c/0x270
- ip6_output+0x78/0x15c
- NF_HOOK.constprop.0+0x50/0xd0
- mld_sendpack+0x1bc/0x320
- mld_ifc_work+0x1d8/0x4dc
- process_one_work+0x1e8/0x460
- worker_thread+0x178/0x534
- kthread+0xe0/0xe4
- ret_from_fork+0x10/0x20
-Code: d503201f f9416800 d503233f d50323bf (f9404c00)
----[ end trace 0000000000000000 ]---
-Kernel panic - not syncing: Oops: Fatal exception in interrupt
+In __ext4_get_inode_loc, if the bh returned by sb_getblk is NULL,
+the function returns -ENOMEM.
 
-This appears to be reproducible when the board has a fixed IP address,
-is ping flooded from another host, and "reboot -f" is used.
+In __getblk_slow, if the return value of grow_buffers is less than 0,
+the function returns NULL.
 
-The following is one more manifestation of the issue:
+When the three processes are connected in series like the following stack,
+an infinite loop may occur:
 
-$ reboot -f
-kvm: exiting hardware virtualization
-cfg80211: failed to load regulatory.db
-arm-smmu 5000000.iommu: disabling translation
-sdhci-esdhc 2140000.mmc: Removing from iommu group 11
-sdhci-esdhc 2150000.mmc: Removing from iommu group 12
-fsl-edma 22c0000.dma-controller: Removing from iommu group 17
-dwc3 3100000.usb: Removing from iommu group 9
-dwc3 3110000.usb: Removing from iommu group 10
-ahci-qoriq 3200000.sata: Removing from iommu group 2
-fsl-qdma 8380000.dma-controller: Removing from iommu group 20
-platform f080000.display: Removing from iommu group 0
-etnaviv-gpu f0c0000.gpu: Removing from iommu group 1
-etnaviv etnaviv: Removing from iommu group 1
-caam_jr 8010000.jr: Removing from iommu group 13
-caam_jr 8020000.jr: Removing from iommu group 14
-caam_jr 8030000.jr: Removing from iommu group 15
-caam_jr 8040000.jr: Removing from iommu group 16
-fsl_enetc 0000:00:00.0: Removing from iommu group 4
-arm-smmu 5000000.iommu: Blocked unknown Stream ID 0x429; boot with "arm-smmu.disable_bypass=0" to allow, but this may have security implications
-arm-smmu 5000000.iommu:         GFSR 0x80000002, GFSYNR0 0x00000002, GFSYNR1 0x00000429, GFSYNR2 0x00000000
-fsl_enetc 0000:00:00.1: Removing from iommu group 5
-arm-smmu 5000000.iommu: Blocked unknown Stream ID 0x429; boot with "arm-smmu.disable_bypass=0" to allow, but this may have security implications
-arm-smmu 5000000.iommu:         GFSR 0x80000002, GFSYNR0 0x00000002, GFSYNR1 0x00000429, GFSYNR2 0x00000000
-arm-smmu 5000000.iommu: Blocked unknown Stream ID 0x429; boot with "arm-smmu.disable_bypass=0" to allow, but this may have security implications
-arm-smmu 5000000.iommu:         GFSR 0x80000002, GFSYNR0 0x00000000, GFSYNR1 0x00000429, GFSYNR2 0x00000000
-fsl_enetc 0000:00:00.2: Removing from iommu group 6
-fsl_enetc_mdio 0000:00:00.3: Removing from iommu group 8
-mscc_felix 0000:00:00.5: Removing from iommu group 3
-fsl_enetc 0000:00:00.6: Removing from iommu group 7
-pcieport 0001:00:00.0: Removing from iommu group 18
-arm-smmu 5000000.iommu: Blocked unknown Stream ID 0x429; boot with "arm-smmu.disable_bypass=0" to allow, but this may have security implications
-arm-smmu 5000000.iommu:         GFSR 0x00000002, GFSYNR0 0x00000000, GFSYNR1 0x00000429, GFSYNR2 0x00000000
-pcieport 0002:00:00.0: Removing from iommu group 19
-Unable to handle kernel NULL pointer dereference at virtual address 00000000000000a8
-pc : iommu_get_dma_domain+0x14/0x20
-lr : iommu_dma_unmap_page+0x38/0xe0
-Call trace:
- iommu_get_dma_domain+0x14/0x20
- dma_unmap_page_attrs+0x38/0x1d0
- enetc_unmap_tx_buff.isra.0+0x6c/0x80
- enetc_poll+0x170/0x910
- __napi_poll+0x40/0x1e0
- net_rx_action+0x164/0x37c
- __do_softirq+0x128/0x368
- run_ksoftirqd+0x68/0x90
- smpboot_thread_fn+0x14c/0x190
-Code: d503201f f9416800 d503233f d50323bf (f9405400)
----[ end trace 0000000000000000 ]---
-Kernel panic - not syncing: Oops: Fatal exception in interrupt
----[ end Kernel panic - not syncing: Oops: Fatal exception in interrupt ]---
+do_writepages					<--- keep retrying
+ ext4_writepages
+  mpage_map_and_submit_extent
+   mpage_map_one_extent
+    ext4_map_blocks
+     ext4_ext_map_blocks
+      ext4_ext_handle_unwritten_extents
+       ext4_ext_convert_to_initialized
+        ext4_split_extent
+         ext4_split_extent_at
+          __ext4_ext_dirty
+           __ext4_mark_inode_dirty
+            ext4_reserve_inode_write
+             ext4_get_inode_loc
+              __ext4_get_inode_loc		<--- return -ENOMEM
+               sb_getblk
+                __getblk_gfp
+                 __getblk_slow			<--- return NULL
+                  grow_buffers
+                   grow_dev_page		<--- return -ENXIO
+                    ret = (block < end_block) ? 1 : -ENXIO;
 
-The problem seems to be that iommu_group_remove_device() is allowed to
-run with no coordination whatsoever with the shutdown procedure of the
-enetc PCI device. In fact, it almost seems as if it implies that the
-pci_driver :: shutdown() method is mandatory if DMA is used with an
-IOMMU, otherwise this is inevitable. That was never the case; shutdown
-methods are optional in device drivers.
+In this issue, bg_inode_table_hi is overwritten as an incorrect value.
+As a result, `block < end_block` cannot be met in grow_dev_page.
+Therefore, __ext4_get_inode_loc always returns '-ENOMEM' and do_writepages
+keeps retrying. As a result, the writeback process is in the D state due
+to an infinite loop.
 
-This is the call stack that leads to iommu_group_remove_device() during
-reboot:
+Add a check on inode table block in the __ext4_get_inode_loc function by
+referring to ext4_read_inode_bitmap to avoid this infinite loop.
 
-kernel_restart
--> device_shutdown
-   -> platform_shutdown
-      -> arm_smmu_device_shutdown
-         -> arm_smmu_device_remove
-            -> iommu_device_unregister
-               -> bus_for_each_dev
-                  -> remove_iommu_group
-                     -> iommu_release_device
-                        -> iommu_group_remove_device
-
-I don't know much about the arm_smmu driver, but
-arm_smmu_device_shutdown() invoking arm_smmu_device_remove() looks
-suspicious, since it causes the IOMMU device to unregister and that's
-where everything starts to unravel. It forces all other devices which
-depend on IOMMU groups to also point their ->shutdown() to ->remove(),
-which will make reboot slower overall.
-
-There are 2 moments relevant to this behavior. First was commit
-b06c076ea962 ("Revert "iommu/arm-smmu: Make arm-smmu explicitly
-non-modular"") when arm_smmu_device_shutdown() was made to run the exact
-same thing as arm_smmu_device_remove(). Prior to that, there was no
-iommu_device_unregister() call in arm_smmu_device_shutdown(). However,
-that was benign until commit 57365a04c921 ("iommu: Move bus setup to
-IOMMU device registration"), which made iommu_device_unregister() call
-remove_iommu_group().
-
-Restore the old shutdown behavior by making remove() call shutdown(),
-but shutdown() does not call the remove() specific bits.
-
-Fixes: 57365a04c921 ("iommu: Move bus setup to IOMMU device registration")
-Reported-by: Michael Walle <michael@walle.cc>
-Tested-by: Michael Walle <michael@walle.cc> # on kontron-sl28
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20221215141251.3688780-1-vladimir.oltean@nxp.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
+Link: https://lore.kernel.org/r/20220817132701.3015912-3-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/arm/arm-smmu/arm-smmu.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ fs/ext4/inode.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -2188,19 +2188,16 @@ static int arm_smmu_device_probe(struct
- 	return 0;
- }
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4652,9 +4652,17 @@ static int __ext4_get_inode_loc(struct i
+ 	inodes_per_block = EXT4_SB(sb)->s_inodes_per_block;
+ 	inode_offset = ((inode->i_ino - 1) %
+ 			EXT4_INODES_PER_GROUP(sb));
+-	block = ext4_inode_table(sb, gdp) + (inode_offset / inodes_per_block);
+ 	iloc->offset = (inode_offset % inodes_per_block) * EXT4_INODE_SIZE(sb);
  
--static int arm_smmu_device_remove(struct platform_device *pdev)
-+static void arm_smmu_device_shutdown(struct platform_device *pdev)
- {
- 	struct arm_smmu_device *smmu = platform_get_drvdata(pdev);
- 
- 	if (!smmu)
--		return -ENODEV;
-+		return;
- 
- 	if (!bitmap_empty(smmu->context_map, ARM_SMMU_MAX_CBS))
- 		dev_notice(&pdev->dev, "disabling translation\n");
- 
--	iommu_device_unregister(&smmu->iommu);
--	iommu_device_sysfs_remove(&smmu->iommu);
--
- 	arm_smmu_rpm_get(smmu);
- 	/* Turn the thing off */
- 	arm_smmu_gr0_write(smmu, ARM_SMMU_GR0_sCR0, ARM_SMMU_sCR0_CLIENTPD);
-@@ -2212,12 +2209,21 @@ static int arm_smmu_device_remove(struct
- 		clk_bulk_disable(smmu->num_clks, smmu->clks);
- 
- 	clk_bulk_unprepare(smmu->num_clks, smmu->clks);
--	return 0;
- }
- 
--static void arm_smmu_device_shutdown(struct platform_device *pdev)
-+static int arm_smmu_device_remove(struct platform_device *pdev)
- {
--	arm_smmu_device_remove(pdev);
-+	struct arm_smmu_device *smmu = platform_get_drvdata(pdev);
++	block = ext4_inode_table(sb, gdp);
++	if ((block <= le32_to_cpu(EXT4_SB(sb)->s_es->s_first_data_block)) ||
++	    (block >= ext4_blocks_count(EXT4_SB(sb)->s_es))) {
++		ext4_error(sb, "Invalid inode table block %llu in "
++			   "block_group %u", block, iloc->block_group);
++		return -EFSCORRUPTED;
++	}
++	block += (inode_offset / inodes_per_block);
 +
-+	if (!smmu)
-+		return -ENODEV;
-+
-+	iommu_device_unregister(&smmu->iommu);
-+	iommu_device_sysfs_remove(&smmu->iommu);
-+
-+	arm_smmu_device_shutdown(pdev);
-+
-+	return 0;
- }
- 
- static int __maybe_unused arm_smmu_runtime_resume(struct device *dev)
+ 	bh = sb_getblk(sb, block);
+ 	if (unlikely(!bh))
+ 		return -ENOMEM;
 
 
