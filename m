@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8695366CB3B
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A485766CB3C
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234214AbjAPRMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:12:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33972 "EHLO
+        id S234330AbjAPRMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:12:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234316AbjAPRLd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1940F49004
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:47 -0800 (PST)
+        with ESMTP id S234153AbjAPRLg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:11:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AD9B46717
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:51:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE1B8B8105D
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F09C43396;
-        Mon, 16 Jan 2023 16:51:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEDDD61050
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:51:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07C41C433D2;
+        Mon, 16 Jan 2023 16:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673887905;
-        bh=w4p20tUUI8Kv+cdXTqicq/r0voA4FgiU3I0+nCwTAoU=;
+        s=korg; t=1673887908;
+        bh=0GMCo5dgqnLZz/xLU33OcMf9PF1DcJX2vENH8Awur4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZUEfT6DhlLbDpLfXtZSz4L5QMTH9rT/RNuhO4ixEpEp/u5DtoIU/pYtPQ+ap+g6/
-         PfqocRp1PiO+FeNtufnsPkNFYqgNKs7iFx5EggB/RAI7LEz7qPg8emZQKY0TV24sSr
-         nOXBIUVfDhmTOM1ms1I5KBA+1SPSlvaoWZXCjc1s=
+        b=VZtwY+3/HB7YsHiE/jvWRjlNxu5b0oUmTtffmS7ILwS8GDH7N14OOYnr1GGbZ92rL
+         yyvDbJIMWr99iFQGMLzlhCU3ike5CN/jyGEY8Tpmyb3GGPemL1LMjCkkEHFgSYaSb+
+         KVFvvGg/SHJoDzboO4Uq7XgPkrGE8MCY9Rg8caTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Dan Aloni <dan.aloni@vastdata.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 297/521] nfsd: under NFSv4.1, fix double svc_xprt_put on rpc_create failure
-Date:   Mon, 16 Jan 2023 16:49:19 +0100
-Message-Id: <20230116154900.411735969@linuxfoundation.org>
+Subject: [PATCH 4.19 298/521] mISDN: hfcsusb: dont call dev_kfree_skb/kfree_skb() under spin_lock_irqsave()
+Date:   Mon, 16 Jan 2023 16:49:20 +0100
+Message-Id: <20230116154900.444259088@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
 References: <20230116154847.246743274@linuxfoundation.org>
@@ -56,85 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Aloni <dan.aloni@vastdata.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 3bc8edc98bd43540dbe648e4ef91f443d6d20a24 ]
+[ Upstream commit ddc9648db162eee556edd5222d2808fe33730203 ]
 
-On error situation `clp->cl_cb_conn.cb_xprt` should not be given
-a reference to the xprt otherwise both client cleanup and the
-error handling path of the caller call to put it. Better to
-delay handing over the reference to a later branch.
+It is not allowed to call kfree_skb() or consume_skb() from hardware
+interrupt context or with hardware interrupts being disabled.
 
-[   72.530665] refcount_t: underflow; use-after-free.
-[   72.531933] WARNING: CPU: 0 PID: 173 at lib/refcount.c:28 refcount_warn_saturate+0xcf/0x120
-[   72.533075] Modules linked in: nfsd(OE) nfsv4(OE) nfsv3(OE) nfs(OE) lockd(OE) compat_nfs_ssc(OE) nfs_acl(OE) rpcsec_gss_krb5(OE) auth_rpcgss(OE) rpcrdma(OE) dns_resolver fscache netfs grace rdma_cm iw_cm ib_cm sunrpc(OE) mlx5_ib mlx5_core mlxfw pci_hyperv_intf ib_uverbs ib_core xt_MASQUERADE nf_conntrack_netlink nft_counter xt_addrtype nft_compat br_netfilter bridge stp llc nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ip_set overlay nf_tables nfnetlink crct10dif_pclmul crc32_pclmul ghash_clmulni_intel xfs serio_raw virtio_net virtio_blk net_failover failover fuse [last unloaded: sunrpc]
-[   72.540389] CPU: 0 PID: 173 Comm: kworker/u16:5 Tainted: G           OE     5.15.82-dan #1
-[   72.541511] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.16.0-3.module+el8.7.0+1084+97b81f61 04/01/2014
-[   72.542717] Workqueue: nfsd4_callbacks nfsd4_run_cb_work [nfsd]
-[   72.543575] RIP: 0010:refcount_warn_saturate+0xcf/0x120
-[   72.544299] Code: 55 00 0f 0b 5d e9 01 50 98 00 80 3d 75 9e 39 08 00 0f 85 74 ff ff ff 48 c7 c7 e8 d1 60 8e c6 05 61 9e 39 08 01 e8 f6 51 55 00 <0f> 0b 5d e9 d9 4f 98 00 80 3d 4b 9e 39 08 00 0f 85 4c ff ff ff 48
-[   72.546666] RSP: 0018:ffffb3f841157cf0 EFLAGS: 00010286
-[   72.547393] RAX: 0000000000000026 RBX: ffff89ac6231d478 RCX: 0000000000000000
-[   72.548324] RDX: ffff89adb7c2c2c0 RSI: ffff89adb7c205c0 RDI: ffff89adb7c205c0
-[   72.549271] RBP: ffffb3f841157cf0 R08: 0000000000000000 R09: c0000000ffefffff
-[   72.550209] R10: 0000000000000001 R11: ffffb3f841157ad0 R12: ffff89ac6231d180
-[   72.551142] R13: ffff89ac6231d478 R14: ffff89ac40c06180 R15: ffff89ac6231d4b0
-[   72.552089] FS:  0000000000000000(0000) GS:ffff89adb7c00000(0000) knlGS:0000000000000000
-[   72.553175] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   72.553934] CR2: 0000563a310506a8 CR3: 0000000109a66000 CR4: 0000000000350ef0
-[   72.554874] Call Trace:
-[   72.555278]  <TASK>
-[   72.555614]  svc_xprt_put+0xaf/0xe0 [sunrpc]
-[   72.556276]  nfsd4_process_cb_update.isra.11+0xb7/0x410 [nfsd]
-[   72.557087]  ? update_load_avg+0x82/0x610
-[   72.557652]  ? cpuacct_charge+0x60/0x70
-[   72.558212]  ? dequeue_entity+0xdb/0x3e0
-[   72.558765]  ? queued_spin_unlock+0x9/0x20
-[   72.559358]  nfsd4_run_cb_work+0xfc/0x270 [nfsd]
-[   72.560031]  process_one_work+0x1df/0x390
-[   72.560600]  worker_thread+0x37/0x3b0
-[   72.561644]  ? process_one_work+0x390/0x390
-[   72.562247]  kthread+0x12f/0x150
-[   72.562710]  ? set_kthread_struct+0x50/0x50
-[   72.563309]  ret_from_fork+0x22/0x30
-[   72.563818]  </TASK>
-[   72.564189] ---[ end trace 031117b1c72ec616 ]---
-[   72.566019] list_add corruption. next->prev should be prev (ffff89ac4977e538), but was ffff89ac4763e018. (next=ffff89ac4763e018).
-[   72.567647] ------------[ cut here ]------------
+It should use dev_kfree_skb_irq() or dev_consume_skb_irq() instead.
+The difference between them is free reason, dev_kfree_skb_irq() means
+the SKB is dropped in error and dev_consume_skb_irq() means the SKB
+is consumed in normal.
 
-Fixes: a4abc6b12eb1 ("nfsd: Fix svc_xprt refcnt leak when setup callback client failed")
-Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Cc: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+skb_queue_purge() is called under spin_lock_irqsave() in hfcusb_l2l1D(),
+kfree_skb() is called in it, to fix this, use skb_queue_splice_init()
+to move the dch->squeue to a free queue, also enqueue the tx_skb and
+rx_skb, at last calling __skb_queue_purge() to free the SKBs afer unlock.
+
+In tx_iso_complete(), dev_kfree_skb() is called to consume the transmitted
+SKB, so replace it with dev_consume_skb_irq().
+
+Fixes: 69f52adb2d53 ("mISDN: Add HFC USB driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4callback.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
-index 7ee417b685e9..519d994c0c4c 100644
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -800,7 +800,6 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
- 	} else {
- 		if (!conn->cb_xprt)
- 			return -EINVAL;
--		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
- 		clp->cl_cb_session = ses;
- 		args.bc_xprt = conn->cb_xprt;
- 		args.prognumber = clp->cl_cb_session->se_cb_prog;
-@@ -820,6 +819,9 @@ static int setup_callback_client(struct nfs4_client *clp, struct nfs4_cb_conn *c
- 		rpc_shutdown_client(client);
- 		return PTR_ERR(cred);
- 	}
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index c952002c6301..c49081ed5734 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -337,20 +337,24 @@ hfcusb_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 		test_and_clear_bit(FLG_L2_ACTIVATED, &dch->Flags);
+ 
+ 		if (hw->protocol == ISDN_P_NT_S0) {
++			struct sk_buff_head free_queue;
 +
-+	if (clp->cl_minorversion != 0)
-+		clp->cl_cb_conn.cb_xprt = conn->cb_xprt;
- 	clp->cl_cb_client = client;
- 	clp->cl_cb_cred = cred;
- 	return 0;
++			__skb_queue_head_init(&free_queue);
+ 			hfcsusb_ph_command(hw, HFC_L1_DEACTIVATE_NT);
+ 			spin_lock_irqsave(&hw->lock, flags);
+-			skb_queue_purge(&dch->squeue);
++			skb_queue_splice_init(&dch->squeue, &free_queue);
+ 			if (dch->tx_skb) {
+-				dev_kfree_skb(dch->tx_skb);
++				__skb_queue_tail(&free_queue, dch->tx_skb);
+ 				dch->tx_skb = NULL;
+ 			}
+ 			dch->tx_idx = 0;
+ 			if (dch->rx_skb) {
+-				dev_kfree_skb(dch->rx_skb);
++				__skb_queue_tail(&free_queue, dch->rx_skb);
+ 				dch->rx_skb = NULL;
+ 			}
+ 			test_and_clear_bit(FLG_TX_BUSY, &dch->Flags);
+ 			spin_unlock_irqrestore(&hw->lock, flags);
++			__skb_queue_purge(&free_queue);
+ #ifdef FIXME
+ 			if (test_and_clear_bit(FLG_L1_BUSY, &dch->Flags))
+ 				dchannel_sched_event(&hc->dch, D_CLEARBUSY);
+@@ -1344,7 +1348,7 @@ tx_iso_complete(struct urb *urb)
+ 					printk("\n");
+ 				}
+ 
+-				dev_kfree_skb(tx_skb);
++				dev_consume_skb_irq(tx_skb);
+ 				tx_skb = NULL;
+ 				if (fifo->dch && get_next_dframe(fifo->dch))
+ 					tx_skb = fifo->dch->tx_skb;
 -- 
 2.35.1
 
