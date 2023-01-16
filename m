@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B5D66CC65
-	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:25:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A61B66CAE9
+	for <lists+stable@lfdr.de>; Mon, 16 Jan 2023 18:09:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234678AbjAPRZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 12:25:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47332 "EHLO
+        id S232348AbjAPRJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 12:09:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234446AbjAPRZW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:25:22 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AAA75A36E
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 09:02:27 -0800 (PST)
+        with ESMTP id S232468AbjAPRIQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 12:08:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B27E32E0D6
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 08:48:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 97AC1CE1230
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 17:02:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79216C433D2;
-        Mon, 16 Jan 2023 17:02:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65E7EB81071
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 16:48:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF181C433EF;
+        Mon, 16 Jan 2023 16:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673888543;
-        bh=utdzhrqkLvykRVrimu7DHrom+FxHjldlP9ZDPpcKGXQ=;
+        s=korg; t=1673887718;
+        bh=ExXX4NPP+/iSRI8flXLqrYMF47wf8fkrtShGuX5ILjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z2JzdwGLuncXldhTwDxtrM4udNTYdZ3fW0BEMWpENO5+VdyXdmQsAHzmNFb2QXxD9
-         nurlmDqxlg2PFamuy/BBzhzL7vBcOy4/9C39jWzR+op7pGVlJNrZJFx4h8MfbsABuj
-         r23PPuBausQbdJ0UAT5PDpZLPUr/PaX1z3lsBQ18=
+        b=e7fHwdYW/zCodnk2JLT5detM8OMuHyZV0Fn4bTd8KF9k0gc43SMk4kARDlQOKL/6H
+         /VafahDZlZm/hH3r+pjOMB7LyjJI4dqgv7fXi8Al7ZCpA31/DykVZAQENPtVbJ460X
+         gFJvC9nt6gPVSFDMnkx9JrEEoTtNzVcmqiA60ezc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Pitt <mpitt@redhat.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 044/338] fs: dont audit the capability check in simple_xattr_list()
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 255/521] fbdev: pm2fb: fix missing pci_disable_device()
 Date:   Mon, 16 Jan 2023 16:48:37 +0100
-Message-Id: <20230116154822.702630121@linuxfoundation.org>
+Message-Id: <20230116154858.543632845@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230116154820.689115727@linuxfoundation.org>
-References: <20230116154820.689115727@linuxfoundation.org>
+In-Reply-To: <20230116154847.246743274@linuxfoundation.org>
+References: <20230116154847.246743274@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit e7eda157c4071cd1e69f4b1687b0fbe1ae5e6f46 ]
+[ Upstream commit ed359a464846b48f76ea6cc5cd8257e545ac97f4 ]
 
-The check being unconditional may lead to unwanted denials reported by
-LSMs when a process has the capability granted by DAC, but denied by an
-LSM. In the case of SELinux such denials are a problem, since they can't
-be effectively filtered out via the policy and when not silenced, they
-produce noise that may hide a true problem or an attack.
+Add missing pci_disable_device() in error path of probe() and remove() path.
 
-Checking for the capability only if any trusted xattr is actually
-present wouldn't really address the issue, since calling listxattr(2) on
-such node on its own doesn't indicate an explicit attempt to see the
-trusted xattrs. Additionally, it could potentially leak the presence of
-trusted xattrs to an unprivileged user if they can check for the denials
-(e.g. through dmesg).
-
-Therefore, it's best (and simplest) to keep the check unconditional and
-instead use ns_capable_noaudit() that will silence any associated LSM
-denials.
-
-Fixes: 38f38657444d ("xattr: extract simple_xattr code from tmpfs")
-Reported-by: Martin Pitt <mpitt@redhat.com>
-Suggested-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Reviewed-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/pm2fb.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 94f9559ba0f8..b0c322599e4c 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -1015,7 +1015,7 @@ static int xattr_list_one(char **buffer, ssize_t *remaining_size,
- ssize_t simple_xattr_list(struct inode *inode, struct simple_xattrs *xattrs,
- 			  char *buffer, size_t size)
- {
--	bool trusted = capable(CAP_SYS_ADMIN);
-+	bool trusted = ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN);
- 	struct simple_xattr *xattr;
- 	ssize_t remaining_size = size;
- 	int err = 0;
+diff --git a/drivers/video/fbdev/pm2fb.c b/drivers/video/fbdev/pm2fb.c
+index 8ae010f07d7d..0ec4be2f2e8c 100644
+--- a/drivers/video/fbdev/pm2fb.c
++++ b/drivers/video/fbdev/pm2fb.c
+@@ -1529,8 +1529,10 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	}
+ 
+ 	info = framebuffer_alloc(sizeof(struct pm2fb_par), &pdev->dev);
+-	if (!info)
+-		return -ENOMEM;
++	if (!info) {
++		err = -ENOMEM;
++		goto err_exit_disable;
++	}
+ 	default_par = info->par;
+ 
+ 	switch (pdev->device) {
+@@ -1711,6 +1713,8 @@ static int pm2fb_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	release_mem_region(pm2fb_fix.mmio_start, pm2fb_fix.mmio_len);
+  err_exit_neither:
+ 	framebuffer_release(info);
++ err_exit_disable:
++	pci_disable_device(pdev);
+ 	return retval;
+ }
+ 
+@@ -1737,6 +1741,7 @@ static void pm2fb_remove(struct pci_dev *pdev)
+ 	fb_dealloc_cmap(&info->cmap);
+ 	kfree(info->pixmap.addr);
+ 	framebuffer_release(info);
++	pci_disable_device(pdev);
+ }
+ 
+ static const struct pci_device_id pm2fb_id_table[] = {
 -- 
 2.35.1
 
