@@ -2,112 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3303766D536
-	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 04:59:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A07366D544
+	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 05:15:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235539AbjAQD7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 22:59:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50264 "EHLO
+        id S235228AbjAQEPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 23:15:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235525AbjAQD7H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 22:59:07 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A3B923671;
-        Mon, 16 Jan 2023 19:59:07 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id o7-20020a17090a0a0700b00226c9b82c3aso32904178pjo.3;
-        Mon, 16 Jan 2023 19:59:07 -0800 (PST)
+        with ESMTP id S235438AbjAQEOk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 23:14:40 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 914CA25E28
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 20:14:38 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id mg12so138551ejc.5
+        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 20:14:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=WLeCTKLOjsvJHGKffA44iOpzJOsW8nOqwiD1dGMipgc=;
-        b=i5ewKIi6NmayJpWmf1uhY2f9ADFWtqN8MjCV1G9YcYOzB1aC6pvH4k0za0mVE2KXoc
-         fKgrxF8nEua2tMY4yevTFGJ5/Dw8h5kzNkn8P7/HU9xDoIaT8X4dN4ubqQUSciTPrP6N
-         ySOUwE3wYWWANlD+AWKMtUYyiCU7BC/YR33IGDo+M+sbIuRM2iw4RfTfK0181CkEZYJl
-         mg2lbH1GGaHz83cBxByUxXsiKby4t3aaKYfIBJHiYSqXtV+NK3eznVQz17K/8hnaqOcZ
-         DjifQ0A9NPkO2b5HsCxGzgzn3i/yvxkSK0YnzOPnwpTppOS0dUB4qv6O8/zhJ5R2Fdad
-         IyTw==
+        d=futuring-girl-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=zDKtcvtIFf+y3VGztWmfwnQISP0yBigN3Ccwm/hiUK0=;
+        b=54pwdyFuQao0yiFXoRpb3zxlQhCUMcKCmJ2/n3bCVvo8cyajV60H6C5hcnRhJCIDzJ
+         2td93sZbOnSa28pLgqAw0/PoCjHhZ4xtPpfUd89yOpY7VySpIlXbVyfQnlpUpGnS03lL
+         9nv0rbf0WJJW443a1eZ5EOJ3Zx6S5bjRpQHoZCQ2lA1JPVCITvnlDDsLgmt3wkM6hByF
+         scj8fCB+NUWKtsn8cHLKekKJZlSX6FLPkoD7BAX61xYnPheKGaCe7Q3r8Z7Ug6C5UqPC
+         ObzUisWGAA97Wr6Fsxt7JgL26PPMtgEpsTN25KkJrjgNGpuL7BDzn4VmGtrOyu6Ihun0
+         n0mQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WLeCTKLOjsvJHGKffA44iOpzJOsW8nOqwiD1dGMipgc=;
-        b=KgUJ47ogixmYyiKhpbhJLoCLD3JVmR91DqZ7381K0897xuEvTWqFESHCZTmBobFcVg
-         QmQLqQCFohukzjJZ19fNbLHu9/O4EhYIi8jRrdNzcD1PgP5MM6Ly86FXadrWimKEtJgG
-         qTW3/mQ1KjCldQzTp8ezToKM+RlrLpYRmZCn+RCuTtljHjcWLqZobVO3rPAABzjXCZbE
-         kg2ZgykB1kof23L7r3ilIHdjx4v5HB5a+lVswZmUP6C1/WN2ISr1NXt7JmsXomScGPUc
-         PPhaXexcKFBYojcOveEx7n19q/mcHuE4vQntD1/7+fS1udgUgLZaLXLCcFW9EzUaS23l
-         7skw==
-X-Gm-Message-State: AFqh2kq9ufG9HVkNQSaolAUcC5E3AyBHb4a0It+JLVCmH3pFbtYxakjG
-        xeG2CacOSZkYjJZMG5IZgFs=
-X-Google-Smtp-Source: AMrXdXtAdF94FlVNkhaTxEB6Edd39GQT/6YNBQtDvnkZJj9WIYyVV4ZBTiiz2e1r9Audfm89OUNsTg==
-X-Received: by 2002:a17:903:2014:b0:194:a7b2:4329 with SMTP id s20-20020a170903201400b00194a7b24329mr1140920pla.28.1673927946592;
-        Mon, 16 Jan 2023 19:59:06 -0800 (PST)
-Received: from debian.me (subs03-180-214-233-20.three.co.id. [180.214.233.20])
-        by smtp.gmail.com with ESMTPSA id h2-20020a170902f7c200b0019327f40bfasm17265428plw.119.2023.01.16.19.59.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Jan 2023 19:59:05 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 061E1103EEA; Tue, 17 Jan 2023 10:59:02 +0700 (WIB)
-Date:   Tue, 17 Jan 2023 10:59:02 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 00/86] 5.15.89-rc1 review
-Message-ID: <Y8YdBuxEbU4G0PQe@debian.me>
-References: <20230116154747.036911298@linuxfoundation.org>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zDKtcvtIFf+y3VGztWmfwnQISP0yBigN3Ccwm/hiUK0=;
+        b=JURYz1P3RkuKk6xz2hTK6+O4IgS/V6xWr6oxNUimcUzo9yd/jZNLlj7K3CuKEY41/h
+         4EXzAPRgQ2zBK0YGGlNMtV3FYTxboWnZifoQjCkjvxk7TtCpa3eVYzJCF66YrRguHjhw
+         ATMyXqj4lvm6+e8pEnRyXeQs92zweSDcVZ+v38BFXkwJboQsUoSEt3buYbCe4ZE3vYBN
+         /xzLcsIIQ/EpZvtiGThitDs1UPU68XNN/fbeaq4RQJP96T9ffjJHWXL7FJENN4jQ5azM
+         R0+Kz+9VERyh4K60umBKao9uUVc3S73pc74Kfo0iELe3fZNSgYQkc964KJ5pr40ds1RQ
+         Utug==
+X-Gm-Message-State: AFqh2koXzRvxFf7+89/h2p+0S6wbFditA1yyYKBID1rauFOQ41xvbCCl
+        NvfG8wg9XkFtZndWZjWZSqokQVdPLaeqeVu+M0FffQ==
+X-Google-Smtp-Source: AMrXdXtJPZDPoMdGM+6WhpO0nIkoLS5sWjW5h+CYpA1K2txuLO3Ta6YC6FkoDbzeDHsMWYHGV1a7f87eAVCI7B8FbmU=
+X-Received: by 2002:a17:907:78d6:b0:872:5a3e:3be4 with SMTP id
+ kv22-20020a17090778d600b008725a3e3be4mr72348ejc.649.1673928877030; Mon, 16
+ Jan 2023 20:14:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="DvcbpAMx1RoohX50"
-Content-Disposition: inline
-In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+References: <20230116154803.321528435@linuxfoundation.org>
+In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
+From:   ogasawara takeshi <takeshi.ogasawara@futuring-girl.com>
+Date:   Tue, 17 Jan 2023 13:14:25 +0900
+Message-ID: <CAKL4bV7=cY5qWxtKpuLfKUkXEWd6tgSL2oeWVXPmiwNkrKZdHw@mail.gmail.com>
+Subject: Re: [PATCH 6.1 000/183] 6.1.7-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg
 
---DvcbpAMx1RoohX50
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jan 16, 2023 at 04:50:34PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.89 release.
-> There are 86 patches in this series, all will be posted as a response
+On Tue, Jan 17, 2023 at 12:54 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 6.1.7 release.
+> There are 183 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->=20
-=20
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+>
+> Responses should be made by Wed, 18 Jan 2023 15:47:28 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.7-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+6.1.7-rc1 tested.
 
---=20
-An old man doll... just what I always wanted! - Clara
+x86_64
 
---DvcbpAMx1RoohX50
-Content-Type: application/pgp-signature; name="signature.asc"
+build successfully completed
+boot successfully completed
 
------BEGIN PGP SIGNATURE-----
+Lenovo ThinkPad X1 Nano Gen1(Intel i5-1130G7, arch linux)
 
-iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY8Yc/gAKCRD2uYlJVVFO
-o+wIAQCm6LCIEDiRLBDdPRnkc4ubppdvhaGdUdIDnut/0mco1wEA6vE1WnwkqqT4
-AGkzFsk1A6a3ZGzpxUn6jHVTMw+hZwc=
-=OLbD
------END PGP SIGNATURE-----
+Thanks
 
---DvcbpAMx1RoohX50--
+Tested-by: Takeshi Ogasawara <takeshi.ogasawara@futuring-girl.com>
