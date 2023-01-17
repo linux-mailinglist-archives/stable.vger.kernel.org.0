@@ -2,97 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE3F66D40A
-	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 03:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3303766D536
+	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 04:59:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235212AbjAQCFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 Jan 2023 21:05:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52868 "EHLO
+        id S235539AbjAQD7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 Jan 2023 22:59:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235208AbjAQCFo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 21:05:44 -0500
-Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319F5234FB
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 18:05:41 -0800 (PST)
-Received: by mail-ot1-x32c.google.com with SMTP id p17-20020a9d6951000000b00678306ceb94so17110790oto.5
-        for <stable@vger.kernel.org>; Mon, 16 Jan 2023 18:05:41 -0800 (PST)
+        with ESMTP id S235525AbjAQD7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 Jan 2023 22:59:07 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A3B923671;
+        Mon, 16 Jan 2023 19:59:07 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id o7-20020a17090a0a0700b00226c9b82c3aso32904178pjo.3;
+        Mon, 16 Jan 2023 19:59:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
+        d=gmail.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Gt3lu2Eo9scEd1w/hLxcrFCpQl1y6EBw4SedxjGpoHg=;
-        b=hIf/bK6KpisdKpn0lutY+ug0qSbaAr90xwrHnj4VQRtv4Pr7phmV4mZxbmi/2DPfkq
-         sRr2eLSJUfgSAp1DCLEPmyRCqaPql2N3rhvL+Gxdtsr3P2s5/PWf1jBqMAH9H19dEVqM
-         LX89U7iXfVS9QTfaj/MPzamrdXBz/0hGEnCWw=
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=WLeCTKLOjsvJHGKffA44iOpzJOsW8nOqwiD1dGMipgc=;
+        b=i5ewKIi6NmayJpWmf1uhY2f9ADFWtqN8MjCV1G9YcYOzB1aC6pvH4k0za0mVE2KXoc
+         fKgrxF8nEua2tMY4yevTFGJ5/Dw8h5kzNkn8P7/HU9xDoIaT8X4dN4ubqQUSciTPrP6N
+         ySOUwE3wYWWANlD+AWKMtUYyiCU7BC/YR33IGDo+M+sbIuRM2iw4RfTfK0181CkEZYJl
+         mg2lbH1GGaHz83cBxByUxXsiKby4t3aaKYfIBJHiYSqXtV+NK3eznVQz17K/8hnaqOcZ
+         DjifQ0A9NPkO2b5HsCxGzgzn3i/yvxkSK0YnzOPnwpTppOS0dUB4qv6O8/zhJ5R2Fdad
+         IyTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Gt3lu2Eo9scEd1w/hLxcrFCpQl1y6EBw4SedxjGpoHg=;
-        b=G5rZpE8L/aEubluejZl7G0bP9nvot+1i36edTykDjA//vJkzl/dlRPCSEa1RXCER3A
-         +Y7nKqmNLDjoZA26UCt1xVXwfJleEAhBqdByT020B4aPuH6zhsc9qyEercdWm9SELAgW
-         EGiCQ9S9x0Pp9XqO2XiHyD+qnFSphmGxT2d0vUiP6BsRKnvAlhoLGhG1GoFkwmo/cYIF
-         yhvFH2/Jjr1PV6fcY22WqM/93jZdwVHq2/s/yKNSUhSrciVUyZ54fHTxVlTkArrb3Z8J
-         u7FT0UQSX4IU87smaBBzmCWXhdB0dI5+zq3uOP6e/vK81eqLLsZNGrLCiUph+xIgjcTh
-         qLIw==
-X-Gm-Message-State: AFqh2koD1rE+IiSdpwoWxo2xVv8AUIt4+Y1z67tFAlJTlqrx1RuzerQX
-        ytoKsKr07TYZssgHeBnXApd34Q==
-X-Google-Smtp-Source: AMrXdXu80sZ8VGqMOHuCEol8vjyQr1hDeoh+HypB+EmkOjHM1dNyPMRxPszGClP+QDnZNueqcHWrYA==
-X-Received: by 2002:a9d:72da:0:b0:670:a09e:c7d2 with SMTP id d26-20020a9d72da000000b00670a09ec7d2mr12981255otk.30.1673921140445;
-        Mon, 16 Jan 2023 18:05:40 -0800 (PST)
-Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
-        by smtp.gmail.com with ESMTPSA id v4-20020a0568301bc400b00661b46cc26bsm15400639ota.9.2023.01.16.18.05.39
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WLeCTKLOjsvJHGKffA44iOpzJOsW8nOqwiD1dGMipgc=;
+        b=KgUJ47ogixmYyiKhpbhJLoCLD3JVmR91DqZ7381K0897xuEvTWqFESHCZTmBobFcVg
+         QmQLqQCFohukzjJZ19fNbLHu9/O4EhYIi8jRrdNzcD1PgP5MM6Ly86FXadrWimKEtJgG
+         qTW3/mQ1KjCldQzTp8ezToKM+RlrLpYRmZCn+RCuTtljHjcWLqZobVO3rPAABzjXCZbE
+         kg2ZgykB1kof23L7r3ilIHdjx4v5HB5a+lVswZmUP6C1/WN2ISr1NXt7JmsXomScGPUc
+         PPhaXexcKFBYojcOveEx7n19q/mcHuE4vQntD1/7+fS1udgUgLZaLXLCcFW9EzUaS23l
+         7skw==
+X-Gm-Message-State: AFqh2kq9ufG9HVkNQSaolAUcC5E3AyBHb4a0It+JLVCmH3pFbtYxakjG
+        xeG2CacOSZkYjJZMG5IZgFs=
+X-Google-Smtp-Source: AMrXdXtAdF94FlVNkhaTxEB6Edd39GQT/6YNBQtDvnkZJj9WIYyVV4ZBTiiz2e1r9Audfm89OUNsTg==
+X-Received: by 2002:a17:903:2014:b0:194:a7b2:4329 with SMTP id s20-20020a170903201400b00194a7b24329mr1140920pla.28.1673927946592;
+        Mon, 16 Jan 2023 19:59:06 -0800 (PST)
+Received: from debian.me (subs03-180-214-233-20.three.co.id. [180.214.233.20])
+        by smtp.gmail.com with ESMTPSA id h2-20020a170902f7c200b0019327f40bfasm17265428plw.119.2023.01.16.19.59.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Jan 2023 18:05:40 -0800 (PST)
-Sender: Justin Forbes <jmforbes@linuxtx.org>
-Date:   Mon, 16 Jan 2023 20:05:38 -0600
-From:   Justin Forbes <jforbes@fedoraproject.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/183] 6.1.7-rc1 review
-Message-ID: <Y8YCcn1aLoFqI7SL@fedora64.linuxtx.org>
-References: <20230116154803.321528435@linuxfoundation.org>
+        Mon, 16 Jan 2023 19:59:05 -0800 (PST)
+Received: by debian.me (Postfix, from userid 1000)
+        id 061E1103EEA; Tue, 17 Jan 2023 10:59:02 +0700 (WIB)
+Date:   Tue, 17 Jan 2023 10:59:02 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 00/86] 5.15.89-rc1 review
+Message-ID: <Y8YdBuxEbU4G0PQe@debian.me>
+References: <20230116154747.036911298@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="DvcbpAMx1RoohX50"
 Content-Disposition: inline
-In-Reply-To: <20230116154803.321528435@linuxfoundation.org>
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20230116154747.036911298@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 16, 2023 at 04:48:43PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.7 release.
-> There are 183 patches in this series, all will be posted as a response
+
+--DvcbpAMx1RoohX50
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jan 16, 2023 at 04:50:34PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.89 release.
+> There are 86 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
-> Responses should be made by Wed, 18 Jan 2023 15:47:28 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.7-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+>=20
+=20
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.2.0).
 
-Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
-s390x, x86_64), and boot tested x86_64. No regressions noted.
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+--=20
+An old man doll... just what I always wanted! - Clara
+
+--DvcbpAMx1RoohX50
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY8Yc/gAKCRD2uYlJVVFO
+o+wIAQCm6LCIEDiRLBDdPRnkc4ubppdvhaGdUdIDnut/0mco1wEA6vE1WnwkqqT4
+AGkzFsk1A6a3ZGzpxUn6jHVTMw+hZwc=
+=OLbD
+-----END PGP SIGNATURE-----
+
+--DvcbpAMx1RoohX50--
