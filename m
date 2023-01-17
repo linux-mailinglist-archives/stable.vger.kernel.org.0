@@ -2,103 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F644670B47
-	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 23:09:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 590C5670B76
+	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 23:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230012AbjAQWJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Jan 2023 17:09:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52536 "EHLO
+        id S229773AbjAQWMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Jan 2023 17:12:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230019AbjAQWII (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Jan 2023 17:08:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EF83EC60;
-        Tue, 17 Jan 2023 12:27:08 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA2386149D;
-        Tue, 17 Jan 2023 20:27:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813B8C433D2;
-        Tue, 17 Jan 2023 20:27:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673987227;
-        bh=r9S6GWZqtO98hixUabotCT9dNXxS/dfJjaNPyn+TipQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GFVJkIWukAG/4hoH/KvZs1ZQX+Zfk3eG87ciZxJV28q30TpQSOnHiD5UzNGHsM8vJ
-         dCgAxI2DS//fuL/AUEzCMojb+ZuOQx/AyJ4WD0uEfHlsnTKAhp82GPQToeqo0Omxqp
-         LcBIztjH6A14n+zmaxHTPGU5U1IoLJ3yT2qHMBevRez43e1IzTnTcDGEiwoo+dnrR9
-         nvZhL8zLdFf1SaJ3D/NfzC453F3ntM3qHj1D8c1L3AgelNFKyN41rxjT6u8Om2hnX9
-         fqzc0xW0Oa+Dexu8dXccc12ymY+8Ac2L8aIEARur4r6sleV+JhlFlVkgDK1bDX/rGa
-         XraAFntf7vGGA==
-From:   SeongJae Park <sj@kernel.org>
-Cc:     Alon Zahavi <zahavi.alon@gmail.com>,
-        almaz.alexandrovich@paragon-software.com, ntfs3@lists.linux.dev,
-        linux-kernel@vger.kernel.org, Tal Lossos <tallossos@gmail.com>,
-        stable@vger.kernel.org, gregkh@linuxfoundation.org
-Subject: Re: [PATCH] ntfs3: Fix attr_punch_hole() null pointer derenference
-Date:   Tue, 17 Jan 2023 20:27:03 +0000
-Message-Id: <20230117202703.116897-1-sj@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220815110712.36982-1-zahavi.alon@gmail.com>
-References: 
+        with ESMTP id S230336AbjAQWKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Jan 2023 17:10:51 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF1143479
+        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 12:34:08 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id r18so22897036pgr.12
+        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 12:34:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=QyD2T/MLeduB6D5rkcqn0wpou9eWYF9H4ixGMrPkK0Y=;
+        b=n9TwMgFk5Mr/CmQ6UeobmDtHa00CT2XhzchgV6V3Zwb6K3+11BTXmb4pHSAnR0vJz2
+         VYXh9SsDOUtWcMEhb43lcKN4U+199dC1XbiWIjTnZ6xJetJADdk6IZa+FzrenLhQh63U
+         9RamVbKbO3+UmKzpZmYkvg5CR39O6LVJcSR6Yl+SbXB0MRP9vs/G/wQiSIbrs4fKJrr9
+         nouj/9ojcI78oWSkwwKPzcuWHDX4ixc/2wlzSqXAXqwJ59Zd/ADftU/2SWoeD0Cdd5Ag
+         SFOu9R96DXB7/ZB2ldcAukvtf9rvmVmzvwVG0ZesCpnQKd+HJ4ZjmxQL+LiuvRTYUKCG
+         CpbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QyD2T/MLeduB6D5rkcqn0wpou9eWYF9H4ixGMrPkK0Y=;
+        b=L+g6tFq8zBGZ3Vnwr9Pn4x6+RpI51vDx4h8jpj+qCqX6TNF7Ry9XzJD2aZ0cTpBvH6
+         pbN4TZnRGYkhOnkG5DgvwfxjyBdMMFnt1ns9rftb3N8D/9d0s0BNCfG/ZmNw+h2ndgKM
+         90KaqiJaxzIaZlUXp0CBtAKR3h0JFqpOrAakKnvJVI+4umoSaFIR7ijsmmInJGZbiMME
+         jGcDIzgN9Frk9hLEJxnn2l2eUvvt1C9Qd3KNtle48Ed9PHRXq9RslW0NttNhhqz7uSM0
+         EZB3xTFyQJy6DPnbwacfK3OFvls5auK3MtLBuPALcsnlKBbtNFj0AwwV3nWiNUXkf7jQ
+         OATQ==
+X-Gm-Message-State: AFqh2kpA1sofE+bn+Lh5qbYxDvorUPJ54nkn5DP1NMDGA9qTxcvTjJzH
+        34yx/SsimDluM+dwa017nZaTGtwEPDDrqGQ/STQ=
+X-Google-Smtp-Source: AMrXdXvlK48O13y788MlQ3Tg32fYyC4lwGSwauIURYcenUNnGp3JK+tK+2OxR1zsibvGfj4YRlUrmg==
+X-Received: by 2002:aa7:9151:0:b0:582:998a:bed5 with SMTP id 17-20020aa79151000000b00582998abed5mr3538242pfi.23.1673987648037;
+        Tue, 17 Jan 2023 12:34:08 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 128-20020a621786000000b0058dbd7a5e0esm3023582pfx.89.2023.01.17.12.34.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Jan 2023 12:34:07 -0800 (PST)
+Message-ID: <63c7063f.620a0220.6ca88.56cf@mx.google.com>
+Date:   Tue, 17 Jan 2023 12:34:07 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Kernel: v5.10.162-852-geeaac3cf2eb3
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.10.y baseline: 120 runs,
+ 1 regressions (v5.10.162-852-geeaac3cf2eb3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+stable-rc/linux-5.10.y baseline: 120 runs, 1 regressions (v5.10.162-852-gee=
+aac3cf2eb3)
 
-On Mon, 15 Aug 2022 14:07:12 +0300 Alon Zahavi <zahavi.alon@gmail.com> wrote:
+Regressions Summary
+-------------------
 
-> From: Alon Zahavi <zahavi.alon@gmail.com>
->
-> The bug occours due to a misuse of `attr` variable instead of `attr_b`.
-> `attr` is being initialized as NULL, then being derenfernced
-> as `attr->res.data_size`.
->
-> This bug causes a crash of the ntfs3 driver itself,
-> If compiled directly to the kernel, it crashes the whole system.
->
-> Signed-off-by: Alon Zahavi <zahavi.alon@gmail.com>
-> Co-developed-by: Tal Lossos <tallossos@gmail.com>
-> Signed-off-by: Tal Lossos <tallossos@gmail.com>
-
-This patch has now merged in mainline as
-6d5c9e79b726cc473d40e9cb60976dbe8e669624.  stable@, could you please merge this
-in stable kernels?
-
-Fixes: be71b5cba2e64 ("fs/ntfs3: Add attrib operations") # 5.14
+platform          | arch | lab     | compiler | defconfig          | regres=
+sions
+------------------+------+---------+----------+--------------------+-------=
+-----
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
+     =
 
 
-Thanks,
-SJ
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.162-852-geeaac3cf2eb3/plan/baseline/
 
-> ---
->  fs/ntfs3/attrib.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/fs/ntfs3/attrib.c b/fs/ntfs3/attrib.c
-> index e8c00dda42ad..4e74bc8f01ed 100644
-> --- a/fs/ntfs3/attrib.c
-> +++ b/fs/ntfs3/attrib.c
-> @@ -1949,7 +1949,7 @@ int attr_punch_hole(struct ntfs_inode *ni, u64 vbo, u64 bytes, u32 *frame_size)
->               return -ENOENT;
->
->       if (!attr_b->non_res) {
-> -             u32 data_size = le32_to_cpu(attr->res.data_size);
-> +             u32 data_size = le32_to_cpu(attr_b->res.data_size);
->               u32 from, to;
->
->               if (vbo > data_size)
-> --
-> 2.25.1
->
->
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.162-852-geeaac3cf2eb3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      eeaac3cf2eb302f0b8478a43f9d199b1bea51e15 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab     | compiler | defconfig          | regres=
+sions
+------------------+------+---------+----------+--------------------+-------=
+-----
+r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/63c6ccc2e978d6e78d915ecf
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: shmobile_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+62-852-geeaac3cf2eb3/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+62-852-geeaac3cf2eb3/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230114.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63c6ccc2e978d6e78d915=
+ed0
+        failing since 19 days (last pass: v5.10.161-561-g6081b6cc6ce7, firs=
+t fail: v5.10.161-575-g2bd054a0af64) =
+
+ =20
