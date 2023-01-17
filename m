@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF6166E279
-	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 16:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 516E466E27A
+	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 16:41:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232920AbjAQPli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Jan 2023 10:41:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39804 "EHLO
+        id S232609AbjAQPll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Jan 2023 10:41:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233548AbjAQPke (ORCPT
+        with ESMTP id S232273AbjAQPke (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 17 Jan 2023 10:40:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C33841B7E
-        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 07:38:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4EC82365A
+        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 07:38:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAB81B81673
-        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 15:38:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01EF4C433D2;
-        Tue, 17 Jan 2023 15:38:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7825EB81647
+        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 15:38:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A7CC433F0;
+        Tue, 17 Jan 2023 15:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1673969892;
-        bh=KZfNFfExBRKW3vmV5CqMjuGmAvR2sfVi9GPv5FLj9Fk=;
+        s=korg; t=1673969896;
+        bh=EMhy17m17dDxLDjM9TacuUTosxohkVg83zFxAx8QMCk=;
         h=Subject:To:From:Date:From;
-        b=F7Bn13z2JygVfzhnAWip96XsSqKvkJ+cRjX0ZmsJc8xMgE6rZ5ihRvMePPqudcjBP
-         EBk5jf3rFvM8H7+Q8mRZczXmdvkUH8JvflDad6TpdlrOEmqAecsHkyyUa2Lrnma5hy
-         yA4zbKaA6jZlIBAFd9EV3eUqzDqmxa5qIAIrjuAQ=
-Subject: patch "usb: cdns3: remove fetched trb from cache before dequeuing" added to usb-linus
-To:     pawell@cadence.com, gregkh@linuxfoundation.org,
-        peter.chen@kernel.org, stable@vger.kernel.org
+        b=dv1dN5LiJM68+DTrBl5V+bDiaueeF1KNQQRbtAhL0JvQRWw3PYak/VTBGMqMd8/nj
+         AdyD0IrC3GvWmkAWu1gCZ9aBtFvd1OZ0Tne5W4B+Sw6wZiS4MT2kgUv3kKa4ie5Jpx
+         2BeQFk73Vv43sLQKM9lm9ZimIQeZdJaCPVj4Ul7c=
+Subject: patch "USB: gadgetfs: Fix race between mounting and unmounting" added to usb-linus
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, sundaywind2004@gmail.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 17 Jan 2023 16:38:10 +0100
-Message-ID: <1673969890247247@kroah.com>
+Date:   Tue, 17 Jan 2023 16:38:11 +0100
+Message-ID: <1673969891218196@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: cdns3: remove fetched trb from cache before dequeuing
+    USB: gadgetfs: Fix race between mounting and unmounting
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -64,73 +64,134 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 1301c7b9f7efad2f11ef924e317c18ebd714fc9a Mon Sep 17 00:00:00 2001
-From: Pawel Laszczak <pawell@cadence.com>
-Date: Tue, 15 Nov 2022 05:00:39 -0500
-Subject: usb: cdns3: remove fetched trb from cache before dequeuing
+From d18dcfe9860e842f394e37ba01ca9440ab2178f4 Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Fri, 23 Dec 2022 09:59:09 -0500
+Subject: USB: gadgetfs: Fix race between mounting and unmounting
 
-After doorbell DMA fetches the TRB. If during dequeuing request
-driver changes NORMAL TRB to LINK TRB but doesn't delete it from
-controller cache then controller will handle cached TRB and packet
-can be lost.
+The syzbot fuzzer and Gerald Lee have identified a use-after-free bug
+in the gadgetfs driver, involving processes concurrently mounting and
+unmounting the gadgetfs filesystem.  In particular, gadgetfs_fill_super()
+can race with gadgetfs_kill_sb(), causing the latter to deallocate
+the_device while the former is using it.  The output from KASAN says,
+in part:
 
-The example scenario for this issue looks like:
-1. queue request - set doorbell
-2. dequeue request
-3. send OUT data packet from host
-4. Device will accept this packet which is unexpected
-5. queue new request - set doorbell
-6. Device lost the expected packet.
+BUG: KASAN: use-after-free in instrument_atomic_read_write include/linux/instrumented.h:102 [inline]
+BUG: KASAN: use-after-free in atomic_fetch_sub_release include/linux/atomic/atomic-instrumented.h:176 [inline]
+BUG: KASAN: use-after-free in __refcount_sub_and_test include/linux/refcount.h:272 [inline]
+BUG: KASAN: use-after-free in __refcount_dec_and_test include/linux/refcount.h:315 [inline]
+BUG: KASAN: use-after-free in refcount_dec_and_test include/linux/refcount.h:333 [inline]
+BUG: KASAN: use-after-free in put_dev drivers/usb/gadget/legacy/inode.c:159 [inline]
+BUG: KASAN: use-after-free in gadgetfs_kill_sb+0x33/0x100 drivers/usb/gadget/legacy/inode.c:2086
+Write of size 4 at addr ffff8880276d7840 by task syz-executor126/18689
 
-By setting DFLUSH controller clears DRDY bit and stop DMA transfer.
+CPU: 0 PID: 18689 Comm: syz-executor126 Not tainted 6.1.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+Call Trace:
+ <TASK>
+...
+ atomic_fetch_sub_release include/linux/atomic/atomic-instrumented.h:176 [inline]
+ __refcount_sub_and_test include/linux/refcount.h:272 [inline]
+ __refcount_dec_and_test include/linux/refcount.h:315 [inline]
+ refcount_dec_and_test include/linux/refcount.h:333 [inline]
+ put_dev drivers/usb/gadget/legacy/inode.c:159 [inline]
+ gadgetfs_kill_sb+0x33/0x100 drivers/usb/gadget/legacy/inode.c:2086
+ deactivate_locked_super+0xa7/0xf0 fs/super.c:332
+ vfs_get_super fs/super.c:1190 [inline]
+ get_tree_single+0xd0/0x160 fs/super.c:1207
+ vfs_get_tree+0x88/0x270 fs/super.c:1531
+ vfs_fsconfig_locked fs/fsopen.c:232 [inline]
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-cc: <stable@vger.kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Link: https://lore.kernel.org/r/20221115100039.441295-1-pawell@cadence.com
+The simplest solution is to ensure that gadgetfs_fill_super() and
+gadgetfs_kill_sb() are serialized by making them both acquire a new
+mutex.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+33d7ad66d65044b93f16@syzkaller.appspotmail.com
+Reported-and-tested-by: Gerald Lee <sundaywind2004@gmail.com>
+Link: https://lore.kernel.org/linux-usb/CAO3qeMVzXDP-JU6v1u5Ags6Q-bb35kg3=C6d04DjzA9ffa5x1g@mail.gmail.com/
+Fixes: e5d82a7360d1 ("vfs: Convert gadgetfs to use the new mount API")
+CC: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Y6XCPXBpn3tmjdCC@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/usb/gadget/legacy/inode.c | 28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index 5adcb349718c..ccfaebca6faa 100644
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -2614,6 +2614,7 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
- 	u8 req_on_hw_ring = 0;
- 	unsigned long flags;
- 	int ret = 0;
-+	int val;
+diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
+index 01c3ead7d1b4..d605bc2e7e8f 100644
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -229,6 +229,7 @@ static void put_ep (struct ep_data *data)
+  */
  
- 	if (!ep || !request || !ep->desc)
- 		return -EINVAL;
-@@ -2649,6 +2650,13 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
+ static const char *CHIP;
++static DEFINE_MUTEX(sb_mutex);		/* Serialize superblock operations */
  
- 	/* Update ring only if removed request is on pending_req_list list */
- 	if (req_on_hw_ring && link_trb) {
-+		/* Stop DMA */
-+		writel(EP_CMD_DFLUSH, &priv_dev->regs->ep_cmd);
+ /*----------------------------------------------------------------------*/
+ 
+@@ -2010,13 +2011,20 @@ gadgetfs_fill_super (struct super_block *sb, struct fs_context *fc)
+ {
+ 	struct inode	*inode;
+ 	struct dev_data	*dev;
++	int		rc;
+ 
+-	if (the_device)
+-		return -ESRCH;
++	mutex_lock(&sb_mutex);
 +
-+		/* wait for DFLUSH cleared */
-+		readl_poll_timeout_atomic(&priv_dev->regs->ep_cmd, val,
-+					  !(val & EP_CMD_DFLUSH), 1, 1000);
-+
- 		link_trb->buffer = cpu_to_le32(TRB_BUFFER(priv_ep->trb_pool_dma +
- 			((priv_req->end_trb + 1) * TRB_SIZE)));
- 		link_trb->control = cpu_to_le32((le32_to_cpu(link_trb->control) & TRB_CYCLE) |
-@@ -2660,6 +2668,10 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
++	if (the_device) {
++		rc = -ESRCH;
++		goto Done;
++	}
  
- 	cdns3_gadget_giveback(priv_ep, priv_req, -ECONNRESET);
+ 	CHIP = usb_get_gadget_udc_name();
+-	if (!CHIP)
+-		return -ENODEV;
++	if (!CHIP) {
++		rc = -ENODEV;
++		goto Done;
++	}
  
-+	req = cdns3_next_request(&priv_ep->pending_req_list);
-+	if (req)
-+		cdns3_rearm_transfer(priv_ep, 1);
-+
- not_found:
- 	spin_unlock_irqrestore(&priv_dev->lock, flags);
- 	return ret;
+ 	/* superblock */
+ 	sb->s_blocksize = PAGE_SIZE;
+@@ -2053,13 +2061,17 @@ gadgetfs_fill_super (struct super_block *sb, struct fs_context *fc)
+ 	 * from binding to a controller.
+ 	 */
+ 	the_device = dev;
+-	return 0;
++	rc = 0;
++	goto Done;
+ 
+-Enomem:
++ Enomem:
+ 	kfree(CHIP);
+ 	CHIP = NULL;
++	rc = -ENOMEM;
+ 
+-	return -ENOMEM;
++ Done:
++	mutex_unlock(&sb_mutex);
++	return rc;
+ }
+ 
+ /* "mount -t gadgetfs path /dev/gadget" ends up here */
+@@ -2081,6 +2093,7 @@ static int gadgetfs_init_fs_context(struct fs_context *fc)
+ static void
+ gadgetfs_kill_sb (struct super_block *sb)
+ {
++	mutex_lock(&sb_mutex);
+ 	kill_litter_super (sb);
+ 	if (the_device) {
+ 		put_dev (the_device);
+@@ -2088,6 +2101,7 @@ gadgetfs_kill_sb (struct super_block *sb)
+ 	}
+ 	kfree(CHIP);
+ 	CHIP = NULL;
++	mutex_unlock(&sb_mutex);
+ }
+ 
+ /*----------------------------------------------------------------------*/
 -- 
 2.39.0
 
