@@ -2,75 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B9366E824
-	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 22:08:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF71966E854
+	for <lists+stable@lfdr.de>; Tue, 17 Jan 2023 22:22:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229532AbjAQVIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Jan 2023 16:08:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38550 "EHLO
+        id S229613AbjAQVW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Jan 2023 16:22:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbjAQVGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Jan 2023 16:06:16 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B8046C56B;
-        Tue, 17 Jan 2023 11:32:16 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id z3so85359pfb.2;
-        Tue, 17 Jan 2023 11:32:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=DlLQTdoKsOZVDNxk9NL/UbvvDxhujJxGzQgZNmNgx0U=;
-        b=JXBX8KVj4Ffl+KJEJrfPsUrsxZRLXQkhl1iFB291/nmaQpGG1GOlYLFoGiRJIhDaeR
-         qq8s1vRb486jdTWKcvdRaKpDZy9w1PPqEHiXITMCeNqDPpV6CLycsms2aVn4ec6E5epu
-         2RTR5zNLfSikRyLyWBTv4OktwynBGLLlZhyoUoZNuV2oS7P4e7bheeAP9F7nHzqaDXfk
-         nHbjiLVn08yOEn37yKdX0LkTtcUJHgBxbjca9aoFUnfrWjX4q1feq6x35Xx4pUUUXYbU
-         xj7LmyCuyyKTWE9VXiAWKVCz/r5Ecc6dvpXGyP89Ts4gxj1Hndm5TMQDEz/tuFtHteO4
-         rEeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=DlLQTdoKsOZVDNxk9NL/UbvvDxhujJxGzQgZNmNgx0U=;
-        b=QGc2vaNfxEaN+68mOydzKy8HsVusb82ly3YvHtke7zSdcO+OqLCEkmHScsB6bZktPX
-         MRADl8fbvL2wrKVFcMjTgBMxyzURnXW4ojVK1eShuqKsFbJGNtxB96dVgc9ZawaP5/iT
-         aODEN9WotfbFyqRbd6NtX5S8SveXScCqeEBjawtiVa444s8ICLsaQ/DkG5+eUPHqXXWx
-         oDWf1EDHLM0dXagv7ygZa8HHpMiGX+9hRuzzlwbnmVvt7Q3L3ZJaOagb7HqxBY+Tcvsb
-         FMA3PI3HPKojALUlCapbPlkSyyTpJwPtg3MQy0E57TBlspHX8Bma3bUqyb1slpxvNiSK
-         fUnQ==
-X-Gm-Message-State: AFqh2kqsHEPxirFnKMVBgrrwPLJQTD53LjRTiXCcRKorFtWVlMFx7YAk
-        OMSgnzHSvCbs5lSr2resJ7o=
-X-Google-Smtp-Source: AMrXdXtNKpWN7uz3qBQ+i7AEsePVao3aNrWvFpHQCQ0As59xfpRQeXFe0p6yqjitcWqnqXzVGe45hQ==
-X-Received: by 2002:a62:7b11:0:b0:586:e399:9cd4 with SMTP id w17-20020a627b11000000b00586e3999cd4mr25691538pfc.25.1673983935820;
-        Tue, 17 Jan 2023 11:32:15 -0800 (PST)
-Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id h18-20020aa796d2000000b0058dbb5c5038sm3124010pfq.182.2023.01.17.11.32.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 Jan 2023 11:32:15 -0800 (PST)
-Message-ID: <b19210c0-bfc7-f601-c8b3-4b4e263c9cd0@gmail.com>
-Date:   Tue, 17 Jan 2023 11:32:12 -0800
+        with ESMTP id S230250AbjAQVV1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Jan 2023 16:21:27 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF8439CD0;
+        Tue, 17 Jan 2023 11:41:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
+        t=1673984487; bh=g40rn34VJ/GTiCq7qnudEZfc73s1/o92ogHmG8ecxE4=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
+        b=LR5SclvKtk9WKQWMdM9CY98p+KjnroX1qIjMxtPFmYVh5uMztkn1dNGWo6JmQ1O++
+         e6w/dnU8vUm9L/vBmekkbJOahY8l7Dz5e49EhXuMJmoXuKQY20pbnvxZht7pErDeFv
+         JnUoOxn4AC5UgRCVYeA3pUWFIiFtwvw4scI3cyztthuE2rELMz3RwrAULnQE10ZNVC
+         hGe5VmVV38GcSUNyAWme/D+T6syhOGHaln+8DlBvvC6skzNiDViF+8luzBcq3o0T8g
+         nlFtyyDsJF55TLNS5AdUIOh+QsXVdq2lx5qnYRWCldexUabbOfkQdJ8Qk6gqQb+201
+         Ktik6DjmB2SxQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [192.168.100.20] ([46.142.35.85]) by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MmULr-1orZQN40qf-00iQDT; Tue, 17
+ Jan 2023 20:41:27 +0100
+Message-ID: <bfe5ff9f-4f85-d4a2-c60a-9f0532847af5@gmx.de>
+Date:   Tue, 17 Jan 2023 20:41:26 +0100
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [PATCH 5.4 000/622] 5.4.229-rc2 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230117124648.308618956@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20230117124648.308618956@linuxfoundation.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE, en-US
+Subject: Re: [PATCH 6.1 000/176] 6.1.7-rc2 review
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Provags-ID: V03:K1:lk0j7YYDvoFe3DHH4AeHLYbxiC7IkGp8XXpLxTPPcaxLnFdhyEq
+ JjVdp2z63XLEueFE80dfhF+R8SBMvzaYjYoLZ5fvLGrrknnMRlQ0fVl1NiZmv6/F1kQxoyo
+ xYx1TEl2/aEZ69TMEkVhJCMrKiYY54/1XFCJRsubsJ1JqILxc14peZ5eVoiydE41bPP/Q1d
+ ZFyPU1RrNDkR/MBltQrPA==
+UI-OutboundReport: notjunk:1;M01:P0:c3p95Dng61k=;wlfWvXcQOaCWy4Cfjc+HCgSzfT6
+ KMVCRvuNs01cN9OATgmyjyYioRbjaLrCy8ZW9JnePgMuM4iT5eCaNf4JhdhAoGSCYZ2DahI1i
+ 2T7LonYGxkAGCOkoCFbdRPz7Z7kTj8J+IFqZCYHuzuQei9jn4BFomh7AHeyBeSwDeeigraTzD
+ zM9XTyVa42Khqtp2F2evBJYOgg/mbwFM6M4i9/gpmQQ5VNSD9Fbu1Ra6MxPniIg0tDtKTlikF
+ 2TEh+V/hpUPb43Gso703OkEcomx9Yx8w7ojKEsCCaHhLlUH6LwVJgS5cdHkG+sCk1ElGZy4t/
+ kRFeqGHvAplPWSopeSIdfOZRnJL5QekHFHDpObso2a8V+zbqhnx4aq+3smUtk0rbHiB2XD0gq
+ tV+EzCWk3JvwEe0sDRTzRx8uJpEJXP8GHpCr+OgwmJWKyJV6yUClQQ1KzRMqQQ3h5W6yWedbp
+ TOHvgBZ+OJklzTvWuyJBQ/nM17VuO4yevQDPXwSv4xzWWxYTNXlqfY43gc/JEbzcfasMb98mu
+ SVZ2HkEjouwt22yXy2OfCDpypspdR7HCWBfH+BNm2K9WeUV53r2BmVI4YeZeW5dcw81sLaxVQ
+ DssoOCS/zn9laNobEygQ+sysNPC8z6+CtAG3BX5FP9Anx8qctgYP359w4qxviDJESvZDAQRk9
+ 1fEl/DaP7OxZn62odwEEuUAOM9BTVTzcoNViFkWctLZoItSUDfojd/T+T1VSyRPI6VTE9+GV7
+ uxs7OIOzzCEpOmJwd5E9jTCdl9UXwh5hJtISbz4KDmExnj9JF3JdCZeQ90iwDxnmK07y081yX
+ hzm0zpK7o5AHR/e4XBAUxaObKIWqeQ236g1MkcIPQDGVt1MauWfO5DFBprvl+LoN9BF5umvlq
+ rLilMu9eNhuUDO0bb50jTO0/Cxr0znr3ELizd3k8OOdQvGaYgbj7ZcC3p4y5jfXouOERNI8Pg
+ cRIZH3fSpLGMFS4VLZBiDFYJzRw=
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,30 +68,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg
 
+6.1.7-rc2
 
-On 1/17/2023 4:48 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.229 release.
-> There are 622 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 19 Jan 2023 12:45:11 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.229-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+compiles, boots and runs here on x86_64
+(Intel i5-11400, Fedora 37)
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels, build tested on 
-BMIPS_GENERIC:
+Thanks
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
+
