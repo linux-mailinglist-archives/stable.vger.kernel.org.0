@@ -2,142 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 515B36712A4
-	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 05:34:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A27D16713D5
+	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 07:22:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229565AbjAREep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Jan 2023 23:34:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47664 "EHLO
+        id S229453AbjARGWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Jan 2023 01:22:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbjAREem (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Jan 2023 23:34:42 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB08853E62
-        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 20:34:41 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id b10so3078503pjo.1
-        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 20:34:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ekepBrhxl/81ZRjhtoKyLZ9/J5n/6wX9lCeCLJRBaSE=;
-        b=YQ5PyRSx66ogTt9Tp2mO1vQ2MrDl2Q5uaq6ppSXcklktAEngikxSoLX51hsoXwaThi
-         C+U2ULT5tBnfQkCocHuubK7A8KB8d93I29dfVwGhzr4+UQFjZC4rw1M4vIyr8SFxNZhS
-         8sikRHGq81Yi+atqwIFU4pJA+t3/GouDFOzud1ORWdMMLWGcgHhF8sUSbqQYZvz52icN
-         Cp5YvrjQO3GBdfhhMkQnkulD12S+a37LcQ13p+RumJaqpIyaoO9hrOu+Zu3Gsl8brQym
-         CkrJt+v30vgfViPI8y0nUDlAteY9WBqSQP7zZXZ6LRfLnYbrhtpcaYW2DMrNzTo4QeSG
-         bgpw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ekepBrhxl/81ZRjhtoKyLZ9/J5n/6wX9lCeCLJRBaSE=;
-        b=GBg2jSYytA2iEAwyf8pdEklWi2BXOI/gSAkPbPwj0+D22X2NsANQs55qDj9Mfx1wxT
-         gpxp1q35XmJ2x/nYFAq6yDSd8t6DZydYz7jEZR0KH9VFqS1eOHfN40MwyA1+zzuLHR62
-         g9zQVep9/Kuf4oB4av8TxOiZtSbv+/uYqZEVCkFQHKFATp8kTtoSbOVCw/BeIRaxWG1t
-         hYYxoRHWfx6PT0SGKsWfwMZ4vNTyrDSDhvDtRbE8vN2iqD/VY+jiOIJTnNKjpl1MBtWE
-         TswjhI6WGEZbuPfO3TdXhs9OwEg5/0hJw1mc6L4JMGG0vgPl9ArFmhcQWPlI/mFGyXAN
-         IXCA==
-X-Gm-Message-State: AFqh2koFr1AFN2XlyOBX+xQJe3GQn8ufL5fsNTadozGkRWLyY7At0DYy
-        Zw8YcolFwARaT2kvs0Od81tFwg==
-X-Google-Smtp-Source: AMrXdXs6+ewPotUsgsdS6utrX52/DIDc2wtC3Qc4fuM1RpmPsQ829ZBmtYSv9fGVDjQiJuJIlTRhlg==
-X-Received: by 2002:a05:6a20:c183:b0:b8:ca86:f3ab with SMTP id bg3-20020a056a20c18300b000b8ca86f3abmr495506pzb.2.1674016480682;
-        Tue, 17 Jan 2023 20:34:40 -0800 (PST)
-Received: from google.com ([2620:15c:9d:2:f51a:aa8f:95e9:9c5])
-        by smtp.gmail.com with ESMTPSA id x73-20020a62864c000000b0058d8f23af26sm5960782pfd.157.2023.01.17.20.34.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Jan 2023 20:34:39 -0800 (PST)
-Date:   Tue, 17 Jan 2023 20:34:34 -0800
-From:   Benson Leung <bleung@google.com>
-To:     Prashant Malani <pmalani@chromium.org>
-Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        bleung@chromium.org, stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: Re: [PATCH] usb: typec: altmodes/displayport: Update active state
-Message-ID: <Y8d22ssmBmbITHyD@google.com>
-References: <20230118031514.1278139-1-pmalani@chromium.org>
+        with ESMTP id S229481AbjARGUI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 01:20:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592C646D75;
+        Tue, 17 Jan 2023 22:08:28 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F254615B0;
+        Wed, 18 Jan 2023 06:08:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68FE7C433D2;
+        Wed, 18 Jan 2023 06:08:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1674022107;
+        bh=wJKzVtiwlBDSkpF0tCKhmbESueBYIIC1ljEZoRcApd0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UQ16+kTHXljxWWrlz3cs8bXXZ6YbI+m3Uex9mKKd1yJV/xr2tYPhJ6ZGY8W1m5jeB
+         sr68AvpDIoQam4Wf0ZRHJ55sUrExyTU86RiaGLW7fP0HsV4+0espWmqNnwzvaM7div
+         rfzB5YZtd891k2SRyXuVgY1LzPFEeZ9uXb7yZ6UQ=
+Date:   Wed, 18 Jan 2023 07:08:22 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Wang Yugui <wangyugui@e16-tech.com>
+Cc:     hch@lst.de, stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/183] 6.1.7-rc1 review
+Message-ID: <Y8eM1ln+uGaR5h72@kroah.com>
+References: <20230117151136.CB79.409509F4@e16-tech.com>
+ <Y8Znr6CAFi8ikhdH@kroah.com>
+ <20230118101433.734D.409509F4@e16-tech.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Vjp3LjpA+ox3SLFy"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230118031514.1278139-1-pmalani@chromium.org>
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20230118101433.734D.409509F4@e16-tech.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jan 18, 2023 at 10:14:35AM +0800, Wang Yugui wrote:
+> Hi,
+> 
+> > On Tue, Jan 17, 2023 at 03:11:37PM +0800, Wang Yugui wrote:
+> > > Hi,
+> > > 
+> > > fstests(generic/034, xfs) panic when 6.1.7-rc1, but not panic when 6.1.6.
+> > > 
+> > > It seems patch *1 related.
+> > > *1 Subject: blk-mq: move the srcu_struct used for quiescing to the tagset
+> > > From: Christoph Hellwig <hch@lst.de>
+> > > 
+> > > This patch has been drop from 6.1.2-rc1. and it now added in 6.1.7-rc1 again.
+> > > 
+> > > the panic in 6.1.7-rc1 is almost same as that in 6.1.2-rc1.
+> > 
+> > Argh, yes, let me go drop these again.
+> > 
+> > Sasha, can you blacklist these from your tools so they don't get picked
+> > up again?
+> 
+> this panic does not happen on  upstream 6.2.0-rc4.
+> or maybe we need a bigger patch set?
 
---Vjp3LjpA+ox3SLFy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Prashant,
-
-On Wed, Jan 18, 2023 at 03:15:15AM +0000, Prashant Malani wrote:
-> Update the altmode "active" state when we receive Acks for Enter and
-> Exit Mode commands. Having the right state is necessary to change Pin
-> Assignments using the 'pin_assignment" sysfs file.
->=20
-> Fixes: 0e3bb7d6894d ("usb: typec: Add driver for DisplayPort alternate mo=
-de")
-> Cc: stable@vger.kernel.org
-> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-> Signed-off-by: Prashant Malani <pmalani@chromium.org>
-
-Reviewed-by: Benson Leung <bleung@chromium.org>
-
-
-> ---
->  drivers/usb/typec/altmodes/displayport.c | 2 ++
->  1 file changed, 2 insertions(+)
->=20
-> diff --git a/drivers/usb/typec/altmodes/displayport.c b/drivers/usb/typec=
-/altmodes/displayport.c
-> index 06fb4732f8cd..bc1c556944d6 100644
-> --- a/drivers/usb/typec/altmodes/displayport.c
-> +++ b/drivers/usb/typec/altmodes/displayport.c
-> @@ -277,9 +277,11 @@ static int dp_altmode_vdm(struct typec_altmode *alt,
->  	case CMDT_RSP_ACK:
->  		switch (cmd) {
->  		case CMD_ENTER_MODE:
-> +			typec_altmode_update_active(alt, true);
->  			dp->state =3D DP_STATE_UPDATE;
->  			break;
->  		case CMD_EXIT_MODE:
-> +			typec_altmode_update_active(alt, false);
->  			dp->data.status =3D 0;
->  			dp->data.conf =3D 0;
->  			break;
-> --=20
-> 2.39.0.314.g84b9a713c41-goog
->=20
-
---=20
-Benson Leung
-Staff Software Engineer
-Chrome OS Kernel
-Google Inc.
-bleung@google.com
-Chromium OS Project
-bleung@chromium.org
-
---Vjp3LjpA+ox3SLFy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQQCtZK6p/AktxXfkOlzbaomhzOwwgUCY8d22AAKCRBzbaomhzOw
-woPJAP9ZTCTrrDZa2Ve5dXDZPWih4kCSyO5wiZh1+UeRL/JQFwEA4tGtERuBhDXJ
-NLBK6pJtLyLmVo/1vXVSeeqS1hjyjAY=
-=Ih/e
------END PGP SIGNATURE-----
-
---Vjp3LjpA+ox3SLFy--
+We just need to stop attempting to backport these to 6.1 :)
