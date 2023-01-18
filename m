@@ -2,69 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 970ED6718FA
-	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 11:32:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA28E67190B
+	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 11:36:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229763AbjARKci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Jan 2023 05:32:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57940 "EHLO
+        id S229597AbjARKgK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Jan 2023 05:36:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229786AbjARKcC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 05:32:02 -0500
-Received: from mail-vs1-xe2c.google.com (mail-vs1-xe2c.google.com [IPv6:2607:f8b0:4864:20::e2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD01DBD16C
-        for <stable@vger.kernel.org>; Wed, 18 Jan 2023 01:38:42 -0800 (PST)
-Received: by mail-vs1-xe2c.google.com with SMTP id v127so30709965vsb.12
-        for <stable@vger.kernel.org>; Wed, 18 Jan 2023 01:38:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=oi2CsvU8zgZn29VtRR/8zgZYMbXO0Js76fEjysKPOW0=;
-        b=ecHRdvyIsz9xv1wYQhY/jc/o+jb9XjdXQwHM/0Hc59eIouQvga++X83NI4nUrDtMdX
-         2wH/b593YjejUUpXOLH0ywCc14gPQb9LlMhNBqM96d3vR0Qrpq2QW9xRVSo7H0Eo5KoX
-         QjspGnctEMk5X+EOY/zBMvacIQmJ0EQCmCRAV+4eFYd+0i97W0Cl2nP3mUsvu2AjRp5P
-         HEN/03MjBWSG5DKe5CTF4zPkU0T2w5qqHVipXXqiQIhV9sePpXDHxH9i61Aio++qjfLr
-         9qq4Y2sosn79NJDdwsmgvlPSrOaw8XxvEqEH2V1uQNt1+MLK1v2ZguYUVJ7qTxJax1iP
-         GntQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=oi2CsvU8zgZn29VtRR/8zgZYMbXO0Js76fEjysKPOW0=;
-        b=TfRLFZnqUm+yBi6rLzsdBOu/AAk4iJKYQQkrIkc9qXb7CMFRh5ncJj25Nc6Ts5I1XR
-         /IizUVJSLDUPeBjd0wmm+3FKch2fwI5745WGsazpY9u8qK/Vh50Yg/a3kUM3L3rhYRgO
-         1ReSoimc5a0VkPjXfvzl5FaZlUbPepuGw2uND35Ipxd5gp0TaUNa6/AbY3YE2H+k+WqO
-         uGL6VnZs85PWBcjynJ0i6mT90cP+fdVxE/V3aBTznPDZ5c8H2TM22pumbostqZtistXa
-         xHtWZ+/cT9nfycaD8oBe9YawsP1R3dSt12m1o14O0YINgiFWQtvm11xy6bpCBeXgVR/D
-         Jv0A==
-X-Gm-Message-State: AFqh2koY3x2vzVrhuhNk+hZmECjU6CHMwckrf1Hnwz669UhrAnbU5STK
-        F6F+sVCzyMOZoQoNL/8q9ql4kvsNgSi310fuCLs=
-X-Google-Smtp-Source: AMrXdXtkoTEmptARn3YgJcalqv/dqXlho5F+q5tFxFeoMZp9faiNrXODe9ldUYFy2E9cTou+sNfW+HeqWVRIpfXBj3A=
-X-Received: by 2002:a05:6102:124d:b0:3ce:8b90:2b1b with SMTP id
- p13-20020a056102124d00b003ce8b902b1bmr744081vsg.42.1674034705876; Wed, 18 Jan
- 2023 01:38:25 -0800 (PST)
+        with ESMTP id S229732AbjARKdO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 05:33:14 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8128385A;
+        Wed, 18 Jan 2023 01:40:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1674034801; x=1705570801;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Dim/XHdZNOWgoQEmO/2DDcF5rOun4Mijg9kltai7M+A=;
+  b=CLZgMcab6anhctRCx8aH3DanqI9LA5BgnpmJMtcwrViPtefrAS3iQ3ot
+   WZgBR3JtYjwnwLMmOvmvrHziMhvxFrJ8FryGnDo2kTmwxYVCzBzx27FTm
+   lUGXwrcqExwnS06XEs0SeG9YpwdPLUCv939CmpPS6kD33M+kYMJc92CW+
+   CW4s+3Xl5LsOowulxPn2HfdQ4vPNrtGGj7cEpKZaRlgpNbZ5DpwxIs6o4
+   B1XOLt4d194kx0dgI/wcBmV0lEl96wozMZpkpkpZK6czS0Hu73A6Exgwy
+   9vtRq3u5/VHJZBt8SSlaelyFvozTeq53vHu53cWU4QQ2b8dBWsH24HLmX
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10593"; a="305317435"
+X-IronPort-AV: E=Sophos;i="5.97,224,1669104000"; 
+   d="scan'208";a="305317435"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 01:39:49 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10593"; a="802120538"
+X-IronPort-AV: E=Sophos;i="5.97,224,1669104000"; 
+   d="scan'208";a="802120538"
+Received: from kuha.fi.intel.com ([10.237.72.185])
+  by fmsmga001.fm.intel.com with SMTP; 18 Jan 2023 01:39:47 -0800
+Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Wed, 18 Jan 2023 11:39:46 +0200
+Date:   Wed, 18 Jan 2023 11:39:46 +0200
+From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To:     Prashant Malani <pmalani@chromium.org>
+Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        bleung@chromium.org, stable@vger.kernel.org
+Subject: Re: [PATCH] usb: typec: altmodes/displayport: Update active state
+Message-ID: <Y8e+YlKiC6FHdQ5s@kuha.fi.intel.com>
+References: <20230118031514.1278139-1-pmalani@chromium.org>
 MIME-Version: 1.0
-Received: by 2002:a59:c8a2:0:b0:33d:74eb:f817 with HTTP; Wed, 18 Jan 2023
- 01:38:25 -0800 (PST)
-Reply-To: hustonkarim7712@gmail.com
-From:   Huston Karim <hustonali2999@gmail.com>
-Date:   Wed, 18 Jan 2023 10:38:25 +0100
-Message-ID: <CALe2VC9cHVUE3TQ8WcpMb5F6vsp-g1B8e=TQmnUmP-dKXjppwA@mail.gmail.com>
-Subject: Hello,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230118031514.1278139-1-pmalani@chromium.org>
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello, did you receive my email on 17/01/2023?
-Please answer .Regards thanks.
+On Wed, Jan 18, 2023 at 03:15:15AM +0000, Prashant Malani wrote:
+> Update the altmode "active" state when we receive Acks for Enter and
+> Exit Mode commands. Having the right state is necessary to change Pin
+> Assignments using the 'pin_assignment" sysfs file.
+
+The idea was that the port drivers take care of this, not the altmode
+drivers.
+
+thanks,
+
+> Fixes: 0e3bb7d6894d ("usb: typec: Add driver for DisplayPort alternate mode")
+> Cc: stable@vger.kernel.org
+> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+> Signed-off-by: Prashant Malani <pmalani@chromium.org>
+> ---
+>  drivers/usb/typec/altmodes/displayport.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/usb/typec/altmodes/displayport.c b/drivers/usb/typec/altmodes/displayport.c
+> index 06fb4732f8cd..bc1c556944d6 100644
+> --- a/drivers/usb/typec/altmodes/displayport.c
+> +++ b/drivers/usb/typec/altmodes/displayport.c
+> @@ -277,9 +277,11 @@ static int dp_altmode_vdm(struct typec_altmode *alt,
+>  	case CMDT_RSP_ACK:
+>  		switch (cmd) {
+>  		case CMD_ENTER_MODE:
+> +			typec_altmode_update_active(alt, true);
+>  			dp->state = DP_STATE_UPDATE;
+>  			break;
+>  		case CMD_EXIT_MODE:
+> +			typec_altmode_update_active(alt, false);
+>  			dp->data.status = 0;
+>  			dp->data.conf = 0;
+>  			break;
+> -- 
+> 2.39.0.314.g84b9a713c41-goog
+
+-- 
+heikki
