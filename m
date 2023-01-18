@@ -2,113 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80D59672884
-	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 20:36:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 939146728F6
+	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 21:03:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229578AbjARTg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Jan 2023 14:36:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34952 "EHLO
+        id S229897AbjARUDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Jan 2023 15:03:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbjARTgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 14:36:25 -0500
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E034B9EFA;
-        Wed, 18 Jan 2023 11:36:20 -0800 (PST)
-Received: by mail-ed1-f47.google.com with SMTP id v30so83410edb.9;
-        Wed, 18 Jan 2023 11:36:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=TFaCbGRXO/pQ0TUpQ1SBb2CqrXmII77VOVr2Wb3CdJg=;
-        b=2iBDEzcZy6zBBhtMVSZcqajreeIfnJYGhQIAzTVzeRRlshZlkGw37wQwS1l8ENHMxV
-         E1txsgebOh7OovxTn9ESKiK9Ru+xrTZeauLkPhI4HUE6uFoMcopbXEyyJZubbOjnQJzW
-         tHfVlApXIp8pvUVZzUl0722cSNoMvQJS3jf7Z0GzWvgNycOu9E2xiQyQFGBlzXfJHf6/
-         jG10hjfk90Y/aUkHBblLwHziUheEW7LXj3o9cR2L8qqp6GvgEws9h0regTsqMmU7Peo3
-         IrcPfyD9u8OSxH8dm8KvQK9HR1eahJJytsKd7ZQy4s+uh46xfEVA58iyilxx2y+WVGrm
-         Zzxw==
-X-Gm-Message-State: AFqh2kocESlD8BPqSK6vIOKQF46yhdHierPG+1QCsqt/BFe/RU84XU49
-        q07J+osn4bxuqIlET9KFDoiM9bcpWabg9pIYuAY19KOJ
-X-Google-Smtp-Source: AMrXdXtH/J5JYaM2D5yLut+qn0FbDvdIwh4x02bBN0equIIryPDtQQHEE95ojIXGbVyqOTw6IOe98kESuA9eFFjdoik=
-X-Received: by 2002:a05:6402:40d6:b0:46d:53d7:d1f6 with SMTP id
- z22-20020a05640240d600b0046d53d7d1f6mr912154edb.211.1674070579297; Wed, 18
- Jan 2023 11:36:19 -0800 (PST)
+        with ESMTP id S229880AbjARUD3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 15:03:29 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 593A75F381;
+        Wed, 18 Jan 2023 12:03:16 -0800 (PST)
+Received: from zn.tnic (p5de8e9fe.dip0.t-ipconnect.de [93.232.233.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 650A31EC0646;
+        Wed, 18 Jan 2023 21:02:56 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1674072176;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=MpYmGfdGJwdpjiTRbkmmwRqJaAFYLwbh/MMe94wnB9Q=;
+        b=sFHLQDIFvRjMCqLkNTLwW0JZ6trLoxL2UAOjri4x1KRwbzs0TlHZMKcLaBFDO0jrI7JxId
+        uDgjrlVaoVuQvTfpHOWjcASbllBTW3vnWLXWBh6A/pxpN38JvKMFXnPQZvQsT2sNblUaMK
+        F4jknNchU6NaIBVzrQsSU/5stQDtlnY=
+Date:   Wed, 18 Jan 2023 21:02:52 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Luis Chamberlain <mcgrof@kernel.org>
+Cc:     Petr Mladek <pmladek@suse.com>,
+        Prarit Bhargava <prarit@redhat.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        NeilBrown <neilb@suse.de>, Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        Petr Pavlu <petr.pavlu@suse.com>, david@redhat.com,
+        mwilck@suse.com, linux-modules@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] module: Don't wait for GOING modules
+Message-ID: <Y8hQbC3wvu1S+uZ5@zn.tnic>
+References: <20221205103557.18363-1-petr.pavlu@suse.com>
+ <Y5gI/3crANzRv22J@bombadil.infradead.org>
+ <Y5hRRnBGYaPby/RS@alley>
+ <Y8c3hgVwKiVrKJM1@bombadil.infradead.org>
 MIME-Version: 1.0
-References: <20230112133319.3615177-1-ardb@kernel.org> <CAJZ5v0iuwwDjDQDsdP3uvAO18EOcWXzCS6Yu0g62q40Em0vSOA@mail.gmail.com>
- <CAMj1kXF1OfDrtWNt1VAE4Z1_bvhUKUUrqie0LroXXxsm3jAM0w@mail.gmail.com>
-In-Reply-To: <CAMj1kXF1OfDrtWNt1VAE4Z1_bvhUKUUrqie0LroXXxsm3jAM0w@mail.gmail.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Wed, 18 Jan 2023 20:36:07 +0100
-Message-ID: <CAJZ5v0hs-xFdREnhPNqBcHcCh558WvNwmA-1bgQrJwDQd7+Zng@mail.gmail.com>
-Subject: Re: [PATCH v2] ACPI: PRM: Check whether EFI runtime is available
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>, linux-efi@vger.kernel.org,
-        stable@vger.kernel.org, Len Brown <lenb@kernel.org>,
-        linux-acpi@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Y8c3hgVwKiVrKJM1@bombadil.infradead.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 17, 2023 at 4:51 PM Ard Biesheuvel <ardb@kernel.org> wrote:
->
-> On Tue, 17 Jan 2023 at 13:29, Rafael J. Wysocki <rafael@kernel.org> wrote:
-> >
-> > On Thu, Jan 12, 2023 at 2:33 PM Ard Biesheuvel <ardb@kernel.org> wrote:
-> > >
-> > > The ACPI PRM address space handler calls efi_call_virt_pointer() to
-> > > execute PRM firmware code, but doing so is only permitted when the EFI
-> > > runtime environment is available. Otherwise, such calls are guaranteed
-> > > to result in a crash, and must therefore be avoided.
-> > >
-> > > Given that the EFI runtime services may become unavailable after a crash
-> > > occurring in the firmware, we need to check this each time the PRM
-> > > address space handler is invoked. If the EFI runtime services were not
-> > > available at registration time to being with, don't install the address
-> > > space handler at all.
-> > >
-> > > Cc: <stable@vger.kernel.org>
-> > > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > > Cc: Len Brown <lenb@kernel.org>
-> > > Cc: linux-acpi@vger.kernel.org
-> > > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> > > ---
-> > > v2: check both at registration and at invocation time
-> > >
-> > >  drivers/acpi/prmt.c | 10 ++++++++++
-> > >  1 file changed, 10 insertions(+)
-> > >
-> > > diff --git a/drivers/acpi/prmt.c b/drivers/acpi/prmt.c
-> > > index 998101cf16e47145..3d4c4620f9f95309 100644
-> > > --- a/drivers/acpi/prmt.c
-> > > +++ b/drivers/acpi/prmt.c
-> > > @@ -236,6 +236,11 @@ static acpi_status acpi_platformrt_space_handler(u32 function,
-> > >         efi_status_t status;
-> > >         struct prm_context_buffer context;
-> > >
-> > > +       if (!efi_enabled(EFI_RUNTIME_SERVICES)) {
-> > > +               pr_err_ratelimited("PRM: EFI runtime services no longer available\n");
-> > > +               return AE_NO_HANDLER;
-> >
-> > This error code is only used in GPE handling ATM.
-> >
-> > The one that actually causes ACPICA to log a "no handler" error (in
-> > acpi_ex_access_region()) is AE_NOT_EXIST.  Should it be used here?
-> >
->
-> Not sure. Any error value is returned to the caller, the only
-> difference is that AE_NOT_EXIST and AE_NOT_IMPLEMENTED trigger the
-> non-ratelimited logging machinery.
->
-> Given that neither value seems appropriate (the region is implemented
-> and it has a handler), and we already emit a rate limited error
-> message, I think AE_NOT_EXIST is not the right choice.
+On Tue, Jan 17, 2023 at 04:04:22PM -0800, Luis Chamberlain wrote:
+> and now I'm seeing this while trying to build v5.1:
+> 
+> ld: arch/x86/boot/compressed/pgtable_64.o:(.bss+0x0): multiple definition of `__force_order';
+> arch/x86/boot/compressed/kaslr_64.o:(.bss+0x0): first defined here
 
-OK, applied as-is as 6.2-rc material, thanks!
+You need to backport 
+
+aa5cacdc29d7 ("x86/asm: Replace __force_order with a memory clobber")
+
+for that.
+
+Happens when building older kernels with newer toolchain.
+
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
