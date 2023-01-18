@@ -2,114 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 749F4671C45
-	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 13:40:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F43671C5C
+	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 13:42:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230086AbjARMkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Jan 2023 07:40:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43206 "EHLO
+        id S230300AbjARMmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Jan 2023 07:42:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230426AbjARMiO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 07:38:14 -0500
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27B9D95147;
-        Wed, 18 Jan 2023 04:03:27 -0800 (PST)
-Received: by mail-wr1-x42c.google.com with SMTP id k8so19202313wrc.9;
-        Wed, 18 Jan 2023 04:03:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=8nhezqflOATFFNnPhTotRfG2qXe/R2C82GK9147Uq6k=;
-        b=ZPXzjtrQKfSffr6NP3Ie4Q9762h40A4UqbVI+8raOIk6IgOVQ6vukTzwDDe4zsMWRD
-         6IdD2apgtz7nW7I6KFbt6OHNfU/l2lEkkF4Gx58xuTedkizhD7D+F3czue3cpbUKnUX5
-         p+DRU9uhTjjJ8UtJVzmwMpjFJ4izt21ieLZS7PWR+uA2x5E7jF8XDKggj08T0I3Ju2Js
-         VK+9xJlqPw4pihZw5xoitjYRERpT8PeZreewTVHPv4WTj+O8esxrteopYIB5uQ2rusro
-         x4EzWG1ZhSVXu0xrWsDYZGtxpykyERBBKgOsTpSw/qrWW2JbGJBmtVSKqwlBvoAKITyk
-         1v7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8nhezqflOATFFNnPhTotRfG2qXe/R2C82GK9147Uq6k=;
-        b=rrN8da5IV8qDbsFLDiz/ad+Duve4ufLbiAR0C7ontHtfG5B3zZKLtZpHqwdtm9rMWf
-         w1TfkmDG5+tsAyKaEbK5gxUJDRKOWk7gxgKit3X5hjMntmmG4MDcw/FOcBRPL59O9eSH
-         oyKwdbEulg1D6R1nGrROHMtf3ZQ0ANoXtz4XpgCPDnDLoIu2QIDN3vipQqJIHTRgdww4
-         s0F56FhzyRTcFj7tYF5w50bju/NsGSxGOeku+5wYTIk9AGOxzlkzc9wl8JO9+3Dc3igN
-         GeYi67nnTVTR6lcKfrSS6l9qYqaVoyd/VWmNFEf5p100P6tF4SfD2c/hSFn4/vsgXKQb
-         nYkg==
-X-Gm-Message-State: AFqh2krPOnfgA5jKTksKlie6OuX0T9DyuAX4L2jrnQTGe1D+TR1Gadp/
-        UouyPKmrho0BByXpOCYYN2A=
-X-Google-Smtp-Source: AMrXdXvNmRU+xYMjcdBGpUG52jhIDjjbp9w8DVYtmASVRK7Yt61KX8EkAymfdItkn4V2AoAXEr1Bug==
-X-Received: by 2002:adf:f0c1:0:b0:2bd:e7a0:6b5e with SMTP id x1-20020adff0c1000000b002bde7a06b5emr6223464wro.40.1674043406275;
-        Wed, 18 Jan 2023 04:03:26 -0800 (PST)
-Received: from debian ([167.98.27.226])
-        by smtp.gmail.com with ESMTPSA id y18-20020a5d6152000000b002425be3c9e2sm30535321wrt.60.2023.01.18.04.03.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Jan 2023 04:03:25 -0800 (PST)
-Date:   Wed, 18 Jan 2023 12:03:24 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
-        rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/176] 6.1.7-rc2 review
-Message-ID: <Y8fgDBLOMgZGerSZ@debian>
-References: <20230117124546.116438951@linuxfoundation.org>
+        with ESMTP id S230346AbjARMkl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 07:40:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA04D7ABB;
+        Wed, 18 Jan 2023 04:04:49 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BEE261784;
+        Wed, 18 Jan 2023 12:04:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EE10C433D2;
+        Wed, 18 Jan 2023 12:04:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1674043489;
+        bh=byI8kw4j/5NbDaFJyetz+Cc1M82TT3l6loPBm3ZkZ8E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nPTLhTUiJKfjzv/oVm/euIqyufniTvIKtv2L57L3rf6otrCx7R7q7Uj7Y/3F7PL7D
+         e5j3AlbTXq6ykykOYeXlHVHj1a2/c+O9zMukrTnc3L+yUmGkPWFbY6YFpmJy7z0/fg
+         OLC1bgPf4ksLR3sv8fV6Y2qcp5k9jelRcGsfT+Tj6pzkuImMngz2ESnYuRlWqeIg+9
+         5f8eOXVyIScgZH3OGYq4PAejWsAJh+h5QGwpZyFeM2ELe9mkjSqcFv+UC1bCkt23Z0
+         Mtk9qrA9TN7oywSZhFiCjVyxFLmyRk6uAlQnfPCiqQzYZnN96ru/ugVP551Dx1ukfD
+         zdSk9x9KUA+Qw==
+Date:   Wed, 18 Jan 2023 17:34:44 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Mohan Kumar <mkumard@nvidia.com>
+Cc:     ldewangan@nvidia.com, jonathanh@nvidia.com,
+        thierry.reding@gmail.com, dmaengine@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] dmaengine: tegra210-adma: fix global intr clear
+Message-ID: <Y8fgXGKp6jK/j2VP@matsya>
+References: <20230102064844.31306-1-mkumard@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230117124546.116438951@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20230102064844.31306-1-mkumard@nvidia.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On 02-01-23, 12:18, Mohan Kumar wrote:
+> The current global interrupt clear programming register offset
+> was not correct. Fix the programming with right offset
 
-On Tue, Jan 17, 2023 at 01:48:13PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.7 release.
-> There are 176 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 19 Jan 2023 12:45:11 +0000.
-> Anything received after that time might be too late.
-
-Build test (gcc version 12.2.1 20230113):
-mips: 52 configs -> no failure
-arm: 100 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-csky allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
-
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
-mips: Booted on ci20 board. No regression. [3]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/2679
-[2]. https://openqa.qa.codethink.co.uk/tests/2680
-[3]. https://openqa.qa.codethink.co.uk/tests/2681
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+Applied, thanks
 
 -- 
-Regards
-Sudip
-
+~Vinod
