@@ -2,50 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A27D16713D5
-	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 07:22:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7221B67140E
+	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 07:28:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbjARGWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Jan 2023 01:22:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54150 "EHLO
+        id S229547AbjARG15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Jan 2023 01:27:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbjARGUI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 01:20:08 -0500
+        with ESMTP id S229788AbjARGZV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 01:25:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592C646D75;
-        Tue, 17 Jan 2023 22:08:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 101C9521DF;
+        Tue, 17 Jan 2023 22:14:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F254615B0;
-        Wed, 18 Jan 2023 06:08:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68FE7C433D2;
-        Wed, 18 Jan 2023 06:08:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A196A61648;
+        Wed, 18 Jan 2023 06:14:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70BD8C433EF;
+        Wed, 18 Jan 2023 06:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674022107;
-        bh=wJKzVtiwlBDSkpF0tCKhmbESueBYIIC1ljEZoRcApd0=;
+        s=korg; t=1674022450;
+        bh=NpPVHi+rA6d/CMkeffuXNpgc4msokkYnNi1AFVaCwSg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UQ16+kTHXljxWWrlz3cs8bXXZ6YbI+m3Uex9mKKd1yJV/xr2tYPhJ6ZGY8W1m5jeB
-         sr68AvpDIoQam4Wf0ZRHJ55sUrExyTU86RiaGLW7fP0HsV4+0espWmqNnwzvaM7div
-         rfzB5YZtd891k2SRyXuVgY1LzPFEeZ9uXb7yZ6UQ=
-Date:   Wed, 18 Jan 2023 07:08:22 +0100
+        b=gv5FNTDjnuN/U9YRwsANt3dd+MwxzWBpwr/+sQQVALpZ7TKcnWW4ld/2HHzQAF8L4
+         jnL8gGbiaW7QwYTV5NYzwTbjwqPhyrf7Yixc9H3444r4+jgPHnY046hhpASh/y/9Rh
+         Jp4qKt4ZgjEs6NOlBvuY6nMQ3NVHQBwmOOrvc810=
+Date:   Wed, 18 Jan 2023 07:14:06 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Wang Yugui <wangyugui@e16-tech.com>
-Cc:     hch@lst.de, stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/183] 6.1.7-rc1 review
-Message-ID: <Y8eM1ln+uGaR5h72@kroah.com>
-References: <20230117151136.CB79.409509F4@e16-tech.com>
- <Y8Znr6CAFi8ikhdH@kroah.com>
- <20230118101433.734D.409509F4@e16-tech.com>
+To:     Tom Saeger <tom.saeger@oracle.com>
+Cc:     stable@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: Re: [PATCH 5.15 5.10 5.4 v2] kbuild: fix Build ID if
+ CONFIG_MODVERSIONS
+Message-ID: <Y8eOLt7fw+Hmicmy@kroah.com>
+References: <3df32572ec7016e783d37e185f88495831671f5d.1671143628.git.tom.saeger@oracle.com>
+ <Y6M090tsVRIBNlNG@kroah.com>
+ <20221221205210.6oolnwkzqo2d6q5h@oracle.com>
+ <Y6Pyp+7Udn6x/UVg@kroah.com>
+ <20230109183615.zxe7o7fowdpeqlj3@oracle.com>
+ <Y7/2ef+JWO6BXGfC@kroah.com>
+ <20230112212006.rnrbaby2imjlej4q@oracle.com>
+ <20230113150654.w4cbvtasoep5rscw@oracle.com>
+ <Y8Kz8JwM/4GyN1um@kroah.com>
+ <20230117235006.oishw5tlc3xnwwmd@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20230118101433.734D.409509F4@e16-tech.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230117235006.oishw5tlc3xnwwmd@oracle.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -55,28 +64,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 18, 2023 at 10:14:35AM +0800, Wang Yugui wrote:
-> Hi,
+On Tue, Jan 17, 2023 at 05:50:06PM -0600, Tom Saeger wrote:
+> On Sat, Jan 14, 2023 at 02:53:52PM +0100, Greg Kroah-Hartman wrote:
+>   Masahiroy's commit is already in Linus's tree.
 > 
-> > On Tue, Jan 17, 2023 at 03:11:37PM +0800, Wang Yugui wrote:
-> > > Hi,
-> > > 
-> > > fstests(generic/034, xfs) panic when 6.1.7-rc1, but not panic when 6.1.6.
-> > > 
-> > > It seems patch *1 related.
-> > > *1 Subject: blk-mq: move the srcu_struct used for quiescing to the tagset
-> > > From: Christoph Hellwig <hch@lst.de>
-> > > 
-> > > This patch has been drop from 6.1.2-rc1. and it now added in 6.1.7-rc1 again.
-> > > 
-> > > the panic in 6.1.7-rc1 is almost same as that in 6.1.2-rc1.
-> > 
-> > Argh, yes, let me go drop these again.
-> > 
-> > Sasha, can you blacklist these from your tools so they don't get picked
-> > up again?
+> ❯ git log -n1 --format=oneline 99cb0d917ffa
+> 99cb0d917ffa1ab628bb67364ca9b162c07699b1 arch: fix broken BuildID for arm64 and riscv
 > 
-> this panic does not happen on  upstream 6.2.0-rc4.
-> or maybe we need a bigger patch set?
+> ❯ git tag --contains=99cb0d917ffa
+> v6.2-rc2
+> v6.2-rc3
+> v6.2-rc4
 
-We just need to stop attempting to backport these to 6.1 :)
+Using 'git tag' doesn't always show the best info, better is the
+following:
+	$ git describe --contains 99cb0d917ffa1ab628bb67364ca9b162c07699b1
+	v6.2-rc2~5^2~6
+
+Anyway, I'll look at this after the next round gets released, thanks!
+
+greg k-h
