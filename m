@@ -2,68 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 148B867272E
-	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 19:37:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DEC1672746
+	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 19:42:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbjARShl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Jan 2023 13:37:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54874 "EHLO
+        id S229641AbjARSmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Jan 2023 13:42:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231153AbjARSh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 13:37:29 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AA5E5D7E8
-        for <stable@vger.kernel.org>; Wed, 18 Jan 2023 10:37:07 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id v23so32887985plo.1
-        for <stable@vger.kernel.org>; Wed, 18 Jan 2023 10:37:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=u76jeNBDQqlq+ejUYF0QunxLKhjbabH/yFPYyPECv6c=;
-        b=hvfUmYkuyQY6uDhHfNEzR5v+cD2zGDoKw8iFclod/DuRYatHQyNVYl0Ke127p58lae
-         odHr+MsabZGb28Wd7WcW26/W1PWh5DnsDjkcvljvErG3ZrNG2i5MuQrjUKl8kWvuxUIu
-         3sbXS0zzQS0ZKCBe29ubPPItLOopQwqS1l8zpan2gA0ZGOx5Q9yq7kXOC1EqIc8u928N
-         8dsyUk+CioPHS971aybIsidHo5NAh2wLyoPKyOCD2X4WTHaAizk4S0JPmZzd/iIx8Mko
-         GBrBmAZ810j8bA5Du7gQ9J4JOG7n1VUeQdfHKYSA9zq1MevOil3/jGwkrp0M8nTXTPrk
-         79KQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=u76jeNBDQqlq+ejUYF0QunxLKhjbabH/yFPYyPECv6c=;
-        b=bSMfrN2yrpitV5P6JwN3N/900XJD8cNwKP8QoI3CYdKPP+9LfSeM+RcToPIkbftPtj
-         z3cfqxfCcp/5tn1fbGHMokV1fqpsNJLzS/Te/o8drZ7bJELiFt4X52KupcsutyslldVT
-         hfu7LFvc37PgNMJqEk7DgcOu7J4DYTOTNjrOIeXOuDAd/3VxqgscZsxcKdQ+uuCBpwx/
-         RDY2dA6inEEZNHGLCBe/7oalXoJwGk13SZSJG+5QirxlbY0Al5/JdWKZp8FYKjzh+J++
-         HNf7BO1ko+2ZkZ0MYWTrK695HhnB25qIYp1pkAXZSh6TpbKmrP1ii6uXpWW+wyKcF9wj
-         dCAQ==
-X-Gm-Message-State: AFqh2ko+si4RdLXLbqp5926kHMsgpP0nXYVvy/RJpQ//2wlrRQ0Y7T5X
-        aeUoazl0+oCU3qTMoko8A+GLqJ5SunOHMrNt6rotKQ==
-X-Google-Smtp-Source: AMrXdXv8oKsvcCeSU3nMu67nEd0IR/pXRrmJjJXNkk+zrJ6TdbqXUKWzB6aXy05szFvOr4iOldGFiA==
-X-Received: by 2002:a17:902:b195:b0:194:4484:8e61 with SMTP id s21-20020a170902b19500b0019444848e61mr7810257plr.69.1674067026578;
-        Wed, 18 Jan 2023 10:37:06 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t2-20020a170902e84200b001946a3f4d9csm11032459plg.38.2023.01.18.10.37.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Jan 2023 10:37:06 -0800 (PST)
-Message-ID: <63c83c52.170a0220.62c70.1e1e@mx.google.com>
-Date:   Wed, 18 Jan 2023 10:37:06 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229813AbjARSml (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 13:42:41 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287CD36687;
+        Wed, 18 Jan 2023 10:42:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=5ArG0GpJf+HULjLl2ntj9EQBFMeEY8HNHyMbNuCq+oo=; b=QnP+ckqNsIodyu08ivxR2vxDFu
+        +8MO3UpwZdxlR2jjtHxrMNmvCW4yX+Xo3rJWUKJxPlF23M9tgiJdoRXhENXCJ3I1zK7vfdO8n07Qr
+        tHkt/MNv4vyKVI6HQLHH/N6KQZNPNqyiPhH+thoj7eA0H1Fc8RZuSy5AkXvU2FLKclPiwblrd3dl4
+        w1egtA/4sdUKn+dg9q/xiuMAT/dXqx5t3en2wwY4Br6/aSxLt+/rggo42weXJLoLq9kNJr1yogwFV
+        HM/yzAeMTwFIsHt89QZi6kjMHTtO4b8PBs/pbdhORvh6vG3uKa+XWAilOBObOqXHwiOnm1kmq00bF
+        wW5k+U8g==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pIDOH-002Mdd-9w; Wed, 18 Jan 2023 18:42:29 +0000
+Date:   Wed, 18 Jan 2023 10:42:29 -0800
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Petr Pavlu <petr.pavlu@suse.com>
+Cc:     Petr Mladek <pmladek@suse.com>,
+        Prarit Bhargava <prarit@redhat.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Borislav Petkov <bp@alien8.de>, NeilBrown <neilb@suse.de>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>, david@redhat.com,
+        mwilck@suse.com, linux-modules@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] module: Don't wait for GOING modules
+Message-ID: <Y8g9lTBnCgB7g08/@bombadil.infradead.org>
+References: <20221205103557.18363-1-petr.pavlu@suse.com>
+ <Y5gI/3crANzRv22J@bombadil.infradead.org>
+ <Y5hRRnBGYaPby/RS@alley>
+ <Y8c3hgVwKiVrKJM1@bombadil.infradead.org>
+ <79aad139-5305-1081-8a84-42ef3763d4f4@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.162-851-gae91cde757a0
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 156 runs,
- 2 regressions (v5.10.162-851-gae91cde757a0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <79aad139-5305-1081-8a84-42ef3763d4f4@suse.com>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,121 +58,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 156 runs, 2 regressions (v5.10.162-851-gae91=
-cde757a0)
+On Wed, Jan 18, 2023 at 04:12:05PM +0100, Petr Pavlu wrote:
+> On 1/18/23 01:04, Luis Chamberlain wrote:
+> > The rationale for making a regression fix with a new userspace return value
+> > is fair given the old fix made things even much worse the point some kernel
+> > boots would fail. So the rationale to suggest we *must* short-cut
+> > parallel loads as effectively as possible seems sensible *iff* that
+> > could not make things worse too but sadly I've found an isssue
+> > proactively with this fix, or at least that this issue is also not fixed:
+> > 
+> > ./tools/testing/selftests/kmod/kmod.sh -t 0006
+> > Tue Jan 17 23:18:13 UTC 2023
+> > Running test: kmod_test_0006 - run #0
+> > kmod_test_0006: OK! - loading kmod test
+> > kmod_test_0006: FAIL, test expects SUCCESS (0) - got -EINVAL (-22)
+> > ----------------------------------------------------
+> > Custom trigger configuration for: test_kmod0
+> > Number of threads:      50
+> > Test_case:      TEST_KMOD_FS_TYPE (2)
+> > driver: test_module
+> > fs:     xfs
+> > ----------------------------------------------------
+> > Test completed
+> > 
+> > When can multiple get_fs_type() calls be issued on a system? When
+> > mounting a large number of filesystems. Sadly though this issue seems
+> > to have gone unnoticed for a while now. Even reverting commit
+> > 6e6de3dee51a doesn't fix it, and I've run into issues with trying
+> > to bisect, first due to missing Kees' patch which fixes a compiler
+> > failure on older kernel [0] and now I'm seeing this while trying to
+> > build v5.1:
+> > 
+> > ld: arch/x86/boot/compressed/pgtable_64.o:(.bss+0x0): multiple definition of `__force_order';
+> > arch/x86/boot/compressed/kaslr_64.o:(.bss+0x0): first defined here
+> > ld: warning: arch/x86/boot/compressed/efi_thunk_64.o: missing .note.GNU-stack section implies executable stack
+> > ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+> > ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-only section `.head.text'
+> > ld: warning: arch/x86/boot/compressed/vmlinux has a LOAD segment with RWX permissions
+> > ld: warning: creating DT_TEXTREL in a PIE
+> > make[2]: *** [arch/x86/boot/compressed/Makefile:118: arch/x86/boot/compressed/vmlinux] Error 1
+> > make[1]: *** [arch/x86/boot/Makefile:112: arch/x86/boot/compressed/vmlinux] Error 2
+> > make: *** [arch/x86/Makefile:283: bzImage] Error 2
+> > 
+> > [0] http://lore.kernel.org/lkml/20220213182443.4037039-1-keescook@chromium.org
+> > 
+> > But we should try to bisect to see what cauased the above kmod test 0006
+> > to start failing.
+> 
+> It is not clear to me from your description if the observed failure of
+> kmod_test_0006 is related to the fix in this thread.
 
-Regressions Summary
--------------------
+The issue happens with and without the patch in this thread, I'd just hate to
+exacerbate the issue further.
 
-platform              | arch | lab          | compiler | defconfig         =
- | regressions
-----------------------+------+--------------+----------+-------------------=
--+------------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig=
- | 1          =
+> The problem was not possible for me to reproduce on my system. My test was on
+> an 8-CPU x86_64 machine using v6.2-rc4 with "defconfig + kvm_guest.config +
+> tools/testing/selftests/kmod/config".
 
-cubietruck            | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig=
- | 1          =
+With the patch?
 
+> Could you perhaps trace the test to determine where the EINVAL value comes
+> from?
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.162-851-gae91cde757a0/plan/baseline/
+Sure, it'll take a bit.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.162-851-gae91cde757a0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ae91cde757a0d43a9e67ac6a75925e110932e730 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig         =
- | regressions
-----------------------+------+--------------+----------+-------------------=
--+------------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63c8099c14b24f753c915ed0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.162=
--851-gae91cde757a0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-at91=
--sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.162=
--851-gae91cde757a0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-at91=
--sama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230114.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63c8099c14b24f753c915=
-ed1
-        new failure (last pass: v5.10.162-851-geb4da590103d) =
-
- =
-
-
-
-platform              | arch | lab          | compiler | defconfig         =
- | regressions
-----------------------+------+--------------+----------+-------------------=
--+------------
-cubietruck            | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63c837e7200356f546915ebd
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.162=
--851-gae91cde757a0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
-etruck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.162=
--851-gae91cde757a0/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
-etruck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230114.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63c837e7200356f546915ec2
-        failing since 0 day (last pass: v5.10.159-16-gabc55ff4a6e4, first f=
-ail: v5.10.162-851-g33a0798ae8e3)
-
-    2023-01-18T18:17:56.757641  + set +x<8>[   11.059873] <LAVA_SIGNAL_ENDR=
-UN 0_dmesg 3158468_1.5.2.4.1>
-    2023-01-18T18:17:56.757977  =
-
-    2023-01-18T18:17:56.864716  / # #
-    2023-01-18T18:17:56.966189  export SHELL=3D/bin/sh
-    2023-01-18T18:17:56.966552  #
-    2023-01-18T18:17:57.067686  / # export SHELL=3D/bin/sh. /lava-3158468/e=
-nvironment
-    2023-01-18T18:17:57.068149  =
-
-    2023-01-18T18:17:57.169399  / # . /lava-3158468/environment/lava-315846=
-8/bin/lava-test-runner /lava-3158468/1
-    2023-01-18T18:17:57.170142  <3>[   11.372394] Bluetooth: hci0: command =
-0x0c03 tx timeout
-    2023-01-18T18:17:57.170333   =
-
-    ... (13 line(s) more)  =
-
- =20
+  Luis
