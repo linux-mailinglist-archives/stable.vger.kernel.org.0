@@ -2,145 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B5FD67206A
-	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 16:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C16C672070
+	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 16:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230517AbjARPBv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Jan 2023 10:01:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59882 "EHLO
+        id S231571AbjARPCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Jan 2023 10:02:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230410AbjARPBR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 10:01:17 -0500
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1937023C79
-        for <stable@vger.kernel.org>; Wed, 18 Jan 2023 06:56:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674053790; x=1705589790;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=ppacL10B9CJfkWOwyfu1rpq320E1fOqJoAOs49v3lp4=;
-  b=DZKHSRoPtk0rJfcmlc/sAHJVcMyLw18WlTgVgjOwvh4M1X2FVYhMdy8j
-   EOJOOXfjAmKhwZBVxevoNtC5HkwwnB7lRvAkvFAIkZ7eMUwoF9i5zj14f
-   g8M+46hzRd8PC1bMiQJDkci0HP6xp7tBHmnGHszSOKrXwAIMSp8JNdKKi
-   yFFDdMBMrC+tWhgtoBIpMeKSwvbMaXvAz9sUbaGmAMWzFB8svx1D3zCQ5
-   zKjMWZemBFqL7ocHC0ZBxLQbFFK5sRcRDjU8R4czV27QZB9erg2TShtcp
-   JNjlz+M6zlExoZ+6J4etjG/f+aqCOes4z3F5f7W2uhkY+v/yG+oUazzUh
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10593"; a="327072747"
-X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; 
-   d="scan'208";a="327072747"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2023 06:56:29 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10593"; a="637318168"
-X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; 
-   d="scan'208";a="637318168"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.55])
-  by orsmga006.jf.intel.com with SMTP; 18 Jan 2023 06:56:26 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 18 Jan 2023 16:56:26 +0200
-Date:   Wed, 18 Jan 2023 16:56:26 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Jani Nikula <jani.nikula@intel.com>
-Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        William Tseng <william.tseng@intel.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v7 01/22] drm/edid: fix AVI infoframe aspect ratio
- handling
-Message-ID: <Y8gImnTq8+e/Gt95@intel.com>
-References: <cover.1672826282.git.jani.nikula@intel.com>
- <c3e78cc6d01ed237f71ad0038826b08d83d75eef.1672826282.git.jani.nikula@intel.com>
+        with ESMTP id S231537AbjARPCW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 10:02:22 -0500
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61C0E37F31
+        for <stable@vger.kernel.org>; Wed, 18 Jan 2023 06:59:58 -0800 (PST)
+Received: by mail-pj1-x102e.google.com with SMTP id o7-20020a17090a0a0700b00226c9b82c3aso2407400pjo.3
+        for <stable@vger.kernel.org>; Wed, 18 Jan 2023 06:59:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=MSkwBmI3dDm0bkoJlJBOklDYMKidCF7rJu5HZuWtqgY=;
+        b=g0M/lCbpxyRClPCiFEr3807oebGpHLgUal++CamxLGfhKBKkM2q7tV9z5jZ9RWpooA
+         SXorMKsuw+7bM/QLBwGE+UkUgwBMdx40GnDGjibNPdLHiYXfqtgS5Eg4E1hK+qtEq2pv
+         +WIGOdONVn1XFY/S28YYTINgKnFFh6OSYJXYcIOpT0ZcT7cMLofUZ9RdlMdQmrhpfd7R
+         /XP0ji7X2C2wsFI8MY7P6ye78u+Cy164h2y6/Aj2nCAItabEFS/tEThANnRxSwIUA44v
+         6vFivElGnWZYpis3A4nyqEEckHkEYce8cykFyXxGepjTDqoPxU1tqZUanax5+MCt+qOC
+         xl4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MSkwBmI3dDm0bkoJlJBOklDYMKidCF7rJu5HZuWtqgY=;
+        b=RFoVbWLr5AnVQqOh3/ZFa4E5QKcus9ZFEvjDCZvNJ/bL1BPPe75GsOAFKflq7nJIGh
+         XsRiklZz6kIPobSOsMy3x152aZ28rvmWLChhmKyLH+YoPyDnhiJp0QVwt5a4JxzAFmNl
+         ttOFiH3cNZs/+WMhMD4ViVN+5xvKy06Du3/LjSYqizuoYU+ItoNk6kiMIXJL8gUwSAeF
+         UOEgr03+9q5reQo3UIPd5OPKde15CpYEn6kRPvZmyD0dWNwatNJKo3d/nevXgw+kCSId
+         w89liR5lbYsAvn34M6OqxLKHwla15N/VKaMRpBHrITST4vkApeRn7pGJXMgZb1V4uRRu
+         l4pg==
+X-Gm-Message-State: AFqh2krpNtfGZHrD4izBOi3a8kvMjhTbZR9apPS01quEsOXdPbO7tTgu
+        ma+/WDynuhXgQbr22BdcV4adLmxU2UMpMc8XUt5MpA==
+X-Google-Smtp-Source: AMrXdXv15Qz9A+jm2TSno35F6qci9hWMjclrsNN/vrSJxMtB5nRM0/TiZxfe2oNW1xEhT5tHPNXoLQ==
+X-Received: by 2002:a17:902:e88e:b0:192:b2d3:4fc8 with SMTP id w14-20020a170902e88e00b00192b2d34fc8mr9266563plg.1.1674053997440;
+        Wed, 18 Jan 2023 06:59:57 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n20-20020a170902d0d400b00192e1590349sm23089742pln.216.2023.01.18.06.59.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Jan 2023 06:59:57 -0800 (PST)
+Message-ID: <63c8096d.170a0220.45799.53ce@mx.google.com>
+Date:   Wed, 18 Jan 2023 06:59:57 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <c3e78cc6d01ed237f71ad0038826b08d83d75eef.1672826282.git.jani.nikula@intel.com>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Kernel: v5.15.87-100-g8dfbf622429a
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.15 baseline: 159 runs,
+ 1 regressions (v5.15.87-100-g8dfbf622429a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 04, 2023 at 12:05:16PM +0200, Jani Nikula wrote:
-> We try to avoid sending VICs defined in the later specs in AVI
-> infoframes to sinks that conform to the earlier specs, to not upset
-> them, and use 0 for the VIC instead. However, we do this detection and
-> conversion to 0 too early, as we'll need the actual VIC to figure out
-> the aspect ratio.
-> 
-> In particular, for a mode with 64:27 aspect ratio, 0 for VIC fails the
-> AVI infoframe generation altogether with -EINVAL.
-> 
-> Separate the VIC lookup from the "filtering", and postpone the
-> filtering, to use the proper VIC for aspect ratio handling, and the 0
-> VIC for the infoframe video code as needed.
-> 
-> Reported-by: William Tseng <william.tseng@intel.com>
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6153
-> References: https://lore.kernel.org/r/20220920062316.43162-1-william.tseng@intel.com
-> Cc: <stable@vger.kernel.org>
-> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+stable-rc/queue/5.15 baseline: 159 runs, 1 regressions (v5.15.87-100-g8dfbf=
+622429a)
 
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Regressions Summary
+-------------------
 
-> ---
->  drivers/gpu/drm/drm_edid.c | 21 ++++++++++++---------
->  1 file changed, 12 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-> index 3841aba17abd..23f7146e6a9b 100644
-> --- a/drivers/gpu/drm/drm_edid.c
-> +++ b/drivers/gpu/drm/drm_edid.c
-> @@ -6885,8 +6885,6 @@ static u8 drm_mode_hdmi_vic(const struct drm_connector *connector,
->  static u8 drm_mode_cea_vic(const struct drm_connector *connector,
->  			   const struct drm_display_mode *mode)
->  {
-> -	u8 vic;
-> -
->  	/*
->  	 * HDMI spec says if a mode is found in HDMI 1.4b 4K modes
->  	 * we should send its VIC in vendor infoframes, else send the
-> @@ -6896,13 +6894,18 @@ static u8 drm_mode_cea_vic(const struct drm_connector *connector,
->  	if (drm_mode_hdmi_vic(connector, mode))
->  		return 0;
->  
-> -	vic = drm_match_cea_mode(mode);
-> +	return drm_match_cea_mode(mode);
-> +}
->  
-> -	/*
-> -	 * HDMI 1.4 VIC range: 1 <= VIC <= 64 (CEA-861-D) but
-> -	 * HDMI 2.0 VIC range: 1 <= VIC <= 107 (CEA-861-F). So we
-> -	 * have to make sure we dont break HDMI 1.4 sinks.
-> -	 */
-> +/*
-> + * Avoid sending VICs defined in HDMI 2.0 in AVI infoframes to sinks that
-> + * conform to HDMI 1.4.
-> + *
-> + * HDMI 1.4 (CTA-861-D) VIC range: [1..64]
-> + * HDMI 2.0 (CTA-861-F) VIC range: [1..107]
-> + */
-> +static u8 vic_for_avi_infoframe(const struct drm_connector *connector, u8 vic)
-> +{
->  	if (!is_hdmi2_sink(connector) && vic > 64)
->  		return 0;
->  
-> @@ -6978,7 +6981,7 @@ drm_hdmi_avi_infoframe_from_display_mode(struct hdmi_avi_infoframe *frame,
->  		picture_aspect = HDMI_PICTURE_ASPECT_NONE;
->  	}
->  
-> -	frame->video_code = vic;
-> +	frame->video_code = vic_for_avi_infoframe(connector, vic);
->  	frame->picture_aspect = picture_aspect;
->  	frame->active_aspect = HDMI_ACTIVE_ASPECT_PICTURE;
->  	frame->scan_mode = HDMI_SCAN_MODE_UNDERSCAN;
-> -- 
-> 2.34.1
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
 
--- 
-Ville Syrjälä
-Intel
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.87-100-g8dfbf622429a/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.87-100-g8dfbf622429a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8dfbf622429ac88e143eb328365789a2f8cd0bfd =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/63c7f00af1615b50e8915ebe
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.87-=
+100-g8dfbf622429a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.87-=
+100-g8dfbf622429a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230114.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63c7f00af1615b50e8915ec3
+        failing since 1 day (last pass: v5.15.82-123-gd03dbdba21ef, first f=
+ail: v5.15.87-100-ge215d5ead661)
+
+    2023-01-18T13:11:15.121024  <8>[   10.015457] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3156474_1.5.2.4.1>
+    2023-01-18T13:11:15.227951  / # #
+    2023-01-18T13:11:15.329670  export SHELL=3D/bin/sh
+    2023-01-18T13:11:15.330043  #
+    2023-01-18T13:11:15.431375  / # export SHELL=3D/bin/sh. /lava-3156474/e=
+nvironment
+    2023-01-18T13:11:15.432383  =
+
+    2023-01-18T13:11:15.534150  / # . /lava-3156474/environment/lava-315647=
+4/bin/lava-test-runner /lava-3156474/1
+    2023-01-18T13:11:15.534944  =
+
+    2023-01-18T13:11:15.541070  / # /lava-3156474/bin/lava-test-runner /lav=
+a-3156474/1
+    2023-01-18T13:11:15.617856  <3>[   10.513792] Bluetooth: hci0: command =
+0x0c03 tx timeout =
+
+    ... (12 line(s) more)  =
+
+ =20
