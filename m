@@ -2,66 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82685670E9D
-	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 01:30:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAA0C670EA7
+	for <lists+stable@lfdr.de>; Wed, 18 Jan 2023 01:34:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229632AbjARA37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 Jan 2023 19:29:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33792 "EHLO
+        id S229555AbjARAe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 Jan 2023 19:34:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229683AbjARA3l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 Jan 2023 19:29:41 -0500
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A003E59B52
-        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 15:52:53 -0800 (PST)
-Received: by mail-ej1-x631.google.com with SMTP id vm8so79275099ejc.2
-        for <stable@vger.kernel.org>; Tue, 17 Jan 2023 15:52:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=futuring-girl-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=y/mZXU7qRI/V/MvZX6ht1aHbNSJYEFnEgfMHUHtp4/4=;
-        b=2yW38aMpSX0exFi22UXZave3cYZHK1JoeAf4qPlGJesusL7W1YvUXhuBbJAYP+wqtv
-         DQOn5zLJjpN2gtinBz+vLvTwfT3F4KV9rx2EKDiuU/UMoT7/jbQsYH1pHCrm1ORaDMdq
-         ur2eNlrMJcsJ/T+IEaGbx73/H6q0nXlPV8qrFK8KXSRkrWup2yi4qro0I1Bssn5TXdhi
-         LUqZc3mrrQ6kOLOXH/IhCtaOQdqc0rPA4xC/CbdGTqckuqmudqKMJD7f9K91FKh3C5hf
-         jojWsdAb9bAUiitwevT9sX+Khg5DXK9K9Hb3tSJEO+A8MYd7g9zFpLD9BC8SQjzcXh48
-         fHnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=y/mZXU7qRI/V/MvZX6ht1aHbNSJYEFnEgfMHUHtp4/4=;
-        b=E75SzlncKWP78h6tpS8twT6sTPFI6WPHNe1h84SDm3lv0FIEeLFcstT8s2VESA3Z4F
-         FVLEl/GJC+gAQFNDEjFHsw3I4pIS9p9MfYaw5mgpylSUxQbcPyDYeyJLrKFBlBYFoei2
-         vV6IvFohdARcTtPg0Cog+QpRE7GHIvuBTeInugfezRmm+sOjgMDQs4pLIoZtTlztJ+vN
-         EamGp1ZGNhYNOY/1QRceoGz3HvDSHktTkUQZ9EIQXd1XrRyDdIhKecAjQcFfbFJoiPla
-         iqQC74/ePnTM60BUvWj+7SYLTsnlbrLIkOiIR5UkpOfeeD3+dTDN/7bRuI1yueJaxfX9
-         1QSg==
-X-Gm-Message-State: AFqh2kq4ngHpU/1pubGScE6j4olsIgYZw+FHV/9AyFlmFjeXna0e1Po6
-        wf5gQ0aLCSLd7UyQc7g2O1qajvLgIGJQekmhAHTgoGIalXy1QlffB6Y=
-X-Google-Smtp-Source: AMrXdXsls82t2PILkD7G2zbDyv1/54e4DjMDxXCi0cPvCotauoy67Z1f1l0rg9+LbNztFvQ1Za9slpIPhArg47hL3F0=
-X-Received: by 2002:a17:906:80da:b0:872:618e:b01c with SMTP id
- a26-20020a17090680da00b00872618eb01cmr350888ejx.275.1673999571245; Tue, 17
- Jan 2023 15:52:51 -0800 (PST)
-MIME-Version: 1.0
-References: <20230117124546.116438951@linuxfoundation.org>
-In-Reply-To: <20230117124546.116438951@linuxfoundation.org>
-From:   ogasawara takeshi <takeshi.ogasawara@futuring-girl.com>
-Date:   Wed, 18 Jan 2023 08:52:39 +0900
-Message-ID: <CAKL4bV52YzXBFhjNQO32iyv9N1Ybe5m_EWus6EQSqP=c1QNOXQ@mail.gmail.com>
-Subject: Re: [PATCH 6.1 000/176] 6.1.7-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        with ESMTP id S229500AbjARAeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 Jan 2023 19:34:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 922AF31E22;
+        Tue, 17 Jan 2023 16:02:08 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D1916159B;
+        Wed, 18 Jan 2023 00:02:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81885C433EF;
+        Wed, 18 Jan 2023 00:02:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1674000127;
+        bh=mVPOlxhtPkO5dnddUSN/M2K2EGM92dUucbmgljYlgm4=;
+        h=Date:To:From:Subject:From;
+        b=cpPHr+0Bo3GXg6C0d4oaNjfTbfd7oIV9VGlQqOxdjOYlNaHDkw7YZyEazp8Do1JXm
+         r8sRSli/JeDnqvjcJq/Tlcj1lncZYaHt6n8EIiT+kBLz5WbMFs2irH5HjKdQZsNFSt
+         NkrLLVKCwiZnAWeunryYaXtmcW8L2JgnJtPsco8s=
+Date:   Tue, 17 Jan 2023 16:02:06 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        slyich@gmail.com, matoro_mailinglist_kernel@matoro.tk,
+        glaubitz@physik.fu-berlin.de, emeric.maschino@gmail.com,
+        james.morse@arm.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + ia64-fix-build-error-due-to-switch-case-label-appearing-next-to-declaration.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230118000207.81885C433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,40 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg
 
-On Tue, Jan 17, 2023 at 9:48 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.1.7 release.
-> There are 176 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 19 Jan 2023 12:45:11 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.7-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+The patch titled
+     Subject: ia64: fix build error due to switch case label appearing next to declaration
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     ia64-fix-build-error-due-to-switch-case-label-appearing-next-to-declaration.patch
 
-6.1.7-rc2 tested.
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/ia64-fix-build-error-due-to-switch-case-label-appearing-next-to-declaration.patch
 
-x86_64
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-build successfully completed.
-boot successfully completed.
-No dmesg regressions.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Lenovo ThinkPad X1 Nano Gen1(Intel i5-1130G7, arch linux)
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Thanks
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
 
-Tested-by: Takeshi Ogasawara <takeshi.ogasawara@futuring-girl.com>
+------------------------------------------------------
+From: James Morse <james.morse@arm.com>
+Subject: ia64: fix build error due to switch case label appearing next to declaration
+Date: Tue, 17 Jan 2023 15:16:32 +0000
+
+Since commit aa06a9bd8533 ("ia64: fix clock_getres(CLOCK_MONOTONIC) to
+report ITC frequency"), gcc 10.1.0 fails to build ia64 with the gnomic:
+| ../arch/ia64/kernel/sys_ia64.c: In function 'ia64_clock_getres':
+| ../arch/ia64/kernel/sys_ia64.c:189:3: error: a label can only be part of a statement and a declaration is not a statement
+|   189 |   s64 tick_ns = DIV_ROUND_UP(NSEC_PER_SEC, local_cpu_data->itc_freq);
+
+This line appears immediately after a case label in a switch.
+
+Move the declarations out of the case, to the top of the function.
+
+Link: https://lkml.kernel.org/r/20230117151632.393836-1-james.morse@arm.com
+Fixes: aa06a9bd8533 ("ia64: fix clock_getres(CLOCK_MONOTONIC) to report ITC frequency")
+Signed-off-by: James Morse <james.morse@arm.com>
+Cc: Émeric Maschino <emeric.maschino@gmail.com>
+Cc: matoro <matoro_mailinglist_kernel@matoro.tk>
+Cc: Sergei Trofimovich <slyich@gmail.com>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+
+--- a/arch/ia64/kernel/sys_ia64.c~ia64-fix-build-error-due-to-switch-case-label-appearing-next-to-declaration
++++ a/arch/ia64/kernel/sys_ia64.c
+@@ -170,6 +170,9 @@ ia64_mremap (unsigned long addr, unsigne
+ asmlinkage long
+ ia64_clock_getres(const clockid_t which_clock, struct __kernel_timespec __user *tp)
+ {
++	struct timespec64 rtn_tp;
++	s64 tick_ns;
++
+ 	/*
+ 	 * ia64's clock_gettime() syscall is implemented as a vdso call
+ 	 * fsys_clock_gettime(). Currently it handles only
+@@ -185,8 +188,8 @@ ia64_clock_getres(const clockid_t which_
+ 	switch (which_clock) {
+ 	case CLOCK_REALTIME:
+ 	case CLOCK_MONOTONIC:
+-		s64 tick_ns = DIV_ROUND_UP(NSEC_PER_SEC, local_cpu_data->itc_freq);
+-		struct timespec64 rtn_tp = ns_to_timespec64(tick_ns);
++		tick_ns = DIV_ROUND_UP(NSEC_PER_SEC, local_cpu_data->itc_freq);
++		rtn_tp = ns_to_timespec64(tick_ns);
+ 		return put_timespec64(&rtn_tp, tp);
+ 	}
+ 
+_
+
+Patches currently in -mm which might be from james.morse@arm.com are
+
+ia64-fix-build-error-due-to-switch-case-label-appearing-next-to-declaration.patch
+
