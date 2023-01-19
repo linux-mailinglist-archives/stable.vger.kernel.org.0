@@ -2,148 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9EE767352D
-	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 11:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 090F967357D
+	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 11:27:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229937AbjASKMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Jan 2023 05:12:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46154 "EHLO
+        id S230407AbjASK1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Jan 2023 05:27:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229770AbjASKMe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 05:12:34 -0500
-Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93D2B66FBE
-        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 02:12:32 -0800 (PST)
-Received: by mail-yb1-xb29.google.com with SMTP id c124so1811211ybb.13
-        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 02:12:32 -0800 (PST)
+        with ESMTP id S229520AbjASK1B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 05:27:01 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BB36D37C
+        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 02:26:39 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id y11so2186999edd.6
+        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 02:26:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=QXqwQrSwt+StZdyqV9+cOyJ8Y9ygdXIHln0bwVMaadk=;
-        b=VbKLGzTUd+ENkWd/TQLrCp+xkGy68MxxMR6IOzx+XVxV21bj/k70RYjkY6nf1T8f8x
-         i0h7O4r1qb2vIuE9I1KvAEZ1Y/0jAB3V+S9eeQGE4MbLSBxabtOEODMkzs0m0Rj8o41Q
-         4QoEwPOkJILFtrZwswLmkP35CCDz1lUADGscA=
+        d=ffwll.ch; s=google;
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=39SgUHKju2DkTVJDuCLF0GlqoNQjOGP2rscjucek0WY=;
+        b=OYYE6KjfLMIIu6kvxFyNsRIlxJPTCtMRs2MqUjKnitJyJaghBNlaulIHD/vXm2dLLH
+         0TRLTUE0apvKLCTbRagDBl8mUy+45M2YH1Ld4NRepymOa+3FmoL00iIYcPoL3hQYiQpG
+         yTKA0HK9doDcpbWaUTu4iWL6WBOXjyByo7gXc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=QXqwQrSwt+StZdyqV9+cOyJ8Y9ygdXIHln0bwVMaadk=;
-        b=qllzraxOwFGO/nEjj6rU789blt+dT6Rh4XdAfvYqBU/F8NzEC99pvNu/robOLpO7qJ
-         6U3nY6j1B27ONIq4wlUx24Ac7OF+fHJIZG2Ikl26EWV8cqiDOgmB0vo/Ol2mY3H8qiVN
-         Dgug9tevHY2B7Zf3XkimwcA1v5kO8WgF3DVISKVZ04YbGrAEiy5X/dUMM53RMcEMGagV
-         Td+/DpYwcyJLy5vC+xsFLq6Kv9AslGgvWnTj/4UsI1YHZsQryKQnLmNp4b5M0MtdBl3P
-         dFTD+hkOELYy2EWs+kmdY67FOHeyAql7edVbvauJqlsovSmR5Y3ov7hibVne/wsxAr6p
-         HhPg==
-X-Gm-Message-State: AFqh2kppMgn1ZXLxZ0dPIANnVjCpwkhErPRLRzM0ABkIV/gUM3KGC5Mp
-        SP8uMoT/EXX/bQuCg3/FY7y6G9CrEydn9rF00kAjcyjsAPoiE6H8
-X-Google-Smtp-Source: AMrXdXvn5sXL9TBsaUCiuAQ2d3cwIL8V0Gcd7yA+ccZmzJCC62ULWrvqai0dRL8hECGtW5TCsxz1GtUu0m1Ifsyn1uY=
-X-Received: by 2002:a05:6902:90e:b0:7c8:3a6f:9b7b with SMTP id
- bu14-20020a056902090e00b007c83a6f9b7bmr1254860ybb.88.1674123151869; Thu, 19
- Jan 2023 02:12:31 -0800 (PST)
+        h=in-reply-to:content-disposition:mime-version:references
+         :mail-followup-to:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=39SgUHKju2DkTVJDuCLF0GlqoNQjOGP2rscjucek0WY=;
+        b=PeRY1HhpXkHa9KRYT1r3Awkb5EkEPAu+z3WL/eRSleS5Ryk74GjZnylnn9PAFChLgx
+         sW2FDz15KOiwv87h6kXp8OhW4NquHQye452TtH4nRbdKOkaPipTHlCSbZAF+zbt7MQAB
+         /KQZpmHl7d0gzPld+v2flNMQc24rW+RUgHuTGma0jXP+giOJoaIf/5vxeev1EWKFwWpr
+         NlH2MVrPXcLlrixNMv5MMUeTA+DZEW2oj87eKel8RKfjq4LrSOg0KbJ2oQ571xgTgQF1
+         UXW6ibYG3PwL2pF9+hkBYp1ycrpK1N37i7SCvxtN5SZT/6fRbbVjnoVdK1+vIMyRmXfk
+         nwKg==
+X-Gm-Message-State: AFqh2krqhqQ5oys31Gcq2m+ubtaHWtSUK96ATCTQE/XAv69p0qpWyrke
+        sQgAjoJvXsZABp9ePnJc1ePyLw==
+X-Google-Smtp-Source: AMrXdXtSf8VW8Q/vL39YHAO5amRe9Z3IC59IA2VRhTytO9iyk7Mb4JVWli/JMWVsTPfw2LxTJyJ+LQ==
+X-Received: by 2002:aa7:c845:0:b0:497:b6bc:b811 with SMTP id g5-20020aa7c845000000b00497b6bcb811mr9808530edt.33.1674123997712;
+        Thu, 19 Jan 2023 02:26:37 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id eo9-20020a056402530900b00463bc1ddc76sm7648926edb.28.2023.01.19.02.26.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Jan 2023 02:26:37 -0800 (PST)
+Date:   Thu, 19 Jan 2023 11:26:34 +0100
+From:   Daniel Vetter <daniel@ffwll.ch>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Daniel Vetter <daniel@ffwll.ch>,
+        Dragos-Marian Panait <dragos.panait@windriver.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Oded Gabbay <oded.gabbay@gmail.com>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        Kent Russell <kent.russell@amd.com>,
+        Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>,
+        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5.10 1/1] drm/amdkfd: Check for null pointer after
+ calling kmemdup
+Message-ID: <Y8ka2khSlK6E/XbF@phenom.ffwll.local>
+Mail-Followup-To: Greg KH <gregkh@linuxfoundation.org>,
+        Dragos-Marian Panait <dragos.panait@windriver.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Oded Gabbay <oded.gabbay@gmail.com>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        Kent Russell <kent.russell@amd.com>,
+        Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>,
+        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+References: <20230104175633.1420151-1-dragos.panait@windriver.com>
+ <20230104175633.1420151-2-dragos.panait@windriver.com>
+ <Y8ABeXQLzWdoaGAY@kroah.com>
+ <CAKMK7uEgzJU8ukgR3sQtSUB5+wrD9VyMwCHOA-SReFWd0tKzzw@mail.gmail.com>
+ <Y8A5NgtGLDJv4sON@kroah.com>
 MIME-Version: 1.0
-References: <20230118031514.1278139-1-pmalani@chromium.org>
- <Y8e+YlKiC6FHdQ5s@kuha.fi.intel.com> <CACeCKafPzxYWh5a4xmeggc+4zRou73kHnwV-G5xMfQDheGgGdg@mail.gmail.com>
- <Y8kMsw/wT35KN7VK@kuha.fi.intel.com> <CACeCKaceu1KCPtpavBn23qyM29Eacxhm6L9SN78ZQxdzRCOk6Q@mail.gmail.com>
-In-Reply-To: <CACeCKaceu1KCPtpavBn23qyM29Eacxhm6L9SN78ZQxdzRCOk6Q@mail.gmail.com>
-From:   Prashant Malani <pmalani@chromium.org>
-Date:   Thu, 19 Jan 2023 02:12:20 -0800
-Message-ID: <CACeCKaea_ZtzUZNAHMaDU9ff_BBs6sF_DqqMnkFcW_=_txVL4w@mail.gmail.com>
-Subject: Re: [PATCH] usb: typec: altmodes/displayport: Update active state
-To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        bleung@chromium.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y8A5NgtGLDJv4sON@kroah.com>
+X-Operating-System: Linux phenom 5.19.0-2-amd64 
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 19, 2023 at 1:55 AM Prashant Malani <pmalani@chromium.org> wrote:
->
-> On Thu, Jan 19, 2023 at 1:26 AM Heikki Krogerus
-> <heikki.krogerus@linux.intel.com> wrote:
-> >
-> > Hi Prashant,
-> >
-> > On Wed, Jan 18, 2023 at 10:26:21AM -0800, Prashant Malani wrote:
-> > > Hi Heikki,
-> > >
-> > > Thanks for reviewing the patch.
-> > >
-> > > On Wed, Jan 18, 2023 at 1:39 AM Heikki Krogerus
-> > > <heikki.krogerus@linux.intel.com> wrote:
+On Thu, Jan 12, 2023 at 05:45:42PM +0100, Greg KH wrote:
+> On Thu, Jan 12, 2023 at 04:26:45PM +0100, Daniel Vetter wrote:
+> > On Thu, 12 Jan 2023 at 13:47, Greg KH <gregkh@linuxfoundation.org> wrote:
+> > > On Wed, Jan 04, 2023 at 07:56:33PM +0200, Dragos-Marian Panait wrote:
+> > > > From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 > > > >
-> > > > On Wed, Jan 18, 2023 at 03:15:15AM +0000, Prashant Malani wrote:
-> > > FWIW, I think we can make the typec_altmode_update_active() calls from
-> > > our (cros-ec-typec) port driver too, but displayport.c is parsing the header
-> > > anyway, so it seemed repetitive. Just wanted to clarify the intention here.
-> >
-> > The alt modes may have been entered even if there are no drivers for
-> > them, if for example the PD controller handles the mode entry. In
-> > those cases the port driver needs to update the active state of the
-> > partner alt mode.
->
-> Ack. Thanks for explaining the rationale here.
->
-> >
-> > Since the port drivers have to handle that in some cases, for the sake
-> > of consistency I thought that they might as well take care of it in
-> > every case.
-> >
-> > On the other hand, it should be safe to do it in both the port driver
-> > and the altmode driver.
-> >
-> > If you prefer that the altmode drivers always do this, I'm not against
-> > it. But in that case could you patch tcpm.c while at it - in the same
-> > series:
->
-> Sure, I will send out a v2 with the below diff as Patch 2/2 (I will mark you as
-> "Suggested-by" but as always LMK if you prefer another way to
-> denote attribution).
->
-> >
-> > diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-> > index 904c7b4ce2f0c..0f5a9d4db105a 100644
-> > --- a/drivers/usb/typec/tcpm/tcpm.c
-> > +++ b/drivers/usb/typec/tcpm/tcpm.c
-> > @@ -1693,14 +1693,11 @@ static int tcpm_pd_svdm(struct tcpm_port *port, struct typec_altmode *adev,
-> >                         }
-> >                         break;
-> >                 case CMD_ENTER_MODE:
-> > -                       if (adev && pdev) {
-> > -                               typec_altmode_update_active(pdev, true);
-> > +                       if (adev && pdev)
-> >                                 *adev_action = ADEV_QUEUE_VDM_SEND_EXIT_MODE_ON_FAIL;
-> > -                       }
-> >                         return 0;
-> >                 case CMD_EXIT_MODE:
-> >                         if (adev && pdev) {
-> > -                               typec_altmode_update_active(pdev, false);
-> >                                 /* Back to USB Operation */
-> >                                 *adev_action = ADEV_NOTIFY_USB_AND_QUEUE_VDM;
-> >                                 return 0;
-> >
-> > That's the only driver that will definitely always requires the
-> > altmode drivers, so perhaps it would be good to drop the calls
-> > from it at the same time.
+> > > > [ Upstream commit abfaf0eee97925905e742aa3b0b72e04a918fa9e ]
+> > > >
+> > > > As the possible failure of the allocation, kmemdup() may return NULL
+> > > > pointer.
+> > > > Therefore, it should be better to check the 'props2' in order to prevent
+> > > > the dereference of NULL pointer.
+> > > >
+> > > > Fixes: 3a87177eb141 ("drm/amdkfd: Add topology support for dGPUs")
+> > > > Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+> > > > Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+> > > > Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+> > > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > > Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
+> > > > ---
+> > > >  drivers/gpu/drm/amd/amdkfd/kfd_crat.c | 3 +++
+> > > >  1 file changed, 3 insertions(+)
+> > > >
+> > > > diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_crat.c b/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
+> > > > index 86b4dadf772e..02e3c650ed1c 100644
+> > > > --- a/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
+> > > > +++ b/drivers/gpu/drm/amd/amdkfd/kfd_crat.c
+> > > > @@ -408,6 +408,9 @@ static int kfd_parse_subtype_iolink(struct crat_subtype_iolink *iolink,
+> > > >                       return -ENODEV;
+> > > >               /* same everything but the other direction */
+> > > >               props2 = kmemdup(props, sizeof(*props2), GFP_KERNEL);
+> > > > +             if (!props2)
+> > > > +                     return -ENOMEM;
+> > >
+> > > Not going to queue this up as this is a bogus CVE.
+> > 
+> > Are we at the point where CVE presence actually contraindicates
+> > backporting?
+> 
+> Some would say that that point passed a long time ago :)
+> 
+> > At least I'm getting a bit the feeling there's a surge of
+> > automated (security) fixes that just don't hold up to any scrutiny.
+> 
+> That has been happening a lot more in the past 6-8 months than in years
+> past with the introduction of more automated tools being present.
 
-On 2nd thought, would it be safe to drop the calls in tcpm.c ? Following
-on from your PD controller example above, TCPM might be updating
-the active state for an altmode which doesn't have an altmode driver
-registered? Or does it only send out ENTER_MODE for alt modes
-which have an altmode driver?
+Ok, gut feeling confirmed, I'll try and keep more a lookout for these.
 
-(Sorry if this is obvious to TCPM users, but I wanted to confirm before
-proceeding with a v2).
+I guess next step is that people will use chatgpt to write the patches for
+these bugs.
 
-> >
-> > thanks,
-> >
-> > --
-> > heikki
+> > Last week I had to toss out an fbdev locking patch due to static
+> > checker that has no clue at all how refcounting works, and so
+> > complained that things need more locking ... (that was -fixes, but
+> > would probably have gone to stable too if I didn't catch it).
+> > 
+> > Simple bugfixes from random people was nice when it was checkpatch
+> > stuff and I was fairly happy to take these aggressively in drm. But my
+> > gut feeling says things seem to be shifting towards more advanced
+> > tooling, but without more advanced understanding by submitters. Does
+> > that holder in other areas too?
+> 
+> Again, yes, I have seen that a lot recently, especially with regards to
+> patches that purport to fix bugs yet obviously were never tested.
+> 
+> That being said, there are a few developers who are doing great things
+> with fault-injection testing and providing good patches for that.  So we
+> can't just say that everyone using these tools has no clue.
+
+Oh yes there's definitely awesome stuff happening, which is why I do not
+want to throw them all out. And waiting until the name is recognizeable
+for individual maintainers like me that don't see the entire fixes flood
+is also not really an approach.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
