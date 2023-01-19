@@ -2,148 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63929672E01
-	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 02:19:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6377672E18
+	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 02:29:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229936AbjASBTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Jan 2023 20:19:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38330 "EHLO
+        id S229998AbjASB30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Jan 2023 20:29:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229934AbjASBRt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 20:17:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27E5A6C548;
-        Wed, 18 Jan 2023 17:15:40 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAF02B81FBD;
-        Thu, 19 Jan 2023 01:15:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87567C433D2;
-        Thu, 19 Jan 2023 01:15:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1674090937;
-        bh=PFkEzI4PC6zXUgeRNUUCFeXNNVyrCy15+qXp7hK55Ho=;
-        h=Date:To:From:Subject:From;
-        b=epr/Ef0FfZW1Ziaetvb4OV4VWwMNgWPIDoeFqUX49wV0yVGoo6/TCjdF2bK6P2tJd
-         Ri/bBUvjkqVjv1xgk3cUHfLgv7VFo5D+iUQ5K9Pr5XQNhfZ4EWayb7JKdfM19M8ffF
-         TYZ1gzfa3GLZTYlgv5mS9sJsEIMdD+ElTBV2MO8Y=
-Date:   Wed, 18 Jan 2023 17:15:37 -0800
-To:     mm-commits@vger.kernel.org, zhengjun.xing@linux.intel.com,
-        ying.huang@intel.com, willy@infradead.org, stable@vger.kernel.org,
-        shy828301@gmail.com, rientjes@google.com, riel@surriel.com,
-        nathan@kernel.org, feng.tang@intel.com, fengwei.yin@intel.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-stable] mm-thp-check-and-bail-out-if-page-in-deferred-queue-already.patch removed from -mm tree
-Message-Id: <20230119011537.87567C433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230196AbjASB2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 20:28:50 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4700674966;
+        Wed, 18 Jan 2023 17:23:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=oe4r0h3mpIvSN47ii4zylZ1rmQUYgFQS1O0MgSApTpg=; b=ZPzHVZ3QuopuhW4TEcYQ8OENg9
+        tEYRvyc+DhETJOQ/EKWH0HCPJMDqdBi3k5U0T5gWJL81Z126vnIMF3JHI/ChBbV0pleEN3ZwmZ5pz
+        pYMx5lTBxPgpkvnPVldSX9ax+ZEO2/ZiqsKfk8sj3TQojiQ4zFyWcq2fAxCZpdXIOINUxYykKd3h+
+        RTah/8IcyI8/0xxjoTC/KF7JyqSzR4RDdek8CPpmIfPbZ1IInjKuClBCU5TIYYt8k7YhUUh+w6eoy
+        md5lonxAZqRVDvJMD7rRJBWrGNwT+/hxl8hpkUmqdz0q1+c9yOnnkF2iOckxNNGx9BUImKKn7TZOD
+        Kf/oXJAQ==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pIJe7-00383m-QX; Thu, 19 Jan 2023 01:23:15 +0000
+Date:   Wed, 18 Jan 2023 17:23:15 -0800
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Petr Mladek <pmladek@suse.com>,
+        Prarit Bhargava <prarit@redhat.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        NeilBrown <neilb@suse.de>, Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        Petr Pavlu <petr.pavlu@suse.com>, david@redhat.com,
+        mwilck@suse.com, linux-modules@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] module: Don't wait for GOING modules
+Message-ID: <Y8ibg2cB4gB2gQ8f@bombadil.infradead.org>
+References: <20221205103557.18363-1-petr.pavlu@suse.com>
+ <Y5gI/3crANzRv22J@bombadil.infradead.org>
+ <Y5hRRnBGYaPby/RS@alley>
+ <Y8c3hgVwKiVrKJM1@bombadil.infradead.org>
+ <Y8hQbC3wvu1S+uZ5@zn.tnic>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y8hQbC3wvu1S+uZ5@zn.tnic>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jan 18, 2023 at 09:02:52PM +0100, Borislav Petkov wrote:
+> On Tue, Jan 17, 2023 at 04:04:22PM -0800, Luis Chamberlain wrote:
+> > and now I'm seeing this while trying to build v5.1:
+> > 
+> > ld: arch/x86/boot/compressed/pgtable_64.o:(.bss+0x0): multiple definition of `__force_order';
+> > arch/x86/boot/compressed/kaslr_64.o:(.bss+0x0): first defined here
+> 
+> You need to backport 
+> 
+> aa5cacdc29d7 ("x86/asm: Replace __force_order with a memory clobber")
+> 
+> for that.
+> 
+> Happens when building older kernels with newer toolchain.
 
-The quilt patch titled
-     Subject: mm/thp: check and bail out if page in deferred queue already
-has been removed from the -mm tree.  Its filename was
-     mm-thp-check-and-bail-out-if-page-in-deferred-queue-already.patch
+Thanks that certainly helps. FWIW if someone needs it, I had to remove
+the double colons on write cr0 and cr4 to compile, but this crashed :(
+Any ideas?
 
-This patch was dropped because it was merged into the mm-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-------------------------------------------------------
-From: Yin Fengwei <fengwei.yin@intel.com>
-Subject: mm/thp: check and bail out if page in deferred queue already
-Date: Fri, 23 Dec 2022 21:52:07 +0800
-
-Kernel build regression with LLVM was reported here:
-https://lore.kernel.org/all/Y1GCYXGtEVZbcv%2F5@dev-arch.thelio-3990X/ with
-commit f35b5d7d676e ("mm: align larger anonymous mappings on THP
-boundaries").  And the commit f35b5d7d676e was reverted.
-
-It turned out the regression is related with madvise(MADV_DONTNEED)
-was used by ld.lld. But with none PMD_SIZE aligned parameter len.
-trace-bpfcc captured:
-531607  531732  ld.lld          do_madvise.part.0 start: 0x7feca9000000, len: 0x7fb000, behavior: 0x4
-531607  531793  ld.lld          do_madvise.part.0 start: 0x7fec86a00000, len: 0x7fb000, behavior: 0x4
-
-If the underneath physical page is THP, the madvise(MADV_DONTNEED) can
-trigger split_queue_lock contention raised significantly. perf showed
-following data:
-    14.85%     0.00%  ld.lld           [kernel.kallsyms]           [k]
-       entry_SYSCALL_64_after_hwframe
-           11.52%
-                entry_SYSCALL_64_after_hwframe
-                do_syscall_64
-                __x64_sys_madvise
-                do_madvise.part.0
-                zap_page_range
-                unmap_single_vma
-                unmap_page_range
-                page_remove_rmap
-                deferred_split_huge_page
-                __lock_text_start
-                native_queued_spin_lock_slowpath
-
-If THP can't be removed from rmap as whole THP, partial THP will be
-removed from rmap by removing sub-pages from rmap.  Even the THP head page
-is added to deferred queue already, the split_queue_lock will be acquired
-and check whether the THP head page is in the queue already.  Thus, the
-contention of split_queue_lock is raised.
-
-Before acquire split_queue_lock, check and bail out early if the THP
-head page is in the queue already. The checking without holding
-split_queue_lock could race with deferred_split_scan, but it doesn't
-impact the correctness here.
-
-Test result of building kernel with ld.lld:
-commit 7b5a0b664ebe (parent commit of f35b5d7d676e):
-time -f "\t%E real,\t%U user,\t%S sys" make LD=ld.lld -skj96 allmodconfig all
-        6:07.99 real,   26367.77 user,  5063.35 sys
-
-commit f35b5d7d676e:
-time -f "\t%E real,\t%U user,\t%S sys" make LD=ld.lld -skj96 allmodconfig all
-        7:22.15 real,   26235.03 user,  12504.55 sys
-
-commit f35b5d7d676e with the fixing patch:
-time -f "\t%E real,\t%U user,\t%S sys" make LD=ld.lld -skj96 allmodconfig all
-        6:08.49 real,   26520.15 user,  5047.91 sys
-
-Link: https://lkml.kernel.org/r/20221223135207.2275317-1-fengwei.yin@intel.com
-Signed-off-by: Yin Fengwei <fengwei.yin@intel.com>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/huge_memory.c |    3 +++
- 1 file changed, 3 insertions(+)
-
---- a/mm/huge_memory.c~mm-thp-check-and-bail-out-if-page-in-deferred-queue-already
-+++ a/mm/huge_memory.c
-@@ -2835,6 +2835,9 @@ void deferred_split_huge_page(struct pag
- 	if (PageSwapCache(page))
- 		return;
+diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/kaslr_64.c
+index 748456c365f4..9557c5a15b91 100644
+--- a/arch/x86/boot/compressed/kaslr_64.c
++++ b/arch/x86/boot/compressed/kaslr_64.c
+@@ -29,9 +29,6 @@
+ #define __PAGE_OFFSET __PAGE_OFFSET_BASE
+ #include "../../mm/ident_map.c"
  
-+	if (!list_empty(page_deferred_list(page)))
-+		return;
+-/* Used by pgtable.h asm code to force instruction serialization. */
+-unsigned long __force_order;
+-
+ /* Used to track our page table allocation area. */
+ struct alloc_pgt_data {
+ 	unsigned char *pgt_buf;
+diff --git a/arch/x86/boot/compressed/pgtable_64.c b/arch/x86/boot/compressed/pgtable_64.c
+index f8debf7aeb4c..7471b48524cb 100644
+--- a/arch/x86/boot/compressed/pgtable_64.c
++++ b/arch/x86/boot/compressed/pgtable_64.c
+@@ -5,15 +5,6 @@
+ #include "pgtable.h"
+ #include "../string.h"
+ 
+-/*
+- * __force_order is used by special_insns.h asm code to force instruction
+- * serialization.
+- *
+- * It is not referenced from the code, but GCC < 5 with -fPIE would fail
+- * due to an undefined symbol. Define it to make these ancient GCCs work.
+- */
+-unsigned long __force_order;
+-
+ #define BIOS_START_MIN		0x20000U	/* 128K, less than this is insane */
+ #define BIOS_START_MAX		0x9f000U	/* 640K, absolute maximum */
+ 
+diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
+index 0a3c4cab39db..5586e4cf62d3 100644
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -7,49 +7,50 @@
+ 
+ #include <asm/nops.h>
+ 
++#define __FORCE_ORDER "m"(*(unsigned int *)0x1000UL)
 +
- 	spin_lock_irqsave(&ds_queue->split_queue_lock, flags);
- 	if (list_empty(page_deferred_list(page))) {
- 		count_vm_event(THP_DEFERRED_SPLIT_PAGE);
-_
-
-Patches currently in -mm which might be from fengwei.yin@intel.com are
-
+ /*
+- * Volatile isn't enough to prevent the compiler from reordering the
+- * read/write functions for the control registers and messing everything up.
+- * A memory clobber would solve the problem, but would prevent reordering of
+- * all loads stores around it, which can hurt performance. Solution is to
+- * use a variable and mimic reads and writes to it to enforce serialization
++ * The compiler should not reorder volatile asm statements with respect to each
++ * other: they should execute in program order. However GCC 4.9.x and 5.x have
++ * a bug (which was fixed in 8.1, 7.3 and 6.5) where they might reorder
++ * volatile asm. The write functions are not affected since they have memory
++ * clobbers preventing reordering. To prevent reads from being reordered with
++ * respect to writes, use a dummy memory operand
+  */
+-extern unsigned long __force_order;
+-
+ static inline unsigned long native_read_cr0(void)
+ {
+ 	unsigned long val;
+-	asm volatile("mov %%cr0,%0\n\t" : "=r" (val), "=m" (__force_order));
++	asm volatile("mov %%cr0,%0\n\t" : "=r" (val) : __FORCE_ORDER);
+ 	return val;
+ }
+ 
+ static inline void native_write_cr0(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr0": : "r" (val), "m" (__force_order));
++	asm volatile("mov %0,%%cr0": : "r" (val) : "memory");
+ }
+ 
+ static inline unsigned long native_read_cr2(void)
+ {
+ 	unsigned long val;
+-	asm volatile("mov %%cr2,%0\n\t" : "=r" (val), "=m" (__force_order));
++	asm volatile("mov %%cr2,%0\n\t" : "=r" (val) : __FORCE_ORDER);
+ 	return val;
+ }
+ 
+ static inline void native_write_cr2(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr2": : "r" (val), "m" (__force_order));
++	asm volatile("mov %0,%%cr2": : "r" (val) : "memory");
+ }
+ 
+ static inline unsigned long __native_read_cr3(void)
+ {
+ 	unsigned long val;
+-	asm volatile("mov %%cr3,%0\n\t" : "=r" (val), "=m" (__force_order));
++	asm volatile("mov %%cr3,%0\n\t" : "=r" (val) : __FORCE_ORDER);
+ 	return val;
+ }
+ 
+ static inline void native_write_cr3(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr3": : "r" (val), "m" (__force_order));
++	asm volatile("mov %0,%%cr3": : "r" (val) : "memory");
+ }
+ 
+ static inline unsigned long native_read_cr4(void)
+@@ -64,17 +65,17 @@ static inline unsigned long native_read_cr4(void)
+ 	asm volatile("1: mov %%cr4, %0\n"
+ 		     "2:\n"
+ 		     _ASM_EXTABLE(1b, 2b)
+-		     : "=r" (val), "=m" (__force_order) : "0" (0));
++		     : "=r" (val) : "0" (0), __FORCE_ORDER);
+ #else
+ 	/* CR4 always exists on x86_64. */
+-	asm volatile("mov %%cr4,%0\n\t" : "=r" (val), "=m" (__force_order));
++	asm volatile("mov %%cr4,%0\n\t" : "=r" (val) : __FORCE_ORDER);
+ #endif
+ 	return val;
+ }
+ 
+ static inline void native_write_cr4(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr4": : "r" (val), "m" (__force_order));
++	asm volatile("mov %0,%%cr4": : "r" (val) : "memory");
+ }
+ 
+ #ifdef CONFIG_X86_64
+-- 
+2.35.1
 
