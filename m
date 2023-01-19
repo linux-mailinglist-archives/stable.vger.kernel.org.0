@@ -2,118 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C90673F9D
-	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 18:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9BFD674026
+	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 18:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229982AbjASRKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Jan 2023 12:10:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54244 "EHLO
+        id S229590AbjASRkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Jan 2023 12:40:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbjASRKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 12:10:51 -0500
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D83EFA5CB;
-        Thu, 19 Jan 2023 09:10:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674148248; x=1705684248;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=a1Xl5AI0jRujcTSH5TR69MwUM/ZMR3gvrCrzmKfX45M=;
-  b=imGN8q9gbYCE0bDV8Q8VgIm/UqwL/J2OUkx9ZBaWKy/iUlVANbR+Wj/l
-   CWDDPZ3niEk15VBBx/zP8+TDoy3nFyTLimIWj9u+ro8lOvRE2OOjEzj1L
-   YEnYMUUCBV4atn6J7h/evUNa6Mo1HUwz5LBn6eL4BJzIDSr6UGPb+Kzn6
-   LPF/IMVuFgv9Wj7pc8u+bNeZbAPjn6sbMZggtL7RZK7gks+9A1pwKa+29
-   cwVHYhWPOuUv6b4dKy9Wvuj/dnk/Dj3mMHf1YqwVoqpqME4Kg6q8IK4oC
-   1RLhnUoZbmYFYNA6dpV4MJXLrbtriumNegsCBGnffZQaSip5Tc/3PTxZc
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="305714699"
-X-IronPort-AV: E=Sophos;i="5.97,229,1669104000"; 
-   d="scan'208";a="305714699"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2023 09:06:23 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="784124777"
-X-IronPort-AV: E=Sophos;i="5.97,229,1669104000"; 
-   d="scan'208";a="784124777"
-Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by orsmga004.jf.intel.com with ESMTP; 19 Jan 2023 09:06:20 -0800
-From:   Alexander Shishkin <alexander.shishkin@linux.intel.com>
-To:     Bjorn Helgaas <bhelgaas@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>, linux-pci@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        darwi@linutronix.de, elena.reshetova@intel.com,
-        kirill.shutemov@linux.intel.com,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/2] PCI/MSI: Validate device supplied MSI table offset and size
-Date:   Thu, 19 Jan 2023 19:06:33 +0200
-Message-Id: <20230119170633.40944-3-alexander.shishkin@linux.intel.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230119170633.40944-1-alexander.shishkin@linux.intel.com>
-References: <20230119170633.40944-1-alexander.shishkin@linux.intel.com>
+        with ESMTP id S230012AbjASRkS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 12:40:18 -0500
+Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com [IPv6:2607:f8b0:4864:20::e34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7468F7C6
+        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 09:40:15 -0800 (PST)
+Received: by mail-vs1-xe34.google.com with SMTP id t10so2964886vsr.3
+        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 09:40:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=eeuukOKJ+v76G3XCHdrhKdumLe6It98OJosMQGHmHAc=;
+        b=m/n40kEfZwk8dFbLpzgM8gTe/WEbqcbdhx2sLztNe+FhgPHjjI0z1GrSB/dmXN/XPM
+         PHMiQUlh5UdnTclg2Uvy8O7JoFeHGV+X8F4lwuPyhn4S3Cq5r2I2qd3pZY2i7TTYz/n/
+         9W38zVj2nnN42iZPYZk7qhmkdDyc+y0gxQ/yjRYnXSSCdTtprietNZv7Gch8aUrrMhjI
+         /5MjxalWePc4rqWjdt4YJE++srheFg1VPdOHGl5fHevz/CpU0Eb5BGxEwp38xFJouCig
+         niVdnELDk9MsNVEowg2GXNHfhIunHEscXb1NHROx3Pfp/lJ3OjQE5AbUpp5SW5cIysfW
+         hk4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eeuukOKJ+v76G3XCHdrhKdumLe6It98OJosMQGHmHAc=;
+        b=Q6HeQNDPmi6nhp+2jY8RuCyWj+qB2dCKShQ/OzqxP/NXFCtFuVliYcCxAaDE5LVYQZ
+         ZZbkMSj/R2deNX/g/iXGqzjOCyYkyfXnuICCcY/6MHpRnY80GZyfbglvrMHvvarDmuYE
+         WvJ7MlBNVjCwbeIc4/PwciGTvNLZ7wqvUfyaPGzoiG18Q/GVgSazWNpK6/Js0+KGhEoO
+         1LKRHvgm3jOovsWnjZJ2tRlgVtP/smHGWHigdz/KTgbFdJ2sQslaO4hgE4qZj8p3vC+u
+         3tLVsttUUEyNYfzh28n/85vdMjXedWRKWT+VF1Mh749xMYWrlElrKAoIe/WS0gS2jvUz
+         NBcw==
+X-Gm-Message-State: AFqh2krVdtd0bxZfgGWY1jjIbi9oGIkl5VjmzFipdyQGv9388pz1C++Q
+        CqSQSVKzKWfEVTo3sB4mgj0=
+X-Google-Smtp-Source: AMrXdXuKdthUK6SO5H32TpWAuohGOwM82yIcJB8OVzuFtOHBiR57KXMUy/sVvLPOOT6ltqJXlN7VHw==
+X-Received: by 2002:a05:6102:2744:b0:3d0:d7cf:18ca with SMTP id p4-20020a056102274400b003d0d7cf18camr7530299vsu.27.1674150014247;
+        Thu, 19 Jan 2023 09:40:14 -0800 (PST)
+Received: from debian-BULLSEYE-live-builder-AMD64 (h64-35-202-119.cntcnh.broadband.dynamic.tds.net. [64.35.202.119])
+        by smtp.gmail.com with ESMTPSA id f8-20020a05620a408800b0070543181468sm24876277qko.57.2023.01.19.09.40.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Jan 2023 09:40:13 -0800 (PST)
+Date:   Thu, 19 Jan 2023 12:40:11 -0500
+From:   Eric Whitney <enwlinux@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Eric Whitney <enwlinux@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 499/521] ext4: fix delayed allocation bug in
+ ext4_clu_mapped for bigalloc + inline
+Message-ID: <Y8mAe1SlcLD5fykg@debian-BULLSEYE-live-builder-AMD64>
+References: <20230116154847.246743274@linuxfoundation.org>
+ <20230116154909.507815847@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230116154909.507815847@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently, the MSI table offset supplied by device's config space is
-passed directly into ioremap() without validation, allowing, for
-example, a malicious VMM to trick the OS into exposing its private
-memory.
+Hi:
 
-Correct this by making sure the table with the given number of vectors
-fits into its BIR starting at the provided table offset.
+I recommend not backporting this patch or the other three patches apparently
+intended to support it to 4.19 stable.  All these patches are related to
+ext4's bigalloc feature, which was experimental as of 4.19 (expressly noted by
+contemporary versions of e2fsprogs) and also suffered from a number of bugs.
+A significant number of additional patches that were applied to 5.X kernels
+over time would have to be backported to 4.19 for the patch below to function
+correctly. It's really not worth doing that given bigalloc's experimental
+status as of 4.19 and the very rare combination of the bigalloc and inline
+features.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reported-by: Elena Reshetova <elena.reshetova@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Cc: stable@vger.kernel.org
----
- drivers/pci/msi/msi.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+Thanks,
+Eric
 
-diff --git a/drivers/pci/msi/msi.c b/drivers/pci/msi/msi.c
-index d50cd45119f1..e93e633cb6a3 100644
---- a/drivers/pci/msi/msi.c
-+++ b/drivers/pci/msi/msi.c
-@@ -552,7 +552,8 @@ static void __iomem *msix_map_region(struct pci_dev *dev,
- 				     unsigned int nr_entries)
- {
- 	resource_size_t phys_addr;
--	u32 table_offset;
-+	u32 table_offset, table_size;
-+	resource_size_t bir_size;
- 	unsigned long flags;
- 	u8 bir;
- 
-@@ -563,10 +564,15 @@ static void __iomem *msix_map_region(struct pci_dev *dev,
- 	if (!flags || (flags & IORESOURCE_UNSET))
- 		return NULL;
- 
-+	bir_size = pci_resource_len(dev, bir);
-+	table_size = nr_entries * PCI_MSIX_ENTRY_SIZE;
- 	table_offset &= PCI_MSIX_TABLE_OFFSET;
-+	if (bir_size < table_size || table_offset > bir_size - table_size)
-+		return NULL;
-+
- 	phys_addr = pci_resource_start(dev, bir) + table_offset;
- 
--	return ioremap(phys_addr, nr_entries * PCI_MSIX_ENTRY_SIZE);
-+	return ioremap(phys_addr, table_size);
- }
- 
- /**
--- 
-2.39.0
 
+* Greg Kroah-Hartman <gregkh@linuxfoundation.org>:
+> From: Eric Whitney <enwlinux@gmail.com>
+> 
+> [ Upstream commit 131294c35ed6f777bd4e79d42af13b5c41bf2775 ]
+> 
+> When converting files with inline data to extents, delayed allocations
+> made on a file system created with both the bigalloc and inline options
+> can result in invalid extent status cache content, incorrect reserved
+> cluster counts, kernel memory leaks, and potential kernel panics.
+> 
+> With bigalloc, the code that determines whether a block must be
+> delayed allocated searches the extent tree to see if that block maps
+> to a previously allocated cluster.  If not, the block is delayed
+> allocated, and otherwise, it isn't.  However, if the inline option is
+> also used, and if the file containing the block is marked as able to
+> store data inline, there isn't a valid extent tree associated with
+> the file.  The current code in ext4_clu_mapped() calls
+> ext4_find_extent() to search the non-existent tree for a previously
+> allocated cluster anyway, which typically finds nothing, as desired.
+> However, a side effect of the search can be to cache invalid content
+> from the non-existent tree (garbage) in the extent status tree,
+> including bogus entries in the pending reservation tree.
+> 
+> To fix this, avoid searching the extent tree when allocating blocks
+> for bigalloc + inline files that are being converted from inline to
+> extent mapped.
+> 
+> Signed-off-by: Eric Whitney <enwlinux@gmail.com>
+> Link: https://lore.kernel.org/r/20221117152207.2424-1-enwlinux@gmail.com
+> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+> Cc: stable@kernel.org
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  fs/ext4/extents.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
+> index 0bb772cd7f88..1ad4c8eb82c1 100644
+> --- a/fs/ext4/extents.c
+> +++ b/fs/ext4/extents.c
+> @@ -5984,6 +5984,14 @@ int ext4_clu_mapped(struct inode *inode, ext4_lblk_t lclu)
+>  	struct ext4_extent *extent;
+>  	ext4_lblk_t first_lblk, first_lclu, last_lclu;
+>  
+> +	/*
+> +	 * if data can be stored inline, the logical cluster isn't
+> +	 * mapped - no physical clusters have been allocated, and the
+> +	 * file has no extents
+> +	 */
+> +	if (ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA))
+> +		return 0;
+> +
+>  	/* search for the extent closest to the first block in the cluster */
+>  	path = ext4_find_extent(inode, EXT4_C2B(sbi, lclu), NULL, 0);
+>  	if (IS_ERR(path)) {
+> -- 
+> 2.35.1
+> 
+> 
+> 
