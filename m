@@ -2,111 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3372B6743F0
-	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 22:07:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 009C8674748
+	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 00:38:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229926AbjASVHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Jan 2023 16:07:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58484 "EHLO
+        id S230177AbjASXiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Jan 2023 18:38:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229967AbjASVG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 16:06:58 -0500
-Received: from DM6FTOPR00CU001-vft-obe.outbound.protection.outlook.com (mail-cusazon11020017.outbound.protection.outlook.com [52.101.61.17])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380D3868E;
-        Thu, 19 Jan 2023 12:59:49 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TnueqxbS5Q5T8pY3mCjAV8IAwxNsGl/m0qTNNYstLj4LWPxCgQBL6eLDfAgTH00xLiYklUD3pV2+5UKkXgoDDojyTa43nY0I/2ooEm2Dvf7/GAZe8uYGNeH5lW1VNJy72Ika9F+b+9sdlS0pzPw9fqUwFnlXkE4aDhnBvYRUlK11Gw5oMgZN7h7LQzWWu68P9/PYQXufYNjnAYcSRvMuGpc6TY16+9us2aaFKISunUsM52JuiAvE/Duu2d4GXD3SZ/26Xqvk3IZU6UOck66DVb0JaltE17fixfLXwDn5/ZEF1qNbw/oHfgMHtF7RfQkNuM1BlGU7RSGiSi8wYBvrtg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0hmIld8UeCOf6LBE44w5WhBdu1eAGsIlSoxkXwMVnR0=;
- b=VFctQAahAcnMb9ZParFqaFuD7fPWyShLd3SWx5wwnPWRaISL8Jp9eBn2osItXr82CP+Be7j6v8idrt8hBR6sHJpG1Uw/QYvog61MBnEePD2f60TBpqFPiuSLlqWpXQOql00V5t8Rh4R8p7ka0J0fdWxXq8mtZNiBeS0f7sykE4sgTha7ZJCIiCx7cy32fU8H1VhdIhfFQKhqjcejOWgzt5bQFL1iMZMrtnKuoSrTY+eGRS13hfr6Nr45lifnd+YxD3fE+eTMojrDzM6fwZVEXgPf6lviqi2VxsWxbluu8NyokuITQcprTQgXgDhdKrUql8aBPaFIZhmYvyn3wUcTVg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0hmIld8UeCOf6LBE44w5WhBdu1eAGsIlSoxkXwMVnR0=;
- b=btMyLlLykbbV4muONDaEJostQmxcGi1Nc4+U2LdvwwnNzGwZKpDEVRMqk94+nrz9ISyXzYUjRalcUYOZe7s3T8gfoI1exCIevVPcfVGtRgrb+qIqOnQgqwDES+kI+dXdS1yVd2ww4v5mQ15qG/pCmR+cmouuA5ph0yVH58ULGo4=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-Received: from BY5PR21MB1443.namprd21.prod.outlook.com (2603:10b6:a03:21f::18)
- by SN7PR21MB3936.namprd21.prod.outlook.com (2603:10b6:806:2e8::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6043.6; Thu, 19 Jan
- 2023 20:59:47 +0000
-Received: from BY5PR21MB1443.namprd21.prod.outlook.com
- ([fe80::baef:f69f:53c2:befc]) by BY5PR21MB1443.namprd21.prod.outlook.com
- ([fe80::baef:f69f:53c2:befc%8]) with mapi id 15.20.6043.006; Thu, 19 Jan 2023
- 20:59:47 +0000
-From:   Haiyang Zhang <haiyangz@microsoft.com>
-To:     linux-hyperv@vger.kernel.org, netdev@vger.kernel.org
-Cc:     haiyangz@microsoft.com, decui@microsoft.com, kys@microsoft.com,
-        paulros@microsoft.com, olaf@aepfle.de, vkuznets@redhat.com,
-        davem@davemloft.net, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH net] net: mana: Fix IRQ name - add PCI and queue number
-Date:   Thu, 19 Jan 2023 12:59:10 -0800
-Message-Id: <1674161950-19708-1-git-send-email-haiyangz@microsoft.com>
-X-Mailer: git-send-email 1.8.3.1
-Content-Type: text/plain
-X-ClientProxiedBy: BY3PR05CA0035.namprd05.prod.outlook.com
- (2603:10b6:a03:39b::10) To BY5PR21MB1443.namprd21.prod.outlook.com
- (2603:10b6:a03:21f::18)
+        with ESMTP id S229637AbjASXh7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 18:37:59 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD7EB37F29;
+        Thu, 19 Jan 2023 15:37:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=3bFcAmrUNZByWsKADlIMkrUGMQdyY3YOwND5QaxPXD0=; b=sAhZRTjePyXmpkMA+IBZCV/UVi
+        SegprcJoEyJMLbLSphnSfQZGmUSaAFqvF6D272hYtokhTx9wZN2IC8mZB9vaiRMcnGkX8ms1n8yA8
+        wGSt06BQr2VM20FF2l6SndZiKujwlk/0YkcRBWT/1TyevKCQ/uTTDMODRhtcT2XD5N+iEJJePC1Gw
+        NVvM16p15JWzUIOvdc3ltmHVgHQ0Ei4bqXmYxh6rsKZieEYIcunOgBn8nalyrnokHYJ3yzfLe7bg2
+        H45mKXEBkw65k4B1DOUNcpqok4uIh6gr5HeWbEIRrQavxWFIGkS8iClTHrshNmsMs10olKRUR4A9N
+        +EsuNJcw==;
+Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pIeTY-007dU3-La; Thu, 19 Jan 2023 23:37:44 +0000
+Date:   Thu, 19 Jan 2023 15:37:44 -0800
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Petr Mladek <pmladek@suse.com>,
+        Prarit Bhargava <prarit@redhat.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        NeilBrown <neilb@suse.de>, Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        Petr Pavlu <petr.pavlu@suse.com>, david@redhat.com,
+        mwilck@suse.com, linux-modules@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] module: Don't wait for GOING modules
+Message-ID: <Y8nUSL8VSiDIVYCb@bombadil.infradead.org>
+References: <20221205103557.18363-1-petr.pavlu@suse.com>
+ <Y5gI/3crANzRv22J@bombadil.infradead.org>
+ <Y5hRRnBGYaPby/RS@alley>
+ <Y8c3hgVwKiVrKJM1@bombadil.infradead.org>
+ <Y8hQbC3wvu1S+uZ5@zn.tnic>
+ <Y8ibg2cB4gB2gQ8f@bombadil.infradead.org>
 MIME-Version: 1.0
-Sender: LKML haiyangz <lkmlhyz@microsoft.com>
-X-MS-Exchange-MessageSentRepresentingType: 2
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BY5PR21MB1443:EE_|SN7PR21MB3936:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4a72297f-e3af-4d3d-7d42-08dafa6018bf
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: IOu5k5Lx59X8924/GlrBNlSIj8ci1g8Fc89UW5W7V3+nCYPazw0w0FH+YGrTpZLtRCjT5O4nOg0asC/Y6uQkN2mLQGV+cSBSe2H2hHoB19W6X7T1vJfHiQo9trwKMDbTTZ/Xchgqst0+STFYhBWp31+/B/jbV7bgqXkXk++n9O3agUtTSLCd9vOYw3YEE9YNzhXzV+lNpMYau1arjqVakmhHZ8UZPlP13BPOlVm29mXq9JcyhdTKWxFi5rgGm5+bsmceeIVsg5+vuHvXNGH96tp4VcJ5HjUG69bGuCvlP//QxrpKPJDGhw8jDPFcChogcZDGW7seU8pxH5k5wWSuMwcw6mS2Rvi0xDNUDEoEV98jZ7In3KmW/cO6jmgcazWICRtIDeIRTr5jdbEdvkeom6myMVH+VbjWiBbnShqnRwd5QiAWqotwEWBaEFU2FpIc0MYDOsBOl9s3/vmrtVSL+cawIlQAg9E6eyHGIJ9Rh3gANpm/AbpLskVCBbeJwEY8wC50VWr6z4jOA/QS6pRWXb+lz4E4EJ/4t3SiZ2DgrnN8n6wxmFRRVLyyePrgekpzIyGLypajgwDvtpszysKa+uRrM2onSJVNC+VeyPQZpdVecczv/445mZMJuvaWm6pBcYnzX2cy2p1Oyk76oLNFAzyc7XTEHEhcW3HVITp7Id1rIXAMUpGoAqBxvq3We/IuqUKtO2rxqzaHNoEfs/0peKDhwZwd7llEfoNSwqYTiCPRP55MCqohnqjQYOF5Rxca
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR21MB1443.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(346002)(376002)(136003)(366004)(39860400002)(396003)(451199015)(38350700002)(8936002)(41300700001)(8676002)(4326008)(66946007)(66556008)(66476007)(36756003)(10290500003)(83380400001)(38100700002)(82950400001)(316002)(2616005)(82960400001)(6666004)(2906002)(6506007)(5660300002)(52116002)(186003)(6512007)(26005)(478600001)(6486002)(7846003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?1Q6GGDuFBA2MWZzkHxu6Ci0ic1/nDjBa7+CgYfHxbgAtlzdbLj26BpkMT1x5?=
- =?us-ascii?Q?rIRQf4zLhlhI7MJjAR1I2nvHj61O/efUyHsTYbXa+jqeu0M74Kd6SvnjIXCD?=
- =?us-ascii?Q?uJKAe9xzmwMOtpJcAYt2cnsArJoewKXE/MK+p9Zp9/dgjP7JAcGxmKjk/hGU?=
- =?us-ascii?Q?97pjd5Rb4vgllWzS+4GUwuMHiK9ISOiZW+N6hP5Wiz+GHVRKukQi0p4vI4mt?=
- =?us-ascii?Q?RVYcMJyzf0zUBcQ8VFPl//9paNwnSM7nBVBczSRvmwWGHX8j8q65MIhApdx8?=
- =?us-ascii?Q?eMo0ORSQx0SLc5vZ9kiC7EVs6YIJ4Se5hma8s4VDByJqixaEuB2nxp/9Ij9O?=
- =?us-ascii?Q?J8bWeUWKvcEbx6U3lo3UFmfucpWzIAn3KPp4p/kc6ACpfpdQ14e2+vJ4bxXu?=
- =?us-ascii?Q?0bOwUvFTlaUAHX6dJCWUtEkHw/1/qqnn6qeGCHiChDGCfjZ4Tqx0BzfSL5c3?=
- =?us-ascii?Q?+5yAMkTtyQ8+22tcKBDugsw2JOSD8sAFEMSioRbX7x4V93XHPFfrqP5rEVlp?=
- =?us-ascii?Q?c+zai5gbOBltCs7WDur0+NIDvg+mhBbr+YAPdFa3quw9IORau2S6QMY9e/q2?=
- =?us-ascii?Q?0aHzG50UDSC/1mS+LW9iEH5mmgxRthEKbvyuGF7yZPGFTbkTTKBkLcibl3ZJ?=
- =?us-ascii?Q?PSDDegAKInvZFmjgp7RufsmdadS0io40Qr4yXtVOhYC4GjlotvVZye6cYoNK?=
- =?us-ascii?Q?eux8/NRH5vV22ezUAOngdbOiQBnDNBOQZLZhT72YLjkrOUVBbIiswaK7aRFk?=
- =?us-ascii?Q?IZl1eBSK70NKeXUoCKoU8Rbz113aFhNm4kBc8nITa/u4e74jPpcg60RF4+9M?=
- =?us-ascii?Q?8CNN1kcYg1kK//uMVdWdPqShIfNNBl0B72PkpW4VZNCzcaVWgenIBa+Ey/qL?=
- =?us-ascii?Q?C/k0y0FQZd08Fwoz7RLr2W+2HhBZn2w6LGvIbSbgnEau6JG9TBs5tOKQSRct?=
- =?us-ascii?Q?H2gVsujY3pV+Pm77/VFDQbdjyXhfQmB9nvliQT5TfJ2hPNUah8EP9ZrtIXMc?=
- =?us-ascii?Q?tnBHf52+YaRJ5kfMRIVpUXdhwMYFBowQ4oMWvk5wb9k9ixbZGNMGWVhLgLrI?=
- =?us-ascii?Q?i866Ex5+HTvomS3QMo24y5q/amG+KHV4+quZTdXu689cK0s3qQVNqbYD/aLq?=
- =?us-ascii?Q?XfXg5bsOBkASo1EC22XULFEs6yOW6RK3j4g2wp6oBFf2DcfO5ZvnL5aS7SKB?=
- =?us-ascii?Q?HSg11+LUGvlDzlTVEQ4EwVcKAOTHEM4YDj0t7T3K9b3HeDHfaVbP19uGAG5O?=
- =?us-ascii?Q?IeXrTcuEtN611Qm3ttCyD34WxFV7nUxUBXAT5f/Wf+sZ4TQ9Ce7NgTZ+JG1a?=
- =?us-ascii?Q?IdtSETvnRgzd3pnT/pyqM7YJ73sj4zVjZJv4gYWdZ6F2kvdapoVwxfmipvka?=
- =?us-ascii?Q?qeGkV+ygTTh/M4NJGd4CWUD6Ilm+bFH4gAJkt21YnjKabbJaTNXy1yoCxlZ1?=
- =?us-ascii?Q?h88g2Kk2TidBx6u5T45kqtW3O0glZnO9gMOkA7L/lHtt+oU6hMKvqgKlZMsy?=
- =?us-ascii?Q?WmaJBpWbeDuUnjOytsgX/5Zzb+d8IqNfewe27ewmmD9Kxteff1OX28XVKZDA?=
- =?us-ascii?Q?O5pu3c1A3Hj1chAbHYh0MqJpkqvEsAMBc31AoAO3?=
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4a72297f-e3af-4d3d-7d42-08dafa6018bf
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR21MB1443.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Jan 2023 20:59:46.9103
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: s6xSlKPcR38c9RjWHZ/GyBfVX40HFrqbWfP0IjEcciE0frJTh97BCYwiDZKpNFy2oUr35feICXwj3/f/2Kct2g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR21MB3936
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_PASS,SPF_NONE autolearn=no
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y8ibg2cB4gB2gQ8f@bombadil.infradead.org>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -114,62 +59,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The PCI and queue number info is missing in IRQ names.
+On Wed, Jan 18, 2023 at 05:23:15PM -0800, Luis Chamberlain wrote:
+> On Wed, Jan 18, 2023 at 09:02:52PM +0100, Borislav Petkov wrote:
+> > On Tue, Jan 17, 2023 at 04:04:22PM -0800, Luis Chamberlain wrote:
+> > > and now I'm seeing this while trying to build v5.1:
+> > > 
+> > > ld: arch/x86/boot/compressed/pgtable_64.o:(.bss+0x0): multiple definition of `__force_order';
+> > > arch/x86/boot/compressed/kaslr_64.o:(.bss+0x0): first defined here
+> > 
+> > You need to backport 
+> > 
+> > aa5cacdc29d7 ("x86/asm: Replace __force_order with a memory clobber")
+> > 
+> > for that.
+> > 
+> > Happens when building older kernels with newer toolchain.
+> 
+> Thanks that certainly helps. FWIW if someone needs it, I had to remove
+> the double colons on write cr0 and cr4 to compile, but this crashed :(
+> Any ideas?
 
-Add PCI and queue number to IRQ names, to allow CPU affinity
-tuning scripts to work.
+The issue was my write for cr0 and cr4 didn't have r+, so:
 
-Cc: stable@vger.kernel.org
-Fixes: ca9c54d2d6a5 ("net: mana: Add a driver for Microsoft Azure Network Adapter (MANA)")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/net/ethernet/microsoft/mana/gdma_main.c | 9 ++++++++-
- include/net/mana/gdma.h                         | 3 +++
- 2 files changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/ethernet/microsoft/mana/gdma_main.c b/drivers/net/ethernet/microsoft/mana/gdma_main.c
-index e708c2d04983..b144f2237748 100644
---- a/drivers/net/ethernet/microsoft/mana/gdma_main.c
-+++ b/drivers/net/ethernet/microsoft/mana/gdma_main.c
-@@ -1259,13 +1259,20 @@ static int mana_gd_setup_irqs(struct pci_dev *pdev)
- 		gic->handler = NULL;
- 		gic->arg = NULL;
+diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
+index 5586e4cf62d3..e4da7248edcf 100644
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -26,7 +26,7 @@ static inline unsigned long native_read_cr0(void)
  
-+		if (!i)
-+			snprintf(gic->name, MANA_IRQ_NAME_SZ, "mana_hwc@pci:%s",
-+				 pci_name(pdev));
-+		else
-+			snprintf(gic->name, MANA_IRQ_NAME_SZ, "mana_q%d@pci:%s",
-+				 i - 1, pci_name(pdev));
+ static inline void native_write_cr0(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr0": : "r" (val) : "memory");
++	asm volatile("mov %0,%%cr0": "+r" (val) : : "memory");
+ }
+ 
+ static inline unsigned long native_read_cr2(void)
+@@ -75,7 +75,7 @@ static inline unsigned long native_read_cr4(void)
+ 
+ static inline void native_write_cr4(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr4": : "r" (val) : "memory");
++	asm volatile("mov %0,%%cr4": "+r" (val) : : "memory");
+ }
+ 
+ #ifdef CONFIG_X86_64
+
+The complete patch below now boots on v5.2 however this still ends up in
+a panic, it dies on cpu_startup_entry().
+
+[    0.595694] x86: Booting SMP configuration:
+[    0.596807] .... node  #0, CPUs:      #1
+[    0.264759] kvm-clock: cpu 1, msr 15edff041, secondary cpu clock
+[    0.264759] Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: start_secondary+0x1c6/0x1d0
+[    0.264759] CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.2.0+ #5
+[    0.264759] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-debian-1.16.0-5 04/01/2014
+[    0.264759] Call Trace:
+[    0.264759]  dump_stack+0x5c/0x80
+[    0.264759]  panic+0x102/0x2f5
+[    0.264759]  ? start_secondary+0x1c6/0x1d0
+[    0.264759]  __stack_chk_fail+0x15/0x20
+[    0.264759]  start_secondary+0x1c6/0x1d0
+[    0.264759]  secondary_startup_64+0xa4/0xb0
+[    0.264759] ---[ end Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: start_secondary+0x1c6/0x1d0 ]---
+
+(gdb) l *(start_secondary+0x1c6)
+0xffffffff810506e6 is at arch/x86/kernel/smpboot.c:265.
+260             boot_init_stack_canary();
+261
+262             x86_cpuinit.setup_percpu_clockev();
+263
+264             wmb();
+265             cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
+266     }
+267
+268     /**
+269      * topology_is_primary_thread - Check whether CPU is the primary SMT thread
+
+
+The full attempt to backport aa5cacdc29d7 to v5.2:
+
+diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/kaslr_64.c
+index 748456c365f4..9557c5a15b91 100644
+--- a/arch/x86/boot/compressed/kaslr_64.c
++++ b/arch/x86/boot/compressed/kaslr_64.c
+@@ -29,9 +29,6 @@
+ #define __PAGE_OFFSET __PAGE_OFFSET_BASE
+ #include "../../mm/ident_map.c"
+ 
+-/* Used by pgtable.h asm code to force instruction serialization. */
+-unsigned long __force_order;
+-
+ /* Used to track our page table allocation area. */
+ struct alloc_pgt_data {
+ 	unsigned char *pgt_buf;
+diff --git a/arch/x86/boot/compressed/pgtable_64.c b/arch/x86/boot/compressed/pgtable_64.c
+index f8debf7aeb4c..7471b48524cb 100644
+--- a/arch/x86/boot/compressed/pgtable_64.c
++++ b/arch/x86/boot/compressed/pgtable_64.c
+@@ -5,15 +5,6 @@
+ #include "pgtable.h"
+ #include "../string.h"
+ 
+-/*
+- * __force_order is used by special_insns.h asm code to force instruction
+- * serialization.
+- *
+- * It is not referenced from the code, but GCC < 5 with -fPIE would fail
+- * due to an undefined symbol. Define it to make these ancient GCCs work.
+- */
+-unsigned long __force_order;
+-
+ #define BIOS_START_MIN		0x20000U	/* 128K, less than this is insane */
+ #define BIOS_START_MAX		0x9f000U	/* 640K, absolute maximum */
+ 
+diff --git a/arch/x86/include/asm/special_insns.h b/arch/x86/include/asm/special_insns.h
+index 0a3c4cab39db..e4da7248edcf 100644
+--- a/arch/x86/include/asm/special_insns.h
++++ b/arch/x86/include/asm/special_insns.h
+@@ -7,49 +7,50 @@
+ 
+ #include <asm/nops.h>
+ 
++#define __FORCE_ORDER "m"(*(unsigned int *)0x1000UL)
 +
- 		irq = pci_irq_vector(pdev, i);
- 		if (irq < 0) {
- 			err = irq;
- 			goto free_mask;
- 		}
+ /*
+- * Volatile isn't enough to prevent the compiler from reordering the
+- * read/write functions for the control registers and messing everything up.
+- * A memory clobber would solve the problem, but would prevent reordering of
+- * all loads stores around it, which can hurt performance. Solution is to
+- * use a variable and mimic reads and writes to it to enforce serialization
++ * The compiler should not reorder volatile asm statements with respect to each
++ * other: they should execute in program order. However GCC 4.9.x and 5.x have
++ * a bug (which was fixed in 8.1, 7.3 and 6.5) where they might reorder
++ * volatile asm. The write functions are not affected since they have memory
++ * clobbers preventing reordering. To prevent reads from being reordered with
++ * respect to writes, use a dummy memory operand
+  */
+-extern unsigned long __force_order;
+-
+ static inline unsigned long native_read_cr0(void)
+ {
+ 	unsigned long val;
+-	asm volatile("mov %%cr0,%0\n\t" : "=r" (val), "=m" (__force_order));
++	asm volatile("mov %%cr0,%0\n\t" : "=r" (val) : __FORCE_ORDER);
+ 	return val;
+ }
  
--		err = request_irq(irq, mana_gd_intr, 0, "mana_intr", gic);
-+		err = request_irq(irq, mana_gd_intr, 0, gic->name, gic);
- 		if (err)
- 			goto free_mask;
- 		irq_set_affinity_and_hint(irq, req_mask);
-diff --git a/include/net/mana/gdma.h b/include/net/mana/gdma.h
-index b3ba04615caa..56189e4252da 100644
---- a/include/net/mana/gdma.h
-+++ b/include/net/mana/gdma.h
-@@ -336,9 +336,12 @@ struct gdma_queue_spec {
- 	};
- };
+ static inline void native_write_cr0(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr0": : "r" (val), "m" (__force_order));
++	asm volatile("mov %0,%%cr0": "+r" (val) : : "memory");
+ }
  
-+#define MANA_IRQ_NAME_SZ 32
-+
- struct gdma_irq_context {
- 	void (*handler)(void *arg);
- 	void *arg;
-+	char name[MANA_IRQ_NAME_SZ];
- };
+ static inline unsigned long native_read_cr2(void)
+ {
+ 	unsigned long val;
+-	asm volatile("mov %%cr2,%0\n\t" : "=r" (val), "=m" (__force_order));
++	asm volatile("mov %%cr2,%0\n\t" : "=r" (val) : __FORCE_ORDER);
+ 	return val;
+ }
  
- struct gdma_context {
+ static inline void native_write_cr2(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr2": : "r" (val), "m" (__force_order));
++	asm volatile("mov %0,%%cr2": : "r" (val) : "memory");
+ }
+ 
+ static inline unsigned long __native_read_cr3(void)
+ {
+ 	unsigned long val;
+-	asm volatile("mov %%cr3,%0\n\t" : "=r" (val), "=m" (__force_order));
++	asm volatile("mov %%cr3,%0\n\t" : "=r" (val) : __FORCE_ORDER);
+ 	return val;
+ }
+ 
+ static inline void native_write_cr3(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr3": : "r" (val), "m" (__force_order));
++	asm volatile("mov %0,%%cr3": : "r" (val) : "memory");
+ }
+ 
+ static inline unsigned long native_read_cr4(void)
+@@ -64,17 +65,17 @@ static inline unsigned long native_read_cr4(void)
+ 	asm volatile("1: mov %%cr4, %0\n"
+ 		     "2:\n"
+ 		     _ASM_EXTABLE(1b, 2b)
+-		     : "=r" (val), "=m" (__force_order) : "0" (0));
++		     : "=r" (val) : "0" (0), __FORCE_ORDER);
+ #else
+ 	/* CR4 always exists on x86_64. */
+-	asm volatile("mov %%cr4,%0\n\t" : "=r" (val), "=m" (__force_order));
++	asm volatile("mov %%cr4,%0\n\t" : "=r" (val) : __FORCE_ORDER);
+ #endif
+ 	return val;
+ }
+ 
+ static inline void native_write_cr4(unsigned long val)
+ {
+-	asm volatile("mov %0,%%cr4": : "r" (val), "m" (__force_order));
++	asm volatile("mov %0,%%cr4": "+r" (val) : : "memory");
+ }
+ 
+ #ifdef CONFIG_X86_64
 -- 
-2.25.1
+2.35.1
 
