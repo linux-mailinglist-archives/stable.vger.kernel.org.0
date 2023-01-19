@@ -2,122 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 008FE673A90
-	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 14:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D3C6673ACF
+	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 14:56:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231352AbjASNl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Jan 2023 08:41:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45628 "EHLO
+        id S229751AbjASN4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Jan 2023 08:56:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231378AbjASNk4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 08:40:56 -0500
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B987D7ED4F;
-        Thu, 19 Jan 2023 05:40:51 -0800 (PST)
-Received: by mail-ej1-x62c.google.com with SMTP id az20so5796755ejc.1;
-        Thu, 19 Jan 2023 05:40:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=CMUIb1i0SSdDUFm8HTvgf+j8Q/DCD4qb7qVJ4MpR8lA=;
-        b=ltXuOqJStljPEx7a0w7qyAjctJe7dK6RY9rL4/dpx3UYCCW/y+hXlnJ6JXBE1/6UMm
-         wNhYSlQT3psCg19LcU26IAbPv3U6PUpXAm0Yao3Gfb+DnWKgJ7iBTqDh7Zxd3WjdhLsy
-         WTsTU2xnEwf2x5fhIXnD9AJoaEOZih+T+kZ66KArBpEqwPi4+N+zf2C6k7OcCzYo3pd/
-         93zFhngN9bpX+6Nj1ajAB9G06ZBJI/JlcM6ALBLE/NMPE5KKJFmYUknXD9rvj3QV8qb0
-         L0wKPUrzmmMB+qE6/k2hZvRQSjLB8/W9bBErfoV5lCc3LdfGgxYZGgJsPiUjDqedf9h9
-         8AaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=CMUIb1i0SSdDUFm8HTvgf+j8Q/DCD4qb7qVJ4MpR8lA=;
-        b=meyEJ0wYG2mHf8eKB0K3bdXOj9a8MU0ji6EaFlAKNVENnbt6EXGYymtI+wFOJCh4fq
-         GK3IPdy1eGN+YTUFpBYSq5h7QkIH7cJT9Q7D4teE2CGC8oLnb9o4SZ3UmjZvUVUAh3cc
-         tZbMERtE/guI8NScHqMTDv7AjA6EGOCRpmAGD1CDRvTavf8k8qhNxGeT2yHR5zEzrPx6
-         lslbFcGNRHQ03k7VOODgXqvxpxeQELnQCCKMrHLn5oWYHcAcyoqheIh3zKJ1wdJxixNz
-         /4MdLN6zLHb9ogP4/OfT73CwiLEtrWiJbuOIfK06xP5uAYcjb8LKANX+P3I2ElXhUjsV
-         f7uA==
-X-Gm-Message-State: AFqh2kpgO6BYH/UrNApvGMg9gNdWbvM9KWt5NMve/VSEnDmptNPy0doS
-        KcqJIIvO6kp9wlfMvi5h5bGwUZEOVgwZBQ==
-X-Google-Smtp-Source: AMrXdXvoisaos0uvpIRTVO1Xu0IEbvRYgK0FMqujJlTGucYpw+e7l7NBIrphN11N0xxhCFy5OCgoaQ==
-X-Received: by 2002:a17:906:8995:b0:872:b18a:1ac8 with SMTP id gg21-20020a170906899500b00872b18a1ac8mr9553206ejc.4.1674135650187;
-        Thu, 19 Jan 2023 05:40:50 -0800 (PST)
-Received: from bulach.nilcons.com ([2001:1620:5344::4])
-        by smtp.gmail.com with ESMTPSA id kw17-20020a170907771100b0084c4b87aa18sm16394335ejc.37.2023.01.19.05.40.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Jan 2023 05:40:48 -0800 (PST)
-From:   Gergely Risko <gergely.risko@gmail.com>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        Gergely Risko <gergely.risko@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH net] ipv6: fix reachability confirmation with proxy_ndp
-Date:   Thu, 19 Jan 2023 14:40:41 +0100
-Message-Id: <20230119134041.951006-1-gergely.risko@gmail.com>
-X-Mailer: git-send-email 2.39.0
+        with ESMTP id S231392AbjASNz4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 08:55:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C98057E686
+        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 05:55:35 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C00661644
+        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 13:55:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57814C433D2;
+        Thu, 19 Jan 2023 13:55:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1674136534;
+        bh=IS9AsYhKw5618AmOckeXjUebdDASQs/kW57l2pe3PFk=;
+        h=Subject:To:From:Date:From;
+        b=oQMsFvKUsE/wqmzPjVLpFQE+HD0EXnId7RCVS3UEZGcr7glWxvpSzv/LnB5AFFB0u
+         z9+JPxiw1pI/n6oLlyrMhvyblnteHAaT4gmPEYGw8HAO+3FuNEqyfuS3ki0SzMRFi2
+         Lb4S8Rl8M8ch8mpSsMgwTFDCCHA9QcaBNVK+gS7g=
+Subject: patch "tty: serial: qcom-geni-serial: fix slab-out-of-bounds on RX FIFO" added to tty-linus
+To:     krzysztof.kozlowski@linaro.org, gregkh@linuxfoundation.org,
+        jirislaby@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 19 Jan 2023 14:55:32 +0100
+Message-ID: <167413653215658@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When proxying IPv6 NDP requests, the adverts to the initial multicast
-solicits are correct and working.  On the other hand, when later a
-reachability confirmation is requested (on unicast), no reply is sent.
 
-This causes the neighbor entry expiring on the sending node, which is
-mostly a non-issue, as a new multicast request is sent.  There are
-routers, where the multicast requests are intentionally delayed, and in
-these environments the current implementation causes periodic packet
-loss for the proxied endpoints.
+This is a note to let you know that I've just added the patch titled
 
-The root cause is the erroneous decrease of the hop limit, as this
-is checked in ndisc.c and no answer is generated when it's 254 instead
-of the correct 255.
+    tty: serial: qcom-geni-serial: fix slab-out-of-bounds on RX FIFO
 
-Cc: stable@vger.kernel.org
-Fixes: 46c7655f0b56 ("ipv6: decrease hop limit counter in ip6_forward()")
-Signed-off-by: Gergely Risko <gergely.risko@gmail.com>
-Tested-by: Gergely Risko <gergely.risko@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From b8caf69a6946e18ffebad49847e258f5b6d52ac2 Mon Sep 17 00:00:00 2001
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Date: Wed, 21 Dec 2022 17:40:22 +0100
+Subject: tty: serial: qcom-geni-serial: fix slab-out-of-bounds on RX FIFO
+ buffer
+
+Driver's probe allocates memory for RX FIFO (port->rx_fifo) based on
+default RX FIFO depth, e.g. 16.  Later during serial startup the
+qcom_geni_serial_port_setup() updates the RX FIFO depth
+(port->rx_fifo_depth) to match real device capabilities, e.g. to 32.
+
+The RX UART handle code will read "port->rx_fifo_depth" number of words
+into "port->rx_fifo" buffer, thus exceeding the bounds.  This can be
+observed in certain configurations with Qualcomm Bluetooth HCI UART
+device and KASAN:
+
+  Bluetooth: hci0: QCA Product ID   :0x00000010
+  Bluetooth: hci0: QCA SOC Version  :0x400a0200
+  Bluetooth: hci0: QCA ROM Version  :0x00000200
+  Bluetooth: hci0: QCA Patch Version:0x00000d2b
+  Bluetooth: hci0: QCA controller version 0x02000200
+  Bluetooth: hci0: QCA Downloading qca/htbtfw20.tlv
+  bluetooth hci0: Direct firmware load for qca/htbtfw20.tlv failed with error -2
+  Bluetooth: hci0: QCA Failed to request file: qca/htbtfw20.tlv (-2)
+  Bluetooth: hci0: QCA Failed to download patch (-2)
+  ==================================================================
+  BUG: KASAN: slab-out-of-bounds in handle_rx_uart+0xa8/0x18c
+  Write of size 4 at addr ffff279347d578c0 by task swapper/0/0
+
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 6.1.0-rt5-00350-gb2450b7e00be-dirty #26
+  Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
+  Call trace:
+   dump_backtrace.part.0+0xe0/0xf0
+   show_stack+0x18/0x40
+   dump_stack_lvl+0x8c/0xb8
+   print_report+0x188/0x488
+   kasan_report+0xb4/0x100
+   __asan_store4+0x80/0xa4
+   handle_rx_uart+0xa8/0x18c
+   qcom_geni_serial_handle_rx+0x84/0x9c
+   qcom_geni_serial_isr+0x24c/0x760
+   __handle_irq_event_percpu+0x108/0x500
+   handle_irq_event+0x6c/0x110
+   handle_fasteoi_irq+0x138/0x2cc
+   generic_handle_domain_irq+0x48/0x64
+
+If the RX FIFO depth changes after probe, be sure to resize the buffer.
+
+Fixes: f9d690b6ece7 ("tty: serial: qcom_geni_serial: Allocate port->rx_fifo buffer in probe")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20221221164022.1087814-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_output.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/tty/serial/qcom_geni_serial.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 60fd91bb5171..c314fdde0097 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -547,7 +547,20 @@ int ip6_forward(struct sk_buff *skb)
- 	    pneigh_lookup(&nd_tbl, net, &hdr->daddr, skb->dev, 0)) {
- 		int proxied = ip6_forward_proxy_check(skb);
- 		if (proxied > 0) {
--			hdr->hop_limit--;
-+			/* It's tempting to decrease the hop limit
-+			 * here by 1, as we do at the end of the
-+			 * function too.
-+			 *
-+			 * But that would be incorrect, as proxying is
-+			 * not forwarding.  The ip6_input function
-+			 * will handle this packet locally, and it
-+			 * depends on the hop limit being unchanged.
-+			 *
-+			 * One example is the NDP hop limit, that
-+			 * always has to stay 255, but other would be
-+			 * similar checks around RA packets, where the
-+			 * user can even change the desired limit.
-+			 */
- 			return ip6_input(skb);
- 		} else if (proxied < 0) {
- 			__IP6_INC_STATS(net, idev, IPSTATS_MIB_INDISCARDS);
+diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
+index b487823f0e61..49b9ffeae676 100644
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -864,9 +864,10 @@ static irqreturn_t qcom_geni_serial_isr(int isr, void *dev)
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void get_tx_fifo_size(struct qcom_geni_serial_port *port)
++static int setup_fifos(struct qcom_geni_serial_port *port)
+ {
+ 	struct uart_port *uport;
++	u32 old_rx_fifo_depth = port->rx_fifo_depth;
+ 
+ 	uport = &port->uport;
+ 	port->tx_fifo_depth = geni_se_get_tx_fifo_depth(&port->se);
+@@ -874,6 +875,16 @@ static void get_tx_fifo_size(struct qcom_geni_serial_port *port)
+ 	port->rx_fifo_depth = geni_se_get_rx_fifo_depth(&port->se);
+ 	uport->fifosize =
+ 		(port->tx_fifo_depth * port->tx_fifo_width) / BITS_PER_BYTE;
++
++	if (port->rx_fifo && (old_rx_fifo_depth != port->rx_fifo_depth) && port->rx_fifo_depth) {
++		port->rx_fifo = devm_krealloc(uport->dev, port->rx_fifo,
++					      port->rx_fifo_depth * sizeof(u32),
++					      GFP_KERNEL);
++		if (!port->rx_fifo)
++			return -ENOMEM;
++	}
++
++	return 0;
+ }
+ 
+ 
+@@ -888,6 +899,7 @@ static int qcom_geni_serial_port_setup(struct uart_port *uport)
+ 	u32 rxstale = DEFAULT_BITS_PER_CHAR * STALE_TIMEOUT;
+ 	u32 proto;
+ 	u32 pin_swap;
++	int ret;
+ 
+ 	proto = geni_se_read_proto(&port->se);
+ 	if (proto != GENI_SE_UART) {
+@@ -897,7 +909,9 @@ static int qcom_geni_serial_port_setup(struct uart_port *uport)
+ 
+ 	qcom_geni_serial_stop_rx(uport);
+ 
+-	get_tx_fifo_size(port);
++	ret = setup_fifos(port);
++	if (ret)
++		return ret;
+ 
+ 	writel(rxstale, uport->membase + SE_UART_RX_STALE_CNT);
+ 
 -- 
-2.39.0
+2.39.1
+
 
