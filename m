@@ -2,92 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC42E673B08
-	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 15:03:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E0C673CC5
+	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 15:49:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbjASODQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Jan 2023 09:03:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59870 "EHLO
+        id S229916AbjASOt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Jan 2023 09:49:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231378AbjASODM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 09:03:12 -0500
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDB54957E
-        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 06:02:48 -0800 (PST)
-Received: by mail-ed1-x542.google.com with SMTP id v10so2945959edi.8
-        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 06:02:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=AV4rd40WVbMFZkIUJcsvF7Mjp/MQlzSIO2ZQCTrdWbo=;
-        b=OXQOmghGyCb8V2An46Q5rEwannyfAY9j9RPhjGSLsI+yUam7MDEVSEZlLcV+z8McyB
-         BUDVPz4yogv2aebDB6IlPSTOxYaYy8hIElWjlP091FOuAdsOkmyA8r5QTVwtIOPvu0lo
-         R/P5qeVLMHnDAvnH/EaAmSmm7JtDwHuUJFEAOdEv6+VnCjs5pG0CvjLR3BbEIJ+VQb2P
-         iw938928QTzhQ955w7bJm0shPBpotdJCFJqK2uJppjf+xIFfnAdZg+CiB4DUjviyOxET
-         ynLLMXnME2iAId9L+2h7BwLU0yH1GVQsZZbXVgQy0fYNM7i7TMIhP2eQet67sQwZdmF5
-         eM6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=AV4rd40WVbMFZkIUJcsvF7Mjp/MQlzSIO2ZQCTrdWbo=;
-        b=bxUQ1FacUiadbdv0VM/YSLwkWK0Zc7WZsT0jHAguNbctb8ItKqd1H9b/Zwpdjqc4Mj
-         2hl+ZZcoJCCfe8831yQVvHKl0C5klZxTkAppnYshr0YHJYe96bs+JgBm6B/9QLw8kFJ9
-         OAh/agZXlrpDKWhXT050jyElCmwxLoQnzimo7PHdvOyoUqAb4lj8ecqAUpZLojt9u2Um
-         oSD3on1uw+oLJxXm+RK36ZMTyHN7BqQnbAn3m1mHBCcS1bbfK0S4SYHk+55Dleoj2Y/F
-         gvz+YTUsoFradJ/W0rwI1/GtOuyiRKn+m0MwL0qFQ42juxtDdP86zBQeIfEXryTn1oWF
-         A2iA==
-X-Gm-Message-State: AFqh2koGZpg/05A1zzP4G33Mc4+MvStfFPos3hGuo1La7c44camfahKh
-        gRl2aMetbfwexxcBJZMjG76w/O0KgeL/59rgdXs=
-X-Google-Smtp-Source: AMrXdXsdQ0AthZldDr9iuI/6s+/OLi4DMDvVivEhENJasfwWYwr41XRRwhFSqflHVS8F9XOS/InJUBDb5OUHxpqu6Jw=
-X-Received: by 2002:aa7:c548:0:b0:499:b60f:5741 with SMTP id
- s8-20020aa7c548000000b00499b60f5741mr1010162edr.80.1674136961979; Thu, 19 Jan
- 2023 06:02:41 -0800 (PST)
+        with ESMTP id S229724AbjASOtR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 09:49:17 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55767AF;
+        Thu, 19 Jan 2023 06:49:16 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 13B49208B8;
+        Thu, 19 Jan 2023 14:49:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1674139754; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DPS4obwwsmfPtCuVpCuOX+Y34p5KNkQnrFysGNasucA=;
+        b=SXEWsqfCR02LELaF+lEocgRPIQEH0/KaC1PeLFzh7CwYvNJYGyNgbf7C47jaQjlRBmjuLv
+        lKxNBfOt22gvtIjJqCcTDyk2yxWnOXXwbl22RcLQB+YDfzjm3wxgytxod2acEX+DZgct7i
+        XZjWUySRyc/P9OmK2OuXKljEgWSTlH0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1674139754;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DPS4obwwsmfPtCuVpCuOX+Y34p5KNkQnrFysGNasucA=;
+        b=0uH9M1oLQ4hpPtsy4jOkl/VNbFm+mHAJY9ZowysrEtElD8Qzzn2wo7oy2HW+PZ/FNC+rUl
+        amKX1wOF2qY4A9Ag==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E841E139ED;
+        Thu, 19 Jan 2023 14:49:13 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id NTwpOGlYyWPlMQAAMHmgww
+        (envelope-from <vbabka@suse.cz>); Thu, 19 Jan 2023 14:49:13 +0000
+Message-ID: <f58d5183-5dfc-c908-ac9a-baf9339c9387@suse.cz>
+Date:   Thu, 19 Jan 2023 15:49:13 +0100
 MIME-Version: 1.0
-Received: by 2002:a17:906:ce2a:b0:84d:feae:677f with HTTP; Thu, 19 Jan 2023
- 06:02:41 -0800 (PST)
-Reply-To: fiona.hill.usa@outlook.com
-From:   Fiona Hill <mr2848830@gmail.com>
-Date:   Thu, 19 Jan 2023 06:02:41 -0800
-Message-ID: <CABtAzOav3Wxep5HiLO5x8VeDrnKSomvUB=LFxkJQyd-F_Oxcbw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.2 required=5.0 tests=BAYES_60,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:542 listed in]
-        [list.dnswl.org]
-        *  1.5 BAYES_60 BODY: Bayes spam probability is 60 to 80%
-        *      [score: 0.6030]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [mr2848830[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [mr2848830[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  2.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: [PATCH for 6.1 regression] mm, mremap: fix mremap() expanding for
+ vma's with vm_ops->close()
+Content-Language: en-US
+To:     Linux regressions mailing list <regressions@lists.linux.dev>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Fabian Vogt <fvogt@suse.com>,
+        =?UTF-8?Q?Jakub_Mat=c4=9bna?= <matenajakub@gmail.com>,
+        stable@vger.kernel.org,
+        Thorsten Leemhuis <regressions@leemhuis.info>
+References: <20230117101939.9753-1-vbabka@suse.cz>
+ <2f03bd25-bfa1-a8fe-558e-ae3ce22b97fa@leemhuis.info>
+From:   Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <2f03bd25-bfa1-a8fe-558e-ae3ce22b97fa@leemhuis.info>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Hello did you see my messags, I sent to you
+On 1/19/23 14:37, Linux kernel regression tracking (Thorsten Leemhuis) wrote:
+> On 17.01.23 11:19, Vlastimil Babka wrote:
+>> Fabian has reported another regression in 6.1 due to ca3d76b0aa80 ("mm:
+>> add merging after mremap resize"). The problem is that vma_merge() can
+>> fail when vma has a vm_ops->close() method, causing is_mergeable_vma()
+>> test to be negative. This was happening for vma mapping a file from
+>> fuse-overlayfs, which does have the method. But when we are simply
+>> expanding the vma, we never remove it due to the "merge" with the added
+>> area, so the test should not prevent the expansion.
+>> 
+>> As a quick fix, check for such vmas and expand them using vma_adjust()
+>> directly as was done before commit ca3d76b0aa80. For a more robust long
+>> term solution we should try to limit the check for vma_ops->close only
+>> to cases that actually result in vma removal, so that no merge would be
+>> prevented unnecessarily.
+>> 
+>> Reported-by: Fabian Vogt <fvogt@suse.com>
+>> Link: https://bugzilla.suse.com/show_bug.cgi?id=1206359#c35
+>> Fixes: ca3d76b0aa80 ("mm: add merging after mremap resize")
+>> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+>> Cc: Jakub Matěna <matenajakub@gmail.com>
+>> Cc: <stable@vger.kernel.org>
+>> Tested-by: Fabian Vogt <fvogt@suse.com>
+>> ---
+> 
+> Thx for highlighting it and CCing me.
+> 
+> Quick question: how fast do you think this should head towards mainline?
+> 
+> The patch landed in next today, so that step in the process is already
+> covered. But is the issue serious enough to say "send this to Linus
+> after it was a day or two in next, so it can be quickly backported to
+> stable"?
+
+I think it's not as serious as the previous one, the conditions should be
+more rare. But you made me realize I should probably reply to the "stalls in
+qemu" one in that sense. Thanks!
+
+>> Thorsten: this should be added to the previous regression which wasn't
+>> fully fixed by the previous patch:
+>> https://linux-regtracking.leemhuis.info/regzbot/regression/20221216163227.24648-1-vbabka@suse.cz/
+>>  mm/mremap.c | 13 ++++++++++++-
+>>  1 file changed, 12 insertions(+), 1 deletion(-)
+>> [...]
+> 
+> In that case let me just briefly drop a link to the regression, as
+> regzbot will notice that and file is as an activity.
+> 
+> https://lore.kernel.org/lkml/20221216163227.24648-1-vbabka@suse.cz/
+> 
+> And simply consider your patch submission as a new report I track
+> separately:
+> 
+> #regzbot introduced ca3d76b0aa80 ^
+> https://bugzilla.suse.com/show_bug.cgi?id=1206359#c35
+> #regzbot title mm, mremap: another issue with mremap not fully fixed
+> with the previous fix for the regression
+> #regzbot fix: mm, mremap: fix mremap() expanding for vma's with
+> vm_ops->close()
+> #regzbot ignore-activity
+> 
+> Not ideal, but that will make sure it's on regzbot radar (where way too
+> many dots appear currently, as I'm a bit behind with things... :-/ )
+> 
+> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+> --
+> Everything you wanna know about Linux kernel regression tracking:
+> https://linux-regtracking.leemhuis.info/about/#tldr
+> If I did something stupid, please tell me, as explained on that page.
+
