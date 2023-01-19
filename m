@@ -2,151 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9BFD674026
-	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 18:40:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DE26742D3
+	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 20:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229590AbjASRkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Jan 2023 12:40:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47016 "EHLO
+        id S229975AbjAST3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Jan 2023 14:29:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbjASRkS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 12:40:18 -0500
-Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com [IPv6:2607:f8b0:4864:20::e34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7468F7C6
-        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 09:40:15 -0800 (PST)
-Received: by mail-vs1-xe34.google.com with SMTP id t10so2964886vsr.3
-        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 09:40:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=eeuukOKJ+v76G3XCHdrhKdumLe6It98OJosMQGHmHAc=;
-        b=m/n40kEfZwk8dFbLpzgM8gTe/WEbqcbdhx2sLztNe+FhgPHjjI0z1GrSB/dmXN/XPM
-         PHMiQUlh5UdnTclg2Uvy8O7JoFeHGV+X8F4lwuPyhn4S3Cq5r2I2qd3pZY2i7TTYz/n/
-         9W38zVj2nnN42iZPYZk7qhmkdDyc+y0gxQ/yjRYnXSSCdTtprietNZv7Gch8aUrrMhjI
-         /5MjxalWePc4rqWjdt4YJE++srheFg1VPdOHGl5fHevz/CpU0Eb5BGxEwp38xFJouCig
-         niVdnELDk9MsNVEowg2GXNHfhIunHEscXb1NHROx3Pfp/lJ3OjQE5AbUpp5SW5cIysfW
-         hk4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eeuukOKJ+v76G3XCHdrhKdumLe6It98OJosMQGHmHAc=;
-        b=Q6HeQNDPmi6nhp+2jY8RuCyWj+qB2dCKShQ/OzqxP/NXFCtFuVliYcCxAaDE5LVYQZ
-         ZZbkMSj/R2deNX/g/iXGqzjOCyYkyfXnuICCcY/6MHpRnY80GZyfbglvrMHvvarDmuYE
-         WvJ7MlBNVjCwbeIc4/PwciGTvNLZ7wqvUfyaPGzoiG18Q/GVgSazWNpK6/Js0+KGhEoO
-         1LKRHvgm3jOovsWnjZJ2tRlgVtP/smHGWHigdz/KTgbFdJ2sQslaO4hgE4qZj8p3vC+u
-         3tLVsttUUEyNYfzh28n/85vdMjXedWRKWT+VF1Mh749xMYWrlElrKAoIe/WS0gS2jvUz
-         NBcw==
-X-Gm-Message-State: AFqh2krVdtd0bxZfgGWY1jjIbi9oGIkl5VjmzFipdyQGv9388pz1C++Q
-        CqSQSVKzKWfEVTo3sB4mgj0=
-X-Google-Smtp-Source: AMrXdXuKdthUK6SO5H32TpWAuohGOwM82yIcJB8OVzuFtOHBiR57KXMUy/sVvLPOOT6ltqJXlN7VHw==
-X-Received: by 2002:a05:6102:2744:b0:3d0:d7cf:18ca with SMTP id p4-20020a056102274400b003d0d7cf18camr7530299vsu.27.1674150014247;
-        Thu, 19 Jan 2023 09:40:14 -0800 (PST)
-Received: from debian-BULLSEYE-live-builder-AMD64 (h64-35-202-119.cntcnh.broadband.dynamic.tds.net. [64.35.202.119])
-        by smtp.gmail.com with ESMTPSA id f8-20020a05620a408800b0070543181468sm24876277qko.57.2023.01.19.09.40.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Jan 2023 09:40:13 -0800 (PST)
-Date:   Thu, 19 Jan 2023 12:40:11 -0500
-From:   Eric Whitney <enwlinux@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 499/521] ext4: fix delayed allocation bug in
- ext4_clu_mapped for bigalloc + inline
-Message-ID: <Y8mAe1SlcLD5fykg@debian-BULLSEYE-live-builder-AMD64>
-References: <20230116154847.246743274@linuxfoundation.org>
- <20230116154909.507815847@linuxfoundation.org>
+        with ESMTP id S229811AbjAST3c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Jan 2023 14:29:32 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B70D7495B;
+        Thu, 19 Jan 2023 11:29:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1674156571; x=1705692571;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=XiEoqcw1GCxHBI/TeAEMlbF5M4j7VYAXm9Oo4Dv0gzE=;
+  b=P7nVsk6j6W4SB3IZxdDJaCdA+qo3hm37BrFtmauh3KXmtF1LFHAu/eUS
+   rMpckN+VevNck46q7wxqOpSG7TUQgRPChmVt0tDpm0HzKCZLl5jZCFcOT
+   s8N97z6W253tbsnbUE/QyBZOKb37IGGOimhVQzjyFH9WAiJiOjiuZhNwU
+   wHj7I7z2Kirogk1vaWaW1d+CuyzMr1vO1YMLSBKam56g5CiBvfleIuP3H
+   yyTjKiK4AlFPxvFXKPlyuzLHS9r3QQriK4EaS/x5Q0c3drRBM+gzjqy3z
+   jVDFFE8BrN1RChrvm1xJjS9AGKpwMR0/LIf3sQIw0J1BOLf34F9xrO2qB
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="305763093"
+X-IronPort-AV: E=Sophos;i="5.97,229,1669104000"; 
+   d="scan'208";a="305763093"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2023 11:29:28 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="905669312"
+X-IronPort-AV: E=Sophos;i="5.97,229,1669104000"; 
+   d="scan'208";a="905669312"
+Received: from spandruv-desk.jf.intel.com ([10.54.75.8])
+  by fmsmga006.fm.intel.com with ESMTP; 19 Jan 2023 11:29:27 -0800
+From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To:     rafael@kernel.org, rui.zhang@intel.com, daniel.lezcano@linaro.org
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] thermal: int340x: Protect trip temperature from dynamic update
+Date:   Thu, 19 Jan 2023 11:29:21 -0800
+Message-Id: <20230119192921.3215965-1-srinivas.pandruvada@linux.intel.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230116154909.507815847@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi:
+Trip temperatures are read using ACPI methods and stored in the memory
+during zone initializtion and when the firmware sends a notification for
+change. This trip temperature is returned when the thermal core calls via
+callback get_trip_temp().
 
-I recommend not backporting this patch or the other three patches apparently
-intended to support it to 4.19 stable.  All these patches are related to
-ext4's bigalloc feature, which was experimental as of 4.19 (expressly noted by
-contemporary versions of e2fsprogs) and also suffered from a number of bugs.
-A significant number of additional patches that were applied to 5.X kernels
-over time would have to be backported to 4.19 for the patch below to function
-correctly. It's really not worth doing that given bigalloc's experimental
-status as of 4.19 and the very rare combination of the bigalloc and inline
-features.
+But it is possible that while updating the memory copy of the trips when
+the firmware sends a notification for change, thermal core is reading the
+trip temperature via the callback get_trip_temp(). This may return invalid
+trip temperature.
 
-Thanks,
-Eric
+To address this add a mutex to protect the invalid temperature reads in
+the callback get_trip_temp() and int340x_thermal_read_trips().
 
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: stable@vger.kernel.org # 5.0+
+---
+ .../intel/int340x_thermal/int340x_thermal_zone.c | 16 +++++++++++++++-
+ .../intel/int340x_thermal/int340x_thermal_zone.h |  1 +
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
-* Greg Kroah-Hartman <gregkh@linuxfoundation.org>:
-> From: Eric Whitney <enwlinux@gmail.com>
-> 
-> [ Upstream commit 131294c35ed6f777bd4e79d42af13b5c41bf2775 ]
-> 
-> When converting files with inline data to extents, delayed allocations
-> made on a file system created with both the bigalloc and inline options
-> can result in invalid extent status cache content, incorrect reserved
-> cluster counts, kernel memory leaks, and potential kernel panics.
-> 
-> With bigalloc, the code that determines whether a block must be
-> delayed allocated searches the extent tree to see if that block maps
-> to a previously allocated cluster.  If not, the block is delayed
-> allocated, and otherwise, it isn't.  However, if the inline option is
-> also used, and if the file containing the block is marked as able to
-> store data inline, there isn't a valid extent tree associated with
-> the file.  The current code in ext4_clu_mapped() calls
-> ext4_find_extent() to search the non-existent tree for a previously
-> allocated cluster anyway, which typically finds nothing, as desired.
-> However, a side effect of the search can be to cache invalid content
-> from the non-existent tree (garbage) in the extent status tree,
-> including bogus entries in the pending reservation tree.
-> 
-> To fix this, avoid searching the extent tree when allocating blocks
-> for bigalloc + inline files that are being converted from inline to
-> extent mapped.
-> 
-> Signed-off-by: Eric Whitney <enwlinux@gmail.com>
-> Link: https://lore.kernel.org/r/20221117152207.2424-1-enwlinux@gmail.com
-> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> Cc: stable@kernel.org
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  fs/ext4/extents.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-> index 0bb772cd7f88..1ad4c8eb82c1 100644
-> --- a/fs/ext4/extents.c
-> +++ b/fs/ext4/extents.c
-> @@ -5984,6 +5984,14 @@ int ext4_clu_mapped(struct inode *inode, ext4_lblk_t lclu)
->  	struct ext4_extent *extent;
->  	ext4_lblk_t first_lblk, first_lclu, last_lclu;
->  
-> +	/*
-> +	 * if data can be stored inline, the logical cluster isn't
-> +	 * mapped - no physical clusters have been allocated, and the
-> +	 * file has no extents
-> +	 */
-> +	if (ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA))
-> +		return 0;
-> +
->  	/* search for the extent closest to the first block in the cluster */
->  	path = ext4_find_extent(inode, EXT4_C2B(sbi, lclu), NULL, 0);
->  	if (IS_ERR(path)) {
-> -- 
-> 2.35.1
-> 
-> 
-> 
+diff --git a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
+index 62c0aa5d0783..fd9080640e03 100644
+--- a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
++++ b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
+@@ -49,6 +49,8 @@ static int int340x_thermal_get_trip_temp(struct thermal_zone_device *zone,
+ 	if (d->override_ops && d->override_ops->get_trip_temp)
+ 		return d->override_ops->get_trip_temp(zone, trip, temp);
+ 
++	mutex_lock(&d->trip_mutex);
++
+ 	if (trip < d->aux_trip_nr)
+ 		*temp = d->aux_trips[trip];
+ 	else if (trip == d->crt_trip_id)
+@@ -65,10 +67,14 @@ static int int340x_thermal_get_trip_temp(struct thermal_zone_device *zone,
+ 				break;
+ 			}
+ 		}
+-		if (i == INT340X_THERMAL_MAX_ACT_TRIP_COUNT)
++		if (i == INT340X_THERMAL_MAX_ACT_TRIP_COUNT) {
++			mutex_unlock(&d->trip_mutex);
+ 			return -EINVAL;
++		}
+ 	}
+ 
++	mutex_unlock(&d->trip_mutex);
++
+ 	return 0;
+ }
+ 
+@@ -180,6 +186,8 @@ int int340x_thermal_read_trips(struct int34x_thermal_zone *int34x_zone)
+ 	int trip_cnt = int34x_zone->aux_trip_nr;
+ 	int i;
+ 
++	mutex_lock(&int34x_zone->trip_mutex);
++
+ 	int34x_zone->crt_trip_id = -1;
+ 	if (!int340x_thermal_get_trip_config(int34x_zone->adev->handle, "_CRT",
+ 					     &int34x_zone->crt_temp))
+@@ -207,6 +215,8 @@ int int340x_thermal_read_trips(struct int34x_thermal_zone *int34x_zone)
+ 		int34x_zone->act_trips[i].valid = true;
+ 	}
+ 
++	mutex_unlock(&int34x_zone->trip_mutex);
++
+ 	return trip_cnt;
+ }
+ EXPORT_SYMBOL_GPL(int340x_thermal_read_trips);
+@@ -230,6 +240,8 @@ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *adev,
+ 	if (!int34x_thermal_zone)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	mutex_init(&int34x_thermal_zone->trip_mutex);
++
+ 	int34x_thermal_zone->adev = adev;
+ 	int34x_thermal_zone->override_ops = override_ops;
+ 
+@@ -281,6 +293,7 @@ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *adev,
+ 	acpi_lpat_free_conversion_table(int34x_thermal_zone->lpat_table);
+ 	kfree(int34x_thermal_zone->aux_trips);
+ err_trip_alloc:
++	mutex_destroy(&int34x_thermal_zone->trip_mutex);
+ 	kfree(int34x_thermal_zone);
+ 	return ERR_PTR(ret);
+ }
+@@ -292,6 +305,7 @@ void int340x_thermal_zone_remove(struct int34x_thermal_zone
+ 	thermal_zone_device_unregister(int34x_thermal_zone->zone);
+ 	acpi_lpat_free_conversion_table(int34x_thermal_zone->lpat_table);
+ 	kfree(int34x_thermal_zone->aux_trips);
++	mutex_destroy(&int34x_thermal_zone->trip_mutex);
+ 	kfree(int34x_thermal_zone);
+ }
+ EXPORT_SYMBOL_GPL(int340x_thermal_zone_remove);
+diff --git a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h
+index 3b4971df1b33..8f9872afd0d3 100644
+--- a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h
++++ b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h
+@@ -32,6 +32,7 @@ struct int34x_thermal_zone {
+ 	struct thermal_zone_device_ops *override_ops;
+ 	void *priv_data;
+ 	struct acpi_lpat_conversion_table *lpat_table;
++	struct mutex trip_mutex;
+ };
+ 
+ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *,
+-- 
+2.38.1
+
