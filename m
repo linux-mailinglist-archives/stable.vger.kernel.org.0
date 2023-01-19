@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C2D1672DCD
-	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 02:03:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 692F6672DE8
+	for <lists+stable@lfdr.de>; Thu, 19 Jan 2023 02:16:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229874AbjASBCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Jan 2023 20:02:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33906 "EHLO
+        id S229774AbjASBQt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Jan 2023 20:16:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229483AbjASBCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 20:02:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08922683CF;
-        Wed, 18 Jan 2023 17:02:48 -0800 (PST)
+        with ESMTP id S229622AbjASBPR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 Jan 2023 20:15:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 655EF3B0E1;
+        Wed, 18 Jan 2023 17:14:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C1CF61B08;
-        Thu, 19 Jan 2023 01:02:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5D6DC433D2;
-        Thu, 19 Jan 2023 01:02:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3F0F61B0E;
+        Thu, 19 Jan 2023 01:14:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BE36C433F0;
+        Thu, 19 Jan 2023 01:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1674090166;
-        bh=uzD8Ka8JTx/epQ3MAVqfduaJNtunGYzsoPt7QvN+Bu4=;
+        s=korg; t=1674090868;
+        bh=0aKgmZjCcfSnLMYeAl2k/QoZ/2EzP6x+nH6fE9/5Pvo=;
         h=Date:To:From:Subject:From;
-        b=d4Aqfv0xhM1k0oiB/z+r+KEzQYGvyNEyW9KWs1GYc4Mv9zJnSAyTHlU0l244f1VyZ
-         Ub+CrX89j0xA2zDzfUTLDF+iZuCQa37i/UZ3um0jqSOx7VymOJp9Pn77sXmzqJJhPp
-         CnLWtFtKyUgTmcVCSOF1XnohIoJ5fYt1IakICnmo=
-Date:   Wed, 18 Jan 2023 17:02:46 -0800
-To:     mm-commits@vger.kernel.org, ying.huang@intel.com,
-        stable@vger.kernel.org, pengfei.xu@intel.com, nadav.amit@gmail.com,
-        linmiaohe@huawei.com, david@redhat.com, aarcange@redhat.com,
-        peterx@redhat.com, akpm@linux-foundation.org
+        b=JpaVIyJySgN8UM1sMiE35xnaSkXTHVi4+t81ne9ai//o6QFxf2nMiYKiqYad/vU6t
+         o6P6mws5qWCzBfyEToLVX+IVbgCHmiQc3wGA/9FOjaGRSyt9KXeJ6juJIuGSUzN/yB
+         XrUxUNh5+D3JS7wiAelX+em9wqFrOnW1hsu98P2I=
+Date:   Wed, 18 Jan 2023 17:14:27 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        songmuchun@bytedance.com, shakeelb@google.com,
+        roman.gushchin@linux.dev, mhocko@suse.com, hughd@google.com,
+        hannes@cmpxchg.org, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-uffd-fix-pte-marker-when-fork-without-fork-event.patch removed from -mm tree
-Message-Id: <20230119010246.D5D6DC433D2@smtp.kernel.org>
+Subject: [merged mm-stable] mm-memcontrol-deprecate-charge-moving.patch removed from -mm tree
+Message-Id: <20230119011428.5BE36C433F0@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -47,97 +47,111 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/uffd: fix pte marker when fork() without fork event
+     Subject: mm: memcontrol: deprecate charge moving
 has been removed from the -mm tree.  Its filename was
-     mm-uffd-fix-pte-marker-when-fork-without-fork-event.patch
+     mm-memcontrol-deprecate-charge-moving.patch
 
-This patch was dropped because it was merged into the mm-hotfixes-stable branch
+This patch was dropped because it was merged into the mm-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/uffd: fix pte marker when fork() without fork event
-Date: Wed, 14 Dec 2022 15:04:52 -0500
+From: Johannes Weiner <hannes@cmpxchg.org>
+Subject: mm: memcontrol: deprecate charge moving
+Date: Wed, 7 Dec 2022 14:00:39 +0100
 
-Patch series "mm: Fixes on pte markers".
+Charge moving mode in cgroup1 allows memory to follow tasks as they
+migrate between cgroups.  This is, and always has been, a questionable
+thing to do - for several reasons.
 
-Patch 1 resolves the syzkiller report from Pengfei.
+First, it's expensive.  Pages need to be identified, locked and isolated
+from various MM operations, and reassigned, one by one.
 
-Patch 2 further harden pte markers when used with the recent swapin error
-markers.  The major case is we should persist a swapin error marker after
-fork(), so child shouldn't read a corrupted page.
+Second, it's unreliable.  Once pages are charged to a cgroup, there isn't
+always a clear owner task anymore.  Cache isn't moved at all, for example.
+Mapped memory is moved - but if trylocking or isolating a page fails,
+it's arbitrarily left behind.  Frequent moving between domains may leave a
+task's memory scattered all over the place.
 
+Third, it isn't really needed.  Launcher tasks can kick off workload tasks
+directly in their target cgroup.  Using dedicated per-workload groups
+allows fine-grained policy adjustments - no need to move tasks and their
+physical pages between control domains.  The feature was never
+forward-ported to cgroup2, and it hasn't been missed.
 
-This patch (of 2):
+Despite it being a niche usecase, the maintenance overhead of supporting
+it is enormous.  Because pages are moved while they are live and subject
+to various MM operations, the synchronization rules are complicated. 
+There are lock_page_memcg() in MM and FS code, which non-cgroup people
+don't understand.  In some cases we've been able to shift code and cgroup
+API calls around such that we can rely on native locking as much as
+possible.  But that's fragile, and sometimes we need to hold MM locks for
+longer than we otherwise would (pte lock e.g.).
 
-When fork(), dst_vma is not guaranteed to have VM_UFFD_WP even if src may
-have it and has pte marker installed.  The warning is improper along with
-the comment.  The right thing is to inherit the pte marker when needed, or
-keep the dst pte empty.
+Mark the feature deprecated. Hopefully we can remove it soon.
 
-A vague guess is this happened by an accident when there's the prior patch
-to introduce src/dst vma into this helper during the uffd-wp feature got
-developed and I probably messed up in the rebase, since if we replace
-dst_vma with src_vma the warning & comment it all makes sense too.
+And backport into -stable kernels so that people who develop against
+earlier kernels are warned about this deprecation as early as possible.
 
-Hugetlb did exactly the right here (copy_hugetlb_page_range()).  Fix the
-general path.
-
-Reproducer:
-
-https://github.com/xupengfe/syzkaller_logs/blob/main/221208_115556_copy_page_range/repro.c
-
-Bugzilla report: https://bugzilla.kernel.org/show_bug.cgi?id=216808
-
-Link: https://lkml.kernel.org/r/20221214200453.1772655-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20221214200453.1772655-2-peterx@redhat.com
-Fixes: c56d1b62cce8 ("mm/shmem: handle uffd-wp during fork()")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Pengfei Xu <pengfei.xu@intel.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: "Huang, Ying" <ying.huang@intel.com>
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Cc: <stable@vger.kernel.org> # 5.19+
+[akpm@linux-foundation.org: fix memory.rst underlining]
+Link: https://lkml.kernel.org/r/Y5COd+qXwk/S+n8N@cmpxchg.org
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ Documentation/admin-guide/cgroup-v1/memory.rst |   13 +++++++++++--
+ mm/memcontrol.c                                |    4 ++++
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
---- a/mm/memory.c~mm-uffd-fix-pte-marker-when-fork-without-fork-event
-+++ a/mm/memory.c
-@@ -828,12 +828,8 @@ copy_nonpresent_pte(struct mm_struct *ds
- 			return -EBUSY;
- 		return -ENOENT;
- 	} else if (is_pte_marker_entry(entry)) {
--		/*
--		 * We're copying the pgtable should only because dst_vma has
--		 * uffd-wp enabled, do sanity check.
--		 */
--		WARN_ON_ONCE(!userfaultfd_wp(dst_vma));
--		set_pte_at(dst_mm, addr, dst_pte, pte);
-+		if (userfaultfd_wp(dst_vma))
-+			set_pte_at(dst_mm, addr, dst_pte, pte);
- 		return 0;
- 	}
- 	if (!userfaultfd_wp(dst_vma))
+--- a/Documentation/admin-guide/cgroup-v1/memory.rst~mm-memcontrol-deprecate-charge-moving
++++ a/Documentation/admin-guide/cgroup-v1/memory.rst
+@@ -86,6 +86,8 @@ Brief summary of control files.
+  memory.swappiness		     set/show swappiness parameter of vmscan
+ 				     (See sysctl's vm.swappiness)
+  memory.move_charge_at_immigrate     set/show controls of moving charges
++                                     This knob is deprecated and shouldn't be
++                                     used.
+  memory.oom_control		     set/show oom controls.
+  memory.numa_stat		     show the number of memory usage per numa
+ 				     node
+@@ -717,8 +719,15 @@ NOTE2:
+        It is recommended to set the soft limit always below the hard limit,
+        otherwise the hard limit will take precedence.
+ 
+-8. Move charges at task migration
+-=================================
++8. Move charges at task migration (DEPRECATED!)
++===============================================
++
++THIS IS DEPRECATED!
++
++It's expensive and unreliable! It's better practice to launch workload
++tasks directly from inside their target cgroup. Use dedicated workload
++cgroups to allow fine-grained policy adjustments without having to
++move physical pages between control domains.
+ 
+ Users can move charges associated with a task along with task migration, that
+ is, uncharge task's pages from the old cgroup and charge them to the new cgroup.
+--- a/mm/memcontrol.c~mm-memcontrol-deprecate-charge-moving
++++ a/mm/memcontrol.c
+@@ -3919,6 +3919,10 @@ static int mem_cgroup_move_charge_write(
+ {
+ 	struct mem_cgroup *memcg = mem_cgroup_from_css(css);
+ 
++	pr_warn_once("Cgroup memory moving (move_charge_at_immigrate) is deprecated. "
++		     "Please report your usecase to linux-mm@kvack.org if you "
++		     "depend on this functionality.\n");
++
+ 	if (val & ~MOVE_MASK)
+ 		return -EINVAL;
+ 
 _
 
-Patches currently in -mm which might be from peterx@redhat.com are
+Patches currently in -mm which might be from hannes@cmpxchg.org are
 
-selftests-vm-remove-__use_gnu-in-hugetlb-madvisec.patch
-mm-uffd-always-wr-protect-pte-in-ptepmd_mkuffd_wp.patch
-mm-mprotect-use-long-for-page-accountings-and-retval.patch
-mm-uffd-detect-pgtable-allocation-failures.patch
-mm-hugetlb-let-vma_offset_start-to-return-start.patch
-mm-hugetlb-dont-wait-for-migration-entry-during-follow-page.patch
-mm-hugetlb-document-huge_pte_offset-usage.patch
-mm-hugetlb-move-swap-entry-handling-into-vma-lock-when-faulted.patch
-mm-hugetlb-make-userfaultfd_huge_must_wait-safe-to-pmd-unshare.patch
-mm-hugetlb-make-hugetlb_follow_page_mask-safe-to-pmd-unshare.patch
-mm-hugetlb-make-follow_hugetlb_page-safe-to-pmd-unshare.patch
-mm-hugetlb-make-walk_hugetlb_range-safe-to-pmd-unshare.patch
-mm-hugetlb-introduce-hugetlb_walk.patch
 
