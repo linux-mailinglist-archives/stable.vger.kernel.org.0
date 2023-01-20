@@ -2,117 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08CB9675F38
-	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 22:00:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2691675F67
+	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 22:04:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229641AbjATVAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Jan 2023 16:00:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
+        id S229586AbjATVEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Jan 2023 16:04:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229575AbjATVAp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 16:00:45 -0500
-Received: from mail-oo1-xc2d.google.com (mail-oo1-xc2d.google.com [IPv6:2607:f8b0:4864:20::c2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4468BA9F
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 13:00:44 -0800 (PST)
-Received: by mail-oo1-xc2d.google.com with SMTP id d16-20020a4a5210000000b004f23d1aea58so1213417oob.3
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 13:00:44 -0800 (PST)
+        with ESMTP id S229518AbjATVEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 16:04:50 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5D3DBF3
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 13:04:48 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id z1-20020a17090a66c100b00226f05b9595so6114711pjl.0
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 13:04:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id:sender
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=CDDzVfb3PboGUZ1ek82m5PLa0K8UtUGpbjnyxxvLkcI=;
-        b=byii7Hj+8+LKxY69s+XuNvu6mpQvxsu7DtCFHAIen3WyhQhMAJAhm8joJwO2qVZqIv
-         FcyaJyFJIWeLm04YUTU8SbTNDg+k83ogniWSoNAj6l/TDlRO815cSI/GQ7d7xbx7Kdxo
-         IegEC6IpE1NOhx1xEN+sur71tSQMTXXSypwz922VlbXOXoBnnwePaCAy37SJ6YpJPbx0
-         N5Ygtd6rnpDdhT5opZuD7czRTPM6oeywjm9NUpBG6yxgZfUQBv01H7cyC3FswEH1NOjs
-         d51aiAfTOwwufO+5n00boGQd00mjshUba9xivbU2eR9k+8FuJJinAwk3PVfcShYJ8l0m
-         omiA==
+        d=paul-moore.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Y172KwacIm4200KA0aG6WBm3XKs0N6jHhBKXK9WD9mI=;
+        b=dPladbV/U1GCgz/wNJzUOoElEIPdmUvwE4kDWOjJjbDQQZMOKjXNsnc7gnxqSbhYKZ
+         /Lhpq+lffC3UGqVkVkfj+B1dLPCpkLBaNmZokuMG1AV1R6hMBi9v1KrSp2Lmp9GdjMjS
+         ouWjx4YdvjCeOhemuBcaEx4hDL8qhARp9pZ8/3YvsFAS+lEK96CBKjZYLevo2iy4P4BJ
+         Wcl96HKNDP7F61wZJ+z1gkNRbgjija1ouMrRQhonT0mf6RUaDeuyluFubcfg17ljxzpf
+         w4g2X1wMCGeoL8ZCybtmTgpxZGTiiE/mSH4Z7a5ogW0uYbpRbU2e11bJhaIHJ/vf2LUG
+         jpCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
-         :content-language:user-agent:mime-version:date:message-id:sender
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CDDzVfb3PboGUZ1ek82m5PLa0K8UtUGpbjnyxxvLkcI=;
-        b=EbizaNzDYufOhf1ewN1o6PE7rIwtYSIK+PGhEBMRTf1pPZkoUMLfmoTCH0pBbaJfnT
-         tXwkBv9eNSxL7CNYGdwf9MRGlFEw1aR6KnYi2JaER46Uyifafuo2GbDSIqhDp1nxDaKX
-         wYb1BBRmhB7/DPXiwlU7a+qVpl7B4qKDoyADaJynfyRgQv6FAWx2mNAuSNh5a/V5fOm/
-         REDE01sc2PfwHzgetfNK7JvQxIR6CAr74Ge7uo9Dd5zMUXsCeCJWQbd6I3rlRgPYTUma
-         SUTxh2oQMIbUNFQLR9jlhxi7gtjCFb1wUSAIQiuU5rCrp9QPtld1tJJXO2i6npZy8Bj2
-         Lb0g==
-X-Gm-Message-State: AFqh2kqwr94xZqxlPd6D+fHwG5kwEGT0Ln/SJYl9j2amjjy6/01PHAvr
-        mLRANQtbWznPvMiTQi83cpN68TxdMEc=
-X-Google-Smtp-Source: AMrXdXux2SadVMxuQYTh+X9u46rTjIh0ZWTNszXZy2RR0PyWcpRHbLUCf0qTMXzi+38BJtTTclMrug==
-X-Received: by 2002:a4a:acc4:0:b0:4f2:a1c1:4dfc with SMTP id c4-20020a4aacc4000000b004f2a1c14dfcmr7510500oon.6.1674248443947;
-        Fri, 20 Jan 2023 13:00:43 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m22-20020a4ac696000000b0049bfbf7c5a8sm19766449ooq.38.2023.01.20.13.00.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 20 Jan 2023 13:00:42 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <9927d839-4abc-0daf-36cd-e547beb7c87d@roeck-us.net>
-Date:   Fri, 20 Jan 2023 13:00:40 -0800
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Y172KwacIm4200KA0aG6WBm3XKs0N6jHhBKXK9WD9mI=;
+        b=qiMHFHiZRND0IsQa/egi8VaEbqJsf59tTKHLf3ZJ1amZAHOWXs6p0SBuwifOyvKp8F
+         KMxHJKD1koKevYpuD8jOxDTOqY6j8gWXzoZO/20FXIM6thPvCrtarBBXR+XQCmeR7FqJ
+         ILHAJvw/ZVj8a2uIJxSjOxSq1cUHgZT73w2Ma/7GuKx6wo63c6XuWVLLsvMaTPdDPAQS
+         H+RaaZgnk8H9sTf8ZCebbAVokrrNFsUBhILukQUxXSr5Mew6RZM09OIIMTPZkCO7kq5Q
+         KRPigvB2EO3V+oIhYYrGVUB0TNu22P5XbJ87Ajwfxh/EBa5SbQT0/1ST90doMfFb6Z3E
+         qENg==
+X-Gm-Message-State: AFqh2kpzUEtSrNfGgG5N4Y5KBZl/V5bIKZqFuixPwc3bbShQHRghaTYh
+        uZqqK2hAW2YFW/4OjWsw8uu9rqdR6w08+BTP78zBU/8PvkLi
+X-Google-Smtp-Source: AMrXdXs8Faave2YJu+g6n6M+4QYmBNMXF46Qu59oZgfKnPdvJ6mTQUJOkGwrJVa4sN47D3aEIVz8WuCvphKHlFQ05+A=
+X-Received: by 2002:a17:902:bd97:b0:191:2b33:606f with SMTP id
+ q23-20020a170902bd9700b001912b33606fmr1493982pls.32.1674248687946; Fri, 20
+ Jan 2023 13:04:47 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Content-Language: en-US
-To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Cc:     "Lin, Wayne" <Wayne.Lin@amd.com>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "stanislav.lisovskiy@intel.com" <stanislav.lisovskiy@intel.com>,
-        "Zuo, Jerry" <Jerry.Zuo@amd.com>,
-        "bskeggs@redhat.com" <bskeggs@redhat.com>
-References: <20230112085044.1706379-1-Wayne.Lin@amd.com>
- <20230120174634.GA889896@roeck-us.net>
- <a9deecb3-5955-ee4e-c76f-2654ee9f1a92@amd.com>
- <20230120181806.GA890663@roeck-us.net>
- <MN0PR12MB6101FE67D355FF2A47470C37E2C59@MN0PR12MB6101.namprd12.prod.outlook.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] Revert "drm/display/dp_mst: Move all payload info into
- the atomic state"
-In-Reply-To: <MN0PR12MB6101FE67D355FF2A47470C37E2C59@MN0PR12MB6101.namprd12.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+References: <20221221141007.2579770-1-roberto.sassu@huaweicloud.com>
+ <CAHC9VhQUAuF-Fan72j7BOqOdLE=B=mJpJ_GpR5p5cUmXruYT=Q@mail.gmail.com>
+ <4b8688ee3d533d989196004d5f9f2c7eb4093f8b.camel@huaweicloud.com>
+ <CAHC9VhSamRVpgrDrSuc2dsbbw3-pvjDi9BsFWoWssHkAD2W5vA@mail.gmail.com>
+ <a764acb285d0616c8608eaab8671ceb9c22cb390.camel@huaweicloud.com>
+ <058f1bdf4ba75c3a00918cefbf1be32477b51639.camel@linux.ibm.com> <e1a1fe029aea21ba533cb6196e64f29c7b052c57.camel@huaweicloud.com>
+In-Reply-To: <e1a1fe029aea21ba533cb6196e64f29c7b052c57.camel@huaweicloud.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 20 Jan 2023 16:04:36 -0500
+Message-ID: <CAHC9VhT--Q8QkFmKTpD3zjryDL19V9myfr3PuzSRo_bDzDRyqQ@mail.gmail.com>
+Subject: Re: [PATCH v2] security: Restore passing final prot to ima_file_mmap()
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>, jmorris@namei.org,
+        serge@hallyn.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/20/23 10:39, Limonciello, Mario wrote:
-[ ... ]
->>>
->>> Wayne is OOO for CNY, but let me update you.
->>>
->>> Harry has sent out this series which is a collection of proper fixes.
->>> https://patchwork.freedesktop.org/series/113125/
->>>
->>> Once that's reviewed and accepted, 4 of them are applicable for 6.1.
->>
->> Thanks a lot for the update. There is talk about abandoning v6.1.y as
->> LTS candidate, in large part due to this problem, so it would be great
->> to get the problem fixed before that happens.
-> 
-> Any idea how soon that decision is happening?  It seems that we have line
-> of sight to a solution including back to 6.1.y pending that review.  So perhaps
-> we can put off the decision until those are landed.
+On Fri, Jan 13, 2023 at 5:53 AM Roberto Sassu
+<roberto.sassu@huaweicloud.com> wrote:
+> On Thu, 2023-01-12 at 12:45 -0500, Mimi Zohar wrote:
+> > On Thu, 2023-01-12 at 13:36 +0100, Roberto Sassu wrote:
+> > > On Wed, 2023-01-11 at 09:25 -0500, Paul Moore wrote:
+> > > > On Wed, Jan 11, 2023 at 4:31 AM Roberto Sassu
+> > > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > > On Fri, 2023-01-06 at 16:14 -0500, Paul Moore wrote:
+> > > > > > On Wed, Dec 21, 2022 at 9:10 AM Roberto Sassu
+> > > > > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > > > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > > > >
+> > > > > > > Commit 98de59bfe4b2f ("take calculation of final prot in
+> > > > > > > security_mmap_file() into a helper") moved the code to update prot with the
+> > > > > > > actual protection flags to be granted to the requestor by the kernel to a
+> > > > > > > helper called mmap_prot(). However, the patch didn't update the argument
+> > > > > > > passed to ima_file_mmap(), making it receive the requested prot instead of
+> > > > > > > the final computed prot.
+> > > > > > >
+> > > > > > > A possible consequence is that files mmapped as executable might not be
+> > > > > > > measured/appraised if PROT_EXEC is not requested but subsequently added in
+> > > > > > > the final prot.
+> > > > > > >
+> > > > > > > Replace prot with mmap_prot(file, prot) as the second argument of
+> > > > > > > ima_file_mmap() to restore the original behavior.
+> > > > > > >
+> > > > > > > Cc: stable@vger.kernel.org
+> > > > > > > Fixes: 98de59bfe4b2 ("take calculation of final prot in security_mmap_file() into a helper")
+> > > > > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > > > > ---
+> > > > > > >  security/security.c | 2 +-
+> > > > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > > > >
+> > > > > > > diff --git a/security/security.c b/security/security.c
+> > > > > > > index d1571900a8c7..0d2359d588a1 100644
+> > > > > > > --- a/security/security.c
+> > > > > > > +++ b/security/security.c
+> > > > > > > @@ -1666,7 +1666,7 @@ int security_mmap_file(struct file *file, unsigned long prot,
+> > > > > > >                                         mmap_prot(file, prot), flags);
+> > > > > > >         if (ret)
+> > > > > > >                 return ret;
+> > > > > > > -       return ima_file_mmap(file, prot);
+> > > > > > > +       return ima_file_mmap(file, mmap_prot(file, prot));
+> > > > > > >  }
+> > > > > >
+> > > > > > This seems like a reasonable fix, although as the original commit is
+> > > > > > ~10 years old at this point I am a little concerned about the impact
+> > > > > > this might have on IMA.  Mimi, what do you think?
 
-I honestly don't know. All I know is that Greg is concerned about
-the number of regressions in v6.1.y, and this problem was one
-he specifically mentioned to me as potential reason to not designate
-6.1.y as LTS kernel. The extensive discussion at [1] may be an
-indication that there is a problem, though that mostly refers to
-[lack of] test coverage and does not point to specific regressions.
+So ... where do we stand on this patch, Mimi, Roberto?  I stand by my
+original comment, but I would want to see an ACK from Mimi at the very
+least before merging this upstream.  If this isn't ACK-able, do we
+have a plan to resolve this soon?
 
-Guenter
-
----
-[1] https://lore.kernel.org/lkml/CAPDLWs-Z8pYkwQ13dEgHXqSCjiq4xVnjuAXTy26H3=8NZCpV_g@mail.gmail.com/
-
+-- 
+paul-moore.com
