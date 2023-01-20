@@ -2,88 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B461675253
-	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 11:24:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DDD16753EE
+	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 12:56:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229806AbjATKYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Jan 2023 05:24:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35542 "EHLO
+        id S230029AbjATL4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Jan 2023 06:56:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229612AbjATKYP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 05:24:15 -0500
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E60DD8C91E;
-        Fri, 20 Jan 2023 02:24:13 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4NywPq1Kl2z9v7gS;
-        Fri, 20 Jan 2023 18:16:15 +0800 (CST)
-Received: from [10.206.134.65] (unknown [10.206.134.65])
-        by APP1 (Coremail) with SMTP id LxC2BwBn7gmva8pjQduwAA--.5258S2;
-        Fri, 20 Jan 2023 11:23:54 +0100 (CET)
-Message-ID: <5c65358c-4e77-901b-01bb-5df0d4c50949@huaweicloud.com>
-Date:   Fri, 20 Jan 2023 11:23:40 +0100
+        with ESMTP id S230024AbjATLz7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 06:55:59 -0500
+Received: from sender4-op-o14.zoho.com (sender4-op-o14.zoho.com [136.143.188.14])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00F58A1007
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 03:55:55 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1674215749; cv=none; 
+        d=zohomail.com; s=zohoarc; 
+        b=QPtbicNOTpATkxKByWMdb6Jc3KGhdYsTizfNMpAIIrNPRFaaBk2R+yigow9MZxFzJpkmMWl2Imr0Tmy1dBhjX9QiB7Yn6cqhFcF2goWR2rjw6FQCObv4SiinyNdAZoqhDiRb1qiR7pGq/DjwW9VOjWtI6+JUaNscdXg2xoTB/LQ=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+        t=1674215749; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
+        bh=X9v8lKIda7JX0Bhuow6Phl/DazmklbBMXaY9S6j72KI=; 
+        b=XMFZjGj4kuuckhl4VohRtG8j1BADQH/CSDixbJCWJKYGfIr1eF6VicCmpvTtO1Hb4pXD8y1pij6GTTdjAmP1+oE1/2d+gtbHtl8Za96G0TTRgDYO2qcwM7akuy7460j5LEuxWLazqDlB/PqDCS44gbVvSnES+Wj5GLwZeOxoEH4=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+        dkim=pass  header.i=arinc9.com;
+        spf=pass  smtp.mailfrom=arinc.unal@arinc9.com;
+        dmarc=pass header.from=<arinc.unal@arinc9.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1674215749;
+        s=zmail; d=arinc9.com; i=arinc.unal@arinc9.com;
+        h=Message-ID:Date:Date:MIME-Version:To:To:Cc:Cc:From:From:Subject:Subject:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+        bh=X9v8lKIda7JX0Bhuow6Phl/DazmklbBMXaY9S6j72KI=;
+        b=CS6UY3Aw0Z6vJJNR/al0T4xSXxhS5vl0UEzQzuGd85lu1kHvxgBj20gwoUHDxOm3
+        0I9hhUUdFyWJAPP6Qawh4RaPjTV/cY+uBddUvE2iwZH9EwIL8CJ0Li7IIhs62BsHioI
+        rE1z1R1AHcehq6CH/0f13bcNXZYkGUaw4T5yc6SQ=
+Received: from [10.10.10.3] (37.120.152.236 [37.120.152.236]) by mx.zohomail.com
+        with SMTPS id 1674215747000432.4006901296883; Fri, 20 Jan 2023 03:55:47 -0800 (PST)
+Message-ID: <ca79114b-abb8-fd2a-4e77-36e23dbec0f4@arinc9.com>
+Date:   Fri, 20 Jan 2023 14:55:44 +0300
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH v5 1/2] lib/mpi: Fix buffer overrun when SG is too long
-To:     Herbert Xu <herbert@gondor.apana.org.au>
-Cc:     dhowells@redhat.com, davem@davemloft.net, zohar@linux.ibm.com,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, ebiggers@kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20221227142740.2807136-1-roberto.sassu@huaweicloud.com>
- <20221227142740.2807136-2-roberto.sassu@huaweicloud.com>
- <Y7g7sp6UJJrYKihK@gondor.apana.org.au>
- <755e1dc9c777fa657ccd948f65f5f33240226c43.camel@huaweicloud.com>
- <Y8UTghm0Y8U4ndmH@gondor.apana.org.au>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
 Content-Language: en-US
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-In-Reply-To: <Y8UTghm0Y8U4ndmH@gondor.apana.org.au>
+To:     stable@vger.kernel.org
+Cc:     Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        erkin.bozoglu@xeront.com
+From:   =?UTF-8?B?QXLEsW7DpyDDnE5BTA==?= <arinc.unal@arinc9.com>
+Subject: Please apply ce835dbd04d7 to 5.15
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwBn7gmva8pjQduwAA--.5258S2
-X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
-        VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUYx7kC6x804xWl14x267AKxVW8JVW5JwAF
-        c2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII
-        0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xv
-        wVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjc
-        xK6I8E87Iv6xkF7I0E14v26r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40E
-        FcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr
-        0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY
-        04v7Mxk0xIA0c2IEe2xFo4CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7
-        v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF
-        1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIx
-        AIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j6s0D
-        MIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIda
-        VFxhVjvjDU0xZFpf9x07UWE__UUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQADBF1jj4fWbQACsJ
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/16/2023 10:06 AM, Herbert Xu wrote:
-> On Mon, Jan 16, 2023 at 09:57:57AM +0100, Roberto Sassu wrote:
->>
->> Hi Herbert
->>
->> will you take also the second patch?
-> 
-> That's part of David Howells' tree so hopefully he will pick
-> it up soon.
+Commit ce835dbd04d7b24f9fd50d9a9c59be46304aaa8a ("staging: mt7621-dts: 
+change some node hex addresses to lower case") upstream.
 
-Hi David
+Please apply this commit to 5.15. It solves the regression the kernel 
+test robot has reported.
 
-could you please take the second patch?
+https://lore.kernel.org/all/aa73cfb8-99ed-20b4-071c-9858399aee0a@arinc9.com/T/
 
-Thanks
-
-Roberto
-
+Arınç
