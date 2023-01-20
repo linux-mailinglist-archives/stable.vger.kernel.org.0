@@ -2,44 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC6D3675455
-	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 13:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AFAE67556E
+	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 14:18:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229593AbjATMYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Jan 2023 07:24:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53564 "EHLO
+        id S230505AbjATNSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Jan 2023 08:18:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230123AbjATMYt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 07:24:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0396BBC762
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 04:24:47 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9DD8B82743
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 12:24:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB8F9C433D2;
-        Fri, 20 Jan 2023 12:24:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674217484;
-        bh=tIbIFRCaSqHt5856rxkHPCZnZYoqdAFYctVXp2zCAOs=;
-        h=Subject:To:From:Date:From;
-        b=o+yl0BXS8HLuYmakBJ8lmEAN0wWnTQDAALgdd3bH0FEesRJVoYJGwuk1nfhwrf0ov
-         2p42ycHPGp26ZxCRmpn17HxYWOBwoUsX3GfX9n06jQjeJg153NIXDr5xhoW0PDpIcW
-         /KC+uN+e+0wINKZzT+srP1hPpl4p1ArnLu6+ATno=
-Subject: patch "VMCI: Use threaded irqs instead of tasklets" added to char-misc-linus
-To:     vdasa@vmware.com, bryantan@vmware.com, gregkh@linuxfoundation.org,
-        namit@vmware.com, nathan@kernel.org, pv-drivers@vmware.com,
-        stable@vger.kernel.org, zackr@vmware.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 20 Jan 2023 13:24:30 +0100
-Message-ID: <167421747017766@kroah.com>
+        with ESMTP id S230506AbjATNSe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 08:18:34 -0500
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74962C41D0
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 05:14:52 -0800 (PST)
+Received: by mail-wm1-x335.google.com with SMTP id k16so4034522wms.2
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 05:14:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=AfFIuRH2b9FfD0CydIJ5oSJmwUczAEd83CzMQhgLMzM=;
+        b=V0vHFo7ysajexa+NmYC+hGR0na69vwSKGypzgdxWvgYKSvjzxKe352iDiDda+iA3mx
+         yV1M86QhpEfjVSIfxLh7krDmwkDhF1x6zb78M3srZw5LGqDLW3bKJYIhANFA63HuYH2k
+         PtsSQbuSmNOD2lKTl5e8lILbSdv3Sr8Xv/lVYIgFsuYJ0V9nnw6tfT4DGjAtY5B8TwcW
+         vJUB3A04EV0j2x4NJa8OvGtYMo+UKu+CEKXa08aQrgEpwxxi7U9hdaA968AwQ1mykVlM
+         qR/gfFLCDu2i0Pb0UeHyyhPK/KzcJe33g2to4tX1G50G4DtKjFJLXPzIVkKMhWELCs0o
+         TCGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=AfFIuRH2b9FfD0CydIJ5oSJmwUczAEd83CzMQhgLMzM=;
+        b=RxjJ7SZjXqst8Cx+Cs276vYE4tqHo+IxugYfhFOTIc1kxyjR2iH9eKQ400I6LSxGtU
+         zW/iHBTdQ7lkvnNU7+1PXoOv9NCJGMHFUSrurIufCUF9PlgiV2rUVPjQKZWJZBOCamub
+         qbbYfNhMZkfo/9qW0CAGZfAcBludDiybvmjTFeNrkabt07GVoo6hnIFvhUJCaj3zjhxo
+         WeWgGSWWWaEfyYIg+OEnTZYtrtWlNLJhyhzukRsnIBFFTzrtOmaj3hJ84CfKOiAHKmO7
+         DNqfEOfi79UMWvSAxEkJrIq+ZJe7N3QUDxhl99Y1u4oakyZ/BuqV1lN2PivjInkrHmq8
+         scSg==
+X-Gm-Message-State: AFqh2kqXLMW/QhWO3i8s8luBmGrXuSo9Q62PhT5zF1uN8LjHLyDqqWcF
+        RXwdu7mjiRXnMhPjEQGCbLh2Vg==
+X-Google-Smtp-Source: AMrXdXvP3mf/U+3R2kQJkj9RTHm/6Qvd9bJpocAhTuHbHTW4xJISAGMZj4sGLykeOAtsY+vu4wFQ6Q==
+X-Received: by 2002:a05:600c:a29e:b0:3d9:ee01:ae5b with SMTP id hu30-20020a05600ca29e00b003d9ee01ae5bmr14064047wmb.12.1674220491033;
+        Fri, 20 Jan 2023 05:14:51 -0800 (PST)
+Received: from krzk-bin.. ([178.197.216.144])
+        by smtp.gmail.com with ESMTPSA id q18-20020adfdfd2000000b002bdc129c8f6sm24518977wrn.43.2023.01.20.05.14.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Jan 2023 05:14:50 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, devicetree@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] regulator: dt-bindings: samsung,s2mps14: add lost samsung,ext-control-gpios
+Date:   Fri, 20 Jan 2023 14:14:47 +0100
+Message-Id: <20230120131447.289702-1-krzysztof.kozlowski@linaro.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,247 +70,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The samsung,ext-control-gpios property was lost during conversion to DT
+schema:
 
-This is a note to let you know that I've just added the patch titled
+  exynos3250-artik5-eval.dtb: pmic@66: regulators:LDO11: Unevaluated properties are not allowed ('samsung,ext-control-gpios' was unexpected)
 
-    VMCI: Use threaded irqs instead of tasklets
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 3daed6345d5880464f46adab871d208e1baa2f3a Mon Sep 17 00:00:00 2001
-From: Vishnu Dasa <vdasa@vmware.com>
-Date: Tue, 29 Nov 2022 23:05:11 -0800
-Subject: VMCI: Use threaded irqs instead of tasklets
-
-The vmci_dispatch_dgs() tasklet function calls vmci_read_data()
-which uses wait_event() resulting in invalid sleep in an atomic
-context (and therefore potentially in a deadlock).
-
-Use threaded irqs to fix this issue and completely remove usage
-of tasklets.
-
-[   20.264639] BUG: sleeping function called from invalid context at drivers/misc/vmw_vmci/vmci_guest.c:145
-[   20.264643] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 762, name: vmtoolsd
-[   20.264645] preempt_count: 101, expected: 0
-[   20.264646] RCU nest depth: 0, expected: 0
-[   20.264647] 1 lock held by vmtoolsd/762:
-[   20.264648]  #0: ffff0000874ae440 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_connect+0x60/0x330 [vsock]
-[   20.264658] Preemption disabled at:
-[   20.264659] [<ffff80000151d7d8>] vmci_send_datagram+0x44/0xa0 [vmw_vmci]
-[   20.264665] CPU: 0 PID: 762 Comm: vmtoolsd Not tainted 5.19.0-0.rc8.20220727git39c3c396f813.60.fc37.aarch64 #1
-[   20.264667] Hardware name: VMware, Inc. VBSA/VBSA, BIOS VEFI 12/31/2020
-[   20.264668] Call trace:
-[   20.264669]  dump_backtrace+0xc4/0x130
-[   20.264672]  show_stack+0x24/0x80
-[   20.264673]  dump_stack_lvl+0x88/0xb4
-[   20.264676]  dump_stack+0x18/0x34
-[   20.264677]  __might_resched+0x1a0/0x280
-[   20.264679]  __might_sleep+0x58/0x90
-[   20.264681]  vmci_read_data+0x74/0x120 [vmw_vmci]
-[   20.264683]  vmci_dispatch_dgs+0x64/0x204 [vmw_vmci]
-[   20.264686]  tasklet_action_common.constprop.0+0x13c/0x150
-[   20.264688]  tasklet_action+0x40/0x50
-[   20.264689]  __do_softirq+0x23c/0x6b4
-[   20.264690]  __irq_exit_rcu+0x104/0x214
-[   20.264691]  irq_exit_rcu+0x1c/0x50
-[   20.264693]  el1_interrupt+0x38/0x6c
-[   20.264695]  el1h_64_irq_handler+0x18/0x24
-[   20.264696]  el1h_64_irq+0x68/0x6c
-[   20.264697]  preempt_count_sub+0xa4/0xe0
-[   20.264698]  _raw_spin_unlock_irqrestore+0x64/0xb0
-[   20.264701]  vmci_send_datagram+0x7c/0xa0 [vmw_vmci]
-[   20.264703]  vmci_datagram_dispatch+0x84/0x100 [vmw_vmci]
-[   20.264706]  vmci_datagram_send+0x2c/0x40 [vmw_vmci]
-[   20.264709]  vmci_transport_send_control_pkt+0xb8/0x120 [vmw_vsock_vmci_transport]
-[   20.264711]  vmci_transport_connect+0x40/0x7c [vmw_vsock_vmci_transport]
-[   20.264713]  vsock_connect+0x278/0x330 [vsock]
-[   20.264715]  __sys_connect_file+0x8c/0xc0
-[   20.264718]  __sys_connect+0x84/0xb4
-[   20.264720]  __arm64_sys_connect+0x2c/0x3c
-[   20.264721]  invoke_syscall+0x78/0x100
-[   20.264723]  el0_svc_common.constprop.0+0x68/0x124
-[   20.264724]  do_el0_svc+0x38/0x4c
-[   20.264725]  el0_svc+0x60/0x180
-[   20.264726]  el0t_64_sync_handler+0x11c/0x150
-[   20.264728]  el0t_64_sync+0x190/0x194
-
-Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
-Suggested-by: Zack Rusin <zackr@vmware.com>
-Reported-by: Nadav Amit <namit@vmware.com>
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Fixes: 463713eb6164 ("VMCI: dma dg: add support for DMA datagrams receive")
-Cc: <stable@vger.kernel.org> # v5.18+
-Cc: VMware PV-Drivers Reviewers <pv-drivers@vmware.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Bryan Tan <bryantan@vmware.com>
-Reviewed-by: Bryan Tan <bryantan@vmware.com>
-Reviewed-by: Zack Rusin <zackr@vmware.com>
-Link: https://lore.kernel.org/r/20221130070511.46558-1-vdasa@vmware.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ea98b9eba05c ("regulator: dt-bindings: samsung,s2m: convert to dtschema")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 ---
- drivers/misc/vmw_vmci/vmci_guest.c | 49 ++++++++++++------------------
- 1 file changed, 19 insertions(+), 30 deletions(-)
+ .../bindings/regulator/samsung,s2mps14.yaml   | 21 +++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/vmw_vmci/vmci_guest.c b/drivers/misc/vmw_vmci/vmci_guest.c
-index aa7b05de97dd..4f8d962bb5b2 100644
---- a/drivers/misc/vmw_vmci/vmci_guest.c
-+++ b/drivers/misc/vmw_vmci/vmci_guest.c
-@@ -56,8 +56,6 @@ struct vmci_guest_device {
+diff --git a/Documentation/devicetree/bindings/regulator/samsung,s2mps14.yaml b/Documentation/devicetree/bindings/regulator/samsung,s2mps14.yaml
+index 01f9d4e236e9..a7feb497eb89 100644
+--- a/Documentation/devicetree/bindings/regulator/samsung,s2mps14.yaml
++++ b/Documentation/devicetree/bindings/regulator/samsung,s2mps14.yaml
+@@ -19,8 +19,8 @@ description: |
+   additional information and example.
  
- 	bool exclusive_vectors;
+ patternProperties:
+-  # 25 LDOs
+-  "^LDO([1-9]|[1][0-9]|2[0-5])$":
++  # 25 LDOs, without LDO10-12
++  "^LDO([1-9]|1[3-9]|2[0-5])$":
+     type: object
+     $ref: regulator.yaml#
+     unevaluatedProperties: false
+@@ -30,6 +30,23 @@ patternProperties:
+     required:
+       - regulator-name
  
--	struct tasklet_struct datagram_tasklet;
--	struct tasklet_struct bm_tasklet;
- 	struct wait_queue_head inout_wq;
- 
- 	void *data_buffer;
-@@ -304,9 +302,8 @@ static int vmci_check_host_caps(struct pci_dev *pdev)
-  * This function assumes that it has exclusive access to the data
-  * in register(s) for the duration of the call.
-  */
--static void vmci_dispatch_dgs(unsigned long data)
-+static void vmci_dispatch_dgs(struct vmci_guest_device *vmci_dev)
- {
--	struct vmci_guest_device *vmci_dev = (struct vmci_guest_device *)data;
- 	u8 *dg_in_buffer = vmci_dev->data_buffer;
- 	struct vmci_datagram *dg;
- 	size_t dg_in_buffer_size = VMCI_MAX_DG_SIZE;
-@@ -465,10 +462,8 @@ static void vmci_dispatch_dgs(unsigned long data)
-  * Scans the notification bitmap for raised flags, clears them
-  * and handles the notifications.
-  */
--static void vmci_process_bitmap(unsigned long data)
-+static void vmci_process_bitmap(struct vmci_guest_device *dev)
- {
--	struct vmci_guest_device *dev = (struct vmci_guest_device *)data;
--
- 	if (!dev->notification_bitmap) {
- 		dev_dbg(dev->dev, "No bitmap present in %s\n", __func__);
- 		return;
-@@ -486,13 +481,13 @@ static irqreturn_t vmci_interrupt(int irq, void *_dev)
- 	struct vmci_guest_device *dev = _dev;
- 
- 	/*
--	 * If we are using MSI-X with exclusive vectors then we simply schedule
--	 * the datagram tasklet, since we know the interrupt was meant for us.
-+	 * If we are using MSI-X with exclusive vectors then we simply call
-+	 * vmci_dispatch_dgs(), since we know the interrupt was meant for us.
- 	 * Otherwise we must read the ICR to determine what to do.
- 	 */
- 
- 	if (dev->exclusive_vectors) {
--		tasklet_schedule(&dev->datagram_tasklet);
-+		vmci_dispatch_dgs(dev);
- 	} else {
- 		unsigned int icr;
- 
-@@ -502,12 +497,12 @@ static irqreturn_t vmci_interrupt(int irq, void *_dev)
- 			return IRQ_NONE;
- 
- 		if (icr & VMCI_ICR_DATAGRAM) {
--			tasklet_schedule(&dev->datagram_tasklet);
-+			vmci_dispatch_dgs(dev);
- 			icr &= ~VMCI_ICR_DATAGRAM;
- 		}
- 
- 		if (icr & VMCI_ICR_NOTIFICATION) {
--			tasklet_schedule(&dev->bm_tasklet);
-+			vmci_process_bitmap(dev);
- 			icr &= ~VMCI_ICR_NOTIFICATION;
- 		}
- 
-@@ -536,7 +531,7 @@ static irqreturn_t vmci_interrupt_bm(int irq, void *_dev)
- 	struct vmci_guest_device *dev = _dev;
- 
- 	/* For MSI-X we can just assume it was meant for us. */
--	tasklet_schedule(&dev->bm_tasklet);
-+	vmci_process_bitmap(dev);
- 
- 	return IRQ_HANDLED;
- }
-@@ -638,10 +633,6 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	vmci_dev->iobase = iobase;
- 	vmci_dev->mmio_base = mmio_base;
- 
--	tasklet_init(&vmci_dev->datagram_tasklet,
--		     vmci_dispatch_dgs, (unsigned long)vmci_dev);
--	tasklet_init(&vmci_dev->bm_tasklet,
--		     vmci_process_bitmap, (unsigned long)vmci_dev);
- 	init_waitqueue_head(&vmci_dev->inout_wq);
- 
- 	if (mmio_base != NULL) {
-@@ -808,8 +799,9 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	 * Request IRQ for legacy or MSI interrupts, or for first
- 	 * MSI-X vector.
- 	 */
--	error = request_irq(pci_irq_vector(pdev, 0), vmci_interrupt,
--			    IRQF_SHARED, KBUILD_MODNAME, vmci_dev);
-+	error = request_threaded_irq(pci_irq_vector(pdev, 0), NULL,
-+				     vmci_interrupt, IRQF_SHARED,
-+				     KBUILD_MODNAME, vmci_dev);
- 	if (error) {
- 		dev_err(&pdev->dev, "Irq %u in use: %d\n",
- 			pci_irq_vector(pdev, 0), error);
-@@ -823,9 +815,9 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 	 * between the vectors.
- 	 */
- 	if (vmci_dev->exclusive_vectors) {
--		error = request_irq(pci_irq_vector(pdev, 1),
--				    vmci_interrupt_bm, 0, KBUILD_MODNAME,
--				    vmci_dev);
-+		error = request_threaded_irq(pci_irq_vector(pdev, 1), NULL,
-+					     vmci_interrupt_bm, 0,
-+					     KBUILD_MODNAME, vmci_dev);
- 		if (error) {
- 			dev_err(&pdev->dev,
- 				"Failed to allocate irq %u: %d\n",
-@@ -833,9 +825,11 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 			goto err_free_irq;
- 		}
- 		if (caps_in_use & VMCI_CAPS_DMA_DATAGRAM) {
--			error = request_irq(pci_irq_vector(pdev, 2),
--					    vmci_interrupt_dma_datagram,
--					    0, KBUILD_MODNAME, vmci_dev);
-+			error = request_threaded_irq(pci_irq_vector(pdev, 2),
-+						     NULL,
-+						    vmci_interrupt_dma_datagram,
-+						     0, KBUILD_MODNAME,
-+						     vmci_dev);
- 			if (error) {
- 				dev_err(&pdev->dev,
- 					"Failed to allocate irq %u: %d\n",
-@@ -871,8 +865,6 @@ static int vmci_guest_probe_device(struct pci_dev *pdev,
- 
- err_free_irq:
- 	free_irq(pci_irq_vector(pdev, 0), vmci_dev);
--	tasklet_kill(&vmci_dev->datagram_tasklet);
--	tasklet_kill(&vmci_dev->bm_tasklet);
- 
- err_disable_msi:
- 	pci_free_irq_vectors(pdev);
-@@ -943,9 +935,6 @@ static void vmci_guest_remove_device(struct pci_dev *pdev)
- 	free_irq(pci_irq_vector(pdev, 0), vmci_dev);
- 	pci_free_irq_vectors(pdev);
- 
--	tasklet_kill(&vmci_dev->datagram_tasklet);
--	tasklet_kill(&vmci_dev->bm_tasklet);
--
- 	if (vmci_dev->notification_bitmap) {
- 		/*
- 		 * The device reset above cleared the bitmap state of the
++  "^LDO(1[0-2])$":
++    type: object
++    $ref: regulator.yaml#
++    unevaluatedProperties: false
++    description:
++      Properties for single LDO regulator.
++
++    properties:
++      samsung,ext-control-gpios:
++        maxItems: 1
++        description:
++          LDO10, LDO11 and LDO12 can be configured to external control over
++          GPIO.
++
++    required:
++      - regulator-name
++
+   # 5 bucks
+   "^BUCK[1-5]$":
+     type: object
 -- 
-2.39.1
-
+2.34.1
 
