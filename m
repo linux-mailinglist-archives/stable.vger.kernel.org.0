@@ -2,125 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AFAE67556E
-	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 14:18:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14F37675738
+	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 15:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230505AbjATNSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Jan 2023 08:18:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36160 "EHLO
+        id S229865AbjATOcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Jan 2023 09:32:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230506AbjATNSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 08:18:34 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74962C41D0
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 05:14:52 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id k16so4034522wms.2
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 05:14:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=AfFIuRH2b9FfD0CydIJ5oSJmwUczAEd83CzMQhgLMzM=;
-        b=V0vHFo7ysajexa+NmYC+hGR0na69vwSKGypzgdxWvgYKSvjzxKe352iDiDda+iA3mx
-         yV1M86QhpEfjVSIfxLh7krDmwkDhF1x6zb78M3srZw5LGqDLW3bKJYIhANFA63HuYH2k
-         PtsSQbuSmNOD2lKTl5e8lILbSdv3Sr8Xv/lVYIgFsuYJ0V9nnw6tfT4DGjAtY5B8TwcW
-         vJUB3A04EV0j2x4NJa8OvGtYMo+UKu+CEKXa08aQrgEpwxxi7U9hdaA968AwQ1mykVlM
-         qR/gfFLCDu2i0Pb0UeHyyhPK/KzcJe33g2to4tX1G50G4DtKjFJLXPzIVkKMhWELCs0o
-         TCGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=AfFIuRH2b9FfD0CydIJ5oSJmwUczAEd83CzMQhgLMzM=;
-        b=RxjJ7SZjXqst8Cx+Cs276vYE4tqHo+IxugYfhFOTIc1kxyjR2iH9eKQ400I6LSxGtU
-         zW/iHBTdQ7lkvnNU7+1PXoOv9NCJGMHFUSrurIufCUF9PlgiV2rUVPjQKZWJZBOCamub
-         qbbYfNhMZkfo/9qW0CAGZfAcBludDiybvmjTFeNrkabt07GVoo6hnIFvhUJCaj3zjhxo
-         WeWgGSWWWaEfyYIg+OEnTZYtrtWlNLJhyhzukRsnIBFFTzrtOmaj3hJ84CfKOiAHKmO7
-         DNqfEOfi79UMWvSAxEkJrIq+ZJe7N3QUDxhl99Y1u4oakyZ/BuqV1lN2PivjInkrHmq8
-         scSg==
-X-Gm-Message-State: AFqh2kqXLMW/QhWO3i8s8luBmGrXuSo9Q62PhT5zF1uN8LjHLyDqqWcF
-        RXwdu7mjiRXnMhPjEQGCbLh2Vg==
-X-Google-Smtp-Source: AMrXdXvP3mf/U+3R2kQJkj9RTHm/6Qvd9bJpocAhTuHbHTW4xJISAGMZj4sGLykeOAtsY+vu4wFQ6Q==
-X-Received: by 2002:a05:600c:a29e:b0:3d9:ee01:ae5b with SMTP id hu30-20020a05600ca29e00b003d9ee01ae5bmr14064047wmb.12.1674220491033;
-        Fri, 20 Jan 2023 05:14:51 -0800 (PST)
-Received: from krzk-bin.. ([178.197.216.144])
-        by smtp.gmail.com with ESMTPSA id q18-20020adfdfd2000000b002bdc129c8f6sm24518977wrn.43.2023.01.20.05.14.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Jan 2023 05:14:50 -0800 (PST)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, devicetree@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] regulator: dt-bindings: samsung,s2mps14: add lost samsung,ext-control-gpios
-Date:   Fri, 20 Jan 2023 14:14:47 +0100
-Message-Id: <20230120131447.289702-1-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229615AbjATOcM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 09:32:12 -0500
+X-Greylist: delayed 2131 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 20 Jan 2023 06:32:11 PST
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A23393D3;
+        Fri, 20 Jan 2023 06:32:11 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.229])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4Nz16x3JJMz9v7VH;
+        Fri, 20 Jan 2023 21:48:41 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.206.134.113])
+        by APP2 (Coremail) with SMTP id GxC2BwDnu2J0ncpj_ryvAA--.23516S2;
+        Fri, 20 Jan 2023 14:56:15 +0100 (CET)
+From:   Hernan Ponce de Leon <hernan.poncedeleon@huaweicloud.com>
+To:     peterz@infradead.org, mingo@redhat.com, will@kernel.org,
+        longman@redhat.com, boqun.feng@gmail.com, akpm@osdl.org,
+        arjan@linux.intel.com, tglx@linutronix.de, joel@joelfernandes.org,
+        paulmck@kernel.org, stern@rowland.harvard.edu,
+        diogo.behrens@huawei.com, jonas.oberhauser@huawei.com
+Cc:     linux-kernel@vger.kernel.org,
+        Hernan Ponce de Leon <hernanl.leon@huawei.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] Fix data race in mark_rt_mutex_waiters
+Date:   Fri, 20 Jan 2023 14:55:25 +0100
+Message-Id: <20230120135525.25561-1-hernan.poncedeleon@huaweicloud.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-CM-TRANSID: GxC2BwDnu2J0ncpj_ryvAA--.23516S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7ArW5Gr4kJrWDuw4rtF1rXrb_yoW8JFW3pF
+        W5C3yUG3yqgr1vgrWDW3Z29ayUJ395CrWxW3Z7JryxWr15t3ZFgr9rC3WUWr1FvFWkKFWa
+        vF1Yqr10qrW3Za7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUk2b4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6r106r1rM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+        6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+        Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28I
+        cxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2
+        IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI
+        42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42
+        IY6xAIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E
+        87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFDGOUUUUU
+X-CM-SenderInfo: xkhu0tnqos00pfhgvzhhrqqx5xdzvxpfor3voofrz/
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The samsung,ext-control-gpios property was lost during conversion to DT
-schema:
+From: Hernan Ponce de Leon <hernanl.leon@huawei.com>
 
-  exynos3250-artik5-eval.dtb: pmic@66: regulators:LDO11: Unevaluated properties are not allowed ('samsung,ext-control-gpios' was unexpected)
+Following the defition of data race in
+tools/memory-model/linux-kernel.cat the dartagnan tool
+https://github.com/hernanponcedeleon/Dat3M
+reported a race between mark_rt_mutex_waiters and rt_mutex_cmpxchg_release.
 
-Fixes: ea98b9eba05c ("regulator: dt-bindings: samsung,s2m: convert to dtschema")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Commit 23f78d4a03c5 ("[PATCH] pi-futex: rt mutex core")
+later removed in commit d0aa7a70bf03 ("futex_requeue_pi optimization")
+and reverted in commit bd197234b0a6
+("Revert "futex_requeue_pi optimization"")
+
+The original commit introduced the data race.
+
+Cc: stable@vger.kernel.org # v2.6.18.x
+Fixes: 23f78d4a03c5 ("[PATCH] pi-futex: rt mutex core")
+Signed-off-by: Hernan Ponce de Leon <hernanl.leon@huawei.com>
 ---
- .../bindings/regulator/samsung,s2mps14.yaml   | 21 +++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ kernel/locking/rtmutex.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/regulator/samsung,s2mps14.yaml b/Documentation/devicetree/bindings/regulator/samsung,s2mps14.yaml
-index 01f9d4e236e9..a7feb497eb89 100644
---- a/Documentation/devicetree/bindings/regulator/samsung,s2mps14.yaml
-+++ b/Documentation/devicetree/bindings/regulator/samsung,s2mps14.yaml
-@@ -19,8 +19,8 @@ description: |
-   additional information and example.
+diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
+index 010cf4e6d0b8..7ed9472edd48 100644
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -235,7 +235,7 @@ static __always_inline void mark_rt_mutex_waiters(struct rt_mutex_base *lock)
+ 	unsigned long owner, *p = (unsigned long *) &lock->owner;
  
- patternProperties:
--  # 25 LDOs
--  "^LDO([1-9]|[1][0-9]|2[0-5])$":
-+  # 25 LDOs, without LDO10-12
-+  "^LDO([1-9]|1[3-9]|2[0-5])$":
-     type: object
-     $ref: regulator.yaml#
-     unevaluatedProperties: false
-@@ -30,6 +30,23 @@ patternProperties:
-     required:
-       - regulator-name
+ 	do {
+-		owner = *p;
++		owner = READ_ONCE(*p);
+ 	} while (cmpxchg_relaxed(p, owner,
+ 				 owner | RT_MUTEX_HAS_WAITERS) != owner);
  
-+  "^LDO(1[0-2])$":
-+    type: object
-+    $ref: regulator.yaml#
-+    unevaluatedProperties: false
-+    description:
-+      Properties for single LDO regulator.
-+
-+    properties:
-+      samsung,ext-control-gpios:
-+        maxItems: 1
-+        description:
-+          LDO10, LDO11 and LDO12 can be configured to external control over
-+          GPIO.
-+
-+    required:
-+      - regulator-name
-+
-   # 5 bucks
-   "^BUCK[1-5]$":
-     type: object
 -- 
-2.34.1
+2.25.1
 
