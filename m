@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BB13674C50
-	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 06:29:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FEEE674D6F
+	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 07:39:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231428AbjATF3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Jan 2023 00:29:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35716 "EHLO
+        id S229510AbjATGjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Jan 2023 01:39:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229980AbjATF2e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 00:28:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CEE36E0EE
-        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 21:23:44 -0800 (PST)
+        with ESMTP id S229445AbjATGjG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 01:39:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45D644A221
+        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 22:39:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30DD7B825E7
-        for <stable@vger.kernel.org>; Thu, 19 Jan 2023 16:25:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87D6AC433D2;
-        Thu, 19 Jan 2023 16:25:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD6B761E2C
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 06:39:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85F12C433D2;
+        Fri, 20 Jan 2023 06:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674145508;
-        bh=UFQyLQQWyAXtCa8cGxQ2le/M9vzeoPuRnjuOqwiivLw=;
-        h=Subject:To:From:Date:From;
-        b=LE8l4+rz9J/RTwRPwMqdrJPJxpf9mTWbUNyZgVxOSnZPFp2Js214fkTv2gOhjHSE2
-         Y/SfnmbaYEN1rdAIcNNf3zIxxN82jXJYUyeJ8AHGwyI9tXabrhep62cI4eyiHr5ABi
-         ynz3esLLT8rXpEyfHIzifFkhTecrxke1+oJidfCc=
-Subject: patch "comedi: adv_pci1760: Fix PWM instruction handling" added to char-misc-linus
-To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 19 Jan 2023 17:25:01 +0100
-Message-ID: <167414550198189@kroah.com>
+        s=korg; t=1674196744;
+        bh=sNh2gxFZAYQ439CmuOlMq4t9QiT0y5N56uMmeXoeAf8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Nlqql1kW+iDELBF/HbW04bW17TpwM0u3vy4PX1HluC93xDYHofOTDoXLoFAnyjGg+
+         WnVFDUXG1lCjZRhhL57EDkPTaK+FR8NtNvLV8/sxVs8qp+mIjL3Eo20iPul2QXCx3P
+         6BYHd3wBnQTDT6iR2SEbUv7RsIxkFTnpN5C58h6E=
+Date:   Fri, 20 Jan 2023 07:39:00 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Kevin Hao <haokexin@gmail.com>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: Re: [PATCH 5.15] cpufreq: governor: Use kobject release() method to
+ free dbs_data
+Message-ID: <Y8o3BIHcGt6FIKmY@kroah.com>
+References: <20230120042650.3722921-1-haokexin@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230120042650.3722921-1-haokexin@gmail.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,71 +50,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jan 20, 2023 at 12:26:50PM +0800, Kevin Hao wrote:
+> commit a85ee6401a47ae3fc64ba506cacb3e7873823c65 upstream.
+> 
+> The struct dbs_data embeds a struct gov_attr_set and
+> the struct gov_attr_set embeds a kobject. Since every kobject must have
+> a release() method and we can't use kfree() to free it directly,
+> so introduce cpufreq_dbs_data_release() to release the dbs_data via
+> the kobject::release() method. This fixes the calltrace like below:
+> 
+>   ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x34
+>   WARNING: CPU: 12 PID: 810 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
+>   Modules linked in:
+>   CPU: 12 PID: 810 Comm: sh Not tainted 5.16.0-next-20220120-yocto-standard+ #536
+>   Hardware name: Marvell OcteonTX CN96XX board (DT)
+>   pstate: 60400009 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+>   pc : debug_print_object+0xb8/0x100
+>   lr : debug_print_object+0xb8/0x100
+>   sp : ffff80001dfcf9a0
+>   x29: ffff80001dfcf9a0 x28: 0000000000000001 x27: ffff0001464f0000
+>   x26: 0000000000000000 x25: ffff8000090e3f00 x24: ffff80000af60210
+>   x23: ffff8000094dfb78 x22: ffff8000090e3f00 x21: ffff0001080b7118
+>   x20: ffff80000aeb2430 x19: ffff800009e8f5e0 x18: 0000000000000000
+>   x17: 0000000000000002 x16: 00004d62e58be040 x15: 013590470523aff8
+>   x14: ffff8000090e1828 x13: 0000000001359047 x12: 00000000f5257d14
+>   x11: 0000000000040591 x10: 0000000066c1ffea x9 : ffff8000080d15e0
+>   x8 : ffff80000a1765a8 x7 : 0000000000000000 x6 : 0000000000000001
+>   x5 : ffff800009e8c000 x4 : ffff800009e8c760 x3 : 0000000000000000
+>   x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff0001474ed040
+>   Call trace:
+>    debug_print_object+0xb8/0x100
+>    __debug_check_no_obj_freed+0x1d0/0x25c
+>    debug_check_no_obj_freed+0x24/0xa0
+>    kfree+0x11c/0x440
+>    cpufreq_dbs_governor_exit+0xa8/0xac
+>    cpufreq_exit_governor+0x44/0x90
+>    cpufreq_set_policy+0x29c/0x570
+>    store_scaling_governor+0x110/0x154
+>    store+0xb0/0xe0
+>    sysfs_kf_write+0x58/0x84
+>    kernfs_fop_write_iter+0x12c/0x1c0
+>    new_sync_write+0xf0/0x18c
+>    vfs_write+0x1cc/0x220
+>    ksys_write+0x74/0x100
+>    __arm64_sys_write+0x28/0x3c
+>    invoke_syscall.constprop.0+0x58/0xf0
+>    do_el0_svc+0x70/0x170
+>    el0_svc+0x54/0x190
+>    el0t_64_sync_handler+0xa4/0x130
+>    el0t_64_sync+0x1a0/0x1a4
+>   irq event stamp: 189006
+>   hardirqs last  enabled at (189005): [<ffff8000080849d0>] finish_task_switch.isra.0+0xe0/0x2c0
+>   hardirqs last disabled at (189006): [<ffff8000090667a4>] el1_dbg+0x24/0xa0
+>   softirqs last  enabled at (188966): [<ffff8000080106d0>] __do_softirq+0x4b0/0x6a0
+>   softirqs last disabled at (188957): [<ffff80000804a618>] __irq_exit_rcu+0x108/0x1a4
+> 
+> [ rjw: Because can be freed by the gov_attr_set_put() in
+>   cpufreq_dbs_governor_exit() now, it is also necessary to put the
+>   invocation of the governor ->exit() callback into the new
+>   cpufreq_dbs_data_release() function. ]
+> 
+> Fixes: c4435630361d ("cpufreq: governor: New sysfs show/store callbacks for governor tunables")
+> Signed-off-by: Kevin Hao <haokexin@gmail.com>
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> ---
+> Hi,
+> 
+> The original upstream patch has the Fixes tag, but I have no idea why it
+> wasn't picked up by the 5.15 stable kernel.
 
-This is a note to let you know that I've just added the patch titled
+That is because that is NOT how you mark commits for stable backports.
+Please see:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-    comedi: adv_pci1760: Fix PWM instruction handling
+thanks,
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 2efb6edd52dc50273f5e68ad863dd1b1fb2f2d1c Mon Sep 17 00:00:00 2001
-From: Ian Abbott <abbotti@mev.co.uk>
-Date: Tue, 3 Jan 2023 14:37:54 +0000
-Subject: comedi: adv_pci1760: Fix PWM instruction handling
-
-(Actually, this is fixing the "Read the Current Status" command sent to
-the device's outgoing mailbox, but it is only currently used for the PWM
-instructions.)
-
-The PCI-1760 is operated mostly by sending commands to a set of Outgoing
-Mailbox registers, waiting for the command to complete, and reading the
-result from the Incoming Mailbox registers.  One of these commands is
-the "Read the Current Status" command.  The number of this command is
-0x07 (see the User's Manual for the PCI-1760 at
-<https://advdownload.advantech.com/productfile/Downloadfile2/1-11P6653/PCI-1760.pdf>.
-The `PCI1760_CMD_GET_STATUS` macro defined in the driver should expand
-to this command number 0x07, but unfortunately it currently expands to
-0x03.  (Command number 0x03 is not defined in the User's Manual.)
-Correct the definition of the `PCI1760_CMD_GET_STATUS` macro to fix it.
-
-This is used by all the PWM subdevice related instructions handled by
-`pci1760_pwm_insn_config()` which are probably all broken.  The effect
-of sending the undefined command number 0x03 is not known.
-
-Fixes: 14b93bb6bbf0 ("staging: comedi: adv_pci_dio: separate out PCI-1760 support")
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20230103143754.17564-1-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/comedi/drivers/adv_pci1760.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/comedi/drivers/adv_pci1760.c b/drivers/comedi/drivers/adv_pci1760.c
-index fcfc2e299110..27f3890f471d 100644
---- a/drivers/comedi/drivers/adv_pci1760.c
-+++ b/drivers/comedi/drivers/adv_pci1760.c
-@@ -58,7 +58,7 @@
- #define PCI1760_CMD_CLR_IMB2		0x00	/* Clears IMB2 */
- #define PCI1760_CMD_SET_DO		0x01	/* Set output state */
- #define PCI1760_CMD_GET_DO		0x02	/* Read output status */
--#define PCI1760_CMD_GET_STATUS		0x03	/* Read current status */
-+#define PCI1760_CMD_GET_STATUS		0x07	/* Read current status */
- #define PCI1760_CMD_GET_FW_VER		0x0e	/* Read firmware version */
- #define PCI1760_CMD_GET_HW_VER		0x0f	/* Read hardware version */
- #define PCI1760_CMD_SET_PWM_HI(x)	(0x10 + (x) * 2) /* Set "hi" period */
--- 
-2.39.1
-
-
+greg k-h
