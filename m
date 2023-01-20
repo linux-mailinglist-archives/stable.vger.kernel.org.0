@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C0167544F
-	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 13:22:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3E94675450
+	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 13:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229998AbjATMWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Jan 2023 07:22:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
+        id S230112AbjATMWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Jan 2023 07:22:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbjATMWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 07:22:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B733658F
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 04:22:39 -0800 (PST)
+        with ESMTP id S229450AbjATMWv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 07:22:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26A5B4C6F6
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 04:22:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0467B82232
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 12:22:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 053DBC433D2;
-        Fri, 20 Jan 2023 12:22:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AD2C61DEA
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 12:22:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8351DC433D2;
+        Fri, 20 Jan 2023 12:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674217357;
-        bh=Ry7rIF2UudFbNU/wi4b3TaLzGjqik05fDghimlPB/Qo=;
+        s=korg; t=1674217368;
+        bh=S8K2qTBB9t4M10FNqMXxQDVdni5qWIXW+RiiKdiBdwI=;
         h=Subject:To:From:Date:From;
-        b=sLnucLKG/ZMvdpNTB67RtfOcuL8/KulKyTBPzQ+dQ8uIZSdWdnrfvbHPGujjuXTbr
-         ygVtf+f9JmvgQQIx8Dob4ZpDJXSd2dNq+qUqjnTHHCNOhuxlL873YqwCgDJuR3g/tm
-         z4XoiuP6+/+8JWmehnaLQK6IshC5Jm7EFx0zPdSo=
-Subject: patch "mei: bus: fix unlink on bus in error path" added to char-misc-linus
+        b=in3Zk+UIhbzUCVRHPe8amdWiQxW9mfjZl3P6/5ZgEWAut3F5Ag5jpL/4agBuBnD6e
+         SLmengrRn3o78L4XjxFPZ/4Et7uszali/A3TPtvh8fVhdTaHVQPrUiwZraaB/2THs2
+         yXTA++QEBUB4B3qc0Y9r0EJrXj+TjYzlNckARiSY=
+Subject: patch "mei: me: add meteor lake point M DID" added to char-misc-linus
 To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org, tomas.winkler@intel.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 20 Jan 2023 13:22:34 +0100
-Message-ID: <1674217354132161@kroah.com>
+Date:   Fri, 20 Jan 2023 13:22:35 +0100
+Message-ID: <167421735515948@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    mei: bus: fix unlink on bus in error path
+    mei: me: add meteor lake point M DID
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,79 +64,49 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From a43866856125c3c432e2fbb6cc63cee1539ec4a7 Mon Sep 17 00:00:00 2001
+From 0c4d68261717f89fa8c4f98a6967c3832fcb3ad0 Mon Sep 17 00:00:00 2001
 From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Tue, 13 Dec 2022 00:02:46 +0200
-Subject: mei: bus: fix unlink on bus in error path
+Date: Tue, 13 Dec 2022 00:02:47 +0200
+Subject: mei: me: add meteor lake point M DID
 
-Unconditional call to mei_cl_unlink in mei_cl_bus_dev_release leads
-to call of the mei_cl_unlink without corresponding mei_cl_link.
-This leads to miscalculation of open_handle_count (decrease without
-increase).
+Add Meteor Lake Point M device id.
 
-Call unlink in mei_cldev_enable fail path and remove blanket unlink
-from mei_cl_bus_dev_release.
-
-Fixes: 34f1166afd67 ("mei: bus: need to unlink client before freeing")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Reviewed-by: Tomas Winkler <tomas.winkler@intel.com>
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20221212220247.286019-1-tomas.winkler@intel.com
+Link: https://lore.kernel.org/r/20221212220247.286019-2-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/bus.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/misc/mei/hw-me-regs.h | 2 ++
+ drivers/misc/mei/pci-me.c     | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
-index 4a08b624910a..a81b890c7ee6 100644
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -702,13 +702,15 @@ void *mei_cldev_dma_map(struct mei_cl_device *cldev, u8 buffer_id, size_t size)
- 	if (cl->state == MEI_FILE_UNINITIALIZED) {
- 		ret = mei_cl_link(cl);
- 		if (ret)
--			goto out;
-+			goto notlinked;
- 		/* update pointers */
- 		cl->cldev = cldev;
- 	}
+diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
+index 99966cd3e7d8..bdc65d50b945 100644
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -111,6 +111,8 @@
  
- 	ret = mei_cl_dma_alloc_and_map(cl, NULL, buffer_id, size);
--out:
-+	if (ret)
-+		mei_cl_unlink(cl);
-+notlinked:
- 	mutex_unlock(&bus->device_lock);
- 	if (ret)
- 		return ERR_PTR(ret);
-@@ -758,7 +760,7 @@ int mei_cldev_enable(struct mei_cl_device *cldev)
- 	if (cl->state == MEI_FILE_UNINITIALIZED) {
- 		ret = mei_cl_link(cl);
- 		if (ret)
--			goto out;
-+			goto notlinked;
- 		/* update pointers */
- 		cl->cldev = cldev;
- 	}
-@@ -785,6 +787,9 @@ int mei_cldev_enable(struct mei_cl_device *cldev)
- 	}
+ #define MEI_DEV_ID_RPL_S      0x7A68  /* Raptor Lake Point S */
  
- out:
-+	if (ret)
-+		mei_cl_unlink(cl);
-+notlinked:
- 	mutex_unlock(&bus->device_lock);
++#define MEI_DEV_ID_MTL_M      0x7E70  /* Meteor Lake Point M */
++
+ /*
+  * MEI HW Section
+  */
+diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
+index 704cd0caa172..5bf0d50d55a0 100644
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -118,6 +118,8 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
  
- 	return ret;
-@@ -1277,7 +1282,6 @@ static void mei_cl_bus_dev_release(struct device *dev)
- 	mei_cl_flush_queues(cldev->cl, NULL);
- 	mei_me_cl_put(cldev->me_cl);
- 	mei_dev_bus_put(cldev->bus);
--	mei_cl_unlink(cldev->cl);
- 	kfree(cldev->cl);
- 	kfree(cldev);
- }
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_RPL_S, MEI_ME_PCH15_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_MTL_M, MEI_ME_PCH15_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
 -- 
 2.39.1
 
