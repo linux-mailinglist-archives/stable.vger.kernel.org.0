@@ -2,85 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A46D3675D2C
-	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 19:56:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED7CC675D34
+	for <lists+stable@lfdr.de>; Fri, 20 Jan 2023 19:57:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229689AbjATS4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Jan 2023 13:56:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59626 "EHLO
+        id S229899AbjATS5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Jan 2023 13:57:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229461AbjATS4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 13:56:09 -0500
-Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 179166C12C;
-        Fri, 20 Jan 2023 10:56:05 -0800 (PST)
-Received: from zn.tnic (p5de8e9fe.dip0.t-ipconnect.de [93.232.233.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 956681EC0682;
-        Fri, 20 Jan 2023 19:56:03 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1674240963;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=nNdhkNTHsvTW1v9Je9j5xMnmdfrjN9ZvkDa4cJMrLxE=;
-        b=IjjRnqRKu6QaNTF3MMG/a9bqezfBraHl6lJvJZBwxln/lQItXFr6zSkja7hi6F7+F3/FE3
-        OcG9MdTx9uE6WKyzChH83Q0qDKcdxh55tuzYHqRnyhdgWQUW2QrMwCdWKBu6eDEbQ+kFhW
-        4rN5vsFELNRIE+48QuW53DWVSbTouic=
-Date:   Fri, 20 Jan 2023 19:56:03 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc:     andersson@kernel.org, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, tony.luck@intel.com,
-        quic_saipraka@quicinc.com, konrad.dybcio@linaro.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        james.morse@arm.com, mchehab@kernel.org, rric@kernel.org,
-        linux-edac@vger.kernel.org, quic_ppareek@quicinc.com,
-        luca.weiss@fairphone.com, ahalaney@redhat.com, steev@kali.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v6 03/17] EDAC/qcom: Do not pass llcc_driv_data as
- edac_device_ctl_info's pvt_info
-Message-ID: <Y8rjw/VLXICtK0hO@zn.tnic>
-References: <20230118150904.26913-1-manivannan.sadhasivam@linaro.org>
- <20230118150904.26913-4-manivannan.sadhasivam@linaro.org>
+        with ESMTP id S229895AbjATS5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 13:57:18 -0500
+Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4897DC41E4
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 10:57:16 -0800 (PST)
+Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-4a263c4ddbaso86375257b3.0
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 10:57:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=mbJBQ/QNe3N4k5AQeZLZDsaOTwFekuD7h3aFXUEjErE=;
+        b=XY/aPGJF5s1t0ViUZ64imTUVbWIWEsrKzM7m6y9Prq/1GonmrRHDzvqHddP1SqAkNc
+         AGJcJBKY9i5xehpcWW59FnUwsSI3nra/1Osl9zUz2CaBK6hurxF8rQ8+V/0veM590lJz
+         OokbEClM1EX6igLVydpdmwpAItIWzrSTzQzyM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mbJBQ/QNe3N4k5AQeZLZDsaOTwFekuD7h3aFXUEjErE=;
+        b=WZCfy+lP9iDkscMesJRMiq8ztmWjumuwGe/iyaBvL6IBFzRf77dIlksr/SbTV3NWtf
+         zJEYDwsTA1V+Z+Rh5Q3ACvjhasQ3aKUPTn9qdUaTNULwBLNb4Yp8lEWtQatpILRuwnYF
+         1fEEGwmxFrAbnY4g2AdE80HNVFXR4SRjALQaH6qN/GQ/Y1lqWcd+ULuqVwAZ7lnGdP1r
+         f5VMlDQO+9qEBPMaYZOr3p0uj+zNEot+m+KwGZ77t66NlJHXO09asoxDudkzKad+Z4Qf
+         wg1itx0L0MtkwLZVYheU0Bd6krCB+P2ATDGcZgJOG21BEYJd3ZH+2nHPTEOjx/5XzdaJ
+         5b+g==
+X-Gm-Message-State: AFqh2kplcynJJZmWg8+JMAxxqIV9/5zOd7IwXlcxZlKmc6TMj3UkqFKl
+        od6V3uq9urwc667VIVacW7Eux6PmoxaEvPq2/48a5w==
+X-Google-Smtp-Source: AMrXdXtbRwrhsETPSpzdFoX/sF7xdUw/sHjyyeAXaIonbA7r+3iCHQib6JsUcneLeqrwfhYhrGz8psuDJ10yZ2bfq0M=
+X-Received: by 2002:a0d:e8c9:0:b0:4e0:7220:22fd with SMTP id
+ r192-20020a0de8c9000000b004e0722022fdmr2041281ywe.272.1674241035508; Fri, 20
+ Jan 2023 10:57:15 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20230118150904.26913-4-manivannan.sadhasivam@linaro.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20230118031514.1278139-1-pmalani@chromium.org>
+ <Y8e+YlKiC6FHdQ5s@kuha.fi.intel.com> <CACeCKafPzxYWh5a4xmeggc+4zRou73kHnwV-G5xMfQDheGgGdg@mail.gmail.com>
+ <Y8kMsw/wT35KN7VK@kuha.fi.intel.com> <CACeCKaceu1KCPtpavBn23qyM29Eacxhm6L9SN78ZQxdzRCOk6Q@mail.gmail.com>
+ <CACeCKaea_ZtzUZNAHMaDU9ff_BBs6sF_DqqMnkFcW_=_txVL4w@mail.gmail.com>
+ <Y8pb+BTd7VJqwLzq@kuha.fi.intel.com> <Y8pdha65Co0DCihr@kuha.fi.intel.com>
+In-Reply-To: <Y8pdha65Co0DCihr@kuha.fi.intel.com>
+From:   Prashant Malani <pmalani@chromium.org>
+Date:   Fri, 20 Jan 2023 10:57:04 -0800
+Message-ID: <CACeCKac6zNNm7_aFLoy3eDLjcrvcKCdKLrHZq38dVLMSzW9ZTA@mail.gmail.com>
+Subject: Re: [PATCH] usb: typec: altmodes/displayport: Update active state
+To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        bleung@chromium.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 18, 2023 at 08:38:50PM +0530, Manivannan Sadhasivam wrote:
-> The memory for "llcc_driv_data" is allocated by the LLCC driver. But when
-> it is passed as "pvt_info" to the EDAC core, it will get freed during the
-> qcom_edac driver release. So when the qcom_edac driver gets probed again,
-> it will try to use the freed data leading to the use-after-free bug.
-> 
-> Hence, do not pass "llcc_driv_data" as pvt_info but rather reference it
-> using the "platform_data" in the qcom_edac driver.
-> 
-> Cc: <stable@vger.kernel.org> # 4.20
-> Fixes: 27450653f1db ("drivers: edac: Add EDAC driver support for QCOM SoCs")
-> Tested-by: Steev Klimaszewski <steev@kali.org> # Thinkpad X13s
-> Tested-by: Andrew Halaney <ahalaney@redhat.com> # sa8540p-ride
-> Reported-by: Steev Klimaszewski <steev@kali.org>
-> Reviewed-by: Borislav Petkov (AMD) <bp@alien8.de>
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> ---
->  drivers/edac/qcom_edac.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+On Fri, Jan 20, 2023 at 1:23 AM Heikki Krogerus
+<heikki.krogerus@linux.intel.com> wrote:
+>
+> On Fri, Jan 20, 2023 at 11:16:43AM +0200, Heikki Krogerus wrote:
+> > It's not be possible to enter a mode with tcpm.c unless there is
+> > a driver for the altmode currently. Something has to take care of the
+> > altmode, and if that something is not the altmode driver it would need
+> > to be the user space. Right now we don't have an interface for that.
+> >
+> > In any case, if there's no driver for the altmode, then the partner
+> > altmode "active" file should not be visible.
+>
+> I meant read-only :-).
 
-Applied, thanks.
+Got it. Thank you for explaining this to me :)
 
--- 
-Regards/Gruss,
-    Boris.
+I will send out a v2 soon.
 
-https://people.kernel.org/tglx/notes-about-netiquette
+BR,
+
+-Prashant
