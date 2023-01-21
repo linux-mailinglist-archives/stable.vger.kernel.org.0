@@ -2,133 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2905676433
-	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 07:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7F86764E7
+	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 08:20:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229801AbjAUGjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Jan 2023 01:39:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36762 "EHLO
+        id S229568AbjAUHUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Jan 2023 02:20:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbjAUGjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 01:39:32 -0500
-Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB8203AB1
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 22:39:31 -0800 (PST)
-Received: by mail-yb1-xb42.google.com with SMTP id d62so9246411ybh.8
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 22:39:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:sender
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=9Lt7d8tKOpnghFUCeL4ZvrJ/wHXrklZjZ12mTYdnFQ4=;
-        b=TGwqSgGZs+qV9kRBPSHL5HoZYwgHJFcD99zYdgmypVUZY7bMOqTi/ra/HyThSPEyae
-         +pJVVKEK1ML66HybWa8gIyqXl1FHELr81oC9RvDtPDF2lmpxi+yDgPGxtYNzyEfY4/G3
-         2ysP7G7yINIbheJz7cQHXAFXwbGRmLRMNgiKq4Rs4I3Jw7FFLcCil638IzN6ASJNxU+C
-         K49Qn8845daHPw/Unoe9V6RkWLKxDrZrrHURKTyuSzzO8jDHbQ2jhF49nh0yDHKw0o3R
-         ouKXaQ/CN5HkPWqXm3bVh881cFWGUGV7I6Nqbqwyt3iMCN4OWBE1lTedUUTildoxXeSn
-         QZ7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:sender
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9Lt7d8tKOpnghFUCeL4ZvrJ/wHXrklZjZ12mTYdnFQ4=;
-        b=us0+RTeouVN2dq8fZ4OZhhOB+KjRt2KcWDWsTlh6pPoErKGsHSeGhugBEAt+38b70s
-         66n2lC4y46gcTgIAHzNqO3qm9Tsj0xi0mIJdxi89p3f2Pznjuimjt7tXPY7UsNlX6p+L
-         dAvY8ZtjmErKdY+lGHXe9RE8YeEjBlJLzRColh9LIwerTAWo1VfzVUZC2N7tWzm1Yb1Q
-         Yl85AA5e1OEJtJ2ZmUCrJ1FtRr2UGHcrwMQ7Lby/xQ93CVuHFe/VTDWXBYIRcHmZ8b4T
-         5MFKXo/f6SGkEJBDMWR7uxjCgJNmu2NtZ5y0A/KL0QVQQRNSuJ5Cpr8/NNuruNftkxPG
-         KbfA==
-X-Gm-Message-State: AFqh2kp/hKYI4BM8MorxjIDyruCJwOI6B4xq61EGSaSfzyb/nuB0DmvX
-        XYsws/kBIWJRKxuo9CNkSh9MT6FMCsH5WtHVedA=
-X-Google-Smtp-Source: AMrXdXszpVBIj0FUeLWRUY0CHxSmdSHvJesqcyDQUH/PeUPx7QMaftWNC6320fymRiEN0gwWCC/w8WA2wjdi7EwGBOE=
-X-Received: by 2002:a25:aaca:0:b0:6f7:f225:d623 with SMTP id
- t68-20020a25aaca000000b006f7f225d623mr1961757ybi.169.1674283170972; Fri, 20
- Jan 2023 22:39:30 -0800 (PST)
+        with ESMTP id S229544AbjAUHUd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 02:20:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E8A6E0FE
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 23:20:32 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1339C6023E
+        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 07:20:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10DDCC433D2;
+        Sat, 21 Jan 2023 07:20:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1674285631;
+        bh=PnVSxXkaLYKWQfgTwGiRvhv/631TKMtH6r7V3MnhUjE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CGVVHl+901mj841DkQ2+w2VR97373sUHMkCDOghEHcOWA1pfL1RGPRwRzyaDjBZa6
+         4rXUkYyPUp6Z2xu2LfLZ3jbO1vDGYF9xbykdYjnEYn2d/LOvYSQYXiraqdQoBmY2Or
+         BSSvubc/g2KSCM9x8I36Wk6ssk+5iOM1GQDmzAVo=
+Date:   Sat, 21 Jan 2023 08:20:28 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Tim Huang <tim.huang@amd.com>
+Cc:     amd-gfx@lists.freedesktop.org, stable@vger.kernel.org,
+        Alexander.Deucher@amd.com, Yifan1.zhang@amd.com,
+        Xiaojian.Du@amd.com, li.ma@amd.com, mario.limonciello@amd.com
+Subject: Re: [PATCH v2] drm/amd/pm: drop unneeded dpm features disablement
+ for SMU 13.0.4/11
+Message-ID: <Y8uSPP34u39uPvvp@kroah.com>
+References: <20230121024955.1601467-1-tim.huang@amd.com>
 MIME-Version: 1.0
-Sender: mrs.umasinha66@gmail.com
-Received: by 2002:a05:7010:438b:b0:325:16df:a4ae with HTTP; Fri, 20 Jan 2023
- 22:39:30 -0800 (PST)
-From:   Ibrahim Idewu <ibrahimidewu4@gmail.com>
-Date:   Sat, 21 Jan 2023 07:39:30 +0100
-X-Google-Sender-Auth: QNafKsWxWKjSDxNIVM7ei8Ahf0g
-Message-ID: <CAH0-YCmD3icG3asazx8bg2PyMif1=ovF49Xua6unnFhMeRCyZA@mail.gmail.com>
-Subject: URGENT RESPONSE
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=6.8 required=5.0 tests=ADVANCE_FEE_5_NEW_FRM_MNY,
-        BAYES_50,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FILL_THIS_FORM,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,LOTS_OF_MONEY,
-        MILLION_USD,MONEY_FORM,MONEY_FRAUD_5,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,SUBJ_ALL_CAPS,T_FILL_THIS_FORM_LOAN,T_MONEY_PERCENT,
-        UNDISC_MONEY,URG_BIZ autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:b42 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5892]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [mrs.umasinha66[at]gmail.com]
-        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [mrs.umasinha66[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  2.0 MILLION_USD BODY: Talks about millions of dollars
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  0.6 URG_BIZ Contains urgent matter
-        *  0.0 T_MONEY_PERCENT X% of a lot of money for you
-        *  0.0 FILL_THIS_FORM Fill in a form with personal information
-        *  0.0 T_FILL_THIS_FORM_LOAN Answer loan question(s)
-        *  0.0 MONEY_FORM Lots of money if you fill out a form
-        *  0.0 ADVANCE_FEE_5_NEW_FRM_MNY Advance Fee fraud form and lots of
-        *      money
-        *  2.9 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-        *  0.0 MONEY_FRAUD_5 Lots of money and many fraud phrases
-X-Spam-Level: ******
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230121024955.1601467-1-tim.huang@amd.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I have a business proposal in the region of $19.3million USD for you to han=
-dle
-with me. I have the opportunity to transfer this abandoned fund to your ban=
-k
-account in your country which belongs to our dead client.
+On Sat, Jan 21, 2023 at 10:49:55AM +0800, Tim Huang wrote:
+> PMFW will handle that properly for gpu reset case. Driver involvement
+> may cause some unexpected issues.
+> 
+> Signed-off-by: Tim Huang <tim.huang@amd.com>
+> ---
+>  drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+> 
 
-I am inviting you in this transaction where this money can be shared
-between us at the ratio of 50/50% and help the needy around us don=E2=80=99=
-t be
-afraid of anything I am with you and will instruct you what you will do
-to maintain this fund.
+<formletter>
 
-below is my information.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Full name...Mr.Ibrahim idewu
-
-country.....Burkina faso
-
-Occupation.....Banker
-
-Age...55years
-
-Telephone number...+22665604193
-
-send me your own so we can proceed.
-
-THANKS.
-
-REPLY ME
+</formletter>
