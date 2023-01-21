@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 821B56765BD
-	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 11:34:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4466E6765BE
+	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 11:34:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229707AbjAUKex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Jan 2023 05:34:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32888 "EHLO
+        id S229694AbjAUKey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Jan 2023 05:34:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbjAUKew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 05:34:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154494AA64
-        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 02:34:48 -0800 (PST)
+        with ESMTP id S229552AbjAUKex (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 05:34:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31FD34B180
+        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 02:34:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71415B82B88
-        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 10:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63F6C433D2;
-        Sat, 21 Jan 2023 10:34:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84E8660AD7
+        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 10:34:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FBE6C4339E;
+        Sat, 21 Jan 2023 10:34:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674297286;
-        bh=aJbW9ZnFDYmYwbHAMkyNCa9GaHmINeg1Chcw3ITaKNY=;
+        s=korg; t=1674297288;
+        bh=2A6C7t+ZVlZzjSSkkQDhg6gNhD1OCpsZqCKaB9UDP3M=;
         h=Subject:To:Cc:From:Date:From;
-        b=FqNg8k0BghYKqU/iPMhgGhKbZFNOQSecm6coTCoKA4CJqKvFIR8THwPA2+OwZurcS
-         SbUWahgUE7FFypcAdnYBRyrvcXcupFCmkDPp6feYQCWTBctKBdWZanuagrMHKleSrX
-         lgIcalorBV7RMf+7j2mI4r4i46pnBjFjXQEWGRNY=
-Subject: FAILED: patch "[PATCH] hugetlb: unshare some PMDs when splitting VMAs" failed to apply to 5.15-stable tree
-To:     jthoughton@google.com, akpm@linux-foundation.org,
-        axelrasmussen@google.com, mike.kravetz@oracle.com,
-        peterx@redhat.com, songmuchun@bytedance.com, stable@vger.kernel.org
+        b=GOsKeymXdR5i9bFcOE1ZOsa6gUMgv8f26/tbM7QOc3V1Bwi9Y9gf7QF/UYKCH6f6z
+         kuHIdRjbomjUcYqV2NqoVn3Q4/Ienjgk4bpD4FXCH0WVB+FFx7s3eJMtrFb6YtJLmY
+         F7+z+4mXoELQ+axcW0muqn93CrBubcPalElJUSxc=
+Subject: FAILED: patch "[PATCH] mm/khugepaged: fix collapse_pte_mapped_thp() to allow" failed to apply to 5.15-stable tree
+To:     hughd@google.com, akpm@linux-foundation.org, david@redhat.com,
+        jannh@google.com, shy828301@gmail.com, songliubraving@fb.com,
+        stable@vger.kernel.org, zokeefe@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 21 Jan 2023 11:29:16 +0100
-Message-ID: <167429695652117@kroah.com>
+Date:   Sat, 21 Jan 2023 11:29:37 +0100
+Message-ID: <1674296977196124@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,20 +57,26 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-b30c14cd6102 ("hugetlb: unshare some PMDs when splitting VMAs")
-ecfbd733878d ("hugetlb: take hugetlb vma_lock when clearing vma_lock->vma pointer")
-131a79b474e9 ("hugetlb: fix vma lock handling during split vma and range unmapping")
-40549ba8f8e0 ("hugetlb: use new vma_lock for pmd sharing synchronization")
-378397ccb8e5 ("hugetlb: create hugetlb_unmap_file_folio to unmap single file folio")
-8d9bfb260814 ("hugetlb: add vma based lock for pmd sharing")
-12710fd69634 ("hugetlb: rename vma_shareable() and refactor code")
-c86272287bc6 ("hugetlb: create remove_inode_single_folio to remove single file folio")
-7e1813d48dd3 ("hugetlb: rename remove_huge_page to hugetlb_delete_from_page_cache")
-3a47c54f09c4 ("hugetlbfs: revert use i_mmap_rwsem for more pmd sharing synchronization")
-188a39725ad7 ("hugetlbfs: revert use i_mmap_rwsem to address page fault/truncate race")
-5e6b1bf1b5c3 ("hugetlb: remove meaningless BUG_ON(huge_pte_none())")
-3a5497a2dae3 ("mm/hugetlb: fix missing call to restore_reserve_on_error()")
-6614a3c3164a ("Merge tag 'mm-stable-2022-08-03' of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm")
+ab0c3f1251b4 ("mm/khugepaged: fix collapse_pte_mapped_thp() to allow anon_vma")
+8d3c106e19e8 ("mm/khugepaged: take the right locks for page table retraction")
+34488399fa08 ("mm/madvise: add file and shmem support to MADV_COLLAPSE")
+58ac9a8993a1 ("mm/khugepaged: attempt to map file/shmem-backed pte-mapped THPs by pmds")
+780a4b6fb865 ("mm/khugepaged: check compound_order() in collapse_pte_mapped_thp()")
+b26e27015ec9 ("mm: thp: convert to use common struct mm_slot")
+685405020b9f ("mm/khugepaged: stop using vma linked list")
+7d2c4385c341 ("mm/khugepaged: rename prefix of shared collapse functions")
+7d8faaf15545 ("mm/madvise: introduce MADV_COLLAPSE sync hugepage collapse")
+507228044236 ("mm/khugepaged: record SCAN_PMD_MAPPED when scan_pmd() finds hugepage")
+a7f4e6e4c47c ("mm/thp: add flag to enforce sysfs THP in hugepage_vma_check()")
+50ad2f24b3b4 ("mm/khugepaged: propagate enum scan_result codes back to callers")
+9710a78ab2ae ("mm/khugepaged: dedup and simplify hugepage alloc and charging")
+34d6b470ab9c ("mm/khugepaged: add struct collapse_control")
+c6a7f445a272 ("mm: khugepaged: don't carry huge page to the next loop for !CONFIG_NUMA")
+1064026bab9f ("mm: khugepaged: reorg some khugepaged helpers")
+7da4e2cb8b1f ("mm: thp: kill __transhuge_page_enabled()")
+9fec51689ff6 ("mm: thp: kill transparent_hugepage_active()")
+f707fa493784 ("mm: khugepaged: better comments for anon vma check in hugepage_vma_revalidate")
+4fa6893faeaa ("mm: thp: consolidate vma size check to transhuge_vma_suitable")
 
 thanks,
 
@@ -78,121 +84,79 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b30c14cd61025eeea2f2e8569606cd167ba9ad2d Mon Sep 17 00:00:00 2001
-From: James Houghton <jthoughton@google.com>
-Date: Wed, 4 Jan 2023 23:19:10 +0000
-Subject: [PATCH] hugetlb: unshare some PMDs when splitting VMAs
+From ab0c3f1251b4670978fde0bd54161795a139b060 Mon Sep 17 00:00:00 2001
+From: Hugh Dickins <hughd@google.com>
+Date: Thu, 22 Dec 2022 12:41:50 -0800
+Subject: [PATCH] mm/khugepaged: fix collapse_pte_mapped_thp() to allow
+ anon_vma
 
-PMD sharing can only be done in PUD_SIZE-aligned pieces of VMAs; however,
-it is possible that HugeTLB VMAs are split without unsharing the PMDs
-first.
+uprobe_write_opcode() uses collapse_pte_mapped_thp() to restore huge pmd,
+when removing a breakpoint from hugepage text: vma->anon_vma is always set
+in that case, so undo the prohibition.  And MADV_COLLAPSE ought to be able
+to collapse some page tables in a vma which happens to have anon_vma set
+from CoWing elsewhere.
 
-Without this fix, it is possible to hit the uffd-wp-related WARN_ON_ONCE
-in hugetlb_change_protection [1].  The key there is that
-hugetlb_unshare_all_pmds will not attempt to unshare PMDs in
-non-PUD_SIZE-aligned sections of the VMA.
+Is anon_vma lock required?  Almost not: if any page other than expected
+subpage of the non-anon huge page is found in the page table, collapse is
+aborted without making any change.  However, it is possible that an anon
+page was CoWed from this extent in another mm or vma, in which case a
+concurrent lookup might look here: so keep it away while clearing pmd (but
+perhaps we shall go back to using pmd_lock() there in future).
 
-It might seem ideal to unshare in hugetlb_vm_op_open, but we need to
-unshare in both the new and old VMAs, so unsharing in hugetlb_vm_op_split
-seems natural.
+Note that collapse_pte_mapped_thp() is exceptional in freeing a page table
+without having cleared its ptes: I'm uneasy about that, and had thought
+pte_clear()ing appropriate; but exclusive i_mmap lock does fix the
+problem, and we would have to move the mmu_notification if clearing those
+ptes.
 
-[1]: https://lore.kernel.org/linux-mm/CADrL8HVeOkj0QH5VZZbRzybNE8CG-tEGFshnA+bG9nMgcWtBSg@mail.gmail.com/
+What this fixes is not a dangerous instability.  But I suggest Cc stable
+because uprobes "healing" has regressed in that way, so this should follow
+8d3c106e19e8 into those stable releases where it was backported (and may
+want adjustment there - I'll supply backports as needed).
 
-Link: https://lkml.kernel.org/r/20230104231910.1464197-1-jthoughton@google.com
-Fixes: 6dfeaff93be1 ("hugetlb/userfaultfd: unshare all pmds for hugetlbfs when register wp")
-Signed-off-by: James Houghton <jthoughton@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/b740c9fb-edba-92ba-59fb-7a5592e5dfc@google.com
+Fixes: 8d3c106e19e8 ("mm/khugepaged: take the right locks for page table retraction")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Zach O'Keefe <zokeefe@google.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: <stable@vger.kernel.org>    [5.4+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index bd7d39227344..2ce912c915eb 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -94,6 +94,8 @@ static int hugetlb_acct_memory(struct hstate *h, long delta);
- static void hugetlb_vma_lock_free(struct vm_area_struct *vma);
- static void hugetlb_vma_lock_alloc(struct vm_area_struct *vma);
- static void __hugetlb_vma_unlock_write_free(struct vm_area_struct *vma);
-+static void hugetlb_unshare_pmds(struct vm_area_struct *vma,
-+		unsigned long start, unsigned long end);
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 5cb401aa2b9d..9a0135b39b19 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1460,14 +1460,6 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+ 	if (!hugepage_vma_check(vma, vma->vm_flags, false, false, false))
+ 		return SCAN_VMA_CHECK;
  
- static inline bool subpool_is_free(struct hugepage_subpool *spool)
- {
-@@ -4834,6 +4836,25 @@ static int hugetlb_vm_op_split(struct vm_area_struct *vma, unsigned long addr)
- {
- 	if (addr & ~(huge_page_mask(hstate_vma(vma))))
- 		return -EINVAL;
-+
-+	/*
-+	 * PMD sharing is only possible for PUD_SIZE-aligned address ranges
-+	 * in HugeTLB VMAs. If we will lose PUD_SIZE alignment due to this
-+	 * split, unshare PMDs in the PUD_SIZE interval surrounding addr now.
-+	 */
-+	if (addr & ~PUD_MASK) {
-+		/*
-+		 * hugetlb_vm_op_split is called right before we attempt to
-+		 * split the VMA. We will need to unshare PMDs in the old and
-+		 * new VMAs, so let's unshare before we split.
-+		 */
-+		unsigned long floor = addr & PUD_MASK;
-+		unsigned long ceil = floor + PUD_SIZE;
-+
-+		if (floor >= vma->vm_start && ceil <= vma->vm_end)
-+			hugetlb_unshare_pmds(vma, floor, ceil);
-+	}
-+
- 	return 0;
- }
- 
-@@ -7322,26 +7343,21 @@ void move_hugetlb_state(struct folio *old_folio, struct folio *new_folio, int re
- 	}
- }
- 
--/*
-- * This function will unconditionally remove all the shared pmd pgtable entries
-- * within the specific vma for a hugetlbfs memory range.
-- */
--void hugetlb_unshare_all_pmds(struct vm_area_struct *vma)
-+static void hugetlb_unshare_pmds(struct vm_area_struct *vma,
-+				   unsigned long start,
-+				   unsigned long end)
- {
- 	struct hstate *h = hstate_vma(vma);
- 	unsigned long sz = huge_page_size(h);
- 	struct mm_struct *mm = vma->vm_mm;
- 	struct mmu_notifier_range range;
--	unsigned long address, start, end;
-+	unsigned long address;
- 	spinlock_t *ptl;
- 	pte_t *ptep;
- 
- 	if (!(vma->vm_flags & VM_MAYSHARE))
- 		return;
- 
--	start = ALIGN(vma->vm_start, PUD_SIZE);
--	end = ALIGN_DOWN(vma->vm_end, PUD_SIZE);
+-	/*
+-	 * Symmetry with retract_page_tables(): Exclude MAP_PRIVATE mappings
+-	 * that got written to. Without this, we'd have to also lock the
+-	 * anon_vma if one exists.
+-	 */
+-	if (vma->anon_vma)
+-		return SCAN_VMA_CHECK;
 -
- 	if (start >= end)
- 		return;
+ 	/* Keep pmd pgtable for uffd-wp; see comment in retract_page_tables() */
+ 	if (userfaultfd_wp(vma))
+ 		return SCAN_PTE_UFFD_WP;
+@@ -1567,8 +1559,14 @@ int collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr,
+ 	}
  
-@@ -7373,6 +7389,16 @@ void hugetlb_unshare_all_pmds(struct vm_area_struct *vma)
- 	mmu_notifier_invalidate_range_end(&range);
- }
- 
-+/*
-+ * This function will unconditionally remove all the shared pmd pgtable entries
-+ * within the specific vma for a hugetlbfs memory range.
-+ */
-+void hugetlb_unshare_all_pmds(struct vm_area_struct *vma)
-+{
-+	hugetlb_unshare_pmds(vma, ALIGN(vma->vm_start, PUD_SIZE),
-+			ALIGN_DOWN(vma->vm_end, PUD_SIZE));
-+}
+ 	/* step 4: remove pte entries */
++	/* we make no change to anon, but protect concurrent anon page lookup */
++	if (vma->anon_vma)
++		anon_vma_lock_write(vma->anon_vma);
 +
- #ifdef CONFIG_CMA
- static bool cma_reserve_called __initdata;
+ 	collapse_and_free_pmd(mm, vma, haddr, pmd);
  
++	if (vma->anon_vma)
++		anon_vma_unlock_write(vma->anon_vma);
+ 	i_mmap_unlock_write(vma->vm_file->f_mapping);
+ 
+ maybe_install_pmd:
 
