@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CE916765BC
-	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 11:34:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 821B56765BD
+	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 11:34:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229722AbjAUKes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Jan 2023 05:34:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32784 "EHLO
+        id S229707AbjAUKex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Jan 2023 05:34:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229694AbjAUKeq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 05:34:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDACE4AA4C
-        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 02:34:44 -0800 (PST)
+        with ESMTP id S229552AbjAUKew (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 05:34:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154494AA64
+        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 02:34:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2412A60B5A
-        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 10:34:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35291C433D2;
-        Sat, 21 Jan 2023 10:34:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71415B82B88
+        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 10:34:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63F6C433D2;
+        Sat, 21 Jan 2023 10:34:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674297283;
-        bh=z8FvEe2p5wYNfotB1LCgBRH8Z41SzIHkzxTJz0aYnfU=;
+        s=korg; t=1674297286;
+        bh=aJbW9ZnFDYmYwbHAMkyNCa9GaHmINeg1Chcw3ITaKNY=;
         h=Subject:To:Cc:From:Date:From;
-        b=lIPzUiukWwuIV1L3lTerGZiLShpxJ7V1ERXC358i3xzuIk6uxE3UfqxPH8QRDy/p0
-         r7V785uSJ6QN6/7T0nF6u5GyScV+x4fRHyKL92CVduB59tTc4Q4pO4lm+Wlzf+5vyN
-         9n+114Ga4Z3e0g1Cjw0rq/Sd0O5pZwmg0EUlRdj0=
-Subject: FAILED: patch "[PATCH] wifi: mac80211: Proper mark iTXQs for resumption" failed to apply to 6.1-stable tree
-To:     alexander@wetzel-home.de, johannes.berg@intel.com
+        b=FqNg8k0BghYKqU/iPMhgGhKbZFNOQSecm6coTCoKA4CJqKvFIR8THwPA2+OwZurcS
+         SbUWahgUE7FFypcAdnYBRyrvcXcupFCmkDPp6feYQCWTBctKBdWZanuagrMHKleSrX
+         lgIcalorBV7RMf+7j2mI4r4i46pnBjFjXQEWGRNY=
+Subject: FAILED: patch "[PATCH] hugetlb: unshare some PMDs when splitting VMAs" failed to apply to 5.15-stable tree
+To:     jthoughton@google.com, akpm@linux-foundation.org,
+        axelrasmussen@google.com, mike.kravetz@oracle.com,
+        peterx@redhat.com, songmuchun@bytedance.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 21 Jan 2023 11:26:34 +0100
-Message-ID: <16742967949726@kroah.com>
+Date:   Sat, 21 Jan 2023 11:29:16 +0100
+Message-ID: <167429695652117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,16 +50,27 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-4444bc2116ae ("wifi: mac80211: Proper mark iTXQs for resumption")
-107395f9cf44 ("wifi: mac80211: Drop support for TX push path")
-dfd2d876b3fd ("Merge remote-tracking branch 'wireless/main' into wireless-next")
+b30c14cd6102 ("hugetlb: unshare some PMDs when splitting VMAs")
+ecfbd733878d ("hugetlb: take hugetlb vma_lock when clearing vma_lock->vma pointer")
+131a79b474e9 ("hugetlb: fix vma lock handling during split vma and range unmapping")
+40549ba8f8e0 ("hugetlb: use new vma_lock for pmd sharing synchronization")
+378397ccb8e5 ("hugetlb: create hugetlb_unmap_file_folio to unmap single file folio")
+8d9bfb260814 ("hugetlb: add vma based lock for pmd sharing")
+12710fd69634 ("hugetlb: rename vma_shareable() and refactor code")
+c86272287bc6 ("hugetlb: create remove_inode_single_folio to remove single file folio")
+7e1813d48dd3 ("hugetlb: rename remove_huge_page to hugetlb_delete_from_page_cache")
+3a47c54f09c4 ("hugetlbfs: revert use i_mmap_rwsem for more pmd sharing synchronization")
+188a39725ad7 ("hugetlbfs: revert use i_mmap_rwsem to address page fault/truncate race")
+5e6b1bf1b5c3 ("hugetlb: remove meaningless BUG_ON(huge_pte_none())")
+3a5497a2dae3 ("mm/hugetlb: fix missing call to restore_reserve_on_error()")
+6614a3c3164a ("Merge tag 'mm-stable-2022-08-03' of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm")
 
 thanks,
 
@@ -65,237 +78,121 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4444bc2116aecdcde87dce80373540adc8bd478b Mon Sep 17 00:00:00 2001
-From: Alexander Wetzel <alexander@wetzel-home.de>
-Date: Fri, 30 Dec 2022 13:18:49 +0100
-Subject: [PATCH] wifi: mac80211: Proper mark iTXQs for resumption
+From b30c14cd61025eeea2f2e8569606cd167ba9ad2d Mon Sep 17 00:00:00 2001
+From: James Houghton <jthoughton@google.com>
+Date: Wed, 4 Jan 2023 23:19:10 +0000
+Subject: [PATCH] hugetlb: unshare some PMDs when splitting VMAs
 
-When a running wake_tx_queue() call is aborted due to a hw queue stop
-the corresponding iTXQ is not always correctly marked for resumption:
-wake_tx_push_queue() can stops the queue run without setting
-@IEEE80211_TXQ_STOP_NETIF_TX.
+PMD sharing can only be done in PUD_SIZE-aligned pieces of VMAs; however,
+it is possible that HugeTLB VMAs are split without unsharing the PMDs
+first.
 
-Without the @IEEE80211_TXQ_STOP_NETIF_TX flag __ieee80211_wake_txqs()
-will not schedule a new queue run and remaining frames in the queue get
-stuck till another frame is queued to it.
+Without this fix, it is possible to hit the uffd-wp-related WARN_ON_ONCE
+in hugetlb_change_protection [1].  The key there is that
+hugetlb_unshare_all_pmds will not attempt to unshare PMDs in
+non-PUD_SIZE-aligned sections of the VMA.
 
-Fix the issue for all drivers - also the ones with custom wake_tx_queue
-callbacks - by moving the logic into ieee80211_tx_dequeue() and drop the
-redundant @txqs_stopped.
+It might seem ideal to unshare in hugetlb_vm_op_open, but we need to
+unshare in both the new and old VMAs, so unsharing in hugetlb_vm_op_split
+seems natural.
 
-@IEEE80211_TXQ_STOP_NETIF_TX is also renamed to @IEEE80211_TXQ_DIRTY to
-better describe the flag.
+[1]: https://lore.kernel.org/linux-mm/CADrL8HVeOkj0QH5VZZbRzybNE8CG-tEGFshnA+bG9nMgcWtBSg@mail.gmail.com/
 
-Fixes: c850e31f79f0 ("wifi: mac80211: add internal handler for wake_tx_queue")
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
-Link: https://lore.kernel.org/r/20221230121850.218810-1-alexander@wetzel-home.de
-Cc: stable@vger.kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lkml.kernel.org/r/20230104231910.1464197-1-jthoughton@google.com
+Fixes: 6dfeaff93be1 ("hugetlb/userfaultfd: unshare all pmds for hugetlbfs when register wp")
+Signed-off-by: James Houghton <jthoughton@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/include/net/mac80211.h b/include/net/mac80211.h
-index 689da327ce2e..e3235b9c02c2 100644
---- a/include/net/mac80211.h
-+++ b/include/net/mac80211.h
-@@ -1832,8 +1832,6 @@ struct ieee80211_vif_cfg {
-  * @drv_priv: data area for driver use, will always be aligned to
-  *	sizeof(void \*).
-  * @txq: the multicast data TX queue
-- * @txqs_stopped: per AC flag to indicate that intermediate TXQs are stopped,
-- *	protected by fq->lock.
-  * @offload_flags: 802.3 -> 802.11 enapsulation offload flags, see
-  *	&enum ieee80211_offload_flags.
-  * @mbssid_tx_vif: Pointer to the transmitting interface if MBSSID is enabled.
-@@ -1863,8 +1861,6 @@ struct ieee80211_vif {
- 	bool probe_req_reg;
- 	bool rx_mcast_action_reg;
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index bd7d39227344..2ce912c915eb 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -94,6 +94,8 @@ static int hugetlb_acct_memory(struct hstate *h, long delta);
+ static void hugetlb_vma_lock_free(struct vm_area_struct *vma);
+ static void hugetlb_vma_lock_alloc(struct vm_area_struct *vma);
+ static void __hugetlb_vma_unlock_write_free(struct vm_area_struct *vma);
++static void hugetlb_unshare_pmds(struct vm_area_struct *vma,
++		unsigned long start, unsigned long end);
  
--	bool txqs_stopped[IEEE80211_NUM_ACS];
--
- 	struct ieee80211_vif *mbssid_tx_vif;
- 
- 	/* must be last */
-diff --git a/net/mac80211/debugfs_sta.c b/net/mac80211/debugfs_sta.c
-index 7a3d7893e19d..f1914bf39f0e 100644
---- a/net/mac80211/debugfs_sta.c
-+++ b/net/mac80211/debugfs_sta.c
-@@ -167,7 +167,7 @@ static ssize_t sta_aqm_read(struct file *file, char __user *userbuf,
- 			continue;
- 		txqi = to_txq_info(sta->sta.txq[i]);
- 		p += scnprintf(p, bufsz + buf - p,
--			       "%d %d %u %u %u %u %u %u %u %u %u 0x%lx(%s%s%s)\n",
-+			       "%d %d %u %u %u %u %u %u %u %u %u 0x%lx(%s%s%s%s)\n",
- 			       txqi->txq.tid,
- 			       txqi->txq.ac,
- 			       txqi->tin.backlog_bytes,
-@@ -182,7 +182,8 @@ static ssize_t sta_aqm_read(struct file *file, char __user *userbuf,
- 			       txqi->flags,
- 			       test_bit(IEEE80211_TXQ_STOP, &txqi->flags) ? "STOP" : "RUN",
- 			       test_bit(IEEE80211_TXQ_AMPDU, &txqi->flags) ? " AMPDU" : "",
--			       test_bit(IEEE80211_TXQ_NO_AMSDU, &txqi->flags) ? " NO-AMSDU" : "");
-+			       test_bit(IEEE80211_TXQ_NO_AMSDU, &txqi->flags) ? " NO-AMSDU" : "",
-+			       test_bit(IEEE80211_TXQ_DIRTY, &txqi->flags) ? " DIRTY" : "");
- 	}
- 
- 	rcu_read_unlock();
-diff --git a/net/mac80211/driver-ops.h b/net/mac80211/driver-ops.h
-index 809bad53e15b..5d13a3dfd366 100644
---- a/net/mac80211/driver-ops.h
-+++ b/net/mac80211/driver-ops.h
-@@ -1199,7 +1199,7 @@ static inline void drv_wake_tx_queue(struct ieee80211_local *local,
- 
- 	/* In reconfig don't transmit now, but mark for waking later */
- 	if (local->in_reconfig) {
--		set_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txq->flags);
-+		set_bit(IEEE80211_TXQ_DIRTY, &txq->flags);
- 		return;
- 	}
- 
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 63ff0d2524b6..d16606e84e22 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -838,7 +838,7 @@ enum txq_info_flags {
- 	IEEE80211_TXQ_STOP,
- 	IEEE80211_TXQ_AMPDU,
- 	IEEE80211_TXQ_NO_AMSDU,
--	IEEE80211_TXQ_STOP_NETIF_TX,
-+	IEEE80211_TXQ_DIRTY,
- };
- 
- /**
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 2171cd1ca807..178043f84489 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -3783,6 +3783,8 @@ struct sk_buff *ieee80211_tx_dequeue(struct ieee80211_hw *hw,
- 	struct ieee80211_tx_data tx;
- 	ieee80211_tx_result r;
- 	struct ieee80211_vif *vif = txq->vif;
-+	int q = vif->hw_queue[txq->ac];
-+	bool q_stopped;
- 
- 	WARN_ON_ONCE(softirq_count() == 0);
- 
-@@ -3790,16 +3792,20 @@ struct sk_buff *ieee80211_tx_dequeue(struct ieee80211_hw *hw,
- 		return NULL;
- 
- begin:
--	spin_lock_bh(&fq->lock);
-+	spin_lock(&local->queue_stop_reason_lock);
-+	q_stopped = local->queue_stop_reasons[q];
-+	spin_unlock(&local->queue_stop_reason_lock);
- 
--	if (test_bit(IEEE80211_TXQ_STOP, &txqi->flags) ||
--	    test_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txqi->flags))
--		goto out;
-+	if (unlikely(q_stopped)) {
-+		/* mark for waking later */
-+		set_bit(IEEE80211_TXQ_DIRTY, &txqi->flags);
-+		return NULL;
-+	}
- 
--	if (vif->txqs_stopped[txq->ac]) {
--		set_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txqi->flags);
-+	spin_lock_bh(&fq->lock);
+ static inline bool subpool_is_free(struct hugepage_subpool *spool)
+ {
+@@ -4834,6 +4836,25 @@ static int hugetlb_vm_op_split(struct vm_area_struct *vma, unsigned long addr)
+ {
+ 	if (addr & ~(huge_page_mask(hstate_vma(vma))))
+ 		return -EINVAL;
 +
-+	if (unlikely(test_bit(IEEE80211_TXQ_STOP, &txqi->flags)))
- 		goto out;
--	}
- 
- 	/* Make sure fragments stay together. */
- 	skb = __skb_dequeue(&txqi->frags);
-diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index 6f5407038459..261ac667887f 100644
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -292,22 +292,12 @@ static void wake_tx_push_queue(struct ieee80211_local *local,
- 			       struct ieee80211_sub_if_data *sdata,
- 			       struct ieee80211_txq *queue)
- {
--	int q = sdata->vif.hw_queue[queue->ac];
- 	struct ieee80211_tx_control control = {
- 		.sta = queue->sta,
- 	};
- 	struct sk_buff *skb;
--	unsigned long flags;
--	bool q_stopped;
- 
- 	while (1) {
--		spin_lock_irqsave(&local->queue_stop_reason_lock, flags);
--		q_stopped = local->queue_stop_reasons[q];
--		spin_unlock_irqrestore(&local->queue_stop_reason_lock, flags);
--
--		if (q_stopped)
--			break;
--
- 		skb = ieee80211_tx_dequeue(&local->hw, queue);
- 		if (!skb)
- 			break;
-@@ -347,8 +337,6 @@ static void __ieee80211_wake_txqs(struct ieee80211_sub_if_data *sdata, int ac)
- 	local_bh_disable();
- 	spin_lock(&fq->lock);
- 
--	sdata->vif.txqs_stopped[ac] = false;
--
- 	if (!test_bit(SDATA_STATE_RUNNING, &sdata->state))
- 		goto out;
- 
-@@ -370,7 +358,7 @@ static void __ieee80211_wake_txqs(struct ieee80211_sub_if_data *sdata, int ac)
- 			if (ac != txq->ac)
- 				continue;
- 
--			if (!test_and_clear_bit(IEEE80211_TXQ_STOP_NETIF_TX,
-+			if (!test_and_clear_bit(IEEE80211_TXQ_DIRTY,
- 						&txqi->flags))
- 				continue;
- 
-@@ -385,7 +373,7 @@ static void __ieee80211_wake_txqs(struct ieee80211_sub_if_data *sdata, int ac)
- 
- 	txqi = to_txq_info(vif->txq);
- 
--	if (!test_and_clear_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txqi->flags) ||
-+	if (!test_and_clear_bit(IEEE80211_TXQ_DIRTY, &txqi->flags) ||
- 	    (ps && atomic_read(&ps->num_sta_ps)) || ac != vif->txq->ac)
- 		goto out;
- 
-@@ -517,8 +505,6 @@ static void __ieee80211_stop_queue(struct ieee80211_hw *hw, int queue,
- 				   bool refcounted)
- {
- 	struct ieee80211_local *local = hw_to_local(hw);
--	struct ieee80211_sub_if_data *sdata;
--	int n_acs = IEEE80211_NUM_ACS;
- 
- 	trace_stop_queue(local, queue, reason);
- 
-@@ -530,29 +516,7 @@ static void __ieee80211_stop_queue(struct ieee80211_hw *hw, int queue,
- 	else
- 		local->q_stop_reasons[queue][reason]++;
- 
--	if (__test_and_set_bit(reason, &local->queue_stop_reasons[queue]))
--		return;
--
--	if (local->hw.queues < IEEE80211_NUM_ACS)
--		n_acs = 1;
--
--	rcu_read_lock();
--	list_for_each_entry_rcu(sdata, &local->interfaces, list) {
--		int ac;
--
--		if (!sdata->dev)
--			continue;
--
--		for (ac = 0; ac < n_acs; ac++) {
--			if (sdata->vif.hw_queue[ac] == queue ||
--			    sdata->vif.cab_queue == queue) {
--				spin_lock(&local->fq.lock);
--				sdata->vif.txqs_stopped[ac] = true;
--				spin_unlock(&local->fq.lock);
--			}
--		}
--	}
--	rcu_read_unlock();
-+	set_bit(reason, &local->queue_stop_reasons[queue]);
++	/*
++	 * PMD sharing is only possible for PUD_SIZE-aligned address ranges
++	 * in HugeTLB VMAs. If we will lose PUD_SIZE alignment due to this
++	 * split, unshare PMDs in the PUD_SIZE interval surrounding addr now.
++	 */
++	if (addr & ~PUD_MASK) {
++		/*
++		 * hugetlb_vm_op_split is called right before we attempt to
++		 * split the VMA. We will need to unshare PMDs in the old and
++		 * new VMAs, so let's unshare before we split.
++		 */
++		unsigned long floor = addr & PUD_MASK;
++		unsigned long ceil = floor + PUD_SIZE;
++
++		if (floor >= vma->vm_start && ceil <= vma->vm_end)
++			hugetlb_unshare_pmds(vma, floor, ceil);
++	}
++
+ 	return 0;
  }
  
- void ieee80211_stop_queue_by_reason(struct ieee80211_hw *hw, int queue,
+@@ -7322,26 +7343,21 @@ void move_hugetlb_state(struct folio *old_folio, struct folio *new_folio, int re
+ 	}
+ }
+ 
+-/*
+- * This function will unconditionally remove all the shared pmd pgtable entries
+- * within the specific vma for a hugetlbfs memory range.
+- */
+-void hugetlb_unshare_all_pmds(struct vm_area_struct *vma)
++static void hugetlb_unshare_pmds(struct vm_area_struct *vma,
++				   unsigned long start,
++				   unsigned long end)
+ {
+ 	struct hstate *h = hstate_vma(vma);
+ 	unsigned long sz = huge_page_size(h);
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	struct mmu_notifier_range range;
+-	unsigned long address, start, end;
++	unsigned long address;
+ 	spinlock_t *ptl;
+ 	pte_t *ptep;
+ 
+ 	if (!(vma->vm_flags & VM_MAYSHARE))
+ 		return;
+ 
+-	start = ALIGN(vma->vm_start, PUD_SIZE);
+-	end = ALIGN_DOWN(vma->vm_end, PUD_SIZE);
+-
+ 	if (start >= end)
+ 		return;
+ 
+@@ -7373,6 +7389,16 @@ void hugetlb_unshare_all_pmds(struct vm_area_struct *vma)
+ 	mmu_notifier_invalidate_range_end(&range);
+ }
+ 
++/*
++ * This function will unconditionally remove all the shared pmd pgtable entries
++ * within the specific vma for a hugetlbfs memory range.
++ */
++void hugetlb_unshare_all_pmds(struct vm_area_struct *vma)
++{
++	hugetlb_unshare_pmds(vma, ALIGN(vma->vm_start, PUD_SIZE),
++			ALIGN_DOWN(vma->vm_end, PUD_SIZE));
++}
++
+ #ifdef CONFIG_CMA
+ static bool cma_reserve_called __initdata;
+ 
 
