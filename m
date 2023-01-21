@@ -2,134 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2BB676329
-	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 03:50:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2905676433
+	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 07:39:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbjAUCuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Jan 2023 21:50:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36198 "EHLO
+        id S229801AbjAUGjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Jan 2023 01:39:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbjAUCui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Jan 2023 21:50:38 -0500
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2051.outbound.protection.outlook.com [40.107.220.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7555C7B2F6
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 18:50:37 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iChl1sKM8mtavlxNfTNkgCy59NexcjsAFyN5iWVF1F8I8wSdsMYEpiQZWPD4168dO12hyagnMIYebfW7tgRA2vvP+ScUgS0t2c4yhRI4QXtgPaiXJh1rTMsOW2jmIRh1bUSjd3mCk7C8FDxi9UrTmrji6I+Gj32PZ1XRgiPNWbcy5E7ebJzUfLZT49dSQQ/6V8B1CNHOr/QzAN3tB5DZ9XkxhmqvbcUMlJSdbP8rOUh66GZvnSu5Yb/4IPS60NE8CVYYccfLTdDl+xynSpUph3zEa0pZvkZQ9KoP9hgIomB01dXC1FtWZ5gXa2mxheXzs4igZSf9Biy6lv9yHftK0g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=omDbx4qqizVEh6+L1pEeX0GLWw6FEmp7+rFyOjgb3NQ=;
- b=Nf2+QIDD9wmq/HlrQZPtmxsO1ORJwWX/mz20+gb788sPDUWITxAVcXs0U5s42o2rZ4EGJVtFqYqSp/cI7L0HG/c1hy+sI+URKiUvHKJcq4elld0U33wGUqIviq47Gja6FFtVjPbT+ISkb20ll2ZPLvRhIvgK05P/HPD3ahh7YvPPTePMTkn7q4C+orzNuCF5RM6cDd6vSOIt/9hvffEJXH4haHhvlDrwuI1Rjee/Z1/KkWSq0xk+yU2nDJo5Ic/6VZLaBglgFRmKBbR+l6SItEqtPsELXQtlxQfSGjeJjNqrV3rO4pCz4pQ1OPNuMXzteSDPEdrLqZ95LnWr/nTl6Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=omDbx4qqizVEh6+L1pEeX0GLWw6FEmp7+rFyOjgb3NQ=;
- b=NQj0km62jdzMYTvuNbvYu43kGPrxXsA/ywedUDcEsbQmUn1wOLCPU20/sUjSov7H3l2k0Cr9XC6Tghm2/DaibizbHO0PRsS8rxeWJFjv29b4Mjhd/eNnKdQLB0Z8WH+yNNFWZIw1zY72HLfLOarQm9XRVyKaM/BBvUaGmczjEO8=
-Received: from BN9PR03CA0888.namprd03.prod.outlook.com (2603:10b6:408:13c::23)
- by DM6PR12MB4578.namprd12.prod.outlook.com (2603:10b6:5:2a9::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.27; Sat, 21 Jan
- 2023 02:50:36 +0000
-Received: from BL02EPF00010209.namprd05.prod.outlook.com
- (2603:10b6:408:13c:cafe::45) by BN9PR03CA0888.outlook.office365.com
- (2603:10b6:408:13c::23) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.27 via Frontend
- Transport; Sat, 21 Jan 2023 02:50:35 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- BL02EPF00010209.mail.protection.outlook.com (10.167.241.198) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6002.11 via Frontend Transport; Sat, 21 Jan 2023 02:50:35 +0000
-Received: from ldev.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Fri, 20 Jan
- 2023 20:50:33 -0600
-From:   Tim Huang <tim.huang@amd.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     <stable@vger.kernel.org>, <Alexander.Deucher@amd.com>,
-        <Yifan1.zhang@amd.com>, <Xiaojian.Du@amd.com>, <li.ma@amd.com>,
-        <mario.limonciello@amd.com>, Tim Huang <tim.huang@amd.com>
-Subject: [PATCH v2] drm/amd/pm: drop unneeded dpm features disablement for SMU 13.0.4/11
-Date:   Sat, 21 Jan 2023 10:49:55 +0800
-Message-ID: <20230121024955.1601467-1-tim.huang@amd.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229450AbjAUGjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 01:39:32 -0500
+Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB8203AB1
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 22:39:31 -0800 (PST)
+Received: by mail-yb1-xb42.google.com with SMTP id d62so9246411ybh.8
+        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 22:39:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=9Lt7d8tKOpnghFUCeL4ZvrJ/wHXrklZjZ12mTYdnFQ4=;
+        b=TGwqSgGZs+qV9kRBPSHL5HoZYwgHJFcD99zYdgmypVUZY7bMOqTi/ra/HyThSPEyae
+         +pJVVKEK1ML66HybWa8gIyqXl1FHELr81oC9RvDtPDF2lmpxi+yDgPGxtYNzyEfY4/G3
+         2ysP7G7yINIbheJz7cQHXAFXwbGRmLRMNgiKq4Rs4I3Jw7FFLcCil638IzN6ASJNxU+C
+         K49Qn8845daHPw/Unoe9V6RkWLKxDrZrrHURKTyuSzzO8jDHbQ2jhF49nh0yDHKw0o3R
+         ouKXaQ/CN5HkPWqXm3bVh881cFWGUGV7I6Nqbqwyt3iMCN4OWBE1lTedUUTildoxXeSn
+         QZ7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:to:subject:message-id:date:from:sender
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9Lt7d8tKOpnghFUCeL4ZvrJ/wHXrklZjZ12mTYdnFQ4=;
+        b=us0+RTeouVN2dq8fZ4OZhhOB+KjRt2KcWDWsTlh6pPoErKGsHSeGhugBEAt+38b70s
+         66n2lC4y46gcTgIAHzNqO3qm9Tsj0xi0mIJdxi89p3f2Pznjuimjt7tXPY7UsNlX6p+L
+         dAvY8ZtjmErKdY+lGHXe9RE8YeEjBlJLzRColh9LIwerTAWo1VfzVUZC2N7tWzm1Yb1Q
+         Yl85AA5e1OEJtJ2ZmUCrJ1FtRr2UGHcrwMQ7Lby/xQ93CVuHFe/VTDWXBYIRcHmZ8b4T
+         5MFKXo/f6SGkEJBDMWR7uxjCgJNmu2NtZ5y0A/KL0QVQQRNSuJ5Cpr8/NNuruNftkxPG
+         KbfA==
+X-Gm-Message-State: AFqh2kp/hKYI4BM8MorxjIDyruCJwOI6B4xq61EGSaSfzyb/nuB0DmvX
+        XYsws/kBIWJRKxuo9CNkSh9MT6FMCsH5WtHVedA=
+X-Google-Smtp-Source: AMrXdXszpVBIj0FUeLWRUY0CHxSmdSHvJesqcyDQUH/PeUPx7QMaftWNC6320fymRiEN0gwWCC/w8WA2wjdi7EwGBOE=
+X-Received: by 2002:a25:aaca:0:b0:6f7:f225:d623 with SMTP id
+ t68-20020a25aaca000000b006f7f225d623mr1961757ybi.169.1674283170972; Fri, 20
+ Jan 2023 22:39:30 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL02EPF00010209:EE_|DM6PR12MB4578:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3f5c26e9-d0e1-41c4-63ca-08dafb5a4579
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: YiIZi2coihnAmCCYp+SzXUk2g0j8t2NlkTYVs1LEbUC+iSjEblDGujQPjZRzmazI5QM8m2jO5oysBg7BBgSZzX89LDbj9L5MoI/9enBMm9e91Ya+j4w1pGPS9XfI+n2dZfDSXGN9SjlZzV2uMhAUXsIRC0Fe93mvhOovN2tQlKBx79WiCkHKVqNtH0p72YYtMYzcxJ6f+Y28zTdtz2IF8bUIrld7JWGkcM+gBm4Ni/eWNlPWx9Tly1hn+C1WgFcoQnde3C62GhS+Bo10dZBklC200h2iCRjCXzk65BT7coM+nv6EytGVKPYgr8UjGG8KF0HBqUUuxFU86tTX5rEn1hfkNo7EEhM/v1ZEG6hO2IvacE7FJB9ZZ0Ab++e0jdHmcf/tEP65YAii2cLgFqUimTjOlDtUP1yyt6xpmOdYm5muHW1F1/m19yaOf4RW69gcb+0MZUPwYgStARvYJlHJvMCLvQ7M8yqIjMhiWNEZsTyRFhdGek0tg9Nu8CdMhb1/BAjs6/8pGpVtKbwF6byRwvl+Y4yjP61Fupyv3E+h45bzqPlj0fsaE3C8wEwtYc9RQ8pkw+9IULcXRKDYWMpK3G+8OR0ywSb1MQEsn5Jqse/Oj6tw0Ch+In2XxHzv+DfO0Re20Wilv02Ef5EGtEOtNvagVjrljjYRuV6MaIYwcdz+lYbqoQVWv/6My/Nv4JV3QRcB6BeRJC0VnjHfwocYTpx5yJpNtG3LOjrVb91cUMA=
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(346002)(396003)(136003)(376002)(39860400002)(451199015)(40470700004)(36840700001)(46966006)(36860700001)(40460700003)(36756003)(478600001)(86362001)(7696005)(40480700001)(82310400005)(426003)(47076005)(356005)(336012)(82740400003)(81166007)(4326008)(26005)(2906002)(1076003)(41300700001)(6916009)(4744005)(2616005)(8676002)(16526019)(6666004)(186003)(44832011)(54906003)(70206006)(70586007)(5660300002)(8936002)(316002)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jan 2023 02:50:35.7090
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3f5c26e9-d0e1-41c4-63ca-08dafb5a4579
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BL02EPF00010209.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4578
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Sender: mrs.umasinha66@gmail.com
+Received: by 2002:a05:7010:438b:b0:325:16df:a4ae with HTTP; Fri, 20 Jan 2023
+ 22:39:30 -0800 (PST)
+From:   Ibrahim Idewu <ibrahimidewu4@gmail.com>
+Date:   Sat, 21 Jan 2023 07:39:30 +0100
+X-Google-Sender-Auth: QNafKsWxWKjSDxNIVM7ei8Ahf0g
+Message-ID: <CAH0-YCmD3icG3asazx8bg2PyMif1=ovF49Xua6unnFhMeRCyZA@mail.gmail.com>
+Subject: URGENT RESPONSE
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=6.8 required=5.0 tests=ADVANCE_FEE_5_NEW_FRM_MNY,
+        BAYES_50,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        FILL_THIS_FORM,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,LOTS_OF_MONEY,
+        MILLION_USD,MONEY_FORM,MONEY_FRAUD_5,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,SUBJ_ALL_CAPS,T_FILL_THIS_FORM_LOAN,T_MONEY_PERCENT,
+        UNDISC_MONEY,URG_BIZ autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:b42 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5892]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [mrs.umasinha66[at]gmail.com]
+        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [mrs.umasinha66[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  2.0 MILLION_USD BODY: Talks about millions of dollars
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  0.6 URG_BIZ Contains urgent matter
+        *  0.0 T_MONEY_PERCENT X% of a lot of money for you
+        *  0.0 FILL_THIS_FORM Fill in a form with personal information
+        *  0.0 T_FILL_THIS_FORM_LOAN Answer loan question(s)
+        *  0.0 MONEY_FORM Lots of money if you fill out a form
+        *  0.0 ADVANCE_FEE_5_NEW_FRM_MNY Advance Fee fraud form and lots of
+        *      money
+        *  2.9 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+        *  0.0 MONEY_FRAUD_5 Lots of money and many fraud phrases
+X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PMFW will handle that properly for gpu reset case. Driver involvement
-may cause some unexpected issues.
+I have a business proposal in the region of $19.3million USD for you to han=
+dle
+with me. I have the opportunity to transfer this abandoned fund to your ban=
+k
+account in your country which belongs to our dead client.
 
-Signed-off-by: Tim Huang <tim.huang@amd.com>
----
- drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+I am inviting you in this transaction where this money can be shared
+between us at the ratio of 50/50% and help the needy around us don=E2=80=99=
+t be
+afraid of anything I am with you and will instruct you what you will do
+to maintain this fund.
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-index ec52830dde24..8bae3fe869cd 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-@@ -1497,6 +1497,20 @@ static int smu_disable_dpms(struct smu_context *smu)
- 		}
- 	}
- 
-+	/*
-+	 * For SMU 13.0.4/11, PMFW will handle the features disablement properly
-+	 * for gpu reset case. Driver involvement is unnecessary.
-+	 */
-+	if (amdgpu_in_reset(adev)) {
-+		switch (adev->ip_versions[MP1_HWIP][0]) {
-+		case IP_VERSION(13, 0, 4):
-+		case IP_VERSION(13, 0, 11):
-+			return 0;
-+		default:
-+			break;
-+		}
-+	}
-+
- 	/*
- 	 * For gpu reset, runpm and hibernation through BACO,
- 	 * BACO feature has to be kept enabled.
--- 
-2.25.1
+below is my information.
 
+Full name...Mr.Ibrahim idewu
+
+country.....Burkina faso
+
+Occupation.....Banker
+
+Age...55years
+
+Telephone number...+22665604193
+
+send me your own so we can proceed.
+
+THANKS.
+
+REPLY ME
