@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D7F86764E7
-	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 08:20:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD7B26764EF
+	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 08:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229568AbjAUHUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Jan 2023 02:20:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47044 "EHLO
+        id S229690AbjAUH2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Jan 2023 02:28:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229544AbjAUHUd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 02:20:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E8A6E0FE
-        for <stable@vger.kernel.org>; Fri, 20 Jan 2023 23:20:32 -0800 (PST)
+        with ESMTP id S229464AbjAUH2I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 02:28:08 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 549277028D;
+        Fri, 20 Jan 2023 23:28:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1339C6023E
-        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 07:20:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10DDCC433D2;
-        Sat, 21 Jan 2023 07:20:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 36D77CE1D4D;
+        Sat, 21 Jan 2023 07:28:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDF3BC433D2;
+        Sat, 21 Jan 2023 07:28:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674285631;
-        bh=PnVSxXkaLYKWQfgTwGiRvhv/631TKMtH6r7V3MnhUjE=;
+        s=korg; t=1674286083;
+        bh=o/NnGHbW3/LKlx06TTfc39eoc7OZYE08m75gGJnvJ2k=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CGVVHl+901mj841DkQ2+w2VR97373sUHMkCDOghEHcOWA1pfL1RGPRwRzyaDjBZa6
-         4rXUkYyPUp6Z2xu2LfLZ3jbO1vDGYF9xbykdYjnEYn2d/LOvYSQYXiraqdQoBmY2Or
-         BSSvubc/g2KSCM9x8I36Wk6ssk+5iOM1GQDmzAVo=
-Date:   Sat, 21 Jan 2023 08:20:28 +0100
+        b=XzHqMaRnB3nDhyixTBYjav7evFKYot0WVYwXfegsKtxSdmb8halMMu/rmIqCuWGir
+         imDiQ1DMdLcx+/3gIq87i+sgu0JVevccOTAkTGozAMEo3l3oBRyZuk34QmOLxJuRkw
+         zX+hMux9LwcwLWLhfHJhWM4m8rwQUrgmwFsnaV0g=
+Date:   Sat, 21 Jan 2023 08:28:00 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Tim Huang <tim.huang@amd.com>
-Cc:     amd-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Alexander.Deucher@amd.com, Yifan1.zhang@amd.com,
-        Xiaojian.Du@amd.com, li.ma@amd.com, mario.limonciello@amd.com
-Subject: Re: [PATCH v2] drm/amd/pm: drop unneeded dpm features disablement
- for SMU 13.0.4/11
-Message-ID: <Y8uSPP34u39uPvvp@kroah.com>
-References: <20230121024955.1601467-1-tim.huang@amd.com>
+To:     Kechen Lu <kechenl@nvidia.com>
+Cc:     kvm@vger.kernel.org, seanjc@google.com, pbonzini@redhat.com,
+        zhi.wang.linux@gmail.com, chao.gao@intel.com,
+        shaoqin.huang@intel.com, vkuznets@redhat.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [RFC PATCH v6 1/6] KVM: x86: only allow exits disable before
+ vCPUs created
+Message-ID: <Y8uUAFv9Qz7GvSei@kroah.com>
+References: <20230121020738.2973-1-kechenl@nvidia.com>
+ <20230121020738.2973-2-kechenl@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230121024955.1601467-1-tim.huang@amd.com>
+In-Reply-To: <20230121020738.2973-2-kechenl@nvidia.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -52,21 +54,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 21, 2023 at 10:49:55AM +0800, Tim Huang wrote:
-> PMFW will handle that properly for gpu reset case. Driver involvement
-> may cause some unexpected issues.
+On Sat, Jan 21, 2023 at 02:07:33AM +0000, Kechen Lu wrote:
+> From: Sean Christopherson <seanjc@google.com>
 > 
-> Signed-off-by: Tim Huang <tim.huang@amd.com>
-> ---
->  drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
+> Since VMX and SVM both would never update the control bits if exits
+> are disable after vCPUs are created, only allow setting exits
+> disable flag before vCPU creation.
 > 
+> Fixes: 4d5422cea3b6 ("KVM: X86: Provide a capability to disable MWAIT intercepts")
+> 
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
 
-<formletter>
+Nit, no blank line between fixes and signed-off-by please.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+And an RFC on v6?  An RFC usually means "I don't think this is correct
+so do not take it".  How can you do that for 6 versions?  And know that
+no one will take an RFC series for that reason (or at least I will
+not...)
 
-</formletter>
+thanks,
+
+greg k-h
