@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4466E6765BE
-	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 11:34:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D4676765BF
+	for <lists+stable@lfdr.de>; Sat, 21 Jan 2023 11:34:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229694AbjAUKey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Jan 2023 05:34:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32908 "EHLO
+        id S229552AbjAUKe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Jan 2023 05:34:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbjAUKex (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 05:34:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31FD34B180
-        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 02:34:50 -0800 (PST)
+        with ESMTP id S229734AbjAUKez (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Jan 2023 05:34:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BA914AA64
+        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 02:34:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84E8660AD7
-        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 10:34:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FBE6C4339E;
-        Sat, 21 Jan 2023 10:34:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21C5A60A0A
+        for <stable@vger.kernel.org>; Sat, 21 Jan 2023 10:34:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33F30C433D2;
+        Sat, 21 Jan 2023 10:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674297288;
-        bh=2A6C7t+ZVlZzjSSkkQDhg6gNhD1OCpsZqCKaB9UDP3M=;
+        s=korg; t=1674297291;
+        bh=D+gjDnhK2GyElWipV172dB1X0dSzXK6CzGpM0ACio/s=;
         h=Subject:To:Cc:From:Date:From;
-        b=GOsKeymXdR5i9bFcOE1ZOsa6gUMgv8f26/tbM7QOc3V1Bwi9Y9gf7QF/UYKCH6f6z
-         kuHIdRjbomjUcYqV2NqoVn3Q4/Ienjgk4bpD4FXCH0WVB+FFx7s3eJMtrFb6YtJLmY
-         F7+z+4mXoELQ+axcW0muqn93CrBubcPalElJUSxc=
-Subject: FAILED: patch "[PATCH] mm/khugepaged: fix collapse_pte_mapped_thp() to allow" failed to apply to 5.15-stable tree
+        b=x12Id+GKRV2jy3zP1kzUXx0wYGSc6kxKXi3N+WkyKS606SArvfU3aVVzsHcdffBAJ
+         kbJ9NgZvbfJu+ZUQkhpzjk7JycwsgyfwsnrDfhHcEHOIoSqdtJgsOblIjrAjnoYrEO
+         CqJx1hm2Soy5gA6uEc0dILYmxhgHTHCfvCRk4E4U=
+Subject: FAILED: patch "[PATCH] mm/khugepaged: fix collapse_pte_mapped_thp() to allow" failed to apply to 5.10-stable tree
 To:     hughd@google.com, akpm@linux-foundation.org, david@redhat.com,
         jannh@google.com, shy828301@gmail.com, songliubraving@fb.com,
         stable@vger.kernel.org, zokeefe@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 21 Jan 2023 11:29:37 +0100
-Message-ID: <1674296977196124@kroah.com>
+Date:   Sat, 21 Jan 2023 11:29:39 +0100
+Message-ID: <167429697982163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
