@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE3E676F3B
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E1AE676E04
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:06:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231200AbjAVPTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:19:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46380 "EHLO
+        id S230147AbjAVPGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:06:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231199AbjAVPTJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0091F2004D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:19:07 -0800 (PST)
+        with ESMTP id S230144AbjAVPGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:06:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2051D113E8
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:06:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90B2060C48
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A56C7C433D2;
-        Sun, 22 Jan 2023 15:19:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2954B80B14
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34F6BC4339B;
+        Sun, 22 Jan 2023 15:06:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400747;
-        bh=skLOHTLm+m5m3VrQ2/H49ma+gAyHqwdzBIQQMh4QChU=;
+        s=korg; t=1674399969;
+        bh=/mbDlrNT4zqXev6bCHRzSFRz3AvaG3/wM/K4d5Y5JN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DUo56oAbW6R2rkzLIdOF4T3JHUbHO9Uv6KPOcO8yKpsjHisV/fSS3xYmPJJg0lphU
-         mbc4HemY2qV+gqxEsSA/wFV8jNmYYpj2GQpW+Q0oJ7eVQAdSIZCuq5mIcVAXXohahC
-         Fc7O5SDnrYLscWwwP1UDQujcFz8DFlAbMN+2sncY=
+        b=TyJb7XwEbU+X8D23cZiUAM0wHuzzu3YA4oDNrq2g0E1Rc0sKkKYbsf2lCSmhkwzHO
+         TVL74B/G5E3H4r5Ku8o3s+SI6nbhlJH3E+NoCly/4QBgQLOrsNhEJlofuDxqMcysvn
+         vd7VO0Pwlx0qAMCUrN8psXiL7nA/abrSdi+Zo5U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+96977faa68092ad382c4@syzkaller.appspotmail.com,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 066/117] btrfs: fix race between quota rescan and disable leading to NULL pointer deref
+        patches@lists.linux.dev, Flavio Suligoi <f.suligoi@asem.it>,
+        stable <stable@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.14 16/25] usb: core: hub: disable autosuspend for TI TUSB8041
 Date:   Sun, 22 Jan 2023 16:04:16 +0100
-Message-Id: <20230122150235.524449461@linuxfoundation.org>
+Message-Id: <20230122150218.516272506@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150217.788215473@linuxfoundation.org>
+References: <20230122150217.788215473@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,134 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Flavio Suligoi <f.suligoi@asem.it>
 
-commit b7adbf9ada3513d2092362c8eac5cddc5b651f5c upstream.
+commit 7171b0e261b17de96490adf053b8bb4b00061bcf upstream.
 
-If we have one task trying to start the quota rescan worker while another
-one is trying to disable quotas, we can end up hitting a race that results
-in the quota rescan worker doing a NULL pointer dereference. The steps for
-this are the following:
+The Texas Instruments TUSB8041 has an autosuspend problem at high
+temperature.
 
-1) Quotas are enabled;
+If there is not USB traffic, after a couple of ms, the device enters in
+autosuspend mode. In this condition the external clock stops working, to
+save energy. When the USB activity turns on, ther hub exits the
+autosuspend state, the clock starts running again and all works fine.
 
-2) Task A calls the quota rescan ioctl and enters btrfs_qgroup_rescan().
-   It calls qgroup_rescan_init() which returns 0 (success) and then joins a
-   transaction and commits it;
+At ambient temperature all works correctly, but at high temperature,
+when the USB activity turns on, the external clock doesn't restart and
+the hub disappears from the USB bus.
 
-3) Task B calls the quota disable ioctl and enters btrfs_quota_disable().
-   It clears the bit BTRFS_FS_QUOTA_ENABLED from fs_info->flags and calls
-   btrfs_qgroup_wait_for_completion(), which returns immediately since the
-   rescan worker is not yet running.
-   Then it starts a transaction and locks fs_info->qgroup_ioctl_lock;
+Disabling the autosuspend mode for this hub solves the issue.
 
-4) Task A queues the rescan worker, by calling btrfs_queue_work();
-
-5) The rescan worker starts, and calls rescan_should_stop() at the start
-   of its while loop, which results in 0 iterations of the loop, since
-   the flag BTRFS_FS_QUOTA_ENABLED was cleared from fs_info->flags by
-   task B at step 3);
-
-6) Task B sets fs_info->quota_root to NULL;
-
-7) The rescan worker tries to start a transaction and uses
-   fs_info->quota_root as the root argument for btrfs_start_transaction().
-   This results in a NULL pointer dereference down the call chain of
-   btrfs_start_transaction(). The stack trace is something like the one
-   reported in Link tag below:
-
-   general protection fault, probably for non-canonical address 0xdffffc0000000041: 0000 [#1] PREEMPT SMP KASAN
-   KASAN: null-ptr-deref in range [0x0000000000000208-0x000000000000020f]
-   CPU: 1 PID: 34 Comm: kworker/u4:2 Not tainted 6.1.0-syzkaller-13872-gb6bb9676f216 #0
-   Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-   Workqueue: btrfs-qgroup-rescan btrfs_work_helper
-   RIP: 0010:start_transaction+0x48/0x10f0 fs/btrfs/transaction.c:564
-   Code: 48 89 fb 48 (...)
-   RSP: 0018:ffffc90000ab7ab0 EFLAGS: 00010206
-   RAX: 0000000000000041 RBX: 0000000000000208 RCX: ffff88801779ba80
-   RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
-   RBP: dffffc0000000000 R08: 0000000000000001 R09: fffff52000156f5d
-   R10: fffff52000156f5d R11: 1ffff92000156f5c R12: 0000000000000000
-   R13: 0000000000000001 R14: 0000000000000001 R15: 0000000000000003
-   FS:  0000000000000000(0000) GS:ffff8880b9900000(0000) knlGS:0000000000000000
-   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-   CR2: 00007f2bea75b718 CR3: 000000001d0cc000 CR4: 00000000003506e0
-   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-   Call Trace:
-    <TASK>
-    btrfs_qgroup_rescan_worker+0x3bb/0x6a0 fs/btrfs/qgroup.c:3402
-    btrfs_work_helper+0x312/0x850 fs/btrfs/async-thread.c:280
-    process_one_work+0x877/0xdb0 kernel/workqueue.c:2289
-    worker_thread+0xb14/0x1330 kernel/workqueue.c:2436
-    kthread+0x266/0x300 kernel/kthread.c:376
-    ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:308
-    </TASK>
-   Modules linked in:
-
-So fix this by having the rescan worker function not attempt to start a
-transaction if it didn't do any rescan work.
-
-Reported-by: syzbot+96977faa68092ad382c4@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/linux-btrfs/000000000000e5454b05f065a803@google.com/
-Fixes: e804861bd4e6 ("btrfs: fix deadlock between quota disable and qgroup rescan worker")
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
+Cc: stable <stable@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20221219124759.3207032-1-f.suligoi@asem.it
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/qgroup.c |   25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ drivers/usb/core/hub.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -3286,6 +3286,7 @@ static void btrfs_qgroup_rescan_worker(s
- 	int err = -ENOMEM;
- 	int ret = 0;
- 	bool stopped = false;
-+	bool did_leaf_rescans = false;
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -40,6 +40,9 @@
+ #define USB_PRODUCT_USB5534B			0x5534
+ #define USB_VENDOR_CYPRESS			0x04b4
+ #define USB_PRODUCT_CY7C65632			0x6570
++#define USB_VENDOR_TEXAS_INSTRUMENTS		0x0451
++#define USB_PRODUCT_TUSB8041_USB3		0x8140
++#define USB_PRODUCT_TUSB8041_USB2		0x8142
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
+ #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
  
- 	path = btrfs_alloc_path();
- 	if (!path)
-@@ -3306,6 +3307,7 @@ static void btrfs_qgroup_rescan_worker(s
- 		}
- 
- 		err = qgroup_rescan_leaf(trans, path);
-+		did_leaf_rescans = true;
- 
- 		if (err > 0)
- 			btrfs_commit_transaction(trans);
-@@ -3326,16 +3328,23 @@ out:
- 	mutex_unlock(&fs_info->qgroup_rescan_lock);
- 
- 	/*
--	 * only update status, since the previous part has already updated the
--	 * qgroup info.
-+	 * Only update status, since the previous part has already updated the
-+	 * qgroup info, and only if we did any actual work. This also prevents
-+	 * race with a concurrent quota disable, which has already set
-+	 * fs_info->quota_root to NULL and cleared BTRFS_FS_QUOTA_ENABLED at
-+	 * btrfs_quota_disable().
- 	 */
--	trans = btrfs_start_transaction(fs_info->quota_root, 1);
--	if (IS_ERR(trans)) {
--		err = PTR_ERR(trans);
-+	if (did_leaf_rescans) {
-+		trans = btrfs_start_transaction(fs_info->quota_root, 1);
-+		if (IS_ERR(trans)) {
-+			err = PTR_ERR(trans);
-+			trans = NULL;
-+			btrfs_err(fs_info,
-+				  "fail to start transaction for status update: %d",
-+				  err);
-+		}
-+	} else {
- 		trans = NULL;
--		btrfs_err(fs_info,
--			  "fail to start transaction for status update: %d",
--			  err);
- 	}
- 
- 	mutex_lock(&fs_info->qgroup_rescan_lock);
+@@ -5394,6 +5397,16 @@ static const struct usb_device_id hub_id
+       .idVendor = USB_VENDOR_GENESYS_LOGIC,
+       .bInterfaceClass = USB_CLASS_HUB,
+       .driver_info = HUB_QUIRK_CHECK_PORT_AUTOSUSPEND},
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++			| USB_DEVICE_ID_MATCH_PRODUCT,
++      .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
++      .idProduct = USB_PRODUCT_TUSB8041_USB2,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++			| USB_DEVICE_ID_MATCH_PRODUCT,
++      .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
++      .idProduct = USB_PRODUCT_TUSB8041_USB3,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_DEV_CLASS,
+       .bDeviceClass = USB_CLASS_HUB},
+     { .match_flags = USB_DEVICE_ID_MATCH_INT_CLASS,
 
 
