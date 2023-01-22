@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF0C676EB4
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5DA6676FF9
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:27:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230417AbjAVPN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:13:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40704 "EHLO
+        id S231446AbjAVP1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:27:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230416AbjAVPN1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 404941F493
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:26 -0800 (PST)
+        with ESMTP id S231444AbjAVP1G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:27:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 413C023110
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:27:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDDBEB80B0E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4947AC433EF;
-        Sun, 22 Jan 2023 15:13:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1C3860C58
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:27:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E95BDC4339B;
+        Sun, 22 Jan 2023 15:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400403;
-        bh=GvcJkUCVzsApAy+NAUxylUDIkoHP5i43pkfkZ5bO/Ro=;
+        s=korg; t=1674401224;
+        bh=qQz0KuB65ZRzVqmm/w75kLrUY4EeZ9OA//teTkQoRVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9uXgR8TKWMQYKfviVPW0nI2aunia9HN7EBPYtJOEC9RNHKEeR9I7L3ISbiDJA4zH
-         cMGjctQXuDev0kmcHCcfZOLx9hUNUncp9C/W4XlUNN+JGGsxzhn5YUAR7i4Ijtm3Kc
-         b56ORdDlsQj1Hyn/krNHaHo+FnspF0JinlpZRvcA=
+        b=iKjlCK7Pp2BMkb/y+7nF+M6IvtMa4FUsC36ccI/H1BZOF0UAoKS7AMjLhiJ+hdj1a
+         zW8tzOKmF/1Y7xAfwaVRI5TZuyeSnzUUx1KiZhIVBf+4p62dCkNqaI3LtXn8kCUDPi
+         7uXxhH/o3MnPGZk5r8LrptpU5C4e9JcV/qUYt8g8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Adler <michael.adler@siemens.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 62/98] USB: serial: cp210x: add SCALANCE LPE-9000 device id
-Date:   Sun, 22 Jan 2023 16:04:18 +0100
-Message-Id: <20230122150232.086755570@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 6.1 130/193] mei: me: add meteor lake point M DID
+Date:   Sun, 22 Jan 2023 16:04:19 +0100
+Message-Id: <20230122150252.265957705@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,30 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Adler <michael.adler@siemens.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 3f9e76e31704a325170e5aec2243c8d084d74854 upstream.
+commit 0c4d68261717f89fa8c4f98a6967c3832fcb3ad0 upstream.
 
-Add the USB serial console device ID for Siemens SCALANCE LPE-9000
-which have a USB port for their serial console.
+Add Meteor Lake Point M device id.
 
-Signed-off-by: Michael Adler <michael.adler@siemens.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20221212220247.286019-2-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/mei/hw-me-regs.h |    2 ++
+ drivers/misc/mei/pci-me.c     |    2 ++
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -64,6 +64,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x0846, 0x1100) }, /* NetGear Managed Switch M4100 series, M5300 series, M7100 series */
- 	{ USB_DEVICE(0x08e6, 0x5501) }, /* Gemalto Prox-PU/CU contactless smartcard reader */
- 	{ USB_DEVICE(0x08FD, 0x000A) }, /* Digianswer A/S , ZigBee/802.15.4 MAC Device */
-+	{ USB_DEVICE(0x0908, 0x0070) }, /* Siemens SCALANCE LPE-9000 USB Serial Console */
- 	{ USB_DEVICE(0x0908, 0x01FF) }, /* Siemens RUGGEDCOM USB Serial Console */
- 	{ USB_DEVICE(0x0988, 0x0578) }, /* Teraoka AD2000 */
- 	{ USB_DEVICE(0x0B00, 0x3070) }, /* Ingenico 3070 */
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -111,6 +111,8 @@
+ 
+ #define MEI_DEV_ID_RPL_S      0x7A68  /* Raptor Lake Point S */
+ 
++#define MEI_DEV_ID_MTL_M      0x7E70  /* Meteor Lake Point M */
++
+ /*
+  * MEI HW Section
+  */
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -118,6 +118,8 @@ static const struct pci_device_id mei_me
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_RPL_S, MEI_ME_PCH15_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_MTL_M, MEI_ME_PCH15_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
 
 
