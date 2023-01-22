@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EE61676E82
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94764676EFF
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230342AbjAVPLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:11:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37940 "EHLO
+        id S230526AbjAVPQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:16:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230352AbjAVPLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 580CF20060
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:18 -0800 (PST)
+        with ESMTP id S231126AbjAVPQl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1AA12202A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD70060C63
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB0A6C433D2;
-        Sun, 22 Jan 2023 15:11:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 735D3B80B11
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2B6DC433D2;
+        Sun, 22 Jan 2023 15:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400277;
-        bh=be1rpJOWMEUbQjXMKnoS5KnZj9qWs18U9u5Ne05rBI8=;
+        s=korg; t=1674400598;
+        bh=qhO/p2w/IKmeKVRl9AlShYHUMWWgR/lfX3+QdtrbZvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZN0ji9xZ1yCHPEVjPnX/EEhaDaxN20Ry7DFe3CVhcWq5fRP2siwjrGyEAKBd8wrk
-         ZAMqmncsjTC/jNfPDUdKkK0MoPqrod9cLPtRdhuwdv5g9CWkQ0ikrqrxQimH5/5+XP
-         RkgiBquPYQNCnAEAE0JLEdbkpQcItU+EoRpJuQlQ=
+        b=NR+6pHmO8N0e4kBN5vxgLy6vYjBiYr2E5d7gI89WUoruEKoulJB+6VMuikTK/KpZO
+         b1w3JFPfH75dFwdQ7ViDCdOQnWbjtlqw2TrRWMfOAa8GiH6TPbVlDTM1kFXEX4Fo+I
+         3WvPVOz1KL7mBc/gJi0VP/OKxRbBMCRquN/p3I+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Chunhao Lin <hau@realtek.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 02/98] pNFS/filelayout: Fix coalescing test for single DS
+Subject: [PATCH 5.15 008/117] r8169: move rtl_wol_enable_rx() and rtl_prepare_power_down()
 Date:   Sun, 22 Jan 2023 16:03:18 +0100
-Message-Id: <20230122150229.473799436@linuxfoundation.org>
+Message-Id: <20230122150233.077980155@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Chunhao Lin <hau@realtek.com>
 
-[ Upstream commit a6b9d2fa0024e7e399c26facd0fb466b7396e2b9 ]
+[ Upstream commit ad425666a1f05d9b215a84cf010c3789b2ea8206 ]
 
-When there is a single DS no striping constraints need to be placed on
-the IO. When such constraint is applied then buffered reads don't
-coalesce to the DS's rsize.
+There is no functional change. Moving these two functions for following
+patch "r8169: fix dmar pte write access is not set error".
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chunhao Lin <hau@realtek.com>
+Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/filelayout/filelayout.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/realtek/r8169_main.c | 44 +++++++++++------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
 
-diff --git a/fs/nfs/filelayout/filelayout.c b/fs/nfs/filelayout/filelayout.c
-index ae5ed3a07494..deecfb50dd7e 100644
---- a/fs/nfs/filelayout/filelayout.c
-+++ b/fs/nfs/filelayout/filelayout.c
-@@ -783,6 +783,12 @@ filelayout_alloc_lseg(struct pnfs_layout_hdr *layoutid,
- 	return &fl->generic_hdr;
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index 2af4c76bcf02..264bb3ec44a5 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -2251,28 +2251,6 @@ static int rtl_set_mac_address(struct net_device *dev, void *p)
+ 	return 0;
  }
  
-+static bool
-+filelayout_lseg_is_striped(const struct nfs4_filelayout_segment *flseg)
+-static void rtl_wol_enable_rx(struct rtl8169_private *tp)
+-{
+-	if (tp->mac_version >= RTL_GIGA_MAC_VER_25)
+-		RTL_W32(tp, RxConfig, RTL_R32(tp, RxConfig) |
+-			AcceptBroadcast | AcceptMulticast | AcceptMyPhys);
+-}
+-
+-static void rtl_prepare_power_down(struct rtl8169_private *tp)
+-{
+-	if (tp->dash_type != RTL_DASH_NONE)
+-		return;
+-
+-	if (tp->mac_version == RTL_GIGA_MAC_VER_32 ||
+-	    tp->mac_version == RTL_GIGA_MAC_VER_33)
+-		rtl_ephy_write(tp, 0x19, 0xff64);
+-
+-	if (device_may_wakeup(tp_to_dev(tp))) {
+-		phy_speed_down(tp->phydev, false);
+-		rtl_wol_enable_rx(tp);
+-	}
+-}
+-
+ static void rtl_init_rxcfg(struct rtl8169_private *tp)
+ {
+ 	switch (tp->mac_version) {
+@@ -2492,6 +2470,28 @@ static void rtl_enable_rxdvgate(struct rtl8169_private *tp)
+ 	rtl_wait_txrx_fifo_empty(tp);
+ }
+ 
++static void rtl_wol_enable_rx(struct rtl8169_private *tp)
 +{
-+	return flseg->num_fh > 1;
++	if (tp->mac_version >= RTL_GIGA_MAC_VER_25)
++		RTL_W32(tp, RxConfig, RTL_R32(tp, RxConfig) |
++			AcceptBroadcast | AcceptMulticast | AcceptMyPhys);
 +}
 +
- /*
-  * filelayout_pg_test(). Called by nfs_can_coalesce_requests()
-  *
-@@ -803,6 +809,8 @@ filelayout_pg_test(struct nfs_pageio_descriptor *pgio, struct nfs_page *prev,
- 	size = pnfs_generic_pg_test(pgio, prev, req);
- 	if (!size)
- 		return 0;
-+	else if (!filelayout_lseg_is_striped(FILELAYOUT_LSEG(pgio->pg_lseg)))
-+		return size;
- 
- 	/* see if req and prev are in the same stripe */
- 	if (prev) {
++static void rtl_prepare_power_down(struct rtl8169_private *tp)
++{
++	if (tp->dash_type != RTL_DASH_NONE)
++		return;
++
++	if (tp->mac_version == RTL_GIGA_MAC_VER_32 ||
++	    tp->mac_version == RTL_GIGA_MAC_VER_33)
++		rtl_ephy_write(tp, 0x19, 0xff64);
++
++	if (device_may_wakeup(tp_to_dev(tp))) {
++		phy_speed_down(tp->phydev, false);
++		rtl_wol_enable_rx(tp);
++	}
++}
++
+ static void rtl_set_tx_config_registers(struct rtl8169_private *tp)
+ {
+ 	u32 val = TX_DMA_BURST << TxDMAShift |
 -- 
 2.35.1
 
