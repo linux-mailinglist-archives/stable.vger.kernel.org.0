@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E621676E34
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF7B9676FE4
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230199AbjAVPII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:08:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34400 "EHLO
+        id S231401AbjAVP0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:26:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjAVPIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DFC126FE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:07 -0800 (PST)
+        with ESMTP id S231419AbjAVP0S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5408022DC6
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7394B80B13
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A992C433EF;
-        Sun, 22 Jan 2023 15:08:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E64D160C64
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3DC1C433D2;
+        Sun, 22 Jan 2023 15:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400084;
-        bh=W4H5iCI00DHQOLwrnJn3FXXrWKVrlLr07QWu1EKUeM0=;
+        s=korg; t=1674401177;
+        bh=GV/0RIRLDbQ/69NyJGkV82zD13L1sZ5jj8r3Iflp25M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C085e9Ag6tDNzfKM1Atybk+R6EifLgQ7gvQz+Hx94kR1A/PgdWL0/mrTUc26dDD4E
-         5s/KW+h2ZpXti5Ui6CEu5kgHSXrWHIuP9rlbXrbLma3iC5Mg5FECk+ICzNJcIshY3X
-         hKcUgiX/X3vQRYHUa0AmNk3ns4/LMDtm4Aa4qyuo=
+        b=s+9+1fNpop0atdeXfFBcmDflpZyg3Sqj1CugFlds1SPjmpUAvTkI9f2uldV/0G078
+         yN00dg+LW8jpKdMpes3kcMvUsSXneDCMe3Nz1e9/amZiAbXx+6oGLfuEyf5F4Z2Ma6
+         8tv8C0yHPn7Qf7Uyw2uziaFRH9MO6qaa83N9Jyl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Khazhismel Kumykov <khazhy@google.com>
-Subject: [PATCH 4.19 32/37] gsmi: fix null-deref in gsmi_get_variable
+        patches@lists.linux.dev, Nirmoy Das <nirmoy.das@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 6.1 140/193] drm/i915: Remove unused variable
 Date:   Sun, 22 Jan 2023 16:04:29 +0100
-Message-Id: <20230122150220.896842263@linuxfoundation.org>
+Message-Id: <20230122150252.781318746@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khazhismel Kumykov <khazhy@chromium.org>
+From: Nirmoy Das <nirmoy.das@intel.com>
 
-commit a769b05eeed7accc4019a1ed9799dd72067f1ce8 upstream.
+commit 2293a73ad4f3b6c37c06713ff1b67659d92ef43d upstream.
 
-We can get EFI variables without fetching the attribute, so we must
-allow for that in gsmi.
+Removed unused i915 var.
 
-commit 859748255b43 ("efi: pstore: Omit efivars caching EFI varstore
-access layer") added a new get_variable call with attr=NULL, which
-triggers panic in gsmi.
-
-Fixes: 74c5b31c6618 ("driver: Google EFI SMI")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Link: https://lore.kernel.org/r/20230118010212.1268474-1-khazhy@google.com
+Fixes: a273e95721e9 ("drm/i915: Allow switching away via vga-switcheroo if uninitialized")
+Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230118170624.9326-1-nirmoy.das@intel.com
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/google/gsmi.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/i915_driver.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/firmware/google/gsmi.c
-+++ b/drivers/firmware/google/gsmi.c
-@@ -343,9 +343,10 @@ static efi_status_t gsmi_get_variable(ef
- 		memcpy(data, gsmi_dev.data_buf->start, *data_size);
+--- a/drivers/gpu/drm/i915/i915_driver.c
++++ b/drivers/gpu/drm/i915/i915_driver.c
+@@ -1070,8 +1070,6 @@ static int i915_driver_open(struct drm_d
+  */
+ static void i915_driver_lastclose(struct drm_device *dev)
+ {
+-	struct drm_i915_private *i915 = to_i915(dev);
+-
+ 	intel_fbdev_restore_mode(dev);
  
- 		/* All variables are have the following attributes */
--		*attr = EFI_VARIABLE_NON_VOLATILE |
--			EFI_VARIABLE_BOOTSERVICE_ACCESS |
--			EFI_VARIABLE_RUNTIME_ACCESS;
-+		if (attr)
-+			*attr = EFI_VARIABLE_NON_VOLATILE |
-+				EFI_VARIABLE_BOOTSERVICE_ACCESS |
-+				EFI_VARIABLE_RUNTIME_ACCESS;
- 	}
- 
- 	spin_unlock_irqrestore(&gsmi_dev.lock, flags);
+ 	vga_switcheroo_process_delayed_switch();
 
 
