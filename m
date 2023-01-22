@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 533AA676F15
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:17:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1B32676E4D
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:09:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231156AbjAVPRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:17:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44474 "EHLO
+        id S230291AbjAVPJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:09:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231146AbjAVPRc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B9E2202A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:28 -0800 (PST)
+        with ESMTP id S230274AbjAVPJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:09:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1F871F5C6
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:09:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CF9160C58
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B7D8C433D2;
-        Sun, 22 Jan 2023 15:17:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79F2660C59
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:09:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C786C433EF;
+        Sun, 22 Jan 2023 15:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400647;
-        bh=haiox6iLeBPtUWjH4aIZTnntV82qgkwc5s0Av5uv0iU=;
+        s=korg; t=1674400141;
+        bh=QxRuq8zO4+mUgMeIDw3s7YUwKHA3H2WauhIRlxgeSe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+Up1UgyF+sJ2DQTGSdAMVNj7RO0l0/N8zr0Z8yYzrW1EAVrQcPV7X7Q+pifkvPrI
-         f1u4aSN6LqCkX6w3fMw9wy+LRirlGJRacBkhxM1TdxgVIWDzQQn0GtLdrtcVdyO/1C
-         Xuhva3YOXN4H8q+lRvopQ8s/pVseAdS/uh9sLZM8=
+        b=Ho4ICAyXRXUSANGUPuIf5tOPp7Xdbq9P7yJ9lJ9x678A4ey1HM6w/V4kbpMlFnu/b
+         4j3wxVfKq4UxymqMcl1/YFaOL5FFFbRfiq+xuU0Hpjv5lU0vybBrgeb8513gxR8OUg
+         BN8nunIeNCsKYvEL0WZ146cYG2yuC9JK59jhfXTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Duke=20Xin ?= <duke_xinanwen@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.15 055/117] USB: serial: option: add Quectel EM05CN modem
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 18/55] xhci: Detect lpm incapable xHC USB3 roothub ports from ACPI tables
 Date:   Sun, 22 Jan 2023 16:04:05 +0100
-Message-Id: <20230122150235.066633308@linuxfoundation.org>
+Message-Id: <20230122150222.997878553@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
+References: <20230122150222.210885219@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,104 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duke Xin(辛安文) <duke_xinanwen@163.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 71dfd381a7c051f16a61f82fbd38a4cca563bdca upstream.
+commit 74622f0a81d0c2bcfc39f9192b788124e8c7f0af upstream.
 
-The EM05CN modem has 2 USB configurations that are configurable via the AT
-command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate with
-the following interfaces, respectively:
+USB3 ports on xHC hosts may have retimers that cause too long
+exit latency to work with native USB3 U1/U2 link power management states.
 
-"MBIM"  : AT + MBIM + DIAG + NMEA  + MODEM
-"RMNET" : AT + DIAG + NMEA + Modem + QMI
+For now only use usb_acpi_port_lpm_incapable() to evaluate if port lpm
+should be disabled while setting up the USB3 roothub.
 
-The detailed description of the USB configuration for each mode as follows:
+Other ways to identify lpm incapable ports can be added here later if
+ACPI _DSM does not exist.
 
-MBIM Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0312 Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-CN
-C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-A:  FirstIf#= 1 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
-E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
-I:  If#= 2 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 2 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+Limit this to Intel hosts for now, this is to my knowledge only
+an Intel issue.
 
-RMNET Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0312 Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-CN
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Duke Xin(辛安文) <duke_xinanwen@163.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20230116142216.1141605-8-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/host/xhci-pci.c |   34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -258,6 +258,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_EM05G_CS		0x030c
- #define QUECTEL_PRODUCT_EM05CN_SG		0x0310
- #define QUECTEL_PRODUCT_EM05G_SG		0x0311
-+#define QUECTEL_PRODUCT_EM05CN			0x0312
- #define QUECTEL_PRODUCT_EM05G_GR		0x0313
- #define QUECTEL_PRODUCT_EM05G_RS		0x0314
- #define QUECTEL_PRODUCT_EM12			0x0512
-@@ -1164,6 +1165,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
-+	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05CN, 0xff),
-+	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05CN_SG, 0xff),
- 	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -339,8 +339,38 @@ static void xhci_pme_acpi_rtd3_enable(st
+ 				NULL);
+ 	ACPI_FREE(obj);
+ }
++
++static void xhci_find_lpm_incapable_ports(struct usb_hcd *hcd, struct usb_device *hdev)
++{
++	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
++	struct xhci_hub *rhub = &xhci->usb3_rhub;
++	int ret;
++	int i;
++
++	/* This is not the usb3 roothub we are looking for */
++	if (hcd != rhub->hcd)
++		return;
++
++	if (hdev->maxchild > rhub->num_ports) {
++		dev_err(&hdev->dev, "USB3 roothub port number mismatch\n");
++		return;
++	}
++
++	for (i = 0; i < hdev->maxchild; i++) {
++		ret = usb_acpi_port_lpm_incapable(hdev, i);
++
++		dev_dbg(&hdev->dev, "port-%d disable U1/U2 _DSM: %d\n", i + 1, ret);
++
++		if (ret >= 0) {
++			rhub->ports[i]->lpm_incapable = ret;
++			continue;
++		}
++	}
++}
++
+ #else
+ static void xhci_pme_acpi_rtd3_enable(struct pci_dev *dev) { }
++static void xhci_find_lpm_incapable_ports(struct usb_hcd *hcd, struct usb_device *hdev) { }
+ #endif /* CONFIG_ACPI */
+ 
+ /* called during probe() after chip reset completes */
+@@ -376,6 +406,10 @@ static int xhci_pci_setup(struct usb_hcd
+ static int xhci_pci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
+ 				      struct usb_tt *tt, gfp_t mem_flags)
+ {
++	/* Check if acpi claims some USB3 roothub ports are lpm incapable */
++	if (!hdev->parent)
++		xhci_find_lpm_incapable_ports(hcd, hdev);
++
+ 	return xhci_update_hub_device(hcd, hdev, tt, mem_flags);
+ }
+ 
 
 
