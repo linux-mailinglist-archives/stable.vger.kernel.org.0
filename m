@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B441676F4C
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5993F677007
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231222AbjAVPTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:19:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46864 "EHLO
+        id S231462AbjAVP1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:27:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231220AbjAVPTz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469FD21954
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:19:54 -0800 (PST)
+        with ESMTP id S231459AbjAVP1o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:27:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E3BB76C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:27:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00FD8B807E4
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:19:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D30FC4339B;
-        Sun, 22 Jan 2023 15:19:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 334C160C57
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:27:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44F0CC433EF;
+        Sun, 22 Jan 2023 15:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400791;
-        bh=zU1HSal7EaHw8fouZuaPheWcRuLdH5CtUGCPeDcY6uU=;
+        s=korg; t=1674401261;
+        bh=GTd9lWxKOd0LYbHAsUVxiMu7IToZO3Q0AM0M1eNUIJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EHavLl6ReMpRAEA7lGtb5PBfBmL+OlpnN3Dpct6gyexCeD3RtI5Anw7soZHZAZLjK
-         014Am2gU2AUctHdavaupOfBJdscFtue/Qr7B/HDY2V5j5bpXkEhek5rNzVMR9nQ3fw
-         89vzNmcs/Q7xfDHB70U9hk8cr6dQb/viEQDbDRIM=
+        b=xrTCd1QpYToiKVgrXbOHuKnjeJaBEBllIcgDzIQ3J5bZ3IZgGBaQmpPILG1bWizCP
+         /JbXhF2DpQBtgw1lPxeAqfLKFw9I//ljhJdd4xgmaxZg+AN1PEV4tVXxNzQGrS/1JP
+         +zRDHsmeJ8mEFjV2v5UZEQleDE51vgDUHTGRL7v4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 111/117] io_uring: io_kiocb_update_pos() should not touch file for non -1 offset
+        patches@lists.linux.dev, Yifan Zhang <yifan1.zhang@amd.com>,
+        Aaron Liu <aaron.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Subject: [PATCH 6.1 172/193] drm/amdgpu/pm: add GFXOFF control IP version check for SMU IP v13.0.11
 Date:   Sun, 22 Jan 2023 16:05:01 +0100
-Message-Id: <20230122150237.443116471@linuxfoundation.org>
+Message-Id: <20230122150254.277484454@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +55,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-commit 6f83ab22adcb77a5824d2c274dace0d99e21319f upstream.
+commit 9f83e61201bb21957e4993736532edad7a11c7fa upstream.
 
--1 tells use to use the current position, but we check if the file is
-a stream regardless of that. Fix up io_kiocb_update_pos() to only
-dip into file if we need to. This is both more efficient and also drops
-12 bytes of text on aarch64 and 64 bytes on x86-64.
+Enable the SMU IP v13.0.11 GFXOFF control
 
-Fixes: b4aec4001595 ("io_uring: do not recalculate ppos unnecessarily")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: Aaron Liu <aaron.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/io_uring.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -3014,19 +3014,18 @@ static inline void io_rw_done(struct kio
- static inline loff_t *io_kiocb_update_pos(struct io_kiocb *req)
- {
- 	struct kiocb *kiocb = &req->rw.kiocb;
--	bool is_stream = req->file->f_mode & FMODE_STREAM;
- 
--	if (kiocb->ki_pos == -1) {
--		if (!is_stream) {
--			req->flags |= REQ_F_CUR_POS;
--			kiocb->ki_pos = req->file->f_pos;
--			return &kiocb->ki_pos;
--		} else {
--			kiocb->ki_pos = 0;
--			return NULL;
--		}
-+	if (kiocb->ki_pos != -1)
-+		return &kiocb->ki_pos;
-+
-+	if (!(req->file->f_mode & FMODE_STREAM)) {
-+		req->flags |= REQ_F_CUR_POS;
-+		kiocb->ki_pos = req->file->f_pos;
-+		return &kiocb->ki_pos;
- 	}
--	return is_stream ? NULL : &kiocb->ki_pos;
-+
-+	kiocb->ki_pos = 0;
-+	return NULL;
- }
- 
- static void kiocb_done(struct kiocb *kiocb, ssize_t ret,
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
+@@ -845,6 +845,7 @@ int smu_v13_0_gfx_off_control(struct smu
+ 	case IP_VERSION(13, 0, 7):
+ 	case IP_VERSION(13, 0, 8):
+ 	case IP_VERSION(13, 0, 10):
++	case IP_VERSION(13, 0, 11):
+ 		if (!(adev->pm.pp_feature & PP_GFXOFF_MASK))
+ 			return 0;
+ 		if (enable)
 
 
