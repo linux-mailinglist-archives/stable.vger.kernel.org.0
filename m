@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7434A676E80
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 196E8676EEC
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230335AbjAVPLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:11:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
+        id S230496AbjAVPPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:15:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230339AbjAVPLR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 713D220049
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:14 -0800 (PST)
+        with ESMTP id S230501AbjAVPPw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35DB822033
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25EDCB80AF8
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 746B4C4339B;
-        Sun, 22 Jan 2023 15:11:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3205B80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35D45C433EF;
+        Sun, 22 Jan 2023 15:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400271;
-        bh=x3zuXH2FBxcWrid4yJnZf43UQqQClid62ottuSmy138=;
+        s=korg; t=1674400548;
+        bh=QAQssnu91n57wUCsf9Rt3u9HIRbVMIgt0CtjMPne0Os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ppjsWQWN8WNMpgWJZxNODD5pasOFPkaLW8xMoMaQvOx3x9OK5sn6X6qNuJ9OW8Goi
-         9/w/NL4itc7ZOdwNdnj1I2jriel9dRe8RQm4dlHzbW1ZUNNJpOx4HeGYazazWA7JAz
-         DhX/inJkzMlptCzZUtWVm2fn/deez2822Cd3MY5Q=
+        b=z2NC6FAJsdt3YtoI9oqbZrdnj4EziiXgPr9KHgGjm+5IavmNtheJis3A1kCoAABc+
+         xdQZxqfWbOQCN+G5qUADSF8k2PCJP5tu11NCai2Oewo9vhv+KIn8lyn9+nlYF/SnY+
+         07jtdCBymKEwAfq5aB5n7edqfiBb4xFBLFlL6XdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, "Shawn.Shao" <shawn.shao@jaguarmicro.com>,
         Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 12/98] Add exception protection processing for vd in axi_chan_handle_err function
+Subject: [PATCH 5.15 018/117] Add exception protection processing for vd in axi_chan_handle_err function
 Date:   Sun, 22 Jan 2023 16:03:28 +0100
-Message-Id: <20230122150229.948980501@linuxfoundation.org>
+Message-Id: <20230122150233.437717456@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -127,7 +127,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
 +++ b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-@@ -551,6 +551,11 @@ static noinline void axi_chan_handle_err
+@@ -980,6 +980,11 @@ static noinline void axi_chan_handle_err
  
  	/* The bad descriptor currently is in the head of vc list */
  	vd = vchan_next_desc(&chan->vc);
@@ -139,7 +139,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	/* Remove the completed descriptor from issued list */
  	list_del(&vd->node);
  
-@@ -565,6 +570,7 @@ static noinline void axi_chan_handle_err
+@@ -994,6 +999,7 @@ static noinline void axi_chan_handle_err
  	/* Try to restart the controller */
  	axi_chan_start_first_queued(chan);
  
