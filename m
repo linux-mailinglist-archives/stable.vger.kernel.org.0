@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D458676E9E
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D70D8676FBF
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230381AbjAVPMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:12:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39838 "EHLO
+        id S231370AbjAVPYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:24:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230380AbjAVPMc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:32 -0500
+        with ESMTP id S231375AbjAVPYx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9678D20060
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD96222C8
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4001BB80B1A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D96CC433EF;
-        Sun, 22 Jan 2023 15:12:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D248B80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BABDC433EF;
+        Sun, 22 Jan 2023 15:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400346;
-        bh=5n00pYNdhTKEaeVLHLBRQn6jFuJHjA1J/7S0ovuYaYs=;
+        s=korg; t=1674401088;
+        bh=tZn2K9LLMnOpmVyB3KdosDYwGwLJ7GjPQjXaYAooAJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hftMrM4L5qmdVHIo2UJVSrAb/QEFtBvTV0r7KRrONVVxGpg6/cCr6nVSqXEm2m0CZ
-         EmpLbTGLRs2cMbFRWXY+1WPKD0FQi2LHT34oLg6v+VjZXBh/mEPsC/YVvWwU4IWt7p
-         W5zCGpxrje6CSnGGVqoAlrrypiCcN9DgKLdui9wI=
+        b=nhCtMx1SPj12YTiBsKCYELPeWJCejTlTPFnAiayqtKH9qhMcwajUiSGXTWJb72lE5
+         g2yaMi/G7kq8LQS0Yx6N8OuUUsuJyQiN9E2xAI5opqvvjG/A8skwWXao6EjWV85aU0
+         WpRKXjQCgptBjYmXyhNqKo61P7J2mS/+VskWJzuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 39/98] xhci: Add a flag to disable USB3 lpm on a xhci root port level.
+        patches@lists.linux.dev, Pawel Laszczak <pawell@cadence.com>,
+        Peter Chen <peter.chen@kernel.org>
+Subject: [PATCH 6.1 106/193] usb: cdns3: remove fetched trb from cache before dequeuing
 Date:   Sun, 22 Jan 2023 16:03:55 +0100
-Message-Id: <20230122150231.146788924@linuxfoundation.org>
+Message-Id: <20230122150251.175995661@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 0522b9a1653048440da5f21747f21e498b9220d1 upstream.
+commit 1301c7b9f7efad2f11ef924e317c18ebd714fc9a upstream.
 
-One USB3 roothub port may support link power management, while another
-root port on the same xHC can't due to different retimers used for
-the ports.
+After doorbell DMA fetches the TRB. If during dequeuing request
+driver changes NORMAL TRB to LINK TRB but doesn't delete it from
+controller cache then controller will handle cached TRB and packet
+can be lost.
 
-This is the case with Intel Alder Lake, and possible future platforms
-where retimers used for USB4 ports cause too long exit latecy to
-enable native USB3 lpm U1 and U2 states.
+The example scenario for this issue looks like:
+1. queue request - set doorbell
+2. dequeue request
+3. send OUT data packet from host
+4. Device will accept this packet which is unexpected
+5. queue new request - set doorbell
+6. Device lost the expected packet.
 
-Add a flag in the xhci port structure to indicate if the port is
-lpm_incapable, and check it while calculating exit latency.
+By setting DFLUSH controller clears DRDY bit and stop DMA transfer.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20230116142216.1141605-6-mathias.nyman@linux.intel.com
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+cc: <stable@vger.kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Link: https://lore.kernel.org/r/20221115100039.441295-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    8 ++++++++
- drivers/usb/host/xhci.h |    1 +
- 2 files changed, 9 insertions(+)
+ drivers/usb/cdns3/cdns3-gadget.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -5009,6 +5009,7 @@ static int xhci_enable_usb3_lpm_timeout(
- 			struct usb_device *udev, enum usb3_link_state state)
- {
- 	struct xhci_hcd	*xhci;
-+	struct xhci_port *port;
- 	u16 hub_encoded_timeout;
- 	int mel;
- 	int ret;
-@@ -5022,6 +5023,13 @@ static int xhci_enable_usb3_lpm_timeout(
- 			!xhci->devs[udev->slot_id])
- 		return USB3_LPM_DISABLED;
+--- a/drivers/usb/cdns3/cdns3-gadget.c
++++ b/drivers/usb/cdns3/cdns3-gadget.c
+@@ -2614,6 +2614,7 @@ int cdns3_gadget_ep_dequeue(struct usb_e
+ 	u8 req_on_hw_ring = 0;
+ 	unsigned long flags;
+ 	int ret = 0;
++	int val;
  
-+	/* If connected to root port then check port can handle lpm */
-+	if (udev->parent && !udev->parent->parent) {
-+		port = xhci->usb3_rhub.ports[udev->portnum - 1];
-+		if (port->lpm_incapable)
-+			return USB3_LPM_DISABLED;
-+	}
+ 	if (!ep || !request || !ep->desc)
+ 		return -EINVAL;
+@@ -2649,6 +2650,13 @@ found:
+ 
+ 	/* Update ring only if removed request is on pending_req_list list */
+ 	if (req_on_hw_ring && link_trb) {
++		/* Stop DMA */
++		writel(EP_CMD_DFLUSH, &priv_dev->regs->ep_cmd);
 +
- 	hub_encoded_timeout = xhci_calculate_lpm_timeout(hcd, udev, state);
- 	mel = calculate_max_exit_latency(udev, state, hub_encoded_timeout);
- 	if (mel < 0) {
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1728,6 +1728,7 @@ struct xhci_port {
- 	int			hcd_portnum;
- 	struct xhci_hub		*rhub;
- 	struct xhci_port_cap	*port_cap;
-+	unsigned int		lpm_incapable:1;
- };
++		/* wait for DFLUSH cleared */
++		readl_poll_timeout_atomic(&priv_dev->regs->ep_cmd, val,
++					  !(val & EP_CMD_DFLUSH), 1, 1000);
++
+ 		link_trb->buffer = cpu_to_le32(TRB_BUFFER(priv_ep->trb_pool_dma +
+ 			((priv_req->end_trb + 1) * TRB_SIZE)));
+ 		link_trb->control = cpu_to_le32((le32_to_cpu(link_trb->control) & TRB_CYCLE) |
+@@ -2660,6 +2668,10 @@ found:
  
- struct xhci_hub {
+ 	cdns3_gadget_giveback(priv_ep, priv_req, -ECONNRESET);
+ 
++	req = cdns3_next_request(&priv_ep->pending_req_list);
++	if (req)
++		cdns3_rearm_transfer(priv_ep, 1);
++
+ not_found:
+ 	spin_unlock_irqrestore(&priv_dev->lock, flags);
+ 	return ret;
 
 
