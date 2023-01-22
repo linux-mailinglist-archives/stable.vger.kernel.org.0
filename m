@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB430676E74
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 521D7676EC0
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbjAVPKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:10:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37228 "EHLO
+        id S230430AbjAVPN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:13:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230325AbjAVPKm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:42 -0500
+        with ESMTP id S230431AbjAVPN4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 728051F905
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14FD522009
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C34460C48
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 215D4C433D2;
-        Sun, 22 Jan 2023 15:10:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4C5C60C63
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE3B4C433EF;
+        Sun, 22 Jan 2023 15:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400240;
-        bh=8O5LWC1VRYzNH75i6GxRY3NbcghFQobmTehkULr/oyY=;
+        s=korg; t=1674400435;
+        bh=104OlxchH7FoR/SMWwK/ndCYooV/s02RnjfbRtSdEZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hOAZSw1qvKIYODyBKoo944De+CvyYBzhddkhhun4QzMXWZt+Rq+qRBz6kgpO8KSix
-         pBhP3zeYQ0Fw5uthIdhfrYb6/ryWoPTj6V/GHOC8uFgAFKXIWKfcnKXqDIBrRplHie
-         cmfp/JJUaccDTW5guMCeALEcRU6A3Q6tjdmnYNJs=
+        b=B+/FNaM1vQxZ/EAwz3RK/gmPSp8KSKTi2WCkJFNJjLmqvtbshtOpdZjb/9rqTtDZc
+         69Sg409wiv1PXAbtW2w/dQhmXSWxdhLmj7g4qz1dd+VyuMaCUwQ/FdwRLnQ2nPD5yP
+         QmbMZhFetc7/NpiYF6PLLW9x1vtgYXa+NddsWNhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 42/55] dt-bindings: phy: g12a-usb3-pcie-phy: fix compatible string documentation
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Tobias Schramm <t.schramm@manjaro.org>,
+        Richard Genoud <richard.genoud@gmail.com>
+Subject: [PATCH 5.10 73/98] serial: atmel: fix incorrect baudrate setup
 Date:   Sun, 22 Jan 2023 16:04:29 +0100
-Message-Id: <20230122150223.914201566@linuxfoundation.org>
+Message-Id: <20230122150232.528185814@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,146 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Tobias Schramm <t.schramm@manjaro.org>
 
-commit e181119046a0ec16126b682163040e8e33f310c1 upstream.
+commit 5bfdd3c654bd879bff50c2e85e42f85ae698b42f upstream.
 
-The compatible string in the driver doesn't have the meson prefix.
-Fix this in the documentation and rename the file accordingly.
+Commit ba47f97a18f2 ("serial: core: remove baud_rates when serial console
+setup") changed uart_set_options to select the correct baudrate
+configuration based on the absolute error between requested baudrate and
+available standard baudrate settings.
+Prior to that commit the baudrate was selected based on which predefined
+standard baudrate did not exceed the requested baudrate.
+This change of selection logic was never reflected in the atmel serial
+driver. Thus the comment left in the atmel serial driver is no longer
+accurate.
+Additionally the manual rounding up described in that comment and applied
+via (quot - 1) requests an incorrect baudrate. Since uart_set_options uses
+tty_termios_encode_baud_rate to determine the appropriate baudrate flags
+this can cause baudrate selection to fail entirely because
+tty_termios_encode_baud_rate will only select a baudrate if relative error
+between requested and selected baudrate does not exceed +/-2%.
+Fix that by requesting actual, exact baudrate used by the serial.
 
-Fixes: 87a55485f2fc ("dt-bindings: phy: meson-g12a-usb3-pcie-phy: convert to yaml")
-Cc: stable@vger.kernel.org
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/0a82be92-ce85-da34-9d6f-4b33034473e5@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: ba47f97a18f2 ("serial: core: remove baud_rates when serial console setup")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Tobias Schramm <t.schramm@manjaro.org>
+Acked-by: Richard Genoud <richard.genoud@gmail.com>
+Link: https://lore.kernel.org/r/20230109072940.202936-1-t.schramm@manjaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/phy/amlogic,g12a-usb3-pcie-phy.yaml       |   57 ++++++++++
- Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml |   57 ----------
- 2 files changed, 57 insertions(+), 57 deletions(-)
- rename Documentation/devicetree/bindings/phy/{amlogic,meson-g12a-usb3-pcie-phy.yaml => amlogic,g12a-usb3-pcie-phy.yaml} (82%)
+ drivers/tty/serial/atmel_serial.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- /dev/null
-+++ b/Documentation/devicetree/bindings/phy/amlogic,g12a-usb3-pcie-phy.yaml
-@@ -0,0 +1,57 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+# Copyright 2019 BayLibre, SAS
-+%YAML 1.2
-+---
-+$id: "http://devicetree.org/schemas/phy/amlogic,g12a-usb3-pcie-phy.yaml#"
-+$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-+
-+title: Amlogic G12A USB3 + PCIE Combo PHY
-+
-+maintainers:
-+  - Neil Armstrong <narmstrong@baylibre.com>
-+
-+properties:
-+  compatible:
-+    enum:
-+      - amlogic,g12a-usb3-pcie-phy
-+
-+  reg:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  clock-names:
-+    items:
-+      - const: ref_clk
-+
-+  resets:
-+    maxItems: 1
-+
-+  reset-names:
-+    items:
-+      - const: phy
-+
-+  "#phy-cells":
-+    const: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - clocks
-+  - clock-names
-+  - resets
-+  - reset-names
-+  - "#phy-cells"
-+
-+examples:
-+  - |
-+    phy@46000 {
-+          compatible = "amlogic,g12a-usb3-pcie-phy";
-+          reg = <0x46000 0x2000>;
-+          clocks = <&ref_clk>;
-+          clock-names = "ref_clk";
-+          resets = <&phy_reset>;
-+          reset-names = "phy";
-+          #phy-cells = <1>;
-+    };
---- a/Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml
-+++ /dev/null
-@@ -1,57 +0,0 @@
--# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
--# Copyright 2019 BayLibre, SAS
--%YAML 1.2
-----
--$id: "http://devicetree.org/schemas/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml#"
--$schema: "http://devicetree.org/meta-schemas/core.yaml#"
--
--title: Amlogic G12A USB3 + PCIE Combo PHY
--
--maintainers:
--  - Neil Armstrong <narmstrong@baylibre.com>
--
--properties:
--  compatible:
--    enum:
--      - amlogic,meson-g12a-usb3-pcie-phy
--
--  reg:
--    maxItems: 1
--
--  clocks:
--    maxItems: 1
--
--  clock-names:
--    items:
--      - const: ref_clk
--
--  resets:
--    maxItems: 1
--
--  reset-names:
--    items:
--      - const: phy
--
--  "#phy-cells":
--    const: 1
--
--required:
--  - compatible
--  - reg
--  - clocks
--  - clock-names
--  - resets
--  - reset-names
--  - "#phy-cells"
--
--examples:
--  - |
--    phy@46000 {
--          compatible = "amlogic,meson-g12a-usb3-pcie-phy";
--          reg = <0x46000 0x2000>;
--          clocks = <&ref_clk>;
--          clock-names = "ref_clk";
--          resets = <&phy_reset>;
--          reset-names = "phy";
--          #phy-cells = <1>;
--    };
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -2633,13 +2633,7 @@ static void __init atmel_console_get_opt
+ 	else if (mr == ATMEL_US_PAR_ODD)
+ 		*parity = 'o';
+ 
+-	/*
+-	 * The serial core only rounds down when matching this to a
+-	 * supported baud rate. Make sure we don't end up slightly
+-	 * lower than one of those, as it would make us fall through
+-	 * to a much lower baud rate than we really want.
+-	 */
+-	*baud = port->uartclk / (16 * (quot - 1));
++	*baud = port->uartclk / (16 * quot);
+ }
+ 
+ static int __init atmel_console_setup(struct console *co, char *options)
 
 
