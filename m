@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC6B676FBB
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42938676EF9
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbjAVPYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52946 "EHLO
+        id S230511AbjAVPQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:16:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231364AbjAVPYk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:40 -0500
+        with ESMTP id S230519AbjAVPQY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56D851E2A0
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9015722025
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E721D60C44
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09732C433EF;
-        Sun, 22 Jan 2023 15:24:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C6D860C5C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E729C433EF;
+        Sun, 22 Jan 2023 15:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401078;
-        bh=haiox6iLeBPtUWjH4aIZTnntV82qgkwc5s0Av5uv0iU=;
+        s=korg; t=1674400582;
+        bh=kMTd/QWEVaMMbGGHko64wkREQRIpQtKXX9E8vNP5Ciw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUvjOPEBat4WAt0NHqhWthkenGBoIMzFMgQb3PhZIA7rCmAXp9/Su+cDNfBGRy2hT
-         QPqShezKFRXxi9qyixUbdQlQd3tKuPtX2bNNw5Sqa8hHLWg+wekC0+b5FibmkRFuas
-         N7RCXf16kuZUBC5Pa8bO4an9v+FbKNbYYi0/qAHA=
+        b=GQbGqGjsvWhqYKsQRc0UkQ4d8DvFxVaEkmqIpR5LoSOZrhAnI2Tw/bE1AVaNHK77P
+         VS37GJFpjCXVDcT5gEQeYw1KLb7cnCQb5huQ1O508puvEEZxG8QG1nM23j58ejX6W0
+         WEucSUhdIALIYDXUao62ck0UX28RZPp2j5FWbwe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Duke=20Xin ?= <duke_xinanwen@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 6.1 063/193] USB: serial: option: add Quectel EM05CN modem
-Date:   Sun, 22 Jan 2023 16:03:12 +0100
-Message-Id: <20230122150249.227089465@linuxfoundation.org>
+        patches@lists.linux.dev, Hao Sun <sunhao.th@gmail.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 003/117] selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID
+Date:   Sun, 22 Jan 2023 16:03:13 +0100
+Message-Id: <20230122150232.884959837@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,104 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duke Xin(辛安文) <duke_xinanwen@163.com>
+From: Hao Sun <sunhao.th@gmail.com>
 
-commit 71dfd381a7c051f16a61f82fbd38a4cca563bdca upstream.
+[ Upstream commit cedebd74cf3883f0384af9ec26b4e6f8f1964dd4 ]
 
-The EM05CN modem has 2 USB configurations that are configurable via the AT
-command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate with
-the following interfaces, respectively:
+Verify that nullness information is not porpagated in the branches
+of register to register JEQ and JNE operations if one of them is
+PTR_TO_BTF_ID. Implement this in C level so we can use CO-RE.
 
-"MBIM"  : AT + MBIM + DIAG + NMEA  + MODEM
-"RMNET" : AT + DIAG + NMEA + Modem + QMI
-
-The detailed description of the USB configuration for each mode as follows:
-
-MBIM Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0312 Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-CN
-C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-A:  FirstIf#= 1 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
-E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
-I:  If#= 2 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 2 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-RMNET Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0312 Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-CN
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Duke Xin(辛安文) <duke_xinanwen@163.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hao Sun <sunhao.th@gmail.com>
+Suggested-by: Martin KaFai Lau <martin.lau@kernel.org>
+Link: https://lore.kernel.org/r/20221222024414.29539-2-sunhao.th@gmail.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ .../bpf/prog_tests/jeq_infer_not_null.c       |  9 ++++
+ .../bpf/progs/jeq_infer_not_null_fail.c       | 42 +++++++++++++++++++
+ 2 files changed, 51 insertions(+)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+ create mode 100644 tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -258,6 +258,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_EM05G_CS		0x030c
- #define QUECTEL_PRODUCT_EM05CN_SG		0x0310
- #define QUECTEL_PRODUCT_EM05G_SG		0x0311
-+#define QUECTEL_PRODUCT_EM05CN			0x0312
- #define QUECTEL_PRODUCT_EM05G_GR		0x0313
- #define QUECTEL_PRODUCT_EM05G_RS		0x0314
- #define QUECTEL_PRODUCT_EM12			0x0512
-@@ -1164,6 +1165,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
-+	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05CN, 0xff),
-+	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05CN_SG, 0xff),
- 	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
+diff --git a/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+new file mode 100644
+index 000000000000..3add34df5767
+--- /dev/null
++++ b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+@@ -0,0 +1,9 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <test_progs.h>
++#include "jeq_infer_not_null_fail.skel.h"
++
++void test_jeq_infer_not_null(void)
++{
++	RUN_TESTS(jeq_infer_not_null_fail);
++}
+diff --git a/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+new file mode 100644
+index 000000000000..f46965053acb
+--- /dev/null
++++ b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+@@ -0,0 +1,42 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include "vmlinux.h"
++#include <bpf/bpf_helpers.h>
++#include "bpf_misc.h"
++
++char _license[] SEC("license") = "GPL";
++
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__uint(max_entries, 1);
++	__type(key, u64);
++	__type(value, u64);
++} m_hash SEC(".maps");
++
++SEC("?raw_tp")
++__failure __msg("R8 invalid mem access 'map_value_or_null")
++int jeq_infer_not_null_ptr_to_btfid(void *ctx)
++{
++	struct bpf_map *map = (struct bpf_map *)&m_hash;
++	struct bpf_map *inner_map = map->inner_map_meta;
++	u64 key = 0, ret = 0, *val;
++
++	val = bpf_map_lookup_elem(map, &key);
++	/* Do not mark ptr as non-null if one of them is
++	 * PTR_TO_BTF_ID (R9), reject because of invalid
++	 * access to map value (R8).
++	 *
++	 * Here, we need to inline those insns to access
++	 * R8 directly, since compiler may use other reg
++	 * once it figures out val==inner_map.
++	 */
++	asm volatile("r8 = %[val];\n"
++		     "r9 = %[inner_map];\n"
++		     "if r8 != r9 goto +1;\n"
++		     "%[ret] = *(u64 *)(r8 +0);\n"
++		     : [ret] "+r"(ret)
++		     : [inner_map] "r"(inner_map), [val] "r"(val)
++		     : "r8", "r9");
++
++	return ret;
++}
+-- 
+2.35.1
+
 
 
