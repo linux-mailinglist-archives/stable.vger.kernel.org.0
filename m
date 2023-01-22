@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81185676F95
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E53CB676F97
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231298AbjAVPXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:23:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50278 "EHLO
+        id S231313AbjAVPXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:23:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231376AbjAVPXE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70D3583ED
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:02 -0800 (PST)
+        with ESMTP id S231364AbjAVPXJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97B4C184
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C806760C44
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8B98C433EF;
-        Sun, 22 Jan 2023 15:23:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AAD8B80B1D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80126C433D2;
+        Sun, 22 Jan 2023 15:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400981;
-        bh=Hf2xK+5NIgrNH7GU69OGU/qnHq72dJYShPTvS7Q8jMQ=;
+        s=korg; t=1674400983;
+        bh=QELNcaaOV0tTZMQweTTlzZRRaE/ji4Fo3XrGrJ4ikVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GF8nor30hVQ8dLPjxIyo87KdAduiYKlhgvWiH9rTQ4CAg1Q1s62yM3IGhpewXG5Wj
-         FhXWT5AsarPKs3lFgeKu/w9TJDsz/ji/oJlVdMF8Ohedr2rvPyXp07XV9TvgTrlH8Q
-         UzRB//K9JZr5X/MMSahRgTfn4D+95Z0E2V6QEnNg=
+        b=GgrSxeLSWxRa33PQ5qCsGVsWqg+WIFHlLeo+f0/SQi3N6rNHHIwRHlJwVj/4vPHQG
+         FsadwBkF46C0QbNmV8VEuNYICXnMm9EgC/NgyMh5eCCjelJ2JtSE+dfxSK1iZRoMPq
+         7h+NDQqzcAPUjeyUZz9IZzG4Ef469NX1VMY+3Q9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexander Wetzel <alexander@wetzel-home.de>,
+        patches@lists.linux.dev, Felix Fietkau <nbd@nbd.name>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 6.1 035/193] wifi: mac80211: sdata can be NULL during AMPDU start
-Date:   Sun, 22 Jan 2023 16:02:44 +0100
-Message-Id: <20230122150248.012448415@linuxfoundation.org>
+Subject: [PATCH 6.1 036/193] wifi: mac80211: fix initialization of rx->link and rx->link_sta
+Date:   Sun, 22 Jan 2023 16:02:45 +0100
+Message-Id: <20230122150248.062676581@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -54,117 +53,457 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Wetzel <alexander@wetzel-home.de>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 69403bad97aa0162e3d7911b27e25abe774093df upstream.
+commit e66b7920aa5ac5b1a1997a454004ba9246a3c005 upstream.
 
-ieee80211_tx_ba_session_handle_start() may get NULL for sdata when a
-deauthentication is ongoing.
+There are some codepaths that do not initialize rx->link_sta properly. This
+causes a crash in places which assume that rx->link_sta is valid if rx->sta
+is valid.
+One known instance is triggered by __ieee80211_rx_h_amsdu being called from
+fast-rx. It results in a crash like this one:
 
-Here a trace triggering the race with the hostapd test
-multi_ap_fronthaul_on_ap:
+ BUG: kernel NULL pointer dereference, address: 00000000000000a8
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page PGD 0 P4D 0
+ Oops: 0002 [#1] PREEMPT SMP PTI
+ CPU: 1 PID: 506 Comm: mt76-usb-rx phy Tainted: G            E      6.1.0-debian64x+1.7 #3
+ Hardware name: ZOTAC ZBOX-ID92/ZBOX-IQ01/ZBOX-ID92/ZBOX-IQ01, BIOS B220P007 05/21/2014
+ RIP: 0010:ieee80211_deliver_skb+0x62/0x1f0 [mac80211]
+ Code: 00 48 89 04 24 e8 9e a7 c3 df 89 c0 48 03 1c c5 a0 ea 39 a1 4c 01 6b 08 48 ff 03 48
+       83 7d 28 00 74 11 48 8b 45 30 48 63 55 44 <48> 83 84 d0 a8 00 00 00 01 41 8b 86 c0
+       11 00 00 8d 50 fd 83 fa 01
+ RSP: 0018:ffff999040803b10 EFLAGS: 00010286
+ RAX: 0000000000000000 RBX: ffffb9903f496480 RCX: 0000000000000000
+ RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+ RBP: ffff999040803ce0 R08: 0000000000000000 R09: 0000000000000000
+ R10: 0000000000000000 R11: 0000000000000000 R12: ffff8d21828ac900
+ R13: 000000000000004a R14: ffff8d2198ed89c0 R15: ffff8d2198ed8000
+ FS:  0000000000000000(0000) GS:ffff8d24afe80000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00000000000000a8 CR3: 0000000429810002 CR4: 00000000001706e0
+ Call Trace:
+  <TASK>
+  __ieee80211_rx_h_amsdu+0x1b5/0x240 [mac80211]
+  ? ieee80211_prepare_and_rx_handle+0xcdd/0x1320 [mac80211]
+  ? __local_bh_enable_ip+0x3b/0xa0
+  ieee80211_prepare_and_rx_handle+0xcdd/0x1320 [mac80211]
+  ? prepare_transfer+0x109/0x1a0 [xhci_hcd]
+  ieee80211_rx_list+0xa80/0xda0 [mac80211]
+  mt76_rx_complete+0x207/0x2e0 [mt76]
+  mt76_rx_poll_complete+0x357/0x5a0 [mt76]
+  mt76u_rx_worker+0x4f5/0x600 [mt76_usb]
+  ? mt76_get_min_avg_rssi+0x140/0x140 [mt76]
+  __mt76_worker_fn+0x50/0x80 [mt76]
+  kthread+0xed/0x120
+  ? kthread_complete_and_exit+0x20/0x20
+  ret_from_fork+0x22/0x30
 
-(gdb) list *drv_ampdu_action+0x46
-0x8b16 is in drv_ampdu_action (net/mac80211/driver-ops.c:396).
-391             int ret = -EOPNOTSUPP;
-392
-393             might_sleep();
-394
-395             sdata = get_bss_sdata(sdata);
-396             if (!check_sdata_in_driver(sdata))
-397                     return -EIO;
-398
-399             trace_drv_ampdu_action(local, sdata, params);
-400
+Since the initialization of rx->link and rx->link_sta is rather convoluted
+and duplicated in many places, clean it up by using a helper function to
+set it.
 
-wlan0: moving STA 02:00:00:00:03:00 to state 3
-wlan0: associated
-wlan0: deauthenticating from 02:00:00:00:03:00 by local choice (Reason: 3=DEAUTH_LEAVING)
-wlan3.sta1: Open BA session requested for 02:00:00:00:00:00 tid 0
-wlan3.sta1: dropped frame to 02:00:00:00:00:00 (unauthorized port)
-wlan0: moving STA 02:00:00:00:03:00 to state 2
-wlan0: moving STA 02:00:00:00:03:00 to state 1
-wlan0: Removed STA 02:00:00:00:03:00
-wlan0: Destroyed STA 02:00:00:00:03:00
-BUG: unable to handle page fault for address: fffffffffffffb48
-PGD 11814067 P4D 11814067 PUD 11816067 PMD 0
-Oops: 0000 [#1] PREEMPT SMP PTI
-CPU: 2 PID: 133397 Comm: kworker/u16:1 Tainted: G        W          6.1.0-rc8-wt+ #59
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-20220807_005459-localhost 04/01/2014
-Workqueue: phy3 ieee80211_ba_session_work [mac80211]
-RIP: 0010:drv_ampdu_action+0x46/0x280 [mac80211]
-Code: 53 48 89 f3 be 89 01 00 00 e8 d6 43 bf ef e8 21 46 81 f0 83 bb a0 1b 00 00 04 75 0e 48 8b 9b 28 0d 00 00 48 81 eb 10 0e 00 00 <8b> 93 58 09 00 00 f6 c2 20 0f 84 3b 01 00 00 8b 05 dd 1c 0f 00 85
-RSP: 0018:ffffc900025ebd20 EFLAGS: 00010287
-RAX: 0000000000000000 RBX: fffffffffffff1f0 RCX: ffff888102228240
-RDX: 0000000080000000 RSI: ffffffff918c5de0 RDI: ffff888102228b40
-RBP: ffffc900025ebd40 R08: 0000000000000001 R09: 0000000000000001
-R10: 0000000000000001 R11: 0000000000000000 R12: ffff888118c18ec0
-R13: 0000000000000000 R14: ffffc900025ebd60 R15: ffff888018b7efb8
-FS:  0000000000000000(0000) GS:ffff88817a600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: fffffffffffffb48 CR3: 0000000105228006 CR4: 0000000000170ee0
-Call Trace:
- <TASK>
- ieee80211_tx_ba_session_handle_start+0xd0/0x190 [mac80211]
- ieee80211_ba_session_work+0xff/0x2e0 [mac80211]
- process_one_work+0x29f/0x620
- worker_thread+0x4d/0x3d0
- ? process_one_work+0x620/0x620
- kthread+0xfb/0x120
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x22/0x30
- </TASK>
-
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
-Link: https://lore.kernel.org/r/20221230121850.218810-2-alexander@wetzel-home.de
+Fixes: ccdde7c74ffd ("wifi: mac80211: properly implement MLO key handling")
+Fixes: b320d6c456ff ("wifi: mac80211: use correct rx link_sta instead of default")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20221230200747.19040-1-nbd@nbd.name
+[remove unnecessary rx->sta->sta.mlo check]
 Cc: stable@vger.kernel.org
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/agg-tx.c     |    6 +++++-
- net/mac80211/driver-ops.c |    3 +++
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ net/mac80211/rx.c |  222 ++++++++++++++++++++++++------------------------------
+ 1 file changed, 99 insertions(+), 123 deletions(-)
 
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -491,7 +491,7 @@ void ieee80211_tx_ba_session_handle_star
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -4070,6 +4070,58 @@ static void ieee80211_invoke_rx_handlers
+ #undef CALL_RXH
+ }
+ 
++static bool
++ieee80211_rx_is_valid_sta_link_id(struct ieee80211_sta *sta, u8 link_id)
++{
++	if (!sta->mlo)
++		return false;
++
++	return !!(sta->valid_links & BIT(link_id));
++}
++
++static bool ieee80211_rx_data_set_link(struct ieee80211_rx_data *rx,
++				       u8 link_id)
++{
++	rx->link_id = link_id;
++	rx->link = rcu_dereference(rx->sdata->link[link_id]);
++
++	if (!rx->sta)
++		return rx->link;
++
++	if (!ieee80211_rx_is_valid_sta_link_id(&rx->sta->sta, link_id))
++		return false;
++
++	rx->link_sta = rcu_dereference(rx->sta->link[link_id]);
++
++	return rx->link && rx->link_sta;
++}
++
++static bool ieee80211_rx_data_set_sta(struct ieee80211_rx_data *rx,
++				      struct ieee80211_sta *pubsta,
++				      int link_id)
++{
++	struct sta_info *sta;
++
++	sta = container_of(pubsta, struct sta_info, sta);
++
++	rx->link_id = link_id;
++	rx->sta = sta;
++
++	if (sta) {
++		rx->local = sta->sdata->local;
++		if (!rx->sdata)
++			rx->sdata = sta->sdata;
++		rx->link_sta = &sta->deflink;
++	}
++
++	if (link_id < 0)
++		rx->link = &rx->sdata->deflink;
++	else if (!ieee80211_rx_data_set_link(rx, link_id))
++		return false;
++
++	return true;
++}
++
+ /*
+  * This function makes calls into the RX path, therefore
+  * it has to be invoked under RCU read lock.
+@@ -4078,16 +4130,19 @@ void ieee80211_release_reorder_timeout(s
  {
- 	struct tid_ampdu_tx *tid_tx;
- 	struct ieee80211_local *local = sta->local;
--	struct ieee80211_sub_if_data *sdata = sta->sdata;
-+	struct ieee80211_sub_if_data *sdata;
- 	struct ieee80211_ampdu_params params = {
- 		.sta = &sta->sta,
- 		.action = IEEE80211_AMPDU_TX_START,
-@@ -521,6 +521,7 @@ void ieee80211_tx_ba_session_handle_star
+ 	struct sk_buff_head frames;
+ 	struct ieee80211_rx_data rx = {
+-		.sta = sta,
+-		.sdata = sta->sdata,
+-		.local = sta->local,
+ 		/* This is OK -- must be QoS data frame */
+ 		.security_idx = tid,
+ 		.seqno_idx = tid,
+-		.link_id = -1,
+ 	};
+ 	struct tid_ampdu_rx *tid_agg_rx;
+-	u8 link_id;
++	int link_id = -1;
++
++	/* FIXME: statistics won't be right with this */
++	if (sta->sta.valid_links)
++		link_id = ffs(sta->sta.valid_links) - 1;
++
++	if (!ieee80211_rx_data_set_sta(&rx, &sta->sta, link_id))
++		return;
+ 
+ 	tid_agg_rx = rcu_dereference(sta->ampdu_mlme.tid_rx[tid]);
+ 	if (!tid_agg_rx)
+@@ -4107,10 +4162,6 @@ void ieee80211_release_reorder_timeout(s
+ 		};
+ 		drv_event_callback(rx.local, rx.sdata, &event);
+ 	}
+-	/* FIXME: statistics won't be right with this */
+-	link_id = sta->sta.valid_links ? ffs(sta->sta.valid_links) - 1 : 0;
+-	rx.link = rcu_dereference(sta->sdata->link[link_id]);
+-	rx.link_sta = rcu_dereference(sta->link[link_id]);
+ 
+ 	ieee80211_rx_handlers(&rx, &frames);
+ }
+@@ -4126,7 +4177,6 @@ void ieee80211_mark_rx_ba_filtered_frame
+ 		/* This is OK -- must be QoS data frame */
+ 		.security_idx = tid,
+ 		.seqno_idx = tid,
+-		.link_id = -1,
+ 	};
+ 	int i, diff;
+ 
+@@ -4137,10 +4187,8 @@ void ieee80211_mark_rx_ba_filtered_frame
+ 
+ 	sta = container_of(pubsta, struct sta_info, sta);
+ 
+-	rx.sta = sta;
+-	rx.sdata = sta->sdata;
+-	rx.link = &rx.sdata->deflink;
+-	rx.local = sta->local;
++	if (!ieee80211_rx_data_set_sta(&rx, pubsta, -1))
++		return;
+ 
+ 	rcu_read_lock();
+ 	tid_agg_rx = rcu_dereference(sta->ampdu_mlme.tid_rx[tid]);
+@@ -4527,15 +4575,6 @@ void ieee80211_check_fast_rx_iface(struc
+ 	mutex_unlock(&local->sta_mtx);
+ }
+ 
+-static bool
+-ieee80211_rx_is_valid_sta_link_id(struct ieee80211_sta *sta, u8 link_id)
+-{
+-	if (!sta->mlo)
+-		return false;
+-
+-	return !!(sta->valid_links & BIT(link_id));
+-}
+-
+ static void ieee80211_rx_8023(struct ieee80211_rx_data *rx,
+ 			      struct ieee80211_fast_rx *fast_rx,
+ 			      int orig_len)
+@@ -4646,7 +4685,6 @@ static bool ieee80211_invoke_fast_rx(str
+ 	struct sk_buff *skb = rx->skb;
+ 	struct ieee80211_hdr *hdr = (void *)skb->data;
+ 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
+-	struct sta_info *sta = rx->sta;
+ 	int orig_len = skb->len;
+ 	int hdrlen = ieee80211_hdrlen(hdr->frame_control);
+ 	int snap_offs = hdrlen;
+@@ -4658,7 +4696,6 @@ static bool ieee80211_invoke_fast_rx(str
+ 		u8 da[ETH_ALEN];
+ 		u8 sa[ETH_ALEN];
+ 	} addrs __aligned(2);
+-	struct link_sta_info *link_sta;
+ 	struct ieee80211_sta_rx_stats *stats;
+ 
+ 	/* for parallel-rx, we need to have DUP_VALIDATED, otherwise we write
+@@ -4761,18 +4798,10 @@ static bool ieee80211_invoke_fast_rx(str
+  drop:
+ 	dev_kfree_skb(skb);
+ 
+-	if (rx->link_id >= 0) {
+-		link_sta = rcu_dereference(sta->link[rx->link_id]);
+-		if (!link_sta)
+-			return true;
+-	} else {
+-		link_sta = &sta->deflink;
+-	}
+-
+ 	if (fast_rx->uses_rss)
+-		stats = this_cpu_ptr(link_sta->pcpu_rx_stats);
++		stats = this_cpu_ptr(rx->link_sta->pcpu_rx_stats);
+ 	else
+-		stats = &link_sta->rx_stats;
++		stats = &rx->link_sta->rx_stats;
+ 
+ 	stats->dropped++;
+ 	return true;
+@@ -4790,8 +4819,8 @@ static bool ieee80211_prepare_and_rx_han
+ 	struct ieee80211_local *local = rx->local;
+ 	struct ieee80211_sub_if_data *sdata = rx->sdata;
+ 	struct ieee80211_hdr *hdr = (void *)skb->data;
+-	struct link_sta_info *link_sta = NULL;
+-	struct ieee80211_link_data *link;
++	struct link_sta_info *link_sta = rx->link_sta;
++	struct ieee80211_link_data *link = rx->link;
+ 
+ 	rx->skb = skb;
+ 
+@@ -4813,35 +4842,6 @@ static bool ieee80211_prepare_and_rx_han
+ 	if (!ieee80211_accept_frame(rx))
+ 		return false;
+ 
+-	if (rx->link_id >= 0) {
+-		link = rcu_dereference(rx->sdata->link[rx->link_id]);
+-
+-		/* we might race link removal */
+-		if (!link)
+-			return true;
+-		rx->link = link;
+-
+-		if (rx->sta) {
+-			rx->link_sta =
+-				rcu_dereference(rx->sta->link[rx->link_id]);
+-			if (!rx->link_sta)
+-				return true;
+-		}
+-	} else {
+-		if (rx->sta)
+-			rx->link_sta = &rx->sta->deflink;
+-
+-		rx->link = &sdata->deflink;
+-	}
+-
+-	if (unlikely(!is_multicast_ether_addr(hdr->addr1) &&
+-		     rx->link_id >= 0 && rx->sta && rx->sta->sta.mlo)) {
+-		link_sta = rcu_dereference(rx->sta->link[rx->link_id]);
+-
+-		if (WARN_ON_ONCE(!link_sta))
+-			return true;
+-	}
+-
+ 	if (!consume) {
+ 		struct skb_shared_hwtstamps *shwt;
+ 
+@@ -4861,7 +4861,7 @@ static bool ieee80211_prepare_and_rx_han
+ 		shwt->hwtstamp = skb_hwtstamps(skb)->hwtstamp;
+ 	}
+ 
+-	if (unlikely(link_sta)) {
++	if (unlikely(rx->sta && rx->sta->sta.mlo)) {
+ 		/* translate to MLD addresses */
+ 		if (ether_addr_equal(link->conf->addr, hdr->addr1))
+ 			ether_addr_copy(hdr->addr1, rx->sdata->vif.addr);
+@@ -4891,6 +4891,7 @@ static void __ieee80211_rx_handle_8023(s
+ 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
+ 	struct ieee80211_fast_rx *fast_rx;
+ 	struct ieee80211_rx_data rx;
++	int link_id = -1;
+ 
+ 	memset(&rx, 0, sizeof(rx));
+ 	rx.skb = skb;
+@@ -4907,12 +4908,8 @@ static void __ieee80211_rx_handle_8023(s
+ 	if (!pubsta)
+ 		goto drop;
+ 
+-	rx.sta = container_of(pubsta, struct sta_info, sta);
+-	rx.sdata = rx.sta->sdata;
+-
+-	if (status->link_valid &&
+-	    !ieee80211_rx_is_valid_sta_link_id(pubsta, status->link_id))
+-		goto drop;
++	if (status->link_valid)
++		link_id = status->link_id;
+ 
+ 	/*
+ 	 * TODO: Should the frame be dropped if the right link_id is not
+@@ -4921,19 +4918,8 @@ static void __ieee80211_rx_handle_8023(s
+ 	 * link_id is used only for stats purpose and updating the stats on
+ 	 * the deflink is fine?
  	 */
- 	synchronize_net();
+-	if (status->link_valid)
+-		rx.link_id = status->link_id;
+-
+-	if (rx.link_id >= 0) {
+-		struct ieee80211_link_data *link;
+-
+-		link =  rcu_dereference(rx.sdata->link[rx.link_id]);
+-		if (!link)
+-			goto drop;
+-		rx.link = link;
+-	} else {
+-		rx.link = &rx.sdata->deflink;
+-	}
++	if (!ieee80211_rx_data_set_sta(&rx, pubsta, link_id))
++		goto drop;
  
-+	sdata = sta->sdata;
- 	params.ssn = sta->tid_seq[tid] >> 4;
- 	ret = drv_ampdu_action(local, sdata, &params);
- 	tid_tx->ssn = params.ssn;
-@@ -534,6 +535,9 @@ void ieee80211_tx_ba_session_handle_star
- 		 */
- 		set_bit(HT_AGG_STATE_DRV_READY, &tid_tx->state);
- 	} else if (ret) {
-+		if (!sdata)
-+			return;
+ 	fast_rx = rcu_dereference(rx.sta->fast_rx);
+ 	if (!fast_rx)
+@@ -4951,6 +4937,8 @@ static bool ieee80211_rx_for_interface(s
+ {
+ 	struct link_sta_info *link_sta;
+ 	struct ieee80211_hdr *hdr = (void *)skb->data;
++	struct sta_info *sta;
++	int link_id = -1;
+ 
+ 	/*
+ 	 * Look up link station first, in case there's a
+@@ -4960,24 +4948,19 @@ static bool ieee80211_rx_for_interface(s
+ 	 */
+ 	link_sta = link_sta_info_get_bss(rx->sdata, hdr->addr2);
+ 	if (link_sta) {
+-		rx->sta = link_sta->sta;
+-		rx->link_id = link_sta->link_id;
++		sta = link_sta->sta;
++		link_id = link_sta->link_id;
+ 	} else {
+ 		struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
+ 
+-		rx->sta = sta_info_get_bss(rx->sdata, hdr->addr2);
+-		if (rx->sta) {
+-			if (status->link_valid &&
+-			    !ieee80211_rx_is_valid_sta_link_id(&rx->sta->sta,
+-							       status->link_id))
+-				return false;
+-
+-			rx->link_id = status->link_valid ? status->link_id : -1;
+-		} else {
+-			rx->link_id = -1;
+-		}
++		sta = sta_info_get_bss(rx->sdata, hdr->addr2);
++		if (status->link_valid)
++			link_id = status->link_id;
+ 	}
+ 
++	if (!ieee80211_rx_data_set_sta(rx, &sta->sta, link_id))
++		return false;
 +
- 		ht_dbg(sdata,
- 		       "BA request denied - HW unavailable for %pM tid %d\n",
- 		       sta->sta.addr, tid);
---- a/net/mac80211/driver-ops.c
-+++ b/net/mac80211/driver-ops.c
-@@ -391,6 +391,9 @@ int drv_ampdu_action(struct ieee80211_lo
+ 	return ieee80211_prepare_and_rx_handle(rx, skb, consume);
+ }
  
- 	might_sleep();
+@@ -5036,19 +5019,15 @@ static void __ieee80211_rx_handle_packet
  
-+	if (!sdata)
-+		return -EIO;
+ 	if (ieee80211_is_data(fc)) {
+ 		struct sta_info *sta, *prev_sta;
+-		u8 link_id = status->link_id;
++		int link_id = -1;
+ 
+-		if (pubsta) {
+-			rx.sta = container_of(pubsta, struct sta_info, sta);
+-			rx.sdata = rx.sta->sdata;
++		if (status->link_valid)
++			link_id = status->link_id;
+ 
+-			if (status->link_valid &&
+-			    !ieee80211_rx_is_valid_sta_link_id(pubsta, link_id))
++		if (pubsta) {
++			if (!ieee80211_rx_data_set_sta(&rx, pubsta, link_id))
+ 				goto out;
+ 
+-			if (status->link_valid)
+-				rx.link_id = status->link_id;
+-
+ 			/*
+ 			 * In MLO connection, fetch the link_id using addr2
+ 			 * when the driver does not pass link_id in status.
+@@ -5066,7 +5045,7 @@ static void __ieee80211_rx_handle_packet
+ 				if (!link_sta)
+ 					goto out;
+ 
+-				rx.link_id = link_sta->link_id;
++				ieee80211_rx_data_set_link(&rx, link_sta->link_id);
+ 			}
+ 
+ 			if (ieee80211_prepare_and_rx_handle(&rx, skb, true))
+@@ -5082,30 +5061,27 @@ static void __ieee80211_rx_handle_packet
+ 				continue;
+ 			}
+ 
+-			if ((status->link_valid &&
+-			     !ieee80211_rx_is_valid_sta_link_id(&prev_sta->sta,
+-								link_id)) ||
+-			    (!status->link_valid && prev_sta->sta.mlo))
++			rx.sdata = prev_sta->sdata;
++			if (!ieee80211_rx_data_set_sta(&rx, &prev_sta->sta,
++						       link_id))
++				goto out;
 +
- 	sdata = get_bss_sdata(sdata);
- 	if (!check_sdata_in_driver(sdata))
- 		return -EIO;
++			if (!status->link_valid && prev_sta->sta.mlo)
+ 				continue;
+ 
+-			rx.link_id = status->link_valid ? link_id : -1;
+-			rx.sta = prev_sta;
+-			rx.sdata = prev_sta->sdata;
+ 			ieee80211_prepare_and_rx_handle(&rx, skb, false);
+ 
+ 			prev_sta = sta;
+ 		}
+ 
+ 		if (prev_sta) {
+-			if ((status->link_valid &&
+-			     !ieee80211_rx_is_valid_sta_link_id(&prev_sta->sta,
+-								link_id)) ||
+-			    (!status->link_valid && prev_sta->sta.mlo))
++			rx.sdata = prev_sta->sdata;
++			if (!ieee80211_rx_data_set_sta(&rx, &prev_sta->sta,
++						       link_id))
+ 				goto out;
+ 
+-			rx.link_id = status->link_valid ? link_id : -1;
+-			rx.sta = prev_sta;
+-			rx.sdata = prev_sta->sdata;
++			if (!status->link_valid && prev_sta->sta.mlo)
++				goto out;
+ 
+ 			if (ieee80211_prepare_and_rx_handle(&rx, skb, true))
+ 				return;
 
 
