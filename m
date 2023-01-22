@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F825676FB4
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BE98676F02
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231358AbjAVPYX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52788 "EHLO
+        id S231133AbjAVPQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:16:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231357AbjAVPYW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:22 -0500
+        with ESMTP id S230520AbjAVPQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:47 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12F172201A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14E2D22021
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F70E60C44
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8065C433D2;
-        Sun, 22 Jan 2023 15:24:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3DFD60C5C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6195C433EF;
+        Sun, 22 Jan 2023 15:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401060;
-        bh=rwBkHwuZlvnW+HjdscmqQ1DVruv9cfRmSD9EqjFf8wA=;
+        s=korg; t=1674400606;
+        bh=18DmUBkfpAST8cLTNjiiH0jC1UoGKBxwGmfIYGGsf1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vX7rgSHH/I6Wm5C7yXk+7nFOcQSPOGh/485IMhDXs8SFRWsYVnqaO5wLoF20wuX7Q
-         9a+8M/7HOwcn81sxY+5hg8yuXym3NbLPn62vVuzw7Eoy2/MxRDthr8H8eTOeqnPXql
-         O26LGo6kvtZjj/WDef1y9w88P5NehFUrByIHNH/0=
+        b=ISHiJF7R83/ZljQk0pgVWtJhUDuLhw2W8BX2iS2haqYHJT98Ru79+FRhPK1KkFgbi
+         AQZWQZzNlFLWPOiQAyITT/3m5kv8d1YUgdUnnMqjfp6qNhLM9kT0R/LwBhCk4yqhrI
+         R0fZBfX9t4ZMGg5JGxnt+vV6oNd83Ji3/pqIzzuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Utkarsh Patel <utkarsh.h.patel@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 6.1 093/193] thunderbolt: Do not report errors if on-board retimers are found
+        patches@lists.linux.dev,
+        Constantine Gavrilov <constantine.gavrilov@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 032/117] io_uring: ensure recv and recvmsg handle MSG_WAITALL correctly
 Date:   Sun, 22 Jan 2023 16:03:42 +0100
-Message-Id: <20230122150250.610561840@linuxfoundation.org>
+Message-Id: <20230122150234.059931638@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Utkarsh Patel <utkarsh.h.patel@intel.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit c28f3d80383571d3630df1a0e89500d23e855924 upstream.
+commit 7ba89d2af17aa879dda30f5d5d3f152e587fc551 upstream.
 
-Currently we return an error even if on-board retimers are found and
-that's not expected. Fix this to return an error only if there was one
-and 0 otherwise.
+We currently don't attempt to get the full asked for length even if
+MSG_WAITALL is set, if we get a partial receive. If we do see a partial
+receive, then just note how many bytes we did and return -EAGAIN to
+get it retried.
 
-Fixes: 1e56c88adecc ("thunderbolt: Runtime resume USB4 port when retimers are scanned")
+The iov is advanced appropriately for the vector based case, and we
+manually bump the buffer and remainder for the non-vector case.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Constantine Gavrilov <constantine.gavrilov@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/retimer.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ io_uring/io_uring.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/drivers/thunderbolt/retimer.c
-+++ b/drivers/thunderbolt/retimer.c
-@@ -471,10 +471,9 @@ int tb_retimer_scan(struct tb_port *port
- 			break;
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 93023562d548..04441e981624 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -578,6 +578,7 @@ struct io_sr_msg {
+ 	int				msg_flags;
+ 	int				bgid;
+ 	size_t				len;
++	size_t				done_io;
+ 	struct io_buffer		*kbuf;
+ };
+ 
+@@ -5063,12 +5064,21 @@ static int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	if (req->ctx->compat)
+ 		sr->msg_flags |= MSG_CMSG_COMPAT;
+ #endif
++	sr->done_io = 0;
+ 	return 0;
+ }
+ 
++static bool io_net_retry(struct socket *sock, int flags)
++{
++	if (!(flags & MSG_WAITALL))
++		return false;
++	return sock->type == SOCK_STREAM || sock->type == SOCK_SEQPACKET;
++}
++
+ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_async_msghdr iomsg, *kmsg;
++	struct io_sr_msg *sr = &req->sr_msg;
+ 	struct socket *sock;
+ 	struct io_buffer *kbuf;
+ 	unsigned flags;
+@@ -5111,6 +5121,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 			return io_setup_async_msg(req, kmsg);
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
++		if (ret > 0 && io_net_retry(sock, flags)) {
++			sr->done_io += ret;
++			return io_setup_async_msg(req, kmsg);
++		}
+ 		req_set_fail(req);
+ 	} else if ((flags & MSG_WAITALL) && (kmsg->msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
+ 		req_set_fail(req);
+@@ -5122,6 +5136,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 	if (kmsg->free_iov)
+ 		kfree(kmsg->free_iov);
+ 	req->flags &= ~REQ_F_NEED_CLEANUP;
++	if (ret >= 0)
++		ret += sr->done_io;
++	else if (sr->done_io)
++		ret = sr->done_io;
+ 	__io_req_complete(req, issue_flags, ret, cflags);
+ 	return 0;
+ }
+@@ -5174,12 +5192,22 @@ static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
+ 			return -EAGAIN;
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
++		if (ret > 0 && io_net_retry(sock, flags)) {
++			sr->len -= ret;
++			sr->buf += ret;
++			sr->done_io += ret;
++			return -EAGAIN;
++		}
+ 		req_set_fail(req);
+ 	} else if ((flags & MSG_WAITALL) && (msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
+ 		req_set_fail(req);
  	}
- 
--	if (!last_idx) {
--		ret = 0;
-+	ret = 0;
-+	if (!last_idx)
- 		goto out;
--	}
- 
- 	/* Add on-board retimers if they do not exist already */
- 	for (i = 1; i <= last_idx; i++) {
+ 	if (req->flags & REQ_F_BUFFER_SELECTED)
+ 		cflags = io_put_recv_kbuf(req);
++	if (ret >= 0)
++		ret += sr->done_io;
++	else if (sr->done_io)
++		ret = sr->done_io;
+ 	__io_req_complete(req, issue_flags, ret, cflags);
+ 	return 0;
+ }
+-- 
+2.39.0
+
 
 
