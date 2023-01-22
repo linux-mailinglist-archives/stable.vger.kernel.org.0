@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFAEC676CF6
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:44:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D86E676CFE
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:54:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229943AbjAVMom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 07:44:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41758 "EHLO
+        id S229812AbjAVMyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 07:54:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229644AbjAVMol (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:44:41 -0500
+        with ESMTP id S229480AbjAVMyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:54:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F9421E1C3
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:44:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0D11E2B0
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:54:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 041FEB80AD3
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:44:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5967BC433D2;
-        Sun, 22 Jan 2023 12:44:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EFD2B80AD2
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:54:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88462C433EF;
+        Sun, 22 Jan 2023 12:54:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674391477;
-        bh=ucrKP41QMSCvdZX4CBVKamTsjdxUiqXrGSIIBJrPZMY=;
+        s=korg; t=1674392060;
+        bh=DLuVKt98xL0JrSO6n1bnqOXCP38DD7f3mGvIiYIhYLA=;
         h=Subject:To:Cc:From:Date:From;
-        b=PgrVvgCq2flcBsNas037fn0PRIN7YT+YMvgg4+tYhkBrEpeaCVGdi/4bbNwtQ+fCo
-         yDd6NVpeW+chRxajMipZxUVXACZ0Ysz8SeqCHHURrnEINeUmlU6oWTolWIjOXGOwST
-         4ulRytrbAEh4Y6OHPUQNg/uELeSTqXeCk5dfB1kk=
-Subject: FAILED: patch "[PATCH] mmc: sdhci-esdhc-imx: correct the tuning start tap and step" failed to apply to 4.14-stable tree
-To:     haibo.chen@nxp.com, adrian.hunter@intel.com, ulf.hansson@linaro.org
+        b=jXmCNhABnQb/y+aeG/jNQCKuvU6y/0CYuHzuZKUusHx8QNK8fWnS/d/V8Gcdo/yjj
+         KZ9+hJKFoPW3kYoTyiaK+lOLAOw62Aaohgoo6ZysGlBr41Ei0htYP0a8Cy0LSI6mhQ
+         PFj7DViBVisrT4eKtgtk55EgWqHYRkyOmB29LWfo=
+Subject: FAILED: patch "[PATCH] btrfs: fix missing error handling when logging directory" failed to apply to 5.15-stable tree
+To:     fdmanana@suse.com, admin@prnet.org, dsterba@suse.com,
+        josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 13:44:25 +0100
-Message-ID: <167439146522730@kroah.com>
+Date:   Sun, 22 Jan 2023 13:54:18 +0100
+Message-ID: <16743920586838@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,17 +49,24 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-1e336aa0c025 ("mmc: sdhci-esdhc-imx: correct the tuning start tap and step setting")
-16e40e5b1e3c ("mmc: sdhci-esdhc-imx: disable the CMD CRC check for standard tuning")
-1194be8c949b ("mmc: sdhci-esdhc-imx: fix the mask for tuning start point")
-982cf37da3ee ("mmc: sdhci-esdhc-imx: clear pending interrupt and halt cqhci")
+6d3d970b2735 ("btrfs: fix missing error handling when logging directory items")
+732d591a5d6c ("btrfs: stop copying old dir items when logging a directory")
+a450a4af7433 ("btrfs: don't log unnecessary boundary keys when logging directory")
+339d03542484 ("btrfs: only copy dir index keys when logging a directory")
+1b2e5e5c7fea ("btrfs: fix missing last dir item offset update when logging directory")
+9798ba24cb76 ("btrfs: remove root argument from drop_one_dir_item()")
+dc2872247ec0 ("btrfs: keep track of the last logged keys when logging a directory")
+086dcbfa50d3 ("btrfs: insert items in batches when logging a directory when possible")
+eb10d85ee77f ("btrfs: factor out the copying loop of dir items from log_dir_items()")
+90d04510a774 ("btrfs: remove root argument from btrfs_log_inode() and its callees")
+289cffcb0399 ("btrfs: remove no longer needed checks for NULL log context")
 
 thanks,
 
@@ -66,72 +74,98 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1e336aa0c0250ec84c6f16efac40c9f0138e367d Mon Sep 17 00:00:00 2001
-From: Haibo Chen <haibo.chen@nxp.com>
-Date: Wed, 7 Dec 2022 19:23:15 +0800
-Subject: [PATCH] mmc: sdhci-esdhc-imx: correct the tuning start tap and step
- setting
+From 6d3d970b2735b967650d319be27268fedc5598d1 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Tue, 10 Jan 2023 14:56:34 +0000
+Subject: [PATCH] btrfs: fix missing error handling when logging directory
+ items
 
-Current code logic may be impacted by the setting of ROM/Bootloader,
-so unmask these bits first, then setting these bits accordingly.
+When logging a directory, at log_dir_items(), if we get an error when
+attempting to search the subvolume tree for a dir index item, we end up
+returning 0 (success) from log_dir_items() because 'err' is left with a
+value of 0.
 
-Fixes: 2b16cf326b70 ("mmc: sdhci-esdhc-imx: move tuning static configuration into hwinit function")
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20221207112315.1812222-1-haibo.chen@nxp.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+This can lead to a few problems, specially in the case the variable
+'last_offset' has a value of (u64)-1 (and it's initialized to that when
+it was declared):
 
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index 89ef0c80ac37..9e73c34b6401 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -107,6 +107,7 @@
- #define ESDHC_TUNING_START_TAP_DEFAULT	0x1
- #define ESDHC_TUNING_START_TAP_MASK	0x7f
- #define ESDHC_TUNING_CMD_CRC_CHECK_DISABLE	(1 << 7)
-+#define ESDHC_TUNING_STEP_DEFAULT	0x1
- #define ESDHC_TUNING_STEP_MASK		0x00070000
- #define ESDHC_TUNING_STEP_SHIFT		16
- 
-@@ -1368,7 +1369,7 @@ static void sdhci_esdhc_imx_hwinit(struct sdhci_host *host)
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
- 	struct cqhci_host *cq_host = host->mmc->cqe_private;
--	int tmp;
-+	u32 tmp;
- 
- 	if (esdhc_is_usdhc(imx_data)) {
- 		/*
-@@ -1423,17 +1424,24 @@ static void sdhci_esdhc_imx_hwinit(struct sdhci_host *host)
- 
- 		if (imx_data->socdata->flags & ESDHC_FLAG_STD_TUNING) {
- 			tmp = readl(host->ioaddr + ESDHC_TUNING_CTRL);
--			tmp |= ESDHC_STD_TUNING_EN |
--				ESDHC_TUNING_START_TAP_DEFAULT;
--			if (imx_data->boarddata.tuning_start_tap) {
--				tmp &= ~ESDHC_TUNING_START_TAP_MASK;
-+			tmp |= ESDHC_STD_TUNING_EN;
+1) By returning from log_dir_items() with success (0) and a value of
+   (u64)-1 for '*last_offset_ret', we end up not logging any other dir
+   index keys that follow the missing, just deleted, index key. The
+   (u64)-1 value makes log_directory_changes() not call log_dir_items()
+   again;
+
+2) Before returning with success (0), log_dir_items(), will log a dir
+   index range item covering a range from the last old dentry index
+   (stored in the variable 'last_old_dentry_offset') to the value of
+   'last_offset'. If 'last_offset' has a value of (u64)-1, then it means
+   if the log is persisted and replayed after a power failure, it will
+   cause deletion of all the directory entries that have an index number
+   between last_old_dentry_offset + 1 and (u64)-1;
+
+3) We can end up returning from log_dir_items() with
+   ctx->last_dir_item_offset having a lower value than
+   inode->last_dir_index_offset, because the former is set to the current
+   key we are processing at process_dir_items_leaf(), and at the end of
+   log_directory_changes() we set inode->last_dir_index_offset to the
+   current value of ctx->last_dir_item_offset. So if for example a
+   deletion of a lower dir index key happened, we set
+   ctx->last_dir_item_offset to that index value, then if we return from
+   log_dir_items() because btrfs_search_slot() returned an error, we end up
+   returning without any error from log_dir_items() and then
+   log_directory_changes() sets inode->last_dir_index_offset to a lower
+   value than it had before.
+   This can result in unpredictable and unexpected behaviour when we
+   need to log again the directory in the same transaction, and can result
+   in ending up with a log tree leaf that has duplicated keys, as we do
+   batch insertions of dir index keys into a log tree.
+
+Fix this by setting 'err' to the value of 'ret' in case
+btrfs_search_slot() or btrfs_previous_item() returned an error. That will
+result in falling back to a full transaction commit.
+
+Reported-by: David Arendt <admin@prnet.org>
+Link: https://lore.kernel.org/linux-btrfs/ae169fc6-f504-28f0-a098-6fa6a4dfb612@leemhuis.info/
+Fixes: e02119d5a7b4 ("Btrfs: Add a write ahead tree log to optimize synchronous operations")
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index fb52aa060093..3ef0266e9527 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3826,7 +3826,10 @@ static noinline int log_dir_items(struct btrfs_trans_handle *trans,
+ 					      path->slots[0]);
+ 			if (tmp.type == BTRFS_DIR_INDEX_KEY)
+ 				last_old_dentry_offset = tmp.offset;
++		} else if (ret < 0) {
++			err = ret;
+ 		}
 +
-+			/*
-+			 * ROM code or bootloader may config the start tap
-+			 * and step, unmask them first.
-+			 */
-+			tmp &= ~(ESDHC_TUNING_START_TAP_MASK | ESDHC_TUNING_STEP_MASK);
-+			if (imx_data->boarddata.tuning_start_tap)
- 				tmp |= imx_data->boarddata.tuning_start_tap;
--			}
-+			else
-+				tmp |= ESDHC_TUNING_START_TAP_DEFAULT;
+ 		goto done;
+ 	}
  
- 			if (imx_data->boarddata.tuning_step) {
--				tmp &= ~ESDHC_TUNING_STEP_MASK;
- 				tmp |= imx_data->boarddata.tuning_step
- 					<< ESDHC_TUNING_STEP_SHIFT;
-+			} else {
-+				tmp |= ESDHC_TUNING_STEP_DEFAULT
-+					<< ESDHC_TUNING_STEP_SHIFT;
- 			}
+@@ -3846,7 +3849,11 @@ static noinline int log_dir_items(struct btrfs_trans_handle *trans,
+ 		 */
+ 		if (tmp.type == BTRFS_DIR_INDEX_KEY)
+ 			last_old_dentry_offset = tmp.offset;
++	} else if (ret < 0) {
++		err = ret;
++		goto done;
+ 	}
++
+ 	btrfs_release_path(path);
  
- 			/* Disable the CMD CRC check for tuning, if not, need to
+ 	/*
+@@ -3859,6 +3866,8 @@ static noinline int log_dir_items(struct btrfs_trans_handle *trans,
+ 	 */
+ search:
+ 	ret = btrfs_search_slot(NULL, root, &min_key, path, 0, 0);
++	if (ret < 0)
++		err = ret;
+ 	if (ret != 0)
+ 		goto done;
+ 
 
