@@ -2,68 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F0C567723A
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 21:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8201767725B
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 21:30:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230161AbjAVUKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 15:10:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36606 "EHLO
+        id S230127AbjAVUac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 15:30:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230131AbjAVUKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 15:10:47 -0500
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B3D912F26
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:10:46 -0800 (PST)
-Received: by mail-pg1-x52d.google.com with SMTP id f3so7596989pgc.2
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:10:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=Fq5+jfGnEEChcFeUa6Tj8V8Fu+IhmYTBr0wY1J8L/WI=;
-        b=G4wvblOKpw5HPazEXtWrV5XRcUhJCYYRbWO97DTInP2q7oTEiJtPMCQMWkBFhl5fDM
-         6A+EJerjASD953NDuhNASymrKAlQuxwSAfJtJ0a7fv2nB/txsvZ4pMWmqRwtsDDGDOxR
-         VMcR6aFtdqGLhQrA3uDZh6YhctenCG0dySP9mTzt1KbrQHZ93ij/arGbEp2wcQVeU2+n
-         poGxpaif7q+cSO7UvaTDFLSHBbUvUB0dXbHR3mxsLQWe65R7Hgvy98ScMguwot2qhwjn
-         4j2+Dd4SgAs8ZsEI9uwRC3qWwxDnVY+5F7DIJ38q3gBW/nT9kfVQDoOWBH6ZzOfJRT5i
-         kgRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Fq5+jfGnEEChcFeUa6Tj8V8Fu+IhmYTBr0wY1J8L/WI=;
-        b=1gWP9DNCVOgtNT0YYVmYeBLu0D1KoHXtoUbU2qRu9G61t/By5e8lD7Cwb2ex/g+r31
-         /nuaBtZg005IcD8alw+JkFHm34JBI236zUckOQ+Y9JTFM+K3gUOUl9TnmMGkD6W/bGzb
-         2K6E/lng7XrpkhWW21Q6bT4hzWZR176xfHC5fhYO5rwuHJzScpYGEd523RA++wSmc7fe
-         PO6ugwh2nB8KpDOK6/kSsNS3qK0pzuj2KRr54hCeU4SXrCPFELM7FiuAoOYg30q/6P/w
-         M058ozzj9s8FJjMC3kepwzNtUu/Jf29bgbM1rW/Unt08r/4n4hOStbHx/iJ9lVVA0aKH
-         z1LQ==
-X-Gm-Message-State: AFqh2ko55M0pCqWarK51hluYTlguOMJPQgcZNu6r0brNdjcHdGcKJQ+1
-        2cwe28u7FPVEbaXjEbjBKC13eG5Smax53HWd6CQ=
-X-Google-Smtp-Source: AMrXdXvga/eDSJTFYfA1NRsZZ1u8VU0xrKVyVQK/Huc6Y9JODSc3bzzqg0Es92qwIEnKIn0qsn8wXg==
-X-Received: by 2002:a05:6a00:331b:b0:58b:bf9a:fa81 with SMTP id cq27-20020a056a00331b00b0058bbf9afa81mr23423786pfb.4.1674418245587;
-        Sun, 22 Jan 2023 12:10:45 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w188-20020a6230c5000000b00581f76c1da1sm29519126pfw.191.2023.01.22.12.10.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Jan 2023 12:10:45 -0800 (PST)
-Message-ID: <63cd9845.620a0220.637c7.f127@mx.google.com>
-Date:   Sun, 22 Jan 2023 12:10:45 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Kernel: v5.10.162-951-gcf1f70947a7f
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.10.y baseline: 175 runs,
- 1 regressions (v5.10.162-951-gcf1f70947a7f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
+        with ESMTP id S230122AbjAVUab (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 15:30:31 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F57193CE;
+        Sun, 22 Jan 2023 12:30:26 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30MEZ4m8011623;
+        Sun, 22 Jan 2023 20:29:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=7ovEDdouXJfZvNrAmKNf72ri1q//XHfeiPgg8MjldS4=;
+ b=Fp0TLzjiEkDT3v4QJfXxGwxG1mL+yLLNa8VQw1UA7E16NryPcdcsg3F5fhBLE38QXnEX
+ I9v77vTbpKoCMMkAqJuHXOSynCmoj8yf1Q/j3cmNCeK03puqMEk76fMf+6ROS94WCiJ6
+ +EFVp3ng+6uT26Rvewt1tLFsUQEYjGr7625xl6RUV3vQkmYSSrFWDF3NSDuusWSIdgSB
+ GACPNbK55tEMWfbI+TtqStYge9TAxmEVq3bkFq1SIKjCGZNZ7gIm5eIH2NXNRRpRaEQR
+ mwjmxBIvbm9X7Z1grd7UiAeDty54bIh4qJyoexdTWsIoXAMDMoMWhtUDk9fRKkNBpe0b YA== 
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3n8swmea5n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 22 Jan 2023 20:29:58 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 30MHRtuv019851;
+        Sun, 22 Jan 2023 20:29:58 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([9.208.130.97])
+        by ppma04dal.us.ibm.com (PPS) with ESMTPS id 3n87p6tt2u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 22 Jan 2023 20:29:58 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+        by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30MKTuR246400000
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 22 Jan 2023 20:29:57 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B608E58052;
+        Sun, 22 Jan 2023 20:29:56 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AAEF058050;
+        Sun, 22 Jan 2023 20:29:55 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.45.232])
+        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Sun, 22 Jan 2023 20:29:55 +0000 (GMT)
+Message-ID: <23e4bce238bee0591ba6fb3566f7b42f6719331f.camel@linux.ibm.com>
+Subject: Re: [PATCH v2] security: Restore passing final prot to
+ ima_file_mmap()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     jmorris@namei.org, serge@hallyn.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Sun, 22 Jan 2023 15:29:54 -0500
+In-Reply-To: <e1a1fe029aea21ba533cb6196e64f29c7b052c57.camel@huaweicloud.com>
+References: <20221221141007.2579770-1-roberto.sassu@huaweicloud.com>
+         <CAHC9VhQUAuF-Fan72j7BOqOdLE=B=mJpJ_GpR5p5cUmXruYT=Q@mail.gmail.com>
+         <4b8688ee3d533d989196004d5f9f2c7eb4093f8b.camel@huaweicloud.com>
+         <CAHC9VhSamRVpgrDrSuc2dsbbw3-pvjDi9BsFWoWssHkAD2W5vA@mail.gmail.com>
+         <a764acb285d0616c8608eaab8671ceb9c22cb390.camel@huaweicloud.com>
+         <058f1bdf4ba75c3a00918cefbf1be32477b51639.camel@linux.ibm.com>
+         <e1a1fe029aea21ba533cb6196e64f29c7b052c57.camel@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: s6BgAZpAIkV9EueSx_57O9LauKbcJdq5
+X-Proofpoint-GUID: s6BgAZpAIkV9EueSx_57O9LauKbcJdq5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-22_16,2023-01-20_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=699
+ priorityscore=1501 bulkscore=0 phishscore=0 lowpriorityscore=0
+ malwarescore=0 adultscore=0 spamscore=0 mlxscore=0 suspectscore=0
+ impostorscore=0 clxscore=1011 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2212070000 definitions=main-2301220196
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,66 +95,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 175 runs, 1 regressions (v5.10.162-951-gcf=
-1f70947a7f)
+On Fri, 2023-01-13 at 11:52 +0100, Roberto Sassu wrote:
 
-Regressions Summary
--------------------
+> > > If we add a new policy keyword, existing policies would not be updated
+> > > unless the system administrator notices it. If a remote attestation
+> > > fails, the administrator has to look into it.
+> > 
+> > Verifying the measurement list against a TPM quote should work
+> > regardless of additional measurements.  The attestation server,
+> > however, should also check for unknown files.
+> > 
+> > > Maybe we can introduce a new hook called MMAP_CHECK_REQ, so that an
+> > > administrator could change the policy to have the current behavior, if
+> > > the administrator wishes so.
 
-platform          | arch | lab     | compiler | defconfig          | regres=
-sions
-------------------+------+---------+----------+--------------------+-------=
------
-r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
-     =
+<snip>
 
+> > However "_REQ" could mean either requested or required.
+> 
+> It was to recall reqprot. I could rename to MMAP_CHECK_REQPROT.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.162-951-gcf1f70947a7f/plan/baseline/
+That sounds good.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.162-951-gcf1f70947a7f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      cf1f70947a7fd1c296cfddc8809b26caf0188df2 =
+-- 
+thanks,
 
-
-
-Test Regressions
----------------- =
+Mimib
 
 
-
-platform          | arch | lab     | compiler | defconfig          | regres=
-sions
-------------------+------+---------+----------+--------------------+-------=
------
-r8a7743-iwg20d-q7 | arm  | lab-cip | gcc-10   | shmobile_defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/63cd6323eb4dcc138b915ecb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: shmobile_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-62-951-gcf1f70947a7f/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
--iwg20d-q7.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-62-951-gcf1f70947a7f/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
--iwg20d-q7.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230114.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63cd6323eb4dcc138b915=
-ecc
-        failing since 24 days (last pass: v5.10.161-561-g6081b6cc6ce7, firs=
-t fail: v5.10.161-575-g2bd054a0af64) =
-
- =20
