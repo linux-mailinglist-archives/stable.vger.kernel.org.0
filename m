@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0817676DC8
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 15:48:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA0F6676DCA
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 15:48:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbjAVOsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 09:48:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53028 "EHLO
+        id S230053AbjAVOsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 09:48:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbjAVOsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 09:48:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1849B18AB0
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 06:48:04 -0800 (PST)
+        with ESMTP id S229911AbjAVOsP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 09:48:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BDE618AB3
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 06:48:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA6B460C43
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:48:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE0AEC433D2;
-        Sun, 22 Jan 2023 14:48:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16EA6B80AF5
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:48:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62757C433EF;
+        Sun, 22 Jan 2023 14:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674398883;
-        bh=BanJGo37HBBr7EmNTmsn47zwo3you+Fz3RSVoS8n5JA=;
+        s=korg; t=1674398891;
+        bh=SSfbsEb/W3Wj3pHKkVaehvBqm+i7hkua+2Sv9vjqg5c=;
         h=Subject:To:Cc:From:Date:From;
-        b=NzovHHp4Cgh2E+f/J5+ebqQhgePYeVm90G+VwyA+a/MAvn8aUaq4uW5D0faeVn7RG
-         xlf4AI9NO7QLlQ4iEfaKoZzFAHKUVLl27/VLkEc7bHoLW1AWMB9WhLjOHIqRu5plNl
-         ICcRadVhL0QcJnylTGTY3AAR74ZwcVVBIqyGYliM=
-Subject: FAILED: patch "[PATCH] io_uring/rw: ensure kiocb_end_write() is always called" failed to apply to 5.10-stable tree
+        b=CXw6dWVYSOdcpifevL4BGqdg/Evh3U/zT/EBN/WK0ELhwLXMVenIWJXFMMw4YRF79
+         J28D4WN8CAVbXisw7xUx8Z7JgkuRziawwqpb4FDrdO/NmjwA8zIFb/oN9jG4Wpu8r3
+         auZwCH899JX24WL4FGFpIhyT1zOJNxQQCQh2piiM=
+Subject: FAILED: patch "[PATCH] io_uring/rw: ensure kiocb_end_write() is always called" failed to apply to 5.15-stable tree
 To:     axboe@kernel.dk, david@fromorbit.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 15:48:00 +0100
-Message-ID: <1674398880205194@kroah.com>
+Date:   Sun, 22 Jan 2023 15:48:01 +0100
+Message-ID: <1674398881179214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
