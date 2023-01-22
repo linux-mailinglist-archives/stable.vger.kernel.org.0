@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B46D0676FDD
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78036676E9B
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231432AbjAVP0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:26:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54422 "EHLO
+        id S230387AbjAVPM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:12:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231422AbjAVP0F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5148B22A28
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:04 -0800 (PST)
+        with ESMTP id S230381AbjAVPM2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B999D21A34
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 023F8B80B1E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57136C433D2;
-        Sun, 22 Jan 2023 15:26:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9967560C57
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9FDAC433EF;
+        Sun, 22 Jan 2023 15:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401161;
-        bh=BhDGkwxQzdNvzq5VpNgkUeeA3BsO7nklF61/N73tTrI=;
+        s=korg; t=1674400338;
+        bh=UB5k2/kq5yrnaowXYFK17WeIPk9j8HG+OisOdzdbC48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dkQtWxiqxKStrQ2xZl3sdyooqmz1ZyDQk9ebzRoIp0P9o0dSx0H/H7PUmdJ3rZ4n3
-         mKGUpQ5aPo9N9puYg1yTON3bxVCgpxG+O1Ht5t8gfGbVMx6CGyVUvnAXzm0l32FAk4
-         ODzCu3UKAN5/P7tAJOY0eTUp2utiYYwSS7wh4A2g=
+        b=zmtTexu30kIkg9SYaD7Q0oIemkJQ9ww/8hCkulOyCkpRpcoSmA5OFinbmnWoZ4OGZ
+         3q0MrbFWbBxqX9TwQ7ow/z+AfY4+N887iirLWSrzS3V15kkYL1jTDs0/KCwdUQTCFS
+         nlTNn+yebGS1s4lWQeraxQPe1tMte8u8ejbnXdm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 103/193] selftests: mptcp: userspace: validate v4-v6 subflows mix
+        patches@lists.linux.dev, Jimmy Hu <hhhuuu@google.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 36/98] usb: xhci: Check endpoint is valid before dereferencing it
 Date:   Sun, 22 Jan 2023 16:03:52 +0100
-Message-Id: <20230122150251.026914247@linuxfoundation.org>
+Message-Id: <20230122150231.009770561@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+From: Jimmy Hu <hhhuuu@google.com>
 
-commit 4656d72c1efa495a58ad6d8b073a60907073e4e6 upstream.
+commit e8fb5bc76eb86437ab87002d4a36d6da02165654 upstream.
 
-MPTCP protocol supports having subflows in both IPv4 and IPv6. In Linux,
-it is possible to have that if the MPTCP socket has been created with
-AF_INET6 family without the IPV6_V6ONLY option.
+When the host controller is not responding, all URBs queued to all
+endpoints need to be killed. This can cause a kernel panic if we
+dereference an invalid endpoint.
 
-Here, a new IPv4 subflow is being added to the initial IPv6 connection,
-then being removed using Netlink commands.
+Fix this by using xhci_get_virt_ep() helper to find the endpoint and
+checking if the endpoint is valid before dereferencing it.
 
-Cc: stable@vger.kernel.org # v5.19+
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[233311.853271] xhci-hcd xhci-hcd.1.auto: xHCI host controller not responding, assume dead
+[233311.853393] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000e8
+
+[233311.853964] pc : xhci_hc_died+0x10c/0x270
+[233311.853971] lr : xhci_hc_died+0x1ac/0x270
+
+[233311.854077] Call trace:
+[233311.854085]  xhci_hc_died+0x10c/0x270
+[233311.854093]  xhci_stop_endpoint_command_watchdog+0x100/0x1a4
+[233311.854105]  call_timer_fn+0x50/0x2d4
+[233311.854112]  expire_timers+0xac/0x2e4
+[233311.854118]  run_timer_softirq+0x300/0xabc
+[233311.854127]  __do_softirq+0x148/0x528
+[233311.854135]  irq_exit+0x194/0x1a8
+[233311.854143]  __handle_domain_irq+0x164/0x1d0
+[233311.854149]  gic_handle_irq.22273+0x10c/0x188
+[233311.854156]  el1_irq+0xfc/0x1a8
+[233311.854175]  lpm_cpuidle_enter+0x25c/0x418 [msm_pm]
+[233311.854185]  cpuidle_enter_state+0x1f0/0x764
+[233311.854194]  do_idle+0x594/0x6ac
+[233311.854201]  cpu_startup_entry+0x7c/0x80
+[233311.854209]  secondary_start_kernel+0x170/0x198
+
+Fixes: 50e8725e7c42 ("xhci: Refactor command watchdog and fix split string.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jimmy Hu <hhhuuu@google.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Message-ID: <0fe978ed-8269-9774-1c40-f8a98c17e838@linux.intel.com>
+Link: https://lore.kernel.org/r/20230116142216.1141605-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/mptcp/userspace_pm.sh |   47 ++++++++++++++++++++++
- 1 file changed, 47 insertions(+)
+ drivers/usb/host/xhci-ring.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/net/mptcp/userspace_pm.sh
-+++ b/tools/testing/selftests/net/mptcp/userspace_pm.sh
-@@ -776,6 +776,52 @@ test_subflows()
- 	rm -f "$evts"
- }
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -1044,7 +1044,10 @@ static void xhci_kill_endpoint_urbs(stru
+ 	struct xhci_virt_ep *ep;
+ 	struct xhci_ring *ring;
  
-+test_subflows_v4_v6_mix()
-+{
-+	# Attempt to add a listener at 10.0.2.1:<subflow-port>
-+	ip netns exec "$ns1" ./pm_nl_ctl listen 10.0.2.1\
-+	   $app6_port > /dev/null 2>&1 &
-+	local listener_pid=$!
+-	ep = &xhci->devs[slot_id]->eps[ep_index];
++	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
++	if (!ep)
++		return;
 +
-+	# ADD_ADDR4 from server to client machine reusing the subflow port on
-+	# the established v6 connection
-+	:>"$client_evts"
-+	ip netns exec "$ns1" ./pm_nl_ctl ann 10.0.2.1 token "$server6_token" id\
-+	   $server_addr_id dev ns1eth2 > /dev/null 2>&1
-+	stdbuf -o0 -e0 printf "ADD_ADDR4 id:%d 10.0.2.1 (ns1) => ns2, reuse port\t\t" $server_addr_id
-+	sleep 0.5
-+	verify_announce_event "$client_evts" "$ANNOUNCED" "$client6_token" "10.0.2.1"\
-+			      "$server_addr_id" "$app6_port"
-+
-+	# CREATE_SUBFLOW from client to server machine
-+	:>"$client_evts"
-+	ip netns exec "$ns2" ./pm_nl_ctl csf lip 10.0.2.2 lid 23 rip 10.0.2.1 rport\
-+	   $app6_port token "$client6_token" > /dev/null 2>&1
-+	sleep 0.5
-+	verify_subflow_events "$client_evts" "$SUB_ESTABLISHED" "$client6_token"\
-+			      "$AF_INET" "10.0.2.2" "10.0.2.1" "$app6_port" "23"\
-+			      "$server_addr_id" "ns2" "ns1"
-+
-+	# Delete the listener from the server ns, if one was created
-+	kill_wait $listener_pid
-+
-+	sport=$(sed --unbuffered -n 's/.*\(sport:\)\([[:digit:]]*\).*$/\2/p;q' "$client_evts")
-+
-+	# DESTROY_SUBFLOW from client to server machine
-+	:>"$client_evts"
-+	ip netns exec "$ns2" ./pm_nl_ctl dsf lip 10.0.2.2 lport "$sport" rip 10.0.2.1 rport\
-+	   $app6_port token "$client6_token" > /dev/null 2>&1
-+	sleep 0.5
-+	verify_subflow_events "$client_evts" "$SUB_CLOSED" "$client6_token" \
-+			      "$AF_INET" "10.0.2.2" "10.0.2.1" "$app6_port" "23"\
-+			      "$server_addr_id" "ns2" "ns1"
-+
-+	# RM_ADDR from server to client machine
-+	ip netns exec "$ns1" ./pm_nl_ctl rem id $server_addr_id token\
-+	   "$server6_token" > /dev/null 2>&1
-+	sleep 0.5
-+}
-+
- test_prio()
- {
- 	local count
-@@ -812,6 +858,7 @@ make_connection "v6"
- test_announce
- test_remove
- test_subflows
-+test_subflows_v4_v6_mix
- test_prio
- 
- exit 0
+ 	if ((ep->ep_state & EP_HAS_STREAMS) ||
+ 			(ep->ep_state & EP_GETTING_NO_STREAMS)) {
+ 		int stream_id;
 
 
