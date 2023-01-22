@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C13676E56
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:09:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B594676EB0
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230284AbjAVPJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:09:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36208 "EHLO
+        id S230408AbjAVPNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:13:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230303AbjAVPJb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:09:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 023001E5E2
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:09:28 -0800 (PST)
+        with ESMTP id S230411AbjAVPNO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0042C21A2C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A891DB80B1A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:09:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 038E3C433EF;
-        Sun, 22 Jan 2023 15:09:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9095260C57
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A28CDC433D2;
+        Sun, 22 Jan 2023 15:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400165;
-        bh=bgEPntYsatbRrx+vjYFC3iN0gYSKOYPfoZT0Yz9ek3Y=;
+        s=korg; t=1674400393;
+        bh=WYlG9v/1Zco1lVNj4ZqHfGc0viZRnzaDohWkYG4yl1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dO/2ZE+CtGT/bSog5U7cWlGp5TvDUJbGYI6+aC5umO6V5ue8oA6k22jrSA8cz6MIx
-         qWq7CYTLYEO2jYHIrr1oC+kU7WdtvLgu9EG/MXOvDMPDkchSIjaGCmrJSb3B9w9Yoz
-         qtn1NNLaMPeRrEyg7gRQQaq1xLvHc1OjmrF9tD8U=
+        b=gS4v3+ppBEfRk0aTyjx6uofD7an+6TUDRIPyanC4YIapxUzlCNgtHGSnGllYKoL/c
+         n9SqjikPn1kAyntI+Vo4T28zun9ZcX8v289FTIvP2Sx/vPOLGBfBphpT8P297mei0F
+         XXroFmTXhHQm57eCOcmx816m0wpqxeXKZoTNj41c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Ola Jeppsson <ola@snap.com>, Abel Vesa <abel.vesa@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.4 27/55] misc: fastrpc: Dont remove map on creater_process and device_release
+        patches@lists.linux.dev, Enzo Matsumiya <ematsumiya@suse.de>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 58/98] cifs: do not include page data when checking signature
 Date:   Sun, 22 Jan 2023 16:04:14 +0100
-Message-Id: <20230122150223.359295982@linuxfoundation.org>
+Message-Id: <20230122150231.941738495@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abel Vesa <abel.vesa@linaro.org>
+From: Enzo Matsumiya <ematsumiya@suse.de>
 
-commit 5bb96c8f9268e2fdb0e5321cbc358ee5941efc15 upstream.
+commit 30b2b2196d6e4cc24cbec633535a2404f258ce69 upstream.
 
-Do not remove the map from the list on error path in
-fastrpc_init_create_process, instead call fastrpc_map_put, to avoid
-use-after-free. Do not remove it on fastrpc_device_release either,
-call fastrpc_map_put instead.
+On async reads, page data is allocated before sending.  When the
+response is received but it has no data to fill (e.g.
+STATUS_END_OF_FILE), __calc_signature() will still include the pages in
+its computation, leading to an invalid signature check.
 
-The fastrpc_free_map is the only proper place to remove the map.
-This is called only after the reference count is 0.
+This patch fixes this by not setting the async read smb_rqst page data
+(zeroed by default) if its got_bytes is 0.
 
-Fixes: b49f6d83e290 ("misc: fastrpc: Fix a possible double free")
-Cc: stable <stable@kernel.org>
-Co-developed-by: Ola Jeppsson <ola@snap.com>
-Signed-off-by: Ola Jeppsson <ola@snap.com>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20221124174941.418450-3-srinivas.kandagatla@linaro.org
+This can be reproduced/verified with xfstests generic/465.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/fastrpc.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/cifs/smb2pdu.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -218,6 +218,13 @@ static void fastrpc_free_map(struct kref
- 		dma_buf_put(map->buf);
- 	}
- 
-+	if (map->fl) {
-+		spin_lock(&map->fl->lock);
-+		list_del(&map->node);
-+		spin_unlock(&map->fl->lock);
-+		map->fl = NULL;
-+	}
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -3925,12 +3925,15 @@ smb2_readv_callback(struct mid_q_entry *
+ 				(struct smb2_sync_hdr *)rdata->iov[0].iov_base;
+ 	struct cifs_credits credits = { .value = 0, .instance = 0 };
+ 	struct smb_rqst rqst = { .rq_iov = &rdata->iov[1],
+-				 .rq_nvec = 1,
+-				 .rq_pages = rdata->pages,
+-				 .rq_offset = rdata->page_offset,
+-				 .rq_npages = rdata->nr_pages,
+-				 .rq_pagesz = rdata->pagesz,
+-				 .rq_tailsz = rdata->tailsz };
++				 .rq_nvec = 1, };
 +
- 	kfree(map);
- }
++	if (rdata->got_bytes) {
++		rqst.rq_pages = rdata->pages;
++		rqst.rq_offset = rdata->page_offset;
++		rqst.rq_npages = rdata->nr_pages;
++		rqst.rq_pagesz = rdata->pagesz;
++		rqst.rq_tailsz = rdata->tailsz;
++	}
  
-@@ -1080,12 +1087,7 @@ err_invoke:
- 	fl->init_mem = NULL;
- 	fastrpc_buf_free(imem);
- err_alloc:
--	if (map) {
--		spin_lock(&fl->lock);
--		list_del(&map->node);
--		spin_unlock(&fl->lock);
--		fastrpc_map_put(map);
--	}
-+	fastrpc_map_put(map);
- err:
- 	kfree(args);
- 
-@@ -1161,10 +1163,8 @@ static int fastrpc_device_release(struct
- 		fastrpc_context_put(ctx);
- 	}
- 
--	list_for_each_entry_safe(map, m, &fl->maps, node) {
--		list_del(&map->node);
-+	list_for_each_entry_safe(map, m, &fl->maps, node)
- 		fastrpc_map_put(map);
--	}
- 
- 	fastrpc_session_free(cctx, fl->sctx);
- 	fastrpc_channel_ctx_put(cctx);
+ 	WARN_ONCE(rdata->server != mid->server,
+ 		  "rdata server %p != mid server %p",
 
 
